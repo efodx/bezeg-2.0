@@ -67,19 +67,11 @@ interface FigureBatchScene<D> {
     transientState: TransientState;
 }
 
-/** What the app shell tells the host about the route, passed in for each render of the panels. */
-export interface GraphPanelContext {
-    /** Workspace title of the current route, if the app shell provides one. */
-    title?: React.ReactNode;
-    description?: string;
-}
-
 /** Bounding box a new board starts with, and a reset returns to. */
 const DEFAULT_BOUNDING_BOX: [number, number, number, number] = [-5, 5, 5, -5];
 
 /** Props the host passes to `DemonstrationWorkspace` for one render of the graph's panels. */
 export interface GraphWorkspacePanels {
-    title: React.ReactNode;
     description: string;
     edit: React.ReactNode;
     display: React.ReactNode;
@@ -426,8 +418,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         return this.figureBatchActive;
     }
 
-    protected workspaceTitle(context: GraphPanelContext): React.ReactNode { return context.title ?? "Bezeg"; }
-    protected workspaceDescription(context: GraphPanelContext): string { return context.description ?? t("change_the_settings_and_observe_their_effect_on_the_graph"); }
+    /** The one default description; graphs with their own wording override it. The title belongs to the route's Demonstration. */
+    protected workspaceDescription(): string { return t("change_the_settings_and_observe_their_effect_on_the_graph"); }
     protected workspaceEdit(): React.ReactNode { return this.getGraphCommandsArea(); }
     /**
      * The graph-specific Display options (constructions, labels, shaded regions, offsets and their results), shown expanded
@@ -801,9 +793,9 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
 
     /** The panels of one render, called by the host. */
-    getWorkspacePanels(context: GraphPanelContext): GraphWorkspacePanels {
+    getWorkspacePanels(): GraphWorkspacePanels {
         return {
-            title: this.workspaceTitle(context), description: this.workspaceDescription(context),
+            description: this.workspaceDescription(),
             edit: this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>,
             display: this.state.initialized ? this.workspaceDisplay() : null,
             save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureBatchActive,

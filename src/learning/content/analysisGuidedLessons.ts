@@ -1,6 +1,6 @@
 /**
  * Guided lessons of the Analysis family (ADR 0011, docs/specs/analysis-guided-lessons.md).
- * Each analysis topic appends its lesson to `analysisGuidedLessons` and its id to GUIDED_LESSON_AVAILABLE_IDS.
+ * Each analysis topic appends its lesson to `analysisGuidedLessons`; availability follows from the Demonstration definition (`src/demonstrations.ts`).
  *
  * Iterative lessons drive the graph with `run-bisection-command` scene actions (one `next-step` per revealed step), so a
  * scene shows the state after k steps and the learner presses the graph's own Next step to reveal the next one after

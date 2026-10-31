@@ -11056,7 +11056,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-repeated-subdivision\\%03d.png",
+        "frames-repeated-subdivision/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11076,7 +11076,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\repeated-subdivision.webm"
+        "repeated-subdivision.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11142,7 +11142,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-bisection\\%03d.png",
+        "frames-bisection/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11162,7 +11162,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\bisection.webm"
+        "bisection.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11230,7 +11230,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-bezier\\%03d.png",
+        "frames-bezier/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11250,7 +11250,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\bezier.webm"
+        "bezier.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11312,7 +11312,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-affine\\%03d.png",
+        "frames-affine/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11332,7 +11332,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\affine.webm"
+        "affine.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11378,7 +11378,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-elevation\\%03d.png",
+        "frames-elevation/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11398,7 +11398,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\elevation.webm"
+        "elevation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11444,7 +11444,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-rational-elevation\\%03d.png",
+        "frames-rational-elevation/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11464,7 +11464,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\rational-elevation.webm"
+        "rational-elevation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11510,7 +11510,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-decasteljau\\%03d.png",
+        "frames-decasteljau/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11530,7 +11530,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\decasteljau.webm"
+        "decasteljau.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11601,7 +11601,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-decasteljau-alternative\\%03d.png",
+        "frames-decasteljau-alternative/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11621,7 +11621,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\decasteljau-alternative.webm"
+        "decasteljau-alternative.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11693,7 +11693,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-derivative\\%03d.png",
+        "frames-derivative/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11713,7 +11713,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\derivative.webm"
+        "derivative.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11784,7 +11784,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-farin\\%03d.png",
+        "frames-farin/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11804,7 +11804,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\farin.webm"
+        "farin.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11872,7 +11872,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-weighted-parameterization\\%03d.png",
+        "frames-weighted-parameterization/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11892,7 +11892,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\weighted-parameterization.webm"
+        "weighted-parameterization.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -11962,7 +11962,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-complex-multiplication\\%03d.png",
+        "frames-complex-multiplication/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -11982,7 +11982,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\complex-multiplication.webm"
+        "complex-multiplication.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12053,7 +12053,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-33836\\frames-accumulation\\%03d.png",
+        "frames-accumulation/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12073,7 +12073,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-33836\\accumulation.webm"
+        "accumulation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12167,7 +12167,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\.codex\\worktrees\\rational-preview-fixes\\bezeg\\.command-logs\\preview-staging-1124\\frames-ph-cubic\\%03d.png",
+        "frames-ph-cubic/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12187,7 +12187,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\.codex\\worktrees\\rational-preview-fixes\\bezeg\\.command-logs\\preview-staging-1124\\ph-cubic.webm"
+        "ph-cubic.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12258,7 +12258,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-spline-g1\\%03d.png",
+        "frames-spline-g1/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12278,7 +12278,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\spline-g1.webm"
+        "spline-g1.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12349,7 +12349,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\frames-trigonometric-functions\\%03d.png",
+        "frames-trigonometric-functions/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12369,7 +12369,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\IdeaProjects\\bezeg\\.claude\\worktrees\\continuous-motion-previews\\.command-logs\\preview-staging-54200\\trigonometric-functions.webm"
+        "trigonometric-functions.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12440,7 +12440,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-darboux\\%03d.png",
+        "frames-darboux/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12460,7 +12460,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\darboux.webm"
+        "darboux.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12541,7 +12541,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-definite-integral\\%03d.png",
+        "frames-definite-integral/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12561,7 +12561,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\definite-integral.webm"
+        "definite-integral.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12634,7 +12634,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\.codex\\worktrees\\rational-preview-fixes\\bezeg\\.command-logs\\preview-staging-1124\\frames-ph-quintic\\%03d.png",
+        "frames-ph-quintic/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12654,7 +12654,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\.codex\\worktrees\\rational-preview-fixes\\bezeg\\.command-logs\\preview-staging-1124\\ph-quintic.webm"
+        "ph-quintic.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12722,7 +12722,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-subdivision\\%03d.png",
+        "frames-subdivision/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12742,7 +12742,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\subdivision.webm"
+        "subdivision.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12806,7 +12806,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\frames-spline-parameterization\\%03d.png",
+        "frames-spline-parameterization/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12826,7 +12826,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\spline-parameterization.webm"
+        "spline-parameterization.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12893,7 +12893,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\frames-extrema\\%03d.png",
+        "frames-extrema/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12913,7 +12913,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\extrema.webm"
+        "extrema.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -12979,7 +12979,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\frames-linear-function\\%03d.png",
+        "frames-linear-function/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -12999,7 +12999,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\linear-function.webm"
+        "linear-function.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13065,7 +13065,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\frames-exponential-function\\%03d.png",
+        "frames-exponential-function/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13085,7 +13085,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\exponential-function.webm"
+        "exponential-function.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13149,7 +13149,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\frames-bernstein\\%03d.png",
+        "frames-bernstein/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13169,7 +13169,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\bernstein.webm"
+        "bernstein.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13234,7 +13234,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-extrapolation\\%03d.png",
+        "frames-extrapolation/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13254,7 +13254,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\extrapolation.webm"
+        "extrapolation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13320,7 +13320,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\.codex\\worktrees\\rational-preview-fixes\\bezeg\\.command-logs\\preview-staging-1124\\frames-rational\\%03d.png",
+        "frames-rational/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13340,7 +13340,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\.codex\\worktrees\\rational-preview-fixes\\bezeg\\.command-logs\\preview-staging-1124\\rational.webm"
+        "rational.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13407,7 +13407,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\NonFriedMotherBoard\\.codex\\worktrees\\rational-preview-fixes\\bezeg\\.command-logs\\preview-staging-1124\\frames-rational-decasteljau\\%03d.png",
+        "frames-rational-decasteljau/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13427,7 +13427,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\NonFriedMotherBoard\\.codex\\worktrees\\rational-preview-fixes\\bezeg\\.command-logs\\preview-staging-1124\\rational-decasteljau.webm"
+        "rational-decasteljau.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13494,7 +13494,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-rational-extrapolation\\%03d.png",
+        "frames-rational-extrapolation/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13514,7 +13514,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\rational-extrapolation.webm"
+        "rational-extrapolation.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13580,7 +13580,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-rational-subdivision\\%03d.png",
+        "frames-rational-subdivision/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13600,7 +13600,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\rational-subdivision.webm"
+        "rational-subdivision.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13666,7 +13666,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-circle\\%03d.png",
+        "frames-circle/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13686,7 +13686,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\circle.webm"
+        "circle.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13751,7 +13751,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19336\\frames-spline-cn\\%03d.png",
+        "frames-spline-cn/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13771,7 +13771,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19336\\spline-cn.webm"
+        "spline-cn.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13836,7 +13836,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-spline-c1\\%03d.png",
+        "frames-spline-c1/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13856,7 +13856,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\spline-c1.webm"
+        "spline-c1.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -13918,7 +13918,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-spline-c2\\%03d.png",
+        "frames-spline-c2/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -13938,7 +13938,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\spline-c2.webm"
+        "spline-c2.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14000,7 +14000,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\frames-spline-g1-symmetric\\%03d.png",
+        "frames-spline-g1-symmetric/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14020,7 +14020,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\spline-g1-symmetric.webm"
+        "spline-g1-symmetric.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14085,7 +14085,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-uniform-parameterization\\%03d.png",
+        "frames-uniform-parameterization/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14105,7 +14105,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\uniform-parameterization.webm"
+        "uniform-parameterization.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14172,7 +14172,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\frames-continuity\\%03d.png",
+        "frames-continuity/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14192,7 +14192,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\continuity.webm"
+        "continuity.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14258,7 +14258,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\frames-area-between-curves\\%03d.png",
+        "frames-area-between-curves/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14278,7 +14278,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-1324\\area-between-curves.webm"
+        "area-between-curves.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14344,7 +14344,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-arc-length\\%03d.png",
+        "frames-arc-length/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14364,7 +14364,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\arc-length.webm"
+        "arc-length.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14478,7 +14478,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-33580\\frames-mean-value\\%03d.png",
+        "frames-mean-value/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14498,7 +14498,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-33580\\mean-value.webm"
+        "mean-value.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14605,7 +14605,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-33836\\frames-convexity\\%03d.png",
+        "frames-convexity/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14625,7 +14625,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-33836\\convexity.webm"
+        "convexity.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14728,7 +14728,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-taylor\\%03d.png",
+        "frames-taylor/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14748,7 +14748,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\taylor.webm"
+        "taylor.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14848,7 +14848,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-sequence\\%03d.png",
+        "frames-sequence/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14868,7 +14868,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\sequence.webm"
+        "sequence.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -14968,7 +14968,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-uniform-convergence\\%03d.png",
+        "frames-uniform-convergence/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -14988,7 +14988,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\uniform-convergence.webm"
+        "uniform-convergence.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -15102,7 +15102,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\frames-fixed-point\\%03d.png",
+        "frames-fixed-point/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -15122,7 +15122,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.command-logs\\preview-staging-19168\\fixed-point.webm"
+        "fixed-point.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -15236,7 +15236,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\frames-patch-tensor\\%03d.png",
+        "frames-patch-tensor/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -15256,7 +15256,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\patch-tensor.webm"
+        "patch-tensor.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -15321,7 +15321,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\frames-patch-decasteljau\\%03d.png",
+        "frames-patch-decasteljau/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -15341,7 +15341,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\patch-decasteljau.webm"
+        "patch-decasteljau.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -15406,7 +15406,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\frames-patch-derivatives\\%03d.png",
+        "frames-patch-derivatives/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -15426,7 +15426,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\patch-derivatives.webm"
+        "patch-derivatives.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -15491,7 +15491,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\frames-patch-subdivision\\%03d.png",
+        "frames-patch-subdivision/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -15511,7 +15511,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\patch-subdivision.webm"
+        "patch-subdivision.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -15576,7 +15576,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\frames-patch-joins\\%03d.png",
+        "frames-patch-joins/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -15596,7 +15596,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\patch-joins.webm"
+        "patch-joins.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,
@@ -15661,7 +15661,7 @@
         "-framerate",
         "24",
         "-i",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\frames-patch-triangular\\%03d.png",
+        "frames-patch-triangular/%03d.png",
         "-an",
         "-c:v",
         "libvpx-vp9",
@@ -15681,7 +15681,7 @@
         "pc",
         "-row-mt",
         "1",
-        "C:\\Users\\1337Hacker\\Desktop\\bezeg-2.0\\.claude\\worktrees\\jsxgraph-surface-view\\.command-logs\\preview-staging-4584\\patch-triangular.webm"
+        "patch-triangular.webm"
       ],
       "frameCount": 96,
       "sampleRate": 24,

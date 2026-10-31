@@ -1,6 +1,5 @@
-import {useCallback, useContext, useLayoutEffect, useReducer, useRef, useState, useSyncExternalStore} from "react";
+import {useCallback, useLayoutEffect, useReducer, useRef, useState, useSyncExternalStore} from "react";
 import {useT} from "../../localization";
-import {SiteContext} from "../context/react/SiteContext";
 import {DemonstrationWorkspace} from "./DemonstrationWorkspace";
 import type BaseGraph from "./BaseGraph";
 import type {BaseGraphState} from "./BaseGraph";
@@ -21,7 +20,6 @@ export function GraphHost({create}: { create: () => BaseGraph<BaseGraphState> })
     const disposeFailedGraph = useCallback(() => { graph.unmount(); setFailed(true); }, [graph]);
     const container = useRef<HTMLDivElement>(null);
     const beforeDispose = useRef<(() => void) | undefined>();
-    const site = useContext(SiteContext);
     const [, renderAfterMount] = useReducer((count: number) => count + 1, 0);
     useSyncExternalStore(graph.store.subscribe, () => graph.store.getVersion());
 
@@ -46,6 +44,6 @@ export function GraphHost({create}: { create: () => BaseGraph<BaseGraphState> })
 
     if (failed) return <main><p role="alert">{t('chapter_scene_error')}</p>
         <a href="/bezeg-2.0/learn/bezier-curves">{t('chapter_return')}</a> · <a href={window.location.pathname}>{t('chapter_free_exploration')}</a></main>;
-    return <DemonstrationWorkspace {...graph.getWorkspacePanels({title: site.workspace?.title, description: site.workspace?.description})}
+    return <DemonstrationWorkspace {...graph.getWorkspacePanels()}
         graphContainerRef={container} beforeDispose={beforeDispose} disposeFailedGraph={disposeFailedGraph}/>;
 }

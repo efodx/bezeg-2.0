@@ -27,7 +27,7 @@ type LessonMode = "content" | "explore" | "complete" | "closed";
 
 
 export function DemonstrationWorkspace(props: {
-    title: React.ReactNode, description: string, edit: React.ReactNode, display: React.ReactNode,
+    description: string, edit: React.ReactNode, display: React.ReactNode,
     save: React.ReactNode, navigate: (action: string) => void, lessonCapabilities?: LessonGraphCapabilities,
     graphBusy?: boolean, pickerUnavailable?: boolean, pausePlayback?: () => void, graphContainerRef?: React.Ref<HTMLDivElement>,
     beforeDispose?: React.MutableRefObject<(() => void) | undefined>,
@@ -144,7 +144,7 @@ export function DemonstrationWorkspace(props: {
                 {family && <><span aria-hidden="true"> / </span><Link to={'/bezeg-2.0/demonstrations?topic=' + encodeURIComponent(family.id)}>{family.title}</Link></>}
                 {demonstration && <><span aria-hidden="true"> / </span><span aria-current="page">{demonstration.catalogTitle}</span></>}
             </nav>
-                <h1>{props.title}</h1><p>{props.description}</p>
+                <h1>{demonstration?.workspaceTitle ?? "Bezeg"}</h1><p>{props.description}</p>
                 <svg className="workspace-botanical" viewBox="0 0 420 360" aria-hidden="true" focusable="false">
                     <g className="workspace-botanical-stems">
                         <path d="M410 358C367 279 327 207 278 157S203 69 170 7"/>

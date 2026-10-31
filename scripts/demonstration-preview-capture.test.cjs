@@ -698,3 +698,11 @@ test('spline-g1 sweep: N2 and N3 follow the reported b1 and the b2 readout, G1 h
     const seam=motion();seam.samples[95].capture.sha256='other-png';
     assert.throws(()=>assertMotionEvidence(seam),/Non-seamless loop: last PNG/);
 });
+
+test('the retained capture manifest lives outside src and carries no machine-specific absolute paths',()=>{
+    const root=path.resolve(__dirname,'..');
+    const text=fs.readFileSync(path.join(root,'scripts/demonstration-previews/manifest.json'),'utf8');
+    assert.ok(!fs.existsSync(path.join(root,'src/images/demonstrations/catalog/manifest.json')),'manifest must not ship from src');
+    const absolute=JSON.stringify(JSON.parse(text)).match(/"(?:[A-Za-z]:|\/(?:Users|home)\/)[^"]*"/g)||[];
+    assert.deepEqual(absolute,[],'manifest contains absolute paths; encode() records repo-relative names');
+});

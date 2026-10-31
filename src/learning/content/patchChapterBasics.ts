@@ -1,4 +1,4 @@
-import {demonstrationPreviewAssets} from '../../demonstrationPreviewAssets';
+import {previewPoster} from '../../previewPoster';
 import type {FamilyChapterSection} from './familyChapters';
 import {patchSection, text} from './patchChapterKit';
 
@@ -11,7 +11,7 @@ export const patchBasicSections: readonly FamilyChapterSection[] = [
     ], {
         demonstrationIds: ['patch-tensor'],
         figures: [{
-            src: demonstrationPreviewAssets['patch-tensor'],
+            src: previewPoster('patch-tensor'),
             alt: text('Tenzorska Bézierjeva krpa s kontrolno mrežo v tridimenzionalnem pogledu.', 'A tensor-product Bézier patch with its control net in a three-dimensional view.'),
             caption: text('Slika je katalogov predogled privzetega prikaza in ne prikazuje mreže \\(4\\times3\\) iz besedila; ta primer je izračunan posebej. Pravo mrežo preizkusiš v povezanem prikazu.', 'The image is the catalog preview of the default scene and does not show the \\(4\\times3\\) net from the text; that example is computed separately. Try an actual net in the linked demonstration.'),
         }],

@@ -5,7 +5,7 @@ import type {LessonPatchFixture, LessonPoint3, LessonView3D} from '../model';
 import type {FunctionChoiceName, FunctionParameterName, FunctionVisibilityTarget, LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
 import {getGuidedLesson, isPilotGuidedLesson, type LessonSceneAction, type SceneAction, type LessonScene} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
-import {GUIDED_LESSON_AVAILABLE_IDS} from './lessonAvailability';
+import {isGuidedLessonAvailable} from './lessonAvailability';
 export {GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonAvailability';
 
 /*
@@ -385,18 +385,9 @@ function adaptContent(demonstrationId: DemonstrationId): LessonDefinition | unde
 
 const adaptedLessons = new Map<DemonstrationId, LessonDefinition | undefined>();
 
-/**
- * Exact product allowlist for lessons that may be entered from the app.
- *
- * Keep this list deliberately boring: a route family, title, or similarly
- * named demonstration must never make an unreviewed lesson appear. New
- * content can be prepared in the content module first and added here only
- * after its graph capability and content review gates pass.
- */
-const availableLessonIds = new Set<DemonstrationId>(GUIDED_LESSON_AVAILABLE_IDS);
-/** Stable lookup seam for the reviewed content module. */
+/** Stable lookup seam for the reviewed content module; only Demonstrations that offer a lesson (see lessonAvailability.ts) resolve. */
 export function getLessonForDemonstration(id: DemonstrationId): LessonDefinition | undefined {
-    if (!availableLessonIds.has(id)) return undefined;
+    if (!isGuidedLessonAvailable(id)) return undefined;
     const patch = Object.values(patchGuidedExampleRegistry).find(lesson => lesson.demonstrationId === id);
     if (patch) return patch;
     if (!adaptedLessons.has(id)) adaptedLessons.set(id, adaptContent(id));

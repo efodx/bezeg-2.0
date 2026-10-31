@@ -24,7 +24,7 @@ test('existing import error and open dialog switch immediately', async () => {
 });
 
 test('language changes preserve draft input and inspector state', () => {
-    render(<MemoryRouter><LanguageSelector/><DemonstrationWorkspace title="Bézier" description=""
+    render(<MemoryRouter><LanguageSelector/><DemonstrationWorkspace description=""
         edit={<input aria-label="draft" defaultValue="0.5"/>} display={<p>display content</p>} save={null} navigate={vi.fn()}/></MemoryRouter>);
     const draft = screen.getByLabelText('draft');
     fireEvent.change(draft, {target: {value: '0.75'}});

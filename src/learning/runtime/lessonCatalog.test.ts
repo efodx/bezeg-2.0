@@ -1,5 +1,7 @@
 import {getLessonForDemonstration, sceneAction, sceneActions, toLessonAction, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
 import {getDemonstrationCatalog} from '../../demonstrations';
+import {getGuidedLesson} from '../content/guidedLessons';
+import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
 
 test('adapts reviewed pilot scene names into typed runtime actions', () => {
     const bezier = getLessonForDemonstration('bezier')!;
@@ -50,9 +52,14 @@ test('returns a stable lesson object so the workspace does not restart its sessi
     expect(getLessonForDemonstration('bezier')).toBe(getLessonForDemonstration('bezier'));
 });
 
-test('uses an exact availability allowlist across the full demonstration catalog', () => {
+test('derives lesson availability from the Demonstration definitions and matches the authored content', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
-    expect(GUIDED_LESSON_AVAILABLE_IDS).toEqual(['bezier', 'decasteljau', 'affine', 'elevation', 'rational', 'rational-decasteljau', 'ph-cubic', 'ph-quintic', 'bernstein', 'rational-elevation', 'weighted-parameterization', 'uniform-parameterization', 'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation', 'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-decasteljau', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular']);
+    // Availability is derived from the Demonstration definitions, so it must agree with the authored content in both directions:
+    // a lesson without availability would never be offered, and availability without a lesson would link to nothing.
+    const authored = (id: (typeof ids)[number]) => getGuidedLesson(id) !== undefined
+        || Object.values(patchGuidedExampleRegistry).some(lesson => lesson.demonstrationId === id);
+    expect(ids.filter(id => authored(id)).sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
+    for (const id of GUIDED_LESSON_AVAILABLE_IDS) expect(getLessonForDemonstration(id)).toBeDefined();
     expect(GUIDED_LESSON_AVAILABLE_IDS.every(id => ids.includes(id))).toBe(true);
     expect([...ids.filter(isGuidedLessonAvailable)].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
     expect(ids.filter(id => !isGuidedLessonAvailable(id))).toHaveLength(ids.length - GUIDED_LESSON_AVAILABLE_IDS.length);

@@ -254,7 +254,7 @@ test('the preset service is created once', () => {
 
 test('workspace panels expose graph-owned playback pause and picker availability without changing graphBusy', () => {
     const graph = new TestGraph();
-    const panels = graph.getWorkspacePanels({});
+    const panels = graph.getWorkspacePanels();
     expect(panels.graphBusy).toBe(false);
     expect(panels.pickerUnavailable).toBe(false);
 
@@ -262,7 +262,7 @@ test('workspace panels expose graph-owned playback pause and picker availability
     expect(graph.figureCapturePauses).toBe(1);
 
     (graph as any).activeSingleFigureExports = 1;
-    const exportingPanels = graph.getWorkspacePanels({});
+    const exportingPanels = graph.getWorkspacePanels();
     expect(exportingPanels.pickerUnavailable).toBe(true);
     expect(exportingPanels.graphBusy).toBe(false);
 });

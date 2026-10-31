@@ -68,7 +68,7 @@ test('board paths of a graph without a board do nothing instead of throwing', as
         graph.unsuspendBoardUpdate();
     }).not.toThrow();
 
-    const {navigate} = graph.getWorkspacePanels({});
+    const {navigate} = graph.getWorkspacePanels();
     for (const action of ['fit', 'in', 'out', 'left', 'right', 'up', 'down']) {
         expect(() => navigate(action as never)).not.toThrow();
     }
