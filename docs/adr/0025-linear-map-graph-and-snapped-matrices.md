@@ -1,12 +1,12 @@
-# Linear maps: one mode-based graph in Basics, and quarter-grid matrix entries
+# Linear maps: one mode-based graph and quarter-grid matrix entries
 
 Accepted on 2026-10-31 (F0 of the [linear maps spec](../specs/linear-maps-lessons.md), stream `maps`). The spec lists four ADR decisions. Decisions 1 and 2 are recorded here because Batch A needs them. Decision 3 (eigen-direction predicate) is recorded before Batch B, and decision 4 (grid drawing) after the measurement the spec requires.
 
-## 1. One `LinearMapGraph` with a mode, in the Basics family
+## 1. One `LinearMapGraph` with a mode
 
 A single `LinearMapGraph` (`src/graphs/linear/`) holds one validated state: the matrix (or two matrices for composition), the mode `basis | determinant | eigen | ellipse | composition`, the test-vector angle and the chosen example. All five lessons share the kernel, snapping, handles, grid and Preset format, and a scene can switch mode and matrix in one synchronous tick. The pure kernel lives in `src/linear/` and has no React, JSXGraph or localization imports.
 
-The Demonstration joins the `basics` family next to `complex-multiplication`, which is the same kind of plane map for a special matrix.
+The Demonstration joins the `basics` family next to `complex-multiplication`, which is the same kind of plane map for a special matrix. **Revised by [ADR 0028](0028-complex-maps-placement-graphs-and-domain.md) §1 before registration:** it joins the new `maps` family with the complex map Demonstrations.
 
 Alternatives:
 
@@ -29,4 +29,4 @@ Alternatives:
 
 - Additive only: a new Demonstration, route and Preset collection. Existing routes, including `/bezier/affine`, and stored Presets are unchanged; no migration.
 - Presets store the snapped entries, mode, angle and example id. Derived values are recomputed on load, never read from the file.
-- The Basics family gains one catalog entry when the Demonstration is registered.
+- The `maps` family (ADR 0028) gains one catalog entry when the Demonstration is registered.
