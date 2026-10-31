@@ -52,7 +52,17 @@ Suggested order: numerical methods, convexity and hulls, and curve geometry firs
 
 - Static, client-only hosting; desktop and classroom projection first, with essential touch and keyboard workflows.
 - Slovenian default with English in lockstep; lesson math notation follows `lessonMathNotation.test.ts`.
-- Mathematical claims are independently checked. A picture may carry an argument only when its construction establishes the claim; otherwise it is labelled an illustration.
+- Graph constructions, kernels and readouts are independently checked. A picture may carry an argument only when its construction establishes the claim; otherwise it is labelled an illustration.
 - Geometry predicates that decide discrete outcomes (orientation, incircle, intersection order) must not silently give wrong answers on dragged points: use exact arithmetic on snapped inputs or robust predicates, and never present a tolerance as exact.
 - Rendering-heavy views (direction fields, combs, basis plots, sweep animations) are measured per the [performance plan](../performance-plan.md) before a drawing approach is chosen.
 - New Demonstrations add routes and Presets; existing routes and stored Presets keep working.
+
+## One-shot lesson text — owner decision, 2026-10-31
+
+Graphs carry the quality bar in these families; lesson text is **one-shot**. The worker that builds a lesson's scene writes its text once, in Slovenian and English, after the scene works, from that lesson's concept contract: learning goal, steps, checked numbers and prose notes. The contract is the only source.
+
+- **Done** when every step has text in both languages, `lessonMathNotation.test.ts` and `tsc` pass, and every value the text quotes matches the scene. Plausible, complete-looking wording is enough; the owner rewrites content by hand later.
+- **Terms:** use the Slovenian proposal from the spec's terms table as written.
+- **Review** covers kernels, constructions, readouts and scene actions. The family specs' prose criteria ("the prose says…") are guidance for the one-shot draft and sit outside review and repair.
+
+Reason: the owner wants high-quality graphs at low token cost and will revise lesson content separately.
