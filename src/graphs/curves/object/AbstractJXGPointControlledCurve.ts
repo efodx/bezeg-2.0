@@ -10,6 +10,7 @@ import {ModelPointBinding} from "./ModelPointBinding";
 import {graphSessionForBoard} from "../../base/GraphSession";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
+import {resizeScale, rotationAngle} from "../../../bezeg/impl/curve/gesture-transforms";
 import {assertPlanarPoints} from "../../../bezeg/impl/point/planar-guard";
 
 export interface PointControlledCurveAttributes {
@@ -179,22 +180,18 @@ export abstract class AbstractJXGPointControlledCurve<T extends PointControlledC
     }
 
     resize(newCoords: JXG.Coords) {
-        let [minX, maxX, minY, maxY] = this.pointControlledCurve.getBoundingBox();
-        let [dx, dy] = [newCoords.usrCoords[1] - this.coords!.usrCoords[1], newCoords.usrCoords[2] - this.coords!.usrCoords[2]];
-        let [xDir, yDir] = this.getResizingDir();
-        dx = dx * xDir;
-        dy = dy * yDir;
-        let xScale = (2 * dx + maxX - minX) / (maxX - minX);
-        let yScale = (2 * dy + maxY - minY) / (maxY - minY);
-        this.pointControlledCurve.scale(xScale, yScale);
+        const box = this.pointControlledCurve.getBoundingBox();
+        const [xDir, yDir] = this.getResizingDir();
+        const scale = resizeScale(box as [number, number, number, number],
+            [newCoords.usrCoords[1] - this.coords!.usrCoords[1], newCoords.usrCoords[2] - this.coords!.usrCoords[2]],
+            [xDir, yDir]);
+        if (scale) this.pointControlledCurve.scale(scale.xScale, scale.yScale);
     }
 
     rotate(newCoords: JXG.Coords) {
-        let [xCenter, yCenter] = this.rotationCenter!;
-        let k1, k2;
-        k1 = (yCenter - newCoords.usrCoords[2]) / (xCenter - newCoords.usrCoords[1]);
-        k2 = (yCenter - this.coords!.usrCoords[2]) / (xCenter - this.coords!.usrCoords[1]);
-        let theta = Math.atan((k1 - k2) / (1 + k1 * k2));
+        const theta = rotationAngle(this.rotationCenter as [number, number],
+            [this.coords!.usrCoords[1], this.coords!.usrCoords[2]],
+            [newCoords.usrCoords[1], newCoords.usrCoords[2]]);
         this.pointControlledCurve.rotate(theta);
     }
 
