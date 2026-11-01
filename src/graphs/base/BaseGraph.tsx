@@ -67,7 +67,7 @@ interface FigureBatchScene<D> {
     transientState: TransientState;
 }
 
-/** Bounding box a new board starts with, and a reset returns to. */
+/** Bounding box a new board starts with, and a reset returns to, unless the graph overrides `initialView()`. */
 const DEFAULT_BOUNDING_BOX: [number, number, number, number] = [-5, 5, 5, -5];
 
 /** Props the host passes to `DemonstrationWorkspace` for one render of the graph's panels. */
@@ -337,7 +337,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         if (!stored) this.selectedPresetIdValue = "";
         this.requestRender();
         // A new board starts at the default view; a stored preset's own view is applied after the scene.
-        if (this.hasBoard) this.board.setBoundingBox(DEFAULT_BOUNDING_BOX, true);
+        if (this.hasBoard) this.board.setBoundingBox(this.startingBox(this.board.container), true);
         return this.applyFigurePreset(session, stored ?? {id: ""}, session.signal)
             .catch(error => console.error("The preset could not be loaded.", error));
     }
@@ -738,7 +738,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     protected createMainView(session: GraphSession, container: HTMLElement): void {
         this.board = session.createBoard(container, {
             showFullscreen: false,
-            boundingBox: DEFAULT_BOUNDING_BOX,
+            boundingBox: this.startingBox(container),
             axis: true,
             keepAspectRatio: true,
             showScreenshot: false,
@@ -746,6 +746,27 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             showNavigation: false,
             defaultAxes: this.defaultAxesAttributes(),
         });
+    }
+
+    /**
+     * The region a new board shows and a reload shows before a stored preset applies its own view, or undefined for the app default
+     * box. A graph with equal axis units whose default example lies outside the default box returns the example's extent.
+     */
+    protected initialView(): [number, number, number, number] | undefined {
+        return undefined;
+    }
+
+    /**
+     * The starting box: the app default, or `initialView()` widened to the canvas aspect around its centre with the fit margin. A box
+     * with the canvas aspect is applied alike by board creation and by `setBoundingBox`, so a reload matches a new board.
+     */
+    private startingBox(container: HTMLElement | string): [number, number, number, number] {
+        const view = this.initialView();
+        if (!view) return [...DEFAULT_BOUNDING_BOX];
+        if (!this.equalAxisUnits) return [...view];
+        const [left, top, right, bottom] = view;
+        const {width, height} = JXG.getDimensions(container, document);
+        return fitBoundingBox([[left, top], [right, bottom]], parseFloat(String(width)), parseFloat(String(height))) ?? [...view];
     }
 
     /** The attributes of the board's default axes (the shared axis styles unless a graph needs its own tick labels). */

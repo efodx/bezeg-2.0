@@ -217,6 +217,11 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
         return serializePointSetModel(BENTLEY_OTTMANN_EXAMPLE_1);
     }
 
+    /** The default example (x 0 to 6, y -1 to 5) with a half-unit margin; the app default box would put its edge on the frame. */
+    protected override initialView(): [number, number, number, number] {
+        return [-0.5, 5.5, 6.5, -1.5];
+    }
+
     /** The saved scene state, with the step clamped to the trace of the saved segments. */
     protected override sceneGraphState(): PointSetGraphState {
         const state: BentleyOttmannGraphState = {...this.state, step: this.step};

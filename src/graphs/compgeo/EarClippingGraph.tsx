@@ -212,6 +212,11 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
         return serializePointSetModel(EAR_CLIPPING_EXAMPLE_1);
     }
 
+    /** The default example (x 0 to 6, y 0 to 4) with a half-unit margin; the app default box would put its edge on the frame. */
+    protected override initialView(): [number, number, number, number] {
+        return [-0.5, 4.5, 6.5, -0.5];
+    }
+
     protected override sceneGraphState(): PointSetGraphState {
         const state: EarClippingGraphState = {...this.state, step: this.step};
         return state;

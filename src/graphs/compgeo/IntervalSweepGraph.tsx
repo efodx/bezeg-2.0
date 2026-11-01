@@ -215,6 +215,11 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         return serializePointSetModel(INTERVAL_SWEEP_EXAMPLE_1);
     }
 
+    /** The default example (x 0 to 10, rows y 1 to 5) with a unit margin; the app default box would put its edge on the frame. */
+    protected override initialView(): [number, number, number, number] {
+        return [-1, 6, 11, 0];
+    }
+
     /** The saved scene state, with the step clamped to the trace of the saved intervals. */
     protected override sceneGraphState(): PointSetGraphState {
         const state: IntervalSweepGraphState = {...this.state, step: this.step};
