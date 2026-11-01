@@ -20,7 +20,7 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 | BS-0 | F0 | This plan, ADR 0024, spec marked scheduled | — | done |
 | BS-1a | F1 | `knot-vector.ts`, `basis.ts`, `deboor.ts`, uniform-limit functions (`uniformQuadraticSegment`, `chaikinStep`); tests and L1/L2 golden numbers | — | done ([evidence](../../reviews/b-splines-nurbs/bs-1a-kernel.md)) |
 | BS-1b | F1 | `insertion.ts`, `extraction.ts`, `rational.ts`, `derivativeSource` (curvature kernel's `DerivativeSource`); tests and L3–L5 golden numbers | BS-1a, CG-1 | done ([evidence](../../reviews/b-splines-nurbs/bs-1b-kernel.md)) |
-| BS-A-2a1 | F2a | `BSplineCurve`, JSXGraph wrapper, local Preset collection with validation and localized reasons; L2 golden numbers through the class | BS-1a, `G-CURVE` | in progress (handler 15) |
+| BS-A-2a1 | F2a | `BSplineCurve`, JSXGraph wrapper, local Preset collection with validation and localized reasons; L2 golden numbers through the class | BS-1a, `G-CURVE` | done (`9595193e`; engineering + mathematics review, medium finding fixed; [handoff 15](../../reviews/feature-streams/curves/handler-handoff-15.md)) |
 | BS-A-2a2 | F2a | Basis-plot graph (template `BernsteinGraph`), knot editor control (order-preserving drag, 0.01 snap, localized refusal), degree 1–3, clamped/unclamped; measured basis-plot drawing | BS-A-2a1 | planned |
 | BS-A-2a3 | F2a | De Boor graph (`DecasteljauGraph` look), animation id `'deboor'`, active-point highlight, disposal test | BS-A-2a1, BS-A-2a2 (knot editor) | planned |
 | BS-A-2b…6 | F2b–F6 | Registration, L1/L2 lessons, chapter, media, Batch A gate | `G-REG`, 2a1–2a3 | planned |

@@ -1,0 +1,24 @@
+Brief handoff-v12 — BS-A-2a2: B-spline basis-plot graph and knot editor (curves stream, family B-splines)
+
+Role: implementation worker; edit permission in the worktree C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-curves (branch worktree-stream-curves). Do not commit, push or delegate.
+
+Goal: the L1 graph of spec docs/specs/b-splines-nurbs-lessons.md (L1, lines 55-62; Implementation Decisions 133-143) with no route, registration or lesson yet. Builds on BS-A-2a1, just committed: src/bezeg/impl/curve/bspline-curve.ts (BSplineCurve, InvalidKnotVectorError), src/bezeg/impl/curve/bspline/ (kernel: basisAll, basisValues, validateKnotVector, clampedUniformKnots), src/graphs/curves/bspline/bsplinePresetCollection.ts (localized knot reasons, decreasing-knot 1-based position at :36). Graph code goes under src/graphs/curves/bspline/.
+
+Acceptance:
+1. Basis-plot graph (template src/graphs/bernstein/BernsteinGraph.tsx; a BaseGraph subclass with owned scene state like src/graphs/curves/interpolation/InterpolationGraph.tsx) plots all n+1 N_{i,k} via the kernel's basisAll over the domain, with a t slider and a readout of the k+1 active values and their sum. Defaults: degree 2, knots (0,0,0,1,2,2,2). Tests assert through the graph: t=0.5 → 0.25, 0.625, 0.125, 0; t=1 → 0, 0.5, 0.5, 0; t=1.5 → 0, 0.125, 0.625, 0.25 (1e-12; sum 1); support of N_{i,k} is exactly [u_i, u_{i+k+1}) (sampled); with (0,0,0,1,1,1) the plotted functions equal Bernstein B_i^2; uniform cubic at a knot gives 1/6, 4/6, 1/6.
+2. Knot editor control (reusable by the de Boor graph in 2a3; put it in its own component file): typed list of knots plus draggable knot markers on the t-axis. Dragging clamps a knot between its neighbours (never reorders), snaps to 0.01 by default; equal values mean a repeated knot. Typed entry is validated with validateKnotVector(u, k, n) using the editor's n; refusals show the localized reason (reuse the preset collection's message mapping — extract a shared helper if needed) and the graph draws nothing invalid. Keyboard-operable (arrow keys step 0.01) with accessible labels.
+3. Degree control 1–3 (not 0) and a clamped/unclamped toggle; changing either rebuilds a valid knot vector (clamped uniform or uniform) with the current n; the uniform quadratic unclamped case is reachable (Chaikin limit).
+4. Raw parameter by default; a display toggle shows the domain rescaled to [0,1] (ADR 0024) — values unchanged, labels rescaled.
+5. Presets: local collection of 2a1 wired into the graph (save/restore, import applies view before data, invalid data refused with the reason). Paths that must carry scene data: prepareLessonFixtureScene, prepareLessonDefaultScene, checkpoint restore, figure batch, importPreset. Do not register the collection globally.
+6. Reset restores defaults; live language switch updates every board text (memory: board text needs onLanguageChange); disposal leaves no board objects (test).
+7. Drawing approach measured, not assumed: time a representative knot drag and t-slider sweep in a component/jsdom harness or document why the existing curve sampling is adequate; record numbers in the evidence file. If a browser measurement is needed it happens at registration — say so.
+
+Locale: keys in one block per docs/localization.md, at the anchor right after the existing bspline_* block in sl.ts and en.ts (same position both files; never cast or `any`; run `just build` after).
+
+Scope: src/graphs/curves/bspline/** (new graph, editor, tests), small shared edits only if required (name them). Do not edit GenericBezierSpline.ts, JXGGenericSplineCurve.ts, registration files (demonstrations.ts, graphFactories.ts, presetCollections). Another worker edits src/learning/*, src/demonstrations.ts, the smoke spec and src/graphs/curves/hermite/* concurrently: ignore typecheck errors only from those paths and do not touch them.
+
+Checks (only through `just`): `just unit src/graphs/curves/bspline src/bezeg/impl/curve` (log to file; can take long under load), `just typecheck`, lint on touched files, `just build` once at the end. Up to 8 deliberate mutations on key assertions; confirm each mutation actually applied (grep the file) before trusting its result. Write evidence to docs/reviews/b-splines-nurbs/bs-a-2a2-graph.md (≤60 lines: what, checks, measurements, open items).
+
+Return (≤350 words): files, checks, mutations, measurement, decisions and notes for 2a3 (de Boor graph), with file:line. Logs to C:\Users\NonFriedMotherBoard\.claude\jobs\bf5ab8cf\tmp\bs-a-2a2-*.log.
+
+Budget: grep -l/-c first, ≤150 lines per read, never whole files >300 lines, logs to files. Past about 30 turns before acceptance, or on HANDOFF, stop at a consistent point, write C:\Users\NonFriedMotherBoard\.claude\jobs\bf5ab8cf\tmp\bs-a-2a2-handoff.md and return partial. If the slice is clearly too large (graph + editor), finish the graph and the editor's model/clamping logic with tests and hand off the editor UI.
