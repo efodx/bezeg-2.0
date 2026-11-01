@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, useSyncExternalStore} from 'react';
-import {useLanguage, useT, Language, t} from '../../localization';
+import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
 import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
 import {LessonSession, LessonSessionSnapshot} from './LessonSession';
@@ -58,7 +58,7 @@ export function GuidedLesson(props: {
 }) {
     const {language} = useLanguage();
     const t = useT();
-    const [startupError, setStartupError] = useState<string>();
+    const [startupError, setStartupError] = useState<Error>();
     const [overlayPhase, setOverlayPhase] = useState<LessonOverlayPhase>('visible');
     const [exitRequested, setExitRequested] = useState(false);
     const [exitError, setExitError] = useState(false);
@@ -170,7 +170,7 @@ export function GuidedLesson(props: {
             if (frame.animation && animationPlaying.current) animateFrame('pause');
             props.capabilities.stopAnimations?.();
         } catch (error) {
-            setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
+            setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));
         }
     };
 
@@ -211,7 +211,7 @@ export function GuidedLesson(props: {
             session.start();
             setStartupError(undefined);
         } catch (error) {
-            setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
+            setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));
         }
         return () => {
             try { session.close({restoreCompleted: true}); } catch { /* A failed restoration remains recoverable while the host is mounted. */ }
@@ -364,7 +364,7 @@ export function GuidedLesson(props: {
             operation();
             setStartupError(undefined);
         } catch (error) {
-            setStartupError(error instanceof Error ? error.message : t('guided_lesson_scene_error'));
+            setStartupError(error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error')));
         }
     };
 
@@ -441,7 +441,7 @@ export function GuidedLesson(props: {
             </div>
             {chapterIdentity}
             {exitError && <p role="alert">{t('guided_lesson_exit_restore_error')}</p>}
-            <p role="alert">{t('guided_lesson_scene_error')} {startupError}</p>
+            <p role="alert">{t('guided_lesson_scene_error')} {startupError.message}</p>
         </section></div>{exitDialog}</>;
     }
 
@@ -487,7 +487,6 @@ export function GuidedLesson(props: {
             {animationControls}
         </div>}
         {isComplete && <p>{t('guided_lesson_free_exploration')}</p>}
-        {startupError && <p role="alert">{t('guided_lesson_action_unavailable')} {startupError}</p>}
         </div>
         <footer className="guided-lesson-footer">
             <div className="guided-lesson-footer-main">

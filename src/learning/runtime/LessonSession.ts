@@ -1,3 +1,4 @@
+import {LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
 import type {LessonAction, LessonAnimationCommand, LessonAnimationId, LessonDefinition, LessonGraphCapabilities, LessonSceneCheckpoint} from '../model';
 
@@ -7,7 +8,8 @@ export interface LessonSessionSnapshot {
     readonly status: LessonSessionStatus;
     readonly stepIndex: number;
     readonly frameIndex: number;
-    readonly error?: string;
+    /** The original error, so a lazily localized message follows a language switch. */
+    readonly error?: Error;
 }
 
 export class LessonSession {
@@ -208,9 +210,9 @@ export class LessonSession {
         } catch (error) {
             // A failed scene must not leave half of a scene applied.
             this.capabilities.restoreState(this.checkpoint);
-            const message = error instanceof Error ? error.message : 'The lesson scene could not be prepared.';
-            this.snapshotValue = {...this.snapshotValue, error: message};
-            throw new Error(message);
+            const failure = error instanceof Error ? error : new LocalizedError(message('guided_lesson_scene_error'));
+            this.snapshotValue = {...this.snapshotValue, error: failure};
+            throw failure;
         }
     }
 }

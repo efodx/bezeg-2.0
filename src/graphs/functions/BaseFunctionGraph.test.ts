@@ -2,7 +2,7 @@ import BaseGraph from '../base/BaseGraph';
 import {DomainError, mathTextHtml} from './BaseFunctionGraph';
 import {LinearFunctionGraph} from './LinearFunctionGraph';
 import {LessonAction} from '../../learning/model';
-import {beginFigureExport, setLanguage} from '../../localization';
+import {beginFigureExport, message, setLanguage} from '../../localization';
 
 const DEFAULT_BOX = [-6, 8, 6, -4];
 
@@ -182,4 +182,16 @@ describe('mathTextHtml', () => {
     it('escapes HTML before adding markup', () => {
         expect(mathTextHtml('a < b & c')).toBe('<i>a</i> &lt; <i>b</i> &amp; <i>c</i>');
     });
+});
+
+test('a DomainError built from a Message renders in the language active when its text is read', () => {
+    setLanguage('sl');
+    const error = new DomainError(message('convexity_t_rejected_hint', {value0: '0', value1: '1'}));
+    expect(error).toBeInstanceOf(DomainError);
+    const sl = error.message;
+    setLanguage('en');
+    expect(error.message).toBe('The point t must be a number between 0 and 1.');
+    expect(error.message).not.toBe(sl);
+    expect(new DomainError('plain').message).toBe('plain');
+    setLanguage('sl');
 });
