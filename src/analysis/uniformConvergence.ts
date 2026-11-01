@@ -13,6 +13,7 @@
  * - epsilon in [0.01, 1], step 0.01 (epsilon = e100 / 100);
  * - n an integer 1..UNIFORM_MAX_N.
  */
+import {gridUnits} from './numbers';
 
 export const UNIFORM_R_MIN = 0.1;
 export const UNIFORM_R_MAX = 1;
@@ -34,13 +35,6 @@ export type UniformExampleId = typeof UNIFORM_EXAMPLE_IDS[number];
 
 export const isUniformExampleId = (value: unknown): value is UniformExampleId =>
     typeof value === 'string' && (UNIFORM_EXAMPLE_IDS as readonly string[]).includes(value);
-
-/** The integer k with value = k * step, or undefined when the value is not on that grid (within 1e-9 grid units). */
-function gridUnits(value: unknown, step: number): number | undefined {
-    if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
-    const units = Math.round(value / step);
-    return Math.abs(value / step - units) <= 1e-9 ? units : undefined;
-}
 
 /** r20 = 20 r, an integer 2..20, or undefined unless r is a grid value in [0.1, 1]. */
 const unitsOfR = (r: unknown): number | undefined => {

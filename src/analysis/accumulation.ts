@@ -85,3 +85,39 @@ export function accumulationPieces(fn: CatalogFunction, a: number, x: number): A
     }
     return pieces;
 }
+
+/** Samples of f along one stretch of the shaded region (a stretch is bounded by a, x and the zeros of f). */
+const SAMPLES_PER_PIECE = 48;
+
+export interface FillPolyline {
+    x: number[];
+    y: number[];
+}
+
+/**
+ * The drawing data of the shaded region between a and x: closed polygons between the t-axis and the graph of f, one per stretch
+ * on which f keeps its sign. `positive` holds the stretches above the axis, `negative` those below it; polygons within one list are
+ * separated by NaN so that one curve object draws all of them. `clamp` limits the plotted f values to the part near the view
+ * (identity by default); it never changes which stretch a polygon belongs to.
+ */
+export function accumulationFill(fn: CatalogFunction, a: number, x: number, clamp: (y: number) => number = y => y): { positive: FillPolyline; negative: FillPolyline } {
+    const positive: FillPolyline = {x: [], y: []};
+    const negative: FillPolyline = {x: [], y: []};
+    for (const piece of accumulationPieces(fn, a, x)) {
+        const target = piece.sign === "positive" ? positive : negative;
+        if (target.x.length > 0) {
+            target.x.push(NaN);
+            target.y.push(NaN);
+        }
+        target.x.push(piece.from);
+        target.y.push(0);
+        for (let i = 0; i <= SAMPLES_PER_PIECE; i++) {
+            const t = piece.from + (piece.to - piece.from) * i / SAMPLES_PER_PIECE;
+            target.x.push(t);
+            target.y.push(clamp(fn.value(t)));
+        }
+        target.x.push(piece.to, piece.from);
+        target.y.push(0, 0);
+    }
+    return {positive, negative};
+}

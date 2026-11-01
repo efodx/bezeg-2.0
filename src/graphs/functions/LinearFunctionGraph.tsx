@@ -8,14 +8,12 @@ import {COINCIDENCE_TOLERANCE, lineEquation, lineThroughPoints, moveAlongLine, s
 import {DEFAULT_LINEAR_MODEL, isLinearCoordinate, LINEAR_COORDINATE_LIMIT, LinearModel, parseLinearModel} from "../../analysis/linearModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {cleanNumber} from "../../analysis/numbers";
 
 /** Points snap to this grid while dragged; k and n can place them anywhere. */
 export const LINEAR_SNAP_SIZE = 0.1;
 
 type CoordinateName = keyof LinearModel;
-
-/** Removes floating-point noise left by k and n arithmetic (and the sign of zero) without changing meaningful digits. */
-const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
 
 /**
  * Linear function `y = kx + n` through two draggable points. The model is the two points; `k`, `n`, the equation and the
@@ -52,7 +50,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
                 value1: formatNumber(-LINEAR_COORDINATE_LIMIT, currentLanguage()), value2: formatNumber(LINEAR_COORDINATE_LIMIT, currentLanguage()),
             }));
         }
-        this.commitModel({...this.model, [name]: clean(value)});
+        this.commitModel({...this.model, [name]: cleanNumber(value)});
     }
 
     /** Moves both points along the line with the new slope and/or intercept, keeping their x-coordinates. */
@@ -60,7 +58,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         const {x1, y1, x2, y2} = this.model;
         const moved = moveAlongLine({x: x1, y: y1}, {x: x2, y: y2}, change);
         if (!moved) throw new DomainError(message("linear_vertical_rejected"));
-        const next = parseLinearModel({x1: moved[0].x, y1: clean(moved[0].y), x2: moved[1].x, y2: clean(moved[1].y)});
+        const next = parseLinearModel({x1: moved[0].x, y1: cleanNumber(moved[0].y), x2: moved[1].x, y2: cleanNumber(moved[1].y)});
         if (!next || Object.values(change).some(value => !Number.isFinite(value))) {
             throw new DomainError(message("linear_limit_rejected", {value0: formatNumber(LINEAR_COORDINATE_LIMIT, currentLanguage())}));
         }
@@ -110,7 +108,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         const p1 = this.p1 = this.own(board.create("point", [model().x1, model().y1], pointOptions("$$P_1$$")) as JXG.Point);
         const p2 = this.p2 = this.own(board.create("point", [model().x2, model().y2], pointOptions("$$P_2$$")) as JXG.Point);
         const readPoints = () => {
-            const next = parseLinearModel({x1: clean(p1.X()), y1: clean(p1.Y()), x2: clean(p2.X()), y2: clean(p2.Y())});
+            const next = parseLinearModel({x1: cleanNumber(p1.X()), y1: cleanNumber(p1.Y()), x2: cleanNumber(p2.X()), y2: cleanNumber(p2.Y())});
             if (next) this.commitModel(next, {syncScene: false});
         };
         p1.on("drag", readPoints);

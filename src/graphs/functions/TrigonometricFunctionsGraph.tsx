@@ -17,9 +17,7 @@ import {
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
-
-/** Removes floating-point noise left by slider arithmetic (-3 + 30 * 0.1) without changing meaningful digits. */
-const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
+import {cleanNumber} from "../../analysis/numbers";
 
 /** The reference graph is the plain basic function: A = 1, omega = 1, phi = 0, B = 0. */
 const REFERENCE = {A: 1, omega: 1, phi: 0, B: 0} as const;
@@ -52,12 +50,12 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
 
     protected setAmplitude(value: number): void {
         if (!isAmplitude(value)) throw new DomainError(numberRangeRejected("trig_amplitude_label", AMPLITUDE_MIN, AMPLITUDE_MAX));
-        this.commitModel({...this.model, A: clean(value)});
+        this.commitModel({...this.model, A: cleanNumber(value)});
     }
 
     protected setOmega(value: number): void {
         if (!isOmega(value)) throw new DomainError(numberRangeRejected("trig_omega_label", OMEGA_MIN, OMEGA_MAX));
-        this.commitModel({...this.model, omega: clean(value)});
+        this.commitModel({...this.model, omega: cleanNumber(value)});
     }
 
     protected setPhase(value: number): void {
@@ -67,7 +65,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
 
     protected setMidline(value: number): void {
         if (!isMidline(value)) throw new DomainError(numberRangeRejected("trig_midline_label", MIDLINE_MIN, MIDLINE_MAX));
-        this.commitModel({...this.model, B: clean(value)});
+        this.commitModel({...this.model, B: cleanNumber(value)});
     }
 
     protected setReferenceVisible(visible: boolean): void {

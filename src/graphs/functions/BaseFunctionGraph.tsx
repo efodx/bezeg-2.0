@@ -1,7 +1,7 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, Message, onLanguageChange, renderMessage, t} from "../../localization";
-import {cleanNoise, cleanNumber} from "../../analysis/numbers";
+import {cleanNoise, cleanNumber, gridUnits} from "../../analysis/numbers";
 import {Preset} from "../base/presets/Presets";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {LessonAction} from "../../learning/model";
@@ -70,9 +70,8 @@ export {cleanNoise, cleanNumber};
  * key-step arithmetic (0.8500000000000001), never rounds a real value such as 0.851 to the grid (reject, never clamp).
  */
 export function gridValue(value: number, step: number): number | undefined {
-    if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
-    const units = Math.round(value / step);
-    return Math.abs(value / step - units) <= 1e-9 ? cleanNumber(units * step) : undefined;
+    const units = gridUnits(value, step);
+    return units === undefined ? undefined : cleanNumber(units * step);
 }
 
 /** Boards narrower than this many pixels get compact labels and fewer caption lines. */

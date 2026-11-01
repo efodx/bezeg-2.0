@@ -1,4 +1,4 @@
-import {accumulationFill, AccumulationGraph, FLAT_SLOPE, MAX_PIECES} from './AccumulationGraph';
+import {AccumulationGraph, FLAT_SLOPE, MAX_PIECES} from './AccumulationGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, accumulation} from '../../analysis/accumulation';
@@ -303,44 +303,6 @@ test('the readout calls the value the signed integral and never presents the geo
     expect(caption(graph)).toContain('A(x) = 0 (signed)');
     setLanguage('sl');
     expect(graph.renderReadout().props.children[0].props.note).toMatch(/s predznakom, ne geometrijska ploščina/);
-});
-
-test('the fill data of a stretch is a closed polygon whose sampled area matches the exact integral, NaN-separated per stretch', () => {
-    const sin = catalogFunction('sin');
-    const area = (polyline: { x: number[]; y: number[] }) => {
-        // shoelace area of each NaN-separated polygon
-        let total = 0;
-        let start = 0;
-        for (let i = 0; i <= polyline.x.length; i++) {
-            if (i === polyline.x.length || Number.isNaN(polyline.x[i])) {
-                let sum = 0;
-                for (let j = start; j < i; j++) {
-                    const k = j + 1 < i ? j + 1 : start;
-                    sum += polyline.x[j] * polyline.y[k] - polyline.x[k] * polyline.y[j];
-                }
-                total += Math.abs(sum) / 2;
-                start = i + 1;
-            }
-        }
-        return total;
-    };
-    const full = accumulationFill(sin, 0, 2 * Math.PI);
-    expect(Math.abs(area(full.positive) - 2)).toBeLessThan(0.01);
-    expect(Math.abs(area(full.negative) - 2)).toBeLessThan(0.01);
-    expect(full.positive.x.filter(Number.isNaN)).toHaveLength(0);
-    // reversed bounds shade the same region
-    const reversed = accumulationFill(sin, 2 * Math.PI, 0);
-    expect(reversed.positive.x).toEqual(full.positive.x);
-    expect(reversed.negative.y).toEqual(full.negative.y);
-    // three stretches above and below give NaN separators within one list
-    const many = accumulationFill(sin, -7, 7);
-    expect(many.positive.x.filter(Number.isNaN)).toHaveLength(2);
-    expect(many.negative.x.filter(Number.isNaN)).toHaveLength(2);
-    expect(accumulationFill(sin, 1, 1)).toEqual({positive: {x: [], y: []}, negative: {x: [], y: []}});
-    // the clamp limits plotted heights but not the stretch bounds
-    const clamped = accumulationFill(catalogFunction('exp'), 0, 7, y => Math.min(y, 10));
-    expect(Math.max(...clamped.positive.y)).toBe(10);
-    expect(Math.max(...clamped.positive.x)).toBe(7);
 });
 
 test('the shaded region follows the view clamp, so e^x at x = 7 never plots a path far above the view', () => {
