@@ -1,0 +1,60 @@
+## demo: good (frame ph-quintic-degree-observation, steps [{"kind":"explore"},{"kind":"select-tab","tab":"display"},{"kind":"set-control","control":"checkbox","label":"Odmiki krivulje","value":true},{"kind":"set-control","control":"slider","label":"Razdalja odmika d","value":0.5}])
+command: node scripts/capture-guided-example-previews.cjs docs/reviews/illustrated-chapter-examples/capture-inventory.json --id ph-curves.offsets.ph-quintic-offsets  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 1
+AssertionError [ERR_ASSERTION]: ph-curves.offsets.ph-quintic-offsets: recipe changed since capture (or the capture predates recipes); recapture this image
+
+## demo: good (frame ph-quintic-degree-observation, steps [{"kind":"explore"},{"kind":"select-tab","tab":"display"},{"kind":"set-control","control":"checkbox","label":"Odmiki krivulje","value":true},{"kind":"set-control","control":"slider","label":"Razdalja odmika d","value":0.5}])
+command: node scripts/capture-guided-example-previews.cjs docs/reviews/illustrated-chapter-examples/capture-inventory.json --id ph-curves.offsets.ph-quintic-offsets  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 1
+AssertionError [ERR_ASSERTION]: ph-curves.offsets.ph-quintic-offsets: recipe changed since capture (or the capture predates recipes); recapture this image
+
+## demo: good (frame ph-quintic-degree-observation, steps [{"kind":"explore"},{"kind":"select-tab","tab":"display"},{"kind":"set-control","control":"checkbox","label":"Odmiki krivulje","value":true},{"kind":"set-control","control":"slider","label":"Razdalja odmika d","value":0.5}])
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 1
+Error: ph-curves.offsets.ph-quintic-offsets: recipe step 1 (explore) failed: the lesson hide button is not present exactly once; is the lesson already in explore mode?
+  [cause]: AssertionError [ERR_ASSERTION]: the lesson hide button is not present exactly once; is the lesson already in explore mode?
+
+## demo: good (frame ph-quintic-degree-observation, steps [{"kind":"explore"},{"kind":"select-tab","tab":"display"},{"kind":"set-control","control":"checkbox","label":"Odmiki krivulje","value":true},{"kind":"set-control","control":"slider","label":"Razdalja odmika d","value":0.5}])
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 1
+Error: ph-curves.offsets.ph-quintic-offsets: recipe step 4 (set-control Razdalja odmika d) failed: no visible slider named "Razdalja odmika d" in the open inspector tab; check the label and add a select-tab step before it
+  [cause]: AssertionError [ERR_ASSERTION]: no visible slider named "Razdalja odmika d" in the open inspector tab; check the label and add a select-tab step before it
+
+## demo: good (frame ph-quintic-degree-observation, steps [{"kind":"explore"},{"kind":"select-tab","tab":"display"},{"kind":"set-control","control":"checkbox","label":"Odmiki krivulje","value":true},{"kind":"select-tab","tab":"edit"},{"kind":"set-control","control":"slider","label":"Razdalja odmika d","value":0.5}])
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 0
+
+## demo: good (frame ph-quintic-degree-observation, steps [{"kind":"explore"},{"kind":"select-tab","tab":"display"},{"kind":"set-control","control":"checkbox","label":"Odmiki krivulje","value":true},{"kind":"select-tab","tab":"edit"},{"kind":"set-control","control":"slider","label":"Razdalja odmika d","value":0.5}])
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 0
+ph-curves.offsets.ph-quintic-offsets: 840x520 sha256=69fc32ff28ccb43f80a8b368278d3a46bba1bd3e97ebf04c929ab09952203fdf
+
+## demo: badlabel (frame ph-quintic-degree-observation, steps [{"kind":"explore"},{"kind":"select-tab","tab":"display"},{"kind":"set-control","control":"checkbox","label":"Odmiki krivulje","value":true},{"kind":"select-tab","tab":"edit"},{"kind":"set-control","control":"slider","label":"Razdalja odmika X","value":0.5}])
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 1
+Error: ph-curves.offsets.ph-quintic-offsets: recipe step 5 (set-control Razdalja odmika X) failed: no visible slider named "Razdalja odmika X" in the open inspector tab; check the label and add a select-tab step before it
+
+## demo: range7 (frame ph-quintic-degree-observation, steps [{"kind":"explore"},{"kind":"select-tab","tab":"display"},{"kind":"set-control","control":"checkbox","label":"Odmiki krivulje","value":true},{"kind":"select-tab","tab":"edit"},{"kind":"set-control","control":"slider","label":"Razdalja odmika d","value":7}])
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 1
+Error: ph-curves.offsets.ph-quintic-offsets: recipe step 5 (set-control Razdalja odmika d) failed: slider "Razdalja odmika d" does not accept 7 (range -3 to 3, step 0.01)
+
+## demo: notab (frame ph-quintic-degree-observation, steps [{"kind":"select-tab","tab":"display"}])
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 0
+ph-curves.offsets.ph-quintic-offsets: 840x520 sha256=a88869b3bee2f7f1eb1ba670bc18c5f81e12f5d39598ca1f1abf15534bd4c88b
+
+## demo: unchanged (frame ph-quintic-degree-explanation, steps [])
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)  [recipe temporarily patched in guidedExampleHighlights.ts]
+exit: 1
+
+
+## notes on the block above (part B2 worker)
+- The "notab" demo (select-tab without explore) was rejected at authoring time by the inventory generator, so the capture that followed ran the previous, unmodified inventory (exit 0 and the S1 sha are NOT a pass of the bad recipe). Generator message: "ph-curves.offsets.ph-quintic-offsets: recipe step 1 (select-tab) needs an earlier {kind: "explore"} step; the inspector is locked while the lesson panel is shown" (exact: "the inspector is locked while the lesson panel is shown").
+- First two "good" attempts failed before the fix: explore step could not find ".guided-lesson-hide" (the frame was in explore status, whose button is ".guided-lesson-observe"), and the offset slider lives in the Uredi (edit) tab, not Prikaz.
+- Good path (explore, select-tab display, checkbox "Odmiki krivulje", select-tab edit, slider "Razdalja odmika d" = 0.5) on frame ph-quintic-degree-observation passed with the S1 checks; sha 69fc32ff...; geometry identical to the committed S1 PNG (a88869b3...), only the arc-length text label differs (862 pixels in x 18-219, y 15-34).
+
+## demo: unchanged (frame ph-quintic-degree-explanation = start frame, steps [], checks matching the start board)
+command: node scripts/capture-guided-example-previews.cjs .tmp-single.json  (single-entry inventory, full run)
+exit: 1
+AssertionError: ph-curves.offsets.ph-quintic-offsets: recipe expects the board to change from the start scene, but the highlight state is identical; check the steps

@@ -12,12 +12,26 @@
  * - `goto-frame` moves to a frame of the same lesson with the previous/next navigation (forward or back).
  * - `frame-action` presses the authored action button of the current frame (`LessonFrame.action`, or the step
  *   action it inherits); the lesson session applies that frame's scene and action exactly as for a learner.
+ * - `explore` presses the lesson's hide ("Skrij") or observe ("Opazuj na grafu") button so the workspace enters explore mode and the inspector unlocks; required before
+ *   any `select-tab`/`set-control`, and no frame navigation or action may follow it.
+ * - `select-tab` opens an inspector tab (`edit`, `display` or `save`: Uredi, Prikaz, Shrani) by clicking its button.
+ * - `set-control` sets a visible control of the open tab through the UI (clicks a checkbox, fills a range slider or a
+ *   number field) and verifies that it shows the value; it fails for a missing or ambiguous label or a value the
+ *   control does not accept. `label` is the control's Slovenian accessible name (capture language is sl-SI).
+ *   There is no production-side hook: the app sees an ordinary learner interaction.
  */
 
 /** Pure data: the recipe never holds functions, so it can be fingerprinted and stored in the manifest. */
+import {bezierPoint, phQuinticControlPoints, phQuinticOffsetPoint, phQuinticPoint, rationalBezierPoint, rationalControlPoints,
+    rationalWeightsSecondTwo, sampleCurve, weightedKnotControlPoints, weightedWarp} from './guidedExampleHighlightExpectations';
+
 export type HighlightStep =
     | {readonly kind: 'goto-frame'; readonly frame: string}
-    | {readonly kind: 'frame-action'};
+    | {readonly kind: 'frame-action'}
+    | {readonly kind: 'explore'}
+    | {readonly kind: 'select-tab'; readonly tab: 'edit' | 'display' | 'save'}
+    | {readonly kind: 'set-control'; readonly control: 'checkbox'; readonly label: string; readonly value: boolean}
+    | {readonly kind: 'set-control'; readonly control: 'slider' | 'number'; readonly label: string; readonly value: number};
 
 /** Expected geometry of the highlight state, in the vocabulary of the inventory `expected` checks. */
 export interface HighlightChecks {
@@ -46,5 +60,45 @@ export type HighlightRecipe =
         readonly checks: HighlightChecks;
     };
 
-/** Recipes by guided example id. Empty until the sample recipes are authored (task 01 part B). */
-export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRecipe>> = {};
+/** Offset distance the quintic PH lesson frame prepares (`set-offset-distance`), positive = right of the direction of travel. */
+const PH_OFFSET_DISTANCE = 0.5;
+/** Weighted-parameterization value the quarter frame prepares, and the number of sample points it keeps. */
+const WP_ALPHA = 0.25, WP_SAMPLES = 3;
+const MIDPOINT = 0.5;
+
+const rationalMarked = rationalBezierPoint(rationalControlPoints, rationalWeightsSecondTwo, MIDPOINT);
+const wpCurve = sampleCurve(t => bezierPoint(weightedKnotControlPoints, t));
+const wpMarkers = Array.from({length: WP_SAMPLES}, (_, i) => bezierPoint(weightedKnotControlPoints, weightedWarp(WP_ALPHA, (i + 1) / (WP_SAMPLES + 1))));
+
+/**
+ * Recipes by guided example id. Frame ids are the example lesson's own; expected values come from
+ * guidedExampleHighlightExpectations.ts, computed from fixtures and formulas, never from the board.
+ */
+export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRecipe>> = {
+    // S1: quintic PH curve with its offset at d=0.5 (frame action sequence already part of the prepared step scene):
+    // the offset curve is r + d n with n = (y', -x')/|r'|, so |O - r| = d and (O - r).r' = 0 at every t; sampled at 0, 1/2, 1.
+    'ph-curves.offsets.ph-quintic-offsets': {
+        kind: 'highlight', frame: 'ph-quintic-offset-positive-observation', steps: [], expectChange: true,
+        checks: {
+            types: {curve: 2, point: 6}, curveCount: 2, points: phQuinticControlPoints,
+            curves: [sampleCurve(t => phQuinticPoint(t)), sampleCurve(t => phQuinticOffsetPoint(t, PH_OFFSET_DISTANCE))],
+        },
+    },
+    // S2: weights (1,2,1,1) at t=1/2: marked point R(1/2)=(-9/11, 21/11); the end points do not depend on the weights.
+    'rational-curves.why-rational.rational-weight': {
+        kind: 'highlight', frame: 'rational-base-evaluation-calculation', steps: [], expectChange: true,
+        checks: {
+            types: {curve: 1, point: 5}, curveCount: 1, points: [...rationalControlPoints, rationalMarked],
+            curves: [sampleCurve(t => rationalBezierPoint(rationalControlPoints, rationalWeightsSecondTwo, t))],
+        },
+    },
+    // S3: alpha=1/4 with three sample points: the control points and the drawn curve equal the alpha=1/2 start scene, only the
+    // markers move, to B(phi_alpha(k/4)) for k=1,2,3 (1/2, 3/4, 9/10). The alpha=1/4 frame prepares the slider value itself,
+    // so no set-control step is recorded: it would change nothing.
+    'parametrization.weighted-knot.weighted-parameterization': {
+        kind: 'highlight', frame: 'wp-quarter-calculation-calculation', steps: [], expectChange: true,
+        checks: {
+            types: {curve: 1, point: 4 + WP_SAMPLES}, curveCount: 1, points: [...weightedKnotControlPoints, ...wpMarkers], curves: [wpCurve],
+        },
+    },
+};

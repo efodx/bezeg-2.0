@@ -1,62 +1,68 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+  "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "93066f43c9edf0cd145473fd62317f7397934b09",
+    "revision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
     "dirty": true,
-    "inputs": "47ef2bb4c25a834cfe4d662cf90e074a75d2d0029cd5ba1f231ecb300ac9f113",
-    "output": "a47a405c27bcce4d090254a7df2ad7fd71fe28dc0019c3df687645dc1be6fcda"
+    "inputs": "44da273e038c7cf9c7d2d456a007164231e149a562cf0c2f1e9233e08e485236",
+    "output": "f585bff5afd6bd41638cf9ac9495cbef15874b7e5ba785e7c5f207c8c5bcb0a5"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4397/bezeg-2.0/",
-    "stampRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
+    "stampRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
     "stampDirty": true,
-    "localOutputHash": "a47a405c27bcce4d090254a7df2ad7fd71fe28dc0019c3df687645dc1be6fcda",
+    "localOutputHash": "f585bff5afd6bd41638cf9ac9495cbef15874b7e5ba785e7c5f207c8c5bcb0a5",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-9pAhOL_0.js",
-        "url": "http://127.0.0.1:4397/bezeg-2.0/assets/index-9pAhOL_0.js",
-        "sha256": "d2ee23ef79519c3cb386a73c97a74e6dcf8bd50823bb924edd9ac2f841479b22",
+        "name": "index-DjxA7565.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-DjxA7565.js",
+        "sha256": "4003ef0e193e0d815186a4dc6bd20488b1dae3405e7ce9453ac0f4f95a0386eb",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4397/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
         "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DgSBr0Ew.js",
-        "url": "http://127.0.0.1:4397/bezeg-2.0/assets/jsx-runtime-DgSBr0Ew.js",
-        "sha256": "3deb2eb53cd7f58962e3d55cf4b334e81b753fa08db6a47d05387f3a44e20211",
+        "name": "jsx-runtime-6B8virM0.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-6B8virM0.js",
+        "sha256": "dd47bc36968abfdf3d9776b2d2fbcc05b231f6e6275a8d93e9b37f340e2795b8",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-Ci6_9flY.css",
-        "url": "http://127.0.0.1:4397/bezeg-2.0/assets/index-Ci6_9flY.css",
-        "sha256": "c32f7f6f027dbe437387305e008514ec49836ad23fee9d44714af05bcf7b9819",
+        "name": "react-dom-CQP7ScPA.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-CQP7ScPA.js",
+        "sha256": "11c7c89aa592eb6dff14144c7d29ff7194bb956d4d76ca023e1f9b6e5590c929",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-BaMZB5Fy.css",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-BaMZB5Fy.css",
+        "sha256": "bae643a297d5885e35dc68f252ac298fc5cd08ac7952ed15ca8f6fb80d6272fc",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4397/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "f1f8256f4cc673a0f42f9b5c267995c2524e1166c53f862f03e9f52a8d8635d2",
-    "presentation": "f3fada97f359116e9b3d6eb8aec8227dea36d3262f767bbd7694376401a2c866",
-    "buildOutput": "a47a405c27bcce4d090254a7df2ad7fd71fe28dc0019c3df687645dc1be6fcda",
-    "buildInputs": "47ef2bb4c25a834cfe4d662cf90e074a75d2d0029cd5ba1f231ecb300ac9f113"
+    "inventory": "3b1b061a7ac83ba86311312711f86bc1481ebc1e9406e29ac9788943858ceda0",
+    "presentation": "6eb16f4bb6ec4a8d4a72b5c61fb758de7a08c694a7f72cd10ee433c7b9f888ad",
+    "buildOutput": "f585bff5afd6bd41638cf9ac9495cbef15874b7e5ba785e7c5f207c8c5bcb0a5",
+    "buildInputs": "44da273e038c7cf9c7d2d456a007164231e149a562cf0c2f1e9233e08e485236"
   },
   "capture": {
     "cleanContextPerExample": true,
-    "boardOnly": true,
+    "capturedHostOnly": true,
     "frame": {
       "width": 420,
       "height": 260
@@ -66,10 +72,10 @@
       "height": 920
     },
     "deviceScaleFactor": 2,
-    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query; no controls/actions changed",
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
     "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
     "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
-    "presentation": "existing presentBoard capture-only camera, label sizing and construction-stroke treatment",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
     "entryFraming": [
       {
         "id": "analysis.convergence.fixed-point",
@@ -673,19 +679,24 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"fixed-point-cobweb-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"fixed-point-bound\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.convergence.fixed-point.png",
       "width": 840,
       "height": 520,
-      "sha256": "f8e8ce7bad420fc10d37fa8f944e1e880073858212fd011ad6838c20271f85de",
+      "sha256": "c682b614d59165be5627981b9b46653706df743c007419696dcaad76f9979c82",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 6,
+          "label": 5,
           "curve": 3,
           "segment": 1,
-          "point": 3
+          "point": 3,
+          "text": 1
         },
         "visiblePointCount": 3,
         "sampledVisibleCurves": [
@@ -743,10 +754,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 17,
+            "label": 15,
             "curve": 3,
             "segment": 1,
-            "point": 3
+            "point": 3,
+            "text": 2
           },
           "visiblePointCount": 3,
           "sampledVisibleCurves": [
@@ -808,23 +820,20 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 6,
+          "label": 5,
           "curve": 3,
           "segment": 1,
-          "point": 3
+          "point": 3,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "analysis.convergence.sequence",
@@ -847,6 +856,10 @@
         "animation: {\"kind\":\"animation\",\"animationId\":\"sequence\",\"command\":\"next-step\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"sequence-certificate\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.convergence.sequence.png",
       "width": 840,
       "height": 520,
@@ -856,10 +869,11 @@
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 12,
+          "label": 11,
           "curve": 1,
           "segment": 4,
-          "point": 12
+          "point": 12,
+          "text": 1
         },
         "visiblePointCount": 12,
         "sampledVisibleCurves": [
@@ -889,10 +903,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 24,
+            "label": 22,
             "curve": 1,
             "segment": 4,
-            "point": 12
+            "point": 12,
+            "text": 2
           },
           "visiblePointCount": 12,
           "sampledVisibleCurves": [
@@ -920,29 +935,26 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 2,
-        "finalLabelCount": 2,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 12,
+          "label": 11,
           "curve": 1,
           "segment": 4,
-          "point": 12
+          "point": 12,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "analysis.convergence.uniform-convergence",
@@ -955,10 +967,14 @@
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"uniform-n\",\"value\":4}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"uniform-supremum\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.convergence.uniform-convergence.png",
       "width": 840,
       "height": 520,
-      "sha256": "d9fe89efb5d64dc1230e5075c987cfa2dccb1ade9e43bb15df0969992c545b6f",
+      "sha256": "333361ddb121b77e99fd91e2979e5fa4180c04369125a92584ebd110b7c5fbb1",
       "scene": {
         "visibleElementCount": 14,
         "visibleElementTypes": {
@@ -1010,10 +1026,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 16,
+            "label": 15,
             "curve": 2,
             "segment": 4,
-            "point": 4
+            "point": 4,
+            "text": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -1069,14 +1086,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "analysis.derivative-results.convexity",
@@ -1087,16 +1100,20 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"convexity-prerequisites-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"second-derivative\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.derivative-results.convexity.png",
       "width": 840,
       "height": 520,
-      "sha256": "0aa753311e110a492437f948ff1e1f581db5755af736b31c2be5d1c71bd1e344",
+      "sha256": "cee4a7d36fd3ce1023986ac7a030d0c2cc6bbc5b9b48cf53f75b9fa73b613a0b",
       "scene": {
         "visibleElementCount": 28,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 12,
+          "label": 12,
           "segment": 4,
           "curve": 2,
           "point": 6
@@ -1143,10 +1160,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 17,
+            "label": 16,
             "segment": 4,
             "curve": 2,
-            "point": 6
+            "point": 6,
+            "text": 1
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -1194,7 +1212,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 12,
+          "label": 12,
           "segment": 4,
           "curve": 2,
           "point": 6
@@ -1203,14 +1221,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "analysis.derivative-results.extrema",
@@ -1221,18 +1235,23 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"extrema-prerequisites-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"extrema-classification\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.derivative-results.extrema.png",
       "width": 840,
       "height": 520,
-      "sha256": "fc05276574305b6d3a875cd932d9d3d1e441786d0b136d7c0b2e75b9a5fd551a",
+      "sha256": "eeef8069ef9ce86f7f25dcb088f87fd2daf41702ee0b0015c5bd1062c19e76ff",
       "scene": {
         "visibleElementCount": 31,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 18,
+          "label": 13,
           "line": 3,
           "curve": 1,
+          "text": 5,
           "point": 5
         },
         "visiblePointCount": 5,
@@ -1263,9 +1282,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 25,
+            "label": 19,
             "line": 3,
             "curve": 1,
+            "text": 6,
             "point": 5
           },
           "visiblePointCount": 5,
@@ -1300,23 +1320,20 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 18,
+          "label": 13,
           "line": 3,
           "curve": 1,
+          "text": 5,
           "point": 5
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "analysis.derivative-results.mean-value",
@@ -1326,19 +1343,24 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mean-value-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.derivative-results.mean-value.png",
       "width": 840,
       "height": 520,
-      "sha256": "3b5e94da041453e7792fcfa854c51443454c793deb226502964a63a8f97c5b32",
+      "sha256": "23d2bfb96567c67191ca7294c1fcdb5dca0e017ece1dc65f753866cc910b7fe4",
       "scene": {
         "visibleElementCount": 27,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 12,
+          "label": 11,
           "curve": 3,
           "segment": 2,
-          "point": 6
+          "point": 6,
+          "text": 1
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -1396,10 +1418,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 19,
+            "label": 18,
             "curve": 3,
             "segment": 2,
-            "point": 6
+            "point": 6,
+            "text": 1
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -1461,23 +1484,20 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 12,
+          "label": 11,
           "curve": 3,
           "segment": 2,
-          "point": 6
+          "point": 6,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "analysis.existence.bisection",
@@ -1487,19 +1507,24 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bisection-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.existence.bisection.png",
       "width": 840,
       "height": 520,
-      "sha256": "bcef7142be185983358e3b6d7838827db0c48203c602e9baffa67f3d7c820a96",
+      "sha256": "e73f1f47eb7d548aab08f4dbe4e2c3c3802b584195d98a78c7a842422f87fb1e",
       "scene": {
         "visibleElementCount": 21,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 9,
+          "label": 8,
           "curve": 1,
           "segment": 3,
-          "point": 4
+          "point": 4,
+          "text": 1
         },
         "visiblePointCount": 4,
         "sampledVisibleCurves": [
@@ -1529,10 +1554,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 17,
+            "label": 16,
             "curve": 1,
             "segment": 3,
-            "point": 4
+            "point": 4,
+            "text": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -1566,23 +1592,20 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 9,
+          "label": 8,
           "curve": 1,
           "segment": 3,
-          "point": 4
+          "point": 4,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "analysis.integrability.darboux",
@@ -1594,16 +1617,20 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"lower-sum\",\"visible\":false}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"upper-sum\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.integrability.darboux.png",
       "width": 840,
       "height": 520,
-      "sha256": "8894db1df708a8b92d7b093a4c321e99a22f96a558b1a1229fd19f2f48f0cc4e",
+      "sha256": "79931df648896d0cd65c042dfd9487d458a34ebeb711fd2bd1629ae63b89fa0d",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 11,
+          "label": 11,
           "curve": 2,
           "point": 2
         },
@@ -1649,9 +1676,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 15,
+            "label": 14,
             "curve": 2,
-            "point": 2
+            "point": 2,
+            "text": 1
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -1699,7 +1727,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 11,
+          "label": 11,
           "curve": 2,
           "point": 2
         }
@@ -1707,14 +1735,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "analysis.taylor.taylor",
@@ -1725,16 +1749,20 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"taylor-prerequisites-scene\",\"source\":\"demonstration-default\"}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"taylor-bound\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "analysis.taylor.taylor.png",
       "width": 840,
       "height": 520,
-      "sha256": "1647f8e962e6dd3a2e920063826d6bbf976bb1b0dcee41366a0beb6afd241b9b",
+      "sha256": "d8b6352664a5fe9d6a38a769b24c71b6aca837cdf4ba3d8eb18e5f9dad1b921d",
       "scene": {
         "visibleElementCount": 18,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 5,
+          "label": 5,
           "segment": 2,
           "curve": 2,
           "point": 5
@@ -1781,10 +1809,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 19,
+            "label": 18,
             "segment": 2,
             "curve": 2,
-            "point": 5
+            "point": 5,
+            "text": 1
           },
           "visiblePointCount": 5,
           "sampledVisibleCurves": [
@@ -1832,7 +1861,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 5,
+          "label": 5,
           "segment": 2,
           "curve": 2,
           "point": 5
@@ -1841,14 +1870,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.affine-transformations.affine",
@@ -1860,6 +1885,10 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
         "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.affine-transformations.affine.png",
       "width": 840,
       "height": 520,
@@ -1899,7 +1928,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 22,
+            "label": 22,
             "point": 5,
             "curve": 1,
             "segment": 3
@@ -1942,14 +1971,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.bernstein-form.bernstein",
@@ -1959,6 +1984,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.bernstein-form.bernstein.png",
       "width": 840,
       "height": 520,
@@ -2012,7 +2041,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 14,
+            "label": 14,
             "curve": 2
           },
           "visiblePointCount": 0,
@@ -2067,14 +2096,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.control-points.bezier",
@@ -2084,6 +2109,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bezier-symmetric-cubic\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-3,-2],[-3,2],[3,2],[3,-2]]},\"view\":[-4.5,4,4.5,-3.5]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.control-points.bezier.png",
       "width": 840,
       "height": 520,
@@ -2122,7 +2151,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 18,
+            "label": 18,
             "point": 4,
             "curve": 1
           },
@@ -2163,14 +2192,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.geometric-properties.convex-hull",
@@ -2183,6 +2208,10 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"convex-hull\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.geometric-properties.convex-hull.png",
       "width": 840,
       "height": 520,
@@ -2223,7 +2252,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 20,
+            "label": 20,
             "point": 4,
             "curve": 1,
             "segment": 7,
@@ -2268,14 +2297,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.interpolation.alternative-recursion",
@@ -2286,6 +2311,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"da-cubic-half\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-2],[-2,4],[2,2],[4,-2]]},\"view\":[-6,6,6,-4]}",
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.interpolation.alternative-recursion.png",
       "width": 840,
       "height": 520,
@@ -2353,7 +2382,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 25,
+            "label": 25,
             "point": 7,
             "curve": 3,
             "segment": 1
@@ -2424,14 +2453,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.interpolation.decasteljau",
@@ -2443,6 +2468,10 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.interpolation.decasteljau.png",
       "width": 840,
       "height": 520,
@@ -2482,7 +2511,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 20,
+            "label": 20,
             "point": 6,
             "curve": 1,
             "segment": 3
@@ -2525,14 +2554,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.interpolation.quartic-interpolation",
@@ -2546,6 +2571,10 @@
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}",
         "animation: {\"kind\":\"animation\",\"animationId\":\"decasteljau\",\"command\":\"pause\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.interpolation.quartic-interpolation.png",
       "width": 840,
       "height": 520,
@@ -2599,7 +2628,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 31,
+            "label": 31,
             "point": 15,
             "curve": 2,
             "segment": 10
@@ -2656,14 +2685,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.next-ideas.elevation",
@@ -2674,6 +2699,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"elevation-default\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.next-ideas.elevation.png",
       "width": 840,
       "height": 520,
@@ -2713,7 +2742,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 25,
+            "label": 25,
             "point": 9,
             "curve": 1,
             "segment": 7
@@ -2756,14 +2785,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.next-ideas.extrapolation",
@@ -2773,6 +2798,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ex-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.next-ideas.extrapolation.png",
       "width": 840,
       "height": 520,
@@ -2811,7 +2840,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 21,
+            "label": 21,
             "point": 5,
             "curve": 1
           },
@@ -2852,14 +2881,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.next-ideas.repeated-subdivision",
@@ -2869,6 +2894,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.next-ideas.repeated-subdivision.png",
       "width": 840,
       "height": 520,
@@ -2908,7 +2937,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 20,
+            "label": 20,
             "point": 4,
             "curve": 1,
             "segment": 3
@@ -2951,14 +2980,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.next-ideas.subdivision",
@@ -2968,6 +2993,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sd-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.next-ideas.subdivision.png",
       "width": 840,
       "height": 520,
@@ -3021,7 +3050,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 26,
+            "label": 26,
             "point": 10,
             "curve": 2,
             "segment": 6
@@ -3078,14 +3107,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-curves.parameter.decasteljau-parameter",
@@ -3099,6 +3124,10 @@
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}",
         "animation: {\"kind\":\"animation\",\"animationId\":\"decasteljau\",\"command\":\"pause\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "bezier-curves.parameter.decasteljau-parameter.png",
       "width": 840,
       "height": 520,
@@ -3152,7 +3181,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 31,
+            "label": 31,
             "point": 15,
             "curve": 2,
             "segment": 10
@@ -3209,14 +3238,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "foundations.complex-plane.complex-multiplication",
@@ -3229,6 +3254,10 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"complex-product\",\"visible\":false}",
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"complex-arguments\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "foundations.complex-plane.complex-multiplication.png",
       "width": 840,
       "height": 520,
@@ -3238,9 +3267,10 @@
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 16,
+          "label": 13,
           "curve": 4,
-          "point": 2
+          "point": 2,
+          "text": 3
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -3312,9 +3342,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 19,
+            "label": 16,
             "curve": 4,
-            "point": 2
+            "point": 2,
+            "text": 3
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -3390,22 +3421,19 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 16,
+          "label": 13,
           "curve": 4,
-          "point": 2
+          "point": 2,
+          "text": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "foundations.reading-bernstein.bernstein",
@@ -3415,6 +3443,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "foundations.reading-bernstein.bernstein.png",
       "width": 840,
       "height": 520,
@@ -3468,7 +3500,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 14,
+            "label": 14,
             "curve": 2
           },
           "visiblePointCount": 0,
@@ -3523,14 +3555,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "foundations.worked-weight.bernstein.degree-comparison",
@@ -3541,6 +3569,10 @@
         "bernstein-degree: {\"kind\":\"bernstein-degree\",\"degree\":2}",
         "bernstein-stacked-area: {\"kind\":\"bernstein-stacked-area\",\"visible\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "foundations.worked-weight.bernstein.degree-comparison.png",
       "width": 840,
       "height": 520,
@@ -3614,7 +3646,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 14,
+            "label": 14,
             "curve": 3
           },
           "visiblePointCount": 0,
@@ -3689,14 +3721,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.applications.arc-length",
@@ -3707,18 +3735,23 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"arc-chord-scene\",\"source\":\"demonstration-default\"}",
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"n\",\"value\":1}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.applications.arc-length.png",
       "width": 840,
       "height": 520,
-      "sha256": "4d1476698efffe195a0f3cf4d8dc59fe0bb7558db274ac67016b0d03975f3ff8",
+      "sha256": "9aa5b6956e218a01bf9cb4e0bb67a6d6bd312839b1512e3a413e313f4617016c",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 10,
+          "label": 9,
           "curve": 3,
-          "point": 2
+          "point": 2,
+          "text": 1
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -3776,9 +3809,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 19,
+            "label": 18,
             "curve": 3,
-            "point": 2
+            "point": 2,
+            "text": 1
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -3840,22 +3874,19 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 10,
+          "label": 9,
           "curve": 3,
-          "point": 2
+          "point": 2,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.applications.area-between-curves",
@@ -3868,6 +3899,10 @@
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"a\",\"value\":1}",
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"b\",\"value\":3}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.applications.area-between-curves.png",
       "width": 840,
       "height": 520,
@@ -3938,10 +3973,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 24,
+            "label": 21,
             "curve": 3,
             "segment": 2,
-            "point": 4
+            "point": 4,
+            "text": 3
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -4012,14 +4048,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.continuity.continuity",
@@ -4029,6 +4061,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"continuity-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.continuity.continuity.png",
       "width": 840,
       "height": 520,
@@ -4038,9 +4074,10 @@
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 6,
+          "label": 5,
           "curve": 2,
-          "point": 2
+          "point": 2,
+          "text": 1
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -4084,9 +4121,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 16,
+            "label": 15,
             "curve": 2,
-            "point": 2
+            "point": 2,
+            "text": 1
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -4134,22 +4172,19 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 6,
+          "label": 5,
           "curve": 2,
-          "point": 2
+          "point": 2,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.derivatives.derivative",
@@ -4159,19 +4194,24 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"derivative-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.derivatives.derivative.png",
       "width": 840,
       "height": 520,
-      "sha256": "1014640ee76bc315412368103382939cc55425f6f2b8bbd301f9bc777118f601",
+      "sha256": "2f864e712c5fadd70f43353701b97dceb9eba81aa7ca4daad247deb22e172c6f",
       "scene": {
         "visibleElementCount": 14,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 6,
+          "label": 5,
           "curve": 1,
           "point": 2,
-          "line": 1
+          "line": 1,
+          "text": 1
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -4201,10 +4241,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 20,
+            "label": 19,
             "curve": 1,
             "point": 2,
-            "line": 1
+            "line": 1,
+            "text": 1
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -4238,23 +4279,20 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 6,
+          "label": 5,
           "curve": 1,
           "point": 2,
-          "line": 1
+          "line": 1,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.function-rules.exponential-function",
@@ -4264,18 +4302,23 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"exponential-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.function-rules.exponential-function.png",
       "width": 840,
       "height": 520,
-      "sha256": "b8479e474effec50ccabd2d98d61d51f1218a6295b446b37fd43269c26ea4e66",
+      "sha256": "8f3486e6061134094feb7474aa9c2f7395e9d30041b8b9f7da498bcd04f5d243",
       "scene": {
         "visibleElementCount": 14,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 7,
+          "label": 6,
           "curve": 1,
-          "point": 2
+          "point": 2,
+          "text": 1
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -4305,9 +4348,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 19,
+            "label": 18,
             "curve": 1,
-            "point": 2
+            "point": 2,
+            "text": 1
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -4341,22 +4385,19 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 7,
+          "label": 6,
           "curve": 1,
-          "point": 2
+          "point": 2,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.function-rules.linear-function",
@@ -4366,6 +4407,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.function-rules.linear-function.png",
       "width": 840,
       "height": 520,
@@ -4375,10 +4420,11 @@
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 19,
+          "label": 16,
           "point": 3,
           "line": 1,
-          "segment": 2
+          "segment": 2,
+          "text": 3
         },
         "visiblePointCount": 3,
         "sampledVisibleCurves": [],
@@ -4393,10 +4439,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 24,
+            "label": 21,
             "point": 3,
             "line": 1,
-            "segment": 2
+            "segment": 2,
+            "text": 3
           },
           "visiblePointCount": 3,
           "sampledVisibleCurves": [],
@@ -4415,23 +4462,20 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 19,
+          "label": 16,
           "point": 3,
           "line": 1,
-          "segment": 2
+          "segment": 2,
+          "text": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.function-rules.trigonometric-functions",
@@ -4441,17 +4485,22 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"trig-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.function-rules.trigonometric-functions.png",
       "width": 840,
       "height": 520,
-      "sha256": "186130b8553ec36d82e8bc0095e637e9c9e70db2976eae28a35b4cd4544a6723",
+      "sha256": "880878835ef2e1246203b0f17d2d5ef647b2e95b1db66cca599c5088d3b62b60",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 13,
-          "curve": 2
+          "label": 12,
+          "curve": 2,
+          "text": 1
         },
         "visiblePointCount": 0,
         "sampledVisibleCurves": [
@@ -4495,8 +4544,9 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 13,
-            "curve": 2
+            "label": 12,
+            "curve": 2,
+            "text": 1
           },
           "visiblePointCount": 0,
           "sampledVisibleCurves": [
@@ -4544,21 +4594,18 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 13,
-          "curve": 2
+          "label": 12,
+          "curve": 2,
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.integrals.accumulation",
@@ -4568,18 +4615,23 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"accumulation-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.integrals.accumulation.png",
       "width": 840,
       "height": 520,
-      "sha256": "6e683f4c003eec5ac50a4a988a132bcab82c088cb46655a381b124f46c3339d8",
+      "sha256": "b56692b45f031376018c1a780988387c255a4b0dfcc6b0bae6c1531b8b4de38e",
       "scene": {
         "visibleElementCount": 21,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "text": 11,
+          "label": 9,
           "curve": 2,
           "segment": 1,
+          "text": 2,
           "point": 3
         },
         "visiblePointCount": 3,
@@ -4624,9 +4676,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 20,
+            "label": 18,
             "curve": 2,
             "segment": 1,
+            "text": 2,
             "point": 3
           },
           "visiblePointCount": 3,
@@ -4675,23 +4728,20 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "text": 11,
+          "label": 9,
           "curve": 2,
           "segment": 1,
+          "text": 2,
           "point": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "functions-and-calculus.integrals.definite-integral",
@@ -4701,10 +4751,14 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"integral-default\",\"source\":\"demonstration-default\"}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "functions-and-calculus.integrals.definite-integral.png",
       "width": 840,
       "height": 520,
-      "sha256": "72cb1f44d28165a369da97e6b07c9c754aa979cf230213375382195296b982ab",
+      "sha256": "0615b410fd4635b5d643587109331ddd85d7883dbc9e9c1b9456d9d19aad4c9c",
       "scene": {
         "visibleElementCount": 9,
         "visibleElementTypes": {
@@ -4756,9 +4810,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 20,
+            "label": 19,
             "curve": 2,
-            "point": 2
+            "point": 2,
+            "text": 1
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -4814,14 +4869,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "parametrization.uniform-timing.uniform-parameterization",
@@ -4834,6 +4885,10 @@
         "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
         "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":3}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "parametrization.uniform-timing.uniform-parameterization.png",
       "width": 840,
       "height": 520,
@@ -4873,9 +4928,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 26,
+            "label": 25,
             "point": 9,
-            "curve": 1
+            "curve": 1,
+            "text": 1
           },
           "visiblePointCount": 9,
           "sampledVisibleCurves": [
@@ -4915,14 +4971,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "parametrization.weighted-knot.spline-parameterization",
@@ -4935,6 +4987,10 @@
         "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":10}",
         "spline-hide-fixed: {\"kind\":\"spline-hide-fixed\",\"hidden\":false}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "parametrization.weighted-knot.spline-parameterization.png",
       "width": 840,
       "height": 520,
@@ -4973,7 +5029,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 42,
+            "label": 42,
             "point": 30,
             "curve": 1
           },
@@ -5014,14 +5070,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "parametrization.weighted-knot.weighted-parameterization",
@@ -5033,10 +5085,148 @@
         "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
         "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":3}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "wp-quarter-calculation-calculation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "types": {
+            "curve": 1,
+            "point": 7
+          },
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              -2
+            ],
+            [
+              -0.5,
+              0.875
+            ],
+            [
+              1.625,
+              0.234375
+            ],
+            [
+              2.5880000000000005,
+              -0.9210000000000004
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.5,
+                0.875
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ]
+        }
+      },
+      "recipeFingerprint": "eddcd125712fbdb40cb97996c980e60d877f53bd28c66ac5d7d16b7d72947cc6",
+      "highlight": {
+        "frame": "wp-quarter-calculation-calculation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "b0f699e9e92e7aa58f19da9f651d68e50f3637cbc0eda4829426c23e953191fd",
+        "resultFingerprint": "dd697ade2e43b60a72d10f6287bc503e5b0e9ac978aeba97810f15c32ee651db",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "type:curve",
+            "passed": true
+          },
+          {
+            "name": "type:point",
+            "passed": true
+          },
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-4,-3",
+            "passed": true
+          },
+          {
+            "name": "point:-3,2",
+            "passed": true
+          },
+          {
+            "name": "point:2,2",
+            "passed": true
+          },
+          {
+            "name": "point:3,-2",
+            "passed": true
+          },
+          {
+            "name": "point:-0.5,0.875",
+            "passed": true
+          },
+          {
+            "name": "point:1.625,0.234375",
+            "passed": true
+          },
+          {
+            "name": "point:2.5880000000000005,-0.9210000000000004",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 23,
+            "point": 7,
+            "curve": 1
+          },
+          "visiblePointCount": 7
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "parametrization.weighted-knot.weighted-parameterization.png",
       "width": 840,
       "height": 520,
-      "sha256": "86902bbb85eb4743e4c73ecefe6a62e3d28256afa07508f49715c13a0fe48312",
+      "sha256": "1561b5ad3609d6032adb1d8bdb5642aaf621ad4bf89f5f4c75cc1a51b72e0383",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -5060,7 +5250,19 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:-4,-3",
+          "point:-3,2",
+          "point:2,2",
+          "point:3,-2",
+          "point:-0.5,0.875",
+          "point:1.625,0.234375",
+          "point:2.5880000000000005,-0.9210000000000004",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -5071,7 +5273,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 23,
+            "label": 23,
             "point": 7,
             "curve": 1
           },
@@ -5112,14 +5314,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "ph-curves.arc-length-problem.ph-cubic-speed",
@@ -5129,6 +5327,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "ph-curves.arc-length-problem.ph-cubic-speed.png",
       "width": 840,
       "height": 520,
@@ -5168,9 +5370,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 21,
+            "label": 20,
             "point": 4,
-            "curve": 1
+            "curve": 1,
+            "text": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -5210,14 +5413,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "ph-curves.arc-length-problem.ph-quintic-comparison",
@@ -5227,6 +5426,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "ph-curves.arc-length-problem.ph-quintic-comparison.png",
       "width": 840,
       "height": 520,
@@ -5266,9 +5469,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 26,
+            "label": 25,
             "point": 6,
-            "curve": 1
+            "curve": 1,
+            "text": 1
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -5308,14 +5512,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "ph-curves.complex-hodograph.ph-cubic-generator",
@@ -5325,6 +5525,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "ph-curves.complex-hodograph.ph-cubic-generator.png",
       "width": 840,
       "height": 520,
@@ -5364,9 +5568,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 21,
+            "label": 20,
             "point": 4,
-            "curve": 1
+            "curve": 1,
+            "text": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -5406,14 +5611,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "ph-curves.investigate-ph.ph-cubic-singularity",
@@ -5423,6 +5624,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "ph-curves.investigate-ph.ph-cubic-singularity.png",
       "width": 840,
       "height": 520,
@@ -5462,9 +5667,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 21,
+            "label": 20,
             "point": 4,
-            "curve": 1
+            "curve": 1,
+            "text": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -5504,14 +5710,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "ph-curves.investigate-ph.ph-quintic-singularity",
@@ -5521,6 +5723,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "ph-curves.investigate-ph.ph-quintic-singularity.png",
       "width": 840,
       "height": 520,
@@ -5560,9 +5766,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 26,
+            "label": 25,
             "point": 6,
-            "curve": 1
+            "curve": 1,
+            "text": 1
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -5602,14 +5809,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "ph-curves.offsets.ph-quintic-offsets",
@@ -5619,19 +5822,182 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "ph-quintic-offset-positive-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "types": {
+            "curve": 2,
+            "point": 6
+          },
+          "curveCount": 2,
+          "points": [
+            [
+              -2,
+              -1
+            ],
+            [
+              -1.2,
+              -1
+            ],
+            [
+              -0.3999999999999999,
+              -0.6
+            ],
+            [
+              0.13333333333333341,
+              0.06666666666666676
+            ],
+            [
+              0.3333333333333334,
+              0.6666666666666667
+            ],
+            [
+              0.3333333333333334,
+              1.0666666666666669
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.2708333333333333,
+                -0.21666666666666665
+              ],
+              [
+                0.3333333333333335,
+                1.0666666666666669
+              ]
+            ],
+            [
+              [
+                -2,
+                -1.5
+              ],
+              [
+                0.09123563218390807,
+                -0.5614942528735632
+              ],
+              [
+                0.8333333333333335,
+                1.0666666666666669
+              ]
+            ]
+          ]
+        }
+      },
+      "recipeFingerprint": "906417a8e8e666e316803fae4b889be33eb1ea75826f74a59ee2a61be16cbafe",
+      "highlight": {
+        "frame": "ph-quintic-offset-positive-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "3414c199a558c86cb59856646a1405c01d05c239af29f0d34b61a7ec240e2651",
+        "resultFingerprint": "29299c012631dbe2cf91d9cf44adf6f9ee562d614d012021b585383e9e081da3",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "type:curve",
+            "passed": true
+          },
+          {
+            "name": "type:point",
+            "passed": true
+          },
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-2,-1",
+            "passed": true
+          },
+          {
+            "name": "point:-1.2,-1",
+            "passed": true
+          },
+          {
+            "name": "point:-0.3999999999999999,-0.6",
+            "passed": true
+          },
+          {
+            "name": "point:0.13333333333333341,0.06666666666666676",
+            "passed": true
+          },
+          {
+            "name": "point:0.3333333333333334,0.6666666666666667",
+            "passed": true
+          },
+          {
+            "name": "point:0.3333333333333334,1.0666666666666669",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "point": 6,
+            "curve": 2,
+            "text": 1
+          },
+          "visiblePointCount": 6
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "ph-curves.offsets.ph-quintic-offsets.png",
       "width": 840,
       "height": 520,
-      "sha256": "6518a56e6cc63d403c387ecc6f38c4cab37734c64313ce866b38203d39714981",
+      "sha256": "a88869b3bee2f7f1eb1ba670bc18c5f81e12f5d39598ca1f1abf15534bd4c88b",
       "scene": {
-        "visibleElementCount": 8,
+        "visibleElementCount": 9,
         "visibleElementTypes": {
           "point": 6,
-          "curve": 1,
+          "curve": 2,
           "text": 1
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
+          [
+            [
+              -2,
+              -1.5
+            ],
+            [
+              0.091236,
+              -0.561494
+            ],
+            [
+              0.833333,
+              1.066667
+            ]
+          ],
           [
             [
               -2,
@@ -5647,7 +6013,19 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:-2,-1",
+          "point:-1.2,-1",
+          "point:-0.3999999999999999,-0.6",
+          "point:0.13333333333333341,0.06666666666666676",
+          "point:0.3333333333333334,0.6666666666666667",
+          "point:0.3333333333333334,1.0666666666666669",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -5658,9 +6036,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 26,
+            "label": 25,
             "point": 6,
-            "curve": 1
+            "curve": 1,
+            "text": 1
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -5693,21 +6072,17 @@
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 6,
-          "curve": 1,
+          "curve": 2,
           "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "ph-curves.worked-length.ph-cubic-offset-length",
@@ -5717,6 +6092,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "ph-curves.worked-length.ph-cubic-offset-length.png",
       "width": 840,
       "height": 520,
@@ -5756,9 +6135,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 21,
+            "label": 20,
             "point": 4,
-            "curve": 1
+            "curve": 1,
+            "text": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -5798,14 +6178,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "rational-curves.homogeneous.rational-decasteljau",
@@ -5818,6 +6194,10 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}",
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "rational-curves.homogeneous.rational-decasteljau.png",
       "width": 840,
       "height": 520,
@@ -5828,7 +6208,7 @@
           "point": 6,
           "curve": 1,
           "segment": 3,
-          "text": 3
+          "smartlabel": 3
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -5858,10 +6238,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 27,
+            "label": 24,
             "point": 6,
             "curve": 1,
-            "segment": 3
+            "segment": 3,
+            "smartlabel": 3
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -5889,27 +6270,23 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 3,
-        "finalLabelCount": 3,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 6,
           "curve": 1,
           "segment": 3,
-          "text": 3
+          "smartlabel": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "rational-curves.investigate-rational.rational-extrapolation",
@@ -5920,6 +6297,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rex-default\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "rational-curves.investigate-rational.rational-extrapolation.png",
       "width": 840,
       "height": 520,
@@ -5929,7 +6310,7 @@
         "visibleElementTypes": {
           "point": 5,
           "curve": 1,
-          "text": 4
+          "smartlabel": 4
         },
         "visiblePointCount": 5,
         "sampledVisibleCurves": [
@@ -5959,9 +6340,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 25,
+            "label": 21,
             "point": 5,
-            "curve": 1
+            "curve": 1,
+            "smartlabel": 4
           },
           "visiblePointCount": 5,
           "sampledVisibleCurves": [
@@ -5989,26 +6371,22 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 5,
           "curve": 1,
-          "text": 4
+          "smartlabel": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "rational-curves.operations.farin",
@@ -6019,6 +6397,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"farin-weights\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "rational-curves.operations.farin.png",
       "width": 840,
       "height": 520,
@@ -6028,7 +6410,7 @@
         "visibleElementTypes": {
           "point": 4,
           "curve": 1,
-          "text": 4
+          "smartlabel": 4
         },
         "visiblePointCount": 4,
         "sampledVisibleCurves": [
@@ -6058,9 +6440,10 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 24,
+            "label": 20,
             "point": 4,
-            "curve": 1
+            "curve": 1,
+            "smartlabel": 4
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -6088,26 +6471,22 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 4,
           "curve": 1,
-          "text": 4
+          "smartlabel": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "rational-curves.operations.rational-elevation",
@@ -6119,6 +6498,10 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "rational-curves.operations.rational-elevation.png",
       "width": 840,
       "height": 520,
@@ -6129,7 +6512,7 @@
           "point": 4,
           "curve": 1,
           "segment": 3,
-          "text": 4
+          "smartlabel": 4
         },
         "visiblePointCount": 4,
         "sampledVisibleCurves": [
@@ -6159,10 +6542,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 24,
+            "label": 20,
             "point": 4,
             "curve": 1,
-            "segment": 3
+            "segment": 3,
+            "smartlabel": 4
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -6190,27 +6574,23 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 4,
           "curve": 1,
           "segment": 3,
-          "text": 4
+          "smartlabel": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "rational-curves.operations.rational-subdivision",
@@ -6221,6 +6601,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rsd-default\",\"source\":\"demonstration-default\"}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "rational-curves.operations.rational-subdivision.png",
       "width": 840,
       "height": 520,
@@ -6231,7 +6615,7 @@
           "point": 10,
           "curve": 2,
           "segment": 6,
-          "text": 4
+          "smartlabel": 4
         },
         "visiblePointCount": 10,
         "sampledVisibleCurves": [
@@ -6275,10 +6659,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 30,
+            "label": 26,
             "point": 10,
             "curve": 2,
-            "segment": 6
+            "segment": 6,
+            "smartlabel": 4
           },
           "visiblePointCount": 10,
           "sampledVisibleCurves": [
@@ -6320,27 +6705,23 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 10,
           "curve": 2,
           "segment": 6,
-          "text": 4
+          "smartlabel": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "rational-curves.why-rational.rational-weight",
@@ -6353,17 +6734,141 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}",
         "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "rational-base-evaluation-calculation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "types": {
+            "curve": 1,
+            "point": 5
+          },
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              4,
+              -3
+            ],
+            [
+              -0.8181818181818182,
+              1.9090909090909092
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.8181818181818182,
+                1.9090909090909092
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
+      },
+      "recipeFingerprint": "8c2aed35b64a0441b0a03c4a9a7f538708571a28d37bfec0a9d9c3cfaf9cec90",
+      "highlight": {
+        "frame": "rational-base-evaluation-calculation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "f3f87b5e97223fc8b51786d4d92fd712ce765628235d6b6e57dc6391604c861b",
+        "resultFingerprint": "b2f0b7fd8a22e7dc6bfd437a7d5688d30f0f482755c801d0d89c8de58ef4b608",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "type:curve",
+            "passed": true
+          },
+          {
+            "name": "type:point",
+            "passed": true
+          },
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-4,-3",
+            "passed": true
+          },
+          {
+            "name": "point:-3,3",
+            "passed": true
+          },
+          {
+            "name": "point:3,3",
+            "passed": true
+          },
+          {
+            "name": "point:4,-3",
+            "passed": true
+          },
+          {
+            "name": "point:-0.8181818181818182,1.9090909090909092",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 38,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "point": 5,
+            "curve": 1,
+            "segment": 3,
+            "smartlabel": 4
+          },
+          "visiblePointCount": 5
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "rational-curves.why-rational.rational-weight.png",
       "width": 840,
       "height": 520,
-      "sha256": "6733c2c33bdb68ee151862820c763efda48074e066adf2ca6249adb198722842",
+      "sha256": "3c2b13f28f899b820526f9337cdf13d165d7ad96ed5297ca296fdeee9b1b9ffc",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
           "point": 5,
           "curve": 1,
           "segment": 3,
-          "text": 4
+          "smartlabel": 4
         },
         "visiblePointCount": 5,
         "sampledVisibleCurves": [
@@ -6373,8 +6878,8 @@
               -3
             ],
             [
-              0,
-              1.5
+              -0.818182,
+              1.909091
             ],
             [
               4,
@@ -6382,7 +6887,17 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:-4,-3",
+          "point:-3,3",
+          "point:3,3",
+          "point:4,-3",
+          "point:-0.8181818181818182,1.9090909090909092",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -6393,10 +6908,11 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 27,
+            "label": 23,
             "point": 5,
             "curve": 1,
-            "segment": 3
+            "segment": 3,
+            "smartlabel": 4
           },
           "visiblePointCount": 5,
           "sampledVisibleCurves": [
@@ -6424,27 +6940,23 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "point": 5,
           "curve": 1,
           "segment": 3,
-          "text": 4
+          "smartlabel": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "rational-curves.worked-conic.circle",
@@ -6454,6 +6966,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"circle-default\",\"source\":\"demonstration-default\",\"view\":[-7,8,7,-5]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "rational-curves.worked-conic.circle.png",
       "width": 840,
       "height": 520,
@@ -6520,7 +7036,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 28,
+            "label": 28,
             "point": 9,
             "curve": 3
           },
@@ -6589,14 +7105,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "splines.continuity-levels.spline-c1",
@@ -6607,6 +7119,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"c1-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-2],[-2,2],[2,2],[3,-1]]},\"view\":[-6,4,6,-4]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "splines.continuity-levels.spline-c1.png",
       "width": 840,
       "height": 520,
@@ -6645,7 +7161,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 19,
+            "label": 19,
             "point": 5,
             "curve": 1
           },
@@ -6686,14 +7202,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "splines.continuity-levels.spline-c2",
@@ -6704,6 +7216,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"c2-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-6,-1],[-5,3],[-3,-3],[3,0],[5,2],[6,-2]]},\"view\":[-8,5,8,-5]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "splines.continuity-levels.spline-c2.png",
       "width": 840,
       "height": 520,
@@ -6742,7 +7258,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 30,
+            "label": 30,
             "point": 12,
             "curve": 1
           },
@@ -6783,14 +7299,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "splines.geometric-vs-parametric.spline-g1",
@@ -6801,6 +7313,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"g1-default-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,-1],[-2,2],[0,0],[4,-1]],\"splineRatios\":[1]},\"view\":[-6,4,7,-7]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "splines.geometric-vs-parametric.spline-g1.png",
       "width": 840,
       "height": 520,
@@ -6839,7 +7355,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 20,
+            "label": 20,
             "point": 5,
             "curve": 1
           },
@@ -6880,14 +7396,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "splines.geometric-vs-parametric.spline-g1-symmetric",
@@ -6899,6 +7411,10 @@
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}",
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "splines.geometric-vs-parametric.spline-g1-symmetric.png",
       "width": 840,
       "height": 520,
@@ -6938,7 +7454,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 19,
+            "label": 19,
             "point": 5,
             "curve": 1,
             "segment": 4
@@ -6981,14 +7497,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "splines.piecewise.spline-cn",
@@ -6999,6 +7511,10 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"cn-two-pieces-labelled\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-4,1],[-2,-2],[0,-3],[4,0]],\"degree\":2,\"continuity\":1},\"view\":[-6,3,6,-5]}",
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "splines.piecewise.spline-cn.png",
       "width": 840,
       "height": 520,
@@ -7037,7 +7553,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 19,
+            "label": 19,
             "point": 5,
             "curve": 1
           },
@@ -7078,14 +7594,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "splines.worked-join.spline-c1.parabola-derivatives",
@@ -7095,6 +7607,10 @@
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"worked-parabola-join\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[0,0],[0.5,0],[1.5,2],[2,4]],\"degree\":2,\"continuity\":1},\"view\":[-0.25,4.5,2.25,-0.5]}"
       ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
       "file": "splines.worked-join.spline-c1.parabola-derivatives.png",
       "width": 840,
       "height": 520,
@@ -7143,7 +7659,7 @@
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "text": 23,
+            "label": 23,
             "point": 5,
             "curve": 1
           },
@@ -7194,14 +7710,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
-        "sourceRevision": "93066f43c9edf0cd145473fd62317f7397934b09",
+        "buildRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
+        "sourceRevision": "a3dc9d4cb1834991c4853632507f1b782ca6c8ba",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     }
   ]
 }

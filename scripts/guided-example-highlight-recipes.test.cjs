@@ -160,6 +160,11 @@ test('the runner reaches frames with navigation, applies steps in order, and fai
     assert.deepEqual([back.state.step, back.state.frame], [0, 1]);
     // A frame beyond the end of the lesson as rendered in the browser is unreachable.
     await assert.rejects(() => reachFrame(fakePage([2, 1, 2]), 'x', {step: 5, frame: 0}, 'recipe frame "ghost"'), /recipe frame "ghost" is unreachable/);
+    // When the lesson ends before the frame, the progress text becomes unreadable; the message still says the frame is unreachable.
+    const ended = {evaluate: async () => undefined, locator: () => ({
+        innerText: async () => (ended.clicked ? 'Vodeni primer je končan' : 'Korak 1 od 1 · Okvir 1 od 1'),
+        click: async () => { ended.clicked = true; }})};
+    await assert.rejects(() => reachFrame(ended, 'x', {step: 0, frame: 3}, 'recipe frame "ghost"'), /recipe frame "ghost" is unreachable .*Vodeni primer je končan/);
     // A missing action button fails the step with the step number and the button label.
     await assert.rejects(() => applyHighlightRecipe(fakePage([2, 1, 2], {}), entry), /recipe step 1 \(frame-action weights\) failed: frame action button "Povečaj utež" is not present exactly once/);
     // A frame-action step on the wrong frame fails instead of pressing something else.
@@ -167,11 +172,11 @@ test('the runner reaches frames with navigation, applies steps in order, and fai
     await assert.rejects(() => applyHighlightRecipe(fakePage([2, 1, 2], actions), wrongFrame), /recipe step 1 .* failed: lesson is not on frame "weights"/);
 });
 
-test('the committed retained and patch manifests still validate against their inventories with explicit start recipes', () => {
+test('the committed retained and patch manifests still validate against their inventories with explicit recipes', () => {
     for (const [inventoryFile, destination] of [['docs/reviews/illustrated-chapter-examples/capture-inventory.json', 'src/images/learning/examples'],
         ['docs/reviews/bezier-patches/guided-example-inventory.json', 'src/images/learning/examples/patches']]) {
         const inventory = validateInventory(JSON.parse(fs.readFileSync(path.join(root, inventoryFile), 'utf8')).examples);
-        assert.ok(inventory.every(entry => entry.recipe.kind === 'start'), inventoryFile);
+        assert.ok(inventory.every(entry => ['start', 'highlight'].includes(entry.recipe.kind)), inventoryFile);
         const manifest = JSON.parse(fs.readFileSync(path.join(root, destination, 'manifest.json'), 'utf8'));
         assert.doesNotThrow(() => validatePublishedSet(inventory, manifest.captures, path.join(root, destination)), inventoryFile);
     }
