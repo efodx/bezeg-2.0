@@ -22,6 +22,10 @@ Status: planned 2026-11-01 (geometry handler 12). Source: [spec C1](../../specs/
 
    Observe each new assertion fail against a deliberate mutation.
 
+## Decision (handler 13, 2026-11-01): side-list sources
+
+The interval kernel knows every event at the start and emits no `schedule` events, so `sweepStateAt(...).queue` stays empty. The event-queue list is the trace's `pop` events after the current step, in trace order (the kernel's sorted queue). The status list is `sweepStateAt(...).status`; the kernel keeps open intervals in letter order (insertion at the first larger id), so the list shows letters alphabetically, not in order of entry. Alternative: emit `schedule` events for the initial queue in the kernel. Rejected: it changes an accepted kernel and its tests for a display need the trace already answers.
+
 Not in scope: route, Demonstration registration and the C1 lesson (they wait for the S1 F2b/F3 slices, `G-REG`).
 
 Checks: `just unit src/graphs/compgeo --maxWorkers=2`, `just lint` on touched files, `npx tsc --noEmit --pretty false`, `just build`.

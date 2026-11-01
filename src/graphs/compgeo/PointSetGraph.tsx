@@ -558,7 +558,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     /** Brings the board in line with the state. Idempotent: it moves, rebuilds or leaves objects as the state requires. */
-    private syncScene(): void {
+    protected syncScene(): void {
         if (!this.graphSession?.isAlive || !this.hasBoard) return;
         const {model, overlays} = this.state;
         if (this.selected !== undefined && this.selected >= model.points.length) this.selected = model.points.length === 0 ? undefined : model.points.length - 1;
