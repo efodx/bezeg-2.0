@@ -959,9 +959,77 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "bernstein-stacked-area-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "cf596ded0aee52491b54ae2c9302e5301b8b0b58e3a615154c1df5bbf2145a1f"
     },
     {
       "id": "foundations.worked-weight.bernstein.degree-comparison",
@@ -1428,9 +1496,61 @@
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "rational-decasteljau-projection-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              4,
+              -3
+            ],
+            [
+              -1.3333333333333333,
+              1
+            ],
+            [
+              1.3333333333333333,
+              1
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "74190a86701d139072e0e23309d424700b7e4e3c34da60af0d5645e4c65e5257"
     },
     {
       "id": "rational-curves.investigate-rational.rational-extrapolation",
@@ -1442,9 +1562,53 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "rex-example-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -2.9090909090909087,
+              3.5454545454545445
+            ],
+            [
+              13.538461538461535,
+              2.538461538461539
+            ],
+            [
+              3.048951048951049,
+              -2.9999999999999996
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0.1366459627329192,
+                2.0310559006211184
+              ],
+              [
+                3.0489510489510496,
+                -3.000000000000001
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "e653d6a435623db147be2fdc4a5f4805355f8872084c23bf370198827baac5ec"
     },
     {
       "id": "rational-curves.operations.farin",
@@ -1456,9 +1620,56 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "farin-show-points-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "types": {
+            "slider": 3
+          },
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.8181818181818182,
+                1.9090909090909092
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "72a32d9ec79915e50b08c12e85413c94983bbd85e9ee52d0712dbbdc03cdafc5"
     },
     {
       "id": "rational-curves.operations.rational-elevation",
@@ -1471,9 +1682,57 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "rational-elevation-once-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3.142857142857143,
+              2.142857142857143
+            ],
+            [
+              -1,
+              3
+            ],
+            [
+              3.25,
+              1.5
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.8181818181818182,
+                1.9090909090909092
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "6e6cff55ad2b35043177f63e4575b3931a24214539140a7954a9c4391301bd0d"
     },
     {
       "id": "rational-curves.operations.rational-subdivision",
@@ -1485,9 +1744,83 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"weights\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "rsd-half-example-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3.3333333333333335,
+              1
+            ],
+            [
+              -2.1666666666666665,
+              2
+            ],
+            [
+              -0.8181818181818182,
+              1.9090909090909092
+            ],
+            [
+              -0.8181818181818182,
+              1.9090909090909092
+            ],
+            [
+              0.8,
+              1.8
+            ],
+            [
+              3.5,
+              0
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -2.6263736263736264,
+                1.1538461538461537
+              ],
+              [
+                -0.8181818181818182,
+                1.9090909090909092
+              ]
+            ],
+            [
+              [
+                -0.8181818181818182,
+                1.9090909090909092
+              ],
+              [
+                1.7945205479452055,
+                0.6986301369863014
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "a400c82a9db1ba3978013694d3acc557818c784498c7534cfcbd5f4b85bf3c00"
     },
     {
       "id": "rational-curves.why-rational.rational-weight",
@@ -1580,9 +1913,57 @@
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "c1-tangent-step-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -2
+            ],
+            [
+              -2,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              -1
+            ],
+            [
+              0,
+              2
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                3,
+                -1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "4df571b1e8c20c69b9d776917ca5c5b694ac5fd7758f382881aac68e5ba2ef81"
     },
     {
       "id": "splines.continuity-levels.spline-c2",
@@ -1594,9 +1975,85 @@
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "c2-joint-step-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -6,
+              -1
+            ],
+            [
+              -5,
+              3
+            ],
+            [
+              -3,
+              -3
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              5,
+              2
+            ],
+            [
+              6,
+              -2
+            ],
+            [
+              -4,
+              0
+            ],
+            [
+              -2.5,
+              -1
+            ],
+            [
+              -1,
+              -2
+            ],
+            [
+              1,
+              -1
+            ],
+            [
+              2.5,
+              0
+            ],
+            [
+              4,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -6,
+                -1
+              ],
+              [
+                0,
+                -1.25
+              ],
+              [
+                6,
+                -2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "b0dc99ecbeeece323cfbc5b9550b4ec26dba419cab7f6eee65bccb7ec957e088"
     },
     {
       "id": "splines.geometric-vs-parametric.spline-g1",
@@ -1608,9 +2065,57 @@
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "g1-condition-step-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -1
+            ],
+            [
+              -2,
+              2
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              4,
+              -1
+            ],
+            [
+              2,
+              -2
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -1
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                4,
+                -1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "59c371cdbb66be032ab5e4133e74a1d63070a17727833dc4f8436fdda2c4a38e"
     },
     {
       "id": "splines.geometric-vs-parametric.spline-g1-symmetric",
@@ -1623,9 +2128,57 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "g1s-quarter-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -5,
+              -1
+            ],
+            [
+              -2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              -1,
+              1.5
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -5,
+                -1
+              ],
+              [
+                -1,
+                1.5
+              ],
+              [
+                5,
+                3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "8ccb259f44cec1a515ada64f4ee29f5bb8e7b2c69a5628ff15449c9f2b1be4da"
     },
     {
       "id": "splines.piecewise.spline-cn",
@@ -1637,9 +2190,57 @@
         "spline-label-points: {\"kind\":\"spline-label-points\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "cn-extrapolate-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              1
+            ],
+            [
+              -2,
+              -2
+            ],
+            [
+              0,
+              -3
+            ],
+            [
+              4,
+              0
+            ],
+            [
+              2,
+              -4
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                1
+              ],
+              [
+                0,
+                -3
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "ea1494c52571e07b20ec7fe2a47b16c6841b644a537464d03288703c987c1ba7"
     },
     {
       "id": "splines.worked-join.spline-c1.parabola-derivatives",

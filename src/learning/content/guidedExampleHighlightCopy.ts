@@ -83,5 +83,72 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
         'Rez pri t = 0,5 da dve kubični krivulji, ki se srečata v (0, 3/2) in skupaj narišeta isto krivuljo. Do tega pogleda prideš s pritiskom na Subdiviziraj pri privzetem t = 0,5.',
         'Cutting at t = 0.5 gives two cubics that meet at (0, 3/2) and together trace the same curve. Reach this view by pressing Subdivide at the default t = 0.5.',
     ),
+    'foundations.reading-bernstein.bernstein': copy(
+        'Štiri barvno napolnjena območja, naložena druga na drugo, ki skupaj zapolnijo pas do višine 1 nad intervalom od 0 do 1.',
+        'Four colour-filled regions stacked on top of each other, together filling a band up to height 1 over the interval from 0 to 1.',
+        'Štiri kubične Bernsteinove funkcije so naložene druga na drugo, zgornji rob pa je pri vsakem t na višini 1. Do tega pogleda prideš z vklopom naloženega ploščinskega grafikona pri stopnji 3.',
+        'The four cubic Bernstein functions are stacked on top of each other, and the top edge is at height 1 for every t. Reach this view by turning on the stacked area chart at degree 3.',
+    ),
+    'rational-curves.homogeneous.rational-decasteljau': copy(
+        'Racionalna kvadratna Bézierjeva krivulja z utežmi 1, 2, 1, njenimi tremi kontrolnimi točkami in konstrukcijsko shemo pri t = 0,5; krivulja je narisana do te vrednosti.',
+        'A rational quadratic Bézier curve with weights 1, 2, 1, its three control points and the construction scheme at t = 0.5; the curve is drawn up to that value.',
+        'Pri utežeh 1, 2, 1 in t = 0,5 sta vmesni točki sheme v (−4/3, 1) in (4/3, 1), končna točka pa v (0, 1) in leži na krivulji. Do tega pogleda prideš v koraku Projekcija v ravnino.',
+        'With weights 1, 2, 1 and t = 0.5 the intermediate points of the scheme are at (−4/3, 1) and (4/3, 1), and the final point is at (0, 1) on the curve. Reach this view in the step Projection to the plane.',
+    ),
+    'rational-curves.investigate-rational.rational-extrapolation': copy(
+        'Racionalna Bézierjeva krivulja, podaljšana prek svojega konca, s tremi vidnimi kontrolnimi točkami nove krivulje in oznakami njihovih uteži; tretja kontrolna točka z utežjo 0,52 je zunaj slike.',
+        'A rational Bézier curve extended past its end, with three visible control points of the new curve and their weight labels; the third control point, with weight 0.52, lies outside the picture.',
+        'Po podaljšanju pri t = 1,2 ima nova krivulja uteži 1; 2,2; 0,52; 1,144, njena zadnja kontrolna točka (3,05; −3) pa je točka prvotne krivulje pri t = 1,2. Črta za njo je predogled naslednjega podaljšanja. Do tega pogleda prideš z nastavitvijo parametra na 1,2 in pritiskom na Ekstrapoliraj.',
+        'After the extension at t = 1.2 the new curve has weights 1, 2.2, 0.52, 1.144, and its last control point (3.05, −3) is the point of the original curve at t = 1.2. The line beyond it previews the next extension. Reach this view by setting the parameter to 1.2 and pressing Extrapolate.',
+    ),
+    'rational-curves.operations.farin': copy(
+        'Racionalna kubična Bézierjeva krivulja s štirimi kontrolnimi točkami in tremi Farinovimi točkami, vsako na svoji daljici med sosednjima kontrolnima točkama.',
+        'A rational cubic Bézier curve with four control points and three Farin points, each on its own edge between neighbouring control points.',
+        'Farinove točke so tri, po ena na vsaki daljici med sosednjimi kontrolnimi točkami; to so drsniki po daljicah. Do tega pogleda prideš z vklopom Farinovih točk.',
+        'There are three Farin points, one on each edge between neighbouring control points; they are sliders along the edges. Reach this view by turning on the Farin points.',
+    ),
+    'rational-curves.operations.rational-elevation': copy(
+        'Racionalna Bézierjeva krivulja stopnje 4 s petimi kontrolnimi točkami, kontrolnim poligonom in utežmi ob točkah.',
+        'A rational Bézier curve of degree 4 with five control points, its control polygon and the weights beside the points.',
+        'Po enem višanju ima krivulja pet kontrolnih točk z utežmi 1; 7/4; 3/2; 1; 1 in poteka po isti krivulji kot prej; druga točka je (−22/7, 15/7), ne (−13/4, 3/2) kot pri neuteženem višanju. Do tega pogleda prideš s pritiskom na Dvigni stopnjo.',
+        'After one elevation the curve has five control points with weights 1, 7/4, 3/2, 1, 1 and follows the same curve as before; the second point is (−22/7, 15/7), not (−13/4, 3/2) as with unweighted elevation. Reach this view by pressing Elevate degree.',
+    ),
+    'rational-curves.operations.rational-subdivision': copy(
+        'Racionalna Bézierjeva krivulja, razrezana pri t = 0,5 na dva dela s skupno točko in oznakami uteži.',
+        'A rational Bézier curve cut at t = 0.5 into two parts sharing a point, with the weight labels.',
+        'Rez pri t = 0,5 da dva racionalna dela z utežmi 1; 3/2; 3/2; 11/8 in 11/8; 5/4; 1; 1, ki se srečata v (−9/11, 21/11) in skupaj narišeta isto krivuljo. Do tega pogleda prideš s pritiskom na Subdiviziraj pri privzetem t = 0,5.',
+        'Cutting at t = 0.5 gives two rational parts with weights 1, 3/2, 3/2, 11/8 and 11/8, 5/4, 1, 1, which meet at (−9/11, 21/11) and together trace the same curve. Reach this view by pressing Subdivide at the default t = 0.5.',
+    ),
+    // splines, batch 03b-B.
+    'splines.continuity-levels.spline-c1': copy(
+        'Zlepek C1 iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, stično točko in kontrolnim poligonom.',
+        'A C1 spline of two quadratic Bézier pieces with four free points, the joint and the control polygon.',
+        'Stična točka (0; 2) je razpolovišče stranice med drugo in tretjo prosto točko. Odvoda obeh odsekov sta tam enaka, (8; 0), zato se krivulja gladko dotika vodoravne stranice poligona. Do tega pogleda prideš z vklopom kontrolnega poligona.',
+        'The joint (0, 2) is the midpoint of the edge between the second and third free points. The derivatives of both pieces there are equal, (8, 0), so the curve touches the horizontal polygon edge smoothly. Reach this view by turning on the control polygon.',
+    ),
+    'splines.continuity-levels.spline-c2': copy(
+        'Zlepek C2 iz treh kubičnih Bézierjevih odsekov s šestimi prostimi točkami, izpeljanimi točkami in kontrolnim poligonom.',
+        'A C2 spline of three cubic Bézier pieces with six free points, the derived points and the control polygon.',
+        'Stični točki (−2,5; −1) in (2,5; 0) sta na sredini med sosednjima notranjima točkama odsekov, (−4; 0) in (−1; −2) oziroma (1; −1) in (4; 1). Na obeh stikih se ujemata prvi in drugi odvod. Do tega pogleda prideš z vklopom kontrolnega poligona.',
+        'The joints (−2.5, −1) and (2.5, 0) lie midway between the neighbouring inner points of the pieces, (−4, 0) and (−1, −2), and (1, −1) and (4, 1). At both joints the first and second derivatives agree. Reach this view by turning on the control polygon.',
+    ),
+    'splines.geometric-vs-parametric.spline-g1': copy(
+        'Zlepek G1 iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, izpeljano točko in kontrolnim poligonom.',
+        'A G1 spline of two quadratic Bézier pieces with four free points, the derived point and the control polygon.',
+        'Pri b = 1 je izpeljana točka (2; −2) in leži na isti premici kot (−2; 2) in stična točka (0; 0). Tangenti obeh odsekov sta v stiku vzporedni in enako usmerjeni. Do tega pogleda prideš z vklopom kontrolnega poligona pri b = 1.',
+        'At b = 1 the derived point is (2, −2) and lies on one line with (−2, 2) and the joint (0, 0). The tangents of both pieces at the joint are parallel and point the same way. Reach this view by turning on the control polygon at b = 1.',
+    ),
+    'splines.geometric-vs-parametric.spline-g1-symmetric': copy(
+        'Simetrični zlepek G1 iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, stično točko blizu druge proste točke in kontrolnim poligonom.',
+        'A symmetric G1 spline of two quadratic Bézier pieces with four free points, the joint near the second free point and the control polygon.',
+        'Pri β1 = 0,25 je stična točka (−1; 1,5), bliže drugi prosti točki na stranici poligona. Odvoda sta (4; −2) in (12; −6), vzporedna, desni je trikrat večji. Do tega pogleda prideš z nastavitvijo β1 na 0,25 ter vklopom kontrolnega poligona.',
+        'At β1 = 0.25 the joint is (−1, 1.5), closer to the second free point on the polygon edge. The derivatives are (4, −2) and (12, −6), parallel, the right one three times larger. Reach this view by setting β1 to 0.25 and turning on the control polygon.',
+    ),
+    'splines.piecewise.spline-cn': copy(
+        'Zlepek iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, izpeljano točko in kontrolnim poligonom.',
+        'A spline of two quadratic Bézier pieces with four free points, the derived point and the control polygon.',
+        'Izpeljana točka (2; −4) je podaljšek zadnje stranice prvega odseka: stična točka (0; −3) je na sredini med (−2; −2) in njo. Odvoda obeh odsekov v stiku sta enaka, (8; −4). Do tega pogleda prideš z vklopom kontrolnega poligona.',
+        'The derived point (2, −4) extends the last edge of the first piece: the joint (0, −3) is midway between (−2, −2) and it. The derivatives of both pieces at the joint are equal, (8, −4). Reach this view by turning on the control polygon.',
+    ),
 };
 
