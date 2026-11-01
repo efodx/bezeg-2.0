@@ -28,3 +28,15 @@ Delete the module: observer, parent link, binding release and board freeing retu
 ## Verification
 
 Graph-level sequences (cubic and quintic): hide/show, Preset replacement, language redraw, unmount, StrictMode remount. Each counts boards, parent links, observed hosts, model-point listeners and `up` handlers. Mutation (no parent-link removal plus non-idempotent release) fails 11 of 22 tests in `src/graphs/curves/ph`, in both graph-level and module tests.
+
+## Browser smoke (2026-11-01, handler 10)
+
+Production preview of `d7e42cf0` (A5 as `feadbe5a`, before the final rebase onto `c0fc4292`), Playwright Chromium headless 1440×900. `bezeg-smoke` Haiku, plus a handler script for the Preset and reselect gaps.
+
+- `/ph/cubic` and `/ph/quintic`: selecting the curve (`.workspace-curve-picker`) shows `#hodograph-input-box` with a board, and `JXG.boards` has 2 entries.
+- Dragging the hodograph point `w0` about 40 px changes it from (−3.5, −1.7) to (−3.071, −2.129), and the main curve's path changes.
+- Three cycles of deselect (empty main-board click) and reselect: the hodograph is absent with 1 board when deselected and visible again when reselected.
+- On both routes: a saved Preset loaded from the default, then select, `w0` drag (main curve changes) and "Ponastavi prednastavitev" all keep 2 boards.
+- Switching to English and back keeps the hodograph. 0 console errors, 0 page errors.
+
+Not verified: touch dragging; physical devices.

@@ -1,6 +1,6 @@
 # 2. Figure export operation
 
-Status: planned. Lane: Host. Source: [specification §2](../../specs/architecture-deepening-backlog.md#2-figure-export-operation).
+Status: accepted 2026-11-01 (platform stream): `60321820`, fixture follow-up `53e9ef8e`. Evidence: [02-figure-export-operation.evidence.md](02-figure-export-operation.evidence.md). Lane: Host. Source: [specification §2](../../specs/architecture-deepening-backlog.md#2-figure-export-operation).
 
 ## Scope and entry points
 
