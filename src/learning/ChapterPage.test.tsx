@@ -84,8 +84,8 @@ test('Bézier sections show all retained cards with stable bilingual preview bin
     const images = figures.map(figure => figure.querySelector('img')!);
     expect(images.map(image => image.getAttribute('src'))).toEqual(expectedExamples.map(example => `/preview/${example.id}.png`));
     for (const [index, image] of images.entries()) {
-        expect(image).toHaveAttribute('width', '720');
-        expect(image).toHaveAttribute('height', '440');
+        expect(image).toHaveAttribute('width', '840');
+        expect(image).toHaveAttribute('height', '520');
         expect(image).toHaveAttribute('loading', 'lazy');
         expect(image.alt).toBe(`sl:${expectedExamples[index].id} alt`);
         expect(image.closest('figure')?.querySelector('figcaption')?.textContent).toBe(`sl:${expectedExamples[index].id} caption`);
