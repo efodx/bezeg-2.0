@@ -61,6 +61,12 @@ const targets = {
     orientation: ['Default left turn p=(0,0), q=(4,0), r=(3,2) with line pq and the shaded triangle pqr', [], [-1.2, 3.6, 5.6, -1.2]],
     'polygon-area': ['The hull pentagon with its triangle fan and lattice points in the polygon area workspace', [], [-2.6, 6.4, 6.6, -1.4]],
     'convex-hull': ['Sample 1 of nine points after a few Next steps of the monotone chain trace, with the hull so far', [button('Naslednji korak', 4)], [-2.6, 6.4, 6.6, -1.4]],
+    // Default pentagon (0,0), (6,0), (6,4), (3,2), (0,4) with the reflex vertex (3,2).
+    'ear-clipping': ['Default pentagon with one reflex vertex at the end of its 12-step ear-clipping trace, cut into three triangles', [button('Naslednji korak', 11)], [-0.8, 4.8, 6.8, -0.8]],
+    // Sample 1: intervals [0,4], [2,7], [3,5], [6,9], [8,10] on rows 1 to 5.
+    'interval-sweep': ['Sample 1 of five intervals at step 5 of the sweep: the sweep line at x = 2 with the first overlapping pair', [button('Naslednji korak', 4)], [-1, 6, 11, 0]],
+    // Sample 1: four segments spanning x 0..6 and y -1..5.
+    'segment-intersections': ['Sample 1 of four segments at step 25 of 47 of the Bentley-Ottmann sweep: the sweep line at y = 2 and the intersections found above it', [button('Naslednji korak', 24)], [-0.8, 5.8, 6.8, -1.8]],
     'patch-coons': ['Default Coons patch, fitted to the preview frame, with its four boundary curves, control net and shaded surface', [button('Ponastavi pogled')]],
     'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-decasteljau': ['Default bicubic dome, fitted to the preview frame, in the de Casteljau workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
@@ -240,7 +246,7 @@ async function outcome(page, id) {
 }
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
-const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull']);
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections']);
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {

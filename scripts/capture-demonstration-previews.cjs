@@ -639,9 +639,10 @@ async function main() {
                         candidate.container === container?.id || candidate.containerObj === container);
                     if (!container || !board || container.clientWidth < 300 || container.clientHeight < 300) return false;
                     return Object.values(board.objects || {}).some(object => {
-                        if (!['curve', 'line'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
+                        // Point-set boards draw segments, and a point set before its first trace step draws only points.
+                        if (!['curve', 'line', 'segment', 'point'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
                         const node = object.rendNode;
-                        if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1'))) return false;
+                        if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1') || node.getAttribute?.('cx'))) return false;
                         const style = getComputedStyle(node);
                         return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
                     });
