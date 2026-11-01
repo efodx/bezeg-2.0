@@ -295,18 +295,27 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         bezier(() => view().imageControl, colors.curveImage);
 
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
-        const fixedPoint = (x: () => number, y: () => number, name: string, placement: LabelPlacement, color: string, shown: () => boolean) =>
+        const fixedPoint = (x: () => number, y: () => number, name: string | (() => string), placement: LabelPlacement | (() => LabelPlacement),
+                            color: string, shown: () => boolean, labelShown: () => boolean = shown) =>
             this.own(board.create("point", [x, y], {
-                ...this.styles.point.fixed, name, label: this.pointLabel(placement, 0.9, shown), size: markerSize, fillColor: color,
+                ...this.styles.point.fixed, name, label: this.pointLabel(placement, 0.9, labelShown), size: markerSize, fillColor: color,
                 highlightFillColor: color, strokeColor: color, fixed: true, visible: shown,
             }));
         // The source basis vectors, the image of the origin and of e1 + e2 (the other vertices of the image square are the handles).
-        fixedPoint(() => 1, () => 0, "$$e_1$$", "below-right", colors.source, squareShown);
-        fixedPoint(() => 0, () => 1, "$$e_2$$", "above-left", colors.source, squareShown);
+        // A source label steps aside while its image lies less than a unit away, since labels sit about a unit off their point
+        // (the identity puts a1 on e1, a2 on e2 and Ap on p).
+        // p = e1 + e2, so Ap always sits on A(e1+e2): with the square and p both shown, one point carries both names.
+        const near = (u: Vec2, v: Vec2) => Math.max(Math.abs(u[0] - v[0]), Math.abs(u[1] - v[1])) < 1;
+        const aside = (source: Vec2, image: () => Vec2, usual: LabelPlacement, crowded: LabelPlacement) =>
+            () => near(source, image()) ? crowded : usual;
+        fixedPoint(() => 1, () => 0, "$$e_1$$", aside([1, 0], () => view().a1, "below-right", "below-left"), colors.source, squareShown);
+        fixedPoint(() => 0, () => 1, "$$e_2$$", aside([0, 1], () => view().a2, "above-left", "left"), colors.source, squareShown);
         fixedPoint(() => 0, () => 0, "$$O$$", "below-left", colors.square, squareShown);
-        fixedPoint(() => view().square[2][0], () => view().square[2][1], "$$A(e_1+e_2)$$", "above-right", colors.square, squareShown);
-        fixedPoint(() => PROBE_POINT[0], () => PROBE_POINT[1], "$$p$$", "below-right", colors.curve, probeShown);
-        fixedPoint(() => view().probeImage[0], () => view().probeImage[1], "$$Ap$$", "above-right", colors.image, probeShown);
+        fixedPoint(() => view().square[2][0], () => view().square[2][1], "$$A(e_1+e_2)$$", "above-right", colors.square, squareShown,
+            () => squareShown() && !probeShown());
+        fixedPoint(() => PROBE_POINT[0], () => PROBE_POINT[1], "$$p$$", aside(PROBE_POINT, () => view().probeImage, "below-right", "above-left"), colors.curve, probeShown);
+        fixedPoint(() => view().probeImage[0], () => view().probeImage[1], () => squareShown() ? "$$Ap=A(e_1+e_2)$$" : "$$Ap$$", "above-right",
+            colors.image, probeShown);
 
         // a1 and a2 are dragged on the 1/4 grid inside [-4, 4]^2; each drag event writes the model once with both coordinates.
         const handle = (column: Column, name: string, placement: LabelPlacement, color: string) => {
