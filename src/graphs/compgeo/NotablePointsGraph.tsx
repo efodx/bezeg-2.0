@@ -10,7 +10,7 @@ import {
     activeExampleId, analyseNotablePoints, BOARD_COORDINATE_CAP, BoardXY, CENTRE_IDS, CentreId, inBox, NotableAnalysis,
     NotableExampleId, notableExample,
 } from "../../compgeo/notablePointsModel";
-import {NOTABLE_POINT_COUNT, notablePointsPresetCollection} from "./notablePointsPresetCollection";
+import {NOTABLE_POINT_COUNT, NOTABLE_POINTS_OVERLAY_IDS, notablePointsCollection} from "./notablePointsPresetCollection";
 import {NotablePointsPanel} from "./NotablePointsPanel";
 import {CENTRE_SYMBOL, notableTexts} from "./notablePointsText";
 
@@ -164,13 +164,14 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
     }
 
     override presetCollection(): PresetCollection<PointSetModel> {
-        return notablePointsPresetCollection(this.overlayIds());
+        return notablePointsCollection;
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
 
     protected override overlayIds() {
-        return [...super.overlayIds(), "triangle" as const, ...CENTRE_IDS];
+        // One list with the Preset collection, so its overlay check cannot drift from the switches.
+        return NOTABLE_POINTS_OVERLAY_IDS;
     }
 
     protected override overlayLabel(id: "grid" | NotableOverlayId): string {

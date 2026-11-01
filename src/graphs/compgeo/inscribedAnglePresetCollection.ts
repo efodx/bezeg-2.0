@@ -38,3 +38,9 @@ export function inscribedAnglePresetCollection(overlayIds: readonly string[]): P
         },
     });
 }
+
+/** The overlay ids the graph offers (its grid switch, the radii and the angle marks). */
+export const INSCRIBED_ANGLE_OVERLAY_IDS = ["grid", "radii", "angles"] as const;
+
+/** The module-level singleton listed in `presetCollections`; the Preset catalog compares collections by identity. */
+export const inscribedAngleCollection: PresetCollection<PointSetModel> = inscribedAnglePresetCollection(INSCRIBED_ANGLE_OVERLAY_IDS);

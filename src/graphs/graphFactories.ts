@@ -54,6 +54,8 @@ import { SequenceGraph } from './functions/SequenceGraph';
 import { UniformConvergenceGraph } from './functions/UniformConvergenceGraph';
 import { ComplexReciprocalGraph } from './complex/ComplexReciprocalGraph';
 import { ComplexRootsGraph } from './complex/ComplexRootsGraph';
+import { NotablePointsGraph } from './compgeo/NotablePointsGraph';
+import { InscribedAngleGraph } from './compgeo/InscribedAngleGraph';
 import { LinearMapGraph } from './linear/LinearMapGraph';
 import { FixedPointGraph } from './functions/FixedPointGraph';
 import type BaseGraph from './base/BaseGraph';
@@ -130,6 +132,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'linear-map': () => new LinearMapGraph(),
     'complex-reciprocal': () => new ComplexReciprocalGraph(),
     'complex-roots': () => new ComplexRootsGraph(),
+    'triangle-centres': () => new NotablePointsGraph(),
+    'inscribed-angle': () => new InscribedAngleGraph(),
     'orientation': () => new OrientationGraph(),
     'polygon-area': () => new PolygonAreaGraph(),
     'convex-hull': () => new HullTraceGraph(),

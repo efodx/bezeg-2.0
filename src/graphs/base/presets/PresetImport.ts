@@ -2,6 +2,8 @@ import {message, LocalizedError, Message} from "../../../localization";
 import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, PresetCollection} from "./PresetCollection";
 import {curvePresetCollections, legacyCurvePresetCollections} from "../../curves/curvePresetCollections";
 import {functionPresetCollections} from "../../functions/functionPresetCollections";
+import {notablePointsCollection} from "../../compgeo/notablePointsPresetCollection";
+import {inscribedAngleCollection} from "../../compgeo/inscribedAnglePresetCollection";
 import {compgeoPresetCollections} from "../../compgeo/compgeoPresetCollections";
 import {patchPresetCollections} from "../../patches/patchPresetCollections";
 import {complexReciprocalPresetCollection} from "../../complex/complexReciprocalPresets";
@@ -20,7 +22,7 @@ import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(curvePresetCollections), ...legacyCurvePresetCollections, ...Object.values(functionPresetCollections),
     ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
-    ...compgeoPresetCollections,
+    ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection,
     parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
     coonsPresetCollection,
 ];

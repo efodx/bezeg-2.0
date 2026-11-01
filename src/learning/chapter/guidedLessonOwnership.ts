@@ -61,6 +61,9 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
     'complex-reciprocal': {chapterId: 'complex-maps', sectionId: 'reciprocal-inversion'},
     'complex-roots': {chapterId: 'complex-maps', sectionId: 'roots'},
+    // Registered without lessons (triangle geometry F2b); the Triangle geometry chapter and its sections are authored in F4.
+    'triangle-centres': {chapterId: 'triangle-geometry', sectionId: 'notable-points'},
+    'inscribed-angle': {chapterId: 'triangle-geometry', sectionId: 'inscribed-angle'},
     // The Convexity and hulls chapter owns the first three computational-geometry lessons, one section each.
     orientation: {chapterId: 'convexity-hulls', sectionId: 'orientation'},
     'polygon-area': {chapterId: 'convexity-hulls', sectionId: 'polygon-area'},

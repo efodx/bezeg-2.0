@@ -1,6 +1,6 @@
 import {message, Message} from "../../localization";
 import {parsePointSetModel, PointSetModel, serializePointSetModel} from "../../compgeo/pointSetModel";
-import {isNotableExampleId} from "../../compgeo/notablePointsModel";
+import {CENTRE_IDS, isNotableExampleId} from "../../compgeo/notablePointsModel";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 import {pointSetRejection} from "./pointSetPresetCollection";
 
@@ -36,3 +36,9 @@ export function notablePointsPresetCollection(overlayIds: readonly string[]): Pr
         },
     });
 }
+
+/** The overlay ids the graph offers (its grid switch, the triangle and the four centres). */
+export const NOTABLE_POINTS_OVERLAY_IDS = ["grid", "triangle", ...CENTRE_IDS] as const;
+
+/** The module-level singleton listed in `presetCollections`; the Preset catalog compares collections by identity. */
+export const notablePointsCollection: PresetCollection<PointSetModel> = notablePointsPresetCollection(NOTABLE_POINTS_OVERLAY_IDS);

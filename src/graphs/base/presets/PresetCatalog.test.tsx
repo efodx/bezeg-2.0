@@ -31,7 +31,7 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
 const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-derivatives", "patch-subdivision", "patch-joins", "patch-triangular"];
 /** The computational-geometry Demonstrations, one collection each. */
 const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hull-trace",
-    "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann"];
+    "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle"];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
 const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-subdivision", "patch-coons"];
 
