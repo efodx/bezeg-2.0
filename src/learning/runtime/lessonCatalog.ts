@@ -41,6 +41,25 @@ export function view3dFixture(view: LessonView3D): LessonView3D {
         ...(view.projection ? {projection: view.projection} : {})};
 }
 
+/** Checks the shape and finiteness of a `point-set` action; the graph enforces the grid, range and limits. Other kinds pass through. */
+function checkAuthoredAction(action: LessonAction): LessonAction {
+    if (action.kind !== 'point-set') return action;
+    const data: unknown = action;
+    const {operation, points, mode, overlay, visible, closed} = data as Record<string, unknown>;
+    if (operation === 'set-points') {
+        if (!Array.isArray(points) || !points.every(p => Array.isArray(p) && p.length === 2 && isFinite(p[0]) && isFinite(p[1]))) {
+            throw new Error('A point-set set-points action needs a list of [x, y] pairs of finite numbers.');
+        }
+        if (mode !== 'points' && mode !== 'polygon') throw new Error('A point-set set-points action needs the mode "points" or "polygon".');
+        if (closed !== undefined && typeof closed !== 'boolean') throw new Error('A point-set set-points action needs a boolean closed.');
+    } else if (operation === 'set-overlay') {
+        if (typeof overlay !== 'string' || typeof visible !== 'boolean') throw new Error('A point-set set-overlay action needs an overlay name and a boolean visible.');
+    } else {
+        throw new Error('A point-set action needs the operation set-points or set-overlay.');
+    }
+    return action;
+}
+
 /** The actions a content scene runs: its prepared scene, then its authored actions in order. */
 export function sceneActions(scene: LessonScene): LessonAction[] {
     return [
@@ -52,7 +71,7 @@ export function sceneActions(scene: LessonScene): LessonAction[] {
                 ...(scene.view ? {view: scene.view} : {})}
             : {kind: 'prepared-scene', sceneId: scene.id, source: 'demonstration-default',
                 ...(scene.view ? {view: scene.view} : {})},
-        ...scene.actions,
+        ...scene.actions.map(checkAuthoredAction),
     ];
 }
 

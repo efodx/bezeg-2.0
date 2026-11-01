@@ -12,8 +12,8 @@ export const ORIENTATION_PRESET_KEY = "compgeo-orientation";
 export const POLYGON_AREA_PRESET_KEY = "compgeo-polygon-area";
 
 export const ORIENTATION_POINT_LIMIT = 3;
-export const ORIENTATION_OVERLAY_IDS = ["grid", "turn"] as const;
-export const POLYGON_AREA_OVERLAY_IDS = ["grid", "fan", "lattice"] as const;
+export const ORIENTATION_OVERLAY_IDS = ["grid", "turn", "values"] as const;
+export const POLYGON_AREA_OVERLAY_IDS = ["grid", "fan", "lattice", "values"] as const;
 export const HULL_TRACE_OVERLAY_IDS = ["grid", "trace", "hull"] as const;
 
 export const orientationPresetCollection: PresetCollection<PointSetModel> =

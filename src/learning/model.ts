@@ -12,6 +12,7 @@ import {UNIFORM_EXAMPLE_IDS} from '../analysis/uniformConvergence';
 import {COMPLEX_EXAMPLE_IDS} from '../analysis/complex';
 import type {LinearMapExampleId, Mat2} from '../linear/matrix2';
 import type {LinearMapMode, MatrixSlot} from '../linear/linearMapModel';
+import type {PointSetOverlayName} from '../compgeo/pointSetModel';
 
 export type LessonLanguage = 'sl' | 'en';
 
@@ -183,6 +184,13 @@ export type LessonAction =
     | {readonly kind: 'linear-map'; readonly operation: 'set-mode'; readonly mode: LinearMapMode}
     | {readonly kind: 'linear-map'; readonly operation: 'set-test-vector'; readonly angle: number}
     | {readonly kind: 'linear-map'; readonly operation: 'set-example'; readonly exampleId: LinearMapExampleId}
+    /**
+     * PointSetGraph's scene actions. `set-points` replaces the model (grid step 0); scene data is strict, so an off-grid,
+     * out-of-range or over-limit point is a lesson-content error and never snapped. `set-overlay` accepts only the
+     * overlays the target graph owns.
+     */
+    | {readonly kind: 'point-set'; readonly operation: 'set-points'; readonly points: readonly LessonPoint[]; readonly mode: 'points' | 'polygon'; readonly closed?: boolean}
+    | {readonly kind: 'point-set'; readonly operation: 'set-overlay'; readonly overlay: PointSetOverlayName; readonly visible: boolean}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */

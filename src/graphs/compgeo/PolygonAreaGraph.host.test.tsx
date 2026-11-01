@@ -180,3 +180,21 @@ test('moving a vertex keeps the readout exact and the markers on lattice nodes',
     expect(text()).toContain('Ploščina: 18,5');
     expect(named(graph, 'lattice-marker').every(m => Number.isInteger(m.X!()) && Number.isInteger(m.Y!()))).toBe(true);
 });
+
+test('values off: the readout is a neutral sentence with empty data and the fan has no numbers, shading and lattice stay; on restores both', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(graph.overlayShown('values')).toBe(true);
+    expect(named(graph, 'fan-label')).toHaveLength(3);
+    act(() => { graph.setOverlay('values', false); });
+    expect(text()).toBe('Številske vrednosti so skrite. Vklopi jih v stikalu prekrivanj.');
+    expect(readout().dataset.areaDoubled).toBe('');
+    expect(readout().dataset.areaReadout).toBe('');
+    expect(named(graph, 'fan-label')).toHaveLength(0);
+    expect(named(graph, 'fan-triangle')).toHaveLength(3);
+    expect(named(graph, 'lattice-marker').length).toBeGreaterThan(0);
+    act(() => { graph.setOverlay('values', true); });
+    expect(readout().dataset.areaDoubled).toBe('42');
+    expect(text()).toContain('21');
+    expect(named(graph, 'fan-label')).toHaveLength(3);
+});

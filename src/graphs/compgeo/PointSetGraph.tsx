@@ -1,12 +1,14 @@
 import React from "react";
 import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
+import {LessonAction, UnsupportedLessonActionError} from "../../learning/model";
+import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {GRID_COORD_LIMIT, GridPoint} from "../../compgeo/grid";
 import {
     addPoint, addSegment, clearPoints, DEFAULT_POINT_LIMIT, DEFAULT_SEGMENT_LIMIT, EMPTY_POINT_SET_MODEL, gridToBoard, movePoint, nudgePoint,
     PointSetEditResult, PointSetMode, PointSetModel, PointSetOptions, removePoint, removeSegment, segmentsOf, serializePointSetModel, setClosed,
-    setMode, snapToGrid,
+    parsePointSetModel, POINT_SET_OVERLAY_NAMES, setMode, snapToGrid,
 } from "../../compgeo/pointSetModel";
 import {polygonSimplicity, PolygonSimplicity} from "../../compgeo/predicates";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -49,7 +51,9 @@ import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointS
  * returned objects and removes them before the next call, on scene replacement and on unmount. Create objects with fixed
  * data from `model` (not live point references), because they are rebuilt per change, not per frame.
  *
- * Lesson actions are not implemented yet; they wait for the typed lesson vocabulary of the platform.
+ * Lesson actions: `registerLessonActions` handles the `point-set` kind (`applyPointSetAction`). `set-points` replaces the
+ * model through `parsePointSetModel` with this graph's limits and throws on any rejection (never snaps or clips);
+ * `set-overlay` throws `UnsupportedLessonActionError` for an overlay this graph does not own. Subclasses inherit both.
  */
 export type PointSetBaseOverlayId = "grid";
 
@@ -240,6 +244,37 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.requestRender();
     }
 
+    /** One `point-set` scene action; a rejected value is a lesson-content error and changes nothing. */
+    applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        // The types are compile-time only and lesson content may be hand-written data, so the payload is re-checked.
+        const payload = action as unknown as Record<string, unknown>;
+        if (action.operation === "set-points") {
+            const raw = payload.points;
+            if (!Array.isArray(raw) || !raw.every(p => Array.isArray(p) && p.length === 2)) throw new Error("point-set set-points: points must be a list of [x, y] pairs.");
+            const model = parsePointSetModel({
+                mode: action.mode, closed: action.closed, gridStepExponent: 0,
+                points: (raw as readonly (readonly unknown[])[]).map(([x, y]) => ({x, y})),
+            }, {pointLimit: this.pointLimit, coordinateLimit: this.coordinateLimit});
+            if (!model.ok) throw new Error(`point-set set-points: rejected (${model.reason}${model.limit !== undefined ? `, limit ${model.limit}` : ""}${model.bound !== undefined ? `, bound ${model.bound}` : ""}).`);
+            this.loadModel(model.model);
+            return;
+        }
+        if (action.operation === "set-overlay") {
+            const id = payload.overlay;
+            if (typeof payload.visible !== "boolean") throw new Error("point-set set-overlay: visible must be a boolean.");
+            const owned = (POINT_SET_OVERLAY_NAMES as readonly unknown[]).includes(id) && (this.overlayIds() as readonly unknown[]).includes(id);
+            if (!owned) throw new UnsupportedLessonActionError(action);
+            this.setOverlay(id as Overlay | PointSetBaseOverlayId, action.visible);
+            return;
+        }
+        throw new UnsupportedLessonActionError(action);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("point-set", action => this.applyPointSetAction(action));
+    }
+
     select(index: number | undefined): void {
         const valid = index !== undefined && Number.isInteger(index) && index >= 0 && index < this.model.points.length;
         this.selected = valid ? index : undefined;
@@ -296,8 +331,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return undefined;
     }
 
+    /**
+     * An id the scene state does not mention takes the graph's initial value, so a Preset saved before an overlay existed
+     * (`values`, added with the lessons) restores it as a new scene would start; a stored `false` stays hidden.
+     */
     overlayShown(id: Overlay | PointSetBaseOverlayId): boolean {
-        return this.state.overlays[id] === true;
+        const stored = this.state.overlays[id];
+        return stored === undefined ? this.getInitialState().overlays[id] === true : stored;
     }
 
     setOverlay(id: Overlay | PointSetBaseOverlayId, shown: boolean): void {
@@ -576,7 +616,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.overlayObjects = [];
         const overlays = this.state.overlays;
         for (const id of this.overlayIds()) {
-            if (overlays[id] !== true) continue;
+            if (!this.overlayShown(id)) continue;
             // Some board elements (the grid) create helper objects of their own; the base owns every object a draw added.
             const before = new Set<unknown>(this.board.objectsList as unknown[]);
             const drawn = this.drawOverlay(id, model);

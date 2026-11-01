@@ -32,7 +32,8 @@ Kernels and graphs (F1, F2a) are not gated. Registration, lessons, chapter and m
 | 09 | [Orientation and polygon-area graphs](09-orientation-area-graphs.md) | F2a | 05, 07 | accepted 2026-10-31 (engineering + UI/accessibility review, repairs) |
 | 10 | [Hull trace graph with step playback](10-hull-trace-graph.md) | F2a | 03, 05, 08 | accepted 2026-10-31 (engineering + UI/accessibility review, repairs, shared-hook re-review) |
 | 12 | [Batch 1 registration](12-batch1-registration.md): family and three Demonstrations, posters | F2b | 09, 10, `G-REG` | accepted 2026-11-01 (handler 10): routes, family, Presets; posters deferred to F5 (`POSTER_PENDING`; capture needs a `linear-map` recipe from Maps first) |
-| — | F3 lessons A1+A2, A4; F4 chapter; F5 media; F6 acceptance | F3–F6 | 12 | task files written after 12 |
+| 13 | [Lessons A1 orientation, A2 polygon area](13-lessons-orientation-area.md) | F3 | 12 | accepted 2026-11-01 (handler 12): `point-set` actions, `values` overlay, interim chapter owner until F4 |
+| — | F3 lesson A4 (task 14); F4 chapter; F5 media; F6 acceptance | F3–F6 | 12 | 14 written; F4–F6 files pending |
 
 ## Later batches (task files written when the previous batch is accepted)
 - **Batch 2 (A3, A5):** kernels — point in polygon with half-open rule and winding number, pentagram lattice approximation (A3); the `<`/`<=` chain variants and duplicates (A5, the Kettner reference is in task 02); F2b, F3, F4 update, F5, F6.

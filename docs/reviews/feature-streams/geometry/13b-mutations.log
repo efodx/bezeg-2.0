@@ -1,0 +1,11 @@
+M1-unowned-overlay-throw exit 1 | each graph accepts the overlays it owns, and an unknown name is rejected || orientation rejects the overlay fan it does not own || orientation rejects the overlay hull it does not own || orientation rejects the overlay lattice it does not own
+M2-snap-offgrid exit 1 | an over-limit polygon is rejected by the area graph too, and a snap never happens || orientation rejects off-grid x and keeps the model
+M3-ignore-closed exit 1 | A2: values are off only in the predict step, and the readout then carries no area || orientation rejects closed in points mode and keeps the model || the reversed scene is the graph's own reverse order, and the notched area is 18 by Pick || the seven scenes show 42, 42, 42, -42, (36, B=16, I=11), a signed sum 0 and (42, B=8, I=18)
+M4-quoted-number exit 0 | unit: passed in 7.4s (2 workers, no slot); revision a0f55631163dbc2ddb48e5605e340dfe68a09750; dirty; log .command-logs\2026-11-01T03-06-36-936Z-110108-5d0e8344.log
+
+M5-values-off-still-shows-orientation exit 1 | A1: values are off only in the predict step, and the readout then carries no value || values off: the readout is a neutral sentence with empty data, the board shows no number, shading stays; on re
+M5b-values-off-still-labels-fan exit 1 | values off: the readout is a neutral sentence with empty data and the fan has no numbers, shading and lattice 
+M6-stale-status-after-back exit 1 | A1: values are off only in the predict step, and the readout then carries no value || the status text is correct after a scene change and Back
+M4b-quoted-number-area-step exit 0 | unit: passed in 7.4s (2 workers, no slot); revision a0f55631163dbc2ddb48e5605e340dfe68a09750; dirty; log .command-logs\2026-11-01T03-07-32-993Z-127996-a4b9e586.log
+
+M4c-flip-text D=-8->D=-9 exit 1:      × the quoted values appear in the step text and the sign equals orient 8ms 

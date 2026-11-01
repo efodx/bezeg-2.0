@@ -16,7 +16,7 @@ import {formatHalf, formatSigned, triangleFitsLabel} from "./orientationReadout"
  * board (`data-area-readout`) built by the pure `areaReadout`, and a Reverse order control (`reverseVertices`). Vertices are
  * grid points by the base graph's snapping, so every count is exact. No route or catalog entry yet.
  */
-export type PolygonAreaOverlayId = "fan" | "lattice";
+export type PolygonAreaOverlayId = "fan" | "lattice" | "values";
 
 /** The hull pentagon: doubled area 42, B = 8, I = 18 (Pick: 2*18 + 8 - 2 = 42). */
 export const HULL_PENTAGON_MODEL: PointSetModel = {
@@ -30,9 +30,10 @@ export const NOTCHED_PENTAGON_MODEL: PointSetModel = {
 
 const copy = (model: PointSetModel): PointSetModel => ({...model, points: model.points.map(p => ({...p}))});
 
-function AreaStatus({model}: {model: PointSetModel}) {
+function AreaStatus({model, valuesShown}: {model: PointSetModel; valuesShown: boolean}) {
     const translate = useT();
     const {language} = useLanguage();
+    if (!valuesShown) return <div className="inspector-help pointset-status" data-area-readout="" data-area-doubled=""><p className="mb-1" role="status" data-area-live="">{translate("pointset_values_hidden")}</p></div>;
     const readout: AreaReadout = areaReadout(model);
     // One concise line is live (the area, or why there is none); the remaining rows are plain text, read on demand.
     let live: string;
@@ -71,7 +72,7 @@ function ReverseControl({disabled, onReverse}: {disabled: boolean; onReverse: ()
 
 export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
     override getInitialState(): PointSetGraphState {
-        return {...super.getInitialState(), overlays: {fan: true, lattice: true}};
+        return {...super.getInitialState(), overlays: {fan: true, lattice: true, values: true}};
     }
 
     override defaultPreset(): PointSetModel {
@@ -100,12 +101,14 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
     protected override overlayLabel(id: "grid" | PolygonAreaOverlayId): string {
         if (id === "fan") return t("pointset_area_overlay_fan");
         if (id === "lattice") return t("pointset_area_overlay_lattice");
+        if (id === "values") return t("pointset_overlay_values");
         return super.overlayLabel(id);
     }
 
     protected override drawOverlay(id: "grid" | PolygonAreaOverlayId, model: PointSetModel): JXG.GeometryElement[] {
         if (id === "fan") return this.drawFan(model);
         if (id === "lattice") return this.drawLattice(model);
+        if (id === "values") return [];
         return super.drawOverlay(id, model);
     }
 
@@ -124,7 +127,7 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
                     highlight: false, fixed: true, layer: 2, name: "fan-triangle", withLabel: false,
                 }) as JXG.GeometryElement);
             }
-            if (!triangleFitsLabel(model.points[0], model.points[k + 1], model.points[k + 2])) return;
+            if (!this.overlayShown("values") || !triangleFitsLabel(model.points[0], model.points[k + 1], model.points[k + 2])) return;
             objects.push(this.board.create("text", [
                 (corners[0].x + corners[1].x + corners[2].x) / 3, (corners[0].y + corners[1].y + corners[2].y) / 3, formatSigned(doubled),
             ], {
@@ -154,7 +157,7 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <AreaStatus model={this.model}/>
+            <AreaStatus model={this.model} valuesShown={this.overlayShown("values")}/>
             <ReverseControl disabled={this.model.points.length < 2} onReverse={() => { this.reverseOrder(); }}/>
             {super.workspaceEdit()}
         </>;

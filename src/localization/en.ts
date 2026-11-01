@@ -1426,6 +1426,8 @@ export const en: Record<keyof typeof sl, string> = {
     "pointset_invalid_closed_not_boolean": "the closed field must be true or false; fix the value in the file",
     "pointset_invalid_closed_in_points_mode": "the closed field can be true only in polygon mode; fix mode or closed in the file",
     "pointset_invalid_overlays": "the overlays field must be an object with true or false values for known layers; fix the value in the file",
+    "pointset_overlay_values": "Numeric values",
+    "pointset_values_hidden": "Numeric values are hidden. Turn them on in the overlay switch.",
     "pointset_orientation_overlay_turn": "Turn",
     "pointset_orientation_readout": "Orientation of p, q, r: {value0} ({value1})",
     "pointset_orientation_left": "left turn",

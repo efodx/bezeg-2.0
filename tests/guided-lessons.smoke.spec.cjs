@@ -1598,7 +1598,33 @@ const patchRows = [
     patchRow({id: 'patch-square-vs-triangular', section: 'square-vs-triangular', demonstration: 'patch-triangular', titles: {sl: 'Kvadratno in trikotno območje', en: 'Square and triangular domains'}, steps: 1, minFrames: 2}),
 ];
 
-const LESSONS = [bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Point-set lessons: the readout outside the board follows the scene. data-* is empty while the values overlay is off (the predict steps).
+// Per step 1..6: two points (missing), values hidden, +8, -8, +8, 0.
+const ORIENTATION_VALUES = ['', '', '8', '-8', '8', '0'];
+const orientation = {
+    id: 'orientation',
+    path: `${BASE}/compgeo/orientation`,
+    titles: {sl: 'Orientacija treh točk', en: 'Orientation of three points'},
+    steps: 6,
+    minFrames: 12, // 2 frames per step
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(() => page.locator('[data-orientation-readout]').getAttribute('data-orientation-value'), {message: `orientation value at ${label}`}).toBe(ORIENTATION_VALUES[step - 1]);
+    },
+};
+// Doubled signed area per step 1..7; empty while (steps 1 and 2) the values overlay is off.
+const AREA_DOUBLED = ['', '', '42', '-42', '36', '0', '42'];
+const polygonArea = {
+    id: 'polygon-area',
+    path: `${BASE}/compgeo/polygon-area`,
+    titles: {sl: 'Ploščina večkotnika in Pickov izrek', en: "Polygon area and Pick's theorem"},
+    steps: 7,
+    minFrames: 14, // 2 frames per step
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(() => page.locator('[data-area-readout]').getAttribute('data-area-doubled'), {message: `doubled area at ${label}`}).toBe(AREA_DOUBLED[step - 1]);
+    },
+};
+
+const LESSONS = [orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

@@ -13,7 +13,7 @@ import {formatSigned, OrientationReadout, orientationReadout, OrientationTurn, t
  * overlay `turn` (line pq, the triangle pqr shaded by the sign, and the turn in words). The exact value and the turn are
  * also written in a readout outside the board (`data-orientation-readout`, a live region). No route or catalog entry yet.
  */
-export type OrientationOverlayId = "turn";
+export type OrientationOverlayId = "turn" | "values";
 
 export {ORIENTATION_POINT_LIMIT};
 
@@ -33,8 +33,9 @@ export function orientationText(readout: OrientationReadout, translate: typeof t
     return translate("pointset_orientation_readout", {value0: formatSigned(readout.value), value1: word});
 }
 
-function OrientationStatus({points}: {points: PointSetModel["points"]}) {
+function OrientationStatus({points, valuesShown}: {points: PointSetModel["points"]; valuesShown: boolean}) {
     const translate = useT();
+    if (!valuesShown) return <p className="inspector-help pointset-status" role="status" data-orientation-readout="" data-orientation-value="">{translate("pointset_values_hidden")}</p>;
     const readout = orientationReadout(points);
     return <p className="inspector-help pointset-status" role="status" data-orientation-readout={readout.kind === "turn" ? readout.turn : "missing"}
               data-orientation-value={readout.kind === "turn" ? readout.value : ""}>{orientationText(readout, translate)}</p>;
@@ -63,7 +64,7 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
     }
 
     override getInitialState(): PointSetGraphState {
-        return {...super.getInitialState(), overlays: {turn: true}};
+        return {...super.getInitialState(), overlays: {turn: true, values: true}};
     }
 
     override defaultPreset(): PointSetModel {
@@ -79,10 +80,12 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
     }
 
     protected override overlayLabel(id: "grid" | OrientationOverlayId): string {
+        if (id === "values") return t("pointset_overlay_values");
         return id === "turn" ? t("pointset_orientation_overlay_turn") : super.overlayLabel(id);
     }
 
     protected override drawOverlay(id: "grid" | OrientationOverlayId, model: PointSetModel): JXG.GeometryElement[] {
+        if (id === "values") return [];
         if (id !== "turn") return super.drawOverlay(id, model);
         const readout = orientationReadout(model.points);
         if (model.points.length < 2) return [];
@@ -104,6 +107,7 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
             }) as JXG.GeometryElement);
         }
         // A label would cover the vertices of a thin or tiny triangle (under one grid step tall), so none is drawn then.
+        if (!this.overlayShown("values")) return objects;
         if (!triangleFitsLabel(model.points[0], model.points[1], model.points[2])) return objects;
         const value = readout.value;
         const centre = {x: (p.x + q.x + r.x) / 3, y: (p.y + q.y + r.y) / 3};
@@ -119,7 +123,7 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <OrientationStatus points={this.model.points}/>
+            <OrientationStatus points={this.model.points} valuesShown={this.overlayShown("values")}/>
             {super.workspaceEdit()}
         </>;
     }

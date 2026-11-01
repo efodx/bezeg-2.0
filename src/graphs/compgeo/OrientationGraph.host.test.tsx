@@ -2,6 +2,7 @@ import React from 'react';
 import {act, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {DEFAULT_ORIENTATION_MODEL, OrientationGraph} from './OrientationGraph';
+import {ORIENTATION_PRESET_KEY} from './compgeoPresetCollections';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
@@ -200,4 +201,35 @@ test('a thin or tiny triangle gets no turn label, a normal one does', () => {
     expect(named(graph, 'turn-text')).toHaveLength(1);
     load(graph, {...DEFAULT_ORIENTATION_MODEL, points: [{x: 0, y: 0}, {x: 10, y: 1}, {x: 21, y: 2}]});
     expect(named(graph, 'turn-text')).toHaveLength(0);
+});
+
+test('values off: the readout is a neutral sentence with empty data, the board shows no number, shading stays; on restores both', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(graph.overlayShown('values')).toBe(true);
+    expect(named(graph, 'turn-text')).toHaveLength(1);
+    act(() => { graph.setOverlay('values', false); });
+    expect(readout().textContent).toBe('Številske vrednosti so skrite. Vklopi jih v stikalu prekrivanj.');
+    expect(readout().textContent).not.toContain('8');
+    expect(readout().dataset.orientationValue).toBe('');
+    expect(readout().dataset.orientationReadout).toBe('');
+    expect(named(graph, 'turn-text')).toHaveLength(0);
+    expect(named(graph, 'turn-triangle')).toHaveLength(1);
+    act(() => { graph.setOverlay('values', true); });
+    expect(readout().textContent).toContain('+8');
+    expect(readout().dataset.orientationValue).toBe('8');
+    expect(named(graph, 'turn-text')).toHaveLength(1);
+});
+
+const savedOverlays = (overlays: object) => ({initialized: true, overlays});
+test('a Preset saved before the values overlay existed restores with values shown; stored switches are kept', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.importPreset({id: ORIENTATION_PRESET_KEY, graphState: savedOverlays({turn: false}), data: withR(3, -2)}); });
+    expect(graph.overlayShown('values')).toBe(true);
+    expect(graph.overlayShown('turn')).toBe(false);
+    expect(readout().dataset.orientationValue).toBe('-8');
+    act(() => { graph.importPreset({id: ORIENTATION_PRESET_KEY, graphState: savedOverlays({turn: true, values: false}), data: withR(3, 2)}); });
+    expect(graph.overlayShown('values')).toBe(false);
+    expect(readout().dataset.orientationValue).toBe('');
 });

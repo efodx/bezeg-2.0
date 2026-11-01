@@ -1425,6 +1425,8 @@ export const sl = {
     "pointset_invalid_closed_not_boolean": "polje closed mora biti true ali false; popravi vrednost v datoteki",
     "pointset_invalid_closed_in_points_mode": "polje closed je lahko true samo v načinu polygon; popravi mode ali closed v datoteki",
     "pointset_invalid_overlays": "polje overlays mora biti objekt z vrednostmi true ali false za znane plasti; popravi vrednost v datoteki",
+    "pointset_overlay_values": "Številske vrednosti",
+    "pointset_values_hidden": "Številske vrednosti so skrite. Vklopi jih v stikalu prekrivanj.",
     "pointset_orientation_overlay_turn": "Zavoj",
     "pointset_orientation_readout": "Orientacija treh točk p, q, r: {value0} ({value1})",
     "pointset_orientation_left": "levi zavoj",
