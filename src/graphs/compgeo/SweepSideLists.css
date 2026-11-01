@@ -1,14 +1,14 @@
-/* The event queue and status lists of the interval sweep (task 08 item 3). */
-.interval-sweep-list { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 4px 0 8px; padding: 0; list-style: none; }
-.interval-sweep-list > li { padding: 2px 6px; border-radius: 4px; font-size: .82rem; line-height: 1.4; border-left: 3px solid transparent; }
+/* The event queue and status lists of the sweeps (tasks 08 and 09 item 3). */
+.sweep-side-list { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 4px 0 8px; padding: 0; list-style: none; }
+.sweep-side-list > li { padding: 2px 6px; border-radius: 4px; font-size: .82rem; line-height: 1.4; border-left: 3px solid transparent; }
 /* Current event (status) and next event (queue): bold, tinted, with a left bar; the marker and hidden text carry it without colour. */
-.interval-sweep-list > li[data-current], .interval-sweep-list > li[data-next] {
+.sweep-side-list > li[data-current], .sweep-side-list > li[data-next] {
     font-weight: 700;
     background: color-mix(in srgb, var(--workspace-pollen, currentColor) 28%, transparent);
     border-left-color: currentColor;
 }
-.interval-sweep-list > li[data-hovered] { text-decoration: underline; }
+.sweep-side-list > li[data-hovered] { text-decoration: underline; }
 @media (max-width: 400px) {
-    .interval-sweep-list { gap: 3px 4px; }
-    .interval-sweep-list > li { padding: 2px 4px; }
+    .sweep-side-list { gap: 3px 4px; }
+    .sweep-side-list > li { padding: 2px 4px; }
 }

@@ -11,7 +11,7 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
-import {BentleyOttmannControlActions, BentleyOttmannControls} from "./BentleyOttmannControls";
+import {BentleyOttmannControlActions, BentleyOttmannControls, BentleyOttmannLists} from "./BentleyOttmannControls";
 import {BentleyOttmannRun, runBentleyOttmann} from "./bentleyOttmannRun";
 import {BENTLEY_OTTMANN_EXAMPLE_1, BENTLEY_OTTMANN_OVERLAY_IDS, bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
 import {parseHullStep} from "./hullTraceRun";
@@ -38,7 +38,7 @@ export interface BentleyOttmannGraphState extends PointSetGraphState {
  * a figure capture and unmount pause playback; unmount disposes the controller. A refused input (too many segments, a
  * coordinate the sweep cannot take, a collinear overlap) gives an empty run, a message in the panel and no trace objects. The
  * graph has no mode toggle: it only works on segments. Rational positions are drawn at their double value only.
- * `sideLists()` is the seam of the event queue and status lists; it renders nothing yet.
+ * `sideLists()` renders the event queue and status lists; hovering or focusing a status entry highlights its segment.
  */
 export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> {
     private controller: IterationController;
@@ -377,9 +377,10 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
         this.requestRender();
     };
 
-    /** The seam of the event queue and status lists (task 09 item 3, a later slice): nothing is rendered yet. */
+    /** The event queue and the status (task 09 item 3): panel content rendered below the readouts. */
     protected sideLists(): React.ReactNode {
-        return null;
+        return <BentleyOttmannLists run={this.run()} step={this.step} exponent={this.model.gridStepExponent}
+                                    hovered={this.liveHovered()} onHover={this.hover}/>;
     }
 
     protected override workspaceEdit(): React.ReactNode {

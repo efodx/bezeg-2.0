@@ -409,10 +409,141 @@ test('a scene change and unmount pause playback and leave no board objects, list
     expect(() => act(() => { setLanguage('en'); })).not.toThrow();
 });
 
-test('the panel offers no points/polygon/intervals choice and keeps the seam for the side lists empty', () => {
+test('the panel offers no points/polygon/intervals choice and renders the side lists in their container', () => {
     const graph = new Observed();
     mount(graph);
     expect(document.body.textContent).not.toContain('Poligon');
     expect(document.body.textContent).not.toContain('Intervali');
-    expect(document.querySelector('[data-bentley-ottmann-lists]')).toBeNull();
+    expect(document.querySelector('[data-bentley-ottmann-lists] [data-bentley-ottmann-list="queue"]')).not.toBeNull();
+    expect(document.querySelector('[data-bentley-ottmann-lists] [data-bentley-ottmann-list="status"]')).not.toBeNull();
+});
+
+describe('side lists', () => {
+    const entries = (list: 'queue' | 'status', attribute: string) =>
+        [...document.querySelectorAll(`[data-bentley-ottmann-list="${list}"] [${attribute}]`)] as HTMLElement[];
+    const statusNames = () => entries('status', 'data-status-entry').map(e => e.getAttribute('data-status-entry'));
+    const currentNames = () => entries('status', 'data-current').map(e => e.getAttribute('data-status-entry'));
+    const names = (status: readonly number[]) => status.map(k => `s${k + 1}`);
+
+    test('example 1 stepped through: the 13 events in order and the status after each, read from the side lists', () => {
+        const graph = new Observed();
+        mount(graph);
+        const run = graph.run();
+        const heads: string[] = [];
+        const statuses: Array<Array<string | null>> = [];
+        expect(entries('queue', 'data-queue-entry')).toHaveLength(8);
+        for (let step = 0; step < run.length; step++) {
+            if (step > 0) click('next-step');
+            const next = step + 1 < run.length ? run.event(step + 1)?.note : 'done';
+            // Exactly the head of the queue is marked as the next event; its mark is not colour alone.
+            const marked = entries('queue', 'data-next');
+            expect(marked.length).toBe(run.view(step).queue.length > 0 ? 1 : 0);
+            if (marked.length) {
+                expect(marked[0]).toBe(entries('queue', 'data-queue-entry')[0]);
+                expect(marked[0].getAttribute('aria-current')).toBe('step');
+                expect(marked[0].textContent).toContain('▸');
+                expect(marked[0].textContent).toContain('naslednji dogodek');
+            }
+            expect(statusNames()).toEqual(names(run.view(step).status));
+            if (next === 'pop') heads.push(marked[0].title);
+            if (run.view(step).position && (next === 'pop' || next === 'done')) statuses.push(statusNames());
+        }
+        expect(heads).toEqual([
+            'Zgornje krajišče v točki (2; 5)', 'Zgornje krajišče v točki (4; 5)', 'Zgornje krajišče v točki (0; 4)', 'Zgornje krajišče v točki (6; 4)',
+            'Presečišče v točki (33/20 = 1,65; 29/10 = 2,9)', 'Presečišče v točki (87/20 = 4,35; 29/10 = 2,9)', 'Presečišče v točki (3; 2)',
+            'Presečišče v točki (21/16 = 1,3125; 7/8 = 0,875)', 'Presečišče v točki (75/16 = 4,6875; 7/8 = 0,875)',
+            'Spodnje krajišče v točki (0; 0)', 'Spodnje krajišče v točki (6; 0)', 'Spodnje krajišče v točki (1; -1)', 'Spodnje krajišče v točki (5; -1)',
+        ]);
+        expect(statuses.slice(0, 13)).toEqual([
+            [2], [2, 3], [1, 2, 3], [1, 2, 3, 0], [2, 1, 3, 0], [2, 1, 0, 3], [2, 0, 1, 3], [0, 2, 1, 3], [0, 2, 3, 1], [2, 3, 1], [2, 3], [3], [],
+        ].map(names));
+        expect(document.querySelector('[data-bentley-ottmann-list="queue"] [data-bentley-ottmann-empty]')).not.toBeNull();
+        expect(document.querySelector('[data-bentley-ottmann-list="status"] [data-bentley-ottmann-empty]')).not.toBeNull();
+    });
+
+    test('the current event marks its segments, and a crossing marks every segment through the point', () => {
+        const graph = new Observed();
+        mount(graph);
+        const run = graph.run();
+        expect(currentNames()).toEqual([]);
+        const marks: Record<string, Array<string | null>> = {};
+        for (let step = 1; step < run.length; step++) {
+            click('next-step');
+            if (run.event(step)?.note === 'pop' || run.event(step)?.note === 'enter') marks[pos(graph, step)] = currentNames();
+        }
+        expect(marks['3,2']).toEqual(['s2', 's1']);
+        expect(marks['2,5']).toEqual(['s3']);
+        expect(marks['33/20,29/10']).toEqual(['s2', 's3']);
+        // The degenerate example marks all four segments through the point.
+        load(graph, BENTLEY_OTTMANN_EXAMPLE_2);
+        const second = graph.run();
+        const popAt = [...Array(second.length).keys()].find(i => second.event(i)?.note === 'pop' && second.view(i).kind === 'crossing') as number;
+        while (graph.step < popAt) click('next-step');
+        const current = entries('status', 'data-current');
+        expect(current.map(e => e.getAttribute('data-status-entry')).sort()).toEqual(['s1', 's2', 's3', 's4']);
+        expect(current[0].getAttribute('aria-current')).toBe('true');
+        expect(current[0].textContent).toContain('▸');
+        expect(current[0].textContent).toContain('daljica trenutnega dogodka');
+    });
+
+    const segmentOf = (graph: Observed, entry: HTMLElement) => {
+        const k = Number((entry.getAttribute('data-status-entry') as string).slice(1)) - 1;
+        const [a, b] = graph.model.points.slice(2 * k, 2 * k + 2);
+        return [[a.x, b.x], [a.y, b.y]];
+    };
+
+    test('hovering or focusing a status entry highlights its segment on the board and leaving removes it', () => {
+        const graph = new Observed();
+        mount(graph);
+        for (let i = 0; i < 6; i++) click('next-step');
+        const [first, second] = entries('status', 'data-status-entry');
+        expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+        act(() => { fireEvent.mouseEnter(second); });
+        expect(objectsNamed(graph, 'sweep-hover').map(o => [o.dataX, o.dataY])).toEqual([segmentOf(graph, second)]);
+        expect(entries('status', 'data-hovered')).toEqual([second]);
+        act(() => { fireEvent.mouseLeave(second); });
+        expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+        act(() => { fireEvent.focus(first); });
+        expect(objectsNamed(graph, 'sweep-hover').map(o => [o.dataX, o.dataY])).toEqual([segmentOf(graph, first)]);
+        act(() => { fireEvent.blur(first); });
+        expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+        expect(entries('status', 'data-hovered')).toHaveLength(0);
+    });
+
+    describe('a hover goes stale', () => {
+        const hoverOne = (graph: Observed) => {
+            for (let i = 0; i < 6; i++) click('next-step');
+            act(() => { fireEvent.mouseEnter(entries('status', 'data-status-entry')[0]); });
+            expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(1);
+        };
+
+        test('on a step', () => {
+            const graph = new Observed();
+            mount(graph);
+            hoverOne(graph);
+            click('next-step');
+            expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+            expect(entries('status', 'data-hovered')).toHaveLength(0);
+        });
+
+        test('on Reset', () => {
+            const graph = new Observed();
+            mount(graph);
+            hoverOne(graph);
+            click('reset');
+            expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+            expect(entries('status', 'data-hovered')).toHaveLength(0);
+        });
+    });
+
+    test('the lists follow a language switch', () => {
+        const graph = new Observed();
+        mount(graph);
+        click('next-step');
+        click('next-step');
+        act(() => { setLanguage('en'); });
+        expect(document.querySelector('[data-bentley-ottmann-list="queue"] p')?.textContent).toBe('Event queue (remaining events)');
+        expect(entries('queue', 'data-next')[0].title).toBe('Upper endpoint at the point (4; 5)');
+        expect(entries('status', 'data-status-entry')[0].title).toBe('Segment s3');
+    });
 });

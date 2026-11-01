@@ -6,6 +6,7 @@ import {SWEEP_COORD_LIMIT, SWEEP_MAX_SEGMENTS} from "../../compgeo/sweep/limits"
 import {
     type BentleyOttmannEventInfo, type BentleyOttmannRun, type BentleyOttmannView, rationalText, segmentName,
 } from "./bentleyOttmannRun";
+import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
 
 export interface BentleyOttmannControlActions {
     nextStep(): void;
@@ -21,8 +22,8 @@ export interface BentleyOttmannControlsProps {
     exponent: number;
     actions: BentleyOttmannControlActions;
     /**
-     * Seam for the side lists (event queue and status): rendered inside the status group, below the readouts, in a container
-     * with `data-bentley-ottmann-lists`. Absent until the lists exist.
+     * The side lists (event queue and status): rendered inside the status group, below the readouts, in a container
+     * with `data-bentley-ottmann-lists`.
      */
     children?: React.ReactNode;
 }
@@ -142,7 +143,7 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
                 {summary && <p className="inspector-help" data-bentley-ottmann="summary">{summary}</p>}
                 <p className="inspector-help" data-bentley-ottmann="crossings">
                     {view.reports.length ? t("bentleyottmann_crossings", {value0: view.reports.length}) : t("bentleyottmann_crossings_none")}</p>
-                {view.reports.length > 0 && <ul className="interval-sweep-list" aria-label={t("bentleyottmann_crossings", {value0: view.reports.length})}>
+                {view.reports.length > 0 && <ul className="sweep-side-list" aria-label={t("bentleyottmann_crossings", {value0: view.reports.length})}>
                     {view.reports.map(report => <li key={`${report.point.x.format()},${report.point.y.format()}`} data-bentley-ottmann="crossing">
                         {t("bentleyottmann_crossing_item", {value0: point(report.point), value1: namesText(report.segments)})}</li>)}
                 </ul>}
@@ -153,4 +154,44 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
             </>}
         </div>
     </>;
+}
+
+export interface BentleyOttmannListsProps {
+    run: BentleyOttmannRun;
+    step: number;
+    exponent: number;
+    /** The segment whose status entry is hovered or focused, if any (the graph highlights it on the board). */
+    hovered: number | undefined;
+    onHover(segment: number | undefined): void;
+}
+
+/**
+ * The event queue (events still to be popped: kind and exact position) and the status (segments from left to right, by name)
+ * of the segment sweep (task 09 item 3, C-7). The head of the queue is the next event; the status entries of the current
+ * event's segments (all of them at a crossing) are marked as the board emphasises them. Hovering or focusing a status entry
+ * highlights its segment on the board.
+ */
+export function BentleyOttmannLists(props: BentleyOttmannListsProps) {
+    const t = useT();
+    const {language} = useLanguage();
+    const {run, step, exponent, hovered, onHover} = props;
+    const view = run.view(step);
+    const involved = new Set([...view.current.starts, ...view.current.ends, ...view.current.passes]);
+    const queue: SweepQueueEntry[] = view.queue.map((event, k) => {
+        const where = pointText(event.position, exponent, language);
+        const label = event.kind === "upper" ? t("bentleyottmann_queue_upper", {value0: where})
+            : event.kind === "lower" ? t("bentleyottmann_queue_lower", {value0: where})
+            : event.kind === "endpoint" ? t("bentleyottmann_queue_endpoint", {value0: where})
+            : t("bentleyottmann_queue_crossing", {value0: where});
+        return {key: String(event.id), id: event.kind, label, next: k === 0};
+    });
+    const status: SweepStatusEntry[] = view.status.map(k => ({
+        key: String(k), id: segmentName(k), label: t("bentleyottmann_status_item", {value0: segmentName(k)}), content: segmentName(k),
+        current: involved.has(k), hovered: hovered === k,
+    }));
+    const onEntryHover = (id: string | undefined) => onHover(id === undefined ? undefined : view.status.find(k => segmentName(k) === id));
+    return <SweepSideLists prefix="bentley-ottmann" queue={queue} status={status} onHover={onEntryHover} text={{
+        queueLabel: t("bentleyottmann_queue_label"), queueEmpty: t("bentleyottmann_queue_empty"), queueNext: t("bentleyottmann_queue_next"),
+        statusLabel: t("bentleyottmann_status_label"), statusEmpty: t("bentleyottmann_status_empty"), statusCurrent: t("bentleyottmann_status_current"),
+    }}/>;
 }
