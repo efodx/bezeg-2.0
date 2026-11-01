@@ -736,6 +736,8 @@ export const en: Record<keyof typeof sl, string> = {
     "convexity_a_rejected_hint": "The endpoint a must stay left of b (a < b). Move b first.",
     "convexity_b_rejected_hint": "The endpoint b must stay right of a (a < b). Move a first.",
     "convexity_t_rejected_hint": "The point t must be a number between {value0} and {value1}.",
+    "convexity_endpoint_range_rejected": "The endpoint {value0} must be a number between {value1} and {value2}.",
+    "convexity_example_rejected": "The example must be one of: {value0}.",
     "convexity_actions_label": "Second derivative",
     "convexity_show_second_derivative": "Show second derivative",
     "convexity_hide_second_derivative": "Hide second derivative",

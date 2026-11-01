@@ -8,10 +8,11 @@ import {formatLineEquation, formatNumber, NumberLanguage} from "../../analysis/f
 import {NonVerticalLine} from "../../analysis/derivative";
 import {
     chordComparison, chordLineOf, CONVEXITY_EXAMPLE_IDS, CONVEXITY_X_MAX, CONVEXITY_X_MIN, CONVEXITY_X_STEP, convexityExample, ConvexityExample,
-    ConvexityExampleId, ConvexityVerdict, convexityVerdict, ComparisonClaim, inflectionPointsIn, isConvexityExampleId, isConvexityX,
+    ConvexityExampleId, ConvexityVerdict, convexityVerdict, ComparisonClaim, inflectionPointsIn,
     secondDerivativePieces, SecondDerivativePiece, SecondDerivativeSign, secondDerivativeSignOn, tangentComparison, tangentLineAt,
 } from "../../analysis/convexity";
-import {CONVEXITY_EXAMPLE_MODELS, ConvexityModel} from "../../analysis/convexityModel";
+import {chooseConvexityExample, CONVEXITY_EXAMPLE_MODELS, ConvexityModel, ConvexityPoint, moveConvexityPoint} from "../../analysis/convexityModel";
+import {convexityEditMessage} from "./convexityMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -145,29 +146,23 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isConvexityExampleId(value)) throw new DomainError(`The example must be one of ${CONVEXITY_EXAMPLE_IDS.join(", ")}.`);
-        this.commitModel({...CONVEXITY_EXAMPLE_MODELS[value], secondDerivativeVisible: false});
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[value]], true);
+        const choice = chooseConvexityExample(value);
+        if (!choice.ok) throw new DomainError(convexityEditMessage(choice.issue));
+        this.commitModel(choice.model);
+        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[choice.model.example]], true);
     }
 
-    protected setA(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isConvexityX(value)) throw new DomainError(`The endpoint a must be a finite number between ${CONVEXITY_X_MIN} and ${CONVEXITY_X_MAX}.`);
-        if (!(value < this.model.b)) throw new DomainError("The endpoint a must be less than b (a < b): move b first.");
-        const next = cleanNumber(value);
-        if (next !== this.model.a) this.commitModel({...this.model, a: next}, options);
-    }
+    protected setA(value: number, options: { syncScene?: boolean } = {}): void { this.movePoint("a", value, options); }
 
-    protected setB(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isConvexityX(value)) throw new DomainError(`The endpoint b must be a finite number between ${CONVEXITY_X_MIN} and ${CONVEXITY_X_MAX}.`);
-        if (!(value > this.model.a)) throw new DomainError("The endpoint b must be greater than a (a < b): move a first.");
-        const next = cleanNumber(value);
-        if (next !== this.model.b) this.commitModel({...this.model, b: next}, options);
-    }
+    protected setB(value: number, options: { syncScene?: boolean } = {}): void { this.movePoint("b", value, options); }
 
-    protected setT(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isConvexityX(value)) throw new DomainError(`The tangent point t must be a finite number between ${CONVEXITY_X_MIN} and ${CONVEXITY_X_MAX}.`);
-        const next = cleanNumber(value);
-        if (next !== this.model.t) this.commitModel({...this.model, t: next}, options);
+    protected setT(value: number, options: { syncScene?: boolean } = {}): void { this.movePoint("t", value, options); }
+
+    /** The model module decides (range, order, normalization); a refusal becomes a localized `DomainError`. */
+    private movePoint(point: ConvexityPoint, value: number, options: { syncScene?: boolean }): void {
+        const move = moveConvexityPoint(this.model, point, value);
+        if (!move.ok) throw new DomainError(convexityEditMessage(move.issue));
+        if (move.model !== this.model) this.commitModel(move.model, options);
     }
 
     protected setSecondDerivativeVisible(visible: boolean): void {
