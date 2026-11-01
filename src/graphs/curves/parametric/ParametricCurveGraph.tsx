@@ -5,9 +5,12 @@ import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import {Preset} from "../../base/presets/Presets";
+import {AnimationDriver} from "../../../learning/runtime/animation";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
+import type {LessonAnimationCommand} from "../../../learning/model";
 import {
     clampParameter, CYCLOID_RADIUS_MAX, CYCLOID_RADIUS_MIN, curveViewBox, isParametricCurveId,
-    PARAMETRIC_CATALOGUE, PARAMETRIC_CURVE_IDS, ParametricCurveId,
+    PARAMETRIC_CATALOGUE, PARAMETRIC_CURVE_IDS, PARAMETRIC_ROLL_ANIMATION_ID, ParametricCurveId,
 } from "./parametricCatalogue";
 import {DEFAULT_PARAMETRIC_PRESET, ParametricPresetData, parametricPresetCollection} from "./parametricPresetCollection";
 import {ParametricScene} from "./ParametricScene";
@@ -19,6 +22,9 @@ export interface ParametricGraphState extends BaseGraphState {
     /** The t (cycloid) or theta (polar curves) at which the point and velocity are drawn. */
     parameter: number;
 }
+
+/** The roll animation commands a lesson can send (there is no iteration, so `next-step` is rejected). */
+const ROLL_LESSON_COMMANDS: readonly LessonAnimationCommand[] = ['play', 'pause', 'replay', 'stop', 'reset'];
 
 /** A full pass of the roll animation takes this long. */
 export const ROLL_DURATION_MS = 6000;
@@ -41,8 +47,16 @@ const curveLabel = (id: ParametricCurveId): string => {
  */
 export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, ParametricPresetData> {
     private scene?: ParametricScene;
-    private rollFrame?: number;
-    private rollLast?: number;
+    /** The roll animation (a full pass of the domain takes {@link ROLL_DURATION_MS}); created on first use, as the base constructor already imports a Preset. */
+    private rollDriverInstance?: AnimationDriver;
+    private get rollDriver(): AnimationDriver {
+        return this.rollDriverInstance ??= new AnimationDriver(delta => {
+            const [from, to] = PARAMETRIC_CATALOGUE[this.state.curve].domain;
+            const next = this.state.parameter + (to - from) * delta / ROLL_DURATION_MS;
+            this.setParameter(next);
+            if (next >= to) this.rollDriver.stop();
+        });
+    }
 
     override getInitialState(): ParametricGraphState {
         return {initialized: false, ...DEFAULT_PARAMETRIC_PRESET};
@@ -86,6 +100,12 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
     protected override lessonDefaultState(): ParametricGraphState {
         const {curve, radius, parameter} = this.state;
         return {initialized: true, curve, radius, parameter};
+    }
+
+    /** A lesson scene starts from the default curve; its view is fitted like a fresh mount, since the previous scene may have shown another curve. */
+    protected override prepareLessonDefaultScene(): void {
+        super.prepareLessonDefaultScene();
+        this.fitToCurve();
     }
 
     override initialize() {
@@ -152,10 +172,10 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         this.setState({parameter: clampParameter(this.state, value)});
     }
 
-    // ---- Roll animation (id PARAMETRIC_ROLL_ANIMATION_ID; lesson wiring belongs to the registration slice) ---------------
+    // ---- Roll animation (id PARAMETRIC_ROLL_ANIMATION_ID) ---------------
 
     get rolling(): boolean {
-        return this.rollFrame !== undefined;
+        return this.rollDriverInstance?.isRunning() ?? false;
     }
 
     /** Starts the roll from the current parameter (from the start when it is at the end). */
@@ -163,36 +183,63 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
         if (this.rolling) return;
         const [t0, t1] = PARAMETRIC_CATALOGUE[this.state.curve].domain;
         if (this.state.parameter >= t1) this.setParameter(t0);
-        this.rollLast = undefined;
-        const step = (now: number) => {
-            const [from, to] = PARAMETRIC_CATALOGUE[this.state.curve].domain;
-            const elapsed = this.rollLast === undefined ? 0 : now - this.rollLast;
-            this.rollLast = now;
-            const next = this.state.parameter + (to - from) * elapsed / ROLL_DURATION_MS;
-            this.setParameter(next);
-            if (next >= to) {
-                this.rollFrame = undefined;
-            } else {
-                this.rollFrame = window.requestAnimationFrame(step);
-            }
-        };
-        this.rollFrame = window.requestAnimationFrame(step);
+        this.rollDriver.play();
     }
 
     /** Stops the roll and keeps the parameter where it is. */
     stopRoll() {
-        if (this.rollFrame !== undefined) window.cancelAnimationFrame(this.rollFrame);
-        this.rollFrame = undefined;
-        this.rollLast = undefined;
+        this.rollDriverInstance?.stop();
     }
 
     /** Lesson step change or leaving the lesson: stop and return to the start of the domain. */
     protected override stopLessonAnimations(): void {
         const wasRolling = this.rolling;
         this.stopRoll();
-        if (wasRolling || this.state.parameter !== PARAMETRIC_CATALOGUE[this.state.curve].domain[0]) {
+        if (wasRolling) {
             this.setParameter(PARAMETRIC_CATALOGUE[this.state.curve].domain[0]);
         }
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('parametric-curve', action => {
+            if (!isParametricCurveId(action.curve)) throw new Error('The curve must be one of the catalogue curves.');
+            if (action.radius !== undefined && !(Number.isFinite(action.radius) && action.radius >= CYCLOID_RADIUS_MIN && action.radius <= CYCLOID_RADIUS_MAX)) {
+                throw new Error(`The radius must be a number from ${CYCLOID_RADIUS_MIN} to ${CYCLOID_RADIUS_MAX}.`);
+            }
+            this.setCurve(action.curve);
+            if (action.radius !== undefined) this.setRadius(action.radius);
+        });
+        registry.onDiscriminated('parameter', 't', action => {
+            const [t0, t1] = PARAMETRIC_CATALOGUE[this.state.curve].domain;
+            if (!Number.isFinite(action.value) || action.value < t0 || action.value > t1) {
+                throw new Error(`The parameter must be a number from ${t0} to ${t1} for this curve.`);
+            }
+            this.setParameter(action.value);
+        });
+        registry.onDiscriminated('animation', PARAMETRIC_ROLL_ANIMATION_ID, action => this.rollCommand(action.command), {
+            supports: action => ROLL_LESSON_COMMANDS.includes(action.command),
+        });
+    }
+
+    /** Stops the roll and returns to the start of the domain, rolling or not. */
+    private rewindRoll(): void {
+        this.stopRoll();
+        this.setParameter(PARAMETRIC_CATALOGUE[this.state.curve].domain[0]);
+    }
+
+    /** `play` rolls on, `pause` keeps the parameter, `stop` and `reset` return to the start of the domain, `replay` does that and rolls. */
+    private rollCommand(command: LessonAnimationCommand): void {
+        if (command === 'play') this.playRoll();
+        else if (command === 'pause') this.stopRoll();
+        else if (command === 'stop' || command === 'reset') this.rewindRoll();
+        else if (command === 'replay') {
+            this.rewindRoll();
+            this.playRoll();
+        }
+        this.requestRender();
     }
 
     override pausePlayback(): void {
