@@ -3,6 +3,8 @@ import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
+import type {LessonAction, LessonAnimationCommand} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -26,6 +28,8 @@ export const HULL_TRACE_SAMPLE_1: PointSetModel = {
     mode: "points", closed: false, gridStepExponent: 0,
     points: [[2, 2], [4, 0], [0, 0], [5, 3], [2, 5], [-1, 3], [3, 1], [2, 0], [1, 1]].map(([x, y]) => ({x, y})),
 };
+
+const HULL_LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["next-step", "reset", "play", "pause", "replay"];
 
 export type HullTraceOverlayId = "trace" | "hull";
 
@@ -208,6 +212,40 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         this.controller.reset(0);
         this.setState(this.patch({step: 0}));
         this.requestRender();
+    }
+
+    /**
+     * Lesson actions: the `algorithm-trace` animation (`next-step`, `reset`, `play`, `pause`, `replay`) runs the very
+     * transitions of the buttons, and `point-set` `set-algorithm` is handled here only (the base class throws
+     * `UnsupportedLessonActionError` for it). Every edit action (`set-points`, `set-algorithm`) pauses and returns to
+     * step 0; `set-overlay` is a display change and keeps the step.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation !== "set-algorithm") {
+            super.applyPointSetAction(action);
+            return;
+        }
+        const algorithm = parseHullAlgorithm(action.algorithm);
+        if (algorithm === undefined) throw new Error("point-set set-algorithm: algorithm must be one of the hull algorithms.");
+        this.setAlgorithm(algorithm);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated("animation", "algorithm-trace", action => this.lessonCommand(action.command), {
+            supports: action => HULL_LESSON_COMMANDS.includes(action.command),
+        });
+    }
+
+    private lessonCommand(command: LessonAnimationCommand): void {
+        if (command === "next-step") this.nextStep();
+        else if (command === "play") this.play();
+        else if (command === "pause") this.pause();
+        else if (command === "reset") this.resetTrace();
+        else if (command === "replay") {
+            this.resetTrace();
+            this.play();
+        }
     }
 
     override mount(container: HTMLElement): void {

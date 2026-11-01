@@ -1,4 +1,5 @@
 import type {DemonstrationId} from '../demonstrations';
+import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
 import {BISECTION_EXAMPLE_IDS} from '../analysis/bisection';
 import {MEAN_VALUE_EXAMPLE_IDS} from '../analysis/meanValue';
 import {FUNCTION_IDS} from '../analysis/functions';
@@ -63,10 +64,10 @@ export type CameraPresetName = typeof CAMERA_PRESET_NAMES[number];
 
 /**
  * Closed set of animations a lesson can drive. `decasteljau` is the frame animation of the De Casteljau parameter;
- * `bisection` is the first iterative playback and `sequence` reveals the terms of a sequence one by one and `fixed-point` the iterates of a fixed-point iteration. A graph registers only the ids it owns and the commands each supports;
+ * `bisection` is the first iterative playback and `sequence` reveals the terms of a sequence one by one and `fixed-point` the iterates of a fixed-point iteration and `algorithm-trace` the steps of a convex hull algorithm trace. A graph registers only the ids it owns and the commands each supports;
  * the registry rejects the rest with `UnsupportedLessonActionError`.
  */
-export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'patch-u-sweep', 'patch-v-sweep'] as const;
+export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace'] as const;
 export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
 
 /**
@@ -191,6 +192,8 @@ export type LessonAction =
      */
     | {readonly kind: 'point-set'; readonly operation: 'set-points'; readonly points: readonly LessonPoint[]; readonly mode: 'points' | 'polygon'; readonly closed?: boolean}
     | {readonly kind: 'point-set'; readonly operation: 'set-overlay'; readonly overlay: PointSetOverlayName; readonly visible: boolean}
+    /** HullTraceGraph only (any other point-set graph throws `UnsupportedLessonActionError`): picks the algorithm, returns to step 0 and pauses. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-algorithm'; readonly algorithm: HullAlgorithm}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */

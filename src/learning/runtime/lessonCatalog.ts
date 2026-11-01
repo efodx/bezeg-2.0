@@ -4,6 +4,7 @@ import type {LessonPatchFixture, LessonPoint3, LessonView3D} from '../model';
 import type {LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
 import {getGuidedLesson, isPilotGuidedLesson, type LessonScene} from '../content/guidedLessons';
 import type {GuidedLessonFrame, GuidedLessonStep} from '../content/guidedLessons';
+import {parseHullAlgorithm} from '../../graphs/compgeo/hullTraceRun';
 import {isGuidedLessonAvailable} from './lessonAvailability';
 export {GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonAvailability';
 
@@ -54,8 +55,10 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
         if (closed !== undefined && typeof closed !== 'boolean') throw new Error('A point-set set-points action needs a boolean closed.');
     } else if (operation === 'set-overlay') {
         if (typeof overlay !== 'string' || typeof visible !== 'boolean') throw new Error('A point-set set-overlay action needs an overlay name and a boolean visible.');
+    } else if (operation === 'set-algorithm') {
+        if (parseHullAlgorithm((data as Record<string, unknown>).algorithm) === undefined) throw new Error('A point-set set-algorithm action needs one of the hull algorithms.');
     } else {
-        throw new Error('A point-set action needs the operation set-points or set-overlay.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay or set-algorithm.');
     }
     return action;
 }
