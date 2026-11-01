@@ -1,6 +1,7 @@
 import {message, Message} from "../../../localization";
 import {isFiniteNumber, isIntegerAtLeast, isRecord, PresetCollection, PresetDataCheck} from "../../base/presets/PresetCollection";
 import {validateKnotVector, validateWeights} from "../../../bezeg/impl/curve/bspline";
+import {knotRejectionMessage} from "./bsplineKnotMessages";
 
 export const BSPLINE_COLLECTION_KEY = 'bspline-curve';
 
@@ -24,15 +25,7 @@ function rejectionOf(value: unknown): Message | undefined {
     if (points.length < degree + 1) return message("bspline_too_few_points", {value0: degree, value1: degree + 1, value2: points.length});
     if (!Array.isArray(knots)) return message("bspline_invalid_data");
     const check = validateKnotVector(knots, degree, points.length - 1);
-    if (!check.ok) {
-        switch (check.reason) {
-            case "not_finite": return message("bspline_knots_not_finite");
-            case "wrong_length": return message("bspline_knots_wrong_length", {value0: points.length + degree + 1, value1: knots.length});
-            case "decreasing": return message("bspline_knots_decreasing", {value0: knots.findIndex((knot, i) => i > 0 && knot < knots[i - 1]) + 1});
-            case "multiplicity_too_high": return message("bspline_knots_multiplicity_too_high", {value0: degree + 1});
-            case "empty_domain": return message("bspline_knots_empty_domain");
-        }
-    }
+    if (!check.ok) return knotRejectionMessage(check.reason, knots, degree, points.length - 1);
     if (weights === undefined) return undefined;
     if (!Array.isArray(weights)) return message("bspline_weights_wrong_count", {value0: points.length});
     const weightCheck = validateWeights(weights, points.length);
