@@ -4,7 +4,9 @@ import {
     bezierPoint, phQuinticControlPoints, phQuinticOffsetPoint, phQuinticPoint, phQuinticVelocity, rationalBezierPoint,
     rationalControlPoints, rationalWeightsSecondTwo, weightedWarp, affineLessonControlPoints, bernsteinValue, bezierSegmentControls,
     decasteljauRows, defaultQuarticControlPoints, elevationCubicControlPoints, extrapolationCubicControlPoints, rotateAboutMean,
-    subdivisionCubicControlPoints, symmetricCubicControlPoints,
+    subdivisionCubicControlPoints, symmetricCubicControlPoints, rationalDecasteljauRows, rationalElevatedControls, rationalSegmentControls,
+    stackedBernsteinRegionSamples, c1QuadraticPieces, c1SplineFreePoints, c2CubicPieces, c2SplineFreePoints, cnSplineFreePoints,
+    extrapolatedQuadraticPieces, g1QuadraticPieces, g1SplineFreePoints, g1SymmetricPieces, g1SymmetricSplineFreePoints, pieceDerivative, splinePoint,
 } from './guidedExampleHighlightExpectations';
 
 describe('independent highlight expectations', () => {
@@ -179,5 +181,118 @@ describe('bezier-curves chapter highlight expectations (batch 03a)', () => {
         for (const [, recipe] of highlights) {
             if (recipe.kind === 'highlight') expect((recipe.checks.curves?.length ?? 0) + (recipe.checks.points?.length ?? 0)).toBeGreaterThan(0);
         }
+    });
+
+    it('rational de Casteljau: quadratic (1,2,1) at 1/2 projects the rows (-4/3,1),(4/3,1) and ends at (0,1), the point of the rational curve', () => {
+        const P: [number, number][] = [[-4, -3], [0, 3], [4, -3]];
+        const rows = rationalDecasteljauRows(P, [1, 2, 1], 0.5);
+        near(rows[0][0], [-4 / 3, 1]); near(rows[0][1], [4 / 3, 1]); near(rows[1][0], [0, 1]);
+        near(rationalBezierPoint(P, [1, 2, 1], 0.5), [0, 1]);
+        near(rationalDecasteljauRows(P, [1, 1, 1], 0.5)[1][0], [0, 0]); // equal weights give the ordinary scheme
+    });
+
+    it('rational extrapolation: weights 1, 11/5, 13/25, 143/125 and E(u) = R(6u/5) with the lesson points', () => {
+        const P: [number, number][] = [[-4, -3], [-3, 3], [3, 3], [4, -1]], W = [1, 2, 1, 1];
+        const E = rationalSegmentControls(P, W, 0, 1.2);
+        [1, 11 / 5, 13 / 25, 143 / 125].forEach((w, i) => expect(E.weights[i]).toBeCloseTo(w, 12));
+        [[-4, -3], [-32 / 11, 39 / 11], [176 / 13, 33 / 13], [436 / 143, -3]].forEach((expected, i) => near(E.points[i], expected as [number, number]));
+        for (let k = 0; k <= 20; k++) near(rationalBezierPoint(E.points, E.weights, k / 20), rationalBezierPoint(P, W, 1.2 * k / 20));
+    });
+
+    it('rational elevation: weights 1, 7/4, 3/2, 1, 1, Q_1 = (-22/7, 15/7), and the same curve', () => {
+        const E = rationalElevatedControls(rationalControlPoints, rationalWeightsSecondTwo);
+        [1, 7 / 4, 3 / 2, 1, 1].forEach((w, i) => expect(E.weights[i]).toBeCloseTo(w, 12));
+        near(E.points[1], [-22 / 7, 15 / 7]);
+        for (let k = 0; k <= 20; k++) near(rationalBezierPoint(E.points, E.weights, k / 20), rationalBezierPoint(rationalControlPoints, rationalWeightsSecondTwo, k / 20));
+    });
+
+    it('rational subdivision: the parts have weights (1,3/2,3/2,11/8) and (11/8,5/4,1,1), share R(1/2) and trace the curve', () => {
+        const L = rationalSegmentControls(rationalControlPoints, rationalWeightsSecondTwo, 0, 0.5);
+        const R = rationalSegmentControls(rationalControlPoints, rationalWeightsSecondTwo, 0.5, 1);
+        [1, 3 / 2, 3 / 2, 11 / 8].forEach((w, i) => expect(L.weights[i]).toBeCloseTo(w, 12));
+        [11 / 8, 5 / 4, 1, 1].forEach((w, i) => expect(R.weights[i]).toBeCloseTo(w, 12));
+        near(L.points[3], [-9 / 11, 21 / 11]); near(R.points[0], [-9 / 11, 21 / 11]);
+        near(L.points[1], [-10 / 3, 1]); near(L.points[2], [-13 / 6, 2]); near(R.points[1], [4 / 5, 9 / 5]); near(R.points[2], [7 / 2, 0]);
+        for (let k = 0; k <= 20; k++) {
+            near(rationalBezierPoint(L.points, L.weights, k / 20), rationalBezierPoint(rationalControlPoints, rationalWeightsSecondTwo, k / 40));
+            near(rationalBezierPoint(R.points, R.weights, k / 20), rationalBezierPoint(rationalControlPoints, rationalWeightsSecondTwo, 0.5 + k / 40));
+        }
+    });
+
+    it('stacked Bernstein regions: four outlines at degree 3 and the top edge is height 1 (partition of unity)', () => {
+        expect(stackedBernsteinRegionSamples(4, 0)).toEqual([[0, 1], [1, 0], [0, 1]]);
+        expect(stackedBernsteinRegionSamples(4, 1)).toEqual([[0, 1], [1, 0], [0, 1]]);
+        expect(stackedBernsteinRegionSamples(4, 2)).toEqual([[0, 1], [1, 0], [0, 1]]);
+        expect(stackedBernsteinRegionSamples(4, 3)).toEqual([[1, 0], [0, 1], [1, 0]]);
+        for (const t of [0, 0.25, 0.5, 0.9]) expect([0, 1, 2, 3].reduce((sum, i) => sum + bernsteinValue(3, i, t), 0)).toBeCloseTo(1, 12);
+    });
+
+    it('registers the batch 03b-A recipes: six new highlights and three explicit starts', () => {
+        const ids = Object.keys(guidedExampleHighlightRecipes).filter(id => id.startsWith('foundations.') || id.startsWith('rational-curves.'));
+        const starts = ids.filter(id => guidedExampleHighlightRecipes[id].kind === 'start').sort();
+        expect(starts).toEqual(['foundations.complex-plane.complex-multiplication', 'foundations.worked-weight.bernstein.degree-comparison', 'rational-curves.worked-conic.circle']);
+        expect(ids.filter(id => guidedExampleHighlightRecipes[id].kind === 'highlight')).toHaveLength(7); // six new plus rational-weight from batch 02
+    });
+    // Splines (batch 03b-B): literal values below are worked out by hand from the lesson prose, not by the helpers.
+    const parallelPositive = (a: readonly number[], b: readonly number[]) => {
+        expect(a[0] * b[1] - a[1] * b[0]).toBeCloseTo(0, 9); // parallel
+        expect(a[0] * b[0] + a[1] * b[1]).toBeGreaterThan(0); // same direction, positive factor
+    };
+
+    it('splinePoint: uniform knots, piece k on [k/m, (k+1)/m], t = 1 is the last end', () => {
+        const pieces = [[[0, 0], [1, 0]], [[1, 0], [1, 2]], [[1, 2], [3, 2]]] as const;
+        near(splinePoint(pieces, 0), [0, 0]); near(splinePoint(pieces, 1 / 3), [1, 0]); near(splinePoint(pieces, 0.5), [1, 1]);
+        near(splinePoint(pieces, 2 / 3), [1, 2]); near(splinePoint(pieces, 1), [3, 2]);
+    });
+
+    it('C1 pieces: joint (0,2), and the derivative vectors at the joint are equal, (8,0)', () => {
+        const [left, right] = c1QuadraticPieces(c1SplineFreePoints);
+        expect(left).toEqual([[-4, -2], [-2, 2], [0, 2]]); expect(right).toEqual([[0, 2], [2, 2], [3, -1]]);
+        near(pieceDerivative(left, 1, 0.5, true), [8, 0]); near(pieceDerivative(right, 1, 0.5, false), [8, 0]);
+        near(splinePoint([left, right], 0.5), [0, 2]);
+    });
+
+    it('Cn pieces: q1 = 2 p2 - p1 = (2,-4), the joint is the midpoint of p1 and q1 and the first derivatives agree, (8,-4)', () => {
+        const [left, right] = extrapolatedQuadraticPieces(cnSplineFreePoints);
+        expect(right[1]).toEqual([2, -4]); expect(left[2]).toEqual([0, -3]);
+        near(pieceDerivative(left, 1, 0.5, true), [8, -4]); near(pieceDerivative(right, 1, 0.5, false), [8, -4]);
+    });
+
+    it('C2 pieces: joints (-5/2,-1) and (5/2,0), inner points on the thirds of p2p3, first and second derivatives agree', () => {
+        const pieces = c2CubicPieces(c2SplineFreePoints);
+        near(pieces[0][2], [-4, 0]); near(pieces[0][3], [-2.5, -1]); near(pieces[1][1], [-1, -2]); near(pieces[1][2], [1, -1]);
+        near(pieces[1][3], [2.5, 0]); near(pieces[2][1], [4, 1]);
+        for (const [a, b] of [[0, 1], [1, 2]]) {
+            near(pieceDerivative(pieces[a], 1, 1 / 3, true), pieceDerivative(pieces[b], 1, 1 / 3, false));
+            near(pieceDerivative(pieces[a], 2, 1 / 3, true), pieceDerivative(pieces[b], 2, 1 / 3, false));
+        }
+        near(splinePoint(pieces, 0.5), [0, -1.25]);
+    });
+
+    it('G1 pieces at b = 1: derived point (2,-2), tangents parallel with a positive factor; at b = 1/4 the right derivative is 1/4 of the left', () => {
+        const [left, right] = g1QuadraticPieces(g1SplineFreePoints, 1);
+        near(right[1], [2, -2]);
+        near(pieceDerivative(left, 1, 0.5, true), [8, -8]); near(pieceDerivative(right, 1, 0.5, false), [8, -8]);
+        const [, small] = g1QuadraticPieces(g1SplineFreePoints, 0.25);
+        near(small[1], [0.5, -0.5]); near(pieceDerivative(small, 1, 0.5, false), [2, -2]);
+        parallelPositive(pieceDerivative(left, 1, 0.5, true), pieceDerivative(small, 1, 0.5, false));
+    });
+
+    it('symmetric G1 pieces at beta = 1/4: joint (-1,3/2), derivatives (4,-2) and (12,-6), parallel with a positive factor 3', () => {
+        const [left, right] = g1SymmetricPieces(g1SymmetricSplineFreePoints, 0.25);
+        near(left[2], [-1, 1.5]); near(right[0], [-1, 1.5]);
+        near(pieceDerivative(left, 1, 0.5, true), [4, -2]); near(pieceDerivative(right, 1, 0.5, false), [12, -6]);
+        parallelPositive(pieceDerivative(left, 1, 0.5, true), pieceDerivative(right, 1, 0.5, false));
+    });
+
+    it('pieceDerivative: second derivative of the parabola piece (0,0),(1/2,0),(1,1) over span 1 is (0,2)', () => {
+        near(pieceDerivative([[0, 0], [0.5, 0], [1, 1]], 2, 1, false), [0, 2]);
+        near(pieceDerivative([[0, 0], [0.5, 0], [1, 1]], 1, 1, true), [1, 2]);
+    });
+
+    it('registers the batch 03b-B recipes: five highlights and the worked-join start', () => {
+        const ids = Object.keys(guidedExampleHighlightRecipes).filter(id => id.startsWith('splines.'));
+        expect(ids.filter(id => guidedExampleHighlightRecipes[id].kind === 'start')).toEqual(['splines.worked-join.spline-c1.parabola-derivatives']);
+        expect(ids.filter(id => guidedExampleHighlightRecipes[id].kind === 'highlight')).toHaveLength(5);
     });
 });

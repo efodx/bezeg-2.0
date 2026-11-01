@@ -22,10 +22,11 @@
  */
 
 /** Pure data: the recipe never holds functions, so it can be fingerprinted and stored in the manifest. */
-import {affineLessonControlPoints, bernsteinValue, bezierPoint, bezierSegmentControls, decasteljauRows, defaultQuarticControlPoints,
-    elevationCubicControlPoints, extrapolationCubicControlPoints, phQuinticControlPoints, phQuinticOffsetPoint, phQuinticPoint,
-    rationalBezierPoint, rationalControlPoints, rationalWeightsSecondTwo, rotateAboutMean, sampleCurve, subdivisionCubicControlPoints,
-    symmetricCubicControlPoints, weightedKnotControlPoints, weightedWarp} from './guidedExampleHighlightExpectations';
+import {affineLessonControlPoints, bernsteinValue, bezierPoint, bezierSegmentControls, c1QuadraticPieces, c1SplineFreePoints, c2CubicPieces,
+    c2SplineFreePoints, cnSplineFreePoints, decasteljauRows, defaultQuarticControlPoints, elevationCubicControlPoints, extrapolatedQuadraticPieces,
+    g1QuadraticPieces, g1SplineFreePoints, g1SymmetricPieces, g1SymmetricSplineFreePoints, splinePoint, extrapolationCubicControlPoints, phQuinticControlPoints, phQuinticOffsetPoint, phQuinticPoint,
+    rationalBezierPoint, rationalControlPoints, rationalDecasteljauRows, rationalElevatedControls, rationalSegmentControls, rationalWeightsSecondTwo, rotateAboutMean, sampleCurve, subdivisionCubicControlPoints,
+    stackedBernsteinRegionSamples, symmetricCubicControlPoints, weightedKnotControlPoints, weightedWarp} from './guidedExampleHighlightExpectations';
 import type {Vec} from './guidedExampleHighlightExpectations';
 
 export type HighlightStep =
@@ -89,6 +90,37 @@ const elevatedControls: Vec[] = [0, 1, 2, 3, 4].map(i => {
 });
 const helperPoint = (from: number) => bezierPoint(defaultQuarticControlPoints.slice(from, from + 4), 0.25);
 const cubicRows = decasteljauRows(symmetricCubicControlPoints, MIDPOINT);
+
+// foundations and rational-curves chapters (batch 03b-A): values from the lesson fixtures and the graph presets, never from the board.
+/** The stacked-area frame draws the degree-3 functions (BernsteinGraph `bernstein-degree` 3 gives four regions). */
+const STACKED_REGIONS = BERNSTEIN_DEGREE + 1;
+/** Rational de Casteljau quadratic fixture (additionalGuidedLessons.ts `quadraticFixture([1, 2, 1])`) at t = 1/2. */
+const rationalQuadraticPoints: readonly Vec[] = [[-4, -3], [0, 3], [4, -3]];
+const rationalQuadraticWeights = [1, 2, 1];
+const rationalQuadraticRows = rationalDecasteljauRows(rationalQuadraticPoints, rationalQuadraticWeights, MIDPOINT);
+/** constructionGuidedLessons.ts `rationalExtrapolationFixture`: the extrapolation demonstration's end point is (4, -1). */
+const rationalExtrapolationPoints: readonly Vec[] = [[-4, -3], [-3, 3], [3, 3], [4, -1]];
+const rationalExtrapolated = rationalSegmentControls(rationalExtrapolationPoints, rationalWeightsSecondTwo, 0, EXTRAPOLATION_T);
+/** Rational elevation, subdivision and Farin demonstrations all start from the rational lesson curve (1,2,1,1). */
+const rationalElevated = rationalElevatedControls(rationalControlPoints, rationalWeightsSecondTwo);
+const rationalLeft = rationalSegmentControls(rationalControlPoints, rationalWeightsSecondTwo, 0, MIDPOINT);
+const rationalRight = rationalSegmentControls(rationalControlPoints, rationalWeightsSecondTwo, MIDPOINT, 1);
+const rationalCurveAt = (t: number) => rationalBezierPoint(rationalControlPoints, rationalWeightsSecondTwo, t);
+
+// splines chapter (batch 03b-B): pieces built from the lesson's construction formulas, never from the board. Each spline is one
+// JSXGraph curve (sampled at the global parameters 0, 1/2, 1); the control polygon is made of segments, which the curve count ignores.
+/** Free points followed by the computed (derived, joint) control points of the pieces, without duplicates. */
+const splineVisiblePoints = (free: readonly Vec[], pieces: readonly (readonly Vec[])[]): Vec[] => {
+    const seen = new Set<string>();
+    return [...free, ...pieces.flat()].filter(point => { const key = point.map(v => v.toFixed(6)).join(','); return !seen.has(key) && !!seen.add(key); });
+};
+const splineCurve = (pieces: readonly (readonly Vec[])[]) => sampleCurve(t => splinePoint(pieces, t));
+const c1Pieces = c1QuadraticPieces(c1SplineFreePoints);
+const cnPieces = extrapolatedQuadraticPieces(cnSplineFreePoints);
+const c2Pieces = c2CubicPieces(c2SplineFreePoints);
+/** g1-condition-step: the scene sets b = 1 (the ratio slider's default); g1s-quarter sets beta_1 = 1/4. */
+const g1Pieces = g1QuadraticPieces(g1SplineFreePoints, 1);
+const g1SymmetricQuarterPieces = g1SymmetricPieces(g1SymmetricSplineFreePoints, 1 / 4);
 
 /**
  * Recipes by guided example id. Frame ids are the example lesson's own; expected values come from
@@ -203,4 +235,89 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
             curves: [sampleCurve(t => bezierPoint(subdivisionCubicControlPoints, t / 2)), sampleCurve(t => bezierPoint(subdivisionCubicControlPoints, (1 + t) / 2))],
         },
     },
+    // foundations and rational-curves, batch 03b-A.
+    // Stacked areas: four filled outline curves (degree 3), no t marker; each outline is sampled at its parameters 0, 1/2, 1.
+    'foundations.reading-bernstein.bernstein': {
+        kind: 'highlight', frame: 'bernstein-stacked-area-observation', steps: [], expectChange: true,
+        checks: {
+            curveCount: STACKED_REGIONS,
+            curves: Array.from({length: STACKED_REGIONS}, (_, i) => stackedBernsteinRegionSamples(STACKED_REGIONS, i)),
+        },
+    },
+    // The complex-multiplication card needs the Show product button, which no recipe step can press; the start scene stays.
+    'foundations.complex-plane.complex-multiplication': {kind: 'start'},
+    // The degree-comparison card is the family card prepared at degree 2 without stacking, which is the start scene.
+    'foundations.worked-weight.bernstein.degree-comparison': {kind: 'start'},
+    // The circle lesson's first step is the default circle, which is the start scene; no later frame is a better card image.
+    'rational-curves.worked-conic.circle': {kind: 'start'},
+    // Quadratic (1,2,1) at t=1/2: lifted rows (-2,3/2,3/2),(2,3/2,3/2) project to (-4/3,1),(4/3,1); the end of the scheme is (0,1).
+    'rational-curves.homogeneous.rational-decasteljau': {
+        kind: 'highlight', frame: 'rational-decasteljau-projection-observation', steps: [], expectChange: true,
+        checks: {
+            curveCount: 1, points: [...rationalQuadraticPoints, ...rationalQuadraticRows.flat()],
+            curves: [sampleCurve(t => rationalBezierPoint(rationalQuadraticPoints, rationalQuadraticWeights, t))],
+        },
+    },
+    // Extrapolated at t=6/5: new weights 1, 11/5, 13/25, 143/125; E(u) = R(6u/5), so its last point is R(6/5).
+    'rational-curves.investigate-rational.rational-extrapolation': {
+        kind: 'highlight', frame: 'rex-example-observation', steps: [], expectChange: true,
+        checks: {
+            curveCount: 1, points: rationalExtrapolated.points,
+            curves: [sampleCurve(t => rationalBezierPoint(rationalExtrapolationPoints, rationalWeightsSecondTwo, EXTRAPOLATION_T * t))],
+        },
+    },
+    // Farin points are JSXGraph sliders along the three edges; their positions are not readable from the board, so only the
+    // slider count, the four control points and the unchanged curve are checked.
+    'rational-curves.operations.farin': {
+        kind: 'highlight', frame: 'farin-show-points-observation', steps: [], expectChange: true,
+        checks: {
+            types: {slider: 3}, curveCount: 1, points: rationalControlPoints,
+            curves: [sampleCurve(rationalCurveAt)],
+        },
+    },
+    // One rational elevation: five points with weights 1, 7/4, 3/2, 1, 1; the curve is the same rational curve.
+    'rational-curves.operations.rational-elevation': {
+        kind: 'highlight', frame: 'rational-elevation-once-observation', steps: [], expectChange: true,
+        checks: {
+            curveCount: 1, points: rationalElevated.points,
+            curves: [sampleCurve(rationalCurveAt)],
+        },
+    },
+    // Cut at t=1/2: left (1,3/2,3/2,11/8), right (11/8,5/4,1,1) sharing R(1/2). Curve count 3 as in the polynomial subdivision:
+    // two parts plus the graph's remainder overlay (SubdivisionGraph1).
+    'rational-curves.operations.rational-subdivision': {
+        kind: 'highlight', frame: 'rsd-half-example-observation', steps: [], expectChange: true,
+        checks: {
+            curveCount: 3, points: [...rationalLeft.points, ...rationalRight.points],
+            curves: [sampleCurve(t => rationalCurveAt(t / 2)), sampleCurve(t => rationalCurveAt((1 + t) / 2))],
+        },
+    },
+    // splines, batch 03b-B. Every frame shows labels and the control polygon; the ratio sliders are React inputs, so `types` is not set.
+    // C1: joint J=(0,2) is the midpoint of p1p2; both pieces have derivative (8,0) at J (equal first derivatives), checked in the helper tests.
+    'splines.continuity-levels.spline-c1': {
+        kind: 'highlight', frame: 'c1-tangent-step-observation', steps: [], expectChange: true,
+        checks: {curveCount: 1, points: splineVisiblePoints(c1SplineFreePoints, c1Pieces), curves: [splineCurve(c1Pieces)]},
+    },
+    // C2: three cubic pieces, joints (-5/2,-1) and (5/2,0); the curve passes through the middle piece's centre (0,-5/4) at t=1/2.
+    'splines.continuity-levels.spline-c2': {
+        kind: 'highlight', frame: 'c2-joint-step-observation', steps: [], expectChange: true,
+        checks: {curveCount: 1, points: splineVisiblePoints(c2SplineFreePoints, c2Pieces), curves: [splineCurve(c2Pieces)]},
+    },
+    // G1 with b=1: derived point (2,-2) = p2 + b (p2 - p1); both tangents at (0,0) are along (1,-1) with a positive factor.
+    'splines.geometric-vs-parametric.spline-g1': {
+        kind: 'highlight', frame: 'g1-condition-step-observation', steps: [], expectChange: true,
+        checks: {curveCount: 1, points: splineVisiblePoints(g1SplineFreePoints, g1Pieces), curves: [splineCurve(g1Pieces)]},
+    },
+    // Symmetric G1 at beta_1=1/4: J = 3/4 p1 + 1/4 p2 = (-1,3/2); the tangents are along (2,-1) and the right derivative is 3 times the left.
+    'splines.geometric-vs-parametric.spline-g1-symmetric': {
+        kind: 'highlight', frame: 'g1s-quarter-observation', steps: [], expectChange: true,
+        checks: {curveCount: 1, points: splineVisiblePoints(g1SymmetricSplineFreePoints, g1SymmetricQuarterPieces), curves: [splineCurve(g1SymmetricQuarterPieces)]},
+    },
+    // Cn (n=2, r=1): derived point q1 = 2 p2 - p1 = (2,-4), the joint p2=(0,-3) is the midpoint of p1 and q1.
+    'splines.piecewise.spline-cn': {
+        kind: 'highlight', frame: 'cn-extrapolate-observation', steps: [], expectChange: true,
+        checks: {curveCount: 1, points: splineVisiblePoints(cnSplineFreePoints, cnPieces), curves: [splineCurve(cnPieces)]},
+    },
+    // The worked-join family card is the prepared parabola join scene ('worked-parabola-join'); it has no lesson frame, so it stays the start scene.
+    'splines.worked-join.spline-c1.parabola-derivatives': {kind: 'start'},
 };

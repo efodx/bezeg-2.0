@@ -141,3 +141,132 @@ export const elevationCubicControlPoints: readonly Vec[] = [[-4, -2], [-3, 3], [
 export const extrapolationCubicControlPoints: readonly Vec[] = [[-4, -2], [-3, 3], [2, 3], [3, -1]];
 /** SubdivisionGraph.tsx / SubdivisionGraph1.tsx default preset (subdivision and repeated-subdivision lessons). */
 export const subdivisionCubicControlPoints: readonly Vec[] = [[-4, -3], [-3, 3], [3, 3], [4, -3]];
+
+/** Homogeneous lift (w x, w y, w) of weighted planar points. */
+type Homogeneous = readonly [number, number, number];
+const lift = (points: readonly Vec[], weights: readonly number[]): Homogeneous[] => points.map((p, i) => [weights[i] * p[0], weights[i] * p[1], weights[i]]);
+/** Projection of a homogeneous point back to the plane, together with its weight (the last coordinate). */
+const project = ([x, y, z]: Homogeneous): {point: Vec; weight: number} => ({point: [x / z, y / z], weight: z});
+
+/** Linear interpolation of homogeneous points (all three coordinates together). */
+const mixHomogeneous = (a: Homogeneous, b: Homogeneous, t: number): Homogeneous => [(1 - t) * a[0] + t * b[0], (1 - t) * a[1] + t * b[1], (1 - t) * a[2] + t * b[2]];
+
+/**
+ * Rows of the rational de Casteljau scheme at `t`, computed in homogeneous coordinates (w x, w y, w) and projected afterwards;
+ * rows of n, n-1, ..., 1 points, without the control polygon itself.
+ */
+export function rationalDecasteljauRows(points: readonly Vec[], weights: readonly number[], t: number): Vec[][] {
+    const rows: Vec[][] = [];
+    let level: Homogeneous[] = lift(points, weights);
+    while (level.length > 1) {
+        level = level.slice(1).map((next, i) => mixHomogeneous(level[i], next, t));
+        rows.push(level.map(h => project(h).point));
+    }
+    return rows;
+}
+
+/**
+ * Control points (projected) and weights of the rational Bézier piece on the parameter interval [a, b]: the homogeneous blossom
+ * of the lifted points with (n-k) arguments a and k arguments b, projected. [0, t] with t > 1 is the extrapolated curve.
+ */
+export function rationalSegmentControls(points: readonly Vec[], weights: readonly number[], a: number, b: number): {points: Vec[]; weights: number[]} {
+    const n = points.length - 1, lifted = lift(points, weights);
+    const blossomAt = (args: readonly number[]): Homogeneous => {
+        let level = lifted;
+        for (const arg of args) level = level.slice(1).map((next, i) => mixHomogeneous(level[i], next, arg));
+        return level[0];
+    };
+    const projected = points.map((_, k) => project(blossomAt([...Array(n - k).fill(a), ...Array(k).fill(b)])));
+    return {points: projected.map(p => p.point), weights: projected.map(p => p.weight)};
+}
+
+/**
+ * Degree elevation of the rational curve by one, in homogeneous coordinates: the lifted point i is
+ * (i/(n+1)) H_{i-1} + (1 - i/(n+1)) H_i, projected afterwards. Returns the n+2 projected points and their weights.
+ */
+export function rationalElevatedControls(points: readonly Vec[], weights: readonly number[]): {points: Vec[]; weights: number[]} {
+    const n = points.length - 1, lifted = lift(points, weights);
+    const elevated = Array.from({length: n + 2}, (_, i) => project(mixHomogeneous(lifted[Math.min(i, n)], lifted[Math.max(i - 1, 0)], i / (n + 1))));
+    return {points: elevated.map(p => p.point), weights: elevated.map(p => p.weight)};
+}
+
+/**
+ * The filled regions of the stacked Bernstein chart of `count` degree-(count-1) functions (BernsteinGraph.tsx, sum graph): region i lies between
+ * the cumulative sums S_{i-1} and S_i, with S_k = b_0 + ... + b_k and S_{-1} = 0. Each region is one closed outline curve, sampled at
+ * its outline parameters 0, 1/2 and 1, which are the outline vertices: the first region starts at the top-left (0, 1) corner, passes
+ * (1, S_0(1)) and returns to (0, S_0(0)); the last starts at (1, S_{last-1}(1)), passes (0, S_{last-1}(0)) and returns to its start;
+ * a middle region starts at (0, S_{i-1}(0)), passes (1, S_i(1)) and ends at (0, S_i(0)).
+ */
+export function stackedBernsteinRegionSamples(count: number, i: number): CurveSamples {
+    const degree = count - 1;
+    const cumulative = (k: number, t: number) => { let sum = 0; for (let j = 0; j <= k; j++) sum += bernsteinValue(degree, j, t); return sum; };
+    if (i === 0) return [[0, cumulative(degree, 0)], [1, cumulative(0, 1)], [0, cumulative(0, 0)]];
+    if (i === degree) return [[1, cumulative(i - 1, 1)], [0, cumulative(i - 1, 0)], [1, cumulative(i - 1, 1)]];
+    return [[0, cumulative(i - 1, 0)], [1, cumulative(i, 1)], [0, cumulative(i, 0)]];
+}
+
+// Splines (batch 03b-B). The spline graphs draw ONE JSXGraph curve on [0, 1] with uniform knots (chord-length exponent alpha = 0),
+// so a spline of m pieces has piece k on [k/m, (k+1)/m]. Pieces below are built from the lesson's own construction formulas.
+const mix = (a: Vec, b: Vec, s: number): Vec => [(1 - s) * a[0] + s * b[0], (1 - s) * a[1] + s * b[1]];
+
+/** Free points of the C1 quadratic fixtures (splineGuidedLessons.ts c1-* scenes). */
+export const c1SplineFreePoints: readonly Vec[] = [[-4, -2], [-2, 2], [2, 2], [3, -1]];
+/** Free points of the Cn fixture (cn-* scenes, n = 2, r = 1). */
+export const cnSplineFreePoints: readonly Vec[] = [[-4, 1], [-2, -2], [0, -3], [4, 0]];
+/** Free points of the C2 cubic fixtures (c2-* scenes). */
+export const c2SplineFreePoints: readonly Vec[] = [[-6, -1], [-5, 3], [-3, -3], [3, 0], [5, 2], [6, -2]];
+/** Free points of the one-sided G1 fixtures (g1-* scenes). */
+export const g1SplineFreePoints: readonly Vec[] = [[-4, -1], [-2, 2], [0, 0], [4, -1]];
+/** Free points of the symmetric G1 fixtures (g1s-* scenes). */
+export const g1SymmetricSplineFreePoints: readonly Vec[] = [[-5, -1], [-2, 2], [2, 0], [5, 3]];
+
+/** Point of a spline of Bézier `pieces` (uniform knots on [0, 1]); the global parameter t = 1 is the last piece's end. */
+export function splinePoint(pieces: readonly (readonly Vec[])[], t: number): Vec {
+    const m = pieces.length, k = Math.min(Math.floor(t * m), m - 1);
+    return bezierPoint(pieces[k], t * m - k);
+}
+
+/** C1 quadratic spline of four free points: the joint is the midpoint J of p1p2 (equal spans), pieces (p0,p1,J) and (J,p2,p3). */
+export function c1QuadraticPieces(p: readonly Vec[]): Vec[][] {
+    const joint = mix(p[1], p[2], 1 / 2);
+    return [[p[0], p[1], joint], [joint, p[2], p[3]]];
+}
+
+/** Degree-2 r = 1 spline of four free points by one-sided extrapolation: q1 = 2 p2 - p1 (uniform spacing); pieces (p0,p1,p2) and (p2,q1,p3). */
+export function extrapolatedQuadraticPieces(p: readonly Vec[]): Vec[][] {
+    const q1: Vec = [2 * p[2][0] - p[1][0], 2 * p[2][1] - p[1][1]];
+    return [[p[0], p[1], p[2]], [p[2], q1, p[3]]];
+}
+
+/**
+ * C2 cubic spline of six free points (Algorithm 5): inner points of the middle piece at the thirds of p2p3, the end pieces use the
+ * midpoints d = (p1+p2)/2 and d' = (p3+p4)/2, and each joint is the midpoint of the neighbouring inner points.
+ */
+export function c2CubicPieces(p: readonly Vec[]): Vec[][] {
+    const d1 = mix(p[1], p[2], 1 / 2), d2 = mix(p[3], p[4], 1 / 2);
+    const c1 = mix(p[2], p[3], 1 / 3), c2 = mix(p[2], p[3], 2 / 3);
+    const j1 = mix(d1, c1, 1 / 2), j2 = mix(c2, d2, 1 / 2);
+    return [[p[0], p[1], d1, j1], [j1, c1, c2, j2], [j2, d2, p[4], p[5]]];
+}
+
+/** One-sided G1 quadratic spline of four free points and ratio b: q1 = p2 + b (p2 - p1); pieces (p0,p1,p2) and (p2,q1,p3). */
+export function g1QuadraticPieces(p: readonly Vec[], b: number): Vec[][] {
+    const q1: Vec = [p[2][0] + b * (p[2][0] - p[1][0]), p[2][1] + b * (p[2][1] - p[1][1])];
+    return [[p[0], p[1], p[2]], [p[2], q1, p[3]]];
+}
+
+/** Symmetric G1 quadratic spline of four free points and ratio beta: joint J = (1-beta) p1 + beta p2; pieces (p0,p1,J) and (J,p2,p3). */
+export function g1SymmetricPieces(p: readonly Vec[], beta: number): Vec[][] {
+    const joint = mix(p[1], p[2], beta);
+    return [[p[0], p[1], joint], [joint, p[2], p[3]]];
+}
+
+/** k-th derivative (k = 1, 2) of the Bézier piece with control points `c` on a parameter interval of length `span`, at its start or end. */
+export function pieceDerivative(c: readonly Vec[], k: 1 | 2, span: number, atEnd: boolean): Vec {
+    const n = c.length - 1, o = atEnd ? n - k : 0;
+    const factor = (k === 1 ? n : n * (n - 1)) / span ** k;
+    const at = (i: number) => c[o + i];
+    return k === 1
+        ? [factor * (at(1)[0] - at(0)[0]), factor * (at(1)[1] - at(0)[1])]
+        : [factor * (at(2)[0] - 2 * at(1)[0] + at(0)[0]), factor * (at(2)[1] - 2 * at(1)[1] + at(0)[1])];
+}
