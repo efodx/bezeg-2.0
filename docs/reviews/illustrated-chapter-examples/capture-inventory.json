@@ -1105,9 +1105,45 @@
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"n\",\"value\":1}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "arc-more-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              3.141592653589793,
+              0
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.479425538604203
+              ],
+              [
+                1,
+                0.8414709848078965
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "f15504aece316b04485c593d4aa235e552e71dec3c3b10e9c66ce127b3ab51ae"
     },
     {
       "id": "functions-and-calculus.applications.area-between-curves",
@@ -1121,9 +1157,59 @@
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"b\",\"value\":3}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "area-difference-observation",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                4
+              ],
+              [
+                0.5,
+                2.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                -1
+              ],
+              [
+                0.5,
+                0.75
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "52a7ee812631e8b460a85729ab06a51cb4426cd5df50355b20206546a4fea3da"
     },
     {
       "id": "functions-and-calculus.continuity.continuity",
@@ -1134,9 +1220,29 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"continuity-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "continuity-piecewise-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "e66016d4d90b30cbf33635318e387abf6140619c9b67bbee191019b4f0ea2b70"
     },
     {
       "id": "functions-and-calculus.derivatives.derivative",
@@ -1147,9 +1253,73 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"derivative-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "derivative-secant-observation",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "display"
+          },
+          {
+            "kind": "set-control",
+            "control": "checkbox",
+            "label": "Prikaži tangento (natančna mejna premica)",
+            "value": true
+          }
+        ],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                -1
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "1532d8d822d1415e73df83e8c1708ffa456ff9f96b6743c0021eb090872ecbf0"
     },
     {
       "id": "functions-and-calculus.function-rules.exponential-function",
@@ -1160,9 +1330,45 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"exponential-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "exponential-fixed-points-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.4142135623730951
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "f141fdc6419c313a24b1bab304fd79bb3d6608e755626fc06f720d57aaed38fa"
     },
     {
       "id": "functions-and-calculus.function-rules.linear-function",
@@ -1173,9 +1379,33 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "linear-line-through-points-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "types": {
+            "point": 3,
+            "line": 1,
+            "segment": 2
+          },
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "ab62a37aa2261cd1647e571f4626863932c45ce4ec61c1c031f8c02d133c6466"
     },
     {
       "id": "functions-and-calculus.function-rules.trigonometric-functions",
@@ -1186,9 +1416,49 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"trig-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "trig-period-shift-observation",
+        "position": {
+          "step": 5,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              [
+                0.5,
+                2.0806046117362795
+              ],
+              [
+                1,
+                0.1677063269057153
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "b0f2129feefcc8b367fd9eb020ca9f33a9580e722e8dfdb7543c07bc982b4707"
     },
     {
       "id": "functions-and-calculus.integrals.accumulation",
@@ -1199,9 +1469,67 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"accumulation-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "accumulation-reveal-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0.9092974268256817
+            ],
+            [
+              2,
+              1.4161468365471424
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.479425538604203
+              ],
+              [
+                1,
+                0.8414709848078965
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.12241743810962724
+              ],
+              [
+                1,
+                0.45969769413186023
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "680c919cf363f8a7f7a80d7ffb986e1e294cc21122ce4c24bf5f37448cf4940f"
     },
     {
       "id": "functions-and-calculus.integrals.definite-integral",
@@ -1212,9 +1540,45 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"integral-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "integral-area-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "657504ddad5e9121f99b06556d6dcb09560f80c44632f263b718bc42d1eb9d15"
     },
     {
       "id": "parametrization.uniform-timing.uniform-parameterization",

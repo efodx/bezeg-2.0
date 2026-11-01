@@ -28,7 +28,8 @@ import {affineLessonControlPoints, bernsteinValue, bezierPoint, bezierSegmentCon
     rationalBezierPoint, rationalControlPoints, rationalDecasteljauRows, rationalElevatedControls, rationalSegmentControls, rationalWeightsSecondTwo, rotateAboutMean, sampleCurve, subdivisionCubicControlPoints,
     stackedBernsteinRegionSamples, symmetricCubicControlPoints, weightedKnotControlPoints, weightedWarp,
     alphaC2SplineJoints, alphaC2SplinePoint, alphaC2SplineSamples, phControlPointsOf, phPointOf, splineParameterizationPoints, uniformArcLengthParameters,
-    uniformParameterizationFixture, phCubicFixture, phQuinticFixture, phOffsetPointOf} from './guidedExampleHighlightExpectations';
+    uniformParameterizationFixture, phCubicFixture, phQuinticFixture, phOffsetPointOf,
+    areaLessonF, areaLessonG, trigValue} from './guidedExampleHighlightExpectations';
 import type {Vec} from './guidedExampleHighlightExpectations';
 
 export type HighlightStep =
@@ -144,6 +145,12 @@ const phCubicWithOffset = (d: number): HighlightChecks => ({
 const phQuinticWithOffset = (d: number): HighlightChecks => ({
     curveCount: 2, points: phQuinticControls, curves: [sampleCurve(t => phPointOf(phQuinticFixture, t)), sampleCurve(t => phOffsetPointOf(phQuinticFixture, d, t))],
 });
+
+// ---- Functions and calculus (batch 04b). Samples of a function graph are [t, f(t)] at t = 0, 1/2, 1 (JSXGraph function graphs have X(t) = t).
+// Curves drawn from data arrays (continuity pieces, polylines, rectangles, shaded regions) are counted in `curveCount` but not sampled.
+const graphSamples = (f: (x: number) => number) => sampleCurve(t => [t, f(t)]);
+const exponentialBaseTwo = (x: number) => 2 ** x;
+const trigWorked = {A: 2, omega: 2, phi: Math.PI / 2, B: 1};
 
 /**
  * Recipes by guided example id. Frame ids are the example lesson's own; expected values come from
@@ -384,6 +391,52 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
     // Quintic offset at d=-2.5 (slider range -3..3, step 0.01): the offset crosses itself near t=0.13 and 0.72.
     'ph-curves.investigate-ph.ph-quintic-singularity': {
         kind: 'highlight', frame: 'observe', steps: phOffsetAt(PH_QUINTIC_SELF_INTERSECTION), expectChange: true, checks: phQuinticWithOffset(PH_QUINTIC_SELF_INTERSECTION),
+    },
+    // arc-more-observation sets n = 10 on sin over [0, pi]: sin graph, polyline and its vertex markers; A = (0, 0) and B = (pi, 0). Chord sum 3,8153 vs arc 3,8202 in the helper tests.
+    'functions-and-calculus.applications.arc-length': {
+        kind: 'highlight', frame: 'arc-more-observation', steps: [], expectChange: true,
+        checks: {curveCount: 3, points: [[0, 0], [Math.PI, 0]], curves: [graphSamples(Math.sin)]},
+    },
+    // area-difference-observation sets mode between, a = 1, b = 3: f, g and the shaded region; bound points (1, 0), (3, 0). g is not below f there; area 14/3 in the helper tests.
+    'functions-and-calculus.applications.area-between-curves': {
+        kind: 'highlight', frame: 'area-difference-observation', steps: [], expectChange: false,
+        checks: {curveCount: 3, points: [[1, 0], [3, 0]], curves: [graphSamples(areaLessonF), graphSamples(areaLessonG)]},
+    },
+    // The default scene a = 1 is the first frame (and the one-sided frame): two pieces, hollow point (1, 2) and filled point (1, 1).
+    'functions-and-calculus.continuity.continuity': {
+        kind: 'highlight', frame: 'continuity-piecewise-explanation', steps: [], expectChange: false,
+        checks: {curveCount: 2, points: [[1, 1], [1, 2]]},
+    },
+    // Secant of x^2 through P = (1, 1) and Q = (2, 4) with the tangent switched on in the Prikaz tab: the tangent y = 2x - 1 joins the parabola.
+    'functions-and-calculus.derivatives.derivative': {
+        kind: 'highlight', frame: 'derivative-secant-observation', expectChange: true,
+        steps: [{kind: 'explore'}, {kind: 'select-tab', tab: 'display'}, {kind: 'set-control', control: 'checkbox', label: 'Prikaži tangento (natančna mejna premica)', value: true}],
+        checks: {curveCount: 2, points: [[1, 1], [2, 4]], curves: [graphSamples(x => x * x), graphSamples(x => 2 * x - 1)]},
+    },
+    // The default base a = 2 is the first frame: the graph of 2^x through (0, 1) and (1, 2); the mirror is off.
+    'functions-and-calculus.function-rules.exponential-function': {
+        kind: 'highlight', frame: 'exponential-fixed-points-explanation', steps: [], expectChange: false,
+        checks: {curveCount: 1, points: [[0, 1], [1, 2]], curves: [graphSamples(exponentialBaseTwo)]},
+    },
+    // The default points (0, 1) and (2, 5) are the first frame: the line y = 2x + 1, the point (0, n) on P1, and the two legs of the slope triangle.
+    'functions-and-calculus.function-rules.linear-function': {
+        kind: 'highlight', frame: 'linear-line-through-points-explanation', steps: [], expectChange: false,
+        checks: {types: {point: 3, line: 1, segment: 2}, points: [[0, 1], [2, 5]]},
+    },
+    // trig-period-shift-observation sets A = 2, omega = 2, phi = pi/2, B = 1: the midline y = 1 and 2 sin(2x + pi/2) + 1.
+    'functions-and-calculus.function-rules.trigonometric-functions': {
+        kind: 'highlight', frame: 'trig-period-shift-observation', steps: [], expectChange: true,
+        checks: {curveCount: 2, curves: [graphSamples(() => trigWorked.B), graphSamples(x => trigValue(trigWorked, x))]},
+    },
+    // accumulation-reveal-observation shows A for sin from a = 0 to x = 2: f, A, the tangent to A, the shaded region; f(2), A(2), a and x are points.
+    'functions-and-calculus.integrals.accumulation': {
+        kind: 'highlight', frame: 'accumulation-reveal-observation', steps: [], expectChange: true,
+        checks: {curveCount: 4, points: [[0, 0], [2, 0], [2, Math.sin(2)], [2, 1 - Math.cos(2)]], curves: [graphSamples(Math.sin), graphSamples(x => 1 - Math.cos(x))]},
+    },
+    // The default x^2 on [0, 2] with four left rectangles is the first frame: the parabola and the rectangle outline; bound points (0, 0), (2, 0).
+    'functions-and-calculus.integrals.definite-integral': {
+        kind: 'highlight', frame: 'integral-area-explanation', steps: [], expectChange: false,
+        checks: {curveCount: 2, points: [[0, 0], [2, 0]], curves: [graphSamples(x => x * x)]},
     },
     // The worked-join family card is the prepared parabola join scene ('worked-parabola-join'); it has no lesson frame, so it stays the start scene.
     'splines.worked-join.spline-c1.parabola-derivatives': {kind: 'start'},

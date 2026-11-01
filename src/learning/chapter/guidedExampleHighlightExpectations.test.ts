@@ -477,3 +477,106 @@ describe('PH offset and singularity expectations (task 04a-3)', () => {
         expect(get('ph-curves.worked-length.ph-cubic-offset-length').steps.at(-1)).toMatchObject({value: 1});
     });
 });
+
+import {
+    areaBetween, areaLessonF, areaLessonG, centralDifference, chordSum, continuityValues, graphArcLength, integrate, leftRiemannSum, lineThrough,
+    lowestMargin, secantSlope, trigExtremes, trigValue,
+} from './guidedExampleHighlightExpectations';
+
+describe('functions and calculus highlight expectations (batch 04b)', () => {
+    const recipe = (id: string) => { const r = guidedExampleHighlightRecipes[id]; if (r.kind !== 'highlight') throw new Error(id); return r; };
+
+    it('integrate: x^2 on [0, 2] is 8/3 and sin on [0, pi] is 2', () => {
+        expect(integrate(x => x * x, 0, 2)).toBeCloseTo(8 / 3, 12);
+        expect(integrate(Math.sin, 0, Math.PI)).toBeCloseTo(2, 12);
+    });
+
+    it('arc length: ten chords of sin on [0, pi] sum to 3,8153, below the arc 3,8202, to 1e-4; the chord sum grows with n', () => {
+        const chords = chordSum(Math.sin, 0, Math.PI, 10), arc = graphArcLength(Math.cos, 0, Math.PI);
+        expect(chords).toBeCloseTo(3.8153, 4);
+        expect(arc).toBeCloseTo(3.8202, 4);
+        expect(chords).toBeLessThan(arc);
+        expect(chordSum(Math.sin, 0, Math.PI, 100)).toBeGreaterThan(chords);
+        expect(chordSum(Math.sin, 0, Math.PI, 1)).toBeCloseTo(Math.PI, 12); // one chord: the segment from (0, 0) to (pi, 0)
+    });
+
+    it('area between: f = (x - 2)^2 and g = 3 - (x - 2)^2 enclose 14/3 on [1, 3] with g not below f; the integrals of g and f are 16/3 and 2/3', () => {
+        expect(areaBetween(areaLessonG, areaLessonF, 1, 3)).toBeCloseTo(14 / 3, 10);
+        expect(integrate(areaLessonG, 1, 3)).toBeCloseTo(16 / 3, 10);
+        expect(integrate(areaLessonF, 1, 3)).toBeCloseTo(2 / 3, 10);
+        expect(lowestMargin(areaLessonG, areaLessonF, 1, 3)).toBeGreaterThanOrEqual(0);
+        expect(lowestMargin(areaLessonF, areaLessonG, 1, 3)).toBeLessThan(0); // the order matters: f is below g
+    });
+
+    it('continuity at a = 1: the value is 1, the left limit 1, the right limit 2 and the jump 1', () => {
+        const v = continuityValues(1);
+        expect(v.value).toBeCloseTo(1, 12);
+        expect(v.fromLeft).toBeCloseTo(1, 6);
+        expect(v.fromRight).toBeCloseTo(2, 6);
+        expect(v.jump).toBeCloseTo(1, 6);
+        expect(continuityValues(1.5).jump).toBeCloseTo(0, 6); // a = 3/2 closes the gap
+    });
+
+    it('derivative: the secant of x^2 through x = 1 and 2 has slope 3 (h not 0), the tangent at 1 has slope 2', () => {
+        expect(secantSlope(x => x * x, 1, 1)).toBeCloseTo(3, 12);
+        expect(secantSlope(x => x * x, 1, -0.5)).toBeCloseTo(1.5, 12);
+        expect(() => secantSlope(x => x * x, 1, 0)).toThrow();
+        expect(centralDifference(x => x * x, 1)).toBeCloseTo(2, 8);
+        expect(centralDifference(Math.sin, 0.5)).toBeCloseTo(Math.cos(0.5), 8);
+    });
+
+    it('exponential base two: 1, 2, 4, 8 at x = 0..3 and the doubling rule', () => {
+        expect([0, 1, 2, 3].map(x => 2 ** x)).toEqual([1, 2, 4, 8]);
+        const {points, curves} = recipe('functions-and-calculus.function-rules.exponential-function').checks;
+        expect(points).toEqual([[0, 1], [1, 2]]);
+        expect(curves?.[0][2]).toEqual([1, 2]);
+    });
+
+    it('linear: the line through (0, 1) and (2, 5) is y = 2x + 1', () => {
+        const {slope, intercept} = lineThrough([0, 1], [2, 5]);
+        expect(slope).toBe(2);
+        expect(intercept).toBe(1);
+        expect(slope * 2 + intercept).toBe(5);
+        expect(lineThrough([1, 3], [3, 7])).toEqual({slope: 2, intercept: 1}); // the intercept is not read off a point on the y axis
+        expect(() => lineThrough([1, 0], [1, 3])).toThrow();
+    });
+
+    it('trigonometric: 2 sin(2x + pi/2) + 1 has maximum 3 at x = 0, minimum -1 and period pi', () => {
+        const p = {A: 2, omega: 2, phi: Math.PI / 2, B: 1};
+        const e = trigExtremes(p);
+        expect(e.max).toBeCloseTo(3, 9);
+        expect(e.min).toBeCloseTo(-1, 9);
+        expect(e.xOfMax).toBeCloseTo(0, 9);
+        for (const x of [0, 0.3, 1.1, 2.5]) expect(trigValue(p, x + Math.PI)).toBeCloseTo(trigValue(p, x), 12);
+        expect(trigValue(p, 0.3 + Math.PI / 2)).not.toBeCloseTo(trigValue(p, 0.3), 3); // pi/2 is not a period
+    });
+
+    it('accumulation: A(2) = 1 - cos 2 for sin from 0 and A\' = sin by finite differences', () => {
+        const A = (x: number) => integrate(Math.sin, 0, x);
+        expect(A(2)).toBeCloseTo(1 - Math.cos(2), 12);
+        expect(A(2)).toBeCloseTo(1.4161, 4);
+        for (const x of [0.5, 1, 2]) expect(centralDifference(A, x, 1e-4)).toBeCloseTo(Math.sin(x), 6);
+        const pointYs = recipe('functions-and-calculus.integrals.accumulation').checks.points?.map(p => p[1]);
+        expect(pointYs?.some(y => Math.abs(y - A(2)) < 1e-9)).toBe(true);
+    });
+
+    it('definite integral: four left rectangles under x^2 on [0, 2] sum to 1,75 and the exact area is 8/3', () => {
+        expect(leftRiemannSum(x => x * x, 0, 2, 4)).toBeCloseTo(1.75, 12);
+        expect(integrate(x => x * x, 0, 2)).toBeCloseTo(8 / 3, 12);
+        expect(leftRiemannSum(x => x * x, 0, 2, 4)).toBeLessThan(integrate(x => x * x, 0, 2));
+    });
+
+    it('registers the nine recipes with nonempty checks; the four default-scene cards expect no change, the derivative uses the tangent switch', () => {
+        const ids = Object.keys(guidedExampleHighlightRecipes).filter(id => id.startsWith('functions-and-calculus.'));
+        expect(ids).toHaveLength(9);
+        for (const id of ids) {
+            const r = recipe(id);
+            expect(Object.keys(r.checks).length).toBeGreaterThan(0);
+        }
+        for (const id of ['continuity.continuity', 'function-rules.exponential-function', 'function-rules.linear-function', 'integrals.definite-integral']) {
+            const r = recipe(`functions-and-calculus.${id}`);
+            expect(r).toMatchObject({steps: [], expectChange: false});
+        }
+        expect(recipe('functions-and-calculus.derivatives.derivative').steps.map(s => s.kind)).toEqual(['explore', 'select-tab', 'set-control']);
+    });
+});

@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+  "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+    "revision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
     "dirty": true,
-    "inputs": "0762e474417247248afa42b86963767785ea7aa4d0d2da9dd2b441f60124b420",
-    "output": "9b2a95869caa7135d2dce5f980f8db8fde5969ea3b91ff2789f557f4b10ec3ce"
+    "inputs": "904ebc2031ebf1590340b88b316da10b6395e9740a52ae98dbac06c3c3dcddcc",
+    "output": "df77676c25c8a3a090f0b41c2d910ebfee7aa1fb5c13ae44e34ea9d3c399eb1e"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+    "stampRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
     "stampDirty": true,
-    "localOutputHash": "9b2a95869caa7135d2dce5f980f8db8fde5969ea3b91ff2789f557f4b10ec3ce",
+    "localOutputHash": "df77676c25c8a3a090f0b41c2d910ebfee7aa1fb5c13ae44e34ea9d3c399eb1e",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DFeVsVgi.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-DFeVsVgi.js",
-        "sha256": "a7d28dcf5b42be77de8d5019d71ea7e9c91c3a7f6200389e4f5de9fc60486750",
+        "name": "index-DH7VKZGy.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-DH7VKZGy.js",
+        "sha256": "ab55480db7301062b2492c16e928dfef13a1cc8a0ab787eccb5d50283b3d9161",
         "matchesLocalBuild": true
       },
       {
@@ -55,7 +55,7 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "7a28d7d878dd23f7ae54b10fc40c5d189be92c4a66ce915c54463fd78caf6c67",
+    "inventory": "b5ecb7f1d28c9165072b90482a19a1698f9ba4f05a1bbbc0a1002679dfcd7370",
     "entries": {
       "analysis.convergence.fixed-point": "6cb70120614e70faf914c914d615957baf878f1b6f12f37252eef79df5e8cfd7",
       "analysis.convergence.sequence": "997d2505353f52699c78a7256fa9d26cb1f634fa3240be8e36ec852159e9069a",
@@ -81,15 +81,15 @@
       "foundations.complex-plane.complex-multiplication": "d2a1e1c5c07f7ef75f99c8fa738a5d7f6f10c6ce6541ef70af0d298b3635b602",
       "foundations.reading-bernstein.bernstein": "a4a5703b04272a8ccfb82395c7890f9d72bf8f26023c4f7af8931924ac08fb54",
       "foundations.worked-weight.bernstein.degree-comparison": "0b9928baca3296572cf5be7da8005d99cd1c320765068e692b68d61d4fca45c3",
-      "functions-and-calculus.applications.arc-length": "9b3e9dd911ed3a8e3240a9198fb0f078ce09e73b50695dc6ad1a42f316d17258",
-      "functions-and-calculus.applications.area-between-curves": "4f81d177bc8dd5b885fc5dc704ce7b076c1900c74d41a89cb0ca92a1290ebcd9",
-      "functions-and-calculus.continuity.continuity": "525040dd552e43a0b54fef2d88f8ed68866e1e95dc2d30696e6bee6829f7f965",
-      "functions-and-calculus.derivatives.derivative": "20a5a876febaecb24296fbc2b98323871f7d6a9414df70611f68a7dd96dcfca5",
-      "functions-and-calculus.function-rules.exponential-function": "d5e22b7e85dc436e9d38dc2343474a1375e013d5bb107f948bf053504ff0c217",
-      "functions-and-calculus.function-rules.linear-function": "2e4fbe8d75b77a9b54ff923469ec7fa62e0b45d04b18dd5cc894421a517ba752",
-      "functions-and-calculus.function-rules.trigonometric-functions": "d0c911dd5a3432855e484e2ac33f527bb4d379cf88d2ab719ec25e3211b0b43b",
-      "functions-and-calculus.integrals.accumulation": "3c7fb6ba0f32a67af9a5a0ebe5c46a9232e7a439b4f90c11e7049c355dff0fce",
-      "functions-and-calculus.integrals.definite-integral": "5d441944b0a1f8cc8aaf258151cd25120e9f697684a21a8b262bf7173b007851",
+      "functions-and-calculus.applications.arc-length": "41a0f4c3dd9722dd8e07f4c76a0121a6451f1e01ba64e33f16ede9c1dc09e56e",
+      "functions-and-calculus.applications.area-between-curves": "ef53e71888b8b5dbeb9d115de8cf3c0ce34ac9edf9d98f5cd98b3b75dea81abb",
+      "functions-and-calculus.continuity.continuity": "41fb87f0d7adcf2c91049ce739d601656b57303df2c43cf54101aeab64cc3cc0",
+      "functions-and-calculus.derivatives.derivative": "02944d9dd9a4a142a8e6bc47edaa20877b3ac0c61982fe6167ed8045114e313a",
+      "functions-and-calculus.function-rules.exponential-function": "54e75f832980b7152c4a108208fa6402aa188163fa5deef617458c5ec0baf8f5",
+      "functions-and-calculus.function-rules.linear-function": "77cb55a5ed1a8162e2102bf008175be3a38a9c21294fd714c6bdf7fe9947fbfa",
+      "functions-and-calculus.function-rules.trigonometric-functions": "d775cf3dc68f8f1ec4f50453bcd8f2349cc30f6aabc53756f8da47cb283864db",
+      "functions-and-calculus.integrals.accumulation": "b4f9f7d0cefaa8d070e380d96a3862dad938e2aad17398ae1abf46ad6af28d0c",
+      "functions-and-calculus.integrals.definite-integral": "a55ececdddee423bc5bd687666d41435c67dd29fa780a6bea4f86a71ec9d11ea",
       "parametrization.uniform-timing.uniform-parameterization": "7b088fcf0115c3bed74529a6b5f2f7b5741861920b01f89b33fe5ea2945ae15b",
       "parametrization.weighted-knot.spline-parameterization": "1bb33b79a7066591d89d0305f9fae7bc04cce4b0c5dcc5c5a7e784abb6904d36",
       "parametrization.weighted-knot.weighted-parameterization": "1e1659110724e6c05eeb741f24565d588f5f18d2339282f78253809089bac518",
@@ -115,8 +115,8 @@
       "splines.worked-join.spline-c1.parabola-derivatives": "c23b4ed4a16b4741f2cfc427e2243f72a465cd39b2258c265130a630b0628813"
     },
     "presentation": "3b762082ae72ca9f15330a7b326b80d0c8b289945757d75f4b2fc41157d11d03",
-    "buildOutput": "9b2a95869caa7135d2dce5f980f8db8fde5969ea3b91ff2789f557f4b10ec3ce",
-    "buildInputs": "0762e474417247248afa42b86963767785ea7aa4d0d2da9dd2b441f60124b420"
+    "buildOutput": "df77676c25c8a3a090f0b41c2d910ebfee7aa1fb5c13ae44e34ea9d3c399eb1e",
+    "buildInputs": "904ebc2031ebf1590340b88b316da10b6395e9740a52ae98dbac06c3c3dcddcc"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -888,8 +888,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -1009,8 +1009,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -1144,8 +1144,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -1279,8 +1279,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -1388,8 +1388,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -1552,8 +1552,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -1660,8 +1660,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -1793,8 +1793,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -1928,8 +1928,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -2144,8 +2144,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -2420,8 +2420,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -2636,8 +2636,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -2741,8 +2741,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -3033,8 +3033,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -3294,8 +3294,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -3425,8 +3425,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -3643,8 +3643,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -3844,8 +3844,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -4325,8 +4325,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -4624,8 +4624,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -4755,8 +4755,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -4947,8 +4947,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -5223,8 +5223,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -5389,8 +5389,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -5404,13 +5404,96 @@
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"n\",\"value\":1}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "arc-more-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              3.141592653589793,
+              0
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.479425538604203
+              ],
+              [
+                1,
+                0.8414709848078965
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "f15504aece316b04485c593d4aa235e552e71dec3c3b10e9c66ce127b3ab51ae",
+      "highlight": {
+        "frame": "arc-more-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "9c728d7c3bb5b7c50be02ef91d80b06d6e590c76c106d7160def754a25d96e2a",
+        "resultFingerprint": "481c6817814b7c1717a10f5b78563d3cdc6fc99a040a2f9aed8663673efd3c08",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:0,0",
+            "passed": true
+          },
+          {
+            "name": "point:3.141592653589793,0",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "curve": 3,
+            "point": 2,
+            "text": 1
+          },
+          "visiblePointCount": 2
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.applications.arc-length.png",
       "width": 840,
       "height": 520,
-      "sha256": "9aa5b6956e218a01bf9cb4e0bb67a6d6bd312839b1512e3a413e313f4617016c",
+      "sha256": "9861e6d85b06be81ce93be2476e9108fe1584a32151ea11c50db227a1478f677",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
@@ -5429,12 +5512,12 @@
               0
             ],
             [
-              0.5,
-              0.479426
+              0.15708,
+              0.154508
             ],
             [
-              1,
-              0.841471
+              0.314159,
+              0.309017
             ]
           ],
           [
@@ -5443,12 +5526,12 @@
               0
             ],
             [
-              1.570796,
-              0
+              0.5,
+              0.479426
             ],
             [
-              3.141593,
-              0
+              1,
+              0.841471
             ]
           ],
           [
@@ -5466,7 +5549,12 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:0,0",
+          "point:3.141592653589793,0",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -5551,8 +5639,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -5568,9 +5656,111 @@
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"b\",\"value\":3}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "area-difference-observation",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                4
+              ],
+              [
+                0.5,
+                2.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                -1
+              ],
+              [
+                0.5,
+                0.75
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "52a7ee812631e8b460a85729ab06a51cb4426cd5df50355b20206546a4fea3da",
+      "highlight": {
+        "frame": "area-difference-observation",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "373c4230e53a515045d701a5c6ccced4858f8855e3b1cfac28cb17cc9d7ca73f",
+        "resultFingerprint": "373c4230e53a515045d701a5c6ccced4858f8855e3b1cfac28cb17cc9d7ca73f",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:1,0",
+            "passed": true
+          },
+          {
+            "name": "point:3,0",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "curve": 3,
+            "segment": 2,
+            "point": 4,
+            "text": 3
+          },
+          "visiblePointCount": 4
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.applications.area-between-curves.png",
       "width": 840,
       "height": 520,
@@ -5630,7 +5820,13 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:1,0",
+          "point:3,0",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -5716,8 +5912,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -5730,9 +5926,72 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"continuity-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "continuity-piecewise-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "e66016d4d90b30cbf33635318e387abf6140619c9b67bbee191019b4f0ea2b70",
+      "highlight": {
+        "frame": "continuity-piecewise-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "1a3246f61896155aae2247e8e74b5b181ed157381c5551bde6da4b522c264dc5",
+        "resultFingerprint": "1a3246f61896155aae2247e8e74b5b181ed157381c5551bde6da4b522c264dc5",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:1,1",
+            "passed": true
+          },
+          {
+            "name": "point:1,2",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 24,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "point": 2,
+            "text": 1
+          },
+          "visiblePointCount": 2
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.continuity.continuity.png",
       "width": 840,
       "height": 520,
@@ -5778,7 +6037,11 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:1,1",
+          "point:1,2"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -5849,8 +6112,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -5863,26 +6126,170 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"derivative-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "derivative-secant-observation",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "display"
+          },
+          {
+            "kind": "set-control",
+            "control": "checkbox",
+            "label": "Prikaži tangento (natančna mejna premica)",
+            "value": true
+          }
+        ],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                -1
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "1532d8d822d1415e73df83e8c1708ffa456ff9f96b6743c0021eb090872ecbf0",
+      "highlight": {
+        "frame": "derivative-secant-observation",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "display"
+          },
+          {
+            "kind": "set-control",
+            "control": "checkbox",
+            "label": "Prikaži tangento (natančna mejna premica)",
+            "value": true
+          }
+        ],
+        "expectChange": true,
+        "startFingerprint": "0154d6b15ec7c191f3d5fb1e72c9cae42bace93c73ec100c151e45243aa53d7a",
+        "resultFingerprint": "159689fe8fd90a01a5d7552da0dc178efa7b5e662e8f55b2e6b2db2911bd92e4",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:1,1",
+            "passed": true
+          },
+          {
+            "name": "point:2,4",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "curve": 2,
+            "point": 2,
+            "line": 1,
+            "text": 1
+          },
+          "visiblePointCount": 2
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.derivatives.derivative.png",
       "width": 840,
       "height": 520,
-      "sha256": "2f864e712c5fadd70f43353701b97dceb9eba81aa7ca4daad247deb22e172c6f",
+      "sha256": "c6281b9158023da058951e877cab21e44ea82b24a589992cdb23120e3fd71500",
       "scene": {
-        "visibleElementCount": 14,
+        "visibleElementCount": 15,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 5,
-          "curve": 1,
+          "curve": 2,
           "point": 2,
           "line": 1,
           "text": 1
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -1
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ],
           [
             [
               0,
@@ -5898,7 +6305,13 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:1,1",
+          "point:2,4",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -5948,7 +6361,7 @@
           "axis": 2,
           "ticks": 2,
           "label": 5,
-          "curve": 1,
+          "curve": 2,
           "point": 2,
           "line": 1,
           "text": 1
@@ -5957,8 +6370,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -5971,9 +6384,92 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"exponential-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "exponential-fixed-points-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.4142135623730951
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "f141fdc6419c313a24b1bab304fd79bb3d6608e755626fc06f720d57aaed38fa",
+      "highlight": {
+        "frame": "exponential-fixed-points-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "737a9fcd2ab3a1bc9b1b7cf25ace755d4bcaa2f48364a122b060dfd58765723d",
+        "resultFingerprint": "737a9fcd2ab3a1bc9b1b7cf25ace755d4bcaa2f48364a122b060dfd58765723d",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:0,1",
+            "passed": true
+          },
+          {
+            "name": "point:1,2",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 26,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "curve": 1,
+            "point": 2,
+            "text": 1
+          },
+          "visiblePointCount": 2
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.function-rules.exponential-function.png",
       "width": 840,
       "height": 520,
@@ -6005,7 +6501,12 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:0,1",
+          "point:1,2",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -6062,8 +6563,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -6076,9 +6577,85 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "linear-line-through-points-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "types": {
+            "point": 3,
+            "line": 1,
+            "segment": 2
+          },
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              5
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "ab62a37aa2261cd1647e571f4626863932c45ce4ec61c1c031f8c02d133c6466",
+      "highlight": {
+        "frame": "linear-line-through-points-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "a60ba17d1dfc4a751dd5d8ab826d5ab4b9871ead75e4b0d148440b215c7755b9",
+        "resultFingerprint": "a60ba17d1dfc4a751dd5d8ab826d5ab4b9871ead75e4b0d148440b215c7755b9",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "type:point",
+            "passed": true
+          },
+          {
+            "name": "type:line",
+            "passed": true
+          },
+          {
+            "name": "type:segment",
+            "passed": true
+          },
+          {
+            "name": "point:0,1",
+            "passed": true
+          },
+          {
+            "name": "point:2,5",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "point": 3,
+            "line": 1,
+            "segment": 2,
+            "text": 3
+          },
+          "visiblePointCount": 3
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.function-rules.linear-function.png",
       "width": 840,
       "height": 520,
@@ -6096,7 +6673,13 @@
         },
         "visiblePointCount": 3,
         "sampledVisibleCurves": [],
-        "checks": []
+        "checks": [
+          "type:point",
+          "type:line",
+          "type:segment",
+          "point:0,1",
+          "point:2,5"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -6140,8 +6723,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -6154,13 +6737,95 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"trig-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "trig-period-shift-observation",
+        "position": {
+          "step": 5,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              [
+                0.5,
+                2.0806046117362795
+              ],
+              [
+                1,
+                0.1677063269057153
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "b0f2129feefcc8b367fd9eb020ca9f33a9580e722e8dfdb7543c07bc982b4707",
+      "highlight": {
+        "frame": "trig-period-shift-observation",
+        "position": {
+          "step": 5,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "44c89182901186411f986746611e44f617719134fb722ed228a7c5830cbec743",
+        "resultFingerprint": "5571c270540ff08709c5194c665a301a2f9e75e5aa7e4df057f0132bb8bf8544",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 19,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 12,
+            "curve": 2,
+            "text": 1
+          },
+          "visiblePointCount": 0
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.function-rules.trigonometric-functions.png",
       "width": 840,
       "height": 520,
-      "sha256": "880878835ef2e1246203b0f17d2d5ef647b2e95b1db66cca599c5088d3b62b60",
+      "sha256": "66d2666516e609bfceff3dbb716c8b5d7ac7485d72fb9d30d987705edc5c879d",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
@@ -6175,33 +6840,37 @@
           [
             [
               0,
-              0
+              1
             ],
             [
               0.5,
-              0.479426
+              1
             ],
             [
               1,
-              0.841471
+              1
             ]
           ],
           [
             [
               0,
-              0
+              3
             ],
             [
               0.5,
-              0
+              2.080605
             ],
             [
               1,
-              0
+              0.167706
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -6270,8 +6939,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -6284,26 +6953,158 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"accumulation-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "accumulation-reveal-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0.9092974268256817
+            ],
+            [
+              2,
+              1.4161468365471424
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.479425538604203
+              ],
+              [
+                1,
+                0.8414709848078965
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.12241743810962724
+              ],
+              [
+                1,
+                0.45969769413186023
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "680c919cf363f8a7f7a80d7ffb986e1e294cc21122ce4c24bf5f37448cf4940f",
+      "highlight": {
+        "frame": "accumulation-reveal-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "fd04bfac783f42b8dd4203a381a31d197d4c5e4bb93c3131192315e04e1720ee",
+        "resultFingerprint": "88c867e107d9f371860fd86ebdd73ad74eedbe7683e35259c2a1365ece13428a",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:0,0",
+            "passed": true
+          },
+          {
+            "name": "point:2,0",
+            "passed": true
+          },
+          {
+            "name": "point:2,0.9092974268256817",
+            "passed": true
+          },
+          {
+            "name": "point:2,1.4161468365471424",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "curve": 4,
+            "segment": 1,
+            "text": 2,
+            "point": 4
+          },
+          "visiblePointCount": 4
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.integrals.accumulation.png",
       "width": 840,
       "height": 520,
-      "sha256": "b56692b45f031376018c1a780988387c255a4b0dfcc6b0bae6c1531b8b4de38e",
+      "sha256": "546f4649f0fe1ef8a23853b7e977cab336c9b9f153ccffa274fb6dddfbf540e3",
       "scene": {
-        "visibleElementCount": 21,
+        "visibleElementCount": 23,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 9,
-          "curve": 2,
+          "curve": 4,
           "segment": 1,
-          "text": 2,
-          "point": 3
+          "text": 1,
+          "point": 4
         },
-        "visiblePointCount": 3,
+        "visiblePointCount": 4,
         "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -0.402448
+            ],
+            [
+              0.5,
+              0.052201
+            ],
+            [
+              1,
+              0.506849
+            ]
+          ],
           [
             [
               0,
@@ -6325,6 +7126,20 @@
             ],
             [
               0.5,
+              0.122417
+            ],
+            [
+              1,
+              0.459698
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
               0.479426
             ],
             [
@@ -6333,7 +7148,15 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:0,0",
+          "point:2,0",
+          "point:2,0.9092974268256817",
+          "point:2,1.4161468365471424",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -6390,24 +7213,24 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 2,
-        "finalLabelCount": 2,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "label": 9,
-          "curve": 2,
+          "curve": 4,
           "segment": 1,
-          "text": 2,
-          "point": 3
+          "text": 1,
+          "point": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -6420,9 +7243,92 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"integral-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "integral-area-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "657504ddad5e9121f99b06556d6dcb09560f80c44632f263b718bc42d1eb9d15",
+      "highlight": {
+        "frame": "integral-area-explanation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "146324ce3179cc96a6a2e3bf7cfd73ec7303edba3855dc1547194e903298a9ea",
+        "resultFingerprint": "146324ce3179cc96a6a2e3bf7cfd73ec7303edba3855dc1547194e903298a9ea",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:0,0",
+            "passed": true
+          },
+          {
+            "name": "point:2,0",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "curve": 2,
+            "point": 2,
+            "text": 1
+          },
+          "visiblePointCount": 2
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "functions-and-calculus.integrals.definite-integral.png",
       "width": 840,
       "height": 520,
@@ -6467,7 +7373,12 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:0,0",
+          "point:2,0",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -6537,8 +7448,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -6853,8 +7764,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -7219,8 +8130,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -7463,8 +8374,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -7701,8 +8612,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -7985,8 +8896,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -8190,8 +9101,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -8456,8 +9367,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -8760,8 +9671,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -9030,8 +9941,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -9316,8 +10227,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -9546,8 +10457,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -9752,8 +10663,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -9977,8 +10888,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -10197,8 +11108,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -10501,8 +11412,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -10736,8 +11647,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -10888,8 +11799,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -11102,8 +12013,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -11379,8 +12290,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -11593,8 +12504,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -11809,8 +12720,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -12023,8 +12934,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     },
@@ -12139,8 +13050,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
-        "sourceRevision": "af6992f25469ea64784e474beb181b37f07cd4a9",
+        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
         "pageErrors": []
       }
     }

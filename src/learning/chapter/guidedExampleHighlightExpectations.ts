@@ -454,3 +454,89 @@ export function polylineSelfIntersections(points: readonly Vec[]): {i: number; j
 export function phOffsetSelfIntersections(fixture: PhFixture, d: number, segments = 2000): {i: number; j: number; point: Vec}[] {
     return polylineSelfIntersections(Array.from({length: segments + 1}, (_, k) => phOffsetPointOf(fixture, d, k / segments)));
 }
+
+// ---- Functions and calculus (batch 04b). Independent of the app's analysis modules: closed forms and quadrature only. ----
+
+/** Integral of `f` over [a, b] by the Gauss rule on `panels` equal subintervals (error far below 1e-9 for the smooth lesson integrands). */
+export function integrate(f: (x: number) => number, a: number, b: number, panels = 64): number {
+    let sum = 0;
+    for (let k = 0; k < panels; k++) sum += gaussIntegral(f, a + (b - a) * k / panels, a + (b - a) * (k + 1) / panels);
+    return sum;
+}
+
+/** Length of the polyline through the n + 1 equally spaced points of the graph of `f` on [a, b]. */
+export function chordSum(f: (x: number) => number, a: number, b: number, n: number): number {
+    let total = 0;
+    for (let i = 1; i <= n; i++) {
+        const x0 = a + (b - a) * (i - 1) / n, x1 = a + (b - a) * i / n;
+        total += Math.hypot(x1 - x0, f(x1) - f(x0));
+    }
+    return total;
+}
+
+/** Arc length of the graph of `f` on [a, b] from its derivative: the integral of sqrt(1 + f'^2). */
+export const graphArcLength = (derivativeOfF: (x: number) => number, a: number, b: number): number =>
+    integrate(x => Math.sqrt(1 + derivativeOfF(x) ** 2), a, b);
+
+/** Left Riemann sum with n equal rectangles. */
+export function leftRiemannSum(f: (x: number) => number, a: number, b: number, n: number): number {
+    let sum = 0;
+    for (let i = 0; i < n; i++) sum += f(a + (b - a) * i / n);
+    return sum * (b - a) / n;
+}
+
+/** The lesson pair of the area-between example: f = (x - 2)^2 and g = 3 - (x - 2)^2. */
+export const areaLessonF = (x: number): number => (x - 2) ** 2;
+export const areaLessonG = (x: number): number => 3 - (x - 2) ** 2;
+
+/** Area between two graphs on [a, b]: the integral of upper - lower. */
+export const areaBetween = (upper: (x: number) => number, lower: (x: number) => number, a: number, b: number): number =>
+    integrate(x => upper(x) - lower(x), a, b);
+
+/** Smallest value of upper - lower over `samples` + 1 points of [a, b]; nonnegative exactly when `upper` is nowhere below `lower` there. */
+export function lowestMargin(upper: (x: number) => number, lower: (x: number) => number, a: number, b: number, samples = 400): number {
+    let lowest = Infinity;
+    for (let i = 0; i <= samples; i++) {
+        const x = a + (b - a) * i / samples;
+        lowest = Math.min(lowest, upper(x) - lower(x));
+    }
+    return lowest;
+}
+
+/** The continuity lesson rule: a x^2 for x <= 1 and 3 - a x for x > 1. */
+export const continuityRule = (a: number, x: number): number => x <= 1 ? a * x * x : 3 - a * x;
+/** Value at 1 and the one-sided values read just beside 1 (distance 1e-9), straight from the rule. */
+export function continuityValues(a: number): {value: number; fromLeft: number; fromRight: number; jump: number} {
+    const value = continuityRule(a, 1), fromLeft = continuityRule(a, 1 - 1e-9), fromRight = continuityRule(a, 1 + 1e-9);
+    return {value, fromLeft, fromRight, jump: Math.abs(fromRight - fromLeft)};
+}
+
+/** Slope of the secant of `f` through x and x + h (h is not 0). */
+export function secantSlope(f: (x: number) => number, x: number, h: number): number {
+    if (h === 0) throw new Error('secantSlope needs h != 0');
+    return (f(x + h) - f(x)) / h;
+}
+/** Derivative by the symmetric difference quotient with a small step. */
+export const centralDifference = (f: (x: number) => number, x: number, step = 1e-5): number => (f(x + step) - f(x - step)) / (2 * step);
+
+/** Slope and intercept of the line through two points with different x. */
+export function lineThrough(p: Vec, q: Vec): {slope: number; intercept: number} {
+    if (p[0] === q[0]) throw new Error('lineThrough needs different x');
+    const slope = (q[1] - p[1]) / (q[0] - p[0]);
+    return {slope, intercept: p[1] - slope * p[0]};
+}
+
+export interface TrigParameters {readonly A: number; readonly omega: number; readonly phi: number; readonly B: number}
+/** A sin(omega x + phi) + B. */
+export const trigValue = (p: TrigParameters, x: number): number => p.A * Math.sin(p.omega * x + p.phi) + p.B;
+/** Largest and smallest value over one period [0, 2 pi / omega] by dense sampling, with the x of the first maximum. */
+export function trigExtremes(p: TrigParameters, samples = 4000): {max: number; min: number; xOfMax: number} {
+    const period = 2 * Math.PI / p.omega;
+    let max = -Infinity, min = Infinity, xOfMax = NaN;
+    for (let i = 0; i <= samples; i++) {
+        const x = period * i / samples, y = trigValue(p, x);
+        if (y > max + 1e-12) { max = y; xOfMax = x; }
+        min = Math.min(min, y);
+    }
+    return {max, min, xOfMax};
+}

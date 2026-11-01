@@ -198,5 +198,59 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
         'Pri d = −2,5 se odmik seka sam s seboj blizu točke (−2,09; 1,49), pri parametrih okoli t = 0,13 in t = 0,72; to je majhna zanka zgoraj levo. Na drsniku se to zgodi le pri d med približno −2,65 in −2,4.',
         'At d = −2.5 the offset crosses itself near the point (−2.09, 1.49), at parameters around t = 0.13 and t = 0.72; that is the small loop at the top left. On the slider this happens only for d between about −2.65 and −2.4.',
     ),
+    'functions-and-calculus.applications.arc-length': copy(
+        'Graf sinusa na [0, π] z lomljenko iz desetih tetiv, katere oglišča ležijo na grafu, ter krajiščema na osi x.',
+        'The graph of the sine on [0, π] with a polyline of ten chords whose vertices lie on the graph, and its two end points on the x-axis.',
+        'Pri n = 10 je dolžina lomljenke približno 3,8153, dolžina loka pa približno 3,8202: deset tetiv je skoraj tako dolgih kot lok, a nikoli daljših. Do pogleda prideš v koraku Več daljic z nastavitvijo n = 10.',
+        'At n = 10 the polyline length is about 3.8153 and the arc length about 3.8202: ten chords are almost as long as the arc but never longer. Reach this view in the More segments step by setting n = 10.',
+    ),
+    'functions-and-calculus.applications.area-between-curves': copy(
+        'Grafa f(x) = (x − 2)² in g(x) = 3 − (x − 2)² z osenčenim območjem med njima od a = 1 do b = 3, obe meji sta označeni na osi x.',
+        'The graphs of f(x) = (x − 2)² and g(x) = 3 − (x − 2)² with the region between them shaded from a = 1 to b = 3, both bounds marked on the x-axis.',
+        'Na [1, 3] g ni pod f, zato je ploščina med krivuljama 14/3 ≈ 4,6667 (integral g je 16/3, integral f pa 2/3). Do pogleda prideš v koraku z razliko integralov, kjer sta meji a = 1 in b = 3.',
+        'On [1, 3] g is nowhere below f, so the area between the curves is 14/3 ≈ 4.6667 (the integral of g is 16/3, that of f is 2/3). Reach this view in the step on the difference of integrals, with the bounds a = 1 and b = 3.',
+    ),
+    'functions-and-calculus.continuity.continuity': copy(
+        'Odsekoma podana funkcija pri a = 1: levi del se konča v polni točki (1, 1), desni del pa se začne pri votli točki (1, 2).',
+        'The piecewise function at a = 1: the left piece ends at the filled point (1, 1) and the right piece starts at the hollow point (1, 2).',
+        'Pri a = 1 ima funkcija v x = 1 vrednost 1, z desne pa se približuje 2: skok velikosti 1. To je primer za a = 1, ne dokaz splošnega merila za zveznost. Prizor je začetni prizor primera.',
+        'At a = 1 the function takes the value 1 at x = 1 but approaches 2 from the right: a jump of 1. This is an example for a = 1, not a proof of the general criterion for continuity. It is the start scene of the example.',
+    ),
+    'functions-and-calculus.derivatives.derivative': copy(
+        'Graf x² s točkama P = (1, 1) in Q = (2, 4), sekanto skozi njiju in prikazano tangento v točki P.',
+        'The graph of x² with the points P = (1, 1) and Q = (2, 4), the secant through them and the tangent at P shown.',
+        'Sekanta skozi P in Q ima naklon 3 (pri h = 1, torej h ≠ 0, še pred limito), tangenta v P pa naklon 2. Do pogleda prideš tako, da v koraku s sekanto skriješ besedilo in v zavihku Prikaz vklopiš prikaz tangente.',
+        'The secant through P and Q has slope 3 (at h = 1, so h ≠ 0, before the limit) and the tangent at P has slope 2. Reach this view in the secant step: hide the text and switch on the tangent in the Display tab.',
+    ),
+    'functions-and-calculus.function-rules.exponential-function': copy(
+        'Graf eksponentne funkcije z osnovo a = 2 skozi točki (0, 1) in (1, 2).',
+        'The graph of the exponential function with base a = 2 through the points (0, 1) and (1, 2).',
+        'Pri osnovi 2 so vrednosti pri x = 0, 1, 2, 3 enake 1, 2, 4, 8: graf se z vsakim korakom v desno podvoji. Prizor je začetni prizor primera.',
+        'For base 2 the values at x = 0, 1, 2, 3 are 1, 2, 4, 8: the graph doubles with every step to the right. This is the start scene of the example.',
+    ),
+    'functions-and-calculus.function-rules.linear-function': copy(
+        'Premica skozi točki P₁ = (0, 1) in P₂ = (2, 5) s trikotnikom naklona, katerega kateti kažeta razliki po x in po y.',
+        'The line through the points P₁ = (0, 1) and P₂ = (2, 5) with the slope triangle whose legs show the differences in x and y.',
+        'Razlika po x je 2, razlika po y je 4, zato je naklon k = 4/2 = 2, začetna vrednost n = 1 in premica y = 2x + 1. Prizor je začetni prizor primera.',
+        'The difference in x is 2 and in y is 4, so the slope is k = 4/2 = 2, the intercept n = 1 and the line y = 2x + 1. This is the start scene of the example.',
+    ),
+    'functions-and-calculus.function-rules.trigonometric-functions': copy(
+        'Graf funkcije 2 sin(2x + π/2) + 1 z vodoravno premico y = 1 kot sredinsko črto.',
+        'The graph of 2 sin(2x + π/2) + 1 with the horizontal line y = 1 as its midline.',
+        'Pri A = 2, ω = 2, φ = π/2 in B = 1 je največja vrednost 3 (pri x = 0), najmanjša −1, perioda pa π. Do pogleda prideš v koraku s sestavljenim primerom z navedenimi vrednostmi.',
+        'With A = 2, ω = 2, φ = π/2 and B = 1 the maximum is 3 (at x = 0), the minimum is −1 and the period is π. Reach this view in the combined example step with these values.',
+    ),
+    'functions-and-calculus.integrals.accumulation': copy(
+        'Graf sinusa z osenčenim območjem od a = 0 do x = 2, črtkano krivuljo akumulacije A, tangento nanjo in točkami pri x = 2.',
+        'The graph of the sine with the region shaded from a = 0 to x = 2, the dashed accumulation curve A, its tangent and the points at x = 2.',
+        'Akumulirana ploščina sinusa od 0 do 2 je A(2) = 1 − cos 2 ≈ 1,4161, naklon tangente na A pa je tam sin 2 ≈ 0,9093. Do pogleda prideš v koraku razkritja, ko se akumulacija prikaže.',
+        'The accumulated area of the sine from 0 to 2 is A(2) = 1 − cos 2 ≈ 1.4161, and the tangent to A there has slope sin 2 ≈ 0.9093. Reach this view in the reveal step, when the accumulation is shown.',
+    ),
+    'functions-and-calculus.integrals.definite-integral': copy(
+        'Parabola y = x² na [0, 2] s štirimi levimi pravokotniki pod njo in mejama a = 0 ter b = 2 na osi x.',
+        'The parabola y = x² on [0, 2] with four left rectangles under it and the bounds a = 0 and b = 2 on the x-axis.',
+        'Vsota levih pravokotnikov je 1,75, kar je približek: natančna ploščina je 8/3 ≈ 2,6667, in to je ploščina, ker je x² ≥ 0. Prizor je začetni prizor primera.',
+        'The sum of the left rectangles is 1.75, an approximation: the exact area is 8/3 ≈ 2.6667, and it is an area because x² ≥ 0. This is the start scene of the example.',
+    ),
 };
 
