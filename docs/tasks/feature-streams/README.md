@@ -63,7 +63,7 @@ A family may be pushed per release batch. Under the [release policy](../../guard
 
 ## Shared files
 
-These files are touched by several streams. A rebase conflict stops the stream (AGENTS.md), so the rules below exist to avoid conflicts, not to resolve them.
+These files are touched by several streams. Mechanical rebase conflicts are resolved by keeping both sides, and one that needs a decision stops the stream (AGENTS.md); the rules below keep conflicts rare.
 
 - **Locale catalogs `sl.ts`/`en.ts`:** a feature puts its keys in one block, created the first time at its own anchor: after the last key of the area it belongs to, never at the end of the file. Positions match in both files. Push promptly after each slice that adds keys.
 - **Registration** (`demonstrations.ts`, `graphFactories.ts`, `learningChapters.ts`, `familyChapters.ts`, guided-example registries, catalog `manifest.json`, `scripts/demonstration-preview-recipes.cjs`, routes): edit only in a family's F2b or F4 slice, keep the edit minimal, and push it as soon as it is accepted. A10 may derive some of these. Follow whatever it leaves.
@@ -109,7 +109,7 @@ Every stream handler, every session:
 
 Gate rows in the provider's stream file read exactly `open` or `closed`.
 
-**Stop and report** with a paste-ready prompt on any of these: a rebase conflict; an owner decision (for example a performance miss that a spec says must go to the owner before release); a failed step that would repeat; a suspected defect that a failing test cannot confirm; a break of stored Presets or routes without a recorded reason; or a needed dependency change.
+**Stop and report** with a paste-ready prompt on any of these: a rebase conflict whose resolution needs a decision; an owner decision (for example a performance miss that a spec says must go to the owner before release); a failed step that would repeat; a suspected defect that a failing test cannot confirm; a break of stored Presets or routes without a recorded reason; or a needed dependency change.
 
 ## Launch
 
