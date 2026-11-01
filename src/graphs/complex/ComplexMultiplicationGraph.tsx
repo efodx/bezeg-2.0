@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -18,7 +18,6 @@ import {formatArgument, formatComplex, piMultiple} from "../../analysis/complexF
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "../functions/functionPresetCollections";
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Both operands lie in [-2, 2]^2, so a square of half-width 4.5 shows them large and keeps the usual products (|zw| up to 4.5 along an

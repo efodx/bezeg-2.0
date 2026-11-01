@@ -1,6 +1,6 @@
 import React from "react";
 import {AxisAttributes} from "jsxgraph";
-import {COMPACT_BOARD_WIDTH, DomainError, escapeHtml, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
+import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, escapeHtml, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -27,7 +27,6 @@ import {functionPresetCollections} from "./functionPresetCollections";
  */
 export const SEQUENCE_STEP_INTERVAL_MS = 500;
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Each example has its own view, so the whole index range 1..40 and every term fit. The caption sits in the bottom-right corner,

@@ -61,7 +61,7 @@ type StatusKind = "ready" | "bracket" | "invalid-bracket" | "endpoint-root" | "e
  */
 export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     /** A derived value keyed by the identity of the model it was computed from; it can never be stale. */
-    private historyCache?: { model: BisectionModel; history: BisectionHistory };
+    private readonly historyOf = this.modelCache((model: BisectionModel) => bisectionHistory(model.example, model.a, model.b, model.step));
 
     override presetCollection() {
         return functionPresetCollections.bisection;
@@ -99,13 +99,6 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
 
     protected cannotAdvanceMessage(): Message {
         return message("bisection_cannot_advance");
-    }
-
-    private historyOf(model: BisectionModel): BisectionHistory {
-        if (this.historyCache?.model !== model) {
-            this.historyCache = {model, history: bisectionHistory(model.example, model.a, model.b, model.step)};
-        }
-        return this.historyCache.history;
     }
 
     private viewOf(model: BisectionModel): View {

@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -18,7 +18,6 @@ import {formatArgument, formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexRootsPresetCollection} from "./complexRootsPresets";
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /** w and the test point z lie within 2*sqrt(2) of the origin and the roots within 2^(3/4) of it; a square of half-width 3.4 shows them all. */
 const VIEW_HALF_WIDTH = 3.4;
