@@ -700,3 +700,39 @@ test('the legend names the curves and the matching markers in words, not by colo
     setLanguage('en');
     expect(graph.renderLegend().props.items.map((item: any) => item.label)[2]).toBe('Tangent at the point c');
 });
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(parameter('mvt-a', 0.5)), messageOf(parameter('mvt-a', -5)), messageOf(parameter('mvt-b', 0.5)),
+            messageOf(parameter('mvt-b', NaN)), messageOf(parameter('mvt-c', 2)), messageOf(parameter('mvt-c', 9)), messageOf(choice('sine'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The endpoint a must stay left of c (a < c). Move c first.',
+        'The endpoint a must be a number between −4 and 4.',
+        'The endpoint b must stay right of c (c < b). Move c first.',
+        'The endpoint b must be a number between −4 and 4.',
+        'The point c must stay strictly between a and b (a < c < b). Move an endpoint first.',
+        'The point c must be a number between −4 and 4.',
+        'The example must be one of: square, cube, abs.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Krajišče a mora ostati levo od c (a < c). Najprej premakni c.',
+        'Krajišče a mora biti število med −4 in 4.',
+        'Krajišče b mora ostati desno od c (c < b). Najprej premakni c.',
+        'Krajišče b mora biti število med −4 in 4.',
+        'Točka c mora ostati strogo med a in b (a < c < b). Najprej premakni krajišče.',
+        'Točka c mora biti število med −4 in 4.',
+        'Primer mora biti eden od: square, cube, abs.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('mvt-c', 9)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'mean_value_c_range_rejected', params: {value0: '−4', value1: '4'}});
+});

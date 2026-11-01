@@ -7,14 +7,11 @@ import {parseDerivativeModel} from "../../analysis/derivativeModel";
 import {parseRiemannModel} from "../../analysis/riemannModel";
 import {parseAreaBetweenModel} from "../../analysis/areaBetweenModel";
 import {parseArcLengthModel} from "../../analysis/arcLengthModel";
-import {parseBisectionModel} from "../../analysis/bisectionModel";
-import {
-    BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_MAX_STEPS, isBisectionEndpoint, isBisectionExampleId, isBisectionStepCount,
-} from "../../analysis/bisection";
-import {isMeanValueExampleId, isMeanValueX, isOrdered, MEAN_VALUE_EXAMPLE_IDS, MVT_X_MAX, MVT_X_MIN} from "../../analysis/meanValue";
-import {FUNCTION_IDS, isFunctionId} from "../../analysis/functions";
+import {checkBisectionModel, parseBisectionModel} from "../../analysis/bisectionModel";
+import {bisectionFileMessage} from "./bisectionMessages";
 import {formatNumber} from "../../analysis/format";
-import {parseMeanValueModel} from "../../analysis/meanValueModel";
+import {checkMeanValueModel, parseMeanValueModel} from "../../analysis/meanValueModel";
+import {meanValueFileMessage} from "./meanValueMessages";
 import {parseExtremaModel} from "../../analysis/extremaModel";
 import {checkConvexityModel, parseConvexityModel} from "../../analysis/convexityModel";
 import {convexityFileMessage} from "./convexityMessages";
@@ -38,10 +35,10 @@ import {
     SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_LIMIT_STEP, SEQUENCE_MAX_TERMS, SEQUENCE_TERMS_MIN, SEQUENCE_THRESHOLD_MAX, SEQUENCE_THRESHOLD_MIN,
 } from "../../analysis/sequence";
 import {EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, isExtremaExampleId, isExtremaX} from "../../analysis/extrema";
-import {parseDarbouxModel} from "../../analysis/darbouxModel";
-import {DARBOUX_EXAMPLE_IDS, DARBOUX_N_MAX, DARBOUX_N_MIN, DARBOUX_X_MAX, DARBOUX_X_MIN, isDarbouxCount, isDarbouxExampleId, isDarbouxX} from "../../analysis/darboux";
-import {parseAccumulationModel} from "../../analysis/accumulationModel";
-import {ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, isAccumulationBound} from "../../analysis/accumulation";
+import {checkDarbouxModel, parseDarbouxModel} from "../../analysis/darbouxModel";
+import {darbouxFileMessage} from "./darbouxMessages";
+import {checkAccumulationModel, parseAccumulationModel} from "../../analysis/accumulationModel";
+import {accumulationFileMessage} from "./accumulationMessages";
 import {isFiniteNumber as finite, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 
 /** A range bound as the file contract shows it (an integer, so the same text in both languages). */
@@ -51,42 +48,23 @@ const bound = (value: number) => formatNumber(value, "en");
  * classes of each collection, or undefined to keep the generic invalid_function_data message (wrong type, missing fields, NaN).
  */
 type Diagnosis = (data: Readonly<Record<string, unknown>>) => Message | undefined;
+/** The model module names the rule a rejected bisection model broke; this only localizes it. */
 const diagnoseBisection: Diagnosis = data => {
-    if (!isBisectionExampleId(data.example)) return message("invalid_bisection_example", {value0: BISECTION_EXAMPLE_IDS.join(", ")});
-    if (finite(data.a) && finite(data.b)) {
-        if (!isBisectionEndpoint(data.a) || !isBisectionEndpoint(data.b)) return message("invalid_bisection_endpoints", {value0: bound(BISECTION_BOUND_MIN), value1: bound(BISECTION_BOUND_MAX)});
-        if (!(data.a < data.b)) return message("invalid_bisection_order");
-    }
-    if (data.step !== undefined && !isBisectionStepCount(data.step)) return message("invalid_bisection_step", {value0: BISECTION_MAX_STEPS});
-    return undefined;
+    const check = checkBisectionModel(data);
+    return check.ok || check.issue === undefined ? undefined : bisectionFileMessage(check.issue);
 };
 const diagnoseMeanValue: Diagnosis = data => {
-    if (!isMeanValueExampleId(data.example)) return message("invalid_mean_value_example", {value0: MEAN_VALUE_EXAMPLE_IDS.join(", ")});
-    const {a, b, c} = data;
-    if (finite(a) && finite(b) && finite(c)) {
-        if (!isOrdered(a, c, b)) return message("invalid_mean_value_order");
-        if (![a, b, c].every(isMeanValueX)) return message("invalid_mean_value_range", {value0: bound(MVT_X_MIN), value1: bound(MVT_X_MAX)});
-    }
-    if (data.revealed !== undefined && typeof data.revealed !== "boolean") return message("invalid_mean_value_revealed");
-    return undefined;
+    const check = checkMeanValueModel(data);
+    return check.ok || check.issue === undefined ? undefined : meanValueFileMessage(check.issue);
 };
 const diagnoseAccumulation: Diagnosis = data => {
-    if (!isFunctionId(data.fn)) return message("invalid_accumulation_function", {value0: FUNCTION_IDS.join(", ")});
-    if ([data.a, data.x].every(finite) && !(isAccumulationBound(data.a) && isAccumulationBound(data.x))) {
-        return message("invalid_accumulation_range", {value0: bound(ACCUMULATION_BOUND_MIN), value1: bound(ACCUMULATION_BOUND_MAX)});
-    }
-    if (data.accumulationVisible !== undefined && typeof data.accumulationVisible !== "boolean") return message("invalid_accumulation_visibility");
-    return undefined;
+    const check = checkAccumulationModel(data);
+    return check.ok || check.issue === undefined ? undefined : accumulationFileMessage(check.issue);
 };
+/** The model module names the rule a rejected Darboux model broke; this only localizes it. */
 const diagnoseDarboux: Diagnosis = data => {
-    if (!isDarbouxExampleId(data.example)) return message("invalid_darboux_example", {value0: DARBOUX_EXAMPLE_IDS.join(", ")});
-    if ([data.a, data.b].every(finite)) {
-        if (!isDarbouxX(data.a) || !isDarbouxX(data.b)) return message("invalid_darboux_range", {value0: bound(DARBOUX_X_MIN), value1: bound(DARBOUX_X_MAX)});
-        if (!(data.a < data.b)) return message("invalid_darboux_order");
-    }
-    if (data.n !== undefined && !isDarbouxCount(data.n)) return message("invalid_darboux_count", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX});
-    if ((data.lowerVisible !== undefined && typeof data.lowerVisible !== "boolean") || (data.upperVisible !== undefined && typeof data.upperVisible !== "boolean")) return message("invalid_darboux_visibility");
-    return undefined;
+    const check = checkDarbouxModel(data);
+    return check.ok || check.issue === undefined ? undefined : darbouxFileMessage(check.issue);
 };
 const diagnoseExtrema: Diagnosis = data => {
     if (!isExtremaExampleId(data.example)) return message("invalid_extrema_example", {value0: EXTREMA_EXAMPLE_IDS.join(", ")});

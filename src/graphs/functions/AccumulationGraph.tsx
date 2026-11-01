@@ -5,12 +5,14 @@ import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
-import {CatalogFunction, catalogFunction, FUNCTION_IDS, isFunctionId} from "../../analysis/functions";
+import {CatalogFunction, catalogFunction, FUNCTION_IDS} from "../../analysis/functions";
 import {
     ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_STEP, accumulation, AccumulationPiece, accumulationPieces, accumulationTangent,
-    isAccumulationBound,
 } from "../../analysis/accumulation";
-import {AccumulationModel, DEFAULT_ACCUMULATION_MODEL} from "../../analysis/accumulationModel";
+import {
+    AccumulationEdit, AccumulationModel, AccumulationPoint, chooseAccumulationFunction, DEFAULT_ACCUMULATION_MODEL, moveAccumulationPoint,
+} from "../../analysis/accumulationModel";
+import {accumulationEditMessage} from "./accumulationMessages";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
@@ -168,19 +170,28 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setFunction(value: unknown): void {
-        if (!isFunctionId(value)) throw new DomainError(`The function must be one of ${FUNCTION_IDS.join(", ")}.`);
-        this.commitModel({...this.model, fn: value});
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...FUNCTION_VIEWS[value]], true);
+        const next = this.accept(chooseAccumulationFunction(this.model, value));
+        this.commitModel(next);
+        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...FUNCTION_VIEWS[next.fn]], true);
     }
 
     protected setA(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isAccumulationBound(value)) throw new DomainError(`The lower bound a must be a finite number between ${ACCUMULATION_BOUND_MIN} and ${ACCUMULATION_BOUND_MAX}.`);
-        if (value !== this.model.a) this.commitModel({...this.model, a: value}, options);
+        this.movePoint('a', value, options);
     }
 
     protected setX(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isAccumulationBound(value)) throw new DomainError(`The point x must be a finite number between ${ACCUMULATION_BOUND_MIN} and ${ACCUMULATION_BOUND_MAX}.`);
-        if (value !== this.model.x) this.commitModel({...this.model, x: value}, options);
+        this.movePoint('x', value, options);
+    }
+
+    /** Moves a bound by the model's rules; a refused move throws a `DomainError` (localized) and leaves the model unchanged. */
+    private movePoint(point: AccumulationPoint, value: number, options: { syncScene?: boolean }): void {
+        const next = this.accept(moveAccumulationPoint(this.model, point, value));
+        if (next !== this.model) this.commitModel(next, options);
+    }
+
+    private accept(edit: AccumulationEdit): AccumulationModel {
+        if (!edit.ok) throw new DomainError(accumulationEditMessage(edit.issue));
+        return edit.model;
     }
 
     protected setAccumulationVisible(visible: boolean): void {

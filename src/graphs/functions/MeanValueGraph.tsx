@@ -7,10 +7,13 @@ import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {NonVerticalLine} from "../../analysis/derivative";
 import {
-    isDifferentiableOn, isMeanValueExampleId, isMeanValueX, isOrdered, MatchSet, matchingPoints, MEAN_VALUE_EXAMPLE_IDS, meanValueExample, MeanValueExample,
+    isDifferentiableOn, MatchSet, matchingPoints, MEAN_VALUE_EXAMPLE_IDS, meanValueExample, MeanValueExample,
     MeanValueExampleId, MVT_X_MAX, MVT_X_MIN, MVT_X_STEP, secantLineOf, secantSlope, tangentLineOf, tangentSlope,
 } from "../../analysis/meanValue";
-import {MEAN_VALUE_EXAMPLE_MODELS, MeanValueModel} from "../../analysis/meanValueModel";
+import {
+    chooseMeanValueExample, MEAN_VALUE_EXAMPLE_MODELS, MeanValueEdit, MeanValueModel, MeanValuePoint, moveMeanValuePoint,
+} from "../../analysis/meanValueModel";
+import {meanValueEditMessage} from "./meanValueMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -108,26 +111,30 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isMeanValueExampleId(value)) throw new DomainError(`The example must be one of ${MEAN_VALUE_EXAMPLE_IDS.join(", ")}.`);
-        this.commitModel({...MEAN_VALUE_EXAMPLE_MODELS[value]});
+        this.commitModel(this.accept(chooseMeanValueExample(value)));
     }
 
     protected setA(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isMeanValueX(value)) throw new DomainError(`The endpoint a must be a finite number between ${MVT_X_MIN} and ${MVT_X_MAX}.`);
-        if (!(value < this.model.c)) throw new DomainError("The endpoint a must be less than c (a < c < b): move c first.");
-        if (value !== this.model.a) this.commitModel({...this.model, a: cleanNumber(value)}, options);
+        this.movePoint('a', value, options);
     }
 
     protected setB(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isMeanValueX(value)) throw new DomainError(`The endpoint b must be a finite number between ${MVT_X_MIN} and ${MVT_X_MAX}.`);
-        if (!(value > this.model.c)) throw new DomainError("The endpoint b must be greater than c (a < c < b): move c first.");
-        if (value !== this.model.b) this.commitModel({...this.model, b: cleanNumber(value)}, options);
+        this.movePoint('b', value, options);
     }
 
     protected setC(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isMeanValueX(value)) throw new DomainError(`The point c must be a finite number between ${MVT_X_MIN} and ${MVT_X_MAX}.`);
-        if (!isOrdered(this.model.a, value, this.model.b)) throw new DomainError("The point c must lie strictly between a and b (a < c < b).");
-        if (value !== this.model.c) this.commitModel({...this.model, c: cleanNumber(value)}, options);
+        this.movePoint('c', value, options);
+    }
+
+    /** Moves a point by the model's rules; a refused move throws a `DomainError` (localized) and leaves the model unchanged. */
+    private movePoint(point: MeanValuePoint, value: number, options: { syncScene?: boolean }): void {
+        const next = this.accept(moveMeanValuePoint(this.model, point, value));
+        if (next !== this.model) this.commitModel(next, options);
+    }
+
+    private accept(edit: MeanValueEdit): MeanValueModel {
+        if (!edit.ok) throw new DomainError(meanValueEditMessage(edit.issue));
+        return edit.model;
     }
 
     protected setRevealed(visible: boolean): void {
