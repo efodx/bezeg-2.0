@@ -1,6 +1,6 @@
 # 7. One owner for function-model rules
 
-Status: planned. Lane: Functions. Source: [specification §7](../../specs/architecture-deepening-backlog.md#7-one-owner-for-function-model-rules).
+Status: in progress (platform stream). The convexity pilot is in `d8a3ed55` and verified (evidence in [07-function-model-rules.evidence.md](07-function-model-rules.evidence.md)). Slice 2, the other ten models, has not started. Lane: Functions. Source: [specification §7](../../specs/architecture-deepening-backlog.md#7-one-owner-for-function-model-rules).
 
 ## Scope and entry points
 

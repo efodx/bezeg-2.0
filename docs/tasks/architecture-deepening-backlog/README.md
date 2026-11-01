@@ -1,6 +1,6 @@
 # Architecture deepening work queue
 
-Status: in progress (platform feature stream), 2026-10-31. Source, evidence and shared acceptance: [specification](../../specs/architecture-deepening-backlog.md). Accepted: tasks 1, 9 (A9a; A9b `a628ceca`) and 10 (`1b847578`). Per-task evidence sits beside each task file.
+Status: in progress (platform feature stream), 2026-11-01. Source, evidence and shared acceptance: [specification](../../specs/architecture-deepening-backlog.md). Accepted: tasks 1, 9 (A9a; A9b `a628ceca`) 10 (`1b847578`) and 4 (`2261094e`). In progress: 7 (convexity pilot `d8a3ed55`). Per-task evidence sits beside each task file.
 
 Tasks are grouped into lanes by file ownership. Lanes can run in parallel. Within a lane, follow the order shown unless a dependency says otherwise.
 
