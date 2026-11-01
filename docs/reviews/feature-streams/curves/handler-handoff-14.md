@@ -2,9 +2,9 @@
 
 Handler 12 wrote this on 2026-11-01. It supersedes [handoff 13](handler-handoff-13.md). No agents and no preview are running. Settings are unchanged: handler Opus, `--permission-mode auto`, `--effort medium`; workers `bezeg-worker` Sonnet `medium`; reviews `bezeg-reviewer` Sonnet.
 
-## CG-B1-3 (L1, L2 guided lessons): done, push to master pending
+## CG-B1-3 (L1, L2 guided lessons): done, on master
 
-The table lists the commits before the rebase (kept on `stream-curves-cg-b1-3-v2` on origin, based on `594510c9`); their rebased copies (on `origin/master` at `0418230f`, plus the count fix) are on `stream-curves-cg-b1-3-v3`. After the rebase, typecheck passed and `just unit src/learning src/graphs/curves` passed except the count test, which passes after the fix. **Before pushing to master:** run `just build` and `SMOKE_PORT=4314 just smoke-lesson curve-parametric curve-curvature`; low memory killed both while they waited for a test slot.
+The table lists the commits before the rebase (kept on `stream-curves-cg-b1-3-v2` on origin, based on `594510c9`); master holds their rebased copies. On the rebased branch (base `0418230f`), typecheck passed. `just unit src/learning src/graphs/curves` passed after the count fix described below. At `c31d217c`, `just build` and `SMOKE_PORT=4314 just smoke-lesson curve-parametric curve-curvature` passed. After a clean second rebase onto `a64eecff`, `just unit src/graphs/curves` and the count and catalog tests passed.
 
 | Commit | Content |
 | --- | --- |
