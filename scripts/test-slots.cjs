@@ -188,10 +188,14 @@ async function admitByMemory({command, env = process.env, dir = slotDir(env), fr
             }
             continue;
         }
-        const message = busy
-            ? `Waiting for ${ramping.command} (pid ${ramping.pid}) to finish starting before reading free memory.\n`
-            : `Waiting for memory: ${command} needs about ${needGB} GB above the ${floor} GB floor; ${freeGB.toFixed(1)} GB available.\n`;
-        if (message !== reported) { stderr.write(message); reported = message; }
+        // Report each reason once; the free-memory figure changes on every poll and would repeat the line.
+        const reason = busy ? `ramp ${ramping.pid}` : 'memory';
+        if (reason !== reported) {
+            stderr.write(busy
+                ? `Waiting for ${ramping.command} (pid ${ramping.pid}) to finish starting before reading free memory.\n`
+                : `Waiting for memory: ${command} needs about ${needGB} GB above the ${floor} GB floor; ${freeGB.toFixed(1)} GB available.\n`);
+            reported = reason;
+        }
         await sleep(pollMs);
     }
 }
