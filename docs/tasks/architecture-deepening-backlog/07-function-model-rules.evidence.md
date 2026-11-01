@@ -219,8 +219,9 @@ Learner-visible paths for these messages: lesson actions propagate the error; `G
   - The worker observed the new Continuity test fail against the restored English throw.
 - **LinearMap decision:** the kernel's English messages stay. Deferred to the linear-map lesson.
   - `LinearMapGraph.tsx:130` (matrix inputs), `:140` (handle drag) and `:156,162` (selects): the graph swallows these errors through `ignoreOutOfDomain`, so no learner sees them.
-  - `:178` (forwarded `validate*` text from `linearMapModel.ts`) and `:188` are reachable only from lesson scene actions. No lesson uses `linear-map` actions yet: `lessonCatalog.test.ts:185` lists the lesson as unpublished, and only `LinearMapGraph.test.ts` applies such actions.
-  - When the linear-map lesson is authored, localize `:178,188`, or unit-apply all of its authored actions.
+  - `:178` (forwarded `validate*` text from `linearMapModel.ts`) and `:188` are reachable only from lesson scene actions. The worker found no such lessons at `4a0299f8`.
+  - After the rebase onto `origin/master` (2026-11-01), the linear-maps chapter lessons (`linearMapsChapterLessons.ts`) use `set-mode`, `set-example` and `set-matrix`. `linearMapsChapter.test.ts:166-175` requires an expectation for every step and applies each step's actions to a real `LinearMapGraph`. An invalid authored payload therefore fails unit tests before any learner sees it, so the decision stands.
+  - Localize `:178,188` if lessons ever build linear-map payloads from learner input.
 - **Review:** `bezeg-reviewer` Sonnet found no defects. One low finding (the borrowed integral label) is fixed.
 - **Handler checks on the final tree:** `just typecheck`, `just lint src` and `just unit src/graphs/functions src/localization` passed.
 
