@@ -72,7 +72,14 @@ Tests: `spline-structure.test.ts` (model: valid pairs, intermediate-invalid targ
 - Routes: unchanged.
 - User-visible: the Cn counter's top degree drops by one (7 free points: 6 instead of 7), because the old top value drew a lower-degree curve than it was labelled with; a lesson action asking for a degree above the limit now fails with a message. Stored Presets above the limit still load and can only lower. No shipped lesson dispatches `spline-degree` or `spline-continuity` (a search of `src/learning` finds only a comment and a test that asserts the absence); lesson scenes set degree and continuity through the curve specification, which restores.
 
-## Not verified
+## Handler verification (2026-11-01)
 
-- Browser check of the Cn spline controls and the spline lessons (handler).
-- Unfiltered unit suite and the production build (handler).
+- `just check` on `3e8ddaf0` (before the rebase): typecheck, lint, 360 files / 6561 tests and the production build passed. The two `lessonRestoration.part1` timeouts seen under load did not recur. After the rebase onto `origin/master` (`24b8c862`), the check rerun was killed by OS memory pressure during lint. It is pending owner approval to restart, and nothing goes to `master` until it passes.
+- Browser (`bezeg-smoke` Haiku, production preview on port 4311 from that build, Chromium 1440×900, fresh context) on `/bezeg-2.0/spline/spline`:
+  - The heading and the curve board render.
+  - The degree starts at 2 and its plus button disables at 6. At degree 6 one segment has 7 points p0..p6, so the top degree is points−1.
+  - The continuity top value is degree−1: 1 at degree 2, 5 at degree 6.
+  - Adding a point adds a segment, and deleting the endpoint removes the last segment. The curve redraws and the counters stay at degree 2 / continuity 1. Clicking an interior handle in delete mode did nothing (not investigated; deletion addresses endpoints).
+  - Reset returns degree 2 / continuity 1. A temporary Preset at degree 4 / continuity 2 survived a scene change, was reopened, and was then deleted.
+  - No console errors.
+- `just smoke-lesson spline-cn spline-c1 spline-c2`: 7 passed.

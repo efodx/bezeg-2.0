@@ -84,3 +84,20 @@ Learner-visible paths for these messages: lesson actions propagate the error; `G
 - **Inputs for slice 2:**
   - `DomainError(Message)` renders text at throw time. `GuidedLesson.tsx` and `LessonSession.ts` store `error.message`, so a startup error stays in the old language after a switch. HEAD's English text had the same flaw (not a regression). Slice 2 should build `DomainError` on `LocalizedError`'s lazy text (`localization/index.ts`) and have those callers render lazily.
   - `ConvexityIssue` is numeric-only, and `convexityEditMessage` passes single-letter field names as parameters. Models with enum, integer or array fields need further issue kinds and per-field message keys. Look for a shared boolean-field check across models.
+
+## Handler verification of the pilot (2026-11-01)
+
+- Full check: see the [A4 evidence](04-generic-spline-changes.evidence.md#handler-verification-2026-11-01). The same runs cover this commit.
+- Browser (`bezeg-smoke` Haiku, plus a handler Playwright script for the file import; production preview on port 4311, Chromium 1440×900, fresh contexts) on `/bezeg-2.0/analysis/convexity`. In every rejected case the readout stayed at `a = −1, b = 1,5, t = 0,5`, and the input showed `aria-invalid="true"` with the hint.
+  - SL out of range (a=5, b=−3, t=9): "Vnesi vrednost med −2 in 2.".
+  - SL order: a=2 gives "Krajišče a mora ostati levo od b (a < b). Najprej premakni b."; b=−1,5 gives "Krajišče b mora ostati desno od a (a < b). Najprej premakni a.".
+  - After a live switch to EN: a=2 gives "The endpoint a must stay left of b (a < b). Move b first."; t=9 gives "Enter a value between −2 and 2.".
+  - A valid a=−0.5 applies.
+  - Not checked: whether a hint that is visible during a language switch re-renders. Typing the non-number "abc" shows no hint and applies nothing; that is `NumberInput`'s existing draft behaviour, not this model.
+  - Preset import, using files built from the unit-test contract:
+    - a > b is rejected with "Datoteka ni podprta: krajišči morata izpolnjevati a < b (a strogo manjši od b); popravi vrednosti v datoteki. …" (EN: "Unsupported file: the endpoints must satisfy a < b …").
+    - a=−2,5 is rejected with "… točke a, b in t morajo biti števila med −2 in 2; …" (EN likewise).
+    - In both cases the confirm button stays disabled and the Preset list is unchanged. Non-JSON is rejected with "neveljaven JSON". An empty export `{}` is rejected because it has no collections (existing behaviour).
+    - A valid file imports, and its Preset applies `a = 0, b = 2, t = 1,8`.
+  - No console or page errors.
+
