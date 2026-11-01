@@ -6,7 +6,7 @@ Written 2026-11-01 by platform handler 6 at the 150k soft context threshold (157
 
 - **Location:** worktree `.claude/worktrees/stream-platform`, branch `worktree-stream-platform`. `node_modules` is a junction to the main checkout: delete the junction before removing the worktree.
 - **On `master`:** step 3 is closed. A7 slice 2e plus A7 acceptance went in as `ef573684`, and the step 3 evaluation record as `51e2e54b`.
-- **Committed on the branch, not on `master`, not reviewed.** These two commits are pushed to `origin/worktree-stream-platform-6`, with this note's commit on top:
+- **Committed on the branch, not on `master`, not reviewed.** These two commits are pushed to `origin/worktree-stream-platform-7`, with this note's commit on top:
   - `a467c526` A6 S1: `src/bezeg/impl/curve/gesture-transforms.ts`.
     - `rotationAngle` uses `atan2(cross, dot)` and returns 0 for a degenerate radius.
     - `resizeScale` returns `null` (step refused) for a non-finite or zero factor. A zero-extent axis keeps scale 1, and mirroring is kept.
@@ -68,4 +68,4 @@ Written 2026-11-01 by platform handler 6 at the 150k soft context threshold (157
 - Handler: `--agent claude --model opus --permission-mode auto`.
 - Workers: `bezeg-worker` Sonnet `medium`. Reviews: `bezeg-reviewer` Sonnet. Smoke: `bezeg-smoke` Haiku with exact locators. Ports 4311 (4312 for a second preview).
 - Memory is tight. Use path-filtered unit runs, and run one full `just check` at a time. If the reaper kills a job, ask the owner before restarting it.
-- Never force-push. `origin/worktree-stream-platform-5` holds pre-rebase history, so push new branch names rather than force.
+- Never force-push. `origin/worktree-stream-platform-5` and `-6` hold pre-rebase history, so push new branch names rather than force.
