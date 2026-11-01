@@ -165,7 +165,7 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
         const view = () => this.viewOf(this.model);
         const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.8);
+        const thin = this.displayThinWidth(0.8);
         const thick = () => Math.max(3, this.displaySettings.strokeWidth * 2);
         const marker = (index: number) => this.markers(this.model, view())[index];
 

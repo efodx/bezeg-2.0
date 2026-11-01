@@ -1,5 +1,5 @@
 import BaseGraph from '../base/BaseGraph';
-import {DomainError, mathTextHtml} from './BaseFunctionGraph';
+import {DomainError, gridValue, mathTextHtml} from './BaseFunctionGraph';
 import {LinearFunctionGraph} from './LinearFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {beginFigureExport, message, setLanguage} from '../../localization';
@@ -194,4 +194,12 @@ test('a DomainError built from a Message renders in the language active when its
     expect(error.message).not.toBe(sl);
     expect(new DomainError('plain').message).toBe('plain');
     setLanguage('sl');
+});
+
+test('gridValue is the exact decimal of the grid point and never produces -0', () => {
+    expect(gridValue(0.8500000000000001, 0.05)).toBe(0.85);
+    expect(gridValue(0.1 + 0.2, 0.01)).toBe(0.3);
+    expect(gridValue(-0.5, 0.5)).toBe(-0.5);
+    expect(Object.is(gridValue(-1e-12, 0.5), 0)).toBe(true);
+    expect(gridValue(0.851, 0.05)).toBeUndefined();
 });

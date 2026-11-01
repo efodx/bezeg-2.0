@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -27,14 +27,6 @@ const METHOD_LABELS: Readonly<Record<SumMethod, () => string>> = {
     trapezoid: () => t("integral_method_trapezoid"),
 };
 
-/** A JSXGraph curve built from point lists whose data is rebuilt in `updateDataArray` (one object for any number of shapes). */
-interface FillCurve {
-    updateDataArray: () => void;
-    dataX: number[];
-    dataY: number[];
-}
-
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Each function has its own view, which becomes the board view whenever the function choice changes (inspector select or
@@ -60,7 +52,7 @@ const FUNCTION_VIEWS: Readonly<Record<FunctionId, BoundingBox>> = {
 export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
-    private fillCache?: { model: RiemannModel; data: FillData };
+    private readonly fillOf = this.modelCache((model: RiemannModel) => fillData(catalogFunction(model.fn), model.a, model.b, model.n, model.method));
 
     override presetCollection() {
         return functionPresetCollections["definite-integral"];
@@ -129,11 +121,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
 
     /** The drawing data for the current model, computed once per model however many curves read it. */
     private currentFill(): FillData {
-        const model = this.model;
-        if (this.fillCache?.model !== model) {
-            this.fillCache = {model, data: fillData(catalogFunction(model.fn), model.a, model.b, model.n, model.method)};
-        }
-        return this.fillCache.data;
+        return this.fillOf(this.model);
     }
 
     protected createScene(): void {
@@ -145,15 +133,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
 
         // Layers, lowest first: the shapes above the axis, the shapes below it, the function, then the bound points.
         const fill = (color: string, part: "positive" | "negative") => {
-            const curve = this.own(board.create("curve", [[], []], {
-                fillColor: color, fillOpacity: 0.42, strokeColor: color, strokeOpacity: 0.9, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.35),
-                highlight: false, fixed: true,
-            })) as unknown as FillCurve;
-            curve.updateDataArray = () => {
-                const data = this.currentFill()[part];
-                curve.dataX = data.x;
-                curve.dataY = data.y;
-            };
+            this.signedFill(color, () => this.fillOf(this.model)[part]);
         };
         fill(GraphPalette.additionalCurves[0], "positive");
         fill(GraphPalette.additionalCurves[1], "negative");
@@ -199,7 +179,6 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
-        this.fillCache = undefined;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
