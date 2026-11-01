@@ -1,6 +1,6 @@
 # 03 — Exact segment primitives and brute-force intersections
 
-Status: planned. Source: [spec C2](../../specs/sweep-algorithms-lessons.md#c2-bentleyottmann-segment-intersections-showpiece) (examples, acceptance 2–4), [correctness notes](../../specs/sweep-algorithms-lessons.md#correctness-notes), [ADR 0035](../../adr/0035-sweep-coordinates-and-exact-event-order.md). Kind: F1, mathematical review. Depends on 02.
+Status: accepted 2026-11-01 (geometry handler 9; Sonnet `high` worker, Sonnet mathematical review with no findings). Unit 52/52 in `src/compgeo/sweep`, lint and tsc clean; mutation 1 (open segments) failed 6 tests, mutation 2 (tie broken above) failed 7. Choices: `Segment` is `{a, b}` of `GridPoint`; zero-length segments are points; `compareAtSweep(s, t, y, x0)` places a horizontal segment at \(x_0\) and throws `RangeError` when a segment misses the sweep height; two horizontals or collinear overlapping segments compare 0; `bruteForceIntersections` returns `{points, overlaps}` with points in event order, each listing every segment through it. Source: [spec C2](../../specs/sweep-algorithms-lessons.md#c2-bentleyottmann-segment-intersections-showpiece) (examples, acceptance 2–4), [correctness notes](../../specs/sweep-algorithms-lessons.md#correctness-notes), [ADR 0035](../../adr/0035-sweep-coordinates-and-exact-event-order.md). Kind: F1, mathematical review. Depends on 02.
 
 Pure TypeScript in `src/compgeo/sweep/segments.ts`, using `orient`/`onSegment` from `predicates.ts` and `RationalPoint`.
 

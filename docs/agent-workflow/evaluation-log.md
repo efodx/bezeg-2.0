@@ -1428,3 +1428,10 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Implementation: one `bezeg-worker` requested as Sonnet `high` (raised for an exact surd-comparison predicate), brief `handoff-v12`, dispatched about 00:15Z. 20 tools, about 55k tokens, 6.2 min. All checks passed first time: unit 22/22, lint, tsc. Both mutations named in the task were observed failing (4 tests each) and reverted. The worker listed four open design choices; the handler recorded them in the task file.
 - Review: one `bezeg-reviewer` Sonnet mathematical review. 8 tools, about 33k tokens, 0.6 min. No findings: it derived the case analysis independently and checked the C2 and C5 data against the spec. It noted one low-severity weakness, that the random reference cases mostly hit the easy branches. No repair rounds. Accepted 00:31Z.
 - Judgment: the task file named the mutations and oracle data exactly, which fits a fast first pass. Path-filtered runs finished in seconds while three streams' heavy runs held memory below 300 MB free.
+
+## 2026-11-01 — Sweep S0 03 exact segment primitives (geometry handler 9)
+
+- Class F1 kernel, size M, [task 03](../tasks/sweep-algorithms/03-segment-primitives.md). Handler Opus 5.5, effort medium.
+- Implementation: one `bezeg-worker` requested as Sonnet `high`, brief `handoff-v12` (adds: stop and report if the spec's C2 data does not reproduce the listed crossings; the random oracle must not call `segments.ts`). 17 tools, about 50k tokens, 4.0 min. All checks passed first time: unit 52/52 in the folder, lint, tsc. The mutations failed 6 and 7 tests.
+- Review: one `bezeg-reviewer` Sonnet mathematical review. 6 tools, about 31k tokens, 0.5 min. No findings: it verified two crossings and the below-the-line tie-break sign by hand. No repairs. Accepted 00:44Z.
+- Judgment: second first-pass kernel in a row from a task file with exact oracle data and named mutations.
