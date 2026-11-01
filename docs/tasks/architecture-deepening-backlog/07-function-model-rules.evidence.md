@@ -160,3 +160,41 @@ Learner-visible paths for these messages: lesson actions propagate the error; `G
 - **Handler checks on the final tree:** `just typecheck` and `just lint src` passed. The handler's `just unit src/analysis src/graphs/functions src/localization src/learning` run was stopped by OS memory pressure before it finished.
   - Unit evidence on the final tree is therefore the reviewer's run, plus each worker's own file-filtered runs.
   - `just check` stays required at A7 verification.
+
+## Slice 2d: UniformConvergence, FixedPoint, Complex (with reciprocal and roots) (2026-11-01)
+
+- **Workers:** two `bezeg-worker` Sonnet `medium` workers ran in parallel (dispatched 08:55Z), after the owner approved continuing despite memory pressure.
+  - UniformConvergence + FixedPoint: about 113k tokens, 52 tools, 10.7 min.
+  - Complex: about 120k tokens, 58 tools, 11.9 min.
+  - Neither needed a repair.
+- **Shape:**
+  - One messages module per family: `uniformConvergenceMessages.ts`, `fixedPointMessages.ts`, and `src/graphs/complex/complexMessages.ts`, which serves all three complex models.
+  - `complexReciprocalPresets.ts` and `complexRootsPresets.ts` delegate to `check*Model` with the same precedence.
+  - `MAX_TYPED_ARGUMENT` moved into `complexModel.ts`.
+- **New keys:**
+  - `uniform_example_rejected`
+  - `fixed_point_example_rejected`
+  - `complex_example_rejected`
+  - `complex_argument_zero_rejected`: "Argument števila 0 ni določen. Vrednost je zavrnjena." (EN: "The argument of 0 is undefined. The value is rejected.")
+- **Behaviour:** acceptance, normalization and precedence match HEAD, according to the reviewer. One text change: an r refused for leaving x outside [0, r], and an r off the grid, now both show the existing `uniform_r_rejected_hint`, which names both rules. HEAD showed two separate English texts. The reviewer accepted this (low).
+- **Existing tests edited:**
+  - Seven `toThrow(/English/)` assertions in `src/graphs/complex/*Graph.test.ts` and one in `UniformConvergenceGraph.test.ts` became the Slovenian text. The reviewer confirmed these are pure substitutions.
+  - A `changeUniformR` test moved from `uniformConvergence.test.ts` to `uniformConvergenceModel.test.ts`, with stronger cases.
+  - Stored-file tests are unchanged.
+- **Mutations observed by the workers:**
+  - A graph throwing English fails the localization tests (Uniform, Roots).
+  - Changing the n bound fails the model boundary test.
+  - Disabling the zero-argument guard fails `complexModelRules.test.ts`.
+- **Review:** `bezeg-reviewer` Sonnet. No high or medium findings. Low findings:
+  - The `complex_coordinate_rejected_hint` and `complex_recip_radius_rejected_hint` texts hard-code their ranges. This is a pre-existing pattern and is deferred.
+  - The shared `IterativeFunctionGraph.tsx:82` `cannotAdvanceMessage` is still English. Bisection, Sequence and FixedPoint use it, and it moves to slice 2e.
+- **Handler checks on the final tree:** `just typecheck`, `just lint src` and `just unit src/analysis src/graphs/functions src/graphs/complex` all passed.
+
+## Slice 2e decision (handler, 2026-11-01): remaining English throws
+
+- **Function graphs without a diagnosis** (Linear, Exponential, Trigonometric, Continuity, Derivative, DefiniteIntegral, AreaBetweenCurves, ArcLength), plus `IterativeFunctionGraph.cannotAdvanceMessage`:
+  - These graphs' fields already fall back to the localized generic `number_rejected_hint`, so their English setter text reaches a learner only when a lesson scene action fails.
+  - **Decision:** localize these setter throws with shared, parametrized keys.
+  - **Deferred:** model-rule ownership for these parsers. They have no stored-file diagnosis, and each rule is already a single predicate in `analysis/`. Adding file diagnoses is new behaviour, not part of A7.
+  - Brief: handler job file `a7-2e-brief.md`, copied into handler handoff 5.
+- **LinearMap (`LinearMapGraph.tsx:130,140,156,162,178,188`):** the slice 2e worker first establishes whether any throw is learner-reachable. These throws either reach controls (which swallow them) or validate authored scene payloads. If no learner path exists, record that and leave the kernel's messages in place.

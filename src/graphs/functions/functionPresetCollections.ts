@@ -9,7 +9,6 @@ import {parseAreaBetweenModel} from "../../analysis/areaBetweenModel";
 import {parseArcLengthModel} from "../../analysis/arcLengthModel";
 import {checkBisectionModel, parseBisectionModel} from "../../analysis/bisectionModel";
 import {bisectionFileMessage} from "./bisectionMessages";
-import {formatNumber} from "../../analysis/format";
 import {checkMeanValueModel, parseMeanValueModel} from "../../analysis/meanValueModel";
 import {meanValueFileMessage} from "./meanValueMessages";
 import {checkExtremaModel, parseExtremaModel} from "../../analysis/extremaModel";
@@ -19,27 +18,19 @@ import {checkConvexityModel, parseConvexityModel} from "../../analysis/convexity
 import {convexityFileMessage} from "./convexityMessages";
 import {checkTaylorModel, parseTaylorModel} from "../../analysis/taylorModel";
 import {taylorFileMessage} from "./taylorMessages";
-import {parseFixedPointModel} from "../../analysis/fixedPointModel";
-import {
-    FIXED_POINT_EXAMPLE_IDS, FIXED_POINT_MAX_DIGITS, FIXED_POINT_MAX_STEPS, FIXED_POINT_MIN_DIGITS, fixedPointExample, isFixedPointDigits, isFixedPointExampleId, isFixedPointStart,
-    isFixedPointStepCount,
-} from "../../analysis/fixedPoint";
-import {parseUniformConvergenceModel} from "../../analysis/uniformConvergenceModel";
-import {
-    isUniformEpsilon, isUniformExampleId, isUniformN, isUniformR, isUniformX, UNIFORM_EPSILON_MAX, UNIFORM_EPSILON_MIN, UNIFORM_EXAMPLE_IDS, UNIFORM_MAX_N, UNIFORM_N_MIN,
-    UNIFORM_R_MAX, UNIFORM_R_MIN,
-} from "../../analysis/uniformConvergence";
-import {parseComplexModel} from "../../analysis/complexModel";
-import {COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_MIN, COMPLEX_EXAMPLE_IDS, isComplexCoordinate, isComplexExampleId} from "../../analysis/complex";
+import {checkFixedPointModel, parseFixedPointModel} from "../../analysis/fixedPointModel";
+import {fixedPointFileMessage} from "./fixedPointMessages";
+import {checkUniformConvergenceModel, parseUniformConvergenceModel} from "../../analysis/uniformConvergenceModel";
+import {uniformConvergenceFileMessage} from "./uniformConvergenceMessages";
+import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
+import {complexFileMessage} from "../complex/complexMessages";
 import {checkSequenceModel, parseSequenceModel} from "../../analysis/sequenceModel";
 import {checkDarbouxModel, parseDarbouxModel} from "../../analysis/darbouxModel";
 import {darbouxFileMessage} from "./darbouxMessages";
 import {checkAccumulationModel, parseAccumulationModel} from "../../analysis/accumulationModel";
 import {accumulationFileMessage} from "./accumulationMessages";
-import {isFiniteNumber as finite, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
+import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 
-/** A range bound as the file contract shows it (an integer, so the same text in both languages). */
-const bound = (value: number) => formatNumber(value, "en");
 /**
  * Function-demonstration data that the collection's parser rejected: the most specific actionable message for the main failure
  * classes of each collection, or undefined to keep the generic invalid_function_data message (wrong type, missing fields, NaN).
@@ -83,39 +74,19 @@ const diagnoseSequence: Diagnosis = data => {
     const check = checkSequenceModel(data);
     return check.ok || check.issue === undefined ? undefined : sequenceFileMessage(check.issue);
 };
+/** The model module names the rule a rejected uniform convergence model broke; this only localizes it. */
 const diagnoseUniformConvergence: Diagnosis = data => {
-    if (!isUniformExampleId(data.example)) return message("invalid_uniform_example", {value0: UNIFORM_EXAMPLE_IDS.join(", ")});
-    if (finite(data.r) && !isUniformR(data.r)) return message("invalid_uniform_r", {value0: bound(UNIFORM_R_MIN), value1: bound(UNIFORM_R_MAX)});
-    if (finite(data.n) && !isUniformN(data.n)) return message("invalid_uniform_n", {value0: UNIFORM_N_MIN, value1: UNIFORM_MAX_N});
-    if (isUniformR(data.r) && finite(data.x) && !isUniformX(data.r, data.x)) return message("invalid_uniform_x", {value0: bound(data.r)});
-    if (finite(data.epsilon) && !isUniformEpsilon(data.epsilon)) return message("invalid_uniform_epsilon", {value0: bound(UNIFORM_EPSILON_MIN), value1: bound(UNIFORM_EPSILON_MAX)});
-    if (data.supremumVisible !== undefined && typeof data.supremumVisible !== "boolean") return message("invalid_uniform_visibility");
-    return undefined;
+    const check = checkUniformConvergenceModel(data);
+    return check.ok || check.issue === undefined ? undefined : uniformConvergenceFileMessage(check.issue);
 };
-const complexCoordinateFields = ["zRe", "zIm", "wRe", "wIm"] as const;
-const complexVisibilityFields = ["productVisible", "anglesVisible"] as const;
 const diagnoseComplex: Diagnosis = data => {
-    if (!isComplexExampleId(data.example)) return message("invalid_complex_example", {value0: COMPLEX_EXAMPLE_IDS.join(", ")});
-    for (const field of complexCoordinateFields) {
-        if (finite(data[field]) && !isComplexCoordinate(data[field])) {
-            return message("invalid_complex_coordinate", {value0: field, value1: bound(COMPLEX_COORDINATE_MIN), value2: bound(COMPLEX_COORDINATE_MAX)});
-        }
-    }
-    for (const field of complexVisibilityFields) {
-        if (typeof data[field] !== "boolean" && data[field] !== undefined) return message("invalid_complex_visibility", {value0: field});
-    }
-    return undefined;
+    const check = checkComplexModel(data);
+    return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
 };
+/** The model module names the rule a rejected fixed-point model broke; this only localizes it. */
 const diagnoseFixedPoint: Diagnosis = data => {
-    if (!isFixedPointExampleId(data.example)) return message("invalid_fixed_point_example", {value0: FIXED_POINT_EXAMPLE_IDS.join(", ")});
-    const example = fixedPointExample(data.example);
-    if (finite(data.x0) && !isFixedPointStart(data.example, data.x0)) {
-        return message("invalid_fixed_point_x0", {value0: data.example, value1: bound(example.a), value2: bound(example.b)});
-    }
-    if (finite(data.step) && !isFixedPointStepCount(data.step)) return message("invalid_fixed_point_step", {value0: FIXED_POINT_MAX_STEPS});
-    if (finite(data.digits) && !isFixedPointDigits(data.digits)) return message("invalid_fixed_point_digits", {value0: FIXED_POINT_MIN_DIGITS, value1: FIXED_POINT_MAX_DIGITS});
-    if (data.boundVisible !== undefined && typeof data.boundVisible !== "boolean") return message("invalid_fixed_point_visibility");
-    return undefined;
+    const check = checkFixedPointModel(data);
+    return check.ok || check.issue === undefined ? undefined : fixedPointFileMessage(check.issue);
 };
 
 /**

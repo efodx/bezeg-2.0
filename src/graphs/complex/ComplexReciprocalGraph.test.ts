@@ -3,6 +3,7 @@ import {complexReciprocalPresetCollection} from './complexReciprocalPresets';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {DEFAULT_COMPLEX_RECIPROCAL_MODEL} from '../../analysis/complexReciprocalModel';
 import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
+import {DomainError} from '../functions/BaseFunctionGraph';
 
 const BOX = [-4.5, 4.5, 4.5, -4.5];
 const ZBAR = 'z̄';
@@ -207,7 +208,7 @@ test('the example choice sets z and w, keeps the circle, hides every reveal and 
     expect(graph.model).toEqual({
         example: 'division', zRe: 1, zIm: -1, wRe: 2, wIm: 1, reciprocalVisible: false, quotientVisible: false, circleVisible: false, centreRe: 0.5, centreIm: 0, radius: 1,
     });
-    expect(() => graph.setExample('cubic')).toThrow(/example/);
+    expect(() => graph.setExample('cubic')).toThrow(/Primer mora/);
     expect(graph.model.example).toBe('division');
     controls(graph).select.props.onChange('zero');
     expect(graph.model).toMatchObject({example: 'zero', zRe: 0, zIm: 0});
@@ -229,8 +230,8 @@ test('numeric inputs snap arithmetic noise to the 0.05 grid and reject a real of
         expect(graph.model, `${field} ${value}`).toEqual(before);
     }
     // the setters throw a DomainError that the controls swallow; lesson actions let it propagate
-    expect(() => apply(graph, parameter('complex-z-re', 0.123))).toThrow(/multiple of 0.05/);
-    expect(() => graph.setRadius(0)).toThrow(/radius/);
+    expect(() => apply(graph, parameter('complex-z-re', 0.123))).toThrow(/večkratnik števila 0,05/);
+    expect(() => graph.setRadius(0)).toThrow(/Polmer/);
     expect(graph.model).toEqual(before);
     inspector().radius.props.onChange(1.5);
     inspector().centreRe.props.onChange(-1);
@@ -515,4 +516,34 @@ test('unmounting releases every owned object and reference, and a late drag afte
     z.x = 0.5;
     z.y = 0.5;
     expect(() => z.handlers.drag()).not.toThrow();
+});
+
+test('a refused edit throws a DomainError whose text is localized in both languages and whose reason is a structured message', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph: any = makeGraph({asyncState: false});
+        const messageOf = (edit: () => void) => {
+            try { edit(); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(() => apply(graph, parameter('complex-z-re', 2.5))), messageOf(() => graph.setCentre(0, 3)),
+            messageOf(() => graph.setRadius(2.5)), messageOf(() => graph.setExample('cubic'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The value must be a multiple of 0.05 between −2 and 2.',
+        'The value must be a multiple of 0.05 between −2 and 2.',
+        'The radius must be a multiple of 0.05 between 0.05 and 2.',
+        'The example must be one of: outside, inside, unit-circle, division, zero.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Vrednost mora biti večkratnik števila 0,05 med −2 in 2.',
+        'Vrednost mora biti večkratnik števila 0,05 med −2 in 2.',
+        'Polmer mora biti večkratnik števila 0,05 med 0,05 in 2.',
+        'Primer mora biti eden od: outside, inside, unit-circle, division, zero.',
+    ]);
+    setLanguage('en');
+    const graph: any = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { graph.setExample('cubic'); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'complex_example_rejected', params: {value0: 'outside, inside, unit-circle, division, zero'}});
 });

@@ -1,5 +1,5 @@
 import React from "react";
-import {COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, gridValue, LABEL_STYLE} from "./BaseFunctionGraph";
+import {COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -8,10 +8,12 @@ import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {
     FIXED_POINT_EXAMPLE_IDS, FIXED_POINT_EXAMPLES, FIXED_POINT_MAX_DIGITS, FIXED_POINT_MAX_STEPS, FIXED_POINT_MIN_DIGITS, fixedPointExample, FixedPointExample,
-    FixedPointExampleId, FixedPointHistory, fixedPointHundredths, fixedPointLocation, isFixedPointDigits, isFixedPointExampleId, isFixedPointStart,
+    FixedPointExampleId, FixedPointHistory, fixedPointLocation,
 } from "../../analysis/fixedPoint";
 import {
-    defaultFixedPointModel, fixedPointCanAdvance, fixedPointHistoryOf, FixedPointModel, fixedPointTransition, normalizeFixedPointModel, } from "../../analysis/fixedPointModel";
+    changeFixedPointDigits, changeFixedPointStart, chooseFixedPointExample, defaultFixedPointModel, fixedPointCanAdvance, fixedPointHistoryOf, FixedPointEdit,
+    FixedPointModel, fixedPointTransition, normalizeFixedPointModel, } from "../../analysis/fixedPointModel";
+import {fixedPointEditMessage} from "./fixedPointMessages";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
@@ -151,24 +153,26 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isFixedPointExampleId(value)) throw new DomainError(`The example must be one of ${FIXED_POINT_EXAMPLE_IDS.join(", ")}.`);
-        this.replaceModel(defaultFixedPointModel(value, this.model.digits));
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[value]], this.equalAxisUnits);
+        const next = this.accepted(chooseFixedPointExample(this.model, value));
+        this.replaceModel(next);
+        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[next.example]], this.equalAxisUnits);
+    }
+
+    /** The model of an accepted edit; a refused edit throws a `DomainError` whose reason is the localized rule the model named. */
+    private accepted(edit: FixedPointEdit): FixedPointModel {
+        if (!edit.ok) throw new DomainError(fixedPointEditMessage(edit.issue));
+        return edit.model;
     }
 
     /** x0 is handed to the model as exact hundredths: arithmetic noise such as 0.06 + 0.01 is snapped, a value that is really off the grid is rejected. */
     protected setX0(value: number): void {
-        const example = fixedPointExample(this.model.example);
-        const next = gridValue(value, 0.01);
-        if (next === undefined || fixedPointHundredths(next) === undefined || !isFixedPointStart(example.id, next)) {
-            throw new DomainError(`The start x0 must be a multiple of 0.01 between ${example.a} and ${example.b} for this example.`);
-        }
-        if (next !== this.model.x0) this.replaceModel({...this.model, x0: next, step: 0});
+        const next = this.accepted(changeFixedPointStart(this.model, value));
+        if (next !== this.model) this.replaceModel(next);
     }
 
     protected setDigits(value: number): void {
-        if (!isFixedPointDigits(value)) throw new DomainError(`The tolerance digits d must be an integer between ${FIXED_POINT_MIN_DIGITS} and ${FIXED_POINT_MAX_DIGITS}.`);
-        if (value !== this.model.digits) this.replaceModel({...this.model, digits: value, step: 0});
+        const next = this.accepted(changeFixedPointDigits(this.model, value));
+        if (next !== this.model) this.replaceModel(next);
     }
 
     protected setBoundVisible(visible: boolean): void {

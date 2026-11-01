@@ -4,7 +4,7 @@ import {
     uniformPointwiseThreshold, uniformSupremum, uniformTerm, uniformThreshold,
 } from './uniformConvergence';
 import {
-    changeUniformR, DEFAULT_UNIFORM_MODEL, parseUniformConvergenceModel, UNIFORM_EXAMPLE_MODELS,
+    DEFAULT_UNIFORM_MODEL, parseUniformConvergenceModel, UNIFORM_EXAMPLE_MODELS,
 } from './uniformConvergenceModel';
 
 const power = uniformExample('power');
@@ -460,18 +460,5 @@ describe('uniform convergence model', () => {
         const copy = {...input};
         parseUniformConvergenceModel(input);
         expect(input).toEqual(copy);
-    });
-
-    test('changing r keeps x only while it stays in the domain; otherwise it is refused, never clamped', () => {
-        const model = {...DEFAULT_UNIFORM_MODEL, x: 0.6};
-        expect(changeUniformR(model, 1)).toEqual({ok: true, model: {...model, r: 1}});
-        expect(changeUniformR(model, 0.6)).toEqual({ok: true, model: {...model, r: 0.6}});
-        expect(changeUniformR(model, 0.55)).toEqual({ok: false, reason: 'x-outside-domain'});
-        expect(changeUniformR(model, 0.1)).toEqual({ok: false, reason: 'x-outside-domain'});
-        expect(changeUniformR(model, 0.77)).toEqual({ok: false, reason: 'r-invalid'});
-        expect(changeUniformR(model, 1.05)).toEqual({ok: false, reason: 'r-invalid'});
-        expect(changeUniformR(model, NaN)).toEqual({ok: false, reason: 'r-invalid'});
-        expect(changeUniformR(model, '1')).toEqual({ok: false, reason: 'r-invalid'});
-        expect(model.r).toBe(0.8);
     });
 });
