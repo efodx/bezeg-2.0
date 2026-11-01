@@ -7,8 +7,8 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, message, Message, t} from "../../localization";
 import {formatNumber, MINUS_SIGN, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
-    BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_MAX_STEPS, bisectionExample, BisectionExample,
-    BisectionExampleId, bisectionHistory, BisectionHistory, BisectionStep,
+    BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_MAX_STEPS, bisectionExample,
+    BisectionExampleId, bisectionHistory, BisectionHistory, BisectionStep, jumpLeftLimit, sampleJumpPieces,
 } from "../../analysis/bisection";
 import {BisectionModel, chooseBisectionExample, DEFAULT_BISECTION_MODEL, moveBisectionEndpoint} from "../../analysis/bisectionModel";
 import {bisectionEditMessage} from "./bisectionMessages";
@@ -39,43 +39,6 @@ export function formatPrecise(value: number, language: NumberLanguage): string {
     const unsigned = text.startsWith("-") ? text.slice(1) : text;
     const localized = language === "sl" ? unsigned.replace(".", ",") : unsigned;
     return value < 0 ? `${MINUS_SIGN}${localized}` : localized;
-}
-
-export interface SampledPieces {
-    left: { x: number[]; y: number[] };
-    right: { x: number[]; y: number[] };
-}
-
-/**
- * Samples a discontinuous example as two separate pieces so that the jump is never drawn as a connected vertical segment.
- * The value at the jump belongs to the right piece; the left piece ends at the jump with the left limit (the value just
- * left of it). A piece with no part in [from, to] is empty.
- */
-export function sampleJumpPieces(example: BisectionExample, from: number, to: number, count = 120): SampledPieces {
-    const jump = example.discontinuity;
-    const empty = () => ({x: [] as number[], y: [] as number[]});
-    if (jump === undefined || !Number.isFinite(from) || !Number.isFinite(to) || from > to) {
-        return {left: empty(), right: empty()};
-    }
-    const piece = (start: number, end: number, value: (x: number) => number) => {
-        const x: number[] = [];
-        const y: number[] = [];
-        for (let i = 0; i <= count; i++) {
-            const xi = i === count ? end : start + ((end - start) * i) / count;
-            x.push(xi);
-            y.push(value(xi));
-        }
-        return {x, y};
-    };
-    const leftEnd = Math.min(to, jump);
-    const left = from <= jump ? piece(from, leftEnd, x => example.value(x < jump ? x : leftLimit(example))) : empty();
-    const right = to >= jump ? piece(Math.max(from, jump), to, x => example.value(x)) : empty();
-    return {left, right};
-}
-
-/** The limit of a discontinuous example at its jump from the left: its value just left of the jump. */
-export function leftLimit(example: BisectionExample): number {
-    return example.discontinuity === undefined ? NaN : example.value(example.discontinuity - 1e-9);
 }
 
 /** What the board and the inspector show for a model: the bisection history and the step that was revealed last. */
@@ -253,7 +216,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
 
         // The value at the jump is the filled point (right piece); the left limit is the open ring.
         const jump = () => example().discontinuity ?? 0;
-        this.own(board.create("point", [jump, () => leftLimit(example())], {
+        this.own(board.create("point", [jump, () => jumpLeftLimit(example())], {
             ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, visible: () => !example().continuous,
             fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface,
             strokeColor: GraphPalette.primaryCurve, highlightStrokeColor: GraphPalette.primaryCurve, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),

@@ -1,7 +1,7 @@
 import {FUNCTION_IDS, catalogFunction} from './functions';
 import {lineValue} from './derivative';
 import {
-    ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, accumulation, accumulationPieces, accumulationTangent, isAccumulationBound,
+    ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, accumulation, accumulationFill, accumulationPieces, accumulationTangent, isAccumulationBound,
 } from './accumulation';
 import {DEFAULT_ACCUMULATION_MODEL, parseAccumulationModel} from './accumulationModel';
 
@@ -200,4 +200,60 @@ describe('accumulation model', () => {
     ])('rejects out-of-domain data %j', data => {
         expect(parseAccumulationModel(data)).toBeUndefined();
     });
+});
+
+test('the fill data of a stretch is a closed polygon whose sampled area matches the exact integral, NaN-separated per stretch', () => {
+    const sin = catalogFunction('sin');
+    const area = (polyline: { x: number[]; y: number[] }) => {
+        // shoelace area of each NaN-separated polygon
+        let total = 0;
+        let start = 0;
+        for (let i = 0; i <= polyline.x.length; i++) {
+            if (i === polyline.x.length || Number.isNaN(polyline.x[i])) {
+                let sum = 0;
+                for (let j = start; j < i; j++) {
+                    const k = j + 1 < i ? j + 1 : start;
+                    sum += polyline.x[j] * polyline.y[k] - polyline.x[k] * polyline.y[j];
+                }
+                total += Math.abs(sum) / 2;
+                start = i + 1;
+            }
+        }
+        return total;
+    };
+    const full = accumulationFill(sin, 0, 2 * Math.PI);
+    expect(Math.abs(area(full.positive) - 2)).toBeLessThan(0.01);
+    expect(Math.abs(area(full.negative) - 2)).toBeLessThan(0.01);
+    expect(full.positive.x.filter(Number.isNaN)).toHaveLength(0);
+    // reversed bounds shade the same region
+    const reversed = accumulationFill(sin, 2 * Math.PI, 0);
+    expect(reversed.positive.x).toEqual(full.positive.x);
+    expect(reversed.negative.y).toEqual(full.negative.y);
+    // three stretches above and below give NaN separators within one list
+    const many = accumulationFill(sin, -7, 7);
+    expect(many.positive.x.filter(Number.isNaN)).toHaveLength(2);
+    expect(many.negative.x.filter(Number.isNaN)).toHaveLength(2);
+    expect(accumulationFill(sin, 1, 1)).toEqual({positive: {x: [], y: []}, negative: {x: [], y: []}});
+    // the clamp limits plotted heights but not the stretch bounds
+    const clamped = accumulationFill(catalogFunction('exp'), 0, 7, y => Math.min(y, 10));
+    expect(Math.max(...clamped.positive.y)).toBe(10);
+    expect(Math.max(...clamped.positive.x)).toBe(7);
+});
+
+test('accumulationFill puts a negative-area stretch only in the negative list and its closing points on the axis', () => {
+    const sin = catalogFunction('sin');
+    const fill = accumulationFill(sin, Math.PI, 2 * Math.PI);
+    expect(fill.positive).toEqual({x: [], y: []});
+    expect(fill.negative.y[0]).toBe(0);
+    expect(fill.negative.y.slice(-2)).toEqual([0, 0]);
+    expect(Math.min(...fill.negative.y)).toBeLessThan(-0.99);
+    expect(fill.negative.x.filter(Number.isNaN)).toHaveLength(0);
+});
+
+test('accumulationFill of a stretch that starts at a zero of f is a single polygon starting on the axis', () => {
+    const fill = accumulationFill(catalogFunction('sin'), 0, Math.PI);
+    expect(fill.negative).toEqual({x: [], y: []});
+    expect(fill.positive.x[0]).toBe(0);
+    expect(fill.positive.x.filter(Number.isNaN)).toHaveLength(0);
+    expect(fill.positive.y[1]).toBeCloseTo(0, 12);
 });

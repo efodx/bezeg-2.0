@@ -233,3 +233,40 @@ export function bisectionHistory(exampleId: BisectionExampleId, a: number, b: nu
         ...(exactRoot !== undefined ? {exactRoot} : {}),
     };
 }
+
+export interface SampledPieces {
+    left: { x: number[]; y: number[] };
+    right: { x: number[]; y: number[] };
+}
+
+/**
+ * Samples a discontinuous example as two separate pieces so that the jump is never drawn as a connected vertical segment.
+ * The value at the jump belongs to the right piece; the left piece ends at the jump with the left limit (the value just
+ * left of it). A piece with no part in [from, to] is empty.
+ */
+export function sampleJumpPieces(example: BisectionExample, from: number, to: number, count = 120): SampledPieces {
+    const jump = example.discontinuity;
+    const empty = () => ({x: [] as number[], y: [] as number[]});
+    if (jump === undefined || !Number.isFinite(from) || !Number.isFinite(to) || from > to) {
+        return {left: empty(), right: empty()};
+    }
+    const piece = (start: number, end: number, value: (x: number) => number) => {
+        const x: number[] = [];
+        const y: number[] = [];
+        for (let i = 0; i <= count; i++) {
+            const xi = i === count ? end : start + ((end - start) * i) / count;
+            x.push(xi);
+            y.push(value(xi));
+        }
+        return {x, y};
+    };
+    const leftEnd = Math.min(to, jump);
+    const left = from <= jump ? piece(from, leftEnd, x => example.value(x < jump ? x : jumpLeftLimit(example))) : empty();
+    const right = to >= jump ? piece(Math.max(from, jump), to, x => example.value(x)) : empty();
+    return {left, right};
+}
+
+/** The limit of a discontinuous example at its jump from the left: its value just left of the jump. */
+export function jumpLeftLimit(example: BisectionExample): number {
+    return example.discontinuity === undefined ? NaN : example.value(example.discontinuity - 1e-9);
+}

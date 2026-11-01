@@ -7,7 +7,7 @@ import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {CatalogFunction, catalogFunction, FUNCTION_IDS} from "../../analysis/functions";
 import {
-    ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_STEP, accumulation, AccumulationPiece, accumulationPieces, accumulationTangent,
+    ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_STEP, accumulation, AccumulationPiece, accumulationFill, accumulationPieces, accumulationTangent,
 } from "../../analysis/accumulation";
 import {
     AccumulationEdit, AccumulationModel, AccumulationPoint, chooseAccumulationFunction, DEFAULT_ACCUMULATION_MODEL, moveAccumulationPoint,
@@ -27,8 +27,6 @@ const PRECISE = 4;
  */
 export const FLAT_SLOPE = 1e-12;
 
-/** Samples of f along one stretch of the shaded region (a stretch is bounded by a, x and the zeros of f). */
-const SAMPLES_PER_PIECE = 48;
 
 /** sin on [-7, 7] has zeros at -2*pi, -pi, 0, pi and 2*pi, so at most six stretches; one sign mark each. */
 export const MAX_PIECES = 6;
@@ -55,39 +53,6 @@ interface FillCurve {
     updateDataArray: () => void;
     dataX: number[];
     dataY: number[];
-}
-
-export interface FillPolyline {
-    x: number[];
-    y: number[];
-}
-
-/**
- * The drawing data of the shaded region between a and x: closed polygons between the t-axis and the graph of f, one per stretch
- * on which f keeps its sign. `positive` holds the stretches above the axis, `negative` those below it; polygons within one list are
- * separated by NaN so that one curve object draws all of them. `clamp` limits the plotted f values to the part near the view
- * (identity by default); it never changes which stretch a polygon belongs to.
- */
-export function accumulationFill(fn: CatalogFunction, a: number, x: number, clamp: (y: number) => number = y => y): { positive: FillPolyline; negative: FillPolyline } {
-    const positive: FillPolyline = {x: [], y: []};
-    const negative: FillPolyline = {x: [], y: []};
-    for (const piece of accumulationPieces(fn, a, x)) {
-        const target = piece.sign === "positive" ? positive : negative;
-        if (target.x.length > 0) {
-            target.x.push(NaN);
-            target.y.push(NaN);
-        }
-        target.x.push(piece.from);
-        target.y.push(0);
-        for (let i = 0; i <= SAMPLES_PER_PIECE; i++) {
-            const t = piece.from + (piece.to - piece.from) * i / SAMPLES_PER_PIECE;
-            target.x.push(t);
-            target.y.push(clamp(fn.value(t)));
-        }
-        target.x.push(piece.to, piece.from);
-        target.y.push(0, 0);
-    }
-    return {positive, negative};
 }
 
 type StatusKind = "hidden" | "empty" | "reversed" | "rising" | "falling" | "flat";

@@ -15,9 +15,7 @@ import {DEFAULT_DERIVATIVE_MODEL, DerivativeModel} from "../../analysis/derivati
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
-
-/** Removes floating-point noise left by slider arithmetic (-2 + 150 * 0.01) without changing meaningful digits. */
-const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
+import {cleanNumber} from "../../analysis/numbers";
 
 /** Derivative-related numbers show four decimals so that the lesson's 0.4528 and 0.5403 can be read off. */
 const PRECISE = 4;
@@ -57,7 +55,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
 
     protected setX0(value: number, options: { syncScene?: boolean } = {}): void {
         if (!isX0(value)) throw new DomainError(numberRangeRejected("derivative_x0_label", X0_MIN, X0_MAX));
-        this.commitModel({...this.model, x0: clean(value)}, options);
+        this.commitModel({...this.model, x0: cleanNumber(value)}, options);
     }
 
     protected setStep(value: number): void {
@@ -66,7 +64,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
                 value0: formatNumber(H_MIN, currentLanguage()), value1: formatNumber(H_MAX, currentLanguage()), value2: formatNumber(H_MIN_ABS, currentLanguage()),
             }));
         }
-        this.commitModel({...this.model, h: clean(value)});
+        this.commitModel({...this.model, h: cleanNumber(value)});
     }
 
     protected setTangentVisible(visible: boolean): void {
