@@ -1443,3 +1443,11 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Repairs: handler-only (two local findings). Minus sign in `rationalText`, with a new unit test and host expectation; mutation without the fix failed 2 tests. Perf test made opt-in (`BEZEG_PERF`), ceiling 1000 ms. Checks: compgeo unit, full `just unit` 380 files / 6934 tests (1 skipped, the perf test), lint on touched files, build with tsc; opt-in perf rerun median 20.4 ms. Accepted 05:30Z.
 - Gaps: side lists and board marks not seen in a browser until registration (S1 F2b).
 - Judgment: the handler had already flagged the perf test's file writes before the review returned; the engineering reviewer independently reported the same, plus the sign defect no test covered.
+
+## 2026-11-01 — Triangulation 08 and sweep 10 registration (geometry handler 15)
+
+- Class F2b registration, size M, [triangulation 08](../tasks/triangulation-voronoi/08-ear-clipping-registration.md) and [sweep 10](../tasks/sweep-algorithms/10-sweep-registration.md) in one worker (same shared files). Handler Opus 5.5, effort medium.
+- Implementation: one `bezeg-worker` Sonnet `medium`, dispatched 05:31Z, brief `handoff-v12` (convexity 12 as template, its commit as a file map). 28 tools, about 56k tokens, 10.7 min. tsc, lint, build and the focused unit set passed; it found and fixed the lesson-catalog lessonless list.
+- Integration failure: the full unit suite failed 3 tests in `graphTransientStateContract.tsx` (`PRESET_DATA_STATE_KEYS`, an enumerating table the brief's list did not name and the worker's focused paths did not cover). Handler fixed it (3 lines), and the 24 affected tests passed.
+- Smoke: one `bezeg-smoke` Sonnet `medium` (first browser sight of new UI), 26 tools, about 49k tokens, 15.6 min. All 8 checks passed on the three routes, with no console errors. The handler viewed 2 screenshots and found the default view clipping the C2 example at the top edge, which the worker did not report (it viewed one shot). Recorded as a follow-up. Accepted 06:09Z.
+- Judgment: an F2b brief should name `graphTransientStateContract.tsx` among enumerating tests; smoke briefs should ask the worker to view each screenshot it cites.

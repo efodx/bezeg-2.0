@@ -1,6 +1,9 @@
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {PresetCollection} from "../base/presets/PresetCollection";
+import {bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
+import {earClippingCollection} from "./earClippingPresetCollection";
 import {hullTracePresetCollection} from "./hullTracePresetCollection";
+import {intervalSweepCollection} from "./intervalSweepPresetCollection";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 
 /**
@@ -23,4 +26,5 @@ export const polygonAreaPresetCollection: PresetCollection<PointSetModel> =
 /** The hull trace graph validates with the default point limit, as it always has. */
 export const hullTraceCollection: PresetCollection<PointSetModel> = hullTracePresetCollection(HULL_TRACE_OVERLAY_IDS);
 
-export const compgeoPresetCollections = [orientationPresetCollection, polygonAreaPresetCollection, hullTraceCollection] as const;
+export const compgeoPresetCollections = [orientationPresetCollection, polygonAreaPresetCollection, hullTraceCollection,
+    earClippingCollection, intervalSweepCollection, bentleyOttmannCollection] as const;

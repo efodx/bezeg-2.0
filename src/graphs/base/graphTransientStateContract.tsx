@@ -64,6 +64,9 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     orientation: ['model'],
     'polygon-area': ['model'],
     'convex-hull': ['model'],
+    'ear-clipping': ['model'],
+    'interval-sweep': ['model'],
+    'segment-intersections': ['model'],
 };
 
 

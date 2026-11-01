@@ -183,7 +183,7 @@ test('every active demonstration route has an available lesson unless it opts ou
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
     // `linear-map` stays lessonless until the linear maps lesson task publishes one; the compgeo ids ship without lessons.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['linear-map']);
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['linear-map', 'ear-clipping', 'interval-sweep', 'segment-intersections']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

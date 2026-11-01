@@ -1,6 +1,9 @@
 import {OrientationGraph} from './compgeo/OrientationGraph';
 import {PolygonAreaGraph} from './compgeo/PolygonAreaGraph';
 import {HullTraceGraph} from './compgeo/HullTraceGraph';
+import {EarClippingGraph} from './compgeo/EarClippingGraph';
+import {IntervalSweepGraph} from './compgeo/IntervalSweepGraph';
+import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import { BernsteinGraph } from './bernstein/BernsteinGraph';
 import { ComplexMultiplicationGraph } from './complex/ComplexMultiplicationGraph';
 import BezierCurveGraph from './curves/bezier/BezierCurveGraph';
@@ -114,4 +117,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'orientation': () => new OrientationGraph(),
     'polygon-area': () => new PolygonAreaGraph(),
     'convex-hull': () => new HullTraceGraph(),
+    'ear-clipping': () => new EarClippingGraph(),
+    'interval-sweep': () => new IntervalSweepGraph(),
+    'segment-intersections': () => new BentleyOttmannGraph(),
 };
