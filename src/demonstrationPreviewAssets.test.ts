@@ -1,12 +1,15 @@
 import {getDemonstrationCatalog} from './demonstrations';
 import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
+import {POSTER_PENDING} from './demonstrationPosterPending';
 
 const {demonstrations} = getDemonstrationCatalog();
-/** Registered before their poster is captured; remove an id here when its capture lands. */
-const POSTER_PENDING: readonly string[] = ['linear-map', 'complex-reciprocal', 'complex-roots', 'orientation', 'polygon-area', 'convex-hull',
-    'ear-clipping', 'interval-sweep', 'segment-intersections', 'curve-parametric', 'curve-curvature', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'patch-coons'];
 
 describe('generated Demonstration preview posters', () => {
+    it('lists only registered Demonstrations whose poster is still missing as pending', () => {
+        expect(POSTER_PENDING.filter(id => demonstrationPreviewAssets[id] || !demonstrations.some(entry => entry.id === id))).toEqual([]);
+        expect(new Set(POSTER_PENDING).size).toBe(POSTER_PENDING.length);
+    });
+
     it('has a poster for every Demonstration', () => {
         const missing = demonstrations.filter(entry => !demonstrationPreviewAssets[entry.id] && !POSTER_PENDING.includes(entry.id)).map(entry => entry.id);
         const unknown = Object.keys(demonstrationPreviewAssets).filter(id => !demonstrations.some(entry => entry.id === id));

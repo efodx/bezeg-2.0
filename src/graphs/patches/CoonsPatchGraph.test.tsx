@@ -230,9 +230,9 @@ describe("Presets (acceptance 6)", () => {
         expect(graph.state.linkedCorners).toBe(true);
     });
 
-    it("keeps the patch Preset collections unchanged and the key local", () => {
+    it("keeps the tensor patch Preset collections unchanged and registers the Coons key once", () => {
         expect(Object.keys(patchPresetCollections)).toEqual(["patch-tensor", "patch-triangular", "patch-decasteljau", "patch-derivatives", "patch-subdivision", "patch-joins"]);
-        expect(presetCollections.map(collection => collection.key)).not.toContain("patch-coons");
+        expect(presetCollections.filter(collection => collection.key === "patch-coons")).toHaveLength(1);
     });
 });
 

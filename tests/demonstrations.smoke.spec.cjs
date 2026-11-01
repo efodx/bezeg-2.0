@@ -66,10 +66,13 @@ test('the catalogue shows every demonstration in teaching order with useful card
     await expect(cards).toHaveCount(demonstrations.length);
     expect(await cards.locator('.demonstrations-catalog-title').allTextContents()).toEqual(catalogEntries.map(demonstration => demonstration.title));
 
+    // Demonstrations in POSTER_PENDING (src/demonstrationPosterPending.ts) keep an empty preview frame until their capture lands.
+    const posterCount = demonstrations.filter(demonstration => demonstration.hasPoster).length;
+    await expect(cards.locator('.demonstration-preview-media')).toHaveCount(demonstrations.length);
     const previews = cards.locator('.demonstrations-catalog-preview');
-    await expect(previews).toHaveCount(demonstrations.length);
+    await expect(previews).toHaveCount(posterCount);
     const imagePreviews = cards.locator('img.demonstrations-catalog-preview');
-    await expect(imagePreviews).toHaveCount(demonstrations.length);
+    await expect(imagePreviews).toHaveCount(posterCount);
     await expect(cards.locator('svg.demonstrations-catalog-svg-preview')).toHaveCount(0);
     await expect(cards.locator('.demonstrations-catalog-lesson')).toHaveCount(demonstrations.filter(demonstration => demonstration.hasLesson).length);
     await expect(page.getByText(/Variant [ABC]/)).toHaveCount(0);
@@ -81,10 +84,13 @@ test('the catalogue shows every demonstration in teaching order with useful card
         const demonstration = catalogEntries[index];
         const card = cards.nth(index);
         const preview = card.locator('.demonstrations-catalog-preview');
-        await expect(preview).toHaveAttribute('width', '360');
-        await expect(preview).toHaveAttribute('height', '220');
-        await expect(preview).toHaveAttribute('alt', '');
-        await expect(preview).toHaveAttribute('loading', index < 3 ? 'eager' : 'lazy');
+        if (!demonstration.hasPoster) await expect(preview).toHaveCount(0);
+        else await expect(preview).toHaveAttribute('width', '360');
+        if (demonstration.hasPoster) {
+            await expect(preview).toHaveAttribute('height', '220');
+            await expect(preview).toHaveAttribute('alt', '');
+            await expect(preview).toHaveAttribute('loading', index < 3 ? 'eager' : 'lazy');
+        }
         await expect(card.locator('.demonstrations-catalog-title')).toHaveText(demonstration.title);
         await expect(card.locator('.demonstrations-catalog-family')).toContainText(demonstrations.families.find(family => family.id === demonstration.family).title);
         await expect(card.locator('.demonstrations-catalog-copy p')).not.toBeEmpty();
@@ -99,13 +105,14 @@ test('the catalogue shows every demonstration in teaching order with useful card
         } else {
             await expect(card.locator('.demonstrations-catalog-lesson')).toHaveCount(0);
         }
+        if (!demonstration.hasPoster) continue;
         await preview.scrollIntoViewIfNeeded();
         await expect.poll(() => preview.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
     }
 });
 
 test('generated preview mapping and provenance cover the active catalog without a fixed route total', async () => {
-    const expectedIds = demonstrations.map(demonstration => demonstration.id).sort();
+    const expectedIds = demonstrations.filter(demonstration => demonstration.hasPoster).map(demonstration => demonstration.id).sort();
     const generated = demonstrations.validateGeneratedPreviews();
     expect(Object.keys(generated.map).sort()).toEqual(expectedIds);
     expect(generated.manifest.captures.map(capture => capture.id).sort()).toEqual(expectedIds);

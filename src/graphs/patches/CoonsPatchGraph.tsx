@@ -53,8 +53,8 @@ function stateFromDto(dto: CoonsPatchDto): Omit<CoonsGraphState, "initialized" |
 
 /**
  * The Coons patch Demonstration (D4): four editable cubic boundary curves with shared corners and the surface their
- * blend `Lc + Ld - B` makes, drawn as the exact bicubic net in the surface view. Unregistered: the `patch-coons`
- * Preset collection stays local to this module until the lesson route exists.
+ * blend `Lc + Ld - B` makes, drawn as the exact bicubic net in the surface view. Its `patch-coons` Preset collection
+ * is registered beside, not inside, the tensor patch collections.
  */
 export default class CoonsPatchGraph extends BaseSurfaceGraph<CoonsGraphState, CoonsPresetData> {
     constructor(options: SurfaceGraphOptions = {}) {
