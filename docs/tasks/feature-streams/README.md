@@ -13,7 +13,7 @@ A **stream** is a sequence of complete features with one owner. Its owner is a c
 - writes handoff notes to `docs/reviews/feature-streams/<id>/handler-handoff-<n>.md`;
 - runs at most **two** workers at once, plus short review and smoke workers. Each stream uses its own `SMOKE_PORT` (table below).
 
-The owner waived the session-usage limit behind the workflow's three-worker cap on 2026-10-31. The binding limits are now this machine and merge conflicts. Heavy `just` commands share machine-wide test slots (16 GB, 12 threads: 1 slot of 4 workers) and a memory gate, and queue, so six streams with two workers each mostly wait on tests rather than on each other. If the machine stays saturated (tests waiting more than about 10 minutes), drop to one worker per stream first.
+The owner waived the session-usage limit behind the workflow's three-worker cap on 2026-10-31. The binding limits are now this machine and merge conflicts. Heavy `just` commands share machine-wide test slots (16 GB, 12 threads: 2 slots of 3 workers since 2026-11-01, on trial; back to 1 slot of 4 if the machine pages) and a memory gate, and queue, so six streams with two workers each mostly wait on tests rather than on each other. If the machine stays saturated (tests waiting more than about 10 minutes), drop to one worker per stream first.
 
 | Stream | File | Features, in order | Port | Provides gate |
 | --- | --- | --- | --- | --- |

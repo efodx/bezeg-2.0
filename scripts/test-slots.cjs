@@ -13,7 +13,11 @@ const RESERVED_THREADS = 2; // left for the desktop, IDE and browser
 // Claude Code sessions held 3.2 GB. With the old 6 GB reserve a 16 GB machine got two slots, filled its memory and
 // paged until single tests took minutes and timed out.
 const RESERVED_MEMORY_GB = 9;
-const MEMORY_PER_WORKER_GB = 1.5; // measured 2026-10-31: Vitest jsdom workers peak at 0.8-1.7 GB in the full suite
+// What one Vitest worker reaches, for the slot budget and the memory gate. Measured 2026-11-01 with the board hook in
+// src/setupTests.ts: a file's peak is 0.3 GB at the median and 1.2 GB at most (0.8-2.3 GB before the hook). On a 16 GB
+// machine this gives 2 slots of 3 workers. To go back to 1 slot of 4 workers, revert this value to 1.5 (BEZEG_TEST_SLOTS=1
+// alone would hand that slot all 7 workers).
+const MEMORY_PER_WORKER_GB = 1;
 const MIN_WORKERS_PER_SLOT = 3; // below this a run gets too little parallelism to be worth sharing the machine
 const MAX_SLOTS = 3; // matches the three-worker concurrency cap in docs/agent-workflow.md
 const FILTERED_UNIT_WORKERS = 2; // a path-filtered unit run skips the queue, so it must stay small next to a slot holder
@@ -23,9 +27,6 @@ const STALE_MS = 2 * 60 * 60 * 1000; // longer than any check or smoke run
 // sessions (seen 2026-11-01 several times an hour). So every heavy command also waits until it leaves this much free.
 const MEMORY_FLOOR_GB = 2;
 const COMMAND_MEMORY_GB = {typecheck: 1.5, lint: 1, build: 1.5, 'check-localization': 1.5, smoke: 1.5, 'smoke-built': 1.5, 'smoke-lesson': 1.5};
-// What the gate expects one Vitest worker to reach. Measured 2026-11-01 with the board hook in src/setupTests.ts: a
-// file's peak is 0.3 GB at the median and 1.2 GB at most (2.3 GB before the hook).
-const GATE_GB_PER_WORKER = 1;
 const RAMP_MS = 60_000; // a run reaches most of its memory within a minute, so starts are spaced to read it
 const MAX_MEMORY_WAIT_MS = 20 * 60 * 1000; // then start anyway, warned: a busy desktop must not block work forever
 const GB = 1024 ** 3;
@@ -151,14 +152,14 @@ function memoryFloorGB(env = process.env) {
 
 // Memory a command needs before it may start; unit runs and checks need one worker and then fit their workers.
 function commandMemoryGB(command) {
-    return COMMAND_MEMORY_GB[command] ?? GATE_GB_PER_WORKER;
+    return COMMAND_MEMORY_GB[command] ?? MEMORY_PER_WORKER_GB;
 }
 
 // Workers that fit the memory available at admission, never more than the slot allows.
 function fitWorkers(workers, freeGB, env = process.env) {
     const floor = memoryFloorGB(env);
     if (floor === 0) return workers;
-    return Math.max(1, Math.min(workers, Math.floor((freeGB - floor) / GATE_GB_PER_WORKER)));
+    return Math.max(1, Math.min(workers, Math.floor((freeGB - floor) / MEMORY_PER_WORKER_GB)));
 }
 
 /**

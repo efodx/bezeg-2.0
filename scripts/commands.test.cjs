@@ -406,13 +406,13 @@ test('real just preserves quoted recipe arguments when available', t => {
 
 test('test-slot budget follows the machine and per-machine overrides', () => {
     const GB = 1024 ** 3;
-    // Memory limits the 16 GB machine to one slot once the agent sessions are reserved; threads limit the 64 GB one.
-    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {}}), {slots: 1, workers: 4});
+    // Memory limits the 16 GB machine to two slots once the agent sessions are reserved; threads limit the 64 GB one.
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {}}), {slots: 2, workers: 3});
     assert.deepEqual(slots.machineBudget({threads: 32, memoryBytes: 64 * GB, env: {}}), {slots: 3, workers: 10});
-    assert.deepEqual(slots.machineBudget({threads: 8, memoryBytes: 12 * GB, env: {}}), {slots: 1, workers: 2});
+    assert.deepEqual(slots.machineBudget({threads: 8, memoryBytes: 12 * GB, env: {}}), {slots: 1, workers: 3});
     assert.deepEqual(slots.machineBudget({threads: 2, memoryBytes: 4 * GB, env: {}}), {slots: 1, workers: 1});
-    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_SLOTS: '2'}}), {slots: 2, workers: 2});
-    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_WORKERS: '3'}}), {slots: 1, workers: 3});
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_SLOTS: '1'}}), {slots: 1, workers: 7});
+    assert.deepEqual(slots.machineBudget({threads: 12, memoryBytes: 16 * GB, env: {BEZEG_TEST_WORKERS: '2'}}), {slots: 2, workers: 2});
     assert.throws(() => slots.machineBudget({env: {BEZEG_TEST_SLOTS: '0'}}), /BEZEG_TEST_SLOTS must be a positive integer/);
 });
 
