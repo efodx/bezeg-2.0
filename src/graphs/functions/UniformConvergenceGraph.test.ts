@@ -117,12 +117,12 @@ test('initialization draws x^n on [0, 0.8] with the supremum hidden, from a fixe
         'fₙ(x) = xⁿ na [0; 0,8]', 'n = 5, x = 0,5, ε = 0,1', 'pri x: napaka 0,03125, N(x) = 4', 'supremum: skrit',
         'polna črta: fₙ; črtkana črta: f; navpična črta: napaka pri x',
     ]);
-    // f_n is drawn on [0, r] only and equals x^n there
-    const f = functionGraphs(graph)[0].parents[0];
+    // f_n is drawn on [0, r] only (functiongraph bounds) and equals x^n there
+    const [f, from, to] = functionGraphs(graph)[0].parents;
     expect(f(0.5)).toBe(0.5 ** 5);
     expect(f(0.8)).toBeCloseTo(0.32768, 12);
-    expect(f(0.81)).toBeNaN();
-    expect(f(-0.01)).toBeNaN();
+    expect(from).toBe(0);
+    expect(to()).toBe(0.8);
     // the pool is the same for every example, domain and visibility
     for (const action of [choice('scaled'), reveal(true), parameter('uniform-r', 0.5), parameter('uniform-x', 0.3), parameter('uniform-n', 50), choice('power')]) {
         apply(graph, action);

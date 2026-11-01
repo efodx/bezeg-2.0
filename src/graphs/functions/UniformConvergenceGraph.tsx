@@ -219,7 +219,8 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         const segmentVisible = () => segment() !== undefined;
         const lowEdge = () => (segment()?.y ?? 0) - model().epsilon;
         const highEdge = () => (segment()?.y ?? 0) + model().epsilon;
-        const f = (x: number) => x < 0 || x > model().r + 1e-12 ? NaN : view().example.term(model().n, x);
+        // f_n is finite everywhere; the functiongraph bounds [0, r] clip the drawing, so curve samples outside the domain stay finite.
+        const f = (x: number) => view().example.term(model().n, x);
         const supremumShown = () => model().supremumVisible;
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
 
@@ -250,7 +251,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         this.own(board.create("segment", [[0, () => segment()?.y ?? 0], [() => segment()?.to ?? 0, () => segment()?.y ?? 0]], {
             strokeColor: GraphPalette.comparisonCurve, dash: LIMIT_DASH, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: segmentVisible,
         }));
-        this.own(board.create("functiongraph", [f], {
+        this.own(board.create("functiongraph", [f, 0, () => model().r], {
             strokeColor: GraphPalette.primaryCurve, dash: 0, highlight: false, fixed: true, strokeWidth,
         }));
         this.own(board.create("segment", [[() => model().x, () => view().limit], [() => model().x, () => view().term]], {
