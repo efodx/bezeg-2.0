@@ -93,7 +93,7 @@ Every stream handler, every session:
 2. Take the next slice whose dependencies and gate are met. Write a `handoff-v12` brief, dispatch it, and start the worker watcher.
 3. Accept: diff against acceptance, observed pre-change failure of new tests, [review routing](../../agent-workflow.md#review-routing), focused `just` checks, and smoke where the change alters a route, control, lesson or rendering path.
 4. Commit with explicit paths, fetch, rebase onto `origin/master`, recheck, `git push origin HEAD:master`. Update the stream file's status in the same push.
-5. At the soft threshold, finish integrating and write the handoff note. At `--until 215000` (Opus) or `190000`, launch the successor from the stream worktree: `claude --bg -n "<id> handler <n+1>" --agent claude --model <own model> --permission-mode <own mode> --effort <own effort> "Continue docs/tasks/feature-streams/<id>.md from docs/reviews/feature-streams/<id>/handler-handoff-<n>.md under AGENTS.md."`
+5. At the soft threshold, finish integrating and write the handoff note. At `--until 215000` (Opus) or `190000`, launch the successor from the stream worktree: `claude --bg -n "<id> handler <n+1>" --agent claude --model <own model> --permission-mode <own mode> --effort <own effort> "Continue docs/tasks/feature-streams/<id>.md from docs/reviews/feature-streams/<id>/handler-handoff-<n>.md under AGENTS.md."` Confirm the successor appears in `claude agents --json`, then stop everything this session started (watchers, Monitors, preview servers, workers) and end the turn. A finished session stays resident at about 0.7 GB until the supervisor stops it.
 6. When the stream's last feature is accepted, write a final note and launch nothing.
 
 **Run state.** The second line of each stream file is `Run state: <value>`. The supervisor script reads it from `origin/master`, so keep it exact and push every change:
@@ -126,5 +126,12 @@ It is a plain script, not a model. It does no code checks and costs no tokens wh
    - relaunches an `active` stream that has had no live session for two consecutive polls (a crash or a failed successor launch), at most three times per stream per supervisor run;
    - prints `stopped:` streams for the owner and never relaunches them.
 3. It exits when every stream is `complete` or `stopped`.
+
+**Resources.** A background session does not exit when its turn ends: it stays `idle`/`done` and keeps about 0.7 GB until stopped. On 2026-11-01 seven superseded handlers held 4.6 GB of a 16 GB machine, and Curves stopped after low memory killed its unit suite. So every poll the supervisor:
+
+- stops handler sessions that were `idle`/`done` on two consecutive polls with `claude stop`, which keeps the conversation (`claude attach <id>` reopens it), and kills processes they left running;
+- starts a stream only while fewer than `-MaxLive` (default 3) handlers run and at least `-MinFreeGB` (default 3) of memory is free. A deferred stream starts on a later poll. Successor launches by handlers replace a session, so they are not limited.
+
+`-ReapOnly` stops every finished handler session once and exits, without launching anything.
 
 Options: `-Only platform,learn-ui` limits the set; `-Model opus`, `-Effort medium` and `-PermissionMode auto` (the defaults) set what handlers get. The launch prompt names these settings, so successors keep them; `-DryRun -Once` prints what it would do and exits. Ctrl+C stops only the supervisor. Running streams continue, and handlers still launch their own successors.
