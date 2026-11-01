@@ -142,7 +142,7 @@ export class CurvatureOverlay {
         this.create<Text>('text', [
             () => box()[0] + 0.02 * (box()[2] - box()[0]),
             () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => this.readoutText(),
+            () => this.readoutText().split("\n").join("<br>"),
         ], {
             anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false,
             fontSize: font, strokeColor: () => this.frame()?.status === 'circle' ? GraphPalette.label : GraphPalette.warningText,
@@ -154,7 +154,7 @@ export class CurvatureOverlay {
         });
     }
 
-    /** The text readout: kappa and radius, or the status for a line or a singular point. */
+    /** The plain-text readout (lines joined by newlines; the board text shows them as `<br>`): kappa and radius, or the status for a line or a singular point. */
     readoutText(): string {
         const f = this.frame();
         if (!f) return "";

@@ -23,6 +23,19 @@ export interface ParametricGraphState extends BaseGraphState {
     parameter: number;
 }
 
+/**
+ * The box widened to the canvas aspect around its centre, so the whole curve stays in view on a narrow or tall canvas
+ * (JSXGraph's own aspect fit can crop the longer side). Without a usable canvas size the box is returned unchanged.
+ */
+export function widenToCanvas(box: [number, number, number, number], width: number | undefined, height: number | undefined): [number, number, number, number] {
+    if (!(width && height && width > 0 && height > 0)) return box;
+    const [left, top, right, bottom] = box;
+    const scale = Math.max((right - left) / width, (top - bottom) / height);
+    const halfW = scale * width / 2, halfH = scale * height / 2;
+    const cx = (left + right) / 2, cy = (top + bottom) / 2;
+    return [cx - halfW, cy + halfH, cx + halfW, cy - halfH];
+}
+
 /** The roll animation commands a lesson can send (there is no iteration, so `next-step` is rejected). */
 const ROLL_LESSON_COMMANDS: readonly LessonAnimationCommand[] = ['play', 'pause', 'replay', 'stop', 'reset'];
 
@@ -133,7 +146,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
 
     private fitToCurve() {
         if (!this.board) return;
-        this.board.setBoundingBox(curveViewBox(this.state), true);
+        this.board.setBoundingBox(widenToCanvas(curveViewBox(this.state), this.board.canvasWidth, this.board.canvasHeight), true);
         this.board.fullUpdate();
     }
 

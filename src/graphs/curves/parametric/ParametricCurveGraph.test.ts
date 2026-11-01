@@ -1,4 +1,4 @@
-import ParametricCurveGraph, {ROLL_DURATION_MS} from './ParametricCurveGraph';
+import ParametricCurveGraph, {ROLL_DURATION_MS, widenToCanvas} from './ParametricCurveGraph';
 import {ParametricScene} from './ParametricScene';
 import {DEFAULT_PARAMETRIC_PRESET, parametricPresetCollection} from './parametricPresetCollection';
 import {curveViewBox, PARAMETRIC_ROLL_ANIMATION_ID} from './parametricCatalogue';
@@ -291,5 +291,26 @@ describe('roll animation', () => {
         graph.pendingCallbacks = [];
         graph.unmount();
         expect(callbacks.size).toBe(0);
+    });
+});
+
+describe('widenToCanvas', () => {
+    test('a wide curve box on a narrow canvas keeps its whole width in view, with the canvas aspect', () => {
+        const cycloid = curveViewBox({curve: 'cycloid', radius: 1});
+        const [left, top, right, bottom] = widenToCanvas(cycloid, 364, 295);
+        expect(left).toBeLessThanOrEqual(cycloid[0]);
+        expect(right).toBeGreaterThanOrEqual(cycloid[2]);
+        expect(top).toBeGreaterThanOrEqual(cycloid[1]);
+        expect(bottom).toBeLessThanOrEqual(cycloid[3]);
+        expect((right - left) / (top - bottom)).toBeCloseTo(364 / 295, 9);
+    });
+
+    test('a tall canvas widens the other side, and an unknown canvas size leaves the box as it is', () => {
+        const box: [number, number, number, number] = [-1, 5, 3, -1];
+        const [left, top, right, bottom] = widenToCanvas(box, 200, 600);
+        expect(left).toBeLessThanOrEqual(-1);
+        expect(bottom).toBeLessThanOrEqual(-1);
+        expect((top - bottom) / (right - left)).toBeCloseTo(3, 9);
+        expect(widenToCanvas(box, undefined, undefined)).toBe(box);
     });
 });
