@@ -12,9 +12,7 @@ import {DEFAULT_EXPONENTIAL_MODEL, ExponentialModel, isExponentialBase} from "..
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {numberRangeRejected} from "./functionSetterMessages";
-
-/** Removes floating-point noise left by slider arithmetic (0.1 + 3 * 0.05) without changing meaningful digits. */
-const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
+import {cleanNumber} from "../../analysis/numbers";
 
 /**
  * Exponential function `f(x) = a^x` with a base slider, the marked points (0, 1) and (1, a), and an optional mirror graph
@@ -40,7 +38,7 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         if (!isExponentialBase(value)) {
             throw new DomainError(numberRangeRejected("exponential_base_label", EXPONENTIAL_BASE_MIN, EXPONENTIAL_BASE_MAX));
         }
-        this.commitModel({...this.model, a: clean(value)});
+        this.commitModel({...this.model, a: cleanNumber(value)});
     }
 
     protected setMirrorVisible(visible: boolean): void {

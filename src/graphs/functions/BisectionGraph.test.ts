@@ -1,8 +1,8 @@
-import {BisectionGraph, BISECTION_STEP_INTERVAL_MS, formatPrecise, leftLimit, sampleJumpPieces} from './BisectionGraph';
+import {BisectionGraph, BISECTION_STEP_INTERVAL_MS, formatPrecise} from './BisectionGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {AnimationScheduler} from '../../learning/runtime/animation';
-import {BISECTION_EXAMPLES, BISECTION_MAX_STEPS, bisectionHistory} from '../../analysis/bisection';
+import {BISECTION_MAX_STEPS, bisectionHistory} from '../../analysis/bisection';
 import {onLanguageChange, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
@@ -415,20 +415,6 @@ test('the jump of the sign step is two separate pieces with an open and a filled
     // markers are hidden for a continuous example
     apply(graph, choice('cubic'));
     expect(markers.some((point: any) => resolve(point.attributes.visible))).toBe(false);
-});
-
-test('sampleJumpPieces clips the pieces to the view and keeps the value at the jump on the right piece', () => {
-    const example = BISECTION_EXAMPLES['sign-step'];
-    const both = sampleJumpPieces(example, -2, 3, 4);
-    expect(both.left.x).toEqual([-2, -1.5, -1, -0.5, 0]);
-    expect(both.left.y).toEqual([-1, -1, -1, -1, -1]);
-    expect(both.right.x[0]).toBe(0);
-    expect(both.right.y.every(y => y === 1)).toBe(true);
-    expect(sampleJumpPieces(example, 1, 3).left).toEqual({x: [], y: []});
-    expect(sampleJumpPieces(example, -3, -1).right).toEqual({x: [], y: []});
-    expect(sampleJumpPieces(BISECTION_EXAMPLES.cubic, -1, 1)).toEqual({left: {x: [], y: []}, right: {x: [], y: []}});
-    expect(leftLimit(example)).toBe(-1);
-    expect(leftLimit(BISECTION_EXAMPLES.cubic)).toBeNaN();
 });
 
 test('formatPrecise keeps up to twelve decimals, switches to exponent notation for tiny values and never prints Infinity or NaN', () => {

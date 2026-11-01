@@ -12,9 +12,7 @@ import {ContinuityModel, DEFAULT_CONTINUITY_MODEL, isContinuityParameter} from "
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {numberRangeRejected} from "./functionSetterMessages";
-
-/** Removes floating-point noise left by slider arithmetic (30 * 0.05) without changing meaningful digits. */
-const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
+import {cleanNumber} from "../../analysis/numbers";
 
 /** The jump, never shown as "0" while the function is not continuous (an imported a can lie between slider steps). */
 const formatJump = (a: number, language: "sl" | "en") => {
@@ -55,7 +53,7 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
         if (!isContinuityParameter(value)) {
             throw new DomainError(numberRangeRejected("continuity_param_label", CONTINUITY_A_MIN, CONTINUITY_A_MAX));
         }
-        this.commitModel({a: clean(value)});
+        this.commitModel({a: cleanNumber(value)});
     }
 
     protected override lessonFunctionActions(): FunctionLessonActions {

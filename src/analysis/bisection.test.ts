@@ -1,7 +1,7 @@
 import {
     BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_EXAMPLES, BISECTION_MAX_STEPS,
     bisectionExample, bisectionHistory, bracketKind, isBisectionBracket, isBisectionEndpoint, isBisectionExampleId,
-    isBisectionStepCount, isContinuousOn,
+    isBisectionStepCount, isContinuousOn, jumpLeftLimit, sampleJumpPieces,
 } from './bisection';
 import {DEFAULT_BISECTION_MODEL, parseBisectionModel} from './bisectionModel';
 
@@ -260,4 +260,43 @@ describe('bisection model parser', () => {
             expect(parseBisectionModel({...ok, step: stepValue})).toBeUndefined();
         }
     });
+});
+
+test('sampleJumpPieces and jumpLeftLimit clip the pieces to the view and keeps the value at the jump on the right piece', () => {
+    const example = BISECTION_EXAMPLES['sign-step'];
+    const both = sampleJumpPieces(example, -2, 3, 4);
+    expect(both.left.x).toEqual([-2, -1.5, -1, -0.5, 0]);
+    expect(both.left.y).toEqual([-1, -1, -1, -1, -1]);
+    expect(both.right.x[0]).toBe(0);
+    expect(both.right.y.every(y => y === 1)).toBe(true);
+    expect(sampleJumpPieces(example, 1, 3).left).toEqual({x: [], y: []});
+    expect(sampleJumpPieces(example, -3, -1).right).toEqual({x: [], y: []});
+    expect(sampleJumpPieces(BISECTION_EXAMPLES.cubic, -1, 1)).toEqual({left: {x: [], y: []}, right: {x: [], y: []}});
+    expect(jumpLeftLimit(example)).toBe(-1);
+    expect(jumpLeftLimit(BISECTION_EXAMPLES.cubic)).toBeNaN();
+});
+
+test('sampleJumpPieces with the interval ending or starting exactly at the jump keeps the left limit on the left piece', () => {
+    const example = BISECTION_EXAMPLES['sign-step'];
+    const atEnd = sampleJumpPieces(example, -1, 0, 2);
+    expect(atEnd.left.x).toEqual([-1, -0.5, 0]);
+    expect(atEnd.left.y).toEqual([-1, -1, -1]);
+    expect(atEnd.right.x).toEqual([0, 0, 0]);
+    expect(atEnd.right.y).toEqual([1, 1, 1]);
+    const atStart = sampleJumpPieces(example, 0, 1, 2);
+    expect(atStart.left.x).toEqual([0, 0, 0]);
+    expect(atStart.left.y).toEqual([-1, -1, -1]);
+    expect(atStart.right.x).toEqual([0, 0.5, 1]);
+});
+
+test('sampleJumpPieces gives empty pieces for a reversed or non-finite interval and a single repeated point for from = to', () => {
+    const example = BISECTION_EXAMPLES['sign-step'];
+    const empty = {left: {x: [], y: []}, right: {x: [], y: []}};
+    expect(sampleJumpPieces(example, 2, -2)).toEqual(empty);
+    expect(sampleJumpPieces(example, NaN, 2)).toEqual(empty);
+    expect(sampleJumpPieces(example, -2, Infinity)).toEqual(empty);
+    const point = sampleJumpPieces(example, 1, 1, 3);
+    expect(point.left).toEqual({x: [], y: []});
+    expect(point.right.x).toEqual([1, 1, 1, 1]);
+    expect(point.right.y).toEqual([1, 1, 1, 1]);
 });
