@@ -51,6 +51,8 @@ const targets = {
     sequence: ['Certified reciprocal tail before tightening epsilon and moving its threshold', [button('Naslednji korak', 15), field('Širina pasu ε', 0.3, 'number'), field('Prag N', 5, 'number'), button('Pokaži certifikat')], [0, 1.2, 18, -0.2]],
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
+    // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
+    'linear-map': ['Example matrix A with the image grid, the unit square and its image, and a Bezier curve with its image', [field('Primer matrike', 'basis-default', 'select')], [-1.6, 6.6, 11.6, -1.47]],
     orientation: ['Default left turn p=(0,0), q=(4,0), r=(3,2) with line pq and the shaded triangle pqr', [], [-1.2, 3.6, 5.6, -1.2]],
     'polygon-area': ['The hull pentagon with its triangle fan and lattice points in the polygon area workspace', [], [-2.6, 6.4, 6.6, -1.4]],
     'convex-hull': ['Sample 1 of nine points after a few Next steps of the monotone chain trace, with the hull so far', [button('Naslednji korak', 4)], [-2.6, 6.4, 6.6, -1.4]],
@@ -250,6 +252,10 @@ function assertOutcomeEvidence(id, evidence) {
     if (id === 'farin') {
         assert.ok(evidence.controls.some(c=>c.label==='Farinove Točke' && c.checked));
         for (const [x,y] of [[-10/3,1],[-1,3],[3.5,0]]) assert.ok(evidence.points.some(p => Math.abs(p.x-x)<1e-8 && Math.abs(p.y-y)<1e-8), `Missing exact Farin division (${x},${y}): ${JSON.stringify(evidence.points)}`);
+    }
+    if (id === 'linear-map') {
+        assert.ok(evidence.controls.some(c => c.label === 'Primer matrike' && c.value === 'basis-default'), 'Example A must be selected');
+        for (const [x, y] of [[2, 1], [-1, 1]]) assert.ok(evidence.points.some(p => p.x === x && p.y === y), `Missing exact column handle (${x},${y}): ${JSON.stringify(evidence.points)}`);
     }
     if (id === 'bisection') assert.equal(evidence.readouts.step, '1', 'First exact bisection step required');
     if (id === 'fixed-point') assert.equal(evidence.readouts.step, '1', 'First exact cobweb step required');

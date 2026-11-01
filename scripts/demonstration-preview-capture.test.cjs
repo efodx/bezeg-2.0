@@ -90,6 +90,10 @@ test('semantic assertions reject empty, wrong-degree, missing-Farin and unreveal
     assert.throws(()=>assertOutcomeEvidence('repeated-subdivision',evidence),/original curve/);
     assert.throws(()=>assertOutcomeEvidence('farin',evidence));
     assert.throws(()=>assertOutcomeEvidence('extrema',evidence),/reveal/);
+    const linear={curves:5,points:[{x:2,y:1},{x:-1,y:1}],readouts:{},reveals:{},controls:[{label:'Primer matrike',value:'basis-default'}]};
+    assert.doesNotThrow(()=>assertOutcomeEvidence('linear-map',linear));
+    assert.throws(()=>assertOutcomeEvidence('linear-map',{...linear,controls:[{label:'Primer matrike',value:'identity'}]}),/Example A/);
+    assert.throws(()=>assertOutcomeEvidence('linear-map',{...linear,points:[{x:1,y:0},{x:0,y:1}]}),/column handle/);
     assert.throws(()=>assertOutcomeEvidence('bisection',evidence),/First/);
 });
 test('step provenance requires exact consecutive states and the common camera',()=>{

@@ -503,7 +503,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     demonstrationId: demonstration.id,
                     window: configuration.window || recipe.framing.window,
                     camera: configuration.camera,
-                    equalUnits: !recipe.framing.window || demonstration.id === 'complex-multiplication' || ['bezier', 'repeated-subdivision', 'affine', 'elevation', 'rational-elevation', 'extrapolation', 'rational-extrapolation'].includes(demonstration.id),
+                    equalUnits: !recipe.framing.window || ['complex-multiplication', 'linear-map'].includes(demonstration.id) || ['bezier', 'repeated-subdivision', 'affine', 'elevation', 'rational-elevation', 'extrapolation', 'rational-extrapolation'].includes(demonstration.id),
                     paddingFraction,
                     captureTextSize,
                     captureTextLineHeight,
