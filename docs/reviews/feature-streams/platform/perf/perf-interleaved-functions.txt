@@ -1,0 +1,36 @@
+### round 1 before accumulation drag $$x$$ (390
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":518,"median":16.7,"p95":150,"max":216.6,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":524,"median":16.7,"p95":116.7,"max":216.7,"effect":216.49}
+### round 1 before area-between drag $$b$$ (390
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":572,"median":16.7,"p95":116.6,"max":166.7,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":551,"median":16.7,"p95":83.3,"max":116.7,"effect":150.04}
+### round 1 after accumulation drag $$x$$ (390
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":495,"median":16.7,"p95":100,"max":150,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":502,"median":16.7,"p95":100.1,"max":200,"effect":216.49}
+### round 1 after area-between drag $$b$$ (390
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":561,"median":16.7,"p95":100,"max":150,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":565,"median":16.7,"p95":83.3,"max":100,"effect":150.04}
+### round 2 before accumulation drag $$x$$ (390
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":509,"median":16.7,"p95":100.1,"max":133.4,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":511,"median":16.7,"p95":133.3,"max":216.7,"effect":216.49}
+### round 2 before area-between drag $$b$$ (390
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":564,"median":16.7,"p95":100,"max":133.3,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":550,"median":16.7,"p95":83.3,"max":100,"effect":150.04}
+### round 2 after accumulation drag $$x$$ (390
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":507,"median":16.7,"p95":116.6,"max":183.3,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":516,"median":16.7,"p95":150,"max":233.4,"effect":216.49}
+### round 2 after area-between drag $$b$$ (390
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":558,"median":16.7,"p95":116.6,"max":149.9,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":541,"median":16.7,"p95":83.3,"max":116.7,"effect":150.04}
+### round 3 before accumulation drag $$x$$ (390
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":502,"median":16.7,"p95":100,"max":150.1,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":500,"median":16.7,"p95":100.1,"max":166.6,"effect":216.49}
+### round 3 before area-between drag $$b$$ (390
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":537,"median":16.7,"p95":66.7,"max":116.7,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":529,"median":16.7,"p95":83.3,"max":133.3,"effect":150.04}
+### round 3 after accumulation drag $$x$$ (390
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":515,"median":16.7,"p95":116.6,"max":166.6,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":497,"median":16.7,"p95":83.4,"max":100,"effect":216.49}
+### round 3 after area-between drag $$b$$ (390
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":559,"median":16.7,"p95":83.3,"max":133.2,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":567,"median":16.7,"p95":83.4,"max":116.7,"effect":150.04}

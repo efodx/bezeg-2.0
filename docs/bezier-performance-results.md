@@ -413,3 +413,29 @@ Method: `node scripts/playground-perf.cjs` against `just preview 4312`. Each run
 | JSXGraph phone baseline (Nord N10, Chrome 153) | 100 | 183 | — | for comparison |
 
 Limits: the figures are rAF intervals, which saturate at the 16.7 ms refresh interval, so a median of 16.7 ms means "no sustained drops", not headroom. The throttle is a desktop CPU slowdown, not a phone, and the headless browser has no real GPU compositing of a touch device. The targets name only the median; the inspect-block p95 under throttling is reported as a tail concern. No real phone was measured. The drag lasts longer than the nominal 2 s because each scripted move is a round trip.
+
+## Curve gestures and function slider drags — 2026-11-01
+
+Before/after measurement for [backlog tasks 6 and 8](tasks/architecture-deepening-backlog/README.md), as [the performance plan](performance-plan.md) requires. Before = production build of `51e2e54b`; after = production build of `d1162c43` (same `src` as `648d676f`). Machine as above, shared with other sessions' test runs; headless Chromium via Playwright, mouse input, 60 Hz. Raw output: [perf/](reviews/feature-streams/platform/perf/).
+
+Method: `node scripts/curve-gesture-perf.cjs` drags the curve body, a bounding-box corner (resize) and the rotation ring on `/bezier/curve`, `/rational/base` and `/spline/c2spline`. `node scripts/function-slider-perf.cjs` drags the bound point on `/functions/integral`, `/functions/area-between` and `/analysis/darboux`, drags `x` on `/analysis/accumulation`, and clicks "next step" on `/analysis/bisection`. Both sample `requestAnimationFrame` intervals inside the gesture after 15 warm-up frames, and fail if the gesture had no effect on the board or fewer than 60 frames were sampled. Throttled cases use CDP CPU throttling 4 at 390×844. Each cell gives the median of the per-run p95s.
+
+**Desktop 1440×900, no throttle:** every curve and function case has a median of 16.7 ms and a p95 of 16.7–16.8 ms, before and after.
+
+**Curves, drag, 390×844, 4× CPU, p95 ms (3 runs):** bezier 33.4 → 33.4; rational 50.0 → 33.4; c2spline 50.1 → 50.0.
+
+**Functions, 390×844, 4× CPU, p95 ms.** The first two columns are 3 runs per build, run one build after the other. The interleaved columns serve both builds at once and alternate between them, in 3 rounds × 2 runs, so 6 runs per build:
+
+| Case | Before | After | Before, interleaved (range) | After, interleaved (range) |
+|---|---|---|---|---|
+| integral drag b | 50.0 | 50.0 | — | — |
+| area-between drag b | 66.7 | 100.0 (rerun 83.4) | 83.3 (66.7–116.6) | 83.4 (83.3–116.6) |
+| accumulation drag x | 83.4 | 150.0 (rerun 100.0) | 108.4 (100–150) | 108.4 (83.4–150) |
+| darboux drag b | 50.0 | 50.1 | — | — |
+| bisection clicks | 16.8 | 16.8 | — | — |
+
+The apparent area-between and accumulation regression in the sequential runs does not reproduce when the runs are interleaved. The code does the same per-frame work in both builds (see [task 8 evidence](tasks/architecture-deepening-backlog/08-function-graph-sharing.evidence.md#measurement)).
+
+**Rotation defect:** with `PERF_ROTATE_JITTER=0`, a pointer step lies exactly vertical over the centre. Before, rational rotate makes every control point non-finite; after, all three rotate cases pass.
+
+Limits: the scripts use mouse input only; touch was checked separately in the browser smoke. They measure rAF intervals, which saturate at 16.7 ms. The 4× throttle is a desktop slowdown, not a phone. Load from other sessions was not controlled, which is why only interleaved runs separate a build difference from load.
