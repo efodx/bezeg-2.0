@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {COMPACT_BOARD_WIDTH, DomainError, LabelPlacement} from "../functions/BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -21,8 +21,6 @@ import {
     shoelace, sourceGridPolyline,
 } from "./linearMapScene";
 import {linearMapPresetCollection} from "./linearMapPresetCollection";
-
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * The default view: the grid covers [-6, 6]^2, and the default example's image of the fixture curve reaches (11, 4). The units of the
