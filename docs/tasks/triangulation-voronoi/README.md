@@ -23,6 +23,7 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 | 04 | [Delaunay construction and Lawson trace](04-delaunay-lawson.md) (B3 examples, brute-force oracle) | F1 | 03 | accepted 2026-10-31 (math review; count wording) |
 | 05 | [Voronoi value with exact rational vertices and duality](05-voronoi-value.md) (B4 example) | F1 | 04, triangle geometry 02 (`circumcentre`) | accepted 2026-11-01 (handler 10; Sonnet `high`, math review no correctness findings, 3 test gaps closed) |
 | 08 | [Ear-clipping registration](08-ear-clipping-registration.md) | F2b | 07, `G-REG` | accepted 2026-11-01 (handler 15) |
+| 09 | [Ear-clipping lesson actions and lesson B1](09-ear-clipping-lesson.md) | F3 | 07, 08 | planned 2026-11-01 (handler 16) |
 
 ## Later batches
 
