@@ -95,8 +95,12 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
         if (prevState !== this.state && prevState.curvatureT !== this.state.curvatureT) this.boardUpdate();
     }
 
-    override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? super.getGraphCommands().concat(this.parameterSlider()) : [];
+    /**
+     * Structured editing does not render `getGraphCommands`, so the parameter slider is its own Edit group, first
+     * because the Demonstration is about moving t.
+     */
+    protected override workspaceEdit(): React.ReactNode {
+        return <>{this.state.initialized && this.parameterSlider()}{super.workspaceEdit()}</>;
     }
 
     setCurvatureT(value: number) {
@@ -104,7 +108,7 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
     }
 
     private parameterSlider() {
-        return <div><Slider min={0} max={1} step={0.01} value={this.state.curvatureT}
+        return <div className="inspector-group"><Slider min={0} max={1} step={0.01} value={this.state.curvatureT}
                             customText={t("curvature_parameter_t")}
                             onChange={value => this.setCurvatureT(value)}/></div>;
     }

@@ -1,7 +1,9 @@
 import React from 'react';
-import {render} from '@testing-library/react';
+import {fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import CurvatureBezierCurveGraph from './CurvatureBezierCurveGraph';
+import CurvatureBezierCurveGraph, {CURVATURE_T_DEFAULT} from './CurvatureBezierCurveGraph';
+import {currentLanguage, t} from '../../../localization';
+import {formatNumber} from '../../../analysis/format';
 import {GraphHost} from '../../base/GraphHost';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
@@ -43,4 +45,26 @@ test('on a real board the overlay exists after initialize, is recreated once by 
     const owned = [...graph['overlay']!.ownedElements()];
     view.unmount();
     expect(owned.some(element => board.objectsList.includes(element))).toBe(false);
+});
+
+test('the Edit tab offers the parameter slider, and moving it changes the board readout', () => {
+    const graph = new ObservedCurvatureGraph();
+    const host = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    const readout = () => (graph.liveBoard().objectsList as Array<{elType: string; plaintext?: string}>)
+        .find(o => o.elType === 'text' && (o.plaintext ?? '').includes('κ'))?.plaintext;
+    const slider = screen.getByRole('slider', {name: t('curvature_parameter_t')});
+    expect(slider).toHaveValue(String(CURVATURE_T_DEFAULT));
+    const before = readout();
+    // Parabola y = x^2 at its vertex (t = 1/2): kappa = 2, R = 1/2.
+    expect(before).toContain(formatNumber(2, currentLanguage(), 4));
+
+    fireEvent.change(slider, {target: {value: '0.9'}});
+    expect(graph.state.curvatureT).toBe(0.9);
+    expect(screen.getByRole('slider', {name: t('curvature_parameter_t')})).toHaveValue('0.9');
+    const after = readout();
+    expect(after).toBeTruthy();
+    expect(after).not.toBe(before);
+    // At t = 0.9, x = 0.8: kappa = 2 / (1 + 4x^2)^(3/2).
+    expect(after).toContain(formatNumber(2 / Math.pow(1 + 4 * 0.64, 1.5), currentLanguage(), 4));
+    host.unmount();
 });
