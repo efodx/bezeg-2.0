@@ -166,6 +166,14 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
         return {...DEFAULT_INSCRIBED_MODEL, points: DEFAULT_INSCRIBED_MODEL.points.map(p => ({...p}))};
     }
 
+    /**
+     * The default triangle (0,0), (7,0), (2,5) and its whole circumcircle (centre (7/2,3/2), R about 3.81) with a margin; the app
+     * default box would put the vertex C on the frame.
+     */
+    protected override initialView(): [number, number, number, number] {
+        return [-1, 6, 8, -3];
+    }
+
     override presetCollection(): PresetCollection<PointSetModel> {
         return inscribedAngleCollection;
     }

@@ -129,8 +129,8 @@ test('the right and obtuse examples report the checked positions and move the co
     expect(graph.exampleId).toBe('obtuse');
     expect(text('[data-notable-chip]')).toBe('Vrsta trikotnika: topokotni');
     expect(centreRow('circumcentre')?.textContent).toBe('O = (7/2, −5/2), zunaj trikotnika');
-    // H = (1, 6) is above the default view box (y <= 5), so the row also says so.
-    expect(centreRow('orthocentre')?.textContent).toBe('H = (1, 6), zunaj trikotnika; zunaj pogleda');
+    // The default view (y up to at least 6) frames H = (1, 6), so the obtuse example shows it without Show all.
+    expect(centreRow('orthocentre')?.textContent).toBe('H = (1, 6), zunaj trikotnika');
     expect(centreRow('centroid')?.textContent).toBe('G = (8/3, 1/3), znotraj trikotnika');
     const o = named(graph, 'O')[0];
     expect([o.X!(), o.Y!()]).toEqual([3.5, -2.5]);
