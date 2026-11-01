@@ -5,17 +5,17 @@ Handler 9 (Opus 5.5, `--permission-mode auto`, `--effort medium`) wrote this not
 ## State
 
 - **Worktree:** `.claude/worktrees/stream-functions`, branch `worktree-stream-functions`. The `node_modules` junction points to the main install; delete it before removing the worktree.
-- **Pushed to `master`:** `723e285f` (run state active), then `45571d42` and `c428fe92` with this note's status records. The push commit is in the stream file's history.
+- **Pushed to `master`:** `723e285f` (run state active), then `d02c957b` and `5aa493ba` with this note's status records. The push commit is in the stream file's history.
 - **Accepted this session:**
-  - Numerical methods 04 **F2a**, `45571d42`: `src/analysis/rootFindingModel.ts`, `src/graphs/functions/RootFindingGraph.tsx`, `rootFindingMessages.ts`, Preset collection `root-finding`, 58 locale keys after `bisection_note`, and four Slovenian terms in `docs/localization.md`: tangentna (Newtonova) metoda, sekantna metoda, približek, začetni približek. Sonnet review found nothing of medium severity or higher. The handler added `aria-label` to the iterate table.
-  - Projective 06 **F2b**, `c428fe92`: Projective family, routes `/bezeg-2.0/projective/{cross-ratio,pascal,pole-polar}`, `PresetImport` registration, preview recipes, and posters in `POSTER_PENDING`. Fixes found by registration:
+  - Numerical methods 04 **F2a**, `d02c957b`: `src/analysis/rootFindingModel.ts`, `src/graphs/functions/RootFindingGraph.tsx`, `rootFindingMessages.ts`, Preset collection `root-finding`, 58 locale keys after `bisection_note`, and four Slovenian terms in `docs/localization.md`: tangentna (Newtonova) metoda, sekantna metoda, približek, začetni približek. Sonnet review found nothing of medium severity or higher. The handler added `aria-label` to the iterate table.
+  - Projective 06 **F2b**, `5aa493ba`: Projective family, routes `/bezeg-2.0/projective/{cross-ratio,pascal,pole-polar}`, `PresetImport` registration, preview recipes, and posters in `POSTER_PENDING`. Fixes found by registration:
     - `exportPreset` drops `model` from `graphState`;
     - each collection is one shared object per key;
     - Reset uses `initialView()`, the same box as start-up;
     - the transient-state contract declares the three ids in `PRESET_DATA_STATE_KEYS`, and `realGraphScenes.perturbModel` switches example by collection key.
 
     Browser frames are in the ADR 0033 "Browser measurement (slice 06)" section. Drags hold 60 Hz. The K2 conic switch has p95 66.6 ms, once per click, so no bound or density change.
-- **Checks at `c428fe92`:**
+- **Checks at `c428fe92` (now `5aa493ba`; typecheck and `src/learning` + demonstrations unit rechecked at `ffa32040`, both passed):**
   - `just typecheck` passed.
   - `just build` passed.
   - `just unit` on Routes, demonstrations, DemonstrationsPage, preview assets, `src/learning`, `src/graphs/base`, `src/graphs/projective`, `src/graphs/functions` and rootFinding passed. Two Maps contract failures appeared in it; Maps fixed them in `a8407d3b`, and a rerun of `GraphTransientState` after rebasing over it passed.
