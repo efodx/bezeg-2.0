@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const {validateControlStep} = require('./guided-example-control-steps.cjs');
 const {validateInventory, validateRecipe, recipeFingerprint} = require('./guided-example-preview-api.cjs');
 const {generatePatchGuidedExampleInventory} = require('./patch-guided-example-expectations.cjs');
 
@@ -92,6 +93,12 @@ function resolveRecipe(id, lesson, authored) {
         if (step.kind === 'goto-frame') {
             current = locateFrame(id, lesson, step.frame, where);
             return {kind: 'goto-frame', frame: step.frame, position: current.position};
+        }
+        if (step.kind === 'explore') return {kind: 'explore'};
+        if (step.kind === 'select-tab' || step.kind === 'set-control') {
+            validateControlStep(id, step, where);
+            return step.kind === 'select-tab' ? {kind: 'select-tab', tab: step.tab}
+                : {kind: 'set-control', control: step.control, label: step.label, value: step.value};
         }
         assert.equal(step.kind, 'frame-action', `${id}: ${where} has unknown kind ${JSON.stringify(step.kind)}`);
         const action = current.frame.action;
