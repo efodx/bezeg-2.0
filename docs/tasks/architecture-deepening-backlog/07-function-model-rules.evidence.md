@@ -223,3 +223,24 @@ Learner-visible paths for these messages: lesson actions propagate the error; `G
   - When the linear-map lesson is authored, localize `:178,188`, or unit-apply all of its authored actions.
 - **Review:** `bezeg-reviewer` Sonnet found no defects. One low finding (the borrowed integral label) is fixed.
 - **Handler checks on the final tree:** `just typecheck`, `just lint src` and `just unit src/graphs/functions src/localization` passed.
+
+## A7 verification (2026-11-01)
+
+- **Full suite:** `just check` (typecheck, lint, all unit tests, production build) passed on clean `19829899`.
+- **Browser:** a `bezeg-smoke` Haiku run against `just preview 4311`, serving clean `19829899` (Chromium headless, 1440×900, fresh context per row). All 8 rows passed with no console or page errors.
+  - Routes `/analysis/bisection` and `/analysis/accumulation`, in SL and EN.
+  - Baseline board: passed on both routes in both languages.
+  - Out-of-range field input: the `p.number-input-hint[role=status]` hint showed "Vnesi vrednost med −4 in 4." / "Enter a value between −7 and 7." and cleared after a valid value.
+  - Invalid Preset import (`.modal [role=alert]`), with storage unchanged:
+    - Bisection, a = −4.5: "Datoteka ni podprta: krajišči a in b morata biti števili med −4 in 4; …"
+    - Accumulation, fn = cos: "Unsupported file: the field fn must be one of: square, sin, exp; …"
+  - Not covered: dragging and sliders (unchanged by A7).
+- **Acceptance against the task:**
+  - Each diagnosed model owns its validity, normalization and diagnosis (slices 2a–2d).
+  - No English setter text reaches learners from function graphs (slice 2e). The remaining LinearMap kernel texts have no learner path; see the slice 2e LinearMap decision.
+  - The existing collection tests pass. Stored-file tests are unchanged.
+- **Deferred lows:**
+  - Duplicated identical keys (`*_example_rejected`, `*_endpoint_range_rejected`) could later share the 2e keys.
+  - The complex hint texts hard-code their ranges.
+  - Rule ownership for the eight undiagnosed parsers.
+  - LinearMap `:178,188` when its lesson is authored.
