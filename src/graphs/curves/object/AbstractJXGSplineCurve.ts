@@ -24,6 +24,11 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
     constructor(points: number[][], board: Board) {
         super(points, board);
         this.pointControlledCurve.generateBezierCurves();
+        this.reconcileSplineDrawing();
+    }
+
+    /** Redraws the computed points and relabels every point once, after the model's spans changed. */
+    protected reconcileSplineDrawing() {
         this.refreshNonFreeJsxGraphPoints();
         this.labelJxgPoints();
     }
@@ -31,8 +36,7 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
     override addPoint(x: number, y: number) {
         let p = this.createEditableInputPoint(x, y, this.styles.point.pi(this.pointControlledCurve.getPoints().length, () => this.isShowingJxgPoints()));
         this.pointControlledCurve.addPoint(p);
-        this.refreshNonFreeJsxGraphPoints();
-        this.labelJxgPoints();
+        this.reconcileSplineDrawing();
     }
 
     override removePoint(i: number) {
@@ -44,8 +48,7 @@ export abstract class AbstractJXGSplineCurve<C extends BezierSpline> extends Abs
         this.board.removeObject(pointToRemove);
         this.pointControlledCurve.removePoint(modelPoint);
         this.jxgPoints = this.jxgPoints.filter(point => point !== pointToRemove);
-        this.refreshNonFreeJsxGraphPoints();
-        this.labelJxgPoints();
+        this.reconcileSplineDrawing();
     }
 
     getAllFreeJxgPoints() {

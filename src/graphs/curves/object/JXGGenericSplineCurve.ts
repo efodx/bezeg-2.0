@@ -1,6 +1,6 @@
 import {AbstractJXGSplineCurve, JSXSplineConstructorParams} from "./AbstractJXGSplineCurve";
 import {Board} from "jsxgraph";
-import {GenericBezierSpline} from "../../../bezeg/impl/curve/GenericBezierSpline";
+import {GenericBezierSpline, GenericSplineChange} from "../../../bezeg/impl/curve/GenericBezierSpline";
 import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
 
 export interface JSXGenericSplineConstructorParams extends JSXSplineConstructorParams {
@@ -13,12 +13,14 @@ export class JXGGenericSplineCurve extends AbstractJXGSplineCurve<GenericBezierS
     constructor(points: number[][], continuity: number, degree: number, board: Board) {
         super(points, board);
         this.board.suspendUpdate();
-        this.pointControlledCurve.setContinuity(continuity);
-        this.pointControlledCurve.setDegree(degree);
-        this.pointControlledCurve.generateBezierCurves();
-        this.refreshNonFreeJsxGraphPoints();
-        this.labelJxgPoints();
-        this.board.unsuspendUpdate();
+        try {
+            // A stored Preset may hold a degree above the change limit, so it restores rather than changes.
+            if (this.pointControlledCurve.restore(degree, continuity)) {
+                this.reconcileSplineDrawing();
+            }
+        } finally {
+            this.board.unsuspendUpdate();
+        }
     }
 
     static toDto(curve: JXGGenericSplineCurve): JSXGenericSplineConstructorParams {
@@ -54,46 +56,20 @@ export class JXGGenericSplineCurve extends AbstractJXGSplineCurve<GenericBezierS
             });
     }
 
-    increaseContinuity() {
-        if (this.getCurve().getContinuity() + 1 === this.getCurve().getDegree()) {
-            return;
+    /**
+     * Moves the spline to a completed degree/continuity target (see `GenericBezierSpline.change`) and
+     * redraws the computed points and labels once.
+     *
+     * @returns whether anything changed
+     * @throws RangeError when the target is rejected; the curve and drawing are then untouched
+     */
+    changeSpline(target: GenericSplineChange): boolean {
+        if (!this.getCurve().change(target)) {
+            return false;
         }
-        this.getCurve().setContinuity(this.getCurve().getContinuity() + 1);
-        this.getCurve().generateBezierCurves();
-        this.refreshNonFreeJsxGraphPoints();
-        this.labelJxgPoints();
+        this.reconcileSplineDrawing();
+        return true;
     }
-
-    decreaseContinuity() {
-        if (this.getCurve().getContinuity() === 0) {
-            return;
-        }
-        this.getCurve().setContinuity(this.getCurve().getContinuity() - 1);
-        this.getCurve().generateBezierCurves();
-        this.refreshNonFreeJsxGraphPoints();
-        this.labelJxgPoints();
-    }
-
-    increaseDegree() {
-        if (this.getCurve().getContinuity() === this.getCurve().getDegree() + 1) {
-            return;
-        }
-        this.getCurve().setDegree(this.getCurve().getDegree() + 1);
-        this.getCurve().generateBezierCurves();
-        this.refreshNonFreeJsxGraphPoints();
-        this.labelJxgPoints();
-    }
-
-    decreaseDegree() {
-        if (this.getCurve().getContinuity() === this.getCurve().getDegree() - 1) {
-            return;
-        }
-        this.getCurve().setDegree(this.getCurve().getDegree() - 1);
-        this.getCurve().generateBezierCurves();
-        this.refreshNonFreeJsxGraphPoints();
-        this.labelJxgPoints();
-    }
-
 
     protected getInitialCurve(points: number[][]): GenericBezierSpline {
         const modelPoints = points.map((point, i) => this.createEditableInputPoint(point[0], point[1], this.styles.point.pi(i, () => this.isShowingJxgPoints())));

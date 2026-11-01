@@ -84,26 +84,52 @@ describe('spline-continuity', () => {
 });
 
 describe('spline-degree', () => {
-    test('accepts continuity+1 up to the number of curve points (the counter bound)', () => {
+    test('accepts continuity+1 up to one below the number of free points (the counter bound)', () => {
         const graph = makeGraph(CnSplineGraph, genericCurve(3, 1));
         apply(graph, {kind: 'spline-degree', value: 2});
         expect(dc(graph)).toEqual([2, 1]);
-        apply(graph, {kind: 'spline-degree', value: 7});
-        expect(dc(graph)).toEqual([7, 1]);
+        apply(graph, {kind: 'spline-degree', value: 6});
+        expect(dc(graph)).toEqual([6, 1]);
+        expect(() => apply(graph, {kind: 'spline-degree', value: 7})).toThrow(/from 2 to 6/);
     });
 
     test.each([1, 0, 10, 2.5, NaN, -Infinity, '3'])('rejects %p at continuity 1 without mutation', value => {
         const graph = makeGraph(CnSplineGraph, genericCurve(3, 1));
-        // The bound is the CountSetter's: all curve points, derived ones included (9 at degree 3).
+        // The bound is the model's own degree limit, one below the 7 free points; the 9 curve points at degree 3 include derived ones.
         expect(graph.getFirstJxgCurve().getCurve().getPoints().length).toBe(9);
         expect(() => apply(graph, {kind: 'spline-degree', value})).toThrow(/degree/);
         expect(dc(graph)).toEqual([3, 1]);
         expect(graph.requestRender).not.toHaveBeenCalled();
     });
 
+    test('rejects a degree above the free points even where derived points would allow it (degree limit)', () => {
+        const graph = makeGraph(CnSplineGraph, genericCurve(2, 1));
+        // At degree 2 the curve lists 11 points (7 free, 4 derived); a degree of 7 or more is the degree-6 Bezier piece under a wrong name.
+        expect(graph.getFirstJxgCurve().getCurve().getPoints().length).toBe(11);
+        expect(() => apply(graph, {kind: 'spline-degree', value: 11})).toThrow(/from 2 to 6/);
+        expect(() => apply(graph, {kind: 'spline-degree', value: 7})).toThrow(/degree/);
+        expect(dc(graph)).toEqual([2, 1]);
+        expect(graph.requestRender).not.toHaveBeenCalled();
+    });
+
+    test('one action is one completed change: a single redraw and board update however far it moves', () => {
+        const curve = genericCurve(2, 1);
+        const graph = makeGraph(CnSplineGraph, curve);
+        const generate = vi.spyOn(curve.getCurve(), 'generateBezierCurves');
+        apply(graph, {kind: 'spline-degree', value: 6});
+        expect(dc(graph)).toEqual([6, 1]);
+        expect(generate).toHaveBeenCalledTimes(1);
+        expect((curve as any).refreshNonFreeJsxGraphPoints).toHaveBeenCalledTimes(1);
+        expect(curve.labelJxgPoints).toHaveBeenCalledTimes(1);
+        expect(graph.unsuspendBoardUpdate).toHaveBeenCalledTimes(1);
+        apply(graph, {kind: 'spline-degree', value: 6});
+        expect(generate).toHaveBeenCalledTimes(1);
+        expect((curve as any).refreshNonFreeJsxGraphPoints).toHaveBeenCalledTimes(1);
+    });
+
     test('the degree floor follows the current continuity', () => {
         const graph = makeGraph(CnSplineGraph, genericCurve(4, 3));
-        expect(() => apply(graph, {kind: 'spline-degree', value: 3})).toThrow(/from 4 to 13/);
+        expect(() => apply(graph, {kind: 'spline-degree', value: 3})).toThrow(/from 4 to 6/);
         apply(graph, {kind: 'spline-continuity', value: 1});
         apply(graph, {kind: 'spline-degree', value: 2});
         expect(dc(graph)).toEqual([2, 1]);

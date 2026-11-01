@@ -246,11 +246,6 @@
       "count": 1
     }
   },
-  "src/graphs/curves/spline/CnSplineGraph.tsx": {
-    "@typescript-eslint/no-unused-expressions": {
-      "count": 2
-    }
-  },
   "src/graphs/functions/DarbouxGraph.tsx": {
     "@typescript-eslint/no-unused-vars": {
       "count": 2
