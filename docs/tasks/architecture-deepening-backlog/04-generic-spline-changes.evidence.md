@@ -74,7 +74,7 @@ Tests: `spline-structure.test.ts` (model: valid pairs, intermediate-invalid targ
 
 ## Handler verification (2026-11-01)
 
-- `just check` on `3e8ddaf0` (before the rebase): typecheck, lint, 360 files / 6561 tests and the production build passed. The two `lessonRestoration.part1` timeouts seen under load did not recur. After the rebase onto `origin/master` (`24b8c862`), the check rerun was killed by OS memory pressure during lint. It is pending owner approval to restart, and nothing goes to `master` until it passes.
+- `just check` on `3e8ddaf0` (before the rebase): typecheck, lint, 360 files / 6561 tests and the production build passed. The two `lessonRestoration.part1` timeouts seen under load did not recur. After the rebase onto `origin/master` (`dc899f60`), the check passed again on `2f28b020`: 383 files / 7039 tests (1 skipped) and the build. An earlier rerun was killed by OS memory pressure and was restarted with owner approval.
 - Browser (`bezeg-smoke` Haiku, production preview on port 4311 from that build, Chromium 1440×900, fresh context) on `/bezeg-2.0/spline/spline`:
   - The heading and the curve board render.
   - The degree starts at 2 and its plus button disables at 6. At degree 6 one segment has 7 points p0..p6, so the top degree is points−1.

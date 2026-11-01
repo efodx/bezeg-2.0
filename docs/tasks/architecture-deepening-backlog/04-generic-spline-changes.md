@@ -1,6 +1,6 @@
 # 4. Completed generic spline changes
 
-Status: accepted 2026-11-01 in `2261094e` (platform stream; evidence in [04-generic-spline-changes.evidence.md](04-generic-spline-changes.evidence.md)). Lane: Curves. Source: [specification §4](../../specs/architecture-deepening-backlog.md#4-completed-generic-spline-changes).
+Status: accepted 2026-11-01 in `c620ad48` (platform stream; evidence in [04-generic-spline-changes.evidence.md](04-generic-spline-changes.evidence.md)). Lane: Curves. Source: [specification §4](../../specs/architecture-deepening-backlog.md#4-completed-generic-spline-changes).
 
 ## Scope and entry points
 
