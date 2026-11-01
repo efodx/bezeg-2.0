@@ -20,17 +20,17 @@ const authored: Readonly<Record<string, SequenceSpec>> = {
         'worked-join': ['p0', 'e:splines.worked-join.spline-c1.parabola-derivatives', 'p1', {sl: 'Paraboli sta \\(C^1\\) pri obravnavani parametrizaciji, medtem ko je za \\(C^2\\) potrebna dodatna enačba za \\(a\\).', en: 'The parabolas are \\(C^1\\) under this parametrization, while \\(C^2\\) requires an additional equation for \\(a\\).'}, 'p2'],
     },
     'ph-curves': {
-        'arc-length-problem': ['p0', 'f', 'fig0', 'p1', 'e:ph-curves.arc-length-problem.ph-cubic-speed', {sl: 'Kubični primer loči polinomsko hitrost od splošno težavnega integrala hitrosti.', en: 'The cubic example separates polynomial speed from the generally difficult speed integral.'}, 'e:ph-curves.arc-length-problem.ph-quintic-comparison'],
+        'arc-length-problem': ['p0', 'f', 'p1', 'e:ph-curves.arc-length-problem.ph-cubic-speed', {sl: 'Kubični primer loči polinomsko hitrost od splošno težavnega integrala hitrosti.', en: 'The cubic example separates polynomial speed from the generally difficult speed integral.'}, 'e:ph-curves.arc-length-problem.ph-quintic-comparison'],
         'complex-hodograph': ['p0', 'e:ph-curves.complex-hodograph.ph-cubic-generator', 'p1'],
         'worked-length': ['p0', 'p1', 'e:ph-curves.worked-length.ph-cubic-offset-length', 'p2'],
-        offsets: ['p0', 'p1', 'fig0', 'e:ph-curves.offsets.ph-quintic-offsets', 'p2'],
+        offsets: ['p0', 'p1', 'e:ph-curves.offsets.ph-quintic-offsets', 'p2'],
         'investigate-ph': ['p0', 'e:ph-curves.investigate-ph.ph-cubic-singularity', {sl: 'Odmiki kubične in kvintične krivulje obravnavaj ločeno, saj se njuna geometrija in singularnosti razlikujejo.', en: 'Treat cubic and quintic offsets separately because their geometry and singularities differ.'}, 'e:ph-curves.investigate-ph.ph-quintic-singularity', 'p1'],
     },
     parametrization: {
-        'trace-vs-parameter': ['p0', 'f', 'fig0', 'fig1', 'p1'],
+        'trace-vs-parameter': ['p0', 'f', 'p1'],
         'weighted-knot': ['p0', 'f', 'p1', 'e:parametrization.weighted-knot.spline-parameterization', {sl: 'Utež \\(\\alpha\\) spreminja dodelitev vozlišč in lahko spremeni tudi rekonstruirano geometrijo zlepka.', en: 'The weight \\(\\alpha\\) changes knot allocation and can also change the reconstructed spline geometry.'}, 'e:parametrization.weighted-knot.weighted-parameterization', 'p2'],
         'worked-timing': ['p0', 'p1'],
-        'uniform-timing': ['p0', 'f', 'fig0', 'e:parametrization.uniform-timing.uniform-parameterization', 'p1'],
+        'uniform-timing': ['p0', 'f', 'e:parametrization.uniform-timing.uniform-parameterization', 'p1'],
         'investigate-param': ['p0', 'p1'],
     },
     'functions-and-calculus': {

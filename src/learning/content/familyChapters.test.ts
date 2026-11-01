@@ -220,18 +220,10 @@ describe('family reading chapters', () => {
         expect(worked).toContain('initial point at the origin');
         expect(worked).toContain('translation');
 
-        const figures = chapter.sections.flatMap(section => section.figures ?? []);
-        expect(figures.map(figure => figure.src)).toEqual([
-            demonstrationPreviewAssets['ph-cubic'], demonstrationPreviewAssets['ph-quintic'],
-        ]);
-        expect(figures.every(figure => figure.alt.sl.trim() && figure.alt.en.trim())).toBe(true);
-        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
-        expect(captions).toContain('0{,}35');
-        expect(captions).toContain('0.35');
-        expect(captions).toContain('0{,}5');
-        expect(captions).toContain('0.5');
-        expect(captions).toContain('integrirana');
-        expect(captions).toContain('integrated');
+        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
+        const prompts = chapter.sections.flatMap(section => Object.values(section.investigationPrompts ?? {})).map(prompt => `${prompt!.sl} ${prompt!.en}`).join(' ');
+        expect(prompts).toContain('not the curve integrated from the origin');
+        expect(prompts).not.toMatch(/captur|zajet/iu);
 
         const offsets = chapter.sections.find(section => section.id === 'offsets')!.paragraphs
             .map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
@@ -269,18 +261,11 @@ describe('family reading chapters', () => {
                 expect(section.investigationPrompts?.[id]?.en, `${section.id}/${id} EN`).toBeTruthy();
             }
         }
-        const figures = chapter.sections.flatMap(section => section.figures ?? []);
-        expect(figures.map(figure => figure.src)).toEqual([
-            demonstrationPreviewAssets['spline-parameterization'],
-            demonstrationPreviewAssets['weighted-parameterization'],
-            demonstrationPreviewAssets['uniform-parameterization'],
-        ]);
-        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
-        expect(captions).toContain('0{,}7');
-        expect(captions).toContain('12');
-        expect(captions).toContain('0{,}25');
-        expect(captions).toContain('weighted mode');
-        expect(captions).toContain('not arc-length mode');
+        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
+        const prose = chapter.sections.flatMap(section => section.paragraphs).map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        expect(prose).toContain('is not a reparametrization of one curve');
+        expect(prose).toContain('do not prove equal arc lengths');
+        expect(prose).not.toMatch(/captur|zajet/iu);
     });
 
     test('gives every calculus destination supported bilingual exploration and uses the captured calculus figures', () => {
