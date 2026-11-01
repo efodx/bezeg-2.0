@@ -1435,3 +1435,11 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Implementation: one `bezeg-worker` requested as Sonnet `high`, brief `handoff-v12` (adds: stop and report if the spec's C2 data does not reproduce the listed crossings; the random oracle must not call `segments.ts`). 17 tools, about 50k tokens, 4.0 min. All checks passed first time: unit 52/52 in the folder, lint, tsc. The mutations failed 6 and 7 tests.
 - Review: one `bezeg-reviewer` Sonnet mathematical review. 6 tools, about 31k tokens, 0.5 min. No findings: it verified two crossings and the below-the-line tie-break sign by hand. No repairs. Accepted 00:44Z.
 - Judgment: second first-pass kernel in a row from a task file with exact oracle data and named mutations.
+
+## 2026-11-01 — Sweep S1 09 Bentley–Ottmann graph review and acceptance (geometry handlers 14–15)
+
+- Class F2a graph, size L, [task 09](../tasks/sweep-algorithms/09-bentley-ottmann-graph.md). Handler 15 Opus 5.5, effort medium. Implementation (09a, 09b Sonnet workers under handler 14) is recorded in [handoff 14](../reviews/feature-streams/geometry/handler-handoff-14.md); this record covers review and acceptance.
+- Review: two parallel `bezeg-reviewer` Sonnet `medium`, dispatched 05:16Z, brief `handoff-v12`. Engineering+math: 21 tools, about 58k tokens, 1.5 min; no high, two medium (fraction text with ASCII `-` beside a decimal with U+2212; perf test writing into `docs/reviews/` on every unit run), lows accepted. UI/accessibility: 9 tools, about 36k tokens, 0.8 min; no high or medium, five lows (one, SL terms, closed by the handler against the spec's term table).
+- Repairs: handler-only (two local findings). Minus sign in `rationalText`, with a new unit test and host expectation; mutation without the fix failed 2 tests. Perf test made opt-in (`BEZEG_PERF`), ceiling 1000 ms. Checks: compgeo unit, full `just unit` 380 files / 6934 tests (1 skipped, the perf test), lint on touched files, build with tsc; opt-in perf rerun median 20.4 ms. Accepted 05:30Z.
+- Gaps: side lists and board marks not seen in a browser until registration (S1 F2b).
+- Judgment: the handler had already flagged the perf test's file writes before the review returned; the engineering reviewer independently reported the same, plus the sign defect no test covered.

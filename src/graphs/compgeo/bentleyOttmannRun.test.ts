@@ -87,4 +87,9 @@ describe('rationalText', () => {
         expect(rationalText(Rational.of(1, 3), decimal)).toMatchObject({fraction: '1/3', decimal: '0,3333', exact: false});
         expect(rationalText(Rational.of(3), decimal)).toMatchObject({fraction: '3', integer: true});
     });
+    test('writes a negative fraction and integer with the app minus sign', () => {
+        const signed = (v: number, d: number) => decimal(v, d).replace('-', '−');
+        expect(rationalText(Rational.of(-3, 4), signed)).toMatchObject({fraction: '−3/4', decimal: '−0,75', exact: true});
+        expect(rationalText(Rational.of(-1), signed)).toMatchObject({fraction: '−1', integer: true});
+    });
 });

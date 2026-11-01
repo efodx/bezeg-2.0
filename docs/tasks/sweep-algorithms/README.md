@@ -29,7 +29,7 @@ Source: [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md). 
 | 06 | [Bentley–Ottmann kernel](06-bentley-ottmann-kernel.md) | F1 | 02, 03 | accepted 2026-11-01 |
 | 07 | [Interval graph mode](07-interval-mode.md) | F2a | 04, 05 | accepted 2026-11-01 |
 | 08 | [Interval sweep graph](08-interval-sweep-graph.md) | F2a | 05, 07 | accepted 2026-11-01 (handler 14): engineering, math, UI/accessibility reviews, repairs |
-| 09 | [Bentley–Ottmann graph](09-bentley-ottmann-graph.md) | F2a | 04, 06 | planned |
+| 09 | [Bentley–Ottmann graph](09-bentley-ottmann-graph.md) | F2a | 04, 06 | accepted 2026-11-01 (handler 15): engineering, math, UI/accessibility reviews, repairs |
 
 ## Later batches
 

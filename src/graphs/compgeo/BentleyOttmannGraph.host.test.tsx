@@ -452,7 +452,7 @@ describe('side lists', () => {
             'Zgornje krajišče v točki (2; 5)', 'Zgornje krajišče v točki (4; 5)', 'Zgornje krajišče v točki (0; 4)', 'Zgornje krajišče v točki (6; 4)',
             'Presečišče v točki (33/20 = 1,65; 29/10 = 2,9)', 'Presečišče v točki (87/20 = 4,35; 29/10 = 2,9)', 'Presečišče v točki (3; 2)',
             'Presečišče v točki (21/16 = 1,3125; 7/8 = 0,875)', 'Presečišče v točki (75/16 = 4,6875; 7/8 = 0,875)',
-            'Spodnje krajišče v točki (0; 0)', 'Spodnje krajišče v točki (6; 0)', 'Spodnje krajišče v točki (1; -1)', 'Spodnje krajišče v točki (5; -1)',
+            'Spodnje krajišče v točki (0; 0)', 'Spodnje krajišče v točki (6; 0)', 'Spodnje krajišče v točki (1; −1)', 'Spodnje krajišče v točki (5; −1)',
         ]);
         expect(statuses.slice(0, 13)).toEqual([
             [2], [2, 3], [1, 2, 3], [1, 2, 3, 0], [2, 1, 3, 0], [2, 1, 0, 3], [2, 0, 1, 3], [0, 2, 1, 3], [0, 2, 3, 1], [2, 3, 1], [2, 3], [3], [],

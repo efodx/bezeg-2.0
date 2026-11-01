@@ -29,6 +29,11 @@ That is roughly one 60 Hz frame and a bit over, in a worst case with 57 crossing
 jsdom with shims is not a browser, so the figure is an upper-level indication, not a frame time. No optimisation was made: the
 graph redraws on drag as the hull graph does.
 
+## Rerun
+
+Since review (handler 15) the test is opt-in and skipped by the unit suite: `BEZEG_PERF=1 just unit src/graphs/compgeo/BentleyOttmannGraph.perf`
+(output path in `BEZEG_PERF_OUT`, default `09b-perf-raw.txt` here; fails only above a 1000 ms median). Rerun 2026-11-01: median 20.38, max 28.95.
+
 ## Not measured
 
 A browser measurement (production build, real frame timing, touch device) waits for registration of the Demonstration. Allocation

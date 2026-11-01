@@ -10,8 +10,9 @@ import {setLanguage} from '../../localization';
 import {appendFileSync, writeFileSync} from 'node:fs';
 
 // Measurement behind docs/reviews/feature-streams/geometry/09-perf.md: dragging one endpoint of 12 segments through the
-// graph's own drag handler (snap, model edit, trace recompute, board redraw, panel render). The only assertion is a loose
-// ceiling so that a pathological regression fails; the numbers are printed.
+// graph's own drag handler (snap, model edit, trace recompute, board redraw, panel render). Opt-in, so the shared unit suite
+// neither times nor writes files: `BEZEG_PERF=1 just unit src/graphs/compgeo/BentleyOttmannGraph.perf` writes the numbers to
+// the path in BEZEG_PERF_OUT (default 09b-perf-raw.txt in the review folder) and fails only on a gross regression.
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 
@@ -28,7 +29,9 @@ const TWELVE: PointSetModel = {
     ].flatMap(([ax, ay, bx, by]) => [{x: ax, y: ay}, {x: bx, y: by}]),
 };
 
-test('dragging an endpoint with 12 segments: timing of the drag handler', () => {
+const PERF_OUT = process.env.BEZEG_PERF_OUT ?? 'docs/reviews/feature-streams/geometry/09b-perf-raw.txt';
+
+test.skipIf(!process.env.BEZEG_PERF)('dragging an endpoint with 12 segments: timing of the drag handler', () => {
     setLanguage('sl');
     const graph = new Observed();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
@@ -53,7 +56,7 @@ test('dragging an endpoint with 12 segments: timing of the drag handler', () => 
     expect(graph.model.points[1]).not.toEqual({x: 11, y: 7});
     const sorted = [...times].sort((a, b) => a - b);
     const median = sorted[sorted.length >> 1];
-    writeFileSync('docs/reviews/feature-streams/geometry/09b-perf-raw.txt', `BO-PERF drag n=${times.length} median=${median.toFixed(2)}ms max=${sorted[sorted.length - 1].toFixed(2)}ms min=${sorted[0].toFixed(2)}ms events=${graph.run().eventCount} crossings=${graph.run().points.length}
+    writeFileSync(PERF_OUT, `BO-PERF drag n=${times.length} median=${median.toFixed(2)}ms max=${sorted[sorted.length - 1].toFixed(2)}ms min=${sorted[0].toFixed(2)}ms events=${graph.run().eventCount} crossings=${graph.run().points.length}
 all=${times.map(t => t.toFixed(2)).join(' ')}
 `);
     // The trace recompute alone (kernel plus run view), same segments.
@@ -64,7 +67,7 @@ all=${times.map(t => t.toFixed(2)).join(' ')}
         traceTimes.push(performance.now() - started);
     }
     traceTimes.sort((a, b) => a - b);
-    appendFileSync('docs/reviews/feature-streams/geometry/09b-perf-raw.txt', `trace-only median=${traceTimes[traceTimes.length >> 1].toFixed(2)}ms max=${traceTimes[traceTimes.length - 1].toFixed(2)}ms
+    appendFileSync(PERF_OUT, `trace-only median=${traceTimes[traceTimes.length >> 1].toFixed(2)}ms max=${traceTimes[traceTimes.length - 1].toFixed(2)}ms
 `);
-    expect(median).toBeLessThan(250);
+    expect(median).toBeLessThan(1000);
 });

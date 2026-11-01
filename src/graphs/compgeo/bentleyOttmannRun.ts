@@ -1,4 +1,5 @@
 import {Rational, RationalPoint} from "../../compgeo/rational";
+import {MINUS_SIGN} from "../../analysis/format";
 import {bentleyOttmannTrace, type BentleyOttmannRefusal} from "../../compgeo/sweep/bentleyOttmann";
 import {containsPoint, type IntersectionPoint, lowerEndpoint, type Segment, upperEndpoint} from "../../compgeo/sweep/segments";
 import {foldSweepEvent, initialSweepState} from "../../compgeo/sweep/sweepTrace";
@@ -209,7 +210,7 @@ export interface RationalText {
 /** `21/16` with `1,3125`; `1/3` with `0,3333` marked inexact. `formatDecimal` is the language's number formatter. */
 export function rationalText(value: Rational, formatDecimal: (value: number, decimals: number) => string): RationalText {
     return {
-        fraction: value.format(), decimal: formatDecimal(value.toNumber(), RATIONAL_DECIMALS),
+        fraction: value.format().replace(/^-/, MINUS_SIGN), decimal: formatDecimal(value.toNumber(), RATIONAL_DECIMALS),
         exact: 10n ** BigInt(RATIONAL_DECIMALS) % value.den === 0n, integer: value.den === 1n,
     };
 }
