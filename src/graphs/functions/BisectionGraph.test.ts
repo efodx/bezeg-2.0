@@ -4,6 +4,7 @@ import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {BISECTION_EXAMPLES, BISECTION_MAX_STEPS, bisectionHistory} from '../../analysis/bisection';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DomainError} from './BaseFunctionGraph';
 
@@ -717,4 +718,14 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     let reason: unknown;
     try { apply(graph, parameter('bisect-a', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'bisection_endpoint_range_rejected', params: {value0: 'a', value1: '−4', value2: '4'}});
+});
+
+test('the refusal of a further Next step is localized in Slovenian and English', () => {
+    const graph = makeGraph({asyncState: false});
+    apply(graph, parameter('bisect-b', 3));
+    apply(graph, parameter('bisect-a', 2));
+    expect(refusalTexts(() => next(graph))).toEqual({
+        sl: 'Iteracija ne more napredovati: končana je ali pa interval ni veljaven.',
+        en: 'The iteration cannot advance: it has finished or the bracket is not valid.',
+    });
 });

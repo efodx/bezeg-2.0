@@ -2,6 +2,7 @@ import {ArcLengthGraph} from './ArcLengthGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 
 const BOX = [-0.6, 2.2, 3.8, -1.3];
@@ -400,4 +401,20 @@ test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'arc-length', data: {a: 1, b: 2, n: 8}});
     expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, a: 1, b: 2, n: 8});
+});
+
+test('the refusals of a lesson action are localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    expect(refusalTexts(() => apply(graph, parameter('a', 8)))).toEqual({
+        sl: 'Krajišče a mora biti število med −7 in 7.',
+        en: 'Endpoint a must be a number between −7 and 7.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('b', 8)))).toEqual({
+        sl: 'Krajišče b mora biti število med −7 in 7.',
+        en: 'Endpoint b must be a number between −7 and 7.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('n', 0)))).toEqual({
+        sl: 'Število daljic n mora biti celo število od 1 do 100.',
+        en: 'Number of segments n must be an integer from 1 to 100.',
+    });
 });

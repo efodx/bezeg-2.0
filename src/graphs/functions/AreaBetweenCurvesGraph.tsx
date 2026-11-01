@@ -12,6 +12,7 @@ import {
 import {AreaBetweenModel, DEFAULT_AREA_BETWEEN_MODEL} from "../../analysis/areaBetweenModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
 
 /** Integrals and areas show four decimals so that the lesson's 4.8990, 4.8990 and 8.4646 can be read off. */
 const PRECISE = 4;
@@ -74,12 +75,12 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setMode(value: unknown): void {
-        if (!isAreaMode(value)) throw new DomainError(`The area mode must be one of ${AREA_MODES.join(", ")}.`);
+        if (!isAreaMode(value)) throw new DomainError(choiceRejected("area_mode_label", AREA_MODES));
         this.commitModel({...this.model, mode: value});
     }
 
     protected setBound(which: "a" | "b", value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isBound(value)) throw new DomainError(`The bound ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
+        if (!isBound(value)) throw new DomainError(numberRangeRejected(which === "a" ? "area_a_label" : "area_b_label", BOUND_MIN, BOUND_MAX));
         this.commitModel({...this.model, [which]: value}, options);
     }
 

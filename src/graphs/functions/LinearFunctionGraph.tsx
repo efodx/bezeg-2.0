@@ -2,7 +2,7 @@ import React from "react";
 import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, mathTextHtml, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {COINCIDENCE_TOLERANCE, lineEquation, lineThroughPoints, moveAlongLine, slopeTriangle} from "../../analysis/linear";
 import {DEFAULT_LINEAR_MODEL, isLinearCoordinate, LINEAR_COORDINATE_LIMIT, LinearModel, parseLinearModel} from "../../analysis/linearModel";
@@ -47,7 +47,10 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     /** Sets one point coordinate; throws when the value is outside the model domain. */
     protected setCoordinate(name: CoordinateName, value: number): void {
         if (!isLinearCoordinate(value)) {
-            throw new DomainError(`The coordinate ${name} must be a finite number between -${LINEAR_COORDINATE_LIMIT} and ${LINEAR_COORDINATE_LIMIT}.`);
+            throw new DomainError(message("linear_coordinate_rejected", {
+                value0: name === "x1" ? "x₁" : name === "y1" ? "y₁" : name === "x2" ? "x₂" : "y₂",
+                value1: formatNumber(-LINEAR_COORDINATE_LIMIT, currentLanguage()), value2: formatNumber(LINEAR_COORDINATE_LIMIT, currentLanguage()),
+            }));
         }
         this.commitModel({...this.model, [name]: clean(value)});
     }
@@ -56,10 +59,10 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     protected setLineParameter(change: { k?: number; n?: number }): void {
         const {x1, y1, x2, y2} = this.model;
         const moved = moveAlongLine({x: x1, y: y1}, {x: x2, y: y2}, change);
-        if (!moved) throw new DomainError("The slope k and the intercept n are undefined for a vertical line or coincident points.");
+        if (!moved) throw new DomainError(message("linear_vertical_rejected"));
         const next = parseLinearModel({x1: moved[0].x, y1: clean(moved[0].y), x2: moved[1].x, y2: clean(moved[1].y)});
         if (!next || Object.values(change).some(value => !Number.isFinite(value))) {
-            throw new DomainError(`The slope and intercept must keep both points within ${LINEAR_COORDINATE_LIMIT} of the origin.`);
+            throw new DomainError(message("linear_limit_rejected", {value0: formatNumber(LINEAR_COORDINATE_LIMIT, currentLanguage())}));
         }
         this.commitModel(next);
     }

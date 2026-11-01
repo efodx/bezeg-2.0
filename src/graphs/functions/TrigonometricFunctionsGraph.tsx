@@ -4,7 +4,7 @@ import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, t} from "../../localization";
 import {formatNumber, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {
     AMPLITUDE_MAX, AMPLITUDE_MIN, AMPLITUDE_STEP, amplitude, basicValue, equationText, formatPhase, formatWithPi, GraphPiece, joinPieces, MIDLINE_MAX,
@@ -16,6 +16,7 @@ import {
 } from "../../analysis/trigonometricModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
 
 /** Removes floating-point noise left by slider arithmetic (-3 + 30 * 0.1) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -45,27 +46,27 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setFunction(value: unknown): void {
-        if (!isTrigFunction(value)) throw new DomainError("The function must be sin, cos or tan.");
+        if (!isTrigFunction(value)) throw new DomainError(choiceRejected("trig_function_label", ["sin", "cos", "tan"]));
         this.commitModel({...this.model, fn: value});
     }
 
     protected setAmplitude(value: number): void {
-        if (!isAmplitude(value)) throw new DomainError(`The amplitude A must be a finite number between ${AMPLITUDE_MIN} and ${AMPLITUDE_MAX}.`);
+        if (!isAmplitude(value)) throw new DomainError(numberRangeRejected("trig_amplitude_label", AMPLITUDE_MIN, AMPLITUDE_MAX));
         this.commitModel({...this.model, A: clean(value)});
     }
 
     protected setOmega(value: number): void {
-        if (!isOmega(value)) throw new DomainError(`The frequency omega must be a finite number between ${OMEGA_MIN} and ${OMEGA_MAX}.`);
+        if (!isOmega(value)) throw new DomainError(numberRangeRejected("trig_omega_label", OMEGA_MIN, OMEGA_MAX));
         this.commitModel({...this.model, omega: clean(value)});
     }
 
     protected setPhase(value: number): void {
-        if (!isPhase(value)) throw new DomainError("The phase phi must be a finite number between -pi and pi.");
+        if (!isPhase(value)) throw new DomainError(message("trig_phase_rejected"));
         this.commitModel({...this.model, phi: Math.min(PHASE_MAX, Math.max(PHASE_MIN, snapPhase(value)))});
     }
 
     protected setMidline(value: number): void {
-        if (!isMidline(value)) throw new DomainError(`The midline B must be a finite number between ${MIDLINE_MIN} and ${MIDLINE_MAX}.`);
+        if (!isMidline(value)) throw new DomainError(numberRangeRejected("trig_midline_label", MIDLINE_MIN, MIDLINE_MAX));
         this.commitModel({...this.model, B: clean(value)});
     }
 

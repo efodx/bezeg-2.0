@@ -11,6 +11,7 @@ import {
 import {ArcLengthModel, DEFAULT_ARC_LENGTH_MODEL} from "../../analysis/arcLengthModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {integerRangeRejected, numberRangeRejected} from "./functionSetterMessages";
 
 /** Lengths show four decimals so that the lesson's 3.7242, 3.8153 and 3.8202 can be read off. */
 const PRECISE = 4;
@@ -58,12 +59,12 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setBound(which: "a" | "b", value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isBound(value)) throw new DomainError(`The endpoint ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
+        if (!isBound(value)) throw new DomainError(numberRangeRejected(which === "a" ? "arc_a_label" : "arc_b_label", BOUND_MIN, BOUND_MAX));
         this.commitModel({...this.model, [which]: value}, options);
     }
 
     protected setCount(value: number): void {
-        if (!isSegmentCount(value)) throw new DomainError(`The number of segments n must be an integer from ${N_MIN} to ${N_MAX}.`);
+        if (!isSegmentCount(value)) throw new DomainError(integerRangeRejected("arc_n_label", N_MIN, N_MAX));
         this.commitModel({...this.model, n: value});
     }
 

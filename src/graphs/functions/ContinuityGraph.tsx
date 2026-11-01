@@ -11,6 +11,7 @@ import {
 import {ContinuityModel, DEFAULT_CONTINUITY_MODEL, isContinuityParameter} from "../../analysis/continuityModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {numberRangeRejected} from "./functionSetterMessages";
 
 /** Removes floating-point noise left by slider arithmetic (30 * 0.05) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -52,7 +53,7 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
     /** Sets the parameter; throws when it is outside [0, 3]. */
     protected setParameter(value: number): void {
         if (!isContinuityParameter(value)) {
-            throw new DomainError(`The parameter a must be a finite number between ${CONTINUITY_A_MIN} and ${CONTINUITY_A_MAX}.`);
+            throw new DomainError(numberRangeRejected("continuity_param_label", CONTINUITY_A_MIN, CONTINUITY_A_MAX));
         }
         this.commitModel({a: clean(value)});
     }

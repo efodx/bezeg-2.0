@@ -4,7 +4,7 @@ import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, Message, t} from "../../localization";
 import {formatNumber, formatSignificant, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {
     FIXED_POINT_EXAMPLE_IDS, FIXED_POINT_EXAMPLES, FIXED_POINT_MAX_DIGITS, FIXED_POINT_MAX_STEPS, FIXED_POINT_MIN_DIGITS, fixedPointExample, FixedPointExample,
@@ -123,8 +123,8 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         return fixedPointCanAdvance(this.model);
     }
 
-    protected cannotAdvanceMessage(): string {
-        return "The iteration has ended; Reset returns it to step 0.";
+    protected cannotAdvanceMessage(): Message {
+        return message("fixed_point_cannot_advance");
     }
 
     /** The one mathematical transition of the iteration: Next step and every playback step take one more iterate. */

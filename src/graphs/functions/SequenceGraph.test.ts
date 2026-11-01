@@ -5,6 +5,7 @@ import {AnimationScheduler} from '../../learning/runtime/animation';
 import {SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS} from '../../analysis/sequence';
 import {SEQUENCE_EXAMPLE_MODELS, SequenceModel} from '../../analysis/sequenceModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
 
@@ -926,4 +927,13 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     let reason: unknown;
     try { apply(graph, parameter('sequence-threshold', 0)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'sequence_threshold_rejected_hint', params: {value0: 1, value1: 1000}});
+});
+
+test('the refusal of a further Next step is localized in Slovenian and English', () => {
+    const graph = makeGraph({asyncState: false});
+    next(graph, 39);
+    expect(refusalTexts(() => next(graph))).toEqual({
+        sl: 'Vseh 40 členov je že prikazanih.',
+        en: 'All 40 terms are already shown.',
+    });
 });

@@ -2,6 +2,7 @@ import {AreaBetweenCurvesGraph} from './AreaBetweenCurvesGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {areaFill, INTERSECTIONS} from '../../analysis/areaBetween';
 
@@ -516,4 +517,20 @@ test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'area-between-curves', data: {a: 1, b: 2, mode: 'under-f'}});
     expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, a: 1, b: 2, mode: 'under-f'});
+});
+
+test('the refusals of a lesson action are localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    expect(refusalTexts(() => apply(graph, mode('under')))).toEqual({
+        sl: 'Za »Kaj je pobarvano« je dovoljeno eno od: under-f, under-g, between.',
+        en: 'For “What is shaded” the allowed values are: under-f, under-g, between.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('a', 6)))).toEqual({
+        sl: 'Meja a mora biti število med −1 in 5.',
+        en: 'Bound a must be a number between −1 and 5.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('b', 6)))).toEqual({
+        sl: 'Meja b mora biti število med −1 in 5.',
+        en: 'Bound b must be a number between −1 and 5.',
+    });
 });

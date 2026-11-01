@@ -2,6 +2,7 @@ import {ContinuityGraph} from './ContinuityGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 
 const BOX = [-2, 5, 4, -2];
@@ -352,4 +353,12 @@ test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'piecewise-continuity', data: {a: 2}});
     expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, a: 2});
+});
+
+test('the refusal of the parameter are localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    expect(refusalTexts(() => apply(graph, parameter('a', 4)))).toEqual({
+        sl: 'Parameter a mora biti število med 0 in 3.',
+        en: 'Parameter a must be a number between 0 and 3.',
+    });
 });

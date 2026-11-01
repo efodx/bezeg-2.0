@@ -2,6 +2,7 @@ import {TrigonometricFunctionsGraph} from './TrigonometricFunctionsGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {tangentAsymptotes} from '../../analysis/trigonometric';
 
 const BOX = [-7, 4, 7, -4];
@@ -452,4 +453,28 @@ test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'trigonometric-function', data: {fn: 'tan', A: 2, omega: 1, phi: 0, B: 0, reference: true}});
     expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, fn: 'tan', A: 2, reference: true});
+});
+
+test('the refusals of a lesson action are localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    expect(refusalTexts(() => apply(graph, choice('sec')))).toEqual({
+        sl: 'Za »Osnovna funkcija g« je dovoljeno eno od: sin, cos, tan.',
+        en: 'For “Basic function g” the allowed values are: sin, cos, tan.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('A', 4)))).toEqual({
+        sl: 'Amplituda A mora biti število med −3 in 3.',
+        en: 'Amplitude A must be a number between −3 and 3.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('omega', 5)))).toEqual({
+        sl: 'Frekvenca ω mora biti število med 0,25 in 4.',
+        en: 'Frequency ω must be a number between 0.25 and 4.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('phi', 4)))).toEqual({
+        sl: 'Faza φ mora biti število med −π in π.',
+        en: 'The phase φ must be a number between −π and π.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('B', 4)))).toEqual({
+        sl: 'Srednja črta B mora biti število med −3 in 3.',
+        en: 'Midline B must be a number between −3 and 3.',
+    });
 });

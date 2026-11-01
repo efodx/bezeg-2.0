@@ -2,6 +2,7 @@ import {ExponentialFunctionGraph} from './ExponentialFunctionGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 
 function fakeBoard() {
     const board: any = {
@@ -268,4 +269,12 @@ test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'exponential-function', data: {a: 1.5, mirror: true}});
     expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, a: 1.5, mirror: true});
+});
+
+test('the refusal of the base are localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    expect(refusalTexts(() => apply(graph, parameter('a', 6)))).toEqual({
+        sl: 'Osnova a mora biti število med 0,1 in 5.',
+        en: 'Base a must be a number between 0.1 and 5.',
+    });
 });
