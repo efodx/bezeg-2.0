@@ -60,5 +60,5 @@ Between the manifest capture (93066f43) and now, board label elements changed ty
 
 - Highlight recipes are supported on curve boards only; surface (patches) routes accept `start` recipes.
 - Only discrete step kinds exist; dragging control points on the board is not a step kind.
-- `--id` runs fail when the recipe of a retained image changed; recapture all entries then.
+- `--id` runs skip the recipe, scene and inventory-entry staleness checks for the ids being recaptured (the final published-set validation still covers every entry); every other retained entry must still match its recipe, scene and per-entry inventory fingerprint, and a changed presentation or build fingerprint still refuses a partial run. Manifests written before per-entry fingerprints existed fall back to the whole-inventory fingerprint, so recapture all entries once.
 - Capture needs a production build whose stamp matches the preview (`just build`, `just preview 4387`).

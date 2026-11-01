@@ -123,6 +123,34 @@ test('retained assets fail on a missing file, stale scene mapping, or changed pa
     assert.throws(() => validateRetained([entry], prior, destination, [], fingerprints), /presentation fingerprint changed/);
 });
 
+test('a partial run skips staleness checks for the ids it recaptures and still rejects stale retained entries', t => {
+    const destination = fs.mkdtempSync(path.join(os.tmpdir(), 'guided-example-preview-partial-'));
+    t.after(() => fs.rmSync(destination, {recursive: true, force: true}));
+    const kept = example({id: 'kept-example', sceneFingerprint: digest('kept')});
+    const redone = example({id: 'redone-example', sceneFingerprint: digest('redone')});
+    const keptCapture = capture(kept), oldCapture = capture(redone);
+    fs.writeFileSync(path.join(destination, keptCapture.file), 'png');
+    const entryHash = {kept: digest('kept entry'), redone: digest('redone entry')};
+    const previous = {captures: [keptCapture, oldCapture], fingerprints: {inventory: digest('old inventory'), presentation: digest('p'),
+        buildOutput: digest('b'), buildInputs: digest('bi'), entries: {[kept.id]: entryHash.kept, [redone.id]: entryHash.redone}}};
+    const current = {...previous.fingerprints, inventory: digest('new inventory'), entries: {[kept.id]: entryHash.kept, [redone.id]: digest('changed redone')}};
+    const highlight = {kind: 'highlight', frame: 'f', steps: [{kind: 'frame-action'}], expectChange: true, checks: {types: {curve: 1}}};
+    const changedRedone = {...redone, sceneFingerprint: digest('redone changed'), recipe: highlight, recipeFingerprint: recipeFingerprint(highlight)};
+    // The recaptured id changed its recipe, scene and inventory entry, and its old asset is gone.
+    const retained = validateRetained([kept, changedRedone], previous, destination, [redone.id], current);
+    assert.deepEqual(retained.map(item => item.id), [kept.id]);
+    // A non-selected entry with a changed scene, recipe or inventory entry still fails.
+    const changedKept = {...kept, sceneFingerprint: digest('kept changed')};
+    assert.throws(() => validateRetained([changedKept, changedRedone], previous, destination, [redone.id], current), /prepared scene\/actions changed/);
+    assert.throws(() => validateRetained([{...kept, recipe: highlight, recipeFingerprint: recipeFingerprint(highlight)}, changedRedone], previous, destination, [redone.id], current), /recipe changed since capture/);
+    assert.throws(() => validateRetained([kept, changedRedone], previous, destination, [redone.id], {...current, entries: {...current.entries, [kept.id]: digest('x')}}), /inventory entry changed since capture/);
+    // Without per-entry fingerprints in the prior manifest the whole-inventory fingerprint is still required.
+    const legacy = {...previous, fingerprints: {...previous.fingerprints, entries: undefined}};
+    assert.throws(() => validateRetained([kept, changedRedone], legacy, destination, [redone.id], current), /inventory fingerprint changed/);
+    // The published set after recapture is validated in full.
+    assert.throws(() => validatePublishedSet([kept, changedRedone], [keptCapture, oldCapture], destination), /stale scene fingerprint mapping/);
+});
+
 test('full regeneration replaces stale prior mappings instead of retaining them', () => {
     const current = example();
     const removed = example({id: 'removed-example', sceneFingerprint: digest('removed')});

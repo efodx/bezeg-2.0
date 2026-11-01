@@ -95,16 +95,25 @@ function readInventory(file) {
     return validateInventory(Array.isArray(parsed) ? parsed : parsed.examples);
 }
 
+/** Serialized identity of one inventory entry; start recipes are omitted so pre-recipe fingerprints stay unchanged. */
+function entryIdentity(entry) {
+    return JSON.stringify({id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path,
+        sceneFingerprint: entry.sceneFingerprint, actions: entry.actions || [], expected: entry.expected || null,
+        recipe: entry.recipe?.kind === 'highlight' ? entry.recipeFingerprint : undefined});
+}
+
 function fingerprintInventory(inventory) {
     const hash = crypto.createHash('sha256');
     for (const entry of [...inventory].sort((a, b) => a.id.localeCompare(b.id))) {
-        hash.update(JSON.stringify({id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path,
-            sceneFingerprint: entry.sceneFingerprint, actions: entry.actions || [], expected: entry.expected || null,
-            // Start recipes are omitted so the fingerprint of pre-recipe manifests is unchanged; highlight recipes are covered.
-            recipe: entry.recipe?.kind === 'highlight' ? entry.recipeFingerprint : undefined}));
+        hash.update(entryIdentity(entry));
         hash.update('\0');
     }
     return hash.digest('hex');
+}
+
+/** Per-entry fingerprints, so a partial run can ignore changes to the ids it recaptures. */
+function fingerprintEntries(inventory) {
+    return Object.fromEntries(inventory.map(entry => [entry.id, crypto.createHash('sha256').update(entryIdentity(entry)).digest('hex')]));
 }
 
 function inspectBoard(page) {
@@ -484,7 +493,7 @@ async function main(argv = process.argv.slice(2)) {
     const recipeFraming = [...new Set(inventory.map(entry => entry.demonstrationId))].sort().map(id => ({id, framing: recipes[id]?.framing}));
     const entryFraming = inventory.map(entry => ({id: entry.id, demonstrationId: entry.demonstrationId,
         framing: captureRecipeForEntry(entry, recipes[entry.demonstrationId])?.framing}));
-    const fingerprints = {inventory: fingerprintInventory(inventory),
+    const fingerprints = {inventory: fingerprintInventory(inventory), entries: fingerprintEntries(inventory),
         presentation: presentationFingerprint({recipeFraming, entryFraming}),
     buildOutput: build.output, buildInputs: build.inputs || digestInputs(root)};
     const previousManifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : {captures: []};
@@ -523,7 +532,7 @@ async function main(argv = process.argv.slice(2)) {
     console.log(`Wrote ${allCaptures.length} guided-example previews to ${path.relative(root, destination)}.`);
 }
 
-module.exports = {reachFrame, applyHighlightRecipe, readGuidedPosition, parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, inspectBoard, isViewportSpanningHorizontalCurve,
+module.exports = {reachFrame, applyHighlightRecipe, readGuidedPosition, parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, fingerprintEntries, inspectBoard, isViewportSpanningHorizontalCurve,
     isCameraScaledCurve, isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, entryBundles,
     verifyServedBuild, captureRecipeForEntry, captureSurfaceExample, resizeSurfaceCaptureHost, readSurfaceVisibleLabelBounds,
     prepareSurfaceCaptureFrame, presentationHelpers, presentationFingerprint, captureExample};
