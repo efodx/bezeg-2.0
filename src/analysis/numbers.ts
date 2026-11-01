@@ -12,3 +12,13 @@ export const cleanNoise = (value: number) => {
     const cleaned = cleanNumber(value);
     return Math.abs(cleaned - value) < 1e-12 ? cleaned : value;
 };
+
+/**
+ * The integer k with value = k * step, or undefined when the value is not a finite number or not on that grid (within 1e-9
+ * grid units: arithmetic noise only, never a real off-grid value).
+ */
+export function gridUnits(value: unknown, step: number): number | undefined {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
+    const units = Math.round(value / step);
+    return Math.abs(value / step - units) <= 1e-9 ? units : undefined;
+}
