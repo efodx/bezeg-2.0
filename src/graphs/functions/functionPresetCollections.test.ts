@@ -876,6 +876,42 @@ test("function-transformation data of the wrong type keeps the generic function-
     }
 });
 
+const inversePreset = (data: unknown) => JSON.stringify({"preset-function-inverse": {data: [{id: "Osnova", boardState: {boundingBox: [-3, 9, 11, -3]},
+    graphState: {initialized: true}, data}]}});
+const validInverse = {restriction: "exp", base: 3.5, x0: -1.5, inverseVisible: false, tangentVisible: true};
+
+test("function-inverse collection imports a model object with its restriction, base, point and toggles", () => {
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(inversePreset(validInverse)));
+    expect(JSON.parse(localStorage.getItem("preset-function-inverse")!).data[0].data).toEqual(validInverse);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], [{}], [{...validInverse, restriction: "sin"}], [{...validInverse, base: 1}], [{...validInverse, base: 6}], [{...validInverse, x0: 3.5}],
+    [{...validInverse, restriction: "square", x0: -1}], [{...validInverse, x0: NaN}], [{...validInverse, inverseVisible: "no"}], [{...validInverse, tangentVisible: undefined}]])
+("function-inverse collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(inversePreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validInverse, restriction: "sin"}, /square, exp, natural/],
+    [{...validInverse, base: 1}, /field base must not be 1|polje base ne sme biti 1/],
+    [{...validInverse, base: 6}, /field base must be a number between 0\.2 and 5|polje base mora biti število med 0[.,]2 in 5/],
+    [{...validInverse, restriction: "square", x0: -1}, /field x0 must be a number between 0 and 4|polje x0 mora biti število med 0 in 4/],
+    [{...validInverse, tangentVisible: "no"}, /tangentVisible/],
+])("function-inverse errors name the field and rule to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(inversePreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(inversePreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("function-inverse data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validInverse, base: "2"}, {...validInverse, x0: null}]) {
+        expect(() => preflightPresetImport(inversePreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});
+
 const fourierPreset = (data: unknown) => JSON.stringify({"preset-fourier-series": {data: [{id: "Osnova", boardState: {boundingBox: [-7.2, 3.6, 7.2, -2]},
     graphState: {initialized: true, example: "square", n: 11, x: 0.5, epsilon: 0.1}, data}]}});
 

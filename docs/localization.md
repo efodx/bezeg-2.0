@@ -97,6 +97,8 @@ The static document initially declares Slovenian, and runtime selection updates 
 | zrcaljenje (čez os x / čez premico x = c) | reflection (negative a: about the x-axis; negative b: about the line x = c); S1 |
 | osnovna funkcija | base function f of a transformation (S1); the faint copy of its graph is "osnovni graf" |
 | označena točka | the marked (tracked) point (u, f(u)) of the base graph and its image (S1) |
+| inverzna funkcija | inverse function (S2); its graph is the reflection of the graph in the line y = x ("zrcaljenje čez premico y = x"); the point P and its mirror P′ swap coordinates |
+| logaritem z osnovo a | logarithm to base a (S2); \(\log_a\) inverts \(a^x\), "naravni logaritem" for \(\ln\). x² is offered only as a "zožitev" (restriction) to x ≥ 0, so that it is one-to-one ("povratno enolična") |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 

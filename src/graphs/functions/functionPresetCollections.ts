@@ -35,6 +35,8 @@ import {checkAccumulationModel, parseAccumulationModel} from "../../analysis/acc
 import {accumulationFileMessage} from "./accumulationMessages";
 import {checkFunctionTransformationModel, parseFunctionTransformationModel} from "../../analysis/functionTransformationModel";
 import {functionTransformationFileMessage} from "./functionTransformationMessages";
+import {checkFunctionInverseModel, parseFunctionInverseModel} from "../../analysis/functionInverseModel";
+import {functionInverseFileMessage} from "./functionInverseMessages";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 
 /**
@@ -111,6 +113,12 @@ const diagnoseFunctionTransformation: Diagnosis = data => {
     return check.ok || check.issue === undefined ? undefined : functionTransformationFileMessage(check.issue);
 };
 
+/** The model module names the rule a rejected inverse-function model broke; this only localizes it. */
+const diagnoseFunctionInverse: Diagnosis = data => {
+    const check = checkFunctionInverseModel(data);
+    return check.ok || check.issue === undefined ? undefined : functionInverseFileMessage(check.issue);
+};
+
 /**
  * A function Demonstration stores its validated model object as Preset data. The model parser decides validity; the
  * diagnosis only explains a rejection the parser made.
@@ -150,4 +158,5 @@ export const functionPresetCollections = {
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
+    "function-inverse": functionCollection("function-inverse", parseFunctionInverseModel, diagnoseFunctionInverse),
 } as const;
