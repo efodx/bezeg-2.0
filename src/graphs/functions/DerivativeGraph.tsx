@@ -5,7 +5,7 @@ import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, t} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {catalogFunction, FUNCTION_IDS, isFunctionId} from "../../analysis/functions";
 import {
@@ -14,6 +14,7 @@ import {
 import {DEFAULT_DERIVATIVE_MODEL, DerivativeModel} from "../../analysis/derivativeModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {choiceRejected, numberRangeRejected} from "./functionSetterMessages";
 
 /** Removes floating-point noise left by slider arithmetic (-2 + 150 * 0.01) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -50,18 +51,20 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     }
 
     protected setFunction(value: unknown): void {
-        if (!isFunctionId(value)) throw new DomainError(`The function must be one of ${FUNCTION_IDS.join(", ")}.`);
+        if (!isFunctionId(value)) throw new DomainError(choiceRejected("derivative_function_label", FUNCTION_IDS));
         this.commitModel({...this.model, fn: value});
     }
 
     protected setX0(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isX0(value)) throw new DomainError(`The point x0 must be a finite number between ${X0_MIN} and ${X0_MAX}.`);
+        if (!isX0(value)) throw new DomainError(numberRangeRejected("derivative_x0_label", X0_MIN, X0_MAX));
         this.commitModel({...this.model, x0: clean(value)}, options);
     }
 
     protected setStep(value: number): void {
         if (!isStep(value)) {
-            throw new DomainError(`The step h must be a finite number between ${H_MIN} and ${H_MAX} with |h| of at least ${H_MIN_ABS} (h = 0 gives the undefined quotient 0/0).`);
+            throw new DomainError(message("derivative_h_rejected", {
+                value0: formatNumber(H_MIN, currentLanguage()), value1: formatNumber(H_MAX, currentLanguage()), value2: formatNumber(H_MIN_ABS, currentLanguage()),
+            }));
         }
         this.commitModel({...this.model, h: clean(value)});
     }

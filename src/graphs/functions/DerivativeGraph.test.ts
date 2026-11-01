@@ -2,6 +2,7 @@ import {DerivativeGraph} from './DerivativeGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 
 const BOX = [-3, 6, 4, -2];
@@ -411,4 +412,20 @@ test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'derivative', data: {fn: 'exp', x0: 2, h: 0.5, tangent: true}});
     expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, fn: 'exp', x0: 2, h: 0.5, tangent: true});
+});
+
+test('the refusals of a lesson action are localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    expect(refusalTexts(() => apply(graph, choice('cos')))).toEqual({
+        sl: 'Za »Funkcija« je dovoljeno eno od: square, sin, exp.',
+        en: 'For “Function” the allowed values are: square, sin, exp.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('x0', 5)))).toEqual({
+        sl: 'Točka x₀ mora biti število med −4 in 4.',
+        en: 'Point x₀ must be a number between −4 and 4.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('h', 0)))).toEqual({
+        sl: 'Korak h mora biti število med −2 in 2, njegova absolutna vrednost pa vsaj 0,01 (pri h = 0 je kvocient 0/0 in ni definiran).',
+        en: 'The step h must be a number between −2 and 2, with |h| of at least 0.01 (h = 0 gives the undefined quotient 0/0).',
+    });
 });

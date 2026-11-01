@@ -1,4 +1,5 @@
 import BaseFunctionGraph, {DomainError} from "./BaseFunctionGraph";
+import {Message} from "../../localization";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {LessonAnimationCommand} from "../../learning/model";
@@ -38,7 +39,7 @@ export default abstract class IterativeFunctionGraph<M extends object> extends B
     protected abstract canAdvance(): boolean;
 
     /** Why Next step is refused (a `DomainError` message). */
-    protected abstract cannotAdvanceMessage(): string;
+    protected abstract cannotAdvanceMessage(): Message;
 
     /** Back to the first step of the same example and parameters; playback stops. */
     protected abstract resetIteration(): void;

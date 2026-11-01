@@ -15,6 +15,7 @@ import {DEFAULT_RIEMANN_MODEL, RiemannModel} from "../../analysis/riemannModel";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {choiceRejected, integerRangeRejected, numberRangeRejected} from "./functionSetterMessages";
 
 /** Sums and integrals show four decimals so that the lesson's 2.6268 and 2.6667 can be read off. */
 const PRECISE = 4;
@@ -81,23 +82,23 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     }
 
     protected setFunction(value: unknown): void {
-        if (!isFunctionId(value)) throw new DomainError(`The function must be one of ${FUNCTION_IDS.join(", ")}.`);
+        if (!isFunctionId(value)) throw new DomainError(choiceRejected("integral_function_label", FUNCTION_IDS));
         this.commitModel({...this.model, fn: value});
         if (this.generatedObjectCount > 0) this.board.setBoundingBox([...FUNCTION_VIEWS[value]], true);
     }
 
     protected setMethod(value: unknown): void {
-        if (!isSumMethod(value)) throw new DomainError(`The sum method must be one of ${SUM_METHODS.join(", ")}.`);
+        if (!isSumMethod(value)) throw new DomainError(choiceRejected("integral_method_label", SUM_METHODS));
         this.commitModel({...this.model, method: value});
     }
 
     protected setBound(which: "a" | "b", value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isBound(value)) throw new DomainError(`The bound ${which} must be a finite number between ${BOUND_MIN} and ${BOUND_MAX}.`);
+        if (!isBound(value)) throw new DomainError(numberRangeRejected(which === "a" ? "integral_a_label" : "integral_b_label", BOUND_MIN, BOUND_MAX));
         this.commitModel({...this.model, [which]: value}, options);
     }
 
     protected setCount(value: number): void {
-        if (!isSubintervalCount(value)) throw new DomainError(`The number of subintervals n must be an integer from ${N_MIN} to ${N_MAX}.`);
+        if (!isSubintervalCount(value)) throw new DomainError(integerRangeRejected("integral_n_label", N_MIN, N_MAX));
         this.commitModel({...this.model, n: value});
     }
 

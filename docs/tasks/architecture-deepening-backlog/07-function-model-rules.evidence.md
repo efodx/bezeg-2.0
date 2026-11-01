@@ -198,3 +198,28 @@ Learner-visible paths for these messages: lesson actions propagate the error; `G
   - **Deferred:** model-rule ownership for these parsers. They have no stored-file diagnosis, and each rule is already a single predicate in `analysis/`. Adding file diagnoses is new behaviour, not part of A7.
   - Brief: handler job file `a7-2e-brief.md`, copied into handler handoff 5.
 - **LinearMap (`LinearMapGraph.tsx:130,140,156,162,178,188`):** the slice 2e worker first establishes whether any throw is learner-reachable. These throws either reach controls (which swallow them) or validate authored scene payloads. If no learner path exists, record that and leave the kernel's messages in place.
+
+## Slice 2e: remaining function-graph setter throws (2026-11-01)
+
+- **Worker:** one `bezeg-worker` Sonnet `medium` (dispatched 09:12Z, about 101k tokens, 60 tools, 10.9 min). No repair. The handler made two small edits:
+  - It aligned the Slovenian h = 0 wording with `derivative_h_note`.
+  - It applied the review's low finding: Derivative now names its field with `derivative_function_label`.
+- **Shape:**
+  - `src/graphs/functions/functionSetterMessages.ts` has three shared builders: `numberRangeRejected`, `integerRangeRejected` and `choiceRejected`. Each names the field by its existing `*_label` key as a nested `Message`.
+  - Linear, Exponential, Trigonometric, Continuity, Derivative, DefiniteIntegral, AreaBetweenCurves and ArcLength throw `DomainError(message(...))`.
+  - `IterativeFunctionGraph.cannotAdvanceMessage()` now returns `Message`, and Bisection, Sequence and FixedPoint localize it.
+- **New keys:**
+  - Shared: `function_number_range_rejected`, `function_integer_range_rejected`, `function_choice_rejected`.
+  - Graph-specific, with special explanations: `linear_coordinate_rejected`, `linear_vertical_rejected`, `linear_limit_rejected`, `trig_phase_rejected`, `derivative_h_rejected`.
+  - `cannotAdvanceMessage`: `bisection_cannot_advance`, `sequence_all_terms_shown`, `fixed_point_cannot_advance`.
+- **Behaviour:** predicates, bounds and normalization are unchanged, according to the reviewer. Only the thrown text changes.
+- **Tests:**
+  - `refusalTexts.testutil.ts` throws each refusal once per language and asserts the exact SL and EN text. It is used in the 11 graph tests.
+  - Two English-regex assertions in `LinearFunctionGraph.test.ts` now match the Slovenian text.
+  - The worker observed the new Continuity test fail against the restored English throw.
+- **LinearMap decision:** the kernel's English messages stay. Deferred to the linear-map lesson.
+  - `LinearMapGraph.tsx:130` (matrix inputs), `:140` (handle drag) and `:156,162` (selects): the graph swallows these errors through `ignoreOutOfDomain`, so no learner sees them.
+  - `:178` (forwarded `validate*` text from `linearMapModel.ts`) and `:188` are reachable only from lesson scene actions. No lesson uses `linear-map` actions yet: `lessonCatalog.test.ts:185` lists the lesson as unpublished, and only `LinearMapGraph.test.ts` applies such actions.
+  - When the linear-map lesson is authored, localize `:178,188`, or unit-apply all of its authored actions.
+- **Review:** `bezeg-reviewer` Sonnet found no defects. One low finding (the borrowed integral label) is fixed.
+- **Handler checks on the final tree:** `just typecheck`, `just lint src` and `just unit src/graphs/functions src/localization` passed.

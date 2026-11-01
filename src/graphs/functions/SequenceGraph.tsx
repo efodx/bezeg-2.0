@@ -5,7 +5,7 @@ import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, Message, t} from "../../localization";
 import {formatNumber, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
     isTermInBand, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_SCALE,
@@ -142,8 +142,8 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
         return canAdvanceSequence(this.model);
     }
 
-    protected cannotAdvanceMessage(): string {
-        return `All ${SEQUENCE_MAX_TERMS} terms are already shown.`;
+    protected cannotAdvanceMessage(): Message {
+        return message("sequence_all_terms_shown", {value0: SEQUENCE_MAX_TERMS});
     }
 
     /** The one mathematical transition of the iteration: Next step and every playback step reveal one more term. */

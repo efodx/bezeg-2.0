@@ -11,6 +11,7 @@ import {
 import {DEFAULT_EXPONENTIAL_MODEL, ExponentialModel, isExponentialBase} from "../../analysis/exponentialModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {numberRangeRejected} from "./functionSetterMessages";
 
 /** Removes floating-point noise left by slider arithmetic (0.1 + 3 * 0.05) without changing meaningful digits. */
 const clean = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
@@ -37,7 +38,7 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
     /** Sets the base; throws when it is outside the model domain, so a <= 0 can never be applied. */
     protected setBase(value: number): void {
         if (!isExponentialBase(value)) {
-            throw new DomainError(`The base a must be a finite number between ${EXPONENTIAL_BASE_MIN} and ${EXPONENTIAL_BASE_MAX}.`);
+            throw new DomainError(numberRangeRejected("exponential_base_label", EXPONENTIAL_BASE_MIN, EXPONENTIAL_BASE_MAX));
         }
         this.commitModel({...this.model, a: clean(value)});
     }

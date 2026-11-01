@@ -4,7 +4,7 @@ import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, Message, t} from "../../localization";
 import {formatNumber, MINUS_SIGN, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
     BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_MAX_STEPS, bisectionExample, BisectionExample,
@@ -134,8 +134,8 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         return this.normalized(model);
     }
 
-    protected cannotAdvanceMessage(): string {
-        return "The iteration cannot advance: it has finished or the bracket is not valid.";
+    protected cannotAdvanceMessage(): Message {
+        return message("bisection_cannot_advance");
     }
 
     private historyOf(model: BisectionModel): BisectionHistory {

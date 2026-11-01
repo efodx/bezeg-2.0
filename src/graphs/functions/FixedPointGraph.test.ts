@@ -5,6 +5,7 @@ import {AnimationScheduler} from '../../learning/runtime/animation';
 import {FIXED_POINT_MAX_STEPS, fixedPointHistory} from '../../analysis/fixedPoint';
 import {defaultFixedPointModel, FixedPointModel} from '../../analysis/fixedPointModel';
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
 
 // The export itself is not under test: only that it pauses the iteration before it captures the board.
@@ -936,4 +937,13 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
     try { apply(graph, parameter('fixed-point-digits', 0)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'fixed_point_digits_rejected_hint', params: {value0: 1, value1: 8}});
     setLanguage('sl');
+});
+
+test('the refusal of a further Next step is localized in Slovenian and English', () => {
+    const known = makeGraph({asyncState: false});
+    apply(known, parameter('fixed-point-x0', 1));
+    expect(refusalTexts(() => next(known))).toEqual({
+        sl: 'Iteracija se je končala. Gumb »Ponastavi na x₀« jo vrne na začetek.',
+        en: 'The iteration has ended. The “Reset to x₀” button returns it to the start.',
+    });
 });

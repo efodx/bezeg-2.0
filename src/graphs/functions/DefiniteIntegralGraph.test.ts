@@ -3,6 +3,7 @@ import {DefiniteIntegralGraph} from './DefiniteIntegralGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 
 const BOX = [-1.5, 4.5, 5.5, -1];
@@ -565,4 +566,28 @@ test('Edit order: controls, then the readout, then the legend (no reveal area wh
     const graph = makeGraph({asyncState: false});
     const children = (graph.workspaceEdit() as any).props.children;
     expect(children.map((child: any) => child?.type?.name ?? (child ? 'controls' : null))).toEqual(['controls', null, 'FunctionReadout', 'FunctionLegend']);
+});
+
+test('the refusals of a lesson action are localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    expect(refusalTexts(() => apply(graph, fnChoice('cos')))).toEqual({
+        sl: 'Za »Funkcija« je dovoljeno eno od: square, sin, exp.',
+        en: 'For “Function” the allowed values are: square, sin, exp.',
+    });
+    expect(refusalTexts(() => apply(graph, methodChoice('upper')))).toEqual({
+        sl: 'Za »Vrsta vsote« je dovoljeno eno od: left, right, midpoint, trapezoid.',
+        en: 'For “Sum method” the allowed values are: left, right, midpoint, trapezoid.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('a', 8)))).toEqual({
+        sl: 'Meja a mora biti število med −7 in 7.',
+        en: 'Bound a must be a number between −7 and 7.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('b', 8)))).toEqual({
+        sl: 'Meja b mora biti število med −7 in 7.',
+        en: 'Bound b must be a number between −7 and 7.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('n', 0)))).toEqual({
+        sl: 'Število podintervalov n mora biti celo število od 1 do 150.',
+        en: 'Number of subintervals n must be an integer from 1 to 150.',
+    });
 });

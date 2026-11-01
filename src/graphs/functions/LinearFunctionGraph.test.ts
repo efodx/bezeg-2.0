@@ -2,6 +2,7 @@ import {LinearFunctionGraph} from './LinearFunctionGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
+import {refusalTexts} from './refusalTexts.testutil';
 
 function fakeBoard() {
     const board: any = {
@@ -107,8 +108,8 @@ test('k and n keep the x-coordinates; they are rejected without mutation for a v
     for (const [x1, y1, x2, y2] of [[1, 0, 1, 4], [2, 2, 2, 2]]) {
         for (const [name, value] of [['x1', x1], ['y1', y1], ['x2', x2], ['y2', y2]] as const) apply(graph, parameter(name, value));
         const before = {...graph.model};
-        expect(() => apply(graph, parameter('k', 3))).toThrow(/vertical line or coincident/);
-        expect(() => apply(graph, parameter('n', 3))).toThrow(/vertical line or coincident/);
+        expect(() => apply(graph, parameter('k', 3))).toThrow(/navpično premico/);
+        expect(() => apply(graph, parameter('n', 3))).toThrow(/navpično premico/);
         expect(graph.model).toEqual(before);
     }
 });
@@ -124,7 +125,7 @@ test.each([NaN, Infinity, -Infinity, 1001, -1e6])('out-of-domain value %p is rej
 
 test('a slope that would push a point beyond the domain is rejected without mutation', () => {
     const graph = makeGraph();
-    expect(() => apply(graph, parameter('k', 600))).toThrow(/within 1000/);
+    expect(() => apply(graph, parameter('k', 600))).toThrow(/znotraj 1000/);
     expect(graph.model).toEqual({x1: 0, y1: 1, x2: 2, y2: 5});
 });
 
@@ -287,4 +288,25 @@ test('figure export preset state follows the imported model', () => {
     graph.importFigurePresetData({id: 'linear-function', data: {x1: 1, y1: 1, x2: 3, y2: 2}});
     const state = graph.figurePresetGraphState(undefined);
     expect(state).toMatchObject({initialized: true, x1: 1, y1: 1, x2: 3, y2: 2});
+});
+
+test('the refusals of a lesson action are localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    expect(refusalTexts(() => apply(graph, parameter('x1', 2000)))).toEqual({
+        sl: 'Koordinata x₁ mora biti število med −1000 in 1000.',
+        en: 'The coordinate x₁ must be a number between −1000 and 1000.',
+    });
+    expect(refusalTexts(() => apply(graph, parameter('k', 600)))).toEqual({
+        sl: 'Naklon in začetna vrednost morata obe točki ohraniti znotraj 1000 od izhodišča.',
+        en: 'The slope and intercept must keep both points within 1000 of the origin.',
+    });
+});
+
+test('the refusal for a vertical line is localized in Slovenian and English', () => {
+    const graph = makeGraph();
+    apply(graph, parameter('x2', graph.model.x1));
+    expect(refusalTexts(() => apply(graph, parameter('k', 3)))).toEqual({
+        sl: 'Naklon k in začetna vrednost n nista določena za navpično premico ali za točki, ki sovpadata.',
+        en: 'The slope k and the intercept n are undefined for a vertical line or coincident points.',
+    });
 });
