@@ -9,7 +9,7 @@ import {
     activeInscribedExampleId, analyseInscribedAngle, BoardXY, gliderTFromBoard, InscribedAnalysis, InscribedCircleAnalysis,
     InscribedExampleId, inscribedExample, normaliseDegrees, resolveGliderT, stepGliderT,
 } from "../../compgeo/inscribedAngleModel";
-import {INSCRIBED_ANGLE_VERTEX_COUNT, inscribedAnglePresetCollection} from "./inscribedAnglePresetCollection";
+import {INSCRIBED_ANGLE_OVERLAY_IDS, INSCRIBED_ANGLE_VERTEX_COUNT, inscribedAngleCollection} from "./inscribedAnglePresetCollection";
 import {InscribedAnglePanel} from "./InscribedAnglePanel";
 import {inscribedTexts} from "./inscribedAngleText";
 
@@ -167,7 +167,7 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
     }
 
     override presetCollection(): PresetCollection<PointSetModel> {
-        return inscribedAnglePresetCollection(this.overlayIds());
+        return inscribedAngleCollection;
     }
 
     // ---- Scene objects -------------------------------------------------------------------------------------------
@@ -181,6 +181,8 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
     }
 
     protected override syncReplacedScene(): void {
+        // A replaced scene drops the references, so remove this graph's board objects first (a Preset load would duplicate them).
+        if (this.hasBoard) this.removeSceneObjects();
         this.resetScene();
         super.syncReplacedScene();
         this.ensureChip();
@@ -194,14 +196,20 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
         return Number.isFinite(value) ? value : 0;
     }
 
+    /** Removes the scene objects still on the board, newest first. */
+    private removeSceneObjects(): void {
+        const list = this.board.objectsList as unknown[];
+        const present = this.sceneObjects.filter(object => list.includes(object)).reverse();
+        if (present.length) this.board.removeObject(present);
+    }
+
     private ensureScene(): void {
         if (!this.graphSession?.isAlive || !this.hasBoard) return;
         const circle = this.circleView();
         const kind = circle ? "circle" : "none";
         const list = this.board.objectsList as unknown[];
         if (kind !== this.sceneKind || !this.sceneObjects.every(object => list.includes(object))) {
-            const present = this.sceneObjects.filter(object => list.includes(object)).reverse();
-            if (present.length) this.board.removeObject(present);
+            this.removeSceneObjects();
             this.resetScene();
             this.sceneKind = kind;
             if (circle) this.createScene(circle);
@@ -275,7 +283,8 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
     // ---- Overlays ------------------------------------------------------------------------------------------------
 
     protected override overlayIds() {
-        return [...super.overlayIds(), "radii" as const, "angles" as const];
+        // One list with the Preset collection, so its overlay check cannot drift from the switches.
+        return INSCRIBED_ANGLE_OVERLAY_IDS;
     }
 
     protected override overlayLabel(id: "grid" | InscribedOverlayId): string {

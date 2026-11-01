@@ -77,6 +77,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | pravilni n-kotnik; oglišče; stopnja n | regular n-gon; vertex; degree n (roots of z^n = w) |
 | preizkusna točka | test point (roots graph) |
 | n-ti koren; koren enote | nth root; root of unity (complex maps, F2b) |
+| Geometrija ravnine | Plane geometry (family; triangle geometry, F2b) |
+| znamenite točke trikotnika | notable points of a triangle (triangle geometry, F2b) |
+| obodni kot | inscribed angle (triangle geometry, F2b) |
+| Talesov izrek | Thales' theorem (triangle geometry, F2b) |
 | glavni argument; glavni koren | principal argument in \((-\pi,\pi]\); principal root \(z_0\) (complex maps chapter) |
 | obratna vrednost; inverzija v krožnici | reciprocal; circle inversion (complex maps chapter; involution that reverses orientation) |
 | premonosna ploskev | ruled surface (Coons patch, D4; sl.wikipedia "Premonosna ploskev") |
