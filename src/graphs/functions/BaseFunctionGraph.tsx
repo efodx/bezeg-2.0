@@ -47,13 +47,16 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
  * (`ignoreOutOfDomain`); lesson actions let it propagate, and anything else is a bug and is never swallowed.
  */
 export class DomainError extends Error {
-    /** The localizable reason when the model module gave one; `message` is its text in the language at the time of the throw. */
+    /** The localizable reason when the model module gave one; `message` renders it lazily, in the language active when it is read. */
     readonly reason?: Message;
 
     /** A model-module reason is preferred: the text a learner sees is then localized, never hand-written English. */
     constructor(reason: string | Message) {
-        super(typeof reason === "string" ? reason : renderMessage(reason));
-        if (typeof reason !== "string") this.reason = reason;
+        super(typeof reason === "string" ? reason : undefined);
+        if (typeof reason !== "string") {
+            this.reason = reason;
+            Object.defineProperty(this, "message", {get: () => renderMessage(reason), configurable: true});
+        }
         this.name = "DomainError";
         Object.setPrototypeOf(this, DomainError.prototype);
     }
