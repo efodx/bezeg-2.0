@@ -1,0 +1,21 @@
+# 04 — Segment-set graph mode
+
+Status: planned 2026-11-01 (geometry handler 10). Source: [spec S0](../../specs/sweep-algorithms-lessons.md#release-batches) ("segment-set graph mode"), [C2 capabilities and acceptance 3](../../specs/sweep-algorithms-lessons.md#c2-bentleyottmann-segment-intersections-showpiece), common criteria C-5 and C-6, [implementation decisions](../../specs/sweep-algorithms-lessons.md#implementation-decisions) (graph classes, Preset validation), [ADR 0035](../../adr/0035-sweep-coordinates-and-exact-event-order.md) limits. Kind: F2a (no route), engineering plus UI/accessibility review. Depends on 03 (`Segment` in `src/compgeo/sweep/segments.ts`) and the point-set graph (convexity 07–10).
+
+## Decision (handler, 2026-11-01)
+
+Segment sets are a third `PointSetMode`, `'segments'`, of the shared point-set model: `points` holds the endpoints as consecutive pairs \((p_{2k},p_{2k+1})\) for segment \(s_k\), so the count is always even and `closed` is false. Drag, snapping, nudging, Presets and disposal of the point-set graph are reused unchanged. Alternative: a separate `SegmentSetModel` and graph. Rejected because it would duplicate the editing, snapping and Preset code that this stream owns once for every family (stream notes). The interval mode of C1 is a later S1 slice and is not part of this task.
+
+## Scope
+
+1. **Model** (`src/compgeo/pointSetModel.ts`): `'segments'` mode; `segmentsOf(model): Segment[]`; edits `addSegment(model, a, b, options)` and `removeSegment(model, k)`; `removePoint` on an endpoint in segments mode removes its segment; `setMode` to and from segments keeps an even prefix of the points (dropping a trailing odd point) and documents it. `parsePointSetModel` refuses an odd count in segments mode with its own reason. Options gain `segmentLimit` (default \(12\), `SWEEP_MAX_SEGMENTS`) and an optional coordinate limit, used by the sweep graphs, with \(|c|\le2^{10}\) from `src/compgeo/sweep/limits.ts`; out-of-limit edits and imports are refused with the existing `limit`/`range` reasons, never clipped.
+2. **Graph** (`PointSetGraph.tsx`): segments mode draws each segment as a JSXGraph segment between its two endpoint points, with a label \(s_k\) at its midpoint (ids match the status list of later lessons). Selecting an endpoint highlights its segment. In Add mode, a first click places a pending endpoint (transient state, not stored; Escape cancels) and a second click adds the segment. An "add segment" action adds a default short segment near the board centre for keyboard users. Board objects created for segments are owned and disposed like the existing ones.
+3. **Inspector** (`PointSetControls.tsx`): the mode toggle offers segments when the subclass allows it (a new protected hook next to `showsModeToggle`, default off, so the convexity graphs are unchanged); numeric endpoint fields grouped per segment; remove-segment button; refusals shown with the existing actionable messages plus one for the segment limit.
+4. **Localization:** new keys in one block after the last compgeo point-set key, same position in `sl.ts` and `en.ts`. Slovenian terms: *daljica* (segment), *krajišče* (endpoint), as in the spec's term table; check the table and [choosing new terms](../../localization.md#choosing-new-terms).
+5. **Tests:** model unit tests (even-count invariant, add/remove/mode switch, limits and range refusals, parse refusals including odd count); graph host tests in the style of `PointSetGraph.host.test.tsx`: segment objects on the board match the model after add, drag, nudge, remove, Preset export/import round trip, Reset and a live language switch (labels re-rendered); disposal leaves no board objects or listeners; the convexity graphs' host tests stay green unmodified. Observe each new assertion fail against the pre-change code or a deliberate mutation.
+
+Stored Presets and routes valid at HEAD must keep working: points and polygon Presets parse exactly as before.
+
+Not in scope: Bentley–Ottmann, trace display, side lists, route or registration (S1), interval mode (S1).
+
+Checks: `just unit src/compgeo/pointSetModel src/graphs/compgeo --maxWorkers=2`, `just lint` on touched files, `npx tsc --noEmit --pretty false`, `just build` (localization).

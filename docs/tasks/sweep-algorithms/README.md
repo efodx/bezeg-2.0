@@ -19,7 +19,7 @@ Source: [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md). 
 | 01 | F0 plan (this file, ADR 0035) | F0 (handler) | — | done |
 | 02 | [Sweep trace model and event order](02-sweep-trace-model.md) | F1 | convexity 02 (`trace.ts`), triangle geometry 01 (`rational.ts`) | accepted 2026-11-01 |
 | 03 | [Exact segment primitives and brute-force intersections](03-segment-primitives.md) | F1 | 02 | accepted 2026-11-01 |
-| 04 | Segment-set graph mode (F2a) | F2a | 03 | task file written when 03 is accepted |
+| 04 | [Segment-set graph mode](04-segment-set-mode.md) | F2a | 03 | planned 2026-11-01 (segments as a third `PointSetMode`) |
 
 ## Later batches
 
