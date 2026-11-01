@@ -4,7 +4,7 @@
  * the scene it belongs to, and `compgeoGuidedLessons.test.ts` checks that against the real graphs. The scenes use only the
  * `point-set` actions, so a scene is a function of its actions and the lesson default.
  */
-import type {LessonAction, LessonPoint} from '../model';
+import type {LessonAction, LessonPoint, LessonViewBox} from '../model';
 import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
@@ -616,9 +616,14 @@ export const EAR_COMB: readonly LessonPoint[] = [[0, 0], [18, 0], [16, 2], [15, 
 type EarOverlay = 'trace' | 'reflex' | 'triangulation' | 'colouring' | 'guards';
 const EAR_OVERLAYS: readonly EarOverlay[] = ['trace', 'reflex', 'triangulation', 'colouring', 'guards'];
 const setTraceStep = (step: number | 'end'): LessonAction => ({kind: 'point-set', operation: 'set-trace-step', step});
-/** An ear clipping scene: the polygon (which returns to step 0 and pauses), exactly the listed overlays, then the step actions. */
+/** The polygon's bounding box with a margin of 1.5, so every scene frames its own polygon (the comb reaches x = 18). */
+export const earView = (list: readonly LessonPoint[]): LessonViewBox => {
+    const xs = list.map(([x]) => x), ys = list.map(([, y]) => y);
+    return [Math.min(...xs) - 1.5, Math.max(...ys) + 1.5, Math.max(...xs) + 1.5, Math.min(...ys) - 1.5];
+};
+/** An ear clipping scene framed on its polygon: the polygon (which returns to step 0 and pauses), exactly the listed overlays, then the step actions. */
 const earScene = (id: string, list: readonly LessonPoint[], shown: readonly EarOverlay[], steps: readonly LessonAction[], sl: string, en: string): LessonScene =>
-    scene(id, [polygon(list), ...EAR_OVERLAYS.map(name => overlay(name, shown.includes(name))), ...steps], sl, en);
+    ({id, basedOn: 'demonstration-default', view: earView(list), actions: [polygon(list), ...EAR_OVERLAYS.map(name => overlay(name, shown.includes(name))), ...steps], expectedState: text(sl, en)});
 
 const earClipping: GuidedLesson = {
     demonstrationId: 'ear-clipping',

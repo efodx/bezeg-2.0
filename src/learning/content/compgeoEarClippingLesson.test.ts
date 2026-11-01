@@ -269,3 +269,15 @@ test('the catalog checks the shape and finiteness of set-trace-step only', () =>
     expect(() => sceneActions(scene(traceStep('last')))).toThrow(/set-trace-step/);
     expect(() => sceneActions(scene(traceStep(undefined)))).toThrow(/set-trace-step/);
 });
+
+test('every ear clipping scene starts in a view that contains its whole polygon, the comb included', () => {
+    for (const stepId of STEPS) {
+        const prepared = sceneOf(stepId)[0];
+        const polygonAction = sceneOf(stepId).find(action => action.kind === 'point-set' && action.operation === 'set-points');
+        expect(prepared.kind === 'prepared-scene' && prepared.view, stepId).toBeTruthy();
+        if (prepared.kind !== 'prepared-scene' || !prepared.view || !polygonAction || polygonAction.kind !== 'point-set' || polygonAction.operation !== 'set-points') throw new Error(stepId);
+        const [left, top, right, bottom] = prepared.view;
+        for (const [x, y] of polygonAction.points) expect(left < x && x < right && bottom < y && y < top, `${stepId} (${x}, ${y})`).toBe(true);
+    }
+    expect(sceneOf('earclip-comb').some(action => action.kind === 'point-set' && action.operation === 'set-points' && action.points.length === EAR_COMB.length)).toBe(true);
+});
