@@ -184,8 +184,10 @@ test('every active demonstration route has an available lesson unless it opts ou
     const lessonIds = ids.filter(id => LESSON_DEMONSTRATION_IDS.includes(id));
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
-    // The remaining compgeo ids ship without lessons.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['complex-reciprocal', 'complex-roots', 'interval-sweep', 'segment-intersections']);
+    // The curves-stream ids (lessons in later F3 slices), the complex-map ids and the remaining compgeo ids ship without lessons.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual([
+        'curve-parametric', 'curve-curvature', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'patch-coons',
+        'complex-reciprocal', 'complex-roots', 'interval-sweep', 'segment-intersections']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

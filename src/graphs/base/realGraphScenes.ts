@@ -10,6 +10,7 @@ import type {LessonAction} from '../../learning/model';
 import type {Preset} from './presets/Presets';
 import TensorPatchGraph from '../patches/TensorPatchGraph';
 import TriangularPatchGraph from '../patches/TriangularPatchGraph';
+import CoonsPatchGraph from '../patches/CoonsPatchGraph';
 import type {Point3Dto} from '../patches/patchDto';
 import {type MountedGraph, observe, observeScene, surfaceViewOf} from './realGraphTestHarness';
 
@@ -66,9 +67,17 @@ function perturbPatch(graph: TensorPatchGraph | TriangularPatchGraph, variant: '
     else if (entry[0] === 'TriangularBezierPatch') graph.importPresetData([[entry[0], {...entry[1], net: entry[1].net.map(lift)}]]);
 }
 
+/** Moves a Coons patch's boundary point `c0-1` (not a corner, so the corners stay linked) in height. */
+function perturbCoons(graph: CoonsPatchGraph, variant: 'a' | 'b'): void {
+    const [entry] = graph.exportPresetData();
+    const c0 = entry[1].c0.map((p, i): Point3Dto => i === 1 ? [p[0], p[1], p[2] + (variant === 'a' ? 0.75 : -0.5)] : p);
+    graph.importPresetData([[entry[0], {...entry[1], c0}]]);
+}
+
 /** Edits a function graph's model the way its controls would: each numeric field the graph accepts a nearby value for. */
 export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b'): void {
     if (graph instanceof TensorPatchGraph || graph instanceof TriangularPatchGraph) { perturbPatch(graph, variant); return; }
+    if (graph instanceof CoonsPatchGraph) { perturbCoons(graph, variant); return; }
     const g = internals(graph);
     // Function graphs only: their Preset data is a model object, which their Preset collection checks.
     const collection = graph.presetCollection();
@@ -143,7 +152,7 @@ export function changeSurfaceView(graph: BaseGraph<BaseGraphState>, variant: 'a'
     const a = variant === 'a';
     view.emit({kind: 'camera', camera: {...view.last.camera, az: a ? 1.1 : -0.4, el: a ? 0.3 : 0.9, distance: a ? 11 : 15}});
     // Absolute positions: a variant may follow one that hid the control net, so the point is not read back from the view.
-    view.emit({kind: 'point', pointId: 'p-1-1', xyz: a ? [0.25, -0.75, 3.5] : [-0.25, 0.5, -1.25], phase: 'end'});
+    view.emit({kind: 'point', pointId: graph instanceof CoonsPatchGraph ? 'd0-1' : 'p-1-1', xyz: a ? [0.25, -0.75, 3.5] : [-0.25, 0.5, -1.25], phase: 'end'});
 }
 
 /** Changes the scene: lesson actions, the curve selection, every switch, the view and the display settings. */

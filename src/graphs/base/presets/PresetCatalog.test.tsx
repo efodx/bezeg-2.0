@@ -32,6 +32,8 @@ const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-derivatives", "p
 /** The computational-geometry Demonstrations, one collection each. */
 const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hull-trace",
     "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann"];
+/** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
+const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-subdivision", "patch-coons"];
 
 /** Rounds away floating-point noise from view arithmetic (a bounding box computed from the container size). */
 const rounded = (value: unknown) => JSON.parse(JSON.stringify(value, (_key, item) =>
@@ -41,7 +43,8 @@ describe('Preset collection definitions', () => {
     test('the accepted collection keys are the file contract, each defined once', () => {
         const keys = presetCollections.map(collection => collection.key);
         expect(new Set(keys).size).toBe(keys.length);
-        expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS].sort());
+        expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS,
+            ...CURVE_STREAM_KEYS].sort());
     });
 
     test('every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys', () => {

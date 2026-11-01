@@ -110,6 +110,9 @@ function curveCollection(key: string, rules: CurveCollectionRules): PresetCollec
 const bezier = (key: string) => curveCollection(key, {type: "JSXBezierCurve"});
 const rational = (key: string) => curveCollection(key, {type: "JSXRationalBezierCurve"});
 
+/** The curvature overlay's collection (lesson L2): a Bézier curve with the standard rules, under its own key. */
+export const curvatureCurvePresetCollection = bezier("curve-curvature");
+
 /**
  * The Preset collections of the curve Demonstrations, by Demonstration id. Collections of one curve type share their
  * rules; a collection differs only in its key, and PH collections in their degree.
@@ -140,13 +143,8 @@ export const curvePresetCollections = {
     "spline-g1": curveCollection("g1-spline-graph", {type: "JSXQuadraticG1SplineCurve"}),
     "spline-g1-symmetric": curveCollection("g1-symmetric-spline-graph", {type: "JSXSymmetricQuadraticG1SplineCurve"}),
     "spline-parameterization": curveCollection("alfaparametrizacije", {type: "JSXQubicC2SplineCurve"}),
+    "curve-curvature": curvatureCurvePresetCollection,
 } as const;
-
-/**
- * The curvature overlay's collection (lesson L2). It stays out of `curvePresetCollections`, and so out of the file importer and
- * the collection-key contract, until the graph is registered (gate G-REG); registration adds it there.
- */
-export const curvatureCurvePresetCollection = bezier("curve-curvature");
 
 /**
  * Accepted file collections that no Demonstration declares. `g1-spline` belonged to the affine G1 spline graph, which no

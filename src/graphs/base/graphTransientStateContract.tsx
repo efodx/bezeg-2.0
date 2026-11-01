@@ -38,6 +38,7 @@ import {
 import type {Preset} from './presets/Presets';
 import TensorPatchGraph from '../patches/TensorPatchGraph';
 import TriangularPatchGraph from '../patches/TriangularPatchGraph';
+import CoonsPatchGraph from '../patches/CoonsPatchGraph';
 
 vi.mock('./export/FigureCapture', async () => ({
     ...await vi.importActual<typeof import('./export/FigureCapture')>('./export/FigureCapture'),
@@ -70,6 +71,10 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
 };
 
 
+type PatchSurfaceGraph = TensorPatchGraph | TriangularPatchGraph | CoonsPatchGraph;
+const surfaceGraph = (g: BaseGraph<BaseGraphState>): g is PatchSurfaceGraph =>
+    g instanceof TensorPatchGraph || g instanceof TriangularPatchGraph || g instanceof CoonsPatchGraph;
+
 /**
  * The display settings are graph preferences that scene replacement keeps, and the lesson default scene keeps the
  * view of a curve graph; put them back for comparisons with a new graph.
@@ -77,7 +82,7 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
 function resetDisplay(graph: BaseGraph<BaseGraphState>, reference: BaseGraph<BaseGraphState>): void {
     // A graph without a board keeps no board display preferences; its camera is scene state that every replacement path
     // must restore, but the vertical-drag mode is a session preference that Preset replacement keeps.
-    if ((graph instanceof TensorPatchGraph || graph instanceof TriangularPatchGraph) && (reference instanceof TensorPatchGraph || reference instanceof TriangularPatchGraph)) {
+    if (surfaceGraph(graph) && surfaceGraph(reference)) {
         act(() => graph.setZMode(reference.state.zMode));
         return;
     }

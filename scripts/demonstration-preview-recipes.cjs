@@ -33,6 +33,11 @@ const targets = {
     'spline-parameterization': ['Original interpolation points and modest sampling count', [field('Parameter α', 0.7), field('Število točk', 12)]],
     'weighted-parameterization': ['Non-neutral alpha exposes uneven sample density', [field('Parameter α', 0.25)]],
     'uniform-parameterization': ['Weighted parameterization checkpoint with ten interior markers; the clip compares this with uniform arc-length spacing', [field('Izberi parametrizacijo', 'alpha', 'select'), field('Število točk', 10)]],
+    'curve-parametric': ['Default cycloid with its generating circle, velocity vector and tangent at the opening parameter', []],
+    'curve-curvature': ['Default parabola with the osculating circle, its centre and the curvature readout at the opening parameter', []],
+    'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
+    'interp-hermite': ['Default points with the Catmull-Rom curve and its tangents', []],
+    'interp-subdivision': ['Default control polygon with the first refinement of the subdivision curve', []],
     'linear-function': ['Unchanged line with its slope triangle', [], [-0.8, 6.5, 3, -1.5]],
     'exponential-function': ['Original growth region and reference points', [], [-1.5, 5, 2.5, -0.6]],
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],
@@ -56,6 +61,7 @@ const targets = {
     orientation: ['Default left turn p=(0,0), q=(4,0), r=(3,2) with line pq and the shaded triangle pqr', [], [-1.2, 3.6, 5.6, -1.2]],
     'polygon-area': ['The hull pentagon with its triangle fan and lattice points in the polygon area workspace', [], [-2.6, 6.4, 6.6, -1.4]],
     'convex-hull': ['Sample 1 of nine points after a few Next steps of the monotone chain trace, with the hull so far', [button('Naslednji korak', 4)], [-2.6, 6.4, 6.6, -1.4]],
+    'patch-coons': ['Default Coons patch, fitted to the preview frame, with its four boundary curves, control net and shaded surface', [button('Ponastavi pogled')]],
     'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-decasteljau': ['Default bicubic dome, fitted to the preview frame, in the de Casteljau workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-derivatives': ['Default bicubic dome, fitted to the preview frame, in the derivatives workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
@@ -68,6 +74,7 @@ const targets = {
 // route's default Preset ships (patchPresetCollections.ts; bicubic dome target [0, 0, 1.25], cubic triangular net target [0, 0, 1], az -0.9, el 0.5) with the
 // distance "Ponastavi pogled" fits to the 360:220 preview host; the capture asserts the live view has exactly this camera.
 const surfaceCameras = {
+    'patch-coons': {az: -0.9, el: 0.5, distance: 8.61854044951079, target: [1.5, 1.5, 0.5]},
     'patch-tensor': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},
     // Both tensor-patch workspaces start from the same default bicubic dome Preset as `patch-tensor`.
     'patch-decasteljau': {az: -0.9, el: 0.5, distance: 8.167849250854438, target: [0, 0, 1.25]},

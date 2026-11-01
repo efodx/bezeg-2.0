@@ -60,6 +60,12 @@ import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
 import RationalSubdivisionGraph2 from './curves/rational/RationalSubdivisionGraph2';
 import RationalBezierCurveGraph from './curves/rational/RationalBezierCurveGraph';
+import ParametricCurveGraph from './curves/parametric/ParametricCurveGraph';
+import CurvatureBezierCurveGraph from './curves/bezier/CurvatureBezierCurveGraph';
+import InterpolationGraph from './curves/interpolation/InterpolationGraph';
+import HermiteGraph from './curves/hermite/HermiteGraph';
+import SubdivisionCurveGraph from './curves/subdivisionCurves/SubdivisionCurveGraph';
+import CoonsPatchGraph from './patches/CoonsPatchGraph';
 import type {DemonstrationId} from '../demonstrations';
 
 /** Executable graph constructors live behind graph-route lazy imports. */
@@ -97,6 +103,12 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'spline-parameterization': () => new SplineAlphaParametrizationGraph(),
     'weighted-parameterization': () => new AlphaParamBezierCurveGraph(),
     'uniform-parameterization': () => new UniformParamBezierCurveGraph(),
+    'curve-parametric': () => new ParametricCurveGraph(),
+    'curve-curvature': () => new CurvatureBezierCurveGraph(),
+    'interp-lagrange': () => new InterpolationGraph(),
+    'interp-hermite': () => new HermiteGraph(),
+    'interp-subdivision': () => new SubdivisionCurveGraph(),
+    'patch-coons': () => new CoonsPatchGraph(),
     'linear-function': () => new LinearFunctionGraph(),
     'exponential-function': () => new ExponentialFunctionGraph(),
     'trigonometric-functions': () => new TrigonometricFunctionsGraph(),

@@ -7,6 +7,11 @@ import {patchPresetCollections} from "../../patches/patchPresetCollections";
 import {complexReciprocalPresetCollection} from "../../complex/complexReciprocalPresets";
 import {complexRootsPresetCollection} from "../../complex/complexRootsPresets";
 import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection";
+import {parametricPresetCollection} from "../../curves/parametric/parametricPresetCollection";
+import {interpolationPresetCollection} from "../../curves/interpolation/interpolationPresetCollection";
+import {hermitePresetCollection} from "../../curves/hermite/hermitePresetCollection";
+import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdivisionPresetCollection";
+import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -14,7 +19,10 @@ import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection"
  */
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(curvePresetCollections), ...legacyCurvePresetCollections, ...Object.values(functionPresetCollections),
-    ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection, ...compgeoPresetCollections,
+    ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
+    ...compgeoPresetCollections,
+    parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
+    coonsPresetCollection,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 
