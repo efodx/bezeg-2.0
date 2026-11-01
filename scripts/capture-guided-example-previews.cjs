@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {execFileSync} = require('node:child_process');
 const {chromium} = require('playwright');
+const {applyControlStep, applyExploreStep} = require('./guided-example-control-steps.cjs');
 const demonstrations = require('../tests/smoke-catalog.cjs');
 const {recipes, settle} = require('./demonstration-preview-recipes.cjs');
 const {presentBoard, hashFile, pngDimensions} = require('./capture-demonstration-previews.cjs');
@@ -346,23 +347,25 @@ async function verifyServedBuild(build) {
 
 const maxNavigationClicks = 200;
 
-async function readGuidedPosition(page, id) {
+async function readGuidedPosition(page, id, label, after) {
     const text = await page.locator('.guided-lesson-progress').innerText();
     const position = parseGuidedProgress(text);
-    assert.ok(position, `${id}: cannot read the guided-lesson position from "${text}"`);
+    assert.ok(position, label
+        ? `${id}: ${label} is unreachable (${after || 'at the start'} and the progress text became "${text}"; the lesson ended before the frame)`
+        : `${id}: cannot read the guided-lesson position from "${text}"`);
     return position;
 }
 
 /** Moves with the lesson's own previous/next buttons until the target frame is current; fails when it cannot be reached. */
 async function reachFrame(page, id, target, label = 'frame') {
     assert.ok(target && Number.isInteger(target.step) && Number.isInteger(target.frame), `${id}: ${label} has no resolved lesson position`);
-    let current = await readGuidedPosition(page, id);
+    let current = await readGuidedPosition(page, id, label);
     for (let clicks = 0; navigationDirection(current, target); clicks++) {
         const direction = navigationDirection(current, target);
         assert.ok(clicks < maxNavigationClicks, `${id}: ${label} is unreachable (no progress towards step ${target.step + 1}, frame ${target.frame + 1})`);
         await page.locator(`.guided-lesson-nav-${direction}`).click();
         await settle(page);
-        const moved = await readGuidedPosition(page, id);
+        const moved = await readGuidedPosition(page, id, label, `${direction} left step ${current.step + 1}, frame ${current.frame + 1}`);
         assert.ok(moved.step !== current.step || moved.frame !== current.frame,
             `${id}: ${label} is unreachable (${direction} did not leave step ${current.step + 1}, frame ${current.frame + 1}; lesson ended or button disabled)`);
         current = moved;
@@ -378,9 +381,11 @@ async function applyHighlightRecipe(page, entry) {
     await reachFrame(page, entry.id, recipe.position, `recipe frame "${recipe.frame}"`);
     await settle(page);
     for (const [index, step] of recipe.steps.entries()) {
-        const where = `recipe step ${index + 1} (${step.kind} ${step.frame})`;
+        const where = `recipe step ${index + 1} (${[step.kind, step.frame || step.tab || step.label].filter(Boolean).join(' ')})`;
         try {
             if (step.kind === 'goto-frame') await reachFrame(page, entry.id, step.position, where);
+            else if (step.kind === 'explore') await applyExploreStep(page);
+            else if (step.kind === 'select-tab' || step.kind === 'set-control') await applyControlStep(page, step);
             else {
                 const current = await readGuidedPosition(page, entry.id);
                 assert.deepEqual([current.step, current.frame], [step.position.step, step.position.frame],

@@ -4,12 +4,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {hashFile} = require('./capture-demonstration-previews.cjs');
 const {validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs');
+const {validateControlStep, validateStepOrder} = require('./guided-example-control-steps.cjs');
 
 const idPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
 const graphGeometryTypes = new Set(['curve', 'functiongraph', 'circle', 'point', 'line', 'segment', 'arrow',
     'polygon', 'arc', 'sector', 'ellipse', 'conic', 'spline', 'turtle']);
 
-const RECIPE_STEP_KINDS = new Set(['goto-frame', 'frame-action']);
+const RECIPE_STEP_KINDS = new Set(['goto-frame', 'frame-action', 'explore', 'select-tab', 'set-control']);
 const CHECK_FIELDS = ['types', 'curveCount', 'points', 'curves'];
 
 function canonicalJson(value) {
@@ -46,9 +47,18 @@ function validateRecipe(id, recipe) {
     assert.ok(Array.isArray(recipe.steps), `${id}: highlight recipe steps must be an array`);
     for (const [index, step] of recipe.steps.entries()) {
         assert.ok(step && RECIPE_STEP_KINDS.has(step.kind), `${id}: recipe step ${index + 1} has unknown kind ${JSON.stringify(step?.kind)}`);
+        if (step.kind === 'explore') {
+            assert.deepEqual(Object.keys(step), ['kind'], `${id}: recipe step ${index + 1} explore takes no other fields`);
+            continue;
+        }
+        if (step.kind === 'select-tab' || step.kind === 'set-control') {
+            validateControlStep(id, step, `recipe step ${index + 1}`);
+            continue;
+        }
         assert.ok(typeof step.frame === 'string' && isPosition(step.position), `${id}: recipe step ${index + 1} is not resolved to a lesson frame`);
         if (step.kind === 'frame-action') assert.ok(typeof step.label === 'string' && step.label, `${id}: recipe step ${index + 1} needs the frame action button label`);
     }
+    validateStepOrder(id, recipe.steps);
     assert.equal(typeof recipe.expectChange, 'boolean', `${id}: highlight recipe must state expectChange true or false`);
     assert.ok(recipe.checks && typeof recipe.checks === 'object' && CHECK_FIELDS.some(field => recipe.checks[field] !== undefined),
         `${id}: highlight recipe needs at least one expected-geometry check (types, curveCount, points or curves)`);

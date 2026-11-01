@@ -569,9 +569,69 @@
         "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":3}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "wp-quarter-calculation-calculation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "types": {
+            "curve": 1,
+            "point": 7
+          },
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              -2
+            ],
+            [
+              -0.5,
+              0.875
+            ],
+            [
+              1.625,
+              0.234375
+            ],
+            [
+              2.5880000000000005,
+              -0.9210000000000004
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.5,
+                0.875
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "eddcd125712fbdb40cb97996c980e60d877f53bd28c66ac5d7d16b7d72947cc6"
     },
     {
       "id": "ph-curves.arc-length-problem.ph-cubic-speed",
@@ -647,9 +707,79 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "ph-quintic-offset-positive-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "types": {
+            "curve": 2,
+            "point": 6
+          },
+          "curveCount": 2,
+          "points": [
+            [
+              -2,
+              -1
+            ],
+            [
+              -1.2,
+              -1
+            ],
+            [
+              -0.3999999999999999,
+              -0.6
+            ],
+            [
+              0.13333333333333341,
+              0.06666666666666676
+            ],
+            [
+              0.3333333333333334,
+              0.6666666666666667
+            ],
+            [
+              0.3333333333333334,
+              1.0666666666666669
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.2708333333333333,
+                -0.21666666666666665
+              ],
+              [
+                0.3333333333333335,
+                1.0666666666666669
+              ]
+            ],
+            [
+              [
+                -2,
+                -1.5
+              ],
+              [
+                0.09123563218390807,
+                -0.5614942528735632
+              ],
+              [
+                0.8333333333333335,
+                1.0666666666666669
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "906417a8e8e666e316803fae4b889be33eb1ea75826f74a59ee2a61be16cbafe"
     },
     {
       "id": "ph-curves.worked-length.ph-cubic-offset-length",
@@ -749,9 +879,61 @@
         "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "rational-base-evaluation-calculation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "types": {
+            "curve": 1,
+            "point": 5
+          },
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              4,
+              -3
+            ],
+            [
+              -0.8181818181818182,
+              1.9090909090909092
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -0.8181818181818182,
+                1.9090909090909092
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "8c2aed35b64a0441b0a03c4a9a7f538708571a28d37bfec0a9d9c3cfaf9cec90"
     },
     {
       "id": "rational-curves.worked-conic.circle",

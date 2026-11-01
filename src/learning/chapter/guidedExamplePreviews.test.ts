@@ -11,6 +11,8 @@ interface InventoryEntry {
     demonstrationId: string;
     path: string;
     sceneFingerprint: string;
+    recipe?: {kind: string};
+    recipeFingerprint?: string;
     actions: string[];
     expected?: unknown;
 }
@@ -39,7 +41,9 @@ it('publishes every exact prepared scene with checked PNG bytes and bilingual re
     const inventoryHash = createHash('sha256');
     for (const entry of [...inventory.examples].sort((a, b) => a.id.localeCompare(b.id))) {
         inventoryHash.update(JSON.stringify({id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path,
-            sceneFingerprint: entry.sceneFingerprint, actions: entry.actions || [], expected: entry.expected || null}));
+            sceneFingerprint: entry.sceneFingerprint, actions: entry.actions || [], expected: entry.expected || null,
+            // Mirrors the runner: start recipes are omitted, highlight recipes are covered by their fingerprint.
+            recipe: entry.recipe?.kind === 'highlight' ? entry.recipeFingerprint : undefined}));
         inventoryHash.update('\0');
     }
     expect(manifest.fingerprints.inventory).toBe(inventoryHash.digest('hex'));
