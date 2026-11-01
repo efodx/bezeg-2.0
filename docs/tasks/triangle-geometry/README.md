@@ -19,7 +19,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`, except the kernel tasks 02 and 03 
 | [01 Rational module](01-rational.md) | 0 | F1 | `G-CG` | — | done 2026-11-01 (mathematical review, Sonnet; repair: true-neighbour `toNumber` oracle, sticky-tie, huge, overflow and 60-bit cases) |
 | [02 Triangle kernel](02-triangle-kernel.md) | 0 | F1 | `G-CG` | 01 | done 2026-11-01 (mathematical review, Sonnet: no blocking finding; handler repair: casts replaced by narrowing, needle-thin equidistance check) |
 | [03 Circle, Simson and exact inversion kernel](03-circle-simson-kernel.md) | 0 | F1 | `G-CG` | 01 | done 2026-11-01 (mathematical review, Sonnet: no blocking finding; handler: power-of-point test tightened to integer power, spec T4 acceptance 1 wording tightened) |
-| [04 Batch A graphs: notable points and inscribed angle](04-batch-a-graphs.md) | A | F2a | `G-CG` | 02, 03 | planned |
+| [04 Batch A graphs: notable points and inscribed angle](04-batch-a-graphs.md) | A | F2a | `G-CG` | 02, 03 | 04a notable points graph done 2026-11-01 (engineering + UI/accessibility review, Sonnet: no blocking finding; drag measured in jsdom, see `docs/reviews/triangle-geometry/04a-drag-measurement.md`); 04b inscribed angle graph next |
 | [05 Batch A registration, lessons, chapter, acceptance](05-batch-a-release.md) | A | F2b–F6 | `G-REG` | 04 | planned |
 | [06 Batch B: Euler line and nine-point circle](06-batch-b.md) | B | F2a–F6 | `G-REG` | 05 | planned |
 | [07 Batch C: Simson line](07-batch-c.md) | C | F2a–F6 | `G-REG`, owner accepts the T4 tolerance policy | 06 | planned |
