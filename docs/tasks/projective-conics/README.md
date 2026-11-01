@@ -11,7 +11,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Task 04 (the five-point solver) ru
 | [03 Conic sampler](03-conic-sampler.md) | A | F1 | none | 02 | accepted 2026-10-31 |
 | [04 Five-point solver and rational arc](04-five-point-solver.md) | B | F1 | none | 02 | accepted 2026-10-31 |
 | [05 Batch A graphs](05-batch-a-graphs.md) | A | F2a | none | 01–03 | planned |
-| [06 Batch A release](06-batch-a-release.md) | A | F2b–F6 | `G-REG` | 05 | planned |
+| [06 Batch A release](06-batch-a-release.md) | A | F2b–F6 | `G-REG` | 05 | F2b accepted 2026-11-01 (`c428fe92`; browser frames in ADR 0033); browser smoke of the three routes, then F3–F6 |
 | [07 Batch B](07-batch-b.md) | B | F2a–F6 | `G-REG` (F2b–F6) | 04, 06 | planned |
 
 Projective graphs add no function model and no curve object, so `G-FN` and `G-CURVE` do not apply. The F2a slices are ungated.

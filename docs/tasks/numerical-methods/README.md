@@ -9,7 +9,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 | [01 Root-finding kernel](01-root-finding-kernel.md) | A | F1 | none | — | accepted ([math review](../../reviews/numerical-methods/kernels-01-03-math-review.md)) |
 | [02 Simpson kernel](02-simpson-kernel.md) | B | F1 | none | — | accepted ([math review](../../reviews/numerical-methods/kernels-01-03-math-review.md)) |
 | [03 Euler kernel](03-euler-kernel.md) | C | F1 | none | — | accepted ([math review](../../reviews/numerical-methods/kernels-01-03-math-review.md)) |
-| [04 Batch A Demonstration](04-batch-a-demonstration.md) | A | F2a, F2b | `G-FN`, `G-REG` | 01 | planned |
+| [04 Batch A Demonstration](04-batch-a-demonstration.md) | A | F2a, F2b | `G-FN`, `G-REG` | 01 | F2a accepted 2026-11-01 (`45571d42`); F2b next |
 | [05 Batch A lessons, chapter, media, acceptance](05-batch-a-lessons.md) | A | F3–F6 | `G-REG` | 04 | planned |
 | [06 Batch B](06-batch-b.md) | B | F2a–F6 | `G-FN`, `G-REG` | 02, 05 | planned |
 | [07 Batch C](07-batch-c.md) | C | measurement + ADR, F2a–F6 | `G-FN`, `G-REG` | 03, 06 | planned |
