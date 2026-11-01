@@ -1,7 +1,7 @@
 import {DIRECTION_TABLE} from "../../projective/conicPencil";
 import {toAffine} from "../../projective/homogeneous";
 import {
-    isReachable, PASCAL_CONIC_IDS, PASCAL_CONICS, PASCAL_DEFAULT_INDICES, PASCAL_HANDLE_COUNT, PascalConicId, PascalModel, reachableIndices,
+    handlePoint, isReachable, PASCAL_CONIC_IDS, PASCAL_CONICS, PASCAL_DEFAULT_INDICES, PASCAL_HANDLE_COUNT, PascalConicId, PascalModel, reachableIndices,
 } from "./pascalModel";
 
 /** A larger keyboard step (Shift): this many reachable positions at once. */
@@ -32,7 +32,7 @@ export function stepHandle(model: PascalModel, handle: number, steps: number): P
 
 /**
  * The reachable table index whose line direction through the handle's base point is nearest (in angle) to the pointer at
- * `to`. Undefined when the pointer is on the base point (no direction) or not finite.
+ * `to`. On the base point the tangent direction (handle on the base point) is chosen, if reachable. Undefined when not finite.
  */
 export function nearestIndex(model: PascalModel, handle: number, to: {x: number; y: number}): number | undefined {
     if (!Number.isFinite(to.x) || !Number.isFinite(to.y)) return undefined;
@@ -40,7 +40,12 @@ export function nearestIndex(model: PascalModel, handle: number, to: {x: number;
     if (base.kind !== "finite") return undefined;
     const dx = to.x - base.view.x;
     const dy = to.y - base.view.y;
-    if (Math.hypot(dx, dy) < 1e-9) return undefined;
+    // A pointer on the base point has no direction: the tangent is the limit, and it puts the handle on the base point itself.
+    if (Math.hypot(dx, dy) < 1e-9) return reachableIndices(model.conic, handle).find(index => {
+        const point = handlePoint(model.conic, handle, index);
+        const view = point === undefined ? undefined : toAffine(point);
+        return view !== undefined && view.kind === "finite" && Math.hypot(view.view.x - base.view.x, view.view.y - base.view.y) < 1e-9;
+    });
     const phi = ((Math.atan2(dy, dx) % Math.PI) + Math.PI) % Math.PI;
     let best: number | undefined;
     let bestGap = Infinity;

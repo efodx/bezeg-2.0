@@ -2,7 +2,7 @@ import React from 'react';
 import {Board} from 'jsxgraph';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {PascalGraph} from './PascalGraph';
+import {PascalGraph, sideLabelOffset} from './PascalGraph';
 import {directionIndex, handlePoint, PASCAL_DEFAULT_INDICES, PASCAL_EXAMPLES, PASCAL_ORDERS, PascalModel, reachableIndices} from './pascalModel';
 import {nearestIndex} from './pascalEdit';
 import {toAffine} from '../../projective/homogeneous';
@@ -92,7 +92,8 @@ test('an ideal Pascal point is drawn as a labelled arrow, never as a far finite 
     expect(line('point-1')).toContain('v neskončnosti, smer (1, 1)');
     expect(visible(graph, 'point', 'P₁')).toEqual([false]);
     expect(visible(graph, 'point', 'P₂')).toEqual([true]);
-    expect(boardTexts(graph).some(text => text.includes('P₁ = ∞'))).toBe(true);
+    // the status names the point at infinity; no on-board label is placed at the clipped edge
+    expect(boardTexts(graph).some(text => text.includes('∞'))).toBe(false);
     const arrows = objects(graph).filter(o => o.elType === 'segment' && o.visPropCalc?.visible);
     expect(arrows).toHaveLength(1);
     for (const object of objects(graph)) {
@@ -357,4 +358,9 @@ test('the scene leaves no anonymous helper on the board: a Preset replacement ke
     view.unmount();
     expect(leftovers(board)).toEqual([]);
     vi.restoreAllMocks();
+});
+
+test('side names step apart along the line by more than a label width, so parallel or coincident sides do not pile up', () => {
+    const offsets = [0, 1, 2, 3, 4, 5].map(sideLabelOffset);
+    for (let i = 1; i < offsets.length; i++) expect(offsets[i][0] - offsets[i - 1][0]).toBeGreaterThanOrEqual(16);
 });

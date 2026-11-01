@@ -35,6 +35,9 @@ const ARROW_STEPS: Readonly<Record<string, readonly [number, number]>> = {
     ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1],
 };
 
+/** Board canvas width (px) below which the on-board ratio text is hidden: at phone width it overlaps itself and the construction. */
+export const READOUT_MIN_CANVAS_WIDTH = 640;
+
 /** Distance along a ray beyond the centre at which a ray to an ideal image is cut off. */
 const IDEAL_RAY_LENGTH = 14;
 const NAMES = ["A", "B", "C", "D"] as const;
@@ -353,14 +356,16 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
 
         // Text on the board: status and the exact cross-ratio, rebuilt from the scene and the language on every update.
         const readout = () => describeCrossRatio(this.scene(), t, currentLanguage());
+        // On a narrow board the lines do not fit; the status region carries the same text, so they are left off the board.
+        const wide = () => board.canvasWidth >= READOUT_MIN_CANVAS_WIDTH;
         add(board.create("text", [-13.6, 8.3, () => readout().originalRatio ?? readout().status], {
-            fixed: true, highlight: false, strokeColor: GraphPalette.label, anchorX: "left", layer: 9,
+            fixed: true, highlight: false, strokeColor: GraphPalette.label, anchorX: "left", layer: 9, visible: wide,
         }) as JXG.GeometryElement);
         add(board.create("text", [-13.6, 7.5, () => (readout().originalRatio ? readout().imageRatio ?? "" : "")], {
-            fixed: true, highlight: false, strokeColor: GraphPalette.label, anchorX: "left", layer: 9,
+            fixed: true, highlight: false, strokeColor: GraphPalette.label, anchorX: "left", layer: 9, visible: wide,
         }) as JXG.GeometryElement);
         add(board.create("text", [-13.6, 6.7, () => readout().limit ?? ""], {
-            fixed: true, highlight: false, strokeColor: GraphPalette.warningText, anchorX: "left", layer: 9,
+            fixed: true, highlight: false, strokeColor: GraphPalette.warningText, anchorX: "left", layer: 9, visible: wide,
         }) as JXG.GeometryElement);
         return {handles, all};
     }

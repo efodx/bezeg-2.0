@@ -18,7 +18,7 @@ class Observed extends CrossRatioGraph {
     liveBoard() { return this.board; }
 }
 
-type Shown = {elType: string; name?: string; X?: () => number; Y?: () => number; plaintext?: string; visProp?: {visible?: boolean}; visible?: boolean};
+type Shown = {elType: string; name?: string; X?: () => number; Y?: () => number; plaintext?: string; visProp?: {visible?: boolean; visPropCalc?: {visible?: boolean}}; visible?: boolean; visPropCalc?: {visible?: boolean}};
 const objects = (graph: Observed) => graph.liveBoard().objectsList as Shown[];
 const handles = (graph: Observed) => ['A', 'B', 'C', 'D', 'O', 'M', 'N'].map(name => objects(graph).find(o => o.elType === 'point' && o.name === name)!);
 const coordinates = (graph: Observed) => handles(graph).map(p => [p.X!(), p.Y!()]);
@@ -198,4 +198,19 @@ test('both lines carry a text label on the board', () => {
     mount(graph);
     const names = objects(graph).filter(o => o.elType === 'line').map(o => o.name);
     expect(names).toEqual(['p', 'p′']);
+});
+
+test('the on-board ratio text is hidden on a narrow board (the status region carries it) and shown on a wide one', () => {
+    const graph = new Observed();
+    mount(graph);
+    const ratioTexts = () => objects(graph).filter(o => o.elType === 'text' && (o.plaintext ?? '').includes('9/8'));
+    const board = graph.liveBoard() as unknown as {canvasWidth: number; update(): void};
+    board.canvasWidth = 1000;
+    act(() => { board.update(); });
+    expect(ratioTexts().length).toBeGreaterThan(0);
+    expect(ratioTexts().every(o => o.visPropCalc?.visible)).toBe(true);
+    board.canvasWidth = 390;
+    act(() => { board.update(); });
+    expect(ratioTexts().some(o => o.visPropCalc?.visible)).toBe(false);
+    expect(document.body.textContent).toContain('9/8');
 });

@@ -71,6 +71,14 @@ interface DrawnScene {
 const lineCoefficients = (line: Hom | undefined): [number, number, number] | undefined =>
     line === undefined || isLineAtInfinity(line) ? undefined : [Number(line[2]), Number(line[0]), Number(line[1])];
 
+/** Horizontal pixel step between neighbouring side names. */
+export const SIDE_LABEL_STRIDE = 18;
+/**
+ * Pixel offset of side `i`'s name from its anchor on the line. Sides are often parallel or coincident (a line pair), so their names
+ * would pile up at one edge: each side steps along the line by more than a label's width, which keeps the six names apart.
+ */
+export const sideLabelOffset = (i: number): [number, number] => [10 + SIDE_LABEL_STRIDE * i, -10];
+
 /** Placeholder for a line that is absent or at infinity; such a line is hidden, never drawn. */
 const HIDDEN_LINE: [number, number, number] = [1, 0, 1];
 
@@ -346,7 +354,7 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             const coefficients = (): [number, number, number] => lineCoefficients(this.scene().sides[i]) ?? HIDDEN_LINE;
             add(board.create("line", [() => coefficients()[0], () => coefficients()[1], () => coefficients()[2]], {
                 ...lineOptions, strokeColor: GraphPalette.constructionAccent, strokeWidth: 1.5, dash: DASHES[i % 3], layer: 3,
-                name: SIDE_NAMES[i], label: {...label, offset: [10 + 6 * i, -10 - 5 * i]},
+                name: SIDE_NAMES[i], label: {...label, offset: sideLabelOffset(i)},
                 visible: () => lineCoefficients(this.scene().sides[i]) !== undefined,
             }) as JXG.GeometryElement);
         }
@@ -362,7 +370,7 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             name: "p", label: {...label, offset: [-24, 10]}, visible: () => lineCoefficients(pascalLine()) !== undefined,
         }) as JXG.GeometryElement);
 
-        // The three Pascal points: finite and inside the view they are markers, ideal ones are arrows below, others are text only.
+        // The three Pascal points: finite and inside the view they are markers, ideal ones are arrows below (named in the status, not on the board), others are text only.
         for (let i = 0; i < 3; i++) {
             const view = () => this.scene().pascalPoints[i]?.view;
             const at = (axis: "x" | "y"): number => {
@@ -391,9 +399,6 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
             add(board.create("segment", [from, to], {
                 strokeColor: GraphPalette.warningText, strokeWidth: 3, lastArrow: {type: 2, size: 8}, highlight: false, fixed: true, layer: 8,
                 visible: () => marker() !== undefined,
-            }) as JXG.GeometryElement);
-            add(board.create("text", [() => (marker()?.to[0] ?? 0) + 0.2, () => (marker()?.to[1] ?? 0) + 0.3, `${PASCAL_POINT_NAMES[i]} = ∞`], {
-                fixed: true, highlight: false, strokeColor: GraphPalette.warningText, layer: 8, visible: () => marker() !== undefined,
             }) as JXG.GeometryElement);
         }
 

@@ -6,7 +6,7 @@ import {dragHandle, nearestIndex, setConic, setIndex, setOrder, stepHandle} from
 import {describePascal} from './pascalText';
 import {classify, conic, evaluate} from '../../projective/conic';
 import {DIRECTION_TABLE, DIRECTION_TABLE_SIZE} from '../../projective/conicPencil';
-import {isIdeal} from '../../projective/homogeneous';
+import {isIdeal, toAffine} from '../../projective/homogeneous';
 import {pointText} from './polePolarModel';
 import {renderMessage, setLanguage, t} from '../../localization';
 
@@ -257,7 +257,6 @@ test('dragging snaps to the table direction nearest the pointer angle from the b
     expect(nearestIndex(model, 1, {x: 4.9, y: 0.05})).toBe(directionIndex(1, 0));
     // a pointer below the base point on the opposite side of the line is the same line direction
     expect(nearestIndex(model, 1, {x: -7, y: -0.6})).toBe(directionIndex(10, 3));
-    expect(nearestIndex(model, 1, {x: -5, y: 0})).toBeUndefined();
     expect(nearestIndex(model, 1, {x: NaN, y: 0})).toBeUndefined();
     const moved = dragHandle(model, 1, {x: 0, y: -3});
     expect(moved.indices).toEqual(model.indices.map((v, i) => i === 1 ? directionIndex(5, -3) : v));
@@ -265,6 +264,15 @@ test('dragging snaps to the table direction nearest the pointer angle from the b
     expect(dragHandle(model, 1, {x: 3, y: 2.4})).toBe(model);
     // on the line pair the B handles are cast from (0,0): a pointer at (4,3) is direction (4,3)
     expect(nearestIndex(PASCAL_EXAMPLES.pappus, 4, {x: 4, y: 3})).toBe(directionIndex(4, 3));
+});
+
+test('a drag ending on the base point (half turn from A at (5,0)) takes the tangent, not a snap-back', () => {
+    const model = PASCAL_EXAMPLES.default;
+    const moved = dragHandle(model, 0, {x: -5, y: 0});
+    expect(moved).not.toBe(model);
+    expect(moved.indices[0]).toBe(directionIndex(0, 1));
+    expect(toAffine(evaluatePascal(moved).handles[0])).toMatchObject({kind: 'finite', view: {x: -5, y: 0}});
+    expect(nearestIndex(model, 1, {x: NaN, y: 0})).toBeUndefined();
 });
 
 test('switching the conic restarts the handles at that conic and keeps the order; setIndex refuses an unreachable position', () => {
