@@ -92,13 +92,15 @@ interface Rig {
     mounted: MountedGraph;
     sweeps: ReturnType<typeof vi.spyOn>;
     creates: ReturnType<typeof vi.spyOn>;
+    disposes: ReturnType<typeof vi.spyOn>;
 }
 
 function open(make: () => GraphLike): Rig {
     const graph = make();
     const sweeps = vi.spyOn(graph as unknown as {sweepSceneBoardObjects(): unknown[]}, 'sweepSceneBoardObjects');
     const creates = vi.spyOn(JXG.Board.prototype, 'create');
-    return {graph, mounted: mountGraph(graph), sweeps, creates};
+    const disposes = vi.spyOn(graph as unknown as {disposeFigureScene(): void}, 'disposeFigureScene');
+    return {graph, mounted: mountGraph(graph), sweeps, creates, disposes};
 }
 
 /** Runs one replacement of `entry` on the rig. */
@@ -213,5 +215,44 @@ describe.each(FIGURE_FAMILIES)('%s (figure path)', (family, make) => {
     const run = KNOWN_FAILURES[`${family}/reload`] ? it.fails : it;
     run('reload three times leaves the scene as the first did', async () => {
         await runCycles(make, 'reload');
+    });
+});
+
+/**
+ * Disposal count per replacement (A3 S2): `disposeFigureScene` runs exactly once for an entry that disposes (the figure
+ * path always; mount and the lesson paths for curve families, which used to dispose inside `importPresetData`) and not at
+ * all otherwise. Mount is counted on the remount only.
+ */
+describe('disposal per replacement', () => {
+    const FAMILIES: Array<[string, () => GraphLike, boolean]> = [
+        ['bezier curve', () => graphFactories.bezier(), true],
+        ['function (derivative)', () => graphFactories.derivative(), false],
+        ['ph-cubic', () => graphFactories['ph-cubic'](), true],
+        ['hermite', () => graphFactories['interp-hermite'](), false],
+        ['point set (convex hull)', () => graphFactories['convex-hull'](), false],
+    ];
+    const DISPOSING_ENTRIES: Entry[] = ['reload', 'figure batch'];
+
+    describe.each(FAMILIES)('%s', (family, make, curveFamily) => {
+        for (const entry of ENTRIES) {
+            if (entry === 'remount' && family === 'ph-cubic') continue; // known remount failure, see KNOWN_FAILURES
+            const batchSize = entry === 'figure batch' ? 2 : 1;
+            // A batch figure disposes for the figure and again for the restored entry scene.
+            const expected = DISPOSING_ENTRIES.includes(entry) ? batchSize : curveFamily ? 1 : 0;
+            it(`${entry} disposes ${expected} time(s) per replacement`, async () => {
+                const rig = open(make);
+                const checkpoint = entry === 'lesson checkpoint' ? rig.graph.getLessonCapabilities().captureState() : undefined;
+                try {
+                    for (let cycle = 0; cycle < 2; cycle++) {
+                        rig.disposes.mockClear();
+                        await replace(entry, rig, checkpoint);
+                        // A remount replaces the instance's session, so the spy keeps counting on the same graph.
+                        expect(rig.disposes).toHaveBeenCalledTimes(expected);
+                    }
+                } finally {
+                    rig.mounted.view.unmount();
+                }
+            });
+        }
     });
 });

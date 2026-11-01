@@ -253,6 +253,11 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
         }
     }
 
+    /** Curve families disposed in `importPresetData`, so mount and the lesson paths still dispose for them. */
+    protected override disposesBeforeNonFigureImport(): boolean {
+        return true;
+    }
+
     protected override disposeFigureScene(): void {
         this.disposeFigureSceneResources();
         this.workspaceRevision++;
@@ -399,7 +404,7 @@ abstract class BaseCurveGraph<S extends BaseGraphStates> extends BaseGraph<S, Cu
     override importPresetData(str: CurveCollectionPresetData) {
         this.board.suspendUpdate();
         try {
-            this.disposeFigureScene();
+            // Disposal belongs to the scene replacement (SceneReplacement.ts), once per replacement.
             str.forEach(p => {
                 const [id, object] = [p[0], p[1]];
                 let curve = ClassMapper.getFromDto(id)(object, this.board);

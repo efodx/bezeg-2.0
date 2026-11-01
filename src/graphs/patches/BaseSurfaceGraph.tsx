@@ -209,10 +209,16 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         const checked = collection.check(JSON.parse(JSON.stringify(data)) as unknown);
         if (!("data" in checked)) throw new Error(`The lesson geometry is invalid: ${renderMessage(checked.rejection)}`);
         const camera = view3d ? this.lessonCamera(view3d, this.getInitialState().camera) : undefined;
-        this.replaceState({...this.getInitialState(), ...this.lessonDefaultState()});
-        this.importPresetData(checked.data);
-        if (camera) this.setSurfaceState({camera});
-        this.finishSceneReplacement(undefined);
+        this.runLessonReplacement({
+            importData: () => undefined,
+            state: () => ({...this.getInitialState(), ...this.lessonDefaultState()}),
+            // The fixture is imported after the fresh state is in place (surface families do not dispose on import).
+            afterState: () => {
+                this.importPresetData(checked.data);
+                if (camera) this.setSurfaceState({camera});
+            },
+            transientState: undefined,
+        });
     }
 
     /** Sets the camera of the current scene from a lesson 3D view (clamped like the user's camera). */
