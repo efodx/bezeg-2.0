@@ -83,3 +83,61 @@ export const phQuinticControlPoints: readonly Vec[] = (() => {
 export type CurveSamples = readonly [Vec, Vec, Vec];
 /** A curve sampled at parameters 0, 1/2 and 1, the vocabulary of the capture checks. */
 export const sampleCurve = (at: (t: number) => Vec): CurveSamples => [at(0), at(0.5), at(1)];
+
+/** Blossom (polar form) of the Bézier curve with control points `points`: de Casteljau with parameter `args[k]` in round k+1. */
+function blossom(points: readonly Vec[], args: readonly number[]): Vec {
+    let level = points.map(point => [point[0], point[1]] as [number, number]);
+    for (const a of args) {
+        level = level.slice(1).map((next, i) => [(1 - a) * level[i][0] + a * next[0], (1 - a) * level[i][1] + a * next[1]]);
+    }
+    return level[0];
+}
+
+/**
+ * Control points of the piece of the Bézier curve on the parameter interval [a, b]: the k-th is the blossom with
+ * (n-k) arguments a and k arguments b. [0, t] is the left subdivision part, [t, 1] the right one, [0, s] with s > 1 the extrapolated curve.
+ */
+export function bezierSegmentControls(points: readonly Vec[], a: number, b: number): Vec[] {
+    const n = points.length - 1;
+    return points.map((_, k) => blossom(points, [...Array(n - k).fill(a), ...Array(k).fill(b)]));
+}
+
+/** The rows of the de Casteljau scheme at `t`, without the control polygon itself: rows of n, n-1, ..., 1 points. */
+export function decasteljauRows(points: readonly Vec[], t: number): Vec[][] {
+    const rows: Vec[][] = [];
+    let level: Vec[] = [...points];
+    while (level.length > 1) {
+        level = level.slice(1).map((next, i) => [(1 - t) * level[i][0] + t * next[0], (1 - t) * level[i][1] + t * next[1]] as Vec);
+        rows.push(level);
+    }
+    return rows;
+}
+
+/** Bernstein basis value b_i^n(t) = C(n,i) t^i (1-t)^(n-i), with the binomial coefficient computed by its product formula. */
+export function bernsteinValue(n: number, i: number, t: number): number {
+    let binomial = 1;
+    for (let k = 1; k <= i; k++) binomial *= (n - i + k) / k;
+    return binomial * t ** i * (1 - t) ** (n - i);
+}
+
+/** Rotates the points by `angle` radians (counterclockwise) about their mean, the pivot the affine lesson graph uses. */
+export function rotateAboutMean(points: readonly Vec[], angle: number): Vec[] {
+    const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length;
+    const cy = points.reduce((sum, p) => sum + p[1], 0) / points.length;
+    const cos = Math.round(Math.cos(angle) * 1e12) / 1e12, sin = Math.round(Math.sin(angle) * 1e12) / 1e12;
+    return points.map(([x, y]) => [cx + cos * (x - cx) - sin * (y - cy), cy + sin * (x - cx) + cos * (y - cy)] as Vec);
+}
+
+/** Lesson fixtures of the bezier-curves chapter, copied from the lesson sources named in each comment. */
+/** guidedLessons.ts `bezierSymmetricFixture`. */
+export const symmetricCubicControlPoints: readonly Vec[] = [[-3, -2], [-3, 2], [3, 2], [3, -2]];
+/** expansionGuidedLessons.ts `affineFixture`. */
+export const affineLessonControlPoints: readonly Vec[] = [[1, 0], [2, 3], [4, 2], [5, -1]];
+/** Default quartic of the de Casteljau demonstrations (DecasteljauGraph.tsx preset; also the `da-*` helper-curve steps). */
+export const defaultQuarticControlPoints: readonly Vec[] = [[-4, -3], [-3, 2], [0, 3], [3, 2], [4, -3]];
+/** ElevationGraph.tsx default preset (additionalGuidedLessons.ts `elevation-cubic-example`). */
+export const elevationCubicControlPoints: readonly Vec[] = [[-4, -2], [-3, 3], [2, 3], [3, -2]];
+/** ExtrapolationGraph.tsx default preset (constructionGuidedLessons.ts `ex-twelve-tenths`). */
+export const extrapolationCubicControlPoints: readonly Vec[] = [[-4, -2], [-3, 3], [2, 3], [3, -1]];
+/** SubdivisionGraph.tsx / SubdivisionGraph1.tsx default preset (subdivision and repeated-subdivision lessons). */
+export const subdivisionCubicControlPoints: readonly Vec[] = [[-4, -3], [-3, 3], [3, 3], [4, -3]];

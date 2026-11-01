@@ -150,9 +150,57 @@
         "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "affine-quarter-turn-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              4,
+              -1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              2.25,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                4,
+                -1
+              ],
+              [
+                2.25,
+                1
+              ],
+              [
+                5,
+                3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "e1b93a990ee242f970c00bfa54a82d4102adf5f795d1c7e47443c18569f854ee"
     },
     {
       "id": "bezier-curves.bernstein-form.bernstein",
@@ -163,9 +211,77 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "bernstein-calculation-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                0.125
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.375
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.375
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.125
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "af36f749446f3fe6513d581866ee790138639a70ddf339b2ae73064381468d8d"
     },
     {
       "id": "bezier-curves.control-points.bezier",
@@ -176,9 +292,57 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bezier-symmetric-cubic\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-3,-2],[-3,2],[3,2],[3,-2]]},\"view\":[-4.5,4,4.5,-3.5]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "bezier-evaluation-observation",
+        "position": {
+          "step": 3,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -3,
+              -2
+            ],
+            [
+              -3,
+              2
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              3,
+              -2
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -3,
+                -2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "f44a7cea29ae60f2736b7783d308751f9ef992bea9b4f822e6194cb3c835b611"
     },
     {
       "id": "bezier-curves.geometric-properties.convex-hull",
@@ -206,9 +370,68 @@
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "da-recursion-quarter-observation",
+        "position": {
+          "step": 4,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              4,
+              -3
+            ],
+            [
+              -2.90625,
+              0.03125
+            ],
+            [
+              -0.78125,
+              2.34375
+            ],
+            [
+              -2.375,
+              0.609375
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.75
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "416dd8330722dabe296eb0e1283243a56765efce1f35d8b38d735c1da0b6ec5e"
     },
     {
       "id": "bezier-curves.interpolation.decasteljau",
@@ -221,9 +444,77 @@
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "decasteljau-cubic-observation",
+        "position": {
+          "step": 3,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -3,
+              -2
+            ],
+            [
+              -3,
+              2
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              3,
+              -2
+            ],
+            [
+              -3,
+              0
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              -1.5,
+              1
+            ],
+            [
+              1.5,
+              1
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -3,
+                -2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "7e85505d3ff7e5a1fd335a23172c5918348cb98b31777f4ef8519eba954e0a4b"
     },
     {
       "id": "bezier-curves.interpolation.quartic-interpolation",
@@ -252,9 +543,60 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "elevation-analysis-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "points": [
+            [
+              -4,
+              -2
+            ],
+            [
+              -3.25,
+              1.75
+            ],
+            [
+              -0.5,
+              3
+            ],
+            [
+              2.25,
+              1.75
+            ],
+            [
+              3,
+              -2
+            ],
+            [
+              1.625,
+              0.8125
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                -0.5,
+                1.75
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "6bf5858c581cf449e3adda83c9316001043b5ecb1f3f83fdc12877da135ea17e"
     },
     {
       "id": "bezier-curves.next-ideas.extrapolation",
@@ -265,9 +607,53 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ex-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "ex-extend-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -2
+            ],
+            [
+              -2.8,
+              3.9999999999999996
+            ],
+            [
+              4.159999999999999,
+              2.8
+            ],
+            [
+              3.055999999999999,
+              -3.872
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                0.3919999999999997,
+                1.816
+              ],
+              [
+                3.055999999999999,
+                -3.872
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "5c9d787c55c6d4abfb963fc77c8c851c89a668b0f0759447df4093fd15acd054"
     },
     {
       "id": "bezier-curves.next-ideas.repeated-subdivision",
@@ -278,9 +664,171 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "rs-eight-pieces-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 8,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3.41015625,
+              -1.03125
+            ],
+            [
+              -2.46875,
+              0.375
+            ],
+            [
+              -1.29296875,
+              1.21875
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              1.29296875,
+              1.21875
+            ],
+            [
+              2.46875,
+              0.375
+            ],
+            [
+              3.41015625,
+              -1.03125
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -3.75634765625,
+                -1.9453125
+              ],
+              [
+                -3.41015625,
+                -1.03125
+              ]
+            ],
+            [
+              [
+                -3.41015625,
+                -1.03125
+              ],
+              [
+                -2.97607421875,
+                -0.2578125
+              ],
+              [
+                -2.46875,
+                0.375
+              ]
+            ],
+            [
+              [
+                -2.46875,
+                0.375
+              ],
+              [
+                -1.90283203125,
+                0.8671875
+              ],
+              [
+                -1.29296875,
+                1.21875
+              ]
+            ],
+            [
+              [
+                -1.29296875,
+                1.21875
+              ],
+              [
+                -0.65380859375,
+                1.4296875
+              ],
+              [
+                0,
+                1.5
+              ]
+            ],
+            [
+              [
+                0,
+                1.5
+              ],
+              [
+                0.65380859375,
+                1.4296875
+              ],
+              [
+                1.29296875,
+                1.21875
+              ]
+            ],
+            [
+              [
+                1.29296875,
+                1.21875
+              ],
+              [
+                1.90283203125,
+                0.8671875
+              ],
+              [
+                2.46875,
+                0.375
+              ]
+            ],
+            [
+              [
+                2.46875,
+                0.375
+              ],
+              [
+                2.97607421875,
+                -0.2578125
+              ],
+              [
+                3.41015625,
+                -1.03125
+              ]
+            ],
+            [
+              [
+                3.41015625,
+                -1.03125
+              ],
+              [
+                3.75634765625,
+                -1.9453125
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "1d6f17f1e4f63cd748cd42d67eb07c693caf5ec42d0f8737510006db121ac396"
     },
     {
       "id": "bezier-curves.next-ideas.subdivision",
@@ -291,9 +839,83 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sd-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "sd-split-half-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3.5,
+              0
+            ],
+            [
+              -1.75,
+              1.5
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              1.75,
+              1.5
+            ],
+            [
+              3.5,
+              0
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -2.46875,
+                0.375
+              ],
+              [
+                0,
+                1.5
+              ]
+            ],
+            [
+              [
+                0,
+                1.5
+              ],
+              [
+                2.46875,
+                0.375
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "0773112e9f3203817e81502103f225bda77591e30c05979e500d154f76bf0fbf"
     },
     {
       "id": "bezier-curves.parameter.decasteljau-parameter",

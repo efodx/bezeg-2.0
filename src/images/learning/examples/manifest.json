@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+  "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+    "revision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
     "dirty": true,
-    "inputs": "d7b0f0611dea5006d6c9d485a1765ed3f9c533d01c494c2ba6691130eb1ea196",
-    "output": "7b4653dd094d0db70939360d79a40ca8f099de3e5f61de708cb4c10c66dbb9ec"
+    "inputs": "9aee28bb21066333fdd7e16f7f55fbf59abd78a60dc55e29a33e86f68015a422",
+    "output": "c63f5911bbd8d1e8e9dc61e0a15738892a902ec5f34b32c96f5e245891801ddb"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+    "stampRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
     "stampDirty": true,
-    "localOutputHash": "7b4653dd094d0db70939360d79a40ca8f099de3e5f61de708cb4c10c66dbb9ec",
+    "localOutputHash": "c63f5911bbd8d1e8e9dc61e0a15738892a902ec5f34b32c96f5e245891801ddb",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Dg5PZRgQ.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-Dg5PZRgQ.js",
-        "sha256": "97ae6312a0b3ee14c65f255717616614d2ef31bfadf57633c6b780c61b7de5da",
+        "name": "index-CqnHhXbZ.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-CqnHhXbZ.js",
+        "sha256": "e0bb0164dd5fd9f2f30e6d470c4a6ccbc369d26ba04ac6ddf4ccc820e32bacbd",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-6B8virM0.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-6B8virM0.js",
-        "sha256": "dd47bc36968abfdf3d9776b2d2fbcc05b231f6e6275a8d93e9b37f340e2795b8",
+        "name": "jsx-runtime-vJbK-o5R.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-vJbK-o5R.js",
+        "sha256": "47f87b5fa5c7412a72216c520bc29369712fbb7129fb537b2becd9ae8f4d5a3b",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-CQP7ScPA.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-CQP7ScPA.js",
-        "sha256": "11c7c89aa592eb6dff14144c7d29ff7194bb956d4d76ca023e1f9b6e5590c929",
+        "name": "react-dom-BoxCLVxg.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-BoxCLVxg.js",
+        "sha256": "0947978bf5de309f1017485735da86d42cc275c0af6eddb79d459fbf8f9f1c8e",
         "matchesLocalBuild": true
       },
       {
@@ -55,7 +55,7 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "3b1b061a7ac83ba86311312711f86bc1481ebc1e9406e29ac9788943858ceda0",
+    "inventory": "2db9523b5b784b896fa2e459014a017026ccaf5aa200ac681da95d3272b02b13",
     "entries": {
       "analysis.convergence.fixed-point": "6cb70120614e70faf914c914d615957baf878f1b6f12f37252eef79df5e8cfd7",
       "analysis.convergence.sequence": "997d2505353f52699c78a7256fa9d26cb1f634fa3240be8e36ec852159e9069a",
@@ -66,17 +66,17 @@
       "analysis.existence.bisection": "98f078f4fdb649b326d3ad4ebcbeb8b4f6c5f335e796736148dc609c6e7d658c",
       "analysis.integrability.darboux": "9e51ef448fdf8af7ef7742239063d30f370233809223a07f9a5a44fc7befe4f1",
       "analysis.taylor.taylor": "6d73e0760812b74eaa76dbbb7dd05c9706ad0a7b30639ee864f776e59ee5e657",
-      "bezier-curves.affine-transformations.affine": "8272e9ebd3961a7267b06676c53c5ab346c8f86b804adf8194565656dd56e161",
-      "bezier-curves.bernstein-form.bernstein": "2b22f871fecbeffc6f64b27203310ffa58a7af127b0c5ef2d82e4bc5bca12f47",
-      "bezier-curves.control-points.bezier": "efba08efef334cf3c1e4bdf75fc3d4c9113aa35a1987d1d4b8effad3a2b8ffd9",
+      "bezier-curves.affine-transformations.affine": "920f535fc996cb22c7eaf58f8535f6f4c4261bf61516946aea0b0e0175be002d",
+      "bezier-curves.bernstein-form.bernstein": "ea2064aba9a138537078bb714173b107d82ace08e616f99d9e0cc47a6c4f86f8",
+      "bezier-curves.control-points.bezier": "739e0552857f2b3afd742a3c187ed8eda5a3f695354c9fdc750fdde06d128a0c",
       "bezier-curves.geometric-properties.convex-hull": "ceaa2fbf11b3cd553b151edae709aba3cb69cb4ec319b593b4c5d30ec557956e",
-      "bezier-curves.interpolation.alternative-recursion": "b1afe48a88feb708806e405450020aa0209050b502dbd817027e98233336c185",
-      "bezier-curves.interpolation.decasteljau": "00c7a604de8fb1411527f40199e9851c12d6c0d9be6969ccc3328b461e8d62e7",
+      "bezier-curves.interpolation.alternative-recursion": "68a9b4fa2054e107241c3766416b1784c7b450c84f6753ced603b75777192c47",
+      "bezier-curves.interpolation.decasteljau": "3f5433c1ba0cef4f333de001df1753525c3a0295d448e1cd04e9d0fb793a943b",
       "bezier-curves.interpolation.quartic-interpolation": "4ac206471937c13977c157c72e70adbc691de6b46dfb5ef22343981480a901bc",
-      "bezier-curves.next-ideas.elevation": "129f32aa9f294d12c7ff18d42751fb02eff35f8f5217512a61bb3aabb5b55d98",
-      "bezier-curves.next-ideas.extrapolation": "469855137dec2dc3b1d0d318507c779adf8cebe7054b78b84c54824786d1d8ec",
-      "bezier-curves.next-ideas.repeated-subdivision": "2e4f8bacac5a5520e13dc22986209ac261154d483dacded73b55b8ad6561f95e",
-      "bezier-curves.next-ideas.subdivision": "739dfe1ff914ba9420255638a7cfc232603d70847dc4348c732f574ba7263d0b",
+      "bezier-curves.next-ideas.elevation": "118d6e097ea6f89274ba65cd6b14a4d96d66dde2345706a518cf1e45af81f052",
+      "bezier-curves.next-ideas.extrapolation": "1be0782a568842fee33f318af93cbc93426039dce124ef658339a03113c5529c",
+      "bezier-curves.next-ideas.repeated-subdivision": "78bc3b10ece6c0f20e88ba0fa1c9cf43c41a5c07ec70c6cf59c1c5faf9128bdf",
+      "bezier-curves.next-ideas.subdivision": "697a63f5288d1b6c8fa77df03c862fd8113fea95f66b7d22e4fab68738f5f8fd",
       "bezier-curves.parameter.decasteljau-parameter": "66eca930b335d57d088ee0b0866b2cf9d08e4ab5939aee30ea21422630927317",
       "foundations.complex-plane.complex-multiplication": "d2a1e1c5c07f7ef75f99c8fa738a5d7f6f10c6ce6541ef70af0d298b3635b602",
       "foundations.reading-bernstein.bernstein": "f8bdd7cfec2ca74333da939861fd2e5b45c38644ad159d150443f96371e5a5d0",
@@ -114,9 +114,9 @@
       "splines.piecewise.spline-cn": "3d46c7b2f1f3945bd1cd402280bc442dc46b7439a7d0b2f41c5108e3211d2a2d",
       "splines.worked-join.spline-c1.parabola-derivatives": "c23b4ed4a16b4741f2cfc427e2243f72a465cd39b2258c265130a630b0628813"
     },
-    "presentation": "080b5c14c790323265227b5d94b82be05bf55388c07e5df6dfeb566944b347fa",
-    "buildOutput": "7b4653dd094d0db70939360d79a40ca8f099de3e5f61de708cb4c10c66dbb9ec",
-    "buildInputs": "d7b0f0611dea5006d6c9d485a1765ed3f9c533d01c494c2ba6691130eb1ea196"
+    "presentation": "28ff0584d108cb30f732d67ead8afac39c202ef4321a83a5855c1135cd5c6133",
+    "buildOutput": "c63f5911bbd8d1e8e9dc61e0a15738892a902ec5f34b32c96f5e245891801ddb",
+    "buildInputs": "9aee28bb21066333fdd7e16f7f55fbf59abd78a60dc55e29a33e86f68015a422"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -888,8 +888,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1009,8 +1009,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1144,8 +1144,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1279,8 +1279,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1388,8 +1388,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1552,8 +1552,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1660,8 +1660,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1793,8 +1793,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1928,8 +1928,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -1944,13 +1944,120 @@
         "curve-evaluation: {\"kind\":\"curve-evaluation\",\"parameter\":0.5}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "affine-quarter-turn-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              4,
+              -1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              2.25,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                4,
+                -1
+              ],
+              [
+                2.25,
+                1
+              ],
+              [
+                5,
+                3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "e1b93a990ee242f970c00bfa54a82d4102adf5f795d1c7e47443c18569f854ee",
+      "highlight": {
+        "frame": "affine-quarter-turn-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "6be19bf430094b960a4bea12635b6bfba6968651ca1c64008e1cd86b38de8146",
+        "resultFingerprint": "c0248e2d8cf9d155470b53b2546db8fd587145b96ed006b9866a4a29f5bea976",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:4,-1",
+            "passed": true
+          },
+          {
+            "name": "point:1,0",
+            "passed": true
+          },
+          {
+            "name": "point:2,2",
+            "passed": true
+          },
+          {
+            "name": "point:5,3",
+            "passed": true
+          },
+          {
+            "name": "point:2.25,1",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 20,
+            "point": 5,
+            "curve": 1,
+            "segment": 3
+          },
+          "visiblePointCount": 5
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-curves.affine-transformations.affine.png",
       "width": 840,
       "height": 520,
-      "sha256": "da81c79e7e3d7b96d0a1677e3b2daded83eed99ebd97686a9f52092a171dbae2",
+      "sha256": "92470f56e900f262255b95cd4fa81af5fb9a509f6ff626703f90df128ca1c0be",
       "scene": {
         "visibleElementCount": 9,
         "visibleElementTypes": {
@@ -1962,20 +2069,28 @@
         "sampledVisibleCurves": [
           [
             [
-              1,
-              0
+              4,
+              -1
             ],
             [
-              3,
-              1.75
+              2.25,
+              1
             ],
             [
               5,
-              -1
+              3
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:4,-1",
+          "point:1,0",
+          "point:2,2",
+          "point:5,3",
+          "point:2.25,1",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -2029,8 +2144,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2043,19 +2158,136 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bernstein-degree-one\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "bernstein-calculation-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                0.125
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.375
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.375
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.125
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "af36f749446f3fe6513d581866ee790138639a70ddf339b2ae73064381468d8d",
+      "highlight": {
+        "frame": "bernstein-calculation-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "1b1fa0e56f818e44c7292c41a9dc543c21ddcc65b5df8925815d5fe4c3c6649f",
+        "resultFingerprint": "adda6a4f541c1e78d3142ec15d5ad1ca7416bc06cdc05121152d161a975a1e16",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 22,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 14,
+            "curve": 4
+          },
+          "visiblePointCount": 0
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-curves.bernstein-form.bernstein.png",
       "width": 840,
       "height": 520,
-      "sha256": "10808f0434c157dac02764c5a0c3db87a4d93993b35ee53b708be8c97a95fc30",
+      "sha256": "2df4f066f44be5467febb1e9dee4e7aa08207a9acbc4bffa60e584ee199ff9e2",
       "scene": {
-        "visibleElementCount": 6,
+        "visibleElementCount": 8,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "curve": 2
+          "curve": 4
         },
         "visiblePointCount": 0,
         "sampledVisibleCurves": [
@@ -2066,7 +2298,7 @@
             ],
             [
               0.5,
-              0.5
+              0.125
             ],
             [
               1,
@@ -2076,11 +2308,39 @@
           [
             [
               0,
+              0
+            ],
+            [
+              0.5,
+              0.375
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.375
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              0,
               1
             ],
             [
               0.5,
-              0.5
+              0.125
             ],
             [
               1,
@@ -2088,7 +2348,13 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -2148,14 +2414,14 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "curve": 2
+          "curve": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2168,20 +2434,130 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bezier-symmetric-cubic\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-3,-2],[-3,2],[3,2],[3,-2]]},\"view\":[-4.5,4,4.5,-3.5]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "bezier-evaluation-observation",
+        "position": {
+          "step": 3,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -3,
+              -2
+            ],
+            [
+              -3,
+              2
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              3,
+              -2
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -3,
+                -2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "f44a7cea29ae60f2736b7783d308751f9ef992bea9b4f822e6194cb3c835b611",
+      "highlight": {
+        "frame": "bezier-evaluation-observation",
+        "position": {
+          "step": 3,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "a865cc029a47ff95b38dc108900196ec2f833ac35f70989b16f657aa834e8abb",
+        "resultFingerprint": "5d3d90b8f67a7c29daa6654226668e990941d8ffb76a74d0d3e231ae74c486b0",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-3,-2",
+            "passed": true
+          },
+          {
+            "name": "point:-3,2",
+            "passed": true
+          },
+          {
+            "name": "point:3,2",
+            "passed": true
+          },
+          {
+            "name": "point:3,-2",
+            "passed": true
+          },
+          {
+            "name": "point:0,1",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "point": 5,
+            "curve": 1,
+            "segment": 7,
+            "polygon": 1
+          },
+          "visiblePointCount": 5
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-curves.control-points.bezier.png",
       "width": 840,
       "height": 520,
-      "sha256": "456a26110c05cfa699234f49238b83f08d7666956c5100643f6db6e1c7011ab8",
+      "sha256": "10e391554dcd67d9fd27e39e78b07919b6859170eac344f6a3ec65b5125cec8c",
       "scene": {
-        "visibleElementCount": 5,
+        "visibleElementCount": 14,
         "visibleElementTypes": {
-          "point": 4,
-          "curve": 1
+          "point": 5,
+          "curve": 1,
+          "segment": 7,
+          "polygon": 1
         },
-        "visiblePointCount": 4,
+        "visiblePointCount": 5,
         "sampledVisibleCurves": [
           [
             [
@@ -2198,7 +2574,15 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:-3,-2",
+          "point:-3,2",
+          "point:3,2",
+          "point:3,-2",
+          "point:0,1",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -2243,15 +2627,17 @@
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
-          "point": 4,
-          "curve": 1
+          "point": 5,
+          "curve": 1,
+          "segment": 7,
+          "polygon": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2355,8 +2741,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2370,54 +2756,180 @@
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
       ],
       "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
-      "file": "bezier-curves.interpolation.alternative-recursion.png",
-      "width": 840,
-      "height": 520,
-      "sha256": "20462332ffd98a000ff32a9be012be67b7bb1cef9ec68426633687d5188d16bd",
-      "scene": {
-        "visibleElementCount": 11,
-        "visibleElementTypes": {
-          "point": 7,
-          "curve": 3,
-          "segment": 1
+        "kind": "highlight",
+        "frame": "da-recursion-quarter-observation",
+        "position": {
+          "step": 4,
+          "frame": 2
         },
-        "visiblePointCount": 7,
-        "sampledVisibleCurves": [
-          [
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "points": [
             [
-              -2,
-              4
+              -4,
+              -3
             ],
             [
-              1.5,
-              1.5
+              -3,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              3,
+              2
             ],
             [
               4,
-              -2
+              -3
+            ],
+            [
+              -2.90625,
+              0.03125
+            ],
+            [
+              -0.78125,
+              2.34375
+            ],
+            [
+              -2.375,
+              0.609375
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                0,
+                1.75
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
+      },
+      "recipeFingerprint": "416dd8330722dabe296eb0e1283243a56765efce1f35d8b38d735c1da0b6ec5e",
+      "highlight": {
+        "frame": "da-recursion-quarter-observation",
+        "position": {
+          "step": 4,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "ce56fe368c1ccb6dfcfd66fe7e84971e281a0bf90b0adf5d48749df5a5492fc8",
+        "resultFingerprint": "40bb9a04eaf68273d32b1b3b2534a9710b61c7bfde105ca9b97ddb6e1bdec770",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "point:-4,-3",
+            "passed": true
+          },
+          {
+            "name": "point:-3,2",
+            "passed": true
+          },
+          {
+            "name": "point:0,3",
+            "passed": true
+          },
+          {
+            "name": "point:3,2",
+            "passed": true
+          },
+          {
+            "name": "point:4,-3",
+            "passed": true
+          },
+          {
+            "name": "point:-2.90625,0.03125",
+            "passed": true
+          },
+          {
+            "name": "point:-0.78125,2.34375",
+            "passed": true
+          },
+          {
+            "name": "point:-2.375,0.609375",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 40,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 24,
+            "point": 8,
+            "curve": 3,
+            "segment": 1
+          },
+          "visiblePointCount": 8
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
+      "file": "bezier-curves.interpolation.alternative-recursion.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "bf1afc7a1783fa46707dcdf7ee318a6d7bf3bfdb7b2da57045b686d3d1ce6e71",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "point": 8,
+          "curve": 3,
+          "segment": 1
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [
+          [
+            [
+              -3,
+              2
+            ],
+            [
+              1.25,
+              1.75
+            ],
+            [
+              4,
+              -3
             ]
           ],
           [
             [
               -4,
-              -2
+              -3
             ],
             [
-              -1.5,
-              2
+              -1.25,
+              1.75
             ],
             [
-              2,
+              3,
               2
             ]
           ],
           [
             [
               -4,
-              -2
+              -3
             ],
             [
               0,
@@ -2425,11 +2937,21 @@
             ],
             [
               4,
-              -2
+              -3
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "point:-4,-3",
+          "point:-3,2",
+          "point:0,3",
+          "point:3,2",
+          "point:4,-3",
+          "point:-2.90625,0.03125",
+          "point:-0.78125,2.34375",
+          "point:-2.375,0.609375",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -2503,7 +3025,7 @@
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
-          "point": 7,
+          "point": 8,
           "curve": 3,
           "segment": 1
         }
@@ -2511,8 +3033,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2527,21 +3049,168 @@
         "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "decasteljau-cubic-observation",
+        "position": {
+          "step": 3,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -3,
+              -2
+            ],
+            [
+              -3,
+              2
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              3,
+              -2
+            ],
+            [
+              -3,
+              0
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              -1.5,
+              1
+            ],
+            [
+              1.5,
+              1
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -3,
+                -2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "7e85505d3ff7e5a1fd335a23172c5918348cb98b31777f4ef8519eba954e0a4b",
+      "highlight": {
+        "frame": "decasteljau-cubic-observation",
+        "position": {
+          "step": 3,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "e6b929b97094cee707edd33457558dc86702f1a2dfc5085d70fc63f0cc56cdc6",
+        "resultFingerprint": "9d676dde6342041b4edf5f229bb530461ef5f8984f7c9919454d344e7b3bccde",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-3,-2",
+            "passed": true
+          },
+          {
+            "name": "point:-3,2",
+            "passed": true
+          },
+          {
+            "name": "point:3,2",
+            "passed": true
+          },
+          {
+            "name": "point:3,-2",
+            "passed": true
+          },
+          {
+            "name": "point:-3,0",
+            "passed": true
+          },
+          {
+            "name": "point:0,2",
+            "passed": true
+          },
+          {
+            "name": "point:3,0",
+            "passed": true
+          },
+          {
+            "name": "point:-1.5,1",
+            "passed": true
+          },
+          {
+            "name": "point:1.5,1",
+            "passed": true
+          },
+          {
+            "name": "point:0,1",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 45,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 24,
+            "point": 10,
+            "curve": 1,
+            "segment": 6
+          },
+          "visiblePointCount": 10
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-curves.interpolation.decasteljau.png",
       "width": 840,
       "height": 520,
-      "sha256": "d1c707e8c83006f1df252df172419035353d3919c79305aee26cce8641758efe",
+      "sha256": "e15976c11e33b1d2e4dc5eff1338f5c94cc54e5eec45847620b00a48f089ae9e",
       "scene": {
-        "visibleElementCount": 10,
+        "visibleElementCount": 17,
         "visibleElementTypes": {
-          "point": 6,
+          "point": 10,
           "curve": 1,
-          "segment": 3
+          "segment": 6
         },
-        "visiblePointCount": 6,
+        "visiblePointCount": 10,
         "sampledVisibleCurves": [
           [
             [
@@ -2558,7 +3227,20 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:-3,-2",
+          "point:-3,2",
+          "point:3,2",
+          "point:3,-2",
+          "point:-3,0",
+          "point:0,2",
+          "point:3,0",
+          "point:-1.5,1",
+          "point:1.5,1",
+          "point:0,1",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -2604,16 +3286,16 @@
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
-          "point": 6,
+          "point": 10,
           "curve": 1,
-          "segment": 3
+          "segment": 6
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2743,8 +3425,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2758,21 +3440,131 @@
         "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"control-polygon\",\"visible\":true}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "elevation-analysis-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "points": [
+            [
+              -4,
+              -2
+            ],
+            [
+              -3.25,
+              1.75
+            ],
+            [
+              -0.5,
+              3
+            ],
+            [
+              2.25,
+              1.75
+            ],
+            [
+              3,
+              -2
+            ],
+            [
+              1.625,
+              0.8125
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                -0.5,
+                1.75
+              ],
+              [
+                3,
+                -2
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "6bf5858c581cf449e3adda83c9316001043b5ecb1f3f83fdc12877da135ea17e",
+      "highlight": {
+        "frame": "elevation-analysis-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "f9978f11f99a045460474e1ecb209dc7394966a097b0290e6980ea7da5392770",
+        "resultFingerprint": "a9346bf815053696f680d764ba2cff595e76fd9114b8143752515399e70629cc",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "point:-4,-2",
+            "passed": true
+          },
+          {
+            "name": "point:-3.25,1.75",
+            "passed": true
+          },
+          {
+            "name": "point:-0.5,3",
+            "passed": true
+          },
+          {
+            "name": "point:2.25,1.75",
+            "passed": true
+          },
+          {
+            "name": "point:3,-2",
+            "passed": true
+          },
+          {
+            "name": "point:1.625,0.8125",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 54,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 28,
+            "curve": 1,
+            "point": 12,
+            "segment": 9
+          },
+          "visiblePointCount": 12
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-curves.next-ideas.elevation.png",
       "width": 840,
       "height": 520,
-      "sha256": "2709a1fd122b0d91ab6806e7de13883a46786695228146c3780728b5d6d06a13",
+      "sha256": "5570f73ffac366c03c8d8aebaba179561f3c7207fd9208a2fe34bbf0ad1fc9a3",
       "scene": {
-        "visibleElementCount": 17,
+        "visibleElementCount": 22,
         "visibleElementTypes": {
-          "point": 9,
           "curve": 1,
-          "segment": 7
+          "point": 12,
+          "segment": 9
         },
-        "visiblePointCount": 9,
+        "visiblePointCount": 12,
         "sampledVisibleCurves": [
           [
             [
@@ -2789,7 +3581,15 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "point:-4,-2",
+          "point:-3.25,1.75",
+          "point:-0.5,3",
+          "point:2.25,1.75",
+          "point:3,-2",
+          "point:1.625,0.8125",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -2835,16 +3635,16 @@
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
-          "point": 9,
           "curve": 1,
-          "segment": 7
+          "point": 12,
+          "segment": 9
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2857,13 +3657,111 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ex-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "ex-extend-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -4,
+              -2
+            ],
+            [
+              -2.8,
+              3.9999999999999996
+            ],
+            [
+              4.159999999999999,
+              2.8
+            ],
+            [
+              3.055999999999999,
+              -3.872
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -2
+              ],
+              [
+                0.3919999999999997,
+                1.816
+              ],
+              [
+                3.055999999999999,
+                -3.872
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "5c9d787c55c6d4abfb963fc77c8c851c89a668b0f0759447df4093fd15acd054",
+      "highlight": {
+        "frame": "ex-extend-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "560bb4fc6d5fd4a5d8a6d68caa1d7f3d5c583e6873915e33a3003cf7966ebe5e",
+        "resultFingerprint": "a4eb9289d69e7b6fb5458ce3b66af4776a78051b5e4990dda502aa8dde3ba21f",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-4,-2",
+            "passed": true
+          },
+          {
+            "name": "point:-2.8,3.9999999999999996",
+            "passed": true
+          },
+          {
+            "name": "point:4.159999999999999,2.8",
+            "passed": true
+          },
+          {
+            "name": "point:3.055999999999999,-3.872",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 29,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "point": 5,
+            "curve": 1
+          },
+          "visiblePointCount": 5
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-curves.next-ideas.extrapolation.png",
       "width": 840,
       "height": 520,
-      "sha256": "e3ac3cc4e319c1772d05d3c87fb135486f53086ec4189b65ae924f8a98a260b5",
+      "sha256": "193bee65b29b76da40006385f53dd68d0aaca9748fe2e5c16feaf5f036691cbd",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -2878,16 +3776,23 @@
               -2
             ],
             [
-              -0.5,
-              1.875
+              0.392,
+              1.816
             ],
             [
-              3,
-              -1
+              3.056,
+              -3.872
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:-4,-2",
+          "point:-2.8,3.9999999999999996",
+          "point:4.159999999999999,2.8",
+          "point:3.055999999999999,-3.872",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -2939,8 +3844,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -2953,30 +3858,393 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rs-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "rs-eight-pieces-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 8,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3.41015625,
+              -1.03125
+            ],
+            [
+              -2.46875,
+              0.375
+            ],
+            [
+              -1.29296875,
+              1.21875
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              1.29296875,
+              1.21875
+            ],
+            [
+              2.46875,
+              0.375
+            ],
+            [
+              3.41015625,
+              -1.03125
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -3.75634765625,
+                -1.9453125
+              ],
+              [
+                -3.41015625,
+                -1.03125
+              ]
+            ],
+            [
+              [
+                -3.41015625,
+                -1.03125
+              ],
+              [
+                -2.97607421875,
+                -0.2578125
+              ],
+              [
+                -2.46875,
+                0.375
+              ]
+            ],
+            [
+              [
+                -2.46875,
+                0.375
+              ],
+              [
+                -1.90283203125,
+                0.8671875
+              ],
+              [
+                -1.29296875,
+                1.21875
+              ]
+            ],
+            [
+              [
+                -1.29296875,
+                1.21875
+              ],
+              [
+                -0.65380859375,
+                1.4296875
+              ],
+              [
+                0,
+                1.5
+              ]
+            ],
+            [
+              [
+                0,
+                1.5
+              ],
+              [
+                0.65380859375,
+                1.4296875
+              ],
+              [
+                1.29296875,
+                1.21875
+              ]
+            ],
+            [
+              [
+                1.29296875,
+                1.21875
+              ],
+              [
+                1.90283203125,
+                0.8671875
+              ],
+              [
+                2.46875,
+                0.375
+              ]
+            ],
+            [
+              [
+                2.46875,
+                0.375
+              ],
+              [
+                2.97607421875,
+                -0.2578125
+              ],
+              [
+                3.41015625,
+                -1.03125
+              ]
+            ],
+            [
+              [
+                3.41015625,
+                -1.03125
+              ],
+              [
+                3.75634765625,
+                -1.9453125
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "1d6f17f1e4f63cd748cd42d67eb07c693caf5ec42d0f8737510006db121ac396",
+      "highlight": {
+        "frame": "rs-eight-pieces-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "15076b965bccc97711a821e67720ef3b39f56f15f952e8e66163674ad6f6da83",
+        "resultFingerprint": "97869a64507b6870f3ccb1844d49a949f4eacd855689f2466b4eb6e3deda58c0",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-4,-3",
+            "passed": true
+          },
+          {
+            "name": "point:-3.41015625,-1.03125",
+            "passed": true
+          },
+          {
+            "name": "point:-2.46875,0.375",
+            "passed": true
+          },
+          {
+            "name": "point:-1.29296875,1.21875",
+            "passed": true
+          },
+          {
+            "name": "point:0,1.5",
+            "passed": true
+          },
+          {
+            "name": "point:1.29296875,1.21875",
+            "passed": true
+          },
+          {
+            "name": "point:2.46875,0.375",
+            "passed": true
+          },
+          {
+            "name": "point:3.41015625,-1.03125",
+            "passed": true
+          },
+          {
+            "name": "point:4,-3",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 116,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 48,
+            "point": 32,
+            "curve": 8,
+            "segment": 24
+          },
+          "visiblePointCount": 32
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-curves.next-ideas.repeated-subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "423c114bb5139afdb5e33bedaf9730ea173553e0226257ca7e139c6b08fd1c21",
+      "sha256": "118f8c8e4aa5ae31680d4babb2b190c219e60648e6a48f7aeeb53612b9a67127",
       "scene": {
-        "visibleElementCount": 8,
+        "visibleElementCount": 64,
         "visibleElementTypes": {
-          "point": 4,
-          "curve": 1,
-          "segment": 3
+          "point": 32,
+          "curve": 8,
+          "segment": 24
         },
-        "visiblePointCount": 4,
+        "visiblePointCount": 32,
         "sampledVisibleCurves": [
+          [
+            [
+              -1.292969,
+              1.21875
+            ],
+            [
+              -0.653809,
+              1.429688
+            ],
+            [
+              0,
+              1.5
+            ]
+          ],
+          [
+            [
+              -2.46875,
+              0.375
+            ],
+            [
+              -1.902832,
+              0.867188
+            ],
+            [
+              -1.292969,
+              1.21875
+            ]
+          ],
+          [
+            [
+              -3.410156,
+              -1.03125
+            ],
+            [
+              -2.976074,
+              -0.257813
+            ],
+            [
+              -2.46875,
+              0.375
+            ]
+          ],
           [
             [
               -4,
               -3
             ],
             [
+              -3.756348,
+              -1.945313
+            ],
+            [
+              -3.410156,
+              -1.03125
+            ]
+          ],
+          [
+            [
               0,
               1.5
+            ],
+            [
+              0.653809,
+              1.429688
+            ],
+            [
+              1.292969,
+              1.21875
+            ]
+          ],
+          [
+            [
+              1.292969,
+              1.21875
+            ],
+            [
+              1.902832,
+              0.867188
+            ],
+            [
+              2.46875,
+              0.375
+            ]
+          ],
+          [
+            [
+              2.46875,
+              0.375
+            ],
+            [
+              2.976074,
+              -0.257813
+            ],
+            [
+              3.410156,
+              -1.03125
+            ]
+          ],
+          [
+            [
+              3.410156,
+              -1.03125
+            ],
+            [
+              3.756348,
+              -1.945313
             ],
             [
               4,
@@ -2984,7 +4252,26 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:-4,-3",
+          "point:-3.41015625,-1.03125",
+          "point:-2.46875,0.375",
+          "point:-1.29296875,1.21875",
+          "point:0,1.5",
+          "point:1.29296875,1.21875",
+          "point:2.46875,0.375",
+          "point:3.41015625,-1.03125",
+          "point:4,-3",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -3030,16 +4317,16 @@
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
-          "point": 4,
-          "curve": 1,
-          "segment": 3
+          "point": 32,
+          "curve": 8,
+          "segment": 24
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -3052,21 +4339,168 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"sd-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "sd-split-half-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              -4,
+              -3
+            ],
+            [
+              -3.5,
+              0
+            ],
+            [
+              -1.75,
+              1.5
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              1.75,
+              1.5
+            ],
+            [
+              3.5,
+              0
+            ],
+            [
+              4,
+              -3
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -4,
+                -3
+              ],
+              [
+                -2.46875,
+                0.375
+              ],
+              [
+                0,
+                1.5
+              ]
+            ],
+            [
+              [
+                0,
+                1.5
+              ],
+              [
+                2.46875,
+                0.375
+              ],
+              [
+                4,
+                -3
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "0773112e9f3203817e81502103f225bda77591e30c05979e500d154f76bf0fbf",
+      "highlight": {
+        "frame": "sd-split-half-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "e4ed6c9c1417b30b87325c77e9b2549a03f655c0f34ddd9382eaea300d03a3f4",
+        "resultFingerprint": "c7f09027ac523280fa90bec6b034b54e66aa1afc775bf086f7434e286d62d96a",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-4,-3",
+            "passed": true
+          },
+          {
+            "name": "point:-3.5,0",
+            "passed": true
+          },
+          {
+            "name": "point:-1.75,1.5",
+            "passed": true
+          },
+          {
+            "name": "point:0,1.5",
+            "passed": true
+          },
+          {
+            "name": "point:0,1.5",
+            "passed": true
+          },
+          {
+            "name": "point:1.75,1.5",
+            "passed": true
+          },
+          {
+            "name": "point:3.5,0",
+            "passed": true
+          },
+          {
+            "name": "point:4,-3",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 45,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 30,
+            "point": 8,
+            "curve": 3
+          },
+          "visiblePointCount": 8
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-curves.next-ideas.subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "9100e0d393c4dcd65f3f8c9a0c65ef1a0251c008ba515b0db4ad63fe81040901",
+      "sha256": "1872e7b007fed0697f35da8acf088dd0d700be3fdbbb630aaffc2efe0d0c1a94",
       "scene": {
-        "visibleElementCount": 18,
+        "visibleElementCount": 11,
         "visibleElementTypes": {
-          "point": 10,
-          "curve": 2,
-          "segment": 6
+          "point": 8,
+          "curve": 3
         },
-        "visiblePointCount": 10,
+        "visiblePointCount": 8,
         "sampledVisibleCurves": [
           [
             [
@@ -3074,12 +4508,12 @@
               -3
             ],
             [
-              0,
-              1.5
+              -2.46875,
+              0.375
             ],
             [
-              4,
-              -3
+              0,
+              1.5
             ]
           ],
           [
@@ -3088,8 +4522,22 @@
               -3
             ],
             [
+              -2.46875,
+              0.375
+            ],
+            [
               0,
               1.5
+            ]
+          ],
+          [
+            [
+              0,
+              1.5
+            ],
+            [
+              2.46875,
+              0.375
             ],
             [
               4,
@@ -3097,7 +4545,19 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:-4,-3",
+          "point:-3.5,0",
+          "point:-1.75,1.5",
+          "point:0,1.5",
+          "point:0,1.5",
+          "point:1.75,1.5",
+          "point:3.5,0",
+          "point:4,-3",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -3157,16 +4617,15 @@
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
-          "point": 10,
-          "curve": 2,
-          "segment": 6
+          "point": 8,
+          "curve": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -3296,8 +4755,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -3488,8 +4947,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -3613,8 +5072,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -3779,8 +5238,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -3941,8 +5400,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -4106,8 +5565,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -4239,8 +5698,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -4347,8 +5806,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -4452,8 +5911,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -4530,8 +5989,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -4660,8 +6119,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -4796,8 +6255,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -4927,8 +6386,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -5029,8 +6488,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -5128,8 +6587,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -5372,8 +6831,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -5471,8 +6930,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -5570,8 +7029,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -5669,8 +7128,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -5768,8 +7227,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -5867,8 +7326,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -6137,8 +7596,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -6236,8 +7695,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -6341,8 +7800,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -6441,8 +7900,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -6541,8 +8000,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -6645,8 +8104,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -6776,8 +8235,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -7011,8 +8470,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -7163,8 +8622,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -7260,8 +8719,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -7357,8 +8816,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -7454,8 +8913,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -7555,8 +9014,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -7652,8 +9111,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     },
@@ -7768,8 +9227,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
-        "sourceRevision": "fc48b0a345f500982558354dfd7d1e1b2ab0225f",
+        "buildRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
+        "sourceRevision": "d7fec11d7d7a668fe62fa53010b2fa8237115828",
         "pageErrors": []
       }
     }
