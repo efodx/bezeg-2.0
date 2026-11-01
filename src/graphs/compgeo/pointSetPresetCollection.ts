@@ -18,6 +18,7 @@ export function pointSetRejection(result: Extract<PointSetParseResult, {ok: fals
         case "invalid-grid-step": return message("pointset_invalid_grid_step", {value0: MIN_GRID_STEP_EXPONENT, value1: MAX_GRID_STEP_EXPONENT});
         case "closed-not-boolean": return message("pointset_invalid_closed_not_boolean");
         case "closed-in-points-mode": return message("pointset_invalid_closed_in_points_mode");
+        case "odd-segment-endpoints": return message("pointset_invalid_odd_segment_endpoints");
     }
 }
 

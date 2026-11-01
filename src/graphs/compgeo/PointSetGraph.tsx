@@ -4,8 +4,9 @@ import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {GRID_COORD_LIMIT, GridPoint} from "../../compgeo/grid";
 import {
-    addPoint, clearPoints, DEFAULT_POINT_LIMIT, EMPTY_POINT_SET_MODEL, gridToBoard, movePoint, nudgePoint, PointSetEditResult, PointSetMode,
-    PointSetModel, PointSetOptions, removePoint, serializePointSetModel, setClosed, setMode, snapToGrid,
+    addPoint, addSegment, clearPoints, DEFAULT_POINT_LIMIT, DEFAULT_SEGMENT_LIMIT, EMPTY_POINT_SET_MODEL, gridToBoard, movePoint, nudgePoint,
+    PointSetEditResult, PointSetMode, PointSetModel, PointSetOptions, removePoint, removeSegment, segmentsOf, serializePointSetModel, setClosed,
+    setMode, snapToGrid,
 } from "../../compgeo/pointSetModel";
 import {polygonSimplicity, PolygonSimplicity} from "../../compgeo/predicates";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -20,10 +21,18 @@ import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointS
  *
  * Public interface (everything else is private or a documented extension point):
  * - `new PointSetGraph(options?)`: `options.pointLimit` (default 40; the sweep family passes 12).
- * - Reads: `model`, `selectedIndex`, `isAddMode`, `simplicity()` (polygon mode only), `pointLimit`.
+ * - Reads: `model`, `selectedIndex`, `isAddMode`, `simplicity()` (polygon mode only), `pointLimit`, `segmentLimit`, `pendingEndpoint`.
  * - Edits (each is one synchronous scene write that returns whether it applied; a refusal sets a visible notice and
  *   changes nothing): `addPointAt(gridPoint)`, `addPointAtBoard(x, y)`, `movePointTo(i, gridPoint)`, `nudgeSelected(dx, dy)`,
  *   `removeSelected()`, `clear()`, `setPointSetMode(mode)`, `setPolygonClosed(closed)`, `loadModel(model)`.
+ * - Segments mode (opt-in: a subclass overrides `allowsSegments()` to return true; the convexity graphs do not, so for them
+ *   `setPointSetMode('segments')` is refused and a Preset in that mode is rejected): `model.points` holds the endpoints as pairs
+ *   (p[2k], p[2k+1]) of segment s_(k+1); `addSegmentAt(a, b)`, `addDefaultSegment()` (a short horizontal segment near the
+ *   origin for keyboard users), `removeSegmentAt(k)`. `removeSelected()` removes the selected endpoint's segment, and the
+ *   selected endpoint's segment is highlighted. `options.segmentLimit` (default 12) and `options.coordinateLimit` (default the
+ *   grid limit; the sweep family passes 2^10) bound edits and imports; nothing is clipped. In Add mode the first click sets
+ *   `pendingEndpoint` (transient, not stored, cleared by Escape, Add mode off, a mode change, `loadModel` and a Preset replacement)
+ *   and the second click adds the segment. Board objects: one JSXGraph segment per model segment and a text `s<k>` at its midpoint.
  * - Transient UI state (not stored in Presets; captured in checkpoints): `select(i | undefined)`, `setAddMode(on)`.
  * - Overlays: `setOverlay(id, shown)` and `overlayShown(id)`; shown ids live in the scene state (`state.overlays`) and
  *   in the Preset's `graphState.overlays`. Only `"grid"` exists now.
@@ -62,6 +71,8 @@ interface DrawnScene {
     readonly key: string;
     readonly points: readonly JXG.Point[];
     readonly edges: readonly JXG.GeometryElement[];
+    /** Segments mode: one text per segment, at its midpoint. */
+    readonly labels: readonly JXG.GeometryElement[];
 }
 
 const ARROW_STEPS: Readonly<Record<string, readonly [number, number]>> = {
@@ -75,6 +86,9 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     private inDragSnap = false;
     private selected?: number;
     private addModeOn = false;
+    private pending?: GridPoint;
+    private pendingObjects: JXG.GeometryElement[] = [];
+    private pendingDrawnFor?: {pending: GridPoint | undefined; exponent: number};
     private noticeValue?: PointSetNotice;
 
     constructor(private readonly options: PointSetOptions = {}) {
@@ -89,6 +103,19 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     get pointLimit(): number {
         return this.options.pointLimit ?? DEFAULT_POINT_LIMIT;
+    }
+
+    /** Segments mode: the placed first endpoint of a segment that waits for its second click. */
+    get pendingEndpoint(): GridPoint | undefined {
+        return this.pending;
+    }
+
+    get segmentLimit(): number {
+        return this.options.segmentLimit ?? DEFAULT_SEGMENT_LIMIT;
+    }
+
+    get coordinateLimit(): number {
+        return this.options.coordinateLimit ?? GRID_COORD_LIMIT;
     }
 
     get selectedIndex(): number | undefined {
@@ -125,7 +152,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
             return true;
         }
         if (result.reason === "limit" || result.reason === "range") {
-            this.noticeValue = {kind: result.reason};
+            this.noticeValue = {kind: result.reason === "limit" && this.model.mode === "segments" ? "segment-limit" : result.reason};
             this.requestRender();
         }
         return false;
@@ -142,29 +169,62 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return this.addPointAt(snapToGrid(x, y, this.model.gridStepExponent));
     }
 
+    /** Segments mode: adds the segment (a, b) and selects its second endpoint. */
+    addSegmentAt(a: GridPoint, b: GridPoint): boolean {
+        const added = this.apply(addSegment(this.model, a, b, this.options));
+        if (added) this.selected = this.model.points.length - 1;
+        return added;
+    }
+
+    /** Segments mode, for keyboard users: a horizontal segment of two grid steps near the origin, shifted up or down per segment. */
+    addDefaultSegment(): boolean {
+        const y = (segmentsOf(this.model).length % 5) - 2;
+        return this.addSegmentAt({x: -1, y}, {x: 1, y});
+    }
+
+    removeSegmentAt(k: number): boolean {
+        const removed = this.apply(removeSegment(this.model, k));
+        if (removed) this.selected = undefined;
+        return removed;
+    }
+
     movePointTo(index: number, point: GridPoint): boolean {
-        return this.apply(movePoint(this.model, index, point));
+        return this.apply(movePoint(this.model, index, point, this.options));
     }
 
     nudgeSelected(dx: number, dy: number): boolean {
-        return this.selected !== undefined && this.apply(nudgePoint(this.model, this.selected, dx, dy));
+        return this.selected !== undefined && this.apply(nudgePoint(this.model, this.selected, dx, dy, this.options));
     }
 
     removeSelected(): boolean {
         const index = this.selected;
         if (index === undefined) return false;
         const removed = this.apply(removePoint(this.model, index));
-        if (removed) this.selected = this.model.points.length === 0 ? undefined : Math.min(index, this.model.points.length - 1);
+        if (removed) {
+            if (this.model.mode === "segments") this.selected = undefined;
+            else this.selected = this.model.points.length === 0 ? undefined : Math.min(index, this.model.points.length - 1);
+        }
         return removed;
     }
 
     clear(): boolean {
         this.selected = undefined;
+        this.pending = undefined;
         return this.apply({ok: true, model: clearPoints(this.model)});
     }
 
+    /** Segments mode is refused (nothing changes) unless the subclass allows it. */
     setPointSetMode(mode: PointSetMode): boolean {
-        return this.apply({ok: true, model: setMode(this.model, mode)});
+        if (mode === "segments" && !this.allowsSegments()) return false;
+        this.pending = undefined;
+        const next = setMode(this.model, mode);
+        if (next.mode === "segments" && next.points.length > 2 * this.segmentLimit) {
+            this.noticeValue = {kind: "segment-limit"};
+            this.requestRender();
+            return false;
+        }
+        if (mode === "segments" || this.model.mode === "segments") this.selected = undefined;
+        return this.apply({ok: true, model: next});
     }
 
     setPolygonClosed(closed: boolean): boolean {
@@ -174,6 +234,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     /** Replaces the whole model (an example or a validated import); the caller has validated it with `parsePointSetModel`. */
     loadModel(model: PointSetModel): void {
         this.selected = undefined;
+        this.pending = undefined;
         this.noticeValue = undefined;
         this.setState({model: serializePointSetModel(model)});
         this.requestRender();
@@ -188,7 +249,18 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     setAddMode(on: boolean): void {
         this.addModeOn = on;
+        const hadPending = this.pending !== undefined;
+        if (!on) this.pending = undefined;
         this.requestRender();
+        if (hadPending && !on) this.syncScene();
+    }
+
+    /** Segments mode: drops a waiting first endpoint. */
+    cancelPending(): void {
+        if (this.pending === undefined) return;
+        this.pending = undefined;
+        this.requestRender();
+        this.syncScene();
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
@@ -237,7 +309,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     // ---- Presets -------------------------------------------------------------------------------------------------
 
     override presetCollection(): PresetCollection<PointSetModel> {
-        return pointSetPresetCollection(POINT_SET_PRESET_KEY, this.overlayIds(), this.options);
+        return pointSetPresetCollection(POINT_SET_PRESET_KEY, this.overlayIds(), {...this.options, allowSegments: this.allowsSegments()});
     }
 
     defaultPreset(): PointSetModel {
@@ -259,6 +331,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     override importPresetData(data: PointSetModel): void {
+        this.pending = undefined;
         this.setState({model: serializePointSetModel(data)});
     }
 
@@ -283,6 +356,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         const inRange = typeof index === "number" && Number.isInteger(index) && index >= 0 && index < this.model.points.length;
         this.selected = inRange ? index : undefined;
         this.addModeOn = saved?.pointSetAddMode === true;
+        this.pending = undefined;
         this.noticeValue = undefined;
     }
 
@@ -325,6 +399,11 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                 event.preventDefault();
                 this.nudgeSelected(step[0], step[1]);
             }
+        } else if (event.key === "Escape") {
+            if (this.pending !== undefined) {
+                event.preventDefault();
+                this.cancelPending();
+            }
         } else if (event.key === "Delete" || event.key === "Backspace") {
             if (this.selected !== undefined) {
                 event.preventDefault();
@@ -337,7 +416,21 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         if (!this.addModeOn || this.graphInteractionLocked || !this.hasBoard) return;
         if (this.board.getAllObjectsUnderMouse(event).some(object => (object as {elType?: string}).elType === "point")) return;
         const [x, y] = this.board.getUsrCoordsOfMouse(event);
-        this.addPointAtBoard(x, y);
+        if (this.model.mode !== "segments") {
+            this.addPointAtBoard(x, y);
+            return;
+        }
+        const here = snapToGrid(x, y, this.model.gridStepExponent);
+        const first = this.pending;
+        if (first === undefined) {
+            this.pending = here;
+            this.requestRender();
+            this.syncScene();
+            return;
+        }
+        this.pending = undefined;
+        this.addSegmentAt(first, here);
+        this.syncScene();
     }
 
     private dragPoint(index: number, point: JXG.Point): void {
@@ -345,7 +438,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         const model = this.model;
         const exponent = model.gridStepExponent;
         const snapped = snapToGrid(point.X(), point.Y(), exponent);
-        const result = movePoint(model, index, snapped);
+        const result = movePoint(model, index, snapped, this.options);
         const target = gridToBoard(result.ok ? snapped : model.points[index], exponent);
         this.inDragSnap = true;
         try {
@@ -388,13 +481,33 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                 if (point.X() !== target.x || point.Y() !== target.y) point.moveTo([target.x, target.y], 0);
             });
         }
+        this.syncPending(model);
         if (this.overlaysDrawnFor?.model !== model || this.overlaysDrawnFor.overlays !== overlays || this.overlaysDrawnFor.extra !== this.overlayInputs()) this.redrawOverlays(model);
         this.boardUpdate();
     }
 
     private drawnObjectsAlive(): boolean {
         const list = this.board.objectsList as unknown[];
-        return this.drawn === undefined || this.drawn.points.every(point => list.includes(point));
+        return this.drawn === undefined || [...this.drawn.points, ...this.drawn.edges, ...this.drawn.labels].every(object => list.includes(object));
+    }
+
+    /** The marker of a waiting first endpoint; rebuilt only when the pending point or the grid step changes. */
+    private syncPending(model: PointSetModel): void {
+        const pending = model.mode === "segments" ? this.pending : undefined;
+        const exponent = model.gridStepExponent;
+        const drawnFor = this.pendingDrawnFor;
+        const objectsAlive = this.pendingObjects.every(object => (this.board.objectsList as unknown[]).includes(object));
+        if (drawnFor && drawnFor.pending === pending && drawnFor.exponent === exponent && objectsAlive) return;
+        this.removeObjects(this.pendingObjects);
+        this.pendingObjects = [];
+        if (pending) {
+            const at = gridToBoard(pending, exponent);
+            this.pendingObjects.push(this.board.create("point", [at.x, at.y], {
+                name: "pending", withLabel: false, size: 6, face: "x", fixed: true, showInfobox: false, highlight: false,
+                strokeColor: GraphPalette.selectedControlPointOutline, strokeWidth: 2, layer: 8,
+            }) as JXG.GeometryElement);
+        }
+        this.pendingDrawnFor = {pending, exponent};
     }
 
     private createDrawn(key: string, model: PointSetModel): DrawnScene {
@@ -419,6 +532,21 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
             return point;
         });
         const edges: JXG.GeometryElement[] = [];
+        const labels: JXG.GeometryElement[] = [];
+        if (model.mode === "segments") {
+            for (let k = 0; 2 * k + 1 < points.length; k++) {
+                const [from, to] = [points[2 * k], points[2 * k + 1]];
+                const on = () => this.selected !== undefined && this.selected >> 1 === k;
+                edges.push(board.create("segment", [from, to], {
+                    name: `seg${k + 1}`, withLabel: false, strokeColor: () => on() ? GraphPalette.selectedControlPoint : GraphPalette.primaryCurve,
+                    strokeWidth: () => this.displaySettings.strokeWidth + (on() ? 2 : 0), highlight: false, fixed: true, layer: 5,
+                }) as JXG.GeometryElement);
+                labels.push(board.create("text", [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2, `s${k + 1}`], {
+                    name: `s${k + 1}`, anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, display: "internal", fontSize: 14,
+                    strokeColor: GraphPalette.label, layer: 6,
+                }) as JXG.GeometryElement);
+            }
+        }
         if (model.mode === "polygon") {
             const pairs = points.slice(1).map((point, i) => [points[i], point] as const);
             if (model.closed && points.length >= 3) pairs.push([points[points.length - 1], points[0]]);
@@ -428,7 +556,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                 }) as JXG.GeometryElement);
             }
         }
-        return {key, points, edges};
+        return {key, points, edges, labels};
     }
 
     private removeObjects(objects: readonly JXG.GeometryElement[]): void {
@@ -439,7 +567,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     private removeDrawn(): void {
-        if (this.drawn) this.removeObjects([...this.drawn.edges, ...this.drawn.points]);
+        if (this.drawn) this.removeObjects([...this.drawn.labels, ...this.drawn.edges, ...this.drawn.points]);
         this.drawn = undefined;
     }
 
@@ -461,12 +589,17 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     /** The board removes every scene object during a Preset replacement; drop the references so the next sync rebuilds. */
     protected override disposeFigureScene(): void {
         this.drawn = undefined;
+        this.pendingObjects = [];
+        this.pendingDrawnFor = undefined;
         this.overlayObjects = [];
         this.overlaysDrawnFor = undefined;
     }
 
     override unmount(): void {
         this.drawn = undefined;
+        this.pendingObjects = [];
+        this.pendingDrawnFor = undefined;
+        this.pending = undefined;
         this.overlayObjects = [];
         this.overlaysDrawnFor = undefined;
         super.unmount();
@@ -476,6 +609,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     private readonly actions: PointSetControlActions = {
         addPoint: point => {this.addPointAt(point);},
+        addSegment: () => {this.addDefaultSegment();},
+        removeSegment: k => {this.removeSegmentAt(k);},
         removeSelected: () => {this.removeSelected();},
         clear: () => {this.clear();},
         select: index => this.select(index),
@@ -489,14 +624,21 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         },
     };
 
+    /** Segments mode is opt-in: a sweep-family subclass returns true to offer it (inspector, Preset parsing, `setPointSetMode`). */
+    // A subclass with showsModeToggle() false and allowsSegments() true reaches segments mode only through its default or imported Preset.
+    protected allowsSegments(): boolean {
+        return false;
+    }
+
     /** Whether the inspector offers the points/polygon choice; a subclass that only works on points returns false. */
     protected showsModeToggle(): boolean {
         return true;
     }
 
     protected override workspaceEdit(): React.ReactNode {
-        return <PointSetControls showModeToggle={this.showsModeToggle()} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
-                                 pointLimit={this.pointLimit} coordinateLimit={GRID_COORD_LIMIT} simplicity={this.simplicity()}
+        return <PointSetControls showModeToggle={this.showsModeToggle()} allowsSegments={this.allowsSegments()} pending={this.pending}
+                                 segmentLimit={this.segmentLimit} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
+                                 pointLimit={this.pointLimit} coordinateLimit={this.coordinateLimit} simplicity={this.simplicity()}
                                  overlays={this.overlayIds().map(id => ({id, label: this.overlayLabel(id), shown: this.overlayShown(id)}))}
                                  actions={this.actions}/>;
     }

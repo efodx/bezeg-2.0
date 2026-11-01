@@ -1,17 +1,22 @@
 import {GRID_COORD_LIMIT, GridPoint, isGridCoordinate} from './grid';
+import {SWEEP_MAX_SEGMENTS} from './sweep/limits';
+import type {Segment} from './sweep/segments';
 
 /**
  * The stored description of the shared point-set/polygon graph (ADR 0021). Coordinates are integer grid units;
  * one grid step is 2^gridStepExponent board units. Selection, drag and hover state are transient and not stored.
  * The point limit is an option, not part of the model.
  */
-export type PointSetMode = 'points' | 'polygon';
+export type PointSetMode = 'points' | 'polygon' | 'segments';
 
 export interface PointSetModel {
     readonly mode: PointSetMode;
-    /** Polygon mode: the vertices in order. Duplicates are allowed. */
+    /**
+     * Polygon mode: the vertices in order. Duplicates are allowed. Segments mode: the endpoints as consecutive pairs
+     * (p[2k], p[2k+1]) of segment k, so the count is always even.
+     */
     readonly points: readonly GridPoint[];
-    /** Polygon mode only; always false in points mode. */
+    /** Polygon mode only; always false in points and segments mode. */
     readonly closed: boolean;
     /** Board units per grid step is 2^gridStepExponent. */
     readonly gridStepExponent: number;
@@ -26,7 +31,15 @@ export const MAX_GRID_STEP_EXPONENT = 8;
 
 export interface PointSetOptions {
     readonly pointLimit?: number;
+    /** Segments mode: the most segments (default SWEEP_MAX_SEGMENTS, 12); `pointLimit` does not apply there. */
+    readonly segmentLimit?: number;
+    /** Largest allowed |coordinate| (default GRID_COORD_LIMIT); the sweep graphs pass SWEEP_COORD_LIMIT (2^10). */
+    readonly coordinateLimit?: number;
+    /** Parsing only: accept `mode: 'segments'`. Default false, so a graph without segment support rejects it as before. */
+    readonly allowSegments?: boolean;
 }
+
+export const DEFAULT_SEGMENT_LIMIT = SWEEP_MAX_SEGMENTS;
 
 export const EMPTY_POINT_SET_MODEL: PointSetModel = {mode: 'points', points: [], closed: false, gridStepExponent: 0};
 
@@ -64,14 +77,43 @@ function validIndex(model: PointSetModel, index: number, max = model.points.leng
     return Number.isInteger(index) && index >= 0 && index <= max;
 }
 
-function inRange(point: GridPoint): boolean {
-    return isGridCoordinate(point.x) && isGridCoordinate(point.y);
+function inRange(point: GridPoint, options: PointSetOptions = {}): boolean {
+    if (!isGridCoordinate(point.x) || !isGridCoordinate(point.y)) return false;
+    const limit = options.coordinateLimit;
+    return limit === undefined || (Math.abs(point.x) <= limit && Math.abs(point.y) <= limit);
 }
 
-/** Appends a point. Refuses with 'limit' at the limit and 'range' for a point outside the grid. */
+/** The segments of a segments-mode model, s_k = (points[2k], points[2k+1]); empty in the other modes. */
+export function segmentsOf(model: PointSetModel): Segment[] {
+    if (model.mode !== 'segments') return [];
+    const segments: Segment[] = [];
+    for (let i = 0; i + 1 < model.points.length; i += 2) segments.push({a: model.points[i], b: model.points[i + 1]});
+    return segments;
+}
+
+/**
+ * Segments mode only: appends the segment (a, b). Refuses with 'mode' elsewhere, 'limit' at `segmentLimit` segments and
+ * 'range' when an endpoint is outside the grid or `coordinateLimit`; nothing is clipped. A zero-length segment is allowed.
+ */
+export function addSegment(model: PointSetModel, a: GridPoint, b: GridPoint, options: PointSetOptions = {}): PointSetEditResult {
+    if (model.mode !== 'segments') return refuse('mode');
+    if (model.points.length >= 2 * (options.segmentLimit ?? DEFAULT_SEGMENT_LIMIT)) return refuse('limit');
+    if (!inRange(a, options) || !inRange(b, options)) return refuse('range');
+    return ok({...model, points: [...model.points, {x: a.x, y: a.y}, {x: b.x, y: b.y}]});
+}
+
+/** Segments mode only: removes segment k (both endpoints). Refuses with 'mode' elsewhere and 'index' for a missing segment. */
+export function removeSegment(model: PointSetModel, k: number): PointSetEditResult {
+    if (model.mode !== 'segments') return refuse('mode');
+    if (!Number.isInteger(k) || k < 0 || 2 * k + 1 >= model.points.length) return refuse('index');
+    return ok({...model, points: model.points.filter((_, i) => i >> 1 !== k)});
+}
+
+/** Appends a point. Refuses with 'limit' at the limit, 'range' for a point outside the grid and 'mode' in segments mode (use `addSegment`). */
 export function addPoint(model: PointSetModel, point: GridPoint, options: PointSetOptions = {}): PointSetEditResult {
+    if (model.mode === 'segments') return refuse('mode');
     if (model.points.length >= (options.pointLimit ?? DEFAULT_POINT_LIMIT)) return refuse('limit');
-    if (!inRange(point)) return refuse('range');
+    if (!inRange(point, options)) return refuse('range');
     return ok({...model, points: [...model.points, {x: point.x, y: point.y}]});
 }
 
@@ -80,30 +122,32 @@ export function insertPoint(model: PointSetModel, index: number, point: GridPoin
     if (model.mode !== 'polygon') return refuse('mode');
     if (!validIndex(model, index, model.points.length)) return refuse('index');
     if (model.points.length >= (options.pointLimit ?? DEFAULT_POINT_LIMIT)) return refuse('limit');
-    if (!inRange(point)) return refuse('range');
+    if (!inRange(point, options)) return refuse('range');
     const points = [...model.points];
     points.splice(index, 0, {x: point.x, y: point.y});
     return ok({...model, points});
 }
 
+/** In segments mode removing an endpoint removes its whole segment, so the count stays even. */
 export function removePoint(model: PointSetModel, index: number): PointSetEditResult {
     if (!validIndex(model, index)) return refuse('index');
+    if (model.mode === 'segments') return removeSegment(model, index >> 1);
     return ok({...model, points: model.points.filter((_, i) => i !== index)});
 }
 
-export function movePoint(model: PointSetModel, index: number, point: GridPoint): PointSetEditResult {
+export function movePoint(model: PointSetModel, index: number, point: GridPoint, options: PointSetOptions = {}): PointSetEditResult {
     if (!validIndex(model, index)) return refuse('index');
-    if (!inRange(point)) return refuse('range');
+    if (!inRange(point, options)) return refuse('range');
     return ok({...model, points: model.points.map((p, i) => i === index ? {x: point.x, y: point.y} : p)});
 }
 
 /** Moves a point by whole grid steps; refuses with 'range' beyond GRID_COORD_LIMIT or for non-integer steps. */
-export function nudgePoint(model: PointSetModel, index: number, dx: number, dy: number): PointSetEditResult {
+export function nudgePoint(model: PointSetModel, index: number, dx: number, dy: number, options: PointSetOptions = {}): PointSetEditResult {
     if (!validIndex(model, index)) return refuse('index');
     if (!Number.isInteger(dx) || !Number.isInteger(dy)) return refuse('range');
     const p = model.points[index];
     const moved = {x: p.x + dx, y: p.y + dy};
-    if (!inRange(moved)) return refuse('range');
+    if (!inRange(moved, options)) return refuse('range');
     return ok({...model, points: model.points.map((q, i) => i === index ? moved : q)});
 }
 
@@ -117,7 +161,7 @@ export function clearPoints(model: PointSetModel): PointSetModel {
  * signed area change sign while the area does not. Applying it twice restores the model. Mode, closedness and grid step stay.
  */
 export function reverseVertices(model: PointSetModel): PointSetModel {
-    if (model.points.length < 2) return model;
+    if (model.points.length < 2 || model.mode === 'segments') return model;
     const [first, ...rest] = model.points;
     return {...model, points: [first, ...rest.reverse()]};
 }
@@ -128,9 +172,14 @@ export function setClosed(model: PointSetModel, closed: boolean): PointSetEditRe
     return ok({...model, closed});
 }
 
-/** Keeps the points; the polygon is left open and switching to points mode clears `closed`. */
+/**
+ * Keeps the points; the polygon is left open and switching to points mode clears `closed`. Switching to segments mode
+ * keeps the longest even prefix of the points (a trailing odd point is dropped, since every segment needs two endpoints);
+ * switching from segments to another mode keeps all points. Segment limits are not applied here; the graph validates.
+ */
 export function setMode(model: PointSetModel, mode: PointSetMode): PointSetModel {
-    return {...model, mode, closed: false};
+    const points = mode === 'segments' && model.points.length % 2 === 1 ? model.points.slice(0, -1) : model.points;
+    return {...model, mode, points, closed: false};
 }
 
 export type PointSetParseReason =
@@ -143,7 +192,8 @@ export type PointSetParseReason =
     | 'coordinate-out-of-range'
     | 'invalid-grid-step'
     | 'closed-not-boolean'
-    | 'closed-in-points-mode';
+    | 'closed-in-points-mode'
+    | 'odd-segment-endpoints';
 
 export type PointSetParseResult =
     | {readonly ok: true; readonly model: PointSetModel}
@@ -163,13 +213,16 @@ const fail = (reason: PointSetParseReason, extra: {limit?: number; bound?: numbe
 export function parsePointSetModel(data: unknown, options: PointSetOptions = {}): PointSetParseResult {
     if (data === null || typeof data !== 'object' || Array.isArray(data)) return fail('not-an-object');
     const {mode, points, closed, gridStepExponent} = data as Record<string, unknown>;
-    if (mode !== 'points' && mode !== 'polygon') return fail('unknown-mode');
+    if (mode !== 'points' && mode !== 'polygon' && !(mode === 'segments' && options.allowSegments === true)) return fail('unknown-mode');
     if (!Array.isArray(points)) return fail('points-not-array');
-    const limit = options.pointLimit ?? DEFAULT_POINT_LIMIT;
+    // The segments limit counts segments but the refusal reports points, like every other mode.
+    const limit = mode === 'segments' ? 2 * (options.segmentLimit ?? DEFAULT_SEGMENT_LIMIT) : options.pointLimit ?? DEFAULT_POINT_LIMIT;
     if (points.length > limit) return fail('too-many-points', {limit});
     if (gridStepExponent !== undefined && !isGridStepExponent(gridStepExponent)) return fail('invalid-grid-step');
     if (closed !== undefined && typeof closed !== 'boolean') return fail('closed-not-boolean');
-    if (closed === true && mode === 'points') return fail('closed-in-points-mode');
+    if (closed === true && mode !== 'polygon') return fail('closed-in-points-mode');
+    if (mode === 'segments' && points.length % 2 === 1) return fail('odd-segment-endpoints');
+    const coordinateBound = options.coordinateLimit ?? GRID_COORD_LIMIT;
     const parsed: GridPoint[] = [];
     for (const entry of points) {
         if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) return fail('point-not-object');
@@ -177,7 +230,7 @@ export function parsePointSetModel(data: unknown, options: PointSetOptions = {})
         for (const c of [x, y]) {
             // Integer check first, so a huge integer such as 1e20 reports the range, not "non-integer".
             if (typeof c !== 'number' || !Number.isInteger(c)) return fail('non-integer-coordinate');
-            if (Math.abs(c) > GRID_COORD_LIMIT) return fail('coordinate-out-of-range', {bound: GRID_COORD_LIMIT});
+            if (Math.abs(c) > coordinateBound) return fail('coordinate-out-of-range', {bound: coordinateBound});
         }
         parsed.push({x: x as number, y: y as number});
     }

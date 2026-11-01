@@ -1,8 +1,8 @@
 import {describe, expect, it} from 'vitest';
 import {GRID_COORD_LIMIT} from './grid';
 import {
-    addPoint, clearPoints, EMPTY_POINT_SET_MODEL, gridToBoard, insertPoint, movePoint, nudgePoint, parsePointSetModel,
-    PointSetModel, removePoint, reverseVertices, serializePointSetModel, setClosed, setMode, snapToGrid,
+    addPoint, addSegment, clearPoints, EMPTY_POINT_SET_MODEL, gridToBoard, insertPoint, movePoint, nudgePoint, parsePointSetModel,
+    PointSetModel, removePoint, removeSegment, reverseVertices, segmentsOf, serializePointSetModel, setClosed, setMode, snapToGrid,
 } from './pointSetModel';
 
 const pts = (...xy: number[][]) => xy.map(([x, y]) => ({x, y}));
@@ -156,5 +156,101 @@ describe('reverseVertices', () => {
         const one = poly([1, 1]);
         expect(reverseVertices(one)).toEqual(one);
         expect(reverseVertices(EMPTY_POINT_SET_MODEL).points).toEqual([]);
+    });
+});
+
+describe('segments mode', () => {
+    const seg = (...xy: number[][]): PointSetModel => ({mode: 'segments', points: pts(...xy), closed: false, gridStepExponent: 0});
+    const empty = seg();
+    const opts = {allowSegments: true};
+
+    it('reads consecutive endpoint pairs as segments and nothing in other modes', () => {
+        const m = seg([0, 0], [1, 1], [2, 2], [3, 5]);
+        expect(segmentsOf(m)).toEqual([{a: {x: 0, y: 0}, b: {x: 1, y: 1}}, {a: {x: 2, y: 2}, b: {x: 3, y: 5}}]);
+        expect(segmentsOf({...m, mode: 'points'})).toEqual([]);
+        expect(segmentsOf(empty)).toEqual([]);
+    });
+
+    it('adds and removes whole segments and keeps the endpoint count even', () => {
+        const a = model(addSegment(empty, {x: 0, y: 0}, {x: 4, y: 1}));
+        const b = model(addSegment(a, {x: -2, y: 3}, {x: 5, y: -5}));
+        expect(b.points).toEqual(pts([0, 0], [4, 1], [-2, 3], [5, -5]));
+        expect(model(removeSegment(b, 0)).points).toEqual(pts([-2, 3], [5, -5]));
+        expect(model(removeSegment(b, 1)).points).toEqual(pts([0, 0], [4, 1]));
+        expect(removeSegment(b, 2)).toEqual({ok: false, reason: 'index'});
+        expect(removeSegment(b, -1)).toEqual({ok: false, reason: 'index'});
+        expect(removeSegment(b, 0.5)).toEqual({ok: false, reason: 'index'});
+        expect(model(addSegment(empty, {x: 1, y: 1}, {x: 1, y: 1})).points).toHaveLength(2);
+        expect(addSegment({...empty, mode: 'points'}, {x: 0, y: 0}, {x: 1, y: 1})).toEqual({ok: false, reason: 'mode'});
+        expect(removeSegment({...b, mode: 'polygon'}, 0)).toEqual({ok: false, reason: 'mode'});
+    });
+
+    it('removing either endpoint removes its segment', () => {
+        const m = seg([0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]);
+        expect(model(removePoint(m, 0)).points).toEqual(pts([2, 2], [3, 3], [4, 4], [5, 5]));
+        expect(model(removePoint(m, 3)).points).toEqual(pts([0, 0], [1, 1], [4, 4], [5, 5]));
+        expect(model(removePoint(m, 5)).points).toEqual(pts([0, 0], [1, 1], [2, 2], [3, 3]));
+        expect(removePoint(m, 6)).toEqual({ok: false, reason: 'index'});
+        expect(addPoint(m, {x: 0, y: 0})).toEqual({ok: false, reason: 'mode'});
+    });
+
+    it('refuses the 13th segment by default, honours segmentLimit and ignores pointLimit', () => {
+        let m = empty;
+        for (let i = 0; i < 12; i++) m = model(addSegment(m, {x: i, y: 0}, {x: i, y: 1}));
+        expect(m.points).toHaveLength(24);
+        expect(addSegment(m, {x: 0, y: 0}, {x: 1, y: 1})).toEqual({ok: false, reason: 'limit'});
+        expect(model(addSegment(m, {x: 0, y: 0}, {x: 1, y: 1}, {segmentLimit: 13})).points).toHaveLength(26);
+        expect(addSegment(seg([0, 0], [1, 1]), {x: 0, y: 0}, {x: 1, y: 1}, {segmentLimit: 1})).toEqual({ok: false, reason: 'limit'});
+        expect(addSegment(empty, {x: 0, y: 0}, {x: 1, y: 1}, {pointLimit: 1}).ok).toBe(true);
+    });
+
+    it('refuses out-of-range endpoints and never clips, with the grid and the sweep coordinate limit', () => {
+        expect(addSegment(empty, {x: 0, y: 0}, {x: GRID_COORD_LIMIT + 1, y: 0})).toEqual({ok: false, reason: 'range'});
+        expect(addSegment(empty, {x: 0, y: 0.5}, {x: 1, y: 0})).toEqual({ok: false, reason: 'range'});
+        expect(addSegment(empty, {x: 1025, y: 0}, {x: 0, y: 0}, {coordinateLimit: 1024})).toEqual({ok: false, reason: 'range'});
+        expect(addSegment(empty, {x: 0, y: 0}, {x: 0, y: -1025}, {coordinateLimit: 1024})).toEqual({ok: false, reason: 'range'});
+        expect(addSegment(empty, {x: -1024, y: 0}, {x: 0, y: 1024}, {coordinateLimit: 1024}).ok).toBe(true);
+        const m = seg([0, 0], [1, 1]);
+        expect(movePoint(m, 0, {x: 1025, y: 0}, {coordinateLimit: 1024})).toEqual({ok: false, reason: 'range'});
+        expect(nudgePoint(seg([1024, 0], [0, 0]), 0, 1, 0, {coordinateLimit: 1024})).toEqual({ok: false, reason: 'range'});
+        expect(movePoint(m, 0, {x: 1025, y: 0}).ok).toBe(true);
+    });
+
+    it('setMode keeps an even prefix going into segments and every point coming out', () => {
+        const three = poly([0, 0], [1, 1], [2, 2]);
+        const four = poly([0, 0], [1, 1], [2, 2], [3, 3]);
+        expect(setMode(three, 'segments')).toEqual({mode: 'segments', points: pts([0, 0], [1, 1]), closed: false, gridStepExponent: 0});
+        expect(setMode(four, 'segments').points).toEqual(pts([0, 0], [1, 1], [2, 2], [3, 3]));
+        expect(setMode({...three, closed: true}, 'segments').closed).toBe(false);
+        const s = seg([0, 0], [1, 1], [2, 2], [3, 3]);
+        expect(setMode(s, 'points').points).toEqual(s.points);
+        expect(setMode(s, 'polygon')).toEqual({...s, mode: 'polygon'});
+        expect(setClosed(s, true)).toEqual({ok: false, reason: 'mode'});
+        expect(reverseVertices(s)).toBe(s);
+    });
+
+    it('parses segments only when allowed, refuses an odd count with its own reason and applies both limits', () => {
+        const good = {mode: 'segments', points: [{x: 0, y: 0}, {x: 1, y: 1}], closed: false, gridStepExponent: 1};
+        expect(parsePointSetModel(good)).toEqual({ok: false, reason: 'unknown-mode'});
+        expect(parsePointSetModel(good, opts)).toEqual({ok: true, model: good});
+        expect(parsePointSetModel({...good, points: [{x: 0, y: 0}]}, opts)).toEqual({ok: false, reason: 'odd-segment-endpoints'});
+        expect(parsePointSetModel({...good, closed: true}, opts)).toEqual({ok: false, reason: 'closed-in-points-mode'});
+        const many = Array.from({length: 26}, (_, i) => ({x: i, y: 0}));
+        expect(parsePointSetModel({...good, points: many}, opts)).toEqual({ok: false, reason: 'too-many-points', limit: 24});
+        expect(parsePointSetModel({...good, points: many.slice(0, 24)}, opts).ok).toBe(true);
+        expect(parsePointSetModel({...good, points: many.slice(0, 6)}, {...opts, segmentLimit: 2})).toEqual({ok: false, reason: 'too-many-points', limit: 4});
+        expect(parsePointSetModel({...good, points: [{x: 1025, y: 0}, {x: 0, y: 0}]}, {...opts, coordinateLimit: 1024}))
+            .toEqual({ok: false, reason: 'coordinate-out-of-range', bound: 1024});
+        expect(parsePointSetModel({...good, points: [{x: 1025, y: 0}, {x: 0, y: 0}]}, opts).ok).toBe(true);
+    });
+
+    it('leaves points and polygon parsing exactly as before', () => {
+        const polygon = {mode: 'polygon', points: [{x: 1, y: 2}], closed: true, gridStepExponent: -2};
+        expect(parsePointSetModel(polygon, opts)).toEqual({ok: true, model: polygon});
+        expect(parsePointSetModel({mode: 'points', points: [{x: 1, y: 2}]}))
+            .toEqual({ok: true, model: {mode: 'points', points: [{x: 1, y: 2}], closed: false, gridStepExponent: 0}});
+        expect(parsePointSetModel({mode: 'points', points: [{x: 1, y: 2}], closed: true})).toEqual({ok: false, reason: 'closed-in-points-mode'});
+        expect(parsePointSetModel({mode: 'points', points: [{x: 1, y: 2}, {x: 2, y: 2}, {x: 3, y: 3}]}).ok).toBe(true);
+        expect(parsePointSetModel({mode: 'lines', points: []}, opts)).toEqual({ok: false, reason: 'unknown-mode'});
     });
 });
