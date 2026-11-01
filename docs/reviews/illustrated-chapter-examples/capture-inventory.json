@@ -10,9 +10,41 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"fixed-point-bound\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "fixed-point-contraction-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              0.75,
+              0.75
+            ],
+            [
+              0.875,
+              0.875
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "b1d373bda3716f4b0e0e50758e8afaeb9918aaf3768cb555a5db4bd7db0ccc1e"
     },
     {
       "id": "analysis.convergence.sequence",
@@ -36,9 +68,33 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"sequence-certificate\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "sequence-threshold-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              5,
+              0.2
+            ],
+            [
+              11,
+              0.09090909090909091
+            ],
+            [
+              12,
+              0.08333333333333333
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "50104ed69ed7173d2ebb769fe8d0689169f6a18e38810e83f83ac1772c917d1a"
     },
     {
       "id": "analysis.convergence.uniform-convergence",
@@ -52,9 +108,47 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"uniform-supremum\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "uniform-shared-n-observation",
+        "position": {
+          "step": 5,
+          "frame": 2
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "edit"
+          },
+          {
+            "kind": "set-control",
+            "control": "number",
+            "label": "Indeks n",
+            "value": 5
+          }
+        ],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              0.8,
+              0.3276800000000001
+            ],
+            [
+              0.5,
+              0.03125
+            ],
+            [
+              0.5,
+              0
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "3153d8a20260b57b5f064aa9c7e5cbc4b7d70fdb1d53561685cd86293f258db0"
     },
     {
       "id": "analysis.derivative-results.convexity",
@@ -66,9 +160,45 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"second-derivative\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "convexity-chord-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              -1,
+              1
+            ],
+            [
+              1.5,
+              2.25
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "4c0603a86b31675cec446f2b6b357942280201e13d98fcfcdd605b5f3ab43e58"
     },
     {
       "id": "analysis.derivative-results.extrema",
@@ -80,9 +210,49 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"extrema-classification\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "extrema-square-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -1,
+              1
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "485c06b4f691f4d2ce17d13e6431684ac3b4af6db087164bb0423cbd6bb0509e"
     },
     {
       "id": "analysis.derivative-results.mean-value",
@@ -93,9 +263,77 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mean-value-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "mean-value-reveal-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            [
+              [
+                0,
+                -1
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "5a96105aea14f5fd4f1757dfd4f34bd92a1c630feff8943b26a22782cb04a22d"
     },
     {
       "id": "analysis.existence.bisection",
@@ -106,9 +344,45 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bisection-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "bisection-first-step-observation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              1.5,
+              0
+            ],
+            [
+              1.5,
+              0.25
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                -2
+              ],
+              [
+                0.5,
+                -1.75
+              ],
+              [
+                1,
+                -1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "0c42ef528bf634ada528435f4ed6314fbc455a3373e38a13b54f7df2383beb91"
     },
     {
       "id": "analysis.integrability.darboux",
@@ -121,9 +395,35 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"upper-sum\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "darboux-bounds-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "38b169f8dde4f07788d7ac5806a605d62af0f0fc189c4c50fb54dd069fd586f8"
     },
     {
       "id": "analysis.taylor.taylor",
@@ -135,9 +435,63 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"taylor-bound\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "taylor-exp-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              2.718281828459045
+            ],
+            [
+              1,
+              2.7180555555555554
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.6487212707001282
+              ],
+              [
+                1,
+                2.718281828459045
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.6487196180555554
+              ],
+              [
+                1,
+                2.7180555555555554
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "6718fffe455e62613b879524b868ac1f5a27def35e6b87028b7d68affb2d9b4d"
     },
     {
       "id": "bezier-curves.affine-transformations.affine",

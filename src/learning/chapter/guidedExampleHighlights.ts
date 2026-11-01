@@ -29,7 +29,7 @@ import {affineLessonControlPoints, bernsteinValue, bezierPoint, bezierSegmentCon
     stackedBernsteinRegionSamples, symmetricCubicControlPoints, weightedKnotControlPoints, weightedWarp,
     alphaC2SplineJoints, alphaC2SplinePoint, alphaC2SplineSamples, phControlPointsOf, phPointOf, splineParameterizationPoints, uniformArcLengthParameters,
     uniformParameterizationFixture, phCubicFixture, phQuinticFixture, phOffsetPointOf,
-    areaLessonF, areaLessonG, trigValue} from './guidedExampleHighlightExpectations';
+    areaLessonF, areaLessonG, trigValue, fixedPointIterates, halfwayMap, bisectionStepOf, expTaylorPolynomial, samplingMaximum} from './guidedExampleHighlightExpectations';
 import type {Vec} from './guidedExampleHighlightExpectations';
 
 export type HighlightStep =
@@ -151,6 +151,14 @@ const phQuinticWithOffset = (d: number): HighlightChecks => ({
 const graphSamples = (f: (x: number) => number) => sampleCurve(t => [t, f(t)]);
 const exponentialBaseTwo = (x: number) => 2 ** x;
 const trigWorked = {A: 2, omega: 2, phi: Math.PI / 2, B: 1};
+
+// ---- Analysis (batch 04c). curveCount values are read from the graph code, not yet from a capture: filled-region curves (bands, boxes, cobwebs, rectangles) count as curves.
+const squareFn = (x: number) => x * x;
+const fixedPointStart = fixedPointIterates(halfwayMap, 0, 3); // 0, 1/2, 3/4, 7/8
+const bisectionFn = (x: number) => x * x - 2;
+const bisectionFirst = bisectionStepOf(bisectionFn, 1, 2);
+const uniformPower = (x: number) => x ** 5;
+const uniformSupremum = samplingMaximum(uniformPower, 0, 0.8);
 
 /**
  * Recipes by guided example id. Frame ids are the example lesson's own; expected values come from
@@ -437,6 +445,54 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
     'functions-and-calculus.integrals.definite-integral': {
         kind: 'highlight', frame: 'integral-area-explanation', steps: [], expectChange: false,
         checks: {curveCount: 2, points: [[0, 0], [2, 0]], curves: [graphSamples(x => x * x)]},
+    },
+    // fixed-point-contraction-scene runs three iteration steps of T(x) = (x + 1) / 2 from x0 = 0 and shows the bound: x0 (open circle), iterates 1/2 and 3/4, the current 7/8 and the fixed point 1 on the diagonal.
+    // curveCount 3: the interval box, the map graph (a bounded function graph, so not sampled) and the cobweb.
+    'analysis.convergence.fixed-point': {
+        kind: 'highlight', frame: 'fixed-point-contraction-observation', steps: [], expectChange: true,
+        checks: {curveCount: 3, points: [...fixedPointStart, 1].map(x => [x, x] as [number, number])},
+    },
+    // sequence-threshold-scene shows twelve terms of 1/n with epsilon 0.1, N = 11 and the certificate: a_5 = 0.2 outside the band, a_11 and a_12 inside. curveCount 1: the band.
+    'analysis.convergence.sequence': {
+        kind: 'highlight', frame: 'sequence-threshold-observation', steps: [], expectChange: true,
+        checks: {curveCount: 1, points: [[5, 1 / 5], [11, 1 / 11], [12, 1 / 12]]},
+    },
+    // The lesson frames offer no Show supremum button (frames carry no action), and that toggle is not a checkbox. The shared-N frame shows the supremum already (n = 11), so the recipe
+    // lowers the index to n = 5 in the Uredi tab: the supremum stays shown. Points: the supremum (0.8, 0.8^5), the term (0.5, 0.5^5) and its limit (0.5, 0). curveCount 2: the band and f_n (bounded domain, not sampled).
+    'analysis.convergence.uniform-convergence': {
+        kind: 'highlight', frame: 'uniform-shared-n-observation', expectChange: true,
+        steps: [{kind: 'explore'}, {kind: 'select-tab', tab: 'edit'}, {kind: 'set-control', control: 'number', label: 'Indeks n', value: 5}],
+        checks: {curveCount: 2, points: [[uniformSupremum.at, uniformSupremum.value], [0.5, uniformPower(0.5)], [0.5, 0]]},
+    },
+    // convexity-chord-scene shows the second derivative for x^2 on [-1, 1.5]: the graph and the tangent line (functiongraphs); the chord is a segment, so it is not counted. curveCount 2 assumes the tangent line is drawn.
+    'analysis.derivative-results.convexity': {
+        kind: 'highlight', frame: 'convexity-chord-observation', steps: [], expectChange: true,
+        checks: {curveCount: 2, points: [[-1, 1], [1.5, 2.25]], curves: [graphSamples(squareFn)]},
+    },
+    // extrema-square-scene shows the classification for x^2 on [-1, 2]: the graph and the candidate points (-1, 1), (0, 0), (2, 4). curveCount 1.
+    'analysis.derivative-results.extrema': {
+        kind: 'highlight', frame: 'extrema-square-observation', steps: [], expectChange: true,
+        checks: {curveCount: 1, points: [[-1, 1], [0, 0], [2, 4]], curves: [graphSamples(squareFn)]},
+    },
+    // mean-value-reveal-scene: c = 1 with the matching point revealed: x^2, the secant y = 2x, the tangent y = 2x - 1 at c and the dashed parallel at the revealed point. curveCount 4.
+    'analysis.derivative-results.mean-value': {
+        kind: 'highlight', frame: 'mean-value-reveal-observation', steps: [], expectChange: true,
+        checks: {curveCount: 4, points: [[0, 0], [2, 4], [1, 1]], curves: [graphSamples(squareFn), graphSamples(x => 2 * x), graphSamples(x => 2 * x - 1)]},
+    },
+    // bisection-first-step-scene runs one step on x^2 - 2 over [1, 2]: m = 3/2, f(m) = 1/4, retained [1, 3/2]. curveCount 1: the function graph (the jump pieces are hidden).
+    'analysis.existence.bisection': {
+        kind: 'highlight', frame: 'bisection-first-step-observation', steps: [], expectChange: true,
+        checks: {curveCount: 1, points: [[bisectionFirst.mid, 0], [bisectionFirst.mid, bisectionFirst.fMid]], curves: [graphSamples(bisectionFn)]},
+    },
+    // darboux-bounds-scene shows the lower and upper sums for x^2 on [0, 2], n = 4. curveCount 4: lower rectangles, upper rectangles, the partition marks and the graph.
+    'analysis.integrability.darboux': {
+        kind: 'highlight', frame: 'darboux-bounds-observation', steps: [], expectChange: true,
+        checks: {curveCount: 4, curves: [graphSamples(squareFn)]},
+    },
+    // taylor-exp-scene: e^x about c = 0 at x = 1 with degree 6 and the bound shown: e^x and T6 (functiongraphs); points (0, 1), (1, e) and (1, T6(1)). curveCount 2.
+    'analysis.taylor.taylor': {
+        kind: 'highlight', frame: 'taylor-exp-observation', steps: [], expectChange: true,
+        checks: {curveCount: 2, points: [[0, 1], [1, Math.E], [1, expTaylorPolynomial(6, 1)]], curves: [graphSamples(Math.exp), graphSamples(x => expTaylorPolynomial(6, x))]},
     },
     // The worked-join family card is the prepared parabola join scene ('worked-parabola-join'); it has no lesson frame, so it stays the start scene.
     'splines.worked-join.spline-c1.parabola-derivatives': {kind: 'start'},

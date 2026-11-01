@@ -252,5 +252,59 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
         'Vsota levih pravokotnikov je 1,75, kar je približek: natančna ploščina je 8/3 ≈ 2,6667, in to je ploščina, ker je x² ≥ 0. Prizor je začetni prizor primera.',
         'The sum of the left rectangles is 1.75, an approximation: the exact area is 8/3 ≈ 2.6667, and it is an area because x² ≥ 0. This is the start scene of the example.',
     ),
+    'analysis.convergence.fixed-point': copy(
+        'Graf preslikave T(x) = (x + 1)/2 z diagonalo, stopničasto potjo iteracije in označenimi približki na diagonali.',
+        'The graph of the map T(x) = (x + 1)/2 with the diagonal, the stair-step path of the iteration and the marked iterates on the diagonal.',
+        'Tri iteracije preslikave T(x) = (x + 1)/2 iz začetka 0 dajo 1/2, 3/4 in 7/8; razdalja do negibne točke 1 se vsakič prepolovi. Prizor je pripravljen v koraku o skrčitvi, po treh korakih iteracije.',
+        'Three iterations of T(x) = (x + 1)/2 from the start 0 give 1/2, 3/4 and 7/8; the distance to the fixed point 1 halves each time. The contraction step prepares this view after three iteration steps.',
+    ),
+    'analysis.convergence.sequence': copy(
+        'Členi zaporedja 1/n: členi od 1 do 10 kot križci, členi 11 in 12 kot pike v pasu okoli limite 0 ter navpična črta pri N = 11.',
+        'The terms of the sequence 1/n: terms 1 to 10 as crosses, terms 11 and 12 as dots inside the band around the limit 0, and a vertical line at N = 11.',
+        'Pri ε = 0,1 člen 1/5 = 0,2 še leži zunaj pasu, od N = 11 naprej pa so členi v njem; N = 10 ne deluje, ker 1/10 ni manjši od 0,1. Do pogleda prideš v koraku s pragom, ko se prikaže potrdilo.',
+        'For ε = 0.1 the term 1/5 = 0.2 still lies outside the band, while from N = 11 on the terms are inside; N = 10 does not work because 1/10 is not below 0.1. Reach this view in the threshold step, when the certificate is shown.',
+    ),
+    'analysis.convergence.uniform-convergence': copy(
+        'Graf xⁿ na [0; 0,8] pri n = 5 s točko pri x = 0,5 in označenim supremumom napake pri x = 0,8.',
+        'The graph of xⁿ on [0, 0.8] at n = 5 with the point at x = 0.5 and the supremum of the error marked at x = 0.8.',
+        'Na [0; 0,8] je pri n = 5 napaka v točki x = 0,5 enaka 0,03125, največja napaka pa 0,8⁵ = 0,32768 in jo doseže desno krajišče. Do pogleda prideš s korakom skupnega N, ko je supremum že prikazan, in z indeksom n = 5.',
+        'On [0, 0.8] at n = 5 the error at x = 0.5 is 0.03125, while the largest error is 0.8⁵ = 0.32768, reached at the right end. Reach this view from the shared-N step, where the supremum is already shown, by setting the index to n = 5.',
+    ),
+    'analysis.derivative-results.convexity': copy(
+        'Parabola y = x² na [-1; 1,5] s krajiščema, tetivo med njima, ki leži nad grafom, in črtkano tangento pod grafom.',
+        'The parabola y = x² on [-1, 1.5] with its endpoints, the chord between them lying above the graph, and a dashed tangent below the graph.',
+        'Konveksna parabola x² leži na [-1; 1,5] pod tetivo y = 0,5x + 1,5, saj je razlika x² − (0,5x + 1,5) = (x + 1)(x − 1,5) na intervalu največ 0; f″ = 2 je pozitivna. Do pogleda prideš v koraku s tetivo, ko se prikaže drugi odvod.',
+        'The convex parabola x² lies below the chord y = 0.5x + 1.5 on [-1, 1.5], since the difference x² − (0.5x + 1.5) = (x + 1)(x − 1.5) is at most 0 on the interval; f″ = 2 is positive. Reach this view in the chord step, when the second derivative is shown.',
+    ),
+    'analysis.derivative-results.extrema': copy(
+        'Parabola y = x² na [-1, 2] z označenimi kandidati za ekstreme pri x = -1, 0 in 2.',
+        'The parabola y = x² on [-1, 2] with the candidates for extrema marked at x = -1, 0 and 2.',
+        'Na [-1, 2] ima parabola najmanjšo vrednost 0 pri x = 0 in največjo 4 pri x = 2; f(−1) = 1 je le lokalni maksimum glede na interval. Do pogleda prideš v koraku s kvadratno funkcijo, ko se prikaže razvrstitev.',
+        'On [-1, 2] the parabola has its least value 0 at x = 0 and its greatest value 4 at x = 2; f(−1) = 1 is only a local maximum relative to the interval. Reach this view in the square-function step, when the classification is shown.',
+    ),
+    'analysis.derivative-results.mean-value': copy(
+        'Parabola y = x² na [0, 2] s sekanto skozi krajišči in tangento v točki (1, 1), ki je vzporedna sekanti.',
+        'The parabola y = x² on [0, 2] with the secant through the endpoints and the tangent at (1, 1), parallel to the secant.',
+        'Sekanta skozi (0, 0) in (2, 4) ima naklon 2, tangenta pri c = 1 pa naklon f′(1) = 2, zato sta vzporedni. Do pogleda prideš v koraku razkritja, ko se prikaže ujemajoča točka.',
+        'The secant through (0, 0) and (2, 4) has slope 2 and the tangent at c = 1 has slope f′(1) = 2, so they are parallel. Reach this view in the reveal step, when the matching point is shown.',
+    ),
+    'analysis.existence.bisection': copy(
+        'Graf f(x) = x² − 2 na [1, 2] po enem koraku bisekcije z označenim razpoloviščem 1,5 in poudarjenim ohranjenim intervalom [1; 1,5].',
+        'The graph of f(x) = x² − 2 on [1, 2] after one bisection step with the midpoint 1.5 marked and the kept interval [1, 1.5] highlighted.',
+        'En korak bisekcije za x² − 2 na [1, 2]: f(1,5) = 0,25 > 0 in f(1) = −1 < 0, zato se ohrani interval [1; 1,5]. To je en korak, ne končna ničla. Prizor je pripravljen v koraku lekcije s prvo razpolovitvijo.',
+        'One bisection step for x² − 2 on [1, 2]: f(1.5) = 0.25 > 0 and f(1) = −1 < 0, so the interval [1, 1.5] is kept. This is one step, not the final root. The first bisection step of the lesson prepares this view.',
+    ),
+    'analysis.integrability.darboux': copy(
+        'Parabola y = x² na [0, 2] s spodnjimi in zgornjimi pravokotniki Darbouxa za razdelitev na štiri dele.',
+        'The parabola y = x² on [0, 2] with the lower and upper Darboux rectangles for a partition into four parts.',
+        'Pri razdelitvi [0, 2] na štiri dele je spodnja vsota 1,75, zgornja 3,75, integral 8/3 pa leži med njima. To je ena končna razdelitev; gumb »Zgosti razdelitev« ohrani stare delilne točke. Do pogleda prideš v koraku mej, ko se prikažeta obe vsoti.',
+        'For the partition of [0, 2] into four parts the lower sum is 1.75 and the upper sum 3.75, and the integral 8/3 lies between them. This is one finite partition; “Refine the partition” keeps the old division points. Reach this view in the bounds step, when both sums are shown.',
+    ),
+    'analysis.taylor.taylor': copy(
+        'Graf eˣ in njegov Taylorjev polinom stopnje 6 okoli 0, s točkami pri x = 1.',
+        'The graph of eˣ and its degree 6 Taylor polynomial about 0, with the points at x = 1.',
+        'Polinom stopnje 6 da T₆(1) = 1957/720 ≈ 2,7181, dejanska napaka pa je približno 2,3 · 10⁻⁴ in je pod mejo napake e/5040 ≈ 5,4 · 10⁻⁴. Do pogleda prideš v koraku za eˣ, ko je stopnja 6 in se prikaže meja napake.',
+        'The degree 6 polynomial gives T₆(1) = 1957/720 ≈ 2.7181, and the actual error is about 2.3 · 10⁻⁴, below the error bound e/5040 ≈ 5.4 · 10⁻⁴. Reach this view in the eˣ step, with degree 6 and the error bound shown.',
+    ),
 };
 

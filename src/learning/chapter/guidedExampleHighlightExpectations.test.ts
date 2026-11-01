@@ -580,3 +580,106 @@ describe('functions and calculus highlight expectations (batch 04b)', () => {
         expect(recipe('functions-and-calculus.derivatives.derivative').steps.map(s => s.kind)).toEqual(['explore', 'select-tab', 'set-control']);
     });
 });
+
+import {
+    bisectionStepOf, darbouxSumsOf, expLagrangeBound, expTaylorPolynomial, fixedPointIterates, halfwayMap, leastSequenceIndex, meanValuePoints,
+    samplingMaximum, samplingMinimum,
+} from './guidedExampleHighlightExpectations';
+
+describe('analysis highlight expectations (batch 04c)', () => {
+    const recipe = (id: string) => { const r = guidedExampleHighlightRecipes[id]; if (r.kind !== 'highlight') throw new Error(id); return r; };
+    const square = (x: number) => x * x;
+
+    it('fixed point: three iterations of (x + 1) / 2 from 0 give 0, 1/2, 3/4, 7/8 and the distance to 1 halves each time', () => {
+        const xs = fixedPointIterates(halfwayMap, 0, 3);
+        expect(xs).toEqual([0, 1 / 2, 3 / 4, 7 / 8]);
+        for (let k = 1; k < xs.length; k++) expect(1 - xs[k]).toBeCloseTo((1 - xs[k - 1]) / 2, 15);
+        expect(Math.abs(halfwayMap(0.3) - halfwayMap(0.9))).toBeCloseTo(0.5 * Math.abs(0.3 - 0.9), 15);
+    });
+
+    it('sequence: for epsilon 0,1 the least N for 1/n is 11, N = 10 fails (1/10 is not below 0,1) and a_5 = 0,2 is outside the band', () => {
+        expect(leastSequenceIndex(n => 1 / n, 0, 0.1)).toBe(11);
+        expect(1 / 10).not.toBeLessThan(0.1);
+        expect(1 / 11).toBeLessThan(0.1);
+        expect(1 / 5).toBeGreaterThanOrEqual(0.1);
+        expect(leastSequenceIndex(n => 1 / n, 0, 0.01)).toBe(101);
+    });
+
+    it('uniform convergence: x^5 on [0, 0,8] has error 0,03125 at 0,5 and supremum 0,32768 at the right end; the shared N is 11', () => {
+        expect(0.5 ** 5).toBe(0.03125);
+        const sup = samplingMaximum(x => x ** 5, 0, 0.8);
+        expect(sup.value).toBeCloseTo(0.32768, 12);
+        expect(sup.at).toBeCloseTo(0.8, 12);
+        expect(0.8 ** 11).toBeLessThan(0.1);
+        expect(0.8 ** 10).toBeGreaterThan(0.1);
+    });
+
+    it('convexity: the chord of x^2 over [-1, 1,5] is y = 0,5x + 1,5 and the graph is nowhere above it; f\'\' = 2', () => {
+        const chord = lineThrough([-1, 1], [1.5, 2.25]);
+        expect(chord.slope).toBeCloseTo(0.5, 12);
+        expect(chord.intercept).toBeCloseTo(1.5, 12);
+        expect(lowestMargin(x => chord.slope * x + chord.intercept, square, -1, 1.5)).toBeGreaterThanOrEqual(-1e-12);
+        expect(lowestMargin(x => chord.slope * x + chord.intercept, square, -1, 1.5)).toBeCloseTo(0, 12); // touches at the ends
+        expect((square(1.5 + 1e-3) - 2 * square(1.5) + square(1.5 - 1e-3)) / 1e-6).toBeCloseTo(2, 4);
+    });
+
+    it('extrema: x^2 on [-1, 2] has least value 0 at 0, greatest 4 at 2, and f(-1) = 1 is a local maximum only relative to the interval', () => {
+        const min = samplingMinimum(square, -1, 2), max = samplingMaximum(square, -1, 2);
+        expect(min.value).toBeCloseTo(0, 6);
+        expect(min.at).toBeCloseTo(0, 3);
+        expect(max.value).toBeCloseTo(4, 12);
+        expect(max.at).toBeCloseTo(2, 12);
+        expect(square(-1)).toBe(1);
+        expect(square(-1)).toBeGreaterThan(square(-1 + 1e-3)); // higher than just inside the interval, yet below the greatest value
+        expect(square(-1)).toBeLessThan(max.value);
+    });
+
+    it('mean value: the secant of x^2 on [0, 2] has slope 2 and the only matching point is c = 1 with f\'(1) = 2', () => {
+        expect(secantSlope(square, 0, 2)).toBeCloseTo(2, 12);
+        const points = meanValuePoints(square, 0, 2);
+        expect(points.length).toBeGreaterThan(0);
+        for (const c of points) expect(c).toBeCloseTo(1, 2);
+        expect(centralDifference(square, 1)).toBeCloseTo(2, 6);
+    });
+
+    it('bisection: one step on x^2 - 2 over [1, 2] has midpoint 1,5, value 0,25 and keeps [1, 1,5]', () => {
+        const step = bisectionStepOf(x => x * x - 2, 1, 2);
+        expect(step.mid).toBe(1.5);
+        expect(step.fMid).toBeCloseTo(0.25, 12);
+        expect(step.kept).toEqual([1, 1.5]);
+        expect(() => bisectionStepOf(x => x * x - 2, 2, 3)).toThrow();
+    });
+
+    it('Darboux: four parts of x^2 on [0, 2] give infima 0, 1/4, 1, 9/4, suprema 1/4, 1, 9/4, 4, L = 1,75, U = 3,75 around 8/3', () => {
+        const d = darbouxSumsOf(square, 0, 2, 4);
+        d.infima.forEach((v, i) => expect(v).toBeCloseTo([0, 1 / 4, 1, 9 / 4][i], 12));
+        d.suprema.forEach((v, i) => expect(v).toBeCloseTo([1 / 4, 1, 9 / 4, 4][i], 12));
+        expect(d.lower).toBeCloseTo(1.75, 12);
+        expect(d.upper).toBeCloseTo(3.75, 12);
+        expect(d.lower).toBeLessThan(integrate(square, 0, 2));
+        expect(d.upper).toBeGreaterThan(integrate(square, 0, 2));
+    });
+
+    it('Taylor: T6(1) of e^x is 1957/720 and the Lagrange bound e/5040 is at least the actual error', () => {
+        const t6 = expTaylorPolynomial(6, 1), error = Math.E - t6;
+        expect(t6).toBeCloseTo(1957 / 720, 12);
+        expect(error).toBeCloseTo(2.2627e-4, 7);
+        const bound = expLagrangeBound(6, 0, 1);
+        expect(bound).toBeCloseTo(Math.E / 5040, 15);
+        expect(bound).toBeGreaterThanOrEqual(error);
+        expect(expLagrangeBound(6, 0, -1)).toBeGreaterThanOrEqual(Math.abs(Math.exp(-1) - expTaylorPolynomial(6, -1)));
+    });
+
+    it('registers the nine analysis recipes: all change the start scene, only the uniform-convergence card uses learner steps', () => {
+        const ids = Object.keys(guidedExampleHighlightRecipes).filter(id => id.startsWith('analysis.'));
+        expect(ids).toHaveLength(9);
+        for (const id of ids) {
+            const r = recipe(id);
+            expect(Object.keys(r.checks).length).toBeGreaterThan(0);
+            expect(r.expectChange).toBe(true);
+            if (id !== 'analysis.convergence.uniform-convergence') expect(r.steps).toEqual([]);
+        }
+        expect(recipe('analysis.convergence.uniform-convergence').steps.map(s => s.kind)).toEqual(['explore', 'select-tab', 'set-control']);
+        expect(recipe('analysis.taylor.taylor').checks.points).toContainEqual([1, expTaylorPolynomial(6, 1)]);
+    });
+});

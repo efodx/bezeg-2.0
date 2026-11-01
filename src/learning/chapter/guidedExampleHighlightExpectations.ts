@@ -540,3 +540,78 @@ export function trigExtremes(p: TrigParameters, samples = 4000): {max: number; m
     }
     return {max, min, xOfMax};
 }
+
+// ---- Analysis (batch 04c). Independent of src/analysis: closed forms and dense sampling only.
+
+/** The iterates x0, T(x0), T(T(x0)), ... (count + 1 values, the start included). */
+export function fixedPointIterates(map: (x: number) => number, x0: number, count: number): number[] {
+    const out = [x0];
+    for (let k = 0; k < count; k++) out.push(map(out[out.length - 1]));
+    return out;
+}
+/** The self-map of the fixed-point lesson's first example: T(x) = (x + 1) / 2, with the fixed point 1 and contraction factor 1/2. */
+export const halfwayMap = (x: number): number => (x + 1) / 2;
+
+/** Least N such that every term a_n with N <= n <= horizon lies strictly within epsilon of the limit; the terms past the horizon are assumed to follow the same monotone trend. */
+export function leastSequenceIndex(term: (n: number) => number, limit: number, epsilon: number, horizon = 400): number {
+    let least = horizon + 1;
+    for (let n = horizon; n >= 1 && Math.abs(term(n) - limit) < epsilon; n--) least = n;
+    return least;
+}
+
+/** Largest value of f on [a, b] by dense sampling, with the x where it is reached (the first such x). */
+export function samplingMaximum(f: (x: number) => number, a: number, b: number, samples = 8000): {value: number; at: number} {
+    let value = -Infinity, at = NaN;
+    for (let i = 0; i <= samples; i++) {
+        const x = a + (b - a) * i / samples, y = f(x);
+        if (y > value + 1e-15) { value = y; at = x; }
+    }
+    return {value, at};
+}
+/** Smallest value of f on [a, b] by dense sampling, with the x where it is reached (the first such x). */
+export function samplingMinimum(f: (x: number) => number, a: number, b: number, samples = 8000): {value: number; at: number} {
+    const m = samplingMaximum(x => -f(x), a, b, samples);
+    return {value: -m.value, at: m.at};
+}
+
+/** Bisection step on [a, b] for f with f(a) and f(b) of opposite signs: the midpoint, its value and the retained half. */
+export function bisectionStepOf(f: (x: number) => number, a: number, b: number): {mid: number; fMid: number; kept: [number, number]} {
+    if (f(a) * f(b) >= 0) throw new Error('bisectionStepOf needs opposite signs at the ends');
+    const mid = (a + b) / 2, fMid = f(mid);
+    return {mid, fMid, kept: f(a) * fMid < 0 ? [a, mid] : [mid, b]};
+}
+
+/** Mean-value points: the x in (a, b) where f' equals the secant slope, found from sign changes of f' - slope on a fine grid (central differences). */
+export function meanValuePoints(f: (x: number) => number, a: number, b: number, samples = 2000): number[] {
+    const slope = (f(b) - f(a)) / (b - a), h = (b - a) / samples, found: number[] = [];
+    const g = (x: number) => centralDifference(f, x, 1e-6) - slope;
+    for (let i = 0; i < samples; i++) {
+        const x0 = a + i * h, x1 = x0 + h;
+        if (g(x0) * g(x1) <= 0) found.push((x0 + x1) / 2);
+    }
+    return found;
+}
+
+/** Lower and upper Darboux sums of f on [a, b] with n equal parts, infima and suprema by dense sampling in each part. */
+export function darbouxSumsOf(f: (x: number) => number, a: number, b: number, n: number): {lower: number; upper: number; infima: number[]; suprema: number[]} {
+    const width = (b - a) / n, infima: number[] = [], suprema: number[] = [];
+    for (let i = 0; i < n; i++) {
+        infima.push(samplingMinimum(f, a + i * width, a + (i + 1) * width, 400).value);
+        suprema.push(samplingMaximum(f, a + i * width, a + (i + 1) * width, 400).value);
+    }
+    const sum = (values: number[]) => values.reduce((s, v) => s + v, 0) * width;
+    return {lower: sum(infima), upper: sum(suprema), infima, suprema};
+}
+
+/** Taylor polynomial of e^x about 0 of the given degree at x: the sum of x^k / k!. */
+export function expTaylorPolynomial(degree: number, x: number): number {
+    let sum = 0, term = 1;
+    for (let k = 0; k <= degree; k++) { sum += term; term *= x / (k + 1); }
+    return sum;
+}
+/** Lagrange remainder bound for e^x about c: M |x - c|^(n+1) / (n+1)! with M = max(e^c, e^x). */
+export function expLagrangeBound(degree: number, c: number, x: number): number {
+    let factorial = 1;
+    for (let k = 2; k <= degree + 1; k++) factorial *= k;
+    return Math.max(Math.exp(c), Math.exp(x)) * Math.abs(x - c) ** (degree + 1) / factorial;
+}

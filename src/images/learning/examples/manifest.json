@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+  "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+    "revision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
     "dirty": true,
-    "inputs": "904ebc2031ebf1590340b88b316da10b6395e9740a52ae98dbac06c3c3dcddcc",
-    "output": "df77676c25c8a3a090f0b41c2d910ebfee7aa1fb5c13ae44e34ea9d3c399eb1e"
+    "inputs": "1fe458eb5fc5466cf6b1057eae259660285613ed7c67902bd15094e41e679b96",
+    "output": "0cba2f4daaab7732ef9bf01477dd82256b05df57a7ec3b5ae31031bdb10ca0ac"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+    "stampRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
     "stampDirty": true,
-    "localOutputHash": "df77676c25c8a3a090f0b41c2d910ebfee7aa1fb5c13ae44e34ea9d3c399eb1e",
+    "localOutputHash": "0cba2f4daaab7732ef9bf01477dd82256b05df57a7ec3b5ae31031bdb10ca0ac",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DH7VKZGy.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-DH7VKZGy.js",
-        "sha256": "ab55480db7301062b2492c16e928dfef13a1cc8a0ab787eccb5d50283b3d9161",
+        "name": "index-BiGDRZMP.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-BiGDRZMP.js",
+        "sha256": "4679e5ddd257d9ce3dc3cf06f1eb5970f2e35aeeae725cb3e7b6cbcabf5ef215",
         "matchesLocalBuild": true
       },
       {
@@ -55,17 +55,17 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "b5ecb7f1d28c9165072b90482a19a1698f9ba4f05a1bbbc0a1002679dfcd7370",
+    "inventory": "6aecb6213cef1a7634ee9c74f87de6c4c74276cd98b5fff90a616c0ab09f7086",
     "entries": {
-      "analysis.convergence.fixed-point": "6cb70120614e70faf914c914d615957baf878f1b6f12f37252eef79df5e8cfd7",
-      "analysis.convergence.sequence": "997d2505353f52699c78a7256fa9d26cb1f634fa3240be8e36ec852159e9069a",
-      "analysis.convergence.uniform-convergence": "50731479a119ea738392296f8ea4bcf4e74d2610ad72c2006cdd0df0469d484f",
-      "analysis.derivative-results.convexity": "14a02d88dec69e5560827b6f6089c4d186506e775f8e211298c38581ec27a9dc",
-      "analysis.derivative-results.extrema": "4fd77c97a5521fab4ca52a0cceafe86cff92d381b301661210f9aa8a3135f5d5",
-      "analysis.derivative-results.mean-value": "b4c52b13def5545b5107c487635812d2cb67b917fa3e56500faa4b13dc977202",
-      "analysis.existence.bisection": "98f078f4fdb649b326d3ad4ebcbeb8b4f6c5f335e796736148dc609c6e7d658c",
-      "analysis.integrability.darboux": "9e51ef448fdf8af7ef7742239063d30f370233809223a07f9a5a44fc7befe4f1",
-      "analysis.taylor.taylor": "6d73e0760812b74eaa76dbbb7dd05c9706ad0a7b30639ee864f776e59ee5e657",
+      "analysis.convergence.fixed-point": "7faba2c2882c18dd394f6ba4f6d77face3db79ba9bf678a06fa3f9324407f467",
+      "analysis.convergence.sequence": "9ff58ab61fdefffd9dac45854bfb03144d6b547ace57c6ff0e3bd14d4366f022",
+      "analysis.convergence.uniform-convergence": "5215bb1f8aa5a4f252fc4d382f326db172a36745a3a55b6390cfce7294de44d3",
+      "analysis.derivative-results.convexity": "1a1b529572904c1361b4c568b1188d0af30d6f7ec22434fe878253869a1022d4",
+      "analysis.derivative-results.extrema": "89933a3608810db7223fb427e9c4573e121e6227b16a14e5e7e48599dd7e08c7",
+      "analysis.derivative-results.mean-value": "f504a0e25dffd88470abbe16a0a3dc4398e07b0f3f08fadddabc4b1a65c81dd7",
+      "analysis.existence.bisection": "73e5fa787d50944ee5ae5ac84efb57ac13f6086aca936e640f77e6535bc8fa1f",
+      "analysis.integrability.darboux": "1cce2e38477e2adbb1c970a644fda4890227cc273b40104dfd53f3c1e987f458",
+      "analysis.taylor.taylor": "b8e3aff9b300418027da118fb6ea4b0c1282497aa33c827e0e2b181b7f019e75",
       "bezier-curves.affine-transformations.affine": "920f535fc996cb22c7eaf58f8535f6f4c4261bf61516946aea0b0e0175be002d",
       "bezier-curves.bernstein-form.bernstein": "ea2064aba9a138537078bb714173b107d82ace08e616f99d9e0cc47a6c4f86f8",
       "bezier-curves.control-points.bezier": "739e0552857f2b3afd742a3c187ed8eda5a3f695354c9fdc750fdde06d128a0c",
@@ -115,8 +115,8 @@
       "splines.worked-join.spline-c1.parabola-derivatives": "c23b4ed4a16b4741f2cfc427e2243f72a465cd39b2258c265130a630b0628813"
     },
     "presentation": "3b762082ae72ca9f15330a7b326b80d0c8b289945757d75f4b2fc41157d11d03",
-    "buildOutput": "df77676c25c8a3a090f0b41c2d910ebfee7aa1fb5c13ae44e34ea9d3c399eb1e",
-    "buildInputs": "904ebc2031ebf1590340b88b316da10b6395e9740a52ae98dbac06c3c3dcddcc"
+    "buildOutput": "0cba2f4daaab7732ef9bf01477dd82256b05df57a7ec3b5ae31031bdb10ca0ac",
+    "buildInputs": "1fe458eb5fc5466cf6b1057eae259660285613ed7c67902bd15094e41e679b96"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -738,25 +738,113 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"fixed-point-bound\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "fixed-point-contraction-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 3,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.5
+            ],
+            [
+              0.75,
+              0.75
+            ],
+            [
+              0.875,
+              0.875
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "b1d373bda3716f4b0e0e50758e8afaeb9918aaf3768cb555a5db4bd7db0ccc1e",
+      "highlight": {
+        "frame": "fixed-point-contraction-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "f22091ac6eadf1adc06501299de88c6705374f2ecd47a12faeb8ccfbc76642ba",
+        "resultFingerprint": "373a12306b1c42e0dcd352097a448c5a56a78b92a1a2691d4a3eb3ea5bef9b7f",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:0,0",
+            "passed": true
+          },
+          {
+            "name": "point:0.5,0.5",
+            "passed": true
+          },
+          {
+            "name": "point:0.75,0.75",
+            "passed": true
+          },
+          {
+            "name": "point:0.875,0.875",
+            "passed": true
+          },
+          {
+            "name": "point:1,1",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 3,
+            "segment": 3,
+            "point": 6,
+            "text": 2
+          },
+          "visiblePointCount": 6
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.convergence.fixed-point.png",
       "width": 840,
       "height": 520,
-      "sha256": "c682b614d59165be5627981b9b46653706df743c007419696dcaad76f9979c82",
+      "sha256": "a48b5d9c79605bacff116a29cbe2e3a94223deb6ac06e7123917469b648848cd",
       "scene": {
-        "visibleElementCount": 17,
+        "visibleElementCount": 22,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 5,
           "curve": 3,
-          "segment": 1,
-          "point": 3,
+          "segment": 3,
+          "point": 6,
           "text": 1
         },
-        "visiblePointCount": 3,
+        "visiblePointCount": 6,
         "sampledVisibleCurves": [
           [
             [
@@ -801,7 +889,14 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:0,0",
+          "point:0.5,0.5",
+          "point:0.75,0.75",
+          "point:0.875,0.875",
+          "point:1,1"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -880,16 +975,16 @@
           "ticks": 2,
           "label": 5,
           "curve": 3,
-          "segment": 1,
-          "point": 3,
+          "segment": 3,
+          "point": 6,
           "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -915,13 +1010,85 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"sequence-certificate\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "sequence-threshold-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              5,
+              0.2
+            ],
+            [
+              11,
+              0.09090909090909091
+            ],
+            [
+              12,
+              0.08333333333333333
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "50104ed69ed7173d2ebb769fe8d0689169f6a18e38810e83f83ac1772c917d1a",
+      "highlight": {
+        "frame": "sequence-threshold-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "c413c2109096d8b2cfe9bc1548477b315db7392eff118d85093ef0e204533428",
+        "resultFingerprint": "f82a42198c4cccc6f7633b1bfbcd94657fbe2e783d7e0afc23709025abf659ef",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:5,0.2",
+            "passed": true
+          },
+          {
+            "name": "point:11,0.09090909090909091",
+            "passed": true
+          },
+          {
+            "name": "point:12,0.08333333333333333",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 45,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "curve": 1,
+            "segment": 4,
+            "point": 12,
+            "text": 2
+          },
+          "visiblePointCount": 12
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.convergence.sequence.png",
       "width": 840,
       "height": 520,
-      "sha256": "8f1db0ad4140385d46a10484100c83f5364cfe1f5b9481c38d9becda4b529c0d",
+      "sha256": "24e7fadf44b26db21eb237caf2d531c7a1ea0fadd0ba6a13904c8d9c9e347f61",
       "scene": {
         "visibleElementCount": 33,
         "visibleElementTypes": {
@@ -938,19 +1105,24 @@
           [
             [
               -2.52,
-              -0.25
+              -0.1
             ],
             [
               9,
-              -0.25
+              -0.1
             ],
             [
               20.52,
-              -0.25
+              -0.1
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:5,0.2",
+          "point:11,0.09090909090909091",
+          "point:12,0.08333333333333333"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -993,8 +1165,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 0,
-        "finalLabelCount": 0,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -1009,8 +1181,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -1026,23 +1198,123 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"uniform-supremum\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "uniform-shared-n-observation",
+        "position": {
+          "step": 5,
+          "frame": 2
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "edit"
+          },
+          {
+            "kind": "set-control",
+            "control": "number",
+            "label": "Indeks n",
+            "value": 5
+          }
+        ],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              0.8,
+              0.3276800000000001
+            ],
+            [
+              0.5,
+              0.03125
+            ],
+            [
+              0.5,
+              0
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "3153d8a20260b57b5f064aa9c7e5cbc4b7d70fdb1d53561685cd86293f258db0",
+      "highlight": {
+        "frame": "uniform-shared-n-observation",
+        "position": {
+          "step": 5,
+          "frame": 2
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "edit"
+          },
+          {
+            "kind": "set-control",
+            "control": "number",
+            "label": "Indeks n",
+            "value": 5
+          }
+        ],
+        "expectChange": true,
+        "startFingerprint": "7b246f683b3cf46b9b68641a1f15a6923da819024575af1f6f447d5b252b5c87",
+        "resultFingerprint": "badebd2a68ae59bb48d7ec2c3c43e50e5b9909500f3b70979a49d0d07b4ad471",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:0.8,0.3276800000000001",
+            "passed": true
+          },
+          {
+            "name": "point:0.5,0.03125",
+            "passed": true
+          },
+          {
+            "name": "point:0.5,0",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 32,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "segment": 5,
+            "point": 5,
+            "text": 1
+          },
+          "visiblePointCount": 5
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.convergence.uniform-convergence.png",
       "width": 840,
       "height": 520,
-      "sha256": "333361ddb121b77e99fd91e2979e5fa4180c04369125a92584ebd110b7c5fbb1",
+      "sha256": "7c769739233dddebd8a38be4e9d28e60ef572d9d3c51b6e9fd1adc85222cb5a1",
       "scene": {
-        "visibleElementCount": 14,
+        "visibleElementCount": 16,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "curve": 2,
-          "segment": 4,
-          "point": 4
+          "segment": 5,
+          "point": 5
         },
-        "visiblePointCount": 4,
+        "visiblePointCount": 5,
         "sampledVisibleCurves": [
           [
             [
@@ -1050,11 +1322,11 @@
               -0.1
             ],
             [
-              0.5,
+              0.4,
               -0.1
             ],
             [
-              1,
+              0.8,
               -0.1
             ]
           ],
@@ -1065,15 +1337,20 @@
             ],
             [
               0.5,
-              0.125
+              0.03125
             ],
             [
               1,
-              0.25
+              1
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:0.8,0.3276800000000001",
+          "point:0.5,0.03125",
+          "point:0.5,0"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -1137,15 +1414,15 @@
           "axis": 2,
           "ticks": 2,
           "curve": 2,
-          "segment": 4,
-          "point": 4
+          "segment": 5,
+          "point": 5
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -1159,22 +1436,107 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"second-derivative\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "convexity-chord-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              -1,
+              1
+            ],
+            [
+              1.5,
+              2.25
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "4c0603a86b31675cec446f2b6b357942280201e13d98fcfcdd605b5f3ab43e58",
+      "highlight": {
+        "frame": "convexity-chord-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "aea25d560a602d0a505aee19df6806403996bd7df03d58a696dbbfbc9d4083da",
+        "resultFingerprint": "23543c6c0118025c1a140f3c20da9168cab8a9abb4f342a0073b3a97a7ed6bb2",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-1,1",
+            "passed": true
+          },
+          {
+            "name": "point:1.5,2.25",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "segment": 4,
+            "curve": 2,
+            "point": 6,
+            "text": 2
+          },
+          "visiblePointCount": 6
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.derivative-results.convexity.png",
       "width": 840,
       "height": 520,
-      "sha256": "cee4a7d36fd3ce1023986ac7a030d0c2cc6bbc5b9b48cf53f75b9fa73b613a0b",
+      "sha256": "97d8a4717f759331f64698ca3fe2a229a7bfd8f40e8a320d06579407d851a4a9",
       "scene": {
-        "visibleElementCount": 28,
+        "visibleElementCount": 30,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 12,
           "segment": 4,
           "curve": 2,
-          "point": 6
+          "point": 6,
+          "text": 2
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -1207,7 +1569,12 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:-1,1",
+          "point:1.5,2.25",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -1264,8 +1631,8 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 0,
-        "finalLabelCount": 0,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
@@ -1273,14 +1640,15 @@
           "label": 12,
           "segment": 4,
           "curve": 2,
-          "point": 6
+          "point": 6,
+          "text": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -1294,22 +1662,114 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"extrema-classification\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "extrema-square-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -1,
+              1
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "485c06b4f691f4d2ce17d13e6431684ac3b4af6db087164bb0423cbd6bb0509e",
+      "highlight": {
+        "frame": "extrema-square-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "2514c07acdc891a79c68450eeba4cc51c5afc068bd2d3e14de7a362dc9c3e218",
+        "resultFingerprint": "3dbdd495b20f121e96b4d237611692ea351cffc2f7e84e6bf81029c8dc4221e0",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:-1,1",
+            "passed": true
+          },
+          {
+            "name": "point:0,0",
+            "passed": true
+          },
+          {
+            "name": "point:2,4",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 40,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "line": 5,
+            "curve": 1,
+            "text": 6,
+            "point": 5
+          },
+          "visiblePointCount": 5
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.derivative-results.extrema.png",
       "width": 840,
       "height": 520,
-      "sha256": "eeef8069ef9ce86f7f25dcb088f87fd2daf41702ee0b0015c5bd1062c19e76ff",
+      "sha256": "09aa258b0ea8081e7213eebab2736d306ae21998de3abd15e665001643f48de8",
       "scene": {
-        "visibleElementCount": 31,
+        "visibleElementCount": 34,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 13,
-          "line": 3,
+          "line": 5,
           "curve": 1,
-          "text": 5,
+          "text": 6,
           "point": 5
         },
         "visiblePointCount": 5,
@@ -1329,7 +1789,13 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:-1,1",
+          "point:0,0",
+          "point:2,4",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -1379,17 +1845,17 @@
           "axis": 2,
           "ticks": 2,
           "label": 13,
-          "line": 3,
+          "line": 5,
           "curve": 1,
-          "text": 5,
+          "text": 6,
           "point": 5
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -1402,38 +1868,179 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"mean-value-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "mean-value-reveal-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            [
+              [
+                0,
+                -1
+              ],
+              [
+                0.5,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "5a96105aea14f5fd4f1757dfd4f34bd92a1c630feff8943b26a22782cb04a22d",
+      "highlight": {
+        "frame": "mean-value-reveal-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "b771b9366f40533b5af1e4584d2e0fb4caddf6eb3692b72d9bdb8aeeddaba383",
+        "resultFingerprint": "1d2165c7a58964169a6e065606081a850921e5c9d9297b57189cbf5d5cb28e6c",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:0,0",
+            "passed": true
+          },
+          {
+            "name": "point:2,4",
+            "passed": true
+          },
+          {
+            "name": "point:1,1",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 36,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "curve": 4,
+            "segment": 2,
+            "point": 7,
+            "text": 1
+          },
+          "visiblePointCount": 7
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.derivative-results.mean-value.png",
       "width": 840,
       "height": 520,
-      "sha256": "23d2bfb96567c67191ca7294c1fcdb5dca0e017ece1dc65f753866cc910b7fe4",
+      "sha256": "27555822f16ac2208c418cfd798d6ed4894ccf46db19f371b7492d2e312e4420",
       "scene": {
-        "visibleElementCount": 27,
+        "visibleElementCount": 28,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 11,
-          "curve": 3,
+          "curve": 4,
           "segment": 2,
-          "point": 6,
-          "text": 1
+          "point": 7
         },
-        "visiblePointCount": 6,
+        "visiblePointCount": 7,
         "sampledVisibleCurves": [
           [
             [
               0,
-              -0.25
+              -1
             ],
             [
               0.5,
-              0.25
+              0
             ],
             [
               1,
-              0.75
+              1
+            ]
+          ],
+          [
+            [
+              0,
+              -1
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              1
             ]
           ],
           [
@@ -1465,7 +2072,15 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:0,0",
+          "point:2,4",
+          "point:1,1",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -1536,24 +2151,23 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
           "label": 11,
-          "curve": 3,
+          "curve": 4,
           "segment": 2,
-          "point": 6,
-          "text": 1
+          "point": 7
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -1566,25 +2180,109 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bisection-default\",\"source\":\"demonstration-default\"}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "bisection-first-step-observation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              1.5,
+              0
+            ],
+            [
+              1.5,
+              0.25
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                -2
+              ],
+              [
+                0.5,
+                -1.75
+              ],
+              [
+                1,
+                -1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "0c42ef528bf634ada528435f4ed6314fbc455a3373e38a13b54f7df2383beb91",
+      "highlight": {
+        "frame": "bisection-first-step-observation",
+        "position": {
+          "step": 1,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "74de729ba6a56296e990f4cab5d69afda49594ec8f4741d338a4f0dd26446850",
+        "resultFingerprint": "f20f710a2262a87cbe2aa9fd17cd49e5dc8857073f1399796e44f6a87190be05",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:1.5,0",
+            "passed": true
+          },
+          {
+            "name": "point:1.5,0.25",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 17,
+            "curve": 1,
+            "segment": 5,
+            "point": 6,
+            "text": 1
+          },
+          "visiblePointCount": 6
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.existence.bisection.png",
       "width": 840,
       "height": 520,
-      "sha256": "e73f1f47eb7d548aab08f4dbe4e2c3c3802b584195d98a78c7a842422f87fb1e",
+      "sha256": "a68a9e0a5c2b903f518cceb42c86003b5ab62c193511157a1c3df2501686cef8",
       "scene": {
-        "visibleElementCount": 21,
+        "visibleElementCount": 25,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 8,
           "curve": 1,
-          "segment": 3,
-          "point": 4,
+          "segment": 5,
+          "point": 6,
           "text": 1
         },
-        "visiblePointCount": 4,
+        "visiblePointCount": 6,
         "sampledVisibleCurves": [
           [
             [
@@ -1601,7 +2299,12 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:1.5,0",
+          "point:1.5,0.25",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -1652,16 +2355,16 @@
           "ticks": 2,
           "label": 8,
           "curve": 1,
-          "segment": 3,
-          "point": 4,
+          "segment": 5,
+          "point": 6,
           "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -1676,24 +2379,117 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"upper-sum\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "darboux-bounds-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 4,
+          "curves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "38b169f8dde4f07788d7ac5806a605d62af0f0fc189c4c50fb54dd069fd586f8",
+      "highlight": {
+        "frame": "darboux-bounds-observation",
+        "position": {
+          "step": 1,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "34e8c8ba0a4f814adf77408106ab535a36789219391a92458902019a51e45bf6",
+        "resultFingerprint": "28e5fd8aec049294ef991c0f8c93033857152de3757ff13f6a2767565c32ba70",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 25,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 14,
+            "curve": 4,
+            "point": 2,
+            "text": 1
+          },
+          "visiblePointCount": 2
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.integrability.darboux.png",
       "width": 840,
       "height": 520,
-      "sha256": "79931df648896d0cd65c042dfd9487d458a34ebeb711fd2bd1629ae63b89fa0d",
+      "sha256": "ddd32e4d284a7788033649cd86b656012f7c8754532e254769ca57c7ecfc0bfd",
       "scene": {
-        "visibleElementCount": 19,
+        "visibleElementCount": 21,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 11,
-          "curve": 2,
+          "curve": 4,
           "point": 2
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0.125
+            ],
+            [
+              0,
+              0.25
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
           [
             [
               0,
@@ -1723,7 +2519,10 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -1786,15 +2585,15 @@
           "axis": 2,
           "ticks": 2,
           "label": 11,
-          "curve": 2,
+          "curve": 4,
           "point": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -1808,20 +2607,130 @@
         "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"taylor-bound\",\"visible\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "taylor-exp-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              2.718281828459045
+            ],
+            [
+              1,
+              2.7180555555555554
+            ]
+          ],
+          "curves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.6487212707001282
+              ],
+              [
+                1,
+                2.718281828459045
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.5,
+                1.6487196180555554
+              ],
+              [
+                1,
+                2.7180555555555554
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "recipeFingerprint": "6718fffe455e62613b879524b868ac1f5a27def35e6b87028b7d68affb2d9b4d",
+      "highlight": {
+        "frame": "taylor-exp-observation",
+        "position": {
+          "step": 2,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "startFingerprint": "9b0db78a2c1187fcc8093bba15d7f9e3d672bfc36a33bcba8c3bb858473748ac",
+        "resultFingerprint": "96dfc60a1902d663440828a0cd4f4b5cb16885cb261f18a59feb7ba86132f2cb",
+        "changedFromStart": true,
+        "checks": [
+          {
+            "name": "curve-count",
+            "passed": true
+          },
+          {
+            "name": "point:0,1",
+            "passed": true
+          },
+          {
+            "name": "point:1,2.718281828459045",
+            "passed": true
+          },
+          {
+            "name": "point:1,2.7180555555555554",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          },
+          {
+            "name": "curve-samples",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "segment": 3,
+            "curve": 2,
+            "point": 5,
+            "text": 1
+          },
+          "visiblePointCount": 5
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "analysis.taylor.taylor.png",
       "width": 840,
       "height": 520,
-      "sha256": "d8b6352664a5fe9d6a38a769b24c71b6aca837cdf4ba3d8eb18e5f9dad1b921d",
+      "sha256": "4b18ee4cd9ad53b3df8f50ed14a2b87b9ab291ddbec2671bb4f06b023656fbc0",
       "scene": {
-        "visibleElementCount": 18,
+        "visibleElementCount": 19,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
           "label": 5,
-          "segment": 2,
+          "segment": 3,
           "curve": 2,
           "point": 5
         },
@@ -1834,11 +2743,11 @@
             ],
             [
               0.5,
-              1.5
+              1.64872
             ],
             [
               1,
-              2
+              2.718056
             ]
           ],
           [
@@ -1856,7 +2765,14 @@
             ]
           ]
         ],
-        "checks": []
+        "checks": [
+          "curve-count",
+          "point:0,1",
+          "point:1,2.718281828459045",
+          "point:1,2.7180555555555554",
+          "curve-samples",
+          "curve-samples"
+        ]
       },
       "initialFrame": {
         "firstFrame": true,
@@ -1920,7 +2836,7 @@
           "axis": 2,
           "ticks": 2,
           "label": 5,
-          "segment": 2,
+          "segment": 3,
           "curve": 2,
           "point": 5
         }
@@ -1928,8 +2844,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -2144,8 +3060,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -2420,8 +3336,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -2636,8 +3552,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -2741,8 +3657,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -3033,8 +3949,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -3294,8 +4210,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -3425,8 +4341,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -3643,8 +4559,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -3844,8 +4760,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -4325,8 +5241,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -4624,8 +5540,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -4755,8 +5671,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -4947,8 +5863,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -5223,8 +6139,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -5389,8 +6305,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -5639,8 +6555,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -5912,8 +6828,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -6112,8 +7028,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -6370,8 +7286,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -6563,8 +7479,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -6723,8 +7639,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -6939,8 +7855,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -7229,8 +8145,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -7448,8 +8364,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -7764,8 +8680,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -8130,8 +9046,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -8374,8 +9290,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -8612,8 +9528,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -8896,8 +9812,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -9101,8 +10017,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -9367,8 +10283,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -9671,8 +10587,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -9941,8 +10857,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -10227,8 +11143,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -10457,8 +11373,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -10663,8 +11579,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -10888,8 +11804,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -11108,8 +12024,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -11412,8 +12328,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -11647,8 +12563,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -11799,8 +12715,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -12013,8 +12929,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -12290,8 +13206,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -12504,8 +13420,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -12720,8 +13636,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -12934,8 +13850,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     },
@@ -13050,8 +13966,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
-        "sourceRevision": "61cd5be6648c3382ad5bdd9ce7b6f719ddbf01e3",
+        "buildRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
+        "sourceRevision": "0dfaa0e6c457d45f9242350cbbb607512b82fcf4",
         "pageErrors": []
       }
     }
