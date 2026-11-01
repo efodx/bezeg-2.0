@@ -34,8 +34,8 @@ const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hu
     "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle"];
 /** The projective-conics Demonstrations, one collection each. */
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar"];
-/** Graph collections whose Demonstration is registered in a later slice (school function graphs 05 F2b). */
-const PENDING_ROUTE_KEYS = ["function-transformation"];
+/** Graph collections whose Demonstration is registered in a later slice (school function graphs 05 and Fourier series F2b). */
+const PENDING_ROUTE_KEYS = ["function-transformation", "fourier-series"];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
 const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-subdivision", "patch-coons"];
 

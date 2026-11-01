@@ -24,6 +24,8 @@ import {checkFixedPointModel, parseFixedPointModel} from "../../analysis/fixedPo
 import {fixedPointFileMessage} from "./fixedPointMessages";
 import {checkUniformConvergenceModel, parseUniformConvergenceModel} from "../../analysis/uniformConvergenceModel";
 import {uniformConvergenceFileMessage} from "./uniformConvergenceMessages";
+import {checkFourierSeriesModel, parseFourierSeriesModel} from "../../analysis/fourierSeriesModel";
+import {fourierSeriesFileMessage} from "./fourierSeriesMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
 import {checkSequenceModel, parseSequenceModel} from "../../analysis/sequenceModel";
@@ -86,6 +88,11 @@ const diagnoseSequence: Diagnosis = data => {
 /** The model module names the rule a rejected uniform convergence model broke; this only localizes it. */
 const diagnoseUniformConvergence: Diagnosis = data => {
     const check = checkUniformConvergenceModel(data);
+/** The model module names the rule a rejected Fourier series model broke; this only localizes it. */
+const diagnoseFourierSeries: Diagnosis = data => {
+    const check = checkFourierSeriesModel(data);
+    return check.ok || check.issue === undefined ? undefined : fourierSeriesFileMessage(check.issue);
+};
     return check.ok || check.issue === undefined ? undefined : uniformConvergenceFileMessage(check.issue);
 };
 const diagnoseComplex: Diagnosis = data => {
@@ -132,6 +139,7 @@ export const functionPresetCollections = {
     bisection: functionCollection("bisection", parseBisectionModel, diagnoseBisection),
     "root-finding": functionCollection("root-finding", parseRootFindingModel, diagnoseRootFinding),
     "mean-value": functionCollection("mean-value", parseMeanValueModel, diagnoseMeanValue),
+    "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     accumulation: functionCollection("accumulation", parseAccumulationModel, diagnoseAccumulation),
     darboux: functionCollection("darboux", parseDarbouxModel, diagnoseDarboux),
     extrema: functionCollection("extrema", parseExtremaModel, diagnoseExtrema),

@@ -875,3 +875,53 @@ test("function-transformation data of the wrong type keeps the generic function-
         expect(() => preflightPresetImport(transformationPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
     }
 });
+
+const fourierPreset = (data: unknown) => JSON.stringify({"preset-fourier-series": {data: [{id: "Osnova", boardState: {boundingBox: [-7.2, 3.6, 7.2, -2]},
+    graphState: {initialized: true, example: "square", n: 11, x: 0.5, epsilon: 0.1}, data}]}});
+
+test("fourier-series collection imports a model object, keeps other storage untouched and accepts the boundary values", () => {
+    localStorage.setItem("other-app", "keep");
+    const data = {example: "sawtooth", n: 101, x: -3.14, epsilon: 0.25};
+    commitPresetImport(preflightPresetImport(fourierPreset(data)));
+    expect(JSON.parse(localStorage.getItem("preset-fourier-series")!).data[0].data).toEqual(data);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+    for (const boundary of [{example: "square", n: 1, x: -6.28, epsilon: 0.01}, {example: "sawtooth", n: 1001, x: 6.28, epsilon: 1}, {example: "square", n: 1001, x: 0, epsilon: 0.5}]) {
+        expect(() => preflightPresetImport(fourierPreset(boundary))).not.toThrow();
+    }
+});
+
+const validFourier = {example: "square", n: 11, x: 0.5, epsilon: 0.1};
+test.each([[[]], [null], [{}], [{...validFourier, example: "triangle"}], [{...validFourier, n: 0}], [{...validFourier, n: 1002}], [{...validFourier, n: 2.5}], [{...validFourier, n: 11.0000001}],
+    [{...validFourier, n: "11"}], [{...validFourier, x: -6.29}], [{...validFourier, x: 6.29}], [{...validFourier, x: 0.505}], [{...validFourier, x: "0.5"}], [{...validFourier, epsilon: 0}],
+    [{...validFourier, epsilon: 0.005}], [{...validFourier, epsilon: 1.01}], [{...validFourier, epsilon: "0.1"}], [{example: "square", n: 11, x: 0.5}]])
+("fourier-series collection rejects out-of-domain and incomplete data without writing: %j", data => {
+    expect(() => preflightPresetImport(fourierPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validFourier, example: "triangle"}, /square, sawtooth/],
+    [{...validFourier, n: 1002}, /\bn\b.*1.*1001/],
+    [{...validFourier, n: 2.5}, /\bn\b.*1.*1001/],
+    [{...validFourier, x: 6.29}, /\bx\b.*0\.01.*−6\.28.*6\.28/],
+    [{...validFourier, x: 0.505}, /\bx\b.*0\.01.*−6\.28.*6\.28/],
+    [{...validFourier, epsilon: 0}, /epsilon.*0\.01.*0\.01.*1/],
+    [{...validFourier, epsilon: 1.01}, /epsilon.*0\.01.*0\.01.*1/],
+])("fourier-series errors say which condition to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(fourierPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(fourierPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("fourier-series data of the wrong type keeps the generic function-data message and the messages are localized", () => {
+    for (const data of [null, [], {...validFourier, n: "11"}, {...validFourier, x: "0.5"}, {...validFourier, epsilon: "0.1"}, {example: "square", n: 11, x: 0.5}]) {
+        expect(() => preflightPresetImport(fourierPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+    const attempt = (data: unknown) => { try { preflightPresetImport(fourierPreset(data)); } catch (error) { return (error as LocalizedError).message; } return ""; };
+    setLanguage("en");
+    expect(attempt({...validFourier, n: 2000})).toContain("integer between 1 and 1001");
+    expect(attempt({...validFourier, x: 7})).toContain("multiple of 0.01 between −6.28 and 6.28");
+    setLanguage("sl");
+    expect(attempt({...validFourier, n: 2000})).toContain("celo število med 1 in 1001");
+    expect(attempt({...validFourier, epsilon: 2})).toContain("večkratnik števila 0.01 med 0.01 in 1");
+});

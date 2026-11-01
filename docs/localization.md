@@ -88,6 +88,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | sekantna metoda | secant method (numerical methods N3; FMF syllabus wording) |
 | približek | iterate (a member of an iteration; already used by the fixed-point lesson, "naslednji približek"; "iterat" is not used) |
 | začetni približek | start of an iteration (x₀; the second secant start is "drugi začetni približek") |
+| Fourierova vrsta; delna vsota Sₙ | Fourier series; partial sum (Fourier series F2a graph; "vrsta" as in the Taylor prompt, "delna vsota" is the standard FMF wording) |
+| število harmonikov N | number of harmonics N (Fourier series F2a). Not "stopnja" (Taylor, a polynomial degree) and not "indeks" (uniform convergence, an index of a sequence): N counts the sine terms of the sum, so the count is named; a harmonic is "harmonik" (genitive plural "harmonikov") |
+| pravokotni val; žagasti val | square wave; sawtooth wave (Fourier series F2a examples; "žagasti" is the established adjective for the saw shape) |
+| Gibbsov pojav; vrh pri \(\pi/(N+1)\) | Gibbs phenomenon; the peak of the overshoot at \(\pi/(N+1)\) (Fourier series F2a; "vrh" is the board label for the maximum of the sum) |
 | premik (znotraj / zunaj) | shift (inside f: horizontal, c; outside f: vertical, d); school function graphs S1. "prenos" is not used |
 | raztegnitev (znotraj / zunaj) | stretch (inside f: horizontal, b; outside f: vertical, a); S1 |
 | zrcaljenje (čez os x / čez premico x = c) | reflection (negative a: about the x-axis; negative b: about the line x = c); S1 |
