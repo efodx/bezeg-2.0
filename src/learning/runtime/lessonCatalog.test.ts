@@ -1,6 +1,7 @@
 import {getLessonForDemonstration, sceneActions, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
 import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstrations';
 import {getGuidedLesson} from '../content/guidedLessons';
+import {findChapterOwnedLessonByDemonstration} from '../content/chapterOwnedLessons';
 import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
 
 test('adapts reviewed pilot scene names into typed runtime actions', () => {
@@ -57,7 +58,8 @@ test('derives lesson availability from the Demonstration definitions and matches
     // Availability is derived from the Demonstration definitions, so it must agree with the authored content in both directions:
     // a lesson without availability would never be offered, and availability without a lesson would link to nothing.
     const authored = (id: (typeof ids)[number]) => getGuidedLesson(id) !== undefined
-        || Object.values(patchGuidedExampleRegistry).some(lesson => lesson.demonstrationId === id);
+        || Object.values(patchGuidedExampleRegistry).some(lesson => lesson.demonstrationId === id)
+        || findChapterOwnedLessonByDemonstration(id) !== undefined;
     expect(ids.filter(id => authored(id)).sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
     for (const id of GUIDED_LESSON_AVAILABLE_IDS) expect(getLessonForDemonstration(id)).toBeDefined();
     expect(GUIDED_LESSON_AVAILABLE_IDS.every(id => ids.includes(id))).toBe(true);
@@ -182,8 +184,8 @@ test('every active demonstration route has an available lesson unless it opts ou
     const lessonIds = ids.filter(id => LESSON_DEMONSTRATION_IDS.includes(id));
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
-    // `linear-map` stays lessonless until the linear maps lesson task publishes one; the compgeo ids ship without lessons.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['linear-map', 'ear-clipping', 'interval-sweep', 'segment-intersections']);
+    // The compgeo ids ship without lessons.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['ear-clipping', 'interval-sweep', 'segment-intersections']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

@@ -83,12 +83,13 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('publishes eight bilingual chapters with stable section anchors and substantial prose', () => {
+    test('publishes nine bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'functions-and-calculus', 'analysis',
+            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'functions-and-calculus', 'analysis',
         ]);
         for (const chapter of familyChapters) {
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(5);
+            // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(chapter.id === 'linear-maps' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);

@@ -4,13 +4,14 @@ import {installBoardShims, mountGraph} from '../../graphs/base/realGraphTestHarn
 import type {DemonstrationId} from '../../demonstrations';
 import baseline from '../../../docs/reviews/illustrated-chapter-examples/baseline-examples.json';
 import {familyChapters} from './familyChapters';
+import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import type {LessonAction} from '../model';
 import {resolveGuidedExample} from '../chapter/guidedExamples';
 
 beforeAll(installBoardShims);
 
 // The patches chapter has no audited baseline homes yet; its generic Explore links are covered by patchChapter.test.ts until task 13 authors scenes.
-const familyExamples = familyChapters.filter(chapter => chapter.id !== 'bezier-patches').flatMap(chapter => chapter.sections.flatMap(section =>
+const familyExamples = familyChapters.filter(chapter => !getChapterOwnedLessons(chapter.id)).flatMap(chapter => chapter.sections.flatMap(section =>
     Object.keys(section.investigationPrompts ?? {}).map(demonstrationId => ({
         chapterId: chapter.id, sectionId: section.id, demonstrationId: demonstrationId as DemonstrationId,
     })).filter(example => section.demonstrationIds?.includes(example.demonstrationId))));

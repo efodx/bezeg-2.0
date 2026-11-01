@@ -1,5 +1,5 @@
 import type {DemonstrationId} from '../../demonstrations';
-import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
+import {findChapterOwnedLessonByDemonstration} from '../content/chapterOwnedLessons';
 import type {LessonPatchFixture, LessonPoint3, LessonView3D} from '../model';
 import type {LessonAction, LessonDefinition, LocalizedText, LessonFrame} from '../model';
 import {getGuidedLesson, isPilotGuidedLesson, type LessonScene} from '../content/guidedLessons';
@@ -144,8 +144,8 @@ const adaptedLessons = new Map<DemonstrationId, LessonDefinition | undefined>();
 /** Stable lookup seam for the reviewed content module; only Demonstrations that offer a lesson (see lessonAvailability.ts) resolve. */
 export function getLessonForDemonstration(id: DemonstrationId): LessonDefinition | undefined {
     if (!isGuidedLessonAvailable(id)) return undefined;
-    const patch = Object.values(patchGuidedExampleRegistry).find(lesson => lesson.demonstrationId === id);
-    if (patch) return patch;
+    const owned = findChapterOwnedLessonByDemonstration(id);
+    if (owned) return owned;
     if (!adaptedLessons.has(id)) adaptedLessons.set(id, adaptContent(id));
     return adaptedLessons.get(id);
 }

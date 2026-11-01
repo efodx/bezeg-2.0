@@ -18,6 +18,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
     'ph-curves': {demonstration: 'ph-cubic', alt: {sl: 'Kubična PH-krivulja z dvema prikazanima krivuljama in dolžino loka.', en: 'A cubic PH curve with two displayed curves and an arc-length value.'}},
     parametrization: {demonstration: 'uniform-parameterization', alt: {sl: 'Vzorčne točke na krivulji so označene z razmiki, ki se po loku razlikujejo.', en: 'Sample points are marked along a curve with visibly varying distances along the arc.'}},
     'bezier-patches': {demonstration: 'patch-tensor', alt: {sl: 'Tenzorska Bézierjeva krpa s kontrolno mrežo v tridimenzionalnem pogledu.', en: 'A tensor-product Bézier patch with its control net in a three-dimensional view.'}},
+    'linear-maps': {demonstration: 'linear-map', alt: {sl: 'Mreža, enotski kvadrat in njuni sliki pri linearni preslikavi ravnine.', en: 'A grid and the unit square with their images under a linear map of the plane.'}},
     'functions-and-calculus': {demonstration: 'derivative', alt: {sl: 'Graf kvadratne funkcije z označeno tangentno premico pri izbrani točki.', en: 'A quadratic function graph with a tangent line marked at a selected point.'}},
     analysis: {demonstration: 'bisection', alt: {sl: 'Graf kvadratne funkcije z intervalom in razpoloviščem pri bisekcijski metodi.', en: 'A quadratic graph with an interval and midpoint for the bisection method.'}},
 };
@@ -26,6 +27,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
 export const learningStrands: readonly {id: string; title: LocalizedText; chapters: readonly string[]}[] = [
     {id: 'curves', title: {sl: 'Krivulje', en: 'Curves'}, chapters: ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'ph-curves', 'parametrization']},
     {id: 'surfaces', title: {sl: 'Ploskve', en: 'Surfaces'}, chapters: ['bezier-patches']},
+    {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps']},
     {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'analysis']},
 ];
 
@@ -86,9 +88,10 @@ export function LearningPage() {
                         const examples = outline.reduce((total, section) => total + section.examples, 0);
                         const path = `/bezeg-2.0/learn/${chapter.id}`;
                         return <li className="learning-family" id={chapter.id} key={chapter.id}>
-                            <Link className="learning-thumb" to={path} tabIndex={-1}>
+                            {/* A Demonstration without a captured poster yet (linear-map, until its media task) shows no thumbnail. */}
+                            {demonstrationPreviewAssets[preview.demonstration] && <Link className="learning-thumb" to={path} tabIndex={-1}>
                                 <img src={demonstrationPreviewAssets[preview.demonstration]} alt={preview.alt[language]} width="720" height="440" loading="lazy"/>
-                            </Link>
+                            </Link>}
                             <h3 className="learning-topic-heading" id={`${chapter.id}-heading`}><Link to={path}>{chapter.title[language]}</Link></h3>
                             <p className="learning-topic-body">{chapter.purpose[language]}</p>
                             <div className="learning-actions">

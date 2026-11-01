@@ -3,7 +3,7 @@ import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstra
 import {bezierChapter} from '../content/bezierChapter';
 import {familyChapters} from '../content/familyChapters';
 import {patchChapter} from '../content/patchChapter';
-import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
+import {chapterOwnedLessons, getChapterOwnedLessons} from '../content/chapterOwnedLessons';
 import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
 import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retainedExamples';
 
@@ -56,7 +56,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'uniform-convergence': {chapterId: 'analysis', sectionId: 'convergence'},
     'complex-multiplication': {chapterId: 'foundations', sectionId: 'complex-plane'},
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
-    // Registered without a lesson (task 06); the chapter and section are authored in task 07.
+    // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
     // Interim owner until the Convexity and hulls chapter (task F4) exists; F4 moves both. The lesson page needs an existing chapter section to link back to, and the convex-hull property is what the orientation prerequisites cite.
     orientation: {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
@@ -88,10 +88,10 @@ export function getGuidedLessonOwners(id: DemonstrationId): readonly GuidedLesso
         .map(section => ({chapterId: chapter.id, sectionId: section.id})));
     const retainedOwners = retainedExampleHomes.filter(home => home[3] === id)
         .map(home => ({chapterId: home[1], sectionId: home[2]}));
-    const patchOwners = Object.entries(patchGuidedExampleRegistry).filter(([, lesson]) => lesson.demonstrationId === id)
-        .map(([sectionId]) => ({chapterId: 'bezier-patches', sectionId}));
+    const ownedOwners = Object.entries(chapterOwnedLessons).flatMap(([chapterId, owned]) => owned.entries()
+        .filter(([, lesson]) => lesson.demonstrationId === id).map(([sectionId]) => ({chapterId, sectionId})));
     const primary = primaryOwner(id);
-    const all = [...(primary ? [primary] : []), ...(additionalOwners[id] ?? []), ...familyOwners, ...retainedOwners, ...patchOwners];
+    const all = [...(primary ? [primary] : []), ...(additionalOwners[id] ?? []), ...familyOwners, ...retainedOwners, ...ownedOwners];
     return all.filter((owner, index) => all.findIndex(item => item.chapterId === owner.chapterId && item.sectionId === owner.sectionId) === index);
 }
 
@@ -152,13 +152,12 @@ export function guidedLessonLaunchPath(id: DemonstrationId, requested = getGuide
 
 export function authoredGuidedLessonIds(chapterId: string, sectionId: string): DemonstrationId[] {
     const retained = GUIDED_LESSON_AVAILABLE_IDS.filter(id => retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id));
-    return chapterId === 'bezier-patches' && Object.prototype.hasOwnProperty.call(patchGuidedExampleRegistry, sectionId)
-        ? [...retained, patchGuidedExampleRegistry[sectionId as keyof typeof patchGuidedExampleRegistry].demonstrationId] : retained;
+    const owned = getChapterOwnedLessons(chapterId)?.lesson(sectionId);
+    return owned ? [...retained, owned.demonstrationId] : retained;
 }
 
 export function getGuidedLessonOwnerForSection(id: DemonstrationId, chapterId: string, sectionId: string): GuidedLessonOwner | undefined {
-    if (chapterId === 'bezier-patches' && Object.prototype.hasOwnProperty.call(patchGuidedExampleRegistry, sectionId)
-        && patchGuidedExampleRegistry[sectionId as keyof typeof patchGuidedExampleRegistry].demonstrationId === id) return {chapterId, sectionId};
+    if (getChapterOwnedLessons(chapterId)?.lesson(sectionId)?.demonstrationId === id) return {chapterId, sectionId};
     return retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id)
         ? {chapterId, sectionId}
         : undefined;

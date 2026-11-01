@@ -12,7 +12,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 | [04 Grid drawing measurement and ADR](04-grid-drawing-measurement.md) | A | measurement + ADR | none | 01 | done 2026-10-31 (ADR 0032: one NaN-break polyline; classroom device check open for F6) |
 | [05 Graph: basis and determinant modes](05-graph-basis-determinant.md) | A | F2a | none | 03, 04 | done 2026-10-31: engineering/UI and mathematical review; repair `3656e55` (graph accepts only its drawn modes). No route yet, so no smoke run; open: probe fixed at (1, 1), drag handles keyboard path is the numeric fields |
 | [06 Batch A registration](06-batch-a-registration.md) | A | F2b | `G-REG` | 05 | done 2026-11-01: route `/bezeg-2.0/linear-map`, family `maps`, `lesson: false`; lessonless exemptions (owner placeholder, `POSTER_PENDING`, Learn/catalog tests) to remove in 07; handler engineering review; smoke SL/EN, live switch, Preset save/restore, `/bezier/affine` passed |
-| [07 Batch A lessons, chapter, media, acceptance](07-batch-a-lessons.md) | A | F3–F6 | `G-REG` | 06 | planned |
+| [07 Batch A lessons, chapter, media, acceptance](07-batch-a-lessons.md) | A | F3–F6 | `G-REG` | 06 | F3+F4 done 2026-11-01 (engineering + mathematical review, Sonnet; handler repair of the L1 grid-line sentence; `chapterOwnedLessons` table replaces per-chapter branches in shared learning code); F5 media and F6 acceptance next |
 | [08 Batch B](08-batch-b.md) | B | ADR, F2a–F6 | `G-REG` | 02, 07 | planned |
 | [09 Batch C](09-batch-c.md) | C | F2a–F6 | `G-REG` | 08 | planned |
 

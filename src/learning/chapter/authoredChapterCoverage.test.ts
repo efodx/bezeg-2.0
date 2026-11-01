@@ -12,7 +12,7 @@ test('both published languages place every audited home exactly once in its owni
             {id: 'bezier-curves', sections: bezierChapter[language].sections},
             ...familyChapters,
         ];
-        expect(chapters).toHaveLength(9);
+        expect(chapters).toHaveLength(10);
         const allReferences: string[] = [];
         for (const chapter of chapters) {
             for (const section of chapter.sections) {
@@ -26,6 +26,7 @@ test('both published languages place every audited home exactly once in its owni
                         'tensor-derivatives.patch-derivatives', 'tensor-subdivision.patch-subdivision', 'tensor-joins.patch-joins',
                         'triangular-patches.patch-triangular', 'square-vs-triangular.patch-triangular',
                     ].filter(id => id.startsWith(`${section.id}.`)).map(id => `bezier-patches.${id}`) : []),
+                    ...(chapter.id === 'linear-maps' ? [`linear-maps.${section.id}.linear-map`] : []),
                 ].sort();
                 const references = exampleReferences<unknown, unknown>(content ?? []);
                 expect([...references].sort(), `${language}/${chapter.id}/${section.id}`).toEqual(expected);
@@ -34,7 +35,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(67);
-        expect(new Set(allReferences).size).toBe(67);
+        expect(allReferences).toHaveLength(69);
+        expect(new Set(allReferences).size).toBe(69);
     }
 });

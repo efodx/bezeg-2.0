@@ -1,5 +1,6 @@
 import {authorFamilyChapterSequence} from './familyChapterSequences';
 import {patchChapter} from './patchChapter';
+import {linearMapsChapter} from './linearMapsChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import {previewPoster} from '../../previewPoster';
 import type {LocalizedText} from '../model';
@@ -386,6 +387,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
         ],
     },
     patchChapter, // Placed after the curve families (parametrization), before the analysis-style chapters.
+    linearMapsChapter, // Maps of the plane: chapter-owned activities live in linearMapsChapterLessons.ts.
     {
         id: 'functions-and-calculus', family: '/bezeg-2.0/functions',
         title: text('Funkcije in računanje', 'Functions and calculus'),
