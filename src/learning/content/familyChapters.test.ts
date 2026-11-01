@@ -268,7 +268,7 @@ describe('family reading chapters', () => {
         expect(prose).not.toMatch(/captur|zajet/iu);
     });
 
-    test('gives every calculus destination supported bilingual exploration and uses the captured calculus figures', () => {
+    test('gives every calculus destination supported bilingual exploration and has no section figures and keeps their distinctions in prose', () => {
         const chapter = familyChapters.find(entry => entry.id === 'functions-and-calculus')!;
         const occurrences = chapter.sections.flatMap(section => (section.demonstrationIds ?? []).map(id => ({section, id})));
         const supportedControls: Record<string, {sl: RegExp; en: RegExp}> = {
@@ -308,29 +308,19 @@ describe('family reading chapters', () => {
         expect(prose).toContain('h\\ne0');
         expect(prose).toContain('\\int_0^2 x\\,dx=2');
 
-        const figures = chapter.sections.flatMap(section => section.figures ?? []);
-        expect(figures.map(figure => figure.src)).toEqual([
-            demonstrationPreviewAssets.continuity,
-            demonstrationPreviewAssets.derivative,
-            demonstrationPreviewAssets['definite-integral'],
-        ]);
-        for (const figure of figures) {
-            expect(figure.alt.sl.trim()).not.toBe('');
-            expect(figure.alt.en.trim()).not.toBe('');
-            expect(figure.alt.sl).not.toMatch(/\\[A-Za-z]+/u);
-            expect(figure.alt.en).not.toMatch(/\\[A-Za-z]+/u);
-        }
-        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
-        expect(captions).toContain('skok');
-        expect(captions).toContain('jump');
-        expect(captions).toContain('sekant');
-        expect(captions).toContain('secant');
-        expect(captions).toContain('šest');
-        expect(captions).toContain('six');
-        expect(captions).toContain('vsota');
-        expect(captions).toContain('sum');
-        expect(captions).toContain('signed integral');
-        expect(captions).toContain('geometric area');
+        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
+        expect(prose).toContain('a=1');
+        expect(prose).toContain('not a proof of the general continuity criterion');
+        expect(prose).toContain('ne dokaz splošnega kriterija zveznosti');
+        expect(prose).toContain('the quotient keeps');
+        expect(prose).toContain('pri količniku ostane');
+        expect(prose).toContain('four left rectangles');
+        expect(prose).toContain('štirimi levimi pravokotniki');
+        expect(prose).toContain('1{,}75');
+        expect(prose).toContain('1.75');
+        expect(prose).toContain('exact signed integral');
+        expect(prose).toContain('geometric area because');
+        expect(prose).not.toMatch(/six coarse|šestimi grobimi|2\{,\}037|2\.037/u);
     });
     test('teaches Analysis with explicit uniform quantifiers, supported prompts, and the three inspected captures', () => {
         const chapter = familyChapters.find(entry => entry.id === 'analysis')!;

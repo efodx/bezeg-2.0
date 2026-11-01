@@ -35,9 +35,9 @@ const authored: Readonly<Record<string, SequenceSpec>> = {
     },
     'functions-and-calculus': {
         'function-rules': ['p0', 'p1', 'e:functions-and-calculus.function-rules.linear-function', {sl: 'Konstantni prirastek vhoda daje pri premici konstantni prirastek izhoda.', en: 'A constant input increment gives a linear function a constant output increment.'}, 'e:functions-and-calculus.function-rules.exponential-function', {sl: 'Pri eksponentni funkciji enaki vhodni koraki vrednosti množijo z istim faktorjem.', en: 'For an exponential function, equal input steps multiply values by the same factor.'}, 'e:functions-and-calculus.function-rules.trigonometric-functions'],
-        continuity: ['p0', 'fig0', 'p1', 'e:functions-and-calculus.continuity.continuity'],
-        derivatives: ['p0', 'fig0', 'p1', 'e:functions-and-calculus.derivatives.derivative'],
-        integrals: ['p0', 'fig0', 'e:functions-and-calculus.integrals.definite-integral', 'p1', {sl: 'Akumulacijska funkcija pokaže, kako se prispevek spreminja z zgornjo mejo integracije.', en: 'The accumulation function shows how the accumulated contribution changes with the upper integration limit.'}, 'e:functions-and-calculus.integrals.accumulation'],
+        continuity: ['p0', 'p1', 'e:functions-and-calculus.continuity.continuity'],
+        derivatives: ['p0', 'p1', 'e:functions-and-calculus.derivatives.derivative'],
+        integrals: ['p0', 'e:functions-and-calculus.integrals.definite-integral', 'p1', {sl: 'Akumulacijska funkcija pokaže, kako se prispevek spreminja z zgornjo mejo integracije.', en: 'The accumulation function shows how the accumulated contribution changes with the upper integration limit.'}, 'e:functions-and-calculus.integrals.accumulation'],
         applications: ['p0', 'e:functions-and-calculus.applications.area-between-curves', {sl: 'Za ploščino določi vrstni red grafov ali razdeli interval pri presečiščih.', en: 'For area, determine which graph is above or split the interval at intersections.'}, 'e:functions-and-calculus.applications.arc-length', 'p1'],
     },
     analysis: {
