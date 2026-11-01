@@ -13,6 +13,13 @@ Passed: `npx tsc --noEmit --pretty false`; `node --test scripts/*guided-example*
 
 Not run on the rebased HEAD: `just check` (killed after waiting 406 s for the test slot held by the platform stream's check). The manifest's build provenance predates the rebase; that only blocks `--id` partial runs, and batches recapture in full anyway.
 
+## Update (handler 5, after the owner said continue)
+
+- `just check` **passed on `940e9531`** (588 s; typecheck, lint, all unit tests, build), based on `origin/master` 24b8c862.
+- `origin/master` then moved 31 commits (geometry stream, compgeo family registration). The branch was rebased again, cleanly, onto `dc899f60`; the regenerated inventory is unchanged. `just check` on that rebase was killed for low memory again, so it is unverified on the new base. That HEAD is pushed to `origin/worktree-stream-learn-ui-rebased-2` (the `-rebased` branch is now stale too).
+- Handler 5 reached its 150k soft context threshold: the successor starts fresh from this note.
+- **First step for the successor:** `git fetch`; if `origin/master` moved, rebase again; run `just check`; if green, `git push origin HEAD:master`. Then step 2 below.
+
 ## Next
 
 1. Once memory allows: `just check` on this HEAD. If green, push to `master` as a fast-forward (`git fetch`, rebase again if `origin/master` moved, recheck, `git push origin HEAD:master`), then delete nothing remote without asking.
