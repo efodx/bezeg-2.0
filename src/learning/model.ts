@@ -1,5 +1,6 @@
 import type {DemonstrationId} from '../demonstrations';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
+import type {ParametricCurveId} from '../graphs/curves/parametric/parametricCatalogue';
 import {BISECTION_EXAMPLE_IDS} from '../analysis/bisection';
 import {MEAN_VALUE_EXAMPLE_IDS} from '../analysis/meanValue';
 import {FUNCTION_IDS} from '../analysis/functions';
@@ -54,8 +55,8 @@ export type FunctionChoiceName = keyof typeof functionChoiceValues;
 export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = functionChoiceValues;
 export const FUNCTION_CHOICE_NAMES = Object.keys(functionChoiceValues) as FunctionChoiceName[];
 
-/** The curve overlays a lesson can show or hide on a curve demonstration. */
-export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights'] as const;
+/** The curve overlays a lesson can show or hide on a curve demonstration. `curvature-frame` (T and N) and `curvature-circle` (the osculating circle or line) belong to CurvatureBezierCurveGraph only. */
+export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle'] as const;
 export type CurveVisibilityTarget = typeof CURVE_VISIBILITY_TARGETS[number];
 
 /** The visibility switches a lesson can address on a surface (patch) demonstration. */
@@ -71,7 +72,7 @@ export type CameraPresetName = typeof CAMERA_PRESET_NAMES[number];
  * `bisection` is the first iterative playback and `sequence` reveals the terms of a sequence one by one and `fixed-point` the iterates of a fixed-point iteration and `algorithm-trace` the steps of a convex hull algorithm trace. A graph registers only the ids it owns and the commands each supports;
  * the registry rejects the rest with `UnsupportedLessonActionError`.
  */
-export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace'] as const;
+export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace', 'parametric-roll'] as const;
 export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
 
 /**
@@ -175,7 +176,7 @@ export type LessonAction =
     | {readonly kind: 'affine-transform'; readonly operation: 'translate-x' | 'translate-y' | 'scale' | 'rotate'; readonly value: number}
     /** AffineTransformBezierCurveGraph's reflections, which take no amount. */
     | {readonly kind: 'affine-transform'; readonly operation: 'reflect-x' | 'reflect-y'}
-    /** `t` is the De Casteljau parameter (AbstractJXGBezierCurve.setDecasteljauT); `offset-distance` is the PH offset distance (JXGPHBezierCurve.setOffsetCurveDistance). */
+    /** `t` is the De Casteljau parameter (AbstractJXGBezierCurve.setDecasteljauT); `offset-distance` is the PH offset distance (JXGPHBezierCurve.setOffsetCurveDistance). ParametricCurveGraph reads `t` as its parameter (t or theta, inside the curve's domain); CurvatureBezierCurveGraph as the Bezier parameter in [0, 1]. */
     | {readonly kind: 'parameter'; readonly name: 't' | 'offset-distance'; readonly value: number}
     /** BernsteinGraph's graph-owned degree action (an integer; BERNSTEIN_MAX_DEGREE bounds it). */
     | {readonly kind: 'bernstein-degree'; readonly degree: number}
@@ -230,6 +231,11 @@ export type LessonAction =
     | {readonly kind: 'rational-weights'; readonly weights: readonly number[]}
     /** RationalBezierCurveCircleGraphN's piece counter (an integer; route bounds are enforced by the graph). */
     | {readonly kind: 'circle-pieces'; readonly count: number}
+    /**
+     * ParametricCurveGraph only: shows a catalogue curve (the parameter returns to the start of its domain) and, for the
+     * cycloid, the radius of the rolling circle. The parameter itself is the `parameter` action named `t`.
+     */
+    | {readonly kind: 'parametric-curve'; readonly curve: ParametricCurveId; readonly radius?: number}
     /**
      * Drives a graph-owned animation. `next-step` runs one iteration transition and `reset` returns an iterative
      * playback (`bisection`, `sequence`, `fixed-point`) to its initial state; a scene repeats `next-step` once per step

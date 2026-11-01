@@ -47,6 +47,10 @@ interface OverlaySettings {
     controlPoints: () => ReadonlyArray<ReadonlyArray<number>> | undefined;
     parameter: () => number;
     fontSize: () => number;
+    /** Whether the T and N frame is drawn (default: yes). A lesson step hides it before the reveal. */
+    showFrame?: () => boolean;
+    /** Whether the osculating circle, or the tangent line where it degenerates, is drawn (default: yes). */
+    showCircle?: () => boolean;
 }
 
 /**
@@ -96,11 +100,15 @@ export class CurvatureOverlay {
         const board = this.board;
         const font = () => this.settings.fontSize();
         const hasFrame = () => { const f = this.frame(); return !!f && f.status !== 'singular'; };
-        const isCircle = () => this.frame()?.status === 'circle';
-        const isLine = () => this.frame()?.status === 'line';
+        const frameShown = () => hasFrame() && (this.settings.showFrame?.() ?? true);
+        const circleShown = () => this.settings.showCircle?.() ?? true;
+        const isCircle = () => this.frame()?.status === 'circle' && circleShown();
+        const isLine = () => this.frame()?.status === 'line' && circleShown();
         const auxiliary = {visible: false, fixed: true, withLabel: false, highlight: false, name: ''};
 
-        const anchor = this.create<Point>('point', [() => this.frame()?.point[0] ?? NaN, () => this.frame()?.point[1] ?? NaN], auxiliary);
+        // The point of the curve at the parameter is always drawn, so sliding t shows where the readout is taken.
+        const anchor = this.create<Point>('point', [() => this.frame()?.point[0] ?? NaN, () => this.frame()?.point[1] ?? NaN],
+            {...auxiliary, visible: hasFrame, size: 4, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
         const tangentTip = this.create<Point>('point', [() => this.arrowTip('tangent', 0), () => this.arrowTip('tangent', 1)], auxiliary);
         const normalTip = this.create<Point>('point', [() => this.arrowTip('normal', 0), () => this.arrowTip('normal', 1)], auxiliary);
         const centre = this.create<Point>('point', [
@@ -110,13 +118,13 @@ export class CurvatureOverlay {
         const lineNear = this.create<Point>('point', [() => this.lineEnd(-1, 0), () => this.lineEnd(-1, 1)], auxiliary);
         const lineFar = this.create<Point>('point', [() => this.lineEnd(1, 0), () => this.lineEnd(1, 1)], auxiliary);
 
-        const arrow = {fixed: true, highlight: false, withLabel: false, lastArrow: {type: 2, size: 6}, strokeWidth: 2.5, visible: hasFrame};
+        const arrow = {fixed: true, highlight: false, withLabel: false, lastArrow: {type: 2, size: 6}, strokeWidth: 2.5, visible: frameShown};
         this.create('segment', [anchor, tangentTip], {...arrow, strokeColor: GraphPalette.primaryCurve});
         // The normal is dashed, so T and N differ without colour as well as by their text tags.
         this.create('segment', [anchor, normalTip], {...arrow, strokeColor: GraphPalette.comparisonCurve, dash: 2});
         const tag = (name: string, tip: Point) => this.create<Text>('text', [() => tip.X(), () => tip.Y(), name], {
             fixed: true, highlight: false, useMathJax: false, anchorX: 'left', anchorY: 'bottom',
-            fontSize: font, strokeColor: GraphPalette.label, visible: hasFrame,
+            fontSize: font, strokeColor: GraphPalette.label, visible: frameShown,
         });
         tag('T', tangentTip);
         tag('N', normalTip);
