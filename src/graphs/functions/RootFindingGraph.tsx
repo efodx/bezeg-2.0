@@ -1,5 +1,5 @@
 import React from "react";
-import {DomainError} from "./BaseFunctionGraph";
+import {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -162,6 +162,13 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         const edit = moveRootFindingStart(this.model, start, value);
         if (!edit.ok) throw new DomainError(rootFindingEditMessage(edit.issue));
         if (edit.model !== this.model) this.replaceModel(edit.model);
+    }
+
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {"root-x0": value => this.setStart("x0", value), "root-x1": value => this.setStart("x1", value)},
+            choices: {"root-finding-example": value => this.setExample(value), "root-finding-method": value => this.setMethod(value)},
+        };
     }
 
     protected override syncSceneToModel(): void {

@@ -596,6 +596,8 @@ export const en: Record<keyof typeof sl, string> = {
     "root_finding_legend_iterate": "Last iterate",
     "root_finding_legend_start": "Start (drag along the x-axis)",
     "root_finding_note": "Doubling of the correct digits per step holds only near a simple root, not for the whole run. The error column illustrates one run; it does not prove the order of convergence. The error is measured against the reference root {value0}; from another start the iteration may converge to a different root.",
+    "root_finding_title": "Newton and secant methods",
+    "prompt_root_finding": "Choose a method and a starting approximation, and predict where the tangent or secant meets the x-axis; then press Next step. How fast do the approximations approach the root, and when does the iteration fail?",
     "invalid_root_finding_method": "the field method must be one of: {value0}; correct the value in the file",
     "invalid_root_finding_example": "the field example must be one of: {value0}; correct the value in the file",
     "invalid_root_finding_starts": "the starts x0 and x1 must be numbers between {value0} and {value1}; correct the values in the file",

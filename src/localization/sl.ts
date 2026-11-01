@@ -595,6 +595,8 @@ export const sl = {
     "root_finding_legend_iterate": "Zadnji približek",
     "root_finding_legend_start": "Začetek (povleci po osi x)",
     "root_finding_note": "Podvojitev pravilnih mest na korak velja le blizu enostavne ničle in ne za ves potek iteracije. Stolpec napake ponazarja en potek, reda konvergence ne dokazuje. Napaka je merjena glede na primerjalno ničlo {value0}; iz drugega začetka lahko iteracija konvergira k drugi ničli.",
+    "root_finding_title": "Tangentna in sekantna metoda",
+    "prompt_root_finding": "Izberi metodo in začetni približek ter napovej, kje tangenta oziroma sekanta seka os x; nato pritisni Naslednji korak. Kako hitro se približki bližajo ničli in kdaj iteracija odpove?",
     "invalid_root_finding_method": "polje method mora biti eno od: {value0}; popravi vrednost v datoteki",
     "invalid_root_finding_example": "polje example mora biti eno od: {value0}; popravi vrednost v datoteki",
     "invalid_root_finding_starts": "začetka x0 in x1 morata biti števili med {value0} in {value1}; popravi vrednosti v datoteki",

@@ -44,6 +44,7 @@ import { DefiniteIntegralGraph } from './functions/DefiniteIntegralGraph';
 import { AreaBetweenCurvesGraph } from './functions/AreaBetweenCurvesGraph';
 import { ArcLengthGraph } from './functions/ArcLengthGraph';
 import { BisectionGraph } from './functions/BisectionGraph';
+import { RootFindingGraph } from './functions/RootFindingGraph';
 import { MeanValueGraph } from './functions/MeanValueGraph';
 import { AccumulationGraph } from './functions/AccumulationGraph';
 import { DarbouxGraph } from './functions/DarbouxGraph';
@@ -123,6 +124,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'area-between-curves': () => new AreaBetweenCurvesGraph(),
     'arc-length': () => new ArcLengthGraph(),
     'bisection': () => new BisectionGraph(),
+    'root-finding': () => new RootFindingGraph(),
     'mean-value': () => new MeanValueGraph(),
     'accumulation': () => new AccumulationGraph(),
     'darboux': () => new DarbouxGraph(),

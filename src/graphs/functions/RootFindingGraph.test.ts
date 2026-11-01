@@ -5,6 +5,7 @@ import {secantLine, tangentLine} from '../../analysis/derivative';
 import {setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {RootFindingModel} from '../../analysis/rootFindingModel';
+import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 
 // The export itself is not under test: only that it pauses the iteration before it captures the board.
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
@@ -327,4 +328,29 @@ test('unmount-level cleanup: removing the scene leaves no start point references
     graph.removeGeneratedObjects?.();
     graph.onSceneRemoved();
     expect(graph.startPoints).toEqual({});
+});
+
+test('a multi-action lesson scene runs in one synchronous sequence and later actions read the earlier ones', () => {
+    const graph = makeGraph();
+    const run = (action: LessonAction) => graph.applyLessonAction(action);
+    const command = (value: 'next-step' | 'reset'): LessonAction => ({kind: 'animation', animationId: 'root-finding', command: value});
+    for (const action of [
+        {kind: 'function-choice', name: 'root-finding-method', value: 'secant'},
+        {kind: 'function-choice', name: 'root-finding-example', value: 'cubic-three-roots'},
+        {kind: 'function-parameter', name: 'root-x0', value: 2},
+        {kind: 'function-parameter', name: 'root-x1', value: 1.25},
+        command('next-step'), command('next-step'),
+    ] as LessonAction[]) run(action);
+    expect(graph.model).toEqual({method: 'secant', example: 'cubic-three-roots', x0: 2, x1: 1.25, step: 2});
+    expect(graph.state.step).toBe(2);
+    // the same sequence on the same tick keeps going from the model the earlier actions wrote
+    run({kind: 'function-choice', name: 'root-finding-method', value: 'newton'});
+    run({kind: 'function-parameter', name: 'root-x0', value: 0.5});
+    run(command('next-step'));
+    expect(graph.model).toEqual({method: 'newton', example: 'cubic-three-roots', x0: 0.5, x1: 1.25, step: 1});
+    run(command('reset'));
+    expect(graph.model.step).toBe(0);
+    expect(() => run({kind: 'function-parameter', name: 'root-x0', value: 9})).toThrow(DomainError);
+    expect(() => run({kind: 'function-choice', name: 'root-finding-method', value: 'halley'})).toThrow(DomainError);
+    expect(() => run({kind: 'animation', animationId: 'bisection', command: 'next-step'})).toThrow(UnsupportedLessonActionError);
 });
