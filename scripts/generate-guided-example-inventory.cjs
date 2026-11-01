@@ -184,6 +184,12 @@ const chapterInventories = {
         pathExport: 'linearMapsGuidedExamplePath',
         expectedFor: linearMapsExpectedFor,
     },
+    'complex-maps': {
+        module: '/src/learning/content/complexMapsChapterRegistry.ts',
+        registryExport: 'complexMapsGuidedExampleRegistry',
+        pathExport: 'complexMapsGuidedExamplePath',
+        expectedFor: complexMapsExpectedFor,
+    },
 };
 
 // Authored from src/linear/matrix2.ts (rows of the example matrices) and src/graphs/linear/linearMapScene.ts, not from a capture.
@@ -204,6 +210,33 @@ function linearMapsExpectedFor(id, step) {
     const apply = ([x, y]) => [matrix[0][0] * x + matrix[0][1] * y, matrix[1][0] * x + matrix[1][1] * y];
     const points = [[1, 0], [0, 1], [0, 0], apply([1, 1]), [1, 1], apply([1, 1]), apply([1, 0]), apply([0, 1])];
     return {types: {curve: 8, point: 8}, curveCount: 8, points};
+}
+
+// Authored from src/analysis/complexReciprocalModel.ts and complexRootsModel.ts (the named examples), not from a capture.
+const complexReciprocalExamples = {outside: {z: [1, 1], w: [2, 1]}, inside: {z: [0.5, 0.5], w: [2, 1]}, 'unit-circle': {z: [0.6, 0.8], w: [2, 1]}, division: {z: [1, -1], w: [2, 1]}};
+const complexRootsExamples = {'two-i': {w: [0, 2]}, 'one-plus-i': {w: [1, 1]}};
+
+/**
+ * First-frame expectation of a Complex maps lesson, from the visibility its opening scene leaves at the Demonstration default
+ * (everything derived is hidden until a scene action shows it).
+ * Reciprocal: the unit circle and the arrows of z and w (three curves) and the points z, w and the always shown conjugate of z.
+ * Roots: only the arrow of w (one curve) and the point w, because the roots, the polygon with its circle, and the test point are hidden.
+ */
+function complexMapsExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    assert.ok(actions.every(item => item.kind === 'prepared-scene' || (item.kind === 'function-choice' && /^complex-(reciprocal|roots)-example$/.test(item.name))),
+        `${id}: the authored first-frame expectation assumes an opening scene that only picks the example; extend complexMapsExpectedFor`);
+    const choices = actions.filter(item => item.kind === 'function-choice');
+    assert.equal(choices.length, 1, `${id}: opening scene must name exactly one example`);
+    const {name, value} = choices[0];
+    if (name === 'complex-reciprocal-example') {
+        const example = complexReciprocalExamples[value];
+        assert.ok(example, `${id}: no authored reciprocal example ${JSON.stringify(value)}`);
+        return {types: {curve: 3, point: 3}, curveCount: 3, points: [example.z, example.w, [example.z[0], -example.z[1]]]};
+    }
+    const example = complexRootsExamples[value];
+    assert.ok(example, `${id}: no authored roots example ${JSON.stringify(value)}`);
+    return {types: {curve: 1, point: 1}, curveCount: 1, points: [example.w]};
 }
 
 /** A chapter-owned entry must carry real expectations; a missing or empty one is a generation error. */
@@ -266,4 +299,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, assertExpectation};

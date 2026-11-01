@@ -1,0 +1,66 @@
+{
+  "examples": [
+    {
+      "id": "complex-maps.reciprocal-inversion.complex-reciprocal",
+      "demonstrationId": "complex-reciprocal",
+      "path": "/bezeg-2.0/complex-reciprocal?example=lesson.complex-maps.reciprocal-inversion.complex-reciprocal",
+      "sceneFingerprint": "356b25aa84ac6ada2d94962c44a7dae4504259dc83a312501ed425463cf48c5c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"complex-reciprocal-conjugate\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"complex-reciprocal-example\",\"value\":\"outside\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "point": 3
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            1,
+            -1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "complex-maps.roots.complex-roots",
+      "demonstrationId": "complex-roots",
+      "path": "/bezeg-2.0/complex-roots?example=lesson.complex-maps.roots.complex-roots",
+      "sceneFingerprint": "1b8f585763959f6d0d5726a46f3b14e318435b7607166bc52725813ebe0431e3",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"complex-roots-cube-rotates\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"complex-roots-example\",\"value\":\"two-i\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

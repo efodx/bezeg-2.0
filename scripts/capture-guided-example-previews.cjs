@@ -1,6 +1,6 @@
 // Capture guided-example card media from a complete generated inventory: the exact prepared start scene, or the
 // authored highlight recipe state (frame + learner-equivalent steps) when the entry carries a highlight recipe.
-// node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter] [--family patches|linear-maps]
+// node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter] [--family patches|linear-maps|complex-maps]
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -53,6 +53,7 @@ function presentationFingerprint({recipeFraming = [], entryFraming = [], helpers
 const chapterFamilies = {
     patches: {label: 'patch', idPrefix: 'bezier-patches.', route: /^\/bezeg-2\.0\/patches(?:\/|$)/, routeText: '/bezeg-2.0/patches'},
     'linear-maps': {label: 'linear-maps', idPrefix: 'linear-maps.', route: /^\/bezeg-2\.0\/linear-map(?:\/|$)/, routeText: '/bezeg-2.0/linear-map'},
+    'complex-maps': {label: 'complex-maps', idPrefix: 'complex-maps.', route: /^\/bezeg-2\.0\/complex-(?:reciprocal|roots)(?:\/|$)/, routeText: '/bezeg-2.0/complex-reciprocal or /bezeg-2.0/complex-roots'},
 };
 
 function parseArgs(argv) {

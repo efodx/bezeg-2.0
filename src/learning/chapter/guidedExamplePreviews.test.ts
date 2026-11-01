@@ -7,6 +7,7 @@ import {retainedExampleHomes} from './retainedExamples';
 import {resolveGuidedExample} from './guidedExamples';
 import {getChapterOwnedLessons} from '../content/chapterOwnedLessons';
 import {linearMapsPreviewCopy} from '../content/linearMapsPreviewCopy';
+import {complexMapsPreviewCopy} from '../content/complexMapsPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -154,4 +155,50 @@ it('publishes the Linear maps example cards with their own checked images and pe
         expect(resolveGuidedExamplePreview(ids[0], 'linear-map', language)?.caption)
             .not.toBe(resolveGuidedExamplePreview(ids[1], 'linear-map', language)?.caption);
     }
+});
+
+it('publishes the Complex maps example cards with their own checked images and per-section copy', () => {
+    const chapterId = 'complex-maps';
+    const destination = resolve('src/images/learning/examples', chapterId);
+    const owned = getChapterOwnedLessons(chapterId);
+    if (!owned) throw new Error('complex-maps is not chapter-owned');
+    const homes = owned.entries().map(([sectionId, lesson]) => ({
+        id: `${chapterId}.${sectionId}.${lesson.demonstrationId}`, sectionId, demonstrationId: lesson.demonstrationId,
+        path: owned.path(sectionId) ?? ''}));
+    const ids = homes.map(home => home.id).sort();
+    expect(ids).toEqual(['complex-maps.reciprocal-inversion.complex-reciprocal', 'complex-maps.roots.complex-roots']);
+    expect(Object.keys(complexMapsPreviewCopy).sort()).toEqual(ids);
+    const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]}})[]} = JSON.parse(
+        readFileSync(resolve('docs/reviews', chapterId, 'guided-example-inventory.json'), 'utf8'));
+    const manifest: {captures: Capture[]} = JSON.parse(readFileSync(resolve(destination, 'manifest.json'), 'utf8'));
+    expect(inventory.examples.map(entry => entry.id).sort()).toEqual(ids);
+    expect(manifest.captures.map(entry => entry.id).sort()).toEqual(ids);
+    expect(readdirSync(destination).filter(file => file.endsWith('.png')).sort()).toEqual(ids.map(id => `${id}.png`));
+    for (const home of homes) {
+        const entry = inventory.examples.find(item => item.id === home.id);
+        const capture = manifest.captures.find(item => item.id === home.id);
+        if (!entry || !capture) throw new Error(`${home.id}: missing mapping`);
+        const example = resolveGuidedExample(new URL(home.path, 'https://bezeg.invalid').search, home.demonstrationId);
+        expect(example?.owner).toMatchObject({chapterId, sectionId: home.sectionId});
+        const step = example?.lesson.steps[0];
+        if (!step) throw new Error(`${home.id}: missing prepared example`);
+        expect(entry).toMatchObject({id: home.id, path: home.path, recipe: {kind: 'start'}});
+        expect(entry.actions).toEqual(step.scene?.actions.map(action => `${action.kind}: ${JSON.stringify(action)}`));
+        expect(entry.expected.curveCount).toBeGreaterThan(0);
+        expect(entry.expected.points.length).toBeGreaterThan(0);
+        expect(capture).toMatchObject({file: `${home.id}.png`, width: 840, height: 520, path: home.path,
+            initialFrame: {firstFrame: true, backNavigationDisabled: true},
+            framing: {boardOnly: true, guidedLessonOverlayHidden: true}, captureEvidence: {servedBuildVerified: true, pageErrors: []}});
+        const png = readFileSync(resolve(destination, capture.file));
+        expect(createHash('sha256').update(png).digest('hex')).toBe(capture.sha256);
+        for (const language of ['sl', 'en'] as const) {
+            const preview = resolveGuidedExamplePreview(home.id, home.demonstrationId, language);
+            expect(preview?.src, `${home.id}/${language}`).toBeTruthy();
+            expect(preview?.alt.trim()).toBeTruthy();
+            expect(preview?.caption.trim()).toBeTruthy();
+        }
+    }
+    // The first frame of the reciprocal card shows z and w (3 points with the conjugate); the roots card only w.
+    expect(inventory.examples.map(entry => [entry.id, entry.expected.curveCount, entry.expected.points.length]).sort())
+        .toEqual([[ids[0], 3, 3], [ids[1], 1, 1]]);
 });

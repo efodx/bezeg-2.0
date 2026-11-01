@@ -11,6 +11,7 @@ import {guidedExampleHighlightCopy} from '../content/guidedExampleHighlightCopy'
 import {getRetainedExampleHome, retainedExampleHomes} from './retainedExamples';
 import {patchGuidedPreviewCopy} from '../content/patchGuidedPreviewCopy';
 import {linearMapsPreviewCopy} from '../content/linearMapsPreviewCopy';
+import {complexMapsPreviewCopy} from '../content/complexMapsPreviewCopy';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
     eager: true,
@@ -37,6 +38,7 @@ const chapterImageUrls = import.meta.glob<string>('/src/images/learning/examples
  */
 export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<Record<string, GuidedExamplePreviewCopy>>>> = {
     'linear-maps': linearMapsPreviewCopy,
+    'complex-maps': complexMapsPreviewCopy,
 };
 
 function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {

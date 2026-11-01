@@ -58,6 +58,10 @@ const targets = {
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
     'linear-map': ['Example matrix A with the image grid, the unit square and its image, and a Bezier curve with its image', [field('Primer matrike', 'basis-default', 'select')], [-1.6, 6.6, 11.6, -1.47]],
+    // z = 0.5 + 0.5i inside the unit circle, 1/z = 1 - i outside it; w = 2 + i is the farthest object. The window keeps the 360:220 aspect so the circle stays round.
+    'complex-reciprocal': ['Example z = 0.5 + 0.5i inside the unit circle with its conjugate, w = 2 + i and the revealed reciprocal 1/z = 1 - i outside the circle', [field('Primer obratne vrednosti', 'inside', 'select'), button('Pokaži 1/z')], [-1.5, 1.2835, 2.7, -1.2835]],
+    // w = 2i, n = 3: the roots lie on a circle of radius 2^(1/3) = 1.26 at 30, 150 and 270 degrees; w is the highest object.
+    'complex-roots': ['Example w = 2i with n = 3: the three roots on their circle joined into the equilateral triangle', [field('Primer korenov', 'two-i', 'select'), button('Pokaži korene'), button('Pokaži n-kotnik')], [-3.19, 2.35, 3.19, -1.55]],
     orientation: ['Default left turn p=(0,0), q=(4,0), r=(3,2) with line pq and the shaded triangle pqr', [], [-1.2, 3.6, 5.6, -1.2]],
     'polygon-area': ['The hull pentagon with its triangle fan and lattice points in the polygon area workspace', [], [-2.6, 6.4, 6.6, -1.4]],
     'convex-hull': ['Sample 1 of nine points after a few Next steps of the monotone chain trace, with the hull so far', [button('Naslednji korak', 4)], [-2.6, 6.4, 6.6, -1.4]],
@@ -269,6 +273,22 @@ function assertOutcomeEvidence(id, evidence) {
     if (id === 'linear-map') {
         assert.ok(evidence.controls.some(c => c.label === 'Primer matrike' && c.value === 'basis-default'), 'Example A must be selected');
         for (const [x, y] of [[2, 1], [-1, 1]]) assert.ok(evidence.points.some(p => p.x === x && p.y === y), `Missing exact column handle (${x},${y}): ${JSON.stringify(evidence.points)}`);
+    }
+    const near = (p, x, y) => Math.abs(p.x - x) < 1e-6 && Math.abs(p.y - y) < 1e-6;
+    if (id === 'complex-reciprocal') {
+        assert.ok(evidence.controls.some(c => c.label === 'Primer obratne vrednosti' && c.value === 'inside'), 'The inside example must be selected');
+        for (const [x, y] of [[0.5, 0.5], [0.5, -0.5], [1, -1]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing exact point z, conjugate or 1/z (${x},${y}): ${JSON.stringify(evidence.points)}`);
+        assert.ok(evidence.curves >= 3, 'Unit circle and the arrows of z and w required');
+    }
+    if (id === 'complex-roots') {
+        assert.ok(evidence.controls.some(c => c.label === 'Primer korenov' && c.value === 'two-i'), 'The w = 2i example must be selected');
+        const radius = Math.cbrt(2);
+        for (const degrees of [30, 150, 270]) {
+            const angle = degrees * Math.PI / 180;
+            assert.ok(evidence.points.some(p => near(p, radius * Math.cos(angle), radius * Math.sin(angle))), `Missing root at ${degrees} degrees: ${JSON.stringify(evidence.points)}`);
+        }
+        assert.ok(evidence.points.some(p => near(p, 0, 2)), 'Missing w = 2i');
+        assert.ok(evidence.curves >= 5, 'Root circle, three triangle edges and the arrow of w required');
     }
     if (id === 'bisection') assert.equal(evidence.readouts.step, '1', 'First exact bisection step required');
     if (id === 'fixed-point') assert.equal(evidence.readouts.step, '1', 'First exact cobweb step required');

@@ -94,6 +94,16 @@ test('semantic assertions reject empty, wrong-degree, missing-Farin and unreveal
     assert.doesNotThrow(()=>assertOutcomeEvidence('linear-map',linear));
     assert.throws(()=>assertOutcomeEvidence('linear-map',{...linear,controls:[{label:'Primer matrike',value:'identity'}]}),/Example A/);
     assert.throws(()=>assertOutcomeEvidence('linear-map',{...linear,points:[{x:1,y:0},{x:0,y:1}]}),/column handle/);
+    const recip={curves:3,points:[{x:0.5,y:0.5},{x:2,y:1},{x:0.5,y:-0.5},{x:1,y:-1}],readouts:{},reveals:{},controls:[{label:'Primer obratne vrednosti',value:'inside'}]};
+    assert.doesNotThrow(()=>assertOutcomeEvidence('complex-reciprocal',recip));
+    assert.throws(()=>assertOutcomeEvidence('complex-reciprocal',{...recip,controls:[{label:'Primer obratne vrednosti',value:'outside'}]}),/inside example/);
+    assert.throws(()=>assertOutcomeEvidence('complex-reciprocal',{...recip,points:recip.points.slice(0,3)}),/1\/z/);
+    const r=Math.cbrt(2),at=d=>({x:r*Math.cos(d*Math.PI/180),y:r*Math.sin(d*Math.PI/180)});
+    const roots={curves:5,points:[{x:0,y:2},at(30),at(150),at(270)],readouts:{},reveals:{},controls:[{label:'Primer korenov',value:'two-i'}]};
+    assert.doesNotThrow(()=>assertOutcomeEvidence('complex-roots',roots));
+    assert.throws(()=>assertOutcomeEvidence('complex-roots',{...roots,points:roots.points.slice(0,3)}),/Missing root at 270/);
+    assert.throws(()=>assertOutcomeEvidence('complex-roots',{...roots,curves:2}),/triangle edges/);
+    assert.throws(()=>assertOutcomeEvidence('complex-roots',{...roots,controls:[{label:'Primer korenov',value:'one-plus-i'}]}),/2i example/);
     assert.throws(()=>assertOutcomeEvidence('bisection',evidence),/First/);
 });
 test('step provenance requires exact consecutive states and the common camera',()=>{

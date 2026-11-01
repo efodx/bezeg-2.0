@@ -24,6 +24,21 @@ test('linear-maps capture family is isolated from the retained manifest and the 
     assert.throws(() => parseArgs(['inventory.json', '--family', 'unknown']), /Unsupported capture family: unknown/);
 });
 
+test('complex-maps capture family accepts the two complex routes and nothing else', () => {
+    const reciprocal = {id: 'complex-maps.reciprocal-inversion.complex-reciprocal', path: '/bezeg-2.0/complex-reciprocal?example=lesson.complex-maps.reciprocal-inversion.complex-reciprocal'};
+    const roots = {id: 'complex-maps.roots.complex-roots', path: '/bezeg-2.0/complex-roots?example=lesson.complex-maps.roots.complex-roots'};
+    const root = path.resolve(__dirname, '..');
+    assert.equal(destinationForFamily('complex-maps'), path.join(root, 'src/images/learning/examples/complex-maps'));
+    assert.equal(parseArgs(['inventory.json', '--family', 'complex-maps']).family, 'complex-maps');
+    assert.doesNotThrow(() => assertInventoryFamily([reciprocal, roots], 'complex-maps'));
+    assert.throws(() => assertInventoryFamily([reciprocal, roots], 'retained'), /require explicit --family complex-maps/);
+    assert.throws(() => assertInventoryFamily([reciprocal, roots], 'linear-maps'), /requires a linear-maps inventory/);
+    assert.throws(() => assertInventoryFamily([{...roots, path: '/bezeg-2.0/complex-multiplication?example=x'}], 'complex-maps'), /requires a complex-maps inventory/);
+    assert.throws(() => assertInventoryFamily([{...roots, path: '/bezeg-2.0/complex-rootsx'}], 'complex-maps'), /requires a complex-maps inventory/);
+    assert.throws(() => assertInventoryFamily([{...roots, id: 'chapter.example'}], 'complex-maps'), /requires a complex-maps inventory/);
+    assert.throws(() => assertInventoryFamily([], 'complex-maps'), /requires a complex-maps inventory/);
+});
+
 test('patch capture family uses its fixed subdirectory and rejects retained inventories', () => {
     const inventory = [{id: 'bezier-patches.curve-to-patch.patch-tensor',
         path: '/bezeg-2.0/patches/curve-to-patch?example=lesson.bezier-patches.curve-to-patch.patch-tensor'}];
