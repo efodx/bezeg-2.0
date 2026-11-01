@@ -25,7 +25,9 @@ const STALE_MS = 2 * 60 * 60 * 1000; // longer than any check or smoke run
 // Slots cap test runners, but typecheck, lint and filtered unit runs from several agents start beside them. When
 // available memory runs out, Windows signals critical pressure and Claude Code stops the background commands of idle
 // sessions (seen 2026-11-01 several times an hour). So every heavy command also waits until it leaves this much free.
-const MEMORY_FLOOR_GB = 2;
+// 0.5 GB (owner's choice, 2026-11-01): a unit run or lint starts from 1.5 GB free, the 1.2 GB worst-file peak plus a
+// margin; raise it with BEZEG_MEMORY_FLOOR_GB if low-memory kills come back.
+const MEMORY_FLOOR_GB = 0.5;
 const COMMAND_MEMORY_GB = {typecheck: 1.5, lint: 1, build: 1.5, 'check-localization': 1.5, smoke: 1.5, 'smoke-built': 1.5, 'smoke-lesson': 1.5};
 const RAMP_MS = 60_000; // a run reaches most of its memory within a minute, so starts are spaced to read it
 const MAX_MEMORY_WAIT_MS = 20 * 60 * 1000; // then start anyway, warned: a busy desktop must not block work forever
