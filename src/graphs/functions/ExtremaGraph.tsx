@@ -1,15 +1,16 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNoise, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {
-    analyzeExtrema, CandidateKind, DerivativeSign, EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, EXTREMA_X_STEP, extremaExample, ExtremaAnalysis,
-    ExtremaCandidate, ExtremaExample, ExtremaExampleId, isExtremaExampleId, isExtremaX,
+    analyzeExtrema, CandidateKind, DerivativeSign, EXTREMA_X_MAX, EXTREMA_X_MIN, EXTREMA_X_STEP, extremaExample, ExtremaAnalysis,
+    ExtremaCandidate, ExtremaExample, ExtremaExampleId, EXTREMA_EXAMPLE_IDS,
 } from "../../analysis/extrema";
-import {EXTREMA_EXAMPLE_MODELS, ExtremaModel} from "../../analysis/extremaModel";
+import {chooseExtremaExample, EXTREMA_EXAMPLE_MODELS, ExtremaEndpoint, ExtremaModel, moveExtremaEndpoint} from "../../analysis/extremaModel";
+import {extremaEditMessage} from "./extremaMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -127,23 +128,21 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isExtremaExampleId(value)) throw new DomainError(`The example must be one of ${EXTREMA_EXAMPLE_IDS.join(", ")}.`);
-        this.commitModel({...EXTREMA_EXAMPLE_MODELS[value], revealed: false});
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[value]], true);
+        const choice = chooseExtremaExample(value);
+        if (!choice.ok) throw new DomainError(extremaEditMessage(choice.issue));
+        this.commitModel(choice.model);
+        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[choice.model.example]], true);
     }
 
-    protected setA(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isExtremaX(value)) throw new DomainError(`The endpoint a must be a finite number between ${EXTREMA_X_MIN} and ${EXTREMA_X_MAX}.`);
-        if (!(value < this.model.b)) throw new DomainError("The endpoint a must be less than b (a < b): move b first.");
-        const next = cleanNoise(value);
-        if (next !== this.model.a) this.commitModel({...this.model, a: next}, options);
-    }
+    protected setA(value: number, options: { syncScene?: boolean } = {}): void { this.moveEndpoint("a", value, options); }
 
-    protected setB(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isExtremaX(value)) throw new DomainError(`The endpoint b must be a finite number between ${EXTREMA_X_MIN} and ${EXTREMA_X_MAX}.`);
-        if (!(value > this.model.a)) throw new DomainError("The endpoint b must be greater than a (a < b): move a first.");
-        const next = cleanNoise(value);
-        if (next !== this.model.b) this.commitModel({...this.model, b: next}, options);
+    protected setB(value: number, options: { syncScene?: boolean } = {}): void { this.moveEndpoint("b", value, options); }
+
+    /** The model module decides (range, order, normalization); a refusal becomes a localized `DomainError`. */
+    private moveEndpoint(endpoint: ExtremaEndpoint, value: number, options: { syncScene?: boolean }): void {
+        const move = moveExtremaEndpoint(this.model, endpoint, value);
+        if (!move.ok) throw new DomainError(extremaEditMessage(move.issue));
+        if (move.model !== this.model) this.commitModel(move.model, options);
     }
 
     protected setRevealed(visible: boolean): void {

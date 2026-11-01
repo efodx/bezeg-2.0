@@ -818,3 +818,39 @@ test('1/(1 - x) with the bound shown and x > c inside the interval notes that th
     apply(graph, parameter('taylor-x', -1.5));
     expect(statusIds(graph)).toEqual(['revealed', 'outside-convergence']);
 });
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        const first = [messageOf(parameter('taylor-center', 2.5)), messageOf(parameter('taylor-x', 3.5)), messageOf(parameter('taylor-degree', 11)),
+            messageOf(parameter('taylor-degree', 2.5)), messageOf(choice('tan'))];
+        apply(graph, choice('flat'));
+        return [...first, messageOf(parameter('taylor-center', 0.5))];
+    };
+    expect(refusals('en')).toEqual([
+        'The center c must be a number between −2 and 2.',
+        'The point x must be a number between −3 and 3.',
+        'The degree n must be an integer between 0 and 10.',
+        'The degree n must be an integer between 0 and 10.',
+        'The example must be one of: exp, sine, geometric, flat.',
+        'The center of this example is fixed at c = 0.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Središče c mora biti število med −2 in 2.',
+        'Točka x mora biti število med −3 in 3.',
+        'Stopnja n mora biti celo število med 0 in 10.',
+        'Stopnja n mora biti celo število med 0 in 10.',
+        'Primer mora biti eden od: exp, sine, geometric, flat.',
+        'Pri tem primeru je središče stalno: c = 0.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('taylor-x', 9)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'taylor_x_rejected_hint', params: {value0: '−3', value1: '3'}});
+});

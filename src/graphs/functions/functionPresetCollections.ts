@@ -12,11 +12,13 @@ import {bisectionFileMessage} from "./bisectionMessages";
 import {formatNumber} from "../../analysis/format";
 import {checkMeanValueModel, parseMeanValueModel} from "../../analysis/meanValueModel";
 import {meanValueFileMessage} from "./meanValueMessages";
-import {parseExtremaModel} from "../../analysis/extremaModel";
+import {checkExtremaModel, parseExtremaModel} from "../../analysis/extremaModel";
+import {extremaFileMessage} from "./extremaMessages";
+import {sequenceFileMessage} from "./sequenceMessages";
 import {checkConvexityModel, parseConvexityModel} from "../../analysis/convexityModel";
 import {convexityFileMessage} from "./convexityMessages";
-import {parseTaylorModel} from "../../analysis/taylorModel";
-import {isTaylorCenter, isTaylorDegree, isTaylorExampleId, isTaylorX, TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorExample} from "../../analysis/taylor";
+import {checkTaylorModel, parseTaylorModel} from "../../analysis/taylorModel";
+import {taylorFileMessage} from "./taylorMessages";
 import {parseFixedPointModel} from "../../analysis/fixedPointModel";
 import {
     FIXED_POINT_EXAMPLE_IDS, FIXED_POINT_MAX_DIGITS, FIXED_POINT_MAX_STEPS, FIXED_POINT_MIN_DIGITS, fixedPointExample, isFixedPointDigits, isFixedPointExampleId, isFixedPointStart,
@@ -29,12 +31,7 @@ import {
 } from "../../analysis/uniformConvergence";
 import {parseComplexModel} from "../../analysis/complexModel";
 import {COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_MIN, COMPLEX_EXAMPLE_IDS, isComplexCoordinate, isComplexExampleId} from "../../analysis/complex";
-import {parseSequenceModel} from "../../analysis/sequenceModel";
-import {
-    isSequenceEpsilon, isSequenceExampleId, isSequenceLimit, isSequenceTerms, isSequenceThreshold, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_STEP,
-    SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_LIMIT_STEP, SEQUENCE_MAX_TERMS, SEQUENCE_TERMS_MIN, SEQUENCE_THRESHOLD_MAX, SEQUENCE_THRESHOLD_MIN,
-} from "../../analysis/sequence";
-import {EXTREMA_EXAMPLE_IDS, EXTREMA_X_MAX, EXTREMA_X_MIN, isExtremaExampleId, isExtremaX} from "../../analysis/extrema";
+import {checkSequenceModel, parseSequenceModel} from "../../analysis/sequenceModel";
 import {checkDarbouxModel, parseDarbouxModel} from "../../analysis/darbouxModel";
 import {darbouxFileMessage} from "./darbouxMessages";
 import {checkAccumulationModel, parseAccumulationModel} from "../../analysis/accumulationModel";
@@ -66,45 +63,25 @@ const diagnoseDarboux: Diagnosis = data => {
     const check = checkDarbouxModel(data);
     return check.ok || check.issue === undefined ? undefined : darbouxFileMessage(check.issue);
 };
+/** The model module names the rule a rejected extrema model broke; this only localizes it. */
 const diagnoseExtrema: Diagnosis = data => {
-    if (!isExtremaExampleId(data.example)) return message("invalid_extrema_example", {value0: EXTREMA_EXAMPLE_IDS.join(", ")});
-    if ([data.a, data.b].every(finite)) {
-        if (!isExtremaX(data.a) || !isExtremaX(data.b)) return message("invalid_extrema_range", {value0: bound(EXTREMA_X_MIN), value1: bound(EXTREMA_X_MAX)});
-        if (!(data.a < data.b)) return message("invalid_extrema_order");
-    }
-    if (data.revealed !== undefined && typeof data.revealed !== "boolean") return message("invalid_extrema_revealed");
-    return undefined;
+    const check = checkExtremaModel(data);
+    return check.ok || check.issue === undefined ? undefined : extremaFileMessage(check.issue);
 };
 /** The model module names the rule a rejected convexity model broke; this only localizes it. */
 const diagnoseConvexity: Diagnosis = data => {
     const check = checkConvexityModel(data);
     return check.ok || check.issue === undefined ? undefined : convexityFileMessage(check.issue);
 };
+/** The model module names the rule a rejected Taylor model broke; this only localizes it. */
 const diagnoseTaylor: Diagnosis = data => {
-    if (!isTaylorExampleId(data.example)) return message("invalid_taylor_example", {value0: TAYLOR_EXAMPLE_IDS.join(", ")});
-    const example = taylorExample(data.example);
-    if (finite(data.center) && !isTaylorCenter(example, data.center)) {
-        return example.centerMin === example.centerMax
-            ? message("invalid_taylor_center_fixed", {value0: data.example, value1: bound(example.centerMin)})
-            : message("invalid_taylor_center", {value0: data.example, value1: bound(example.centerMin), value2: bound(example.centerMax)});
-    }
-    if (finite(data.degree) && !isTaylorDegree(data.degree)) return message("invalid_taylor_degree", {value0: TAYLOR_DEGREE_MIN, value1: TAYLOR_DEGREE_MAX});
-    if (finite(data.x) && !isTaylorX(example, data.x)) return message("invalid_taylor_x", {value0: data.example, value1: bound(example.xMin), value2: bound(example.xMax)});
-    if (data.boundVisible !== undefined && typeof data.boundVisible !== "boolean") return message("invalid_taylor_visibility");
-    return undefined;
+    const check = checkTaylorModel(data);
+    return check.ok || check.issue === undefined ? undefined : taylorFileMessage(check.issue);
 };
+/** The model module names the rule a rejected sequence model broke; this only localizes it. */
 const diagnoseSequence: Diagnosis = data => {
-    if (!isSequenceExampleId(data.example)) return message("invalid_sequence_example", {value0: SEQUENCE_EXAMPLE_IDS.join(", ")});
-    if (finite(data.epsilon) && !isSequenceEpsilon(data.epsilon)) {
-        return message("invalid_sequence_epsilon", {value0: bound(SEQUENCE_EPSILON_MIN), value1: bound(SEQUENCE_EPSILON_MAX), value2: bound(SEQUENCE_EPSILON_STEP)});
-    }
-    if (finite(data.limit) && !isSequenceLimit(data.limit)) return message("invalid_sequence_limit", {value0: bound(SEQUENCE_LIMIT_MIN), value1: bound(SEQUENCE_LIMIT_MAX), value2: bound(SEQUENCE_LIMIT_STEP)});
-    if (finite(data.threshold) && !isSequenceThreshold(data.threshold)) {
-        return message("invalid_sequence_threshold", {value0: SEQUENCE_THRESHOLD_MIN, value1: SEQUENCE_THRESHOLD_MAX});
-    }
-    if (finite(data.terms) && !isSequenceTerms(data.terms)) return message("invalid_sequence_terms", {value0: SEQUENCE_TERMS_MIN, value1: SEQUENCE_MAX_TERMS});
-    if (data.certificateVisible !== undefined && typeof data.certificateVisible !== "boolean") return message("invalid_sequence_visibility");
-    return undefined;
+    const check = checkSequenceModel(data);
+    return check.ok || check.issue === undefined ? undefined : sequenceFileMessage(check.issue);
 };
 const diagnoseUniformConvergence: Diagnosis = data => {
     if (!isUniformExampleId(data.example)) return message("invalid_uniform_example", {value0: UNIFORM_EXAMPLE_IDS.join(", ")});

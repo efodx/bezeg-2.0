@@ -1,16 +1,17 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
 import {
-    evaluateTaylorCoefficients, geometricConvergenceInterval, isInsideGeometricConvergence, isTaylorCenter, isTaylorDegree, isTaylorExampleId, isTaylorX,
+    evaluateTaylorCoefficients, geometricConvergenceInterval, isInsideGeometricConvergence,
     TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorAbsoluteError, taylorCoefficients, taylorErrorBound, taylorExample, TaylorBound, TaylorExample,
     TaylorExampleId, taylorFunctionValue, taylorPolynomial, taylorSignedError,
 } from "../../analysis/taylor";
-import {TAYLOR_EXAMPLE_MODELS, TaylorModel} from "../../analysis/taylorModel";
+import {chooseTaylorExample, setTaylorCenter, setTaylorDegree, setTaylorX, TAYLOR_EXAMPLE_MODELS, TaylorModel} from "../../analysis/taylorModel";
+import {taylorEditMessage} from "./taylorMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -133,32 +134,28 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isTaylorExampleId(value)) throw new DomainError(`The example must be one of ${TAYLOR_EXAMPLE_IDS.join(", ")}.`);
-        this.commitModel({...TAYLOR_EXAMPLE_MODELS[value], boundVisible: false});
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[value]], true);
+        const edit = chooseTaylorExample(value);
+        if (!edit.ok) throw new DomainError(taylorEditMessage(edit.issue));
+        this.commitModel(edit.model);
+        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[edit.model.example]], true);
     }
 
     protected setCenter(value: number, options: { syncScene?: boolean } = {}): void {
-        const example = taylorExample(this.model.example);
-        if (!isTaylorCenter(example, value)) {
-            throw new DomainError(example.centerMin === example.centerMax
-                ? `The center of this example is fixed at ${example.centerMin}.`
-                : `The center c must be a finite number between ${example.centerMin} and ${example.centerMax}.`);
-        }
-        const next = cleanNumber(value);
-        if (next !== this.model.center) this.commitModel({...this.model, center: next}, options);
+        const edit = setTaylorCenter(this.model, value);
+        if (!edit.ok) throw new DomainError(taylorEditMessage(edit.issue));
+        if (edit.model !== this.model) this.commitModel(edit.model, options);
     }
 
     protected setDegree(value: number): void {
-        if (!isTaylorDegree(value)) throw new DomainError(`The degree n must be an integer between ${TAYLOR_DEGREE_MIN} and ${TAYLOR_DEGREE_MAX}.`);
-        if (value !== this.model.degree) this.commitModel({...this.model, degree: value});
+        const edit = setTaylorDegree(this.model, value);
+        if (!edit.ok) throw new DomainError(taylorEditMessage(edit.issue));
+        if (edit.model !== this.model) this.commitModel(edit.model);
     }
 
     protected setX(value: number, options: { syncScene?: boolean } = {}): void {
-        const example = taylorExample(this.model.example);
-        if (!isTaylorX(example, value)) throw new DomainError(`The point x must be a finite number between ${example.xMin} and ${example.xMax}.`);
-        const next = cleanNumber(value);
-        if (next !== this.model.x) this.commitModel({...this.model, x: next}, options);
+        const edit = setTaylorX(this.model, value);
+        if (!edit.ok) throw new DomainError(taylorEditMessage(edit.issue));
+        if (edit.model !== this.model) this.commitModel(edit.model, options);
     }
 
     protected setBoundVisible(visible: boolean): void {
