@@ -50,4 +50,26 @@ test('rotating with a pointer vertically aligned with the pivot keeps control po
         expect(Number.isFinite(p.X()) && Number.isFinite(p.Y())).toBe(true);
         expect(Math.hypot(p.X() - centre[0], p.Y() - centre[1])).toBeCloseTo(distances[i], 9);
     });
+    // Pointer goes from straight above the pivot to its right: a -90 degree (clockwise) step.
+    expect(points[0].X()).toBeCloseTo(1, 9);
+    expect(points[0].Y()).toBeCloseTo(3, 9);
+});
+
+test('a resize step that would collapse the box to zero width leaves the curve unchanged', () => {
+    const points = [new PointImpl(0, 0), new PointImpl(2, 3), new PointImpl(4, 0)];
+    const curve = new PolynomialBezierCurve(points);
+    const fake = {
+        pointControlledCurve: curve,
+        coords: {usrCoords: [1, 4, 0]},
+        getResizingDir: () => [1, -1],
+    };
+    // Right handle dragged 2 units left: factor (4 - 2*2) / 4 = 0, refused.
+    AbstractJXGPointControlledCurve.prototype.resize.call(fake, {usrCoords: [1, 2, 0]} as never);
+    expect(points.map(p => [p.X(), p.Y()])).toEqual([[0, 0], [2, 3], [4, 0]]);
+
+    // Right handle dragged 1 unit right: factor (4 + 2) / 4 = 1.5 about the box centre x = 2.
+    AbstractJXGPointControlledCurve.prototype.resize.call(fake, {usrCoords: [1, 5, 0]} as never);
+    expect(points[0].X()).toBeCloseTo(-1, 9);
+    expect(points[2].X()).toBeCloseTo(5, 9);
+    expect(points[1].Y()).toBeCloseTo(3, 9);
 });
