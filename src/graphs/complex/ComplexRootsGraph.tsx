@@ -240,11 +240,15 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
         // The operands are dragged on the grid inside the square; the model is written once per drag event.
         const clamp = (value: number) => Math.min(COMPLEX_COORDINATE_MAX, Math.max(-COMPLEX_COORDINATE_MAX, value));
         const draggable = (name: string, face: string, color: string, start: Complex, shown: () => boolean, onDrag: (point: JXG.Point) => void) => {
+            // The label placement is first evaluated while the point is being created, before `point` exists.
+            let created: JXG.Point | undefined;
+            const position = (): Complex => created ? {re: created.X(), im: created.Y()} : start;
             const point = this.own(board.create("point", [start.re, start.im], {
                 ...this.styles.point.default, name, face, size: markerSize, visible: shown,
-                label: this.complexPointLabel(() => outwardPlacement({re: point.X(), im: point.Y()}), shown),
+                label: this.complexPointLabel(() => outwardPlacement(position()), shown),
                 fillColor: color, highlightFillColor: color, strokeColor: GraphPalette.pointOutline,
             })) as JXG.Point;
+            created = point;
             point.on("drag", () => {
                 if (!Number.isFinite(point.X()) || !Number.isFinite(point.Y())) return;
                 onDrag(point);

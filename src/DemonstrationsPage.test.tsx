@@ -42,7 +42,7 @@ test('the catalogue shows the ordered collection and only supported lesson desti
         expect(card.querySelector('.demonstrations-catalog-title')).toHaveTextContent(entry.catalogTitle);
         expect(card.querySelector('.demonstrations-catalog-copy p')).not.toBeEmptyDOMElement();
         // Posters are a partial record: these ids have none until their capture tasks.
-        if (!['linear-map', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections'].includes(entry.id)) {
+        if (!['linear-map', 'complex-reciprocal', 'complex-roots', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections'].includes(entry.id)) {
             expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('src');
             expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('alt', '');
         }

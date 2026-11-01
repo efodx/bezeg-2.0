@@ -4,6 +4,8 @@ import {curvePresetCollections, legacyCurvePresetCollections} from "../../curves
 import {functionPresetCollections} from "../../functions/functionPresetCollections";
 import {compgeoPresetCollections} from "../../compgeo/compgeoPresetCollections";
 import {patchPresetCollections} from "../../patches/patchPresetCollections";
+import {complexReciprocalPresetCollection} from "../../complex/complexReciprocalPresets";
+import {complexRootsPresetCollection} from "../../complex/complexRootsPresets";
 import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection";
 
 /**
@@ -12,7 +14,7 @@ import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection"
  */
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(curvePresetCollections), ...legacyCurvePresetCollections, ...Object.values(functionPresetCollections),
-    ...Object.values(patchPresetCollections), linearMapPresetCollection, ...compgeoPresetCollections,
+    ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection, ...compgeoPresetCollections,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

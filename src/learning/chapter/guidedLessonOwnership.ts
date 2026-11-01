@@ -59,6 +59,9 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
     // Interim owner until the Convexity and hulls chapter (task F4) exists; F4 moves both. The lesson page needs an existing chapter section to link back to, and the convex-hull property is what the orientation prerequisites cite.
+    // Registered without lessons (complex maps F2b); the chapter and sections are authored in F3.
+    'complex-reciprocal': {chapterId: 'complex-maps', sectionId: 'reciprocal-inversion'},
+    'complex-roots': {chapterId: 'complex-maps', sectionId: 'roots'},
     orientation: {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'polygon-area': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'convex-hull': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},

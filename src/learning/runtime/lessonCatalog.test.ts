@@ -185,7 +185,7 @@ test('every active demonstration route has an available lesson unless it opts ou
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
     // The remaining compgeo ids ship without lessons.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['interval-sweep', 'segment-intersections']);
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['complex-reciprocal', 'complex-roots', 'interval-sweep', 'segment-intersections']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

@@ -52,6 +52,8 @@ import { ConvexityGraph } from './functions/ConvexityGraph';
 import { TaylorGraph } from './functions/TaylorGraph';
 import { SequenceGraph } from './functions/SequenceGraph';
 import { UniformConvergenceGraph } from './functions/UniformConvergenceGraph';
+import { ComplexReciprocalGraph } from './complex/ComplexReciprocalGraph';
+import { ComplexRootsGraph } from './complex/ComplexRootsGraph';
 import { LinearMapGraph } from './linear/LinearMapGraph';
 import { FixedPointGraph } from './functions/FixedPointGraph';
 import type BaseGraph from './base/BaseGraph';
@@ -114,6 +116,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'uniform-convergence': () => new UniformConvergenceGraph(),
     'fixed-point': () => new FixedPointGraph(),
     'linear-map': () => new LinearMapGraph(),
+    'complex-reciprocal': () => new ComplexReciprocalGraph(),
+    'complex-roots': () => new ComplexRootsGraph(),
     'orientation': () => new OrientationGraph(),
     'polygon-area': () => new PolygonAreaGraph(),
     'convex-hull': () => new HullTraceGraph(),
