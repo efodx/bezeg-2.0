@@ -122,7 +122,7 @@ async function runOnce(browser, c) {
             const results = [];
             for (let r = 0; r < runs; r++) {
                 let res;
-                try { res = await runOnce(browser, c); } catch (err) { throw new Error(`${c.name} run ${r + 1}: ${err.message}`); }
+                try { res = await runOnce(browser, c); } catch (err) { throw new Error(`${c.name} run ${r + 1}: ${err.message}`, {cause: err}); }
                 results.push(res);
                 console.log(JSON.stringify({case: c.name, run: r + 1, ...Object.fromEntries(Object.entries(res).map(([k, v]) => [k, Math.round(v * 100) / 100]))}));
             }
