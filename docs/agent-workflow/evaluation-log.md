@@ -1488,3 +1488,24 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - **Judgment:**
   - Smoke briefs with locators and fixtures from the start cost one cheap run instead of two partial ones.
   - Sonnet `medium` was sufficient for every A7 slice. The single repair round in this step came from a `high` worker and was caught by mathematical review.
+
+## 2026-11-01 — Platform step 4: A6 curve gesture mathematics ∥ A8 function graph sharing (platform handlers 7–8)
+
+- Class: backlog refactor plus defect fix. A6 size M; A8 size L, in slices S1–S3. Handlers: Opus 5.5 (`--agent claude`, permission mode auto), one context handoff ([note 7](../reviews/feature-streams/platform/handler-handoff-7.md)). Sources: [A6 evidence](../tasks/architecture-deepening-backlog/06-curve-gesture-mathematics.evidence.md), [A8 evidence](../tasks/architecture-deepening-backlog/08-function-graph-sharing.evidence.md).
+- **Handler 7** (its telemetry table is in note 7). All workers were `bezeg-worker` Sonnet `medium` and all reviews `bezeg-reviewer` Sonnet; none needed a repair round.
+  - Workers: A6 S2 about 31k tokens and 3.8 min; A8 S2 about 64k and 17.3 min; perf scripts plus baseline about 67k and 25.9 min, one follow-up. The perf worker reproduced the A6 rotation NaN in the browser.
+  - Reviews: four, 22–31k each and under a minute. No blocking findings; one adapter test gap and four lows, all fixed by the handler.
+  - Test-slot waits of 20 and 7 min came from other streams.
+- **Handler 8** (task start about 12:05Z, acceptance 12:40Z):
+  - The open p95 question was settled by the handler with no worker. Reading the code ruled out the candidate cause, since both graphs already cleared their caches at the base revision. Interleaved measurement served both builds at once and alternated them, 6 runs per build; the p95 medians matched. Cost: two builds of about 9 s each and roughly 10 min of runs.
+  - Smoke: `bezeg-smoke` Haiku `medium`, dispatched 12:22Z, brief handoff-v12 with exact JSXGraph locators. About 55k tokens, 16 tools, 4.0 min. 15 of 17 checks passed, including touch via CDP and the exact-vertical rotate, with 0 page errors and cleanup confirmed.
+  - Smoke gaps: Reset was blocked and preset restore skipped. The worker searched for an accessible name "Reset/Ponastavi", but the preset controls sit in a collapsed "Shrani" panel and the button's accessible name is its tooltip, "Ponastavi prednastavitev". The handler covered both in one script after one probe. It compared fills in user coordinates, because opening the panel resizes the board and changes the SVG paths.
+  - `just check`: the first run failed lint on the two perf scripts handler 7 committed (`preserve-caught-error`), an integration failure attributable to those scripts. Fixed in `b129305b`. The rerun passed (7348 tests, 751 s).
+- Accepted: A6 and A8 (S3 no change); `G-CURVE` and `G-FN` open.
+- **Gaps:**
+  - Touch coverage is headless emulation only.
+  - Accumulation reset rests on one of two runs; the other run's drag missed the point.
+  - The perf scripts were committed without lint.
+- **Judgment:**
+  - Before measuring again, reading the code would have disposed of the candidate cause cheaply.
+  - Smoke briefs for routes with preset or reset controls should say these controls live behind the "Shrani" panel, with their exact accessible names.
