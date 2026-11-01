@@ -5,7 +5,8 @@ Written 2026-11-01 by handler 9 (Opus 5.5, `auto`, effort `medium`) after the 15
 ## Git state
 
 - `origin/master` has this run's `fce2b629` (complex 04 F2b), `6e113f96` (familyChapters exemption fix), `2c800426` (linear 07 F5 example cards), `98a2b706` (handoff 8), `f61b844e` (prefer-const fix), `6919e041` (linear 07 F6 status) and this note.
-- `origin/maps-handler-9-f3f4` = master + one WIP commit: **complex maps 04 F3+F4** (unreviewed, not smoked, not built). Local `worktree-stream-maps` = the same.
+- `origin/maps-handler-9-f3f4` = one WIP commit, **complex maps 04 F3+F4** (unreviewed, not smoked, not built), on `f549fc27` (= `f61b844e` + the F6 status + an earlier copy of this note). Local `worktree-stream-maps` = `origin/master`.
+- **Rebase conflict pending:** master meanwhile gained `b97a330a` and `2401652f` (other streams' chapter exemptions), which conflict with the WIP in `LearningPage.tsx`, `LearningPage.test.tsx`, `authoredChapterCoverage.test.ts`, `chapterOwnedLessons.ts`, `familyChapters.ts`, `familyChapters.test.ts` and `lessonCatalog.test.ts`. Resolve by keeping both sides (other families' exemptions plus the complex-maps entries and the union-of-family link check), then rerun the focused unit command below.
 - Stale remote branches from handler 8 (`maps-handler-8-wip`, `maps-handler-8-f2b`) are superseded by master; delete them only if the owner asks.
 
 ## Done this run
@@ -30,7 +31,7 @@ Written 2026-11-01 by handler 9 (Opus 5.5, `auto`, effort `medium`) after the 15
 
 ## Next, in order
 
-1. **F3+F4 acceptance:** check out `worktree-stream-maps` (= `origin/maps-handler-9-f3f4`).
+1. **F3+F4 acceptance:** check out `origin/maps-handler-9-f3f4` onto a local branch, rebase onto `origin/master` resolving the conflicts above (counts in tests may change again).
    - Run `just build` and the full `just unit`.
    - Review in parallel: an engineering reviewer and a mathematical reviewer (prose and lesson numbers against spec M1/M2 and Correctness Notes), both `bezeg-reviewer` Sonnet. Verify their repairs.
    - Smoke (`bezeg-smoke`, port 4316): `/learn/complex-maps` SL/EN, M1 and M2 stepped through in both languages, each step's board state, a live switch, restore on exit, `/complex-multiplication` lesson unchanged. Also run `just smoke-lesson complex-reciprocal` and `just smoke-lesson complex-roots` for the new rows.
