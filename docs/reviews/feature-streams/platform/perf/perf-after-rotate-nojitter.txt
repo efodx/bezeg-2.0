@@ -1,0 +1,8 @@
+{"case":"bezier/curve rotate (desktop 1440x900, throttle 1)","run":1,"samples":343,"median":16.7,"p95":16.7,"max":16.8,"effect":1.57}
+{"case":"rational/base rotate (desktop 1440x900, throttle 1)","run":1,"samples":351,"median":16.7,"p95":16.8,"max":16.8,"effect":1.57}
+{"case":"spline/c2spline rotate (desktop 1440x900, throttle 1)","run":1,"samples":355,"median":16.7,"p95":16.8,"max":16.8,"effect":1.58}
+
+case | median ms (range) | p95 ms (range) | samples per run
+bezier/curve rotate (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 343
+rational/base rotate (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 351
+spline/c2spline rotate (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 355

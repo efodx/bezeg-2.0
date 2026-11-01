@@ -1,0 +1,50 @@
+{"case":"bezier/curve drag (desktop 1440x900, throttle 1)","run":1,"samples":344,"median":16.7,"p95":16.8,"max":16.8,"effect":158.11}
+{"case":"bezier/curve drag (desktop 1440x900, throttle 1)","run":2,"samples":348,"median":16.7,"p95":16.7,"max":16.8,"effect":158.11}
+{"case":"bezier/curve drag (desktop 1440x900, throttle 1)","run":3,"samples":350,"median":16.7,"p95":16.8,"max":16.8,"effect":158.11}
+{"case":"bezier/curve resize (desktop 1440x900, throttle 1)","run":1,"samples":357,"median":16.7,"p95":16.7,"max":16.8,"effect":160}
+{"case":"bezier/curve resize (desktop 1440x900, throttle 1)","run":2,"samples":370,"median":16.7,"p95":16.7,"max":16.8,"effect":160}
+{"case":"bezier/curve resize (desktop 1440x900, throttle 1)","run":3,"samples":356,"median":16.7,"p95":16.7,"max":16.8,"effect":160}
+{"case":"bezier/curve rotate (desktop 1440x900, throttle 1)","run":1,"samples":337,"median":16.7,"p95":16.8,"max":16.8,"effect":1.58}
+{"case":"bezier/curve rotate (desktop 1440x900, throttle 1)","run":2,"samples":333,"median":16.7,"p95":16.8,"max":16.8,"effect":1.58}
+{"case":"bezier/curve rotate (desktop 1440x900, throttle 1)","run":3,"samples":326,"median":16.7,"p95":16.8,"max":16.8,"effect":1.58}
+{"case":"rational/base drag (desktop 1440x900, throttle 1)","run":1,"samples":348,"median":16.7,"p95":16.8,"max":16.8,"effect":158.11}
+{"case":"rational/base drag (desktop 1440x900, throttle 1)","run":2,"samples":346,"median":16.7,"p95":16.7,"max":16.8,"effect":158.11}
+{"case":"rational/base drag (desktop 1440x900, throttle 1)","run":3,"samples":345,"median":16.7,"p95":16.8,"max":16.8,"effect":158.11}
+{"case":"rational/base resize (desktop 1440x900, throttle 1)","run":1,"samples":361,"median":16.7,"p95":16.7,"max":16.8,"effect":160}
+{"case":"rational/base resize (desktop 1440x900, throttle 1)","run":2,"samples":364,"median":16.7,"p95":16.8,"max":16.8,"effect":160}
+{"case":"rational/base resize (desktop 1440x900, throttle 1)","run":3,"samples":364,"median":16.7,"p95":16.7,"max":16.8,"effect":160}
+{"case":"rational/base rotate (desktop 1440x900, throttle 1)","run":1,"samples":340,"median":16.7,"p95":16.8,"max":16.8,"effect":1.58}
+{"case":"rational/base rotate (desktop 1440x900, throttle 1)","run":2,"samples":346,"median":16.7,"p95":16.7,"max":16.8,"effect":1.58}
+{"case":"rational/base rotate (desktop 1440x900, throttle 1)","run":3,"samples":343,"median":16.7,"p95":16.8,"max":16.8,"effect":1.58}
+{"case":"spline/c2spline drag (desktop 1440x900, throttle 1)","run":1,"samples":400,"median":16.7,"p95":16.8,"max":16.8,"effect":158.11}
+{"case":"spline/c2spline drag (desktop 1440x900, throttle 1)","run":2,"samples":397,"median":16.7,"p95":16.7,"max":16.8,"effect":158.11}
+{"case":"spline/c2spline drag (desktop 1440x900, throttle 1)","run":3,"samples":396,"median":16.7,"p95":16.8,"max":16.8,"effect":158.11}
+{"case":"spline/c2spline resize (desktop 1440x900, throttle 1)","run":1,"samples":409,"median":16.7,"p95":16.7,"max":16.8,"effect":160}
+{"case":"spline/c2spline resize (desktop 1440x900, throttle 1)","run":2,"samples":420,"median":16.7,"p95":16.7,"max":16.8,"effect":160}
+{"case":"spline/c2spline resize (desktop 1440x900, throttle 1)","run":3,"samples":423,"median":16.7,"p95":16.8,"max":16.8,"effect":160}
+{"case":"spline/c2spline rotate (desktop 1440x900, throttle 1)","run":1,"samples":356,"median":16.7,"p95":16.7,"max":16.8,"effect":1.59}
+{"case":"spline/c2spline rotate (desktop 1440x900, throttle 1)","run":2,"samples":355,"median":16.7,"p95":16.7,"max":16.8,"effect":1.59}
+{"case":"spline/c2spline rotate (desktop 1440x900, throttle 1)","run":3,"samples":345,"median":16.7,"p95":16.7,"max":16.8,"effect":1.59}
+{"case":"bezier/curve drag (390x844, 4x CPU)","run":1,"samples":549,"median":16.7,"p95":33.4,"max":50.1,"effect":158.11}
+{"case":"bezier/curve drag (390x844, 4x CPU)","run":2,"samples":544,"median":16.7,"p95":33.4,"max":33.4,"effect":158.11}
+{"case":"bezier/curve drag (390x844, 4x CPU)","run":3,"samples":557,"median":16.7,"p95":33.4,"max":66.7,"effect":158.11}
+{"case":"rational/base drag (390x844, 4x CPU)","run":1,"samples":585,"median":16.7,"p95":50,"max":66.7,"effect":158.11}
+{"case":"rational/base drag (390x844, 4x CPU)","run":2,"samples":578,"median":16.7,"p95":50,"max":66.8,"effect":158.11}
+{"case":"rational/base drag (390x844, 4x CPU)","run":3,"samples":581,"median":16.7,"p95":50,"max":116.6,"effect":158.11}
+{"case":"spline/c2spline drag (390x844, 4x CPU)","run":1,"samples":551,"median":16.7,"p95":50.1,"max":83.3,"effect":158.11}
+{"case":"spline/c2spline drag (390x844, 4x CPU)","run":2,"samples":534,"median":16.7,"p95":50.1,"max":100.1,"effect":158.11}
+{"case":"spline/c2spline drag (390x844, 4x CPU)","run":3,"samples":541,"median":16.7,"p95":50.1,"max":83.4,"effect":158.11}
+
+case | median ms (range) | p95 ms (range) | samples per run
+bezier/curve drag (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 344/348/350
+bezier/curve resize (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 357/370/356
+bezier/curve rotate (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 337/333/326
+rational/base drag (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 348/346/345
+rational/base resize (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.8) | 361/364/364
+rational/base rotate (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 340/346/343
+spline/c2spline drag (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 400/397/396
+spline/c2spline resize (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.8) | 409/420/423
+spline/c2spline rotate (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 356/355/345
+bezier/curve drag (390x844, 4x CPU) | 16.7 (16.7-16.7) | 33.4 (33.4-33.4) | 549/544/557
+rational/base drag (390x844, 4x CPU) | 16.7 (16.7-16.7) | 50.0 (50.0-50.0) | 585/578/581
+spline/c2spline drag (390x844, 4x CPU) | 16.7 (16.7-16.7) | 50.1 (50.1-50.1) | 551/534/541
