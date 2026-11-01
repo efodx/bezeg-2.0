@@ -59,7 +59,10 @@ export interface SceneReplacementPlan<S, T> {
      * families) and not otherwise, so every family keeps its previous behavior.
      */
     dispose: boolean;
-    /** Wraps dispose, sweep and import in one board update batch (the figure path). */
+    /**
+     * Wraps dispose, sweep and import in one board update batch (the figure path). A plan that disposes is batched
+     * either way, as disposal used to run inside the curve importer's own batch.
+     */
     suspendBoard: boolean;
     sweep: boolean;
     /** Loads the scene's Preset data (and, on mount, board view and graph state) through the family's importer. */
@@ -85,13 +88,14 @@ export interface SceneReplacementPlan<S, T> {
  * scene is drawn (or the replacement was cancelled), and rejects with what initialize, sync or finish threw.
  */
 export function replaceScene<S, T>(host: SceneReplacementHost<S, T>, plan: SceneReplacementPlan<S, T>): Promise<void> | undefined {
-    if (plan.suspendBoard) host.suspendBoard();
+    const batch = plan.suspendBoard || plan.dispose;
+    if (batch) host.suspendBoard();
     try {
         runDispose(host, plan);
         if (plan.sweep) host.sweepBoard();
         plan.importData();
     } finally {
-        if (plan.suspendBoard) host.resumeBoard();
+        if (batch) host.resumeBoard();
     }
     if (plan.workspaceRevisionAfterImport) host.bumpWorkspaceRevision();
     plan.afterImport?.();
@@ -104,7 +108,7 @@ export function replaceScene<S, T>(host: SceneReplacementHost<S, T>, plan: Scene
     return undefined;
 }
 
-/** Disposal for the plan: once. Only the figure path batches it (inside its whole-replacement batch). */
+/** Disposal for the plan: once, inside the replacement's board update batch. */
 function runDispose<S, T>(host: SceneReplacementHost<S, T>, plan: SceneReplacementPlan<S, T>): void {
     if (plan.dispose) host.disposeScene();
 }

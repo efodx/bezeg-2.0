@@ -15,6 +15,9 @@ const xy = (pts: any[]) => pts.map(p => [p.X(), p.Y()]);
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
+        // A scene replacement that disposes batches the board (SceneReplacement.ts).
+        suspendUpdate: vi.fn(),
+        unsuspendUpdate: vi.fn(),
         create: vi.fn((type: string, parents: any[]) => {
             const object = {type, parents};
             board.objectsList.push(object);

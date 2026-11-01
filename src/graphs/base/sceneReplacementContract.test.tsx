@@ -255,4 +255,22 @@ describe('disposal per replacement', () => {
             });
         }
     });
+
+    it('a curve checkpoint without Preset data keeps the curves and disposes nothing', () => {
+        const rig = open(() => graphFactories.bezier());
+        const graph = rig.graph as unknown as {jxgCurves: unknown[]};
+        try {
+            const capabilities = rig.graph.getLessonCapabilities();
+            const checkpoint = capabilities.captureState() as {value: Record<string, unknown>};
+            const curves = graph.jxgCurves.length;
+            expect(curves).toBeGreaterThan(0);
+            delete checkpoint.value.data;
+            rig.disposes.mockClear();
+            act(() => capabilities.restoreState(checkpoint as never));
+            expect(rig.disposes).not.toHaveBeenCalled();
+            expect(graph.jxgCurves).toHaveLength(curves);
+        } finally {
+            rig.mounted.view.unmount();
+        }
+    }, REAL_GRAPH_TEST_TIMEOUT);
 });

@@ -579,6 +579,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
      * workspace revision so scene-backed controls (and child boards keyed on it) re-seed from the new scene.
      */
     protected runLessonReplacement(scene: {
+        /** Overrides the family's disposal choice; a checkpoint without Preset data imports nothing, so it disposes nothing. */
+        dispose?: boolean;
         importData: () => void;
         afterImport?: () => void;
         state: () => S;
@@ -586,11 +588,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         transientState: TransientState | undefined;
     }): void {
         replaceScene(this.sceneReplacementHost(), {
-            dispose: this.disposesBeforeNonFigureImport(),
             suspendBoard: false,
             sweep: false,
             initialize: false,
             ...scene,
+            dispose: scene.dispose ?? this.disposesBeforeNonFigureImport(),
             state: {mode: 'sync', state: scene.state},
             finish: () => {
                 this.workspaceRevision++;
@@ -680,6 +682,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         const state = checkpoint.value;
         // A checkpoint holds this graph's own exported Preset data, captured in memory by `captureLessonState`.
         this.runLessonReplacement({
+            dispose: state.data !== undefined && this.disposesBeforeNonFigureImport(),
             importData: () => { if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data) as D); },
             afterImport: () => { if (this.hasBoard && state.boardState) this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits); },
             // Replaced, not merged: optional keys set after the checkpoint was captured must not survive the restore.

@@ -10,6 +10,9 @@ const sub = (from: number, to: number) => new PolynomialBezierCurve(P.slice(from
 function fakeBoard() {
     const board: any = {
         objectsList: [] as any[],
+        // A scene replacement that disposes batches the board (SceneReplacement.ts).
+        suspendUpdate: vi.fn(),
+        unsuspendUpdate: vi.fn(),
         create: vi.fn((type: string, parents: any[]) => {
             const object: any = {type, parents, board, on: vi.fn()};
             board.objectsList.push(object);
