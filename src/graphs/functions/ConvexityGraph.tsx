@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -23,7 +23,6 @@ const PRECISE = 4;
 const PRETTY_FORMULA: Readonly<Record<ConvexityExampleId, string>> = {square: "x²", negSquare: "−x²", cube: "x³", quartic: "x⁴"};
 const exampleTitle = (id: ConvexityExampleId): string => `f(x) = ${PRETTY_FORMULA[id]}`;
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Each example has its own view, which becomes the board view whenever the example changes (inspector select or the
@@ -225,7 +224,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
         const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.5);
+        const thin = this.displayThinWidth(0.5);
         const fontSize = () => this.displaySettings.fontSize;
         const revealed = () => model().secondDerivativeVisible;
         const f = (x: number) => view().example.value(x);

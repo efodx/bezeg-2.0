@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -23,7 +23,6 @@ interface DataCurve {
     dataY: number[];
 }
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * The default view shows [0, pi] with the sine arch and room for the A and B labels; its aspect (4.4 : 3.5, about 1.26) is
@@ -42,7 +41,7 @@ const DEFAULT_VIEW: BoundingBox = [-0.6, 2.2, 3.8, -1.3];
 export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
-    private verticesCache?: { model: ArcLengthModel; vertices: [number, number][] };
+    private readonly verticesOf = this.modelCache((model: ArcLengthModel) => polylineVertices(model.a, model.b, model.n));
 
     override presetCollection() {
         return functionPresetCollections["arc-length"];
@@ -80,13 +79,6 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
 
     // ---- Board ---------------------------------------------------------------------------------------------------
 
-    /** The polyline vertices of the current model, computed once per model however many curves read them. */
-    private currentVertices(): [number, number][] {
-        const model = this.model;
-        if (this.verticesCache?.model !== model) this.verticesCache = {model, vertices: polylineVertices(model.a, model.b, model.n)};
-        return this.verticesCache.vertices;
-    }
-
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
@@ -101,7 +93,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
             strokeColor: GraphPalette.constructionAccent, highlight: false, fixed: true, strokeWidth,
         })) as unknown as DataCurve;
         polyline.updateDataArray = () => {
-            const vertices = this.currentVertices();
+            const vertices = this.verticesOf(this.model);
             polyline.dataX = vertices.map(([x]) => x);
             polyline.dataY = vertices.map(([, y]) => y);
         };
@@ -117,7 +109,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
             const ry = radius / (board.unitY || 1);
             const x: number[] = [];
             const y: number[] = [];
-            for (const [vx, vy] of this.currentVertices()) {
+            for (const [vx, vy] of this.verticesOf(this.model)) {
                 if (x.length > 0) {
                     x.push(NaN);
                     y.push(NaN);
@@ -161,7 +153,6 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
-        this.verticesCache = undefined;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

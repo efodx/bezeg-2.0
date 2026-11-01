@@ -1,5 +1,5 @@
 import React from "react";
-import {COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
+import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -24,7 +24,6 @@ import {functionPresetCollections} from "./functionPresetCollections";
  */
 export const FIXED_POINT_STEP_INTERVAL_MS = 600;
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Each example has its own view. Equal axis units are kept (the cobweb is drawn against the 45 degree diagonal), and JSXGraph then

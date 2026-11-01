@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE, SIGN_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -21,7 +21,6 @@ const PRECISE = 4;
 const PRETTY_FORMULA: Readonly<Record<ExtremaExampleId, string>> = {square: "x²", cube: "x³", abs: "|x|", sine: "sin x"};
 const exampleTitle = (id: ExtremaExampleId): string => `f(x) = ${PRETTY_FORMULA[id]}`;
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Each example has its own view, which becomes the board view whenever the example changes (inspector select or the
@@ -251,7 +250,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
         const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.5);
+        const thin = this.displayThinWidth(0.5);
         const fontSize = () => this.displaySettings.fontSize;
         const colors = KIND_COLORS();
         const candidate = (kind: CandidateKind, slot: number): ExtremaCandidate | undefined => this.candidatesOfKind(view(), kind)[slot];

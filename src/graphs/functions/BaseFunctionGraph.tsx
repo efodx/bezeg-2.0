@@ -16,9 +16,10 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
  * A subclass describes its whole state as a flat model of numbers, booleans and strings (so the model doubles as
  * validated preset data and as React state). This class owns:
  *
- * - the synchronous model: `this.model` is the source of truth; React state only mirrors it for rendering. A Guided
- *   lesson scene applies all of its actions in one tick while `setState` is asynchronous, so lesson actions, drag
- *   handlers and inspector inputs must read and write `this.model` (through `commitModel`), never `this.state`;
+ * - the synchronous model: `this.model` is written first by `commitModel`, which then calls `setState`. Graph `setState`
+ *   writes the scene store synchronously, so a later action of a lesson scene (applied in one tick) may also read
+ *   `this.state`; board side effects run in `onStateChange` after the host commits. Lesson actions, drag handlers and
+ *   inspector inputs still read and write `this.model` (through `commitModel`);
  * - generated JSXGraph objects: everything a scene creates is registered with `own()` and removed, children first, by
  *   `removeGeneratedObjects()` (also from `disposeFigureScene()` and before every regeneration);
  * - preset export/import of the model: the subclass's Preset collection (`presetCollection()`) parses and sanitizes stored
@@ -40,7 +41,7 @@ export interface FunctionLessonActions {
     choices?: Partial<Record<FunctionChoiceAction['name'], (value: string) => void>>;
 }
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
+export type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Thrown by the model setters when a value is outside the graph's domain. Inspector controls swallow exactly this error
@@ -137,6 +138,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     /** Synchronous source of truth for the graph; `this.state` mirrors it for rendering. */
     protected model: M;
     private generatedObjects: any[] = [];
+    private readonly modelCaches: (() => void)[] = [];
     /** True only between an import that carried a board view and the `initialize()` that must not override it. */
     private boardStateImported = false;
     private captionLines: CaptionLine[] = [];
@@ -179,6 +181,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         this.generatedObjects = [];
         this.captionLines = [];
         this.viewMemo = undefined;
+        this.clearModelCaches();
         this.onSceneRemoved();
         super.unmount();
         // A later mount() on this instance starts from the default model, like a new instance.
@@ -302,6 +305,39 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
      * them. The key is the model's field values (not the object), so the board (reading `this.model`) and the inspector (reading a
      * copy made from React state) share one entry while they show the same values, and a new object with equal values reuses it.
      */
+    /**
+     * A cache of a value computed from the model alone (not from the view), recomputed when the model object changes, however many
+     * board objects read it. The base clears every such cache with the scene, so no entry outlives the board it was drawn for.
+     */
+    protected modelCache<V>(compute: (model: M) => V): (model: M) => V {
+        let entry: { model: M; value: V } | undefined;
+        this.modelCaches.push(() => {
+            entry = undefined;
+        });
+        return model => {
+            if (entry?.model !== model) entry = {model, value: compute(model)};
+            return entry.value;
+        };
+    }
+
+    /**
+     * The shaded part of a signed region (above or below the axis) as a curve whose data `data` supplies on every board update.
+     * `data` is where a caller clamps or clips to the current view; this only sets the shared look.
+     */
+    protected signedFill(color: string, data: () => { x: number[]; y: number[] }, options: { dash?: number } = {}): FillCurve {
+        const curve = this.own(this.board.create("curve", [[], []], {
+            fillColor: color, fillOpacity: 0.42, strokeColor: color, strokeOpacity: 0.9, strokeWidth: this.displayThinWidth(0.35),
+            ...(options.dash === undefined ? {} : {dash: options.dash}),
+            highlight: false, fixed: true,
+        })) as unknown as FillCurve;
+        curve.updateDataArray = () => {
+            const {x, y} = data();
+            curve.dataX = x;
+            curve.dataY = y;
+        };
+        return curve;
+    }
+
     protected memoView<V>(model: M, compute: () => V): V {
         const key = Object.values(model);
         const memo = this.viewMemo;
@@ -334,7 +370,12 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
             .reverse();
         if (objects.length) this.board.removeObject(objects);
         this.generatedObjects = [];
+        this.clearModelCaches();
         this.onSceneRemoved();
+    }
+
+    private clearModelCaches(): void {
+        for (const clear of this.modelCaches) clear();
     }
 
     /** Lets a subclass drop its references to removed objects. */
@@ -350,6 +391,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         if (this.graphSession?.isAlive) this.removeGeneratedObjects();
         else {
             this.generatedObjects = [];
+            this.clearModelCaches();
             this.onSceneRemoved();
         }
     }
