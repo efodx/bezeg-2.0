@@ -103,11 +103,21 @@ function Get-Descendants([int]$rootPid) {
 # Stops handler sessions that are idle and done (by default for two consecutive polls, so a session
 # between two turns is never caught), then kills processes they left running. A done session has
 # finished its turn and runs no background task: those keep it busy.
+function Get-StreamOf($session) {
+    foreach ($id in $AllStreams) { if ($session.name -like "$id handler*") { return $id } }
+    return $null
+}
+
 function Stop-FinishedHandlers($sessions, [int]$requiredPolls) {
     $seen = @{}
     foreach ($s in $sessions) {
         if (-not (Test-HandlerSession $s)) { continue }
-        if ($s.state -ne 'done' -or $s.status -ne 'idle') { continue }
+        if ($s.status -ne 'idle') { continue }
+        # An idle handler is finished when it is done, or when a newer handler of its stream exists: a handed-off
+        # session whose leftover watcher still runs reports 'working' while idle.
+        $stream = Get-StreamOf $s
+        $superseded = @($sessions | Where-Object { (Test-HandlerSession $_) -and (Get-StreamOf $_) -eq $stream -and $_.startedAt -gt $s.startedAt }).Count -gt 0
+        if ($s.state -ne 'done' -and -not $superseded) { continue }
         $seen[$s.id] = 1 + [int]$donePolls[$s.id]
         if ($seen[$s.id] -lt $requiredPolls) { continue }
         $leftovers = @(Get-Descendants ([int]$s.pid))

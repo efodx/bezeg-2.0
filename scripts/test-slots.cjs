@@ -18,6 +18,14 @@ const MIN_WORKERS_PER_SLOT = 3; // below this a run gets too little parallelism 
 const MAX_SLOTS = 3; // matches the three-worker concurrency cap in docs/agent-workflow.md
 const FILTERED_UNIT_WORKERS = 2; // a path-filtered unit run skips the queue, so it must stay small next to a slot holder
 const STALE_MS = 2 * 60 * 60 * 1000; // longer than any check or smoke run
+// Slots cap test runners, but typecheck, lint and filtered unit runs from several agents start beside them. When
+// available memory runs out, Windows signals critical pressure and Claude Code stops the background commands of idle
+// sessions (seen 2026-11-01 several times an hour). So every heavy command also waits until it leaves this much free.
+const MEMORY_FLOOR_GB = 2;
+const COMMAND_MEMORY_GB = {typecheck: 1.5, lint: 1, build: 1.5, 'check-localization': 1.5, smoke: 1.5, 'smoke-built': 1.5, 'smoke-lesson': 1.5};
+const RAMP_MS = 60_000; // a run reaches most of its memory within a minute, so starts are spaced to read it
+const MAX_MEMORY_WAIT_MS = 20 * 60 * 1000; // then start anyway, warned: a busy desktop must not block work forever
+const GB = 1024 ** 3;
 
 function positiveInt(raw, name) {
     if (raw === undefined || raw === '') return undefined;
@@ -100,7 +108,11 @@ function duplicateHolder(dir, owner, now = Date.now()) {
  * process dies first, by the next waiter's stale-holder check. Throws when the same command already holds a slot in
  * the same checkout.
  */
-async function acquireSlot({command, root, env = process.env, dir = env.BEZEG_TEST_SLOT_DIR || path.join(os.tmpdir(), 'bezeg-test-slots'), pollMs = 2000, stderr = process.stderr} = {}) {
+function slotDir(env = process.env) {
+    return env.BEZEG_TEST_SLOT_DIR || path.join(os.tmpdir(), 'bezeg-test-slots');
+}
+
+async function acquireSlot({command, root, env = process.env, dir = slotDir(env), pollMs = 2000, stderr = process.stderr} = {}) {
     const {slots, workers} = machineBudget({env});
     const owner = {pid: process.pid, command, root};
     let waitingSince;
@@ -127,6 +139,63 @@ async function acquireSlot({command, root, env = process.env, dir = env.BEZEG_TE
     }
 }
 
+function memoryFloorGB(env = process.env) {
+    const raw = env.BEZEG_MEMORY_FLOOR_GB;
+    if (raw === undefined || raw === '') return MEMORY_FLOOR_GB;
+    if (!/^\d+(\.\d+)?$/.test(raw)) throw new Error(`BEZEG_MEMORY_FLOOR_GB must be a non-negative number, got ${JSON.stringify(raw)}.`);
+    return Number(raw);
+}
+
+// Memory a command needs before it may start; unit runs and checks need one worker and then fit their workers.
+function commandMemoryGB(command) {
+    return COMMAND_MEMORY_GB[command] ?? MEMORY_PER_WORKER_GB;
+}
+
+// Workers that fit the memory available at admission, never more than the slot allows.
+function fitWorkers(workers, freeGB, env = process.env) {
+    const floor = memoryFloorGB(env);
+    if (floor === 0) return workers;
+    return Math.max(1, Math.min(workers, Math.floor((freeGB - floor) / MEMORY_PER_WORKER_GB)));
+}
+
+/**
+ * Waits until starting `command` keeps available memory above the floor, and spaces starts machine-wide: an admitted
+ * run marks the gate for RAMP_MS, so the next reading includes the memory that run grows into. Returns {freeGB}.
+ * BEZEG_MEMORY_FLOOR_GB=0 turns the gate off.
+ */
+async function admitByMemory({command, env = process.env, dir = slotDir(env), freeBytes = os.freemem, now = Date.now, pollMs = 5000, maxWaitMs = MAX_MEMORY_WAIT_MS, stderr = process.stderr} = {}) {
+    const floor = memoryFloorGB(env);
+    if (floor === 0) return {freeGB: freeBytes() / GB};
+    const needGB = commandMemoryGB(command);
+    const marker = path.join(dir, 'memory-ramp.json');
+    fs.mkdirSync(dir, {recursive: true});
+    const since = now();
+    let reported = '';
+    for (;;) {
+        const time = now();
+        const ramping = readHolder(marker);
+        const busy = ramping && Number.isInteger(ramping.pid) && ramping.pid !== process.pid && alive(ramping.pid) && time - ramping.started < RAMP_MS;
+        const freeGB = freeBytes() / GB;
+        const fits = freeGB - needGB >= floor;
+        const timedOut = time - since >= maxWaitMs;
+        if (!busy && (fits || timedOut)) {
+            fs.writeFileSync(marker, JSON.stringify({pid: process.pid, command, started: time}));
+            // Two waiters can pass at once; the one whose mark was overwritten waits for the other's ramp.
+            if (readHolder(marker)?.pid === process.pid) {
+                if (!fits) stderr.write(`Starting ${command} after ${Math.round((time - since) / 60000)} min without enough memory: ${freeGB.toFixed(1)} GB available.\n`);
+                else if (reported) stderr.write(`Memory available for ${command} after ${((time - since) / 1000).toFixed(0)}s.\n`);
+                return {freeGB};
+            }
+            continue;
+        }
+        const message = busy
+            ? `Waiting for ${ramping.command} (pid ${ramping.pid}) to finish starting before reading free memory.\n`
+            : `Waiting for memory: ${command} needs about ${needGB} GB above the ${floor} GB floor; ${freeGB.toFixed(1)} GB available.\n`;
+        if (message !== reported) { stderr.write(message); reported = message; }
+        await sleep(pollMs);
+    }
+}
+
 // Lower priority is inherited by children spawned afterwards, so test workers never starve the desktop or a game.
 // BEZEG_TEST_PRIORITY=idle runs them only on otherwise idle CPU; =normal keeps normal priority.
 function lowerPriority(env = process.env) {
@@ -137,4 +206,4 @@ function lowerPriority(env = process.env) {
     catch { /* not permitted on this platform: run at normal priority */ }
 }
 
-module.exports = {FILTERED_UNIT_WORKERS, acquireSlot, lowerPriority, machineBudget, tryAcquire};
+module.exports = {FILTERED_UNIT_WORKERS, acquireSlot, admitByMemory, fitWorkers, lowerPriority, machineBudget, memoryFloorGB, tryAcquire};

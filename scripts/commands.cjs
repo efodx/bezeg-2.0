@@ -380,18 +380,27 @@ function needsSlot(command, args) {
 
 async function execute(command, rawArgs = [], options = {}) {
     const root = options.root || ROOT;
-    const {FILTERED_UNIT_WORKERS, machineBudget, acquireSlot} = require('./test-slots.cjs');
-    if (!['unit', 'check', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
+    const {FILTERED_UNIT_WORKERS, machineBudget, acquireSlot, admitByMemory, fitWorkers} = require('./test-slots.cjs');
     const baseEnv = options.env || process.env;
+    if (['typecheck', 'lint'].includes(command)) {
+        await admitByMemory({command, env: baseEnv});
+        return executeCommand(command, rawArgs, {...options, root});
+    }
+    if (!['unit', 'check', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
     const unslotted = () => {
         const budget = machineBudget({env: baseEnv});
         return {...budget, workers: command === 'unit' ? Math.min(budget.workers, FILTERED_UNIT_WORKERS) : budget.workers, release() {}};
     };
     const slot = needsSlot(command, rawArgs) ? await acquireSlot({command, root, env: baseEnv}) : unslotted();
-    // vite.config.mts and playwright.config.cjs read this; explicit --maxWorkers/--workers arguments still win.
-    const env = {...baseEnv, BEZEG_TEST_WORKERS: String(slot.workers)};
-    const label = slot.index ? `test slot ${slot.index}/${slot.slots}, ${slot.workers} workers` : `${slot.workers} workers, no slot`;
-    try { return await executeCommand(command, rawArgs, {...options, root, env, label}); }
+    try {
+        // A slot holder may still wait here: the slot caps test runners, the memory gate covers everything else.
+        const {freeGB} = await admitByMemory({command, env: baseEnv});
+        const workers = fitWorkers(slot.workers, freeGB, baseEnv);
+        // vite.config.mts and playwright.config.cjs read this; explicit --maxWorkers/--workers arguments still win.
+        const env = {...baseEnv, BEZEG_TEST_WORKERS: String(workers)};
+        const label = slot.index ? `test slot ${slot.index}/${slot.slots}, ${workers} workers` : `${workers} workers, no slot`;
+        return await executeCommand(command, rawArgs, {...options, root, env, label});
+    }
     finally { slot.release(); }
 }
 

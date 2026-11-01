@@ -13,6 +13,8 @@ const slots = require('./test-slots.cjs');
 process.env.BEZEG_TEST_SLOT_DIR = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-test-slots-'));
 delete process.env.BEZEG_TEST_SLOTS;
 delete process.env.BEZEG_TEST_WORKERS;
+// The memory gate reads this machine's free memory; its own tests inject readings instead.
+process.env.BEZEG_MEMORY_FLOOR_GB = '0';
 
 function fixture() {
     const root = fs.mkdtempSync(path.join(__dirname, '..', '.command-test-'));
@@ -439,6 +441,47 @@ test('test slots queue a third holder, reclaim dead holders and release on deman
         fs.utimesSync(path.join(dir, 'slot-2.json'), old, old);
         assert.equal(slots.tryAcquire(dir, 2, {pid: process.pid}).index, 1);
         assert.equal(slots.tryAcquire(dir, 2, {pid: process.pid}).index, 2);
+    } finally { cleanup(dir); }
+});
+
+test('the memory gate waits for free memory, spaces starts and fits workers to what is free', async () => {
+    const dir = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-memory-gate-'));
+    const GB = 1024 ** 3;
+    const env = {BEZEG_MEMORY_FLOOR_GB: '2'};
+    const messages = [];
+    const stderr = {write: text => messages.push(text)};
+    let clock = 1_000_000;
+    let free = 3 * GB;
+    const options = {env, dir, stderr, pollMs: 5, now: () => clock, freeBytes: () => free};
+    try {
+        // 3 GB free leaves 1.5 GB after a 1.5 GB typecheck: under the floor, so it waits until memory frees up.
+        let admitted;
+        const waiting = slots.admitByMemory({command: 'typecheck', ...options}).then(result => { admitted = result; });
+        await new Promise(resolve => setTimeout(resolve, 40));
+        assert.equal(admitted, undefined);
+        assert.match(messages.join(''), /typecheck needs about 1.5 GB above the 2 GB floor; 3.0 GB available/);
+        free = 6 * GB;
+        await waiting;
+        assert.equal(admitted.freeGB, 6);
+        // Another live process that started within the last minute holds the ramp; once it is older, the gate opens.
+        fs.writeFileSync(path.join(dir, 'memory-ramp.json'), JSON.stringify({pid: process.ppid, command: 'unit', started: clock}));
+        let second;
+        const spaced = slots.admitByMemory({command: 'lint', ...options}).then(result => { second = result; });
+        await new Promise(resolve => setTimeout(resolve, 40));
+        assert.equal(second, undefined);
+        assert.match(messages.join(''), /Waiting for unit \(pid \d+\) to finish starting/);
+        clock += 61_000;
+        await spaced;
+        // Past the maximum wait a run starts anyway, with a warning.
+        free = 1 * GB;
+        const late = slots.admitByMemory({command: 'build', ...options, maxWaitMs: 1000});
+        await new Promise(resolve => setTimeout(resolve, 20));
+        clock += 1000;
+        assert.equal((await late).freeGB, 1);
+        assert.match(messages.join(''), /Starting build after \d+ min without enough memory: 1.0 GB available/);
+        // Workers: never more than the slot allows, at least one, otherwise what fits above the floor at 1.5 GB each.
+        assert.deepEqual([slots.fitWorkers(4, 12, env), slots.fitWorkers(4, 6.5, env), slots.fitWorkers(4, 2.5, env), slots.fitWorkers(4, 2.5, {BEZEG_MEMORY_FLOOR_GB: '0'})], [4, 3, 1, 4]);
+        assert.throws(() => slots.memoryFloorGB({BEZEG_MEMORY_FLOOR_GB: '-1'}), /BEZEG_MEMORY_FLOOR_GB must be a non-negative number/);
     } finally { cleanup(dir); }
 });
 

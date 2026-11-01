@@ -13,7 +13,7 @@ A **stream** is a sequence of complete features with one owner. Its owner is a c
 - writes handoff notes to `docs/reviews/feature-streams/<id>/handler-handoff-<n>.md`;
 - runs at most **two** workers at once, plus short review and smoke workers. Each stream uses its own `SMOKE_PORT` (table below).
 
-The owner waived the session-usage limit behind the workflow's three-worker cap on 2026-10-31. The binding limits are now this machine and merge conflicts. Heavy `just` commands share 2 machine-wide test slots (16 GB, 12 threads) and queue, so six streams with two workers each mostly wait on tests rather than on each other. If the machine stays saturated (tests waiting more than about 10 minutes), drop to one worker per stream first.
+The owner waived the session-usage limit behind the workflow's three-worker cap on 2026-10-31. The binding limits are now this machine and merge conflicts. Heavy `just` commands share machine-wide test slots (16 GB, 12 threads: 1 slot of 4 workers) and a memory gate, and queue, so six streams with two workers each mostly wait on tests rather than on each other. If the machine stays saturated (tests waiting more than about 10 minutes), drop to one worker per stream first.
 
 | Stream | File | Features, in order | Port | Provides gate |
 | --- | --- | --- | --- | --- |
@@ -77,7 +77,8 @@ These files are touched by several streams. A rebase conflict stops the stream (
 With six streams, heavy test runs are the shared bottleneck. Heavy runs queue on the machine-wide slots, so contention costs wait time, not wrong results. Each stream keeps its share small:
 
 - **Only through `just`:** handlers and workers never run bare `npx vitest`, `npm test` or `npx playwright`. A bare full run skips the queue and starts beside the queued runs.
-- **While iterating:** `just unit <path>` only. Path-filtered runs skip the slot queue.
+- **While iterating:** `just unit <path>` only. Path-filtered runs skip the slot queue, but they, `typecheck` and `lint` still wait at the [memory gate](../../commands.md).
+- **Killed for low memory:** a background command stopped with "the system is running low on memory" was stopped by Claude Code, not by a failure. Rerun it once through `just`, where the memory gate now waits for room, before asking the owner. Restart a killed context watcher at once: without it the handler cannot see its handoff threshold.
 - **Once per slice:** the full unit suite, or the slice's listed checks. Production build after localization changes.
 - **Smoke:** filtered to the slice's own spec files and routes (`just smoke-built <spec> --grep …` on the stream's port). The full browser checklist runs only when a slice changes the shared app shell, workspace or lesson runtime: mostly Platform A3, A9 and A10.
 - **`just check`:** once per feature at F6 (Platform: once per task) at a stable checkpoint, not after every slice.
@@ -129,7 +130,7 @@ It is a plain script, not a model. It does no code checks and costs no tokens wh
 
 **Resources.** A background session does not exit when its turn ends: it stays `idle`/`done` and keeps about 0.7 GB until stopped. On 2026-11-01 seven superseded handlers held 4.6 GB of a 16 GB machine, and Curves stopped after low memory killed its unit suite. So every poll the supervisor:
 
-- stops handler sessions that were `idle`/`done` on two consecutive polls with `claude stop`, which keeps the conversation (`claude attach <id>` reopens it), and kills processes they left running;
+- stops handler sessions that were idle and either `done` or superseded by a newer handler of their stream on two consecutive polls with `claude stop`, which keeps the conversation (`claude attach <id>` reopens it), and kills processes they left running;
 - starts a stream only while fewer than `-MaxLive` (default 3) handlers run and at least `-MinFreeGB` (default 3) of memory is free. A deferred stream starts on a later poll. Successor launches by handlers replace a session, so they are not limited.
 
 `-ReapOnly` stops every finished handler session once and exits, without launching anything.
