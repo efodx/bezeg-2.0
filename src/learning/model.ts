@@ -194,6 +194,8 @@ export type LessonAction =
     | {readonly kind: 'point-set'; readonly operation: 'set-overlay'; readonly overlay: PointSetOverlayName; readonly visible: boolean}
     /** HullTraceGraph only (any other point-set graph throws `UnsupportedLessonActionError`): picks the algorithm, returns to step 0 and pauses. */
     | {readonly kind: 'point-set'; readonly operation: 'set-algorithm'; readonly algorithm: HullAlgorithm}
+    /** EarClippingGraph only (any other point-set graph throws `UnsupportedLessonActionError`): pauses playback and sets the trace step; a number is clamped like a stored Preset step and `'end'` is the last step. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-trace-step'; readonly step: number | 'end'}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */

@@ -25,7 +25,7 @@ export interface PointSetModel {
 }
 
 /** The closed list of overlay names a lesson scene may switch (`point-set` `set-overlay`); a graph accepts only the ones it owns. */
-export const POINT_SET_OVERLAY_NAMES = ['grid', 'turn', 'fan', 'lattice', 'trace', 'hull', 'values'] as const;
+export const POINT_SET_OVERLAY_NAMES = ['grid', 'turn', 'fan', 'lattice', 'trace', 'hull', 'values', 'reflex', 'triangulation', 'colouring', 'guards'] as const;
 export type PointSetOverlayName = typeof POINT_SET_OVERLAY_NAMES[number];
 
 export const DEFAULT_POINT_LIMIT = 40;

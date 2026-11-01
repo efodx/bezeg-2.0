@@ -1,10 +1,11 @@
 /**
- * Guided lessons of the Computational geometry family, convexity and hulls batch (docs/specs/convexity-hulls-lessons.md, A1 and A2).
+ * Guided lessons of the Computational geometry family: convexity and hulls (docs/specs/convexity-hulls-lessons.md, A1, A2, A4) and ear clipping (docs/specs/triangulation-voronoi-lessons.md, B1).
  * The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every value it quotes is the readout of
  * the scene it belongs to, and `compgeoGuidedLessons.test.ts` checks that against the real graphs. The scenes use only the
  * `point-set` actions, so a scene is a function of its actions and the lesson default.
  */
 import type {LessonAction, LessonPoint} from '../model';
+import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -12,7 +13,7 @@ const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
-const overlay = (name: 'grid' | 'turn' | 'fan' | 'lattice' | 'values' | 'trace' | 'hull', visible: boolean): LessonAction => ({kind: 'point-set', operation: 'set-overlay', overlay: name, visible});
+const overlay = (name: PointSetOverlayName, visible: boolean): LessonAction => ({kind: 'point-set', operation: 'set-overlay', overlay: name, visible});
 const algorithm = (name: 'monotone-chain' | 'slow-edge-test' | 'gift-wrapping'): LessonAction => ({kind: 'point-set', operation: 'set-algorithm', algorithm: name});
 /** `count` Next-step presses of the hull trace; the actions run in one tick, like the button presses they stand for. */
 const nextSteps = (count: number): LessonAction[] => Array.from({length: count}, (): LessonAction => ({kind: 'animation', animationId: 'algorithm-trace', command: 'next-step'}));
@@ -601,4 +602,226 @@ const convexHull: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull];
+/**
+ * Ear clipping lesson (docs/specs/triangulation-voronoi-lessons.md, B1). The scenes use the `point-set` actions and the
+ * `algorithm-trace` animation of `EarClippingGraph`; `compgeoEarClippingLesson.test.ts` checks every quoted value against the
+ * real graph's readout. Trace events of the notched pentagon: 12 events, the first ear tested at event 3 (step 4 of 12), clipped at
+ * event 5, the last triangle at event 10 and `done` at event 11.
+ */
+export const EAR_TRACE_STEPS = {firstEarTest: 3, firstEarClipped: 5, notchedEnd: 11} as const;
+
+/** Example 2 of spec B1, the comb: n = 11, 9 triangles, 8 diagonals, colour classes 4, 4, 3 and three guards. */
+export const EAR_COMB: readonly LessonPoint[] = [[0, 0], [18, 0], [16, 2], [15, 6], [14, 2], [10, 2], [9, 6], [8, 2], [4, 2], [3, 6], [2, 2]];
+
+type EarOverlay = 'trace' | 'reflex' | 'triangulation' | 'colouring' | 'guards';
+const EAR_OVERLAYS: readonly EarOverlay[] = ['trace', 'reflex', 'triangulation', 'colouring', 'guards'];
+const setTraceStep = (step: number | 'end'): LessonAction => ({kind: 'point-set', operation: 'set-trace-step', step});
+/** An ear clipping scene: the polygon (which returns to step 0 and pauses), exactly the listed overlays, then the step actions. */
+const earScene = (id: string, list: readonly LessonPoint[], shown: readonly EarOverlay[], steps: readonly LessonAction[], sl: string, en: string): LessonScene =>
+    scene(id, [polygon(list), ...EAR_OVERLAYS.map(name => overlay(name, shown.includes(name))), ...steps], sl, en);
+
+const earClipping: GuidedLesson = {
+    demonstrationId: 'ear-clipping',
+    title: text('Rezanje ušes in izrek o galeriji', 'Ear clipping and the art gallery theorem'),
+    summary: text(
+        'Vsak enostaven večkotnik z \\(n\\) oglišči lahko razrežemo na \\(n-2\\) trikotnikov, če znova in znova odrežemo uho; Fiskovo 3-barvanje oglišč nato pokaže, da zadošča \\(\\lfloor n/3\\rfloor\\) stražarjev.',
+        'Every simple polygon with \\(n\\) vertices can be cut into \\(n-2\\) triangles by clipping an ear again and again; Fisk\'s 3-colouring of the vertices then shows that \\(\\lfloor n/3\\rfloor\\) guards are enough.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o orientaciji treh točk: predznak vrednosti \\(D\\) pove levi ali desni zavoj.', 'The lesson on the orientation of three points is required: the sign of \\(D\\) tells a left or a right turn.'),
+    ],
+    learningGoals: [
+        text('Razložiš, kdaj je oglišče uho, in to preveriš z orientacijo in preizkusom, ali je v trikotniku kako drugo oglišče.', 'Explain when a vertex is an ear, and check it with the orientation and the test whether another vertex lies in the triangle.'),
+        text('Prešteješ trikotnike in diagonale triangulacije: \\(n-2\\) in \\(n-3\\).', 'Count the triangles and diagonals of a triangulation: \\(n-2\\) and \\(n-3\\).'),
+        text('Z Fiskovim 3-barvanjem utemeljiš, da zadošča \\(\\lfloor n/3\\rfloor\\) stražarjev, in vidiš, da pri glavniku manj ne zadošča.', 'Use Fisk\'s 3-colouring to justify that \\(\\lfloor n/3\\rfloor\\) guards suffice, and see that for the comb fewer do not.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'ear-test-rule',
+            latex: 'D(a,b,c)=(b_x-a_x)(c_y-a_y)-(b_y-a_y)(c_x-a_x)>0',
+            notation: text(
+                '\\(a\\), \\(b\\), \\(c\\) so zaporedna oglišča večkotnika v nasprotni smeri urinega kazalca; \\(b\\) je preizkušano oglišče, \\(D\\) pa orientacija trojice.',
+                '\\(a\\), \\(b\\), \\(c\\) are consecutive vertices of the polygon in counter-clockwise order; \\(b\\) is the tested vertex and \\(D\\) is the orientation of the triple.',
+            ),
+            explanation: text(
+                'Oglišče \\(b\\) je uho, če je izbočeno, to je \\(D(a,b,c)>0\\), in če v trikotniku \\(abc\\) (robovi so všteti) ni nobenega drugega oglišča večkotnika. Uho odrežemo in postopek ponovimo na večkotniku z enim ogliščem manj.',
+                'The vertex \\(b\\) is an ear if it is convex, that is \\(D(a,b,c)>0\\), and no other vertex of the polygon lies in the triangle \\(abc\\) (its boundary counts). We clip the ear and repeat on the polygon with one vertex fewer.',
+            ),
+        },
+        {
+            id: 'ear-gallery-counts',
+            latex: 'T=n-2,\\qquad d=n-3,\\qquad g=\\lfloor n/3\\rfloor',
+            notation: text(
+                '\\(n\\) je število oglišč, \\(T\\) število trikotnikov, \\(d\\) število diagonal in \\(g\\) število stražarjev.',
+                '\\(n\\) is the number of vertices, \\(T\\) the number of triangles, \\(d\\) the number of diagonals and \\(g\\) the number of guards.',
+            ),
+            explanation: text(
+                'Vsako odrezano uho zmanjša število oglišč za \\(1\\), zadnji trikotnik pa ima \\(3\\) oglišča, zato je trikotnikov \\(n-2\\). Triangulacija ima \\(n\\) robov večkotnika in \\(3(n-2)\\) strani trikotnikov, ki jih robovi štejejo enkrat, diagonale pa dvakrat; zato je diagonal \\(n-3\\). Oglišča triangulacije lahko pobarvamo s tremi barvami tako, da ima vsak trikotnik vse tri barve (Fisk); najmanjši barvni razred ima največ \\(\\lfloor n/3\\rfloor\\) oglišč in vsak trikotnik vsebuje oglišče iz njega.',
+                'Every clipped ear lowers the number of vertices by \\(1\\) and the last triangle has \\(3\\) vertices, so there are \\(n-2\\) triangles. A triangulation has \\(n\\) polygon edges and \\(3(n-2)\\) triangle sides, where the edges count once and the diagonals twice; hence there are \\(n-3\\) diagonals. The vertices of a triangulation can be coloured with three colours so that every triangle has all three colours (Fisk); the smallest colour class has at most \\(\\lfloor n/3\\rfloor\\) vertices and every triangle contains a vertex of it.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'ear-first-ear-example',
+            title: text('Prvo uho: \\((6,0)\\), \\((6,4)\\), \\((3,2)\\)', 'The first ear: \\((6,0)\\), \\((6,4)\\), \\((3,2)\\)'),
+            calculationLatex: 'D=(6-6)(2-0)-(4-0)(3-6)=0+12',
+            resultLatex: 'D=12',
+            check: text(
+                'Vrednost \\(D=12>0\\) pove, da je oglišče \\((6,4)\\) izbočeno; v trikotniku ni drugih oglišč, zato izpis pokaže, da je to uho.',
+                'The value \\(D=12>0\\) says that the vertex \\((6,4)\\) is convex; no other vertex lies in the triangle, so the readout says that it is an ear.',
+            ),
+        },
+        {
+            id: 'ear-count-example',
+            title: text('Število trikotnikov, diagonal in stražarjev', 'The number of triangles, diagonals and guards'),
+            calculationLatex: 'n=5:\\; T=5-2=3,\\; d=5-3=2,\\; g=\\lfloor5/3\\rfloor=1',
+            resultLatex: 'T=3,\\; d=2,\\; g=1',
+            check: text(
+                'Izpis pod grafom pokaže \\(3\\) trikotnike, \\(2\\) diagonali in enega stražarja.',
+                'The result under the graph shows \\(3\\) triangles, \\(2\\) diagonals and one guard.',
+            ),
+        },
+        {
+            id: 'ear-comb-example',
+            title: text('Glavnik z \\(11\\) oglišči', 'The comb with \\(11\\) vertices'),
+            calculationLatex: 'n=11:\\; T=9,\\; d=8,\\; g=\\lfloor11/3\\rfloor=3',
+            resultLatex: 'T=9,\\; d=8,\\; g=3',
+            check: text(
+                'Izpis pokaže \\(9\\) trikotnikov, \\(8\\) diagonal, barvne razrede \\(4\\), \\(4\\), \\(3\\) in tri stražarje.',
+                'The result shows \\(9\\) triangles, \\(8\\) diagonals, the colour classes \\(4\\), \\(4\\), \\(3\\) and three guards.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'earclip-polygon', order: 1,
+            title: text('Petkotnik z zarezo', 'The notched pentagon'),
+            purpose: text('Spoznati večkotnik in njegovo vbočeno oglišče.', 'Meeting the polygon and its reflex vertex.'),
+            explanation: text(
+                'Večkotnik ima oglišča \\((0,0)\\), \\((6,0)\\), \\((6,4)\\), \\((3,2)\\), \\((0,4)\\) in ploščino \\(18\\). Oglišče \\((3,2)\\) je vbočeno (reflektno): tam se rob zavije v desno, notranji kot pa je večji od \\(180^\\circ\\). Označeno je z rombom; ostala štiri oglišča so izbočena. Uho je izbočeno oglišče, v trikotniku katerega in njegovih sosed ni nobenega drugega oglišča. Rezanje ušes večkotnik razreže na trikotnike tako, da vedno odreže eno uho.',
+                'The polygon has the vertices \\((0,0)\\), \\((6,0)\\), \\((6,4)\\), \\((3,2)\\), \\((0,4)\\) and area \\(18\\). The vertex \\((3,2)\\) is reflex: there the boundary turns right and the interior angle is larger than \\(180^\\circ\\). It is marked with a diamond; the other four vertices are convex. An ear is a convex vertex such that no other vertex lies in the triangle of it and its two neighbours. Ear clipping cuts the polygon into triangles by always clipping off one ear.',
+            ),
+            formulaIds: ['ear-test-rule'],
+            frames: [frame('earclip-polygon-explanation', 'explanation'), frame('earclip-polygon-observation', 'observation')],
+            observationPrompt: text('Poišči vbočeno oglišče in ugotovi, kateri vogali večkotnika so izbočeni.', 'Find the reflex vertex and say which corners of the polygon are convex.'),
+            expectedObservations: [text('Označeno je natanko eno vbočeno oglišče, \\((3,2)\\); sled je na koraku \\(1\\) od \\(12\\) in še nič ni odrezano.', 'Exactly one reflex vertex, \\((3,2)\\), is marked; the trace is at step \\(1\\) of \\(12\\) and nothing is clipped yet.')],
+            scene: earScene('earclip-polygon', AREA_NOTCHED_PENTAGON, ['trace', 'reflex'], [],
+                'Petkotnik z zarezo je na koraku \\(1\\) od \\(12\\); vbočeno oglišče \\((3,2)\\) je označeno.',
+                'The notched pentagon is at step \\(1\\) of \\(12\\); the reflex vertex \\((3,2)\\) is marked.'),
+        },
+        {
+            id: 'earclip-predict', order: 2,
+            title: text('Napovej uho', 'Predict an ear'),
+            purpose: text('Pred razkritjem napovedati, katero oglišče je uho.', 'Predicting which vertex is an ear before the reveal.'),
+            explanation: text(
+                'Preden prikažeš preizkuse, napovej: katero oglišče lahko odrežemo kot uho? Namig: oglišči \\((0,0)\\) in \\((6,0)\\) imata v trikotniku s sosedama vbočeno oglišče \\((3,2)\\); ali je zato še lahko uho?',
+                'Before you show the tests, predict: which vertex can be clipped off as an ear? Hint: the vertices \\((0,0)\\) and \\((6,0)\\) have the reflex vertex \\((3,2)\\) in the triangle with their neighbours; can either still be an ear?',
+            ),
+            formulaIds: ['ear-test-rule'],
+            frames: [frame('earclip-predict-explanation', 'explanation'), frame('earclip-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši oglišče, ki ga lahko odrežemo, in utemelji.', 'Write down the vertex that can be clipped and give your reason.'),
+            expectedObservations: [text('Preizkusi in odrezani trikotniki so skriti, zato napoved še ni preverjena; v naslednjem koraku jo primerjamo.', 'The tests and the clipped triangles are hidden, so the prediction is not yet checked; the next step compares it.')],
+            scene: earScene('earclip-predict', AREA_NOTCHED_PENTAGON, ['reflex'], [],
+                'Preizkusi so skriti; vbočeno oglišče \\((3,2)\\) je še vedno označeno.',
+                'The tests are hidden; the reflex vertex \\((3,2)\\) is still marked.'),
+        },
+        {
+            id: 'earclip-first-ear', order: 3,
+            title: text('Prvo uho', 'The first ear'),
+            purpose: text('Slediti preizkusom ušes po korakih.', 'Following the ear tests step by step.'),
+            explanation: text(
+                'Pravilo: oglišča preizkušamo po vrsti od najnižje številke naprej, v nasprotni smeri urinega kazalca, in odrežemo prvo uho. Tri pritiske na Naslednji korak so že narejeni. Oglišči \\(P_1=(0,0)\\) in \\(P_2=(6,0)\\) nista ušesi, ker v njunem trikotniku leži \\(P_4=(3,2)\\). Izpis pokaže „Korak 4 od 12“, preizkušano oglišče \\(P_3\\) s trikotnikom \\(P_2\\,P_3\\,P_4\\) in sporočilo, da je to uho: trikotnik \\((6,0)\\), \\((6,4)\\), \\((3,2)\\). Pritisni Naslednji korak še dvakrat in uho je odrezano; števec odrezanih trikotnikov pokaže \\(1\\).',
+                'The rule: we test the vertices in order from the lowest number onwards, counter-clockwise, and clip the first ear. Three presses of Next step are already done. The vertices \\(P_1=(0,0)\\) and \\(P_2=(6,0)\\) are not ears, because \\(P_4=(3,2)\\) lies in their triangle. The readout shows “Step 4 of 12”, the tested vertex \\(P_3\\) with the triangle \\(P_2\\,P_3\\,P_4\\) and the message that it is an ear: the triangle \\((6,0)\\), \\((6,4)\\), \\((3,2)\\). Press Next step twice more and the ear is clipped; the counter of clipped triangles shows \\(1\\).',
+            ),
+            formulaIds: ['ear-test-rule'], workedExampleId: 'ear-first-ear-example',
+            frames: [frame('earclip-first-ear-explanation', 'explanation'), frame('earclip-first-ear-calculation', 'calculation'), frame('earclip-first-ear-observation', 'observation')],
+            observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem preizkusu povej, ali je oglišče uho in zakaj ne.', 'Press Next step and, at each test, say whether the vertex is an ear and why not.'),
+            expectedObservations: [text('Prvi dve oglišči zavrne vbočeno oglišče \\(P_4\\) v trikotniku; prvo uho je \\(P_3=(6,4)\\) in po dveh pritiskih je odrezan prvi trikotnik.', 'The first two vertices are rejected because the reflex vertex \\(P_4\\) lies in the triangle; the first ear is \\(P_3=(6,4)\\) and after two presses the first triangle is clipped.')],
+            scene: earScene('earclip-first-ear', AREA_NOTCHED_PENTAGON, ['trace', 'reflex'], nextSteps(EAR_TRACE_STEPS.firstEarTest),
+                'Sled je na koraku \\(4\\) od \\(12\\): preizkušano oglišče \\(P_3\\) je uho s trikotnikom \\((6,0)\\), \\((6,4)\\), \\((3,2)\\).',
+                'The trace is at step \\(4\\) of \\(12\\): the tested vertex \\(P_3\\) is an ear with the triangle \\((6,0)\\), \\((6,4)\\), \\((3,2)\\).'),
+        },
+        {
+            id: 'earclip-triangulation', order: 4,
+            title: text('Triangulacija', 'The triangulation'),
+            purpose: text('Prešteti trikotnike in diagonale končne triangulacije.', 'Counting the triangles and diagonals of the finished triangulation.'),
+            explanation: text(
+                'Sled je izvedena do konca (korak \\(12\\) od \\(12\\)). Uho \\((0,0)\\), \\((6,0)\\), \\((3,2)\\) je drugi odrezani trikotnik, ostane trikotnik \\((0,0)\\), \\((3,2)\\), \\((0,4)\\). Pri \\(n=5\\) ogliščih je trikotnikov \\(n-2=3\\), diagonal pa \\(n-3=2\\); izpis pod grafom pokaže ti dve števili. Obe diagonali izhajata iz vbočenega oglišča \\((3,2)\\).',
+                'The trace has run to the end (step \\(12\\) of \\(12\\)). The ear \\((0,0)\\), \\((6,0)\\), \\((3,2)\\) is the second clipped triangle and the triangle \\((0,0)\\), \\((3,2)\\), \\((0,4)\\) remains. With \\(n=5\\) vertices there are \\(n-2=3\\) triangles and \\(n-3=2\\) diagonals; the result under the graph shows these two numbers. Both diagonals start at the reflex vertex \\((3,2)\\).',
+            ),
+            formulaIds: ['ear-gallery-counts'], workedExampleId: 'ear-count-example',
+            frames: [frame('earclip-triangulation-explanation', 'explanation'), frame('earclip-triangulation-calculation', 'calculation'), frame('earclip-triangulation-observation', 'observation')],
+            observationPrompt: text('Preštej trikotnike in diagonale na grafu in primerjaj s formulama.', 'Count the triangles and diagonals on the graph and compare them with the formulas.'),
+            expectedObservations: [text('Izpis pokaže \\(3\\) trikotnike in \\(2\\) diagonali, kar je \\(n-2\\) in \\(n-3\\) za \\(n=5\\).', 'The result shows \\(3\\) triangles and \\(2\\) diagonals, which is \\(n-2\\) and \\(n-3\\) for \\(n=5\\).')],
+            scene: earScene('earclip-triangulation', AREA_NOTCHED_PENTAGON, ['trace', 'reflex', 'triangulation'], [setTraceStep('end')],
+                'Sled je na koncu: \\(3\\) trikotniki in \\(2\\) diagonali.',
+                'The trace is at its end: \\(3\\) triangles and \\(2\\) diagonals.'),
+        },
+        {
+            id: 'earclip-colouring', order: 5,
+            title: text('Fiskovo 3-barvanje', 'Fisk\'s 3-colouring'),
+            purpose: text('Pobarvati oglišča tako, da ima vsak trikotnik vse tri barve.', 'Colouring the vertices so that every triangle has all three colours.'),
+            explanation: text(
+                'Začni pri enem trikotniku in mu daj barve \\(A\\), \\(B\\), \\(C\\); od tam se sprehodi od trikotnika do trikotnika čez diagonale. Sosednja trikotnika si delita dve oglišči, tretjemu pa pripade edina preostala barva. Graf pokaže razrede: \\(A=\\{(0,0),(6,4)\\}\\), \\(B=\\{(3,2)\\}\\), \\(C=\\{(6,0),(0,4)\\}\\). Izpis pove velikosti \\(2\\), \\(1\\), \\(2\\). Črke ob ogliščih ne zahtevajo barvnega vida.',
+                'Start at one triangle and give it the colours \\(A\\), \\(B\\), \\(C\\); from there walk from triangle to triangle across the diagonals. Neighbouring triangles share two vertices, and the third gets the only remaining colour. The graph shows the classes: \\(A=\\{(0,0),(6,4)\\}\\), \\(B=\\{(3,2)\\}\\), \\(C=\\{(6,0),(0,4)\\}\\). The result gives the sizes \\(2\\), \\(1\\), \\(2\\). The letters at the vertices do not need colour vision.',
+            ),
+            formulaIds: ['ear-gallery-counts'],
+            frames: [frame('earclip-colouring-explanation', 'explanation'), frame('earclip-colouring-observation', 'observation')],
+            observationPrompt: text('Preveri, da ima vsak od treh trikotnikov oglišča \\(A\\), \\(B\\) in \\(C\\).', 'Check that each of the three triangles has a vertex \\(A\\), a vertex \\(B\\) and a vertex \\(C\\).'),
+            expectedObservations: [text('Barvni razredi so velikosti \\(2\\), \\(1\\), \\(2\\); najmanjši je \\(B=\\{(3,2)\\}\\).', 'The colour classes have sizes \\(2\\), \\(1\\), \\(2\\); the smallest is \\(B=\\{(3,2)\\}\\).')],
+            scene: earScene('earclip-colouring', AREA_NOTCHED_PENTAGON, ['trace', 'reflex', 'triangulation', 'colouring'], [setTraceStep('end')],
+                'Oglišča so pobarvana s črkami \\(A\\), \\(B\\), \\(C\\); razredi imajo velikosti \\(2\\), \\(1\\), \\(2\\).',
+                'The vertices are marked with the letters \\(A\\), \\(B\\), \\(C\\); the classes have sizes \\(2\\), \\(1\\), \\(2\\).'),
+        },
+        {
+            id: 'earclip-guards', order: 6,
+            title: text('Stražar in njegov pogled', 'The guard and its view'),
+            purpose: text('Najmanjši barvni razred postaviti za stražarje.', 'Placing guards on the smallest colour class.'),
+            explanation: text(
+                'Vsak trikotnik vsebuje oglišče iz vsakega razreda, zato stražar v oglišču najmanjšega razreda vidi vse trikotnike, ki to oglišče vsebujejo, torej vse trikotnike. Najmanjši razred je \\(B=\\{(3,2)\\}\\) z \\(1=\\lfloor5/3\\rfloor\\) ogliščem. Stražar stoji v \\((3,2)\\), krog ga označuje, osenčen pogled pa pokriva vse tri trikotnike: en stražar vidi celoten večkotnik. To je izrek o galeriji: za \\(n\\) oglišč zadošča \\(\\lfloor n/3\\rfloor\\) stražarjev.',
+                'Every triangle contains a vertex of every class, so a guard at a vertex of the smallest class sees all the triangles that contain that vertex, that is, all the triangles. The smallest class is \\(B=\\{(3,2)\\}\\) with \\(1=\\lfloor5/3\\rfloor\\) vertex. The guard stands at \\((3,2)\\), a ring marks it, and the shaded view covers all three triangles: one guard sees the whole polygon. This is the art gallery theorem: for \\(n\\) vertices, \\(\\lfloor n/3\\rfloor\\) guards suffice.',
+            ),
+            formulaIds: ['ear-gallery-counts'], workedExampleId: 'ear-count-example',
+            frames: [frame('earclip-guards-explanation', 'explanation'), frame('earclip-guards-calculation', 'calculation'), frame('earclip-guards-observation', 'observation')],
+            observationPrompt: text('Preveri, da osenčen pogled pokriva ves večkotnik.', 'Check that the shaded view covers the whole polygon.'),
+            expectedObservations: [text('Izpis pokaže enega stražarja v oglišču \\(P_4=(3,2)\\) in njegov pogled pokriva vse tri trikotnike.', 'The result shows one guard at the vertex \\(P_4=(3,2)\\) and its view covers all three triangles.')],
+            scene: earScene('earclip-guards', AREA_NOTCHED_PENTAGON, ['trace', 'reflex', 'triangulation', 'colouring', 'guards'], [setTraceStep('end')],
+                'Stražar stoji v \\((3,2)\\) in vidi vse tri trikotnike: \\(1=\\lfloor5/3\\rfloor\\).',
+                'The guard stands at \\((3,2)\\) and sees all three triangles: \\(1=\\lfloor5/3\\rfloor\\).'),
+        },
+        {
+            id: 'earclip-comb', order: 7,
+            title: text('Glavnik in prosto raziskovanje', 'The comb and free exploration'),
+            purpose: text('Videti, da so trije stražarji pri glavniku potrebni, nato samostojno raziskovati.', 'Seeing that three guards are necessary for the comb, then exploring on your own.'),
+            explanation: text(
+                'Glavnik ima \\(n=11\\) oglišč. Izpis pokaže \\(9\\) trikotnikov, \\(8\\) diagonal, barvne razrede velikosti \\(4\\), \\(4\\), \\(3\\) in tri stražarje: \\(3=\\lfloor11/3\\rfloor\\). Pri tem večkotniku so trije stražarji tudi potrebni: tri konice \\((3,6)\\), \\((9,6)\\), \\((15,6)\\) so v ločenih klinih, zato nobena točka ne vidi več kot ene od njih. To velja za ta glavnik; Fiskov izrek daje le zadostno število in za druge večkotnike ne pove najmanjšega števila stražarjev. Zdaj dodajaj, odstranjuj in premikaj oglišča. Vsaka sprememba vrne sled na korak \\(1\\) in ustavi predvajanje; večkotnik v smeri urinega kazalca se za rezanje obrne, shranjen pa ostane nespremenjen.',
+                'The comb has \\(n=11\\) vertices. The result shows \\(9\\) triangles, \\(8\\) diagonals, colour classes of sizes \\(4\\), \\(4\\), \\(3\\) and three guards: \\(3=\\lfloor11/3\\rfloor\\). For this polygon three guards are also necessary: the three tips \\((3,6)\\), \\((9,6)\\), \\((15,6)\\) lie in separate wedges, so no point sees more than one of them. This holds for this comb; Fisk\'s theorem gives only a sufficient number and does not tell the minimum number of guards for other polygons. Now add, remove and move vertices. Every edit returns the trace to step \\(1\\) and stops playback; a clockwise polygon is reversed for the clipping, while the stored polygon stays unchanged.',
+            ),
+            formulaIds: ['ear-gallery-counts'], workedExampleId: 'ear-comb-example',
+            frames: [frame('earclip-comb-explanation', 'explanation'), frame('earclip-comb-calculation', 'calculation'), frame('earclip-comb-observation', 'observation')],
+            observationPrompt: text('Premakni oglišče konice glavnika in preveri, ali število stražarjev ostane isto.', 'Move a tip vertex of the comb and check whether the number of guards stays the same.'),
+            expectedObservations: [text('Pri glavniku so razredi velikosti \\(4\\), \\(4\\), \\(3\\) in stražarji trije; vsaka sprememba večkotnika ponastavi sled na korak \\(1\\).', 'For the comb the classes have sizes \\(4\\), \\(4\\), \\(3\\) and there are three guards; every edit of the polygon returns the trace to step \\(1\\).')],
+            scene: earScene('earclip-comb', EAR_COMB, ['trace', 'reflex', 'triangulation', 'colouring', 'guards'], [setTraceStep('end')],
+                'Glavnik: \\(9\\) trikotnikov, \\(8\\) diagonal, razredi \\(4\\), \\(4\\), \\(3\\) in tri stražarji; predvajanje je ustavljeno.',
+                'The comb: \\(9\\) triangles, \\(8\\) diagonals, classes \\(4\\), \\(4\\), \\(3\\) and three guards; playback is stopped.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-triangulation', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Chapter 3 (polygon triangulation and the art gallery theorem).'},
+        {id: 'fisk-1978', citation: 'Fisk, S. A short proof of Chvátal\'s watchman theorem, Journal of Combinatorial Theory B 24 (1978), 374. DOI 10.1016/0095-8956(78)90059-X.'},
+        {id: 'meisters-1975', citation: 'Meisters, G. H. Polygons have ears, American Mathematical Monthly 82 (1975), 648-651.'},
+        {
+            id: 'bezeg-ear-implementation',
+            citation: 'Bezeg source: src/compgeo/earClipping.ts, src/graphs/compgeo/earClippingRun.ts and src/graphs/compgeo/EarClippingGraph.tsx.',
+            implementationCorrespondence: 'The trace tests the vertices by the exact integer orientation, treats a vertex on the triangle boundary as blocking, and takes the first ear by the lowest vertex number, counter-clockwise; a lesson scene sets the polygon, the overlays and the step with the point-set actions (set-trace-step) and presses Next step with the algorithm-trace animation actions, the same transitions as the buttons.',
+        },
+    ],
+    edgeCases: [
+        text('Večkotnik, katerega stranice se sekajo ali dotikajo, in tri zaporedna kolinearna oglišča se zavrnejo s sporočilom; rezanje ušes zahteva enostaven večkotnik z izbočenimi ušesi.', 'A polygon whose sides cross or touch, and three consecutive collinear vertices, are refused with a message; ear clipping needs a simple polygon with strictly convex ears.'),
+        text('Fiskov izrek daje le zadostno število stražarjev \\(\\lfloor n/3\\rfloor\\); najmanjše število pri drugih večkotnikih je lahko manjše in ga ta lekcija ne določa.', 'Fisk\'s theorem gives only the sufficient number \\(\\lfloor n/3\\rfloor\\) of guards; the minimum for other polygons can be smaller and this lesson does not determine it.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping];

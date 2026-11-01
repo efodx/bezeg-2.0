@@ -198,7 +198,7 @@ test('an edit, a drag, an added vertex or an example returns to step 0, pauses a
     expect(graph.step).toBe(2);
 });
 
-test('the comb shows colour class sizes 4, 4, 3, nine triangles, six diagonals and three guards when done', () => {
+test('the comb shows colour class sizes 4, 4, 3, nine triangles, eight diagonals and three guards when done', () => {
     const graph = new Observed();
     mount(graph);
     click('example-2');

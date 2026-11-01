@@ -1650,7 +1650,20 @@ const convexHull = {
     },
 };
 
-const LESSONS = [convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Ear clipping: the trace step shown per lesson step 1..7 (start, start, first ear test, done, done, done, the comb's done); the number is language independent.
+const EAR_STEPS = ['1', '1', '4', '12', '12', '12', '35'];
+const earClipping = {
+    id: 'ear-clipping',
+    path: `${BASE}/compgeo/ear-clipping`,
+    titles: {sl: 'Rezanje ušes in izrek o galeriji', en: 'Ear clipping and the art gallery theorem'},
+    steps: 7,
+    minFrames: 18, // 2 frames per step, 3 on steps 3, 4, 6 and 7 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => ((await page.locator('[data-ear-clipping="step"]').textContent()) || '').match(/\d+/)?.[0], {message: `ear clipping trace step at ${label}`}).toBe(EAR_STEPS[step - 1]);
+    },
+};
+
+const LESSONS = [earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

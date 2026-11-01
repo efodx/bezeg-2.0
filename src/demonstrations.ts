@@ -84,7 +84,7 @@ const definitions = [
     {id: 'orientation', path: '/bezeg-2.0/compgeo/orientation', family: 'computational-geometry', title: 'compgeo_orientation_title', prompts: ['prompt_compgeo_orientation_turn', 'prompt_compgeo_orientation_collinear']},
     {id: 'polygon-area', path: '/bezeg-2.0/compgeo/polygon-area', family: 'computational-geometry', title: 'compgeo_polygon_area_title', prompts: ['prompt_compgeo_polygon_area_shoelace', 'prompt_compgeo_polygon_area_pick']},
     {id: 'convex-hull', path: '/bezeg-2.0/compgeo/convex-hull', family: 'computational-geometry', title: 'compgeo_convex_hull_title', prompts: ['prompt_compgeo_convex_hull_trace', 'prompt_compgeo_convex_hull_degenerate']},
-    {id: 'ear-clipping', path: '/bezeg-2.0/compgeo/ear-clipping', family: 'computational-geometry', title: 'compgeo_ear_clipping_title', prompts: ['prompt_compgeo_ear_clipping_ears', 'prompt_compgeo_ear_clipping_reflex'], lesson: false},
+    {id: 'ear-clipping', path: '/bezeg-2.0/compgeo/ear-clipping', family: 'computational-geometry', title: 'compgeo_ear_clipping_title', prompts: ['prompt_compgeo_ear_clipping_ears', 'prompt_compgeo_ear_clipping_reflex']},
     {id: 'interval-sweep', path: '/bezeg-2.0/compgeo/interval-sweep', family: 'computational-geometry', title: 'compgeo_interval_sweep_title', prompts: ['prompt_compgeo_interval_sweep_events', 'prompt_compgeo_interval_sweep_depth'], lesson: false},
     {id: 'segment-intersections', path: '/bezeg-2.0/compgeo/segment-intersections', family: 'computational-geometry', title: 'compgeo_segment_intersections_title', prompts: ['prompt_compgeo_segment_intersections_neighbours', 'prompt_compgeo_segment_intersections_swap'], lesson: false},
 ] as const satisfies readonly Definition[];

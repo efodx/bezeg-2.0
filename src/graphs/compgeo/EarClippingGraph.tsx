@@ -4,7 +4,9 @@ import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import {EAR_CLIPPING_MAX_VERTICES, guardView} from "../../compgeo/earClipping";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
+import type {LessonAction, LessonAnimationCommand} from "../../learning/model";
 import {BaseGraphState} from "../base/BaseGraph";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -27,6 +29,9 @@ export type EarClippingOverlayId = "trace" | "reflex" | "triangulation" | "colou
 export interface EarClippingGraphState extends PointSetGraphState {
     step: number;
 }
+
+/** The `algorithm-trace` commands the lessons may send; each runs the transition of the button of the same name. */
+const EAR_LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["next-step", "reset", "play", "pause", "replay"];
 
 /** The colour letters: a cue that does not depend on colour vision. */
 const COLOUR_LETTERS = ["A", "B", "C"] as const;
@@ -167,6 +172,48 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
         this.controller.reset(0);
         this.setState(this.patch({step: 0}));
         this.requestRender();
+    }
+
+    /**
+     * Lesson actions: the `algorithm-trace` animation runs the very transitions of the buttons, and `point-set`
+     * `set-trace-step` is handled here only (the base class throws `UnsupportedLessonActionError` for it). It pauses
+     * playback and sets the step: a number is clamped to the trace like a stored Preset step, `'end'` is the last step.
+     * Every edit action (`set-points`) pauses and returns to step 0; `set-overlay` is a display change and keeps the step.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation !== "set-trace-step") {
+            super.applyPointSetAction(action);
+            return;
+        }
+        const requested: unknown = action.step;
+        if (requested !== "end" && (typeof requested !== "number" || !Number.isFinite(requested))) {
+            throw new Error("point-set set-trace-step: step must be a finite number or \"end\".");
+        }
+        this.setTraceStep(requested === "end" ? this.run().length - 1 : requested);
+    }
+
+    /** Shows the trace at `step` (clamped); the same write as a Preset restore. A named step resets the controller in `setState`, which pauses playback. */
+    private setTraceStep(step: number): void {
+        this.setState(this.patch({step: this.run().clamp(step)}));
+        this.requestRender();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated("animation", "algorithm-trace", action => this.lessonCommand(action.command), {
+            supports: action => EAR_LESSON_COMMANDS.includes(action.command),
+        });
+    }
+
+    private lessonCommand(command: LessonAnimationCommand): void {
+        if (command === "next-step") this.nextStep();
+        else if (command === "play") this.play();
+        else if (command === "pause") this.pause();
+        else if (command === "reset") this.resetTrace();
+        else if (command === "replay") {
+            this.resetTrace();
+            this.play();
+        }
     }
 
     override mount(container: HTMLElement): void {

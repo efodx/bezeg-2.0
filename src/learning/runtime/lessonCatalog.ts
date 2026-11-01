@@ -57,8 +57,11 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
         if (typeof overlay !== 'string' || typeof visible !== 'boolean') throw new Error('A point-set set-overlay action needs an overlay name and a boolean visible.');
     } else if (operation === 'set-algorithm') {
         if (parseHullAlgorithm((data as Record<string, unknown>).algorithm) === undefined) throw new Error('A point-set set-algorithm action needs one of the hull algorithms.');
+    } else if (operation === 'set-trace-step') {
+        const step = (data as Record<string, unknown>).step;
+        if (step !== 'end' && !(typeof step === 'number' && isFinite(step))) throw new Error('A point-set set-trace-step action needs a finite number or "end" as step.');
     } else {
-        throw new Error('A point-set action needs the operation set-points, set-overlay or set-algorithm.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm or set-trace-step.');
     }
     return action;
 }
