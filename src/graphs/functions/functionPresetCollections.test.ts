@@ -797,3 +797,43 @@ test("the complex-multiplication messages are localized and show the supported r
     expect(attempt({...validComplex, zIm: 2.5})).toContain("polje zIm mora biti večkratnik števila 0.05 med −2 in 2");
     expect(attempt({...validComplex, anglesVisible: "yes"})).toContain("polje anglesVisible mora biti true ali false");
 });
+
+const rootFindingPreset = (data: unknown) => JSON.stringify({"preset-root-finding": {data: [{id: "Osnova", boardState: {boundingBox: [-2.5, 4, 3.5, -3]},
+    graphState: {initialized: true}, data}]}});
+const validRootFinding = {method: "secant", example: "cubic-two-cycle", x0: 0, x1: 1, step: 3};
+
+test("root-finding collection imports a model object with its method, starts and step and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(rootFindingPreset(validRootFinding)));
+    expect(JSON.parse(localStorage.getItem("preset-root-finding")!).data[0].data).toEqual(validRootFinding);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], [{}], [{...validRootFinding, method: "halley"}], [{...validRootFinding, example: "quartic"}], [{...validRootFinding, x0: 4.5}],
+    [{...validRootFinding, x1: -4.5}], [{...validRootFinding, x1: 0}], [{...validRootFinding, x0: "0"}], [{...validRootFinding, x1: NaN}],
+    [{...validRootFinding, step: -1}], [{...validRootFinding, step: 61}], [{...validRootFinding, step: 1.5}], [{...validRootFinding, step: "3"}],
+    [{method: "newton", example: "square-minus-two", x0: 1, x1: 2}]])
+("root-finding collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(rootFindingPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validRootFinding, method: "halley"}, /newton, secant/],
+    [{...validRootFinding, example: "quartic"}, /square-minus-two, cubic-two-cycle, cubic-three-roots/],
+    [{...validRootFinding, x0: 4.5}, /between −4 and 4|−4 in 4|-4 and 4|-4 in 4/],
+    [{...validRootFinding, x1: -4.5}, /-4 and 4|-4 in 4|−4/],
+    [{...validRootFinding, x0: 1, x1: 1}, /x0 in x1 različna|x0 and x1 must differ/],
+    [{...validRootFinding, step: 61}, /0 do 60|0 to 60/],
+    [{...validRootFinding, step: 1.5}, /0 do 60|0 to 60/],
+])("root-finding errors name the method, example, start or step to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(rootFindingPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(rootFindingPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("root-finding data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validRootFinding, x0: "0"}, {method: "newton", example: "square-minus-two", x0: null, x1: 1, step: 0}]) {
+        expect(() => preflightPresetImport(rootFindingPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});

@@ -122,3 +122,8 @@
    modulus field of the w grid must keep the height of its sibling fields (it would stretch to the taller grid row). */
 .complex-point-label mjx-container[display="true"] { margin: 0 !important; }
 .complex-w-grid .number-input input[type="number"] { align-self: start; }
+/* Iterate table of the root-finding demonstration: compact, numeric columns aligned by their digits. */
+.root-finding-table table { width: 100%; border-collapse: collapse; font-size: .82rem; font-variant-numeric: tabular-nums; }
+.root-finding-table th, .root-finding-table td { padding: 2px 4px; text-align: right; overflow-wrap: anywhere; }
+.root-finding-table thead th { font-weight: 650; border-bottom: 1px solid var(--workspace-ink-soft); }
+.root-finding-table tbody th { font-weight: 600; }

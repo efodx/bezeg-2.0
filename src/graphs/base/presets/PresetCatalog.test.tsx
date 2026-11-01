@@ -32,6 +32,10 @@ const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-derivatives", "p
 /** The computational-geometry Demonstrations, one collection each. */
 const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hull-trace",
     "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle"];
+/** The projective-conics Demonstrations, one collection each. */
+const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar"];
+/** Graph collections whose Demonstration is registered in a later slice (numerical methods 04 F2b). */
+const PENDING_ROUTE_KEYS = ["root-finding"];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
 const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-subdivision", "patch-coons"];
 
@@ -44,7 +48,7 @@ describe('Preset collection definitions', () => {
         const keys = presetCollections.map(collection => collection.key);
         expect(new Set(keys).size).toBe(keys.length);
         expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS,
-            ...CURVE_STREAM_KEYS].sort());
+            ...CURVE_STREAM_KEYS, ...PROJECTIVE_KEYS, ...PENDING_ROUTE_KEYS].sort());
     });
 
     test('every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys', () => {
@@ -59,7 +63,7 @@ describe('Preset collection definitions', () => {
             expect(used.has(collection), `${id} shares another Demonstration's collection`).toBe(false);
             used.add(collection);
         }
-        const unused = presetCollections.filter(collection => !used.has(collection));
+        const unused = presetCollections.filter(collection => !used.has(collection) && !PENDING_ROUTE_KEYS.includes(collection.key));
         expect(unused.filter(collection => !PATCH_KEYS.includes(collection.key))).toEqual([...legacyCurvePresetCollections]);
         expect(unused.map(collection => collection.key)).toEqual(['g1-spline']);
     });

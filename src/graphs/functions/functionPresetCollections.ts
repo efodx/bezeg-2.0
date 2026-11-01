@@ -9,6 +9,8 @@ import {parseAreaBetweenModel} from "../../analysis/areaBetweenModel";
 import {parseArcLengthModel} from "../../analysis/arcLengthModel";
 import {checkBisectionModel, parseBisectionModel} from "../../analysis/bisectionModel";
 import {bisectionFileMessage} from "./bisectionMessages";
+import {checkRootFindingModel, parseRootFindingModel} from "../../analysis/rootFindingModel";
+import {rootFindingFileMessage} from "./rootFindingMessages";
 import {checkMeanValueModel, parseMeanValueModel} from "../../analysis/meanValueModel";
 import {meanValueFileMessage} from "./meanValueMessages";
 import {checkExtremaModel, parseExtremaModel} from "../../analysis/extremaModel";
@@ -40,6 +42,11 @@ type Diagnosis = (data: Readonly<Record<string, unknown>>) => Message | undefine
 const diagnoseBisection: Diagnosis = data => {
     const check = checkBisectionModel(data);
     return check.ok || check.issue === undefined ? undefined : bisectionFileMessage(check.issue);
+};
+/** The model module names the rule a rejected root-finding model broke; this only localizes it. */
+const diagnoseRootFinding: Diagnosis = data => {
+    const check = checkRootFindingModel(data);
+    return check.ok || check.issue === undefined ? undefined : rootFindingFileMessage(check.issue);
 };
 const diagnoseMeanValue: Diagnosis = data => {
     const check = checkMeanValueModel(data);
@@ -115,6 +122,7 @@ export const functionPresetCollections = {
     "area-between-curves": functionCollection("area-between-curves", parseAreaBetweenModel),
     "arc-length": functionCollection("arc-length", parseArcLengthModel),
     bisection: functionCollection("bisection", parseBisectionModel, diagnoseBisection),
+    "root-finding": functionCollection("root-finding", parseRootFindingModel, diagnoseRootFinding),
     "mean-value": functionCollection("mean-value", parseMeanValueModel, diagnoseMeanValue),
     accumulation: functionCollection("accumulation", parseAccumulationModel, diagnoseAccumulation),
     darboux: functionCollection("darboux", parseDarbouxModel, diagnoseDarboux),

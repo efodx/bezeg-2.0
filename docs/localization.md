@@ -84,6 +84,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | glavni argument; glavni koren | principal argument in \((-\pi,\pi]\); principal root \(z_0\) (complex maps chapter) |
 | obratna vrednost; inverzija v krožnici | reciprocal; circle inversion (complex maps chapter; involution that reverses orientation) |
 | premonosna ploskev | ruled surface (Coons patch, D4; sl.wikipedia "Premonosna ploskev") |
+| tangentna (Newtonova) metoda | Newton's (tangent) method (numerical methods N1, N2; FMF syllabus wording "tangentna metoda") |
+| sekantna metoda | secant method (numerical methods N3; FMF syllabus wording) |
+| približek | iterate (a member of an iteration; already used by the fixed-point lesson, "naslednji približek"; "iterat" is not used) |
+| začetni približek | start of an iteration (x₀; the second secant start is "drugi začetni približek") |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 
