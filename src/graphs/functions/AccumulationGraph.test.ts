@@ -796,3 +796,32 @@ test('the drawn curves tolerate the non-finite arguments a real board evaluates 
         expect(Number.isNaN(curve.parents[0](NaN))).toBe(true);
     }
 });
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(parameter('accum-a', 8)), messageOf(parameter('accum-x', -8)), messageOf(parameter('accum-x', NaN)), messageOf(choice('cos'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The lower bound a must be a number between −7 and 7.',
+        'The point x must be a number between −7 and 7.',
+        'The point x must be a number between −7 and 7.',
+        'The function must be one of: square, sin, exp.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Spodnja meja a mora biti število med −7 in 7.',
+        'Točka x mora biti število med −7 in 7.',
+        'Točka x mora biti število med −7 in 7.',
+        'Funkcija mora biti ena od: square, sin, exp.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('accum-x', 9)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'accumulation_x_range_rejected', params: {value0: '−7', value1: '7'}});
+});

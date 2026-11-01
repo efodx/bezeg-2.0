@@ -1,7 +1,7 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import {currentLanguage, Language, Message, onLanguageChange, renderMessage, t} from "../../localization";
-import {cleanNumber} from "../../analysis/numbers";
+import {cleanNoise, cleanNumber} from "../../analysis/numbers";
 import {Preset} from "../base/presets/Presets";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {LessonAction} from "../../learning/model";
@@ -62,16 +62,7 @@ export class DomainError extends Error {
     }
 }
 
-export {cleanNumber};
-
-/**
- * `cleanNumber` for a value that may legitimately be irrational (an endpoint such as pi): only floating-point noise (below 1e-12)
- * is removed, so pi stays exact while 0.1 + 0.2 becomes 0.3.
- */
-export const cleanNoise = (value: number) => {
-    const cleaned = cleanNumber(value);
-    return Math.abs(cleaned - value) < 1e-12 ? cleaned : value;
-};
+export {cleanNoise, cleanNumber};
 
 /**
  * The grid value that `value` is within arithmetic noise of (1e-9 of a grid step), as an exact decimal, or undefined for a

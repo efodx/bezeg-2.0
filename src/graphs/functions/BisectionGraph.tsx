@@ -7,10 +7,11 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, MINUS_SIGN, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
-    BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_EXAMPLES, BISECTION_MAX_STEPS, bisectionExample, BisectionExample,
-    BisectionExampleId, bisectionHistory, BisectionHistory, BisectionStep, isBisectionBracket, isBisectionEndpoint, isBisectionExampleId,
+    BISECTION_BOUND_MAX, BISECTION_BOUND_MIN, BISECTION_EXAMPLE_IDS, BISECTION_MAX_STEPS, bisectionExample, BisectionExample,
+    BisectionExampleId, bisectionHistory, BisectionHistory, BisectionStep,
 } from "../../analysis/bisection";
-import {BisectionModel, DEFAULT_BISECTION_MODEL} from "../../analysis/bisectionModel";
+import {BisectionModel, chooseBisectionExample, DEFAULT_BISECTION_MODEL, moveBisectionEndpoint} from "../../analysis/bisectionModel";
+import {bisectionEditMessage} from "./bisectionMessages";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
@@ -179,21 +180,23 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isBisectionExampleId(value)) throw new DomainError(`The example must be one of ${BISECTION_EXAMPLE_IDS.join(", ")}.`);
-        const example = BISECTION_EXAMPLES[value];
-        this.replaceModel({example: value, a: example.defaultA, b: example.defaultB, step: 0});
+        const edit = chooseBisectionExample(value);
+        if (!edit.ok) throw new DomainError(bisectionEditMessage(edit.issue));
+        this.replaceModel(edit.model);
     }
 
     protected setA(value: number): void {
-        if (!isBisectionEndpoint(value)) throw new DomainError(`The endpoint a must be a finite number between ${BISECTION_BOUND_MIN} and ${BISECTION_BOUND_MAX}.`);
-        if (!isBisectionBracket(value, this.model.b)) throw new DomainError("The endpoint a must be less than b.");
-        if (value !== this.model.a) this.replaceModel({...this.model, a: value, step: 0});
+        this.moveEndpoint("a", value);
     }
 
     protected setB(value: number): void {
-        if (!isBisectionEndpoint(value)) throw new DomainError(`The endpoint b must be a finite number between ${BISECTION_BOUND_MIN} and ${BISECTION_BOUND_MAX}.`);
-        if (!isBisectionBracket(this.model.a, value)) throw new DomainError("The endpoint b must be greater than a.");
-        if (value !== this.model.b) this.replaceModel({...this.model, b: value, step: 0});
+        this.moveEndpoint("b", value);
+    }
+
+    private moveEndpoint(endpoint: "a" | "b", value: number): void {
+        const edit = moveBisectionEndpoint(this.model, endpoint, value);
+        if (!edit.ok) throw new DomainError(bisectionEditMessage(edit.issue));
+        if (edit.model !== this.model) this.replaceModel(edit.model);
     }
 
     protected override lessonFunctionActions(): FunctionLessonActions {

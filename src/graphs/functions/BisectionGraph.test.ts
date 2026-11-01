@@ -686,3 +686,35 @@ test('the retained interval and the discarded half follow the last step', () => 
     apply(graph, parameter('bisect-a', 2));
     expect(resolve(retained.attributes.visible)).toBe(false);
 });
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(parameter('bisect-a', 2)), messageOf(parameter('bisect-a', 5)), messageOf(parameter('bisect-b', 1)),
+            messageOf(parameter('bisect-b', NaN)), messageOf(choice('quartic'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The left endpoint a must be less than b.',
+        'The endpoint a must be a number between −4 and 4.',
+        'The right endpoint b must be greater than a.',
+        'The endpoint b must be a number between −4 and 4.',
+        'The example must be one of: square-minus-two, sign-step, cubic.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Levo krajišče a mora biti manjše od b.',
+        'Krajišče a mora biti število med −4 in 4.',
+        'Desno krajišče b mora biti večje od a.',
+        'Krajišče b mora biti število med −4 in 4.',
+        'Primer mora biti eden od: square-minus-two, sign-step, cubic.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('bisect-a', 9)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'bisection_endpoint_range_rejected', params: {value0: 'a', value1: '−4', value2: '4'}});
+});

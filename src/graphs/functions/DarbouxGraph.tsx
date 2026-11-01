@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNoise, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -7,9 +7,12 @@ import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {
     canRefine, DARBOUX_EXAMPLE_IDS, DARBOUX_N_MAX, DARBOUX_N_MIN, DARBOUX_X_MAX, DARBOUX_X_MIN, DARBOUX_X_STEP, darbouxExample, DarbouxExample,
-    DarbouxExampleId, darbouxSubintervals, DarbouxSubinterval, darbouxTotals, DarbouxTotals, isDarbouxCount, isDarbouxExampleId, isDarbouxX, refine,
+    DarbouxExampleId, darbouxSubintervals, DarbouxSubinterval, darbouxTotals, DarbouxTotals,
 } from "../../analysis/darboux";
-import {DARBOUX_EXAMPLE_MODELS, DarbouxModel} from "../../analysis/darbouxModel";
+import {
+    chooseDarbouxExample, DARBOUX_EXAMPLE_MODELS, DarbouxEdit, DarbouxModel, moveDarbouxEndpoint, refineDarbouxPartition, setDarbouxCount,
+} from "../../analysis/darbouxModel";
+import {darbouxEditMessage} from "./darbouxMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -120,36 +123,38 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isDarbouxExampleId(value)) throw new DomainError(`The example must be one of ${DARBOUX_EXAMPLE_IDS.join(", ")}.`);
-        const start = DARBOUX_EXAMPLE_MODELS[value];
-        this.commitModel({...start, lowerVisible: this.model.lowerVisible, upperVisible: this.model.upperVisible});
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[value]], true);
+        const edit = chooseDarbouxExample(this.model, value);
+        if (!edit.ok) throw new DomainError(darbouxEditMessage(edit.issue));
+        this.commitModel(edit.model);
+        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[edit.model.example]], true);
     }
 
     protected setA(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isDarbouxX(value)) throw new DomainError(`The endpoint a must be a finite number between ${DARBOUX_X_MIN} and ${DARBOUX_X_MAX}.`);
-        if (!(value < this.model.b)) throw new DomainError("The endpoint a must be less than b (a < b): move b first.");
-        const next = cleanNoise(value);
-        if (next !== this.model.a) this.commitModel({...this.model, a: next}, options);
+        this.moveEndpoint("a", value, options);
     }
 
     protected setB(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isDarbouxX(value)) throw new DomainError(`The endpoint b must be a finite number between ${DARBOUX_X_MIN} and ${DARBOUX_X_MAX}.`);
-        if (!(value > this.model.a)) throw new DomainError("The endpoint b must be greater than a (a < b): move a first.");
-        const next = cleanNoise(value);
-        if (next !== this.model.b) this.commitModel({...this.model, b: next}, options);
+        this.moveEndpoint("b", value, options);
+    }
+
+    private moveEndpoint(endpoint: "a" | "b", value: number, options: { syncScene?: boolean }): void {
+        const edit = moveDarbouxEndpoint(this.model, endpoint, value);
+        if (!edit.ok) throw new DomainError(darbouxEditMessage(edit.issue));
+        if (edit.model !== this.model) this.commitModel(edit.model, options);
     }
 
     protected setCount(value: number): void {
-        if (!isDarbouxCount(value)) throw new DomainError(`The number of parts n must be an integer from ${DARBOUX_N_MIN} to ${DARBOUX_N_MAX}.`);
-        if (value !== this.model.n) this.commitModel({...this.model, n: value});
+        this.applyEdit(setDarbouxCount(this.model, value));
     }
 
     /** Doubles n (every part is bisected, so the partition is nested); refuses at the limit. */
     protected refinePartition(): void {
-        const next = refine(this.model.n);
-        if (next === undefined) throw new DomainError(`The partition cannot be refined beyond n = ${DARBOUX_N_MAX}.`);
-        this.setCount(next);
+        this.applyEdit(refineDarbouxPartition(this.model));
+    }
+
+    private applyEdit(edit: DarbouxEdit): void {
+        if (!edit.ok) throw new DomainError(darbouxEditMessage(edit.issue));
+        if (edit.model !== this.model) this.commitModel(edit.model);
     }
 
     protected setLowerVisible(visible: boolean): void {
