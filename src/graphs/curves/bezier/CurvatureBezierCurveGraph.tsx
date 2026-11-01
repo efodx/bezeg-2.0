@@ -10,9 +10,9 @@ import {CurvatureOverlay} from "./CurvatureOverlay";
 export interface CurvatureGraphStates extends BaseGraphStates {
     /** The Bezier parameter at which the frame and osculating circle are drawn. */
     curvatureT: number;
-    /** The T and N frame is drawn; a lesson step hides it before the reveal. Transient: not part of a Preset. */
+    /** The T and N frame is drawn; a lesson step hides it before the reveal. Saved with Presets like `curvatureT`; a Preset without it keeps the current value. */
     curvatureFrameShown: boolean;
-    /** The osculating circle (or its tangent line) is drawn; transient like the frame flag. */
+    /** The osculating circle (or its tangent line) is drawn; saved with Presets like the frame flag. */
     curvatureCircleShown: boolean;
 }
 
