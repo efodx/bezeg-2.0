@@ -38,6 +38,8 @@ export interface PointSetControlsProps {
     actions: PointSetControlActions;
     /** Whether the points/polygon choice is offered; a graph that only works on points hides it. Default true. */
     showModeToggle?: boolean;
+    /** False hides the closed-polygon checkbox for a graph that only works on closed polygons. */
+    showClosedToggle?: boolean;
     /** Whether the mode toggle also offers segments mode. Default false. */
     allowsSegments?: boolean;
     /** Segments mode: the most segments, and the first endpoint waiting for its second click. */
@@ -135,7 +137,7 @@ export function PointSetControls(props: PointSetControlsProps) {
                     <button key={mode} type="button" className={button} aria-pressed={model.mode === mode}
                             onClick={() => actions.setMode(mode)}>{t(modeLabel[mode])}</button>)}
             </div>}
-            {model.mode === "polygon" && <label className="pointset-check"><input type="checkbox" checked={model.closed}
+            {model.mode === "polygon" && props.showClosedToggle !== false && <label className="pointset-check"><input type="checkbox" checked={model.closed}
                 onChange={event => actions.setClosed(event.target.checked)}/> {t("pointset_closed")}</label>}
             {props.overlays.map(overlay => <label key={overlay.id} className="pointset-check"><input type="checkbox" checked={overlay.shown}
                 onChange={event => actions.setOverlay(overlay.id, event.target.checked)}/> {overlay.label}</label>)}

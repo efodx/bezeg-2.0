@@ -635,8 +635,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return true;
     }
 
+    /** Whether the inspector offers the closed-polygon checkbox; a subclass that only works on closed polygons returns false. */
+    protected showsClosedToggle(): boolean {
+        return true;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
-        return <PointSetControls showModeToggle={this.showsModeToggle()} allowsSegments={this.allowsSegments()} pending={this.pending}
+        return <PointSetControls showModeToggle={this.showsModeToggle()} showClosedToggle={this.showsClosedToggle()} allowsSegments={this.allowsSegments()} pending={this.pending}
                                  segmentLimit={this.segmentLimit} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
                                  pointLimit={this.pointLimit} coordinateLimit={this.coordinateLimit} simplicity={this.simplicity()}
                                  overlays={this.overlayIds().map(id => ({id, label: this.overlayLabel(id), shown: this.overlayShown(id)}))}

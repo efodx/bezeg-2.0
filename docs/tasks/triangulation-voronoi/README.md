@@ -25,5 +25,5 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 
 ## Later batches
 
-- **T1 (B1 ear clipping):** kernel [06 ear-clipping trace, 3-colouring and guards](06-ear-clipping-kernel.md) (F1, accepted 2026-10-31 after math review and test repairs) needs only `orient` and can run beside T0; graph F2a [07 ear-clipping graph](07-ear-clipping-graph.md) (planned 2026-11-01); registration and lessons wait for `G-REG`.
+- **T1 (B1 ear clipping):** kernel [06 ear-clipping trace, 3-colouring and guards](06-ear-clipping-kernel.md) (F1, accepted 2026-10-31 after math review and test repairs) needs only `orient` and can run beside T0; graph F2a [07 ear-clipping graph](07-ear-clipping-graph.md) (accepted 2026-11-01); registration and lessons wait for `G-REG`.
 - **T2 (B2, B3), T3 (B4, B5):** graphs, registration, lessons, chapter, media and acceptance as in the spec's release batches. Task files are written when the kernels they use are accepted.
