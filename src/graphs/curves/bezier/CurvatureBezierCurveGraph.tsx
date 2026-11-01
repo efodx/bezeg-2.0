@@ -3,12 +3,17 @@ import {t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {curvatureCurvePresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {CurvatureOverlay} from "./CurvatureOverlay";
 
 export interface CurvatureGraphStates extends BaseGraphStates {
     /** The Bezier parameter at which the frame and osculating circle are drawn. */
     curvatureT: number;
+    /** The T and N frame is drawn; a lesson step hides it before the reveal. Transient: not part of a Preset. */
+    curvatureFrameShown: boolean;
+    /** The osculating circle (or its tangent line) is drawn; transient like the frame flag. */
+    curvatureCircleShown: boolean;
 }
 
 export const CURVATURE_T_DEFAULT = 0.5;
@@ -30,6 +35,8 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
         return {
             ...super.getInitialState(),
             curvatureT: CURVATURE_T_DEFAULT,
+            curvatureFrameShown: true,
+            curvatureCircleShown: true,
         };
     }
 
@@ -71,6 +78,8 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
             board: this.board,
             controlPoints: () => this.getFirstCurve()?.getPoints().map(point => [point.X(), point.Y()]),
             parameter: () => this.state.curvatureT,
+            showFrame: () => this.state.curvatureFrameShown,
+            showCircle: () => this.state.curvatureCircleShown,
             fontSize: () => this.displaySettings.fontSize,
         });
     }
@@ -92,7 +101,9 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
 
     protected override onStateChange(prevState: Readonly<CurvatureGraphStates>) {
         super.onStateChange(prevState);
-        if (prevState !== this.state && prevState.curvatureT !== this.state.curvatureT) this.boardUpdate();
+        if (prevState !== this.state && (prevState.curvatureT !== this.state.curvatureT
+            || prevState.curvatureFrameShown !== this.state.curvatureFrameShown
+            || prevState.curvatureCircleShown !== this.state.curvatureCircleShown)) this.boardUpdate();
     }
 
     /**
@@ -101,6 +112,16 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
      */
     protected override workspaceEdit(): React.ReactNode {
         return <>{this.state.initialized && this.parameterSlider()}{super.workspaceEdit()}</>;
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated('parameter', 't', action => {
+            if (!Number.isFinite(action.value) || action.value < 0 || action.value > 1) throw new Error('The curvature parameter must be between 0 and 1.');
+            this.setCurvatureT(action.value);
+        });
+        registry.onDiscriminated('curve-visibility', 'curvature-frame', action => this.setState({curvatureFrameShown: action.visible}));
+        registry.onDiscriminated('curve-visibility', 'curvature-circle', action => this.setState({curvatureCircleShown: action.visible}));
     }
 
     setCurvatureT(value: number) {
