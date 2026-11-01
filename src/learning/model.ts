@@ -241,6 +241,14 @@ export type LessonAction =
      */
     | {readonly kind: 'parametric-curve'; readonly curve: ParametricCurveId; readonly radius?: number}
     /**
+     * InterpolationGraph only (Lagrange versus Bezier, lesson I1): `set-rule` picks the parameter rule, `set-overlay` shows or hides the
+     * convex hull, the Bezier curve or the basis plot, and `add-point` appends a point like the Add button (a refusal, such as at the
+     * point maximum, changes nothing). The shared position s is the `parameter` action named `t`, a number from 0 to 1.
+     */
+    | {readonly kind: 'interpolation'; readonly operation: 'set-rule'; readonly rule: 'uniform' | 'chord'}
+    | {readonly kind: 'interpolation'; readonly operation: 'set-overlay'; readonly overlay: 'hull' | 'bezier' | 'basis'; readonly visible: boolean}
+    | {readonly kind: 'interpolation'; readonly operation: 'add-point'}
+    /**
      * Drives a graph-owned animation. `next-step` runs one iteration transition and `reset` returns an iterative
      * playback (`bisection`, `sequence`, `fixed-point`) to its initial state; a scene repeats `next-step` once per step
      * it shows. Play and pause are not scene actions there: playback is initially stopped and under the learner's

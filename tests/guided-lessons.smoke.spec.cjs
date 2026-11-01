@@ -1703,7 +1703,8 @@ const parametricGeometry = {
         await expect(boardText(page, PARAMETRIC_READOUTS[step - 1]).first(), `parametric readout at ${label}`).toBeVisible();
     },
 };
-const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s]; // lines are separate <br> rows, so textContent has no separator: end a number with a lookahead, not a word boundary
+const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s];
+ // lines are separate <br> rows, so textContent has no separator: end a number with a lookahead, not a word boundary
 const curvatureGeometry = {
     id: 'curve-curvature',
     path: `${BASE}/curve-geometry/curvature`,
@@ -1728,7 +1729,20 @@ const intervalSweep = {
     },
 };
 
-const LESSONS = [intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Interpolation I1: the weights readout of the board per lesson step 1..7 (Lagrange point at t=3/2, the point outside the hull at s=5/6, Bezier (2, 1.875), weights at t=1/2, t=3/2, five points, t=3/2).
+const INTERPOLATION_READOUTS = [/Lagrange.*\(2, 2[.,]8125\)/s, /\(3[.,]75, 2[.,]1875\)/, /Bézier.*\(2, 1[.,]875\)/s, /0[.,]3125; 0[.,]9375; [-−]0[.,]3125; 0[.,]0625/, /[-−]0[.,]0625; 0[.,]5625; 0[.,]5625; [-−]0[.,]0625/, /\[0, 4\]/, /\(2, 2[.,]8125\)/];
+const interpolationLagrange = {
+    id: 'interp-lagrange',
+    path: `${BASE}/interpolation/lagrange`,
+    titles: {sl: 'Skozi točke ali blizu njih', en: 'Through the points or near them'},
+    steps: 7,
+    minFrames: 15, // 2 frames per step, 3 on step 3 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect(boardText(page, INTERPOLATION_READOUTS[step - 1]).first(), `interpolation readout at ${label}`).toBeVisible();
+    },
+};
+
+const LESSONS = [interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

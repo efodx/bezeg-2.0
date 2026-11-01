@@ -11,6 +11,7 @@ import {basisPlotData} from "./interpolationBasis";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN, Point2} from "../../../analysis/interpolation";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import {Preset} from "../../base/presets/Presets";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     DEFAULT_INTERPOLATION_PRESET, INTERPOLATION_COORDINATE_LIMIT, interpolationRejection, InterpolationPresetData,
     isParameterRule, ParameterRule, readoutLines,
@@ -74,6 +75,12 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     protected override lessonDefaultState(): InterpolationGraphState {
         const {points, parameterRule, showHull, showBezier, showBasis, t: position} = this.state;
         return {initialized: true, points, parameterRule, showHull, showBezier, showBasis, t: position, notice: ''};
+    }
+
+    /** A lesson scene starts from the default points in their fitted view, since an earlier scene may have added a point. */
+    protected override prepareLessonDefaultScene(): void {
+        super.prepareLessonDefaultScene();
+        this.fit();
     }
 
     /** Rejects data the model cannot interpolate before touching the state, then rebuilds the scene. */
@@ -220,6 +227,32 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     setPosition(value: number) {
         if (!Number.isFinite(value)) return;
         this.setState({t: Math.min(1, Math.max(0, value))});
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('interpolation', action => {
+            if (action.operation === 'set-rule') {
+                if (!isParameterRule(action.rule)) throw new Error('The parameter rule must be "uniform" or "chord".');
+                this.setParameterRule(action.rule);
+            } else if (action.operation === 'set-overlay') {
+                if (typeof action.visible !== 'boolean') throw new Error('An interpolation set-overlay action needs a boolean visible.');
+                if (action.overlay === 'hull') this.setShowHull(action.visible);
+                else if (action.overlay === 'bezier') this.setShowBezier(action.visible);
+                else if (action.overlay === 'basis') this.setShowBasis(action.visible);
+                else throw new Error('The overlay must be "hull", "bezier" or "basis".');
+            } else if (action.operation === 'add-point') {
+                this.addPoint();
+            } else {
+                throw new Error('An interpolation action needs the operation set-rule, set-overlay or add-point.');
+            }
+        });
+        registry.onDiscriminated('parameter', 't', action => {
+            if (!Number.isFinite(action.value) || action.value < 0 || action.value > 1) throw new Error('The position must be a number from 0 to 1.');
+            this.setPosition(action.value);
+        });
     }
 
     // ---- Controls ----------------------------------------------------------------------------------------------------
