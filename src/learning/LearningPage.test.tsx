@@ -4,7 +4,6 @@ import {MemoryRouter, Route, Routes, useLocation} from 'react-router-dom';
 import {beforeEach, expect, test, vi} from 'vitest';
 import {setLanguage} from '../localization';
 import {getDemonstrationCatalog} from '../demonstrations';
-import {demonstrationPreviewAssets} from '../demonstrationPreviewAssets';
 import {LearningPage, chapterCount, learningStrands} from './LearningPage';
 import {FamilyChapterPage} from './FamilyChapterPage';
 import {ChapterPage} from './ChapterPage';
