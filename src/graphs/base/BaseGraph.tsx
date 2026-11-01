@@ -1031,7 +1031,10 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         if (!this.hasBoard) return [];
         const preservedBoardObjects = this.boardInfrastructureObjectClosure();
         const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
-        if (remainingObjects.length) this.board.removeObject(remainingObjects);
+        if (remainingObjects.length) {
+            if (import.meta.env.DEV) console.warn(`${this.constructor.name}: scene replacement left ${remainingObjects.length} board object(s) for the sweep; the family's disposeFigureScene should remove them`);
+            this.board.removeObject(remainingObjects);
+        }
         return remainingObjects;
     }
 

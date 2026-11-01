@@ -50,12 +50,12 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
             <h3>{t("hodograph")}</h3><p>{t("drag_points_w0_and_w1_to_change_the_shape_of_the_ph_curve")}</p>
             <HodographInputbox key={`hodograph-${this.workspaceRevision}`} attach={host => this.attachHodograph(host)}/><PointCoordinateEditor key={`hodograph-editor-${this.workspaceRevision}`} prefix="w" points={() => this.getFirstCurveAsPHBezierCurve().w}
                 board={this.board} observeBoard={() => this.hodographBoard} onChange={() => this.boardUpdate()}/></div>}
-            <div className="inspector-group"><h3>{t("curve_offsets")}</h3>
-                <PhOffsetParameterControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div></>;
+            {this.getFirstJxgCurveIfAny() && <div className="inspector-group"><h3>{t("curve_offsets")}</h3>
+                <PhOffsetParameterControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>}</>;
     }
     protected override workspaceGraphDisplay(): React.ReactNode {
-        return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("curve_offsets")}</h3>
-            <PhOffsetDisplayControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>
+        return <>{super.workspaceGraphDisplay()}{this.getFirstJxgCurveIfAny() && <div className="inspector-group"><h3>{t("curve_offsets")}</h3>
+            <PhOffsetDisplayControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>}
             <div className="inspector-group"><h3>{t("arc_length")}</h3>
                 <OnOffSwitch checked={this.state.showArcLength !== false}
                     onChange={checked => this.setPhState({showArcLength: checked}, this.whileMounted(() => this.boardUpdate()))}
@@ -157,6 +157,11 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
 
     override getFirstJxgCurve(): JXGBezierCurve {
         return super.getFirstJxgCurve() as JXGBezierCurve;
+    }
+
+    /** The curves are dropped on unmount and rebuilt by the next mount, so controls rendered in between find none. */
+    private getFirstJxgCurveIfAny(): unknown {
+        return this.jxgCurves?.[0];
     }
 
     getFirstJxgCurveAsPHCurve(): JXGPHBezierCurve {

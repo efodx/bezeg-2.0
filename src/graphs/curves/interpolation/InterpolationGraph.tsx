@@ -94,12 +94,14 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     }
 
     override initialize() {
-        this.ensureScene();
+        // The figure path's import has just built the scene; mount has none yet.
+        if (!this.scene) this.ensureScene();
         this.fit();
     }
 
     private ensureScene() {
-        this.removeScene();
+        // Figure-path disposal has already removed the scene; tear down only a scene still standing (mount, lesson entries).
+        if (this.scene) this.removeScene();
         if (!this.board || !this.graphSession?.isAlive) return;
         this.scene = new InterpolationScene({
             board: this.board,

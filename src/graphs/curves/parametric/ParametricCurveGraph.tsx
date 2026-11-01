@@ -60,6 +60,8 @@ const curveLabel = (id: ParametricCurveId): string => {
  */
 export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, ParametricPresetData> {
     private scene?: ParametricScene;
+    /** The catalogue curve the standing scene was built for (the scene reads it once). */
+    private sceneCurve?: ParametricCurveId;
     /** The roll animation (a full pass of the domain takes {@link ROLL_DURATION_MS}); created on first use, as the base constructor already imports a Preset. */
     private rollDriverInstance?: AnimationDriver;
     private get rollDriver(): AnimationDriver {
@@ -122,14 +124,18 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
     }
 
     override initialize() {
-        this.ensureScene();
+        // The figure path's import has just built the scene; mount has none yet. A Preset whose graph state names
+        // another curve than its data (a hand-written file) is rebuilt for the state's curve, as before.
+        if (!this.scene || this.sceneCurve !== this.state.curve) this.ensureScene();
         this.fitToCurve();
     }
 
     /** Idempotent: removes any earlier scene and creates one for the current catalogue choice. */
     private ensureScene() {
-        this.removeScene();
+        // Figure-path disposal has already removed the scene; tear down only a scene still standing (mount, lesson entries).
+        if (this.scene) this.removeScene();
         if (!this.board || !this.graphSession?.isAlive) return;
+        this.sceneCurve = this.state.curve;
         this.scene = new ParametricScene({
             board: this.board,
             curve: this.state.curve,
