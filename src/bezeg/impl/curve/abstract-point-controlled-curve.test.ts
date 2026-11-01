@@ -4,6 +4,7 @@ import {PointImpl} from "../point/point-impl";
 import {PolynomialBezierCurve} from "./polynomial-bezier-curve";
 import {RationalBezierCurve} from "./rational-bezier-curve";
 import {GenericBezierSpline} from "./GenericBezierSpline";
+import {BSplineCurve} from "./bspline-curve";
 import {AbstractPointControlledCurve} from "./abstract-point-controlled-curve";
 
 const xy = (points: Point[]) => points.map(p => [p.X(), p.Y()]);
@@ -24,6 +25,8 @@ type Factory = {name: string, make: () => AbstractPointControlledCurve & {eval(t
 const factories: Factory[] = [
     {name: "polynomial Bezier", make: () => new PolynomialBezierCurve(makePoints()), ts: [0, 0.3, 0.7, 1]},
     {name: "rational Bezier", make: () => new RationalBezierCurve(makePoints(), [1, 2, 0.75, 1.5]), ts: [0, 0.3, 0.7, 1]},
+    {name: "B-spline", make: () => new BSplineCurve(makePoints(), 2, [0, 0, 0, 1, 2, 2, 2]), ts: [0, 0.4, 1, 1.5, 2]},
+    {name: "NURBS", make: () => new BSplineCurve(makePoints(), 2, [0, 0, 0, 1, 2, 2, 2], [1, 2, 0.75, 1.5]), ts: [0, 0.4, 1, 1.5, 2]},
     {
         name: "generic spline",
         make: () => new GenericBezierSpline([[0, 0], [1, 2], [3, 3], [4, 0], [5, -2], [7, 1], [8, 4]].map(([x, y]) => new PointImpl(x, y)), 3, 0),
