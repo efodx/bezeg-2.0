@@ -21,6 +21,14 @@ Source: [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md). 
 | 03 | [Exact segment primitives and brute-force intersections](03-segment-primitives.md) | F1 | 02 | accepted 2026-11-01 |
 | 04 | [Segment-set graph mode](04-segment-set-mode.md) | F2a | 03 | accepted 2026-11-01 (handler 10; Sonnet `medium`, engineering + UI/a11y review: two low findings repaired, focus after removal deferred) |
 
+## Batch S1 — C1 and C2 (kernels and modes not gated by `G-REG`; graphs, registration and lessons follow when these are accepted)
+
+| # | Task | Kind | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| 05 | [Interval sweep kernel](05-interval-sweep-kernel.md) | F1 | 02 | accepted 2026-11-01 |
+| 06 | [Bentley–Ottmann kernel](06-bentley-ottmann-kernel.md) | F1 | 02, 03 | planned |
+| 07 | [Interval graph mode](07-interval-mode.md) | F2a | 04, 05 | planned |
+
 ## Later batches
 
-- **S1 (C1, C2), S2 (C3, C4), S3 (C5):** kernels, graphs, registration, lessons and media as in the spec's release batches; S2 needs triangulation T1 (ear clipping) released or its absence stated in C4; S3 needs triangulation T0 and the Voronoi value. Task files are written when the kernels they use are accepted. Registration and lessons wait for `G-REG`.
+- **S1 graphs and lessons, S2 (C3, C4), S3 (C5):** kernels, graphs, registration, lessons and media as in the spec's release batches; S2 needs triangulation T1 (ear clipping) released or its absence stated in C4; S3 needs triangulation T0 and the Voronoi value. Task files are written when the kernels they use are accepted. Registration and lessons wait for `G-REG`.
