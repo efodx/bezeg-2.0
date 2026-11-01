@@ -1451,3 +1451,40 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Integration failure: the full unit suite failed 3 tests in `graphTransientStateContract.tsx` (`PRESET_DATA_STATE_KEYS`, an enumerating table the brief's list did not name and the worker's focused paths did not cover). Handler fixed it (3 lines), and the 24 affected tests passed.
 - Smoke: one `bezeg-smoke` Sonnet `medium` (first browser sight of new UI), 26 tools, about 49k tokens, 15.6 min. All 8 checks passed on the three routes, with no console errors. The handler viewed 2 screenshots and found the default view clipping the C2 example at the top edge, which the worker did not report (it viewed one shot). Recorded as a follow-up. Accepted 06:09Z.
 - Judgment: an F2b brief should name `graphTransientStateContract.tsx` among enumerating tests; smoke briefs should ask the worker to view each screenshot it cites.
+
+## 2026-11-01 — Platform step 3: A4 generic spline changes ∥ A7 function-model rules (platform handlers 3–6)
+
+- Class: backlog refactor. A4 size M; A7 size L, with independently verifiable slices (convexity pilot, then slices 2a–2e). Handlers: Opus 5.5 (`--agent claude`, permission mode auto), four context handoffs (notes 3–5 plus this session). Sources: [A4 task](../tasks/architecture-deepening-backlog/04-generic-spline-changes.md), [A7 evidence](../tasks/architecture-deepening-backlog/07-function-model-rules.evidence.md).
+- **Pilot pair** (handler 3, 23:08Z): A4 and the A7 pilot ran in parallel, each with one `bezeg-worker` Sonnet `high`.
+  - A4: about 116k tokens, 76 tools, 48 min. Then one repair round (about 138k, 26 tools, 34 min) for an off-by-one. The Sonnet mathematics reviewer caught it; the worker's equivalence experiment had compared against the equally wrong old constructor.
+  - A7 pilot: about 100k, 60 tools, 17 min, no repair.
+  - Reviews: three Sonnet, about 24–31k each, under 1 min each.
+  - Budget watchers failed after the date rollover ("no transcript"), and budgets were tracked by hand.
+- **Smoke for A4 + A7 pilot** (handler 4): two `bezeg-smoke` Haiku runs.
+  - The first hit its 78k signal at 47 turns (about 88k, 14.5 min). A7 coverage was partial because the brief lacked locators.
+  - The second (about 46k, 9 min) was blocked on import by a missing fixture, and left background scripts that needed TaskStop.
+  - The handler ran the import check itself.
+- **A7 slices 2a–2d** (handlers 4–5): seven `bezeg-worker` Sonnet `medium` runs.
+  - 2a: 39k, 15 min.
+  - 2b: two parallel workers, 102k and 80k, 7–8 min.
+  - 2c: 113k and 63k, 5–20 min.
+  - 2d: 113k and 120k, 11–12 min.
+  - Repairs: none, apart from one handler-fixed Slovenian string. Parallel workers with exclusive `diagnoseX` blocks in shared `sl.ts`/`en.ts` had no conflicts. Each saw the other's half-written files fail checks, so briefs now say to ignore failures in files a worker does not own.
+  - One Sonnet review per slice, 39–44k, 1–2 min, no high or medium findings.
+- **Slice 2e and verification** (this handler, task start 09:11Z):
+  - Worker: `bezeg-worker` Sonnet `medium`, dispatched 09:12Z, brief `a7-2e-brief.md` (handoff-v12) plus a job-path override. About 101k, 60 tools, 10.9 min. No repair; the handler made two small edits (a wording alignment, and the review's low finding).
+  - Review: `bezeg-reviewer` Sonnet, about 24k, 6 tools, 0.4 min, no defects.
+  - Smoke: `bezeg-smoke` Haiku, dispatched 09:46Z, carrying the exact locators and inline fixtures that handoff 4 asked for. About 27k, 12 tools, 1.7 min, 8/8 passed, cleanup confirmed. Positive outcome against the step's two earlier smoke runs.
+  - `just check` passed on the pre-rebase tree.
+- **Environment failures, not code:**
+  - Memory pressure killed a handler unit run (handler 5).
+  - It killed the first rebased `just check` and two watchers (this handler).
+  - The rerun failed one unrelated compgeo drag test on a 60 s timeout (122 s under load). The test passed alone in 54 s. Typecheck, build and lint then passed on the final rebased HEAD.
+- Accepted: A4 `c620ad48`; A7 pushed to `master` as `ef573684` at about 10:17Z.
+- **Gaps:**
+  - The final pushed tree's full unit suite has one load timeout. It was rerun in isolation, not a second full run.
+  - Browser coverage excludes drags and sliders.
+  - The handler's own context occupancy is unknown after its watcher was killed.
+- **Judgment:**
+  - Smoke briefs with locators and fixtures from the start cost one cheap run instead of two partial ones.
+  - Sonnet `medium` was sufficient for every A7 slice. The single repair round in this step came from a `high` worker and was caught by mathematical review.
