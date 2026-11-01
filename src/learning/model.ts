@@ -190,7 +190,7 @@ export type LessonAction =
      * out-of-range or over-limit point is a lesson-content error and never snapped. `set-overlay` accepts only the
      * overlays the target graph owns.
      */
-    | {readonly kind: 'point-set'; readonly operation: 'set-points'; readonly points: readonly LessonPoint[]; readonly mode: 'points' | 'polygon'; readonly closed?: boolean}
+    | {readonly kind: 'point-set'; readonly operation: 'set-points'; readonly points: readonly LessonPoint[]; readonly mode: 'points' | 'polygon' | 'segments' | 'intervals'; readonly closed?: boolean}
     | {readonly kind: 'point-set'; readonly operation: 'set-overlay'; readonly overlay: PointSetOverlayName; readonly visible: boolean}
     /** HullTraceGraph only (any other point-set graph throws `UnsupportedLessonActionError`): picks the algorithm, returns to step 0 and pauses. */
     | {readonly kind: 'point-set'; readonly operation: 'set-algorithm'; readonly algorithm: HullAlgorithm}

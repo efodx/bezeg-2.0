@@ -51,7 +51,7 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
         if (!Array.isArray(points) || !points.every(p => Array.isArray(p) && p.length === 2 && isFinite(p[0]) && isFinite(p[1]))) {
             throw new Error('A point-set set-points action needs a list of [x, y] pairs of finite numbers.');
         }
-        if (mode !== 'points' && mode !== 'polygon') throw new Error('A point-set set-points action needs the mode "points" or "polygon".');
+        if (mode !== 'points' && mode !== 'polygon' && mode !== 'segments' && mode !== 'intervals') throw new Error('A point-set set-points action needs the mode "points", "polygon", "segments" or "intervals".');
         if (closed !== undefined && typeof closed !== 'boolean') throw new Error('A point-set set-points action needs a boolean closed.');
     } else if (operation === 'set-overlay') {
         if (typeof overlay !== 'string' || typeof visible !== 'boolean') throw new Error('A point-set set-overlay action needs an overlay name and a boolean visible.');

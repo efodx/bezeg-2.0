@@ -67,6 +67,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'convex-hull': {chapterId: 'convexity-hulls', sectionId: 'convex-hull'},
     // Interim owner until the triangulation chapter exists; the lesson page needs an existing chapter section to link back to.
     'ear-clipping': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    'interval-sweep': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},

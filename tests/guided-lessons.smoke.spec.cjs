@@ -1663,7 +1663,20 @@ const earClipping = {
     },
 };
 
-const LESSONS = [earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Interval sweep: the trace step shown per lesson step 1..7 (start, start, third entering event, e entered, done, done, the second sample's start); the number is language independent.
+const INTERVAL_STEPS = ['1', '1', '7', '21', '26', '26', '1'];
+const intervalSweep = {
+    id: 'interval-sweep',
+    path: `${BASE}/compgeo/interval-sweep`,
+    titles: {sl: 'Pometanje intervalov', en: 'Interval sweep'},
+    steps: 7,
+    minFrames: 17, // 2 frames per step, 3 on steps 3, 4 and 5 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => ((await page.locator('[data-interval-sweep="step"]').textContent()) || '').match(/\d+/)?.[0], {message: `interval sweep trace step at ${label}`}).toBe(INTERVAL_STEPS[step - 1]);
+    },
+};
+
+const LESSONS = [intervalSweep, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
