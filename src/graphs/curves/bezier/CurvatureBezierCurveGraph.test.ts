@@ -2,6 +2,7 @@ import CurvatureBezierCurveGraph, {CURVATURE_T_DEFAULT, PARABOLA_CONTROL_POINTS}
 import {CurvatureOverlay, curvatureFrame} from './CurvatureOverlay';
 import {curvatureCurvePresetCollection} from '../curvePresetCollections';
 import {setLanguage, t} from '../../../localization';
+import {FigureExportScope} from '../../base/export/FigureExportOperation';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the overlay also guards its callback. */
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
@@ -239,6 +240,7 @@ describe('overlay disposal', () => {
 function makeGraph() {
     const graph = Object.create(CurvatureBezierCurveGraph.prototype) as any;
     graph.board = fakeBoard();
+    graph.figureExports = new FigureExportScope({requestRender: () => undefined, reload: () => undefined});
     graph.graphSession = {isReady: true, isAlive: true};
     const points = PARABOLA.map(p => ({X: () => p[0], Y: () => p[1]}));
     graph.jxgCurves = [{getCurve: () => ({getPoints: () => points})}];
