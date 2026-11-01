@@ -88,6 +88,11 @@ The static document initially declares Slovenian, and runtime selection updates 
 | sekantna metoda | secant method (numerical methods N3; FMF syllabus wording) |
 | približek | iterate (a member of an iteration; already used by the fixed-point lesson, "naslednji približek"; "iterat" is not used) |
 | začetni približek | start of an iteration (x₀; the second secant start is "drugi začetni približek") |
+| premik (znotraj / zunaj) | shift (inside f: horizontal, c; outside f: vertical, d); school function graphs S1. "prenos" is not used |
+| raztegnitev (znotraj / zunaj) | stretch (inside f: horizontal, b; outside f: vertical, a); S1 |
+| zrcaljenje (čez os x / čez premico x = c) | reflection (negative a: about the x-axis; negative b: about the line x = c); S1 |
+| osnovna funkcija | base function f of a transformation (S1); the faint copy of its graph is "osnovni graf" |
+| označena točka | the marked (tracked) point (u, f(u)) of the base graph and its image (S1) |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 

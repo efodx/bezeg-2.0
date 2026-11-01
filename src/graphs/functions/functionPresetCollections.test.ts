@@ -837,3 +837,41 @@ test("root-finding data of the wrong type keeps the generic function-data messag
         expect(() => preflightPresetImport(rootFindingPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
     }
 });
+
+const transformationPreset = (data: unknown) => JSON.stringify({"preset-function-transformation": {data: [{id: "Osnova", boardState: {boundingBox: [-8, 8, 12, -10]},
+    graphState: {initialized: true}, data}]}});
+const validTransformation = {base: "abs", a: 1.5, b: -2, c: -3, d: 4, ghostVisible: false, u: 1.2};
+
+test("function-transformation collection imports a model object with its base, parameters, ghost and tracked point", () => {
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(transformationPreset(validTransformation)));
+    expect(JSON.parse(localStorage.getItem("preset-function-transformation")!).data[0].data).toEqual(validTransformation);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], [{}], [{...validTransformation, base: "cosine"}], [{...validTransformation, b: 0}], [{...validTransformation, a: 11}],
+    [{...validTransformation, c: -21}], [{...validTransformation, d: "4"}], [{...validTransformation, u: 6}], [{...validTransformation, u: NaN}],
+    [{...validTransformation, ghostVisible: "no"}], [{base: "abs", a: 1, b: 1, c: 0, d: 0, u: 0}]])
+("function-transformation collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(transformationPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validTransformation, base: "cosine"}, /square, cube, sqrt, reciprocal, abs, exp, ln/],
+    [{...validTransformation, b: 0}, /field b must not be 0|polje b ne sme biti 0/],
+    [{...validTransformation, a: 11}, /field a must be a number between [-−]10 and 10|polje a mora biti število med [-−]10 in 10/],
+    [{...validTransformation, d: -21}, /field d must be a number between [-−]20 and 20|polje d mora biti število med [-−]20 in 20/],
+    [{...validTransformation, u: 5.5}, /field u must be a number between [-−]5 and 5|polje u mora biti število med [-−]5 in 5/],
+    [{...validTransformation, ghostVisible: "no"}, /ghostVisible/],
+])("function-transformation errors name the field and rule to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(transformationPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(transformationPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});
+
+test("function-transformation data of the wrong type keeps the generic function-data message", () => {
+    for (const data of [null, [], {...validTransformation, a: "1"}, {...validTransformation, c: null}]) {
+        expect(() => preflightPresetImport(transformationPreset(data))).toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+});

@@ -31,6 +31,8 @@ import {checkDarbouxModel, parseDarbouxModel} from "../../analysis/darbouxModel"
 import {darbouxFileMessage} from "./darbouxMessages";
 import {checkAccumulationModel, parseAccumulationModel} from "../../analysis/accumulationModel";
 import {accumulationFileMessage} from "./accumulationMessages";
+import {checkFunctionTransformationModel, parseFunctionTransformationModel} from "../../analysis/functionTransformationModel";
+import {functionTransformationFileMessage} from "./functionTransformationMessages";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 
 /**
@@ -96,6 +98,12 @@ const diagnoseFixedPoint: Diagnosis = data => {
     return check.ok || check.issue === undefined ? undefined : fixedPointFileMessage(check.issue);
 };
 
+/** The model module names the rule a rejected transformation model broke; this only localizes it. */
+const diagnoseFunctionTransformation: Diagnosis = data => {
+    const check = checkFunctionTransformationModel(data);
+    return check.ok || check.issue === undefined ? undefined : functionTransformationFileMessage(check.issue);
+};
+
 /**
  * A function Demonstration stores its validated model object as Preset data. The model parser decides validity; the
  * diagnosis only explains a rejection the parser made.
@@ -133,4 +141,5 @@ export const functionPresetCollections = {
     "uniform-convergence": functionCollection("uniform-convergence", parseUniformConvergenceModel, diagnoseUniformConvergence),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
+    "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
 } as const;
