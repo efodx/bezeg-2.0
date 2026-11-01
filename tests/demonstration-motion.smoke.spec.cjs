@@ -3,7 +3,9 @@ const demonstrations = require('./smoke-catalog.cjs');
 const clips = demonstrations.filter(demonstration => demonstration.hasMotion).map(demonstration => demonstration.id);
 // Demonstrations without a manifest motion entry keep their still poster; they are exempt from the clip assertions below
 // and the exemption disappears on its own once the manifest gains their clip.
-const posterOnly = demonstrations.filter(demonstration => !demonstration.hasMotion).map(demonstration => demonstration.id);
+const posterOnly = demonstrations.filter(demonstration => !demonstration.hasMotion && demonstration.hasPoster).map(demonstration => demonstration.id);
+// POSTER_PENDING Demonstrations (src/demonstrationPosterPending.ts) have neither poster nor clip yet: an empty frame.
+const posterPending = demonstrations.filter(demonstration => !demonstration.hasPoster).map(demonstration => demonstration.id);
 test.beforeEach(() => {
     for (const id of posterOnly) test.info().annotations.push({type: 'motion-exempt', description: `${id}: no manifest motion entry, still poster expected`});
 });
@@ -81,6 +83,13 @@ test('demonstrations without a manifest motion clip keep their still poster', as
         await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
         await entry.locator('.demonstration-preview-media').hover();
         await expect(entry.locator('img')).toBeVisible();
+        await expect(entry.locator('video[src]')).toHaveCount(0);
+    }
+    for (const id of posterPending) {
+        const entry = card(page, id);
+        await entry.locator('.demonstration-preview-media').scrollIntoViewIfNeeded();
+        await entry.locator('.demonstration-preview-media').hover();
+        await expect(entry.locator('img')).toHaveCount(0);
         await expect(entry.locator('video[src]')).toHaveCount(0);
     }
 });

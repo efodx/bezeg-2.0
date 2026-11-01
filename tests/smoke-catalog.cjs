@@ -105,6 +105,12 @@ const availableLessonIds = new Set(definitions.elements.filter(element => {
 }).map(element => stringProperties(unwrapExpression(element), false).id));
 // Demonstrations whose catalog manifest carries a motion clip; the rest are still-poster only until their timelines ship.
 const manifestMotionIds = new Set((JSON.parse(fs.readFileSync(path.join(root, 'scripts/demonstration-previews/manifest.json'), 'utf8')).motions || []).map(motion => motion.id));
+// Demonstrations registered before their poster is captured (src/demonstrationPosterPending.ts); their cards show an empty preview frame.
+const pendingDefinition = variableInitializer(parseSource('src/demonstrationPosterPending.ts'), 'POSTER_PENDING');
+if (!ts.isArrayLiteralExpression(pendingDefinition) || !pendingDefinition.elements.every(element => ts.isStringLiteral(element))) {
+    throw new Error('POSTER_PENDING must remain an array literal of Demonstration ids.');
+}
+const posterPendingIds = new Set(pendingDefinition.elements.map(element => element.text));
 const demonstrations = definitions.elements.map(element => {
     const entry = stringProperties(unwrapExpression(element), false);
     for (const required of ['id', 'path', 'family', 'title']) {
@@ -117,7 +123,7 @@ const demonstrations = definitions.elements.map(element => {
     if (!title || title.includes('{')) throw new Error(`Missing plain English catalog title for ${entry.id}: ${entry.title}`);
     if (!entry.path.startsWith('/bezeg-2.0/')) throw new Error(`Demonstration path must stay under /bezeg-2.0/: ${entry.path}`);
     return {id: entry.id, path: entry.path, family: entry.family, view: entry.view === 'surface' ? 'surface' : 'board', title, heading, hasMotion: manifestMotionIds.has(entry.id),
-        hasLesson: availableLessonIds.has(entry.id)};
+        hasLesson: availableLessonIds.has(entry.id), hasPoster: !posterPendingIds.has(entry.id)};
 });
 const families = familyCatalog.map(family => {
     const title = messages[family.titleKey];
@@ -134,6 +140,7 @@ for (const demonstration of demonstrations) {
     ids.add(demonstration.id);
     if (!familyIds.includes(demonstration.family)) throw new Error(`Unknown demonstration family for ${demonstration.id}: ${demonstration.family}`);
 }
+for (const id of posterPendingIds) if (!ids.has(id)) throw new Error(`POSTER_PENDING names an unknown Demonstration: ${id}`);
 
 function findVariableDeclaration(sourceFile, name) {
     for (const statement of sourceFile.statements) {
@@ -145,7 +152,8 @@ function findVariableDeclaration(sourceFile, name) {
     throw new Error(`Could not find ${name} in ${sourceFile.fileName}`);
 }
 
-function validateGeneratedPreviews(activeDemonstrations, options = {}) {
+function validateGeneratedPreviews(catalogDemonstrations, options = {}) {
+    const activeDemonstrations = catalogDemonstrations.filter(demonstration => demonstration.hasPoster !== false);
     const previewCapture = require('../scripts/demonstration-preview-capture-api.cjs');
     const catalogDirectory = options.catalogDirectory || path.join(root, 'src/images/demonstrations/catalog');
     const mappingSource = parseSource(options.mappingPath || 'src/demonstrationPreviewAssets.ts');
@@ -189,7 +197,7 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
     const activeIds = activeDemonstrations.map(demonstration => demonstration.id).sort();
     const mappedActiveIds = Array.from(mappedIds.keys()).sort();
     if (JSON.stringify(mappedActiveIds) !== JSON.stringify(activeIds)) {
-        throw new Error(`Generated preview map must cover every active Demonstration exactly once. Expected ${activeIds.join(', ')}; found ${mappedActiveIds.join(', ')}.`);
+        throw new Error(`Generated preview map must cover every Demonstration outside POSTER_PENDING exactly once. Expected ${activeIds.join(', ')}; found ${mappedActiveIds.join(', ')}.`);
     }
     if (importedAssets.size !== activeDemonstrations.length) {
         throw new Error(`Expected one generated image import per active Demonstration; found ${importedAssets.size}.`);
@@ -202,7 +210,8 @@ function validateGeneratedPreviews(activeDemonstrations, options = {}) {
     if (!/^[a-f0-9]{40}$/.test(manifest.graphSourceRevision || '') || !/^[a-f0-9]{64}$/.test(manifest.graphSourceFingerprint || '') || !Array.isArray(manifest.graphDirtyFiles)) throw new Error('Missing source revision/fingerprint provenance.');
     const {recipes, validateRecipes, assertOutcomeEvidence, sameCamera, pointsOutsideFrame, SURFACE_FRAME_MARGIN_PX} = require('../scripts/demonstration-preview-recipes.cjs');
     const {assertNonUniformPixels} = require('../scripts/demonstration-preview-png.cjs');
-    validateRecipes(activeDemonstrations);
+    // A poster needs a recipe; a pending Demonstration may already carry the recipe its capture will use.
+    validateRecipes(catalogDemonstrations.filter(demonstration => demonstration.hasPoster !== false || Object.hasOwn(recipes, demonstration.id)));
     if (manifest.generator !== 'scripts/capture-demonstration-previews.cjs') throw new Error('Preview manifest generator provenance is missing or stale.');
     if (!manifest.capture || manifest.capture.source !== 'live #jgbox from each Demonstration metadata route') {
         throw new Error('Preview manifest must identify live route-default capture provenance.');
