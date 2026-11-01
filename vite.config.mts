@@ -47,6 +47,8 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: ['src/setupTests.ts'],
+        // src/setupTests.ts collects garbage between tests once a worker's heap is large (see its board hook).
+        execArgv: ['--expose-gc'],
         // Successor to CRA's Jest `resetMocks`: clears calls and overrides before each test. Unlike Jest, Vitest
         // restores a `vi.fn(impl)` implementation rather than removing it.
         mockReset: true,
