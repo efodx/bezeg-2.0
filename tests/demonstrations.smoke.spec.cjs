@@ -38,9 +38,9 @@ async function expectRenderedWorkspace(page, demonstration) {
             const jxgBoard = boards.find(candidate => candidate.container === container.id || candidate.containerObj === container);
             if (!jxgBoard) return 0;
             return Object.values(jxgBoard.objects || {}).filter(object => {
-                if (!['curve', 'line'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
+                if (!['curve', 'line', 'segment', 'point'].includes(object.elType) || object.visProp?.visible === false || object.visProp?.visible === 'false') return false;
                 const node = object.rendNode;
-                if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1'))) return false; // curves are paths; straight lines are SVG line elements
+                if (!node?.isConnected || !(node.getAttribute?.('d') || node.getAttribute?.('x1') || node.getAttribute?.('cx'))) return false; // curves are paths; lines and segments (polygon borders) are SVG lines; points are ellipses (a point-set scene at step 0 draws only points)
                 const style = getComputedStyle(node);
                 return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
             }).length;
