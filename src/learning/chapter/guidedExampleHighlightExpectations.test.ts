@@ -15,6 +15,12 @@ describe('independent highlight expectations', () => {
         }
     });
 
+    it('quintic PH: the S1 offset at t = 0.5, d = 0.5 is the independently computed literal point', () => {
+        const [ox, oy] = phQuinticOffsetPoint(0.5, 0.5);
+        expect(ox).toBeCloseTo(0.091236, 6);
+        expect(oy).toBeCloseTo(-0.561494, 6);
+    });
+
     it('quintic PH: the integrated curve agrees with the degree-5 Bézier of the derived control points and the lesson endpoint', () => {
         for (const t of [0, 0.3, 0.5, 1]) {
             const [bx, by] = bezierPoint(phQuinticControlPoints, t), [rx, ry] = phQuinticPoint(t);

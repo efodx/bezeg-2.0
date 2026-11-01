@@ -123,6 +123,19 @@ test('published captures fail when the recipe changed since capture, the highlig
     assert.throws(() => validatePublishedSet([entry], [capture], destination), /checksum mismatch/);
 });
 
+test('a published capture with expectChange false fails when the highlight changed from the start scene', t => {
+    const destination = fs.mkdtempSync(path.join(os.tmpdir(), 'guided-example-highlight-keep-'));
+    t.after(() => fs.rmSync(destination, {recursive: true, force: true}));
+    const entry = entryWith(resolveRecipe('x', lesson, authored({expectChange: false})));
+    const kept = verifyHighlight(entry, board(lineA), board(lineA));
+    const capture = {id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path, sceneFingerprint: entry.sceneFingerprint,
+        ...recipeRecord(entry, kept), file: `${entry.id}.png`, sha256: digest('png')};
+    fs.writeFileSync(path.join(destination, capture.file), 'png');
+    assert.doesNotThrow(() => validatePublishedSet([entry], [capture], destination));
+    const changed = verifyHighlight(entryWith(resolveRecipe('x', lesson, authored())), board(lineA), board(lineB));
+    assert.throws(() => validatePublishedSet([entry], [{...capture, highlight: changed}], destination), /expects no board change/);
+});
+
 function fakePage(frameCounts, actions = {}) {
     const state = {step: 0, frame: 0, pressed: [], clicks: 0};
     const atEnd = () => state.step === frameCounts.length - 1 && state.frame === frameCounts[state.step] - 1;
