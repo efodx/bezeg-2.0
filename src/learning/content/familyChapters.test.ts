@@ -28,6 +28,10 @@ function withoutMath(source: string) {
     return outside;
 }
 
+// Registered before their reading chapter exists: complex maps task 04 F3+F4 adds the Kompleksne preslikave
+// chapter that links them, and removes this entry.
+const CHAPTER_LINK_PENDING: readonly string[] = ['complex-reciprocal', 'complex-roots'];
+
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
 describe('family reading chapters', () => {
@@ -124,7 +128,9 @@ describe('family reading chapters', () => {
         const demonstrations = getDemonstrationCatalog().demonstrations;
         for (const chapter of familyChapters) {
             const ids = chapter.sections.flatMap(section => section.demonstrationIds ?? []);
-            const expected = demonstrations.filter(demo => demo.family === chapter.family).map(demo => demo.id).sort();
+            const expected = demonstrations
+                .filter(demo => demo.family === chapter.family && !CHAPTER_LINK_PENDING.includes(demo.id))
+                .map(demo => demo.id).sort();
             expect([...new Set(ids)].sort()).toEqual(expected);
             for (const section of chapter.sections) {
                 for (const id of section.demonstrationIds ?? []) {
