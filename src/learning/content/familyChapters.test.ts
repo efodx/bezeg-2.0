@@ -1,6 +1,5 @@
 import {describe, expect, test} from 'vitest';
 import {getDemonstrationCatalog} from '../../demonstrations';
-import {demonstrationPreviewAssets} from '../../demonstrationPreviewAssets';
 import {familyChapters} from './familyChapters';
 import {exampleReferences, hasEquivalentExampleOrder, validateOrderedChapterContent} from '../chapter/orderedContent';
 import {retainedExampleHomes} from '../chapter/retainedExamples';
@@ -323,7 +322,7 @@ describe('family reading chapters', () => {
         expect(prose).toContain('geometric area because');
         expect(prose).not.toMatch(/six coarse|šestimi grobimi|2\{,\}037|2\.037/u);
     });
-    test('teaches Analysis with explicit uniform quantifiers, supported prompts, and the three inspected captures', () => {
+    test('teaches Analysis with explicit uniform quantifiers, supported prompts, no section figures, and the figure distinctions kept in prose', () => {
         const chapter = familyChapters.find(entry => entry.id === 'analysis')!;
         const occurrences = chapter.sections.flatMap(section => (section.demonstrationIds ?? []).map(id => ({section, id})));
         const supportedControls: Record<string, {sl: RegExp; en: RegExp}> = {
@@ -368,20 +367,21 @@ describe('family reading chapters', () => {
         expect(convergence).toContain('not uniform');
         expect(convergence).toContain('not attained');
 
-        const figures = chapter.sections.flatMap(section => section.figures ?? []);
-        expect(figures.map(figure => figure.src)).toEqual([
-            demonstrationPreviewAssets.bisection,
-            demonstrationPreviewAssets.darboux,
-            demonstrationPreviewAssets['uniform-convergence'],
-        ]);
-        expect(figures.every(figure => figure.alt.sl.trim() && figure.alt.en.trim())).toBe(true);
-        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
-        expect(captions).toContain('1{,}5');
-        expect(captions).toContain('n=4');
-        expect(captions).toContain('0{,}8^5');
-        expect(captions).toContain('0.8^5');
-        expect(captions).toContain('nonuniform convergence case');
+        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
+        const proseOf = (id: string) => chapter.sections.find(section => section.id === id)!.paragraphs.map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
+        expect(proseOf('existence')).toContain('This is one step, not the final root');
+        expect(proseOf('existence')).toContain('To je en korak, ne končna ničla');
+        expect(proseOf('integrability')).toContain('One finite partition');
+        expect(proseOf('integrability')).toContain('Ena končna razdelitev');
+        expect(proseOf('integrability')).toContain('keeps the old division points');
+        expect(proseOf('integrability')).toContain('3{,}75');
+        expect(proseOf('integrability')).toContain('3.75');
+        expect(convergence).toContain('0{,}8^5');
+        expect(convergence).toContain('0.03125');
+        expect(convergence).toContain('not the case on');
+        expect(convergence).not.toMatch(/captur|poster|zajet/iu);
     });
+
 
     test('keeps the backslash on TeX commands inside inline math', () => {
         const prose = JSON.parse(JSON.stringify(familyChapters)) as unknown;
