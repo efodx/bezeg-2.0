@@ -2,6 +2,7 @@ import {AbstractJXGPointControlledCurve, PointControlledCurveAttributes} from ".
 import {JXGBezierCurveState} from "./JXGBezierCurve";
 import {BezierCurve} from "../../../bezeg/api/curve/bezier-curve";
 import {Point} from "../../../bezeg/api/point/point";
+import {elevate} from "../../../bezeg/impl/kernels/bezier-kernels";
 import {versionOf, VOLATILE} from "../../../bezeg/impl/versioning";
 
 export interface BezierCurveAttributes extends PointControlledCurveAttributes {
@@ -18,15 +19,8 @@ export interface BezierCurveAttributes extends PointControlledCurveAttributes {
  * Pure, so callers can recompute it on every update and follow dragged control points.
  */
 export function elevatedControlPoints(points: ReadonlyArray<{ X(): number, Y(): number }>): [number, number][] {
-    const count = points.length;
-    if (count === 0) return [];
-    const result: [number, number][] = [[points[0].X(), points[0].Y()]];
-    for (let i = 1; i < count; i++) {
-        const a = i / count;
-        result.push([a * points[i - 1].X() + (1 - a) * points[i].X(), a * points[i - 1].Y() + (1 - a) * points[i].Y()]);
-    }
-    result.push([points[count - 1].X(), points[count - 1].Y()]);
-    return result;
+    if (points.length === 0) return [];
+    return elevate(points.map(point => [point.X(), point.Y()])) as [number, number][];
 }
 
 /** The extrapolation parameter t extends the curve past its end (t = 1) by at most half its parameter interval. Sliders and the lesson action use these. */
