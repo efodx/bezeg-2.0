@@ -179,6 +179,15 @@ describe('overlay readout and circle elements', () => {
         setLanguage('sl');
     });
 
+    test('the board text puts each readout line on its own line (HTML text collapses newlines)', () => {
+        const {board, overlay} = overlayFor(PARABOLA);
+        const text = board.objectsList.find((o: any) => o.type === 'text' && typeof o.parents[2] === 'function' && o.parents[2]().includes('κ'));
+        const shown: string = text.parents[2]();
+        expect(shown).toContain('<br>');
+        expect(shown).not.toContain('\n');
+        expect(shown.split('<br>')).toEqual(overlay.readoutText().split('\n'));
+    });
+
     test('the circle element follows the parameter lazily', () => {
         const {board, state} = overlayFor(PARABOLA, 0.5);
         const circle = board.objectsList.find((o: any) => o.type === 'circle');
@@ -286,6 +295,21 @@ describe('CurvatureBezierCurveGraph', () => {
         graph.unmount();
         expect(order[0]).toBe('removed');
         expect(board.objectsList).toEqual([]);
+    });
+
+    test('a scene that resets and sets the parameter back within one batch still redraws what the overlay read mid-batch', () => {
+        const graph = makeGraph();
+        graph.ensureOverlay();
+        graph.setCurvatureT(1);
+        const committed = graph.state;
+        const circle = graph.board.objectsList.find((o: any) => o.type === 'circle');
+        // The scene's reset rebuilds the board at the default parameter, then the next action sets t = 1 again.
+        graph.setCurvatureT(CURVATURE_T_DEFAULT);
+        circle.parents[1]();
+        graph.setCurvatureT(1);
+        graph.boardUpdate = vi.fn();
+        graph.onStateChange({...committed});
+        expect(graph.boardUpdate).toHaveBeenCalled();
     });
 
     test('reset restores the parameter', () => {
