@@ -1,6 +1,6 @@
 # 02 — Sweep trace model and exact event order
 
-Status: planned; starts when `src/compgeo/rational.ts` (triangle geometry task 01, maps stream) is on `master`. Source: [spec S0 trace model](../../specs/sweep-algorithms-lessons.md#event-queue-and-status-trace-model-batch-s0), [ADR 0035](../../adr/0035-sweep-coordinates-and-exact-event-order.md), core trace contract `src/compgeo/trace.ts`. Kind: F1, mathematical review.
+Status: accepted 2026-11-01 (geometry handler 9; Sonnet `high` worker, Sonnet mathematical review with no findings). Unit 22/22, lint and tsc clean; the two mutations below each failed 4 tests. Choices left open by this file: `compareSurdHeights` returns the sign of the first height minus the second (−1 = lower, the reverse of processing order); `status-swap` reverses the contiguous block `{first, last}`, so several segments through one point swap in one step; `report` and `output` both append `payload.item`; `foldSweepEvent`/`sweepStateAt` take an optional queue comparator for Fortune's surd keys. Source: [spec S0 trace model](../../specs/sweep-algorithms-lessons.md#event-queue-and-status-trace-model-batch-s0), [ADR 0035](../../adr/0035-sweep-coordinates-and-exact-event-order.md), core trace contract `src/compgeo/trace.ts`. Kind: F1, mathematical review.
 
 Pure TypeScript in `src/compgeo/sweep/` (no React, JSXGraph, localization or graph state).
 
