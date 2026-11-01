@@ -1355,6 +1355,33 @@ const linearMap = {
     },
 };
 
+// Chapter-owned complex maps lesson M1 (src/learning/content/complexMapsChapterLessons.ts): seven steps, one body/prompt frame each.
+const complexReciprocal = {
+    id: 'complex-reciprocal',
+    path: `${BASE}/complex-reciprocal`,
+    titles: {sl: 'Recipročna vrednost in inverzija', en: 'The reciprocal and inversion'},
+    steps: 7,
+    minFrames: 7,
+    setup: async page => {
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(2);
+        return {};
+    },
+};
+
+// Chapter-owned complex maps lesson M2 (src/learning/content/complexMapsChapterLessons.ts): seven steps, one body/prompt frame each.
+const complexRoots = {
+    id: 'complex-roots',
+    path: `${BASE}/complex-roots`,
+    titles: {sl: 'Koreni kot pravilni mnogokotnik', en: 'Roots as a regular polygon'},
+    steps: 7,
+    minFrames: 7,
+    setup: async page => {
+        // Step 1 hides the roots, polygon and test point, so only w is on the board.
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(1);
+        return {};
+    },
+};
+
 const BEZIER_SYMMETRIC = [[-3, -2], [-3, 2], [3, 2], [3, -2]];
 const bezierPilot = {
     id: 'bezier',
@@ -1664,7 +1691,7 @@ const earClipping = {
 };
 
 const LESSONS = [earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

@@ -190,17 +190,20 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
         if (next !== this.model) this.commitModel(next);
     }
 
-    /**
-     * Lesson actions. The closed action-name sets of `src/learning/model.ts` hold only the operand names of complex multiplication, so
-     * only z and w are reachable by a lesson now; the reveals, the circle and the examples are set through the inspector until the
-     * lesson task adds their names.
-     */
+    /** Lesson actions: the operands z and w, the inversion circle's centre and radius, the three reveals and the named examples. */
     protected override lessonFunctionActions(): FunctionLessonActions {
         return {
             parameters: {
                 "complex-z-re": value => this.setZRe(value), "complex-z-im": value => this.setZIm(value),
                 "complex-w-re": value => this.setWRe(value), "complex-w-im": value => this.setWIm(value),
+                "complex-centre-re": value => this.setCentre(value, this.model.centreIm), "complex-centre-im": value => this.setCentre(this.model.centreRe, value),
+                "complex-radius": value => this.setRadius(value),
             },
+            visibility: {
+                "complex-reciprocal": visible => this.setReciprocalVisible(visible), "complex-quotient": visible => this.setQuotientVisible(visible),
+                "complex-circle": visible => this.setCircleVisible(visible),
+            },
+            choices: {"complex-reciprocal-example": value => this.setExample(value)},
         };
     }
 

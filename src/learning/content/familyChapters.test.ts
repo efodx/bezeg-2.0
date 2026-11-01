@@ -28,11 +28,10 @@ function withoutMath(source: string) {
     return outside;
 }
 
-// Registered before their reading chapter exists: complex maps task 04 F3+F4 adds the Kompleksne preslikave
-// chapter that links them, and removes this entry. Computational geometry is released in batches: ear clipping and the
+// Registered before their reading chapter exists. Computational geometry is released in batches: ear clipping and the
 // sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
 // patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
-const CHAPTER_LINK_PENDING: readonly string[] = ['complex-reciprocal', 'complex-roots', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'patch-coons'];
+const CHAPTER_LINK_PENDING: readonly string[] = ['ear-clipping', 'interval-sweep', 'segment-intersections', 'patch-coons'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
@@ -91,11 +90,11 @@ describe('family reading chapters', () => {
 
     test('publishes eleven bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'convexity-hulls', 'functions-and-calculus', 'analysis',
+            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'functions-and-calculus', 'analysis',
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(chapter.id === 'linear-maps' ? 2 : chapter.id === 'convexity-hulls' ? 4 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'convexity-hulls' ? 4 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);
@@ -126,14 +125,16 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('links every existing demonstration from its matching family chapter', () => {
+    test('links every existing demonstration from its matching family chapters', () => {
         const demonstrations = getDemonstrationCatalog().demonstrations;
-        for (const chapter of familyChapters) {
-            const ids = chapter.sections.flatMap(section => section.demonstrationIds ?? []);
-            const expected = demonstrations
-                .filter(demo => demo.family === chapter.family && !CHAPTER_LINK_PENDING.includes(demo.id))
-                .map(demo => demo.id).sort();
+        const families = new Set(familyChapters.map(chapter => chapter.family));
+        for (const family of families) {
+            const ids = familyChapters.filter(chapter => chapter.family === family)
+                .flatMap(chapter => chapter.sections.flatMap(section => section.demonstrationIds ?? []));
+            const expected = demonstrations.filter(demo => demo.family === family && !CHAPTER_LINK_PENDING.includes(demo.id)).map(demo => demo.id).sort();
             expect([...new Set(ids)].sort()).toEqual(expected);
+        }
+        for (const chapter of familyChapters) {
             for (const section of chapter.sections) {
                 for (const id of section.demonstrationIds ?? []) {
                     expect(demonstrations.find(demo => demo.id === id)?.family).toBe(chapter.family);

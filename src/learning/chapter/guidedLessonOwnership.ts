@@ -58,7 +58,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
-    // Registered without lessons (complex maps F2b); the chapter and sections are authored in F3.
+    // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).
     'complex-reciprocal': {chapterId: 'complex-maps', sectionId: 'reciprocal-inversion'},
     'complex-roots': {chapterId: 'complex-maps', sectionId: 'roots'},
     // The Convexity and hulls chapter owns the first three computational-geometry lessons, one section each.

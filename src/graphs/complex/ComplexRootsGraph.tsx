@@ -151,8 +151,7 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
     }
 
     /**
-     * Lesson actions: the coordinates of w and of the test point z and the degree n. The reveals and the examples are set through the
-     * inspector until the lesson task adds their names to the closed action-name sets of `src/learning/model.ts`.
+     * Lesson actions: the coordinates of w and of the test point z, the degree n, the three reveals and the named examples.
      */
     protected override lessonFunctionActions(): FunctionLessonActions {
         return {
@@ -161,6 +160,11 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                 "complex-z-re": value => this.setTest(value, this.model.zIm), "complex-z-im": value => this.setTest(this.model.zRe, value),
                 n: value => this.setDegree(value),
             },
+            visibility: {
+                "complex-roots": visible => this.setRootsVisible(visible), "complex-polygon": visible => this.setPolygonVisible(visible),
+                "complex-test": visible => this.setTestVisible(visible),
+            },
+            choices: {"complex-roots-example": value => this.setExample(value)},
         };
     }
 

@@ -20,6 +20,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
     'bezier-patches': {demonstration: 'patch-tensor', alt: {sl: 'Tenzorska Bézierjeva krpa s kontrolno mrežo v tridimenzionalnem pogledu.', en: 'A tensor-product Bézier patch with its control net in a three-dimensional view.'}},
     'linear-maps': {demonstration: 'linear-map', alt: {sl: 'Mreža, enotski kvadrat in njuni sliki pri linearni preslikavi ravnine.', en: 'A grid and the unit square with their images under a linear map of the plane.'}},
     'convexity-hulls': {demonstration: 'convex-hull', alt: {sl: 'Točke v ravnini in njihova konveksna ovojnica kot večkotnik.', en: 'Points in the plane and their convex hull drawn as a polygon.'}},
+    'complex-maps': {demonstration: 'complex-reciprocal', alt: {sl: 'Točka, njena obratna vrednost in enotska krožnica v kompleksni ravnini.', en: 'A point, its reciprocal and the unit circle in the complex plane.'}},
     'functions-and-calculus': {demonstration: 'derivative', alt: {sl: 'Graf kvadratne funkcije z označeno tangentno premico pri izbrani točki.', en: 'A quadratic function graph with a tangent line marked at a selected point.'}},
     analysis: {demonstration: 'bisection', alt: {sl: 'Graf kvadratne funkcije z intervalom in razpoloviščem pri bisekcijski metodi.', en: 'A quadratic graph with an interval and midpoint for the bisection method.'}},
 };
@@ -28,7 +29,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
 export const learningStrands: readonly {id: string; title: LocalizedText; chapters: readonly string[]}[] = [
     {id: 'curves', title: {sl: 'Krivulje', en: 'Curves'}, chapters: ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'ph-curves', 'parametrization']},
     {id: 'surfaces', title: {sl: 'Ploskve', en: 'Surfaces'}, chapters: ['bezier-patches']},
-    {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps']},
+    {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps', 'complex-maps']},
     {id: 'computational-geometry', title: {sl: 'Računska geometrija', en: 'Computational geometry'}, chapters: ['convexity-hulls']},
     {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'analysis']},
 ];

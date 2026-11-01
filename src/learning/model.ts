@@ -11,6 +11,8 @@ import {SEQUENCE_EXAMPLE_IDS} from '../analysis/sequence';
 import {FIXED_POINT_EXAMPLE_IDS} from '../analysis/fixedPoint';
 import {UNIFORM_EXAMPLE_IDS} from '../analysis/uniformConvergence';
 import {COMPLEX_EXAMPLE_IDS} from '../analysis/complex';
+import {COMPLEX_RECIPROCAL_EXAMPLE_IDS} from '../analysis/complexReciprocalModel';
+import {COMPLEX_ROOTS_EXAMPLE_IDS} from '../analysis/complexRootsModel';
 import type {LinearMapExampleId, Mat2} from '../linear/matrix2';
 import type {LinearMapMode, MatrixSlot} from '../linear/linearMapModel';
 import type {PointSetOverlayName} from '../compgeo/pointSetModel';
@@ -20,11 +22,11 @@ export type LessonLanguage = 'sl' | 'en';
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon', 'complex-z-re', 'complex-z-im', 'complex-w-re', 'complex-w-im', 'complex-w-modulus', 'complex-w-argument'] as const;
+export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon', 'complex-z-re', 'complex-z-im', 'complex-w-re', 'complex-w-im', 'complex-w-modulus', 'complex-w-argument', 'complex-centre-re', 'complex-centre-im', 'complex-radius'] as const;
 export type FunctionParameterName = typeof FUNCTION_PARAMETER_NAMES[number];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments'] as const;
+export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test'] as const;
 export type FunctionVisibilityTarget = typeof FUNCTION_VISIBILITY_TARGETS[number];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
@@ -45,6 +47,8 @@ const functionChoiceValues = {
     'fixed-point-example': FIXED_POINT_EXAMPLE_IDS,
     'uniform-example': UNIFORM_EXAMPLE_IDS,
     'complex-example': COMPLEX_EXAMPLE_IDS,
+    'complex-reciprocal-example': COMPLEX_RECIPROCAL_EXAMPLE_IDS,
+    'complex-roots-example': COMPLEX_ROOTS_EXAMPLE_IDS,
 } satisfies Record<string, readonly string[]>;
 export type FunctionChoiceName = keyof typeof functionChoiceValues;
 export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = functionChoiceValues;
