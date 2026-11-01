@@ -738,12 +738,13 @@ test('lesson lifecycle, figure capture, export and scene replacement pause playb
 
 test('a capture in progress blocks Next step and Play so the export shows one settled scene', () => {
     const graph = makeGraph();
-    graph.figureBatchActive = true;
+    const releaseBatch = graph.figureExports.admitBatch();
+    expect(releaseBatch).toBeDefined();
     next(graph);
     apply(graph, command('play'));
     expect(graph.model.terms).toBe(1);
     expect(graph.controller.isPlaying()).toBe(false);
-    graph.figureBatchActive = false;
+    releaseBatch?.();
     next(graph);
     expect(graph.model.terms).toBe(2);
 });
