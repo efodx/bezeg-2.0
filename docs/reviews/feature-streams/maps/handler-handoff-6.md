@@ -43,8 +43,10 @@ Opus 5.5 handler, `--permission-mode auto`, `--effort medium`. Workers: `bezeg-w
 ## Push state
 
 - Linear 07 smoke (Sonnet, port 4316, build at `eb159b24`): passed. The scripted `linearMap` row passed in SL and EN at 390 px, and `minFrames: 6` is correct. The chapter card, all L1/L2 step matrices, the L2 singular step (no inverse control), exit/restore, the live language switch and the plain route all work, at 390 px with no overflow and no console errors. Refreshing mid-lesson restarts at step 1 (not persisted). **For F6:** the board handles are not Tab-focusable; the keyboard reaches the matrix spinbuttons, whose arrow keys work. Decide whether that meets L1's "keyboard alternatives for the handles", or add handle focus. No pointer drag was exercised.
-- **Not pushed: rebase conflict, stream stopped.** Rebasing onto `origin/master` conflicted with the Geometry stream's `0af5594b` (convexity 12, registration of the computational-geometry family).
-  - `a86dc87d` (linear 07) conflicts in `src/demonstrations.ts`, `src/learning/LearningPage.test.tsx`, `src/learning/chapter/guidedExamples.ts` and `guidedLessonOwnership.ts`.
-  - `eb159b24` (triangle 04a), cherry-picked alone, conflicts in `src/localization/sl.ts`/`en.ts`.
-  - Only triangle 03 (`24b8c862`) is on `master`. The accepted but unpushed commits are on `origin/stream-maps-handoff-6`. The remote `worktree-stream-maps` holds older divergent history, which was not force-pushed.
-  - To resume: rebase the stream branch onto `origin/master`. Resolve each conflict by keeping both sides' registrations, and move linear maps' `chapterOwnedLessons` usage onto whatever convexity 12 changed in `guidedExamples.ts`/`guidedLessonOwnership.ts`. Put the `notable_*` block back after the `hulltrace_*` keys, or after any compgeo block convexity 12 added. Then rerun the full unit suite, tsc, the build and the `linearMap` smoke row before pushing.
+- **Conflict resolved 2026-11-01 (owner request).** The stream briefly stopped on a rebase conflict with Geometry's convexity 12 and later compgeo registrations. The handler rebased the two feature commits onto `origin/master` and kept both sides:
+  - `demonstrations.ts`: master's compgeo entries, and `linear-map` with no `lesson: false`. The `lesson?: false` opt-out is used again by the lessonless compgeo ids, so it is no longer dead code.
+  - Tests: `LearningPage.test.tsx` lists only `computational-geometry` as chapterless. Preview-copy counts are 55 and 62. The `lessonCatalog.test.ts` lessonless list keeps only the three compgeo ids.
+  - `guidedExamples.ts` keeps master's `if (!owner)` guard and adds the table lookup. `guidedLessonOwnership.ts` keeps master's `primaryOwner(id)` and adds the table's owners.
+  - The smoke spec keeps master's compgeo rows and adds `linearMap` to `LESSONS`.
+  - Locale: master's compgeo block, then the `notable_*` block, both after `hulltrace_*`.
+  - Rechecked after the rebase with tsc, the full unit suite and the production build, then pushed to `master` (see `git log origin/master`). The `origin/stream-maps-handoff-6` branch is obsolete.
