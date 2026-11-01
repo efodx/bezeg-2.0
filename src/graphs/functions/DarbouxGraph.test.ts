@@ -612,3 +612,43 @@ test('Edit order: the reveal area (lower and upper sums) sits between the contro
     expect(children[2].props.className).toBeUndefined(); // readout
     expect(children[3].type.name).toBe('FunctionLegend');
 });
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (run: () => void) => {
+            try { run(); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        const atLimit = makeGraph({asyncState: false});
+        apply(atLimit, parameter('darboux-n', DARBOUX_N_MAX));
+        return [messageOf(() => apply(graph, parameter('darboux-a', 2))), messageOf(() => apply(graph, parameter('darboux-a', 9))),
+            messageOf(() => apply(graph, parameter('darboux-b', 0))), messageOf(() => apply(graph, parameter('darboux-b', NaN))),
+            messageOf(() => apply(graph, parameter('darboux-n', 129))), messageOf(() => apply(graph, choice('quartic'))),
+            messageOf(() => atLimit.refinePartition())];
+    };
+    expect(refusals('en')).toEqual([
+        'The endpoint a must stay left of b (a < b). Move b first.',
+        'The endpoint a must be a number between −7 and 7.',
+        'The endpoint b must stay right of a (a < b). Move a first.',
+        'The endpoint b must be a number between −7 and 7.',
+        'The number of parts n must be an integer from 1 to 128.',
+        'The example must be one of: square, sine.',
+        'The number of parts has reached the limit 128, so the partition cannot be refined further. You can still change the number of parts in the field.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Krajišče a mora ostati levo od b (a < b). Najprej premakni b.',
+        'Krajišče a mora biti število med −7 in 7.',
+        'Krajišče b mora ostati desno od a (a < b). Najprej premakni a.',
+        'Krajišče b mora biti število med −7 in 7.',
+        'Število delov n mora biti celo število od 1 do 128.',
+        'Primer mora biti eden od: square, sine.',
+        'Število delov je doseglo mejo 128, zato razdelitve ni mogoče še bolj zgostiti. Število delov lahko še vedno spremeniš v polju.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('darboux-b', 9)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'darboux_endpoint_range_rejected', params: {value0: 'b', value1: '−7', value2: '7'}});
+});

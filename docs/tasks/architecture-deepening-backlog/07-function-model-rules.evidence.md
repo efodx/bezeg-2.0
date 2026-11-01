@@ -101,3 +101,32 @@ Learner-visible paths for these messages: lesson actions propagate the error; `G
     - A valid file imports, and its Preset applies `a = 0, b = 2, t = 1,8`.
   - No console or page errors.
 
+
+## Slice 2b: Bisection, MeanValue, Accumulation, Darboux (2026-11-01)
+
+- **Workers:** two `bezeg-worker` Sonnet `medium` workers ran in parallel, each owning its models' blocks (dispatched 08:16Z).
+  - Bisection + Darboux: about 102k tokens, 43 tools, 8.3 min.
+  - MeanValue + Accumulation: about 80k tokens, 36 tools, 6.9 min.
+  - Neither needed a repair.
+- **Shape:** each model follows the pilot pattern:
+  - `check<X>Model` plus edit functions in `src/analysis/<x>Model.ts`.
+  - `<x>FileMessage` and `<x>EditMessage` in `src/graphs/functions/<x>Messages.ts`.
+  - The setters throw `DomainError(<x>EditMessage(issue))`.
+  - The `diagnose<X>` blocks delegate to the models.
+  - The handler moved `cleanNoise` into `analysis/numbers.ts`, which keeps a single copy. `BaseFunctionGraph` re-exports it.
+- **New keys** (in both `sl.ts` and `en.ts`):
+  - `<bisection|darboux|mean_value>_endpoint_range_rejected`
+  - `<bisection|darboux|mean_value>_example_rejected`
+  - `mean_value_c_range_rejected`
+  - `accumulation_function_rejected`
+  - `accumulation_a_range_rejected`
+  - `accumulation_x_range_rejected`
+  - Order refusals reuse the existing `*_rejected_hint` keys and `darboux_refine_limit`.
+  - Candidate cleanup: one shared key per text, since the four example keys and the three endpoint-range keys have identical wording.
+- **Behaviour:** acceptance, diagnosis precedence and normalization match HEAD, according to the reviewer. One change: the MeanValue setter skips the commit when its cleaned value equals the current one (within 1e-9 noise). HEAD committed a model with the same field values. This is not visible, and Darboux already behaved this way. Accumulation keeps HEAD's raw-value comparison.
+- **Mutations observed by the workers:**
+  - A setter throwing HEAD's English text fails the new localization tests (Bisection, Accumulation).
+  - The order-check mutations fail the model tests (Darboux `>=`; MeanValue's b-order check fed `value + 1`).
+- **Review:** `bezeg-reviewer` Sonnet (engineering + localization) found no defects.
+- **Handler checks on the final tree:** `just typecheck`, `just lint src` and `just unit src/analysis src/graphs/functions src/localization` all passed. Collection tests are unchanged.
+- **Not run:** `just check` (deferred to A7 verification) and browser checks.
