@@ -34,7 +34,7 @@ Kernels and graphs (F1, F2a) are not gated. Registration, lessons, chapter and m
 | 12 | [Batch 1 registration](12-batch1-registration.md): family and three Demonstrations, posters | F2b | 09, 10, `G-REG` | accepted 2026-11-01 (handler 10): routes, family, Presets; posters deferred to F5 (`POSTER_PENDING`; capture needs a `linear-map` recipe from Maps first) |
 | 13 | [Lessons A1 orientation, A2 polygon area](13-lessons-orientation-area.md) | F3 | 12 | accepted 2026-11-01 (handler 12): `point-set` actions, `values` overlay, interim chapter owner until F4 |
 | 14 | [Hull trace actions and lesson A4](14-lesson-convex-hull.md) | F3 | 13 | accepted 2026-11-01 (handler 14): F3 review, `just smoke-lesson convex-hull`, bilingual walk |
-| 15 | [Convexity and hulls chapter, Batch 1](15-chapter.md) | F4 | 13, 14, Maps `chapterOwnedLessons` on `master` | planned; blocked until Maps pushes the shared table |
+| 15 | [Convexity and hulls chapter, Batch 1](15-chapter.md) | F4 | 13, 14, Maps `chapterOwnedLessons` on `master` | accepted 2026-11-01 (handler 18) |
 | — | F5 media; F6 acceptance | F5–F6 | 15 | files pending |
 
 ## Later batches (task files written when the previous batch is accepted)
