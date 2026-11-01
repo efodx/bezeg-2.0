@@ -397,4 +397,20 @@ describe('family reading chapters', () => {
         expect(captions).toContain('0.8^5');
         expect(captions).toContain('nonuniform convergence case');
     });
+
+    test('keeps the backslash on TeX commands inside inline math', () => {
+        const prose = JSON.parse(JSON.stringify(familyChapters)) as unknown;
+        const strings: string[] = [];
+        const collect = (value: unknown) => {
+            if (typeof value === 'string') strings.push(value);
+            else if (Array.isArray(value)) value.forEach(collect);
+            else if (value && typeof value === 'object') Object.values(value).forEach(collect);
+        };
+        collect(prose);
+        const bareCommand = /(?<![\\a-zA-Z])(le|ge|leq|geq|frac|cdot|sqrt|sum|pi|alpha|beta|infty)(?![a-zA-Z])/u;
+        const offenders = strings.flatMap(text => [...text.matchAll(/\\\((.*?)\\\)/gu)]
+            .map(match => match[1])
+            .filter(math => bareCommand.test(math)));
+        expect(offenders).toEqual([]);
+    });
 });
