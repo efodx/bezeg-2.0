@@ -31,6 +31,11 @@ export function getChapterOwnedLessons(chapterId: string): ChapterOwnedLessons |
     return Object.prototype.hasOwnProperty.call(chapterOwnedLessons, chapterId) ? chapterOwnedLessons[chapterId] : undefined;
 }
 
+/**
+ * The first chapter-owned lesson on Demonstration `id`, in table order and then in the key order of the chapter's registry.
+ * When a chapter has several lessons on one Demonstration (`linear-map` has L1 and L2), this is the lesson of the first
+ * registry key, so registries list sections in teaching order.
+ */
 export function findChapterOwnedLessonByDemonstration(id: DemonstrationId): LessonDefinition | undefined {
     for (const chapter of Object.values(chapterOwnedLessons)) {
         const found = chapter.entries().find(([, lesson]) => lesson.demonstrationId === id);

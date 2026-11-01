@@ -87,7 +87,10 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
 
     // ---- Edits ---------------------------------------------------------------------------------------------------
 
-    /** Loads a named example (vertices and id) in one synchronous write. */
+    /**
+     * Loads a named example in two synchronous writes, the vertices (`loadModel`) and then the id (`setState`). Between them
+     * the old id may name the new vertices for one write; `activeExampleId` checks the id against the vertices, so it does no harm.
+     */
     loadExample(id: NotableExampleId): void {
         const example = notableExample(id);
         this.loadModel({...DEFAULT_NOTABLE_MODEL, points: example.points.map(p => ({...p}))});
