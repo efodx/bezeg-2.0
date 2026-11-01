@@ -180,7 +180,8 @@ test('adapts the five construction lessons into typed runtime actions', () => {
 test('every active demonstration route has an available lesson', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
-    expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
+    // `linear-map` is registered without a lesson until the linear maps lesson task publishes one.
+    expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual(['linear-map']);
 });
 
 describe('typed scene actions', () => {

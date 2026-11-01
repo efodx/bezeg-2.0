@@ -3,6 +3,7 @@ import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, P
 import {curvePresetCollections, legacyCurvePresetCollections} from "../../curves/curvePresetCollections";
 import {functionPresetCollections} from "../../functions/functionPresetCollections";
 import {patchPresetCollections} from "../../patches/patchPresetCollections";
+import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -10,7 +11,7 @@ import {patchPresetCollections} from "../../patches/patchPresetCollections";
  */
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(curvePresetCollections), ...legacyCurvePresetCollections, ...Object.values(functionPresetCollections),
-    ...Object.values(patchPresetCollections),
+    ...Object.values(patchPresetCollections), linearMapPresetCollection,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

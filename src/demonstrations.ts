@@ -14,6 +14,7 @@ const families = [
     {id: '/bezeg-2.0/patches', title: 'bezier_patches'},
     {id: '/bezeg-2.0/functions', title: 'functions_and_calculus'},
     {id: 'analysis', title: 'analysis'},
+    {id: 'maps', title: 'maps_of_the_plane'},
 ] as const;
 export type FamilyId = typeof families[number]['id'];
 type Definition = {
@@ -78,6 +79,7 @@ const definitions = [
     {id: 'sequence', path: '/bezeg-2.0/analysis/sequence', family: 'analysis', title: 'sequence', prompts: ['prompt_sequence', 'prompt_compare']},
     {id: 'uniform-convergence', path: '/bezeg-2.0/analysis/uniform-convergence', family: 'analysis', title: 'uniform_convergence', prompts: ['prompt_uniform_convergence', 'prompt_compare']},
     {id: 'fixed-point', path: '/bezeg-2.0/analysis/fixed-point', family: 'analysis', title: 'fixed_point', prompts: ['prompt_fixed_point', 'prompt_compare']},
+    {id: 'linear-map', path: '/bezeg-2.0/linear-map', family: 'maps', title: 'linear_map_title', prompts: ['linear_map_prompt', 'prompt_compare'], lesson: false},
 ] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
 /**

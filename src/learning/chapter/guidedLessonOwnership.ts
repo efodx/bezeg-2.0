@@ -56,6 +56,8 @@ export const guidedLessonOwners: Readonly<Record<DemonstrationId, GuidedLessonOw
     'uniform-convergence': {chapterId: 'analysis', sectionId: 'convergence'},
     'complex-multiplication': {chapterId: 'foundations', sectionId: 'complex-plane'},
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
+    // Registered without a lesson (task 06); the chapter and section are authored in task 07.
+    'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},

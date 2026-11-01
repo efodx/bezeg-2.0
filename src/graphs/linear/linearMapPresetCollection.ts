@@ -1,7 +1,7 @@
 import {message, Message} from '../../localization';
 import {LinearMapError, LinearMapState, parseLinearMapState} from '../../linear/linearMapModel';
 import {isLinearMapGraphMode} from './linearMapScene';
-import type {PresetCollection, PresetDataCheck} from '../base/presets/PresetCollection';
+import {checkSceneState, PresetCollection, PresetDataCheck} from '../base/presets/PresetCollection';
 
 /** The localized reason for a rejected Preset: which field, and what it must be. */
 export function linearMapRejection(error: LinearMapError): Message {
@@ -24,6 +24,10 @@ export function linearMapRejection(error: LinearMapError): Message {
  */
 export const linearMapPresetCollection: PresetCollection<LinearMapState> = Object.freeze({
     key: 'linear-map',
+    /** The scene state mirrors the model, so its matrices are nested arrays; they are checked as Preset data by `check`. */
+    checkGraphState(graphState: unknown): Message | undefined {
+        return checkSceneState(graphState, ['matrix', 'secondMatrix']);
+    },
     check(data: unknown): PresetDataCheck<LinearMapState> {
         const parsed = parseLinearMapState(data);
         if (!parsed.ok) return {rejection: linearMapRejection(parsed.error)};
