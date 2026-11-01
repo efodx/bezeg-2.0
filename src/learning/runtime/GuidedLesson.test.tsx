@@ -1,7 +1,8 @@
 import React from 'react';
 import {act} from 'react';
 import {fireEvent, render, screen, waitFor} from '@testing-library/react';
-import {setLanguage} from '../../localization';
+import {message, setLanguage} from '../../localization';
+import {DomainError} from '../../graphs/functions/BaseFunctionGraph';
 import type {LessonDefinition, LessonGraphCapabilities} from '../model';
 import {GuidedLesson} from './GuidedLesson';
 import {LessonSession} from './LessonSession';
@@ -710,4 +711,20 @@ test('the panel and the compact tab can each be moved over the graph without tri
         vi.unstubAllGlobals();
         act(() => setLanguage('sl'));
     }
+});
+
+test('a startup error stays visible and follows a language switch', () => {
+    setLanguage('sl');
+    const failing = capabilities();
+    (failing.apply as Mock).mockImplementation(() => {throw new DomainError(message('convexity_t_rejected_hint', {value0: '0', value1: '1'}));});
+    const sceneLesson: LessonDefinition = {
+        id: 'startup-error', demonstrationId: 'bezier', title: {sl: 'Test', en: 'Test'}, summary: {sl: 'Test', en: 'Test'},
+        steps: [{id: 'one', title: {sl: 'Ena', en: 'One'}, body: {sl: 'Telo', en: 'Body'}, scene: {actions: [{kind: 'parameter', name: 't', value: 0.25}]}}],
+    };
+    render(<GuidedLesson lesson={sceneLesson} capabilities={failing} onClose={vi.fn()}/>);
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('Točka t mora biti');
+    act(() => setLanguage('en'));
+    expect(screen.getByRole('alert')).toHaveTextContent('The point t must be a number between 0 and 1.');
+    act(() => setLanguage('sl'));
 });

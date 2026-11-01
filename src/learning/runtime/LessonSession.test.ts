@@ -1,3 +1,4 @@
+import {LocalizedError, message, setLanguage} from '../../localization';
 import {LessonAction, LessonDefinition, LessonGraphCapabilities, LessonSceneCheckpoint} from '../model';
 import {LessonSession} from './LessonSession';
 import type {Mock} from 'vitest';
@@ -267,4 +268,31 @@ test('returns the same snapshot object until a transition changes it and notifie
     unsubscribe();
     session.next();
     expect(listener).not.toHaveBeenCalled();
+});
+
+test('a failed scene keeps the original error so a lazily localized message follows a language switch', () => {
+    setLanguage('sl');
+    const fake = fakeCapabilities();
+    const session = new LessonSession(lesson, fake.capabilities);
+    session.start();
+    const lazy = new LocalizedError(message('guided_lesson_scene_error'));
+    (fake.capabilities.apply as Mock).mockImplementationOnce(() => {throw lazy;});
+    expect(() => session.reset()).toThrow(lazy);
+    const stored = session.getSnapshot().error;
+    expect(stored).toBe(lazy);
+    setLanguage('en');
+    expect(stored?.message).toBe('The example scene could not be prepared.');
+    setLanguage('sl');
+});
+
+test('a thrown non-error is reported with the localized fallback, not hard-coded English', () => {
+    setLanguage('sl');
+    const fake = fakeCapabilities();
+    const session = new LessonSession(lesson, fake.capabilities);
+    session.start();
+    (fake.capabilities.apply as Mock).mockImplementationOnce(() => {throw 'boom';});
+    expect(() => session.reset()).toThrow('Prizora ni mogoče pripraviti.');
+    setLanguage('en');
+    expect(session.getSnapshot().error?.message).toBe('The example scene could not be prepared.');
+    setLanguage('sl');
 });

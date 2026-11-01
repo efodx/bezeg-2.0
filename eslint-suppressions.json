@@ -309,7 +309,7 @@
   },
   "src/learning/runtime/GuidedLesson.tsx": {
     "react-hooks/exhaustive-deps": {
-      "count": 5
+      "count": 4
     },
     "react-hooks/refs": {
       "count": 1
