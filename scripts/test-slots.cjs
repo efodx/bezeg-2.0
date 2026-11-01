@@ -23,6 +23,9 @@ const STALE_MS = 2 * 60 * 60 * 1000; // longer than any check or smoke run
 // sessions (seen 2026-11-01 several times an hour). So every heavy command also waits until it leaves this much free.
 const MEMORY_FLOOR_GB = 2;
 const COMMAND_MEMORY_GB = {typecheck: 1.5, lint: 1, build: 1.5, 'check-localization': 1.5, smoke: 1.5, 'smoke-built': 1.5, 'smoke-lesson': 1.5};
+// What the gate expects one Vitest worker to reach. Measured 2026-11-01 with the board hook in src/setupTests.ts: a
+// file's peak is 0.3 GB at the median and 1.2 GB at most (2.3 GB before the hook).
+const GATE_GB_PER_WORKER = 1;
 const RAMP_MS = 60_000; // a run reaches most of its memory within a minute, so starts are spaced to read it
 const MAX_MEMORY_WAIT_MS = 20 * 60 * 1000; // then start anyway, warned: a busy desktop must not block work forever
 const GB = 1024 ** 3;
@@ -148,14 +151,14 @@ function memoryFloorGB(env = process.env) {
 
 // Memory a command needs before it may start; unit runs and checks need one worker and then fit their workers.
 function commandMemoryGB(command) {
-    return COMMAND_MEMORY_GB[command] ?? MEMORY_PER_WORKER_GB;
+    return COMMAND_MEMORY_GB[command] ?? GATE_GB_PER_WORKER;
 }
 
 // Workers that fit the memory available at admission, never more than the slot allows.
 function fitWorkers(workers, freeGB, env = process.env) {
     const floor = memoryFloorGB(env);
     if (floor === 0) return workers;
-    return Math.max(1, Math.min(workers, Math.floor((freeGB - floor) / MEMORY_PER_WORKER_GB)));
+    return Math.max(1, Math.min(workers, Math.floor((freeGB - floor) / GATE_GB_PER_WORKER)));
 }
 
 /**

@@ -479,8 +479,8 @@ test('the memory gate waits for free memory, spaces starts and fits workers to w
         clock += 1000;
         assert.equal((await late).freeGB, 1);
         assert.match(messages.join(''), /Starting build after \d+ min without enough memory: 1.0 GB available/);
-        // Workers: never more than the slot allows, at least one, otherwise what fits above the floor at 1.5 GB each.
-        assert.deepEqual([slots.fitWorkers(4, 12, env), slots.fitWorkers(4, 6.5, env), slots.fitWorkers(4, 2.5, env), slots.fitWorkers(4, 2.5, {BEZEG_MEMORY_FLOOR_GB: '0'})], [4, 3, 1, 4]);
+        // Workers: never more than the slot allows, at least one, otherwise what fits above the floor at 1 GB each.
+        assert.deepEqual([slots.fitWorkers(4, 12, env), slots.fitWorkers(4, 5.5, env), slots.fitWorkers(4, 2.5, env), slots.fitWorkers(4, 2.5, {BEZEG_MEMORY_FLOOR_GB: '0'})], [4, 3, 1, 4]);
         assert.throws(() => slots.memoryFloorGB({BEZEG_MEMORY_FLOOR_GB: '-1'}), /BEZEG_MEMORY_FLOOR_GB must be a non-negative number/);
     } finally { cleanup(dir); }
 });
