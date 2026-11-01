@@ -16,7 +16,7 @@ The order differs from the backlog README's waves: tasks that gate other streams
 | 3 | A4 generic spline changes ∥ A7 function-model rules (convexity pilot, then the other ten) | Disjoint: spline adapter vs. analysis models. A7 rebases over A9 (reverses the backlog's soft 9-after-7 order) | accepted 2026-11-01: A4 (`c620ad48`) and A7 (pilot `be74f83e`, slices `f9b40c0d`–`19829899`; [evidence](../architecture-deepening-backlog/07-function-model-rules.evidence.md#a7-verification-2026-11-01)) |
 | 4 | A6 curve gesture mathematics ∥ A8 function graph sharing | A6 after A4; A8 after A7. **Opens `G-CURVE`** (A4 + A6) and **`G-FN`** (A7 + A8) | accepted 2026-11-01: A6 (`a467c526`, `4b908534`, `2d5b0a80`) and A8 (`47434ed2`, `a5910b23`, `d1162c43`; S3 no change). Function p95 settled by interleaved runs; evidence beside each task file |
 | 5 | A2 figure export operation ∥ A5 PH auxiliary board | A2 after A1 (`BaseGraph.tsx`, `PresetSelector.tsx`) and after A7/A8 (shared function-graph test files) | accepted 2026-11-01: A2 (`60321820`, fixture follow-up `53e9ef8e`) and A5 (`89a1dcb4`). Browser smoke by handler 10; evidence beside each task file |
-| 6 | A3 one scene replacement path | After A2, A5 and A8 (shares `BaseFunctionGraph.tsx` with A8). Full browser checklist | planned |
+| 6 | A3 one scene replacement path | After A2, A5 and A8 (shares `BaseFunctionGraph.tsx` with A8). Full browser checklist. Slices S1–S4 from the [inventory](../../reviews/feature-streams/platform/a3-inventory.md) | in progress (handler 10): S1 contract tests `c6cf7956` (branch only). Next: S2 one replacement module |
 
 Line ranges in the task files date from `2f602d0` (2026-10-25); locate code by search. Families in other streams may have added graph families since. A3, A7 and A8 must cover every graph family on `master` when they start, not only the families that existed on 2026-10-25.
 
@@ -32,4 +32,5 @@ A *Worth exploring* task (A3, A6, A8, A10) may end in "no change" after its inve
 
 ## Load notes
 
+- 2026-11-01 (handler 10): Claude Code's memory reaper killed an idle-session `just check`, the preview and the watchers at about 19:30Z (2.7 GB free afterwards). Run the push-gate checks in the foreground in chunks under 10 min.
 - 2026-11-01 (handler 9): `just build` and `just unit` each waited 20 min at the memory gate (1.0–1.9 GB free) during step 5. The stream drops to one worker after A2/A5.
