@@ -1,0 +1,194 @@
+== mutation: level.slice(1).map((next, i) => mixHomogeneous(level[i], next, t));
+        rows.push -> level.slice(1).map((next, i) => mixHomogeneous(level[i], next, t)).map(h => [h[0] / h[2] * 0 + h[0], h[1], h[2]] as Homogeneous);
+        rows.push
+unit: passed in 3.1s (2 workers, no slot); revision 094660ce33c912d7eb82503ed1d9cd7c0fd8b6e3; dirty; log .command-logs\2026-11-01T09-19-17-962Z-113556-803f9d0f.log
+exit 0
+== mutation: lifted[Math.max(i - 1, 0)], i / (n + 1) -> lifted[Math.max(i - 1, 0)], i / (n + 2)
+unit: failed (1) in 3.1s (2 workers, no slot); revision 094660ce33c912d7eb82503ed1d9cd7c0fd8b6e3; dirty; log .command-logs\2026-11-01T09-19-21-459Z-114472-b5f6239b.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/chapter/guidedExampleHighlightExpectations
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-learn-ui
+
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts (23 tests | 1 failed) 32ms
+   ❯ bezier-curves chapter highlight expectations (batch 03a) (17)
+     × rational elevation: weights 1, 7/4, 3/2, 1, 1, Q_1 = (-22/7, 15/7), and the same curve 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExampleHighlightExpectations.test.ts > bezier-curves chapter highlight expectations (batch 03a) > rational elevation: weights 1, 7/4, 3/2, 1, 1, Q_1 = (-22/7, 15/7), and the same curve
+AssertionError: expected 1.8 to be close to 1.75, received difference is 0.050000000000000044, but expected 5e-13
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:203:72
+    201|     it('rational elevation: weights 1, 7/4, 3/2, 1, 1, Q_1 = (-22/7, 1…
+    202|         const E = rationalElevatedControls(rationalControlPoints, rati…
+    203|         [1, 7 / 4, 3 / 2, 1, 1].forEach((w, i) => expect(E.weights[i])…
+       |                                                                        ^
+    204|         near(E.points[1], [-22 / 7, 15 / 7]);
+    205|         for (let k = 0; k <= 20; k++) near(rationalBezierPoint(E.point…
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:203:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 22 passed (23)
+   Start at  10:19:22
+   Duration  2.16s (environment 46%, setup 28%, transform 23%, tests 2%, import 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
+exit 1
+== mutation: [...Array(n - k).fill(a), ...Array(k).fill(b)]) -> [...Array(k).fill(a), ...Array(n - k).fill(b)])
+unit: failed (1) in 3.5s (2 workers, no slot); revision 094660ce33c912d7eb82503ed1d9cd7c0fd8b6e3; dirty; log .command-logs\2026-11-01T09-19-25-086Z-96836-55390274.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/chapter/guidedExampleHighlightExpectations
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-learn-ui
+
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts (23 tests | 2 failed) 41ms
+   ❯ bezier-curves chapter highlight expectations (batch 03a) (17)
+     × subdivision: the cut at 1/2 gives the lesson left part and a right part sharing (0, 3/2); each part traces the original 5ms
+     × extrapolation: E(u) = B(6u/5) has the lesson controls, retraces B on [0, 5/6] and ends at B(6/5) 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExampleHighlightExpectations.test.ts > bezier-curves chapter highlight expectations (batch 03a) > subdivision: the cut at 1/2 gives the lesson left part and a right part sharing (0, 3/2); each part traces the original
+AssertionError: expected +0 to be close to -4, received difference is 4, but expected 5e-10
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:69:112
+     67| });
+     68|
+     69| const near = (a: readonly number[], b: readonly number[], digits = 9) …
+       |                                                                                                                ^
+     70| const distance = (a: readonly number[], b: readonly number[]) => Math.…
+     71|
+ ❯ near src/learning/chapter/guidedExampleHighlightExpectations.test.ts:69:76
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:114:80
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:114:55
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/chapter/guidedExampleHighlightExpectations.test.ts > bezier-curves chapter highlight expectations (batch 03a) > extrapolation: E(u) = B(6u/5) has the lesson controls, retraces B on [0, 5/6] and ends at B(6/5)
+AssertionError: expected 3.055999999999999 to be close to -4, received difference is 7.055999999999999, but expected 5e-10
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:69:112
+     67| });
+     68|
+     69| const near = (a: readonly number[], b: readonly number[], digits = 9) …
+       |                                                                                                                ^
+     70| const distance = (a: readonly number[], b: readonly number[]) => Math.…
+     71|
+ ❯ near src/learning/chapter/guidedExampleHighlightExpectations.test.ts:69:76
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:157:104
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:157:79
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 21 passed (23)
+   Start at  10:19:26
+   Duration  2.40s (environment 45%, setup 29%, transform 23%, tests 2%, import 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
+exit 1
+== mutation: if (i === degree) return [[1, cumulative(i - 1, 1)], [0, cumulative(i - 1, 0)] -> if (i === degree) return [[0, cumulative(i - 1, 1)], [0, cumulative(i - 1, 0)]
+unit: failed (1) in 3.8s (2 workers, no slot); revision 094660ce33c912d7eb82503ed1d9cd7c0fd8b6e3; dirty; log .command-logs\2026-11-01T09-19-29-167Z-131032-3bac3859.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/chapter/guidedExampleHighlightExpectations
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-learn-ui
+
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts (23 tests | 1 failed) 47ms
+   ❯ bezier-curves chapter highlight expectations (batch 03a) (17)
+     × stacked Bernstein regions: four outlines at degree 3 and the top edge is height 1 (partition of unity) 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExampleHighlightExpectations.test.ts > bezier-curves chapter highlight expectations (batch 03a) > stacked Bernstein regions: four outlines at degree 3 and the top edge is height 1 (partition of unity)
+AssertionError: expected [ [ +0, +0 ], [ +0, 1 ], [ 1, +0 ] ] to deeply equal [ [ 1, +0 ], [ +0, 1 ], [ 1, +0 ] ]
+
+- Expected
++ Received
+
+@@ -1,8 +1,8 @@
+  [
+    [
+-     1,
++     0,
+      0,
+    ],
+    [
+      0,
+      1,
+
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:225:53
+    223|         expect(stackedBernsteinRegionSamples(4, 1)).toEqual([[0, 1], […
+    224|         expect(stackedBernsteinRegionSamples(4, 2)).toEqual([[0, 1], […
+    225|         expect(stackedBernsteinRegionSamples(4, 3)).toEqual([[1, 0], […
+       |                                                     ^
+    226|         for (const t of [0, 0.25, 0.5, 0.9]) expect([0, 1, 2, 3].reduc…
+    227|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 22 passed (23)
+   Start at  10:19:30
+   Duration  2.51s (environment 53%, setup 23%, transform 20%, tests 2%, import 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
+exit 1
+== mutation: rationalDecasteljauRows skips the projection
+unit: failed (1) in 2.9s (2 workers, no slot); revision 094660ce33c912d7eb82503ed1d9cd7c0fd8b6e3; dirty; log .command-logs\2026-11-01T09-19-39-402Z-105196-036958a4.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/chapter/guidedExampleHighlightExpectations
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-learn-ui
+
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts (23 tests | 1 failed) 28ms
+   ❯ bezier-curves chapter highlight expectations (batch 03a) (17)
+     × rational de Casteljau: quadratic (1,2,1) at 1/2 projects the rows (-4/3,1),(4/3,1) and ends at (0,1), the point of the rational curve 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExampleHighlightExpectations.test.ts > bezier-curves chapter highlight expectations (batch 03a) > rational de Casteljau: quadratic (1,2,1) at 1/2 projects the rows (-4/3,1),(4/3,1) and ends at (0,1), the point of the rational curve
+AssertionError: expected -2 to be close to -1.3333333333333333, received difference is 0.6666666666666667, but expected 5e-10
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:69:112
+     67| });
+     68|
+     69| const near = (a: readonly number[], b: readonly number[], digits = 9) …
+       |                                                                                                                ^
+     70| const distance = (a: readonly number[], b: readonly number[]) => Math.…
+     71|
+ ❯ near src/learning/chapter/guidedExampleHighlightExpectations.test.ts:69:76
+ ❯ src/learning/chapter/guidedExampleHighlightExpectations.test.ts:188:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 22 passed (23)
+   Start at  10:19:40
+   Duration  2.03s (environment 49%, setup 27%, transform 21%, tests 1%, import 1%, worker 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
+exit 1
