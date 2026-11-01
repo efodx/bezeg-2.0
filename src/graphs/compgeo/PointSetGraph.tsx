@@ -692,11 +692,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.overlaysDrawnFor = {model, overlays, extra: this.overlayInputs()};
     }
 
-    /** The board removes every scene object during a Preset replacement; drop the references so the next sync rebuilds. */
+    /** Removes this family's drawn, pending and overlay objects; the next sync rebuilds them. */
     protected override disposeFigureScene(): void {
-        this.drawn = undefined;
+        this.removeDrawn();
+        this.removeObjects(this.pendingObjects);
         this.pendingObjects = [];
         this.pendingDrawnFor = undefined;
+        this.removeObjects(this.overlayObjects);
         this.overlayObjects = [];
         this.overlaysDrawnFor = undefined;
     }

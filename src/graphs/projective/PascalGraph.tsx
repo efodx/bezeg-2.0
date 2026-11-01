@@ -420,9 +420,9 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
         return {conic: conicId, handles, all};
     }
 
-    /** The board removes every scene object during a Preset replacement; drop the references so the next sync rebuilds. */
+    /** Removes this family's drawn objects; the next sync rebuilds them. */
     protected override disposeFigureScene(): void {
-        this.drawn = undefined;
+        this.removeDrawn();
     }
 
     override unmount(): void {
