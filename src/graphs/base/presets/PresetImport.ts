@@ -14,6 +14,7 @@ import {interpolationPresetCollection} from "../../curves/interpolation/interpol
 import {hermitePresetCollection} from "../../curves/hermite/hermitePresetCollection";
 import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdivisionPresetCollection";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
+import {crossRatioPresetCollection, pascalPresetCollection, polePolarPresetCollection} from "../../projective/projectivePresetCollection";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -24,7 +25,7 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection,
     parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
-    coonsPresetCollection,
+    coonsPresetCollection, crossRatioPresetCollection(), pascalPresetCollection(), polePolarPresetCollection(),
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

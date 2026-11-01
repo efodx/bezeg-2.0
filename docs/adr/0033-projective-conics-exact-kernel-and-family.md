@@ -90,3 +90,18 @@ At 14 a drag already moves a handle in steps of a few pixels. A larger bound red
 - Past the first 8 levels, recursion continues to at most 40 levels, and only along intervals whose known hull meets the view. This finds a visible arc far narrower than one angle step in a distant view.
 - Without the parallel-tangent margin, the far pieces near an asymptote were subdivided blindly. Hyperbola sampling at density 720 then took 11 ms instead of 0.36 ms, with identical output.
 - Regression tests: an arc bulging into a view its chord misses, tiny distant arcs of a circle and a hyperbola, and a far near-straight piece of \(xy=1\). All four fail against the pre-change sampler, and the last also fails when the margin branch always skips.
+
+## Browser measurement (slice 06)
+
+The three routes (`/bezeg-2.0/projective/cross-ratio`, `pascal`, `pole-polar`) are registered, so the drag cost left open in the 05d addendum is now measured in the browser. Method: `node scripts/projective-browser-perf.cjs` (modelled on `scripts/curve-gesture-perf.cjs`; production build served by `just preview 4315`; Chromium via Playwright, 1440×900, no CPU throttling, mouse input only). Each case ran 3 times; frames are `requestAnimationFrame` intervals sampled only inside the interaction (the first 15 of a drag are dropped). A drag is 150 pointer moves over 2 s, and the script fails if the handle did not move. The conic switch clicks the conic buttons nine times, 150 ms apart.
+
+| Interaction | Frame p50 / p95 / max (ms) | Frames per run |
+| --- | --- | --- |
+| K2 Pascal handle drag, ellipse | 16.7 / 16.8 / 33.4 | 410–428 |
+| K2 Pascal handle drag, parabola | 16.7 / 16.7 / 33.4 | 381–408 |
+| K2 Pascal handle drag, hyperbola | 16.7 / 16.8 / 33.4 | 414–439 |
+| K3 P drag, ellipse | 16.7 / 16.8 / 33.4 | 354–383 |
+| K2 conic switch (ellipse, parabola, hyperbola) | 16.7 / 66.6 / 100.0 | 130–134 |
+| K3 conic switch (same) | 16.7 / 16.8 / 33.4 | 116–119 |
+
+p50 and p95 are medians over the three runs; max is the largest of any run. Drags hold the display's 60 Hz frame (16.7 ms) with at most one dropped frame, so BigInt work and 361-vertex redraws during a drag do not limit the table size 256 or density 360. The K2 conic switch drops a few frames (p95 66.6 ms, worst 100 ms): it rebuilds the six handles' reachable lists (2–8 ms in the 05d Node figures) and redraws a new polyline, and it happens once per click, not per move. No change to the bound or density follows. Not covered: touch input, CPU throttling or low-end devices, the line-pair conic, and the cross-ratio route (K1 has no drag cost beyond integer arithmetic and was not measured).

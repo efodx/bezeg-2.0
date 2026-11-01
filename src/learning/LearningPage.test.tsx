@@ -27,7 +27,7 @@ beforeEach(() => {
 
 // Families registered before their chapter exists. Each family's F4 chapter slice removes its entry
 // (docs/tasks/curve-geometry/README.md CG-B1-4, docs/tasks/interpolation-approximation/README.md).
-const FAMILY_CHAPTER_PENDING: readonly string[] = ['/bezeg-2.0/curve-geometry', '/bezeg-2.0/interpolation', 'plane-geometry'];
+const FAMILY_CHAPTER_PENDING: readonly string[] = ['/bezeg-2.0/curve-geometry', '/bezeg-2.0/interpolation', 'plane-geometry', 'projective'];
 
 test('Learn contains every family chapter and keeps guided activities inside chapters', () => {
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);

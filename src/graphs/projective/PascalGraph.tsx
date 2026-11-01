@@ -3,6 +3,7 @@ import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {sampleConic} from "../../projective/conicSampler";
 import {Hom, toAffine} from "../../projective/homogeneous";
@@ -168,6 +169,13 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
         return serializePascalModel(DEFAULT_PASCAL_MODEL);
     }
 
+    /** A Preset carries the model once, as `data`; its `graphState` omits `model`, which the collection's `checkGraphState` rejects. */
+    override exportPreset(): Preset<PascalModel> {
+        const preset = super.exportPreset();
+        const {model: _model, ...graphState} = preset.graphState as PascalGraphState;
+        return {...preset, graphState};
+    }
+
     override exportPresetData(): PascalModel {
         return serializePascalModel(this.model);
     }
@@ -199,11 +207,15 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
 
     // ---- Board ---------------------------------------------------------------------------------------------------
 
+    /** The starting view, which a new board and Reset to the default scene both fit to the canvas. */
+    protected override initialView(): [number, number, number, number] {
+        return [...PASCAL_VIEW_BOX];
+    }
+
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
         // JSXGraph writes an empty aria-label of its own on the container, so the host's value is read before it is created.
         const hadLabel = container.getAttribute("aria-label");
         super.createMainView(session, container);
-        this.board.setBoundingBox([...PASCAL_VIEW_BOX], true);
         this.bindInteraction(session, container, hadLabel);
     }
 

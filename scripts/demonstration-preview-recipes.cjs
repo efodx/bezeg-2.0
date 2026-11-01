@@ -72,6 +72,9 @@ const targets = {
     // Sample 1: four segments spanning x 0..6 and y -1..5.
     'segment-intersections': ['Sample 1 of four segments at step 25 of 47 of the Bentley-Ottmann sweep: the sweep line at y = 2 and the intersections found above it', [button('Naslednji korak', 24)], [-0.8, 5.8, 6.8, -1.8]],
     'patch-coons': ['Default Coons patch, fitted to the preview frame, with its four boundary curves, control net and shaded surface', [button('Ponastavi pogled')]],
+    'projective-cross-ratio': ['Default central projection of four points A, B, C, D from the centre O onto the second line, with both cross-ratios 9/8', [], [-14, 9, 14, -7]],
+    'projective-pascal': ['Default Pascal hexagon inscribed in the ellipse with the three intersections of opposite sides on one line', [], [-12, 10.5, 12, -10.5]],
+    'projective-pole-polar': ['Default point P outside the ellipse with its polar and the two tangents from P', [], [-12, 10.5, 12, -10.5]],
     'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-decasteljau': ['Default bicubic dome, fitted to the preview frame, in the de Casteljau workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-derivatives': ['Default bicubic dome, fitted to the preview frame, in the derivatives workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],

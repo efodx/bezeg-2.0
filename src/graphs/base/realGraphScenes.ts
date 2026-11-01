@@ -3,6 +3,9 @@
  * a lesson would, and what it compares afterwards (scene observation plus transient state and child-board view).
  * Graphs come from `graphFactories` through `realGraphTestHarness`; nothing here mocks a graph.
  */
+import {CROSS_RATIO_EXAMPLES} from '../projective/crossRatioModel';
+import {PASCAL_EXAMPLES} from '../projective/pascalModel';
+import {POLE_POLAR_EXAMPLES} from '../projective/polePolarModel';
 import {act, fireEvent} from '@testing-library/react';
 import type BaseGraph from './BaseGraph';
 import type {BaseGraphState} from './BaseGraph';
@@ -82,6 +85,14 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
     // Function graphs only: their Preset data is a model object, which their Preset collection checks.
     const collection = graph.presetCollection();
     const exported = g.exportPresetData();
+    // Projective graphs: the model is a discrete example with nested integer points, so switch to another example.
+    // (Told apart by collection key; importing the graph classes here would form an import cycle.)
+    const pick = <T extends string>(a: T, b: T) => variant === 'a' ? a : b;
+    switch (collection?.key) {
+        case 'projective-cross-ratio': g.importPresetData(CROSS_RATIO_EXAMPLES[pick('harmonic', 'infinity')]); return;
+        case 'projective-pascal': g.importPresetData(PASCAL_EXAMPLES[pick('pappus', 'infinity')]); return;
+        case 'projective-pole-polar': g.importPresetData(POLE_POLAR_EXAMPLES[pick('inside', 'infinity')]); return;
+    }
     if (!collection || exported === null || typeof exported !== 'object' || Array.isArray(exported)) return;
     let model = {...exported as Record<string, unknown>};
     for (const [key, value] of Object.entries(model)) {

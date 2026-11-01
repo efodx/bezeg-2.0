@@ -68,6 +68,9 @@ import InterpolationGraph from './curves/interpolation/InterpolationGraph';
 import HermiteGraph from './curves/hermite/HermiteGraph';
 import SubdivisionCurveGraph from './curves/subdivisionCurves/SubdivisionCurveGraph';
 import CoonsPatchGraph from './patches/CoonsPatchGraph';
+import {CrossRatioGraph} from './projective/CrossRatioGraph';
+import {PascalGraph} from './projective/PascalGraph';
+import {PolePolarGraph} from './projective/PolePolarGraph';
 import type {DemonstrationId} from '../demonstrations';
 
 /** Executable graph constructors live behind graph-route lazy imports. */
@@ -140,4 +143,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'ear-clipping': () => new EarClippingGraph(),
     'interval-sweep': () => new IntervalSweepGraph(),
     'segment-intersections': () => new BentleyOttmannGraph(),
+    'projective-cross-ratio': () => new CrossRatioGraph(),
+    'projective-pascal': () => new PascalGraph(),
+    'projective-pole-polar': () => new PolePolarGraph(),
 };

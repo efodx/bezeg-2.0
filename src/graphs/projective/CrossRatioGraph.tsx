@@ -3,6 +3,7 @@ import BaseGraph, {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {
     CROSS_RATIO_EXAMPLES, CROSS_RATIO_VIEW_BOX, CrossRatioExampleId, CrossRatioModel, CrossRatioScene, DEFAULT_CROSS_RATIO_MODEL, evaluateCrossRatio,
@@ -119,6 +120,13 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         return serializeCrossRatioModel(DEFAULT_CROSS_RATIO_MODEL);
     }
 
+    /** A Preset carries the model once, as `data`; its `graphState` omits `model`, which the collection's `checkGraphState` rejects. */
+    override exportPreset(): Preset<CrossRatioModel> {
+        const preset = super.exportPreset();
+        const {model: _model, ...graphState} = preset.graphState as CrossRatioGraphState;
+        return {...preset, graphState};
+    }
+
     override exportPresetData(): CrossRatioModel {
         return serializeCrossRatioModel(this.model);
     }
@@ -150,11 +158,15 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
 
     // ---- Board ---------------------------------------------------------------------------------------------------
 
+    /** The starting view, which a new board and Reset to the default scene both fit to the canvas. */
+    protected override initialView(): [number, number, number, number] {
+        return [...CROSS_RATIO_VIEW_BOX];
+    }
+
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
         // JSXGraph writes an empty aria-label of its own on the container, so the host's value is read before it is created.
         const hadLabel = container.getAttribute("aria-label");
         super.createMainView(session, container);
-        this.board.setBoundingBox([...CROSS_RATIO_VIEW_BOX], true);
         this.bindInteraction(session, container, hadLabel);
     }
 

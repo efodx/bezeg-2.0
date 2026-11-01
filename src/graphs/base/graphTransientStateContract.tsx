@@ -71,6 +71,9 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'segment-intersections': ['model'],
     'triangle-centres': ['model'],
     'inscribed-angle': ['model'],
+    'projective-cross-ratio': ['model'],
+    'projective-pascal': ['model'],
+    'projective-pole-polar': ['model'],
 };
 
 

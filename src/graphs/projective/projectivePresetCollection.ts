@@ -11,8 +11,7 @@ import {ProjectiveCheck} from "./projectiveValidation";
  * always recomputed exactly from checked data. `graphState` carries only `initialized`; the data sits in `data`.
  *
  * A later graph (Pascal and Pappus, pole and polar) adds its own `parse` function and one exported collection below. The key
- * is a file contract. These collections are not yet listed in `presetCollections` (`PresetImport.ts`): registration belongs
- * to the route that first uses the graph.
+ * is a file contract. They are listed in `presetCollections` (`PresetImport.ts`).
  */
 export function projectivePresetCollection<D>(key: string, parse: (data: unknown) => ProjectiveCheck<D>): PresetCollection<D> {
     return Object.freeze({
@@ -33,12 +32,19 @@ export function projectivePresetCollection<D>(key: string, parse: (data: unknown
 
 export const CROSS_RATIO_PRESET_KEY = "projective-cross-ratio";
 
-export const crossRatioPresetCollection = (): PresetCollection<CrossRatioModel> => projectivePresetCollection(CROSS_RATIO_PRESET_KEY, parseCrossRatioModel);
+const CROSS_RATIO_COLLECTION = projectivePresetCollection(CROSS_RATIO_PRESET_KEY, parseCrossRatioModel);
+
+/** One frozen definition per key, shared by the graph and the file importer (`PresetImport.ts`). */
+export const crossRatioPresetCollection = (): PresetCollection<CrossRatioModel> => CROSS_RATIO_COLLECTION;
 
 export const POLE_POLAR_PRESET_KEY = "projective-pole-polar";
 
-export const polePolarPresetCollection = (): PresetCollection<PolePolarModel> => projectivePresetCollection(POLE_POLAR_PRESET_KEY, parsePolePolarModel);
+const POLE_POLAR_COLLECTION = projectivePresetCollection(POLE_POLAR_PRESET_KEY, parsePolePolarModel);
+
+export const polePolarPresetCollection = (): PresetCollection<PolePolarModel> => POLE_POLAR_COLLECTION;
 
 export const PASCAL_PRESET_KEY = "projective-pascal";
 
-export const pascalPresetCollection = (): PresetCollection<PascalModel> => projectivePresetCollection(PASCAL_PRESET_KEY, parsePascalModel);
+const PASCAL_COLLECTION = projectivePresetCollection(PASCAL_PRESET_KEY, parsePascalModel);
+
+export const pascalPresetCollection = (): PresetCollection<PascalModel> => PASCAL_COLLECTION;
