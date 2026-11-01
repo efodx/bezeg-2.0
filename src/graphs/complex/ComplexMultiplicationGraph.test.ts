@@ -4,6 +4,7 @@ import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {COMPLEX_EXAMPLE_MODELS, DEFAULT_COMPLEX_MODEL} from '../../analysis/complexModel';
 import {COMPLEX_MAX_PRODUCT_MODULUS, complexModulus, complexMultiply, snapComplexCoordinate} from '../../analysis/complex';
 import {setLanguage, onLanguageChange} from '../../localization';
+import {DomainError} from '../functions/BaseFunctionGraph';
 
 const BOX = [-4.5, 4.5, 4.5, -4.5];
 
@@ -319,7 +320,7 @@ test('the polar controls reject, never clamp: a modulus or argument that leaves 
     expect(help.props['data-complex-argument-help']).toBe('zero');
     expect(help.props.children).toBe('Argument števila 0 ni definiran, zato polja ni mogoče urejati. Modul nad 0 postavi w na pozitivno realno os.');
     expect(controls(zero).argument.props.onChange(1)).toBe(false);
-    expect(() => apply(zero, parameter('complex-w-argument', 1))).toThrow(/undefined/);
+    expect(() => apply(zero, parameter('complex-w-argument', 1))).toThrow(/ni določen/);
     expect(zero.model).toMatchObject({wRe: 0, wIm: 0});
     // a modulus above 0 puts w on the positive real axis; a modulus of 0 gives w = 0 again
     expect(controls(zero).modulus.props.onChange(1.5)).toBe(true);
@@ -674,4 +675,39 @@ test('an argument sum without a pi-multiple form is stated with "≈" alone, nev
     expect(reduced).toMatch(/^arg z \+ arg w ≈ 5,356 leži zunaj \(−π, π\]\. Odštejemo ali prištejemo 2π in dobimo arg zw ≈ −0,927\.$/);
     setLanguage('en');
     expect(graph.statuses(graph.model, graph.viewOf(graph.model))[0].text).toMatch(/^arg z \+ arg w ≈ 5\.356 lies outside .* arg zw ≈ −0\.927\.$/);
+});
+
+test('a refused edit throws a DomainError whose text is localized in both languages and whose reason is a structured message', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const zero = makeGraph({asyncState: false});
+        apply(zero, parameter('complex-w-re', 0));
+        apply(zero, parameter('complex-w-im', 0));
+        const messageOf = (target: any, action: LessonAction) => {
+            try { apply(target, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(graph, parameter('complex-z-re', 2.5)), messageOf(graph, parameter('complex-w-modulus', 3)),
+            messageOf(graph, parameter('complex-w-argument', 7)), messageOf(zero, parameter('complex-w-argument', 1)), messageOf(graph, choice('cubic'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The value must be a multiple of 0.05 between −2 and 2.',
+        'The modulus must be between 0 and 2.83, and after rounding to the 0.05 grid w must stay within [−2, 2] and must not fall to 0. The value is rejected.',
+        'The argument must be between −6.28 and 6.28 (−2π to 2π), and after rounding to the 0.05 grid w must stay within [−2, 2]. The value is rejected.',
+        'The argument of 0 is undefined. The value is rejected.',
+        'The example must be one of: rotation-i, identity, negation, scaling, general, zero.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Vrednost mora biti večkratnik števila 0,05 med −2 in 2.',
+        'Modul mora biti med 0 in 2,83, w pa mora po zaokrožitvi na mrežo 0,05 ostati znotraj [−2; 2] in ne sme pasti v 0. Vrednost je zavrnjena.',
+        'Argument mora biti med −6,28 in 6,28 (−2π do 2π), w pa mora po zaokrožitvi na mrežo 0,05 ostati znotraj [−2; 2]. Vrednost je zavrnjena.',
+        'Argument števila 0 ni določen. Vrednost je zavrnjena.',
+        'Primer mora biti eden od: rotation-i, identity, negation, scaling, general, zero.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('complex-w-argument', 9)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'complex_argument_rejected_hint', params: {value0: '−6.28', value1: '6.28'}});
 });

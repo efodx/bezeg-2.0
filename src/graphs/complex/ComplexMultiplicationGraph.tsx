@@ -7,9 +7,13 @@ import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {
     ArgumentSum, argumentSum, Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_STEP, COMPLEX_EXAMPLE_IDS, COMPLEX_MAX_OPERAND_MODULUS, complexArgument, ComplexExampleId,
-    complexModulus, complexMultiply, isComplexCoordinate, isComplexExampleId, isZero, snapComplexCoordinate, snapPolarToGrid,
+    complexModulus, complexMultiply, isZero, snapComplexCoordinate,
 } from "../../analysis/complex";
-import {COMPLEX_EXAMPLE_MODELS, ComplexModel, complexModelOperands, DEFAULT_COMPLEX_MODEL} from "../../analysis/complexModel";
+import {
+    chooseComplexExample, ComplexEdit, ComplexModel, complexModelOperands, ComplexVisibilityField, DEFAULT_COMPLEX_MODEL, MAX_TYPED_ARGUMENT,
+    moveComplexOperand, setComplexVisibility, setComplexWArgument, setComplexWModulus,
+} from "../../analysis/complexModel";
+import {complexEditMessage} from "./complexMessages";
 import {formatArgument, formatComplex, piMultiple} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "../functions/functionPresetCollections";
@@ -31,8 +35,6 @@ const ARC_RADIUS_PX = {z: 30, w: 44, product: 58} as const;
 const ARC_STEPS = 32;
 /** Two arrow tips closer than this many units count as the same place when placing labels. */
 const LABEL_CROWDING = 0.45;
-/** The largest |argument| a typed polar input accepts: any angle within a full turn either way. */
-const MAX_TYPED_ARGUMENT = 2 * Math.PI;
 
 type OperandName = "z" | "w";
 type StatusKind = "hidden" | "z-zero" | "w-zero" | "product-zero" | "reduced" | "not-reduced" | "off-view";
@@ -138,25 +140,21 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
 
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
-    private coordinate(value: number): number {
-        if (!isComplexCoordinate(value)) {
-            throw new DomainError(`The coordinate must be a multiple of ${COMPLEX_COORDINATE_STEP} between ${-COMPLEX_COORDINATE_MAX} and ${COMPLEX_COORDINATE_MAX}.`);
-        }
-        return snapComplexCoordinate(value);
+    /** Commits the next model of an edit, or throws the localized reason the model refused it. */
+    private applyEdit(edit: ComplexEdit, options: { syncScene?: boolean } = {}): void {
+        if (!edit.ok) throw new DomainError(complexEditMessage(edit.issue));
+        if (edit.model !== this.model) this.commitModel(edit.model, options);
     }
 
     protected setExample(value: unknown): void {
-        if (!isComplexExampleId(value)) throw new DomainError(`The example must be one of ${COMPLEX_EXAMPLE_IDS.join(", ")}.`);
-        this.commitModel({...COMPLEX_EXAMPLE_MODELS[value]});
+        const edit = chooseComplexExample(value);
+        if (!edit.ok) throw new DomainError(complexEditMessage(edit.issue));
+        this.commitModel(edit.model);
     }
 
     /** Both coordinates of one operand in one commit (a drag moves both). */
     protected setOperand(which: OperandName, re: number, im: number, options: { syncScene?: boolean } = {}): void {
-        const nextRe = this.coordinate(re);
-        const nextIm = this.coordinate(im);
-        const model = this.model;
-        const next: ComplexModel = which === "z" ? {...model, zRe: nextRe, zIm: nextIm} : {...model, wRe: nextRe, wIm: nextIm};
-        if (next.zRe !== model.zRe || next.zIm !== model.zIm || next.wRe !== model.wRe || next.wIm !== model.wIm) this.commitModel(next, options);
+        this.applyEdit(moveComplexOperand(this.model, which, re, im), options);
     }
 
     protected setZRe(value: number): void { this.setOperand("z", value, this.model.zIm); }
@@ -168,38 +166,22 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
     protected setWIm(value: number): void { this.setOperand("w", this.model.wRe, value); }
 
     /** w with the given modulus and the argument of the current w (the positive real axis when w is 0); a modulus of 0 gives w = 0. */
-    protected setWModulus(value: number): void {
-        if (!Number.isFinite(value) || value < 0 || value > COMPLEX_MAX_OPERAND_MODULUS + 1e-9) {
-            throw new DomainError(`The modulus must be a number between 0 and ${COMPLEX_MAX_OPERAND_MODULUS}.`);
-        }
-        if (value === 0) {
-            this.setOperand("w", 0, 0);
-            return;
-        }
-        const {w} = complexModelOperands(this.model);
-        const snapped = snapPolarToGrid(value, complexArgument(w) ?? 0);
-        if (!snapped) throw new DomainError("The modulus does not give a point of the grid inside the square [-2, 2].");
-        this.setOperand("w", snapped.re, snapped.im);
-    }
+    protected setWModulus(value: number): void { this.applyEdit(setComplexWModulus(this.model, value)); }
 
     /** w with the given argument and the modulus of the current w; refused when w is 0, whose argument is undefined. */
-    protected setWArgument(value: number): void {
-        if (!Number.isFinite(value) || Math.abs(value) > MAX_TYPED_ARGUMENT + 1e-9) {
-            throw new DomainError("The argument must be a number between -2 pi and 2 pi.");
-        }
-        const {w} = complexModelOperands(this.model);
-        if (isZero(w)) throw new DomainError("The argument of 0 is undefined.");
-        const snapped = snapPolarToGrid(complexModulus(w), value);
-        if (!snapped) throw new DomainError("The argument does not give a point of the grid inside the square [-2, 2].");
-        this.setOperand("w", snapped.re, snapped.im);
-    }
+    protected setWArgument(value: number): void { this.applyEdit(setComplexWArgument(this.model, value)); }
 
     protected setProductVisible(visible: boolean): void {
-        if (visible !== this.model.productVisible) this.commitModel({...this.model, productVisible: visible});
+        this.setVisibility("productVisible", visible);
     }
 
     protected setAnglesVisible(visible: boolean): void {
-        if (visible !== this.model.anglesVisible) this.commitModel({...this.model, anglesVisible: visible});
+        this.setVisibility("anglesVisible", visible);
+    }
+
+    private setVisibility(field: ComplexVisibilityField, visible: boolean): void {
+        const next = setComplexVisibility(this.model, field, visible);
+        if (next !== this.model) this.commitModel(next);
     }
 
     protected override lessonFunctionActions(): FunctionLessonActions {

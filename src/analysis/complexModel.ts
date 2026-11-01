@@ -1,6 +1,13 @@
 import {
-    Complex, complexExampleOperands, COMPLEX_EXAMPLE_IDS, ComplexExampleId, isComplexCoordinate, isComplexExampleId, snapComplexCoordinate,
+    Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_MIN, COMPLEX_MAX_OPERAND_MODULUS, complexArgument, complexExampleOperands, COMPLEX_EXAMPLE_IDS,
+    ComplexExampleId, complexModulus, isComplexCoordinate, isComplexExampleId, isZero, snapComplexCoordinate, snapPolarToGrid,
 } from './complex';
+
+/*
+ * This module owns the rules of the complex multiplication model: what is valid, how an accepted value is normalized, and which
+ * rule a rejected value broke (a `ComplexIssue` or `ComplexEditIssue`: data, never text). The Preset parser, the Preset
+ * collection's diagnosis and the graph's setters all ask it; they only choose the words (`graphs/complex/complexMessages`).
+ */
 
 /**
  * The stored description of the complex multiplication demonstration. `example` records which named example the operands
@@ -36,21 +43,124 @@ export const COMPLEX_EXAMPLE_MODELS: Readonly<Record<ComplexExampleId, ComplexMo
 export const complexModelOperands = (model: ComplexModel): {readonly z: Complex; readonly w: Complex} =>
     ({z: {re: model.zRe, im: model.zIm}, w: {re: model.wRe, im: model.wIm}});
 
+/** The largest argument, in radians, that the typed-argument field accepts (the field takes -2 pi to 2 pi). */
+export const MAX_TYPED_ARGUMENT = 2 * Math.PI;
+
+export type ComplexCoordinateField = 'zRe' | 'zIm' | 'wRe' | 'wIm';
+export type ComplexVisibilityField = 'productVisible' | 'anglesVisible';
+export const COMPLEX_COORDINATE_FIELDS: readonly ComplexCoordinateField[] = ['zRe', 'zIm', 'wRe', 'wIm'];
+export const COMPLEX_VISIBILITY_FIELDS: readonly ComplexVisibilityField[] = ['productVisible', 'anglesVisible'];
+
+const isFiniteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+
+/** The rule a stored model broke. Callers localize it; the examples and the range travel with it. */
+export type ComplexIssue =
+    | { readonly kind: 'example'; readonly allowed: readonly ComplexExampleId[] }
+    | { readonly kind: 'coordinate'; readonly field: ComplexCoordinateField; readonly min: number; readonly max: number }
+    | { readonly kind: 'visibility'; readonly field: ComplexVisibilityField };
+
+/** The rules an edit can break: a coordinate off the grid or outside the square, and the polar typing of w. */
+export type ComplexEditIssue =
+    | { readonly kind: 'example'; readonly allowed: readonly ComplexExampleId[] }
+    | { readonly kind: 'coordinate'; readonly min: number; readonly max: number }
+    /** The typed modulus is not a number in [0, max]. */
+    | { readonly kind: 'modulus-range'; readonly max: number }
+    /** The typed modulus, rounded to the grid along the argument of w, leaves the square. */
+    | { readonly kind: 'modulus-grid'; readonly max: number }
+    | { readonly kind: 'argument-range'; readonly max: number }
+    /** w is 0, so its argument is undefined. */
+    | { readonly kind: 'argument-zero' }
+    | { readonly kind: 'argument-grid'; readonly max: number };
+
+/** The answer for a whole stored model: the sanitized model or the first rule it broke (`issue` undefined = malformed). */
+export type ComplexCheck =
+    | { readonly ok: true; readonly model: ComplexModel }
+    | { readonly ok: false; readonly issue: ComplexIssue | undefined };
+
+/** The answer for one edit: the next model (the same object when nothing changes) or the rule the edit would break. */
+export type ComplexEdit =
+    | { readonly ok: true; readonly model: ComplexModel }
+    | { readonly ok: false; readonly issue: ComplexEditIssue };
+
+const reject = (issue: ComplexIssue | undefined): ComplexCheck => ({ok: false, issue});
+const coordinateIssue: ComplexEditIssue = {kind: 'coordinate', min: COMPLEX_COORDINATE_MIN, max: COMPLEX_COORDINATE_MAX};
+
 /**
- * Returns a sanitized model (unknown properties dropped, coordinates written as exact grid values) or undefined unless the data
- * is a valid model: a known example, four coordinates that are finite numbers on the 0.05 grid within [-2, 2] and two booleans.
- * Nothing is clamped: an off-grid or out-of-range coordinate rejects the whole model.
+ * The single validity rule of a stored model: a known example, four coordinates that are finite numbers on the 0.05 grid within
+ * [-2, 2] and two booleans. Unknown properties are dropped and coordinates written as exact grid values. Nothing is clamped.
+ * Rules are checked in the order example, coordinates (zRe, zIm, wRe, wIm), visibility; a missing or wrongly typed field gives
+ * `issue: undefined`.
  */
-export function parseComplexModel(data: unknown): ComplexModel | undefined {
-    if (data === null || typeof data !== 'object' || Array.isArray(data)) return undefined;
-    const {example, zRe, zIm, wRe, wIm, productVisible, anglesVisible} = data as Record<string, unknown>;
-    if (!isComplexExampleId(example)) return undefined;
-    if (!isComplexCoordinate(zRe) || !isComplexCoordinate(zIm) || !isComplexCoordinate(wRe) || !isComplexCoordinate(wIm)) return undefined;
-    if (typeof productVisible !== 'boolean' || typeof anglesVisible !== 'boolean') return undefined;
+export function checkComplexModel(data: unknown): ComplexCheck {
+    if (data === null || typeof data !== 'object' || Array.isArray(data)) return reject(undefined);
+    const record = data as Record<string, unknown>;
+    const {example, zRe, zIm, wRe, wIm, productVisible, anglesVisible} = record;
+    if (!isComplexExampleId(example)) return reject({kind: 'example', allowed: COMPLEX_EXAMPLE_IDS});
+    for (const field of COMPLEX_COORDINATE_FIELDS) {
+        const value = record[field];
+        if (isFiniteNumber(value) && !isComplexCoordinate(value)) return reject({kind: 'coordinate', field, min: COMPLEX_COORDINATE_MIN, max: COMPLEX_COORDINATE_MAX});
+    }
+    for (const field of COMPLEX_VISIBILITY_FIELDS) {
+        if (record[field] !== undefined && typeof record[field] !== 'boolean') return reject({kind: 'visibility', field});
+    }
+    if (!isComplexCoordinate(zRe) || !isComplexCoordinate(zIm) || !isComplexCoordinate(wRe) || !isComplexCoordinate(wIm)) return reject(undefined);
+    if (typeof productVisible !== 'boolean' || typeof anglesVisible !== 'boolean') return reject(undefined);
     return {
-        example,
-        zRe: snapComplexCoordinate(zRe), zIm: snapComplexCoordinate(zIm),
-        wRe: snapComplexCoordinate(wRe), wIm: snapComplexCoordinate(wIm),
-        productVisible, anglesVisible,
+        ok: true,
+        model: {
+            example,
+            zRe: snapComplexCoordinate(zRe), zIm: snapComplexCoordinate(zIm),
+            wRe: snapComplexCoordinate(wRe), wIm: snapComplexCoordinate(wIm),
+            productVisible, anglesVisible,
+        },
     };
+}
+
+/** Returns a sanitized model (unknown properties dropped) or undefined unless the data is a valid model. */
+export function parseComplexModel(data: unknown): ComplexModel | undefined {
+    const check = checkComplexModel(data);
+    return check.ok ? check.model : undefined;
+}
+
+/** Choosing an example loads that example's operands and hides the product and the arcs again. */
+export function chooseComplexExample(example: unknown): ComplexEdit {
+    if (!isComplexExampleId(example)) return {ok: false, issue: {kind: 'example', allowed: COMPLEX_EXAMPLE_IDS}};
+    return {ok: true, model: {...COMPLEX_EXAMPLE_MODELS[example]}};
+}
+
+/** Moves one operand to (re, im): both must be grid coordinates in range (never clamped). The same model when nothing changes. */
+export function moveComplexOperand(model: ComplexModel, which: 'z' | 'w', re: number, im: number): ComplexEdit {
+    if (!isComplexCoordinate(re) || !isComplexCoordinate(im)) return {ok: false, issue: coordinateIssue};
+    const nextRe = snapComplexCoordinate(re), nextIm = snapComplexCoordinate(im);
+    const [reKey, imKey] = which === 'z' ? (['zRe', 'zIm'] as const) : (['wRe', 'wIm'] as const);
+    if (nextRe === model[reKey] && nextIm === model[imKey]) return {ok: true, model};
+    return {ok: true, model: {...model, [reKey]: nextRe, [imKey]: nextIm}};
+}
+
+/** w with the typed modulus and the argument of the current w (the positive real axis when w is 0); a modulus of 0 gives w = 0. */
+export function setComplexWModulus(model: ComplexModel, value: number): ComplexEdit {
+    if (!Number.isFinite(value) || value < 0 || value > COMPLEX_MAX_OPERAND_MODULUS + 1e-9) {
+        return {ok: false, issue: {kind: 'modulus-range', max: COMPLEX_MAX_OPERAND_MODULUS}};
+    }
+    if (value === 0) return moveComplexOperand(model, 'w', 0, 0);
+    const snapped = snapPolarToGrid(value, complexArgument(complexModelOperands(model).w) ?? 0);
+    if (!snapped) return {ok: false, issue: {kind: 'modulus-grid', max: COMPLEX_MAX_OPERAND_MODULUS}};
+    return moveComplexOperand(model, 'w', snapped.re, snapped.im);
+}
+
+/** w with the typed argument and the modulus of the current w; refused when w is 0, whose argument is undefined. */
+export function setComplexWArgument(model: ComplexModel, value: number): ComplexEdit {
+    if (!Number.isFinite(value) || Math.abs(value) > MAX_TYPED_ARGUMENT + 1e-9) {
+        return {ok: false, issue: {kind: 'argument-range', max: MAX_TYPED_ARGUMENT}};
+    }
+    const {w} = complexModelOperands(model);
+    if (isZero(w)) return {ok: false, issue: {kind: 'argument-zero'}};
+    const snapped = snapPolarToGrid(complexModulus(w), value);
+    if (!snapped) return {ok: false, issue: {kind: 'argument-grid', max: MAX_TYPED_ARGUMENT}};
+    return moveComplexOperand(model, 'w', snapped.re, snapped.im);
+}
+
+/** Shows or hides the product or the arcs; the same model when the flag already has that value. */
+export function setComplexVisibility(model: ComplexModel, field: ComplexVisibilityField, visible: boolean): ComplexModel {
+    return model[field] === visible ? model : {...model, [field]: visible};
 }

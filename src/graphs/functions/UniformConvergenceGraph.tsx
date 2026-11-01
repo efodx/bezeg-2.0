@@ -1,17 +1,20 @@
 import React from "react";
-import BaseFunctionGraph, {COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, gridValue} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
 import {
-    isUniformEpsilon, isUniformExampleId, isUniformN, isUniformX, UNIFORM_EPSILON_MAX, UNIFORM_EPSILON_MIN, UNIFORM_EPSILON_STEP, UNIFORM_EXAMPLE_IDS, UNIFORM_MAX_N,
+    UNIFORM_EPSILON_MAX, UNIFORM_EPSILON_MIN, UNIFORM_EPSILON_STEP, UNIFORM_EXAMPLE_IDS, UNIFORM_MAX_N,
     UNIFORM_N_MIN, UNIFORM_R_MAX, UNIFORM_R_MIN, UNIFORM_R_STEP, UNIFORM_X_STEP, uniformExample, UniformExample, UniformExampleId, uniformLimit, uniformLimitHasJump,
     uniformLimitPieces, UniformLimitPiece, uniformPointwiseError, uniformPointwiseThreshold, UniformPointwiseThreshold, uniformSupremum, UniformSupremum, uniformTerm,
     uniformThreshold, UniformThreshold,
 } from "../../analysis/uniformConvergence";
-import {changeUniformR, UNIFORM_EXAMPLE_MODELS, UniformConvergenceModel} from "../../analysis/uniformConvergenceModel";
+import {
+    changeUniformEpsilon, changeUniformN, changeUniformR, chooseUniformExample, moveUniformX, UNIFORM_EXAMPLE_MODELS, UniformConvergenceModel, UniformEdit,
+} from "../../analysis/uniformConvergenceModel";
+import {uniformConvergenceEditMessage} from "./uniformConvergenceMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -118,44 +121,33 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isUniformExampleId(value)) throw new DomainError(`The example must be one of ${UNIFORM_EXAMPLE_IDS.join(", ")}.`);
-        this.commitModel({...UNIFORM_EXAMPLE_MODELS[value]});
+        this.commitModel(this.accepted(chooseUniformExample(value)));
+    }
+
+    /** The model of an accepted edit; a refused edit throws a `DomainError` whose reason is the localized rule the model named. */
+    private accepted(edit: UniformEdit): UniformConvergenceModel {
+        if (!edit.ok) throw new DomainError(uniformConvergenceEditMessage(edit.issue));
+        return edit.model;
     }
 
     protected setR(value: number): void {
-        const snapped = gridValue(value, UNIFORM_R_STEP);
-        if (snapped === undefined) throw new DomainError(`The domain end r must be a multiple of ${UNIFORM_R_STEP} between ${UNIFORM_R_MIN} and ${UNIFORM_R_MAX}.`);
-        const change = changeUniformR(this.model, snapped);
-        if (!change.ok) {
-            throw new DomainError(change.reason === "x-outside-domain"
-                ? `The domain end r = ${snapped} would leave the chosen point x = ${this.model.x} outside [0, r]; move x first.`
-                : `The domain end r must be a multiple of ${UNIFORM_R_STEP} between ${UNIFORM_R_MIN} and ${UNIFORM_R_MAX}.`);
-        }
-        if (change.model.r !== this.model.r) this.commitModel(change.model);
+        const next = this.accepted(changeUniformR(this.model, value));
+        if (next !== this.model) this.commitModel(next);
     }
 
     protected setN(value: number): void {
-        const rounded = Math.round(value);
-        if (!Number.isFinite(value) || Math.abs(value - rounded) > 1e-9 || !isUniformN(rounded)) {
-            throw new DomainError(`The index n must be an integer between ${UNIFORM_N_MIN} and ${UNIFORM_MAX_N}.`);
-        }
-        if (rounded !== this.model.n) this.commitModel({...this.model, n: rounded});
+        const next = this.accepted(changeUniformN(this.model, value));
+        if (next !== this.model) this.commitModel(next);
     }
 
     protected setX(value: number, options: { syncScene?: boolean } = {}): void {
-        const snapped = gridValue(value, UNIFORM_X_STEP);
-        if (snapped === undefined || !isUniformX(this.model.r, snapped)) {
-            throw new DomainError(`The point x must be a multiple of ${UNIFORM_X_STEP} between 0 and r = ${this.model.r}.`);
-        }
-        if (snapped !== this.model.x) this.commitModel({...this.model, x: snapped}, options);
+        const next = this.accepted(moveUniformX(this.model, value));
+        if (next !== this.model) this.commitModel(next, options);
     }
 
     protected setEpsilon(value: number): void {
-        const snapped = gridValue(value, UNIFORM_EPSILON_STEP);
-        if (snapped === undefined || !isUniformEpsilon(snapped)) {
-            throw new DomainError(`The tolerance epsilon must be a multiple of ${UNIFORM_EPSILON_STEP} between ${UNIFORM_EPSILON_MIN} and ${UNIFORM_EPSILON_MAX}.`);
-        }
-        if (snapped !== this.model.epsilon) this.commitModel({...this.model, epsilon: snapped});
+        const next = this.accepted(changeUniformEpsilon(this.model, value));
+        if (next !== this.model) this.commitModel(next);
     }
 
     protected setSupremumVisible(visible: boolean): void {
