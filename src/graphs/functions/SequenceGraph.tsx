@@ -8,16 +8,16 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NOT_A_NUMBER_TEXT, NumberLanguage} from "../../analysis/format";
 import {
-    isSequenceEpsilon, isSequenceExampleId, isSequenceThreshold, isTermInBand, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_SCALE,
-    SEQUENCE_EPSILON_STEP, SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_LIMIT_STEP, SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS, SEQUENCE_THRESHOLD_MAX,
-    SEQUENCE_THRESHOLD_MIN, sequenceCertificate, SequenceCertificate, sequenceDistance, sequenceEpsilonFromHundredths, sequenceEpsilonHundredths, sequenceExample, sequenceLimitFromHundredths, sequenceLimitHundredths,
-    SequenceExample, SequenceExampleId, sequenceTerm,
+    isTermInBand, SEQUENCE_EPSILON_MAX, SEQUENCE_EPSILON_MIN, SEQUENCE_EPSILON_SCALE,
+    SEQUENCE_EPSILON_STEP, SEQUENCE_EXAMPLE_IDS, SEQUENCE_LIMIT_MAX, SEQUENCE_LIMIT_MIN, SEQUENCE_MAX_STEPS, SEQUENCE_MAX_TERMS, SEQUENCE_THRESHOLD_MAX,
+    SEQUENCE_THRESHOLD_MIN, sequenceCertificate, SequenceCertificate, sequenceDistance, sequenceEpsilonHundredths, sequenceExample, SequenceExample, SequenceExampleId, sequenceTerm,
 } from "../../analysis/sequence";
 import {
-    canAdvanceSequence, defaultSequenceModel, nextSequenceStep, resetSequenceTerms, SequenceModel,
+    canAdvanceSequence, chooseSequenceExample, defaultSequenceModel, nextSequenceStep, resetSequenceTerms, SequenceEdit, SequenceModel, setSequenceEpsilon, setSequenceLimit,
+    setSequenceThreshold,
 } from "../../analysis/sequenceModel";
+import {sequenceEditMessage} from "./sequenceMessages";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
-import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -181,34 +181,22 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
 
     protected setExample(value: unknown): void {
-        if (!isSequenceExampleId(value)) throw new DomainError(`The example must be one of ${SEQUENCE_EXAMPLE_IDS.join(", ")}.`);
-        this.replaceModel(defaultSequenceModel(value));
-        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[value]], this.equalAxisUnits);
+        const choice = chooseSequenceExample(value);
+        if (!choice.ok) throw new DomainError(sequenceEditMessage(choice.issue));
+        this.replaceModel(choice.model);
+        if (this.generatedObjectCount > 0) this.board.setBoundingBox([...EXAMPLE_VIEWS[choice.model.example]], this.equalAxisUnits);
     }
 
-    protected setEpsilon(value: number): void {
-        const hundredths = sequenceEpsilonHundredths(value);
-        if (hundredths === undefined) {
-            throw new DomainError(`The band width epsilon must be a multiple of ${SEQUENCE_EPSILON_STEP} between ${SEQUENCE_EPSILON_MIN} and ${SEQUENCE_EPSILON_MAX}.`);
-        }
-        const next = sequenceEpsilonFromHundredths(hundredths);
-        if (next !== this.model.epsilon) this.replaceModel({...this.model, epsilon: next});
-    }
+    protected setEpsilon(value: number): void { this.applyEdit(setSequenceEpsilon(this.model, value)); }
 
-    protected setLimit(value: number): void {
-        const hundredths = sequenceLimitHundredths(value);
-        if (hundredths === undefined) {
-            throw new DomainError(`The candidate limit L must be a multiple of ${SEQUENCE_LIMIT_STEP} between ${SEQUENCE_LIMIT_MIN} and ${SEQUENCE_LIMIT_MAX}.`);
-        }
-        const next = sequenceLimitFromHundredths(hundredths);
-        if (next !== this.model.limit) this.replaceModel({...this.model, limit: next});
-    }
+    protected setLimit(value: number): void { this.applyEdit(setSequenceLimit(this.model, value)); }
 
-    protected setThreshold(value: number): void {
-        if (!isSequenceThreshold(value)) {
-            throw new DomainError(`The threshold N must be an integer between ${SEQUENCE_THRESHOLD_MIN} and ${SEQUENCE_THRESHOLD_MAX}.`);
-        }
-        if (value !== this.model.threshold) this.replaceModel({...this.model, threshold: value});
+    protected setThreshold(value: number): void { this.applyEdit(setSequenceThreshold(this.model, value)); }
+
+    /** The model module decides (grid, range, normalization); a refusal becomes a localized `DomainError`, no change commits nothing. */
+    private applyEdit(edit: SequenceEdit): void {
+        if (!edit.ok) throw new DomainError(sequenceEditMessage(edit.issue));
+        if (edit.model !== this.model) this.replaceModel(edit.model);
     }
 
     protected setCertificateVisible(visible: boolean): void {

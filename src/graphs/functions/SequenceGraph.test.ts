@@ -897,3 +897,33 @@ test('a scene replaced while playing pauses the iteration and requests a render 
     expect(graph.controller.isPlaying()).toBe(false);
     expect(graph.requestRender).toHaveBeenCalled();
 });
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(parameter('sequence-epsilon', 0.015)), messageOf(parameter('sequence-limit', 3)), messageOf(parameter('sequence-threshold', 2.5)),
+            messageOf(choice('harmonic'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The band width ε must be a multiple of 0.01 between 0.01 and 2.',
+        'The candidate L must be a multiple of 0.01 between −2 and 2.',
+        'The threshold N must be an integer between 1 and 1000.',
+        'The example must be one of: reciprocal, alternating-reciprocal, alternating-sign, natural.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Širina pasu ε mora biti večkratnik števila 0,01 med 0,01 in 2.',
+        'Kandidat L mora biti večkratnik števila 0,01 med −2 in 2.',
+        'Prag N mora biti celo število med 1 in 1000.',
+        'Primer mora biti eden od: reciprocal, alternating-reciprocal, alternating-sign, natural.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('sequence-threshold', 0)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'sequence_threshold_rejected_hint', params: {value0: 1, value1: 1000}});
+});
