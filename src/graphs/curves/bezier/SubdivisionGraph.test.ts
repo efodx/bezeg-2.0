@@ -27,6 +27,7 @@ function fakeJxgCurve(curve: PolynomialBezierCurve, log: any[]) {
             const [left, right] = jxg.curve.subdivide(t);
             jxg.curve = left;
             const created = fakeJxgCurve(right, log);
+            created.board = jxg.board;
             log.push(created);
             return created;
         }),
@@ -41,6 +42,8 @@ function makeGraph() {
     graph.workspaceRevision = 0;
     graph.graphJXGPoints = [];
     graph.jxgCurves = [fakeJxgCurve(makeCurve(), log)];
+    // The scene replacement disposes the curves on the graph's board (BaseCurveGraph.disposeFigureScene).
+    graph.jxgCurves[0].board = graph.board;
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({initialized: true});
     graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
@@ -52,8 +55,11 @@ function makeGraph() {
         ['JSXBezierCurve', {points: c.curve.getPoints().map((p: any) => [p.X(), p.Y()])}]);
     graph.importPresetData = vi.fn((data: any) => {
         graph.jxgCurves.forEach((c: any) => c.dispose());
-        graph.jxgCurves = data.map((d: any) => fakeJxgCurve(
-            new PolynomialBezierCurve(d[1].points.map(([x, y]: number[]) => new PointImpl(x, y))), log));
+        graph.jxgCurves = data.map((d: any) => {
+            const created = fakeJxgCurve(new PolynomialBezierCurve(d[1].points.map(([x, y]: number[]) => new PointImpl(x, y))), log);
+            created.board = graph.board;
+            return created;
+        });
     });
     return graph;
 }

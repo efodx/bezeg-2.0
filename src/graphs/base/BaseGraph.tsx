@@ -22,6 +22,7 @@ import {downloadPNG, downloadSVG} from "./export/FigureCapture";
 import type {FigureCaptureTarget} from "./export/FigureCapture";
 import {FigureExportScope} from "./export/FigureExportOperation";
 import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
+import {replaceScene, type SceneReplacementHost} from "./SceneReplacement";
 
 
 function cloneLessonValue<T>(value: T): T {
@@ -511,11 +512,13 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         const checked = collection.check(cloneLessonValue(data));
         if (!("data" in checked)) throw new Error(`The lesson geometry is invalid: ${renderMessage(checked.rejection)}`);
         checkLessonView(view);
-        this.importPresetData(checked.data);
-        if (view) this.applyLessonView(view);
-        // Replaced, not merged, as in the default scene.
-        this.replaceState({...this.getInitialState(), ...this.lessonDefaultState()});
-        this.finishSceneReplacement(undefined);
+        this.runLessonReplacement({
+            importData: () => this.importPresetData(checked.data),
+            afterImport: () => { if (view) this.applyLessonView(view); },
+            // Replaced, not merged, as in the default scene.
+            state: () => ({...this.getInitialState(), ...this.lessonDefaultState()}),
+            transientState: undefined,
+        });
     }
 
     /** Whether the graph has a handler for the action (it may still reject the action's values or scene). */
@@ -535,22 +538,66 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     /** Restores a static lesson scene through the graph's own preset importer, with fresh transient state. */
     protected prepareLessonDefaultScene(): void {
         if (!this.graphSession?.isReady) throw new Error('The graph is still preparing. Try again in a moment.');
-        this.importPresetData(cloneLessonValue(this.defaultPreset()));
-        // Replaced, not merged: an optional key an earlier scene set must not survive into the default scene.
-        this.replaceState({...this.getInitialState(), ...this.lessonDefaultState()});
-        this.finishSceneReplacement(undefined);
+        this.runLessonReplacement({
+            importData: () => this.importPresetData(cloneLessonValue(this.defaultPreset())),
+            // Replaced, not merged: an optional key an earlier scene set must not survive into the default scene.
+            state: () => ({...this.getInitialState(), ...this.lessonDefaultState()}),
+            transientState: undefined,
+        });
     }
 
     /**
-     * The synchronous end of a lesson scene replacement: transient state, then the drawing that depends on it, then a
+     * Whether mount and the lesson paths dispose the previous scene before importing. They used to get it only from
+     * `BaseCurveGraph.importPresetData`, so curve families (which override this to true) keep disposing there while
+     * every other family keeps not disposing: its `importPresetData` rebuilds or its own teardown runs elsewhere, and
+     * the lesson and contract tests do not show that an extra dispose is equivalent. The figure path always disposes.
+     */
+    protected disposesBeforeNonFigureImport(): boolean {
+        return false;
+    }
+
+    /** The adapter the replacement module drives; `session` guards the figure path's board resume. */
+    private sceneReplacementHost(session?: GraphSession): SceneReplacementHost<S, TransientState> {
+        return {
+            disposeScene: () => this.disposeFigureScene(),
+            sweepBoard: () => { this.sweepSceneBoardObjects(); },
+            suspendBoard: () => { if (this.hasBoard) this.board.suspendUpdate(); },
+            resumeBoard: () => {
+                if ((!session || (this.graphSession === session && session.isAlive)) && this.hasBoard) this.board.unsuspendUpdate();
+            },
+            replaceState: state => this.replaceState(state),
+            replaceSceneState: (next, afterCommit) => this.replaceSceneState(next, afterCommit),
+            restoreTransientState: saved => this.restoreTransientState(saved),
+            initialize: () => this.initialize(),
+            syncReplacedScene: () => this.syncReplacedScene(),
+            bumpWorkspaceRevision: () => { this.workspaceRevision++; },
+        };
+    }
+
+    /**
+     * A synchronous lesson replacement: no sweep and no `initialize()` (ADR 0015), drawn before the host commits, then a
      * workspace revision so scene-backed controls (and child boards keyed on it) re-seed from the new scene.
      */
-    protected finishSceneReplacement(transientState: TransientState | undefined): void {
-        this.restoreTransientState(transientState);
-        this.syncReplacedScene();
-        this.workspaceRevision++;
-        this.boardUpdate();
-        this.requestRender();
+    protected runLessonReplacement(scene: {
+        importData: () => void;
+        afterImport?: () => void;
+        state: () => S;
+        afterState?: () => void;
+        transientState: TransientState | undefined;
+    }): void {
+        replaceScene(this.sceneReplacementHost(), {
+            dispose: this.disposesBeforeNonFigureImport(),
+            suspendBoard: false,
+            sweep: false,
+            initialize: false,
+            ...scene,
+            state: {mode: 'sync', state: scene.state},
+            finish: () => {
+                this.workspaceRevision++;
+                this.boardUpdate();
+                this.requestRender();
+            },
+        });
     }
 
     protected lessonDefaultState(): S {
@@ -632,17 +679,20 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         }
         const state = checkpoint.value;
         // A checkpoint holds this graph's own exported Preset data, captured in memory by `captureLessonState`.
-        if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data) as D);
-        if (this.hasBoard && state.boardState) this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits);
-        // Replaced, not merged: optional keys set after the checkpoint was captured must not survive the restore.
-        this.replaceState({...this.getInitialState(), ...cloneLessonValue(state.graphState) as S, initialized: true});
-        if (state.displayState) {
-            this.displaySettings.setSize(state.displayState.size);
-            this.displaySettings.setAxisSelect(state.displayState.axis);
-            this.displaySettings.pointLabelsVisible = state.displayState.pointLabelsVisible;
-            if (this.hasBoard) this.board.fullUpdate();
-        }
-        this.finishSceneReplacement(cloneLessonValue(state.transientState) ?? {});
+        this.runLessonReplacement({
+            importData: () => { if (state.data !== undefined) this.importPresetData(cloneLessonValue(state.data) as D); },
+            afterImport: () => { if (this.hasBoard && state.boardState) this.board.setBoundingBox(state.boardState.boundingBox, this.equalAxisUnits); },
+            // Replaced, not merged: optional keys set after the checkpoint was captured must not survive the restore.
+            state: () => ({...this.getInitialState(), ...cloneLessonValue(state.graphState) as S, initialized: true}),
+            afterState: () => {
+                if (!state.displayState) return;
+                this.displaySettings.setSize(state.displayState.size);
+                this.displaySettings.setAxisSelect(state.displayState.axis);
+                this.displaySettings.pointLabelsVisible = state.displayState.pointLabelsVisible;
+                if (this.hasBoard) this.board.fullUpdate();
+            },
+            transientState: cloneLessonValue(state.transientState) ?? {},
+        });
     }
 
     /**
@@ -711,16 +761,19 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             const preset = this.presetService?.getPreset(this.selectedPresetIdValue);
             // A selection whose preset no longer exists shows the default scene, so it is not a selection any more.
             if (!preset) this.selectedPresetIdValue = "";
-            if (preset) {
-                this.importPreset(preset);
-            } else {
-                this.importPresetData(this.defaultPreset());
-            }
-            // A remount on this instance starts with fresh transient state, like a new instance.
-            this.restoreTransientState(undefined);
-            // TODO We should remove this...
-            this.initialize();
-            this.syncReplacedScene();
+            // A fresh board: nothing to sweep. A remount on this instance starts with fresh transient state.
+            replaceScene(this.sceneReplacementHost(), {
+                dispose: this.disposesBeforeNonFigureImport(),
+                suspendBoard: false,
+                sweep: false,
+                importData: () => {
+                    if (preset) this.importPreset(preset);
+                    else this.importPresetData(this.defaultPreset());
+                },
+                transientState: undefined,
+                // TODO We should remove this...
+                initialize: true,
+            });
             session.observeResize(container);
             session.markReady();
         }
@@ -1001,54 +1054,32 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             const releaseTransition = session.beginTransition();
             try {
                 this.stopLessonAnimations();
-                if (this.hasBoard) this.board.suspendUpdate();
-                try {
-                    this.disposeFigureScene();
-                    this.sweepSceneBoardObjects();
-                    if (!entry) this.importFigurePresetData(preset);
-                    else this.importPresetData(entry.preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(entry.preset.data));
-                } finally {
-                    if (this.graphSession === session && session.isAlive && this.hasBoard) this.board.unsuspendUpdate();
-                }
-
-                this.workspaceRevision++;
-                const nextState = this.figurePresetGraphState(preset.graphState);
-                await new Promise<void>((resolve, reject) => {
-                    let finished = false;
-                    const finish = (callback: () => void) => {
-                        if (finished) return;
-                        finished = true;
-                        operationSignal.removeEventListener("abort", cancel);
-                        callback();
-                    };
-                    const cancel = () => {
-                        if (generation === this.figureSceneGeneration) this.figureSceneGeneration++;
-                        finish(resolve);
-                    };
-                    operationSignal.addEventListener("abort", cancel, {once: true});
-                    try {
-                        this.replaceSceneState(() => isCurrent() ? nextState : null, () => {
-                            if (!isCurrent()) {
-                                finish(resolve);
-                                return;
-                            }
-                            try {
-                                this.initialize();
-                                this.syncReplacedScene();
-                                if (preset.boardState && this.hasBoard) this.board.setBoundingBox(preset.boardState.boundingBox, this.equalAxisUnits);
-                                this.boardUpdate();
-                                session.requestFullUpdate();
-                                finish(resolve);
-                            } catch (error) {
-                                finish(() => reject(error));
-                            }
-                        });
-                        // Before the host renders the new scene, so controls never read a selection or a standard
-                        // form that the imported curves do not have yet.
-                        if (isCurrent()) this.restoreTransientState(cloneLessonValue(transientState));
-                    } catch (error) {
-                        finish(() => reject(error));
-                    }
+                await replaceScene(this.sceneReplacementHost(session), {
+                    dispose: true,
+                    suspendBoard: true,
+                    sweep: true,
+                    // `restoreEntryState` imports the entry scene captured from the live graph, so there is no stored
+                    // data to check against the Preset collection; a missing payload is the default scene.
+                    importData: () => {
+                        if (!entry) this.importFigurePresetData(preset);
+                        else this.importPresetData(entry.preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(entry.preset.data));
+                    },
+                    workspaceRevisionAfterImport: true,
+                    state: {
+                        mode: 'deferred',
+                        next: () => this.figurePresetGraphState(preset.graphState),
+                        isCurrent,
+                        signal: operationSignal,
+                        onCancel: () => { if (generation === this.figureSceneGeneration) this.figureSceneGeneration++; },
+                    },
+                    // Each Preset figure shows the Preset as loading it would: fresh transient state without an entry scene.
+                    transientState: cloneLessonValue(transientState),
+                    initialize: true,
+                    finish: () => {
+                        if (preset.boardState && this.hasBoard) this.board.setBoundingBox(preset.boardState.boundingBox, this.equalAxisUnits);
+                        this.boardUpdate();
+                        session.requestFullUpdate();
+                    },
                 });
             } finally {
                 releaseTransition();
