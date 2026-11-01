@@ -1,6 +1,6 @@
 # 7. One owner for function-model rules
 
-Status: in progress (platform stream). The convexity pilot is in `be74f83e` and verified (evidence in [07-function-model-rules.evidence.md](07-function-model-rules.evidence.md)). Slice 2, the other ten models, has not started. Lane: Functions. Source: [specification §7](../../specs/architecture-deepening-backlog.md#7-one-owner-for-function-model-rules).
+Status: accepted 2026-11-01 (platform stream). The convexity pilot is `be74f83e`; slices 2a–2e are `f9b40c0d`, `86400a36`, `3c31e813`, `3c382657` and `19829899`. Evidence and the recorded deferrals are in [07-function-model-rules.evidence.md](07-function-model-rules.evidence.md). Lane: Functions. Source: [specification §7](../../specs/architecture-deepening-backlog.md#7-one-owner-for-function-model-rules).
 
 ## Scope and entry points
 
