@@ -88,12 +88,12 @@ const diagnoseSequence: Diagnosis = data => {
 /** The model module names the rule a rejected uniform convergence model broke; this only localizes it. */
 const diagnoseUniformConvergence: Diagnosis = data => {
     const check = checkUniformConvergenceModel(data);
+    return check.ok || check.issue === undefined ? undefined : uniformConvergenceFileMessage(check.issue);
+};
 /** The model module names the rule a rejected Fourier series model broke; this only localizes it. */
 const diagnoseFourierSeries: Diagnosis = data => {
     const check = checkFourierSeriesModel(data);
     return check.ok || check.issue === undefined ? undefined : fourierSeriesFileMessage(check.issue);
-};
-    return check.ok || check.issue === undefined ? undefined : uniformConvergenceFileMessage(check.issue);
 };
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
@@ -139,7 +139,6 @@ export const functionPresetCollections = {
     bisection: functionCollection("bisection", parseBisectionModel, diagnoseBisection),
     "root-finding": functionCollection("root-finding", parseRootFindingModel, diagnoseRootFinding),
     "mean-value": functionCollection("mean-value", parseMeanValueModel, diagnoseMeanValue),
-    "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     accumulation: functionCollection("accumulation", parseAccumulationModel, diagnoseAccumulation),
     darboux: functionCollection("darboux", parseDarbouxModel, diagnoseDarboux),
     extrema: functionCollection("extrema", parseExtremaModel, diagnoseExtrema),
@@ -147,6 +146,7 @@ export const functionPresetCollections = {
     taylor: functionCollection("taylor", parseTaylorModel, diagnoseTaylor),
     sequence: functionCollection("sequence", parseSequenceModel, diagnoseSequence),
     "uniform-convergence": functionCollection("uniform-convergence", parseUniformConvergenceModel, diagnoseUniformConvergence),
+    "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
