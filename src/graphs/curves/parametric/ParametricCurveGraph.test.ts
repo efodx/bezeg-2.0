@@ -3,6 +3,7 @@ import {ParametricScene} from './ParametricScene';
 import {DEFAULT_PARAMETRIC_PRESET, parametricPresetCollection} from './parametricPresetCollection';
 import {curveViewBox, PARAMETRIC_ROLL_ANIMATION_ID} from './parametricCatalogue';
 import {setLanguage} from '../../../localization';
+import {FigureExportScope} from '../../base/export/FigureExportOperation';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the scene also guards its callback. */
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
@@ -43,6 +44,7 @@ function fakeBoard() {
 function makeGraph() {
     const graph = Object.create(ParametricCurveGraph.prototype) as any;
     graph.board = fakeBoard();
+    graph.figureExports = new FigureExportScope({requestRender: () => undefined, reload: () => undefined});
     graph.graphSession = {isReady: true, isAlive: true};
     graph.store.replaceState({...graph.getInitialState(), initialized: true});
     graph.setState = vi.fn((patch: any) => { graph.store.setState(patch); });
