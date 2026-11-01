@@ -1676,7 +1676,7 @@ const parametricGeometry = {
         await expect(boardText(page, PARAMETRIC_READOUTS[step - 1]).first(), `parametric readout at ${label}`).toBeVisible();
     },
 };
-const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5\b/, /κ = 2\b.*R = 0[.,]5\b/s, /κ = 0[.,]6667/, /κ = 0\b.*(neskončen|infinite)/s, /κ = 2\b.*R = 0[.,]5\b/s];
+const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s]; // lines are separate <br> rows, so textContent has no separator: end a number with a lookahead, not a word boundary
 const curvatureGeometry = {
     id: 'curve-curvature',
     path: `${BASE}/curve-geometry/curvature`,

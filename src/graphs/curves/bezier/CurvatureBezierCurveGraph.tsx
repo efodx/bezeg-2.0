@@ -27,6 +27,8 @@ export const PARABOLA_CONTROL_POINTS: number[][] = [[-1, 1], [0, -1], [1, 1]];
  */
 class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphStates> {
     private overlay?: CurvatureOverlay;
+    /** What the overlay last read. A lesson scene resets the state and sets it back within one batch, so comparing only with the previous state would miss a redraw. */
+    private drawn?: { t: number, frame: boolean, circle: boolean };
 
     // Same structured editing as BezierCurveGraph; that class fixes its state type, so it cannot be subclassed here.
     protected override workspaceUsesStructuredEditing() { return true; }
@@ -77,7 +79,10 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
         this.overlay = new CurvatureOverlay({
             board: this.board,
             controlPoints: () => this.getFirstCurve()?.getPoints().map(point => [point.X(), point.Y()]),
-            parameter: () => this.state.curvatureT,
+            parameter: () => {
+                this.drawn = {t: this.state.curvatureT, frame: this.state.curvatureFrameShown, circle: this.state.curvatureCircleShown};
+                return this.state.curvatureT;
+            },
             showFrame: () => this.state.curvatureFrameShown,
             showCircle: () => this.state.curvatureCircleShown,
             fontSize: () => this.displaySettings.fontSize,
@@ -101,7 +106,10 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
 
     protected override onStateChange(prevState: Readonly<CurvatureGraphStates>) {
         super.onStateChange(prevState);
-        if (prevState !== this.state && (prevState.curvatureT !== this.state.curvatureT
+        const drawn = this.drawn;
+        const stale = drawn !== undefined && (drawn.t !== this.state.curvatureT
+            || drawn.frame !== this.state.curvatureFrameShown || drawn.circle !== this.state.curvatureCircleShown);
+        if (prevState !== this.state && (stale || prevState.curvatureT !== this.state.curvatureT
             || prevState.curvatureFrameShown !== this.state.curvatureFrameShown
             || prevState.curvatureCircleShown !== this.state.curvatureCircleShown)) this.boardUpdate();
     }
