@@ -3,8 +3,15 @@ import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import {BaseSequencer, type TestSpecification} from 'vitest/node';
 import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
 
-const testSlots = createRequire(import.meta.url)('./scripts/test-slots.cjs') as {machineBudget: () => {workers: number}};
+const require = createRequire(import.meta.url);
+const testSlots = require('./scripts/test-slots.cjs') as {machineBudget: () => {workers: number}};
+type TransientStateScope = {all: boolean; reason: string; ids: string[] | null; changedNames: string[]};
+const transientState = require('./scripts/transient-state-scope.cjs') as {
+    transientStateScope: (input: {env: NodeJS.ProcessEnv; changedPaths: () => string[]}) => TransientStateScope;
+    gitChangedPaths: (cwd: string) => string[];
+};
 
 const part = (file: TestSpecification) => /\.part(\d+)\.test\.[jt]sx?$/.exec(file.moduleId)?.[1];
 
@@ -64,5 +71,12 @@ export default defineConfig({
             ? {maxWorkers: Number(process.env.BEZEG_TEST_WORKERS)}
             : process.env.CI ? {} : {maxWorkers: testSlots.machineBudget().workers}),
         sequence: {sequencer: PartSequencer},
+        // A local run mounts a sample of the graphs in the transient state contract, plus the graphs the branch changed.
+        provide: {
+            transientStateScope: transientState.transientStateScope({
+                env: process.env,
+                changedPaths: () => transientState.gitChangedPaths(fileURLToPath(new URL('.', import.meta.url))),
+            }),
+        },
     },
 });

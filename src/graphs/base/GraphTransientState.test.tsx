@@ -10,6 +10,7 @@ import {capturePNGBlob} from './export/FigureCapture';
 import type {Mock} from 'vitest';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from './realGraphTestHarness';
 import {applyActions, internals} from './realGraphScenes';
+import {TRANSIENT_STATE_SAMPLE} from './graphTransientStateContract';
 import type {Preset} from './presets/Presets';
 
 vi.mock('./export/FigureCapture', async () => ({
@@ -128,4 +129,8 @@ describe('scenes saved with graph-specific state', () => {
         mounted.view.unmount();
         for (const sketch of sketches) expect(board.objects[sketch.id]).toBeUndefined();
     });
+});
+
+test('the transient state sample names registered Demonstrations only', () => {
+    expect(TRANSIENT_STATE_SAMPLE.filter(id => !(id in graphFactories))).toEqual([]);
 });

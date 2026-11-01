@@ -34,7 +34,7 @@ jobs:
         env:
           GITHUB_EVENT_BEFORE: ${{ github.event.before }}
       - name: Test verification scope detector
-        run: node --test scripts/ci-change-scope.test.cjs
+        run: node --test scripts/ci-change-scope.test.cjs scripts/transient-state-scope.test.cjs
 
   checks:
     needs: scope
