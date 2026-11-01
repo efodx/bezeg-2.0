@@ -1,16 +1,29 @@
 import React from "react";
 import {act, render} from "@testing-library/react";
-import {JSXGraph} from "jsxgraph";
 import {HodographInputbox} from "./HodographInputBox";
-import {stylesFor} from "../../styles/GraphStyles";
-import {DisplaySettings} from "../../base/DisplaySettings";
-import type {Mock} from 'vitest';
+import {GraphSession} from "../../base/GraphSession";
+import {AuxiliaryBoardLifetime} from "./AuxiliaryBoardLifetime";
 
-const axisStyles = stylesFor(new DisplaySettings()).axis;
+const jsxgraph = {initBoard: vi.fn(), freeBoard: vi.fn()};
 
-vi.mock("jsxgraph", () => ({JSXGraph: {initBoard: vi.fn(), freeBoard: vi.fn()}}));
-
-const jsxgraph = JSXGraph as unknown as {initBoard: Mock, freeBoard: Mock};
+/** The hodograph host and its board lifetime, with a session whose JSXGraph is a stub. */
+function renderHost(callbacks: {onBoard?: (board: JXG.Board) => void, onResize?: (board: JXG.Board) => void, onRelease?: () => void}) {
+    const session = new GraphSession(jsxgraph as any);
+    session.adoptMainView(() => undefined);
+    const parent = {renderer: {}, addChild: vi.fn(), removeChild: vi.fn()} as unknown as JXG.Board;
+    const lifetimes: AuxiliaryBoardLifetime[] = [];
+    const view = render(<HodographInputbox attach={host => {
+        const lifetime = new AuxiliaryBoardLifetime({
+            session, parent, host, boardOptions: {},
+            onBoard: board => callbacks.onBoard?.(board),
+            onResize: board => callbacks.onResize?.(board),
+            onRelease: () => callbacks.onRelease?.(),
+        });
+        lifetimes.push(lifetime);
+        return lifetime;
+    }}/>);
+    return {...view, session, parent, lifetimes};
+}
 
 function installResizeObserver() {
     let callback: ResizeObserverCallback | undefined;
@@ -37,6 +50,7 @@ function installResizeObserver() {
 function createBoard() {
     let boundingBox: [number, number, number, number] = [-5, 5, 5, -5];
     const board = {
+        containerObj: document.createElement('div'),
         resizeContainer: vi.fn((_width: number, _height: number, _dontSetCss: boolean, dontSetBoundingBox: boolean) => {
             boundingBox = dontSetBoundingBox
                 ? [-10, 10, 10, -10]
@@ -66,7 +80,7 @@ test("defers creation until visible size, then preserves the saved viewport thro
         }
     });
     const onDispose = vi.fn();
-    const {unmount} = render(<HodographInputbox axisStyles={axisStyles} setRef={setRef} onResize={onResize} onDispose={onDispose}/>);
+    const {unmount} = renderHost({onBoard: setRef, onResize, onRelease: onDispose});
 
     expect(jsxgraph.initBoard).not.toHaveBeenCalled();
     resize.notify(0, 0);
@@ -94,7 +108,7 @@ test("defers creation until visible size, then preserves the saved viewport thro
 
 test("a queued resize after hidden unmount cannot create the auxiliary board", () => {
     const resize = installResizeObserver();
-    const {unmount} = render(<HodographInputbox axisStyles={axisStyles} setRef={vi.fn()}/>);
+    const {unmount} = renderHost({});
     expect(jsxgraph.initBoard).not.toHaveBeenCalled();
     unmount();
 
@@ -103,4 +117,49 @@ test("a queued resize after hidden unmount cannot create the auxiliary board", (
     expect(resize.disconnect).toHaveBeenCalledTimes(1);
     expect(jsxgraph.initBoard).not.toHaveBeenCalled();
     expect(jsxgraph.freeBoard).not.toHaveBeenCalled();
+});
+
+test("release is idempotent and ends adopted resources, the parent link, the observer and the board once, latest first", () => {
+    const resize = installResizeObserver();
+    const board = createBoard();
+    jsxgraph.initBoard.mockReturnValue(board);
+    const order: string[] = [];
+    const onRelease = vi.fn();
+    const {lifetimes, parent, unmount} = renderHost({onRelease});
+    resize.notify(240, 240);
+    const [lifetime] = lifetimes;
+    lifetime.adopt(() => order.push("first"));
+    lifetime.adopt(() => order.push("second"));
+    lifetime.linkToParent();
+    lifetime.linkToParent();
+    expect(parent.addChild).toHaveBeenCalledTimes(1);
+
+    lifetime.release();
+    lifetime.release();
+    unmount();
+
+    expect(order).toEqual(["second", "first"]);
+    expect(parent.removeChild).toHaveBeenCalledTimes(1);
+    expect(resize.disconnect).toHaveBeenCalledTimes(1);
+    expect(jsxgraph.freeBoard).toHaveBeenCalledTimes(1);
+    expect(onRelease).toHaveBeenCalledTimes(1);
+    lifetime.adopt(() => order.push("late"));
+    expect(order).toEqual(["second", "first", "late"]);
+});
+
+test("ending the session releases the lifetime, and the view's later unmount changes nothing", () => {
+    const resize = installResizeObserver();
+    jsxgraph.initBoard.mockReturnValue(createBoard());
+    const onRelease = vi.fn();
+    const {lifetimes, session, parent, unmount} = renderHost({onRelease});
+    resize.notify(240, 240);
+    lifetimes[0].linkToParent();
+
+    session.dispose();
+    unmount();
+
+    expect(lifetimes[0].isReleased).toBe(true);
+    expect(jsxgraph.freeBoard).toHaveBeenCalledTimes(1);
+    expect(parent.removeChild).toHaveBeenCalledTimes(1);
+    expect(onRelease).toHaveBeenCalledTimes(1);
 });

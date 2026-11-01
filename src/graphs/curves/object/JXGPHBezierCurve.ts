@@ -13,6 +13,7 @@ import {Point} from "../../../bezeg/api/point/point";
 import {JXGPointWrapper as PointWrapper} from "./JXGPointWrapper";
 import {constructionLevelColor} from "../../styles/GraphPalette";
 import {assertPlanarAdapter, assertPlanarDto} from "./planarDtoGuard";
+import {ModelPointBinding} from "./ModelPointBinding";
 
 interface JSXPHBezierCurveConstructorParams extends JSXBezierCurveConstructorParams {
     hodographs: number[][],
@@ -44,6 +45,27 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
     constructor(points: number[][], board: Board, attributes?: BezierCurveAttributes) {
         super(points, board, attributes);
         this.setAttributes({...Attributes.bezierDisabled, allowShowConvexHull: false});
+    }
+
+    /**
+     * Creates the draggable hodograph points `w` on the auxiliary hodograph board and binds each to its model point
+     * (ADR 0006), as main-board points are bound. A `w` that is not a plain numeric point is replaced by one with the
+     * same coordinates first. Returns the disposer for the points' bindings and drag listeners; it is idempotent.
+     */
+    bindHodographPoints(hodographBoard: Board, pointAttributes: object, afterDrag: () => void): () => void {
+        const curve = this.getCurve();
+        const modelPoints = curve.w.map(point => point instanceof PointImpl && !point.isXFunction() && !point.isYFunction()
+            ? point
+            : new PointImpl(point.X(), point.Y()));
+        if (modelPoints.some((point, i) => point !== curve.w[i])) curve.w = modelPoints;
+        const bindings = modelPoints.map((modelPoint, i) => {
+            const boardPoint = hodographBoard.create('point', [modelPoint.X(), modelPoint.Y()], {
+                ...pointAttributes,
+                name: "$$w_{" + i + "}$$"
+            } as unknown as JXG.PointAttributes);
+            return new ModelPointBinding(modelPoint, boardPoint, afterDrag);
+        });
+        return () => bindings.forEach(binding => binding.dispose());
     }
 
     static override toDto(curve: JXGBezierCurve): any {
