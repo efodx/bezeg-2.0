@@ -1,6 +1,6 @@
 # 8. Function graph shared drawing and analysis
 
-Status: planned. Lane: Functions; after task 7. Source: [specification §8](../../specs/architecture-deepening-backlog.md#8-function-graph-shared-drawing-and-analysis).
+Status: accepted 2026-11-01 (platform stream): S1 `47434ed2`, S2 `a5910b23` and `d1162c43`; S3 (`alphaParameterization`) no change, since it is already pure, exported, used once and tested directly. Evidence: [08-function-graph-sharing.evidence.md](08-function-graph-sharing.evidence.md). Lane: Functions; after task 7. Source: [specification §8](../../specs/architecture-deepening-backlog.md#8-function-graph-shared-drawing-and-analysis).
 
 ## Scope and entry points
 

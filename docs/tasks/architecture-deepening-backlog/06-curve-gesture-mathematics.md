@@ -1,6 +1,6 @@
 # 6. Curve editing gesture mathematics
 
-Status: planned. Lane: Curves; after task 4. Source: [specification §6](../../specs/architecture-deepening-backlog.md#6-curve-editing-gesture-mathematics).
+Status: accepted 2026-11-01 (platform stream): `a467c526`, `4b908534`, `2d5b0a80`. Evidence: [06-curve-gesture-mathematics.evidence.md](06-curve-gesture-mathematics.evidence.md). Lane: Curves; after task 4. Source: [specification §6](../../specs/architecture-deepening-backlog.md#6-curve-editing-gesture-mathematics).
 
 ## Scope and entry points
 

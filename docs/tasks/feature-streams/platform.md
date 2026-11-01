@@ -14,7 +14,7 @@ The order differs from the backlog README's waves: tasks that gate other streams
 | 1 | A1 preset storage ∥ A9a typed lesson-action vocabulary, review-field decisions, one pilot content file | A9's decisions go in the Guided lessons spec. A9a owns `model.ts` in this step | accepted 2026-10-31: A1 (`df45cb9`, `a3c8d6a`) and A9a (`ac30c2f`) |
 | 2 | A10 derived registration ∥ A9b scripted migration of the remaining content files (incl. `patchChapter*.ts`) | A10 owns `model.ts` in this step; A9b edits content files only. Review A9b by search, not by reading. **Opens `G-REG`** once A9a and A10 are accepted, without waiting for A9b | accepted 2026-10-31: A10 (`1b847578`), A9b (`a628ceca`) |
 | 3 | A4 generic spline changes ∥ A7 function-model rules (convexity pilot, then the other ten) | Disjoint: spline adapter vs. analysis models. A7 rebases over A9 (reverses the backlog's soft 9-after-7 order) | accepted 2026-11-01: A4 (`c620ad48`) and A7 (pilot `be74f83e`, slices `f9b40c0d`–`19829899`; [evidence](../architecture-deepening-backlog/07-function-model-rules.evidence.md#a7-verification-2026-11-01)) |
-| 4 | A6 curve gesture mathematics ∥ A8 function graph sharing | A6 after A4; A8 after A7. **Opens `G-CURVE`** (A4 + A6) and **`G-FN`** (A7 + A8) | in progress: A6 S1–S2 and A8 S1–S2 reviewed and committed (`a467c526`–`d1162c43`), A8 S3 no change; before/after measured; open: function 4x-CPU p95 question, smoke, `just check`; not on `master` ([handoff 7](../../reviews/feature-streams/platform/handler-handoff-7.md)) |
+| 4 | A6 curve gesture mathematics ∥ A8 function graph sharing | A6 after A4; A8 after A7. **Opens `G-CURVE`** (A4 + A6) and **`G-FN`** (A7 + A8) | accepted 2026-11-01: A6 (`a467c526`, `4b908534`, `2d5b0a80`) and A8 (`47434ed2`, `a5910b23`, `d1162c43`; S3 no change). Function p95 settled by interleaved runs; evidence beside each task file |
 | 5 | A2 figure export operation ∥ A5 PH auxiliary board | A2 after A1 (`BaseGraph.tsx`, `PresetSelector.tsx`) and after A7/A8 (shared function-graph test files) | planned |
 | 6 | A3 one scene replacement path | After A2, A5 and A8 (shares `BaseFunctionGraph.tsx` with A8). Full browser checklist | planned |
 
@@ -25,7 +25,7 @@ Line ranges in the task files date from `2f602d0` (2026-10-25); locate code by s
 | Gate | Status |
 | --- | --- |
 | `G-REG` (A9a + A10) | open (2026-10-31) |
-| `G-CURVE` (A4 + A6) | closed |
-| `G-FN` (A7 + A8) | closed |
+| `G-CURVE` (A4 + A6) | open (2026-11-01) |
+| `G-FN` (A7 + A8) | open (2026-11-01) |
 
 A *Worth exploring* task (A3, A6, A8, A10) may end in "no change" after its inventory, with the reason recorded. That counts as accepted and opens its gate.
