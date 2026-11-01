@@ -906,3 +906,34 @@ test('a scene replaced while playing pauses the iteration and requests a render 
     expect(graph.controller.isPlaying()).toBe(false);
     expect(graph.requestRender).toHaveBeenCalled();
 });
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured message', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        apply(graph, choice('cosine'));
+        return [messageOf(choice('sine')), messageOf(parameter('fixed-point-x0', 1.5)), messageOf(parameter('fixed-point-x0', 0.123)), messageOf(parameter('fixed-point-digits', 9))];
+    };
+    expect(refusals('en')).toEqual([
+        'The example must be one of: affine, cosine, reflection.',
+        'The start x₀ must be a multiple of 0.01 between 0 and 1.',
+        'The start x₀ must be a multiple of 0.01 between 0 and 1.',
+        'The number d must be an integer between 1 and 8.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Primer mora biti eden od: affine, cosine, reflection.',
+        'Začetek x₀ mora biti večkratnik števila 0,01 med 0 in 1.',
+        'Začetek x₀ mora biti večkratnik števila 0,01 med 0 in 1.',
+        'Število d mora biti celo število med 1 in 8.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('fixed-point-digits', 0)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'fixed_point_digits_rejected_hint', params: {value0: 1, value1: 8}});
+    setLanguage('sl');
+});

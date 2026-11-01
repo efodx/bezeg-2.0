@@ -3,6 +3,7 @@ import {complexRootsPresetCollection} from './complexRootsPresets';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {DEFAULT_COMPLEX_ROOTS_MODEL} from '../../analysis/complexRootsModel';
 import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
+import {DomainError} from '../functions/BaseFunctionGraph';
 
 const BOX = [-3.4, 3.4, 3.4, -3.4];
 
@@ -314,9 +315,9 @@ test('numeric inputs snap arithmetic noise to the 0.05 grid and reject a real of
     }
     expect(inspector().degree.props.min).toBe(2);
     expect(inspector().degree.props.max).toBe(8);
-    expect(() => apply(graph, parameter('complex-w-re', 0.123))).toThrow(/multiple of 0.05/);
-    expect(() => apply(graph, parameter('n', 9))).toThrow(/integer between 2 and 8/);
-    expect(() => apply(graph, parameter('n', 2.5))).toThrow(/integer between 2 and 8/);
+    expect(() => apply(graph, parameter('complex-w-re', 0.123))).toThrow(/večkratnik števila 0,05/);
+    expect(() => apply(graph, parameter('n', 9))).toThrow(/celo število med 2 in 8/);
+    expect(() => apply(graph, parameter('n', 2.5))).toThrow(/celo število med 2 in 8/);
     expect(graph.model).toEqual(before);
 });
 
@@ -492,4 +493,32 @@ test('unmounting releases every owned object and reference, and a late drag afte
     w.x = 0.5;
     w.y = 0.5;
     expect(() => w.handlers.drag()).not.toThrow();
+});
+
+test('a refused edit throws a DomainError whose text is localized in both languages and whose reason is a structured message', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph: any = makeGraph({asyncState: false});
+        const messageOf = (edit: () => void) => {
+            try { edit(); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(() => apply(graph, parameter('complex-w-re', 0.123))), messageOf(() => apply(graph, parameter('n', 9))),
+            messageOf(() => graph.setExample('cubic'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The value must be a multiple of 0.05 between −2 and 2.',
+        'The degree must be an integer between 2 and 8.',
+        'The example must be one of: two-i, one-plus-i, negative-real, unity, zero.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Vrednost mora biti večkratnik števila 0,05 med −2 in 2.',
+        'Stopnja mora biti celo število med 2 in 8.',
+        'Primer mora biti eden od: two-i, one-plus-i, negative-real, unity, zero.',
+    ]);
+    setLanguage('en');
+    const graph: any = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { graph.setDegree(1); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'complex_roots_degree_rejected_hint', params: {}});
 });

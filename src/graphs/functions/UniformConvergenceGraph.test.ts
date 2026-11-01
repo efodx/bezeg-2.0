@@ -344,7 +344,7 @@ test('number-field values: arithmetic noise is snapped to the grid, a real off-g
 test('a change of r below the chosen x is rejected and never clamped; the inspector says why and what to do', () => {
     const graph = makeGraph({asyncState: false});
     const before = {...graph.model};
-    expect(() => apply(graph, parameter('uniform-r', 0.4))).toThrow(/move x first/);
+    expect(() => apply(graph, parameter('uniform-r', 0.4))).toThrow(/Najprej premakni točko x/);
     expect(graph.model).toEqual(before);
     expect(graph.model.x).toBe(0.5);
     // through the number field: refused (false) and the model is unchanged; the hint names the point and says to move x first
@@ -603,4 +603,39 @@ test('Fit restores the default view instead of a canvas-aspect box, because the 
     graph.navigateBoard('fit');
     expect(graph.board.setBoundingBox).toHaveBeenCalledTimes(1);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-0.15, 1.45, 1.2, -0.35], false, 'update');
+});
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured message', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(choice('cubic')), messageOf(parameter('uniform-r', 0.851)), messageOf(parameter('uniform-r', 0.4)), messageOf(parameter('uniform-n', 51)),
+            messageOf(parameter('uniform-x', 0.86)), messageOf(parameter('uniform-epsilon', 0))];
+    };
+    expect(refusals('en')).toEqual([
+        'The example must be one of: power, scaled.',
+        'The domain end r must be a multiple of 0.05 between 0.1 and 1 and not less than the chosen point x = 0.5. Move the point x first, then change r.',
+        'The domain end r must be a multiple of 0.05 between 0.1 and 1 and not less than the chosen point x = 0.5. Move the point x first, then change r.',
+        'The index n must be an integer between 1 and 50.',
+        'The point x must be a multiple of 0.01 between 0 and r = 0.8.',
+        'The tolerance ε must be a multiple of 0.01 between 0.01 and 1.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Primer mora biti eden od: power, scaled.',
+        'Konec območja r mora biti večkratnik števila 0,05 med 0,1 in 1 ter ne manjši od izbrane točke x = 0,5. Najprej premakni točko x, nato spremeni r.',
+        'Konec območja r mora biti večkratnik števila 0,05 med 0,1 in 1 ter ne manjši od izbrane točke x = 0,5. Najprej premakni točko x, nato spremeni r.',
+        'Indeks n mora biti celo število med 1 in 50.',
+        'Točka x mora biti večkratnik števila 0,01 med 0 in r = 0,8.',
+        'Toleranca ε mora biti večkratnik števila 0,01 med 0,01 in 1.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('uniform-n', 99)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'uniform_n_rejected_hint', params: {value0: 1, value1: 50}});
+    setLanguage('sl');
 });

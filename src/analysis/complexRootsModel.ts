@@ -1,4 +1,4 @@
-import {Complex, complexMultiply, complexModulus, isComplexCoordinate, snapComplexCoordinate} from './complex';
+import {Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_MIN, complexMultiply, complexModulus, isComplexCoordinate, snapComplexCoordinate} from './complex';
 import {COMPLEX_ROOT_DEGREE_MAX, COMPLEX_ROOT_DEGREE_MIN, isComplexRootDegree} from './complexRoots';
 
 /**
@@ -77,30 +77,113 @@ export function solvesRootEquation(z: Complex, w: Complex, n: number): boolean {
     return complexModulus({re: power.re - w.re, im: power.im - w.im}) <= ROOT_TEST_TOLERANCE * Math.max(1, complexModulus(w));
 }
 
+export type RootsCoordinateField = typeof ROOTS_COORDINATE_FIELDS[number];
+export type RootsVisibilityField = typeof ROOTS_VISIBILITY_FIELDS[number];
+
+const isFiniteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+
+/** The rule a stored roots model broke. Callers localize it; the examples and the ranges travel with it. */
+export type ComplexRootsIssue =
+    | { readonly kind: 'example'; readonly allowed: readonly ComplexRootsExampleId[] }
+    | { readonly kind: 'coordinate'; readonly field: RootsCoordinateField; readonly min: number; readonly max: number }
+    | { readonly kind: 'degree'; readonly min: number; readonly max: number }
+    | { readonly kind: 'visibility'; readonly field: RootsVisibilityField };
+
+/** The rules an edit can break: a coordinate off the grid or outside the square, a degree that is not an integer in range, or an unknown example. */
+export type ComplexRootsEditIssue =
+    | { readonly kind: 'example'; readonly allowed: readonly ComplexRootsExampleId[] }
+    | { readonly kind: 'coordinate'; readonly min: number; readonly max: number }
+    | { readonly kind: 'degree'; readonly min: number; readonly max: number };
+
+/** The answer for a whole stored model: the sanitized model or the first rule it broke (`issue` undefined = malformed). */
+export type ComplexRootsCheck =
+    | { readonly ok: true; readonly model: ComplexRootsModel }
+    | { readonly ok: false; readonly issue: ComplexRootsIssue | undefined };
+
+/** The answer for one edit: the next model (the same object when nothing changes) or the rule the edit would break. */
+export type ComplexRootsEdit =
+    | { readonly ok: true; readonly model: ComplexRootsModel }
+    | { readonly ok: false; readonly issue: ComplexRootsEditIssue };
+
+const reject = (issue: ComplexRootsIssue | undefined): ComplexRootsCheck => ({ok: false, issue});
+const coordinateIssue: ComplexRootsEditIssue = {kind: 'coordinate', min: COMPLEX_COORDINATE_MIN, max: COMPLEX_COORDINATE_MAX};
+
 /**
- * Returns a sanitized model (unknown properties dropped, grid values written exactly) or undefined unless the data is a valid
- * model. Nothing is clamped: an off-grid or out-of-range value, a non-integer degree or a missing field rejects the whole model.
+ * The single validity rule of a stored roots model: a known example, four grid coordinates in [-2, 2], an integer degree in
+ * [2, 8] and three booleans. Unknown properties are dropped and grid values written exactly. Nothing is clamped. Rules are
+ * checked in the order example, coordinates (wRe, wIm, zRe, zIm), degree, visibility; a missing or wrongly typed field gives
+ * `issue: undefined`, except that a degree present but not an integer in range is a degree issue.
  */
-export function parseComplexRootsModel(data: unknown): ComplexRootsModel | undefined {
-    if (data === null || typeof data !== 'object' || Array.isArray(data)) return undefined;
+export function checkComplexRootsModel(data: unknown): ComplexRootsCheck {
+    if (data === null || typeof data !== 'object' || Array.isArray(data)) return reject(undefined);
     const record = data as Record<string, unknown>;
-    if (!isComplexRootsExampleId(record.example)) return undefined;
+    if (!isComplexRootsExampleId(record.example)) return reject({kind: 'example', allowed: COMPLEX_ROOTS_EXAMPLE_IDS});
+    for (const field of ROOTS_COORDINATE_FIELDS) {
+        const value = record[field];
+        if (isFiniteNumber(value) && !isComplexCoordinate(value)) return reject({kind: 'coordinate', field, min: COMPLEX_COORDINATE_MIN, max: COMPLEX_COORDINATE_MAX});
+    }
+    if (record.degree !== undefined && !isComplexRootDegree(record.degree)) return reject({kind: 'degree', min: COMPLEX_ROOT_DEGREE_MIN, max: COMPLEX_ROOT_DEGREE_MAX});
+    for (const field of ROOTS_VISIBILITY_FIELDS) {
+        if (record[field] !== undefined && typeof record[field] !== 'boolean') return reject({kind: 'visibility', field});
+    }
     const coordinates: Record<string, number> = {};
     for (const field of ROOTS_COORDINATE_FIELDS) {
         const value = record[field];
-        if (!isComplexCoordinate(value)) return undefined;
+        if (!isComplexCoordinate(value)) return reject(undefined);
         coordinates[field] = snapComplexCoordinate(value);
     }
     const visibility: Record<string, boolean> = {};
     for (const field of ROOTS_VISIBILITY_FIELDS) {
         const value = record[field];
-        if (typeof value !== 'boolean') return undefined;
+        if (typeof value !== 'boolean') return reject(undefined);
         visibility[field] = value;
     }
-    if (!isComplexRootDegree(record.degree)) return undefined;
+    if (!isComplexRootDegree(record.degree)) return reject(undefined);
     return {
-        example: record.example, wRe: coordinates.wRe, wIm: coordinates.wIm, degree: record.degree,
-        rootsVisible: visibility.rootsVisible, polygonVisible: visibility.polygonVisible, testVisible: visibility.testVisible,
-        zRe: coordinates.zRe, zIm: coordinates.zIm,
+        ok: true,
+        model: {
+            example: record.example, wRe: coordinates.wRe, wIm: coordinates.wIm, degree: record.degree,
+            rootsVisible: visibility.rootsVisible, polygonVisible: visibility.polygonVisible, testVisible: visibility.testVisible,
+            zRe: coordinates.zRe, zIm: coordinates.zIm,
+        },
     };
+}
+
+/**
+ * Returns a sanitized model (unknown properties dropped, grid values written exactly) or undefined unless the data is a valid
+ * model. Nothing is clamped: an off-grid or out-of-range value, a non-integer degree or a missing field rejects the whole model.
+ */
+export function parseComplexRootsModel(data: unknown): ComplexRootsModel | undefined {
+    const check = checkComplexRootsModel(data);
+    return check.ok ? check.model : undefined;
+}
+
+/** Choosing an example loads that example's w and n, the default test point and hides every reveal again. */
+export function chooseComplexRootsExample(example: unknown): ComplexRootsEdit {
+    if (!isComplexRootsExampleId(example)) return {ok: false, issue: {kind: 'example', allowed: COMPLEX_ROOTS_EXAMPLE_IDS}};
+    return {ok: true, model: {...COMPLEX_ROOTS_EXAMPLE_MODELS[example]}};
+}
+
+/** The model with `patch` applied; the same object when no value changes. */
+const patched = (model: ComplexRootsModel, patch: Partial<ComplexRootsModel>): ComplexRootsModel => {
+    const next: ComplexRootsModel = {...model, ...patch};
+    return (Object.keys(next) as (keyof ComplexRootsModel)[]).some(key => next[key] !== model[key]) ? next : model;
+};
+
+/** Moves w (`which` 'w') or the test point z (`which` 'z') to (re, im): both must be grid coordinates in range (never clamped). */
+export function moveRootsPoint(model: ComplexRootsModel, which: 'w' | 'z', re: number, im: number): ComplexRootsEdit {
+    if (!isComplexCoordinate(re) || !isComplexCoordinate(im)) return {ok: false, issue: coordinateIssue};
+    const nextRe = snapComplexCoordinate(re), nextIm = snapComplexCoordinate(im);
+    return {ok: true, model: patched(model, which === 'w' ? {wRe: nextRe, wIm: nextIm} : {zRe: nextRe, zIm: nextIm})};
+}
+
+/** Sets the degree n: an integer in [2, 8], never clamped. */
+export function setRootsDegree(model: ComplexRootsModel, value: number): ComplexRootsEdit {
+    if (!isComplexRootDegree(value)) return {ok: false, issue: {kind: 'degree', min: COMPLEX_ROOT_DEGREE_MIN, max: COMPLEX_ROOT_DEGREE_MAX}};
+    return {ok: true, model: patched(model, {degree: value})};
+}
+
+/** Shows or hides one reveal; the same model when the flag already has that value. */
+export function setRootsVisibility(model: ComplexRootsModel, field: RootsVisibilityField, visible: boolean): ComplexRootsModel {
+    return patched(model, {[field]: visible});
 }

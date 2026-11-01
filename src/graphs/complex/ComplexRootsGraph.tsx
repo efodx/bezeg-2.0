@@ -6,13 +6,14 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {
-    Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_STEP, complexArgument, complexModulus, isComplexCoordinate, isZero, snapComplexCoordinate,
+    Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_STEP, complexArgument, complexModulus, isZero, snapComplexCoordinate,
 } from "../../analysis/complex";
-import {COMPLEX_ROOT_DEGREE_MAX, COMPLEX_ROOT_DEGREE_MIN, isComplexRootDegree, nthRoots, NthRootsResult} from "../../analysis/complexRoots";
+import {COMPLEX_ROOT_DEGREE_MAX, COMPLEX_ROOT_DEGREE_MIN, nthRoots, NthRootsResult} from "../../analysis/complexRoots";
 import {
-    COMPLEX_ROOTS_EXAMPLE_IDS, COMPLEX_ROOTS_EXAMPLE_MODELS, ComplexRootsExampleId, ComplexRootsModel, complexIntegerPower, DEFAULT_COMPLEX_ROOTS_MODEL,
-    isComplexRootsExampleId, rootsModelPoints, solvesRootEquation,
+    COMPLEX_ROOTS_EXAMPLE_IDS, ComplexRootsExampleId, ComplexRootsModel, complexIntegerPower, DEFAULT_COMPLEX_ROOTS_MODEL,
+    chooseComplexRootsExample, ComplexRootsEdit, moveRootsPoint, rootsModelPoints, RootsVisibilityField, setRootsDegree, setRootsVisibility, solvesRootEquation,
 } from "../../analysis/complexRootsModel";
+import {complexRootsEditMessage} from "./complexMessages";
 import {formatArgument, formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexRootsPresetCollection} from "./complexRootsPresets";
@@ -114,46 +115,40 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
 
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
-    private coordinate(value: number): number {
-        if (!isComplexCoordinate(value)) {
-            throw new DomainError(`The coordinate must be a multiple of ${COMPLEX_COORDINATE_STEP} between ${-COMPLEX_COORDINATE_MAX} and ${COMPLEX_COORDINATE_MAX}.`);
-        }
-        return snapComplexCoordinate(value);
-    }
-
-    private write(patch: Partial<ComplexRootsModel>, options: { syncScene?: boolean } = {}): void {
-        const model = this.model;
-        const next: ComplexRootsModel = {...model, ...patch};
-        if ((Object.keys(next) as (keyof ComplexRootsModel)[]).some(key => next[key] !== model[key])) this.commitModel(next, options);
+    /** Commits the next model of an edit, or throws the localized reason the model refused it. */
+    private applyEdit(edit: ComplexRootsEdit, options: { syncScene?: boolean } = {}): void {
+        if (!edit.ok) throw new DomainError(complexRootsEditMessage(edit.issue));
+        if (edit.model !== this.model) this.commitModel(edit.model, options);
     }
 
     protected setExample(value: unknown): void {
-        if (!isComplexRootsExampleId(value)) throw new DomainError(`The example must be one of ${COMPLEX_ROOTS_EXAMPLE_IDS.join(", ")}.`);
-        this.commitModel({...COMPLEX_ROOTS_EXAMPLE_MODELS[value]});
+        const edit = chooseComplexRootsExample(value);
+        if (!edit.ok) throw new DomainError(complexRootsEditMessage(edit.issue));
+        this.commitModel(edit.model);
     }
 
     /** Both coordinates of w in one commit (a drag moves both). */
     protected setW(re: number, im: number, options: { syncScene?: boolean } = {}): void {
-        this.write({wRe: this.coordinate(re), wIm: this.coordinate(im)}, options);
+        this.applyEdit(moveRootsPoint(this.model, "w", re, im), options);
     }
 
     /** Both coordinates of the test point z in one commit. */
     protected setTest(re: number, im: number, options: { syncScene?: boolean } = {}): void {
-        this.write({zRe: this.coordinate(re), zIm: this.coordinate(im)}, options);
+        this.applyEdit(moveRootsPoint(this.model, "z", re, im), options);
     }
 
-    protected setDegree(value: number): void {
-        if (!isComplexRootDegree(value)) {
-            throw new DomainError(`The degree must be an integer between ${COMPLEX_ROOT_DEGREE_MIN} and ${COMPLEX_ROOT_DEGREE_MAX}.`);
-        }
-        this.write({degree: value});
+    protected setDegree(value: number): void { this.applyEdit(setRootsDegree(this.model, value)); }
+
+    protected setRootsVisible(visible: boolean): void { this.setVisibility("rootsVisible", visible); }
+
+    protected setPolygonVisible(visible: boolean): void { this.setVisibility("polygonVisible", visible); }
+
+    protected setTestVisible(visible: boolean): void { this.setVisibility("testVisible", visible); }
+
+    private setVisibility(field: RootsVisibilityField, visible: boolean): void {
+        const next = setRootsVisibility(this.model, field, visible);
+        if (next !== this.model) this.commitModel(next);
     }
-
-    protected setRootsVisible(visible: boolean): void { this.write({rootsVisible: visible}); }
-
-    protected setPolygonVisible(visible: boolean): void { this.write({polygonVisible: visible}); }
-
-    protected setTestVisible(visible: boolean): void { this.write({testVisible: visible}); }
 
     /**
      * Lesson actions: the coordinates of w and of the test point z and the degree n. The reveals and the examples are set through the

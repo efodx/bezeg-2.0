@@ -6,14 +6,16 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {
-    Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_STEP, complexArgument, complexModulus, isComplexCoordinate, isZero, snapComplexCoordinate,
+    Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_STEP, complexArgument, complexModulus, isZero, snapComplexCoordinate,
 } from "../../analysis/complex";
 import {circleInversion, circlePosition, CirclePosition} from "../../analysis/complexMobius";
 import {complexConjugate, complexDivide, complexReciprocal} from "../../analysis/complexReciprocal";
 import {
-    COMPLEX_RECIPROCAL_EXAMPLE_IDS, COMPLEX_RECIPROCAL_EXAMPLE_MODELS, ComplexReciprocalExampleId, ComplexReciprocalModel, DEFAULT_COMPLEX_RECIPROCAL_MODEL,
-    INVERSION_RADIUS_MAX, INVERSION_RADIUS_MIN, isComplexReciprocalExampleId, isInversionRadius, reciprocalModelPoints, snapInversionRadius,
+    COMPLEX_RECIPROCAL_EXAMPLE_IDS, ComplexReciprocalExampleId, ComplexReciprocalModel, DEFAULT_COMPLEX_RECIPROCAL_MODEL,
+    chooseComplexReciprocalExample, ComplexReciprocalEdit, INVERSION_RADIUS_MAX, INVERSION_RADIUS_MIN, isInversionRadius, moveReciprocalCentre, moveReciprocalOperand, reciprocalModelPoints,
+    ReciprocalVisibilityField, snapInversionRadius, setReciprocalRadius, setReciprocalVisibility,
 } from "../../analysis/complexReciprocalModel";
+import {complexReciprocalEditMessage} from "./complexMessages";
 import {formatArgument, formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexReciprocalPresetCollection} from "./complexReciprocalPresets";
@@ -143,30 +145,22 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
 
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
 
-    private coordinate(value: number): number {
-        if (!isComplexCoordinate(value)) {
-            throw new DomainError(`The coordinate must be a multiple of ${COMPLEX_COORDINATE_STEP} between ${-COMPLEX_COORDINATE_MAX} and ${COMPLEX_COORDINATE_MAX}.`);
-        }
-        return snapComplexCoordinate(value);
-    }
-
-    private write(patch: Partial<ComplexReciprocalModel>, options: { syncScene?: boolean } = {}): void {
-        const model = this.model;
-        const next: ComplexReciprocalModel = {...model, ...patch};
-        if ((Object.keys(next) as (keyof ComplexReciprocalModel)[]).some(key => next[key] !== model[key])) this.commitModel(next, options);
+    /** Commits the next model of an edit, or throws the localized reason the model refused it. */
+    private applyEdit(edit: ComplexReciprocalEdit, options: { syncScene?: boolean } = {}): void {
+        if (!edit.ok) throw new DomainError(complexReciprocalEditMessage(edit.issue));
+        if (edit.model !== this.model) this.commitModel(edit.model, options);
     }
 
     protected setExample(value: unknown): void {
-        if (!isComplexReciprocalExampleId(value)) throw new DomainError(`The example must be one of ${COMPLEX_RECIPROCAL_EXAMPLE_IDS.join(", ")}.`);
+        const edit = chooseComplexReciprocalExample(value);
+        if (!edit.ok) throw new DomainError(complexReciprocalEditMessage(edit.issue));
         this.handleAngle = 0;
-        this.commitModel({...COMPLEX_RECIPROCAL_EXAMPLE_MODELS[value]});
+        this.commitModel(edit.model);
     }
 
     /** Both coordinates of one operand in one commit (a drag moves both). */
     protected setOperand(which: OperandName, re: number, im: number, options: { syncScene?: boolean } = {}): void {
-        const nextRe = this.coordinate(re);
-        const nextIm = this.coordinate(im);
-        this.write(which === "z" ? {zRe: nextRe, zIm: nextIm} : {wRe: nextRe, wIm: nextIm}, options);
+        this.applyEdit(moveReciprocalOperand(this.model, which, re, im), options);
     }
 
     protected setZRe(value: number): void { this.setOperand("z", value, this.model.zIm); }
@@ -178,21 +172,23 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
     protected setWIm(value: number): void { this.setOperand("w", this.model.wRe, value); }
 
     protected setCentre(re: number, im: number, options: { syncScene?: boolean } = {}): void {
-        this.write({centreRe: this.coordinate(re), centreIm: this.coordinate(im)}, options);
+        this.applyEdit(moveReciprocalCentre(this.model, re, im), options);
     }
 
     protected setRadius(value: number, options: { syncScene?: boolean } = {}): void {
-        if (!isInversionRadius(value)) {
-            throw new DomainError(`The radius must be a multiple of ${COMPLEX_COORDINATE_STEP} between ${INVERSION_RADIUS_MIN} and ${INVERSION_RADIUS_MAX}.`);
-        }
-        this.write({radius: snapInversionRadius(value)}, options);
+        this.applyEdit(setReciprocalRadius(this.model, value), options);
     }
 
-    protected setReciprocalVisible(visible: boolean): void { this.write({reciprocalVisible: visible}); }
+    protected setReciprocalVisible(visible: boolean): void { this.setVisibility("reciprocalVisible", visible); }
 
-    protected setQuotientVisible(visible: boolean): void { this.write({quotientVisible: visible}); }
+    protected setQuotientVisible(visible: boolean): void { this.setVisibility("quotientVisible", visible); }
 
-    protected setCircleVisible(visible: boolean): void { this.write({circleVisible: visible}); }
+    protected setCircleVisible(visible: boolean): void { this.setVisibility("circleVisible", visible); }
+
+    private setVisibility(field: ReciprocalVisibilityField, visible: boolean): void {
+        const next = setReciprocalVisibility(this.model, field, visible);
+        if (next !== this.model) this.commitModel(next);
+    }
 
     /**
      * Lesson actions. The closed action-name sets of `src/learning/model.ts` hold only the operand names of complex multiplication, so
