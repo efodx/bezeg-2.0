@@ -384,7 +384,16 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     protected generateScene(): void {
         this.removeGeneratedObjects();
+        const before = new Set<unknown>(this.board.objectsList as unknown[]);
         this.createScene();
+        // Objects the scene registered, plus the helper objects JSXGraph made as their parents (for example the hidden
+        // points of a segment given by coordinates). Other objects created meanwhile (pooled axis labels) stay with the
+        // board. Kept in board order so children are removed first.
+        const registered = [...this.generatedObjects] as any[];
+        const helpers = (this.board.objectsList as any[]).filter(object =>
+            !before.has(object) && registered.some(owner => owner?.ancestors?.[object.id] !== undefined));
+        const owned = new Set<any>([...registered, ...helpers]);
+        this.generatedObjects = (this.board.objectsList as any[]).filter(object => owned.has(object));
     }
 
     protected override disposeFigureScene(): void {

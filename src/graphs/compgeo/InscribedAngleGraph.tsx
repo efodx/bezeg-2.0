@@ -152,6 +152,11 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
 
     protected override disposeFigureScene(): void {
         super.disposeFigureScene();
+        if (this.hasBoard) {
+            this.removeSceneObjects();
+            if (this.chip && (this.board.objectsList as unknown[]).includes(this.chip)) this.board.removeObject(this.chip);
+        }
+        this.chip = undefined;
         this.resetScene();
     }
 

@@ -213,6 +213,12 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
         return objects;
     }
 
+    protected override disposeFigureScene(): void {
+        super.disposeFigureScene();
+        if (this.chip && this.hasBoard && (this.board.objectsList as unknown[]).includes(this.chip)) this.board.removeObject(this.chip);
+        this.chip = undefined;
+    }
+
     /** The chip belongs to no overlay: it states the triangle type and stays whatever the overlay switches say. */
     private ensureChip(): void {
         if (!this.hasBoard) return;

@@ -4,13 +4,11 @@
  * the same live default axes and infobox still on the board, the same event handler and board construction counts, and
  * the same number of live JSXGraph boards (the PH hodograph is one of them).
  *
- * Figure-path sweep seam (`BaseGraph.sweepSceneBoardObjects`): objects the sweep removed per replacement. Non-zero
- * means the family's own `disposeFigureScene` / `importPresetData` leaves objects for the sweep to remove (a suspected
- * reliance, not yet a failure). Observed counts (every cycle equal):
- *   remount, lesson default scene, lesson checkpoint: no sweep (not on those paths).
- *   reload (1 sweep): bezier 0, derivative 0, ph-cubic 0 (hodograph selected or not), spline c2 0, hermite 0,
- *   subdivision curve 0, linear map 0, complex reciprocal 0, coons patch 0 (no board), point set (convex hull) 18,
- *   cross ratio 43, pascal 59. Figure batch (2 sweeps): bezier 0+0, derivative 0+0, ph-cubic 0+0.
+ * Figure-path sweep seam (`BaseGraph.sweepSceneBoardObjects`): objects the sweep removed per replacement. Since A3 S3a
+ * every family in `graphFactories` removes its own objects in `disposeFigureScene`, so the sweep removes 0 on reload and
+ * on a figure batch (asserted for the whole registry below). Before S3a (reload): point set (convex hull) 18, cross
+ * ratio 43, pascal 59, pole-polar 25, inscribed angle 31, triangle centres 27, and eleven function graphs 4-14 hidden
+ * helper points each. remount, lesson default scene, lesson checkpoint do not sweep.
  *
  * Cases marked `it.fails` reproduce a real leak or duplication; flip each to `it` when the family's teardown owns
  * its objects (A3 S3). Lesson entries run on the three matrix families through the generic prepared-scene and
@@ -215,6 +213,42 @@ describe.each(FIGURE_FAMILIES)('%s (figure path)', (family, make) => {
     const run = KNOWN_FAILURES[`${family}/reload`] ? it.fails : it;
     run('reload three times leaves the scene as the first did', async () => {
         await runCycles(make, 'reload');
+    });
+});
+
+/** Families whose own teardown still leaves objects for the sweep, by `id/entry`, with the reason. */
+const SWEEP_LEAKERS: Partial<Record<string, string>> = {};
+
+/**
+ * Teardown follows owned objects (A3 S3a): on the figure path every registered family's own `disposeFigureScene` removes
+ * what it created, so the checked-fallback sweep removes nothing. One replacement per family and entry.
+ */
+describe.each(['reload', 'figure batch'] as Entry[])('figure-path sweep removes nothing (%s)', entry => {
+    for (const id of Object.keys(graphFactories) as Array<keyof typeof graphFactories>) {
+        const run = SWEEP_LEAKERS[`${id}/${entry}`] ? it.fails : it;
+        run(`${id}`, async () => {
+            const rig = open(() => graphFactories[id]());
+            try {
+                rig.sweeps.mockClear();
+                await replace(entry, rig, undefined);
+                const removed = rig.sweeps.mock.results.map((result: {value: unknown}) => (result.value as unknown[]).length);
+                expect(removed.reduce((sum: number, count: number) => sum + count, 0), `${id} swept`).toBe(0);
+            } finally {
+                rig.mounted.view.unmount();
+            }
+        });
+    }
+});
+
+/** Disposal is idempotent and safe once the board is gone, for the families this slice changed. */
+describe.each(['projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'convex-hull', 'inscribed-angle', 'triangle-centres', 'accumulation'] as const)('%s disposal', id => {
+    it('disposing twice, and after unmount, does not throw', () => {
+        const rig = open(() => graphFactories[id]());
+        const dispose = () => (rig.graph as unknown as {disposeFigureScene(): void}).disposeFigureScene();
+        dispose();
+        dispose();
+        rig.mounted.view.unmount();
+        expect(dispose).not.toThrow();
     });
 });
 
