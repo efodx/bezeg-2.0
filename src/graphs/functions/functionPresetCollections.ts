@@ -16,8 +16,8 @@ import {FUNCTION_IDS, isFunctionId} from "../../analysis/functions";
 import {formatNumber} from "../../analysis/format";
 import {parseMeanValueModel} from "../../analysis/meanValueModel";
 import {parseExtremaModel} from "../../analysis/extremaModel";
-import {parseConvexityModel} from "../../analysis/convexityModel";
-import {CONVEXITY_EXAMPLE_IDS, CONVEXITY_X_MAX, CONVEXITY_X_MIN, isConvexityExampleId, isConvexityInterval, isConvexityX} from "../../analysis/convexity";
+import {checkConvexityModel, parseConvexityModel} from "../../analysis/convexityModel";
+import {convexityFileMessage} from "./convexityMessages";
 import {parseTaylorModel} from "../../analysis/taylorModel";
 import {isTaylorCenter, isTaylorDegree, isTaylorExampleId, isTaylorX, TAYLOR_DEGREE_MAX, TAYLOR_DEGREE_MIN, TAYLOR_EXAMPLE_IDS, taylorExample} from "../../analysis/taylor";
 import {parseFixedPointModel} from "../../analysis/fixedPointModel";
@@ -97,15 +97,10 @@ const diagnoseExtrema: Diagnosis = data => {
     if (data.revealed !== undefined && typeof data.revealed !== "boolean") return message("invalid_extrema_revealed");
     return undefined;
 };
+/** The model module names the rule a rejected convexity model broke; this only localizes it. */
 const diagnoseConvexity: Diagnosis = data => {
-    if (!isConvexityExampleId(data.example)) return message("invalid_convexity_example", {value0: CONVEXITY_EXAMPLE_IDS.join(", ")});
-    const {a, b, t} = data;
-    if (finite(a) && finite(b) && finite(t)) {
-        if (![a, b, t].every(isConvexityX)) return message("invalid_convexity_range", {value0: bound(CONVEXITY_X_MIN), value1: bound(CONVEXITY_X_MAX)});
-        if (!isConvexityInterval(a, b)) return message("invalid_convexity_order");
-    }
-    if (data.secondDerivativeVisible !== undefined && typeof data.secondDerivativeVisible !== "boolean") return message("invalid_convexity_visibility");
-    return undefined;
+    const check = checkConvexityModel(data);
+    return check.ok || check.issue === undefined ? undefined : convexityFileMessage(check.issue);
 };
 const diagnoseTaylor: Diagnosis = data => {
     if (!isTaylorExampleId(data.example)) return message("invalid_taylor_example", {value0: TAYLOR_EXAMPLE_IDS.join(", ")});

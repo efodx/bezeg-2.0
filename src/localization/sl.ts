@@ -735,6 +735,8 @@ export const sl = {
     "convexity_a_rejected_hint": "Krajišče a mora ostati levo od b (a < b). Najprej premakni b.",
     "convexity_b_rejected_hint": "Krajišče b mora ostati desno od a (a < b). Najprej premakni a.",
     "convexity_t_rejected_hint": "Točka t mora biti število med {value0} in {value1}.",
+    "convexity_endpoint_range_rejected": "Krajišče {value0} mora biti število med {value1} in {value2}.",
+    "convexity_example_rejected": "Primer mora biti eden od: {value0}.",
     "convexity_actions_label": "Drugi odvod",
     "convexity_show_second_derivative": "Pokaži drugi odvod",
     "convexity_hide_second_derivative": "Skrij drugi odvod",

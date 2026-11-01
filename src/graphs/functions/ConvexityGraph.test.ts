@@ -330,6 +330,40 @@ test('invalid values are rejected, never clamped: every setter throws DomainErro
     expect(graph.model).toMatchObject({a: 1, t: CONVEXITY_X_MIN});
 });
 
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(parameter('convexity-a', 1.5)), messageOf(parameter('convexity-a', 3)), messageOf(parameter('convexity-b', -1)),
+            messageOf(parameter('convexity-b', NaN)), messageOf(parameter('convexity-t', 2.5)), messageOf(choice('sine'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The endpoint a must stay left of b (a < b). Move b first.',
+        'The endpoint a must be a number between −2 and 2.',
+        'The endpoint b must stay right of a (a < b). Move a first.',
+        'The endpoint b must be a number between −2 and 2.',
+        'The point t must be a number between −2 and 2.',
+        'The example must be one of: square, negSquare, cube, quartic.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Krajišče a mora ostati levo od b (a < b). Najprej premakni b.',
+        'Krajišče a mora biti število med −2 in 2.',
+        'Krajišče b mora ostati desno od a (a < b). Najprej premakni a.',
+        'Krajišče b mora biti število med −2 in 2.',
+        'Točka t mora biti število med −2 in 2.',
+        'Primer mora biti eden od: square, negSquare, cube, quartic.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('convexity-t', 9)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'convexity_t_rejected_hint', params: {value0: '−2', value1: '2'}});
+});
+
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {
     const graph = makeGraph({asyncState: false});
     const {inputA, inputB, inputT} = controls(graph);
