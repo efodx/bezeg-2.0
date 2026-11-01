@@ -159,7 +159,7 @@ function inClosedRange(v: Rational, u: Rational, w: Rational): boolean {
 }
 
 /** Exact membership of a rational point in a closed segment, by orientation sign and bounding box. */
-function containsPoint(s: Segment, p: RationalPoint): boolean {
+export function containsPoint(s: Segment, p: RationalPoint): boolean {
     const a = RationalPoint.fromGrid(s.a);
     const b = RationalPoint.fromGrid(s.b);
     if (b.sub(a).cross(p.sub(a)).sign() !== 0) return false;

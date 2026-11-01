@@ -26,7 +26,7 @@ Source: [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md). 
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | 05 | [Interval sweep kernel](05-interval-sweep-kernel.md) | F1 | 02 | accepted 2026-11-01 |
-| 06 | [Bentley–Ottmann kernel](06-bentley-ottmann-kernel.md) | F1 | 02, 03 | planned |
+| 06 | [Bentley–Ottmann kernel](06-bentley-ottmann-kernel.md) | F1 | 02, 03 | accepted 2026-11-01 |
 | 07 | [Interval graph mode](07-interval-mode.md) | F2a | 04, 05 | planned |
 
 ## Later batches
