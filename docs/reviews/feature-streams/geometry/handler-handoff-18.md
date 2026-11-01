@@ -18,6 +18,11 @@ Written 2026-11-01 by handler 18 (Opus 5.5, permission mode auto, effort medium)
 
 ## Next, in order
 
+0. **Hosted CI on `master` is red. Fix it first: the stream rule is "fix before pushing anything else".** The Browser smoke run for this stream's push `17934fc7` (run 41293842495) failed 8 rows:
+   - **Learn chapter list** (`unified-learning.smoke.spec.cjs:21`): fixed in the convexity 15 commit.
+   - **Render rows of `polygon-area`, `convex-hull`, `ear-clipping`, `segment-intersections`** (`demonstrations.smoke.spec.cjs:266`): the render check counted only `curve`/`line` objects, and point-set polygons draw `segment`s. Fixed by also counting `segment` and visible `point` objects (`demonstrations.smoke.spec.cjs:41-43`, this push), because `convex-hull` at step 0 draws only points. All 60 render rows passed locally. Its default view also clips P5 \((2,5)\) at the top edge at 1280×720; consider an `initialView()` like the three newer compgeo graphs.
+   - **Catalogue cards, preview mapping and motion poster rows**: posters are missing for `orientation`, `polygon-area`, `convex-hull`, `ear-clipping`, `interval-sweep`, `segment-intersections` (this stream's F5) and `linear-map` (Maps). The generated preview map expects every active Demonstration. Capture the six compgeo posters with the preview recipe script (`scripts/demonstration-preview-recipes.cjs`, then regenerate the manifest; never hand-merge it), or find how `POSTER_PENDING` is meant to exempt them. Start media capture only with no other worker running.
+   - **`familyChapters.test.ts` "links every existing demonstration…"**: broken on `master` by Maps `fce2b629` (complex maps registered in the `linear-maps` family without a chapter). That is Maps' to fix; note it in the stream file if it is still red.
 1. **C1 and C2 lessons** (`interval-sweep`, `segment-intersections`). Task files are not written yet; use [triangulation 09](../../../tasks/triangulation-voronoi/09-ear-clipping-lesson.md) as the template. Carry-overs from handoff 16:
    - `applyPointSetAction` `set-points` must pass `this.allowsIntervals()` or segments.
    - Adopt `set-trace-step`.
