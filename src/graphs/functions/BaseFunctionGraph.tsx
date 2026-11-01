@@ -301,11 +301,6 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     }
 
     /**
-     * The numbers a display is derived from, computed once per set of model values however many board objects and readouts read
-     * them. The key is the model's field values (not the object), so the board (reading `this.model`) and the inspector (reading a
-     * copy made from React state) share one entry while they show the same values, and a new object with equal values reuses it.
-     */
-    /**
      * A cache of a value computed from the model alone (not from the view), recomputed when the model object changes, however many
      * board objects read it. The base clears every such cache with the scene, so no entry outlives the board it was drawn for.
      */
@@ -338,6 +333,11 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         return curve;
     }
 
+    /**
+     * The numbers a display is derived from, computed once per set of model values however many board objects and readouts read
+     * them. The key is the model's field values (not the object), so the board (reading `this.model`) and the inspector (reading a
+     * copy made from React state) share one entry while they show the same values, and a new object with equal values reuses it.
+     */
     protected memoView<V>(model: M, compute: () => V): V {
         const key = Object.values(model);
         const memo = this.viewMemo;
