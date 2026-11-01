@@ -19,6 +19,8 @@ export function pointSetRejection(result: Extract<PointSetParseResult, {ok: fals
         case "closed-not-boolean": return message("pointset_invalid_closed_not_boolean");
         case "closed-in-points-mode": return message("pointset_invalid_closed_in_points_mode");
         case "odd-segment-endpoints": return message("pointset_invalid_odd_segment_endpoints");
+        case "odd-interval-endpoints": return message("pointset_invalid_odd_interval_endpoints");
+        case "interval-row-mismatch": return message("pointset_invalid_interval_rows");
     }
 }
 

@@ -1,5 +1,6 @@
 import {GRID_COORD_LIMIT, GridPoint, isGridCoordinate} from './grid';
-import {SWEEP_MAX_SEGMENTS} from './sweep/limits';
+import type {Interval} from './sweep/intervalSweep';
+import {SWEEP_MAX_INTERVALS, SWEEP_MAX_SEGMENTS} from './sweep/limits';
 import type {Segment} from './sweep/segments';
 
 /**
@@ -7,13 +8,14 @@ import type {Segment} from './sweep/segments';
  * one grid step is 2^gridStepExponent board units. Selection, drag and hover state are transient and not stored.
  * The point limit is an option, not part of the model.
  */
-export type PointSetMode = 'points' | 'polygon' | 'segments';
+export type PointSetMode = 'points' | 'polygon' | 'segments' | 'intervals';
 
 export interface PointSetModel {
     readonly mode: PointSetMode;
     /**
      * Polygon mode: the vertices in order. Duplicates are allowed. Segments mode: the endpoints as consecutive pairs
-     * (p[2k], p[2k+1]) of segment k, so the count is always even.
+     * (p[2k], p[2k+1]) of segment k, so the count is always even. Intervals mode: the same pairing; both endpoints of
+     * interval k lie on the row y = k + 1, which is rewritten by every edit and is never user data.
      */
     readonly points: readonly GridPoint[];
     /** Polygon mode only; always false in points and segments mode. */
@@ -41,9 +43,14 @@ export interface PointSetOptions {
     readonly coordinateLimit?: number;
     /** Parsing only: accept `mode: 'segments'`. Default false, so a graph without segment support rejects it as before. */
     readonly allowSegments?: boolean;
+    /** Intervals mode: the most intervals (default SWEEP_MAX_INTERVALS, 10); `pointLimit` does not apply there. */
+    readonly intervalLimit?: number;
+    /** Parsing only: accept `mode: 'intervals'`. Default false, like `allowSegments`. */
+    readonly allowIntervals?: boolean;
 }
 
 export const DEFAULT_SEGMENT_LIMIT = SWEEP_MAX_SEGMENTS;
+export const DEFAULT_INTERVAL_LIMIT = SWEEP_MAX_INTERVALS;
 
 export const EMPTY_POINT_SET_MODEL: PointSetModel = {mode: 'points', points: [], closed: false, gridStepExponent: 0};
 
@@ -113,9 +120,50 @@ export function removeSegment(model: PointSetModel, k: number): PointSetEditResu
     return ok({...model, points: model.points.filter((_, i) => i >> 1 !== k)});
 }
 
+/** The row (y) of interval k. */
+export const intervalRow = (k: number): number => k + 1;
+
+/** The label of interval k: a, b, c, ... (at most 10 intervals, so one letter). */
+export const intervalLetter = (k: number): string => String.fromCharCode(97 + k);
+
+/** Intervals mode: the same points with every endpoint of interval k put on its row. */
+function withRows(points: readonly GridPoint[]): GridPoint[] {
+    return points.map((p, i) => ({x: p.x, y: intervalRow(i >> 1)}));
+}
+
+/** The intervals of an intervals-mode model, {lo, hi} sorted per pair; empty in the other modes. */
+export function intervalsOf(model: PointSetModel): Interval[] {
+    if (model.mode !== 'intervals') return [];
+    const intervals: Interval[] = [];
+    for (let i = 0; i + 1 < model.points.length; i += 2) {
+        const [a, b] = [model.points[i].x, model.points[i + 1].x];
+        intervals.push({lo: Math.min(a, b), hi: Math.max(a, b)});
+    }
+    return intervals;
+}
+
+/**
+ * Intervals mode only: appends the interval with endpoints at x = a and x = b on the next row. Refuses with 'mode' elsewhere,
+ * 'limit' at `intervalLimit` intervals and 'range' for an x outside the grid or `coordinateLimit` (never clipped).
+ */
+export function addInterval(model: PointSetModel, a: number, b: number, options: PointSetOptions = {}): PointSetEditResult {
+    if (model.mode !== 'intervals') return refuse('mode');
+    if (model.points.length >= 2 * (options.intervalLimit ?? DEFAULT_INTERVAL_LIMIT)) return refuse('limit');
+    const row = intervalRow(model.points.length >> 1);
+    if (!inRange({x: a, y: row}, options) || !inRange({x: b, y: row}, options)) return refuse('range');
+    return ok({...model, points: [...model.points, {x: a, y: row}, {x: b, y: row}]});
+}
+
+/** Intervals mode only: removes interval k; the later intervals move up one row. Refuses with 'mode' elsewhere and 'index' for a missing interval. */
+export function removeInterval(model: PointSetModel, k: number): PointSetEditResult {
+    if (model.mode !== 'intervals') return refuse('mode');
+    if (!Number.isInteger(k) || k < 0 || 2 * k + 1 >= model.points.length) return refuse('index');
+    return ok({...model, points: withRows(model.points.filter((_, i) => i >> 1 !== k))});
+}
+
 /** Appends a point. Refuses with 'limit' at the limit, 'range' for a point outside the grid and 'mode' in segments mode (use `addSegment`). */
 export function addPoint(model: PointSetModel, point: GridPoint, options: PointSetOptions = {}): PointSetEditResult {
-    if (model.mode === 'segments') return refuse('mode');
+    if (model.mode === 'segments' || model.mode === 'intervals') return refuse('mode');
     if (model.points.length >= (options.pointLimit ?? DEFAULT_POINT_LIMIT)) return refuse('limit');
     if (!inRange(point, options)) return refuse('range');
     return ok({...model, points: [...model.points, {x: point.x, y: point.y}]});
@@ -136,13 +184,16 @@ export function insertPoint(model: PointSetModel, index: number, point: GridPoin
 export function removePoint(model: PointSetModel, index: number): PointSetEditResult {
     if (!validIndex(model, index)) return refuse('index');
     if (model.mode === 'segments') return removeSegment(model, index >> 1);
+    if (model.mode === 'intervals') return removeInterval(model, index >> 1);
     return ok({...model, points: model.points.filter((_, i) => i !== index)});
 }
 
 export function movePoint(model: PointSetModel, index: number, point: GridPoint, options: PointSetOptions = {}): PointSetEditResult {
     if (!validIndex(model, index)) return refuse('index');
-    if (!inRange(point, options)) return refuse('range');
-    return ok({...model, points: model.points.map((p, i) => i === index ? {x: point.x, y: point.y} : p)});
+    // Intervals mode: only x is data; the row is rewritten from the index, whatever y was asked for.
+    const target = model.mode === 'intervals' ? {x: point.x, y: intervalRow(index >> 1)} : point;
+    if (!inRange(target, options)) return refuse('range');
+    return ok({...model, points: model.points.map((p, i) => i === index ? {x: target.x, y: target.y} : p)});
 }
 
 /** Moves a point by whole grid steps; refuses with 'range' beyond GRID_COORD_LIMIT or for non-integer steps. */
@@ -150,7 +201,8 @@ export function nudgePoint(model: PointSetModel, index: number, dx: number, dy: 
     if (!validIndex(model, index)) return refuse('index');
     if (!Number.isInteger(dx) || !Number.isInteger(dy)) return refuse('range');
     const p = model.points[index];
-    const moved = {x: p.x + dx, y: p.y + dy};
+    // Intervals mode: dy is ignored (the row is not editable), so a purely vertical nudge leaves the model as it is.
+    const moved = {x: p.x + dx, y: model.mode === 'intervals' ? p.y : p.y + dy};
     if (!inRange(moved, options)) return refuse('range');
     return ok({...model, points: model.points.map((q, i) => i === index ? moved : q)});
 }
@@ -165,7 +217,7 @@ export function clearPoints(model: PointSetModel): PointSetModel {
  * signed area change sign while the area does not. Applying it twice restores the model. Mode, closedness and grid step stay.
  */
 export function reverseVertices(model: PointSetModel): PointSetModel {
-    if (model.points.length < 2 || model.mode === 'segments') return model;
+    if (model.points.length < 2 || model.mode === 'segments' || model.mode === 'intervals') return model;
     const [first, ...rest] = model.points;
     return {...model, points: [first, ...rest.reverse()]};
 }
@@ -179,10 +231,12 @@ export function setClosed(model: PointSetModel, closed: boolean): PointSetEditRe
 /**
  * Keeps the points; the polygon is left open and switching to points mode clears `closed`. Switching to segments mode
  * keeps the longest even prefix of the points (a trailing odd point is dropped, since every segment needs two endpoints);
- * switching from segments to another mode keeps all points. Segment limits are not applied here; the graph validates.
+ * switching from segments to another mode keeps all points. Switching to intervals mode does the same and puts every pair on
+ * its row (the y of the old points is lost). Segment and interval limits are not applied here; the graph validates.
  */
 export function setMode(model: PointSetModel, mode: PointSetMode): PointSetModel {
-    const points = mode === 'segments' && model.points.length % 2 === 1 ? model.points.slice(0, -1) : model.points;
+    const paired = (mode === 'segments' || mode === 'intervals') && model.points.length % 2 === 1 ? model.points.slice(0, -1) : model.points;
+    const points = mode === 'intervals' ? withRows(paired) : paired;
     return {...model, mode, points, closed: false};
 }
 
@@ -197,7 +251,9 @@ export type PointSetParseReason =
     | 'invalid-grid-step'
     | 'closed-not-boolean'
     | 'closed-in-points-mode'
-    | 'odd-segment-endpoints';
+    | 'odd-segment-endpoints'
+    | 'odd-interval-endpoints'
+    | 'interval-row-mismatch';
 
 export type PointSetParseResult =
     | {readonly ok: true; readonly model: PointSetModel}
@@ -217,15 +273,18 @@ const fail = (reason: PointSetParseReason, extra: {limit?: number; bound?: numbe
 export function parsePointSetModel(data: unknown, options: PointSetOptions = {}): PointSetParseResult {
     if (data === null || typeof data !== 'object' || Array.isArray(data)) return fail('not-an-object');
     const {mode, points, closed, gridStepExponent} = data as Record<string, unknown>;
-    if (mode !== 'points' && mode !== 'polygon' && !(mode === 'segments' && options.allowSegments === true)) return fail('unknown-mode');
+    if (mode !== 'points' && mode !== 'polygon' && !(mode === 'segments' && options.allowSegments === true)
+        && !(mode === 'intervals' && options.allowIntervals === true)) return fail('unknown-mode');
     if (!Array.isArray(points)) return fail('points-not-array');
     // The segments limit counts segments but the refusal reports points, like every other mode.
-    const limit = mode === 'segments' ? 2 * (options.segmentLimit ?? DEFAULT_SEGMENT_LIMIT) : options.pointLimit ?? DEFAULT_POINT_LIMIT;
+    const limit = mode === 'segments' ? 2 * (options.segmentLimit ?? DEFAULT_SEGMENT_LIMIT)
+        : mode === 'intervals' ? 2 * (options.intervalLimit ?? DEFAULT_INTERVAL_LIMIT) : options.pointLimit ?? DEFAULT_POINT_LIMIT;
     if (points.length > limit) return fail('too-many-points', {limit});
     if (gridStepExponent !== undefined && !isGridStepExponent(gridStepExponent)) return fail('invalid-grid-step');
     if (closed !== undefined && typeof closed !== 'boolean') return fail('closed-not-boolean');
     if (closed === true && mode !== 'polygon') return fail('closed-in-points-mode');
     if (mode === 'segments' && points.length % 2 === 1) return fail('odd-segment-endpoints');
+    if (mode === 'intervals' && points.length % 2 === 1) return fail('odd-interval-endpoints');
     const coordinateBound = options.coordinateLimit ?? GRID_COORD_LIMIT;
     const parsed: GridPoint[] = [];
     for (const entry of points) {
@@ -238,6 +297,7 @@ export function parsePointSetModel(data: unknown, options: PointSetOptions = {})
         }
         parsed.push({x: x as number, y: y as number});
     }
+    if (mode === 'intervals' && parsed.some((p, i) => p.y !== intervalRow(i >> 1))) return fail('interval-row-mismatch');
     return {ok: true, model: {mode, points: parsed, closed: closed === true, gridStepExponent: gridStepExponent ?? 0}};
 }
 

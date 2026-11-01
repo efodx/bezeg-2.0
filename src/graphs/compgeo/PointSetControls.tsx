@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {GridPoint} from "../../compgeo/grid";
-import {PointSetMode, PointSetModel} from "../../compgeo/pointSetModel";
+import {intervalLetter, intervalsOf, PointSetMode, PointSetModel} from "../../compgeo/pointSetModel";
 import {PolygonSimplicity} from "../../compgeo/predicates";
 
 /** What the controls ask the graph to do; every handler is a synchronous model edit on the graph. */
@@ -11,6 +11,9 @@ export interface PointSetControlActions {
     /** Segments mode: adds a default short segment near the origin. */
     addSegment(): void;
     removeSegment(k: number): void;
+    /** Intervals mode: adds a default interval near the origin. */
+    addInterval(): void;
+    removeInterval(k: number): void;
     removeSelected(): void;
     clear(): void;
     select(index: number | undefined): void;
@@ -22,7 +25,7 @@ export interface PointSetControlActions {
 }
 
 export interface PointSetNotice {
-    readonly kind: "limit" | "range" | "segment-limit";
+    readonly kind: "limit" | "range" | "segment-limit" | "interval-limit";
 }
 
 export interface PointSetControlsProps {
@@ -45,6 +48,10 @@ export interface PointSetControlsProps {
     /** Segments mode: the most segments, and the first endpoint waiting for its second click. */
     segmentLimit?: number;
     pending?: GridPoint;
+    /** Whether the mode toggle also offers intervals mode. Default false. */
+    allowsIntervals?: boolean;
+    /** Intervals mode: the most intervals. */
+    intervalLimit?: number;
 }
 
 /** A whole-number field that keeps what is being typed and commits every valid integer. */
@@ -111,6 +118,37 @@ function SegmentList(props: {model: PointSetModel, selected: number | undefined,
     </div>;
 }
 
+/** Intervals mode: one row per interval with its lo and hi fields (x only; the row is not editable), a select and a remove button. */
+function IntervalList(props: {model: PointSetModel, selected: number | undefined, actions: PointSetControlActions, button: string}) {
+    const t = useT();
+    const {model, selected, actions, button} = props;
+    const intervals = intervalsOf(model);
+    return <div className="inspector-group">
+        <h3 className="inspector-reveals-title">{t("pointset_interval_list")}</h3>
+        {intervals.length === 0 && <p className="inspector-help">{t("pointset_no_intervals")}</p>}
+        <ol className="pointset-list">
+            {intervals.map(({lo, hi}, k) => {
+                const on = selected !== undefined && selected >> 1 === k;
+                const letter = intervalLetter(k);
+                // lo and hi are the sorted ends; each field edits the stored endpoint that currently has that value.
+                const loIndex = model.points[2 * k].x <= model.points[2 * k + 1].x ? 2 * k : 2 * k + 1;
+                const hiIndex = 4 * k + 1 - loIndex;
+                return <li key={k} className="pointset-row" data-selected={on}>
+                    <button type="button" className={button} aria-pressed={on} onClick={() => actions.select(on ? undefined : 2 * k)}>
+                        <span aria-hidden="true">{letter}</span><span className="visually-hidden">{t("pointset_select_interval", {value0: letter})}</span>
+                    </button>
+                    <IntegerField label={t("pointset_interval_lo", {value0: letter})} value={lo} onCommit={x => actions.movePoint(loIndex, {x, y: model.points[loIndex].y})}/>
+                    <IntegerField label={t("pointset_interval_hi", {value0: letter})} value={hi} onCommit={x => actions.movePoint(hiIndex, {x, y: model.points[hiIndex].y})}/>
+                    <button type="button" className={button} onClick={() => actions.removeInterval(k)}>
+                        <span aria-hidden="true">&times;</span><span className="visually-hidden">{t("pointset_remove_interval_n", {value0: letter})}</span>
+                    </button>
+                </li>;
+            })}
+        </ol>
+        <button type="button" className={button} onClick={() => actions.addInterval()}>{t("pointset_add_interval")}</button>
+    </div>;
+}
+
 /**
  * The inspector of the point-set graph. Every pointer action has a keyboard one here: the numeric list moves points,
  * Add point appends one, Select/Remove pick and delete. Colour is never the only signal (selection also reads
@@ -123,12 +161,15 @@ export function PointSetControls(props: PointSetControlsProps) {
     const [newX, setNewX] = useState(0);
     const [newY, setNewY] = useState(0);
     const segments = model.mode === "segments";
+    const intervals = model.mode === "intervals";
+    const paired = segments || intervals;
     const noticeText = !notice ? ""
         : notice.kind === "limit" ? t("pointset_limit_reached", {value0: props.pointLimit})
             : notice.kind === "segment-limit" ? t("pointset_segment_limit_reached", {value0: props.segmentLimit ?? 0})
-                : t("pointset_out_of_range", {value0: props.coordinateLimit});
-    const modes = props.allowsSegments === true ? ["points", "polygon", "segments"] as const : ["points", "polygon"] as const;
-    const modeLabel = {points: "pointset_mode_points", polygon: "pointset_mode_polygon", segments: "pointset_mode_segments"} as const;
+                : notice.kind === "interval-limit" ? t("pointset_interval_limit_reached", {value0: props.intervalLimit ?? 0})
+                    : t("pointset_out_of_range", {value0: props.coordinateLimit});
+    const modes: readonly PointSetMode[] = ["points", "polygon", ...props.allowsSegments === true ? ["segments" as const] : [], ...props.allowsIntervals === true ? ["intervals" as const] : []];
+    const modeLabel = {points: "pointset_mode_points", polygon: "pointset_mode_polygon", segments: "pointset_mode_segments", intervals: "pointset_mode_intervals"} as const;
     const button = "btn btn-outline-secondary btn-sm";
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
@@ -145,19 +186,23 @@ export function PointSetControls(props: PointSetControlsProps) {
         </div>
         <div className="inspector-group">
             <button type="button" className={button} aria-pressed={props.addMode} onClick={() => actions.setAddMode(!props.addMode)}>{t("pointset_add_mode")}</button>
-            <button type="button" className={button} disabled={selected === undefined} onClick={() => actions.removeSelected()}>{t(segments ? "pointset_remove_segment" : "pointset_remove")}</button>
+            <button type="button" className={button} disabled={selected === undefined} onClick={() => actions.removeSelected()}>{t(segments ? "pointset_remove_segment" : intervals ? "pointset_remove_interval" : "pointset_remove")}</button>
             <button type="button" className={button} disabled={model.points.length === 0} onClick={() => actions.clear()}>{t("pointset_clear")}</button>
             <p className="inspector-help" data-pointset-count>{segments
                 ? t("pointset_segment_count", {value0: model.points.length >> 1, value1: props.segmentLimit ?? 0})
+                : intervals ? t("pointset_interval_count", {value0: model.points.length >> 1, value1: props.intervalLimit ?? 0})
                 : t("pointset_point_count", {value0: model.points.length, value1: props.pointLimit})}</p>
             <p className="inspector-help" data-pointset-selection>{selected === undefined ? t("pointset_no_selection")
-                : segments ? t("pointset_selected_segment", {value0: (selected >> 1) + 1}) : t("pointset_selected_point", {value0: selected + 1})}</p>
-            {segments && <p className="inspector-help" role="status" data-pointset-pending={props.pending ? "" : undefined}>
-                {props.pending ? t("pointset_segment_pending", {value0: props.pending.x, value1: props.pending.y}) : ""}</p>}
+                : segments ? t("pointset_selected_segment", {value0: (selected >> 1) + 1})
+                : intervals ? t("pointset_selected_interval", {value0: intervalLetter(selected >> 1)}) : t("pointset_selected_point", {value0: selected + 1})}</p>
+            {paired && <p className="inspector-help" role="status" data-pointset-pending={props.pending ? "" : undefined}>
+                {props.pending ? (intervals ? t("pointset_interval_pending", {value0: props.pending.x})
+                    : t("pointset_segment_pending", {value0: props.pending.x, value1: props.pending.y})) : ""}</p>}
             <p className="inspector-help pointset-notice" role="status" aria-live="polite" data-pointset-notice={notice?.kind ?? ""}>{noticeText}</p>
         </div>
         <Status simplicity={props.simplicity} model={model}/>
-        {segments ? <SegmentList model={model} selected={selected} actions={actions} button={button}/> : <div className="inspector-group">
+        {segments ? <SegmentList model={model} selected={selected} actions={actions} button={button}/>
+            : intervals ? <IntervalList model={model} selected={selected} actions={actions} button={button}/> : <div className="inspector-group">
             <h3 className="inspector-reveals-title">{t("pointset_point_list")}</h3>
             {model.points.length === 0 && <p className="inspector-help">{t("pointset_no_points")}</p>}
             <ol className="pointset-list">

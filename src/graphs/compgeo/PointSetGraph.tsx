@@ -6,7 +6,8 @@ import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {GRID_COORD_LIMIT, GridPoint} from "../../compgeo/grid";
 import {
-    addPoint, addSegment, clearPoints, DEFAULT_POINT_LIMIT, DEFAULT_SEGMENT_LIMIT, EMPTY_POINT_SET_MODEL, gridToBoard, movePoint, nudgePoint,
+    addInterval, addPoint, addSegment, clearPoints, DEFAULT_INTERVAL_LIMIT, DEFAULT_POINT_LIMIT, DEFAULT_SEGMENT_LIMIT, EMPTY_POINT_SET_MODEL, gridToBoard,
+    intervalLetter, intervalRow, movePoint, nudgePoint, removeInterval,
     PointSetEditResult, PointSetMode, PointSetModel, PointSetOptions, removePoint, removeSegment, segmentsOf, serializePointSetModel, setClosed,
     parsePointSetModel, POINT_SET_OVERLAY_NAMES, setMode, snapToGrid,
 } from "../../compgeo/pointSetModel";
@@ -23,7 +24,12 @@ import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointS
  *
  * Public interface (everything else is private or a documented extension point):
  * - `new PointSetGraph(options?)`: `options.pointLimit` (default 40; the sweep family passes 12).
- * - Reads: `model`, `selectedIndex`, `isAddMode`, `simplicity()` (polygon mode only), `pointLimit`, `segmentLimit`, `pendingEndpoint`.
+ * - Reads: `model`, `selectedIndex`, `isAddMode`, `simplicity()` (polygon mode only), `pointLimit`, `segmentLimit`, `intervalLimit`, `pendingEndpoint`.
+ * - Intervals mode (opt-in like segments: a subclass overrides `allowsIntervals()`): `model.points` holds the endpoints as pairs, both
+ *   endpoints of interval k on the row y = k + 1, rewritten by every edit (only x is editable; vertical drag and arrow keys do
+ *   nothing). `addIntervalAt(a, b)`, `addDefaultInterval()` (keyboard), `removeIntervalAt(k)`; `options.intervalLimit` (default 10).
+ *   Board objects: one horizontal JSXGraph segment per interval, its two endpoints and a text a, b, c, ... above it. Add mode
+ *   works like segments: the first click places the pending left end, the second adds the interval.
  * - Edits (each is one synchronous scene write that returns whether it applied; a refusal sets a visible notice and
  *   changes nothing): `addPointAt(gridPoint)`, `addPointAtBoard(x, y)`, `movePointTo(i, gridPoint)`, `nudgeSelected(dx, dy)`,
  *   `removeSelected()`, `clear()`, `setPointSetMode(mode)`, `setPolygonClosed(closed)`, `loadModel(model)`.
@@ -118,6 +124,10 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return this.options.segmentLimit ?? DEFAULT_SEGMENT_LIMIT;
     }
 
+    get intervalLimit(): number {
+        return this.options.intervalLimit ?? DEFAULT_INTERVAL_LIMIT;
+    }
+
     get coordinateLimit(): number {
         return this.options.coordinateLimit ?? GRID_COORD_LIMIT;
     }
@@ -156,10 +166,14 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
             return true;
         }
         if (result.reason === "limit" || result.reason === "range") {
-            this.noticeValue = {kind: result.reason === "limit" && this.model.mode === "segments" ? "segment-limit" : result.reason};
+            this.noticeValue = {kind: result.reason === "limit" ? this.limitNoticeKind() : result.reason};
             this.requestRender();
         }
         return false;
+    }
+
+    private limitNoticeKind(): "limit" | "segment-limit" | "interval-limit" {
+        return this.model.mode === "segments" ? "segment-limit" : this.model.mode === "intervals" ? "interval-limit" : "limit";
     }
 
     addPointAt(point: GridPoint): boolean {
@@ -186,6 +200,25 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return this.addSegmentAt({x: -1, y}, {x: 1, y});
     }
 
+    /** Intervals mode: adds the interval with ends at x = a and x = b on the next row and selects its second endpoint. */
+    addIntervalAt(a: number, b: number): boolean {
+        const added = this.apply(addInterval(this.model, a, b, this.options));
+        if (added) this.selected = this.model.points.length - 1;
+        return added;
+    }
+
+    /** Intervals mode, for keyboard users: an interval of length four near the origin, shifted right per interval. */
+    addDefaultInterval(): boolean {
+        const lo = ((this.model.points.length >> 1) % 5) * 2 - 4;
+        return this.addIntervalAt(lo, lo + 4);
+    }
+
+    removeIntervalAt(k: number): boolean {
+        const removed = this.apply(removeInterval(this.model, k));
+        if (removed) this.selected = undefined;
+        return removed;
+    }
+
     removeSegmentAt(k: number): boolean {
         const removed = this.apply(removeSegment(this.model, k));
         if (removed) this.selected = undefined;
@@ -197,6 +230,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     nudgeSelected(dx: number, dy: number): boolean {
+        // An interval endpoint moves along x only; a vertical key changes nothing (and shows no notice).
+        if (this.model.mode === "intervals" && dx === 0) return false;
         return this.selected !== undefined && this.apply(nudgePoint(this.model, this.selected, dx, dy, this.options));
     }
 
@@ -205,7 +240,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         if (index === undefined) return false;
         const removed = this.apply(removePoint(this.model, index));
         if (removed) {
-            if (this.model.mode === "segments") this.selected = undefined;
+            if (this.model.mode === "segments" || this.model.mode === "intervals") this.selected = undefined;
             else this.selected = this.model.points.length === 0 ? undefined : Math.min(index, this.model.points.length - 1);
         }
         return removed;
@@ -220,6 +255,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     /** Segments mode is refused (nothing changes) unless the subclass allows it. */
     setPointSetMode(mode: PointSetMode): boolean {
         if (mode === "segments" && !this.allowsSegments()) return false;
+        if (mode === "intervals" && !this.allowsIntervals()) return false;
         this.pending = undefined;
         const next = setMode(this.model, mode);
         if (next.mode === "segments" && next.points.length > 2 * this.segmentLimit) {
@@ -227,7 +263,18 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
             this.requestRender();
             return false;
         }
-        if (mode === "segments" || this.model.mode === "segments") this.selected = undefined;
+        if (next.mode === "intervals" && next.points.length > 2 * this.intervalLimit) {
+            this.noticeValue = {kind: "interval-limit"};
+            this.requestRender();
+            return false;
+        }
+        if (next.mode === "intervals" && next.points.some(p => Math.abs(p.x) > this.coordinateLimit || Math.abs(p.y) > this.coordinateLimit)) {
+            this.noticeValue = {kind: "range"};
+            this.requestRender();
+            return false;
+        }
+        const paired = (m: PointSetMode) => m === "segments" || m === "intervals";
+        if (paired(mode) || paired(this.model.mode)) this.selected = undefined;
         return this.apply({ok: true, model: next});
     }
 
@@ -349,7 +396,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     // ---- Presets -------------------------------------------------------------------------------------------------
 
     override presetCollection(): PresetCollection<PointSetModel> {
-        return pointSetPresetCollection(POINT_SET_PRESET_KEY, this.overlayIds(), {...this.options, allowSegments: this.allowsSegments()});
+        return pointSetPresetCollection(POINT_SET_PRESET_KEY, this.overlayIds(), {...this.options, allowSegments: this.allowsSegments(), allowIntervals: this.allowsIntervals()});
     }
 
     defaultPreset(): PointSetModel {
@@ -456,11 +503,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         if (!this.addModeOn || this.graphInteractionLocked || !this.hasBoard) return;
         if (this.board.getAllObjectsUnderMouse(event).some(object => (object as {elType?: string}).elType === "point")) return;
         const [x, y] = this.board.getUsrCoordsOfMouse(event);
-        if (this.model.mode !== "segments") {
+        if (this.model.mode !== "segments" && this.model.mode !== "intervals") {
             this.addPointAtBoard(x, y);
             return;
         }
-        const here = snapToGrid(x, y, this.model.gridStepExponent);
+        const snapped = snapToGrid(x, y, this.model.gridStepExponent);
+        // An interval has no y of its own: the waiting marker sits on the row the new interval will get.
+        const here = this.model.mode === "intervals" ? {x: snapped.x, y: intervalRow(this.model.points.length >> 1)} : snapped;
         const first = this.pending;
         if (first === undefined) {
             this.pending = here;
@@ -469,7 +518,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
             return;
         }
         this.pending = undefined;
-        this.addSegmentAt(first, here);
+        if (this.model.mode === "intervals") this.addIntervalAt(first.x, here.x);
+        else this.addSegmentAt(first, here);
         this.syncScene();
     }
 
@@ -479,7 +529,9 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         const exponent = model.gridStepExponent;
         const snapped = snapToGrid(point.X(), point.Y(), exponent);
         const result = movePoint(model, index, snapped, this.options);
-        const target = gridToBoard(result.ok ? snapped : model.points[index], exponent);
+        // The edit decides the stored point (an interval endpoint keeps its row), so the board follows its result.
+        const stored = result.ok ? result.model.points[index] : model.points[index];
+        const target = gridToBoard(stored, exponent);
         this.inDragSnap = true;
         try {
             if (point.X() !== target.x || point.Y() !== target.y) point.moveTo([target.x, target.y], 0);
@@ -489,7 +541,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.selected = index;
         const current = model.points[index];
         if (!result.ok) this.apply(result);
-        else if (current.x !== snapped.x || current.y !== snapped.y) this.apply(result);
+        else if (current.x !== stored.x || current.y !== stored.y) this.apply(result);
     }
 
     override initialize(): void {
@@ -533,7 +585,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     /** The marker of a waiting first endpoint; rebuilt only when the pending point or the grid step changes. */
     private syncPending(model: PointSetModel): void {
-        const pending = model.mode === "segments" ? this.pending : undefined;
+        const pending = model.mode === "segments" || model.mode === "intervals" ? this.pending : undefined;
         const exponent = model.gridStepExponent;
         const drawnFor = this.pendingDrawnFor;
         const objectsAlive = this.pendingObjects.every(object => (this.board.objectsList as unknown[]).includes(object));
@@ -583,6 +635,20 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                 }) as JXG.GeometryElement);
                 labels.push(board.create("text", [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2, `s${k + 1}`], {
                     name: `s${k + 1}`, anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, display: "internal", fontSize: 14,
+                    strokeColor: GraphPalette.label, layer: 6,
+                }) as JXG.GeometryElement);
+            }
+        }
+        if (model.mode === "intervals") {
+            for (let k = 0; 2 * k + 1 < points.length; k++) {
+                const [from, to] = [points[2 * k], points[2 * k + 1]];
+                const on = () => this.selected !== undefined && this.selected >> 1 === k;
+                edges.push(board.create("segment", [from, to], {
+                    name: `int${k + 1}`, withLabel: false, strokeColor: () => on() ? GraphPalette.selectedControlPoint : GraphPalette.primaryCurve,
+                    strokeWidth: () => this.displaySettings.strokeWidth + (on() ? 2 : 0), highlight: false, fixed: true, layer: 5,
+                }) as JXG.GeometryElement);
+                labels.push(board.create("text", [() => (from.X() + to.X()) / 2, () => (from.Y() + to.Y()) / 2, intervalLetter(k)], {
+                    name: intervalLetter(k), anchorX: "middle", anchorY: "bottom", fixed: true, highlight: false, display: "internal", fontSize: 14,
                     strokeColor: GraphPalette.label, layer: 6,
                 }) as JXG.GeometryElement);
             }
@@ -650,6 +716,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     private readonly actions: PointSetControlActions = {
         addPoint: point => {this.addPointAt(point);},
         addSegment: () => {this.addDefaultSegment();},
+        addInterval: () => {this.addDefaultInterval();},
+        removeInterval: k => {this.removeIntervalAt(k);},
         removeSegment: k => {this.removeSegmentAt(k);},
         removeSelected: () => {this.removeSelected();},
         clear: () => {this.clear();},
@@ -670,6 +738,11 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return false;
     }
 
+    /** Intervals mode is opt-in like segments mode: a subclass returns true to offer it (inspector, Preset parsing, `setPointSetMode`). */
+    protected allowsIntervals(): boolean {
+        return false;
+    }
+
     /** Whether the inspector offers the points/polygon choice; a subclass that only works on points returns false. */
     protected showsModeToggle(): boolean {
         return true;
@@ -681,8 +754,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     protected override workspaceEdit(): React.ReactNode {
-        return <PointSetControls showModeToggle={this.showsModeToggle()} showClosedToggle={this.showsClosedToggle()} allowsSegments={this.allowsSegments()} pending={this.pending}
-                                 segmentLimit={this.segmentLimit} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
+        return <PointSetControls showModeToggle={this.showsModeToggle()} showClosedToggle={this.showsClosedToggle()} allowsSegments={this.allowsSegments()} allowsIntervals={this.allowsIntervals()} pending={this.pending}
+                                 segmentLimit={this.segmentLimit} intervalLimit={this.intervalLimit} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
                                  pointLimit={this.pointLimit} coordinateLimit={this.coordinateLimit} simplicity={this.simplicity()}
                                  overlays={this.overlayIds().map(id => ({id, label: this.overlayLabel(id), shown: this.overlayShown(id)}))}
                                  actions={this.actions}/>;
