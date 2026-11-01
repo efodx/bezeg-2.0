@@ -195,26 +195,14 @@ test('every chapter example link resolves to its precise owner in the unified gu
     expect(multiFrameOwner).toBeDefined();
 });
 
-test('Foundations renders bilingual unified example labels and keeps its explanatory figures', async () => {
+test('Foundations renders bilingual unified example labels without standalone figures', async () => {
     const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/foundations']}>
         <Routes><Route path="/bezeg-2.0/learn/:chapterId" element={<FamilyChapterPage/>}/></Routes>
     </MemoryRouter>);
-    const figures = [...container.querySelectorAll('.chapter-section-body > .chapter-activity-figure')];
-    expect(figures).toHaveLength(2);
-    const imageSources = figures.map(figure => figure.querySelector('img')?.getAttribute('src'));
-    expect(imageSources).toContain(demonstrationPreviewAssets.bernstein);
-    expect(imageSources).toContain(demonstrationPreviewAssets['complex-multiplication']);
-    for (const figure of figures) {
-        const image = figure.querySelector('img')!;
-        expect(image.alt).toBeTruthy();
-        expect(image.alt).not.toMatch(/\\[()[\]]/u);
-        expect(image).toHaveAttribute('width', '720');
-        expect(image).toHaveAttribute('height', '440');
-        expect(image).toHaveAttribute('loading', 'lazy');
-        expect(figure.querySelector('figcaption')?.textContent).toBeTruthy();
-    }
-    expect(container.textContent).toContain('štiri kubične uteži');
+    expect(container.querySelectorAll('.chapter-section-body > .chapter-activity-figure')).toHaveLength(0);
+    expect(container.textContent).toContain('Prikazani primer ima kubične uteži');
     expect(container.textContent).toContain('kvadratne uteži');
+    expect(container.textContent).toContain('ker je');
     const cards = [...container.querySelectorAll('.chapter-exploration--guided-example')];
     const guidedLinks = [...container.querySelectorAll('.chapter-guided-lessons a')];
     const foundation = familyChapters.find(chapter => chapter.id === 'foundations')!;

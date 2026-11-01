@@ -59,9 +59,9 @@ describe('family reading chapters', () => {
         expect(worked.map(block => block.kind)).toEqual(['paragraph', 'example', 'paragraph']);
         expect(worked[2].kind === 'paragraph' && worked[2].text.sl).toContain('Uteži same ne povedo');
         const reading = foundations.sections.find(item => item.id === 'reading-bernstein')!.orderedContent!;
-        expect(reading.map(block => block.kind)).toEqual(['paragraph', 'example', 'paragraph', 'figure']);
+        expect(reading.map(block => block.kind)).toEqual(['paragraph', 'example', 'paragraph']);
         const complex = foundations.sections.find(item => item.id === 'complex-plane')!.orderedContent!;
-        expect(complex.map(block => block.kind)).toEqual(['paragraph', 'paragraph', 'example', 'paragraph', 'formula', 'figure']);
+        expect(complex.map(block => block.kind)).toEqual(['paragraph', 'paragraph', 'example', 'paragraph', 'formula']);
         expect(exampleReferences(foundations.sections.find(item => item.id === 'why-weights')?.orderedContent ?? [])).toEqual([]);
         expect(exampleReferences(foundations.sections.find(item => item.id === 'investigate-limits')?.orderedContent ?? [])).toEqual([]);
     });
@@ -143,7 +143,7 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('gives every rational graph link a bilingual investigation prompt and uses its catalog figures', () => {
+    test('gives every rational graph link a bilingual investigation prompt and states the card distinctions in prose', () => {
         const chapter = familyChapters.find(entry => entry.id === 'rational-curves')!;
         for (const section of chapter.sections) {
             for (const id of section.demonstrationIds ?? []) {
@@ -153,19 +153,15 @@ describe('family reading chapters', () => {
             }
         }
 
-        const figures = chapter.sections.flatMap(section => section.figures ?? []);
-        expect(figures.map(figure => figure.src)).toEqual([
-            demonstrationPreviewAssets.rational,
-            demonstrationPreviewAssets.circle,
-        ]);
-        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
-        expect(captions).toContain('kubični');
-        expect(captions).toContain('three');
-        expect(captions).toContain('kvadratičen');
-        expect(captions).toContain('quarter');
+        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
+        const prose = JSON.stringify(chapter.sections.map(section => section.orderedContent ?? []));
+        expect(prose).toContain('kubični');
+        expect(prose).toContain('three arcs');
+        expect(prose).toContain('kvadratičen');
+        expect(prose).toContain('quarter-arc');
     });
 
-    test('gives every spline graph link a bilingual control-specific prompt and uses the join figures', () => {
+    test('gives every spline graph link a bilingual control-specific prompt and states the card distinctions in prose', () => {
         const chapter = familyChapters.find(entry => entry.id === 'splines')!;
         expect(chapter.sections.map(section => section.id)).toEqual([
             'piecewise', 'continuity-levels', 'geometric-vs-parametric', 'worked-join', 'investigate-splines',
@@ -182,16 +178,13 @@ describe('family reading chapters', () => {
             }
         }
 
-        const figures = chapter.sections.flatMap(section => section.figures ?? []);
-        expect(figures.map(figure => figure.src)).toEqual([
-            demonstrationPreviewAssets['spline-c1'], demonstrationPreviewAssets['spline-g1'],
-        ]);
-        expect(figures.every(figure => figure.alt.sl.trim() && figure.alt.en.trim())).toBe(true);
-        const captions = figures.map(figure => `${figure.caption.sl} ${figure.caption.en}`).join(' ');
-        expect(captions).toContain('parabol');
-        expect(captions).toContain('parabolas');
-        expect(captions).toContain('večdel');
-        expect(captions).toContain('multi-piece');
+        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
+        const prose = JSON.stringify(chapter.sections.map(section => section.orderedContent ?? []));
+        expect(prose).toContain('parabol');
+        expect(prose).toContain('parabolas');
+        expect(prose).toContain('večdel');
+        expect(prose).toContain('multi-piece');
+        expect(prose).toContain('free positive factor');
 
         const workedJoin = chapter.sections.find(section => section.id === 'worked-join')!.paragraphs
             .map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
