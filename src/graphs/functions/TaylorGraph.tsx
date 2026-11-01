@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, escapeHtml, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -18,7 +18,6 @@ import {functionPresetCollections} from "./functionPresetCollections";
 /** Positions show four decimals; values of T_n and f show four as well, errors and the bound use significant digits. */
 const PRECISE = 4;
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Each example has its own view, which becomes the board view whenever the example changes (inspector select or the
@@ -207,7 +206,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         const model = () => this.model;
         const view = () => this.viewOf(this.model);
         const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.5);
+        const thin = this.displayThinWidth(0.5);
         const fontSize = () => this.displaySettings.fontSize;
         const f = (x: number) => drawnValue(view().example, x);
         const polynomial = (x: number) => evaluateTaylorCoefficients(view().coefficients, x - model().center);

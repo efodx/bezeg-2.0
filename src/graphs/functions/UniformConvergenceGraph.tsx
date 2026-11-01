@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -21,7 +21,6 @@ import {functionPresetCollections} from "./functionPresetCollections";
 /** Errors and the supremum show five significant digits, so 0.8^5 reads 0.32768. */
 const SIGNIFICANT_DIGITS = 5;
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Both ranges are about [0, 1]. The room above 1 is for the caption (top-left, where the functions stay low) and the room

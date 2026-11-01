@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, FillCurve, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -23,7 +23,6 @@ const PRECISE = 4;
 const PRETTY_FORMULA: Readonly<Record<DarbouxExampleId, string>> = {square: "x²", sine: "sin x"};
 const exampleTitle = (id: DarbouxExampleId): string => `f(x) = ${PRETTY_FORMULA[id]}`;
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Each example has its own view, which becomes the board view whenever the example changes (inspector select or the
@@ -36,13 +35,6 @@ const EXAMPLE_VIEWS: Readonly<Record<DarbouxExampleId, BoundingBox>> = {
     square: [-3.2, 4.6, 5.2, -3.6],
     sine: [-1, 2, 7.6, -4.6],
 };
-
-/** A JSXGraph curve built from point lists whose data is rebuilt in `updateDataArray` (one object for any number of shapes). */
-interface FillCurve {
-    updateDataArray: () => void;
-    dataX: number[];
-    dataY: number[];
-}
 
 type StatusKind = "hidden" | "trapped" | "limit";
 
@@ -185,7 +177,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         const view = () => this.viewOf(this.model);
         const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.5);
+        const thin = this.displayThinWidth(0.5);
 
         // Layers, lowest first: the upper rectangles (taller, dashed outline), the lower rectangles (filled), the partition, the function, then a and b.
         const family = (config: {

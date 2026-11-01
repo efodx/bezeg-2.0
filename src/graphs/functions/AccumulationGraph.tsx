@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BOARD_TEXT_STYLE, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, BOARD_TEXT_STYLE, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -34,7 +34,6 @@ export const MAX_PIECES = 6;
 /** A stretch narrower than this share of the board width gets no sign mark (it would only sit on its own edges). */
 const MIN_MARK_SHARE = 0.03;
 
-type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
 /**
  * Each function has its own view, which becomes the board view whenever the function choice changes and for the default scene
@@ -47,13 +46,6 @@ const FUNCTION_VIEWS: Readonly<Record<AccumulationModel["fn"], BoundingBox>> = {
     square: [-2.5, 6, 5.5, -2],
     exp: [-5, 10, 9.6, -1.5],
 };
-
-/** A JSXGraph curve built from point lists whose data is rebuilt in `updateDataArray` (one object for any number of shapes). */
-interface FillCurve {
-    updateDataArray: () => void;
-    dataX: number[];
-    dataY: number[];
-}
 
 type StatusKind = "hidden" | "empty" | "reversed" | "rising" | "falling" | "flat";
 
@@ -97,7 +89,7 @@ interface View {
 export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     private pointA?: JXG.Point;
     private pointX?: JXG.Point;
-    private piecesCache?: { model: AccumulationModel; pieces: AccumulationPiece[] };
+    private readonly piecesOf = this.modelCache((model: AccumulationModel) => accumulationPieces(catalogFunction(model.fn), model.a, model.x));
 
     override presetCollection() {
         return functionPresetCollections.accumulation;
@@ -122,14 +114,6 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
             fn, value: accumulation(fn, model.a, model.x), slope: accumulationTangent(fn, model.a, model.x).slope,
             pieces, above: sum("positive"), below: sum("negative"),
         };
-    }
-
-    /** The stretches of the model's region, computed once per model however many marks read them. */
-    private piecesOf(model: AccumulationModel): AccumulationPiece[] {
-        if (this.piecesCache?.model !== model) {
-            this.piecesCache = {model, pieces: accumulationPieces(catalogFunction(model.fn), model.a, model.x)};
-        }
-        return this.piecesCache.pieces;
     }
 
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
@@ -189,7 +173,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
         const revealed = () => this.model.accumulationVisible;
         const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
-        const thin = () => Math.max(1, this.displaySettings.strokeWidth * 0.8);
+        const thin = this.displayThinWidth(0.8);
         const thick = () => Math.max(3, this.displaySettings.strokeWidth * 1.6);
 
         // Values far above or below the view are left out (NaN) for lines and limited for the shaded region, so that no drawn path
@@ -210,17 +194,8 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
 
         // Layers, lowest first: the shaded stretches above and below the axis, f, A, the tangent to A, the drop lines, the sign marks, then the points.
         const fill = (color: string, part: "positive" | "negative") => {
-            const curve = this.own(board.create("curve", [[], []], {
-                fillColor: color, fillOpacity: 0.42, strokeColor: color, strokeOpacity: 0.9, strokeWidth: () => Math.max(1, this.displaySettings.strokeWidth * 0.35),
-                // The stretches below the axis are outlined with a dashed edge, so the two kinds also differ by pattern.
-                dash: part === "negative" ? 2 : 0,
-                highlight: false, fixed: true,
-            })) as unknown as FillCurve;
-            curve.updateDataArray = () => {
-                const data = accumulationFill(fn(), model().a, model().x, clamped)[part];
-                curve.dataX = data.x;
-                curve.dataY = data.y;
-            };
+            // The stretches below the axis are outlined with a dashed edge, so the two kinds also differ by pattern.
+            this.signedFill(color, () => accumulationFill(fn(), model().a, model().x, clamped)[part], {dash: part === "negative" ? 2 : 0});
         };
         fill(GraphPalette.additionalCurves[0], "positive");
         fill(GraphPalette.additionalCurves[1], "negative");
@@ -319,7 +294,6 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointX = undefined;
-        this.piecesCache = undefined;
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

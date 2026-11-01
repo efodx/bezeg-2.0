@@ -218,6 +218,28 @@ test('the drawn fill is clamped to a quarter view height beyond the view', () =>
     expect(Math.min(...all)).toBeGreaterThanOrEqual(BOX[3] - margin - 1e-12);
 });
 
+test('a resize or zoom at an unchanged model clamps the cached fill to the new view, not the old one', () => {
+    const graph = makeGraph();
+    apply(graph, parameter('a', -1));
+    apply(graph, parameter('b', 0));
+    const extent = () => {
+        const all = [...curveData(graph, POSITIVE).y, ...curveData(graph, NEGATIVE).y].filter(value => !Number.isNaN(value));
+        return {high: Math.max(...all), low: Math.min(...all)};
+    };
+    const model = graph.model;
+    const wide = extent();
+    const small: number[] = [-1.3, 1, 5.3, -1];
+    graph.board.getBoundingBox.mockReturnValue(small);
+    const zoomed = extent();
+    expect(graph.model).toBe(model);
+    const margin = 0.25 * (small[1] - small[3]);
+    expect(zoomed.high).toBeLessThanOrEqual(small[1] + margin + 1e-12);
+    expect(zoomed.low).toBeGreaterThanOrEqual(small[3] - margin - 1e-12);
+    expect(zoomed.high).toBeLessThan(wide.high);
+    graph.board.getBoundingBox.mockReturnValue(BOX);
+    expect(extent()).toEqual(wide);
+});
+
 test('the dashed bound lines follow the mode and the bounds', () => {
     const graph = makeGraph();
     const [lineA, lineB] = ofType(graph, 'segment');
