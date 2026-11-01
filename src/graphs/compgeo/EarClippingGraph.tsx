@@ -4,8 +4,9 @@ import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import {EAR_CLIPPING_MAX_VERTICES, guardView} from "../../compgeo/earClipping";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
-import type {LessonAction, LessonAnimationCommand} from "../../learning/model";
+import type {LessonAction} from "../../learning/model";
 import {BaseGraphState} from "../base/BaseGraph";
+import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -30,8 +31,6 @@ export interface EarClippingGraphState extends PointSetGraphState {
     step: number;
 }
 
-/** The `algorithm-trace` commands the lessons may send; each runs the transition of the button of the same name. */
-const EAR_LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["next-step", "reset", "play", "pause", "replay"];
 
 /** The colour letters: a cue that does not depend on colour vision. */
 const COLOUR_LETTERS = ["A", "B", "C"] as const;
@@ -185,11 +184,7 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
             super.applyPointSetAction(action);
             return;
         }
-        const requested: unknown = action.step;
-        if (requested !== "end" && (typeof requested !== "number" || !Number.isFinite(requested))) {
-            throw new Error("point-set set-trace-step: step must be a finite number or \"end\".");
-        }
-        this.setTraceStep(requested === "end" ? this.run().length - 1 : requested);
+        this.setTraceStep(requestedTraceStep(action, this.run().length));
     }
 
     /** Shows the trace at `step` (clamped); the same write as a Preset restore. A named step resets the controller in `setState`, which pauses playback. */
@@ -200,20 +195,7 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
         super.registerLessonActions(registry);
-        registry.onDiscriminated("animation", "algorithm-trace", action => this.lessonCommand(action.command), {
-            supports: action => EAR_LESSON_COMMANDS.includes(action.command),
-        });
-    }
-
-    private lessonCommand(command: LessonAnimationCommand): void {
-        if (command === "next-step") this.nextStep();
-        else if (command === "play") this.play();
-        else if (command === "pause") this.pause();
-        else if (command === "reset") this.resetTrace();
-        else if (command === "replay") {
-            this.resetTrace();
-            this.play();
-        }
+        registerTraceCommands(registry, this);
     }
 
     override mount(container: HTMLElement): void {

@@ -1703,7 +1703,8 @@ const parametricGeometry = {
         await expect(boardText(page, PARAMETRIC_READOUTS[step - 1]).first(), `parametric readout at ${label}`).toBeVisible();
     },
 };
-const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s]; // lines are separate <br> rows, so textContent has no separator: end a number with a lookahead, not a word boundary
+const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s];
+ // lines are separate <br> rows, so textContent has no separator: end a number with a lookahead, not a word boundary
 const curvatureGeometry = {
     id: 'curve-curvature',
     path: `${BASE}/curve-geometry/curvature`,
@@ -1728,7 +1729,20 @@ const intervalSweep = {
     },
 };
 
-const LESSONS = [intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Segment intersections: the trace step shown per lesson step 1..7 (start, start, step 12, step 10, step 17, done, the degenerate example's step 16); the number is language independent.
+const SEGMENT_STEPS = ['1', '1', '12', '10', '17', '47', '16'];
+const segmentIntersections = {
+    id: 'segment-intersections',
+    path: `${BASE}/compgeo/segment-intersections`,
+    titles: {sl: 'Presečišča daljic', en: 'Segment intersections'},
+    steps: 7,
+    minFrames: 16, // 2 frames per step, 3 on steps 4 and 6 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => ((await page.locator('[data-bentley-ottmann="step"]').textContent()) || '').match(/\d+/)?.[0], {message: `segment sweep trace step at ${label}`}).toBe(SEGMENT_STEPS[step - 1]);
+    },
+};
+
+const LESSONS = [segmentIntersections, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

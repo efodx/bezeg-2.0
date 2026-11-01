@@ -1043,4 +1043,223 @@ const intervalSweep: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, intervalSweep];
+/**
+ * Segment-intersections lesson (docs/specs/sweep-algorithms-lessons.md, C2). The scenes use the `point-set` actions (`set-points`
+ * in segments mode, `set-trace-step`) of `BentleyOttmannGraph`; `BentleyOttmannLessonActions.host.test.tsx` checks every quoted
+ * value against the real graph's readout. Segments are named like the board labels, s1..s4 (the spec's s_0..s_3). The default
+ * example has 47 trace steps ("Korak k od 47" is the trace index k - 1) and 13 events: index 9 queues the first crossing, index 11
+ * is the status after all four upper endpoints, index 16 the first swap, index 46 `done` (5 crossings, 9 neighbour tests against
+ * 6 pairs). The degenerate example has 25 steps; index 15 is the swap at (2,2) after one report of all four segments.
+ */
+export const SEGMENT_TRACE_STEPS = {queued: 9, allInserted: 11, firstSwap: 16, degenerateSwap: 15} as const;
+
+/** The default example of C2 (s1..s4) and the degenerate example (a, b, c, d through (2,2)), as [ax, ay, bx, by]. */
+export const SEGMENT_EXAMPLE: readonly (readonly [number, number, number, number])[] = [[0, 0, 6, 4], [0, 4, 6, 0], [1, -1, 2, 5], [4, 5, 5, -1]];
+export const SEGMENT_DEGENERATE: readonly (readonly [number, number, number, number])[] = [[0, 0, 4, 4], [0, 4, 4, 0], [0, 2, 4, 2], [2, 0, 2, 4]];
+
+/** The `set-points` action of segments mode: segment k is the pair of consecutive points 2k, 2k + 1. */
+const segments = (list: readonly (readonly [number, number, number, number])[]): LessonAction =>
+    ({kind: 'point-set', operation: 'set-points', mode: 'segments', points: list.flatMap(([ax, ay, bx, by]): LessonPoint[] => [[ax, ay], [bx, by]])});
+/** The segments' bounding box with a margin of 1: x from the least to the greatest endpoint, y likewise (default example: x -1..7, y -2..6). */
+export const segmentView = (list: readonly (readonly [number, number, number, number])[]): LessonViewBox => {
+    const xs = list.flatMap(([ax, , bx]) => [ax, bx]);
+    const ys = list.flatMap(([, ay, , by]) => [ay, by]);
+    return [Math.min(...xs) - 1, Math.max(...ys) + 1, Math.max(...xs) + 1, Math.min(...ys) - 1];
+};
+/** A segment-sweep scene framed on its segments: the segments (which return to step 0 and pause), then the step actions. */
+const segmentScene = (id: string, list: readonly (readonly [number, number, number, number])[], steps: readonly LessonAction[], sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view: segmentView(list), actions: [segments(list), ...steps], expectedState: text(sl, en)});
+
+const segmentIntersections: GuidedLesson = {
+    demonstrationId: 'segment-intersections',
+    title: text('Presečišča daljic', 'Segment intersections'),
+    summary: text(
+        'Pometalna premica gre navzdol po ravnini, stanje hrani daljice po vrsti od leve proti desni, presečišča pa najdemo s preizkusom samo sosednjih daljic.',
+        'A sweep line moving down the plane, a status that keeps the segments in order from left to right, and crossings found by testing only neighbouring segments.',
+    ),
+    prerequisites: [
+        text('Lekcija Pometanje intervalov (vrsta dogodkov in stanje) ter lekcija Orientacija treh točk.', 'The lesson Interval sweep (event queue and status) and the lesson Orientation of three points.'),
+    ],
+    learningGoals: [
+        text('Slediš vrsti dogodkov in stanju: kdaj daljica vstopi, izstopi ali zamenja mesto s sosedo.', 'Follow the event queue and the status: when a segment enters, leaves or swaps places with a neighbour.'),
+        text('Razložiš, zakaj zadostuje preizkusiti samo sosednji daljici, in prešteješ preizkuse.', 'Explain why testing only neighbouring segments is enough, and count the tests.'),
+        text('Primerjaš število preizkusov s številom vseh parov \\(\\binom{n}{2}\\) in poveš mejo \\(O((n+k)\\log n)\\).', 'Compare the number of tests with the number of all pairs \\(\\binom{n}{2}\\) and state the bound \\(O((n+k)\\log n)\\).'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'segment-sweep-bound',
+            latex: 'O\\bigl((n+k)\\log n\\bigr)',
+            notation: text(
+                '\\(n\\) je število daljic, \\(k\\) je število presečišč, ki jih pometanje najde (velikost izhoda).',
+                '\\(n\\) is the number of segments and \\(k\\) is the number of crossings the sweep finds (the size of the output).',
+            ),
+            explanation: text(
+                'Dogodkov je \\(2n\\) krajišč in \\(k\\) presečišč, vsak dogodek obdelamo v času \\(O(\\log n)\\), ker vrsto dogodkov in stanje hranimo urejena. Pri majhnem \\(n\\) in velikem \\(k\\) pometanje ne prihrani nič; prihranek se pokaže pri velikem \\(n\\) in majhnem \\(k\\), saj preizkus vseh parov vedno stane \\(\\binom{n}{2}\\).',
+                'The events are the \\(2n\\) endpoints and the \\(k\\) crossings, and each event is handled in time \\(O(\\log n)\\) because the event queue and the status are kept sorted. For small \\(n\\) and large \\(k\\) the sweep saves nothing; the saving shows when \\(n\\) is large and \\(k\\) small, since testing all pairs always costs \\(\\binom{n}{2}\\).',
+            ),
+        },
+        {
+            id: 'segment-pair-count',
+            latex: '\\binom{n}{2}=\\frac{n(n-1)}{2}',
+            notation: text(
+                '\\(n\\) je število daljic; \\(\\binom{n}{2}\\) je število vseh parov daljic.',
+                '\\(n\\) is the number of segments; \\(\\binom{n}{2}\\) is the number of all pairs of segments.',
+            ),
+            explanation: text(
+                'Za \\(n=4\\) je vseh parov \\(\\binom{4}{2}=6\\). Pometanje na tem primeru preizkusi \\(9\\) parov sosednjih daljic, torej več kot \\(6\\): ker je \\(n\\) majhen in ima vsak par presečišče, ni ničesar za prihraniti.',
+                'For \\(n=4\\) there are \\(\\binom{4}{2}=6\\) pairs. On this example the sweep tests \\(9\\) pairs of neighbouring segments, more than \\(6\\): \\(n\\) is small and nearly every pair crosses, so there is nothing to save.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'segment-crossing-example',
+            title: text('Prvo presečišče \\(s_2\\) in \\(s_3\\)', 'The first crossing of \\(s_2\\) and \\(s_3\\)'),
+            calculationLatex: '4-\\tfrac23x=6x-7\\;\\Rightarrow\\;x=\\tfrac{33}{20},\\quad y=6\\cdot\\tfrac{33}{20}-7=\\tfrac{29}{10}',
+            resultLatex: '\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)',
+            check: text(
+                'Izpis „Presečišča doslej“ navaja točko \\(33/20\\) in \\(29/10\\) z daljicama s2, s3.',
+                'The readout "Intersection points so far" lists the point \\(33/20\\), \\(29/10\\) with the segments s2, s3.',
+            ),
+        },
+        {
+            id: 'segment-tests-example',
+            title: text('Preizkusi proti vsem parom', 'Tests against all pairs'),
+            calculationLatex: '\\binom{4}{2}=\\frac{4\\cdot3}{2}=6,\\qquad 9>6',
+            resultLatex: '9\\text{ neighbour tests},\\ 6\\text{ pairs}',
+            check: text(
+                'Izpis pove „Preizkusov sosednjih daljic doslej: 9; preizkus vseh parov bi jih imel 6“.',
+                'The readout says "Neighbour tests so far: 9; testing all pairs would take 6".',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'segint-segments', order: 1,
+            title: text('Štiri daljice', 'Four segments'),
+            purpose: text('Spoznati daljice in vprašanje, na katero odgovarja pometanje.', 'Meeting the segments and the question the sweep answers.'),
+            explanation: text(
+                'Na sliki so štiri daljice: \\(s_1\\) od \\((0,0)\\) do \\((6,4)\\), \\(s_2\\) od \\((0,4)\\) do \\((6,0)\\), \\(s_3\\) od \\((1,-1)\\) do \\((2,5)\\) in \\(s_4\\) od \\((4,5)\\) do \\((5,-1)\\). Iščemo vsa presečišča. Preizkus vseh parov bi bil \\(\\binom{4}{2}=6\\) preizkusov; pometalna premica pa gre od zgoraj navzdol in preizkuša samo daljici, ki sta si v stanju sosednji. Izpis kaže „Korak 1 od 47“, preizkusov doslej je \\(0\\) in presečišč še ni.',
+                'The picture shows four segments: \\(s_1\\) from \\((0,0)\\) to \\((6,4)\\), \\(s_2\\) from \\((0,4)\\) to \\((6,0)\\), \\(s_3\\) from \\((1,-1)\\) to \\((2,5)\\) and \\(s_4\\) from \\((4,5)\\) to \\((5,-1)\\). We look for all the crossings. Testing all pairs would take \\(\\binom{4}{2}=6\\) tests; the sweep line instead goes from top to bottom and tests only the segments that are neighbours in the status. The readout shows "Step 1 of 47", there are \\(0\\) tests so far and no crossings yet.',
+            ),
+            formulaIds: ['segment-pair-count'],
+            frames: [frame('segint-segments-explanation', 'explanation'), frame('segint-segments-observation', 'observation')],
+            observationPrompt: text('Poglej daljice in z očmi poišči pare, ki se sekajo.', 'Look at the segments and find, by eye, the pairs that cross.'),
+            expectedObservations: [text('Sled je na koraku \\(1\\) od \\(47\\), preizkusov je \\(0\\) od \\(6\\) možnih parov in presečišč še ni.', 'The trace is at step \\(1\\) of \\(47\\), there are \\(0\\) tests against \\(6\\) possible pairs and no crossings yet.')],
+            scene: segmentScene('segint-segments', SEGMENT_EXAMPLE, [],
+                'Štiri daljice; sled je na koraku \\(1\\) od \\(47\\), preizkusov \\(0\\), presečišč še ni.',
+                'Four segments; the trace is at step \\(1\\) of \\(47\\), \\(0\\) tests, no crossings yet.'),
+        },
+        {
+            id: 'segint-predict', order: 2,
+            title: text('Napovej presečišča', 'Predict the crossings'),
+            purpose: text('Pred razkritjem napovedati število presečišč in pare, ki se sekajo.', 'Predicting the number of crossings and the pairs that cross before the reveal.'),
+            explanation: text(
+                'Preden premakneš pometalno premico, napovej: koliko presečišč je in kateri pari daljic se sekajo? Namig: vsaka daljica se lahko seka z vsemi tremi drugimi, zato je največ \\(6\\) presečišč. Sled je še na koraku \\(1\\) od \\(47\\), zato presečišč še ne poznamo.',
+                'Before you move the sweep line, predict: how many crossings are there and which pairs of segments cross? Hint: each segment can cross each of the other three, so there are at most \\(6\\) crossings. The trace is still at step \\(1\\) of \\(47\\), so no crossing is known yet.',
+            ),
+            formulaIds: ['segment-pair-count'],
+            frames: [frame('segint-predict-explanation', 'explanation'), frame('segint-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši število presečišč in pare, ki se po tvoji presoji sekajo.', 'Write down the number of crossings and the pairs that, in your view, cross.'),
+            expectedObservations: [text('Napoved še ni preverjena; sled je na koraku \\(1\\) od \\(47\\) in jo primerjamo v naslednjih korakih.', 'The prediction is not checked yet; the trace is at step \\(1\\) of \\(47\\) and the next steps compare it.')],
+            scene: segmentScene('segint-predict', SEGMENT_EXAMPLE, [],
+                'Sled je na koraku \\(1\\) od \\(47\\); presečišč še ni.',
+                'The trace is at step \\(1\\) of \\(47\\); no crossings yet.'),
+        },
+        {
+            id: 'segint-insert', order: 3,
+            title: text('Vrsta dogodkov in stanje', 'Event queue and status'),
+            purpose: text('Slediti vstavljanju zgornjih krajišč v stanje po vrstnem redu na pometalni premici.', 'Following the upper endpoints being inserted into the status in the order along the sweep line.'),
+            explanation: text(
+                'Vrsta dogodkov hrani krajišča od zgoraj navzdol, pri enaki višini od leve proti desni. Pometalna premica skoči na prvi dogodek in ga obdela: zgornje krajišče vstavi daljico v stanje na mesto, ki ga določa vrstni red vzdolž premice. Zgornja krajišča so \\((2,5)\\) za \\(s_3\\), \\((4,5)\\) za \\(s_4\\), \\((0,4)\\) za \\(s_2\\) in \\((6,4)\\) za \\(s_1\\). Enajst korakov je že narejenih: premica je pri \\(y=4\\), izpis kaže „Korak 12 od 47“ in stanje od leve proti desni je \\(s_2, s_3, s_4, s_1\\). Preizkusov sosednjih daljic je doslej \\(2\\).',
+                'The event queue keeps the endpoints from top to bottom, from left to right at equal height. The sweep line jumps to the first event and handles it: an upper endpoint inserts the segment into the status at the place given by the order along the line. The upper endpoints are \\((2,5)\\) for \\(s_3\\), \\((4,5)\\) for \\(s_4\\), \\((0,4)\\) for \\(s_2\\) and \\((6,4)\\) for \\(s_1\\). Eleven steps are already done: the line is at \\(y=4\\), the readout shows "Step 12 of 47" and the status from left to right is \\(s_2, s_3, s_4, s_1\\). There have been \\(2\\) neighbour tests so far.',
+            ),
+            formulaIds: ['segment-sweep-bound'],
+            frames: [frame('segint-insert-explanation', 'explanation'), frame('segint-insert-observation', 'observation')],
+            observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem vstavljanju povej, kje v stanju je nova daljica.', 'Press Next step and, at each insertion, say where in the status the new segment goes.'),
+            expectedObservations: [text('Po štirih vstopih je stanje \\(s_2, s_3, s_4, s_1\\) in preizkusov sosednjih daljic je \\(2\\).', 'After four insertions the status is \\(s_2, s_3, s_4, s_1\\) and there have been \\(2\\) neighbour tests.')],
+            scene: segmentScene('segint-insert', SEGMENT_EXAMPLE, [setTraceStep(SEGMENT_TRACE_STEPS.allInserted)],
+                'Sled je na koraku \\(12\\) od \\(47\\): stanje \\(s_2, s_3, s_4, s_1\\), preizkusov sosednjih daljic \\(2\\).',
+                'The trace is at step \\(12\\) of \\(47\\): status \\(s_2, s_3, s_4, s_1\\), \\(2\\) neighbour tests.'),
+        },
+        {
+            id: 'segint-neighbours', order: 4,
+            title: text('Preizkus sosednjih daljic', 'Testing neighbours'),
+            purpose: text('Videti, da se po vsakem vstavljanju preizkusijo samo nove sosednje daljice in da se najdeno presečišče v vrsto uvrsti enkrat.', 'Seeing that after each insertion only the new neighbours are tested and a crossing found is queued once.'),
+            explanation: text(
+                'Ob vstavljanju ali odstranjevanju se preizkusijo samo novi sosednji pari, ne vsi. Ko je \\(s_2\\) vstopila levo od \\(s_3\\), sta postali sosednji \\(s_2\\) in \\(s_3\\); preizkus je pokazal, da se sekata pod pometalno premico, zato je njuno presečišče \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)=(1{,}65;\\,2{,}9)\\) prišlo v vrsto dogodkov, in to samo enkrat. Izpis kaže „Korak 10 od 47“ in preizkusov je \\(2\\). Presečišče izračunamo iz \\(4-\\tfrac23x=6x-7\\).',
+                'On an insertion or a removal only the new neighbouring pairs are tested, not all pairs. When \\(s_2\\) entered to the left of \\(s_3\\), the segments \\(s_2\\) and \\(s_3\\) became neighbours; the test showed that they meet below the sweep line, so their crossing \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)=(1.65,\\,2.9)\\) was queued as an event, and only once. The readout shows "Step 10 of 47" and there have been \\(2\\) tests. The crossing follows from \\(4-\\tfrac23x=6x-7\\).',
+            ),
+            formulaIds: ['segment-sweep-bound'], workedExampleId: 'segment-crossing-example',
+            frames: [frame('segint-neighbours-explanation', 'explanation'), frame('segint-neighbours-calculation', 'calculation'), frame('segint-neighbours-observation', 'observation')],
+            observationPrompt: text('Poišči v stanju sosednji daljici, ki ju je zadnji preizkus obravnaval, in preveri, da sta v vrsti dogodkov presečišče in naslednji dogodek.', 'Find in the status the neighbouring segments the last test looked at, and check that the crossing is now in the event queue.'),
+            expectedObservations: [text('Po drugem preizkusu je presečišče \\(s_2\\) in \\(s_3\\) v vrsti dogodkov, preizkusov je \\(2\\) in nobeno presečišče še ni sporočeno.', 'After the second test the crossing of \\(s_2\\) and \\(s_3\\) is in the event queue, there have been \\(2\\) tests and no crossing is reported yet.')],
+            scene: segmentScene('segint-neighbours', SEGMENT_EXAMPLE, [setTraceStep(SEGMENT_TRACE_STEPS.queued)],
+                'Sled je na koraku \\(10\\) od \\(47\\): presečišče \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)\\) je v vrsti dogodkov, preizkusov \\(2\\).',
+                'The trace is at step \\(10\\) of \\(47\\): the crossing \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)\\) is in the event queue, \\(2\\) tests.'),
+        },
+        {
+            id: 'segint-swap', order: 5,
+            title: text('Zamenjava pri presečišču', 'The swap at a crossing'),
+            purpose: text('Videti, da sta pri presečišču daljici v stanju zamenjani.', 'Seeing the two segments swapped in the status at a crossing.'),
+            explanation: text(
+                'Pri presečišču se vrstni red daljic vzdolž premice obrne. Dogodek presečišča \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)\\) sporoči par \\(s_2, s_3\\) in ju zamenja: stanje je prej bilo \\(s_2, s_3, s_4, s_1\\), zdaj pa je \\(s_3, s_2, s_4, s_1\\). Izpis kaže „Korak 17 od 47“, presečišč doslej je \\(1\\) in preizkusov \\(3\\). Po zamenjavi je nov sosed daljice \\(s_2\\) daljica \\(s_4\\), zato sledi preizkus tega para.',
+                'At a crossing the order of the segments along the line reverses. The crossing event \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)\\) reports the pair \\(s_2, s_3\\) and swaps them: the status was \\(s_2, s_3, s_4, s_1\\) and is now \\(s_3, s_2, s_4, s_1\\). The readout shows "Step 17 of 47", \\(1\\) crossing so far and \\(3\\) tests. After the swap \\(s_2\\) has a new neighbour, \\(s_4\\), so a test of that pair follows.',
+            ),
+            formulaIds: ['segment-sweep-bound'],
+            frames: [frame('segint-swap-explanation', 'explanation'), frame('segint-swap-observation', 'observation')],
+            observationPrompt: text('Primerjaj vrstni red daljic v stanju pred zamenjavo in po njej.', 'Compare the order of the segments in the status before and after the swap.'),
+            expectedObservations: [text('Po zamenjavi je stanje \\(s_3, s_2, s_4, s_1\\), najdeno je \\(1\\) presečišče in preizkusov je \\(3\\).', 'After the swap the status is \\(s_3, s_2, s_4, s_1\\), \\(1\\) crossing is found and there have been \\(3\\) tests.')],
+            scene: segmentScene('segint-swap', SEGMENT_EXAMPLE, [setTraceStep(SEGMENT_TRACE_STEPS.firstSwap)],
+                'Sled je na koraku \\(17\\) od \\(47\\): stanje \\(s_3, s_2, s_4, s_1\\), \\(1\\) presečišče, preizkusov \\(3\\).',
+                'The trace is at step \\(17\\) of \\(47\\): status \\(s_3, s_2, s_4, s_1\\), \\(1\\) crossing, \\(3\\) tests.'),
+        },
+        {
+            id: 'segint-summary', order: 6,
+            title: text('Povzetek in meja', 'Summary and the bound'),
+            purpose: text('Primerjati število preizkusov s številom vseh parov in razumeti mejo \\(O((n+k)\\log n)\\).', 'Comparing the number of tests with the number of all pairs and understanding the bound \\(O((n+k)\\log n)\\).'),
+            explanation: text(
+                'Sled je izvedena do konca (korak \\(47\\) od \\(47\\)). Obdelanih je \\(13\\) dogodkov (\\(8\\) krajišč in \\(5\\) presečišč) in najdenih je \\(5\\) presečišč: \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)\\), \\(\\bigl(\\tfrac{87}{20},\\tfrac{29}{10}\\bigr)\\), \\((3,2)\\), \\(\\bigl(\\tfrac{21}{16},\\tfrac78\\bigr)\\) in \\(\\bigl(\\tfrac{75}{16},\\tfrac78\\bigr)\\). Preizkusov sosednjih daljic je bilo \\(9\\), preizkus vseh parov pa bi jih imel \\(\\binom{4}{2}=6\\): na tem majhnem primeru je pometanje dražje, ne cenejše. Prihranek se pokaže pri velikem \\(n\\) in majhnem \\(k\\): čas je \\(O((n+k)\\log n)\\), kjer je \\(k\\) število presečišč, vseh parov pa je \\(\\binom{n}{2}\\).',
+                'The trace has run to the end (step \\(47\\) of \\(47\\)). \\(13\\) events were handled (\\(8\\) endpoints and \\(5\\) crossings) and \\(5\\) crossings were found: \\(\\bigl(\\tfrac{33}{20},\\tfrac{29}{10}\\bigr)\\), \\(\\bigl(\\tfrac{87}{20},\\tfrac{29}{10}\\bigr)\\), \\((3,2)\\), \\(\\bigl(\\tfrac{21}{16},\\tfrac78\\bigr)\\) and \\(\\bigl(\\tfrac{75}{16},\\tfrac78\\bigr)\\). There were \\(9\\) neighbour tests, whereas testing all pairs would take \\(\\binom{4}{2}=6\\): on this small example the sweep costs more, not less. The saving appears when \\(n\\) is large and \\(k\\) small: the time is \\(O((n+k)\\log n)\\), where \\(k\\) is the number of crossings, whereas all pairs number \\(\\binom{n}{2}\\).',
+            ),
+            formulaIds: ['segment-sweep-bound', 'segment-pair-count'], workedExampleId: 'segment-tests-example',
+            frames: [frame('segint-summary-explanation', 'explanation'), frame('segint-summary-calculation', 'calculation'), frame('segint-summary-observation', 'observation')],
+            observationPrompt: text('Primerjaj število preizkusov s številom vseh parov in preveri svojo napoved presečišč.', 'Compare the number of tests with the number of all pairs, and check your prediction of the crossings.'),
+            expectedObservations: [text('Obdelanih je \\(13\\) dogodkov, najdenih \\(5\\) presečišč, preizkusov sosednjih daljic \\(9\\) proti \\(6\\) parom.', '\\(13\\) events are handled, \\(5\\) crossings found, \\(9\\) neighbour tests against \\(6\\) pairs.')],
+            scene: segmentScene('segint-summary', SEGMENT_EXAMPLE, [setTraceStep('end')],
+                'Sled je na koraku \\(47\\) od \\(47\\): \\(13\\) dogodkov, \\(5\\) presečišč, preizkusov \\(9\\) proti \\(6\\) parom.',
+                'The trace is at step \\(47\\) of \\(47\\): \\(13\\) events, \\(5\\) crossings, \\(9\\) tests against \\(6\\) pairs.'),
+        },
+        {
+            id: 'segint-explore', order: 7,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno preizkusiti pometanje, tudi ko gre več daljic skozi isto točko.', 'Trying the sweep on your own, including several segments through one point.'),
+            explanation: text(
+                'Prizor ima izrojen primer: \\(s_1\\) od \\((0,0)\\) do \\((4,4)\\), \\(s_2\\) od \\((0,4)\\) do \\((4,0)\\), \\(s_3\\) od \\((0,2)\\) do \\((4,2)\\) in navpična \\(s_4\\) od \\((2,0)\\) do \\((2,4)\\) gredo vse skozi \\((2,2)\\). Pometanje sporoči eno presečišče z vsemi štirimi daljicami in njihov vrstni red v stanju obrne v enem koraku: stanje \\(s_3, s_2, s_4, s_1\\) postane \\(s_1, s_4, s_2, s_3\\). Izpis kaže „Korak 16 od 25“, presečišč je \\(1\\) in preizkusov \\(3\\). Zdaj premikaj krajišča ali dodajaj daljice in opazuj stanje.',
+                'The scene has a degenerate example: \\(s_1\\) from \\((0,0)\\) to \\((4,4)\\), \\(s_2\\) from \\((0,4)\\) to \\((4,0)\\), \\(s_3\\) from \\((0,2)\\) to \\((4,2)\\) and the vertical \\(s_4\\) from \\((2,0)\\) to \\((2,4)\\) all pass through \\((2,2)\\). The sweep reports one crossing with all four segments and reverses their order in the status in one step: the status \\(s_3, s_2, s_4, s_1\\) becomes \\(s_1, s_4, s_2, s_3\\). The readout shows "Step 16 of 25", \\(1\\) crossing and \\(3\\) tests. Now move the endpoints or add segments and watch the status.',
+            ),
+            formulaIds: ['segment-sweep-bound', 'segment-pair-count'],
+            frames: [frame('segint-explore-explanation', 'explanation'), frame('segint-explore-observation', 'observation')],
+            observationPrompt: text('Premakni krajišče daljice \\(s_3\\), da ne gre več skozi \\((2,2)\\), in preveri, koliko presečišč je zdaj.', 'Move an endpoint of the segment \\(s_3\\) so that it no longer passes through \\((2,2)\\), and check how many crossings there are now.'),
+            expectedObservations: [text('Pri izrojenem primeru je sled na koraku \\(16\\) od \\(25\\): eno presečišče z vsemi štirimi daljicami, stanje \\(s_1, s_4, s_2, s_3\\), preizkusov \\(3\\).', 'In the degenerate example the trace is at step \\(16\\) of \\(25\\): one crossing with all four segments, status \\(s_1, s_4, s_2, s_3\\), \\(3\\) tests.')],
+            scene: segmentScene('segint-explore', SEGMENT_DEGENERATE, [setTraceStep(SEGMENT_TRACE_STEPS.degenerateSwap)],
+                'Izrojen primer: sled je na koraku \\(16\\) od \\(25\\), eno presečišče \\((2,2)\\) z vsemi štirimi daljicami, preizkusov \\(3\\).',
+                'The degenerate example: the trace is at step \\(16\\) of \\(25\\), one crossing \\((2,2)\\) with all four segments, \\(3\\) tests.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-sweep-segments', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Section 2.1 (line segment intersection; the Bentley-Ottmann sweep).'},
+        {
+            id: 'bezeg-segment-sweep-implementation',
+            citation: 'Bezeg source: src/compgeo/sweep/, src/graphs/compgeo/bentleyOttmannRun.ts and src/graphs/compgeo/BentleyOttmannGraph.tsx.',
+            implementationCorrespondence: 'The trace pops events from top to bottom (left to right at equal height), keeps the status sorted along the sweep line with exact rational comparisons, tests only the new neighbouring pairs after an insertion, a removal or a swap, queues each crossing once, and reports a point once with all segments through it; a lesson scene sets the segments and the step with the point-set actions (set-points in segments mode, set-trace-step), and playback is never started by a scene.',
+        },
+    ],
+    edgeCases: [
+        text('Če gre več daljic skozi isto točko, se točka sporoči enkrat z vsemi daljicami, njihov vrstni red v stanju pa se obrne v enem koraku.', 'When several segments pass through one point, the point is reported once with all the segments, and their order in the status reverses in one step.'),
+        text('Daljici, ki se prekrivata v daljici, ne v točki, pometanje zavrne s sporočilom; pometanje sprejme največ dvanajst daljic z mrežnimi krajišči.', 'Two segments that overlap in a segment, not in a point, are refused with a message; the sweep accepts at most twelve segments with grid endpoints.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, intervalSweep, segmentIntersections];

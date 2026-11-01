@@ -2,6 +2,8 @@ import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PointSetModel, PointSetOptions, segmentsOf, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {Rational} from "../../compgeo/rational";
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_SEGMENTS} from "../../compgeo/sweep/limits";
@@ -14,6 +16,7 @@ import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {BentleyOttmannControlActions, BentleyOttmannControls, BentleyOttmannLists} from "./BentleyOttmannControls";
 import {BentleyOttmannRun, runBentleyOttmann} from "./bentleyOttmannRun";
 import {BENTLEY_OTTMANN_EXAMPLE_1, BENTLEY_OTTMANN_OVERLAY_IDS, bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
+import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import {parseHullStep} from "./hullTraceRun";
 
 /** Time between two playback steps (one step per trace event, never more). */
@@ -170,6 +173,31 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
         this.controller.reset(0);
         this.setState(this.patch({step: 0}));
         this.requestRender();
+    }
+
+    /**
+     * Lesson actions: the `algorithm-trace` animation runs the very transitions of the buttons, and `point-set`
+     * `set-trace-step` is handled here only (the base class throws `UnsupportedLessonActionError` for it). It pauses
+     * playback and sets the step: a number is clamped to the trace like a stored Preset step, `'end'` is the last step.
+     * Every edit action (`set-points`, segments mode) pauses and returns to step 0; `set-overlay` keeps the step.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation !== "set-trace-step") {
+            super.applyPointSetAction(action);
+            return;
+        }
+        this.setTraceStep(requestedTraceStep(action, this.run().length));
+    }
+
+    /** Shows the trace at `step` (clamped); the same write as a Preset restore. A named step resets the controller in `setState`, which pauses playback. */
+    private setTraceStep(step: number): void {
+        this.setState(this.patch({step: this.run().clamp(step)}));
+        this.requestRender();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registerTraceCommands(registry, this);
     }
 
     override mount(container: HTMLElement): void {

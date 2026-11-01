@@ -74,6 +74,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'curve-parametric': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
     'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'interval-sweep': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    'segment-intersections': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},
