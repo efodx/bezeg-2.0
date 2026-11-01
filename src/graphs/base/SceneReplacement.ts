@@ -2,10 +2,10 @@
  * The one ordered path every scene replacement runs (architecture task A3, slice S2): mount, Preset reload, figure
  * batch scene and entry restore, lesson default scene, lesson fixture scene and lesson checkpoint.
  *
- *   dispose (once) -> sweep -> import -> replace state -> restore transient state -> initialize -> sync -> finish
+ *   dispose (once) -> import -> replace state -> restore transient state -> initialize -> sync -> finish
  *
  * The entries differ on purpose, and each difference is a field of the plan, not a separate code path (the reasons are
- * in docs/reviews/feature-streams/platform/a3-inventory.md and ADR 0015): the figure path disposes, sweeps and
+ * in docs/reviews/feature-streams/platform/a3-inventory.md and ADR 0015): the figure path disposes and
  * re-initializes because it keeps the board and rebuilds the scene, and defers the state replacement so `onStateChange`
  * diffs against the state before the load; lesson paths never re-initialize (`initialize()` is not idempotent) and
  * redraw synchronously so a rollback inside one tick is drawn before the host commits; mount runs on a fresh board.
@@ -18,8 +18,6 @@
 export interface SceneReplacementHost<S, T> {
     /** The family's `disposeFigureScene`. */
     disposeScene(): void;
-    /** The sweep seam: removes board objects the family's own teardown left behind. */
-    sweepBoard(): void;
     /** Batches board updates; both are no-ops without a board (or when the session ended before `resumeBoard`). */
     suspendBoard(): void;
     resumeBoard(): void;
@@ -60,11 +58,10 @@ export interface SceneReplacementPlan<S, T> {
      */
     dispose: boolean;
     /**
-     * Wraps dispose, sweep and import in one board update batch (the figure path). A plan that disposes is batched
+     * Wraps dispose and import in one board update batch (the figure path). A plan that disposes is batched
      * either way, as disposal used to run inside the curve importer's own batch.
      */
     suspendBoard: boolean;
-    sweep: boolean;
     /** Loads the scene's Preset data (and, on mount, board view and graph state) through the family's importer. */
     importData: () => void;
     /** Runs after import and before the state is replaced (lesson view box). */
@@ -92,7 +89,6 @@ export function replaceScene<S, T>(host: SceneReplacementHost<S, T>, plan: Scene
     if (batch) host.suspendBoard();
     try {
         runDispose(host, plan);
-        if (plan.sweep) host.sweepBoard();
         plan.importData();
     } finally {
         if (batch) host.resumeBoard();

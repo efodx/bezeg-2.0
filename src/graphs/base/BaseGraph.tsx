@@ -560,7 +560,6 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     private sceneReplacementHost(session?: GraphSession): SceneReplacementHost<S, TransientState> {
         return {
             disposeScene: () => this.disposeFigureScene(),
-            sweepBoard: () => { this.sweepSceneBoardObjects(); },
             suspendBoard: () => { if (this.hasBoard) this.board.suspendUpdate(); },
             resumeBoard: () => {
                 if ((!session || (this.graphSession === session && session.isAlive)) && this.hasBoard) this.board.unsuspendUpdate();
@@ -575,7 +574,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     /**
-     * A synchronous lesson replacement: no sweep and no `initialize()` (ADR 0015), drawn before the host commits, then a
+     * A synchronous lesson replacement: no `initialize()` (ADR 0015), drawn before the host commits, then a
      * workspace revision so scene-backed controls (and child boards keyed on it) re-seed from the new scene.
      */
     protected runLessonReplacement(scene: {
@@ -589,7 +588,6 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }): void {
         replaceScene(this.sceneReplacementHost(), {
             suspendBoard: false,
-            sweep: false,
             initialize: false,
             ...scene,
             dispose: scene.dispose ?? this.disposesBeforeNonFigureImport(),
@@ -764,12 +762,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             const preset = this.presetService?.getPreset(this.selectedPresetIdValue);
             // A selection whose preset no longer exists shows the default scene, so it is not a selection any more.
             if (!preset) this.selectedPresetIdValue = "";
-            // A fresh board: nothing to sweep. A remount on this instance starts with fresh transient state.
+            // A remount on this instance starts with fresh transient state.
             replaceScene(this.sceneReplacementHost(), {
                 dispose: this.disposesBeforeNonFigureImport(),
                 suspendBoard: false,
-                sweep: false,
-                importData: () => {
+                    importData: () => {
                     if (preset) this.importPreset(preset);
                     else this.importPresetData(this.defaultPreset());
                 },
@@ -1024,21 +1021,6 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     /**
-     * Removes every board object the family's own teardown left behind, except board infrastructure. Returns the removed
-     * objects so tests can see which families still rely on it.
-     */
-    protected sweepSceneBoardObjects(): any[] {
-        if (!this.hasBoard) return [];
-        const preservedBoardObjects = this.boardInfrastructureObjectClosure();
-        const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
-        if (remainingObjects.length) {
-            if (import.meta.env.DEV) console.warn(`${this.constructor.name}: scene replacement left ${remainingObjects.length} board object(s) for the sweep; the family's disposeFigureScene should remove them`);
-            this.board.removeObject(remainingObjects);
-        }
-        return remainingObjects;
-    }
-
-    /**
      * Replaces the live scene with a Preset (a stored Preset, the default scene, a batch figure or the batch entry scene).
      * `transientState` is the entry scene's captured transient state; without it the scene starts with fresh transient
      * state, as loading the Preset would.
@@ -1063,7 +1045,6 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                 await replaceScene(this.sceneReplacementHost(session), {
                     dispose: true,
                     suspendBoard: true,
-                    sweep: true,
                     // `restoreEntryState` imports the entry scene captured from the live graph, so there is no stored
                     // data to check against the Preset collection; a missing payload is the default scene.
                     importData: () => {
@@ -1116,38 +1097,6 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         const before = this.store.getState();
         if (this.pendingPreviousState === undefined) this.pendingPreviousState = before;
         this.store.replaceState(next);
-    }
-
-    private boardInfrastructureObjectClosure(): Set<object> {
-        const preserved = new Set<object>();
-        const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
-        const valuesOf = (value: unknown): unknown[] => isObject(value) ? Object.values(value) : [];
-        const visit = (object: unknown): void => {
-            if (!isObject(object) || preserved.has(object)) return;
-            preserved.add(object);
-            valuesOf(object.childElements).forEach(visit);
-            valuesOf(object.ticks).forEach(visit);
-            valuesOf(object.labels).forEach(visit);
-            visit(object.defaultTicks);
-        };
-        const defaultAxes = this.board.defaultAxes;
-        // JSXGraph creates one board-owned infobox even when it is hidden. It
-        // remains part of its pointer/drag infrastructure for the board's
-        // entire lifetime, so scene replacement must leave it in place.
-        visit(this.board.infobox);
-        for (const axis of [defaultAxes?.x, defaultAxes?.y]) {
-            visit(axis);
-            if (!isObject(axis)) continue;
-            valuesOf(axis.ancestors).forEach(visit);
-            visit(axis.point1);
-            visit(axis.point2);
-        }
-        // JSXGraph stores its two pointer-sketching curves in board.sketches
-        // (and aliases the first as board.sketch). They are board-owned even
-        // when hidden, so retain these exact references across scene replacement.
-        valuesOf(this.board.sketches).forEach(visit);
-        visit(this.board.sketch);
-        return preserved;
     }
 
     private importBoardState(boardState: BoardState) {

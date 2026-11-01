@@ -4,11 +4,9 @@
  * the same live default axes and infobox still on the board, the same event handler and board construction counts, and
  * the same number of live JSXGraph boards (the PH hodograph is one of them).
  *
- * Figure-path sweep seam (`BaseGraph.sweepSceneBoardObjects`): objects the sweep removed per replacement. Since A3 S3a
- * every family in `graphFactories` removes its own objects in `disposeFigureScene`, so the sweep removes 0 on reload and
- * on a figure batch (asserted for the whole registry below). Before S3a (reload): point set (convex hull) 18, cross
- * ratio 43, pascal 59, pole-polar 25, inscribed angle 31, triangle centres 27, and eleven function graphs 4-14 hidden
- * helper points each. remount, lesson default scene, lesson checkpoint do not sweep.
+ * Leak detection (A3 S4, the sweep is gone): after a reload or figure batch every registered family's board holds no
+ * object from before the replacement except board infrastructure (`boardInfrastructureObjects`), and a second
+ * replacement leaves as many scene objects as the first.
  *
  * Cases marked `it.fails` reproduce a real leak or duplication; flip each to `it` when the family's teardown owns
  * its objects (A3 S3). Lesson entries run on the three matrix families through the generic prepared-scene and
@@ -23,6 +21,7 @@ import {createGraph, installBoardShims, mountGraph, type MountedGraph, REAL_GRAP
 import {internals} from './realGraphScenes';
 import {CrossRatioGraph} from '../projective/CrossRatioGraph';
 import {PascalGraph} from '../projective/PascalGraph';
+import {boardInfrastructureObjects} from './BoardInfrastructure';
 
 vi.mock('./export/FigureCapture', async () => ({
     ...await vi.importActual<typeof import('./export/FigureCapture')>('./export/FigureCapture'),
@@ -88,17 +87,15 @@ function expectSameAs(first: Shot, later: Shot, sameBoard: boolean) {
 interface Rig {
     graph: GraphLike;
     mounted: MountedGraph;
-    sweeps: ReturnType<typeof vi.spyOn>;
     creates: ReturnType<typeof vi.spyOn>;
     disposes: ReturnType<typeof vi.spyOn>;
 }
 
 function open(make: () => GraphLike): Rig {
     const graph = make();
-    const sweeps = vi.spyOn(graph as unknown as {sweepSceneBoardObjects(): unknown[]}, 'sweepSceneBoardObjects');
     const creates = vi.spyOn(JXG.Board.prototype, 'create');
     const disposes = vi.spyOn(graph as unknown as {disposeFigureScene(): void}, 'disposeFigureScene');
-    return {graph, mounted: mountGraph(graph), sweeps, creates, disposes};
+    return {graph, mounted: mountGraph(graph), creates, disposes};
 }
 
 /** Runs one replacement of `entry` on the rig. */
@@ -125,21 +122,19 @@ async function replace(entry: Entry, rig: Rig, checkpoint: unknown): Promise<voi
     }
 }
 
-/** Runs the entry three times, checks cycle 1 against the fresh mount (not for remount) and cycles 2 and 3 against cycle 1, and returns the objects the sweep removed per cycle. */
-async function runCycles(make: () => GraphLike, entry: Entry, prepare?: (rig: Rig) => void, selectionSurvives = true): Promise<number[][]> {
+/** Runs the entry three times, checks cycle 1 against the fresh mount (not for remount) and cycles 2 and 3 against cycle 1. */
+async function runCycles(make: () => GraphLike, entry: Entry, prepare?: (rig: Rig) => void, selectionSurvives = true): Promise<void> {
     const rig = open(make);
     prepare?.(rig);
     const baseline = snapshot(rig.graph);
     const checkpoint = entry === 'lesson checkpoint' ? rig.graph.getLessonCapabilities().captureState() : undefined;
-    const cycles: Array<{shot: Shot; creates: number; removed: number[]}> = [];
+    const cycles: Array<{shot: Shot; creates: number}> = [];
     for (let cycle = 0; cycle < 3; cycle++) {
         rig.creates.mockClear();
-        rig.sweeps.mockClear();
         await replace(entry, rig, checkpoint);
         cycles.push({
             shot: snapshot(rig.graph),
             creates: rig.creates.mock.calls.length,
-            removed: rig.sweeps.mock.results.map((result: {value: unknown}) => (result.value as unknown[]).length),
         });
     }
     try {
@@ -150,12 +145,10 @@ async function runCycles(make: () => GraphLike, entry: Entry, prepare?: (rig: Ri
         for (const later of cycles.slice(1)) {
             expectSameAs(cycles[0].shot, later.shot, entry !== 'remount');
             expect(later.creates).toBe(cycles[0].creates);
-            expect(later.removed).toEqual(cycles[0].removed);
         }
     } finally {
         rig.mounted.view.unmount();
     }
-    return cycles.map(cycle => cycle.removed);
 }
 
 const selectFirstCurve = (rig: Rig) => {
@@ -214,23 +207,38 @@ describe.each(FIGURE_FAMILIES)('%s (figure path)', (family, make) => {
     });
 });
 
-/** Families whose own teardown still leaves objects for the sweep, by `id/entry`, with the reason. */
-const SWEEP_LEAKERS: Partial<Record<string, string>> = {};
+/** Families whose own teardown still leaves objects behind, by `id/entry`, with the reason. */
+const LEAKERS: Partial<Record<string, string>> = {};
+
+/** The board's scene objects: everything on it that is not JSXGraph infrastructure. */
+function sceneObjects(graph: GraphLike): object[] {
+    // Surface families draw in a 3D view and have no board.
+    if (!(graph as unknown as {hasBoard: boolean}).hasBoard) return [];
+    const board = (graph as unknown as {board: JXG.Board}).board;
+    const infrastructure = boardInfrastructureObjects(board);
+    return (board.objectsList as object[]).filter(object => !infrastructure.has(object));
+}
 
 /**
- * Teardown follows owned objects (A3 S3a): on the figure path every registered family's own `disposeFigureScene` removes
- * what it created, so the checked-fallback sweep removes nothing. One replacement per family and entry.
+ * Teardown follows owned objects (A3 S3a, S4): on the figure path every registered family's own `disposeFigureScene`
+ * removes what it created and nothing sweeps behind it. Two replacements per family and entry: no scene object from
+ * before a replacement survives it, and the second leaves as many scene objects as the first.
  */
-describe.each(['reload', 'figure batch'] as Entry[])('figure-path sweep removes nothing (%s)', entry => {
+describe.each(['reload', 'figure batch'] as Entry[])('figure-path replacement leaves no scene object behind (%s)', entry => {
     for (const id of Object.keys(graphFactories) as Array<keyof typeof graphFactories>) {
-        const run = SWEEP_LEAKERS[`${id}/${entry}`] ? it.fails : it;
+        const run = LEAKERS[`${id}/${entry}`] ? it.fails : it;
         run(`${id}`, async () => {
             const rig = open(() => graphFactories[id]());
             try {
-                rig.sweeps.mockClear();
+                const before = new Set(sceneObjects(rig.graph));
                 await replace(entry, rig, undefined);
-                const removed = rig.sweeps.mock.results.map((result: {value: unknown}) => (result.value as unknown[]).length);
-                expect(removed.reduce((sum: number, count: number) => sum + count, 0), `${id} swept`).toBe(0);
+                const first = sceneObjects(rig.graph);
+                expect(first.filter(object => before.has(object)).length, `${id} first replacement kept old objects`).toBe(0);
+                const firstSet = new Set(first);
+                await replace(entry, rig, undefined);
+                const second = sceneObjects(rig.graph);
+                expect(second.filter(object => firstSet.has(object)).length, `${id} second replacement kept old objects`).toBe(0);
+                expect(second.length, `${id} scene object count`).toBe(first.length);
             } finally {
                 rig.mounted.view.unmount();
             }
