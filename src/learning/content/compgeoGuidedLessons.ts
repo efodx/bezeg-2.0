@@ -1,5 +1,5 @@
 /**
- * Guided lessons of the Computational geometry family: convexity and hulls (docs/specs/convexity-hulls-lessons.md, A1, A2, A4) and ear clipping (docs/specs/triangulation-voronoi-lessons.md, B1).
+ * Guided lessons of the Computational geometry family: convexity and hulls (docs/specs/convexity-hulls-lessons.md, A1, A2, A4) and ear clipping (docs/specs/triangulation-voronoi-lessons.md, B1) and the interval sweep (docs/specs/sweep-algorithms-lessons.md, C1).
  * The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every value it quotes is the readout of
  * the scene it belongs to, and `compgeoGuidedLessons.test.ts` checks that against the real graphs. The scenes use only the
  * `point-set` actions, so a scene is a function of its actions and the lesson default.
@@ -829,4 +829,218 @@ const earClipping: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping];
+/**
+ * Interval sweep lesson (docs/specs/sweep-algorithms-lessons.md, C1). The scenes use the `point-set` actions (`set-points` in
+ * intervals mode, `set-trace-step`) and the `algorithm-trace` animation of `IntervalSweepGraph`; `compgeoIntervalSweepLesson.test.ts`
+ * checks every quoted value against the real graph's readout. The trace of the spec example has 26 steps ("Korak k od 26" is the
+ * trace index k - 1): index 6 is the third entering event (open 3), index 20 the entering of e (all five pairs found), index 25 `done`.
+ */
+export const INTERVAL_TRACE_STEPS = {thirdEnter: 6, pairsFound: 20} as const;
+
+/** The spec example of C1 and the second sample of the Demonstration (a zero-length interval c = [3, 3]). */
+export const INTERVAL_EXAMPLE: readonly (readonly [number, number])[] = [[0, 4], [2, 7], [3, 5], [6, 9], [8, 10]];
+export const INTERVAL_SAMPLE_2: readonly (readonly [number, number])[] = [[0, 3], [3, 6], [3, 3], [5, 8]];
+
+/** The `set-points` action of intervals mode: interval k sits on row k + 1, both endpoints on that row. */
+const intervals = (list: readonly (readonly [number, number])[]): LessonAction =>
+    ({kind: 'point-set', operation: 'set-points', mode: 'intervals', points: list.flatMap(([lo, hi], k): LessonPoint[] => [[lo, k + 1], [hi, k + 1]])});
+/** The intervals' bounding box with a margin of 1: rows 1..n, so the view is x from lo - 1 to hi + 1 and y from 0 to n + 1. */
+export const intervalView = (list: readonly (readonly [number, number])[]): LessonViewBox =>
+    [Math.min(...list.map(([lo]) => lo)) - 1, list.length + 1, Math.max(...list.map(([, hi]) => hi)) + 1, 0];
+/** A sweep scene framed on its intervals: the intervals (which return to step 0 and pause), then the step actions. */
+const sweepScene = (id: string, list: readonly (readonly [number, number])[], steps: readonly LessonAction[], sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view: intervalView(list), actions: [intervals(list), ...steps], expectedState: text(sl, en)});
+
+const intervalSweep: GuidedLesson = {
+    demonstrationId: 'interval-sweep',
+    title: text('Pometanje intervalov', 'Interval sweep'),
+    summary: text(
+        'Navpična pometalna premica, ki potuje po osi \\(x\\), in razvrščena vrsta dogodkov spremenita vprašanje „kateri intervali se prekrivajo“ v zaporedje majhnih sprememb stanja.',
+        'A vertical sweep line travelling along the \\(x\\)-axis, together with a sorted event queue, turns the question "which intervals overlap" into a sequence of tiny status updates.',
+    ),
+    prerequisites: [
+        text('Zadostuje branje števil na številski premici; druge lekcije niso potrebne.', 'Reading numbers on a number line is enough; no other lesson is required.'),
+    ],
+    learningGoals: [
+        text('Razložiš, kaj sta dogodek in stanje pometalne premice, in slediš vrsti dogodkov.', 'Explain what an event and the status of the sweep line are, and follow the event queue.'),
+        text('Iz števila odprtih intervalov po vsakem dogodku odčitaš največje število intervalov s skupno točko.', 'Read the largest number of intervals sharing a point off the number of open intervals after each event.'),
+        text('Poveš pravilo pri enaki koordinati (vstop pred izstopom) in primerjaš število najdenih parov z \\(\\binom{n}{2}\\).', 'State the rule at equal coordinates (entering before leaving) and compare the pairs found with \\(\\binom{n}{2}\\).'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'interval-open-count',
+            latex: 'k(x)=\\#\\{\\,i : l_i\\le x\\le r_i\\,\\}',
+            notation: text(
+                '\\(l_i\\) in \\(r_i\\) sta levo in desno krajišče intervala \\(i\\); \\(k(x)\\) je število intervalov, ki vsebujejo točko \\(x\\) (odprtih intervalov).',
+                '\\(l_i\\) and \\(r_i\\) are the left and right endpoints of interval \\(i\\); \\(k(x)\\) is the number of intervals that contain the point \\(x\\) (the open intervals).',
+            ),
+            explanation: text(
+                'Vrednost \\(k\\) se spremeni le v krajiščih: vstop (\\(x^+\\)) jo poveča za \\(1\\), izstop (\\(x^-\\)) zmanjša za \\(1\\). Zato je največje število intervalov s skupno točko enako največji vrednosti \\(k\\) po dogodkih. Pri enaki koordinati obdelamo vstope pred izstopi, ker so intervali zaprti in se dotikajoča intervala štejeta za prekrivajoča.',
+                'The value \\(k\\) changes only at endpoints: an entering event (\\(x^+\\)) raises it by \\(1\\), a leaving event (\\(x^-\\)) lowers it by \\(1\\). So the largest number of intervals sharing a point equals the largest value of \\(k\\) after the events. At equal coordinates entering events are handled before leaving events, because the intervals are closed and two touching intervals count as overlapping.',
+            ),
+        },
+        {
+            id: 'interval-pair-count',
+            latex: '\\binom{n}{2}=\\frac{n(n-1)}{2}',
+            notation: text(
+                '\\(n\\) je število intervalov; \\(\\binom{n}{2}\\) je število vseh parov, ki bi jih preizkusili brez pometanja.',
+                '\\(n\\) is the number of intervals; \\(\\binom{n}{2}\\) is the number of all pairs that would be tested without sweeping.',
+            ),
+            explanation: text(
+                'Pri pometanju se par sporoči, ko interval vstopi, medtem ko je drugi odprt, zato je vsak par sporočen natanko enkrat. Za \\(n=5\\) je vseh parov \\(\\binom{5}{2}=10\\), prekrivajočih pa je le \\(5\\).',
+                'In the sweep a pair is reported when an interval enters while another is open, so every pair is reported exactly once. For \\(n=5\\) there are \\(\\binom{5}{2}=10\\) pairs in all, and only \\(5\\) of them overlap.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'interval-depth-example',
+            title: text('Število odprtih intervalov po dogodkih', 'The open count after each event'),
+            calculationLatex: '0^+,2^+,3^+,4^-,5^-,6^+,7^-,8^+,9^-,10^-:\\; 1,2,3,2,1,2,1,2,1,0',
+            resultLatex: 'k_{\\max}=3\\text{ on }[3,4]',
+            check: text(
+                'Izpis „Odprtih po dogodkih“ navaja ta števila, izpis „Največ odprtih“ pa pove \\(3\\) na \\([3, 4]\\).',
+                'The readout "Open after each event" lists these numbers, and the readout "Most open" says \\(3\\) on \\([3, 4]\\).',
+            ),
+        },
+        {
+            id: 'interval-pairs-example',
+            title: text('Pari proti vsem parom', 'Pairs against all pairs'),
+            calculationLatex: '\\binom{5}{2}=\\frac{5\\cdot4}{2}=10',
+            resultLatex: '5\\text{ of }10',
+            check: text(
+                'Izpis pove „Najdenih parov: 5; vseh parov bi preizkusili: 10“.',
+                'The readout says "Pairs found: 5; testing all pairs would take 10 tests".',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'intervalsweep-intervals', order: 1,
+            title: text('Pet intervalov', 'Five intervals'),
+            purpose: text('Spoznati intervale in vprašanje, na katero odgovarja pometanje.', 'Meeting the intervals and the question the sweep answers.'),
+            explanation: text(
+                'Na osi \\(x\\) je pet intervalov \\(a=[0,4]\\), \\(b=[2,7]\\), \\(c=[3,5]\\), \\(d=[6,9]\\), \\(e=[8,10]\\); vsak je v svoji vrstici, da se na sliki ne prekrivajo. Zanima nas, kateri pari imajo skupno točko in koliko intervalov ima največ skupno točko. Pometalna premica je navpična premica, ki se pomika od leve proti desni. Stoji pri \\(x=0\\), izpis pokaže „Korak 1 od 26“ in odprtih intervalov je \\(0\\); predvajanje je ustavljeno.',
+                'On the \\(x\\)-axis there are five intervals \\(a=[0,4]\\), \\(b=[2,7]\\), \\(c=[3,5]\\), \\(d=[6,9]\\), \\(e=[8,10]\\); each is in its own row so that they do not overlap in the picture. We ask which pairs share a point and how many intervals share a point at most. The sweep line is a vertical line that moves from left to right. It stands at \\(x=0\\), the readout shows "Step 1 of 26" and there are \\(0\\) open intervals; playback is stopped.',
+            ),
+            formulaIds: ['interval-open-count'],
+            frames: [frame('intervalsweep-intervals-explanation', 'explanation'), frame('intervalsweep-intervals-observation', 'observation')],
+            observationPrompt: text('Poglej intervale in z očmi poišči pare, ki se prekrivajo.', 'Look at the intervals and find, by eye, the pairs that overlap.'),
+            expectedObservations: [text('Sledi je na koraku \\(1\\) od \\(26\\), odprtih intervalov je \\(0\\) in noben par še ni najden.', 'The trace is at step \\(1\\) of \\(26\\), there are \\(0\\) open intervals and no pair is found yet.')],
+            scene: sweepScene('intervalsweep-intervals', INTERVAL_EXAMPLE, [],
+                'Pet intervalov; sledi je na koraku \\(1\\) od \\(26\\), odprtih intervalov je \\(0\\).',
+                'Five intervals; the trace is at step \\(1\\) of \\(26\\) and there are \\(0\\) open intervals.'),
+        },
+        {
+            id: 'intervalsweep-predict', order: 2,
+            title: text('Napovej največ', 'Predict the maximum'),
+            purpose: text('Pred razkritjem napovedati največje število intervalov s skupno točko.', 'Predicting the largest number of intervals that share a point before the reveal.'),
+            explanation: text(
+                'Preden premakneš pometalno premico, napovej: največ koliko intervalov ima skupno točko? Namig: poišči točko na osi \\(x\\), kjer navpična črta prereže največ vrstic. Sled je še na koraku \\(1\\) od \\(26\\), zato števila odprtih intervalov še ne poznamo.',
+                'Before you move the sweep line, predict: at most how many intervals share a point? Hint: find the point on the \\(x\\)-axis where a vertical line cuts the most rows. The trace is still at step \\(1\\) of \\(26\\), so the open counts are not known yet.',
+            ),
+            formulaIds: ['interval-open-count'],
+            frames: [frame('intervalsweep-predict-explanation', 'explanation'), frame('intervalsweep-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši število in točko \\(x\\), kjer po tvoji presoji leži največ intervalov.', 'Write down the number and the point \\(x\\) where, in your view, the most intervals lie.'),
+            expectedObservations: [text('Napoved še ni preverjena; sledi je na koraku \\(1\\) od \\(26\\) in jo primerjamo v naslednjem koraku.', 'The prediction is not checked yet; the trace is at step \\(1\\) of \\(26\\) and the next step compares it.')],
+            scene: sweepScene('intervalsweep-predict', INTERVAL_EXAMPLE, [],
+                'Sled je na koraku \\(1\\) od \\(26\\); odprtih intervalov je \\(0\\).',
+                'The trace is at step \\(1\\) of \\(26\\); there are \\(0\\) open intervals.'),
+        },
+        {
+            id: 'intervalsweep-events', order: 3,
+            title: text('Dogodki in stanje', 'Events and status'),
+            purpose: text('Slediti dogodkom in stanju pometalne premice po korakih.', 'Following the events and the status of the sweep line step by step.'),
+            explanation: text(
+                'Dogodki so krajišča intervalov; vrsta dogodkov jih hrani po vrsti: \\(0^+,2^+,3^+,4^-,5^-,6^+,7^-,8^+,9^-,10^-\\), pri čemer \\(x^+\\) pomeni vstop in \\(x^-\\) izstop. Pometalna premica skoči na prvi dogodek v vrsti in ga obdela; stanje pa so intervali, ki jih premica trenutno seka. Pravilo pri enaki koordinati: vstop se obdela pred izstopom, ker so intervali zaprti. Šest pritiskov na Naslednji korak je že narejenih: premica stoji pri \\(x=3\\), v stanju so \\(a\\), \\(b\\), \\(c\\), odprtih intervalov je \\(3\\), izpis „Odprtih po dogodkih“ pa pokaže \\(1, 2, 3\\) (korak \\(7\\) od \\(26\\)).',
+                'The events are the endpoints of the intervals; the event queue keeps them in order: \\(0^+,2^+,3^+,4^-,5^-,6^+,7^-,8^+,9^-,10^-\\), where \\(x^+\\) means entering and \\(x^-\\) leaving. The sweep line jumps to the first event in the queue and handles it; the status is the set of intervals the line currently cuts. The rule at equal coordinates: an entering event is handled before a leaving event, because the intervals are closed. Six presses of Next step are already done: the line stands at \\(x=3\\), the status holds \\(a\\), \\(b\\), \\(c\\), there are \\(3\\) open intervals, and the readout "Open after each event" shows \\(1, 2, 3\\) (step \\(7\\) of \\(26\\)).',
+            ),
+            formulaIds: ['interval-open-count'], workedExampleId: 'interval-depth-example',
+            frames: [frame('intervalsweep-events-explanation', 'explanation'), frame('intervalsweep-events-calculation', 'calculation'), frame('intervalsweep-events-observation', 'observation')],
+            observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem dogodku povej, ali stanje naraste ali se skrči.', 'Press Next step and, at each event, say whether the status grows or shrinks.'),
+            expectedObservations: [text('Po treh vstopih je premica pri \\(x=3\\) in odprta so \\(3\\) intervali; izstop \\(4^-\\) bo število zmanjšal na \\(2\\).', 'After three entering events the line is at \\(x=3\\) and \\(3\\) intervals are open; the leaving event \\(4^-\\) will lower the number to \\(2\\).')],
+            scene: sweepScene('intervalsweep-events', INTERVAL_EXAMPLE, nextSteps(INTERVAL_TRACE_STEPS.thirdEnter),
+                'Sled je na koraku \\(7\\) od \\(26\\): premica pri \\(x=3\\), odprta so \\(3\\) intervali, po dogodkih \\(1, 2, 3\\).',
+                'The trace is at step \\(7\\) of \\(26\\): the line is at \\(x=3\\), \\(3\\) intervals are open, after the events \\(1, 2, 3\\).'),
+        },
+        {
+            id: 'intervalsweep-pairs', order: 4,
+            title: text('Pari in največ', 'Pairs and the maximum'),
+            purpose: text('Odčitati prekrivajoče pare, ko se pojavijo, in največje število odprtih intervalov.', 'Reading off the overlapping pairs as they appear, and the largest open count.'),
+            explanation: text(
+                'Par se sporoči, ko interval vstopi, medtem ko je drugi odprt: ko vstopi \\(b\\), je \\(a\\) odprt in nastane par \\(ab\\); ko vstopi \\(c\\), sta odprta \\(a\\) in \\(b\\), zato nastaneta \\(ac\\) in \\(bc\\). Dvajset pritiskov na Naslednji korak je že narejenih: premica je pri \\(x=8\\), \\(e\\) je ravnokar vstopil in sporočen je par \\(de\\). Izpis pokaže „Korak 21 od 26“, prekrivajoči pari doslej so \\(5\\): \\(ab, ac, bc, bd, de\\); po dogodkih so odprta števila \\(1, 2, 3, 2, 1, 2, 1, 2\\), največ odprtih doslej pa je \\(3\\).',
+                'A pair is reported when an interval enters while another is open: when \\(b\\) enters, \\(a\\) is open and the pair \\(ab\\) appears; when \\(c\\) enters, \\(a\\) and \\(b\\) are open, so \\(ac\\) and \\(bc\\) appear. Twenty presses of Next step are already done: the line is at \\(x=8\\), \\(e\\) has just entered and the pair \\(de\\) is reported. The readout shows "Step 21 of 26", the overlapping pairs so far are \\(5\\): \\(ab, ac, bc, bd, de\\); the open counts after the events are \\(1, 2, 3, 2, 1, 2, 1, 2\\) and the largest open count so far is \\(3\\).',
+            ),
+            formulaIds: ['interval-open-count'], workedExampleId: 'interval-depth-example',
+            frames: [frame('intervalsweep-pairs-explanation', 'explanation'), frame('intervalsweep-pairs-calculation', 'calculation'), frame('intervalsweep-pairs-observation', 'observation')],
+            observationPrompt: text('Preveri, da vsak par na seznamu res ima skupno točko, in poišči par, ki ga na seznamu ni.', 'Check that every pair on the list really shares a point, and find a pair that is not on the list.'),
+            expectedObservations: [text('Pet parov \\(ab, ac, bc, bd, de\\) ima skupno točko; največ odprtih doslej je \\(3\\), na koraku \\(21\\) od \\(26\\).', 'The five pairs \\(ab, ac, bc, bd, de\\) share a point; the largest open count so far is \\(3\\), at step \\(21\\) of \\(26\\).')],
+            scene: sweepScene('intervalsweep-pairs', INTERVAL_EXAMPLE, nextSteps(INTERVAL_TRACE_STEPS.pairsFound),
+                'Sled je na koraku \\(21\\) od \\(26\\): najdenih je \\(5\\) parov \\(ab, ac, bc, bd, de\\), največ odprtih doslej \\(3\\).',
+                'The trace is at step \\(21\\) of \\(26\\): \\(5\\) pairs \\(ab, ac, bc, bd, de\\) are found, the largest open count so far is \\(3\\).'),
+        },
+        {
+            id: 'intervalsweep-compare', order: 5,
+            title: text('Pari proti vsem parom', 'Pairs against all pairs'),
+            purpose: text('Primerjati rezultat pometanja s preizkusom vseh parov.', 'Comparing the result of the sweep with testing all pairs.'),
+            explanation: text(
+                'Sled je izvedena do konca (korak \\(26\\) od \\(26\\)). Števila odprtih intervalov po vseh dogodkih so \\(1, 2, 3, 2, 1, 2, 1, 2, 1, 0\\); največ jih je \\(3\\), in sicer na \\([3, 4]\\), kjer se prekrivajo \\(a\\), \\(b\\), \\(c\\). Najdenih je \\(5\\) parov, brez pometanja pa bi preizkusili vseh \\(\\binom{5}{2}=10\\) parov. Izpis pove „Najdenih parov: 5; vseh parov bi preizkusili: 10“. Pri petih intervalih je razlika majhna; pri več sto intervalih bi bila velika.',
+                'The trace has run to the end (step \\(26\\) of \\(26\\)). The open counts after all the events are \\(1, 2, 3, 2, 1, 2, 1, 2, 1, 0\\); the largest is \\(3\\), on \\([3, 4]\\), where \\(a\\), \\(b\\), \\(c\\) overlap. \\(5\\) pairs are found, whereas without sweeping all \\(\\binom{5}{2}=10\\) pairs would be tested. The readout says "Pairs found: 5; testing all pairs would take 10 tests". With five intervals the difference is small; with hundreds of intervals it would be large.',
+            ),
+            formulaIds: ['interval-pair-count'], workedExampleId: 'interval-pairs-example',
+            frames: [frame('intervalsweep-compare-explanation', 'explanation'), frame('intervalsweep-compare-calculation', 'calculation'), frame('intervalsweep-compare-observation', 'observation')],
+            observationPrompt: text('Primerjaj najdene pare s številom vseh parov in preveri svojo napoved največjega števila.', 'Compare the pairs found with the number of all pairs, and check your prediction of the maximum.'),
+            expectedObservations: [text('Največ odprtih je \\(3\\) na \\([3, 4]\\); najdenih je \\(5\\) parov od \\(10\\).', 'The most open is \\(3\\) on \\([3, 4]\\); \\(5\\) pairs are found out of \\(10\\).')],
+            scene: sweepScene('intervalsweep-compare', INTERVAL_EXAMPLE, [setTraceStep('end')],
+                'Sled je na koraku \\(26\\) od \\(26\\): največ odprtih \\(3\\) na \\([3, 4]\\), najdenih parov \\(5\\) od \\(10\\).',
+                'The trace is at step \\(26\\) of \\(26\\): the most open is \\(3\\) on \\([3, 4]\\), \\(5\\) pairs found out of \\(10\\).'),
+        },
+        {
+            id: 'intervalsweep-rotated', order: 6,
+            title: text('Ista zamisel, zasukana', 'The same idea, rotated'),
+            purpose: text('Videti, da isti trije sestavni deli delujejo tudi v ravnini.', 'Seeing that the same three ingredients work in the plane as well.'),
+            explanation: text(
+                'Isto zamisel lahko zasukamo: dogodki niso več števila na premici, ampak točke v ravnini, stanje pa je razvrščen seznam predmetov, ki jih pometalna premica seka. Pri intervalih je stanje množica odprtih intervalov, pri daljicah pa bo urejen seznam daljic od leve proti desni. Prizor je isti kot v prejšnjem koraku (korak \\(26\\) od \\(26\\), največ odprtih \\(3\\) na \\([3, 4]\\)): vrsta dogodkov je prazna, stanje je prazno in vse pare smo našli brez preizkusa vseh \\(10\\) parov. Ta korak je le besedilo; naslednja lekcija o presečiščih daljic uporabi isto zamisel.',
+                'The same idea can be rotated: the events are no longer numbers on a line but points of the plane, and the status is a sorted list of the objects the sweep line cuts. For intervals the status is the set of open intervals; for segments it will be an ordered list of segments from left to right. The scene is the same as in the previous step (step \\(26\\) of \\(26\\), the most open \\(3\\) on \\([3, 4]\\)): the event queue is empty, the status is empty and all the pairs were found without testing all \\(10\\) pairs. This step is text only; the next lesson, on segment intersections, uses the same idea.',
+            ),
+            formulaIds: ['interval-pair-count'],
+            frames: [frame('intervalsweep-rotated-explanation', 'explanation'), frame('intervalsweep-rotated-observation', 'observation')],
+            observationPrompt: text('Povej, kaj bi bilo v ravnini dogodek in kaj stanje pometalne premice.', 'Say what an event and what the status of the sweep line would be in the plane.'),
+            expectedObservations: [text('Prizor je ostal na koraku \\(26\\) od \\(26\\); vrsta dogodkov in stanje sta prazna.', 'The scene stayed at step \\(26\\) of \\(26\\); the event queue and the status are empty.')],
+            scene: sweepScene('intervalsweep-rotated', INTERVAL_EXAMPLE, [setTraceStep('end')],
+                'Sled je na koraku \\(26\\) od \\(26\\); vrsta dogodkov in stanje sta prazna.',
+                'The trace is at step \\(26\\) of \\(26\\); the event queue and the status are empty.'),
+        },
+        {
+            id: 'intervalsweep-explore', order: 7,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno preizkusiti pometanje, tudi na intervalu dolžine nič.', 'Trying the sweep on your own, including an interval of length zero.'),
+            explanation: text(
+                'Prizor ima drugi vzorec: \\(a=[0,3]\\), \\(b=[3,6]\\), \\(c=[3,3]\\), \\(d=[5,8]\\). Interval \\(c\\) ima dolžino nič in leži v točki \\(x=3\\), kjer se \\(a\\) konča in \\(b\\) začne. Sled je na koraku \\(1\\) od \\(21\\) in predvajanje je ustavljeno. Če sled izvedeš do konca, najde štiri pare \\(ab, ac, bc, bd\\) od \\(\\binom{4}{2}=6\\) in največ odprtih je \\(3\\) na \\([3, 3]\\): vstopa pridejo pred izstopi, zato se v točki \\(x=3\\) vsi trije hkrati odprejo. Dodajaj intervale, premikaj krajišča (tudi s tipkovnico) in opazuj, kako se pari spreminjajo; vsaka sprememba vrne sled na začetek.',
+                'The scene has the second sample: \\(a=[0,3]\\), \\(b=[3,6]\\), \\(c=[3,3]\\), \\(d=[5,8]\\). The interval \\(c\\) has length zero and lies at the point \\(x=3\\), where \\(a\\) ends and \\(b\\) begins. The trace is at step \\(1\\) of \\(21\\) and playback is stopped. If you run the trace to the end, it finds four pairs \\(ab, ac, bc, bd\\) out of \\(\\binom{4}{2}=6\\) and the most open is \\(3\\) on \\([3, 3]\\): entering events come before leaving events, so at \\(x=3\\) all three are open at once. Add intervals, move the endpoints (also with the keyboard) and watch how the pairs change; every edit returns the trace to its start.',
+            ),
+            formulaIds: ['interval-open-count', 'interval-pair-count'],
+            frames: [frame('intervalsweep-explore-explanation', 'explanation'), frame('intervalsweep-explore-observation', 'observation')],
+            observationPrompt: text('Premakni krajišče intervala \\(d\\) levo čez \\(x=3\\) in preveri, kako se spremenita število parov in največje število odprtih.', 'Move an endpoint of the interval \\(d\\) left past \\(x=3\\) and check how the number of pairs and the largest open count change.'),
+            expectedObservations: [text('Pri drugem vzorcu sled na začetku kaže korak \\(1\\) od \\(21\\); na koncu so \\(4\\) pari od \\(6\\) in največ \\(3\\) odprtih na \\([3, 3]\\).', 'For the second sample the trace starts at step \\(1\\) of \\(21\\); at the end there are \\(4\\) pairs out of \\(6\\) and the most open is \\(3\\) on \\([3, 3]\\).')],
+            scene: sweepScene('intervalsweep-explore', INTERVAL_SAMPLE_2, [],
+                'Drugi vzorec: sled je na koraku \\(1\\) od \\(21\\); predvajanje je ustavljeno.',
+                'The second sample: the trace is at step \\(1\\) of \\(21\\); playback is stopped.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-sweep', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Chapter 2 (line segment intersection; the plane sweep).'},
+        {
+            id: 'bezeg-interval-sweep-implementation',
+            citation: 'Bezeg source: src/compgeo/sweep/intervalSweep.ts, src/graphs/compgeo/intervalSweepRun.ts and src/graphs/compgeo/IntervalSweepGraph.tsx.',
+            implementationCorrespondence: 'The trace sorts the endpoints with entering events before leaving events at an equal coordinate (closed intervals), reports a pair when an interval enters while another is open, and counts the open intervals after each endpoint; a lesson scene sets the intervals and the step with the point-set actions (set-points in intervals mode, set-trace-step) and presses Next step with the algorithm-trace animation actions, the same transition as the button, and playback is never started by a scene.',
+        },
+    ],
+    edgeCases: [
+        text('Zaprta intervala, ki se dotikata v eni točki, ali interval dolžine nič v krajišču drugega, se štejeta za prekrivajoča; pari so vseeno sporočeni natanko enkrat.', 'Closed intervals that touch in one point, or a zero-length interval on an endpoint of another, count as overlapping; every pair is still reported exactly once.'),
+        text('Pometanje sprejme največ deset intervalov z mrežnimi krajišči; neveljaven vnos se zavrne s sporočilom.', 'The sweep accepts at most ten intervals with grid endpoints; an invalid input is refused with a message.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, intervalSweep];

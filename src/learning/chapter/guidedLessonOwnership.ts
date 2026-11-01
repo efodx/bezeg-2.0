@@ -73,6 +73,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // Interim owners until a Curve geometry chapter exists: trace versus parameter belongs with parametrization, curvature with the geometric properties of a curve.
     'curve-parametric': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
     'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    'interval-sweep': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},
