@@ -41,8 +41,8 @@ test('the catalogue shows the ordered collection and only supported lesson desti
         );
         expect(card.querySelector('.demonstrations-catalog-title')).toHaveTextContent(entry.catalogTitle);
         expect(card.querySelector('.demonstrations-catalog-copy p')).not.toBeEmptyDOMElement();
-        // Posters are a partial record: `linear-map` has none until its capture task.
-        if (entry.id !== 'linear-map') {
+        // Posters are a partial record: these ids have none until their capture tasks.
+        if (!['linear-map', 'orientation', 'polygon-area', 'convex-hull'].includes(entry.id)) {
             expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('src');
             expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('alt', '');
         }

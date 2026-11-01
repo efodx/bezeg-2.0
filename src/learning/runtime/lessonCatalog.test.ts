@@ -1,5 +1,5 @@
 import {getLessonForDemonstration, sceneActions, GUIDED_LESSON_AVAILABLE_IDS, isGuidedLessonAvailable} from './lessonCatalog';
-import {getDemonstrationCatalog} from '../../demonstrations';
+import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstrations';
 import {getGuidedLesson} from '../content/guidedLessons';
 import {patchGuidedExampleRegistry} from '../content/patchGuidedExampleRegistry';
 
@@ -177,11 +177,14 @@ test('adapts the five construction lessons into typed runtime actions', () => {
     expect(kinds('rational-extrapolation')).toEqual(expect.arrayContaining(['extrapolation-parameter', 'extrapolate']));
 });
 
-test('every active demonstration route has an available lesson', () => {
+test('every active demonstration route has an available lesson unless it opts out with lesson: false', () => {
     const ids = getDemonstrationCatalog().demonstrations.map(demonstration => demonstration.id);
+    const lessonIds = ids.filter(id => LESSON_DEMONSTRATION_IDS.includes(id));
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
-    // `linear-map` is registered without a lesson until the linear maps lesson task publishes one.
-    expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual(['linear-map']);
+    expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
+    // `linear-map` stays lessonless until the linear maps lesson task publishes one; the compgeo ids ship without lessons.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['linear-map', 'orientation', 'polygon-area', 'convex-hull']);
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 
 describe('typed scene actions', () => {

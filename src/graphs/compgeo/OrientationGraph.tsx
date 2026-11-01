@@ -3,6 +3,8 @@ import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {GraphSession} from "../base/GraphSession";
 import {onLanguageChange, t, useT} from "../../localization";
 import {PointSetModel, gridToBoard} from "../../compgeo/pointSetModel";
+import {ORIENTATION_OVERLAY_IDS, ORIENTATION_POINT_LIMIT, orientationPresetCollection} from "./compgeoPresetCollections";
+import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {formatSigned, OrientationReadout, orientationReadout, OrientationTurn, triangleFitsLabel} from "./orientationReadout";
 
@@ -13,7 +15,7 @@ import {formatSigned, OrientationReadout, orientationReadout, OrientationTurn, t
  */
 export type OrientationOverlayId = "turn";
 
-export const ORIENTATION_POINT_LIMIT = 3;
+export {ORIENTATION_POINT_LIMIT};
 
 /** p = (0, 0), q = (4, 0), r = (3, 2): twice the signed area is +8, a left turn. */
 export const DEFAULT_ORIENTATION_MODEL: PointSetModel = {
@@ -69,7 +71,11 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
     }
 
     protected override overlayIds() {
-        return [...super.overlayIds(), "turn" as const];
+        return ORIENTATION_OVERLAY_IDS;
+    }
+
+    override presetCollection(): PresetCollection<PointSetModel> {
+        return orientationPresetCollection;
     }
 
     protected override overlayLabel(id: "grid" | OrientationOverlayId): string {

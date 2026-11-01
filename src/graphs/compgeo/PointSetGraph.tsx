@@ -9,6 +9,7 @@ import {
 } from "../../compgeo/pointSetModel";
 import {polygonSimplicity, PolygonSimplicity} from "../../compgeo/predicates";
 import {PresetCollection} from "../base/presets/PresetCollection";
+import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointSetControls";
@@ -245,6 +246,16 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     override exportPresetData(): PointSetModel {
         return serializePointSetModel(this.model);
+    }
+
+    /**
+     * A Preset carries the model once, as `data` (checked by `parsePointSetModel`); its `graphState` omits `model`, which the
+     * collection's `checkGraphState` rejects. Lesson checkpoints keep the full scene state, so `sceneGraphState` is unchanged.
+     */
+    override exportPreset(): Preset<PointSetModel> {
+        const preset = super.exportPreset();
+        const {model: _model, ...graphState} = preset.graphState as PointSetGraphState;
+        return {...preset, graphState};
     }
 
     override importPresetData(data: PointSetModel): void {

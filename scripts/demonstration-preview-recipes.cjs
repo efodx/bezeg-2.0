@@ -51,6 +51,9 @@ const targets = {
     sequence: ['Certified reciprocal tail before tightening epsilon and moving its threshold', [button('Naslednji korak', 15), field('Širina pasu ε', 0.3, 'number'), field('Prag N', 5, 'number'), button('Pokaži certifikat')], [0, 1.2, 18, -0.2]],
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
+    orientation: ['Default left turn p=(0,0), q=(4,0), r=(3,2) with line pq and the shaded triangle pqr', [], [-1.2, 3.6, 5.6, -1.2]],
+    'polygon-area': ['The hull pentagon with its triangle fan and lattice points in the polygon area workspace', [], [-2.6, 6.4, 6.6, -1.4]],
+    'convex-hull': ['Sample 1 of nine points after a few Next steps of the monotone chain trace, with the hull so far', [button('Naslednji korak', 4)], [-2.6, 6.4, 6.6, -1.4]],
     'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-decasteljau': ['Default bicubic dome, fitted to the preview frame, in the de Casteljau workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-derivatives': ['Default bicubic dome, fitted to the preview frame, in the derivatives workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
@@ -227,6 +230,9 @@ async function outcome(page, id) {
     return evidence;
 }
 
+// Demonstrations whose defining object is a line or polygon edge rather than a curve.
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull']);
+
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
         assert.ok((evidence.surfaceView === 'board2d' && evidence.svg?.width > 0 && evidence.svg?.height > 0 && evidence.drawables > 0), `${id} surface is not drawn by the JSXGraph SVG surface view`);
@@ -236,7 +242,7 @@ function assertOutcomeEvidence(id, evidence) {
         return evidence;
     }
     assert.ok(evidence && Array.isArray(evidence.points) && evidence.readouts && evidence.reveals && Array.isArray(evidence.controls), `${id} missing semantic evidence`);
-    assert.ok(evidence.curves > 0 || id === 'linear-function' && evidence.lines > 0, `${id} has no visible defining curve/line`);
+    assert.ok(evidence.curves > 0 || LINE_DEFINED_IDS.has(id) && evidence.lines > 0, `${id} has no visible defining curve/line`);
     if (id === 'bernstein') {
         assert.equal(evidence.curves, 4, 'Cubic Bernstein must show four functions');
     }

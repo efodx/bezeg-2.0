@@ -31,7 +31,7 @@ Kernels and graphs (F1, F2a) are not gated. Registration, lessons, chapter and m
 | 08 | [Slow edge test and gift wrapping traces](08-slow-hull-gift-wrapping.md) | F1 | 02, 03 | accepted 2026-10-31 (math review: no findings) |
 | 09 | [Orientation and polygon-area graphs](09-orientation-area-graphs.md) | F2a | 05, 07 | accepted 2026-10-31 (engineering + UI/accessibility review, repairs) |
 | 10 | [Hull trace graph with step playback](10-hull-trace-graph.md) | F2a | 03, 05, 08 | accepted 2026-10-31 (engineering + UI/accessibility review, repairs, shared-hook re-review) |
-| 12 | [Batch 1 registration](12-batch1-registration.md): family and three Demonstrations, posters | F2b | 09, 10, `G-REG` | in progress (handler 8) |
+| 12 | [Batch 1 registration](12-batch1-registration.md): family and three Demonstrations, posters | F2b | 09, 10, `G-REG` | accepted 2026-11-01 (handler 10): routes, family, Presets; posters deferred to F5 (`POSTER_PENDING`; capture needs a `linear-map` recipe from Maps first) |
 | — | F3 lessons A1+A2, A4; F4 chapter; F5 media; F6 acceptance | F3–F6 | 12 | task files written after 12 |
 
 ## Later batches (task files written when the previous batch is accepted)

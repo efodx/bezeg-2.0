@@ -4,7 +4,7 @@ import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/Prese
 import {parseHullAlgorithm, parseHullStep} from "./hullTraceRun";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 
-/** The file contract key of the hull trace graph's own Preset collection. It is not listed in `presetCollections` (no route yet). */
+/** The file contract key of the hull trace graph's own Preset collection. It is listed in `presetCollections` through `compgeoPresetCollections.ts`. */
 export const HULL_TRACE_PRESET_KEY = "compgeo-hull-trace";
 
 /**

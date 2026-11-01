@@ -15,6 +15,7 @@ const families = [
     {id: '/bezeg-2.0/functions', title: 'functions_and_calculus'},
     {id: 'analysis', title: 'analysis'},
     {id: 'maps', title: 'maps_of_the_plane'},
+    {id: 'computational-geometry', title: 'computational_geometry'},
 ] as const;
 export type FamilyId = typeof families[number]['id'];
 type Definition = {
@@ -80,8 +81,15 @@ const definitions = [
     {id: 'uniform-convergence', path: '/bezeg-2.0/analysis/uniform-convergence', family: 'analysis', title: 'uniform_convergence', prompts: ['prompt_uniform_convergence', 'prompt_compare']},
     {id: 'fixed-point', path: '/bezeg-2.0/analysis/fixed-point', family: 'analysis', title: 'fixed_point', prompts: ['prompt_fixed_point', 'prompt_compare']},
     {id: 'linear-map', path: '/bezeg-2.0/linear-map', family: 'maps', title: 'linear_map_title', prompts: ['linear_map_prompt', 'prompt_compare'], lesson: false},
+    {id: 'orientation', path: '/bezeg-2.0/compgeo/orientation', family: 'computational-geometry', title: 'compgeo_orientation_title', prompts: ['prompt_compgeo_orientation_turn', 'prompt_compgeo_orientation_collinear'], lesson: false},
+    {id: 'polygon-area', path: '/bezeg-2.0/compgeo/polygon-area', family: 'computational-geometry', title: 'compgeo_polygon_area_title', prompts: ['prompt_compgeo_polygon_area_shoelace', 'prompt_compgeo_polygon_area_pick'], lesson: false},
+    {id: 'convex-hull', path: '/bezeg-2.0/compgeo/convex-hull', family: 'computational-geometry', title: 'compgeo_convex_hull_title', prompts: ['prompt_compgeo_convex_hull_trace', 'prompt_compgeo_convex_hull_degenerate'], lesson: false},
 ] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];
+/** The Demonstrations that deliberately ship without a guided lesson (`lesson: false`). */
+export type LessonlessDemonstrationId = Extract<typeof definitions[number], {lesson: false}>['id'];
+/** The Demonstrations that must have guided-lesson content (ownership, preview copy). */
+export type GuidedLessonDemonstrationId = Exclude<DemonstrationId, LessonlessDemonstrationId>;
 /**
  * Ids of the Demonstrations that offer a guided lesson: every definition unless it opts out with `lesson: false`.
  * Lightweight on purpose (no lesson content is imported), so the home page and catalog can read it; the lesson tests fail

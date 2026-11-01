@@ -3,7 +3,7 @@ import {demonstrationPreviewAssets} from './demonstrationPreviewAssets';
 
 const {demonstrations} = getDemonstrationCatalog();
 /** Registered before their poster is captured; remove an id here when its capture lands. */
-const POSTER_PENDING: readonly string[] = ['linear-map'];
+const POSTER_PENDING: readonly string[] = ['linear-map', 'orientation', 'polygon-area', 'convex-hull'];
 
 describe('generated Demonstration preview posters', () => {
     it('has a poster for every Demonstration', () => {

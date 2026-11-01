@@ -1,5 +1,5 @@
 import {patchGuidedPreviewCopy} from './patchGuidedPreviewCopy';
-import type {DemonstrationId} from '../../demonstrations';
+import type {GuidedLessonDemonstrationId} from '../../demonstrations';
 import type {BezierActivityId} from './bezierChapter';
 import type {LocalizedText} from '../model';
 
@@ -64,7 +64,7 @@ export const guidedLessonPreviewCopyByDemonstration = {
     'uniform-convergence': copy('Graf družine funkcij v izbranem skaliranem primeru.', 'A graph of a function family in the selected scaled example.', 'Primerjaj narisane krivulje; supremum je v tem prizoru skrit, zato prikaz ne potrjuje enakomerne konvergence.', 'Compare the plotted curves; the supremum is hidden, so this scene does not establish uniform convergence.'),
     'complex-multiplication': copy('Kompleksni števili z označenima argumentoma.', 'Two complex numbers with their arguments marked.', 'Opazuj izbrani števili in njuna argumenta; produkt v tem začetnem prizoru ni prikazan.', 'Observe the selected numbers and their arguments; the product is not shown in this opening scene.'),
     'fixed-point': copy('Graf funkcije, identitetna premica in začetni približek \\(x_0\\); iteracijska pot še ni prikazana.', 'A function graph, identity line, and initial guess \\(x_0\\); the iteration path is not shown yet.', 'Opazuj začetni približek \\(x_0\\) in presečišče grafa z identitetno premico; iteracijska pot še ni prikazana.', 'Observe the initial guess \\(x_0\\) and the intersection of the graph with the identity line; the iteration path is not shown yet.'),
-} as const satisfies Partial<Record<DemonstrationId, GuidedExamplePreviewCopy>>;
+} as const satisfies Record<GuidedLessonDemonstrationId, GuidedExamplePreviewCopy>;
 
 /** Scene-specific copy for the six Bézier activities, which have their own prepared actions. */
 export const guidedActivityPreviewCopyById = {

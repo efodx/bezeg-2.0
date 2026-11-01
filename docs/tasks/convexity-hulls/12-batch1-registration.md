@@ -1,6 +1,6 @@
 # 12 — Batch 1 registration (F2b)
 
-Status: planned 2026-11-01 (handler 8). Source: [spec placement](../../specs/convexity-hulls-lessons.md#placement), [batch-wide acceptance gate](../../specs/convexity-hulls-lessons.md#batch-wide-acceptance-gate) item 1 (route and static preview; the lesson comes in F3). Kind: F2b, engineering review. Depends on 09, 10 and `G-REG` (Platform A10 derived registration). Shared registration files: keep the edit minimal and push promptly ([shared files](../feature-streams/README.md#shared-files)).
+Status: accepted 2026-11-01 (handler 10). Full unit 6693 tests green after one exemption fix; lint, tsc, build clean; smoke of the three routes in SL/EN with live switch and Preset save/restore passed. Posters deferred to F5: the capture script requires a recipe for every shipped id and `linear-map` (Maps) has none, so the three ids join `POSTER_PENDING`; their recipes are already in place. Source: [spec placement](../../specs/convexity-hulls-lessons.md#placement), [batch-wide acceptance gate](../../specs/convexity-hulls-lessons.md#batch-wide-acceptance-gate) item 1 (route and static preview; the lesson comes in F3). Kind: F2b, engineering review. Depends on 09, 10 and `G-REG` (Platform A10 derived registration). Shared registration files: keep the edit minimal and push promptly ([shared files](../feature-streams/README.md#shared-files)).
 
 Register the new family **Računska geometrija / Computational geometry** and the three Batch 1 Demonstrations, with no lessons yet.
 

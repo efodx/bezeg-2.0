@@ -29,6 +29,9 @@ import { TaylorGraph } from './graphs/functions/TaylorGraph';
 import { SequenceGraph } from './graphs/functions/SequenceGraph';
 import { UniformConvergenceGraph } from './graphs/functions/UniformConvergenceGraph';
 import { FixedPointGraph } from './graphs/functions/FixedPointGraph';
+import { OrientationGraph } from './graphs/compgeo/OrientationGraph';
+import { PolygonAreaGraph } from './graphs/compgeo/PolygonAreaGraph';
+import { HullTraceGraph } from './graphs/compgeo/HullTraceGraph';
 import BezierCurveGraph from './graphs/curves/bezier/BezierCurveGraph';
 import DecasteljauGraph from './graphs/curves/bezier/DecasteljauGraph';
 import DecasteljauGraph2 from './graphs/curves/bezier/DecasteljauGraph2';
@@ -86,7 +89,7 @@ test('all existing graph URLs retain their graph implementations behind lazy rou
     })));
     const graphFor = (path: string) => routeFactories.get(path);
     const catalogPaths = catalog.map(({path}) => path);
-    expect(catalogPaths).toHaveLength(52);
+    expect(catalogPaths).toHaveLength(55);
     expect(catalogPaths.every(path => typeof children.find(route => route.path === path)?.lazy === 'function')).toBe(true);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/patches/tensor')).toBe(TensorPatchGraph);
@@ -139,4 +142,7 @@ test('all existing graph URLs retain their graph implementations behind lazy rou
     expect(graphFor('/bezeg-2.0/analysis/sequence')).toBe(SequenceGraph);
     expect(graphFor('/bezeg-2.0/analysis/uniform-convergence')).toBe(UniformConvergenceGraph);
     expect(graphFor('/bezeg-2.0/analysis/fixed-point')).toBe(FixedPointGraph);
+    expect(graphFor('/bezeg-2.0/compgeo/orientation')).toBe(OrientationGraph);
+    expect(graphFor('/bezeg-2.0/compgeo/polygon-area')).toBe(PolygonAreaGraph);
+    expect(graphFor('/bezeg-2.0/compgeo/convex-hull')).toBe(HullTraceGraph);
 });

@@ -59,6 +59,13 @@ const NO_PRESET_COLLECTION = new Set<DemonstrationId>(['circle']);
 /** The scene is described by its scene state alone: the Preset has no Preset data. */
 const NO_PRESET_DATA = new Set<DemonstrationId>(['bernstein']);
 
+/** Scene state a Preset carries once, as its `data`, so the Preset's `graphState` omits it (the collection rejects a duplicate). */
+const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>> = {
+    orientation: ['model'],
+    'polygon-area': ['model'],
+    'convex-hull': ['model'],
+};
+
 
 /**
  * The display settings are graph preferences that scene replacement keeps, and the lesson default scene keeps the
@@ -298,7 +305,9 @@ export function describeGraphTransientState(part: number): void {
             const preset = graph.exportPreset();
             if (internals(graph).board) {
                 expect(Object.keys(preset).sort()).toEqual(['boardState', 'data', 'graphState', 'id']);
-                expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(Object.keys(graph.state).sort());
+                const dataKeys = PRESET_DATA_STATE_KEYS[id] ?? [];
+                for (const key of dataKeys) expect(graph.state).toHaveProperty(key);
+                expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(Object.keys(graph.state).filter(key => !dataKeys.includes(key)).sort());
             } else {
                 // All surface state is Preset data; the Preset's graphState only marks the graph initialized.
                 expect(Object.keys(preset).sort()).toEqual(['data', 'graphState', 'id']);

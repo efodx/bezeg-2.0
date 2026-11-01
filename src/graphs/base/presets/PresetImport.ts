@@ -2,6 +2,7 @@ import {message, LocalizedError, Message} from "../../../localization";
 import {checkSceneState, isFiniteNumber, isPresetCollectionEnvelope, isRecord, PresetCollection} from "./PresetCollection";
 import {curvePresetCollections, legacyCurvePresetCollections} from "../../curves/curvePresetCollections";
 import {functionPresetCollections} from "../../functions/functionPresetCollections";
+import {compgeoPresetCollections} from "../../compgeo/compgeoPresetCollections";
 import {patchPresetCollections} from "../../patches/patchPresetCollections";
 import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection";
 
@@ -11,7 +12,7 @@ import {linearMapPresetCollection} from "../../linear/linearMapPresetCollection"
  */
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(curvePresetCollections), ...legacyCurvePresetCollections, ...Object.values(functionPresetCollections),
-    ...Object.values(patchPresetCollections), linearMapPresetCollection,
+    ...Object.values(patchPresetCollections), linearMapPresetCollection, ...compgeoPresetCollections,
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 
