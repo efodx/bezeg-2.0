@@ -17,7 +17,7 @@ Script: `scripts/ph-offset-singularity.cjs` (CLI prints the numbers below); test
 | 1.5 rho_min, signed | d = -6.00, outside the slider | d = -1.50, in range |
 | self-intersection at that d | no | no, and none at +1.50 |
 | control 0.5 rho_min | none (d = -2.00) | none (d = -0.50) |
-| sweep of the whole slider (step 0.05) | no self-intersection anywhere | only d in [-2.65, -2.40] |
+| sweep of the whole slider (step 0.05) | no self-intersection anywhere | only d in about [-2.65, -2.4] (a 0.01 sweep puts the upper end at -2.38) |
 
 Quintic at d = -2.5 (2000 segments): proper crossing at t = 0.128 and 0.718, point about (-2.09, 1.49), inside the card view `[-3, 2.2, 2.5, -2.6]`. At d = +2.5 none.
 
@@ -27,4 +27,4 @@ No robust d at 1.5 rho_min for either card. In both, the minimum radius is at an
 
 ## Recommendation
 
-Use start + offset at the default distance for both cards (the owner's accepted fallback). Optional for the quintic only: set-control offset distance `-2.5`, check "offset has a self-intersection near t = 0.13 and 0.72", but that is 2.5 rho_min and not at the tightest bend (a secondary bend at the start, kappa = 0.5), so the caption must not claim the tightest bend.
+Use start + offset at the default distance for both cards (the owner's accepted fallback). Optional for the quintic only: set-control offset distance `-2.5`, check "offset has a self-intersection near t = 0.13 and 0.72", but that is 2.5 rho_min and not at the tightest bend (kappa is positive everywhere: 0.50, 0.40, 0.38, 0.49, 1.00 at t = 0, 0.25, 0.5, 0.75, 1; the offset at d < 0 reverses where kappa > 1/|d|, which happens near both ends, and the reversed arcs cross while 1/|d| lies between kappa_min = 0.38 and about 0.42, so the lower end is -1/kappa_min = -2.63), so the caption must not claim the tightest bend.

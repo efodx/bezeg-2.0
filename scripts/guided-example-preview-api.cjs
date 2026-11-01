@@ -127,6 +127,8 @@ function validateHighlightCapture(entry, capture) {
         `${entry.id}: highlight change record disagrees with its fingerprints`);
     if (entry.recipe.expectChange) assert.ok(highlight.changedFromStart,
         `${entry.id}: recipe expects a board change but the captured highlight equals the start scene`);
+    else assert.ok(!highlight.changedFromStart,
+        `${entry.id}: recipe expects no board change but the captured highlight differs from the start scene`);
     assert.ok(Array.isArray(highlight.checks) && highlight.checks.length > 0 && highlight.checks.every(check => check?.passed === true),
         `${entry.id}: highlight geometry checks are missing or failed`);
     assert.ok(highlight.evidence?.visibleElementCount > 0, `${entry.id}: captured highlight board is empty`);
@@ -262,6 +264,8 @@ function validateRetained(inventory, previousManifest, destination, selectedIds,
         priorIds.add(capture.id);
         const entry = known.get(capture.id);
         assert.ok(entry, `Stale mapping in prior manifest: ${capture.id} is absent from the current inventory`);
+        // Selected ids are recaptured and then validated fresh by validatePublishedSet, so their old record may be stale.
+        if (selected.has(capture.id)) continue;
         assert.equal(capture.file, `${entry.id}.png`, `${entry.id}: stale or unsafe preview filename`);
         assert.equal(capture.demonstrationId, entry.demonstrationId, `${entry.id}: stale demonstration mapping in prior manifest`);
         assert.equal(capture.path, entry.path, `${entry.id}: stale scene URL in prior manifest`);
@@ -274,7 +278,16 @@ function validateRetained(inventory, previousManifest, destination, selectedIds,
     }
     if (selected.size < inventory.length) {
         assert.equal(previous.length, inventory.length, 'Partial regeneration requires a complete previous inventory; run without --id');
-        for (const key of ['inventory', 'presentation', 'buildOutput', 'buildInputs']) {
+        const previousEntries = previousManifest.fingerprints?.entries;
+        if (previousEntries && fingerprints.entries) {
+            // Per-entry inventory fingerprints: only retained entries must be unchanged; selected ids may have changed.
+            for (const entry of inventory) if (!selected.has(entry.id)) {
+                assert.equal(previousEntries[entry.id], fingerprints.entries[entry.id], `${entry.id}: inventory entry changed since capture; recapture this image`);
+            }
+        } else {
+            assert.equal(previousManifest.fingerprints?.inventory, fingerprints.inventory, 'Partial regeneration refused: inventory fingerprint changed; run without --id');
+        }
+        for (const key of ['presentation', 'buildOutput', 'buildInputs']) {
             assert.equal(previousManifest.fingerprints?.[key], fingerprints[key], `Partial regeneration refused: ${key} fingerprint changed; run without --id`);
         }
     }
