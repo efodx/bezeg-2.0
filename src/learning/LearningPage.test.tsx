@@ -27,7 +27,7 @@ beforeEach(() => {
 
 // Families registered before their chapter exists. Each family's F4 chapter slice removes its entry
 // (docs/tasks/curve-geometry/README.md CG-B1-4, docs/tasks/interpolation-approximation/README.md).
-const FAMILY_CHAPTER_PENDING: readonly string[] = ['/bezeg-2.0/curve-geometry', '/bezeg-2.0/interpolation', 'plane-geometry'];
+const FAMILY_CHAPTER_PENDING: readonly string[] = ['/bezeg-2.0/curve-geometry', '/bezeg-2.0/interpolation'];
 
 test('Learn contains every family chapter and keeps guided activities inside chapters', () => {
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);
@@ -36,9 +36,9 @@ test('Learn contains every family chapter and keeps guided activities inside cha
     expect(learningChapters.some(chapter => FAMILY_CHAPTER_PENDING.includes(chapter.family))).toBe(false);
     // A family may own several chapters (maps: linear and complex).
     expect([...new Set(learningChapters.map(chapter => chapter.family))].sort()).toEqual(familiesWithChapters.sort());
-    expect(container.querySelectorAll('.learning-family')).toHaveLength(12);
-    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(12);
-    // The linear and complex maps chapters have no thumbnail until their posters are captured (media task).
+    expect(container.querySelectorAll('.learning-family')).toHaveLength(13);
+    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(13);
+    // The linear maps, complex maps and triangle geometry chapters have no thumbnail until their posters are captured (media task).
     expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(9);
     expect(learningStrands.flatMap(strand => strand.chapters)).toEqual(learningChapters.map(chapter => chapter.id));
     expect(container.querySelectorAll('.learning-step')).toHaveLength(0);

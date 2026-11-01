@@ -12,6 +12,7 @@ import {
 import {INSCRIBED_ANGLE_OVERLAY_IDS, INSCRIBED_ANGLE_VERTEX_COUNT, inscribedAngleCollection} from "./inscribedAnglePresetCollection";
 import {InscribedAnglePanel} from "./InscribedAnglePanel";
 import {inscribedTexts} from "./inscribedAngleText";
+import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /**
  * Inscribed angle on a circle (spec triangle-geometry-lessons T2, task triangle-geometry/04): a `PointSetGraph` limited to
@@ -118,6 +119,15 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
         const example = inscribedExample(id);
         this.loadModel({...DEFAULT_INSCRIBED_MODEL, points: example.points.map(p => ({...p}))});
         this.patch({exampleId: id, t: resolveGliderT(example.points, example.t)});
+    }
+
+    /** Lesson scenes set the glider with the `parameter` action named `t` (degrees); the value is resolved out of the exclusion gaps like a typed one. */
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated("parameter", "t", action => {
+            if (!Number.isFinite(action.value)) throw new Error("The glider parameter t must be a finite number of degrees.");
+            this.setT(action.value);
+        });
     }
 
     // ---- Lifecycle -----------------------------------------------------------------------------------------------

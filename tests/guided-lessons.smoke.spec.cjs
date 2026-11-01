@@ -1382,6 +1382,33 @@ const complexRoots = {
     },
 };
 
+// Chapter-owned triangle geometry lessons T1 and T2 (src/learning/content/triangleGeometryChapterLessons.ts): seven steps each, one body/prompt frame each.
+const triangleCentres = {
+    id: 'triangle-centres',
+    path: `${BASE}/triangle-centres`,
+    titles: {sl: 'Znamenite točke trikotnika', en: 'Notable points of a triangle'},
+    steps: 7,
+    minFrames: 7,
+    setup: async page => {
+        // Step 1 shows the triangle with three draggable vertices.
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(3);
+        return {};
+    },
+};
+
+const inscribedAngle = {
+    id: 'inscribed-angle',
+    path: `${BASE}/inscribed-angle`,
+    titles: {sl: 'Obodni kot in Talesov izrek', en: "The inscribed angle and Thales' theorem"},
+    steps: 7,
+    minFrames: 7,
+    setup: async page => {
+        // The chord end points and the glider P are board points from the first step.
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(3);
+        return {};
+    },
+};
+
 const BEZIER_SYMMETRIC = [[-3, -2], [-3, 2], [3, 2], [3, -2]];
 const bezierPilot = {
     id: 'bezier',
@@ -1703,7 +1730,8 @@ const parametricGeometry = {
         await expect(boardText(page, PARAMETRIC_READOUTS[step - 1]).first(), `parametric readout at ${label}`).toBeVisible();
     },
 };
-const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s]; // lines are separate <br> rows, so textContent has no separator: end a number with a lookahead, not a word boundary
+const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s];
+ // lines are separate <br> rows, so textContent has no separator: end a number with a lookahead, not a word boundary
 const curvatureGeometry = {
     id: 'curve-curvature',
     path: `${BASE}/curve-geometry/curvature`,
@@ -1716,7 +1744,7 @@ const curvatureGeometry = {
 };
 
 const LESSONS = [parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

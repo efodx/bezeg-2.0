@@ -12,7 +12,7 @@ test('both published languages place every audited home exactly once in its owni
             {id: 'bezier-curves', sections: bezierChapter[language].sections},
             ...familyChapters,
         ];
-        expect(chapters).toHaveLength(12);
+        expect(chapters).toHaveLength(13);
         const allReferences: string[] = [];
         for (const chapter of chapters) {
             for (const section of chapter.sections) {
@@ -29,6 +29,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'linear-maps' ? [`linear-maps.${section.id}.linear-map`] : []),
                     ...(chapter.id === 'convexity-hulls' && section.id !== 'why-hulls' ? [`convexity-hulls.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'complex-maps' ? [`complex-maps.${section.id}.${section.id === 'roots' ? 'complex-roots' : 'complex-reciprocal'}`] : []),
+                    ...(chapter.id === 'triangle-geometry' ? [`triangle-geometry.${section.id}.${section.id === 'notable-points' ? 'triangle-centres' : 'inscribed-angle'}`] : []),
                 ].sort();
                 const references = exampleReferences<unknown, unknown>(content ?? []);
                 expect([...references].sort(), `${language}/${chapter.id}/${section.id}`).toEqual(expected);
@@ -37,7 +38,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(74);
-        expect(new Set(allReferences).size).toBe(74);
+        expect(allReferences).toHaveLength(76);
+        expect(new Set(allReferences).size).toBe(76);
     }
 });

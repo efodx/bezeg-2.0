@@ -4,6 +4,7 @@ import {complexMapsGuidedExamplePath, complexMapsGuidedExampleRegistry, COMPLEX_
 import {CONVEXITY_CHAPTER_ID} from './convexityChapterId';
 import {convexityGuidedExampleRegistry, convexityGuidedExamplePath} from './convexityChapterRegistry';
 import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAPS_CHAPTER_ID} from './linearMapsChapterRegistry';
+import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry, TRIANGLE_GEOMETRY_CHAPTER_ID} from './triangleGeometryChapterRegistry';
 import {patchGuidedExamplePath, patchGuidedExampleRegistry} from './patchGuidedExampleRegistry';
 
 export interface ChapterOwnedLessons {
@@ -32,6 +33,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [LINEAR_MAPS_CHAPTER_ID]: ownedLessons(linearMapsGuidedExampleRegistry, linearMapsGuidedExamplePath),
     [CONVEXITY_CHAPTER_ID]: ownedLessons(() => convexityGuidedExampleRegistry, sectionId => convexityGuidedExamplePath(sectionId)),
     [COMPLEX_MAPS_CHAPTER_ID]: ownedLessons(complexMapsGuidedExampleRegistry, complexMapsGuidedExamplePath),
+    [TRIANGLE_GEOMETRY_CHAPTER_ID]: ownedLessons(triangleGeometryGuidedExampleRegistry, triangleGeometryGuidedExamplePath),
 };
 
 export function getChapterOwnedLessons(chapterId: string): ChapterOwnedLessons | undefined {
