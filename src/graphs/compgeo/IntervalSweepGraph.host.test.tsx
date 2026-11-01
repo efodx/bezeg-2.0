@@ -423,13 +423,32 @@ describe('side lists', () => {
             expect(current.map(e => e.dataset.statusEntry)).toEqual(expected);
             for (const entry of current) {
                 expect(entry.getAttribute('aria-current')).toBe('true');
-                expect(entry.style.fontWeight).toBe('700');
+                expect(entry.textContent).toContain('▸');
             }
             sawCurrent += current.length;
+            const next = entries('queue', 'data-next');
+            expect(next.map(e => e.dataset.queueEntry)).toEqual(queueTexts().slice(0, 1));
+            for (const entry of next) {
+                expect(entry.getAttribute('aria-current')).toBe('step');
+                expect(entry.textContent).toContain('naslednji dogodek');
+                expect(entry.textContent).toContain('▸');
+            }
         }
         expect(sawCurrent).toBeGreaterThan(0);
         expect(queueTexts()).toEqual([]);
         expect(document.querySelector('[data-interval-sweep-empty="queue"]')).not.toBeNull();
+    });
+
+    test('the default example at step 0 lists the nine events after the first pop, in x order, the head marked as next', () => {
+        const graph = new Observed();
+        mount(graph);
+        expect(queueTexts()).toEqual(['b+', 'c+', 'a-', 'c-', 'd+', 'b-', 'e+', 'd-', 'e-']);
+        expect(entries('queue', 'data-next').map(e => e.dataset.queueEntry)).toEqual(['b+']);
+        click('next-step');
+        click('next-step');
+        expect(queueTexts()).toEqual(['c+', 'a-', 'c-', 'd+', 'b-', 'e+', 'd-', 'e-']);
+        expect(entries('queue', 'data-next').map(e => e.dataset.queueEntry)).toEqual(['c+']);
+        expect(entries('queue', 'data-queue-entry').filter(e => e.hasAttribute('aria-current'))).toHaveLength(1);
     });
 
     test('are labelled, and the status entries are keyboard focusable', () => {
@@ -465,16 +484,69 @@ describe('side lists', () => {
         expect(entries('status', 'data-hovered')).toHaveLength(0);
     });
 
+    test('status entries show their bounds and carry the same title as the queue entries do', () => {
+        const graph = new Observed();
+        mount(graph);
+        for (let i = 0; i < 4; i++) click('next-step');
+        for (const entry of entries('status', 'data-status-entry')) {
+            expect(entry.textContent).toMatch(/\[[\d,. -]+, [\d,. -]+\]/);
+            expect(entry.getAttribute('aria-label')).toContain(entry.title);
+            expect(entry.title).toContain('Interval ');
+        }
+    });
+
+    describe('a hover goes stale', () => {
+        const hoverOpen = (graph: Observed) => {
+            for (let i = 0; i < 4; i++) click('next-step');
+            const entry = entries('status', 'data-status-entry')[0];
+            act(() => { fireEvent.mouseEnter(entry); });
+            expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(1);
+        };
+
+        test('when a step passes the exit of the hovered interval', () => {
+            const graph = new Observed();
+            mount(graph);
+            hoverOpen(graph);
+            click('next-step');
+            expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+            while (!button('next-step').getAttribute('aria-disabled')?.includes('true')) click('next-step');
+            expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+        });
+
+        test('on Reset', () => {
+            const graph = new Observed();
+            mount(graph);
+            hoverOpen(graph);
+            click('reset');
+            expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+            expect(entries('status', 'data-hovered')).toHaveLength(0);
+        });
+
+        test('on a preset restore', () => {
+            const graph = new Observed();
+            mount(graph);
+            hoverOpen(graph);
+            act(() => { graph.importPreset({id: INTERVAL_SWEEP_PRESET_KEY, graphState: saveState({step: 4}), data: INTERVAL_SWEEP_EXAMPLE_2}); });
+            expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+            expect(entries('status', 'data-hovered')).toHaveLength(0);
+        });
+    });
+
     test('re-render on a language switch and unmount leaves no hover state or language listeners', () => {
         const graph = new Observed();
         const view = mount(graph);
         for (let i = 0; i < 4; i++) click('next-step');
+        const hoveredEntry = entries('status', 'data-status-entry')[0];
+        act(() => { fireEvent.focus(hoveredEntry); });
+        const haloBefore = objectsNamed(graph, 'sweep-hover').map(o => o.dataY);
         act(() => { setLanguage('en'); });
+        expect(objectsNamed(graph, 'sweep-hover').map(o => o.dataY)).toEqual(haloBefore);
         expect(document.querySelector('[data-interval-sweep-list="queue"] p')?.textContent).toBe('Event queue (remaining events)');
         expect(document.querySelector('[data-interval-sweep-list="status"] p')?.textContent).toBe('Status (open intervals)');
         expect(entries('queue', 'data-queue-entry')[0].getAttribute('aria-label')).toMatch(/^(Entering|Leaving) of interval /);
         act(() => { fireEvent.focus(entries('status', 'data-status-entry')[0]); });
         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(1);
+        expect(entries('status', 'data-hovered').map(e => e.dataset.statusEntry)).toEqual(['a']);
         view.unmount();
         expect(graph['hovered']).toBeUndefined();
         expect(languageListeners.live).toBe(0);

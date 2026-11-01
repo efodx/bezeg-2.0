@@ -1491,6 +1491,7 @@ export const sl = {
     "intervalsweep_status_empty": "Noben interval ni odprt.",
     "intervalsweep_status_item": "Interval {value0} od {value1} do {value2}",
     "intervalsweep_status_current": "trenutni dogodek",
+    "intervalsweep_queue_next": "naslednji dogodek",
     "intervalsweep_overlay_sweep": "Pometalna premica",
     "intervalsweep_step_counter": "Korak {value0} od {value1}",
     "intervalsweep_note_pop_enter": "Pometalna premica se premakne na x = {value0}: dogodek vstopa intervala {value1}.",

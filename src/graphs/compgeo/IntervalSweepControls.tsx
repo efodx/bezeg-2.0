@@ -1,4 +1,5 @@
 import React from "react";
+import "./IntervalSweepLists.css";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {intervalLetter} from "../../compgeo/pointSetModel";
@@ -131,8 +132,8 @@ export interface IntervalSweepListsProps {
 /**
  * The event queue (events still to be popped, written x with the interval letter and a + for entering, a - for leaving) and
  * the status (open intervals, in the kernel's letter order) of the sweep (task 08 item 3, C-7). The status entry of the current
- * event's interval is marked as the board marks it: thickest, here bold with a frame and a marker, `aria-current` and a
- * hidden text, so the mark is not colour alone. Hovering or focusing a status entry highlights its interval on the board.
+ * event's interval is marked as the board marks it: thickest, here bold with a tint, a bar and a marker, `aria-current` and a
+ * hidden text; the head of the queue (the next event) is marked the same way, so the mark is not colour alone. Hovering or focusing a status entry highlights its interval on the board.
  */
 export function IntervalSweepLists(props: IntervalSweepListsProps) {
     const t = useT();
@@ -140,28 +141,37 @@ export function IntervalSweepLists(props: IntervalSweepListsProps) {
     const {run, step, scale, hovered, onHover} = props;
     const view = run.view(step);
     const num = (value: number) => formatNumber(value * scale, language, 4);
+    const id = React.useId();
+    const queueLabelId = `${id}-queue-label`;
+    const statusLabelId = `${id}-status-label`;
     return <>
         <div data-interval-sweep-list="queue">
-            <p className="inspector-help" id="interval-sweep-queue-label">{t("intervalsweep_queue_label")}</p>
+            <p className="inspector-help" id={queueLabelId}>{t("intervalsweep_queue_label")}</p>
             {view.queue.length === 0
                 ? <p className="inspector-help" data-interval-sweep-empty="queue">{t("intervalsweep_queue_empty")}</p>
-                : <ol aria-labelledby="interval-sweep-queue-label" className="interval-sweep-list">
+                : <ol aria-labelledby={queueLabelId} className="interval-sweep-list">
                     {view.queue.map((event, k) => {
                         const letter = intervalLetter(event.interval);
                         const label = event.entering
                             ? t("intervalsweep_queue_enter", {value0: letter, value1: num(event.x)})
                             : t("intervalsweep_queue_leave", {value0: letter, value1: num(event.x)});
-                        return <li key={k} data-queue-entry={`${letter}${event.entering ? "+" : "-"}`} aria-label={label} title={label}>
+                        // The head of the queue is the next event to be popped (the queue lists only the remaining events).
+                        const next = k === 0;
+                        return <li key={`${event.interval}-${event.entering}`} data-queue-entry={`${letter}${event.entering ? "+" : "-"}`}
+                                   data-next={next ? "" : undefined} aria-current={next ? "step" : undefined}
+                                   aria-label={next ? `${label}, ${t("intervalsweep_queue_next")}` : label} title={label}>
+                            {next && <span aria-hidden="true">▸ </span>}
                             <span aria-hidden="true"><var>x</var><sub>{letter}</sub><sup>{event.entering ? "+" : "−"}</sup></span>
+                            {next && <span className="visually-hidden">{t("intervalsweep_queue_next")}</span>}
                         </li>;
                     })}
                 </ol>}
         </div>
         <div data-interval-sweep-list="status">
-            <p className="inspector-help" id="interval-sweep-status-label">{t("intervalsweep_status_label")}</p>
+            <p className="inspector-help" id={statusLabelId}>{t("intervalsweep_status_label")}</p>
             {view.open.length === 0
                 ? <p className="inspector-help" data-interval-sweep-empty="status">{t("intervalsweep_status_empty")}</p>
-                : <ul aria-labelledby="interval-sweep-status-label" className="interval-sweep-list">
+                : <ul aria-labelledby={statusLabelId} className="interval-sweep-list">
                     {view.open.map(k => {
                         const letter = intervalLetter(k);
                         const current = k === view.current;
@@ -169,11 +179,11 @@ export function IntervalSweepLists(props: IntervalSweepListsProps) {
                         const label = t("intervalsweep_status_item", {value0: letter, value1: num(lo), value2: num(hi)});
                         return <li key={k} tabIndex={0} data-status-entry={letter} data-current={current ? "" : undefined}
                                    data-hovered={hovered === k ? "" : undefined} aria-current={current ? "true" : undefined}
-                                   aria-label={current ? `${label}, ${t("intervalsweep_status_current")}` : label}
-                                   style={current ? {fontWeight: 700, outline: "2px solid currentColor", outlineOffset: 1} : undefined}
+                                   aria-label={current ? `${label}, ${t("intervalsweep_status_current")}` : label} title={label}
                                    onMouseEnter={() => onHover(k)} onMouseLeave={() => onHover(undefined)}
                                    onFocus={() => onHover(k)} onBlur={() => onHover(undefined)}>
-                            {current ? "▸ " : ""}{letter}
+                            {current ? "▸ " : ""}{letter} [{num(lo)}, {num(hi)}]
+                            {current && <span className="visually-hidden">{t("intervalsweep_status_current")}</span>}
                         </li>;
                     })}
                 </ul>}

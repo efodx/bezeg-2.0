@@ -46,6 +46,8 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
     private inputsMemo?: {step: number; hovered: number | undefined};
     /** The interval whose status entry is hovered or focused; highlighted on the board. Never saved. */
     private hovered: number | undefined;
+    /** The run and step `hovered` was set at; a hover is dropped when either changes (step, Reset, points, preset restore). */
+    private hoveredAt?: {run: IntervalRun; step: number};
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super({coordinateLimit: SWEEP_COORD_LIMIT, intervalLimit: SWEEP_MAX_INTERVALS, ...options});
@@ -179,6 +181,7 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
 
     override unmount(): void {
         this.hovered = undefined;
+        this.hoveredAt = undefined;
         this.controller.dispose();
         this.controllerDisposed = true;
         super.unmount();
@@ -249,8 +252,9 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
     /** The sweep overlay follows the step, which is not part of the model. */
     protected override overlayInputs(): unknown {
         const step = this.step;
-        if (this.inputsMemo?.step === step && this.inputsMemo.hovered === this.hovered) return this.inputsMemo;
-        this.inputsMemo = {step, hovered: this.hovered};
+        const hovered = this.liveHovered();
+        if (this.inputsMemo?.step === step && this.inputsMemo.hovered === hovered) return this.inputsMemo;
+        this.inputsMemo = {step, hovered};
         return this.inputsMemo;
     }
 
@@ -272,8 +276,8 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         const top = gridToBoard({x: view.x, y: run.intervals.length + 1}, exponent);
         objects.push(curve("sweep-line", bottom, top, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, layer: 3}));
         // A hovered or focused status entry: a wide halo behind its interval.
-        const hovered = this.hovered;
-        if (hovered !== undefined && hovered < run.intervals.length) {
+        const hovered = this.liveHovered();
+        if (hovered !== undefined && run.view(this.step).open.includes(hovered)) {
             const {lo, hi} = run.intervals[hovered];
             objects.push(curve("sweep-hover", at(lo, hovered), at(hi, hovered), {
                 strokeColor: GraphPalette.comparisonCurve, strokeWidth: 15, strokeOpacity: 0.45, layer: 3,
@@ -333,9 +337,19 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         return true;
     }
 
+    /** The hovered interval, or undefined (and forgotten) once the run or step changed since the hover. */
+    private liveHovered(): number | undefined {
+        if (this.hovered !== undefined && (this.hoveredAt?.run !== this.run() || this.hoveredAt.step !== this.step)) {
+            this.hovered = undefined;
+            this.hoveredAt = undefined;
+        }
+        return this.hovered;
+    }
+
     private hover = (interval: number | undefined) => {
-        if (this.hovered === interval) return;
+        if (this.liveHovered() === interval) return;
         this.hovered = interval;
+        this.hoveredAt = interval === undefined ? undefined : {run: this.run(), step: this.step};
         // The highlight is not scene state: redraw the overlays directly, then the panel.
         this.syncScene();
         this.requestRender();
@@ -344,7 +358,7 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
     /** The event queue and the status (task 08 item 3): panel content rendered below the readouts. */
     protected sideLists(): React.ReactNode {
         return <IntervalSweepLists run={this.run()} step={this.step} scale={2 ** this.model.gridStepExponent}
-                                   hovered={this.hovered} onHover={this.hover}/>;
+                                   hovered={this.liveHovered()} onHover={this.hover}/>;
     }
 
     protected override workspaceEdit(): React.ReactNode {

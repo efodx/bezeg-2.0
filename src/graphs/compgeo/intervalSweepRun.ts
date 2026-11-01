@@ -46,7 +46,7 @@ export interface IntervalView {
     readonly x: number | null;
     /** The interval of the current event, if any. */
     readonly current: number | undefined;
-    /** Open intervals (the status), in order of entry as the trace keeps them. */
+    /** Open intervals (the status), in letter order (the kernel's status order). */
     readonly open: readonly number[];
     /** The events still to be popped after this step, in trace order (the kernel's sorted queue). */
     readonly queue: readonly QueuedEvent[];

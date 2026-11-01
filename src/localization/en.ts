@@ -1492,6 +1492,7 @@ export const en: Record<keyof typeof sl, string> = {
     "intervalsweep_status_empty": "No interval is open.",
     "intervalsweep_status_item": "Interval {value0} from {value1} to {value2}",
     "intervalsweep_status_current": "current event",
+    "intervalsweep_queue_next": "next event",
     "intervalsweep_overlay_sweep": "Sweep line",
     "intervalsweep_step_counter": "Step {value0} of {value1}",
     "intervalsweep_note_pop_enter": "The sweep line moves to x = {value0}: the entering event of interval {value1}.",
