@@ -1624,7 +1624,20 @@ const polygonArea = {
     },
 };
 
-const LESSONS = [orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Hull trace: orientation tests so far per step 1..7 (slow test at its first pair, twice; slow test done, chain after 5 steps, first wrap, wrapping done, chain at start).
+const HULL_TESTS = ['7', '7', '504', '2', '7', '35', '0'];
+const convexHull = {
+    id: 'convex-hull',
+    path: `${BASE}/compgeo/convex-hull`,
+    titles: {sl: 'Konveksna ovojnica', en: 'Convex hull'},
+    steps: 7,
+    minFrames: 17, // 2 frames per step, 3 on steps 3, 4 and 6 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => ((await page.locator('[data-hull-trace="count"]').textContent()) || '').trim().split(' ').pop(), {message: `hull test count at ${label}`}).toBe(HULL_TESTS[step - 1]);
+    },
+};
+
+const LESSONS = [convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

@@ -61,6 +61,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // Interim owner until the Convexity and hulls chapter (task F4) exists; F4 moves both. The lesson page needs an existing chapter section to link back to, and the convex-hull property is what the orientation prerequisites cite.
     orientation: {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'polygon-area': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    'convex-hull': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},
