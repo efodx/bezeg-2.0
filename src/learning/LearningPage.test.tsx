@@ -26,9 +26,15 @@ beforeEach(() => {
     Element.prototype.scrollIntoView = vi.fn();
 });
 
+// Families registered before their chapter exists. Each family's F4 chapter slice removes its entry
+// (docs/tasks/curve-geometry/README.md CG-B1-4, docs/tasks/interpolation-approximation/README.md).
+const FAMILY_CHAPTER_PENDING: readonly string[] = ['/bezeg-2.0/curve-geometry', '/bezeg-2.0/interpolation'];
+
 test('Learn contains every family chapter and keeps guided activities inside chapters', () => {
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);
-    const familiesWithChapters = getDemonstrationCatalog().families.map(family => family.id);
+    const familiesWithChapters = getDemonstrationCatalog().families.map(family => family.id)
+        .filter(family => !FAMILY_CHAPTER_PENDING.includes(family));
+    expect(learningChapters.some(chapter => FAMILY_CHAPTER_PENDING.includes(chapter.family))).toBe(false);
     expect(learningChapters.map(chapter => chapter.family).sort()).toEqual(familiesWithChapters.sort());
     expect(container.querySelectorAll('.learning-family')).toHaveLength(11);
     expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(11);

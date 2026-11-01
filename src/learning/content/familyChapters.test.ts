@@ -30,8 +30,9 @@ function withoutMath(source: string) {
 
 // Registered before their reading chapter exists: complex maps task 04 F3+F4 adds the Kompleksne preslikave
 // chapter that links them, and removes this entry. Computational geometry is released in batches: ear clipping and the
-// sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet.
-const CHAPTER_LINK_PENDING: readonly string[] = ['complex-reciprocal', 'complex-roots', 'ear-clipping', 'interval-sweep', 'segment-intersections'];
+// sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
+// patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
+const CHAPTER_LINK_PENDING: readonly string[] = ['complex-reciprocal', 'complex-roots', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'patch-coons'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
