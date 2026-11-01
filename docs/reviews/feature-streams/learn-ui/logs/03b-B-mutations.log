@@ -1,0 +1,7 @@
+splinePoint -> unit: failed (
+c1QuadraticPieces -> unit: failed (
+extrapolated -> unit: failed (
+c2CubicPieces -> unit: failed (
+g1QuadraticPieces -> unit: failed (
+g1SymmetricPieces -> unit: failed (
+pieceDerivative -> unit: failed (

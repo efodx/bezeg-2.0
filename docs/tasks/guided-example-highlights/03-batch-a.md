@@ -1,6 +1,6 @@
 # 03 — Bézier, foundations, rational curves and splines
 
-Status: in progress. `bezier-curves` (03a) accepted 2026-11-01 ([stream record](../feature-streams/learn-ui.md#3-guided-example-highlights)); `foundations`, `rational-curves` and `splines` (03b) remain. Source: [spec H1, H2, H4, H6](../../specs/guided-example-highlights.md). Dependencies: 00 accepted with owner decisions resolved; 01 recipe format and runner available. Role: chapter content worker; the handler assigns shared-file ownership with task 04.
+Status: done 2026-11-01. `bezier-curves` (03a) and `foundations`, `rational-curves`, `splines` (03b) accepted ([stream record](../feature-streams/learn-ui.md#3-guided-example-highlights), [batch A note](../../reviews/guided-example-highlights/batch-a-note.md)). Source: [spec H1, H2, H4, H6](../../specs/guided-example-highlights.md). Dependencies: 00 accepted with owner decisions resolved; 01 recipe format and runner available. Role: chapter content worker; the handler assigns shared-file ownership with task 04.
 
 Scope: chapters `bezier-curves`, `foundations`, `rational-curves`, `splines`.
 
