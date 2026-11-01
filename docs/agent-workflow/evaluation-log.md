@@ -1509,3 +1509,21 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - **Judgment:**
   - Before measuring again, reading the code would have disposed of the candidate cause cheaply.
   - Smoke briefs for routes with preset or reset controls should say these controls live behind the "Shrani" panel, with their exact accessible names.
+
+## 2026-11-01 — Platform step 5: A2 figure export operation ∥ A5 PH auxiliary board (platform handlers 9–10)
+
+- Role: platform stream handler, Opus `medium`, permission mode auto. Class/size: A2 M (host), A5 M (curves); file-disjoint pair.
+- **Handler 9** (its telemetry table is in [handoff 9](../reviews/feature-streams/platform/handler-handoff-9.md#delegation-telemetry-this-handler)):
+  - Workers: A2 and A5, each `bezeg-worker` Sonnet `medium`, dispatched 14:19Z. A2: about 66k tokens, 43 min, including a 20 min memory-gate wait. A5: about 114k tokens, 90 min.
+  - Reviews: two `bezeg-reviewer` Sonnet runs, about 27k tokens each and under a minute. No blocking findings.
+  - Repair: the handler fixed one A2 code issue. The failure flag was app-wide, so the alert showed under both SVG/PNG and the batch button. The handler made it record the failure kind and added a test that fails on revert (observed).
+  - Integration failure: the A2 worker missed two fixtures that build graphs with `Object.create`, and `just check` failed on the new `unmount` call. The handler fixed both.
+- **Handler 10** (task start about 17:45Z, acceptance about 19:05Z):
+  - Rebased twice onto `origin/master` without conflicts. `just check` passed at `d7e42cf0`; the full suite took about 39 min, including a 12 min memory wait.
+  - Smoke: `bezeg-smoke` Haiku `medium`, dispatched 18:48Z with brief handoff-v12 and exact locators from note 9. About 47k tokens, 25 tools, 7.6 min. A2 passed in full, including the batch and the language lock. A5 passed except that reselect after deselect and the Preset load were left uncovered.
+  - The handler covered both A5 gaps with two scripts adapted from the worker's own, in 4 runs. PH routes have no built-in Presets, so the script saves one first. The preset controls sit behind the "Shrani" tab, which also hides the curve picker, so the script switches back to "Uredi" before selecting.
+- Accepted: A2 and A5.
+- **Gaps:** forced export failure in the browser; the English batch; touch dragging of `w`.
+- **Judgment:**
+  - The note-8 advice to name the "Shrani" panel controls in the brief helped: the A2 checks needed no repair.
+  - Briefs for routes whose Preset list starts empty should include the save step. Briefs that switch to the Shrani tab should say it hides the edit controls.

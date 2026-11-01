@@ -1,6 +1,6 @@
 # 5. PH auxiliary-board lifetime
 
-Status: planned. Lane: Curves. Source: [specification §5](../../specs/architecture-deepening-backlog.md#5-ph-auxiliary-board-lifetime).
+Status: accepted 2026-11-01 (platform stream): `89a1dcb4`. Evidence: [05-ph-auxiliary-board.evidence.md](05-ph-auxiliary-board.evidence.md). Lane: Curves. Source: [specification §5](../../specs/architecture-deepening-backlog.md#5-ph-auxiliary-board-lifetime).
 
 ## Scope and entry points
 

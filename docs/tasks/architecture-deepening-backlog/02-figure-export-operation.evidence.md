@@ -35,6 +35,14 @@ Localization keeps only `registerLanguageLock` / `notifyLanguageLockChanged` and
 | Remove the reload call or its busy guard | the deferred-reload test fails |
 | Language lock predicate always false | the language lock and the failure/state tests fail |
 
+## Browser smoke (2026-11-01, handler 10)
+
+Production preview of `d7e42cf0` (A2 as `24963b40`, before the final rebase onto `c0fc4292`), Playwright Chromium headless 1440×900, `bezeg-smoke` Haiku.
+
+- SVG and PNG each fired a download on `/bezier/curve` and `/analysis/bisection` in Slovenian, and on `/bezier/curve` in English. The buttons sit in the "Shrani" / "Save" panel.
+- Preset figure batch: produced `slike.zip`. During the run of about 1.4 s, `#bezeg-language` was disabled with "Med izvozom slike jezika ni mogoče zamenjati."; it re-enabled afterwards.
+- "Izvoz slike ni uspel. Poskusi znova." was absent after every successful export. 0 console errors, 0 page errors.
+
 ## Not verified
 
-Browser export (SVG, PNG, Preset batch, both languages, language switch mid-export) was not run by the worker.
+A forced export failure in the browser (the failure alert is covered by unit tests only). The English batch. The lock window is short, so its timing was observed once.
