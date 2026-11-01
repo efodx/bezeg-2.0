@@ -41,8 +41,8 @@ function walk<T>(id: 'orientation' | 'polygon-area', stepIds: readonly string[],
 }
 
 test('the lessons are bounded, bilingual, and found by the catalog', () => {
-    expect(compgeoGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['orientation', 'polygon-area', 'convex-hull', 'ear-clipping']);
-    expect(compgeoGuidedLessons.map(lesson => lesson.steps.length)).toEqual([6, 7, 7, 7]);
+    expect(compgeoGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep']);
+    expect(compgeoGuidedLessons.map(lesson => lesson.steps.length)).toEqual([6, 7, 7, 7, 7]);
     for (const lesson of compgeoGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.map(step => step.order)).toEqual(lesson.steps.map((_, index) => index + 1));
@@ -68,6 +68,7 @@ test('the lessons are bounded, bilingual, and found by the catalog', () => {
     expect(lessonOf('polygon-area').id).toBe('polygon-area-guided');
     expect(lessonOf('convex-hull').id).toBe('convex-hull-guided');
     expect(lessonOf('ear-clipping').id).toBe('ear-clipping-guided');
+    expect(lessonOf('interval-sweep').id).toBe('interval-sweep-guided');
 });
 
 describe('A1 orientation: every quoted value is the scene readout', () => {
@@ -226,7 +227,8 @@ describe('point-set scene actions are strict', () => {
         const scene = (action: LessonAction) => ({id: 's', basedOn: 'demonstration-default', actions: [action], expectedState: {sl: 'a', en: 'b'}}) as const;
         expect(() => sceneActions(scene(setPoints([[0, 0]])))).not.toThrow();
         expect(() => sceneActions(scene(setPoints([[0.5, Number.NaN]])))).toThrow(/finite/);
-        expect(() => sceneActions(scene({kind: 'point-set', operation: 'set-points', mode: 'segments' as 'points', points: []}))).toThrow(/mode/);
+        for (const mode of ['segments', 'intervals'] as const) expect(() => sceneActions(scene({kind: 'point-set', operation: 'set-points', mode, points: []}))).not.toThrow();
+        expect(() => sceneActions(scene({kind: 'point-set', operation: 'set-points', mode: 'curve' as 'points', points: []}))).toThrow(/mode/);
         expect(() => sceneActions(scene({kind: 'point-set', operation: 'set-overlay', overlay: 'grid', visible: 1 as unknown as boolean}))).toThrow(/boolean/);
         // off-grid values are the graph's decision, not the catalog's
         expect(() => sceneActions(scene(setPoints([[0.5, 0.25]])))).not.toThrow();

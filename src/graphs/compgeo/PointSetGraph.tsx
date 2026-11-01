@@ -298,10 +298,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         if (action.operation === "set-points") {
             const raw = payload.points;
             if (!Array.isArray(raw) || !raw.every(p => Array.isArray(p) && p.length === 2)) throw new Error("point-set set-points: points must be a list of [x, y] pairs.");
+            // A mode the graph does not offer is a lesson-content error, as for an import of that mode.
+            if ((action.mode === "segments" && !this.allowsSegments()) || (action.mode === "intervals" && !this.allowsIntervals())) throw new UnsupportedLessonActionError(action);
             const model = parsePointSetModel({
                 mode: action.mode, closed: action.closed, gridStepExponent: 0,
                 points: (raw as readonly (readonly unknown[])[]).map(([x, y]) => ({x, y})),
-            }, {pointLimit: this.pointLimit, coordinateLimit: this.coordinateLimit});
+            }, {pointLimit: this.pointLimit, segmentLimit: this.segmentLimit, intervalLimit: this.intervalLimit, coordinateLimit: this.coordinateLimit,
+                allowSegments: this.allowsSegments(), allowIntervals: this.allowsIntervals()});
             if (!model.ok) throw new Error(`point-set set-points: rejected (${model.reason}${model.limit !== undefined ? `, limit ${model.limit}` : ""}${model.bound !== undefined ? `, bound ${model.bound}` : ""}).`);
             this.loadModel(model.model);
             return;

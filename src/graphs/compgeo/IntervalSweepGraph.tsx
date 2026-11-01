@@ -5,6 +5,8 @@ import {IterationController, IterationOutcome} from "../../learning/runtime/iter
 import {gridToBoard, intervalRow, intervalsOf, PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_INTERVALS} from "../../compgeo/sweep/limits";
 import type {Interval} from "../../compgeo/sweep/intervalSweep";
+import type {LessonAction, LessonAnimationCommand} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -19,6 +21,8 @@ import {parseHullStep} from "./hullTraceRun";
 export const INTERVAL_SWEEP_STEP_INTERVAL_MS = 400;
 /** The controller's documented step limit: far above the longest trace (4n + n(n-1)/2 + 1 = 86 events for 10 intervals). */
 const MAX_PLAYBACK_STEPS = 100000;
+
+const INTERVAL_LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["next-step", "reset", "play", "pause", "replay"];
 
 export type IntervalSweepOverlayId = "sweep";
 
@@ -168,6 +172,48 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         this.controller.reset(0);
         this.setState(this.patch({step: 0}));
         this.requestRender();
+    }
+
+    /**
+     * Lesson actions: the `algorithm-trace` animation runs the very transitions of the buttons, and `point-set`
+     * `set-trace-step` is handled here only (the base class throws `UnsupportedLessonActionError` for it). It pauses
+     * playback and sets the step: a number is clamped to the trace like a stored Preset step, `'end'` is the last step.
+     * Every edit action (`set-points`) pauses and returns to step 0; `set-overlay` is a display change and keeps the step.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation !== "set-trace-step") {
+            super.applyPointSetAction(action);
+            return;
+        }
+        const requested: unknown = action.step;
+        if (requested !== "end" && (typeof requested !== "number" || !Number.isFinite(requested))) {
+            throw new Error("point-set set-trace-step: step must be a finite number or \"end\".");
+        }
+        this.setTraceStep(requested === "end" ? this.run().length - 1 : requested);
+    }
+
+    /** Shows the trace at `step` (clamped); the same write as a Preset restore. A named step resets the controller in `setState`, which pauses playback. */
+    private setTraceStep(step: number): void {
+        this.setState(this.patch({step: this.run().clamp(step)}));
+        this.requestRender();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated("animation", "algorithm-trace", action => this.lessonCommand(action.command), {
+            supports: action => INTERVAL_LESSON_COMMANDS.includes(action.command),
+        });
+    }
+
+    private lessonCommand(command: LessonAnimationCommand): void {
+        if (command === "next-step") this.nextStep();
+        else if (command === "play") this.play();
+        else if (command === "pause") this.pause();
+        else if (command === "reset") this.resetTrace();
+        else if (command === "replay") {
+            this.resetTrace();
+            this.play();
+        }
     }
 
     override mount(container: HTMLElement): void {
