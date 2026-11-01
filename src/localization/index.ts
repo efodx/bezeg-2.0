@@ -14,19 +14,18 @@ const preferenceKey = 'bezeg-language';
 const listeners = new Set<() => void>();
 let language: Language = 'sl';
 let persistenceFailed = false;
-let exportsInProgress = 0;
-let exportFailed = false;
+const languageLocks = new Set<() => boolean>();
 let revision = 0;
 try { if (appStorage.getItem(preferenceKey) === 'en') language = 'en'; } catch { persistenceFailed = true; }
 const update = () => { revision++; listeners.forEach(listener => listener()); };
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
 const snapshot = () => revision;
-/** Subscribe to language/export-state changes outside React; returns the unsubscribe function. */
+/** Subscribe to language and language-lock changes outside React; returns the unsubscribe function. */
 export function onLanguageChange(listener: () => void): () => void { return subscribe(listener); }
 export function currentLanguage(): Language { return language; }
 export function useLanguage() {
     useSyncExternalStore(subscribe, snapshot, snapshot);
-    return {language, persistenceFailed, exporting: exportsInProgress > 0, exportFailed};
+    return {language, persistenceFailed, locked: languageLocked()};
 }
 /** Subscribes the calling component to language changes (like useLanguage) and returns the typed `t`. */
 export function useT(): typeof t {
@@ -34,19 +33,18 @@ export function useT(): typeof t {
     return t;
 }
 export function setLanguage(next: Language) {
-    if (exportsInProgress > 0 || (next !== 'sl' && next !== 'en')) return;
+    if (languageLocked() || (next !== 'sl' && next !== 'en')) return;
     language = next;
     document.documentElement.lang = language;
     try { appStorage.setItem(preferenceKey, next); persistenceFailed = false; } catch { persistenceFailed = true; }
     update();
 }
-export function beginFigureExport() {
-    if (exportsInProgress === 0) exportFailed = false;
-    exportsInProgress++; update();
-    let finished = false;
-    return () => { if (!finished) { finished = true; exportsInProgress--; update(); } };
-}
-export function reportFigureExportFailure() { exportFailed = true; update(); }
+/** True while any registered lock (such as a running figure export) keeps the language from changing. */
+function languageLocked(): boolean { return [...languageLocks].some(isLocked => isLocked()); }
+/** Lets another module hold the language fixed while its predicate is true; returns the unregister function. */
+export function registerLanguageLock(isLocked: () => boolean): () => void { languageLocks.add(isLocked); return () => { languageLocks.delete(isLocked); }; }
+/** A lock's predicate changed: re-render the components that show the lock. */
+export function notifyLanguageLockChanged(): void { update(); }
 export function t(...[key, parameters]: TranslationArguments): string {
     const template: string = (language === 'en' ? en[key] : sl[key]) ?? sl[key] ?? key;
     const params = (parameters ?? {}) as Record<string, string | number>;

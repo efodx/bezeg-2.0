@@ -1,4 +1,5 @@
-import {Message, message, renderMessage, t, useLanguage, useT} from "../../localization";
+import {Message, message, renderMessage, t, useT} from "../../localization";
+import {useFigureExportState} from "./export/FigureExportOperation";
 import {Preset, PresetService} from "./presets/Presets";
 import React, {useContext, useMemo, useRef, useState} from "react";
 import {PresetLockContext} from "../context/react/PresetLockContext";
@@ -22,7 +23,7 @@ function exportToFile(data: string) {
 }
 
 function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => void | Promise<void>, presetService: PresetService }) {
-    const {exporting} = useLanguage();
+    const {exporting, failed} = useFigureExportState();
     const [show, setShow] = useState(false);
     // Read again each time the dialog opens, so Presets saved or deleted since the last opening are listed and selected.
     const [presetIds, setPresetIds] = useState<string[]>([]);
@@ -70,6 +71,7 @@ function ImageGenerationModal(props: { onConfirm: (fileContents: string[]) => vo
     return (
         <>
             <span ref={trigger}><ToolTippedButton disabled={exporting} tooltip={t("generate_preset_figures")} onClick={handleShow}>{t("generate_preset_figures")}</ToolTippedButton></span>
+            {failed === 'batch' && <small role="alert">{t("figure_export_failed_try_again")}</small>}
 
             <Modal show={show} onHide={handleClose} onExited={() => {
                 modalExited.current = true;

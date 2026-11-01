@@ -20,6 +20,7 @@ import {AxisSelect, DisplaySettings} from "./DisplaySettings";
 import {GraphStyles, stylesFor} from "../styles/GraphStyles";
 import {downloadPNG, downloadSVG} from "./export/FigureCapture";
 import type {FigureCaptureTarget} from "./export/FigureCapture";
+import {FigureExportScope} from "./export/FigureExportOperation";
 import {downloadPresetFigures, FigureBatchOwner} from "./export/PresetFigureBatch";
 
 
@@ -105,8 +106,6 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     private presetListVersionValue = 0;
     /** Why the last Preset save or delete did not happen; shown beside the Preset list until the next one succeeds. */
     private presetNoticeValue: Message | undefined;
-    /** An import changed the stored presets while an export was running; the scene reloads when it finishes. */
-    private reloadAfterExportPending = false;
     /** Counts scene replacements; keyed onto scene-backed inspector controls so they re-seed from the new scene. */
     protected workspaceRevision = 0;
     private displaySettingsInstance?: DisplaySettings;
@@ -129,8 +128,13 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
     private initialFigureGraphState?: S;
     private figureSceneGeneration = 0;
-    private figureBatchActive = false;
-    private activeSingleFigureExports = 0;
+    /** Admission, busy state and the deferred reload of this graph's figure exports. */
+    readonly figureExports = new FigureExportScope({
+        requestRender: callback => this.requestRender(callback),
+        reload: () => {
+            if (this.graphSession?.isAlive) void this.reloadSelectedScene();
+        },
+    });
     private activeSceneReplacements = 0;
     private readonly lessonCapabilityAdapter: LessonGraphCapabilities = {
         captureState: () => this.captureLessonState(),
@@ -285,8 +289,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     /** Called after presets were imported: refreshes the list and reloads the selection, which may have changed. */
     reloadAfterImport(): Promise<void> {
         this.presetListVersionValue++;
-        if (this.exportBusy) {
-            this.reloadAfterExportPending = true;
+        if (!this.figureExports.requestReload()) {
             this.requestRender();
             return Promise.resolve();
         }
@@ -328,8 +331,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             this.requestRender();
             return Promise.resolve();
         }
-        if (this.exportBusy) {
-            this.reloadAfterExportPending = true;
+        if (!this.figureExports.requestReload()) {
             this.requestRender();
             return Promise.resolve();
         }
@@ -354,19 +356,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     /** True while a single figure or a figure batch is being captured; scene-changing work must wait. */
     protected get exportBusy(): boolean {
-        return this.figureBatchActive || this.activeSingleFigureExports > 0;
+        return this.figureExports.busy;
     }
 
     /** True while an export or scene replacement makes it unsafe to open the demonstration picker. */
     protected get pickerUnavailable(): boolean {
         return this.exportBusy || this.activeSceneReplacements > 0;
-    }
-
-    /** Runs a reload that an import had to defer until the running export finished. */
-    private runPendingReload(): void {
-        if (!this.reloadAfterExportPending || this.exportBusy || !this.graphSession?.isAlive) return;
-        this.reloadAfterExportPending = false;
-        void this.reloadSelectedScene();
     }
 
     /**
@@ -415,7 +410,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     /** True while a batch export locks the workspace. */
     get graphBusy(): boolean {
-        return this.figureBatchActive;
+        return this.figureExports.batchActive;
     }
 
     /** The one default description; graphs with their own wording override it. The title belongs to the route's Demonstration. */
@@ -777,7 +772,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     /** Disposes the board and everything the session owns. Pending state work is dropped; pending callbacks still settle. */
     unmount(): void {
         this.figureSceneGeneration++;
-        this.figureBatchActive = false;
+        this.figureExports.teardown();
         this.graphInteractionLocked = false;
         const session = this.graphSession;
         this.graphSession = undefined;
@@ -800,16 +795,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     saveAsSVG(fileName: string) {
         const session = this.getActiveGraphSession();
-        if (!session || !this.figureContainer() || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
-        this.activeSingleFigureExports++;
-        this.beforeFigureCapture();
-        this.requestRender();
-        return downloadSVG(this.createFigureCaptureTarget(session), fileName)
-            .finally(() => {
-                this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
-                this.requestRender();
-                this.runPendingReload();
-            });
+        if (!session || !this.figureContainer()) return Promise.resolve();
+        return this.figureExports.runSingle(() => {
+            this.beforeFigureCapture();
+            this.requestRender();
+            return downloadSVG(this.createFigureCaptureTarget(session), fileName);
+        });
     }
 
 
@@ -819,7 +810,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             description: this.workspaceDescription(),
             edit: this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>,
             display: this.state.initialized ? this.workspaceDisplay() : null,
-            save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureBatchActive,
+            save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureExports.batchActive,
             pickerUnavailable: this.pickerUnavailable, pausePlayback: () => this.pausePlayback(),
             // A deep link can request a lesson before JSXGraph has created
             // its board. Do not mount the session until the graph-owned
@@ -898,16 +889,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
 
     private saveAsPNG2(fileName: string): Promise<void> {
         const session = this.getActiveGraphSession();
-        if (!session || !this.figureContainer() || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
-        this.activeSingleFigureExports++;
-        this.beforeFigureCapture();
-        this.requestRender();
-        return downloadPNG(this.createFigureCaptureTarget(session), fileName)
-            .finally(() => {
-                this.activeSingleFigureExports = Math.max(0, this.activeSingleFigureExports - 1);
-                this.requestRender();
-                this.runPendingReload();
-            });
+        if (!session || !this.figureContainer()) return Promise.resolve();
+        return this.figureExports.runSingle(() => {
+            this.beforeFigureCapture();
+            this.requestRender();
+            return downloadPNG(this.createFigureCaptureTarget(session), fileName);
+        });
     }
 
     /** What a figure export captures now; get a new one after each scene replacement. */
@@ -925,11 +912,12 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     private exportPresetFigures(presets: Preset[]): Promise<void> {
         const session = this.getActiveGraphSession();
         const boardContainer = this.figureContainer();
-        if (!session || !boardContainer || this.figureBatchActive || this.activeSingleFigureExports > 0) return Promise.resolve();
+        if (!session || !boardContainer) return Promise.resolve();
+        const releaseBatch = this.figureExports.admitBatch();
+        if (!releaseBatch) return Promise.resolve();
 
         this.beforeFigureCapture();
         const previousPointerEvents = boardContainer.style.pointerEvents;
-        this.figureBatchActive = true;
         this.graphInteractionLocked = true;
         boardContainer.style.pointerEvents = "none";
         const releaseLockTransition = session.beginTransition();
@@ -973,9 +961,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                     }
                     boardContainer.style.pointerEvents = previousPointerEvents;
                     this.graphInteractionLocked = false;
-                    this.figureBatchActive = false;
-                    this.requestRender(finish);
-                    this.runPendingReload();
+                    releaseBatch(finish);
                 });
             });
         });

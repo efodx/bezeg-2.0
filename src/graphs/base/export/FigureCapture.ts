@@ -1,5 +1,5 @@
 import html2canvas from "html2canvas";
-import {beginFigureExport, reportFigureExportFailure} from "../../../localization";
+import {beginAppFigureExport, reportFigureExportFailure} from "./FigureExportOperation";
 import {buildSvgWithMathLabels, loadSvgTypesetter as loadSvgTypesetterDefault, SvgTypesetter} from "./SvgMathLabels";
 import {buildStillFigureSvg} from "./StillFigureSvg";
 import type {StillFigure, StillLabelStyle} from "./StillFigureSvg";
@@ -288,12 +288,12 @@ export function downloadBlob(blob: Blob, filename: string): void {
 }
 
 async function runSingleExport(target: FigureCaptureTarget, work: () => Promise<void>): Promise<void> {
-    const finish = beginFigureExport();
+    const finish = beginAppFigureExport();
     try {
         assertActive(target);
         await work();
     } catch (error) {
-        if (!(error instanceof FigureExportCancelledError)) reportFigureExportFailure();
+        if (!(error instanceof FigureExportCancelledError)) reportFigureExportFailure('single');
     } finally {
         finish();
     }
@@ -342,11 +342,11 @@ export function isFigureExportCancelled(error: unknown): boolean {
 
 /** Used by the batch coordinator for one lock and one visible failure state. */
 export async function runBatchFigureExport(work: () => Promise<void>): Promise<void> {
-    const finish = beginFigureExport();
+    const finish = beginAppFigureExport();
     try {
         await work();
     } catch (error) {
-        if (!isFigureExportCancelled(error)) reportFigureExportFailure();
+        if (!isFigureExportCancelled(error)) reportFigureExportFailure('batch');
     } finally {
         finish();
     }

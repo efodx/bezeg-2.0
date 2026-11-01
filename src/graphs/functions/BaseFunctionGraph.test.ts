@@ -2,7 +2,8 @@ import BaseGraph from '../base/BaseGraph';
 import {DomainError, gridValue, mathTextHtml} from './BaseFunctionGraph';
 import {LinearFunctionGraph} from './LinearFunctionGraph';
 import {LessonAction} from '../../learning/model';
-import {beginFigureExport, message, setLanguage} from '../../localization';
+import {message, setLanguage} from '../../localization';
+import {beginAppFigureExport} from '../base/export/FigureExportOperation';
 
 const DEFAULT_BOX = [-6, 8, 6, -4];
 
@@ -121,7 +122,7 @@ describe('language changes', () => {
             const graph = makeUninitializedGraph();
             graph.mount(document.createElement('div'));
             expect(graph.boardUpdate).not.toHaveBeenCalled();
-            const endExport = beginFigureExport();
+            const endExport = beginAppFigureExport();
             endExport();
             expect(graph.boardUpdate).not.toHaveBeenCalled();
             setLanguage('en');

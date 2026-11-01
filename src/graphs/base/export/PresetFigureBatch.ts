@@ -11,6 +11,7 @@ import {
     waitForFigureCaptureReady,
     waitForOwnedFigureWork,
 } from "./FigureCapture";
+import {claimSessionBatch} from "./FigureExportOperation";
 
 export interface FigurePresetLike {
     id: string;
@@ -63,20 +64,16 @@ function getCurrentTarget<Preset extends FigurePresetLike, Scene>(
     return target;
 }
 
-const activeOwnerBatches = new WeakSet<AbortSignal>();
-
 function withOwnerBatchLock<T, Preset extends FigurePresetLike, Scene>(
     owner: FigureBatchOwner<Preset, Scene>,
     operation: () => Promise<T>,
 ): Promise<T> {
-    if (activeOwnerBatches.has(owner.signal)) {
-        return Promise.reject(new Error("A figure batch is already active for this graph session."));
-    }
-    activeOwnerBatches.add(owner.signal);
+    const release = claimSessionBatch(owner.signal);
+    if (!release) return Promise.reject(new Error("A figure batch is already active for this graph session."));
     try {
-        return Promise.resolve(operation()).finally(() => activeOwnerBatches.delete(owner.signal));
+        return Promise.resolve(operation()).finally(release);
     } catch (error) {
-        activeOwnerBatches.delete(owner.signal);
+        release();
         return Promise.reject(error);
     }
 }

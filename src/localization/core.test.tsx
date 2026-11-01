@@ -2,7 +2,8 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {sl} from './sl';
 import {en} from './en';
-import {beginFigureExport, currentLanguage, LocalizedError, message, onLanguageChange, setLanguage, t, useT} from './index';
+import {currentLanguage, LocalizedError, message, onLanguageChange, setLanguage, t, useT} from './index';
+import {beginAppFigureExport} from '../graphs/base/export/FigureExportOperation';
 import {LanguageSelector} from './LanguageSelector';
 
 beforeEach(() => { localStorage.clear(); act(() => setLanguage('sl')); });
@@ -60,7 +61,7 @@ test('nested validation errors translate again without altering technical identi
 test('nested exports lock switching and release exactly once, including failure cleanup', () => {
     render(<LanguageSelector/>);
     let finish!: () => void, finishCapture!: () => void;
-    act(() => {finish = beginFigureExport(); finishCapture = beginFigureExport();});
+    act(() => {finish = beginAppFigureExport(); finishCapture = beginAppFigureExport();});
     expect(screen.getByRole('combobox')).toBeDisabled();
     act(() => setLanguage('en'));
     expect(screen.getByRole('combobox')).toHaveValue('sl');
