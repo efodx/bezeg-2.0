@@ -58,13 +58,14 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
-    // Interim owner until the Convexity and hulls chapter (task F4) exists; F4 moves both. The lesson page needs an existing chapter section to link back to, and the convex-hull property is what the orientation prerequisites cite.
     // Registered without lessons (complex maps F2b); the chapter and sections are authored in F3.
     'complex-reciprocal': {chapterId: 'complex-maps', sectionId: 'reciprocal-inversion'},
     'complex-roots': {chapterId: 'complex-maps', sectionId: 'roots'},
-    orientation: {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    'polygon-area': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    'convex-hull': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    // The Convexity and hulls chapter owns the first three computational-geometry lessons, one section each.
+    orientation: {chapterId: 'convexity-hulls', sectionId: 'orientation'},
+    'polygon-area': {chapterId: 'convexity-hulls', sectionId: 'polygon-area'},
+    'convex-hull': {chapterId: 'convexity-hulls', sectionId: 'convex-hull'},
+    // Interim owner until the triangulation chapter exists; the lesson page needs an existing chapter section to link back to.
     'ear-clipping': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},

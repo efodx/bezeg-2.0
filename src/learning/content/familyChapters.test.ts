@@ -29,8 +29,9 @@ function withoutMath(source: string) {
 }
 
 // Registered before their reading chapter exists: complex maps task 04 F3+F4 adds the Kompleksne preslikave
-// chapter that links them, and removes this entry.
-const CHAPTER_LINK_PENDING: readonly string[] = ['complex-reciprocal', 'complex-roots'];
+// chapter that links them, and removes this entry. Computational geometry is released in batches: ear clipping and the
+// sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet.
+const CHAPTER_LINK_PENDING: readonly string[] = ['complex-reciprocal', 'complex-roots', 'ear-clipping', 'interval-sweep', 'segment-intersections'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
@@ -87,13 +88,13 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('publishes nine bilingual chapters with stable section anchors and substantial prose', () => {
+    test('publishes eleven bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'functions-and-calculus', 'analysis',
+            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'convexity-hulls', 'functions-and-calculus', 'analysis',
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(chapter.id === 'linear-maps' ? 2 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(chapter.id === 'linear-maps' ? 2 : chapter.id === 'convexity-hulls' ? 4 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);

@@ -149,6 +149,12 @@ export function getLessonForDemonstration(id: DemonstrationId): LessonDefinition
     if (!isGuidedLessonAvailable(id)) return undefined;
     const owned = findChapterOwnedLessonByDemonstration(id);
     if (owned) return owned;
+    return getCatalogLessonForDemonstration(id);
+}
+
+/** The lesson adapted from the shared reviewed content, ignoring chapter ownership; a chapter whose lessons keep that content reads it here. */
+export function getCatalogLessonForDemonstration(id: DemonstrationId): LessonDefinition | undefined {
+    if (!isGuidedLessonAvailable(id)) return undefined;
     if (!adaptedLessons.has(id)) adaptedLessons.set(id, adaptContent(id));
     return adaptedLessons.get(id);
 }

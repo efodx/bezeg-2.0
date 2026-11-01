@@ -28,12 +28,10 @@ beforeEach(() => {
 
 test('Learn contains every family chapter and keeps guided activities inside chapters', () => {
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);
-    // The `computational-geometry` family has no Learn chapter until convexity tasks 13-14 add its lessons.
-    const familiesWithoutChapters = ['computational-geometry'];
-    const familiesWithChapters = getDemonstrationCatalog().families.map(family => family.id).filter(id => !familiesWithoutChapters.includes(id));
+    const familiesWithChapters = getDemonstrationCatalog().families.map(family => family.id);
     expect(learningChapters.map(chapter => chapter.family).sort()).toEqual(familiesWithChapters.sort());
-    expect(container.querySelectorAll('.learning-family')).toHaveLength(10);
-    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(10);
+    expect(container.querySelectorAll('.learning-family')).toHaveLength(11);
+    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(11);
     // The linear maps chapter has no thumbnail until its poster is captured (media task).
     expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(9);
     expect(learningStrands.flatMap(strand => strand.chapters)).toEqual(learningChapters.map(chapter => chapter.id));

@@ -1,5 +1,7 @@
 import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
+import {CONVEXITY_CHAPTER_ID} from './convexityChapterId';
+import {convexityGuidedExampleRegistry, convexityGuidedExamplePath} from './convexityChapterRegistry';
 import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAPS_CHAPTER_ID} from './linearMapsChapterRegistry';
 import {patchGuidedExamplePath, patchGuidedExampleRegistry} from './patchGuidedExampleRegistry';
 
@@ -12,12 +14,14 @@ export interface ChapterOwnedLessons {
     entries(): readonly (readonly [sectionId: string, lesson: LessonDefinition])[];
 }
 
-function ownedLessons<Id extends string>(registry: Readonly<Record<Id, LessonDefinition>>, pathOf: (sectionId: Id) => string): ChapterOwnedLessons {
-    const isSection = (sectionId: string): sectionId is Id => Object.prototype.hasOwnProperty.call(registry, sectionId);
+/** `registry` may be a thunk for a registry that reads lesson content through lessonCatalog.ts, which imports this table; it is then read only on use. */
+function ownedLessons<Id extends string>(source: Readonly<Record<Id, LessonDefinition>> | (() => Readonly<Record<Id, LessonDefinition>>), pathOf: (sectionId: Id) => string): ChapterOwnedLessons {
+    const registryOf = () => typeof source === 'function' ? source() : source;
+    const isSection = (sectionId: string): sectionId is Id => Object.prototype.hasOwnProperty.call(registryOf(), sectionId);
     return {
-        lesson: sectionId => isSection(sectionId) ? registry[sectionId] : undefined,
+        lesson: sectionId => isSection(sectionId) ? registryOf()[sectionId] : undefined,
         path: sectionId => isSection(sectionId) ? pathOf(sectionId) : undefined,
-        entries: () => Object.entries<LessonDefinition>(registry),
+        entries: () => Object.entries<LessonDefinition>(registryOf()),
     };
 }
 
@@ -25,6 +29,7 @@ function ownedLessons<Id extends string>(registry: Readonly<Record<Id, LessonDef
 export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> = {
     'bezier-patches': ownedLessons(patchGuidedExampleRegistry, patchGuidedExamplePath),
     [LINEAR_MAPS_CHAPTER_ID]: ownedLessons(linearMapsGuidedExampleRegistry, linearMapsGuidedExamplePath),
+    [CONVEXITY_CHAPTER_ID]: ownedLessons(() => convexityGuidedExampleRegistry, sectionId => convexityGuidedExamplePath(sectionId)),
 };
 
 export function getChapterOwnedLessons(chapterId: string): ChapterOwnedLessons | undefined {
