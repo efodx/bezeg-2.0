@@ -7,6 +7,7 @@ import {
     workedParabolaJoinPreviewCopy,
     type GuidedExamplePreviewCopy,
 } from '../content/guidedExamplePreviewCopy';
+import {guidedExampleHighlightCopy} from '../content/guidedExampleHighlightCopy';
 import {getRetainedExampleHome, retainedExampleHomes} from './retainedExamples';
 import {patchGuidedPreviewCopy} from '../content/patchGuidedPreviewCopy';
 
@@ -57,6 +58,7 @@ const workedWeightPreviewCopy: GuidedExamplePreviewCopy = {
 };
 
 function copyFor(id: string, demonstrationId: DemonstrationId): GuidedExamplePreviewCopy | undefined {
+    if (Object.hasOwn(guidedExampleHighlightCopy, id)) return guidedExampleHighlightCopy[id];
     const patchFixture = PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES.find(fixture => fixture.id === id);
     if (patchFixture) return patchFixture.demonstrationId === demonstrationId
         ? patchGuidedPreviewCopy[patchFixture.sectionId]
