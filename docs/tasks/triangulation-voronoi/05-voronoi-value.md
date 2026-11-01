@@ -1,0 +1,24 @@
+# 05 — Voronoi value with exact rational vertices and duality
+
+Status: planned 2026-11-01 (geometry handler 9). Source: [spec Voronoi drawing](../../specs/triangulation-voronoi-lessons.md#voronoi-drawing-reused-by-the-sweep-family), [B4 example and acceptance 1–3, 6](../../specs/triangulation-voronoi-lessons.md#b4-voronoi-diagrams-and-duality), [correctness notes](../../specs/triangulation-voronoi-lessons.md#correctness-notes), B5 degenerate examples. Kind: F1, mathematical review. Depends on 04 (`delaunayTriangulation`) and triangle geometry 02 (`circumcentre` in `src/compgeo/triangle.ts`, maps stream, on `master`).
+
+Pure TypeScript in `src/compgeo/voronoi.ts` (no React, JSXGraph, localization or graph state). Exact `Rational`/`RationalPoint` from `src/compgeo/rational.ts`; nothing discrete compares doubles.
+
+1. **Value type** `VoronoiDiagram` over sites \(0..n-1\), independent of the Delaunay code so that Fortune (sweep family) can build the same value:
+   - `vertices`: distinct exact `RationalPoint`s. Each lists the sites it is equidistant from (3 in general position, 4 or more for cocircular sites).
+   - `edges`: each between two sites \(\{i,j\}\) and one of `segment` (two vertex indices), `ray` (one vertex index and an outward direction perpendicular to \(p_ip_j\), as an exact integer vector pointing away from the remaining sites) or `line` (the full bisector, collinear sites only: a point on it and a direction).
+   - `cells`: site index, its edge indices in counter-clockwise order, and `bounded: boolean`.
+2. **`voronoiFromDelaunay(points)`**: builds the value from `delaunayTriangulation`. Vertices are the triangles' `circumcentre`s; triangles with the same circumcentre (cocircular sites) give one vertex, and their zero-length shared edges are dropped, so a cocircular vertex has degree 4. Each interior Delaunay edge gives one segment, each hull edge one ray. Collinear sites (no triangulation) give \(n-1\) parallel `line` edges, no vertices, and strip cells. One site gives one cell with no edges. Duplicate sites and out-of-range input are refused with a reason value, as `delaunayTriangulation` refuses them.
+3. **`dualEdges(diagram)` / duality check**: a helper test `checkDuality(points, diagram)` that derives the dual from the Delaunay structure: each finite edge \(\leftrightarrow\) one interior Delaunay edge with the same site pair, each ray \(\leftrightarrow\) one hull edge. It is a test check, not an assumption in the builder.
+4. **`clipCell(diagram, points, site, box)`**: the cell intersected with a rational axis-aligned box, as an exact convex polygon of `RationalPoint`s (counter-clockwise, possibly empty), plus which sides are open (cut by the box) for the "continues" marker. **`nearestSites(points, q)`**: brute-force set of nearest sites for a rational query point, by exact squared distances.
+5. Tests:
+   - B4 example (seven points of B2): the seven vertices equal the spec's exact list; 8 segments and 5 rays; hull sites' cells unbounded, \(p_5,p_6\) bounded. Every vertex is equidistant from its sites (exact) and no other site is strictly nearer.
+   - Duality on the B4 example and on random general-position grid sets (\(n\le40\)).
+   - Random rational query points inside a box: the nearest site from `nearestSites` lies in that site's `clipCell` polygon (exact point-in-convex-polygon), and in no other cell's interior unless tied.
+   - Degenerate: the unit square gives one vertex of degree 4 and 4 rays; the B5 trapezoid \((0,0),(8,0),(9,5),(-1,5)\) likewise; one grid step off the circle gives two degree-3 vertices joined by a segment; five collinear sites give four parallel lines, no vertices; two sites give one line; duplicates are refused.
+   - Built by hand without Delaunay: a three-site value constructed directly clips and draws through the same functions (acceptance 6).
+   - Observed failures under two deliberate mutations (e.g. not merging equal circumcentres; ray direction toward the remaining sites).
+
+Not in scope: drawing, graph, overlays, query-point UI (T3 graph task).
+
+Checks: `just unit src/compgeo/voronoi --maxWorkers=2`, `just lint src/compgeo/voronoi.ts src/compgeo/voronoi.test.ts`, `npx tsc --noEmit --pretty false`.

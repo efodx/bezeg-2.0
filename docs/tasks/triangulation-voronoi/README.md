@@ -21,7 +21,7 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 | 02 | [`incircle` predicate](02-incircle.md) | F1 | convexity 02 | accepted 2026-10-31 (math review, no findings) |
 | 03 | [Triangulation structure and flip](03-triangulation-structure.md) | F1 | 02 | accepted 2026-10-31 (math review, no findings) |
 | 04 | [Delaunay construction and Lawson trace](04-delaunay-lawson.md) (B3 examples, brute-force oracle) | F1 | 03 | accepted 2026-10-31 (math review; count wording) |
-| 05 | Voronoi value with exact rational vertices and duality (B4 example) | F1 | 04 | task file written when 04 is accepted |
+| 05 | [Voronoi value with exact rational vertices and duality](05-voronoi-value.md) (B4 example) | F1 | 04, triangle geometry 02 (`circumcentre`) | planned 2026-11-01 ([task](05-voronoi-value.md)) |
 
 ## Later batches
 
