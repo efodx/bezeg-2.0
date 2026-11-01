@@ -1,10 +1,10 @@
 # Curves stream: handler handoff 14
 
-Handler 12 wrote this on 2026-11-01. It supersedes [handoff 13](handler-handoff-13.md). It stopped on a rebase conflict, as AGENTS.md requires. No agents and no preview are running. Settings are unchanged: handler Opus, `--permission-mode auto`, `--effort medium`; workers `bezeg-worker` Sonnet `medium`; reviews `bezeg-reviewer` Sonnet.
+Handler 12 wrote this on 2026-11-01. It supersedes [handoff 13](handler-handoff-13.md). No agents and no preview are running. Settings are unchanged: handler Opus, `--permission-mode auto`, `--effort medium`; workers `bezeg-worker` Sonnet `medium`; reviews `bezeg-reviewer` Sonnet.
 
-## CG-B1-3 (L1, L2 guided lessons): done, not on master
+## CG-B1-3 (L1, L2 guided lessons): done, push to master pending
 
-The branch is `stream-curves-cg-b1-3-v2` on origin (local `worktree-stream-curves`), based on `594510c9`:
+The table lists the commits before the rebase (kept on `stream-curves-cg-b1-3-v2` on origin, based on `594510c9`); their rebased copies (on `origin/master` at `0418230f`, plus the count fix) are on `stream-curves-cg-b1-3-v3`. After the rebase, typecheck passed and `just unit src/learning src/graphs/curves` passed except the count test, which passes after the fix. **Before pushing to master:** run `just build` and `SMOKE_PORT=4314 just smoke-lesson curve-parametric curve-curvature`; low memory killed both while they waited for a test slot.
 
 | Commit | Content |
 | --- | --- |
@@ -25,19 +25,14 @@ Checks at `379b895f` plus the uncommitted fix (the same content as `09ef1a32`):
 - `SMOKE_PORT=4314 just smoke-lesson curve-parametric curve-curvature` passed on the final build (sl and en, including 390×844).
 - Production preview at 1366×768: the live SL→EN switch updates the readout, which keeps three lines (90 px) in both languages.
 
-## Stop: rebase conflict
+## Rebase onto master
 
-`git rebase origin/master` (at `363e6c32`) conflicts on `85da034e` in:
-- `src/learning/runtime/lessonCatalog.test.ts`
-- `tests/guided-lessons.smoke.spec.cjs`
-
-Both are shared catalogues, where the complex maps lessons (`caa51161`) added entries next to ours. The conflict looks additive (keep both sides), but resolving it needs the owner's go-ahead. After resolving: rerun the focused unit tests (`src/learning src/graphs/curves`), typecheck, the build, and `smoke-lesson curve-parametric curve-curvature`. Then push as a fast-forward to master.
+The first `git rebase origin/master` conflicted on the lesson commit in `src/learning/runtime/lessonCatalog.test.ts` and `tests/guided-lessons.smoke.spec.cjs`, alongside the complex maps lessons (`caa51161`). The owner approved resolving it, and AGENTS.md now has mechanical conflicts resolved without stopping. Both conflicts were additive. Git did not catch one more: both branches had raised the lesson count in `guidedExamplePreviewCopy.test.ts` from 56 to 58, so the identical edits merged cleanly. The count is now 60 (67 copy entries). The focused unit run found this.
 
 ## Next steps
-1. Resolve the conflict above (after the owner approves), verify, push CG-B1-3 to master.
-2. `3887af39` on master opens **G-CURVE and G-FN**. This unblocks the B-spline graphs (family 2), the I2/I4 graphs (family 3), and family 4's graphs. Read that commit's gate notes before planning them.
-3. The remaining F3 lessons, one worker per lesson: I1, I3, I5, D4 `patch-coons` (claims are in handoffs 6 and 7). Each F4 chapter slice removes its pending entry (handoff 13).
-4. Deferred low findings from handoff 13 (overlay `visible()` test, roll animation frame and unmount test, weak parametric probe) remain open.
+1. `3887af39` on master opens **G-CURVE and G-FN**. This unblocks the B-spline graphs (family 2), the I2/I4 graphs (family 3), and family 4's graphs. Read that commit's gate notes before planning them.
+2. The remaining F3 lessons, one worker per lesson: I1, I3, I5, D4 `patch-coons` (claims are in handoffs 6 and 7). Each F4 chapter slice removes its pending entry (handoff 13).
+3. Deferred low findings from handoff 13 (overlay `visible()` test, roll animation frame and unmount test, weak parametric probe) remain open.
 
 ## Evaluation record (not yet logged with `do-log`)
 - Worker CG-B1-3c, Sonnet medium, brief handoff-v12: finished, 89k tokens, 98 tools, about 53 min including test-slot waits. It found the real root cause of failure 2 (the stale redraw), not a probe problem. Gaps: no test for the redraw fix, and it displaced a doc comment. The handler fixed both.
