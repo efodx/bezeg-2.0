@@ -29,6 +29,18 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
         'Pri α = 1/4 so vzorci v točkah B(φ(k/4)) za k = 1, 2, 3, torej pri parametrih 1/2, 3/4 in 9/10, zato se zgostijo proti koncu; razmiki so opazka, ne dokaz o hitrosti.',
         'At α = 1/4 the samples sit at B(φ(k/4)) for k = 1, 2, 3, that is at parameters 1/2, 3/4 and 9/10, so they bunch toward the end; the spacing is an observation, not a speed proof.',
     ),
+    'parametrization.uniform-timing.uniform-parameterization': copy(
+        'Kvintična PH-krivulja v enakomerni parametrizaciji z desetimi označenimi točkami, ki so videti enakomerno razporejene po krivulji.',
+        'The quintic PH curve in the uniform parameterization with ten marked points that look evenly spread along the curve.',
+        'V enakomerni parametrizaciji je vsak od 11 lokov med točkami dolg približno L/11 = 1,52. Redke točke in tetive dolžin lokov ne dokazujejo; enakost sledi iz izračuna loka.',
+        'In the uniform parameterization each of the 11 arcs between the points is about L/11 = 1.52 long. Sparse points and chords do not prove equal arc lengths; the equality comes from the arc-length calculation.',
+    ),
+    'parametrization.weighted-knot.spline-parameterization': copy(
+        'Kubični zlepek C2 skozi osem točk pri α = 1 z desetimi označenimi vzorci in vidnimi izpeljanimi točkami.',
+        'A C2 cubic spline through eight points at α = 1 with ten marked samples and visible derived points.',
+        'Pri α = 1 je parametrski interval odseka sorazmeren z dolžino njegove tetive. Tretja stična točka je približno (−3,325; 0,385), pri α = 0 pa (−2,133; 0), zato α spremeni obliko zlepka, ne le razporeditve vzorcev.',
+        'At α = 1 the parameter interval of a piece is proportional to the length of its chord. The third joint is about (−3.325, 0.385), against (−2.133, 0) at α = 0, so α changes the shape of the spline, not only where the samples sit.',
+    ),
     'bezier-curves.affine-transformations.affine': copy(
         'Asimetrična kubična Bézierjeva krivulja s kontrolnim poligonom, zasukana za četrt kroga, z označeno točko pri t = 0,5.',
         'An asymmetric cubic Bézier curve with its control polygon, turned by a quarter turn, with the point at t = 0.5 marked.',
@@ -149,6 +161,42 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
         'A spline of two quadratic Bézier pieces with four free points, the derived point and the control polygon.',
         'Izpeljana točka (2; −4) je podaljšek zadnje stranice prvega odseka: stična točka (0; −3) je na sredini med (−2; −2) in njo. Odvoda obeh odsekov v stiku sta enaka, (8; −4). Do tega pogleda prideš z vklopom kontrolnega poligona.',
         'The derived point (2, −4) extends the last edge of the first piece: the joint (0, −3) is midway between (−2, −2) and it. The derivatives of both pieces at the joint are equal, (8, −4). Reach this view by turning on the control polygon.',
+    ),
+    'ph-curves.arc-length-problem.ph-cubic-speed': copy(
+        'Kubična PH-krivulja v zeleni barvi s kontrolnimi točkami in njen modri odmik pri d = 1 pod krivuljo.',
+        'The cubic PH curve in green with its control points and its blue offset at d = 1 below the curve.',
+        'Odmik pri d = 1 leži vzdolž normale na razdalji 1 od krivulje. Pri t = 1 je tangenta r\'(1) = (3, 4), normala pa (4, −3)/5, zato je navpični zamik tam le 3/5.',
+        'The offset at d = 1 lies along the normal at distance 1 from the curve. At t = 1 the tangent is r\'(1) = (3, 4) and the normal is (4, −3)/5, so the vertical shift there is only 3/5.',
+    ),
+    'ph-curves.arc-length-problem.ph-quintic-comparison': copy(
+        'Kvintična PH-krivulja v zeleni barvi s kontrolnimi točkami in njen modri odmik pri privzeti razdalji d = 0,2.',
+        'The quintic PH curve in green with its control points and its blue offset at the default distance d = 0.2.',
+        'Odmik pri privzeti razdalji d = 0,2 je vzdolž normale na razdalji 0,2 od krivulje, na desni strani smeri potovanja. Do tega pogleda prideš z vklopom odmika.',
+        'The offset at the default distance d = 0.2 lies along the normal at distance 0.2 from the curve, on the right of the direction of travel. Turn on the offset to reach this view.',
+    ),
+    'ph-curves.complex-hodograph.ph-cubic-generator': copy(
+        'Začetna kubična PH-krivulja z začetno točko (−2, −1) in štirimi kontrolnimi točkami; odmik ni prikazan.',
+        'The start cubic PH curve with its start point (−2, −1) and four control points; no offset is shown.',
+        'Generatorja sta w0 = 2 in w1 = 2 + i, odvod pa r\'(t) = w(t)^2, kjer je w(t) = (1 − t) w0 + t w1. Zato je r\'(0) = (4, 0) in r\'(1) = (3, 4); slika kaže začetni prizor brez sprememb.',
+        'The generators are w0 = 2 and w1 = 2 + i, and the derivative is r\'(t) = w(t)^2 with w(t) = (1 − t) w0 + t w1. So r\'(0) = (4, 0) and r\'(1) = (3, 4); the picture shows the start scene unchanged.',
+    ),
+    'ph-curves.worked-length.ph-cubic-offset-length': copy(
+        'Kubična PH-krivulja v zeleni barvi s kontrolnimi točkami in njen modri odmik pri d = 1, z odčitkom dolžine krivulje.',
+        'The cubic PH curve in green with its control points and its blue offset at d = 1, with the curve length readout.',
+        'Odčitek dolžine je dolžina same krivulje (13/3 ≈ 4,33), ne dolžina odmika. Odmik pri d = 1 leži vzdolž normale na razdalji 1 od krivulje.',
+        'The length readout is the length of the curve itself (13/3 ≈ 4.33), not the length of the offset. The offset at d = 1 lies along the normal at distance 1 from the curve.',
+    ),
+    'ph-curves.investigate-ph.ph-cubic-singularity': copy(
+        'Kubična PH-krivulja v zeleni barvi s kontrolnimi točkami in njen modri odmik pri privzeti razdalji d = 0,2.',
+        'The cubic PH curve in green with its control points and its blue offset at the default distance d = 0.2.',
+        'Polmer ukrivljenosti te krivulje je povsod vsaj 4 (najmanjši je na krajišču), drsnik za d pa sega le od −3 do 3. Zato je odmik te krivulje gladek pri vsaki nastavitvi drsnika, tudi pri prikazani d = 0,2.',
+        'The radius of curvature of this curve is at least 4 everywhere (smallest at an end point), while the d slider only goes from −3 to 3. So the offset of this curve is smooth for every slider setting, including the d = 0.2 shown.',
+    ),
+    'ph-curves.investigate-ph.ph-quintic-singularity': copy(
+        'Kvintična PH-krivulja v zeleni barvi s kontrolnimi točkami. Od modrega odmika pri d = −2,5 je viden le kratek kos zgoraj levo, ki se konča z majhno zanko; preostanek odmika leži zunaj pogleda.',
+        'The quintic PH curve in green with its control points. Of the blue offset at d = −2.5 only a short piece at the top left is in view, ending in a small loop; the rest of the offset lies outside the view.',
+        'Pri d = −2,5 se odmik seka sam s seboj blizu točke (−2,09; 1,49), pri parametrih okoli t = 0,13 in t = 0,72; to je majhna zanka zgoraj levo. Na drsniku se to zgodi le pri d med približno −2,65 in −2,4.',
+        'At d = −2.5 the offset crosses itself near the point (−2.09, 1.49), at parameters around t = 0.13 and t = 0.72; that is the small loop at the top left. On the slider this happens only for d between about −2.65 and −2.4.',
     ),
 };
 

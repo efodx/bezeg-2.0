@@ -1228,9 +1228,101 @@
         "parameterization-samples: {\"kind\":\"parameterization-samples\",\"count\":3}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "up-uniform-twenty-observation",
+        "position": {
+          "step": 3,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -3,
+              -4
+            ],
+            [
+              -2.15,
+              3.2
+            ],
+            [
+              -1.25,
+              4
+            ],
+            [
+              1.2999999999999998,
+              4
+            ],
+            [
+              2.1999999999999997,
+              3.2
+            ],
+            [
+              3.05,
+              -4
+            ],
+            [
+              -2.8047035951974197,
+              -2.4929442472090866
+            ],
+            [
+              -2.557651068873962,
+              -0.9935977118005672
+            ],
+            [
+              -2.213857425727234,
+              0.48618318088434087
+            ],
+            [
+              -1.673126651244557,
+              1.9037310741499427
+            ],
+            [
+              -0.6966072102267749,
+              3.04306853248547
+            ],
+            [
+              0.7466072102267676,
+              3.0430685324854743
+            ],
+            [
+              1.7231266512445549,
+              1.903731074149948
+            ],
+            [
+              2.263857425727233,
+              0.48618318088434975
+            ],
+            [
+              2.6076510688739614,
+              -0.993597711800561
+            ],
+            [
+              2.85470359519742,
+              -2.492944247209079
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -3,
+                -4
+              ],
+              [
+                0.02499999999999991,
+                3.250000000000001
+              ],
+              [
+                3.0500000000000007,
+                -4
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "ae27d939be48613f14504fed14dcd6a6d60995df46de5f83e2bec2dbfe9a65e6"
     },
     {
       "id": "parametrization.weighted-knot.spline-parameterization",
@@ -1244,9 +1336,125 @@
         "spline-hide-fixed: {\"kind\":\"spline-hide-fixed\",\"hidden\":false}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "sp-chordal-observation",
+        "position": {
+          "step": 3,
+          "frame": 2
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -7,
+              -2
+            ],
+            [
+              -7,
+              1.5
+            ],
+            [
+              -5,
+              0.5
+            ],
+            [
+              -4,
+              1.5
+            ],
+            [
+              -3.2,
+              -1
+            ],
+            [
+              4,
+              2.5
+            ],
+            [
+              6,
+              -1.5
+            ],
+            [
+              2,
+              -3.5
+            ],
+            [
+              -4.881054828999002,
+              0.9005641119916399
+            ],
+            [
+              -4.202702075186635,
+              1.161634336387071
+            ],
+            [
+              -3.325201167295316,
+              0.3851461236354632
+            ],
+            [
+              3.4388541016043863,
+              0.6754140852432161
+            ],
+            [
+              -5.908081506859142,
+              0.8561184929009462
+            ],
+            [
+              -4.474461559183575,
+              1.0408583805139857
+            ],
+            [
+              -3.8187169650817214,
+              0.9108294975981202
+            ],
+            [
+              -3.0095785917949542,
+              0.2350230295207115
+            ],
+            [
+              -1.5819100400912693,
+              0.18962751526656424
+            ],
+            [
+              0.22720642239541866,
+              0.5045426417284755
+            ],
+            [
+              2.114881027039698,
+              0.7681717491812714
+            ],
+            [
+              3.7774092874292586,
+              0.570083085635691
+            ],
+            [
+              4.783139043576244,
+              -0.31721170977735647
+            ],
+            [
+              4.434315411007881,
+              -1.7407194038255829
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -7,
+                -2
+              ],
+              [
+                -0.7061021871567112,
+                0.3277710396408361
+              ],
+              [
+                2,
+                -3.5
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "84278c700d77d47c52cfc2b92549672d4765795f5efe1eed5e2508d3f114b7e8"
     },
     {
       "id": "parametrization.weighted-knot.weighted-parameterization",
@@ -1332,22 +1540,160 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "ph-offsets-observation",
+        "position": {
+          "step": 2,
+          "frame": 1
+        },
+        "steps": [],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.6666666666666667,
+              -1
+            ],
+            [
+              0.6666666666666665,
+              -0.33333333333333337
+            ],
+            [
+              1.6666666666666665,
+              0.9999999999999999
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.04166666666666652,
+                -0.5
+              ],
+              [
+                1.6666666666666665,
+                1
+              ]
+            ],
+            [
+              [
+                -2,
+                -2
+              ],
+              [
+                0.4289215686274511,
+                -1.3823529411764706
+              ],
+              [
+                2.466666666666667,
+                0.4
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "dae46b48e969a1cd80fbcb089dd6b037449b0d2ee131e2100f9d15f6082e589f"
     },
     {
       "id": "ph-curves.arc-length-problem.ph-quintic-comparison",
       "demonstrationId": "ph-quintic",
       "path": "/bezeg-2.0/ph/quintic?example=family.ph-curves.arc-length-problem.ph-quintic",
-      "sceneFingerprint": "8d51cbfacbdc77594d62db074edb6557d8f9c700d168bcbfa4f54e8af920c21e",
+      "sceneFingerprint": "ebc06c52e1cfc9ca0321230f8a66eee21ff4460ca7fbd694deef4b3015cf0929",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "observe",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "display"
+          },
+          {
+            "kind": "set-control",
+            "control": "checkbox",
+            "label": "Odmiki krivulje",
+            "value": true
+          }
+        ],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              -2,
+              -1
+            ],
+            [
+              -1.2,
+              -1
+            ],
+            [
+              -0.3999999999999999,
+              -0.6
+            ],
+            [
+              0.13333333333333353,
+              0.06666666666666676
+            ],
+            [
+              0.33333333333333354,
+              0.6666666666666667
+            ],
+            [
+              0.33333333333333354,
+              1.0666666666666669
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.27083333333333304,
+                -0.21666666666666656
+              ],
+              [
+                0.33333333333333304,
+                1.0666666666666669
+              ]
+            ],
+            [
+              [
+                -2,
+                -1.2
+              ],
+              [
+                -0.12600574712643647,
+                -0.3545977011494252
+              ],
+              [
+                0.533333333333333,
+                1.0666666666666669
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "3b1c29de12dff256f77afcc009e36bdc466553e3abe62577a51982e096822bb1"
     },
     {
       "id": "ph-curves.complex-hodograph.ph-cubic-generator",
@@ -1358,9 +1704,53 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "instruction",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "curveCount": 1,
+          "points": [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.6666666666666667,
+              -1
+            ],
+            [
+              0.6666666666666665,
+              -0.33333333333333337
+            ],
+            [
+              1.6666666666666665,
+              0.9999999999999999
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.04166666666666652,
+                -0.5
+              ],
+              [
+                1.6666666666666665,
+                1
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "41819e0bb0aeb5e99a657431a57d9a2e11e2f10b8463be0b35b5595139ac1ec0"
     },
     {
       "id": "ph-curves.investigate-ph.ph-cubic-singularity",
@@ -1371,9 +1761,81 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "observe",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "display"
+          },
+          {
+            "kind": "set-control",
+            "control": "checkbox",
+            "label": "Odmiki krivulje",
+            "value": true
+          }
+        ],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.6666666666666667,
+              -1
+            ],
+            [
+              0.6666666666666665,
+              -0.33333333333333337
+            ],
+            [
+              1.6666666666666665,
+              0.9999999999999999
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.04166666666666652,
+                -0.5
+              ],
+              [
+                1.6666666666666665,
+                1
+              ]
+            ],
+            [
+              [
+                -2,
+                -1.2
+              ],
+              [
+                0.05245098039215701,
+                -0.6764705882352942
+              ],
+              [
+                1.8266666666666664,
+                0.88
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "0c8e3a69c3d3be9f06a59019f7c959eca3f9c6f7bffe8595c4ebdcb2c194c8e8"
     },
     {
       "id": "ph-curves.investigate-ph.ph-quintic-singularity",
@@ -1384,9 +1846,99 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-quintic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1],[1,1]]},\"view\":[-3,2.2,2.5,-2.6]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "observe",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "display"
+          },
+          {
+            "kind": "set-control",
+            "control": "checkbox",
+            "label": "Odmiki krivulje",
+            "value": true
+          },
+          {
+            "kind": "select-tab",
+            "tab": "edit"
+          },
+          {
+            "kind": "set-control",
+            "control": "slider",
+            "label": "Razdalja odmika d",
+            "value": -2.5
+          }
+        ],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              -2,
+              -1
+            ],
+            [
+              -1.2,
+              -1
+            ],
+            [
+              -0.3999999999999999,
+              -0.6
+            ],
+            [
+              0.13333333333333353,
+              0.06666666666666676
+            ],
+            [
+              0.33333333333333354,
+              0.6666666666666667
+            ],
+            [
+              0.33333333333333354,
+              1.0666666666666669
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.27083333333333304,
+                -0.21666666666666656
+              ],
+              [
+                0.33333333333333304,
+                1.0666666666666669
+              ]
+            ],
+            [
+              [
+                -2,
+                1.5
+              ],
+              [
+                -2.08117816091954,
+                1.507471264367816
+              ],
+              [
+                -2.166666666666667,
+                1.0666666666666669
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "87e94d4d34a3d1d1c0f08aaec5e53fff4cfdd34ae19dd92bcd03eb71db7d7998"
     },
     {
       "id": "ph-curves.offsets.ph-quintic-offsets",
@@ -1480,9 +2032,91 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ph-cubic-default\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-2,-1]],\"hodographs\":[[2,0],[2,1]]},\"view\":[-3.2,2.7,3.4,-2.7]}"
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "observe",
+        "position": {
+          "step": 0,
+          "frame": 1
+        },
+        "steps": [
+          {
+            "kind": "explore"
+          },
+          {
+            "kind": "select-tab",
+            "tab": "display"
+          },
+          {
+            "kind": "set-control",
+            "control": "checkbox",
+            "label": "Odmiki krivulje",
+            "value": true
+          },
+          {
+            "kind": "select-tab",
+            "tab": "edit"
+          },
+          {
+            "kind": "set-control",
+            "control": "slider",
+            "label": "Razdalja odmika d",
+            "value": 1
+          }
+        ],
+        "expectChange": true,
+        "checks": {
+          "curveCount": 2,
+          "points": [
+            [
+              -2,
+              -1
+            ],
+            [
+              -0.6666666666666667,
+              -1
+            ],
+            [
+              0.6666666666666665,
+              -0.33333333333333337
+            ],
+            [
+              1.6666666666666665,
+              0.9999999999999999
+            ]
+          ],
+          "curves": [
+            [
+              [
+                -2,
+                -1
+              ],
+              [
+                -0.04166666666666652,
+                -0.5
+              ],
+              [
+                1.6666666666666665,
+                1
+              ]
+            ],
+            [
+              [
+                -2,
+                -2
+              ],
+              [
+                0.4289215686274511,
+                -1.3823529411764706
+              ],
+              [
+                2.466666666666667,
+                0.4
+              ]
+            ]
+          ]
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "a203ca475ab8fcca6bcebb8d74d3dd712afa725a44937e3ea2b44e54d3012250"
     },
     {
       "id": "rational-curves.homogeneous.rational-decasteljau",

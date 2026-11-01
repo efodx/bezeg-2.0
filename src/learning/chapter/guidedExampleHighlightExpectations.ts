@@ -270,3 +270,187 @@ export function pieceDerivative(c: readonly Vec[], k: 1 | 2, span: number, atEnd
         ? [factor * (at(1)[0] - at(0)[0]), factor * (at(1)[1] - at(0)[1])]
         : [factor * (at(2)[0] - 2 * at(1)[0] + at(0)[0]), factor * (at(2)[1] - 2 * at(1)[1] + at(0)[1])];
 }
+
+// PH parametrization and spline parameterization (task 04 part A, worker 2). Derived from the lesson fixtures and textbook formulas.
+
+/** A PH curve by its start point and generators w_0..w_m: r(t) = start + the integral of w(t)^2, w the degree-m Bernstein polynomial. */
+export interface PhFixture {
+    readonly start: Vec;
+    readonly generators: readonly Vec[];
+}
+/** Cubic PH lesson curve (guidedLessons.ts `phCubicFixture`): the card scenes of the PH cubic cards start from it. */
+/** Default curve of the uniform-parameterization graph (UniformParamBezierCurveGraph.tsx `defaultPreset`), a quintic PH curve. */
+export const uniformParameterizationFixture: PhFixture = {start: [-3, -4], generators: [[-4.5, -4], [-1, 0], [-4.5, 4]]};
+
+const cmul = ([a, b]: Vec, [c, d]: Vec): Vec => [a * c - b * d, a * d + b * c];
+
+/** Hodograph w(t) = sum w_i C(m,i) t^i (1-t)^(m-i): the generators are the Bernstein coefficients of w. */
+export function phHodograph(fixture: PhFixture, t: number): Vec {
+    const m = fixture.generators.length - 1;
+    let x = 0, y = 0;
+    fixture.generators.forEach(([re, im], i) => { const b = bernsteinValue(m, i, t); x += b * re; y += b * im; });
+    return [x, y];
+}
+/** Velocity r'(t) = w(t)^2. */
+export function phVelocityOf(fixture: PhFixture, t: number): Vec {
+    const w = phHodograph(fixture, t);
+    return cmul(w, w);
+}
+/** Speed |r'(t)| = |w(t)|^2, a polynomial in t. */
+export function phSpeedOf(fixture: PhFixture, t: number): number {
+    const [a, b] = phHodograph(fixture, t);
+    return a * a + b * b;
+}
+
+
+/** 5-point Gauss-Legendre rule on [0, 1] as [node, weight]: exact up to degree 9 (the speed of a degree-m hodograph has degree 2m <= 4 here). */
+const GAUSS: readonly (readonly [number, number])[] = [
+    [0.5, 0.5 * 0.5688888888888889],
+    [0.5 - 0.5 * 0.5384693101056831, 0.5 * 0.4786286704993665], [0.5 + 0.5 * 0.5384693101056831, 0.5 * 0.4786286704993665],
+    [0.5 - 0.5 * 0.906179845938664, 0.5 * 0.2369268850561891], [0.5 + 0.5 * 0.906179845938664, 0.5 * 0.2369268850561891],
+];
+/** Integral of `f` over [a, b] by the Gauss rule on the whole interval. */
+function gaussIntegral(f: (t: number) => number, a: number, b: number): number {
+    return GAUSS.reduce((sum, [x, weight]) => sum + weight * f(a + (b - a) * x), 0) * (b - a);
+}
+
+/** r(t) = start + the integral of the velocity over [0, t], by exact quadrature. */
+export function phPointOf(fixture: PhFixture, t: number): Vec {
+    return [fixture.start[0] + gaussIntegral(s => phVelocityOf(fixture, s)[0], 0, t), fixture.start[1] + gaussIntegral(s => phVelocityOf(fixture, s)[1], 0, t)];
+}
+/** Arc length between parameters a and b: the integral of the speed. */
+export function phArcLength(fixture: PhFixture, a: number, b: number): number {
+    return gaussIntegral(s => phSpeedOf(fixture, s), a, b);
+}
+
+/**
+ * Control points of the PH curve: with m+1 generators the degree-2m Bernstein coefficients of w^2 are
+ * c_k = sum over i+j=k of C(m,i) C(m,j) / C(2m,k) * w_i w_j, and P_{k+1} = P_k + c_k / (2m+1).
+ */
+export function phControlPointsOf(fixture: PhFixture): Vec[] {
+    const m = fixture.generators.length - 1, degree = 2 * m;
+    const binomial = (n: number, k: number) => bernsteinValue(n, k, 0.5) * 2 ** n;
+    const points: Vec[] = [fixture.start];
+    for (let k = 0; k <= degree; k++) {
+        let re = 0, im = 0;
+        for (let i = 0; i <= m; i++) {
+            const j = k - i;
+            if (j < 0 || j > m) continue;
+            const [pr, pi] = cmul(fixture.generators[i], fixture.generators[j]), factor = binomial(m, i) * binomial(m, j) / binomial(degree, k);
+            re += factor * pr; im += factor * pi;
+        }
+        const last = points.at(-1)!;
+        points.push([last[0] + re / (degree + 1), last[1] + im / (degree + 1)]);
+    }
+    return points;
+}
+
+/** Parameters t_k, k = 1..count, with arc length s(t_k) = k / (count + 1) of the whole length (uniform parameterization by arc length). */
+export function uniformArcLengthParameters(fixture: PhFixture, count: number): number[] {
+    const total = phArcLength(fixture, 0, 1);
+    return Array.from({length: count}, (_, index) => {
+        const target = (index + 1) / (count + 1) * total;
+        let low = 0, high = 1;
+        for (let iteration = 0; iteration < 80; iteration++) {
+            const mid = (low + high) / 2;
+            if (phArcLength(fixture, 0, mid) < target) low = mid; else high = mid;
+        }
+        return (low + high) / 2;
+    });
+}
+
+/** Free points of the spline-parameterization lesson (splineGuidedLessons.ts `splineParameterizationFixture`). */
+export const splineParameterizationPoints: readonly Vec[] = [[-7, -2], [-7, 1.5], [-5, 0.5], [-4, 1.5], [-3.2, -1], [4, 2.5], [6, -1.5], [2, -3.5]];
+const distance = (a: Vec, b: Vec) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+
+/** Chords whose lengths give the knot spans: |p0 p2|, |p2 p3|, ..., |p(n-3) p(n-1)| (the end spans each cover two polygon legs). */
+export function splineKnotChords(points: readonly Vec[]): number[] {
+    const n = points.length;
+    return [distance(points[0], points[2]), ...Array.from({length: n - 5}, (_, i) => distance(points[i + 2], points[i + 3])), distance(points[n - 3], points[n - 1])];
+}
+/** Unnormalised knot intervals |chord|^alpha. */
+export function splineKnotIntervals(points: readonly Vec[], alpha: number): number[] {
+    return splineKnotChords(points).map(chord => chord ** alpha);
+}
+/** Knots on [0, 1]: cumulative sums of the intervals divided by their total. */
+export function splineKnots(points: readonly Vec[], alpha: number): number[] {
+    const intervals = splineKnotIntervals(points, alpha), total = intervals.reduce((a, b) => a + b, 0);
+    return intervals.reduce<number[]>((knots, interval) => [...knots, knots.at(-1)! + interval / total], [0]);
+}
+
+/**
+ * Bezier pieces of the C2 cubic spline with free points p_0..p_{n-1} (n - 3 pieces) and knots u: the end pieces interpolate the end
+ * points; inner Bezier points divide the legs p_l p_{l+1} by the three neighbouring spans and each joint divides the segment between
+ * its neighbouring inner points by the two spans around it. C2 continuity is checked in the tests, not assumed.
+ */
+export function alphaC2SplinePieces(points: readonly Vec[], alpha: number): Vec[][] {
+    const n = points.length, u = splineKnots(points, alpha), pieces = n - 3;
+    const lerp = (a: Vec, b: Vec, wa: number, wb: number): Vec => [wa * a[0] + wb * b[0], wa * a[1] + wb * b[1]];
+    const bez: Vec[][] = Array.from({length: pieces}, () => new Array<Vec>(4));
+    bez[0][0] = points[0]; bez[0][1] = points[1];
+    let d1 = u[1] - u[0], d2 = u[2] - u[1];
+    bez[0][2] = lerp(points[1], points[2], d2 / (d1 + d2), d1 / (d1 + d2));
+    for (let l = 2; l < n - 3; l++) {
+        const a = u[l - 1] - u[l - 2], b = u[l] - u[l - 1], c = u[l + 1] - u[l], sum = a + b + c;
+        bez[l - 1][1] = lerp(points[l], points[l + 1], (b + c) / sum, a / sum);
+        bez[l - 1][2] = lerp(points[l], points[l + 1], c / sum, (a + b) / sum);
+    }
+    d1 = u[u.length - 2] - u[u.length - 3]; d2 = u[u.length - 1] - u[u.length - 2];
+    bez[pieces - 1][1] = lerp(points[n - 3], points[n - 2], d2 / (d1 + d2), d1 / (d1 + d2));
+    for (let l = 1; l < n - 3; l++) {
+        d1 = u[l] - u[l - 1]; d2 = u[l + 1] - u[l];
+        const joint = lerp(bez[l - 1][2], bez[l][1], d2 / (d1 + d2), d1 / (d1 + d2));
+        bez[l - 1][3] = joint; bez[l][0] = joint;
+    }
+    bez[pieces - 1][2] = points[n - 2]; bez[pieces - 1][3] = points[n - 1];
+    return bez;
+}
+/** Spline point at the global parameter t in [0, 1], locating the piece by the knots. */
+export function alphaC2SplinePoint(points: readonly Vec[], alpha: number, t: number): Vec {
+    const pieces = alphaC2SplinePieces(points, alpha), u = splineKnots(points, alpha);
+    const k = Math.min(Math.max(u.findIndex((knot, index) => index < pieces.length && t >= knot && t < u[index + 1]), 0), pieces.length - 1);
+    return bezierPoint(pieces[t >= 1 ? pieces.length - 1 : k], t >= 1 ? 1 : (t - u[k]) / (u[k + 1] - u[k]));
+}
+/** The joints (shared end points of consecutive pieces). */
+export const alphaC2SplineJoints = (points: readonly Vec[], alpha: number): Vec[] => alphaC2SplinePieces(points, alpha).slice(0, -1).map(piece => piece[3]);
+/** Positions of the `count` sample markers: the spline at t = i / (count + 1), i = 1..count. */
+export const alphaC2SplineSamples = (points: readonly Vec[], alpha: number, count: number): Vec[] =>
+    Array.from({length: count}, (_, i) => alphaC2SplinePoint(points, alpha, (i + 1) / (count + 1)));
+
+// PH offsets and singularities (task 04 part A, worker 3).
+
+/** Cubic PH lesson curve (guidedLessons.ts `phCubicFixture`): start (-2,-1), generators (2,0), (2,1); r'(t) = ((1-t) w0 + t w1)^2. */
+export const phCubicFixture: PhFixture = {start: [-2, -1], generators: [[2, 0], [2, 1]]};
+/** Quintic PH lesson curve (expansionGuidedLessons.ts `phQuinticFixture`) as a generator fixture; equals phQuinticPoint. */
+export const phQuinticFixture: PhFixture = {start: [-2, -1], generators: [[2, 0], [2, 1], [1, 1]]};
+
+/** Offset point O(t) = r(t) + d n(t) with n = (y', -x') / |r'|, the right normal (d > 0 lies right of the direction of travel). */
+export function phOffsetPointOf(fixture: PhFixture, d: number, t: number): Vec {
+    const [x, y] = phPointOf(fixture, t), [vx, vy] = phVelocityOf(fixture, t), speed = Math.hypot(vx, vy);
+    return [x + d * vy / speed, y - d * vx / speed];
+}
+
+/**
+ * Proper crossings of a polyline: pairs of non-adjacent segments (i, j) whose interiors cross, with the crossing point.
+ * An empty or one-point polyline has none.
+ */
+export function polylineSelfIntersections(points: readonly Vec[]): {i: number; j: number; point: Vec}[] {
+    const found: {i: number; j: number; point: Vec}[] = [];
+    for (let i = 0; i + 1 < points.length; i++) {
+        const [ax, ay] = points[i], [bx, by] = points[i + 1];
+        for (let j = i + 2; j + 1 < points.length; j++) {
+            const [cx, cy] = points[j], [dx, dy] = points[j + 1];
+            const denominator = (bx - ax) * (dy - cy) - (by - ay) * (dx - cx);
+            if (denominator === 0) continue;
+            const s = ((cx - ax) * (dy - cy) - (cy - ay) * (dx - cx)) / denominator;
+            const u = ((cx - ax) * (by - ay) - (cy - ay) * (bx - ax)) / denominator;
+            if (s > 0 && s < 1 && u > 0 && u < 1) found.push({i, j, point: [ax + s * (bx - ax), ay + s * (by - ay)]});
+        }
+    }
+    return found;
+}
+
+/** Crossings of the offset polyline at distance d (segments = polyline resolution over t in [0, 1]); `i`/`j` are segment indices. */
+export function phOffsetSelfIntersections(fixture: PhFixture, d: number, segments = 2000): {i: number; j: number; point: Vec}[] {
+    return polylineSelfIntersections(Array.from({length: segments + 1}, (_, k) => phOffsetPointOf(fixture, d, k / segments)));
+}

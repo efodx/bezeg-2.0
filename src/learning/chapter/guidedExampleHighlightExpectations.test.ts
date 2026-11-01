@@ -7,6 +7,9 @@ import {
     subdivisionCubicControlPoints, symmetricCubicControlPoints, rationalDecasteljauRows, rationalElevatedControls, rationalSegmentControls,
     stackedBernsteinRegionSamples, c1QuadraticPieces, c1SplineFreePoints, c2CubicPieces, c2SplineFreePoints, cnSplineFreePoints,
     extrapolatedQuadraticPieces, g1QuadraticPieces, g1SplineFreePoints, g1SymmetricPieces, g1SymmetricSplineFreePoints, pieceDerivative, splinePoint,
+    alphaC2SplineJoints, alphaC2SplinePieces, alphaC2SplinePoint, alphaC2SplineSamples, phArcLength, phControlPointsOf, phPointOf, phSpeedOf,
+    splineKnotIntervals, splineKnots, splineParameterizationPoints, uniformArcLengthParameters, uniformParameterizationFixture,
+    phCubicFixture, phQuinticFixture, phOffsetPointOf, phOffsetSelfIntersections, phVelocityOf, polylineSelfIntersections,
 } from './guidedExampleHighlightExpectations';
 
 describe('independent highlight expectations', () => {
@@ -294,5 +297,183 @@ describe('bezier-curves chapter highlight expectations (batch 03a)', () => {
         const ids = Object.keys(guidedExampleHighlightRecipes).filter(id => id.startsWith('splines.'));
         expect(ids.filter(id => guidedExampleHighlightRecipes[id].kind === 'start')).toEqual(['splines.worked-join.spline-c1.parabola-derivatives']);
         expect(ids.filter(id => guidedExampleHighlightRecipes[id].kind === 'highlight')).toHaveLength(5);
+    });
+});
+
+describe('PH parametrization and spline parameterization expectations (task 04a)', () => {
+    const uniformCurve = uniformParameterizationFixture;
+    /** Composite Simpson rule on the speed |w|^2, independent of the Gauss rule under test. */
+    const simpsonLength = (fixture: typeof uniformCurve, a: number, b: number, n = 2000) => {
+        const h = (b - a) / n;
+        let sum = phSpeedOf(fixture, a) + phSpeedOf(fixture, b);
+        for (let i = 1; i < n; i++) sum += (i % 2 ? 4 : 2) * phSpeedOf(fixture, a + i * h);
+        return sum * h / 3;
+    };
+
+    it('Gauss arc length equals an independent Simpson integral of the speed, on whole and partial intervals', () => {
+        for (const [a, b] of [[0, 1], [0, 0.3], [0.4, 0.9]]) expect(phArcLength(uniformCurve, a, b)).toBeCloseTo(simpsonLength(uniformCurve, a, b), 9);
+        expect(phArcLength(uniformCurve, 0, 1)).toBeGreaterThan(16);
+    });
+
+    it('phPointOf integrates the velocity: the end point is the last control point, and the lesson quintic matches the known control points', () => {
+        const controls = phControlPointsOf(uniformCurve);
+        expect(controls).toHaveLength(6);
+        near(phPointOf(uniformCurve, 1), controls[5]);
+        near(phPointOf(uniformCurve, 0), uniformCurve.start);
+        const lessonQuintic = phControlPointsOf({start: [-2, -1], generators: [[2, 0], [2, 1], [1, 1]]});
+        lessonQuintic.forEach((point, i) => near(point, phQuinticControlPoints[i]));
+        for (const t of [0.2, 0.5, 0.8]) near(phPointOf({start: [-2, -1], generators: [[2, 0], [2, 1], [1, 1]]}, t), phQuinticPoint(t));
+    });
+
+    it('uniform parameterization: ten samples split the arc into eleven equal arcs of L/11 = 1.52, unlike t = i/11', () => {
+        const total = phArcLength(uniformCurve, 0, 1);
+        const ts = uniformArcLengthParameters(uniformCurve, 10);
+        expect(ts).toHaveLength(10);
+        const knots = [0, ...ts, 1];
+        const gaps = knots.slice(1).map((t, i) => phArcLength(uniformCurve, knots[i], t));
+        expect(gaps).toHaveLength(11);
+        for (const gap of gaps) expect(gap).toBeCloseTo(total / 11, 8);
+        expect(total / 11).toBeCloseTo(1.52, 2);
+        const weighted = Array.from({length: 11}, (_, i) => phArcLength(uniformCurve, i / 11, (i + 1) / 11));
+        expect(Math.max(...weighted) / Math.min(...weighted)).toBeGreaterThan(1.5); // the start scene's parameter spacing is not equal-arc
+        const three = uniformArcLengthParameters(uniformCurve, 3);
+        expect(three[0]).toBeCloseTo(0.149, 3); expect(three[1]).toBeCloseTo(0.5, 6); expect(three[2]).toBeCloseTo(0.851, 3);
+    });
+
+    const chordOf = (a: number, b: number) => Math.hypot(splineParameterizationPoints[a][0] - splineParameterizationPoints[b][0], splineParameterizationPoints[a][1] - splineParameterizationPoints[b][1]);
+    const literalChords = [chordOf(0, 2), chordOf(2, 3), chordOf(3, 4), chordOf(4, 5), chordOf(5, 7)];
+
+    it('spline knots: interval k is |chord_k|^alpha, normalised to total 1', () => {
+        for (const alpha of [0, 0.5, 1]) {
+            const intervals = splineKnotIntervals(splineParameterizationPoints, alpha);
+            expect(intervals).toHaveLength(5);
+            intervals.forEach((value, k) => expect(value).toBeCloseTo(literalChords[k] ** alpha, 12));
+            const knots = splineKnots(splineParameterizationPoints, alpha);
+            expect(knots[0]).toBe(0); expect(knots.at(-1)).toBeCloseTo(1, 12);
+            const total = literalChords.reduce((s, c) => s + c ** alpha, 0);
+            knots.slice(1).forEach((u, k) => expect(u - knots[k]).toBeCloseTo(literalChords[k] ** alpha / total, 12));
+        }
+        const uniform = splineKnots(splineParameterizationPoints, 0);
+        uniform.forEach((u, k) => expect(u).toBeCloseTo(k / 5, 12));
+    });
+
+    it('spline joints: the lesson numbers J3 = (-3.325, 0.385) at alpha = 1 and (-2.133, 0) at alpha = 0; the joint moves by about 1.25', () => {
+        const chordal = alphaC2SplineJoints(splineParameterizationPoints, 1)[2], uniform = alphaC2SplineJoints(splineParameterizationPoints, 0)[2];
+        near(chordal, [-3.325, 0.385], 3);
+        near(uniform, [-2.133, 0], 3);
+        expect(Math.hypot(chordal[0] - uniform[0], chordal[1] - uniform[1])).toBeCloseTo(1.25, 1);
+    });
+
+    it('spline pieces are C2 at every joint for the chord knots, and interpolate the end points', () => {
+        for (const alpha of [0, 0.5, 1]) {
+            const pieces = alphaC2SplinePieces(splineParameterizationPoints, alpha), knots = splineKnots(splineParameterizationPoints, alpha);
+            expect(pieces).toHaveLength(5);
+            near(pieces[0][0], splineParameterizationPoints[0]); near(pieces[4][3], splineParameterizationPoints[7]);
+            for (let k = 0; k + 1 < pieces.length; k++) {
+                const left = knots[k + 1] - knots[k], right = knots[k + 2] - knots[k + 1];
+                near(pieces[k][3], pieces[k + 1][0]);
+                near(pieceDerivative(pieces[k], 1, left, true), pieceDerivative(pieces[k + 1], 1, right, false), 8);
+                near(pieceDerivative(pieces[k], 2, left, true), pieceDerivative(pieces[k + 1], 2, right, false), 8);
+            }
+        }
+    });
+
+    it('spline samples at t = i/11: the lesson distribution 2,2,2,2,2 at alpha = 0 and 1,1,1,4,3 at alpha = 1', () => {
+        const perPiece = (alpha: number) => {
+            const knots = splineKnots(splineParameterizationPoints, alpha);
+            return knots.slice(1).map((end, k) => Array.from({length: 10}, (_, i) => (i + 1) / 11).filter(t => t >= knots[k] && t < end).length);
+        };
+        expect(perPiece(0)).toEqual([2, 2, 2, 2, 2]);
+        expect(perPiece(1)).toEqual([1, 1, 1, 4, 3]);
+        const samples = alphaC2SplineSamples(splineParameterizationPoints, 1, 10);
+        expect(samples).toHaveLength(10);
+        for (const alpha of [0, 1]) {
+            const pieces = alphaC2SplinePieces(splineParameterizationPoints, alpha), knots = splineKnots(splineParameterizationPoints, alpha);
+            alphaC2SplineSamples(splineParameterizationPoints, alpha, 10).forEach((sample, i) => {
+                const t = (i + 1) / 11, k = knots.findIndex((u, index) => index < 5 && t >= u && t < knots[index + 1]);
+                near(sample, bezierPoint(pieces[k], (t - knots[k]) / (knots[k + 1] - knots[k])));
+            });
+        }
+        near(alphaC2SplinePoint(splineParameterizationPoints, 1, 0), splineParameterizationPoints[0]);
+    });
+
+    it('registers the two parametrization recipes with frames and empty steps', () => {
+        const uniform = guidedExampleHighlightRecipes['parametrization.uniform-timing.uniform-parameterization'];
+        const spline = guidedExampleHighlightRecipes['parametrization.weighted-knot.spline-parameterization'];
+        for (const [recipe, frame] of [[uniform, 'up-uniform-twenty-observation'], [spline, 'sp-chordal-observation']] as const) {
+            expect(recipe.kind).toBe('highlight');
+            if (recipe.kind === 'highlight') { expect(recipe.frame).toBe(frame); expect(recipe.steps).toEqual([]); expect(recipe.expectChange).toBe(true); }
+        }
+    });
+});
+
+describe('PH offset and singularity expectations (task 04a-3)', () => {
+    const fixtures = [['cubic', phCubicFixture], ['quintic', phQuinticFixture]] as const;
+    const ts = [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1];
+
+    it('offset point: |O - r| = |d| and (O - r).r-prime = 0 at samples, on the right for d > 0 and the left for d < 0', () => {
+        for (const [, fixture] of fixtures) for (const d of [1, 0.2, -2.5]) for (const t of ts) {
+            const [rx, ry] = phPointOf(fixture, t), [ox, oy] = phOffsetPointOf(fixture, d, t), [vx, vy] = phVelocityOf(fixture, t);
+            expect(Math.hypot(ox - rx, oy - ry)).toBeCloseTo(Math.abs(d), 10);
+            expect((ox - rx) * vx + (oy - ry) * vy).toBeCloseTo(0, 9);
+            expect(Math.sign(vx * (oy - ry) - vy * (ox - rx))).toBe(-Math.sign(d));
+        }
+    });
+
+    it('cubic at d = 1: r-prime(1) = (3, 4), unit normal (4, -3)/5, offset start (-2, -2) and end r(1) + (4/5, -3/5)', () => {
+        const [vx, vy] = phVelocityOf(phCubicFixture, 1);
+        expect(vx).toBeCloseTo(3, 12); expect(vy).toBeCloseTo(4, 12);
+        const [rx, ry] = phPointOf(phCubicFixture, 1), [ox, oy] = phOffsetPointOf(phCubicFixture, 1, 1);
+        expect(ox - rx).toBeCloseTo(0.8, 12); expect(oy - ry).toBeCloseTo(-0.6, 12);
+        const [sx, sy] = phOffsetPointOf(phCubicFixture, 1, 0);
+        expect(sx).toBeCloseTo(-2, 12); expect(sy).toBeCloseTo(-2, 12);
+    });
+
+    it('cubic hodograph: r-prime(t) = ((1-t) w0 + t w1)^2 matches finite differences of the control-point Bézier curve', () => {
+        const controls = phControlPointsOf(phCubicFixture), h = 1e-5;
+        for (const t of [0.1, 0.3, 0.5, 0.8]) {
+            const a = bezierPoint(controls, t - h), b = bezierPoint(controls, t + h);
+            const [vx, vy] = phVelocityOf(phCubicFixture, t);
+            expect((b[0] - a[0]) / (2 * h)).toBeCloseTo(vx, 5);
+            expect((b[1] - a[1]) / (2 * h)).toBeCloseTo(vy, 5);
+            const mix = (1 - t) * 2 + t * 2, mixIm = t; // (1-t)(2,0) + t(2,1) = (2, t)
+            expect(vx).toBeCloseTo(mix * mix - mixIm * mixIm, 12);
+            expect(vy).toBeCloseTo(2 * mix * mixIm, 12);
+        }
+    });
+
+    it('polyline self-intersections: a figure eight crosses once, a convex polyline and an empty one never', () => {
+        expect(polylineSelfIntersections([[0, 0], [2, 2], [2, 0], [0, 2]])).toHaveLength(1);
+        expect(polylineSelfIntersections([[0, 0], [2, 2], [2, 0], [0, 2]])[0].point).toEqual([1, 1]);
+        expect(polylineSelfIntersections([[0, 0], [1, 0], [1, 1], [0, 1]])).toHaveLength(0);
+        expect(polylineSelfIntersections([])).toHaveLength(0);
+    });
+
+    it('quintic offset at d = -2.5 crosses itself near t = 0.13 and 0.72 at about (-2.09, 1.49); d = +0.5 and +2.5 do not', () => {
+        const crossings = phOffsetSelfIntersections(phQuinticFixture, -2.5);
+        expect(crossings.length).toBeGreaterThan(0);
+        const {i, j, point} = crossings[0];
+        expect(i / 2000).toBeCloseTo(0.128, 2); expect(j / 2000).toBeCloseTo(0.718, 2);
+        expect(point[0]).toBeCloseTo(-2.09, 1); expect(point[1]).toBeCloseTo(1.49, 1);
+        expect(phOffsetSelfIntersections(phQuinticFixture, 0.5)).toHaveLength(0);
+        expect(phOffsetSelfIntersections(phQuinticFixture, 2.5)).toHaveLength(0);
+    });
+
+    it('cubic offset has no self-intersection at the default d = 0.2', () => {
+        expect(phOffsetSelfIntersections(phCubicFixture, 0.2)).toHaveLength(0);
+    });
+
+    it('registers the six PH cards with the offset steps, curve counts and the d = -2.5 slider value', () => {
+        const get = (id: string) => { const r = guidedExampleHighlightRecipes[id]; if (r.kind !== 'highlight') throw new Error(id); return r; };
+        expect(get('ph-curves.arc-length-problem.ph-cubic-speed')).toMatchObject({frame: 'ph-offsets-observation', steps: []});
+        expect(get('ph-curves.complex-hodograph.ph-cubic-generator')).toMatchObject({frame: 'instruction', steps: [], expectChange: false});
+        for (const id of ['ph-curves.arc-length-problem.ph-quintic-comparison', 'ph-curves.worked-length.ph-cubic-offset-length',
+            'ph-curves.investigate-ph.ph-cubic-singularity', 'ph-curves.investigate-ph.ph-quintic-singularity']) {
+            const r = get(id);
+            expect(r.frame).toBe('observe'); expect(r.checks.curveCount).toBe(2);
+            expect(r.steps.slice(0, 3)).toEqual([{kind: 'explore'}, {kind: 'select-tab', tab: 'display'}, {kind: 'set-control', control: 'checkbox', label: 'Odmiki krivulje', value: true}]);
+        }
+        expect(get('ph-curves.investigate-ph.ph-quintic-singularity').steps.at(-1)).toEqual({kind: 'set-control', control: 'slider', label: 'Razdalja odmika d', value: -2.5});
+        expect(get('ph-curves.worked-length.ph-cubic-offset-length').steps.at(-1)).toMatchObject({value: 1});
     });
 });

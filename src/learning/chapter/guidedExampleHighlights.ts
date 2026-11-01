@@ -26,7 +26,9 @@ import {affineLessonControlPoints, bernsteinValue, bezierPoint, bezierSegmentCon
     c2SplineFreePoints, cnSplineFreePoints, decasteljauRows, defaultQuarticControlPoints, elevationCubicControlPoints, extrapolatedQuadraticPieces,
     g1QuadraticPieces, g1SplineFreePoints, g1SymmetricPieces, g1SymmetricSplineFreePoints, splinePoint, extrapolationCubicControlPoints, phQuinticControlPoints, phQuinticOffsetPoint, phQuinticPoint,
     rationalBezierPoint, rationalControlPoints, rationalDecasteljauRows, rationalElevatedControls, rationalSegmentControls, rationalWeightsSecondTwo, rotateAboutMean, sampleCurve, subdivisionCubicControlPoints,
-    stackedBernsteinRegionSamples, symmetricCubicControlPoints, weightedKnotControlPoints, weightedWarp} from './guidedExampleHighlightExpectations';
+    stackedBernsteinRegionSamples, symmetricCubicControlPoints, weightedKnotControlPoints, weightedWarp,
+    alphaC2SplineJoints, alphaC2SplinePoint, alphaC2SplineSamples, phControlPointsOf, phPointOf, splineParameterizationPoints, uniformArcLengthParameters,
+    uniformParameterizationFixture, phCubicFixture, phQuinticFixture, phOffsetPointOf} from './guidedExampleHighlightExpectations';
 import type {Vec} from './guidedExampleHighlightExpectations';
 
 export type HighlightStep =
@@ -69,6 +71,12 @@ const PH_OFFSET_DISTANCE = 0.5;
 /** Weighted-parameterization value the quarter frame prepares, and the number of sample points it keeps. */
 const WP_ALPHA = 0.25, WP_SAMPLES = 3;
 const MIDPOINT = 0.5;
+
+/** parametrization chapter (batch 04a): the uniform lesson draws 10 samples at equal arc length; the spline lesson uses alpha=1 with 10 samples. */
+const UNIFORM_SAMPLES = 10, SPLINE_SAMPLES = 10, SPLINE_ALPHA = 1;
+const uniformSamplePoints = uniformArcLengthParameters(uniformParameterizationFixture, UNIFORM_SAMPLES).map(t => phPointOf(uniformParameterizationFixture, t));
+const chordalSplineJoints = alphaC2SplineJoints(splineParameterizationPoints, SPLINE_ALPHA);
+const chordalSplineSamples = alphaC2SplineSamples(splineParameterizationPoints, SPLINE_ALPHA, SPLINE_SAMPLES);
 
 const rationalMarked = rationalBezierPoint(rationalControlPoints, rationalWeightsSecondTwo, MIDPOINT);
 const wpCurve = sampleCurve(t => bezierPoint(weightedKnotControlPoints, t));
@@ -122,6 +130,21 @@ const c2Pieces = c2CubicPieces(c2SplineFreePoints);
 const g1Pieces = g1QuadraticPieces(g1SplineFreePoints, 1);
 const g1SymmetricQuarterPieces = g1SymmetricPieces(g1SymmetricSplineFreePoints, 1 / 4);
 
+/** PH offset cards (batch 04a-3): default offset distance of the PH graphs (ph-bezier-curve.ts) and the quintic distance with a self-intersection. */
+const PH_DEFAULT_OFFSET = 0.2, PH_QUINTIC_SELF_INTERSECTION = -2.5;
+/** The learner route to the offset: hide the lesson text, the Prikaz tab shows the offset checkbox, the Uredi tab holds the distance slider. */
+const phOffsetOn: readonly HighlightStep[] = [
+    {kind: 'explore'}, {kind: 'select-tab', tab: 'display'}, {kind: 'set-control', control: 'checkbox', label: 'Odmiki krivulje', value: true},
+];
+const phOffsetAt = (d: number): readonly HighlightStep[] => [...phOffsetOn, {kind: 'select-tab', tab: 'edit'}, {kind: 'set-control', control: 'slider', label: 'Razdalja odmika d', value: d}];
+const phCubicControls = phControlPointsOf(phCubicFixture), phQuinticControls = phControlPointsOf(phQuinticFixture);
+const phCubicWithOffset = (d: number): HighlightChecks => ({
+    curveCount: 2, points: phCubicControls, curves: [sampleCurve(t => phPointOf(phCubicFixture, t)), sampleCurve(t => phOffsetPointOf(phCubicFixture, d, t))],
+});
+const phQuinticWithOffset = (d: number): HighlightChecks => ({
+    curveCount: 2, points: phQuinticControls, curves: [sampleCurve(t => phPointOf(phQuinticFixture, t)), sampleCurve(t => phOffsetPointOf(phQuinticFixture, d, t))],
+});
+
 /**
  * Recipes by guided example id. Frame ids are the example lesson's own; expected values come from
  * guidedExampleHighlightExpectations.ts, computed from fixtures and formulas, never from the board.
@@ -151,6 +174,24 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
         kind: 'highlight', frame: 'wp-quarter-calculation-calculation', steps: [], expectChange: true,
         checks: {
             types: {curve: 1, point: 4 + WP_SAMPLES}, curveCount: 1, points: [...weightedKnotControlPoints, ...wpMarkers], curves: [wpCurve],
+        },
+    },
+    // Uniform mode with 10 samples on the quintic PH demonstration curve: the samples are at equal arc length (each of the 11 arcs is L/11),
+    // so the markers sit at r(t_k) with s(t_k) = k L / 11. The start scene is weighted mode with 3 samples, so the board changes.
+    'parametrization.uniform-timing.uniform-parameterization': {
+        kind: 'highlight', frame: 'up-uniform-twenty-observation', steps: [], expectChange: true,
+        checks: {
+            curveCount: 1, points: [...phControlPointsOf(uniformParameterizationFixture), ...uniformSamplePoints],
+            curves: [sampleCurve(t => phPointOf(uniformParameterizationFixture, t))],
+        },
+    },
+    // Chordal spline (alpha=1, knot intervals |chord|^alpha) of the 8 lesson points with 10 samples at t = i/11; the frame sets alpha and the
+    // samples itself. The joints differ from the alpha=0 spline (J3 = (-3.325, 0.385) instead of (-2.133, 0)).
+    'parametrization.weighted-knot.spline-parameterization': {
+        kind: 'highlight', frame: 'sp-chordal-observation', steps: [], expectChange: true,
+        checks: {
+            curveCount: 1, points: [...splineParameterizationPoints, ...chordalSplineJoints, ...chordalSplineSamples],
+            curves: [sampleCurve(t => alphaC2SplinePoint(splineParameterizationPoints, SPLINE_ALPHA, t))],
         },
     },
     // bezier-curves, batch 03a. Rotating the four controls by 90 degrees about their mean (3,1) gives (4,-1),(1,0),(2,2),(5,3); the Bézier
@@ -317,6 +358,32 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
     'splines.piecewise.spline-cn': {
         kind: 'highlight', frame: 'cn-extrapolate-observation', steps: [], expectChange: true,
         checks: {curveCount: 1, points: splineVisiblePoints(cnSplineFreePoints, cnPieces), curves: [splineCurve(cnPieces)]},
+    },
+    // PH cards (batch 04a-3). O(t) = r(t) + d n(t): |O - r| = |d| and (O - r).r' = 0, sampled at 0, 1/2, 1.
+    // ph-offsets-observation sets the cubic offset to d=1 itself (r'(1)=(3,4), normal (4,-3)/5).
+    'ph-curves.arc-length-problem.ph-cubic-speed': {
+        kind: 'highlight', frame: 'ph-offsets-observation', steps: [], expectChange: true, checks: phCubicWithOffset(1),
+    },
+    // Quintic start scene with its offset switched on at the default distance d=0.2.
+    'ph-curves.arc-length-problem.ph-quintic-comparison': {
+        kind: 'highlight', frame: 'observe', steps: phOffsetOn, expectChange: true, checks: phQuinticWithOffset(PH_DEFAULT_OFFSET),
+    },
+    // The kept start scene: no step, board unchanged; the cubic curve and its control points.
+    'ph-curves.complex-hodograph.ph-cubic-generator': {
+        kind: 'highlight', frame: 'instruction', steps: [], expectChange: false,
+        checks: {curveCount: 1, points: phCubicControls, curves: [sampleCurve(t => phPointOf(phCubicFixture, t))]},
+    },
+    // Cubic offset at d=1 for the length card: the source-length readout belongs to the curve, not to the offset.
+    'ph-curves.worked-length.ph-cubic-offset-length': {
+        kind: 'highlight', frame: 'observe', steps: phOffsetAt(1), expectChange: true, checks: phCubicWithOffset(1),
+    },
+    // D10 fallback (ph-singularity-distance.md): no robust self-intersection for the cubic, so start plus the offset at the default distance.
+    'ph-curves.investigate-ph.ph-cubic-singularity': {
+        kind: 'highlight', frame: 'observe', steps: phOffsetOn, expectChange: true, checks: phCubicWithOffset(PH_DEFAULT_OFFSET),
+    },
+    // Quintic offset at d=-2.5 (slider range -3..3, step 0.01): the offset crosses itself near t=0.13 and 0.72.
+    'ph-curves.investigate-ph.ph-quintic-singularity': {
+        kind: 'highlight', frame: 'observe', steps: phOffsetAt(PH_QUINTIC_SELF_INTERSECTION), expectChange: true, checks: phQuinticWithOffset(PH_QUINTIC_SELF_INTERSECTION),
     },
     // The worked-join family card is the prepared parabola join scene ('worked-parabola-join'); it has no lesson frame, so it stays the start scene.
     'splines.worked-join.spline-c1.parabola-derivatives': {kind: 'start'},
