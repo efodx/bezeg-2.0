@@ -27,3 +27,10 @@ Performance: record one measurement of dragging an endpoint with 12 segments (tr
 Not in scope: route, Demonstration registration and the C2 lesson (S1 F2b/F3 slices, `G-REG`).
 
 Checks: `just unit src/graphs/compgeo --maxWorkers=2`, `just lint` on touched files, `npx tsc --noEmit --pretty false`, `just build`.
+
+## Decisions (handler 14, 2026-11-01)
+
+- **Segment names are 1-based** (`s1`…`s4` for the spec's \(s_0\)…\(s_3\)), matching the segment-set mode's board labels and inputs from task 04 (`pointset_segment_x`). One helper, `segmentName` in `bentleyOttmannRun.ts`, owns the naming. The C2 lesson text uses the app's names.
+- **Step 0** is the state after the initial endpoint scheduling; the leading `schedule` events are not steps.
+- **The default example makes 9 neighbour tests against \(\binom42=6\) pair tests:** with \(k=5\) crossings among four segments the sweep tests more than brute force. The C2 summary step must say so (the \(O((n+k)\log n)\) gain needs \(k\) small), not claim fewer tests.
+- **Fractions in the panel are text** (`21/16 = 1,3125`): panels do not render KaTeX.
