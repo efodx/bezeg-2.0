@@ -1,6 +1,7 @@
 import React from "react";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
-import {currentLanguage, Language, onLanguageChange, t} from "../../localization";
+import {currentLanguage, Language, Message, onLanguageChange, renderMessage, t} from "../../localization";
+import {cleanNumber} from "../../analysis/numbers";
 import {Preset} from "../base/presets/Presets";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {LessonAction} from "../../learning/model";
@@ -46,15 +47,19 @@ type BoundingBox = [left: number, top: number, right: number, bottom: number];
  * (`ignoreOutOfDomain`); lesson actions let it propagate, and anything else is a bug and is never swallowed.
  */
 export class DomainError extends Error {
-    constructor(message: string) {
-        super(message);
+    /** The localizable reason when the model module gave one; `message` is its text in the language at the time of the throw. */
+    readonly reason?: Message;
+
+    /** A model-module reason is preferred: the text a learner sees is then localized, never hand-written English. */
+    constructor(reason: string | Message) {
+        super(typeof reason === "string" ? reason : renderMessage(reason));
+        if (typeof reason !== "string") this.reason = reason;
         this.name = "DomainError";
         Object.setPrototypeOf(this, DomainError.prototype);
     }
 }
 
-/** Removes floating-point noise left by rounding or slider arithmetic (and the sign of zero) without changing meaningful digits. */
-export const cleanNumber = (value: number) => Math.round(value * 1e9) / 1e9 + 0;
+export {cleanNumber};
 
 /**
  * `cleanNumber` for a value that may legitimately be irrational (an endpoint such as pi): only floating-point noise (below 1e-12)
