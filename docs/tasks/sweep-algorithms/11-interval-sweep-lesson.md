@@ -1,0 +1,21 @@
+# 11 — Interval-sweep lesson actions and lesson C1 (S1, F3)
+
+Status: written 2026-11-01 (geometry handler 19). Source: spec [C1](../../specs/sweep-algorithms-lessons.md#c1-sweep-as-an-idea) (goal, example, steps, acceptance 1, 3, 4), [testing decisions](../../specs/sweep-algorithms-lessons.md#testing-decisions) (scene tests), [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31). Kind: F3; review covers scene actions, trace readouts and counts, not prose. Depends on 08 (`IntervalSweepGraph`) and 10 (route `interval-sweep`). Template: triangulation [09](../triangulation-voronoi/09-ear-clipping-lesson.md) (`set-trace-step`, `algorithm-trace`, scene views). Shared runtime: `src/learning/model.ts` (action union) is shared with Platform; change only the `point-set` members named here.
+
+## Decisions (handler 19, 2026-11-01)
+
+- **`set-points` modes.** The `point-set` `set-points` action's `mode` widens from `'points' | 'polygon'` to also `'segments' | 'intervals'`. `PointSetGraph.applyPointSetAction` refuses a mode its graph does not allow (`allowsSegments()`, `allowsIntervals()`), with the same error class it uses for other refused lesson actions, and validates the point list as an import of that mode does (even count, interval pairs on one row). `lessonCatalog.ts` `sceneActions()` validates the shape only. Task 12 uses `'segments'`.
+- **Trace step.** `IntervalSweepGraph` adopts `set-trace-step` (number clamped like a stored Preset step, `'end'` the last step), as `EarClippingGraph` does; reuse its code rather than copying it, if a shared helper is small.
+- **Animation.** `IntervalSweepGraph` registers `algorithm-trace` (`next-step`, `reset`, `play`, `pause`, `replay`) through its button transitions, if it does not already.
+- **Chapter owner.** The interim owner used by `ear-clipping` until the computational-geometry chapters for triangulation and sweeps exist.
+- **Step 6 ("the same idea rotated")** is text on the interval board; the lesson does not switch Demonstrations.
+
+## Acceptance
+
+1. **Actions** as decided above. Every edit action pauses and returns to step 0; `set-overlay` keeps the step.
+2. **Lesson** C1 (`interval-sweep`) in `src/learning/content/compgeoGuidedLessons.ts`; remove `lesson: false` from `interval-sweep` in `src/demonstrations.ts` and `'interval-sweep'` from the list in `lessonCatalog.test.ts`; update the preview-copy counts in `guidedExamplePreviewCopy.test.ts` and add the id to the smoke `LESSONS` list. The spec's seven steps, using its example \(a=[0,4]\), \(b=[2,7]\), \(c=[3,5]\), \(d=[6,9]\), \(e=[8,10]\): events \(0^+,2^+,3^+,4^-,5^-,6^+,7^-,8^+,9^-,10^-\); open counts \(1,2,3,2,1,2,1,2,1,0\); maximum \(3\) on \([3,4]\); pairs \(ab, ac, bc, bd, de\) against \(\binom52=10\). Step 3 states the tie rule (entering before leaving at equal \(x\), closed intervals); step 7 is free exploration and reaches a zero-length interval (spec acceptance 4) through the second sample or an edit. Playback is stopped by default and never autoplays.
+3. **Views.** Every scene has a `view` that frames its intervals (the lesson smoke checks board points against the lesson view).
+4. **Text:** one-shot, Slovenian and English, terms from the spec's table (*pometalna premica*, *dogodek*, *vrsta dogodkov*, *stanje*). Every quoted value equals the scene's readout at that step.
+5. **Tests:** frames run in one synchronous sequence (AGENTS.md); readouts at the quoted steps (open count, maximum, pairs so far) match the numbers above; `set-trace-step` clamps and `'end'` equals Next until done; `next-step` ×k equals Next ×k; `set-points` with `'intervals'` is accepted by `IntervalSweepGraph` and refused by `HullTraceGraph`, and with `'segments'` refused by `IntervalSweepGraph`; Back and a scene change pause playback and leave no pending scheduler callback. An observed failure under a mutation for each new assertion.
+
+Checks: `npx tsc --noEmit --pretty false`; `just lint` on touched paths; `just unit src/graphs/compgeo src/learning`; `lessonMathNotation.test.ts`; full unit suite once; `just build`. Handler: engineering review, then `just smoke-lesson interval-sweep` and a check of both languages with a live switch.
