@@ -968,6 +968,18 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
     /**
+     * Removes every board object the family's own teardown left behind, except board infrastructure. Returns the removed
+     * objects so tests can see which families still rely on it.
+     */
+    protected sweepSceneBoardObjects(): any[] {
+        if (!this.hasBoard) return [];
+        const preservedBoardObjects = this.boardInfrastructureObjectClosure();
+        const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
+        if (remainingObjects.length) this.board.removeObject(remainingObjects);
+        return remainingObjects;
+    }
+
+    /**
      * Replaces the live scene with a Preset (a stored Preset, the default scene, a batch figure or the batch entry scene).
      * `transientState` is the entry scene's captured transient state; without it the scene starts with fresh transient
      * state, as loading the Preset would.
@@ -992,11 +1004,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                 if (this.hasBoard) this.board.suspendUpdate();
                 try {
                     this.disposeFigureScene();
-                    if (this.hasBoard) {
-                        const preservedBoardObjects = this.boardInfrastructureObjectClosure();
-                        const remainingObjects = this.board.objectsList.filter((object: any) => !preservedBoardObjects.has(object)).reverse() as any[];
-                        if (remainingObjects.length) this.board.removeObject(remainingObjects);
-                    }
+                    this.sweepSceneBoardObjects();
                     if (!entry) this.importFigurePresetData(preset);
                     else this.importPresetData(entry.preset.data == null ? cloneLessonValue(this.defaultPreset()) : cloneLessonValue(entry.preset.data));
                 } finally {
