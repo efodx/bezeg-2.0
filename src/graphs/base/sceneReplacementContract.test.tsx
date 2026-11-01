@@ -167,8 +167,6 @@ const selectFirstCurve = (rig: Rig) => {
 const KNOWN_FAILURES: Partial<Record<string, string>> = {
     // A3 S3: ph-cubic leaks no objects but remounting the used graph throws: unmount drops the curves, and the PH offset
     // controls render (getFirstJxgCurveAsPHCurve() is undefined) before the new mount rebuilds them. Flip to it() when mount owns that.
-    'ph-cubic/remount': 'controls render before the curves are rebuilt',
-    'ph-cubic (curve selected)/remount': 'controls render before the curves are rebuilt',
 };
 
 const MATRIX: Array<[string, () => GraphLike, ((rig: Rig) => void)?]> = [
@@ -269,7 +267,6 @@ describe('disposal per replacement', () => {
 
     describe.each(FAMILIES)('%s', (family, make, curveFamily) => {
         for (const entry of ENTRIES) {
-            if (entry === 'remount' && family === 'ph-cubic') continue; // known remount failure, see KNOWN_FAILURES
             const batchSize = entry === 'figure batch' ? 2 : 1;
             // A batch figure disposes for the figure and again for the restored entry scene.
             const expected = DISPOSING_ENTRIES.includes(entry) ? batchSize : curveFamily ? 1 : 0;
@@ -307,4 +304,35 @@ describe('disposal per replacement', () => {
             rig.mounted.view.unmount();
         }
     }, REAL_GRAPH_TEST_TIMEOUT);
+});
+
+/**
+ * Teardown once per replacement (A3 S3b): the scene-owning curve families remove their scene exactly once per replacement.
+ * The figure path disposes first, so the importer's `ensureScene` must not tear down again; the lesson entries do not
+ * dispose, so there the importer's own teardown is the one.
+ */
+describe('scene teardown once per replacement', () => {
+    const FAMILIES: Array<[string, () => GraphLike]> = [
+        ['hermite', () => graphFactories['interp-hermite']()],
+        ['interpolation', () => graphFactories['interp-lagrange']()],
+        ['parametric', () => graphFactories['curve-parametric']()],
+    ];
+    describe.each(FAMILIES)('%s', (_family, make) => {
+        for (const entry of ['reload', 'lesson default scene', 'lesson checkpoint'] as Entry[]) {
+            it(`${entry} removes the scene once`, async () => {
+                const rig = open(make);
+                const removals = vi.spyOn(rig.graph as unknown as {removeScene(): void}, 'removeScene');
+                const checkpoint = entry === 'lesson checkpoint' ? rig.graph.getLessonCapabilities().captureState() : undefined;
+                try {
+                    for (let cycle = 0; cycle < 2; cycle++) {
+                        removals.mockClear();
+                        await replace(entry, rig, checkpoint);
+                        expect(removals).toHaveBeenCalledTimes(1);
+                    }
+                } finally {
+                    rig.mounted.view.unmount();
+                }
+            });
+        }
+    });
 });
