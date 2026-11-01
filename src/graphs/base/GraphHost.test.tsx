@@ -261,7 +261,7 @@ test('workspace panels expose graph-owned playback pause and picker availability
     panels.pausePlayback();
     expect(graph.figureCapturePauses).toBe(1);
 
-    (graph as any).activeSingleFigureExports = 1;
+    void graph.figureExports.runSingle(() => new Promise<void>(() => undefined));
     const exportingPanels = graph.getWorkspacePanels();
     expect(exportingPanels.pickerUnavailable).toBe(true);
     expect(exportingPanels.graphBusy).toBe(false);
