@@ -1,0 +1,5 @@
+{"case":"bezier/curve rotate (desktop 1440x900, throttle 1)","run":1,"samples":321,"median":16.7,"p95":16.7,"max":16.8,"effect":1.57}
+
+case | median ms (range) | p95 ms (range) | samples per run
+bezier/curve rotate (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 321
+curve-gesture-perf FAILED: rational/base rotate (desktop 1440x900, throttle 1) run 1: control points are not finite after the gesture: [[null,null],[null,null],[null,null],[null,null]]

@@ -1,0 +1,10 @@
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":1,"samples":492,"median":16.7,"p95":16.8,"max":33.4,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":2,"samples":495,"median":16.7,"p95":16.7,"max":33.4,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":3,"samples":465,"median":16.7,"p95":16.8,"max":33.4,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":488,"median":16.7,"p95":83.4,"max":149.9,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":490,"median":16.7,"p95":100,"max":150,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":3,"samples":494,"median":16.7,"p95":100.1,"max":166.6,"effect":216.49}
+
+case | median ms (range) | p95 ms (range) | samples per run
+analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 492/495/465
+analysis/accumulation drag $$x$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 100.0 (83.4-100.1) | 488/490/494

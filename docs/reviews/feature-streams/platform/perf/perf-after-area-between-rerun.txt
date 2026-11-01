@@ -1,0 +1,10 @@
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":410,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":416,"median":16.7,"p95":16.8,"max":16.8,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":3,"samples":405,"median":16.7,"p95":16.7,"max":33.4,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":556,"median":16.7,"p95":83.4,"max":133.3,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":560,"median":16.7,"p95":83.4,"max":116.7,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":3,"samples":545,"median":16.7,"p95":83.3,"max":150,"effect":150.04}
+
+case | median ms (range) | p95 ms (range) | samples per run
+functions/area-between drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.8) | 410/416/405
+functions/area-between drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 83.4 (83.3-83.4) | 556/560/545
