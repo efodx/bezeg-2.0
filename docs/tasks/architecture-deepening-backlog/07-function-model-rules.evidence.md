@@ -130,3 +130,33 @@ Learner-visible paths for these messages: lesson actions propagate the error; `G
 - **Review:** `bezeg-reviewer` Sonnet (engineering + localization) found no defects.
 - **Handler checks on the final tree:** `just typecheck`, `just lint src` and `just unit src/analysis src/graphs/functions src/localization` all passed. Collection tests are unchanged.
 - **Not run:** `just check` (deferred to A7 verification) and browser checks.
+
+## Slice 2c: Extrema, Sequence, Taylor (2026-11-01)
+
+- **Workers:** two `bezeg-worker` Sonnet `medium` workers ran in parallel (dispatched 08:30Z).
+  - Extrema + Sequence: about 113k tokens, 61 tools, 19.8 min.
+  - Taylor: about 63k tokens, 22 tools, 4.5 min.
+  - Neither needed a repair.
+- **Shape:** the same pattern as slice 2b.
+  - Taylor issue kinds: `example`, `center` (a per-example range; min = max means a fixed center), `degree`, `x`, `visibility`.
+  - Sequence `terms` has a file issue only, because terms change only through the iteration.
+  - A stale `eslint-suppressions.json` entry for `SequenceGraph.tsx` was removed: its unused imports, including a dead `LessonActionRegistry`, are gone.
+- **New keys:**
+  - `extrema_endpoint_range_rejected`
+  - `extrema_example_rejected`
+  - `sequence_example_rejected`
+  - `taylor_example_rejected`
+  - `taylor_center_fixed_rejected`, whose Slovenian text the handler changed:
+    - Old: "Središče tega primera je negibno pri c = …".
+    - New: "Pri tem primeru je središče stalno: c = …".
+    - Why: "negibna točka" is the catalog's term for a fixed point of an iteration, and "stalno" matches `taylor_center_fixed_help`.
+- **Mutations observed by the workers:**
+  - A setter throwing English fails the new localization tests (Sequence, Taylor).
+  - Disabling the Extrema a-order check fails 5 tests.
+  - Loosening the Taylor degree check fails the model test and 3 graph tests.
+- **Review:** `bezeg-reviewer` Sonnet (engineering + localization) found no defects.
+  - Acceptance, normalization, precedence and same-value behaviour match HEAD.
+  - Process deviation: the reviewer ran `npx vitest run src/graphs/functions src/analysis` (2065/2065 passed on the final tree) instead of going through `just`.
+- **Handler checks on the final tree:** `just typecheck` and `just lint src` passed. The handler's `just unit src/analysis src/graphs/functions src/localization src/learning` run was stopped by OS memory pressure before it finished.
+  - Unit evidence on the final tree is therefore the reviewer's run, plus each worker's own file-filtered runs.
+  - `just check` stays required at A7 verification.

@@ -604,3 +604,35 @@ test('an endpoint carrying floating-point noise is cleaned and compared cleaned;
     const first = graph.viewOf(graph.model);
     expect(graph.viewOf({...graph.model})).toBe(first);
 });
+
+test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
+    const refusals = (language: 'sl' | 'en') => {
+        setLanguage(language);
+        const graph = makeGraph({asyncState: false});
+        const messageOf = (action: LessonAction) => {
+            try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
+            throw new Error('the edit was accepted');
+        };
+        return [messageOf(parameter('extrema-a', 2)), messageOf(parameter('extrema-a', -5)), messageOf(parameter('extrema-b', -1)),
+            messageOf(parameter('extrema-b', NaN)), messageOf(choice('quartic'))];
+    };
+    expect(refusals('en')).toEqual([
+        'The endpoint a must stay left of b (a < b). Move b first.',
+        'The endpoint a must be a number between −4 and 4.',
+        'The endpoint b must stay right of a (a < b). Move a first.',
+        'The endpoint b must be a number between −4 and 4.',
+        'The example must be one of: square, cube, abs, sine.',
+    ]);
+    expect(refusals('sl')).toEqual([
+        'Krajišče a mora ostati levo od b (a < b). Najprej premakni b.',
+        'Krajišče a mora biti število med −4 in 4.',
+        'Krajišče b mora ostati desno od a (a < b). Najprej premakni a.',
+        'Krajišče b mora biti število med −4 in 4.',
+        'Primer mora biti eden od: square, cube, abs, sine.',
+    ]);
+    setLanguage('en');
+    const graph = makeGraph({asyncState: false});
+    let reason: unknown;
+    try { apply(graph, parameter('extrema-b', 9)); } catch (error) { reason = (error as DomainError).reason; }
+    expect(reason).toEqual({key: 'extrema_endpoint_range_rejected', params: {value0: 'b', value1: '−4', value2: '4'}});
+});
