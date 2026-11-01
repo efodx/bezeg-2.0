@@ -5,6 +5,8 @@ import {resolve} from 'node:path';
 import {GUIDED_EXAMPLE_PREVIEW_IDS, getGuidedExamplePreviewCopy, resolveGuidedExamplePreview} from './guidedExamplePreviews';
 import {retainedExampleHomes} from './retainedExamples';
 import {resolveGuidedExample} from './guidedExamples';
+import {getChapterOwnedLessons} from '../content/chapterOwnedLessons';
+import {linearMapsPreviewCopy} from '../content/linearMapsPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -104,4 +106,52 @@ it('has bilingual preview copy for every retained example and keeps special scen
     expect(workedWeight?.caption.en).not.toContain('degree three');
     expect(workedWeight?.alt.sl).toContain('treh kvadratnih Bernsteinovih baznih funkcij');
     expect(workedWeight?.caption.sl).toContain('naloženi prikaz je izklopljen');
+});
+
+it('publishes the Linear maps example cards with their own checked images and per-section copy', () => {
+    const chapterId = 'linear-maps';
+    const destination = resolve('src/images/learning/examples', chapterId);
+    const owned = getChapterOwnedLessons(chapterId);
+    if (!owned) throw new Error('linear-maps is not chapter-owned');
+    const homes = owned.entries().map(([sectionId, lesson]) => ({
+        id: `${chapterId}.${sectionId}.${lesson.demonstrationId}`, sectionId, demonstrationId: lesson.demonstrationId,
+        path: owned.path(sectionId) ?? ''}));
+    const ids = homes.map(home => home.id).sort();
+    expect(ids).toEqual(['linear-maps.determinant-area.linear-map', 'linear-maps.matrix-and-image.linear-map']);
+    expect(Object.keys(linearMapsPreviewCopy).sort()).toEqual(ids);
+    const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]}})[]} = JSON.parse(
+        readFileSync(resolve('docs/reviews', chapterId, 'guided-example-inventory.json'), 'utf8'));
+    const manifest: {captures: Capture[]} = JSON.parse(readFileSync(resolve(destination, 'manifest.json'), 'utf8'));
+    expect(inventory.examples.map(entry => entry.id).sort()).toEqual(ids);
+    expect(manifest.captures.map(entry => entry.id).sort()).toEqual(ids);
+    expect(readdirSync(destination).filter(file => file.endsWith('.png')).sort()).toEqual(ids.map(id => `${id}.png`));
+    for (const home of homes) {
+        const entry = inventory.examples.find(item => item.id === home.id);
+        const capture = manifest.captures.find(item => item.id === home.id);
+        if (!entry || !capture) throw new Error(`${home.id}: missing mapping`);
+        const example = resolveGuidedExample(new URL(home.path, 'https://bezeg.invalid').search, home.demonstrationId);
+        expect(example?.owner).toMatchObject({chapterId, sectionId: home.sectionId});
+        const step = example?.lesson.steps[0];
+        if (!step) throw new Error(`${home.id}: missing prepared example`);
+        expect(entry).toMatchObject({id: home.id, path: home.path, recipe: {kind: 'start'}});
+        expect(entry.actions).toEqual(step.scene?.actions.map(action => `${action.kind}: ${JSON.stringify(action)}`));
+        expect(entry.expected.curveCount).toBeGreaterThan(0);
+        expect(entry.expected.points.length).toBeGreaterThan(0);
+        expect(capture).toMatchObject({file: `${home.id}.png`, width: 840, height: 520, path: home.path,
+            initialFrame: {firstFrame: true, backNavigationDisabled: true},
+            framing: {boardOnly: true, guidedLessonOverlayHidden: true}, captureEvidence: {servedBuildVerified: true, pageErrors: []}});
+        const png = readFileSync(resolve(destination, capture.file));
+        expect(createHash('sha256').update(png).digest('hex')).toBe(capture.sha256);
+        for (const language of ['sl', 'en'] as const) {
+            const preview = resolveGuidedExamplePreview(home.id, home.demonstrationId, language);
+            expect(preview?.src, `${home.id}/${language}`).toBeTruthy();
+            expect(preview?.alt.trim()).toBeTruthy();
+            expect(preview?.caption.trim()).toBeTruthy();
+        }
+    }
+    // L1 and L2 share a Demonstration but not a card.
+    for (const language of ['sl', 'en'] as const) {
+        expect(resolveGuidedExamplePreview(ids[0], 'linear-map', language)?.caption)
+            .not.toBe(resolveGuidedExamplePreview(ids[1], 'linear-map', language)?.caption);
+    }
 });

@@ -6,6 +6,24 @@ const {assertPresentationGeometryStable, assertInventoryFamily, captureOutputPat
 const {fakeSurfaceHost} = require('./surface-view-fixture.cjs');
 const {readPublishedSurfaceEvidence: readSurface, validateSurfaceEvidence: validateSurface} = require('./guided-example-surface-evidence.cjs');
 
+test('linear-maps capture family is isolated from the retained manifest and the patches destination', () => {
+    const entry = {id: 'linear-maps.matrix-and-image.linear-map',
+        path: '/bezeg-2.0/linear-map?example=lesson.linear-maps.matrix-and-image.linear-map'};
+    const root = path.resolve(__dirname, '..');
+    assert.equal(destinationForFamily('linear-maps'), path.join(root, 'src/images/learning/examples/linear-maps'));
+    assert.equal(captureOutputPath(destinationForFamily('linear-maps'), entry.id),
+        path.join(root, 'src/images/learning/examples/linear-maps', `${entry.id}.png`));
+    assert.equal(parseArgs(['inventory.json', '--family', 'linear-maps']).family, 'linear-maps');
+    assert.doesNotThrow(() => assertInventoryFamily([entry], 'linear-maps'));
+    assert.throws(() => assertInventoryFamily([entry], 'retained'), /require explicit --family linear-maps/);
+    assert.throws(() => assertInventoryFamily([{...entry, id: 'chapter.example'}, entry], 'linear-maps'), /requires a linear-maps inventory/);
+    assert.throws(() => assertInventoryFamily([{...entry, path: '/bezeg-2.0/curves?example=x'}], 'linear-maps'), /requires a linear-maps inventory/);
+    assert.throws(() => assertInventoryFamily([], 'linear-maps'), /requires a linear-maps inventory/);
+    assert.throws(() => assertInventoryFamily([entry], 'patches'), /requires a patch inventory/);
+    assert.throws(() => assertInventoryFamily([{id: 'bezier-patches.curve-to-patch.patch-tensor', path: '/bezeg-2.0/patches/x'}], 'linear-maps'), /requires a linear-maps inventory/);
+    assert.throws(() => parseArgs(['inventory.json', '--family', 'unknown']), /Unsupported capture family: unknown/);
+});
+
 test('patch capture family uses its fixed subdirectory and rejects retained inventories', () => {
     const inventory = [{id: 'bezier-patches.curve-to-patch.patch-tensor',
         path: '/bezeg-2.0/patches/curve-to-patch?example=lesson.bezier-patches.curve-to-patch.patch-tensor'}];

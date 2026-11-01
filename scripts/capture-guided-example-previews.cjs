@@ -1,6 +1,6 @@
 // Capture guided-example card media from a complete generated inventory: the exact prepared start scene, or the
 // authored highlight recipe state (frame + learner-equivalent steps) when the entry carries a highlight recipe.
-// node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter] [--family patches]
+// node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter] [--family patches|linear-maps]
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -49,9 +49,15 @@ function presentationFingerprint({recipeFraming = [], entryFraming = [], helpers
         .digest('hex');
 }
 
+/** Board-based chapter-owned destinations: a subdirectory under the examples root, the chapter's id prefix and its route. */
+const chapterFamilies = {
+    patches: {label: 'patch', idPrefix: 'bezier-patches.', route: /^\/bezeg-2\.0\/patches(?:\/|$)/, routeText: '/bezeg-2.0/patches'},
+    'linear-maps': {label: 'linear-maps', idPrefix: 'linear-maps.', route: /^\/bezeg-2\.0\/linear-map(?:\/|$)/, routeText: '/bezeg-2.0/linear-map'},
+};
+
 function parseArgs(argv) {
     const [inventoryPath, ...rest] = argv;
-    assert.ok(inventoryPath && !inventoryPath.startsWith('--'), 'Usage: node scripts/capture-guided-example-previews.cjs <inventory.json> [--id <id>] [--family patches]');
+    assert.ok(inventoryPath && !inventoryPath.startsWith('--'), `Usage: node scripts/capture-guided-example-previews.cjs <inventory.json> [--id <id>] [--family ${Object.keys(chapterFamilies).join('|')}]`);
     const ids = [];
     let family = 'retained';
     for (let index = 0; index < rest.length; index++) {
@@ -59,7 +65,7 @@ function parseArgs(argv) {
         else if (rest[index] === '--family' && rest[index + 1]) {
             assert.equal(family, 'retained', '--family may be specified only once');
             family = rest[++index];
-            assert.equal(family, 'patches', `Unsupported capture family: ${family}`);
+            assert.ok(Object.hasOwn(chapterFamilies, family), `Unsupported capture family: ${family}`);
         } else throw new Error(`Unknown or incomplete option: ${rest[index]}`);
     }
     const envIds = process.env.PREVIEW_EXAMPLE_IDS?.split(',').map(value => value.trim()).filter(Boolean) || [];
@@ -69,21 +75,25 @@ function parseArgs(argv) {
 
 function destinationForFamily(family) {
     if (family === 'retained') return defaultDestination;
-    assert.equal(family, 'patches', `Unsupported capture family: ${family}`);
-    return path.join(defaultDestination, 'patches');
+    assert.ok(Object.hasOwn(chapterFamilies, family), `Unsupported capture family: ${family}`);
+    return path.join(defaultDestination, family);
 }
 
+const entryPathname = entry => new URL(entry.path, 'https://bezeg.invalid').pathname;
+const belongsToFamily = (entry, info) => entry.id.startsWith(info.idPrefix) || info.route.test(entryPathname(entry));
+
 function assertInventoryFamily(inventory, family) {
-    const isPatchEntry = entry => entry.id.startsWith('bezier-patches.')
-        || /^\/bezeg-2\.0\/patches(?:\/|$)/.test(new URL(entry.path, 'https://bezeg.invalid').pathname);
     if (family === 'retained') {
-        assert.ok(!inventory.some(isPatchEntry), 'Patch inventories require explicit --family patches to protect the retained manifest');
+        for (const [name, info] of Object.entries(chapterFamilies)) {
+            assert.ok(!inventory.some(entry => belongsToFamily(entry, info)),
+                `${info.label[0].toUpperCase()}${info.label.slice(1)} inventories require explicit --family ${name} to protect the retained manifest`);
+        }
         return;
     }
-    assert.ok(family === 'patches' && inventory.length > 0 && inventory.every(entry => {
-        const pathname = new URL(entry.path, 'https://bezeg.invalid').pathname;
-        return entry.id.startsWith('bezier-patches.') && /^\/bezeg-2\.0\/patches(?:\/|$)/.test(pathname);
-    }), 'The patches destination requires a patch inventory (bezier-patches.* ids on /bezeg-2.0/patches)');
+    assert.ok(Object.hasOwn(chapterFamilies, family), `Unsupported capture family: ${family}`);
+    const info = chapterFamilies[family];
+    assert.ok(inventory.length > 0 && inventory.every(entry => entry.id.startsWith(info.idPrefix) && info.route.test(entryPathname(entry))),
+        `The ${family} destination requires a ${info.label} inventory (${info.idPrefix}* ids on ${info.routeText})`);
 }
 
 function captureOutputPath(destination, id) {

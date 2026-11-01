@@ -173,14 +173,92 @@ async function generatePatchInventory() {
     }
 }
 
+/**
+ * Board-based chapter-owned chapters: where the chapter's registry and path function live, and its independently authored
+ * expectation for one example's first frame. Add one entry per chapter that uses the chapter-owned capture mode.
+ */
+const chapterInventories = {
+    'linear-maps': {
+        module: '/src/learning/content/linearMapsChapterRegistry.ts',
+        registryExport: 'linearMapsGuidedExampleRegistry',
+        pathExport: 'linearMapsGuidedExamplePath',
+        expectedFor: linearMapsExpectedFor,
+    },
+};
+
+// Authored from src/linear/matrix2.ts (rows of the example matrices) and src/graphs/linear/linearMapScene.ts, not from a capture.
+const linearMapExampleMatrices = {identity: [[1, 0], [0, 1]], 'basis-default': [[2, -1], [1, 1]]};
+
+/**
+ * First-frame expectation of a Linear maps lesson: eight curves (source and image grid, source and image square, two
+ * control polygons, the fixture Bezier curve and its image) and eight points (e1, e2, O, A(e1+e2), p, Ap, a1, a2).
+ */
+function linearMapsExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    const examples = actions.filter(item => item.kind === 'linear-map' && item.operation === 'set-example');
+    assert.equal(examples.length, 1, `${id}: opening scene must name exactly one linear-map example`);
+    const matrix = linearMapExampleMatrices[examples[0].exampleId];
+    assert.ok(matrix, `${id}: no authored matrix for example ${JSON.stringify(examples[0].exampleId)}`);
+    assert.ok(actions.every(item => !(item.kind === 'linear-map' && item.operation === 'set-matrix')),
+        `${id}: opening scene must not override the example matrix`);
+    const apply = ([x, y]) => [matrix[0][0] * x + matrix[0][1] * y, matrix[1][0] * x + matrix[1][1] * y];
+    const points = [[1, 0], [0, 1], [0, 0], apply([1, 1]), [1, 1], apply([1, 1]), apply([1, 0]), apply([0, 1])];
+    return {types: {curve: 8, point: 8}, curveCount: 8, points};
+}
+
+/** A chapter-owned entry must carry real expectations; a missing or empty one is a generation error. */
+function assertExpectation(id, expected) {
+    assert.ok(expected && typeof expected === 'object', `${id}: chapter-owned example needs authored expected checks`);
+    assert.ok(expected.types && Object.keys(expected.types).length > 0, `${id}: expected.types must be nonempty`);
+    assert.ok(Number.isInteger(expected.curveCount) && expected.curveCount > 0, `${id}: expected.curveCount must be a positive integer`);
+    assert.ok(Array.isArray(expected.points) && expected.points.length > 0, `${id}: expected.points must be nonempty`);
+}
+
+async function generateChapterInventory(chapterId) {
+    const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
+    assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
+    const {createServer} = await import('vite');
+    const server = await createServer({configFile: path.join(root, 'vite.config.mts'), server: {middlewareMode: true}, appType: 'custom'});
+    try {
+        const module = await server.ssrLoadModule(config.module);
+        const registry = module[config.registryExport];
+        const pathFor = module[config.pathExport];
+        assert.ok(registry && typeof pathFor === 'function', `${chapterId}: registry or path function export is missing`);
+        const authoredRecipes = (await server.ssrLoadModule('/src/learning/chapter/guidedExampleHighlights.ts')).guidedExampleHighlightRecipes;
+        for (const key of Object.keys(authoredRecipes)) assert.ok(!key.startsWith(`${chapterId}.`), `${key}: highlight recipes are not supported for chapter-owned chapters yet`);
+        const examples = Object.entries(registry).map(([sectionId, lesson]) => {
+            const id = `${chapterId}.${sectionId}.${lesson.demonstrationId}`;
+            const step = lesson.steps[0];
+            const record = {id, demonstrationId: lesson.demonstrationId, path: pathFor(sectionId),
+                sceneFingerprint: fingerprintFor(lesson.demonstrationId, step), actions: readableActions(step.scene.actions)};
+            record.expected = config.expectedFor(id, step);
+            assertExpectation(id, record.expected);
+            return withRecipe(record, {kind: 'start'});
+        });
+        assert.ok(examples.length > 0, `${chapterId}: registry has no lessons`);
+        validateInventory(examples);
+        return {examples};
+    } finally {
+        await server.close();
+    }
+}
+
 async function main() {
-    const patchMode = process.argv.includes('--patches');
-    const args = process.argv.slice(2).filter(arg => arg !== '--patches');
-    const output = path.resolve(process.cwd(), args[0] || (patchMode ? 'docs/reviews/bezier-patches/guided-example-inventory.json' : defaultOutput));
-    const inventory = patchMode ? await generatePatchInventory() : await generateInventory();
+    const argv = process.argv.slice(2);
+    const chapterIndex = argv.indexOf('--chapter');
+    const chapterId = chapterIndex >= 0 ? argv[chapterIndex + 1] : undefined;
+    assert.ok(chapterIndex < 0 || (chapterId && !chapterId.startsWith('--')), '--chapter needs a chapter id');
+    if (chapterIndex >= 0) argv.splice(chapterIndex, 2);
+    const patchMode = argv.includes('--patches');
+    assert.ok(!(patchMode && chapterId), 'Choose either --patches or --chapter');
+    const args = argv.filter(arg => arg !== '--patches');
+    const output = path.resolve(process.cwd(), args[0] || (chapterId ? `docs/reviews/${chapterId}/guided-example-inventory.json`
+        : patchMode ? 'docs/reviews/bezier-patches/guided-example-inventory.json' : defaultOutput));
+    const inventory = chapterId ? await generateChapterInventory(chapterId) : patchMode ? await generatePatchInventory() : await generateInventory();
     fs.mkdirSync(path.dirname(output), {recursive: true});
     fs.writeFileSync(output, `${JSON.stringify(inventory, null, 2)}\n`);
-    process.stdout.write(`Wrote ${inventory.examples.length} ${patchMode ? 'patch' : 'retained'} examples to ${path.relative(process.cwd(), output)}\n`);
+    process.stdout.write(`Wrote ${inventory.examples.length} ${chapterId ? `${chapterId} chapter-owned` : patchMode ? 'patch' : 'retained'} examples to ${path.relative(process.cwd(), output)}
+`);
 }
 
 if (require.main === module) main().catch(error => {
@@ -188,4 +266,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory};
+module.exports = {resolveRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, assertExpectation};

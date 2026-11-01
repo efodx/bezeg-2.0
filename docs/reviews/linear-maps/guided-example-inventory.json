@@ -1,0 +1,116 @@
+{
+  "examples": [
+    {
+      "id": "linear-maps.matrix-and-image.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.matrix-and-image.linear-map",
+      "sceneFingerprint": "2163b881637337ff51cb5866183a6f152192c82170c20cba81d26be3f2a19a07",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-basis-identity\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"basis\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-example\",\"exampleId\":\"identity\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 8,
+          "point": 8
+        },
+        "curveCount": 8,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "linear-maps.determinant-area.linear-map",
+      "demonstrationId": "linear-map",
+      "path": "/bezeg-2.0/linear-map?example=lesson.linear-maps.determinant-area.linear-map",
+      "sceneFingerprint": "a8b564f6692d707a1749b3ee083bb1fe242fae2a260dac8e8c57e48cd7b23e1e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"linear-map-det-square\",\"source\":\"demonstration-default\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-mode\",\"mode\":\"determinant\"}",
+        "linear-map: {\"kind\":\"linear-map\",\"operation\":\"set-example\",\"exampleId\":\"basis-default\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 8,
+          "point": 8
+        },
+        "curveCount": 8,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            -1,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

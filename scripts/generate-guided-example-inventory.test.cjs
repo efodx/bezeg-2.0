@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -48,4 +48,31 @@ test('weighted Bernstein inventory requires degree two without stacking and chec
         step({scene: {actions: [...actions.filter(action => action.kind !== 'bernstein-stacked-area'), {kind: 'bernstein-stacked-area', visible: true}]}})), /stacked-area view off/);
     assert.throws(() => expectedFor('foundations.worked-weight.bernstein.degree-comparison',
         step({scene: {actions: [...actions, {kind: 'bernstein-degree', degree: 3}]}})), /set the Bernstein degree exactly once/);
+});
+
+const lmStep = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'},
+    {kind: 'linear-map', operation: 'set-mode', mode: 'basis'}, ...actions]}});
+const lmExample = exampleId => ({kind: 'linear-map', operation: 'set-example', exampleId});
+
+test('linear maps expectations are authored from the example matrix and the scene layers', () => {
+    assert.deepEqual(linearMapsExpectedFor('lm', lmStep([lmExample('identity')])), {
+        types: {curve: 8, point: 8}, curveCount: 8,
+        points: [[1, 0], [0, 1], [0, 0], [1, 1], [1, 1], [1, 1], [1, 0], [0, 1]]});
+    const basis = linearMapsExpectedFor('lm', lmStep([lmExample('basis-default')]));
+    // Columns (2,1) and (-1,1): A(e1+e2) = (1,2), the handles sit on the columns.
+    assert.deepEqual(basis.points, [[1, 0], [0, 1], [0, 0], [1, 2], [1, 1], [1, 2], [2, 1], [-1, 1]]);
+    assert.throws(() => linearMapsExpectedFor('lm', lmStep([])), /exactly one linear-map example/);
+    assert.throws(() => linearMapsExpectedFor('lm', lmStep([lmExample('shear')])), /no authored matrix/);
+    assert.throws(() => linearMapsExpectedFor('lm', lmStep([lmExample('identity'), {kind: 'linear-map', operation: 'set-matrix', matrix: [[1, 0], [0, 1]]}])),
+        /must not override/);
+    assert.ok(chapterInventories['linear-maps']);
+});
+
+test('a missing or empty chapter-owned expectation fails', () => {
+    const good = {types: {curve: 1}, curveCount: 1, points: [[0, 0]]};
+    assert.doesNotThrow(() => assertExpectation('x', good));
+    assert.throws(() => assertExpectation('x', undefined), /needs authored expected checks/);
+    assert.throws(() => assertExpectation('x', {...good, types: {}}), /expected.types must be nonempty/);
+    assert.throws(() => assertExpectation('x', {...good, curveCount: 0}), /curveCount must be a positive integer/);
+    assert.throws(() => assertExpectation('x', {...good, points: []}), /expected.points must be nonempty/);
 });

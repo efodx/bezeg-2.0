@@ -10,6 +10,7 @@ import {
 import {guidedExampleHighlightCopy} from '../content/guidedExampleHighlightCopy';
 import {getRetainedExampleHome, retainedExampleHomes} from './retainedExamples';
 import {patchGuidedPreviewCopy} from '../content/patchGuidedPreviewCopy';
+import {linearMapsPreviewCopy} from '../content/linearMapsPreviewCopy';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
     eager: true,
@@ -22,6 +23,29 @@ const patchImageUrls = import.meta.glob<string>('/src/images/learning/examples/p
     query: '?url',
     import: 'default',
 });
+
+/** Captured images in one subdirectory per chapter-owned chapter (the chapter id); the patches subdirectory has its own lookup below. */
+const chapterImageUrls = import.meta.glob<string>('/src/images/learning/examples/*/*.png', {
+    eager: true,
+    query: '?url',
+    import: 'default',
+});
+
+/**
+ * Chapter-owned example cards (board-based chapters other than patches): per-example copy keyed by example id, with
+ * images in `src/images/learning/examples/<chapterId>/`. A later chapter adds one entry and one glob above.
+ */
+export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<Record<string, GuidedExamplePreviewCopy>>>> = {
+    'linear-maps': linearMapsPreviewCopy,
+};
+
+function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {
+    for (const [chapterId, copyById] of Object.entries(CHAPTER_GUIDED_EXAMPLE_PREVIEWS)) {
+        if (!Object.hasOwn(copyById, id)) continue;
+        return {copy: copyById[id], src: chapterImageUrls[`/src/images/learning/examples/${chapterId}/${id}.png`]};
+    }
+    return undefined;
+}
 
 /** The complete chapter fixture map, independent of retained root-level preview inventory. */
 export const PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES = [
@@ -59,6 +83,8 @@ const workedWeightPreviewCopy: GuidedExamplePreviewCopy = {
 
 function copyFor(id: string, demonstrationId: DemonstrationId): GuidedExamplePreviewCopy | undefined {
     if (Object.hasOwn(guidedExampleHighlightCopy, id)) return guidedExampleHighlightCopy[id];
+    const chapterOwned = chapterOwnedPreview(id);
+    if (chapterOwned) return chapterOwned.copy;
     const patchFixture = PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES.find(fixture => fixture.id === id);
     if (patchFixture) return patchFixture.demonstrationId === demonstrationId
         ? patchGuidedPreviewCopy[patchFixture.sectionId]
@@ -85,7 +111,7 @@ export function resolveGuidedExamplePreview(
     language: Language,
 ): ChapterExplorationPreview | undefined {
     const copy = copyFor(id, demonstrationId);
-    const src = getPatchGuidedExamplePreviewSource(id) ?? imageUrls[`/src/images/learning/examples/${id}.png`];
+    const src = getPatchGuidedExamplePreviewSource(id) ?? chapterOwnedPreview(id)?.src ?? imageUrls[`/src/images/learning/examples/${id}.png`];
     if (!copy || !src) return undefined;
     return {src, alt: copy.alt[language], caption: copy.caption[language]};
 }
