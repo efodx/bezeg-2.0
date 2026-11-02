@@ -1,5 +1,6 @@
 import {message, Message, t} from "../../localization";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
+import {choiceRejected} from "./functionSetterMessages";
 import {DensityAreaIssue, DensityIntervalKind, DENSITY_THIN_FRACTION} from "../../analysis/densityAreaModel";
 
 /** The words for a rule that a stored Preset or file broke ("correct the value in the file"). */
@@ -9,6 +10,7 @@ export function densityAreaFileMessage(issue: DensityAreaIssue): Message {
         // The sigma range (0,1 and 20) is written in the text: a number parameter would show 0.1 with a point in Slovenian. Pinned by tests.
         case "sigma": return message("prob_density_invalid_sigma");
         case "bound": return message("prob_density_invalid_bound", {value0: issue.field, value1: issue.limit});
+        case "example": return choiceRejected("prob_density_example_label", issue.allowed); // only a lesson action chooses an example
     }
 }
 
@@ -18,6 +20,7 @@ export function densityAreaEditMessage(issue: DensityAreaIssue): Message {
         case "mu": return message("prob_density_mu_rejected", {value0: issue.limit});
         case "sigma": return message("prob_density_sigma_rejected");
         case "bound": return message("prob_density_bound_rejected", {value0: issue.limit});
+        case "example": return choiceRejected("prob_density_example_label", issue.allowed);
     }
 }
 

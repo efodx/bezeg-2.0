@@ -6,7 +6,7 @@ type FieldLabel =
     | "exponential_base_label" | "trig_function_label" | "trig_amplitude_label" | "trig_omega_label" | "trig_midline_label"
     | "continuity_param_label" | "derivative_function_label" | "derivative_x0_label" | "integral_function_label" | "integral_method_label"
     | "integral_a_label" | "integral_b_label" | "integral_n_label" | "area_mode_label" | "area_a_label" | "area_b_label"
-    | "arc_a_label" | "arc_b_label" | "arc_n_label";
+    | "arc_a_label" | "arc_b_label" | "arc_n_label" | "prob_density_example_label";
 
 const shown = (value: number) => formatNumber(value, currentLanguage());
 

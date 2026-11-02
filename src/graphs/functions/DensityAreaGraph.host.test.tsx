@@ -5,9 +5,11 @@ import {DensityAreaGraph} from './DensityAreaGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
 import {LocalizedError, setLanguage} from '../../localization';
+import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {DomainError} from './BaseFunctionGraph';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
-import {DEFAULT_DENSITY_AREA_MODEL, DENSITY_EXAMPLES, DENSITY_FILL_STRIPS} from '../../analysis/densityAreaModel';
+import {fitDensityView, DEFAULT_DENSITY_AREA_MODEL, DENSITY_EXAMPLES, DENSITY_FILL_STRIPS} from '../../analysis/densityAreaModel';
+import {normalPdf} from '../../analysis/distributions';
 import {functionPresetCollections} from './functionPresetCollections';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
@@ -33,6 +35,7 @@ class ObservedDensityAreaGraph extends DensityAreaGraph {
         act(() => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); });
     }
     set(name: 'mu' | 'sigma', value: unknown) { act(() => { if (name === 'mu') this.setMu(value); else this.setSigma(value); }); }
+    lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
     callSetSigma(value: unknown) { this.setSigma(value); }
     callSetBound(which: 'a' | 'b', value: unknown) { this.setBound(which, value); }
 }
@@ -312,4 +315,70 @@ test('dispose removes the owned board objects, and a later drag, edit or languag
     expect(() => graph.callSetBound('b', 3)).not.toThrow();
     expect(() => graph.callSetSigma(2)).not.toThrow();
     expect(update).not.toHaveBeenCalled();
+});
+
+describe('lesson actions (P1)', () => {
+    const param = (name: string, value: unknown) => ({kind: 'function-parameter', name, value}) as LessonAction;
+    const example = (value: unknown) => ({kind: 'function-choice', name: 'density-example', value}) as LessonAction;
+
+    test('one synchronous sequence of example, bound and parameter actions moves the model, the readout and the board', async () => {
+        const {graph} = mount();
+        graph.lesson(example('iq'));
+        graph.lesson(param('density-a', 85));
+        graph.lesson(param('density-b', 130));
+        expect(graph.modelNow()).toEqual({mu: 100, sigma: 15, a: 85, b: 130});
+        expect(readout('area-percent')).toBe('81,86');
+        expect(readout('area')).toBe('0,81859');
+        expect(graph.handle('b').X()).toBe(130);
+        expect(graph.liveBoard().getBoundingBox()[0]).toBeCloseTo(40, 6);
+
+        graph.lesson(example('standard'));
+        graph.lesson(param('density-a', -1));
+        graph.lesson(param('density-b', 1));
+        expect(readout('area')).toBe('0,68269');
+        expect(graph.liveBoard().getBoundingBox()[0]).toBeCloseTo(-4, 6);
+
+        graph.lesson(param('density-mu', 1));
+        graph.lesson(param('density-sigma', 1.5));
+        graph.lesson(param('density-a', -0.5));
+        graph.lesson(param('density-b', 2.5));
+        expect(graph.modelNow()).toEqual({mu: 1, sigma: 1.5, a: -0.5, b: 2.5});
+        expect(readout('area')).toBe('0,68269');
+        expect(readout('za')).toBe('−1');
+
+        await settle(() => graph.reset());
+        expect(graph.modelNow()).toEqual(DEFAULT_DENSITY_AREA_MODEL);
+        expect(readout('area-percent')).toBe('68,27');
+        expect(graph.handle('a').X()).toBe(-1);
+    });
+
+    test('invalid sigma, mu, bounds and example values are refused with a localized DomainError and change nothing', () => {
+        const {graph} = mount();
+        graph.lesson(example('iq'));
+        const before = graph.modelNow();
+        const refuse = (action: LessonAction) => {
+            let error: unknown;
+            try { graph.lesson(action); } catch (caught) { error = caught; }
+            expect(error).toBeInstanceOf(DomainError);
+            expect((error as DomainError).message).not.toBe('');
+        };
+        for (const value of [0, -1, 0.05, 21, NaN, Infinity, '2']) refuse(param('density-sigma', value));
+        for (const value of [201, -201, NaN]) refuse(param('density-mu', value));
+        for (const value of [401, -401, NaN]) { refuse(param('density-a', value)); refuse(param('density-b', value)); }
+        for (const value of ['normal', 'custom', 1, undefined]) refuse(example(value));
+        expect(graph.modelNow()).toBe(before);
+        expect(readout('area')).toBe('0,81859');
+        expect(() => graph.lesson(param('root-x0', 1))).toThrow(UnsupportedLessonActionError);
+    });
+
+    test('the N(0; 1) example view holds the peak and mu +- sigma of the curves the lesson shows next', () => {
+        const [left, top, right, bottom] = fitDensityView(DENSITY_EXAMPLES.standard);
+        for (const [mu, sigma] of [[1, 1.5], [-1, 0.85]]) {
+            const peak = normalPdf(mu, mu, sigma);
+            for (const [x, y] of [[mu, peak], [mu - sigma, 0], [mu + sigma, 0]]) {
+                expect(x).toBeGreaterThanOrEqual(left); expect(x).toBeLessThanOrEqual(right);
+                expect(y).toBeGreaterThanOrEqual(bottom); expect(y).toBeLessThanOrEqual(top);
+            }
+        }
+    });
 });

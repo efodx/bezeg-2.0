@@ -1,6 +1,6 @@
 import React from "react";
 import {Button} from "react-bootstrap";
-import BaseFunctionGraph, {BoundingBox, DomainError} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -8,8 +8,8 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {currentLanguage, t} from "../../localization";
 import {normalPdf} from "../../analysis/distributions";
 import {
-    DEFAULT_DENSITY_AREA_MODEL, DENSITY_BOUND_LIMIT, DENSITY_DRAG_STEP, DENSITY_EXAMPLES, DENSITY_MU_LIMIT, DENSITY_SIGMA_MAX, DENSITY_SIGMA_MIN,
-    DensityAreaEdit, DensityAreaModel, DensityAreaView, densityAreaFill, densityAreaView, DensityExampleId, densityExampleOf, fitDensityView,
+    DEFAULT_DENSITY_AREA_MODEL, DENSITY_BOUND_LIMIT, DENSITY_DRAG_STEP, DENSITY_MU_LIMIT, DENSITY_SIGMA_MAX, DENSITY_SIGMA_MIN,
+    chooseDensityExample, DensityAreaEdit, DensityAreaModel, DensityAreaView, densityAreaFill, densityAreaView, densityExampleOf, fitDensityView,
     setDensityBound, setDensityMu, setDensitySigma,
 } from "../../analysis/densityAreaModel";
 import {
@@ -87,9 +87,21 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         if (this.generatedObjectCount > 0) this.board.setBoundingBox(fitDensityView(this.model), this.equalAxisUnits);
     }
 
-    protected setExample(id: DensityExampleId): void {
-        this.commitModel({...DENSITY_EXAMPLES[id]});
+    protected setExample(id: unknown): void {
+        this.commitModel(this.accepted(chooseDensityExample(this.model, id)));
         this.fitToCurve();
+    }
+
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                "density-mu": value => this.setMu(value),
+                "density-sigma": value => this.setSigma(value),
+                "density-a": value => this.setBound("a", value),
+                "density-b": value => this.setBound("b", value),
+            },
+            choices: {"density-example": value => this.setExample(value)},
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

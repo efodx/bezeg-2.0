@@ -32,7 +32,10 @@ export interface DensityAreaModel {
 
 export const DEFAULT_DENSITY_AREA_MODEL: DensityAreaModel = {mu: 0, sigma: 1, a: -1, b: 1};
 
-export type DensityExampleId = 'standard' | 'iq';
+export const DENSITY_EXAMPLE_IDS = ['standard', 'iq'] as const;
+export type DensityExampleId = typeof DENSITY_EXAMPLE_IDS[number];
+export const isDensityExampleId = (value: unknown): value is DensityExampleId =>
+    typeof value === 'string' && (DENSITY_EXAMPLE_IDS as readonly string[]).includes(value);
 
 /** The two named examples of the lesson: N(0, 1) with mu +- sigma, and N(100, 15) with P(85 <= X <= 130) = 0.81859. */
 export const DENSITY_EXAMPLES: Readonly<Record<DensityExampleId, DensityAreaModel>> = {
@@ -48,7 +51,8 @@ export function densityExampleOf(model: DensityAreaModel): DensityExampleId | un
 export type DensityAreaIssue =
     | { readonly kind: 'mu'; readonly limit: number }
     | { readonly kind: 'sigma'; readonly min: number; readonly max: number }
-    | { readonly kind: 'bound'; readonly field: 'a' | 'b'; readonly limit: number };
+    | { readonly kind: 'bound'; readonly field: 'a' | 'b'; readonly limit: number }
+    | { readonly kind: 'example'; readonly allowed: readonly string[] };
 
 export type DensityAreaCheck =
     | { readonly ok: true; readonly model: DensityAreaModel }
@@ -99,6 +103,13 @@ export function setDensitySigma(model: DensityAreaModel, value: unknown): Densit
 export function setDensityBound(model: DensityAreaModel, field: 'a' | 'b', value: unknown): DensityAreaEdit {
     if (!inRange(value, DENSITY_BOUND_LIMIT)) return {ok: false, issue: boundIssue(field)};
     return {ok: true, model: value === model[field] ? model : {...model, [field]: value}};
+}
+
+/** Chooses a named example: all four numbers at once; anything that is not an example id is refused. */
+export function chooseDensityExample(model: DensityAreaModel, id: unknown): DensityAreaEdit {
+    if (!isDensityExampleId(id)) return {ok: false, issue: {kind: 'example', allowed: DENSITY_EXAMPLE_IDS}};
+    const next = DENSITY_EXAMPLES[id];
+    return {ok: true, model: next.mu === model.mu && next.sigma === model.sigma && next.a === model.a && next.b === model.b ? model : {...next}};
 }
 
 // ---- Mathematics ------------------------------------------------------------------------------------------------------
