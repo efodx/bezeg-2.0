@@ -11,6 +11,7 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 - **Kernel** in `src/bezeg/impl/curve/bspline/` with the spec's file split. Effort raised to `high` for kernel workers: de Boor/NURBS mathematics (stream README).
 - **Gate reading.** The kernel is ungated. The `BSplineCurve` class, its JSXGraph wrapper and the graphs are `G-CURVE` (they share `abstract-point-controlled-curve.ts` and `AbstractJXGPointControlledCurve.ts` with Platform A4/A6).
 - **Terms.** The spec's Slovenian proposals as written (one-shot rule), including *pritrjen vozelni vektor* and *cvetenje*.
+- **Lesson knots (handler 19, 2026-11-02).** The L1/L2 defaults `(0,0,0,1,2,2,2)` and L1's Bézier-like `(0,0,0,1,1,1)` are not the clamped uniform vector a point count implies, so `LessonCurveFixture` gains an optional `knots` field, used by the two B-spline graphs and validated by `bsplinePresetCollection`. Alternatives: a new `bspline` lesson action kind (more code, one more union member for every lesson consumer), or normalizing the spec's numbers to `[0,1]` (changes the spec's golden values). Other curve graphs ignore the field, as they ignore `degree`.
 - **Kernel use (BS-1a review).** Evaluators derive n from the vector length and throw on invalid input. The knot editor and preset restore call `validateKnotVector(u, k, n)` with the editor's own n, show the localized reason, and draw nothing while it returns a code. Degree 0 is a kernel case only and is not offered in the UI.
 
 ## Slices
@@ -25,6 +26,8 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 | BS-A-2a3 | F2a | De Boor graph (`DecasteljauGraph` look), animation id `'deboor'`, active-point highlight, disposal test | BS-A-2a1, BS-A-2a2 (knot editor) | done (handler 17, [evidence](../../reviews/b-splines-nurbs/bs-a-2a3-graph.md)); Presets split out to 2a3b |
 | BS-A-2a3b | F2a | Wire the local B-spline Preset collection into `DeBoorGraph` (`presetCollection()` is undefined; fixture, default, checkpoint, figure and import paths) | BS-A-2a3 | done ([evidence](../../reviews/b-splines-nurbs/bs-a-2a3b-presets.md)) |
 | BS-A-2b | F2b | Register `bspline-basis` and `bspline-deboor` (family `/bezeg-2.0/bspline`, `lesson: false`), factories, shared `bspline-curve` collection, `'deboor'` lesson animation id, `lessonFixtureData`, poster-pending and preview recipes | `G-REG`, 2a1–2a3b | done ([evidence](../../reviews/b-splines-nurbs/bs-a-2b-registration.md)) |
-| BS-A-3…6 | F3–F6 | L1/L2 lessons, chapter, media, Batch A gate | BS-A-2b | planned |
+| BS-A-3a | F3 | `LessonCurveFixture.knots` (optional; both B-spline graphs use it, else clamped uniform); L1 guided lesson on `bspline-basis` | BS-A-2b | in progress (handler 19) |
+| BS-A-3b | F3 | L2 guided lesson on `bspline-deboor` (`'deboor'` next-step/reset, local control, pieces) | BS-A-3a | planned |
+| BS-A-4…6 | F4–F6 | Chapter `b-splines`, media, Batch A gate | BS-A-3b | planned |
 | BS-B-* | F2a–F6 | L3 insertion/multiplicity (comb from CG-1), L4 extraction | Batch A | planned |
 | BS-C-* | F2a–F6 | L5 NURBS circle, optional L6 blossoming | Batch B | planned |
