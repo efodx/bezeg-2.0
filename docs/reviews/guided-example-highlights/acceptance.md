@@ -2,6 +2,8 @@
 
 Date: 2026-11-02. Spec: [guided-example-highlights.md](../../specs/guided-example-highlights.md). Tasks: [guided-example-highlights/](../../tasks/guided-example-highlights/README.md). Delivered by the Learn UI [feature stream](../../tasks/feature-streams/learn-ui.md#3-guided-example-highlights), handlers 4–13. Stable revision: `9fb9862d` (production build of `12d5aadb`; `9fb9862d` adds only the recapture manifests and inventories) (checks below ran at `12d5aadb`/`9fb9862d`, rebased on `origin/master` `fd2a176a`).
 
+Commit hashes after the final rebase onto `df67c48e`, as on `master`: `5664ca35`→`746022fd`, `d1a40ea6`→`5ddba95b`, `797676d2`→`3bde6fb6`, `0e326c6f`→`6cd2e5e9`, `12d5aadb`→`c574c114`, `9fb9862d`→`2b1f5e1d`; the triangle geometry type fix is `777d694e`. The checks and captures ran at the pre-rebase revisions named below.
+
 ## Result by criterion
 
 | Criterion | Result | Evidence |

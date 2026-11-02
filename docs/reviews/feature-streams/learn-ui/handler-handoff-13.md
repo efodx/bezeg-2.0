@@ -2,6 +2,8 @@
 
 Date: 2026-11-02. Previous: [handoff 12](handler-handoff-12.md). The stream's last feature, [guided example highlights](../../../specs/guided-example-highlights.md), is accepted ([acceptance record](../../guided-example-highlights/acceptance.md)). `G-HL` is open and `Run state: complete`. No successor is launched.
 
+Commit hashes after the final rebase onto `df67c48e`, as on `master`: `5664ca35`→`746022fd`, `d1a40ea6`→`5ddba95b`, `797676d2`→`3bde6fb6`, `0e326c6f`→`6cd2e5e9`, `12d5aadb`→`c574c114`, `9fb9862d`→`2b1f5e1d`; the triangle geometry type fix is `777d694e`. The checks and captures ran at the pre-rebase revisions named below.
+
 ## This session
 
 - Rebased onto `origin/master` `fd2a176a`. The Geometry stream's `triangulationChapter.ts` still named the deleted `FamilyChapterFigure`, so the first `just check` failed typecheck. `12d5aadb` drops the type argument; the file never used a figure item.
