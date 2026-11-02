@@ -1,0 +1,17 @@
+# Triangle geometry 06 F2b: the Euler line Demonstration (brief handoff-v12)
+
+- **Role:** implementation, edit permission. Worktree `.claude/worktrees/stream-maps`, branch `worktree-stream-maps`. Do not commit or push.
+- **Goal:** `EulerLineGraph` (`src/graphs/compgeo/EulerLineGraph.tsx`, task 06 F2a, `641d923f`) opens as the catalog Demonstration `euler-line` at `/bezeg-2.0/euler-line` in the existing family `plane-geometry`, directly and after refresh, in both languages. Source: `docs/tasks/triangle-geometry/06-batch-b.md` F2b–F4 (registration only here); spec `docs/specs/triangle-geometry-lessons.md` §T3.
+- **Template:** `git show --stat 4aad3d12` (05 F2b, which registered `triangle-centres` and `inscribed-angle`). Follow it file by file. The family already exists, so no family enumeration changes; only per-Demonstration counts and lists (catalog, routes, Preset catalog, lesson catalog and Learn page counts, `tests/*.smoke.spec.cjs` catalogs if they list ids).
+  - Entry in `src/demonstrations.ts` directly after `inscribed-angle`: `{id: 'euler-line', path: '/bezeg-2.0/euler-line', family: 'plane-geometry', title: 'euler_line_title', prompts: ['euler_line_prompt', 'prompt_compare'], lesson: false}`. Graph factory as for the two siblings.
+  - `guidedLessonOwnership.ts`: chapter `triangle-geometry`, section `euler-line` (the lesson arrives in F3).
+  - Add `euler-line` to `POSTER_PENDING` (`src/demonstrationPosterPending.ts`) and to any matching poster exemption.
+- **Presets:** `eulerLinePresetCollection` (key `compgeo-euler-line`) joins `presetCollections` and import (`PresetImport.ts`), with catalog tests updated. Stored Presets and links valid at HEAD keep working.
+- **Copy:** `euler_line_title` SL "Eulerjeva premica in krožnica devetih točk" / EN "Euler line and nine-point circle"; `euler_line_prompt` asks to predict before revealing, like `triangle_centres_prompt` (for example: can \(O\), \(G\) and \(H\) lie on one line, and how far is \(G\) from each?). Keep `sl.ts` and `en.ts` in lockstep; call `t()` per AGENTS.md. Record the terms first shipped here (*Eulerjeva premica*, *krožnica devetih točk*) in `docs/localization.md`'s table the way `4aad3d12` did.
+- **Out of scope / do not edit:** lessons, chapter, poster capture, preview recipes, `PointSetGraph.tsx`, the T1/T2 graphs. `docs/tasks/feature-streams/maps.md` and `docs/tasks/triangle-geometry/README.md` are updated by the handler.
+- **Checks:**
+  - `just unit` on each touched test file plus `src/localization src/graphs/compgeo src/learning/runtime src/learning/chapter src/learning/content` (focused; not the full suite). Logs under `.command-logs/t06-f2b/`.
+  - `npx tsc --noEmit --pretty false`; `just build` only if free memory is ≥ 3 GB (`Get-CimInstance Win32_OperatingSystem`), otherwise say it was skipped.
+  - Optional: open `/bezeg-2.0/euler-line` once with a quick Playwright script against `just preview 4316` (only if the build ran; stop it by PID): no console errors, board renders, SL and EN title.
+- **Return:** ≤ 250 words: files changed, check results with log paths, terms added, every list or count you changed (`file:line`).
+- **Budget:** locate with `grep -l`/`-c` before reading; read ≤ 150 lines per call; send test/build output to log files. On a `HANDOFF` message, or after about 30 turns before acceptance, stop at a consistent point, write notes to `docs/reviews/triangle-geometry/06-f2b-worker-notes.md`, and return as partial.
