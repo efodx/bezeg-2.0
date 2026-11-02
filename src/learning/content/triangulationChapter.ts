@@ -1,6 +1,6 @@
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
-import type {FamilyChapter, FamilyChapterFigure, FamilyChapterSection} from './familyChapters';
+import type {FamilyChapter, FamilyChapterSection} from './familyChapters';
 import {
     TRIANGULATION_CHAPTER_ID, triangulationGuidedExampleDemonstration, type TriangulationSectionId,
 } from './triangulationChapterRegistry';
@@ -11,7 +11,7 @@ const text = (sl: string, en: string): LocalizedText => ({sl, en});
 /** Reading material first, then the prepared activity at the section end. */
 function withExample(sectionId: TriangulationSectionId, section: FamilyChapterSection): FamilyChapterSection {
     const demonstrationId = triangulationGuidedExampleDemonstration(sectionId);
-    const content: OrderedChapterContent<LocalizedText, FamilyChapterFigure>[] = [
+    const content: OrderedChapterContent<LocalizedText>[] = [
         ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
         ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
         {kind: 'example', exampleId: `${TRIANGULATION_CHAPTER_ID}.${sectionId}.${demonstrationId}`},
