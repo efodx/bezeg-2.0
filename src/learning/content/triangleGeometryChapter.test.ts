@@ -23,9 +23,13 @@ import {NotablePointsGraph} from '../../graphs/compgeo/NotablePointsGraph';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import {
-    DEFAULT_TRIANGLE, eulerLineLesson, inscribedAngleLesson, NEAR_EQUILATERAL_TRIANGLE, NEAR_EQUILATERAL_VIEW, OBTUSE_TRIANGLE, OBTUSE_VIEW, RIGHT_TRIANGLE, SIMSON_T_BELOW, SIMSON_T_LEFT, SIMSON_T_RIGHT, simsonLineLesson, THALES_TRIANGLE, THALES_VIEW, triangleCentresLesson,
+    DEFAULT_TRIANGLE, eulerLineLesson, inscribedAngleLesson, INVERSION_THETA_TURNED, inversionLesson, NEAR_EQUILATERAL_TRIANGLE, NEAR_EQUILATERAL_VIEW, OBTUSE_TRIANGLE, OBTUSE_VIEW, RIGHT_TRIANGLE, SIMSON_T_BELOW, SIMSON_T_LEFT, SIMSON_T_RIGHT, simsonLineLesson, THALES_TRIANGLE, THALES_VIEW, triangleCentresLesson,
 } from './triangleGeometryChapterLessons';
 import {triangleGeometryGuidedExamplePath} from './triangleGeometryChapterRegistry';
+import {InversionGraph} from '../../graphs/compgeo/InversionGraph';
+import {analyseAngle, analysePoint, analysePower, analyseSource, INVERSION_EXAMPLES} from '../../compgeo/inversionModel';
+import {complexMapsChapter} from './complexMapsChapter';
+import {complexReciprocalLesson} from './complexMapsChapterLessons';
 
 // Chapter (reading) half, owned by the F4 worker. The lesson half is a separate describe block.
 describe('triangle geometry reading chapter', () => {
@@ -33,16 +37,16 @@ describe('triangle geometry reading chapter', () => {
     const words = (source: string) => mathFree(source).trim().split(/\s+/u).filter(Boolean).length;
     const sectionProse = (index: number, language: 'sl' | 'en') => triangleGeometryChapter.sections[index].paragraphs.map(p => p[language]).join(' ');
 
-    test('is registered in family plane-geometry, advertising T1, T2, T3 and T4 and no later batch', () => {
+    test('is registered in family plane-geometry, advertising T1 to T5', () => {
         expect(triangleGeometryChapter.family).toBe('plane-geometry');
         expect(triangleGeometryChapter.title).toEqual({sl: 'Geometrija trikotnika in inverzija', en: 'Triangle geometry and inversion'});
-        expect(triangleGeometryChapter.sections.map(section => section.id)).toEqual(['notable-points', 'inscribed-angle', 'euler-line', 'simson-line']);
-        expect(triangleGeometryChapter.sections.map(section => section.demonstrationIds)).toEqual([['triangle-centres'], ['inscribed-angle'], ['euler-line'], ['simson-line']]);
+        expect(triangleGeometryChapter.sections.map(section => section.id)).toEqual(['notable-points', 'inscribed-angle', 'euler-line', 'simson-line', 'inversion']);
+        expect(triangleGeometryChapter.sections.map(section => section.demonstrationIds)).toEqual([['triangle-centres'], ['inscribed-angle'], ['euler-line'], ['simson-line'], ['inversion']]);
         expect(familyChapters.some(chapter => chapter.id === TRIANGLE_GEOMETRY_CHAPTER_ID)).toBe(true);
         expect(learningChapters.some(chapter => chapter.id === TRIANGLE_GEOMETRY_CHAPTER_ID)).toBe(true);
-        // The later batch (inversion) is not promised as available.
+        // Inversion is the fifth section; the first four do not mention it.
         for (const language of ['sl', 'en'] as const) {
-            const all = triangleGeometryChapter.sections.map((_, index) => sectionProse(index, language)).join(' ');
+            const all = triangleGeometryChapter.sections.slice(0, 4).map((_, index) => sectionProse(index, language)).join(' ');
             expect(all).not.toMatch(/inverz|invers/iu);
         }
     });
@@ -53,7 +57,7 @@ describe('triangle geometry reading chapter', () => {
             for (const id of section.demonstrationIds ?? []) expect(demonstrations.find(demo => demo.id === id)?.family).toBe('plane-geometry');
         }
         const linked = triangleGeometryChapter.sections.flatMap(section => section.demonstrationIds ?? []);
-        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry' && demo.id !== 'inversion').map(demo => demo.id).sort());
+        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry').map(demo => demo.id).sort());
     });
 
     test('puts each section example at its end and keeps both languages complete', () => {
@@ -547,10 +551,6 @@ describe('triangle geometry lesson T3 (Euler line and nine-point circle)', () =>
         const slMath = section.paragraphs.flatMap(p => p.sl.match(/\\\((?:(?!\\\)).)*\\\)/gsu) ?? []);
         for (const math of slMath) expect(math).not.toMatch(/\d\.\d/u);
         expect(section.paragraphs.map(p => p.en).join(' ')).not.toContain('{,}');
-        // The reading chapter promises nothing beyond the four lessons.
-        for (const language of ['sl', 'en'] as const) {
-            expect([triangleGeometryChapter.purpose[language], triangleGeometryChapter.prerequisites[language]].join(' ')).not.toMatch(/inverz|invers/iu);
-        }
     });
 
     describe('scenes on the real graph', () => {
@@ -918,6 +918,363 @@ describe('triangle geometry lesson T4 (Simson line)', () => {
             expect(graph.overlayShown('pedal')).toBe(false);
             apply({kind: 'point-set', operation: 'set-overlay', overlay: 'sidelines', visible: false});
             expect(graph.overlayShown('sidelines')).toBe(false);
+        });
+    });
+});
+
+describe('triangle geometry lesson T5 (power of a point and inversion)', () => {
+    beforeAll(installBoardShims);
+    beforeEach(() => setLanguage('sl'));
+    vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
+
+    const plain = (value: string) => value.replace(/\\,/gu, '').split(String.fromCharCode(92)).join('');
+    const bodyOf = (stepId: string, language: 'sl' | 'en') => plain(inversionLesson.steps.find(item => item.id === stepId)!.body[language]);
+    const section = () => triangleGeometryChapter.sections[4];
+    const sectionPlain = (language: 'sl' | 'en') => plain(section().paragraphs.map(p => p[language]).join(' '));
+    /** The snippet is written with a decimal point; the Slovenian prose must have the decimal comma in braces. */
+    const inBoth = (read: (language: 'sl' | 'en') => string, snippet: string) =>
+        read('en').includes(snippet) && read('sl').includes(snippet.split('.').join('{,}'));
+    const stepHas = (stepId: string, snippet: string) => inBoth(language => bodyOf(stepId, language), snippet);
+    const sectionHas = (snippet: string) => inBoth(sectionPlain, snippet);
+    const origin = {x: 0, y: 0};
+    const exact = (p: {x: Rational; y: Rational}) => `(${p.x.format()},${p.y.format()})`;
+    const imageOf = (inversion: Parameters<typeof analysePoint>[0], x: {x: number; y: number}) => {
+        const result = analysePoint(inversion, x);
+        if (result.kind !== 'image') throw new Error('expected an image');
+        return result;
+    };
+    const POWER_CIRCLE = {centre: {x: 5, y: 0}, radius: 3};
+    const R2 = {centre: origin, radius: 2};
+
+    test('is owned by the inversion section, complete in both languages, with the default scene first on every step', () => {
+        const owned = getChapterOwnedLessons('triangle-geometry')!;
+        expect(owned.lesson('inversion')).toBe(inversionLesson);
+        expect(owned.path('inversion')).toBe(triangleGeometryGuidedExamplePath('inversion'));
+        expect(triangleGeometryGuidedExamplePath('inversion')).toBe('/bezeg-2.0/inversion?example=lesson.triangle-geometry.inversion.inversion');
+        expect(inversionLesson.id).toBe('inversion');
+        expect(inversionLesson.demonstrationId).toBe('inversion');
+        expect(inversionLesson.steps.map(item => item.id)).toEqual(['power', 'product', 'image', 'line', 'circle', 'angle', 'explore']);
+        for (const label of [inversionLesson.title, inversionLesson.summary]) {
+            expect(label.sl.length).toBeGreaterThan(10);
+            expect(label.en.length).toBeGreaterThan(10);
+        }
+        for (const item of inversionLesson.steps) {
+            for (const label of [item.title, item.body, item.prompt!]) {
+                expect(label.sl.length).toBeGreaterThan(10);
+                expect(label.en.length).toBeGreaterThan(10);
+            }
+            expect(item.scene!.actions[0]).toMatchObject({kind: 'prepared-scene', source: 'demonstration-default'});
+        }
+    });
+
+    test('power: P = C = (0,0), circle (5,0) radius 3: the power is 16, A = (2,0), B = (8,0), the tangent length is 4, and the product stays 16 at 20 degrees', () => {
+        const turned = (degrees: number) => {
+            const result = analysePower(origin, POWER_CIRCLE, degrees);
+            if (result.kind !== 'power' || result.secant.kind !== 'two') throw new Error('expected a secant');
+            return {...result, secant: result.secant};
+        };
+        const flat = turned(0);
+        expect(flat.power.format()).toBe('16');
+        expect(flat.position).toBe('outside');
+        expect([flat.secant.A.x, flat.secant.A.y].map(Math.abs)).toEqual([2, 0]);
+        expect([flat.secant.B.x, flat.secant.B.y].map(Math.abs)).toEqual([8, 0]);
+        expect(flat.secant.product).toBeCloseTo(16, 9);
+        expect(flat.tangent!.length).toBeCloseTo(4, 12);
+        expect(flat.tangent!.length ** 2).toBeCloseTo(16, 9);
+        const angled = turned(INVERSION_THETA_TURNED);
+        const distance = (p: {x: number; y: number}) => Math.hypot(p.x, p.y);
+        expect(distance(angled.secant.A)).toBeCloseTo(2.2336, 3);
+        expect(distance(angled.secant.B)).toBeCloseTo(7.1633, 3);
+        expect(distance(angled.secant.A) * distance(angled.secant.B)).toBeCloseTo(16, 9);
+        expect(angled.secant.product).toBeCloseTo(16, 9);
+        // 25 - 9 = 16 from the circle kernel as well.
+        expect(powerOfPoint(RationalPoint.fromGrid(origin), {centre: RationalPoint.fromGrid(POWER_CIRCLE.centre), r2: Rational.of(9)}).format()).toBe('16');
+        expect(INVERSION_THETA_TURNED).toBe(20);
+        for (const snippet of ['A=(2,0)', 'B=(8,0)', '2cdot8=16', 'PAapprox2.23', 'PBapprox7.16', '4^2=16', 'theta=20^circ', 'theta=0^circ', '25-9=16']) {
+            expect(stepHas('product', snippet), snippet).toBe(true);
+        }
+        expect(stepHas('power', 'O=(5,0)')).toBe(true);
+        expect(stepHas('power', 'rho=3')).toBe(true);
+        expect(bodyOf('product', 'en')).toContain('The tangent length from (P) is (4)');
+    });
+
+    test('point: r = 2, X = (3,1): X\' = (6/5, 2/5) on the ray CX, |CX| |CX\'| = r^2 = 4', () => {
+        const a = imageOf(R2, {x: 3, y: 1});
+        expect(exact(a.exact)).toBe('(6/5,2/5)');
+        expect(a.position).toBe('outside');
+        expect(Math.hypot(3, 1) * Math.hypot(a.drawn.x, a.drawn.y)).toBeCloseTo(4, 12);
+        expect(a.drawn.x).toBeCloseTo(1.2, 12);
+        expect(a.drawn.y).toBeCloseTo(0.4, 12);
+        // On the ray: the image is a positive multiple of X.
+        expect(a.drawn.x * 1 - a.drawn.y * 3).toBeCloseTo(0, 12);
+        expect(a.drawn.x * 3 + a.drawn.y * 1).toBeGreaterThan(0);
+        const b = imageOf({centre: origin, radius: 4}, {x: 1, y: 0});
+        expect(exact(b.exact)).toBe('(16,0)');
+        for (const snippet of ['r=2', 'X=(3,1)', 'r^2=4', 'sqrt{10}', 'X^{prime}=(6/5,2/5)']) expect(stepHas('image', snippet), snippet).toBe(true);
+    });
+
+    test('through the centre: the circle (1,0) radius 1 becomes the line x = 2 with the stated exact images', () => {
+        const a = analyseSource(R2, {kind: 'circle', centre: {x: 1, y: 0}, radius: 1});
+        if (a.kind !== 'image' || a.exact.kind !== 'line') throw new Error('expected a line');
+        expect(a.throughCentre).toBe(true);
+        expect(a.shape).toBe('line');
+        expect([a.exact.a.format(), a.exact.b.format(), a.exact.c.format()]).toEqual(['1', '0', '2']);
+        for (const [x, y, ix, iy] of [[1, 1, 2, 2], [1, -1, 2, -2], [2, 0, 2, 0]]) {
+            const image = imageOf(R2, {x, y});
+            expect(exact(image.exact), `(${x},${y})`).toBe(`(${ix},${iy})`);
+            expect(Math.hypot(image.drawn.x - ix, image.drawn.y - iy)).toBeLessThan(1e-12);
+            expect(a.exact.a.mul(image.exact.x).add(a.exact.b.mul(image.exact.y)).format()).toBe('2');
+        }
+        for (const snippet of ['(1,0)', 'radius(1)', 'x=2', '(1,1)mapsto(2,2)', '(1,-1)mapsto(2,-2)', '(2,0)mapsto(2,0)'].filter(item => !item.startsWith('radius'))) {
+            expect(stepHas('line', snippet), snippet).toBe(true);
+        }
+        // A line through the centre maps to itself.
+        const own = analyseSource(R2, {kind: 'line', p: {x: -3, y: -3}, q: {x: 3, y: 3}});
+        if (own.kind !== 'image') throw new Error('expected an image');
+        expect([own.shape, own.throughCentre]).toEqual(['line', true]);
+    });
+
+    test('not through the centre: the circle (3,0) radius 1 becomes the circle (3/2,0) radius 1/2; the orthogonal circle maps to itself', () => {
+        const a = analyseSource(R2, {kind: 'circle', centre: {x: 3, y: 0}, radius: 1});
+        if (a.kind !== 'image' || a.exact.kind !== 'circle') throw new Error('expected a circle');
+        expect(a.throughCentre).toBe(false);
+        expect(`(${a.exact.centre.x.format()},${a.exact.centre.y.format()})`).toBe('(3/2,0)');
+        expect(a.exact.r2.format()).toBe('1/4');
+        const centre = a.exact.centre;
+        for (const [x, y, ix, iy] of [[2, 0, '2', '0'], [4, 0, '1', '0'], [3, 1, '6/5', '2/5']] as const) {
+            const image = imageOf(R2, {x, y});
+            expect(exact(image.exact), `(${x},${y})`).toBe(`(${ix},${iy})`);
+            const d = image.exact.sub(centre);
+            expect(d.dot(d).format(), `(${x},${y})`).toBe('1/4');
+        }
+        for (const snippet of ['(3,0)', '(3/2,0)', '(6/5,2/5)', '(2,0)', '(4,0)', '(3,1)', '1/2', 'r=4']) expect(stepHas('circle', snippet), snippet).toBe(true);
+        // r = 4 and the circle (5,0) radius 3: the power of C is 16 = r^2, so the circle is orthogonal and maps to itself.
+        const four = {centre: origin, radius: 4};
+        const own = analyseSource(four, {kind: 'circle', centre: {x: 5, y: 0}, radius: 3});
+        if (own.kind !== 'image' || own.exact.kind !== 'circle') throw new Error('expected a circle');
+        expect(`(${own.exact.centre.x.format()},${own.exact.centre.y.format()})`).toBe('(5,0)');
+        expect(own.exact.r2.format()).toBe('9');
+        expect(exact(imageOf(four, {x: 2, y: 0}).exact)).toBe('(8,0)');
+        expect(exact(imageOf(four, {x: 8, y: 0}).exact)).toBe('(2,0)');
+        const five = imageOf(four, {x: 5, y: 3});
+        expect(exact(five.exact)).toBe('(40/17,24/17)');
+        const d = five.exact.sub(own.exact.centre);
+        expect(d.dot(d).format()).toBe('9');
+        expect(sectionHas('(5,3)mapsto(40/17,24/17)')).toBe(true);
+    });
+
+    test('angle: the circles meet at 60 degrees at Q = (2.134, 0.5); the images meet at 60 degrees with the opposite sign', () => {
+        const first = {centre: {x: 3, y: 0}, radius: 1};
+        const second = {centre: {x: 3, y: 1}, radius: 1};
+        const read = (which: 0 | 1) => {
+            const a = analyseAngle(R2, first, second, which);
+            if (a.kind !== 'angle') throw new Error('expected an angle');
+            return a;
+        };
+        const q = INVERSION_EXAMPLES.find(example => example.id === 'angle')!.angle!.which;
+        const a = read(q);
+        expect(a.point.x).toBeCloseTo(3 - Math.sqrt(3) / 2, 9);
+        expect(a.point.y).toBeCloseTo(0.5, 12);
+        expect(a.point.x).toBeCloseTo(2.134, 3);
+        expect(a.image.x).toBeCloseTo(1.777, 3);
+        expect(a.image.y).toBeCloseTo(0.416, 3);
+        expect(a.before.unsigned).toBeCloseTo(60, 9);
+        expect(a.after.unsigned).toBeCloseTo(60, 9);
+        expect(a.before.signed).toBeCloseTo(60, 9);
+        expect(a.after.signed).toBeCloseTo(-60, 9);
+        // The other intersection point gives the mirrored signs.
+        const other = read(q === 0 ? 1 : 0);
+        expect(other.point.x).toBeCloseTo(3 + Math.sqrt(3) / 2, 9);
+        expect([other.before.signed, other.after.signed].map(Math.round)).toEqual([-60, 60]);
+        for (const snippet of ['(3,0)', '(3,1)', '60^circ', '+60^circ', '-60^circ']) expect(stepHas('angle', snippet), snippet).toBe(true);
+        expect(bodyOf('angle', 'sl')).toContain('Qapprox(2{,}134;0{,}5)');
+        expect(bodyOf('angle', 'en')).toContain('Qapprox(2.134,0.5)');
+        expect(bodyOf('angle', 'sl')).toContain('Q^{prime}approx(1{,}777;0{,}416)');
+        expect(bodyOf('angle', 'en')).toContain('Q^{prime}approx(1.777,0.416)');
+        expect(sectionHas('60^circ')).toBe(true);
+    });
+
+    test('the centre has no image and the panel says so', () => {
+        expect(analysePoint(R2, origin)).toEqual({kind: 'centre'});
+        for (const language of ['sl', 'en'] as const) {
+            setLanguage(language);
+            expect(t('inversion_centre_no_image')).toContain(language === 'sl' ? 'nima slike' : 'has no image');
+        }
+        setLanguage('en');
+        expect(bodyOf('explore', 'en')).toContain('has no image: the panel says so');
+        expect(bodyOf('explore', 'en')).toContain('too far to draw');
+        expect(t('inversion_beyond_cap')).toBe('too far to draw');
+    });
+
+    test('the theorems are cited to FMF, Inverzija; Coxeter only as see also without section numbers; orientation reversal is stated; the drags are instances', () => {
+        for (const language of ['sl', 'en'] as const) {
+            const prose = [...inversionLesson.steps.map(item => bodyOf(item.id, language)), sectionPlain(language)];
+            const all = prose.join(' ');
+            expect(all).toContain('FMF, Inverzija');
+            expect(all).not.toMatch(/Introduction to Geometry\W{0,3}(\bp\.|\bstr\.|§|\d)/u);
+            expect(all).not.toMatch(/FMF, Inverzija[^.;]*(\bp\.|\bstr\.|§|\d)/u);
+            for (const hit of all.matchAll(/Coxeter/gu)) expect(all.slice(Math.max(0, hit.index! - 20), hit.index!), language).toMatch(language === 'sl' ? /glej tudi H\. S\. M\. $/u : /see also H\. S\. M\. $/u);
+            expect(bodyOf('angle', language)).toContain(language === 'sl' ? 'ohrani velikost kotov, a obrne njihovo usmerjenost' : 'preserves the size of angles but reverses their orientation');
+            expect(sectionPlain(language)).toContain(language === 'sl' ? 'ohrani velikost kotov med krivuljama, a obrne njihovo usmerjenost' : 'preserves the size of the angle between two curves but reverses its orientation');
+            // "conformal" appears only with the qualification.
+            for (const hit of all.matchAll(language === 'sl' ? /konformn/gu : /conformal/gu)) {
+                const around = all.slice(Math.max(0, hit.index! - 25), hit.index! + 40);
+                expect(around, language).toMatch(language === 'sl' ? /ne imenujemo konformna brez tega pridržka/u : /not call it conformal without that qualification/u);
+            }
+            expect(bodyOf('product', language)).toMatch(language === 'sl' ? /ponazarja/u : /illustrates/u);
+            expect(sectionPlain(language)).toMatch(language === 'sl' ? /primeri izrekov, ne dokazi/u : /instances of the theorems, not proofs/u);
+        }
+    });
+
+    test('the section is complete, delimited, long enough, links the optional complex maps prerequisite and holds its numbers', () => {
+        expect(section().id).toBe('inversion');
+        expect(section().demonstrationIds).toEqual(['inversion']);
+        expect(section().orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: 'triangle-geometry.inversion.inversion'});
+        expect(section().formula).not.toMatch(/\\[()[\]]/u);
+        for (const language of ['sl', 'en'] as const) {
+            const mathFreeProse = section().paragraphs.map(p => p[language]).join(' ').replace(/\\\((?:(?!\\\)).)*\\\)/gsu, ' ');
+            expect(mathFreeProse).not.toMatch(/\\[A-Za-z]+/u);
+            expect(mathFreeProse.trim().split(/\s+/u).length, language).toBeGreaterThanOrEqual(250);
+        }
+        const slMath = section().paragraphs.flatMap(p => p.sl.match(/\\\((?:(?!\\\)).)*\\\)/gsu) ?? []);
+        for (const math of slMath) expect(math).not.toMatch(/\d\.\d/u);
+        expect(section().paragraphs.map(p => p.en).join(' ')).not.toContain('{,}');
+        for (const snippet of ['25-9=16', '2cdot8=16', '(1,1)mapsto(2,2)', '(3/2,0)', '1/2', 'x=2', 'r=4']) expect(sectionHas(snippet), snippet).toBe(true);
+        // The prerequisite link points at the complex maps section whose lesson shows inversion as z -> c + r^2 / conj(z - c).
+        const link = triangleGeometryChapter.prerequisiteLinks!.find(item => item.path.includes('complex-maps'))!;
+        expect(link.path).toBe('/bezeg-2.0/learn/complex-maps#reciprocal-inversion');
+        expect(learningChapters.some(chapter => chapter.id === 'complex-maps')).toBe(true);
+        expect(complexMapsChapter.sections.some(item => item.id === 'reciprocal-inversion')).toBe(true);
+        expect(complexReciprocalLesson.id).toBe('complex-reciprocal-inversion');
+        expect(triangleGeometryChapter.prerequisites.en).toContain('readable without it');
+        expect(triangleGeometryChapter.prerequisites.sl).toContain('razumljiv tudi brez njega');
+        expect(triangleGeometryChapter.prerequisites.en).toContain('z\\mapsto c+r^2/\\overline{z-c}');
+    });
+
+    describe('scenes on the real graph', () => {
+        const viewOf = (graph: InversionGraph) => [...(Reflect.get(graph, 'board') as JXG.Board).getBoundingBox()].map(Number);
+        const scene = (graph: InversionGraph, checkpoint: unknown, stepId: string) => act(() => {
+            const capabilities = graph.getLessonCapabilities();
+            capabilities.restoreState(checkpoint as never);
+            for (const action of inversionLesson.steps.find(item => item.id === stepId)!.scene!.actions as LessonAction[]) capabilities.apply(action);
+        });
+        const all = ['inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents'] as const;
+
+        test('every T5 scene sets the stated example, focus, fields and overlays, and its view holds every point it talks about, in any order', () => {
+            const graph = new InversionGraph();
+            mountGraph(graph);
+            const checkpoint = graph.getLessonCapabilities().captureState();
+            const expected: Record<string, {focus: string; example: string; shown: readonly string[]; radius: number}> = {
+                power: {focus: 'power', example: 'power', shown: ['secant'], radius: 2},
+                product: {focus: 'power', example: 'power', shown: ['secant', 'tangent'], radius: 2},
+                image: {focus: 'point', example: 'point', shown: ['inversion-circle', 'rays'], radius: 2},
+                line: {focus: 'source', example: 'through-centre', shown: ['inversion-circle', 'image'], radius: 2},
+                circle: {focus: 'source', example: 'not-through-centre', shown: ['inversion-circle', 'image'], radius: 2},
+                angle: {focus: 'angle', example: 'angle', shown: ['inversion-circle', 'rays', 'image', 'angle-tangents'], radius: 2},
+                explore: {focus: 'point', example: 'point', shown: all, radius: 2},
+            };
+            expect(inversionLesson.steps.map(item => item.id)).toEqual(Object.keys(expected));
+            for (const item of [...inversionLesson.steps, ...[...inversionLesson.steps].reverse()]) {
+                scene(graph, checkpoint, item.id);
+                const want = expected[item.id];
+                expect(graph.model.points.map(p => [p.x, p.y]), item.id).toEqual([[0, 0]]);
+                expect(all.filter(id => graph.overlayShown(id)), item.id).toEqual(all.filter(id => want.shown.includes(id)));
+                const fields = graph.fields;
+                // The product step turns the secant, so its fields no longer equal the example; the explore step is custom too.
+                expect([fields.focus, fields.radius, graph.exampleId === (item.id === 'explore' || item.id === 'product' ? undefined : want.example)], item.id).toEqual([want.focus, want.radius, true]);
+                const [left, top, right, bottom] = viewOf(graph);
+                const margin = 0.25;
+                const inside = (label: string, board: {x: number; y: number} | undefined) => {
+                    expect(board, `${item.id} ${label}`).toBeDefined();
+                    expect(board!.x > left + margin && board!.x < right - margin && board!.y < top - margin && board!.y > bottom + margin, `${item.id} ${label} in view`).toBe(true);
+                };
+                inside('C', {x: 0, y: 0});
+                const view = graph.view();
+                if (view.kind !== 'scene') throw new Error('expected a scene');
+                if (view.power?.kind === 'power') {
+                    expect(view.power.thetaDeg, item.id).toBe(item.id === 'product' ? INVERSION_THETA_TURNED : 0);
+                    if (view.power.secant.kind !== 'two') throw new Error('expected a secant');
+                    inside('A', view.power.secant.A);
+                    inside('B', view.power.secant.B);
+                    inside('circle left', {x: 2, y: 0});
+                    inside('circle right', {x: 8, y: 0});
+                    inside('circle top', {x: 5, y: 3});
+                    inside('circle bottom', {x: 5, y: -3});
+                    for (const point of view.power.tangent!.points) inside('tangency point', point);
+                }
+                if (view.point) {
+                    if (view.point.kind === 'image') {
+                        inside('X', fields.x);
+                        inside('X\'', view.point.board);
+                        expect([fields.x.x, fields.x.y], item.id).toEqual([3, 1]);
+                    } else {
+                        expect(item.id).toBe('explore');
+                    }
+                }
+                if (view.source?.kind === 'image') {
+                    const centre = view.source.board!;
+                    expect(centre, item.id).toBeDefined();
+                    if (centre.kind === 'circle') { inside('image centre', {x: centre.centre.re, y: centre.centre.im}); inside('image left', {x: centre.centre.re - centre.radius, y: centre.centre.im}); }
+                    for (const x of item.id === 'line' ? [1, 2] : [2, 3, 4]) inside(`source ${x}`, {x, y: 0});
+                    if (item.id === 'line') { inside('(2,2)', {x: 2, y: 2}); inside('(2,-2)', {x: 2, y: -2}); }
+                }
+                if (view.angle?.kind === 'angle') {
+                    inside('Q', view.angle.point);
+                    inside('Q\'', view.angle.imageBoard);
+                    for (const image of view.angleImages!) if (image.kind === 'image' && image.board?.kind === 'circle') inside('angle image centre', {x: image.board.centre.re, y: image.board.centre.im});
+                }
+                expect([...graph.outsideView()], item.id).toEqual([]);
+            }
+            // Scenes in one synchronous sequence without a restore: each begins with the default scene and leaves nothing behind.
+            act(() => {
+                for (const item of [inversionLesson.steps[5], inversionLesson.steps[1], inversionLesson.steps[2]]) {
+                    for (const action of item.scene!.actions as LessonAction[]) graph.getLessonCapabilities().apply(action);
+                }
+            });
+            expect(graph.fields).toMatchObject({focus: 'point', radius: 2, x: {x: 3, y: 1}});
+            expect(graph.fields.power.thetaDeg).toBe(0);
+            expect(all.filter(id => graph.overlayShown(id))).toEqual(['inversion-circle', 'rays']);
+            // The last step moves X onto the centre: the model reports no image, and the panel text exists.
+            scene(graph, checkpoint, 'explore');
+            expect(graph.fields.x).toEqual({x: 0, y: 0});
+            expect(graph.view()).toMatchObject({kind: 'scene', point: {kind: 'centre'}});
+        });
+
+        test('the inversion actions: valid values apply, refused values throw and change nothing, and the overlay names are owned', () => {
+            const graph = new InversionGraph();
+            mountGraph(graph);
+            const apply = (action: LessonAction) => act(() => graph.getLessonCapabilities().apply(action));
+            apply({kind: 'inversion', operation: 'load-example', exampleId: 'orthogonal'});
+            expect(graph.exampleId).toBe('orthogonal');
+            expect(graph.fields).toMatchObject({focus: 'source', radius: 4});
+            apply({kind: 'inversion', operation: 'load-example', exampleId: 'power'});
+            apply({kind: 'inversion', operation: 'set-theta', degrees: 380});
+            expect(graph.fields.power.thetaDeg).toBe(20);
+            apply({kind: 'inversion', operation: 'set-focus', focus: 'angle'});
+            expect(graph.fields.focus).toBe('angle');
+            apply({kind: 'inversion', operation: 'set-x', point: {x: -4, y: 7}});
+            expect(graph.fields.x).toEqual({x: -4, y: 7});
+            const before = JSON.stringify(graph.state);
+            const refused: LessonAction[] = [
+                {kind: 'inversion', operation: 'load-example', exampleId: 'nonsense' as never},
+                {kind: 'inversion', operation: 'set-focus', focus: 'nonsense' as never},
+                {kind: 'inversion', operation: 'set-x', point: {x: 0.5, y: 1}},
+                {kind: 'inversion', operation: 'set-x', point: {x: 11, y: 1}},
+                {kind: 'inversion', operation: 'set-x', point: {x: Number.NaN, y: 1}},
+                {kind: 'inversion', operation: 'set-theta', degrees: Number.NaN},
+                {kind: 'inversion', operation: 'set-theta', degrees: Number.POSITIVE_INFINITY},
+                {kind: 'inversion', operation: 'set-theta', degrees: '20' as never},
+                {kind: 'inversion', operation: 'set-radius', radius: 3} as never,
+                {kind: 'point-set', operation: 'set-overlay', overlay: 'ninepoints', visible: true},
+            ];
+            for (const action of refused) expect(() => apply(action), JSON.stringify(action)).toThrow();
+            expect(JSON.stringify(graph.state)).toBe(before);
+            for (const overlay of all) {
+                apply({kind: 'point-set', operation: 'set-overlay', overlay, visible: false});
+                expect(graph.overlayShown(overlay), overlay).toBe(false);
+                apply({kind: 'point-set', operation: 'set-overlay', overlay, visible: true});
+                expect(graph.overlayShown(overlay), overlay).toBe(true);
+            }
         });
     });
 });

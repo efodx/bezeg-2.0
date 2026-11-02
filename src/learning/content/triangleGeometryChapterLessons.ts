@@ -1,8 +1,9 @@
 import type {LessonAction, LessonDefinition, LessonPoint, LessonStep, LessonViewBox, LocalizedText} from '../model';
 import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
 import type {SimsonExampleId, SimsonOffset} from '../../compgeo/simsonLineModel';
+import type {InversionExampleId} from '../../compgeo/inversionModel';
 
-// Triangle geometry chapter-owned guided activities (spec T1, T2, T3 and T4). Every number is recomputed in triangleGeometryChapter.test.ts
+// Triangle geometry chapter-owned guided activities (spec T1 to T5). Every number is recomputed in triangleGeometryChapter.test.ts
 // from the triangle and circle kernel. Scene actions run synchronously in one tick; each scene starts from the Demonstration
 // default (which also resets the overlays and the view) and then names its state.
 // Sources are given by author and title only: H. S. M. Coxeter, Introduction to Geometry; Euclid, Elements III.20, III.21, III.22, III.31.
@@ -294,5 +295,78 @@ export const simsonLineLesson: LessonDefinition = {
                 'Everything is shown. Drag \\(P\\) along the circle, move the vertices or switch to exact mode. The example "grid point on the circle" sets \\(P^{\\prime}=(2,-2)\\) with feet \\((11/2,\\,3/2)\\), \\((-12/29,\\,-30/29)\\) and \\((2,0)\\); their orientation is exactly \\(0\\) because the computation uses fractions. Each position is an instance of the theorem, not a proof of it.'),
             words('Poišči mrežno točko \\(P^{\\prime}\\) izven krožnice in preberi ploščino nožiščnega trikotnika.', 'Find a grid point \\(P^{\\prime}\\) off the circle and read the area of its foot triangle.'),
             ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson', 'pedal'], [glider(SIMSON_T_BELOW)]),
+    ],
+};
+
+// Spec T5 (power of a point and inversion). Sources by author and title only: FMF, Inverzija (lecture notes) for the theorems; H. S. M. Coxeter,
+// Introduction to Geometry, only as "see also". The drags and the readouts are instances, not proofs. Inversion keeps the size of angles and reverses
+// their orientation, so the prose never calls it "conformal" without that qualification. Complex maps lesson 1 is an optional prerequisite link.
+const INVERSION_OVERLAYS = ['inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents'] as const;
+/** The secant direction of the second power scene, in degrees. */
+export const INVERSION_THETA_TURNED = 20;
+
+function inversionStep(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, shown: readonly (typeof INVERSION_OVERLAYS)[number][],
+                       setup: readonly LessonAction[]): LessonStep {
+    return {
+        id, title, body, prompt,
+        scene: {actions: [defaultScene(`inversion-${id}`), ...setup, ...overlays(shown, INVERSION_OVERLAYS)]},
+    };
+}
+
+const inversionExampleAction = (exampleId: InversionExampleId): LessonAction => ({kind: 'inversion', operation: 'load-example', exampleId});
+const inversionTheta = (degrees: number): LessonAction => ({kind: 'inversion', operation: 'set-theta', degrees});
+const inversionX = (x: number, y: number): LessonAction => ({kind: 'inversion', operation: 'set-x', point: {x, y}});
+
+export const inversionLesson: LessonDefinition = {
+    id: 'inversion',
+    demonstrationId: 'inversion',
+    title: words('Potenca točke in inverzija', 'Power of a point and inversion'),
+    summary: words(
+        'Potenca točke na krožnico je enaka zmnožku \\(PA\\cdot PB\\) za vsako sekanto skozi točko. Inverzija v krožnici pošlje krožnice skozi središče v premice, druge krožnice v krožnice, velikost kotov ohrani, njihovo usmerjenost pa obrne. Premiki na grafu so primeri teh izrekov, ne dokazi.',
+        'The power of a point with respect to a circle equals the product \\(PA\\cdot PB\\) along every secant through the point. Inversion in a circle sends circles through the centre to lines and other circles to circles; it keeps the size of angles and reverses their orientation. The moves on the graph are instances of these theorems, not proofs.',
+    ),
+    steps: [
+        inversionStep('power',
+            words('Točka, krožnica in sekanta', 'A point, a circle and a secant'),
+            words('Točka \\(P=(0,0)\\) je tudi središče inverzije \\(C\\). Krožnica ima središče \\(O=(5,0)\\) in polmer \\(\\rho=3\\). Sekanta skozi \\(P\\) jo seka v točkah \\(A\\) in \\(B\\); njena smer \\(\\theta\\) je zdaj \\(0^\\circ\\). Potenca točke \\(P\\) na krožnico je \\(|PO|^2-\\rho^2\\). Ko vrtiš sekanto, se točki \\(A\\) in \\(B\\) premikata po krožnici.',
+                'The point \\(P=(0,0)\\) is also the centre of inversion \\(C\\). The circle has centre \\(O=(5,0)\\) and radius \\(\\rho=3\\). A secant through \\(P\\) meets it at the points \\(A\\) and \\(B\\); its direction \\(\\theta\\) is now \\(0^\\circ\\). The power of the point \\(P\\) with respect to the circle is \\(|PO|^2-\\rho^2\\). As you turn the secant, the points \\(A\\) and \\(B\\) move along the circle.'),
+            words('Napovej, kaj se zgodi z zmnožkom \\(PA\\cdot PB\\), ko sekanto zavrtiš.', 'Predict what happens to the product \\(PA\\cdot PB\\) as you turn the secant.'),
+            ['secant'], [inversionExampleAction('power')]),
+        inversionStep('product',
+            words('Zmnožek ostane 16', 'The product stays 16'),
+            words('Pri \\(\\theta=0^\\circ\\) sekanta seka krožnico v \\(A=(2,0)\\) in \\(B=(8,0)\\), zato je \\(PA\\cdot PB=2\\cdot8=16\\). Pri \\(\\theta=20^\\circ\\) je \\(PA\\approx2{,}23\\) in \\(PB\\approx7{,}16\\), zmnožek pa je spet \\(16\\); odčitek je decimalno število, potenca \\(25-9=16\\) pa je natančna. Tangentni odsek iz \\(P\\) ima dolžino \\(4\\) in \\(4^2=16\\). Izrek (potenca točke): za vsako sekanto skozi \\(P\\) je \\(PA\\cdot PB\\) enak potenci točke, za tangento pa je potenca kvadrat tangentnega odseka. Vir: FMF, Inverzija (zapiski predavanj); glej tudi H. S. M. Coxeter, Introduction to Geometry. Vrtenje sekante izrek le ponazarja.',
+                'At \\(\\theta=0^\\circ\\) the secant meets the circle at \\(A=(2,0)\\) and \\(B=(8,0)\\), so \\(PA\\cdot PB=2\\cdot8=16\\). At \\(\\theta=20^\\circ\\) we get \\(PA\\approx2.23\\) and \\(PB\\approx7.16\\), and the product is \\(16\\) again; the readout is a decimal number, while the power \\(25-9=16\\) is exact. The tangent length from \\(P\\) is \\(4\\) and \\(4^2=16\\). Theorem (power of a point): along every secant through \\(P\\) the product \\(PA\\cdot PB\\) equals the power of the point, and for a tangent the power is the square of the tangent length. Source: FMF, Inverzija (lecture notes); see also H. S. M. Coxeter, Introduction to Geometry. Turning the secant only illustrates the theorem.'),
+            words('Vrti sekanto in primerjaj zmnožek s kvadratom tangentnega odseka.', 'Turn the secant and compare the product with the square of the tangent length.'),
+            ['secant', 'tangent'], [inversionExampleAction('power'), inversionTheta(INVERSION_THETA_TURNED)]),
+        inversionStep('image',
+            words('Točka in njena slika', 'A point and its image'),
+            words('Krožnica inverzije ima središče \\(C=(0,0)\\) in polmer \\(r=2\\); točka \\(X=(3,1)\\) je zunaj nje. Slika \\(X^{\\prime}\\) leži na poltraku \\(CX\\) in velja \\(|CX|\\cdot|CX^{\\prime}|=r^2=4\\). Ker je \\(|CX|=\\sqrt{10}\\), je \\(|CX^{\\prime}|=4/\\sqrt{10}\\) in natančno \\(X^{\\prime}=(6/5,\\,2/5)\\), torej znotraj krožnice. Sliko \\(X^{\\prime}\\) prikažeš s stikalom »Slika«.',
+                'The circle of inversion has centre \\(C=(0,0)\\) and radius \\(r=2\\); the point \\(X=(3,1)\\) is outside it. The image \\(X^{\\prime}\\) lies on the ray \\(CX\\) and \\(|CX|\\cdot|CX^{\\prime}|=r^2=4\\). Since \\(|CX|=\\sqrt{10}\\), we get \\(|CX^{\\prime}|=4/\\sqrt{10}\\) and exactly \\(X^{\\prime}=(6/5,\\,2/5)\\), so inside the circle. You show the image \\(X^{\\prime}\\) with the switch "Image".'),
+            words('Napovej, kje na poltraku \\(CX\\) leži \\(X^{\\prime}\\), nato prikaži sliko in preveri.', 'Predict where on the ray \\(CX\\) the image \\(X^{\\prime}\\) lies, then show the image and check.'),
+            ['inversion-circle', 'rays'], [inversionExampleAction('point')]),
+        inversionStep('line',
+            words('Krožnica skozi središče postane premica', 'A circle through the centre becomes a line'),
+            words('Krožnica s središčem \\((1,0)\\) in polmerom \\(1\\) poteka skozi središče inverzije \\(C=(0,0)\\). Njena slika pri polmeru \\(r=2\\) je premica \\(x=2\\): \\((1,1)\\mapsto(2,2)\\), \\((1,-1)\\mapsto(2,-2)\\) in \\((2,0)\\mapsto(2,0)\\). Izrek: inverzija pošlje posplošeno krožnico skozi središče v premico, ki ne gre skozi središče. Vir: FMF, Inverzija (zapiski predavanj). Slika je primer izreka, ne dokaz.',
+                'The circle with centre \\((1,0)\\) and radius \\(1\\) passes through the centre of inversion \\(C=(0,0)\\). Its image at radius \\(r=2\\) is the line \\(x=2\\): \\((1,1)\\mapsto(2,2)\\), \\((1,-1)\\mapsto(2,-2)\\) and \\((2,0)\\mapsto(2,0)\\). Theorem: inversion sends a generalized circle through the centre to a line that does not pass through the centre. Source: FMF, Inverzija (lecture notes). The picture is an instance of the theorem, not a proof.'),
+            words('Preveri, da so vse tri slike res na premici \\(x=2\\).', 'Check that all three images do lie on the line \\(x=2\\).'),
+            ['inversion-circle', 'image'], [inversionExampleAction('through-centre')]),
+        inversionStep('circle',
+            words('Krožnica mimo središča ostane krožnica', 'A circle not through the centre stays a circle'),
+            words('Krožnica s središčem \\((3,0)\\) in polmerom \\(1\\) ne poteka skozi \\(C\\). Točke \\((2,0)\\), \\((4,0)\\), \\((3,1)\\) se preslikajo v \\((2,0)\\), \\((1,0)\\), \\((6/5,\\,2/5)\\), vse na razdalji \\(1/2\\) od točke \\((3/2,0)\\): slika je krožnica s središčem \\((3/2,0)\\) in polmerom \\(1/2\\). Izrek: inverzija pošlje posplošeno krožnico mimo središča v krožnico. Primera »pravokotna krožnica« (\\(r=4\\), krožnica sama sebi) in »premica skozi središče« (premica sama sebi) sta v izbirniku primerov. Vir: FMF, Inverzija (zapiski predavanj).',
+                'The circle with centre \\((3,0)\\) and radius \\(1\\) does not pass through \\(C\\). The points \\((2,0)\\), \\((4,0)\\), \\((3,1)\\) map to \\((2,0)\\), \\((1,0)\\), \\((6/5,\\,2/5)\\), all at distance \\(1/2\\) from \\((3/2,0)\\): the image is the circle with centre \\((3/2,0)\\) and radius \\(1/2\\). Theorem: inversion sends a generalized circle not through the centre to a circle. The examples "orthogonal circle" (\\(r=4\\), the circle maps to itself) and "line through the centre" (the line maps to itself) are in the example selector. Source: FMF, Inverzija (lecture notes).'),
+            words('Napovej, ali je slika znotraj ali zunaj prvotne krožnice, nato preveri.', 'Predict whether the image lies inside or outside the original circle, then check.'),
+            ['inversion-circle', 'image'], [inversionExampleAction('not-through-centre')]),
+        inversionStep('angle',
+            words('Kot med krožnicama pred inverzijo in po njej', 'The angle between two circles before and after'),
+            words('Krožnici s središčema \\((3,0)\\) in \\((3,1)\\) in polmerom \\(1\\) se sekata pod kotom \\(60^\\circ\\) v točki \\(Q\\approx(2{,}134;\\,0{,}5)\\). Njuni sliki pri \\(r=2\\) se sekata v \\(Q^{\\prime}\\approx(1{,}777;\\,0{,}416)\\) pod kotom enake velikosti \\(60^\\circ\\), a z nasprotnim predznakom: iz \\(+60^\\circ\\) postane \\(-60^\\circ\\). Izrek: inverzija ohrani velikost kotov, a obrne njihovo usmerjenost; zato je ne imenujemo konformna brez tega pridržka. Vir: FMF, Inverzija (zapiski predavanj). Odčitek kota je primer, ne dokaz.',
+                'The circles with centres \\((3,0)\\) and \\((3,1)\\) and radius \\(1\\) meet at an angle of \\(60^\\circ\\) at the point \\(Q\\approx(2.134,\\,0.5)\\). Their images at \\(r=2\\) meet at \\(Q^{\\prime}\\approx(1.777,\\,0.416)\\) at an angle of the same size \\(60^\\circ\\) but with the opposite sign: \\(+60^\\circ\\) becomes \\(-60^\\circ\\). Theorem: inversion preserves the size of angles but reverses their orientation; so we do not call it conformal without that qualification. Source: FMF, Inverzija (lecture notes). The angle readout is an instance, not a proof.'),
+            words('Primerjaj kota pred inverzijo in po njej. Kaj ostane enako in kaj se spremeni?', 'Compare the angles before and after inversion. What stays the same and what changes?'),
+            ['inversion-circle', 'rays', 'image', 'angle-tangents'], [inversionExampleAction('angle')]),
+        inversionStep('explore',
+            words('Prosto raziskovanje in središče', 'Free exploration and the centre'),
+            words('Prikazano je vse. Premakni točko \\(X\\), središče \\(C\\) ali polmer \\(r\\), preklopi fokus in izberi druge primere. Točka \\(X=C\\) nima slike: plošča to pove, ne da bi narisala točko. Točke blizu \\(C\\) imajo slike zelo daleč; tiste nad mejo risanja so označene z »predaleč za risanje«. Vsak položaj je primer izrekov, ne njihov dokaz.',
+                'Everything is shown. Move the point \\(X\\), the centre \\(C\\) or the radius \\(r\\), switch the focus and choose other examples. The point \\(X=C\\) has no image: the panel says so without drawing a point. Points near \\(C\\) have images very far away; those beyond the drawing limit are marked "too far to draw". Each position is an instance of the theorems, not a proof.'),
+            words('Pelji \\(X\\) proti središču \\(C\\) in opazuj, kam gre slika \\(X^{\\prime}\\).', 'Take \\(X\\) towards the centre \\(C\\) and watch where the image \\(X^{\\prime}\\) goes.'),
+            ['inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents'], [inversionExampleAction('point'), inversionX(0, 0)]),
     ],
 };

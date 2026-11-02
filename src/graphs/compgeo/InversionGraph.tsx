@@ -1,6 +1,8 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {GraphSession} from "../base/GraphSession";
+import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import type {LessonAction} from "../../learning/model";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {GridPoint} from "../../compgeo/grid";
 import {PointSetModel} from "../../compgeo/pointSetModel";
@@ -231,6 +233,38 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
         else if (example.power) Object.assign(update, {focus: "power", power: structuredClone({circle: example.power.circle, thetaDeg: example.power.thetaDeg})});
         else if (example.angle) Object.assign(update, {focus: "angle", angle: structuredClone(example.angle)});
         this.patch(update);
+    }
+
+    /**
+     * Lesson scenes use the `inversion` kind for the example, the focus, X and the secant direction; the centre and the overlays go through
+     * `point-set`. Values are checked strictly: a lesson-content error throws and changes nothing.
+     */
+    applyInversionAction(action: Extract<LessonAction, {kind: "inversion"}>): void {
+        const payload = action as unknown as Record<string, unknown>;
+        switch (action.operation) {
+            case "load-example":
+                if (!isInversionExampleId(payload.exampleId)) throw new Error("inversion load-example: exampleId must be one of the inversion examples.");
+                this.loadExample(action.exampleId);
+                return;
+            case "set-focus":
+                if (!isInversionFocus(payload.focus)) throw new Error("inversion set-focus: focus must be point, source, power or angle.");
+                this.setFocus(action.focus);
+                return;
+            case "set-x":
+                if (typeof payload.point !== "object" || payload.point === null || !this.setX(action.point as GridPoint)) throw new Error("inversion set-x: point must have whole-number coordinates from -10 to 10.");
+                return;
+            case "set-theta":
+                if (typeof payload.degrees !== "number" || !Number.isFinite(payload.degrees)) throw new Error("inversion set-theta: degrees must be a finite number.");
+                this.setTheta(action.degrees);
+                return;
+            default:
+                throw new Error(`inversion: the inversion graph has no operation ${String(payload.operation)}.`);
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("inversion", action => this.applyInversionAction(action));
     }
 
     // ---- Lifecycle -----------------------------------------------------------------------------------------------

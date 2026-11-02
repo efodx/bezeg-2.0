@@ -50,7 +50,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(97);
-        expect(new Set(allReferences).size).toBe(97);
+        expect(allReferences).toHaveLength(98);
+        expect(new Set(allReferences).size).toBe(98);
     }
 });

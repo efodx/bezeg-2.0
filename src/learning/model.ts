@@ -2,6 +2,8 @@ import type {DemonstrationId} from '../demonstrations';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
 import type {CrossRatioExampleId} from '../graphs/projective/crossRatioModel';
 import type {SimsonExampleId, SimsonOffset} from '../compgeo/simsonLineModel';
+import type {InversionExampleId} from '../compgeo/inversionModel';
+import type {InversionFocus} from '../graphs/compgeo/inversionPresetCollection';
 import type {PascalConicId, PascalExampleId, PascalOrderId} from '../graphs/projective/pascalModel';
 import type {PolePolarConicId, PolePolarExampleId} from '../graphs/projective/polePolarModel';
 import type {ParametricCurveId} from '../graphs/curves/parametric/parametricCatalogue';
@@ -261,6 +263,15 @@ export type LessonAction =
      */
     | {readonly kind: 'simson'; readonly operation: 'load-example'; readonly exampleId: SimsonExampleId}
     | {readonly kind: 'simson'; readonly operation: 'set-offset'; readonly epsilon: SimsonOffset}
+    /**
+     * InversionGraph's scene actions (the overlays are `point-set` `set-overlay`; the centre C is the `point-set` vertex). `load-example` is the
+     * example button, `set-focus` the focus switch, `set-x` the point X (whole-number coordinates) and `set-theta` the secant direction in degrees.
+     * Scene data is strict: an unknown example or focus, a non-grid X or a non-finite angle is a lesson-content error, never snapped.
+     */
+    | {readonly kind: 'inversion'; readonly operation: 'load-example'; readonly exampleId: InversionExampleId}
+    | {readonly kind: 'inversion'; readonly operation: 'set-focus'; readonly focus: InversionFocus}
+    | {readonly kind: 'inversion'; readonly operation: 'set-x'; readonly point: {readonly x: number; readonly y: number}}
+    | {readonly kind: 'inversion'; readonly operation: 'set-theta'; readonly degrees: number}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */

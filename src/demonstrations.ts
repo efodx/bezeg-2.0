@@ -107,7 +107,7 @@ const definitions = [
     {id: 'inscribed-angle', path: '/bezeg-2.0/inscribed-angle', family: 'plane-geometry', title: 'inscribed_angle_title', prompts: ['inscribed_angle_prompt', 'prompt_compare']},
     {id: 'euler-line', path: '/bezeg-2.0/euler-line', family: 'plane-geometry', title: 'euler_line_title', prompts: ['euler_line_prompt', 'prompt_compare']},
     {id: 'simson-line', path: '/bezeg-2.0/simson-line', family: 'plane-geometry', title: 'simson_line_title', prompts: ['simson_line_prompt', 'prompt_compare']},
-    {id: 'inversion', path: '/bezeg-2.0/inversion', family: 'plane-geometry', title: 'inversion_title', prompts: ['inversion_prompt', 'prompt_compare'], lesson: false},
+    {id: 'inversion', path: '/bezeg-2.0/inversion', family: 'plane-geometry', title: 'inversion_title', prompts: ['inversion_prompt', 'prompt_compare']},
     {id: 'orientation', path: '/bezeg-2.0/compgeo/orientation', family: 'computational-geometry', title: 'compgeo_orientation_title', prompts: ['prompt_compgeo_orientation_turn', 'prompt_compgeo_orientation_collinear']},
     {id: 'polygon-area', path: '/bezeg-2.0/compgeo/polygon-area', family: 'computational-geometry', title: 'compgeo_polygon_area_title', prompts: ['prompt_compgeo_polygon_area_shoelace', 'prompt_compgeo_polygon_area_pick']},
     {id: 'convex-hull', path: '/bezeg-2.0/compgeo/convex-hull', family: 'computational-geometry', title: 'compgeo_convex_hull_title', prompts: ['prompt_compgeo_convex_hull_trace', 'prompt_compgeo_convex_hull_degenerate']},

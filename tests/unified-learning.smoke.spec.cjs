@@ -74,7 +74,7 @@ for (const chapter of chapters) {
         await page.goto(`/bezeg-2.0/learn/${chapter}`);
         const heading = await page.locator('h1').textContent();
         expect(heading.trim().length).toBeGreaterThan(5);
-        expect(await page.locator('.chapter-section').count()).toBeGreaterThanOrEqual(({'linear-maps': 2, 'complex-maps': 2, 'convexity-hulls': 4, 'triangulations-voronoi': 2, 'sweep-algorithms': 3, 'numerical-methods': 2, 'fourier-series': 2, 'school-function-graphs': 2, 'triangle-geometry': 4, 'b-splines': 3, 'projective-conics': 4})[chapter] ?? 5); // the minimums of familyChapters.test.ts
+        expect(await page.locator('.chapter-section').count()).toBeGreaterThanOrEqual(({'linear-maps': 2, 'complex-maps': 2, 'convexity-hulls': 4, 'triangulations-voronoi': 2, 'sweep-algorithms': 3, 'numerical-methods': 2, 'fourier-series': 2, 'school-function-graphs': 2, 'triangle-geometry': 5, 'b-splines': 3, 'projective-conics': 4})[chapter] ?? 5); // the minimums of familyChapters.test.ts
         if (chapter === 'bezier-patches') {
             expect(await page.locator('.chapter-section').evaluateAll(sections => sections.map(section => section.id)))
                 .toEqual(patchSections.map(([id]) => id));
