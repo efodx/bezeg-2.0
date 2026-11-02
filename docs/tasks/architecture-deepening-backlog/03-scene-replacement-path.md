@@ -1,6 +1,6 @@
 # 3. One scene replacement path with positive teardown
 
-Status: planned. Lane: Host; after task 2. Source: [specification §3](../../specs/architecture-deepening-backlog.md#3-one-scene-replacement-path-with-positive-teardown).
+Status: accepted 2026-11-02 (platform stream): `dc071674`, `f0bfebd9`, `d1367a9a`, `b7469beb`, `6980e53e`, `37e10c41`, review repair `ea1025a8`. Evidence: [03-scene-replacement-path.evidence.md](03-scene-replacement-path.evidence.md). The scope lines below date from `2f602d0`; the sweep and `boardInfrastructureObjectClosure` are gone, and scene replacement lives in `src/graphs/base/SceneReplacement.ts`. Lane: Host; after task 2. Source: [specification §3](../../specs/architecture-deepening-backlog.md#3-one-scene-replacement-path-with-positive-teardown).
 
 ## Scope and entry points
 

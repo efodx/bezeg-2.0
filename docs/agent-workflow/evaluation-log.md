@@ -1527,3 +1527,17 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - **Judgment:**
   - The note-8 advice to name the "Shrani" panel controls in the brief helped: the A2 checks needed no repair.
   - Briefs for routes whose Preset list starts empty should include the save step. Briefs that switch to the Shrani tab should say it hides the edit controls.
+
+## 2026-11-02 — Platform step 6: A3 one scene replacement path (platform handlers 10–12)
+
+- Role: platform stream handler, Opus `medium`, permission mode auto. Class/size: L (host plus every graph family; slices S1–S4).
+- **Handlers 10–11:** S1 by handler 10. S2 reviews and S3a, S3b and S4 workers; their telemetry table is in [handoff 11](../reviews/feature-streams/platform/handler-handoff-11.md#delegation-telemetry-this-handler). All workers were `bezeg-worker` Sonnet `medium`, one at a time, 27–36 min each. The handler narrowed S3a's helper ownership and added S3b's parametric curve-mismatch rebuild.
+- **Handler 12** (task start about 23:45Z on 2026-11-01, acceptance 01:16Z):
+  - Clean rebase onto `03d079e3`. Push gate in foreground chunks: all unit chunks, typecheck, lint and build passed. Two chunks hit the 590 s cap after 105–130 s memory waits; `src/learning/runtime` had to run per file, since each `lessonRestoration` part takes 150–215 s.
+  - Review: `bezeg-reviewer` Sonnet, dispatched about 01:02Z with brief handoff-v12; 42k tokens, 17 tools, 1.4 min. Two low findings. The handler repaired one (Hermite/interpolation stale scene on a hand-edited Preset whose state and data disagree; new tests fail on revert, observed). The other (a leak test blind spot on default-axis descendants, unreachable today) is deferred with its impact in the evidence.
+  - Smoke: `bezeg-smoke` Sonnet `medium` (broad first pass of the full checklist), dispatched about 01:02Z; 71k tokens, 34 tools, 13.5 min. Every selected check passed, with object counts across 11 routes and no console errors. It found orphaned SVG arrowhead markers per reload; the handler traced them to JSXGraph `removeObject`, which predates A3.
+- Accepted: A3; the platform queue is complete.
+- **Gaps:** no language switch inside a lesson; shallow lesson graph-action coverage; the smoke ran on the build before the review repair, which unit tests cover.
+- **Judgment:**
+  - Asking the smoke for object counts per Preset reload gave a direct lifecycle signal. The DOM-element count also surfaced a library-level leak, which needed handler triage to attribute.
+  - The brief asked for switching to another built-in Preset; every route has only the default, so the worker used reset as the reload. That still runs the figure path, so it was adequate. Future reload briefs should name reset as the reload.

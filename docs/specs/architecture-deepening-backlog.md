@@ -1,6 +1,6 @@
 # Architecture deepening backlog
 
-**Status:** planned, 2026-10-25. Implementation is queued in [ten tasks](../tasks/architecture-deepening-backlog/README.md); none is started.
+**Status:** implemented, 2026-11-02: all [ten tasks](../tasks/architecture-deepening-backlog/README.md) accepted (platform feature stream); per-task evidence sits beside each task file. Planned 2026-10-25.
 **Source:** a whole-app architecture review on 2026-10-25 (graph host, mathematics and graph families, learning runtime and content, localization, test helpers), checked against `origin/master` at `2f602d0`. It re-verified the six candidates of the earlier same-day report and added new ones. A temporary HTML report presented the candidates; the durable scope and evidence are recorded here.
 **Contracts:** [guardrails](../guardrails.md), [Guided lessons](guided-lessons.md), [curve ownership](curve-ownership-refactor.md), [React architecture refactor](react-architecture-refactor.md), [test consolidation](test-consolidation.md).
 
@@ -53,6 +53,8 @@ BaseGraph replaces a scene three ways with different steps:
 - Lesson paths (485-497, 514-532, 606-624): import, replace, restore, sync. No initialize, no sweep.
 
 The sweep (947-950) removes every board object except those found by `boardInfrastructureObjectClosure` (1027-1052), which walks JSXGraph internals. `disposeFigureScene` runs twice per figure load (947, and again through `importPresetData`, `BaseCurveGraph.tsx:402`). Concentrate scene replacement in one module whose teardown follows owned objects; keep any remaining infrastructure knowledge in the board adapter. Retain the sweep as a checked fallback until repeated-replacement tests prove ownership is complete. This must not weaken ADR 0015's transient contract or the completed lesson recovery semantics.
+
+**Outcome (2026-11-02, task 3 accepted):** the line ranges above describe `2f602d0`. Every entry now runs `replaceScene` in `src/graphs/base/SceneReplacement.ts`, disposal runs once per replacement, each family removes its own objects, and the sweep and `boardInfrastructureObjectClosure` are removed. JSXGraph infrastructure is read only in `src/graphs/base/BoardInfrastructure.ts`, by the contract test. See the [evidence](../tasks/architecture-deepening-backlog/03-scene-replacement-path.evidence.md).
 
 ### 4. Completed generic spline changes
 
