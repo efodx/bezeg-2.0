@@ -101,8 +101,9 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     }
 
     override initialize() {
-        // The figure path's import has just built the scene; mount has none yet.
-        if (!this.scene) this.ensureScene();
+        // The figure path's import has just built the scene; mount has none yet. A stored scene state can name another
+        // point count than the Preset data (a hand-edited Preset), which the built scene cannot sync to: rebuild then.
+        if (!this.scene || this.scene.pointCount !== this.state.points.length) this.ensureScene();
         this.fit();
     }
 

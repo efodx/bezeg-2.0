@@ -344,3 +344,47 @@ describe('scene teardown once per replacement', () => {
         }
     });
 });
+
+/**
+ * A stored scene state that disagrees with its Preset data (a hand-edited Preset, A3 S3b review): the figure path
+ * imports the data, then lays the stored state over it. The standing scene must end up built for the state, as it was
+ * before `initialize` stopped rebuilding a scene the import had just built.
+ */
+describe('figure path with a stored scene state that disagrees with the Preset data', () => {
+    type FigurePath = {
+        graphSession: {signal: AbortSignal};
+        applyFigurePreset(session: unknown, preset: unknown, signal: AbortSignal): Promise<void>;
+    };
+    const loadFigure = async (graph: GraphLike, graphState: Record<string, unknown>) => {
+        const path = graph as unknown as FigurePath;
+        const preset = {...graph.exportPreset(), id: 'contract-mismatch', boardState: undefined};
+        await settle(() => path.applyFigurePreset(path.graphSession, {...preset, graphState: {...preset.graphState, ...graphState}}, path.graphSession.signal));
+    };
+
+    it.each([['hermite', 'interp-hermite'], ['interpolation', 'interp-lagrange']] as const)('%s rebuilds for the state\'s point count', async (_family, id) => {
+        const rig = open(() => graphFactories[id]());
+        try {
+            const graph = rig.graph as unknown as {state: {points: Array<readonly [number, number]>}; scene?: {pointCount: number}};
+            const points = graph.state.points;
+            const last = points[points.length - 1];
+            await loadFigure(rig.graph, {points: [...points, [last[0] + 1, last[1]]]});
+            expect(graph.state.points).toHaveLength(points.length + 1);
+            expect(graph.scene?.pointCount).toBe(points.length + 1);
+        } finally {
+            rig.mounted.view.unmount();
+        }
+    });
+
+    it('parametric rebuilds for the state\'s curve', async () => {
+        const rig = open(() => graphFactories['curve-parametric']());
+        try {
+            const graph = rig.graph as unknown as {state: {curve: string}; sceneCurve?: string};
+            const other = graph.state.curve === 'rose' ? 'cardioid' : 'rose';
+            await loadFigure(rig.graph, {curve: other});
+            expect(graph.state.curve).toBe(other);
+            expect(graph.sceneCurve).toBe(other);
+        } finally {
+            rig.mounted.view.unmount();
+        }
+    });
+});
