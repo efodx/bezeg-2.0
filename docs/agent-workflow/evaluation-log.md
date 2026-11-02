@@ -1668,3 +1668,13 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Integration: two concurrent workers both added an allowance list to `PresetCatalog.test.tsx`; the handler merged them into one `PENDING_ROUTE_KEYS`. Shared `sl.ts`/`en.ts` hunks were split per commit; the 07a commit was typechecked and unit-tested alone in a temporary worktree.
 - Checks at acceptance: tsc 0 errors, eslint clean, `just unit` over projective, analysis, functions, presets, localization, inputs passed (192 s), `just build` passed. No smoke: neither slice adds a route.
 - Lesson: running two workers in one worktree worked when the brief named the other worker's files and told it to edit shared catalogs only by targeted insertion; the one collision was a shared test allowance list, which a brief can pre-assign to the handler.
+
+## 2026-11-02 — Curves: BS-A-6 gate, IA-B-2c I4 graph, IA-B-2d registration (curves handler 25)
+
+- Class/size: IA-B-2c M (model, graph, messages, Presets, locale); IA-B-2d S (handler-only). Handler Opus, auto, medium.
+- IA-B-2c W1 `bezeg-worker` Sonnet medium, v12, dispatched 19:38Z: 139k tokens, 55 tools, 14.7 min. Watcher hit 135.5k at 48 turns; HANDOFF; partial with all code and 25 host tests passing, but no mutations, lint, broad run or evidence file.
+- IA-B-2c W2 `bezeg-worker` Sonnet medium, fresh from the handoff note, 19:53Z: 36k tokens, 19 tools, 9 min. Six mutations all failed as expected; added an orthogonality test on drawn residuals; one tsc fix; evidence written.
+- Reviews `bezeg-reviewer` Sonnet: engineering + UI 36k, 40 s; mathematics 34k, 58 s (exact-fraction recomputation). Neither had blocking or should-fix findings; seven nits deferred with reasons.
+- Smoke `bezeg-smoke` Haiku (BS-A-6): 67k tokens, 37 tools, 6.3 min. Two reported failures were not defects: a reset compared after a drag, and a lesson-exit baseline taken after `?learn=` entry. The handler settled them with code reading and `smoke-lesson`. Weak evidence: SVG size hashes stood in for visual checks.
+- Escaped defect (attributable to the handler): IA-B-2c was accepted on a unit run limited to `src/graphs/functions src/analysis src/inputs src/localization`, so the Preset catalog contract in `src/graphs/base/presets` broke on `master`. Another stream patched the test first. The registration slice then found a real export→import defect (`graphState.points` rejected by the shared flat scene-state rule) that the worker's own round-trip test had missed, because that test did not use the file importer. Lesson: briefs for slices that add a Preset collection must name `src/graphs/base/presets` in the unit paths.
+- Context: handler soft threshold 175k reached after the IA-B-2d push; no new step started.
