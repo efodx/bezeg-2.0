@@ -37,7 +37,7 @@ const COLOUR_LETTERS = ["A", "B", "C"] as const;
 const COLOUR_FACES = ["o", "[]", "^"] as const;
 
 /** The polygon the ear clipping graph works on: always a closed polygon, whatever mode a restored or imported model names. */
-function asClosedPolygon(model: PointSetModel): PointSetModel {
+export function asClosedPolygon(model: PointSetModel): PointSetModel {
     return model.mode === "polygon" && model.closed ? model : {...model, mode: "polygon", closed: true};
 }
 
