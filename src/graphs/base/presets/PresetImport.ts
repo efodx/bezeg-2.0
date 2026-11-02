@@ -13,6 +13,7 @@ import {parametricPresetCollection} from "../../curves/parametric/parametricPres
 import {interpolationPresetCollection} from "../../curves/interpolation/interpolationPresetCollection";
 import {hermitePresetCollection} from "../../curves/hermite/hermitePresetCollection";
 import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdivisionPresetCollection";
+import {bsplinePresetCollection} from "../../curves/bspline/bsplinePresetCollection";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
 import {crossRatioPresetCollection, pascalPresetCollection, polePolarPresetCollection} from "../../projective/projectivePresetCollection";
 
@@ -25,7 +26,7 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection,
     parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
-    coonsPresetCollection, crossRatioPresetCollection(), pascalPresetCollection(), polePolarPresetCollection(),
+    coonsPresetCollection, bsplinePresetCollection, crossRatioPresetCollection(), pascalPresetCollection(), polePolarPresetCollection(),
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 

@@ -4,6 +4,7 @@ import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import type {LessonCurveFixture} from "../../../learning/model";
 import {Preset} from "../../base/presets/Presets";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {BSplineBasisScene} from "./BSplineBasisScene";
@@ -31,7 +32,7 @@ const initialData = (): Omit<BSplineBasisGraphState, 'initialized'> =>
  * k + 1 active values and their sum, a knot editor (typed list plus draggable markers on the t axis), the degree 1-3 and a clamped
  * toggle. It extends `BaseGraph` directly, like the interpolation graph: the scene state (degree, knots, display toggle, t) is the only
  * copy of the data and the one owned {@link BSplineBasisScene} reads it lazily. Preset data is the local B-spline collection's DTO
- * (the control points are placeholders; the basis does not depend on them). Not registered yet (no route, factory or lesson).
+ * (the control points are placeholders; the basis does not depend on them). Registered as the `bspline-basis` Demonstration without a lesson yet.
  */
 export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSplinePresetData> {
     private scene?: BSplineBasisScene;
@@ -50,6 +51,12 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
 
     override exportPresetData(): BSplinePresetData {
         return basisPresetData(this.state.degree, this.state.knots);
+    }
+
+    /** A lesson curve fixture: its point count and degree (the default degree if absent) give a clamped uniform knot vector; the points are not used. */
+    protected override lessonFixtureData(curve: LessonCurveFixture): BSplinePresetData | undefined {
+        const degree = curve.degree ?? DEFAULT_BASIS_DEGREE;
+        return basisPresetData(degree, rebuiltKnots(degree, curve.points.length - 1, true));
     }
 
     /** Runs right after `importPresetData` for a lesson fixture or default scene: the imported degree and knots survive, the rest is fresh. */

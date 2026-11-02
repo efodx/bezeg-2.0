@@ -82,7 +82,7 @@ export type CameraPresetName = typeof CAMERA_PRESET_NAMES[number];
  * `bisection` is the first iterative playback and `sequence` reveals the terms of a sequence one by one and `fixed-point` the iterates of a fixed-point iteration and `algorithm-trace` the steps of a convex hull algorithm trace. A graph registers only the ids it owns and the commands each supports;
  * the registry rejects the rest with `UnsupportedLessonActionError`.
  */
-export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'root-finding', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace', 'parametric-roll', 'interp-subdivision-rounds'] as const;
+export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'root-finding', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace', 'parametric-roll', 'interp-subdivision-rounds', 'deboor'] as const;
 export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
 
 /**

@@ -196,6 +196,8 @@ const FIGURE_FAMILIES: Array<[string, () => GraphLike]> = [
     ['cross ratio', () => new CrossRatioGraph() as unknown as GraphLike],
     ['pascal', () => new PascalGraph() as unknown as GraphLike],
     ['coons patch', () => createGraph('patch-coons')],
+    ['b-spline basis', () => graphFactories['bspline-basis']()],
+    ['de Boor', () => graphFactories['bspline-deboor']()],
     ['linear map', () => graphFactories['linear-map']()],
     ['complex function', () => graphFactories['complex-reciprocal']()],
 ];

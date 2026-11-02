@@ -5,6 +5,7 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {CountSetter} from "../../../inputs/CountSetter";
 import BaseGraph, {BaseGraphState, TransientState} from "../../base/BaseGraph";
 import {BSplineCurve, InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
+import type {LessonCurveFixture} from "../../../learning/model";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../../learning/runtime/iterationController";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
@@ -40,7 +41,7 @@ const initialData = (): Omit<DeBoorGraphState, 'initialized'> => {
  * level in the De Casteljau look, with a readout of the span, every level's points and every alpha. A level-by-level animation
  * (`DEBOOR_ANIMATION_ID`) is driven by an `IterationController`. The scene state (degree, knots, points, t, revealed level) is the
  * only copy of the data; the owned {@link DeBoorScene} reads it lazily. It extends `BaseGraph` directly, like the basis graph, and
- * is not registered yet (no route, factory or lesson). Its Preset collection is `bsplinePresetCollection`. The graph draws only
+ * is registered as the `bspline-deboor` Demonstration without a lesson yet. Its Preset collection is `bsplinePresetCollection`. The graph draws only
  * the non-rational B-spline: optional NURBS `weights` pass the collection's check but are ignored by `importPresetData` and omitted
  * from `exportPresetData`.
  */
@@ -78,6 +79,12 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
 
     override exportPresetData(): BSplinePresetData {
         return deBoorPresetData(this.state);
+    }
+
+    /** A lesson curve fixture: its points and degree (the default degree if absent) on the clamped uniform knot vector for that count. */
+    protected override lessonFixtureData(curve: LessonCurveFixture): BSplinePresetData | undefined {
+        const degree = curve.degree ?? this.defaultPreset().degree;
+        return {degree, knots: knotsForCount(degree, true, curve.points.length), points: curve.points.map(point => [point[0], point[1]] as const)};
     }
 
     /** Runs right after `importPresetData` for a lesson fixture or default scene: the imported data survives, the rest is fresh. */
