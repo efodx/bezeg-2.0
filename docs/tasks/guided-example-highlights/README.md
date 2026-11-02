@@ -1,6 +1,6 @@
 # Guided example highlights: implementation tasks
 
-Status: planned 2026-10-26; audit 00 done and its owner decisions recorded in the spec on 2026-10-31. Source: [Guided example highlights replace chapter figures](../../specs/guided-example-highlights.md).
+Status: done 2026-11-02, feature accepted ([acceptance record](../../reviews/guided-example-highlights/acceptance.md)); planned 2026-10-26; audit 00 done and its owner decisions recorded in the spec on 2026-10-31. Source: [Guided example highlights replace chapter figures](../../specs/guided-example-highlights.md).
 
 | Task | Depends on | Completion scope |
 | --- | --- | --- |

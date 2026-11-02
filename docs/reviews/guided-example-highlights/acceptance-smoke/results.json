@@ -1,0 +1,316 @@
+{
+ "c6.bezier-curves": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/bezier-curves#control-points",
+  "focusAfterBack": "example-bezier-curves-control-points-bezier-curves.control-points.bezier",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/bezier/curve?example=lesson.bezier-curves.control-points.bezier",
+  "fwdBoard": true
+ },
+ "c4.bezier-curves": {
+  "lang": "sl",
+  "id": "example-bezier-curves-control-points-bezier-curves.control-points.bezier",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/bezier/curve?example=lesson.bezier-curves.control-points.bezier",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/bezier-curves#control-points",
+   "focus": "example-bezier-curves-control-points-bezier-curves.control-points.bezier",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.foundations": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/foundations#reading-bernstein",
+  "focusAfterBack": "example-foundations-reading-bernstein-foundations.reading-bernstein.bernstein",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/bernstein?example=lesson.foundations.reading-bernstein.bernstein",
+  "fwdBoard": true
+ },
+ "c4.foundations": {
+  "lang": "sl",
+  "id": "example-foundations-reading-bernstein-foundations.reading-bernstein.bernstein",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/bernstein?example=lesson.foundations.reading-bernstein.bernstein",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/foundations#reading-bernstein",
+   "focus": "example-foundations-reading-bernstein-foundations.reading-bernstein.bernstein",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.rational-curves": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/rational-curves#why-rational",
+  "focusAfterBack": "example-rational-curves-why-rational-rational-curves.why-rational.rational-weight",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/rational/base?example=lesson.rational-curves.why-rational.rational",
+  "fwdBoard": true
+ },
+ "c4.rational-curves": {
+  "lang": "sl",
+  "id": "example-rational-curves-why-rational-rational-curves.why-rational.rational-weight",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/rational/base?example=lesson.rational-curves.why-rational.rational",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/rational-curves#why-rational",
+   "focus": "example-rational-curves-why-rational-rational-curves.why-rational.rational-weight",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.splines": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/splines#piecewise",
+  "focusAfterBack": "example-splines-piecewise-splines.piecewise.spline-cn",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/spline/spline?example=lesson.splines.piecewise.spline-cn",
+  "fwdBoard": true
+ },
+ "c4.splines": {
+  "lang": "en",
+  "id": "example-splines-piecewise-splines.piecewise.spline-cn",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/spline/spline?example=lesson.splines.piecewise.spline-cn",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/splines#piecewise",
+   "focus": "example-splines-piecewise-splines.piecewise.spline-cn",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.ph-curves": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/ph-curves#arc-length-problem",
+  "focusAfterBack": "example-ph-curves-arc-length-problem-ph-curves.arc-length-problem.ph-cubic-speed",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/ph/cubic?example=lesson.ph-curves.arc-length-problem.ph-cubic",
+  "fwdBoard": true
+ },
+ "c4.ph-curves": {
+  "lang": "sl",
+  "id": "example-ph-curves-arc-length-problem-ph-curves.arc-length-problem.ph-cubic-speed",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/ph/cubic?example=lesson.ph-curves.arc-length-problem.ph-cubic",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/ph-curves#arc-length-problem",
+   "focus": "example-ph-curves-arc-length-problem-ph-curves.arc-length-problem.ph-cubic-speed",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.parametrization": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/parametrization#weighted-knot",
+  "focusAfterBack": "example-parametrization-weighted-knot-parametrization.weighted-knot.spline-parameterization",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/param/param/alphaparam2?example=lesson.parametrization.weighted-knot.spline-parameterization",
+  "fwdBoard": true
+ },
+ "c4.parametrization": {
+  "lang": "en",
+  "id": "example-parametrization-weighted-knot-parametrization.weighted-knot.spline-parameterization",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/param/param/alphaparam2?example=lesson.parametrization.weighted-knot.spline-parameterization",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/parametrization#weighted-knot",
+   "focus": "example-parametrization-weighted-knot-parametrization.weighted-knot.spline-parameterization",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.functions-and-calculus": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/functions-and-calculus#function-rules",
+  "focusAfterBack": "example-functions-and-calculus-function-rules-functions-and-calculus.function-rules.linear-function",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/functions/linear?example=lesson.functions-and-calculus.function-rules.linear-function",
+  "fwdBoard": true
+ },
+ "c4.functions-and-calculus": {
+  "lang": "sl",
+  "id": "example-functions-and-calculus-function-rules-functions-and-calculus.function-rules.linear-function",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/functions/linear?example=lesson.functions-and-calculus.function-rules.linear-function",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/functions-and-calculus#function-rules",
+   "focus": "example-functions-and-calculus-function-rules-functions-and-calculus.function-rules.linear-function",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.analysis": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/analysis#existence",
+  "focusAfterBack": "example-analysis-existence-analysis.existence.bisection",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/analysis/bisection?example=lesson.analysis.existence.bisection",
+  "fwdBoard": true
+ },
+ "c4.analysis": {
+  "lang": "en",
+  "id": "example-analysis-existence-analysis.existence.bisection",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/analysis/bisection?example=lesson.analysis.existence.bisection",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/analysis#existence",
+   "focus": "example-analysis-existence-analysis.existence.bisection",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.bezier-patches": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/bezier-patches#curve-to-patch",
+  "focusAfterBack": "example-bezier-patches-curve-to-patch-bezier-patches.curve-to-patch.patch-tensor",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.curve-to-patch.patch-tensor",
+  "fwdBoard": true
+ },
+ "c4.bezier-patches": {
+  "lang": "sl",
+  "id": "example-bezier-patches-curve-to-patch-bezier-patches.curve-to-patch.patch-tensor",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.curve-to-patch.patch-tensor",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/bezier-patches#curve-to-patch",
+   "focus": "example-bezier-patches-curve-to-patch-bezier-patches.curve-to-patch.patch-tensor",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.linear-maps": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/linear-maps#matrix-and-image",
+  "focusAfterBack": "example-linear-maps-matrix-and-image-linear-maps.matrix-and-image.linear-map",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/linear-map?example=lesson.linear-maps.matrix-and-image.linear-map",
+  "fwdBoard": true
+ },
+ "c4.linear-maps": {
+  "lang": "en",
+  "id": "example-linear-maps-matrix-and-image-linear-maps.matrix-and-image.linear-map",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/linear-map?example=lesson.linear-maps.matrix-and-image.linear-map",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/linear-maps#matrix-and-image",
+   "focus": "example-linear-maps-matrix-and-image-linear-maps.matrix-and-image.linear-map",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.complex-maps": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/complex-maps#reciprocal-inversion",
+  "focusAfterBack": "example-complex-maps-reciprocal-inversion-complex-maps.reciprocal-inversion.complex-reciprocal",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/complex-reciprocal?example=lesson.complex-maps.reciprocal-inversion.complex-reciprocal",
+  "fwdBoard": true
+ },
+ "c4.complex-maps": {
+  "lang": "sl",
+  "id": "example-complex-maps-reciprocal-inversion-complex-maps.reciprocal-inversion.complex-reciprocal",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/complex-reciprocal?example=lesson.complex-maps.reciprocal-inversion.complex-reciprocal",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/complex-maps#reciprocal-inversion",
+   "focus": "example-complex-maps-reciprocal-inversion-complex-maps.reciprocal-inversion.complex-reciprocal",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": {
+   "inBtn": false,
+   "cursor": "auto"
+  }
+ },
+ "c6.convexity-hulls": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/convexity-hulls#orientation",
+  "focusAfterBack": "example-convexity-hulls-orientation-convexity-hulls.orientation.orientation",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation",
+  "fwdBoard": true
+ },
+ "c4.convexity-hulls": {
+  "lang": "en",
+  "id": "example-convexity-hulls-orientation-convexity-hulls.orientation.orientation",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/convexity-hulls#orientation",
+   "focus": "example-convexity-hulls-orientation-convexity-hulls.orientation.orientation",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": null
+ },
+ "c6.triangulations-voronoi": {
+  "afterBack": "http://127.0.0.1:4387/bezeg-2.0/learn/triangulations-voronoi#ear-clipping",
+  "focusAfterBack": "example-triangulations-voronoi-ear-clipping-triangulations-voronoi.ear-clipping.ear-clipping",
+  "afterFwd": "http://127.0.0.1:4387/bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+  "fwdBoard": true
+ },
+ "c4.triangulations-voronoi": {
+  "lang": "sl",
+  "id": "example-triangulations-voronoi-ear-clipping-triangulations-voronoi.ear-clipping.ear-clipping",
+  "url1": "http://127.0.0.1:4387/bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+  "board": true,
+  "hasBack": 1,
+  "ret": {
+   "url": "http://127.0.0.1:4387/bezeg-2.0/learn/triangulations-voronoi#ear-clipping",
+   "focus": "example-triangulations-voronoi-ear-clipping-triangulations-voronoi.ear-clipping.ear-clipping",
+   "inView": true
+  },
+  "focusOk": true,
+  "lb": null
+ },
+ "c5.bezier-curves": {
+  "lang": "sl",
+  "tabs": 29,
+  "hit": true,
+  "url": "http://127.0.0.1:4387/bezeg-2.0/bezier/curve?example=lesson.bezier-curves.control-points.bezier",
+  "returnFound": true,
+  "focus2": "example-bezier-curves-control-points-bezier-curves.control-points.bezier",
+  "focusOnLink": true,
+  "final": "http://127.0.0.1:4387/bezeg-2.0/learn/bezier-curves#control-points"
+ },
+ "c5.ph-curves": {
+  "lang": "en",
+  "tabs": 16,
+  "hit": true,
+  "url": "http://127.0.0.1:4387/bezeg-2.0/ph/cubic?example=lesson.ph-curves.arc-length-problem.ph-cubic",
+  "returnFound": true,
+  "focus2": "example-ph-curves-arc-length-problem-ph-curves.arc-length-problem.ph-cubic-speed",
+  "focusOnLink": true,
+  "final": "http://127.0.0.1:4387/bezeg-2.0/learn/ph-curves#arc-length-problem"
+ },
+ "errors": 0
+}

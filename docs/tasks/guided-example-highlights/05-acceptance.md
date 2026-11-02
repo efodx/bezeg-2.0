@@ -1,6 +1,6 @@
 # 05 — Remove the figure kind and accept the change
 
-Status: planned. Source: [spec H1–H7](../../specs/guided-example-highlights.md). Dependencies: 02, 03, 04 and 06 complete. Role: handler with independent reviewers.
+Status: done 2026-11-02 ([acceptance record](../../reviews/guided-example-highlights/acceptance.md)). Source: [spec H1–H7](../../specs/guided-example-highlights.md). Dependencies: 02, 03, 04 and 06 complete. Role: handler with independent reviewers.
 
 1. Delete the now-unused `figure` ordered-content kind, `FamilyChapterFigure`, section `figures` fields and their renderer branches in `FamilyChapterPage.tsx` and `ChapterPage.tsx`; update tests that counted figures. Show a gate that fails if a section figure is reintroduced.
 2. Reconcile all nine chapters in both languages against the task 00 matrix: zero section figures, 67 cards with current highlight media, captions and alt text, no prose referencing removed figures, every figure disposition honored.

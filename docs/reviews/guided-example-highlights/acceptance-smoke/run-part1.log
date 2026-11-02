@@ -1,0 +1,127 @@
+c1.sl.bezier-curves {"status":200,"n":12,"figs":0,"tex":false,"bad":[]}
+c1.sl.foundations {"status":200,"n":3,"figs":0,"tex":false,"bad":[]}
+c1.sl.rational-curves {"status":200,"n":7,"figs":0,"tex":false,"bad":[]}
+c1.sl.splines {"status":200,"n":6,"figs":0,"tex":false,"bad":[]}
+c1.sl.ph-curves {"status":200,"n":7,"figs":0,"tex":false,"bad":[]}
+c1.sl.parametrization {"status":200,"n":3,"figs":0,"tex":false,"bad":[]}
+c1.sl.functions-and-calculus {"status":200,"n":9,"figs":0,"tex":false,"bad":[]}
+c1.sl.analysis {"status":200,"n":9,"figs":0,"tex":false,"bad":[]}
+c1.sl.bezier-patches {"status":200,"n":11,"figs":0,"tex":false,"bad":[]}
+c1.sl.linear-maps {"status":200,"n":2,"figs":0,"tex":false,"bad":[]}
+c1.sl.complex-maps {"status":200,"n":2,"figs":0,"tex":false,"bad":[]}
+c1.sl.convexity-hulls {"status":200,"n":3,"figs":0,"tex":false,"bad":[{"t":"Vodeni primer: Orientacija treh točk","ok":false,"alt":false,"cap":false},{"t":"Vodeni primer: Ploščina večkotnika in Pickov izrek","ok":false,"alt":false,"cap":false},{"t":"Vodeni primer: Konveksna ovojnica","ok":false,"alt":false,"cap":false}]}
+c1.sl.triangulations-voronoi {"status":200,"n":1,"figs":0,"tex":false,"bad":[{"t":"Vodeni primer: Rezanje ušes in izrek o galeriji","ok":false,"alt":false,"cap":false}]}
+c1.sl.total 75
+c1.en.bezier-curves {"status":200,"n":12,"figs":0,"tex":false,"bad":[]}
+c1.en.foundations {"status":200,"n":3,"figs":0,"tex":false,"bad":[]}
+c1.en.rational-curves {"status":200,"n":7,"figs":0,"tex":false,"bad":[]}
+c1.en.splines {"status":200,"n":6,"figs":0,"tex":false,"bad":[]}
+c1.en.ph-curves {"status":200,"n":7,"figs":0,"tex":false,"bad":[]}
+c1.en.parametrization {"status":200,"n":3,"figs":0,"tex":false,"bad":[]}
+c1.en.functions-and-calculus {"status":200,"n":9,"figs":0,"tex":false,"bad":[]}
+c1.en.analysis {"status":200,"n":9,"figs":0,"tex":false,"bad":[]}
+c1.en.bezier-patches {"status":200,"n":11,"figs":0,"tex":false,"bad":[]}
+c1.en.linear-maps {"status":200,"n":2,"figs":0,"tex":false,"bad":[]}
+c1.en.complex-maps {"status":200,"n":2,"figs":0,"tex":false,"bad":[]}
+c1.en.convexity-hulls {"status":200,"n":3,"figs":0,"tex":false,"bad":[{"t":"Guided example: Orientation of three points","ok":false,"alt":false,"cap":false},{"t":"Guided example: Polygon area and Pick's theorem","ok":false,"alt":false,"cap":false},{"t":"Guided example: Convex hull","ok":false,"alt":false,"cap":false}]}
+c1.en.triangulations-voronoi {"status":200,"n":1,"figs":0,"tex":false,"bad":[{"t":"Guided example: Ear clipping and the art gallery theorem","ok":false,"alt":false,"cap":false}]}
+c1.en.total 75
+c2.bezier-curves {"sl":{"alt":"Kubična Bézierjeva krivulja s štirimi kontrolnimi točkami, poligonom, konveksno ovojnico in označeno točko (0, 1).","cap":"Označena točka krivulje (0, 1) pri t = 0,5 leži znotraj konveksne ovojnice štirih kontrolnih točk. Do tega pogleda prideš v koraku izračuna pri t = 1/2."},"en":{"alt":"A cubic Bézier curve with four control points, polygon, convex hull and the marked point (0, 1).","cap":"The marked curve point (0, 1) at t = 0.5 lies inside the convex hull of the four control points. Reach this view in the evaluation step at t = 1/2."},"changed":true,"url":"http://127.0.0.1:4387/bezeg-2.0/learn/bezier-curves"}
+c2.splines {"sl":{"alt":"Zlepek iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, izpeljano točko in kontrolnim poligonom.","cap":"Izpeljana točka (2, −4) je podaljšek zadnje stranice prvega odseka: stična točka (0, −3) je na sredini med (−2, −2) in njo. Odvoda obeh odsekov v stiku sta enaka, (8, −4). Do tega pogleda prideš z vklopom kontrolnega poligona."},"en":{"alt":"A spline of two quadratic Bézier pieces with four free points, the derived point and the control polygon.","cap":"The derived point (2, −4) extends the last edge of the first piece: the joint (0, −3) is midway between (−2, −2) and it. The derivatives of both pieces at the joint are equal, (8, −4). Reach this view by turning on the control polygon."},"changed":true,"url":"http://127.0.0.1:4387/bezeg-2.0/learn/splines"}
+c3.1440.bezier-curves {"sw":1440,"cw":1440,"bsw":1440,"n":12,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.foundations {"sw":1440,"cw":1440,"bsw":1440,"n":3,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.rational-curves {"sw":1440,"cw":1440,"bsw":1440,"n":7,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.splines {"sw":1440,"cw":1440,"bsw":1440,"n":6,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.ph-curves {"sw":1440,"cw":1440,"bsw":1440,"n":7,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.parametrization {"sw":1440,"cw":1440,"bsw":1440,"n":3,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.functions-and-calculus {"sw":1440,"cw":1440,"bsw":1440,"n":9,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.analysis {"sw":1440,"cw":1440,"bsw":1440,"n":9,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.bezier-patches {"sw":1440,"cw":1440,"bsw":1440,"n":11,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.linear-maps {"sw":1440,"cw":1440,"bsw":1440,"n":2,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.complex-maps {"sw":1440,"cw":1440,"bsw":1440,"n":2,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1440.convexity-hulls {"sw":1440,"cw":1440,"bsw":1440,"n":3,"bad":["noimg","noimg","noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.1440.triangulations-voronoi {"sw":1440,"cw":1440,"bsw":1440,"n":1,"bad":["noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.1920.bezier-curves {"sw":1920,"cw":1920,"bsw":1920,"n":12,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.foundations {"sw":1920,"cw":1920,"bsw":1920,"n":3,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.rational-curves {"sw":1920,"cw":1920,"bsw":1920,"n":7,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.splines {"sw":1920,"cw":1920,"bsw":1920,"n":6,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.ph-curves {"sw":1920,"cw":1920,"bsw":1920,"n":7,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.parametrization {"sw":1920,"cw":1920,"bsw":1920,"n":3,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.functions-and-calculus {"sw":1920,"cw":1920,"bsw":1920,"n":9,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.analysis {"sw":1920,"cw":1920,"bsw":1920,"n":9,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.bezier-patches {"sw":1920,"cw":1920,"bsw":1920,"n":11,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.linear-maps {"sw":1920,"cw":1920,"bsw":1920,"n":2,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.complex-maps {"sw":1920,"cw":1920,"bsw":1920,"n":2,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1920.convexity-hulls {"sw":1920,"cw":1920,"bsw":1920,"n":3,"bad":["noimg","noimg","noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.1920.triangulations-voronoi {"sw":1920,"cw":1920,"bsw":1920,"n":1,"bad":["noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.390.bezier-curves {"sw":390,"cw":390,"bsw":390,"n":12,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.foundations {"sw":390,"cw":390,"bsw":390,"n":3,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.rational-curves {"sw":390,"cw":390,"bsw":390,"n":7,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.splines {"sw":390,"cw":390,"bsw":390,"n":6,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.ph-curves {"sw":390,"cw":390,"bsw":390,"n":7,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.parametrization {"sw":390,"cw":390,"bsw":390,"n":3,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.functions-and-calculus {"sw":390,"cw":390,"bsw":390,"n":9,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.analysis {"sw":390,"cw":390,"bsw":390,"n":9,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.bezier-patches {"sw":390,"cw":390,"bsw":390,"n":11,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.linear-maps {"sw":390,"cw":390,"bsw":390,"n":2,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.complex-maps {"sw":390,"cw":390,"bsw":390,"n":2,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390.convexity-hulls {"sw":390,"cw":390,"bsw":390,"n":3,"bad":["noimg","noimg","noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.390.triangulations-voronoi {"sw":390,"cw":390,"bsw":390,"n":1,"bad":["noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.390x200.bezier-curves {"sw":390,"cw":390,"bsw":390,"n":12,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.foundations {"sw":390,"cw":390,"bsw":390,"n":3,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.rational-curves {"sw":390,"cw":390,"bsw":390,"n":7,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.splines {"sw":390,"cw":390,"bsw":390,"n":6,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.ph-curves {"sw":390,"cw":390,"bsw":390,"n":7,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.parametrization {"sw":390,"cw":390,"bsw":390,"n":3,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.functions-and-calculus {"sw":390,"cw":390,"bsw":390,"n":9,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.analysis {"sw":390,"cw":390,"bsw":390,"n":9,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.bezier-patches {"sw":390,"cw":390,"bsw":390,"n":11,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.linear-maps {"sw":390,"cw":390,"bsw":390,"n":2,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.complex-maps {"sw":390,"cw":390,"bsw":390,"n":2,"bad":[],"layout":["stacked"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.390x200.convexity-hulls {"sw":390,"cw":390,"bsw":390,"n":3,"bad":["noimg","noimg","noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.390x200.triangulations-voronoi {"sw":390,"cw":390,"bsw":390,"n":1,"bad":["noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.1280x200.bezier-curves {"sw":1280,"cw":1280,"bsw":1280,"n":12,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.foundations {"sw":1280,"cw":1280,"bsw":1280,"n":3,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.rational-curves {"sw":1280,"cw":1280,"bsw":1280,"n":7,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.splines {"sw":1280,"cw":1280,"bsw":1280,"n":6,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.ph-curves {"sw":1280,"cw":1280,"bsw":1280,"n":7,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.parametrization {"sw":1280,"cw":1280,"bsw":1280,"n":3,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.functions-and-calculus {"sw":1280,"cw":1280,"bsw":1280,"n":9,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.analysis {"sw":1280,"cw":1280,"bsw":1280,"n":9,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.bezier-patches {"sw":1280,"cw":1280,"bsw":1280,"n":11,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.linear-maps {"sw":1280,"cw":1280,"bsw":1280,"n":2,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.complex-maps {"sw":1280,"cw":1280,"bsw":1280,"n":2,"bad":[],"layout":["beside"],"rmin":1.62,"rmax":1.62,"ok":true}
+c3.1280x200.convexity-hulls {"sw":1280,"cw":1280,"bsw":1280,"n":3,"bad":["noimg","noimg","noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c3.1280x200.triangulations-voronoi {"sw":1280,"cw":1280,"bsw":1280,"n":1,"bad":["noimg"],"layout":[],"rmin":null,"rmax":null,"ok":true}
+c4.bezier-curves {"lang":"sl","id":"example-bezier-curves-control-points-bezier-curves.control-points.bezier","url1":"http://127.0.0.1:4387/bezeg-2.0/bezier/curve?example=lesson.bezier-curves.control-points.bezier","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/bezier-curves#control-points","focus":"example-bezier-curves-control-points-bezier-curves.control-points.bezier","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.bezier-curves {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/bezier/curve?example=lesson.bezier-curves.control-points.bezier","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/bezier-curves#control-points","fwdBoard":false}
+c4.foundations {"lang":"sl","id":"example-foundations-reading-bernstein-foundations.reading-bernstein.bernstein","url1":"http://127.0.0.1:4387/bezeg-2.0/bernstein?example=lesson.foundations.reading-bernstein.bernstein","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/foundations#reading-bernstein","focus":"example-foundations-reading-bernstein-foundations.reading-bernstein.bernstein","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.foundations {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/bernstein?example=lesson.foundations.reading-bernstein.bernstein","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/foundations#reading-bernstein","fwdBoard":false}
+c4.rational-curves {"lang":"sl","id":"example-rational-curves-why-rational-rational-curves.why-rational.rational-weight","url1":"http://127.0.0.1:4387/bezeg-2.0/rational/base?example=lesson.rational-curves.why-rational.rational","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/rational-curves#why-rational","focus":"example-rational-curves-why-rational-rational-curves.why-rational.rational-weight","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.rational-curves {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/rational/base?example=lesson.rational-curves.why-rational.rational","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/rational-curves#why-rational","fwdBoard":false}
+c4.splines {"lang":"en","id":"example-splines-piecewise-splines.piecewise.spline-cn","url1":"http://127.0.0.1:4387/bezeg-2.0/spline/spline?example=lesson.splines.piecewise.spline-cn","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/splines#piecewise","focus":"example-splines-piecewise-splines.piecewise.spline-cn","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.splines {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/spline/spline?example=lesson.splines.piecewise.spline-cn","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/splines#piecewise","fwdBoard":false}
+c4.ph-curves {"lang":"sl","id":"example-ph-curves-arc-length-problem-ph-curves.arc-length-problem.ph-cubic-speed","url1":"http://127.0.0.1:4387/bezeg-2.0/ph/cubic?example=lesson.ph-curves.arc-length-problem.ph-cubic","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/ph-curves#arc-length-problem","focus":"example-ph-curves-arc-length-problem-ph-curves.arc-length-problem.ph-cubic-speed","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.ph-curves {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/ph/cubic?example=lesson.ph-curves.arc-length-problem.ph-cubic","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/ph-curves#arc-length-problem","fwdBoard":false}
+c4.parametrization {"lang":"en","id":"example-parametrization-weighted-knot-parametrization.weighted-knot.spline-parameterization","url1":"http://127.0.0.1:4387/bezeg-2.0/param/param/alphaparam2?example=lesson.parametrization.weighted-knot.spline-parameterization","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/parametrization#weighted-knot","focus":"example-parametrization-weighted-knot-parametrization.weighted-knot.spline-parameterization","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.parametrization {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/param/param/alphaparam2?example=lesson.parametrization.weighted-knot.spline-parameterization","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/parametrization#weighted-knot","fwdBoard":false}
+c4.functions-and-calculus {"lang":"sl","id":"example-functions-and-calculus-function-rules-functions-and-calculus.function-rules.linear-function","url1":"http://127.0.0.1:4387/bezeg-2.0/functions/linear?example=lesson.functions-and-calculus.function-rules.linear-function","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/functions-and-calculus#function-rules","focus":"example-functions-and-calculus-function-rules-functions-and-calculus.function-rules.linear-function","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.functions-and-calculus {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/functions/linear?example=lesson.functions-and-calculus.function-rules.linear-function","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/functions-and-calculus#function-rules","fwdBoard":false}
+c4.analysis {"lang":"en","id":"example-analysis-existence-analysis.existence.bisection","url1":"http://127.0.0.1:4387/bezeg-2.0/analysis/bisection?example=lesson.analysis.existence.bisection","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/analysis#existence","focus":"example-analysis-existence-analysis.existence.bisection","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.analysis {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/analysis/bisection?example=lesson.analysis.existence.bisection","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/analysis#existence","fwdBoard":false}
+c4.bezier-patches {"lang":"sl","id":"example-bezier-patches-curve-to-patch-bezier-patches.curve-to-patch.patch-tensor","url1":"http://127.0.0.1:4387/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.curve-to-patch.patch-tensor","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/bezier-patches#curve-to-patch","focus":"example-bezier-patches-curve-to-patch-bezier-patches.curve-to-patch.patch-tensor","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.bezier-patches {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/patches/tensor?example=lesson.bezier-patches.curve-to-patch.patch-tensor","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/bezier-patches#curve-to-patch","fwdBoard":false}
+c4.linear-maps {"lang":"en","id":"example-linear-maps-matrix-and-image-linear-maps.matrix-and-image.linear-map","url1":"http://127.0.0.1:4387/bezeg-2.0/linear-map?example=lesson.linear-maps.matrix-and-image.linear-map","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/linear-maps#matrix-and-image","focus":"example-linear-maps-matrix-and-image-linear-maps.matrix-and-image.linear-map","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.linear-maps {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/linear-map?example=lesson.linear-maps.matrix-and-image.linear-map","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/linear-maps#matrix-and-image","fwdBoard":false}
+c4.complex-maps {"lang":"sl","id":"example-complex-maps-reciprocal-inversion-complex-maps.reciprocal-inversion.complex-reciprocal","url1":"http://127.0.0.1:4387/bezeg-2.0/complex-reciprocal?example=lesson.complex-maps.reciprocal-inversion.complex-reciprocal","board":false,"hasBack":1,"ret":{"url":"http://127.0.0.1:4387/bezeg-2.0/learn/complex-maps#reciprocal-inversion","focus":"example-complex-maps-reciprocal-inversion-complex-maps.reciprocal-inversion.complex-reciprocal","inView":true},"focusOk":true,"lb":{"inBtn":false,"cursor":"auto"}}
+c6.complex-maps {"afterBack":"http://127.0.0.1:4387/bezeg-2.0/complex-reciprocal?example=lesson.complex-maps.reciprocal-inversion.complex-reciprocal","afterFwd":"http://127.0.0.1:4387/bezeg-2.0/learn/complex-maps#reciprocal-inversion","fwdBoard":false}
+FATAL locator.evaluate: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('aside.chapter-exploration--guided-example img').first()[22m
+
+    at C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-learn-ui\docs\reviews\guided-example-highlights\acceptance-smoke\smoke.cjs:58:48 {
+  log: [
+    "  - waiting for locator('aside.chapter-exploration--guided-example img').first()"
+  ],
+  name: 'TimeoutError'
+}
