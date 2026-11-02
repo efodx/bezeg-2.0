@@ -12,7 +12,6 @@ import {
     PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES,
     PATCH_GUIDED_EXAMPLE_PREVIEW_IDS,
 } from '../chapter/guidedExamplePreviews';
-import {patchGuidedPreviewCopy} from './patchGuidedPreviewCopy';
 
 describe('Bézier patches chapter', () => {
     test('keeps the retained root inventory at 56 and registers all eleven patch fixtures separately', () => {
@@ -48,26 +47,9 @@ describe('Bézier patches chapter', () => {
             ['tensor-derivatives', 'patch-derivatives'], ['tensor-subdivision', 'patch-subdivision'],
             ['tensor-joins', 'patch-joins'], ['triangular-patches', 'patch-triangular'], ['square-vs-triangular', 'patch-triangular'],
         ]);
-        const resolvedAssets = PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES.flatMap(fixture => {
-            const section = patchChapter.sections.find(item => item.id === fixture.sectionId)!;
-            expect(section, fixture.id).toBeDefined();
-            const asset = getPatchGuidedExamplePreviewSource(fixture.id);
-            if (asset) {
-                const figure = section.figures?.find(item => item.src === asset);
-                expect(figure, fixture.id).toBeDefined();
-                expect(figure!.alt).toEqual(patchGuidedPreviewCopy[fixture.sectionId].alt);
-                expect(figure!.caption).toEqual(patchGuidedPreviewCopy[fixture.sectionId].caption);
-                const content = section.orderedContent ?? [];
-                const figureIndex = content.findIndex(item => item.kind === 'figure' && item.figure.src === asset);
-                const exampleIndex = content.findIndex(item => item.kind === 'example');
-                expect(figureIndex, `${fixture.id} ordered figure`).toBeGreaterThanOrEqual(0);
-                expect(exampleIndex, `${fixture.id} ordered example`).toBeGreaterThan(figureIndex);
-                return [fixture.id];
-            }
-            return [];
-        });
-        // Captures may not exist during development; once any are checked in, require the complete fixture set.
-        if (resolvedAssets.length > 0) expect(resolvedAssets).toHaveLength(PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES.length);
+        for (const fixture of PATCH_GUIDED_EXAMPLE_PREVIEW_FIXTURES) {
+            expect(patchChapter.sections.find(item => item.id === fixture.sectionId), fixture.id).toBeDefined();
+        }
         expect(getPatchGuidedExamplePreviewSource('bezier-patches.not-a-fixture.patch-tensor')).toBeUndefined();
     });
 
@@ -100,17 +82,13 @@ describe('Bézier patches chapter', () => {
         }
     });
 
-    test('places each prepared patch example in its own section and keeps figure text bilingual', () => {
+    test('places each prepared patch example in its own section and has no figures', () => {
         const expected = ["bezier-patches.curve-to-patch.patch-tensor","bezier-patches.bilinear-patch.patch-tensor","bezier-patches.control-net.patch-tensor","bezier-patches.boundary-iso-curves.patch-tensor","bezier-patches.tensor-decasteljau.patch-decasteljau","bezier-patches.properties.patch-tensor","bezier-patches.tensor-derivatives.patch-derivatives","bezier-patches.tensor-subdivision.patch-subdivision","bezier-patches.tensor-joins.patch-joins","bezier-patches.triangular-patches.patch-triangular","bezier-patches.square-vs-triangular.patch-triangular"];
         for (const section of familyChapters.find(chapter => chapter.id === 'bezier-patches')!.sections) {
             const refs = exampleReferences(section.orderedContent ?? []);
             expect(refs).toEqual(expected.filter(id => id.includes(`.${section.id}.`)));
-            for (const figure of section.figures ?? []) {
-                for (const language of ['sl', 'en'] as const) {
-                    expect(figure.alt[language].trim()).not.toBe('');
-                    expect(figure.caption[language].trim()).not.toBe('');
-                }
-            }
+            expect(section.figures ?? [], `${section.id} figures`).toEqual([]);
+            expect((section.orderedContent ?? []).filter(item => item.kind === 'figure'), `${section.id} ordered figures`).toEqual([]);
         }
     });
 

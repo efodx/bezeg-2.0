@@ -1,4 +1,3 @@
-import {previewPoster} from '../../previewPoster';
 import type {FamilyChapterSection} from './familyChapters';
 import {patchSection, text} from './patchChapterKit';
 
@@ -10,11 +9,6 @@ export const patchBasicSections: readonly FamilyChapterSection[] = [
         text('Pazi na prikaz: ploskev na zaslonu je projekcija. Oblike ne presojaj z enega pogleda; ploskev zavrti in primerjaj več smeri, saj ravna slika zakrije globino.', 'Mind the display: a surface on a screen is a projection. Do not judge its shape from one view; rotate it and compare several directions, because a flat image hides depth.'),
     ], {
         demonstrationIds: ['patch-tensor'],
-        figures: [{
-            src: previewPoster('patch-tensor'),
-            alt: text('Tenzorska Bézierjeva krpa s kontrolno mrežo v tridimenzionalnem pogledu.', 'A tensor-product Bézier patch with its control net in a three-dimensional view.'),
-            caption: text('Slika je katalogov predogled privzetega prikaza in ne prikazuje mreže \\(4\\times3\\) iz besedila; ta primer je izračunan posebej. Pravo mrežo preizkusiš v povezanem prikazu.', 'The image is the catalog preview of the default scene and does not show the \\(4\\times3\\) net from the text; that example is computed separately. Try an actual net in the linked demonstration.'),
-        }],
         investigationPrompts: {'patch-tensor': text('V prikazu zavrti ploskev in preštej vrstice ter stolpce kontrolne mreže. Iz števila točk določi par stopenj \\((m,n)\\) in preveri, da je število točk \\((m+1)(n+1)\\).', 'In the demonstration, rotate the surface and count the rows and columns of the control net. Determine the degree pair \\((m,n)\\) from the point counts and check that the number of points is \\((m+1)(n+1)\\).')},
     }),
     patchSection('bilinear-patch', 'Bilinearna Bézierjeva krpa', 'The bilinear patch', [
