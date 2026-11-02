@@ -30,6 +30,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'convexity-hulls' && section.id !== 'why-hulls' ? [`convexity-hulls.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'triangulations-voronoi' && section.id !== 'why-triangulate' ? [`triangulations-voronoi.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'complex-maps' ? [`complex-maps.${section.id}.${section.id === 'roots' ? 'complex-roots' : 'complex-reciprocal'}`] : []),
+                    ...(chapter.id === 'triangle-geometry' ? [`triangle-geometry.${section.id}.${section.id === 'notable-points' ? 'triangle-centres' : 'inscribed-angle'}`] : []),
                 ].sort();
                 const references = exampleReferences<unknown, unknown>(content ?? []);
                 expect([...references].sort(), `${language}/${chapter.id}/${section.id}`).toEqual(expected);
@@ -38,7 +39,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(75);
-        expect(new Set(allReferences).size).toBe(75);
+        expect(allReferences).toHaveLength(77);
+        expect(new Set(allReferences).size).toBe(77);
     }
 });

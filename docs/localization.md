@@ -81,6 +81,12 @@ The static document initially declares Slovenian, and runtime selection updates 
 | znamenite točke trikotnika | notable points of a triangle (triangle geometry, F2b) |
 | obodni kot | inscribed angle (triangle geometry, F2b) |
 | Talesov izrek | Thales' theorem (triangle geometry, F2b) |
+| geometrija trikotnika in inverzija | triangle geometry and inversion (chapter title; only notable points and inscribed angle are published so far) |
+| težišče; višinska točka | centroid; orthocentre (triangle geometry chapter) |
+| središče očrtane krožnice; središče včrtane krožnice | circumcentre; incentre (triangle geometry chapter; the PIK formula sheet says *očrtan krog*, the app keeps *krožnica*) |
+| središčni kot | central angle (triangle geometry chapter) |
+| ostrokotni / pravokotni / topokotni trikotnik | acute / right / obtuse triangle (triangle geometry chapter) |
+| izrojen trikotnik | degenerate triangle, glossed as *oglišča ležijo na isti premici* (triangle geometry chapter) |
 | glavni argument; glavni koren | principal argument in \((-\pi,\pi]\); principal root \(z_0\) (complex maps chapter) |
 | obratna vrednost; inverzija v krožnici | reciprocal; circle inversion (complex maps chapter; involution that reverses orientation) |
 | premonosna ploskev | ruled surface (Coons patch, D4; sl.wikipedia "Premonosna ploskev") |
@@ -103,6 +109,8 @@ The static document initially declares Slovenian, and runtime selection updates 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 
 Complex-map terms: sources and reasoning are in the [complex maps term table](tasks/complex-maps/README.md); *krožnica* (circle) versus *krog* (disc) follows the rest of the app.
+
+Triangle-geometry terms: sources and reasoning are in the [triangle geometry term table](tasks/triangle-geometry/README.md#slovenian-terms-f0-decision).
 
 Patch terms: sources and reasoning are in the [Bézier patches spec](specs/bezier-patches.md#localization).
 
