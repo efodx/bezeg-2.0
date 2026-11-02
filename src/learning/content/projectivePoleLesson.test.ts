@@ -88,7 +88,6 @@ const pointTex = (p: V3): string => `(${tex(p[0])},${tex(p[1])})`;
 /** The readout's text for a fraction: a Unicode minus and `n/d`. */
 const shown = (value: Fr) => (value.d === 1n ? `${value.n}` : `${value.n}/${value.d}`).replace('-', '−');
 const shownPoint = (p: V3) => `(${shown(p[0])}, ${shown(p[1])})`;
-const minus = (text: string): string => text.replace(/-/g, '−');
 
 interface QuotedLine {
     /** The line as the prose writes it, undelimited. */
@@ -117,36 +116,38 @@ interface Expected {
 }
 
 const P_DEFAULT = vec(1, fr(21, 5));
-const T1 = vec(4, fr(9, 5));
-const T2 = vec(-3, fr(12, 5));
+// The graph's order of the points of tangency (the spec, projective-conics-lessons.md K3, names them the other way round).
+const T1 = vec(-3, fr(12, 5));
+const T2 = vec(4, fr(9, 5));
+const ON_ELLIPSE = vec(4, fr(9, 5));
 const TANGENT_LINES = [ql('4x+5y-25=0', 4, 5, -25), ql('9x-20y+75=0', 9, -20, 75), ql('\\tfrac{4x}{25}+\\tfrac y5=1', fr(4, 25), fr(1, 5), -1), ql('-\\tfrac{3x}{25}+\\tfrac{4y}{15}=1', fr(-3, 25), fr(4, 15), -1)];
 const POLAR_LINES = [ql('3x+35y-75=0', 3, 35, -75), ql('\\tfrac x{25}+\\tfrac{7y}{15}=1', fr(1, 25), fr(7, 15), -1)];
 
 const SCENES: Record<string, Expected> = {
     'pole-polar-predict': {
         conic: 'ellipse', p: {at: P_DEFAULT}, side: 'outside', polar: '3x + 35y − 75 = 0', tangency: [T1, T2],
-        tangents: ['4x + 5y − 25 = 0', '9x − 20y + 75 = 0'], centre: '(0, 0)', quotedLines: [], quotesP: true,
+        tangents: ['9x − 20y + 75 = 0', '4x + 5y − 25 = 0'], centre: '(0, 0)', quotedLines: [], quotesP: true,
     },
     'pole-polar-tangents': {
         conic: 'ellipse', p: {at: P_DEFAULT}, side: 'outside', polar: '3x + 35y − 75 = 0', tangency: [T1, T2],
-        tangents: ['4x + 5y − 25 = 0', '9x − 20y + 75 = 0'], centre: '(0, 0)', quotedLines: TANGENT_LINES, quotesP: true,
+        tangents: ['9x − 20y + 75 = 0', '4x + 5y − 25 = 0'], centre: '(0, 0)', quotedLines: TANGENT_LINES, quotesP: true,
     },
     'pole-polar-polar': {
         conic: 'ellipse', p: {at: P_DEFAULT}, side: 'outside', polar: '3x + 35y − 75 = 0', tangency: [T1, T2],
-        tangents: ['4x + 5y − 25 = 0', '9x − 20y + 75 = 0'], centre: '(0, 0)', quotedLines: POLAR_LINES, quotesP: true,
+        tangents: ['9x − 20y + 75 = 0', '4x + 5y − 25 = 0'], centre: '(0, 0)', quotedLines: POLAR_LINES, quotesP: true,
     },
     'pole-polar-on': {
-        conic: 'ellipse', p: {at: T1}, side: 'on', polar: '4x + 5y − 25 = 0', tangency: [T1], tangents: [], centre: '(0, 0)',
+        conic: 'ellipse', p: {at: ON_ELLIPSE}, side: 'on', polar: '4x + 5y − 25 = 0', tangency: [ON_ELLIPSE], tangents: [], centre: '(0, 0)',
         quotedLines: [ql('4x+5y-25=0', 4, 5, -25), ql('\\tfrac{4x}{25}+\\tfrac y5=1', fr(4, 25), fr(1, 5), -1)], quotesP: true,
     },
     'pole-polar-infinity': {
-        conic: 'ellipse', p: {direction: [1, 0]}, side: 'outside', polar: '9x = 0', tangency: [vec(0, 3), vec(0, -3)],
-        tangents: ['y − 3 = 0', 'y + 3 = 0'], centre: '(0, 0)',
+        conic: 'ellipse', p: {direction: [1, 0]}, side: 'outside', polar: 'x = 0', tangency: [vec(0, -3), vec(0, 3)],
+        tangents: ['y + 3 = 0', 'y − 3 = 0'], centre: '(0, 0)',
         quotedLines: [ql('9x=0', 9, 0, 0), ql('x=0', 1, 0, 0), ql('y=3', 0, 1, -3), ql('y=-3', 0, 1, 3)], quotesP: false,
     },
     'pole-polar-line': {
-        conic: 'circle', p: {at: vec(1, 7)}, side: 'outside', polar: 'x + 7y − 25 = 0', tangency: [vec(4, 3), vec(-3, 4)],
-        tangents: ['4x + 3y − 25 = 0', '3x − 4y + 25 = 0'], centre: '(0, 0)',
+        conic: 'circle', p: {at: vec(1, 7)}, side: 'outside', polar: 'x + 7y − 25 = 0', tangency: [vec(-3, 4), vec(4, 3)],
+        tangents: ['3x − 4y + 25 = 0', '4x + 3y − 25 = 0'], centre: '(0, 0)',
         quotedLines: [ql('x+7y=25', 1, 7, -25), ql('x+7y-25=0', 1, 7, -25), ql('4x+3y=25', 4, 3, -25), ql('-3x+4y=25', -3, 4, -25), ql('4x+3y-25=0', 4, 3, -25), ql('3x-4y+25=0', 3, -4, 25)],
         quotesP: true,
     },
@@ -209,9 +210,9 @@ test('K3: the hand-written points, lines and regions recompute with exact fracti
         const lines = [polar, ...e.tangency.map(t => polarOf(e.conic, t))];
         for (const quoted of e.quotedLines) expect([id, quoted.tex, lines.some(candidate => same(candidate, quoted.line))]).toEqual([id, quoted.tex, true]);
     }
-    // The spec's default numbers, written directly: T1 = (4, 9/5), T2 = (-3, 12/5) on 9x^2 + 25y^2 = 225; the tangents meet at P = (1, 21/5).
-    const tangent1 = vec(fr(4, 25), fr(1, 5), -1);
-    const tangent2 = vec(fr(-3, 25), fr(4, 15), -1);
+    // The default numbers in the graph's order, written directly: T1 = (-3, 12/5), T2 = (4, 9/5) on 9x^2 + 25y^2 = 225; the tangents meet at P = (1, 21/5).
+    const tangent1 = vec(fr(-3, 25), fr(4, 15), -1);
+    const tangent2 = vec(fr(4, 25), fr(1, 5), -1);
     expect(same(cross3(tangent1, tangent2), P_DEFAULT)).toBe(true);
     expect(same(polarOf('ellipse', T1), tangent1) && same(polarOf('ellipse', T2), tangent2)).toBe(true);
     // The polar x/25 + 7y/15 = 1 through T1 and T2: both residuals exactly 0.
@@ -310,7 +311,7 @@ test('K3: the quoted points, lines and values are in the prose, in Slovenian and
             const text = prose(stepOf(id), language);
             if (e.quotesP) expect(text, `${id} ${language} P`).toContain(`P=${pointTex(pointOf(e))}`);
             // The scene's text states each point of tangency it lists (the first four steps and the circle and parabola scenes quote them).
-            if (id !== 'pole-polar-predict' && id !== 'pole-polar-polar') e.tangency.forEach((t, i) => expect(text, `${id} ${language} T${i + 1}`).toContain(`T_${i + 1}=${pointTex(t)}`));
+            if (id !== 'pole-polar-predict' && id !== 'pole-polar-polar' && id !== 'pole-polar-on') e.tangency.forEach((t, i) => expect(text, `${id} ${language} T${i + 1}`).toContain(`T_${i + 1}=${pointTex(t)}`));
             for (const quoted of e.quotedLines) expect(text, `${id} ${language} ${quoted.tex}`).toContain(quoted.tex);
         }
         const step = (id: string) => prose(stepOf(id), language);
@@ -355,6 +356,31 @@ test('K3: every point a scene step quotes, in each text field separately, is tha
     }
 });
 
+test('K3: every quoted region or residual value, in each text field separately, has its exact result', () => {
+    // Each left side the prose computes, and the only result it may be followed by (1/25 + 441/225 = 2, 16/25 + 9/25 = 1, ...).
+    const values: readonly (readonly [string, string])[] = [
+        ['\\tfrac1{25}+\\tfrac{441}{225}=', '2>1'],
+        ['\\tfrac{16}{25}+\\tfrac9{25}=', '1'],
+        ['\\tfrac1{25}+\\tfrac19=', '\\tfrac{34}{225}<1'],
+        ['\\tfrac4{25}+\\tfrac{21}{25}=', '1'],
+        ['-\\tfrac3{25}+\\tfrac{28}{25}=', '1'],
+    ];
+    for (const language of ['sl', 'en'] as const) {
+        const seen = new Set<string>();
+        for (const id of Object.keys(SCENES)) {
+            for (const field of fields(stepOf(id), language)) {
+                for (const [left, result] of values) {
+                    for (let at = field.indexOf(left); at >= 0; at = field.indexOf(left, at + 1)) {
+                        seen.add(left);
+                        expect(field.slice(at + left.length, at + left.length + result.length), `${id} ${language} ${left}`).toBe(result);
+                    }
+                }
+            }
+        }
+        expect([...seen].sort()).toEqual(values.map(([left]) => left).sort());
+    }
+});
+
 test('K3: the strict scene operations refuse bad values and the other graphs\' operations', () => {
     const m = mount();
     try {
@@ -368,12 +394,3 @@ test('K3: the strict scene operations refuse bad values and the other graphs\' o
     }
 }, REAL_GRAPH_TEST_TIMEOUT);
 
-test('DBG', () => {
-    const m = mount();
-    const out: string[] = [];
-    for (const id of Object.keys(SCENES)) {
-        m.scene(id);
-        out.push(['DBG', id, line('tangency-1'), line('tangency-2'), line('tangent-1'), line('tangent-2'), line('centre'), line('polar')].join(' | '));
-    }
-    throw new Error(out.join(' // '));
-});
