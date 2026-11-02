@@ -1617,3 +1617,17 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Repairs: one round. Cause: test coverage and wording. The 13a overrun was a sizing issue: the first slice carried four task items plus the controls.
 - Gaps: no browser run (no route until task 14). Task 14's smoke takes the real board click, keyboard activation, Play timing and live SL/EN board text.
 - Handoff evidence: the 13a handoff note was enough for a fresh worker to finish in 41k tokens without re-exploring. That was cheaper than continuing the first worker past its budget.
+
+## 2026-11-02 — Geometry: T2 task 14 registration (geometry handlers 28 and 29)
+
+- Task: [14](../tasks/triangulation-voronoi/14-t2-registration.md), class registration, size S. Handler Opus 5.5, auto, effort medium. Handler 28 dispatched the registration worker; handler 29 rebased, verified, smoked, repaired and accepted.
+- Workers in handler 29: 2.
+  - Smoke `bezeg-smoke`, Sonnet medium: 56k tokens, 37 tools, 8.4 min, 10 checks (9 passed, 1 failed).
+  - Measurement `bezeg-worker`, Sonnet medium: 37k tokens, 15 tools, 6.1 min. It wrote the browser perf script and the record.
+- Outcome: accepted at `1882adf0`; posters are still pending.
+- Smoke findings:
+  - A page error on a second board press on `delaunay`. Its cause, an overlay rebuild inside JSXGraph's pointer-down dispatch, came from task 13 and was invisible to the jsdom host tests.
+  - The inherited default view was too small.
+  - The handler repaired both itself (a small, coupled change), with a mutation check and a browser A/B on the smoke worker's own click sequences.
+- Repairs: one round. Cause: a browser-only lifecycle defect that the host tests' synchronous `triggerEventHandlers` cannot show.
+- Lesson: the smoke worker's saved repro scripts let the handler run an exact A/B against the fixed build without a second smoke dispatch. Asking smoke workers to keep repro scripts in the job tmp directory paid off.
