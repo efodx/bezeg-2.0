@@ -83,6 +83,9 @@ const targets = {
     'inscribed-angle': ['Default chord AB with the inscribed angles at C and P, the central angle at O and the radii OA, OB', [toggle('Polmera OA in OB')], [-3.55, 5.81, 10.55, -2.81]],
     // The same triangle and window; the default overlays (O, G, H, the Euler line, the nine-point circle about N) plus the nine points and the circumcircle.
     'euler-line': ['Default triangle with O, G and H on the Euler line, the nine-point circle about N through its nine points, and the circumcircle', [toggle('Devet točk (krogci: razpolovišča stranic, kvadratki: vznožja višin, rombi: razpolovišča daljic AH, BH, CH)'), toggle('Očrtana krožnica')], [-3.55, 5.81, 10.55, -2.81]],
+    // The same triangle; P at t = 60 on the circumcircle (5.40, 4.80) with all overlays on (the defaults). The foot E on CA is at (2.40, 6.00),
+    // above the sibling window, so the top rises to 6.6 and the width keeps 360:220 about x = 3.5.
+    'simson-line': ['Default triangle with P on the circumcircle at t = 60, the perpendiculars from P to the side lines, the collinear feet D, E, F on the Simson line and the pedal triangle', [], [-4.2, 6.6, 11.2, -2.81]],
     // Default B2 example: n = 7 points, hull k = 5, starting triangulation T0 (2n - 2 - k = 7 triangles).
     'point-set-triangulation': ['Default seven points with their starting triangulation T0 drawn as triangle edges', [], [-4.18, 9, 12.18, -1]],
     // Default quad (0,0), (4,0), (5,3), (0,2) with diagonal ac; the first Next step tests that edge and shows its circumcircle.
@@ -269,7 +272,7 @@ async function outcome(page, id) {
 }
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
-const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay']);
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay']);
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
@@ -323,6 +326,14 @@ function assertOutcomeEvidence(id, evidence) {
     if (id === 'delaunay') {
         for (const [x, y] of [[0, 0], [4, 0], [5, 3], [0, 2]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing default quad point (${x},${y}): ${JSON.stringify(evidence.points)}`);
         assert.ok(evidence.curves >= 5, 'One curve per quad side and the diagonal required');
+    }
+    if (id === 'simson-line') {
+        // Vertices exactly; P = O + R(cos 60°, sin 60°) with O = (7/2, 3/2), R² = 29/2, and its feet on BC, CA, AB (glider mode, so to 1e-6).
+        const r = Math.sqrt(29 / 2), px = 3.5 + r / 2, py = 1.5 + r * Math.sqrt(3) / 2;
+        const foot = ([ax, ay], [bx, by]) => { const dx = bx - ax, dy = by - ay, s = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy); return [ax + s * dx, ay + s * dy]; };
+        const expected = [[0, 0], [7, 0], [2, 5], [px, py], foot([7, 0], [2, 5]), foot([2, 5], [0, 0]), foot([0, 0], [7, 0])];
+        for (const [x, y] of expected) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing point (${x},${y}): ${JSON.stringify(evidence.points)}`);
+        assert.ok(evidence.lines >= 4, 'The three side lines and the Simson line required');
     }
     if (id === 'triangle-centres' || id === 'inscribed-angle') {
         for (const [x, y] of [[0, 0], [7, 0], [2, 5]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing default vertex (${x},${y}): ${JSON.stringify(evidence.points)}`);
