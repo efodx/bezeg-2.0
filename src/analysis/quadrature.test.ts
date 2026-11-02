@@ -36,6 +36,15 @@ describe('parabola overlay data', () => {
         }
     });
 
+    test('each parabola passes through f at x0, xMid and x1', () => {
+        const parabolas = simpsonParabolas(sine, 0, Math.PI, 8);
+        expect(parabolas).toHaveLength(4);
+        for (const p of parabolas) {
+            const at = (x: number) => p.coefficients[0] + p.coefficients[1] * x + p.coefficients[2] * x * x;
+            for (const x of [p.x0, p.xMid, p.x1]) expect(Math.abs(at(x) - Math.sin(x))).toBeLessThan(1e-12);
+        }
+    });
+
     test('the parabola areas add up to the Simpson sum', () => {
         const area = (c: readonly [number, number, number], x0: number, x1: number): number =>
             c[0] * (x1 - x0) + c[1] * (x1 ** 2 - x0 ** 2) / 2 + c[2] * (x1 ** 3 - x0 ** 3) / 3;

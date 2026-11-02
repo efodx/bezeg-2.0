@@ -11,6 +11,8 @@ import {checkBisectionModel, parseBisectionModel} from "../../analysis/bisection
 import {bisectionFileMessage} from "./bisectionMessages";
 import {checkRootFindingModel, parseRootFindingModel} from "../../analysis/rootFindingModel";
 import {rootFindingFileMessage} from "./rootFindingMessages";
+import {checkQuadratureModel, parseQuadratureModel} from "../../analysis/quadratureModel";
+import {quadratureFileMessage} from "./quadratureMessages";
 import {checkMeanValueModel, parseMeanValueModel} from "../../analysis/meanValueModel";
 import {meanValueFileMessage} from "./meanValueMessages";
 import {checkExtremaModel, parseExtremaModel} from "../../analysis/extremaModel";
@@ -57,6 +59,11 @@ const diagnoseBisection: Diagnosis = data => {
 const diagnoseRootFinding: Diagnosis = data => {
     const check = checkRootFindingModel(data);
     return check.ok || check.issue === undefined ? undefined : rootFindingFileMessage(check.issue);
+};
+/** The model module names the rule a rejected quadrature model broke; this only localizes it. */
+const diagnoseQuadrature: Diagnosis = data => {
+    const check = checkQuadratureModel(data);
+    return check.ok || check.issue === undefined ? undefined : quadratureFileMessage(check.issue);
 };
 const diagnoseMeanValue: Diagnosis = data => {
     const check = checkMeanValueModel(data);
@@ -160,6 +167,7 @@ export const functionPresetCollections = {
     "arc-length": functionCollection("arc-length", parseArcLengthModel),
     bisection: functionCollection("bisection", parseBisectionModel, diagnoseBisection),
     "root-finding": functionCollection("root-finding", parseRootFindingModel, diagnoseRootFinding),
+    quadrature: functionCollection("quadrature", parseQuadratureModel, diagnoseQuadrature),
     "mean-value": functionCollection("mean-value", parseMeanValueModel, diagnoseMeanValue),
     accumulation: functionCollection("accumulation", parseAccumulationModel, diagnoseAccumulation),
     darboux: functionCollection("darboux", parseDarbouxModel, diagnoseDarboux),

@@ -20,6 +20,8 @@ interface SliderProps {
     formatValue?: (value: number) => string
     /** Disables the slider and its number field; the caller says why (for example in `help`). */
     disabled?: boolean
+    /** Shown by the number field when the caller refuses a typed in-range value (by returning false from `onChange`). */
+    rejectedHint?: string
 }
 
 /** Decimal places of a step as written (0.05 has 2, 0.015 has 3); a step in exponent notation counts as 6. */
@@ -42,7 +44,7 @@ export default function Slider(props: SliderProps) {
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={props.min} max={props.max}
-                               step={step} decimals={decimals} integer={integer} disabled={props.disabled}
+                               step={step} decimals={decimals} integer={integer} disabled={props.disabled} rejectedHint={props.rejectedHint}
                                onChange={value => props.onChange(value)}/>
                 : <output htmlFor={id}>{show(props.value)}</output>}</div>
         <Form.Range id={id} aria-describedby={`${id}-range${props.help ? ` ${id}-help` : ""}`} min={props.min}
