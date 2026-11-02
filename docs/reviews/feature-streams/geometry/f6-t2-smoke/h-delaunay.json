@@ -1,0 +1,23 @@
+{
+ "before": "Korak 4 od 7 · Okvir 2 od 2",
+ "labelsBefore": [],
+ "traceBefore": [
+  "Korak 4 od 5",
+  "Korak 4 od 5"
+ ],
+ "ptBefore": "0,0,4,0,5,3,0,2,0,0",
+ "after": "Step 4 of 7 · Frame 2 of 2",
+ "labelsAfter": [],
+ "traceAfter": [
+  "Step 4 of 5",
+  "Step 4 of 5"
+ ],
+ "ptAfter": "0,0,4,0,5,3,0,2,0,0",
+ "slHits": [
+  "determinant"
+ ],
+ "slAria": [],
+ "slLabelHits": [],
+ "next": "Step 5 of 7 · Frame 1 of 2",
+ "errs": []
+}

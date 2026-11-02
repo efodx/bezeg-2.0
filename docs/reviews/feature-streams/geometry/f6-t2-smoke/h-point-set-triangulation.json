@@ -1,0 +1,15 @@
+{
+ "before": "Korak 3 od 7 · Okvir 2 od 3",
+ "labelsBefore": [],
+ "traceBefore": null,
+ "ptBefore": "0,0,8,0,9,6,4,8,-1,5",
+ "after": "Step 3 of 7 · Frame 2 of 3",
+ "labelsAfter": [],
+ "traceAfter": null,
+ "ptAfter": "0,0,8,0,9,6,4,8,-1,5",
+ "slHits": [],
+ "slAria": [],
+ "slLabelHits": [],
+ "next": "Step 3 of 7 · Frame 3 of 3",
+ "errs": []
+}

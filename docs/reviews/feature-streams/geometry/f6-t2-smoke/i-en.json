@@ -1,0 +1,23 @@
+{
+ "url": "http://127.0.0.1:4313/bezeg-2.0/learn/triangulations-voronoi",
+ "h": [
+  "Triangulations and Voronoi diagrams",
+  "Why triangulate",
+  "Ear clipping and the art gallery theorem",
+  "Ear clipping and the art gallery theorem",
+  "Triangulating a set of points",
+  "Triangulating a set of points",
+  "Delaunay triangulation and Lawson flips",
+  "Delaunay triangulation and Lawson flips"
+ ],
+ "links": [
+  "Guided example\n→ -> /bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+  "Guided example\n→ -> /bezeg-2.0/compgeo/point-set-triangulation?example=lesson.triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+  "Guided example\n→ -> /bezeg-2.0/compgeo/delaunay?example=lesson.triangulations-voronoi.delaunay.delaunay"
+ ],
+ "hasB2": false,
+ "hasB3": true,
+ "guidedCount": 0,
+ "opened": [],
+ "errs": []
+}

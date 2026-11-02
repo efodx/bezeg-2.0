@@ -1,0 +1,13 @@
+{
+ "boardCount": 1,
+ "boardLabel": "Točke na mreži. Izbrano točko premakneš s puščičnimi tipkami, odstraniš pa s tipko Delete.",
+ "before": [
+  "8",
+  "0"
+ ],
+ "after": [
+  "9",
+  "1"
+ ],
+ "errs": []
+}

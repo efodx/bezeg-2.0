@@ -1,0 +1,30 @@
+{
+ "edited": "0,0,4,0,5,3,1,2",
+ "afterClick": [
+  ":r1:|0",
+  "exampleForm.ControlInput1|"
+ ],
+ "btns": [
+  "Shrani",
+  "Shrani",
+  "Shrani"
+ ],
+ "opts": [
+  "Privzeta",
+  "smoke-t2-delaunay"
+ ],
+ "reloaded": "0,0,4,0,5,3,0,2",
+ "reopened": "0,0,4,0,5,3,1,2",
+ "delBtns": [
+  "Izbriši",
+  "Da",
+  "Ne"
+ ],
+ "optsAfter": [
+  "Privzeta"
+ ],
+ "ls": [
+  "bezeg-2.0:preset-compgeo-delaunay"
+ ],
+ "errs": []
+}

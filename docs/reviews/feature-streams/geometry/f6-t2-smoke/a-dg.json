@@ -1,0 +1,76 @@
+{
+ "entry": {
+  "nodes": 123,
+  "step": "Korak 1 od 5",
+  "next": 1,
+  "play": 1,
+  "playLabel": "Predvajaj"
+ },
+ "reload": {
+  "nodes": 123,
+  "step": "Korak 1 od 5",
+  "next": 1,
+  "play": 1
+ },
+ "panel": "Korak 1 od 5\n\nZačetna triangulacija: trikotniki še niso preizkušeni.\n\nZamenjav doslej: 0\nNeustreznih robov: 1\nNajmanjši kot zdaj: 19,65°\nNajmanjši kot na začetku (korak 1): 19,65°\nKoti zdaj, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43\nKoti na začetku, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43\nTrikotnik P1, P2, P3\nTrikotnik P1, P3, P4\nPočisti izbiro trikotnika\n\nKorak 1 od 5. Začetna triangulacija: trikotniki še niso preizkušeni.\n\nIzbrani rob\nNoben rob ni izbran\nP1–P2 (ro",
+ "afterNext2": "Korak 3 od 5",
+ "step3": "Korak 3 od 5\n\nNeustrezni rob zamenjamo z drugo diagonalo štirikotnika; preizkušanje se začne znova.\n\nZamenjav doslej: 1\nNeustreznih robov: 0\nNajmanjši kot zdaj: 26,57°\nNajmanjši kot na začetku (korak 1): 19,65°\nKoti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90,00\nKoti na začetku, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43\nTrikotnik P2, P3, P4\nTrikotnik P1, P2, P4\nPočisti izbiro trikotnika\n\nKorak 3 od 5. Neustrezni rob zamenjamo z drugo diagonalo štirikotnika; preizkušanj",
+ "playedToEnd": {
+  "step": "Korak 5 od 5",
+  "btn": "Predvajaj"
+ },
+ "reset": "Korak 1 od 5",
+ "playLbl": "Premor",
+ "pauseStable": [
+  "Korak 2 od 5",
+  "Korak 2 od 5"
+ ],
+ "reset2": "Korak 1 od 5",
+ "beforeEdit": "Korak 4 od 5",
+ "afterEditWhilePlaying": {
+  "step": "Korak 1 od 5",
+  "btn": "Predvajaj"
+ },
+ "beforeEdit2": "Korak 3 od 5",
+ "afterEdit2": {
+  "step": "Korak 1 od 5",
+  "btn": "Predvajaj"
+ },
+ "afterTri": "Korak 1 od 5\n\nZačetna triangulacija: trikotniki še niso preizkušeni.\n\nZamenjav doslej: 0\nNeustreznih robov: 1\nNajmanjši kot zdaj: 19,65°\nNajmanjši kot na začetku (korak 1): 19,65°\nKoti zdaj, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43\nKoti na začetku, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43\nTrikotnik P1, P2, P3\nTrikotnik P1, P3, P4\nPočisti izbiro trikotnika\n\nIzbrani trikotnik P1P2P3: njegova očrtana krožnica je črtkana.\n\nČez rob P1–P3: nasprotna točka P4, determinanta preizkusa krožnice = +64: točka je znotraj očrtane krožnice\n\nRobov na konveksni ovojnici: 2; čeznje ni sosednjega trikotnika.\n\nKorak 1 od 5. Začetna triangulacija: trikotniki še niso preizkušeni.. Izbrani trikotnik P1P2P3: njegova očrtana krožnica je črtkana.. Čez rob P1–P3: nasprotna točka P4, determinanta preizkusa krožnice = +64: točka je znotraj očrtane krožnice. Robov na konveksni ovojnici: ",
+ "triPressed": "true",
+ "rmBtns": 1,
+ "refs": {
+  "equal": {
+   "msg": [
+    "Dve točki sta enaki. Premaknite ali odstranite eno od njiju; triangulacija zahteva različne točke.",
+    "Dodajanje z dotikom ali klikomOdstraniPočisti"
+   ],
+   "trace": {
+    "next": 1,
+    "play": 1
+   },
+   "nextDisabled": true
+  },
+  "collinear": {
+   "msg": [
+    "Triangulacija potrebuje vsaj tri točke, ki ne ležijo vse na isti premici. Dodajte točko izven premice."
+   ],
+   "trace": {
+    "next": 1,
+    "play": 1
+   },
+   "nextDisabled": true
+  },
+  "fewerDefault": null
+ },
+ "afterClearPoints": [
+  "Nova točka: x=0",
+  "Nova točka: y=0"
+ ],
+ "clearText": "Točk: 0 od največ 40\n\nNobena točka ni izbrana.\n\nTočke\n\nNi točk.\n\nDodaj točko",
+ "clearTrace": {
+  "next": 1,
+  "play": 1
+ },
+ "errs": []
+}

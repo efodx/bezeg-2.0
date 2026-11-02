@@ -1,0 +1,13 @@
+{
+ "delaunay": {
+  "sw": 1280,
+  "cw": 1280,
+  "over": []
+ },
+ "point-set-triangulation": {
+  "sw": 1280,
+  "cw": 1280,
+  "over": []
+ },
+ "errs": []
+}

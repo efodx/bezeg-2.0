@@ -1,0 +1,11 @@
+{
+ "sl": true,
+ "en": true,
+ "slLeft": false,
+ "slBack": true,
+ "triSel": "Izbrani trikotnik P1P2P3: njegova očrtana krožnica je črtkana.",
+ "sel2": "true",
+ "triEn": "Selected triangle P1P2P3: its circumcircle is drawn dashed.",
+ "detEn": "Across edge P1–P3: opposite point P4, incircle determinant = +64: the point is inside the circumcircle",
+ "errs": []
+}

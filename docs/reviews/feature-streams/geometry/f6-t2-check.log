@@ -1,0 +1,4 @@
+Waiting for lint (pid 10192) to finish starting before reading free memory.
+Memory available for check after 10s.
+check: passed in 845.5s (test slot 1/3, 3 workers); revision e3f90da5d0d41beb065b594b193306f107cae14b; dirty; log .command-logs\2026-11-02T20-59-25-737Z-27328-3a4a2d60.log
+check build: passed in 4.4s (test slot 1/3, 3 workers); revision e3f90da5d0d41beb065b594b193306f107cae14b; dirty; log .command-logs\2026-11-02T21-13-31-755Z-27328-55c68847.log; warnings present (see log)

@@ -1,0 +1,23 @@
+{
+ "url": "http://127.0.0.1:4313/bezeg-2.0/learn/triangulations-voronoi",
+ "h": [
+  "Triangulacije in Voronojevi diagrami",
+  "Zakaj triangulacija",
+  "Rezanje ušes in izrek o galeriji",
+  "Rezanje ušes in izrek o galeriji",
+  "Triangulacija množice točk",
+  "Triangulacija množice točk",
+  "Delaunayeva triangulacija in Lawsonove zamenjave",
+  "Delaunayeva triangulacija in Lawsonove zamenjave"
+ ],
+ "links": [
+  "Vodeni primer\n→ -> /bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+  "Vodeni primer\n→ -> /bezeg-2.0/compgeo/point-set-triangulation?example=lesson.triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+  "Vodeni primer\n→ -> /bezeg-2.0/compgeo/delaunay?example=lesson.triangulations-voronoi.delaunay.delaunay"
+ ],
+ "hasB2": true,
+ "hasB3": true,
+ "guidedCount": 0,
+ "opened": [],
+ "errs": []
+}

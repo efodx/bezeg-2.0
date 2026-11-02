@@ -1,0 +1,18 @@
+{
+ "opened": [
+  {
+   "url": "/compgeo/point-set-triangulation?example=lesson.triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+   "lesson": "Step 1 of 7 · Frame 1 of 2",
+   "h": "Triangulating a set of points",
+   "svg": 4
+  },
+  {
+   "url": "/compgeo/delaunay?example=lesson.triangulations-voronoi.delaunay.delaunay",
+   "lesson": "Step 1 of 7 · Frame 1 of 2",
+   "h": "Delaunay triangulation and Lawson flips",
+   "svg": 4
+  }
+ ],
+ "hasLessonTitle": true,
+ "errs": []
+}

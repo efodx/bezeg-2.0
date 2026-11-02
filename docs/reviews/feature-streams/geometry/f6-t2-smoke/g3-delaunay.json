@@ -1,0 +1,12 @@
+{
+ "sameTexts": true,
+ "txtA": "",
+ "txtB": "",
+ "sameHtml": false,
+ "diffAt": [
+  "ght=\"475.1875\" rx=\"0\" ry=\"0\"></rect></clipPath></defs><g><polygon id=\"jgbox_BPy68\" fill=\"#bf8542\" pointer-events=\"visiblePainted\" fill-opacity=\"0\" tabindex=\"-1\" stroke=\"none\" fill-rule=\"evenodd\" point",
+  "ght=\"475.1875\" rx=\"0\" ry=\"0\"></rect></clipPath></defs><g><polygon id=\"jgbox_BPy653\" fill=\"#bf8542\" pointer-events=\"visiblePainted\" fill-opacity=\"0\" tabindex=\"-1\" stroke=\"none\" fill-rule=\"evenodd\" poin"
+ ],
+ "trace": "Korak 1 od 5",
+ "errs": []
+}

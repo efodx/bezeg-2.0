@@ -1,0 +1,20 @@
+{
+ "zero": [
+  "Triangulacija potrebuje vsaj tri točke, ki ne ležijo vse na isti premici. Dodajte točko izven premice."
+ ],
+ "one": [
+  "Triangulacija potrebuje vsaj tri točke, ki ne ležijo vse na isti premici. Dodajte točko izven premice."
+ ],
+ "two": [
+  "Triangulacija potrebuje vsaj tri točke, ki ne ležijo vse na isti premici. Dodajte točko izven premice."
+ ],
+ "threeCollinear": [
+  "Triangulacija potrebuje vsaj tri točke, ki ne ležijo vse na isti premici. Dodajte točko izven premice."
+ ],
+ "valid": [],
+ "validEdgeOpts": 4,
+ "dupAdd": [],
+ "dupEdgeOpts": 6,
+ "dupTriBtns": 0,
+ "errs": []
+}

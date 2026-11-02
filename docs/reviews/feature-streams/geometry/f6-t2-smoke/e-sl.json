@@ -1,0 +1,126 @@
+{
+ "triButtons": [
+  "Trikotnik P1, P2, P3",
+  "Trikotnik P1, P3, P4"
+ ],
+ "dg-sl-plain.SVG": {
+  "name": "izvoz.svg",
+  "bytes": 25313,
+  "root": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"847.625\" heig",
+  "elems": 40,
+  "texts": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "10",
+   "−2",
+   "−4",
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "−1",
+   "−2",
+   "P1",
+   "P2",
+   "P3",
+   "P4",
+   "neustrezen rob"
+  ],
+  "dashed": true,
+  "circleLike": 0,
+  "ellipse": 14,
+  "dashN": 1
+ },
+ "dg-sl-circle.SVG": {
+  "name": "izvoz.svg",
+  "bytes": 26300,
+  "root": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"847.625\" heig",
+  "elems": 40,
+  "texts": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "10",
+   "−2",
+   "−4",
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "−1",
+   "−2",
+   "P1",
+   "P2",
+   "P3",
+   "P4",
+   "neustrezen rob"
+  ],
+  "dashed": true,
+  "circleLike": 0,
+  "ellipse": 16,
+  "dashN": 2
+ },
+ "dg-sl-circle.PNG": {
+  "name": "izvoz.png",
+  "bytes": 38413,
+  "sig": "89504e470d0a1a0a",
+  "dim": [
+   848,
+   476
+  ]
+ },
+ "tg-sl.SVG": {
+  "name": "izvoz.svg",
+  "bytes": 27507,
+  "root": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"847.625\" heig",
+  "elems": 44,
+  "texts": [
+   "2",
+   "4",
+   "6",
+   "8",
+   "10",
+   "12",
+   "14",
+   "16",
+   "−2",
+   "−4",
+   "−6",
+   "−8",
+   "2",
+   "4",
+   "6",
+   "8",
+   "10",
+   "−2",
+   "P1",
+   "P2",
+   "P3",
+   "P4",
+   "P5",
+   "P6",
+   "P7"
+  ],
+  "dashed": false,
+  "circleLike": 0,
+  "ellipse": 11,
+  "dashN": 0
+ },
+ "tg-sl.PNG": {
+  "name": "izvoz.png",
+  "bytes": 40719,
+  "sig": "89504e470d0a1a0a",
+  "dim": [
+   848,
+   476
+  ]
+ },
+ "errs": []
+}

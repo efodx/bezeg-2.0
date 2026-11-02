@@ -1,0 +1,19 @@
+{
+ "entry": 119,
+ "reload": 119,
+ "ang0": "Najmanjši kot zdaj: 1,91°",
+ "flipDisabled": null,
+ "afterSelect": "Izbrani rob|Noben rob ni izbran|P1–P2 (rob ovojnice)|P1–P5 (rob ovojnice)|P2–P3 (rob ovojnice)|P2–P5 (notranji rob)|P2–P",
+ "ang1": "Najmanjši kot zdaj: 10,62°",
+ "prevAngle": "Najmanjši kot pred zadnjo zamenjavo: 1,91°",
+ "counts": "Trikotnikov: 7 = 2n − 2 − k = 2 · 7 − 2 − 5",
+ "afterEdit": "Najmanjši kot zdaj: 12,53°",
+ "prevAfterEdit": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo",
+ "p7x": "6",
+ "equalMsg": [
+  "Dve točki sta enaki. Premaknite ali odstranite eno od njiju; triangulacija zahteva različne točke."
+ ],
+ "equalFlipDisabled": "true",
+ "equalEdgeOpts": 1,
+ "errs": []
+}

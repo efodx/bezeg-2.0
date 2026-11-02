@@ -1,0 +1,11 @@
+{
+ "sameTexts": true,
+ "txtA": "",
+ "txtB": "",
+ "sameHtml": false,
+ "diffAt": [
+  "&quot;); visibility: inherit;\" display=\"inline\"></path></g><g><path id=\"jgbox_BG56\" stroke-linecap=\"round\" stroke-linejoin=\"round\" fill-rule=\"evenodd\" stroke=\"#8d9a8d\" stroke-opacity=\"1\" stroke-width=",
+  "&quot;); visibility: inherit;\" display=\"inline\"></path></g><g><path id=\"jgbox_BG429\" stroke-linecap=\"round\" stroke-linejoin=\"round\" fill-rule=\"evenodd\" stroke=\"#8d9a8d\" stroke-opacity=\"1\" stroke-width"
+ ],
+ "errs": []
+}

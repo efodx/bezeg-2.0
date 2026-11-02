@@ -1,0 +1,31 @@
+{
+ "dg": {
+  "sw": 390,
+  "cw": 390,
+  "over": []
+ },
+ "nextVisible": true,
+ "step": "Korak 2 od 5",
+ "dgAfter": {
+  "sw": 390,
+  "cw": 390,
+  "over": []
+ },
+ "lesson": {
+  "sw": 390,
+  "cw": 390,
+  "over": [
+   "MJX-MATH.MJX-TEX:406",
+   "MJX-MROW.:406",
+   "MJX-MTABLE.:401",
+   "MJX-TABLE.:393",
+   "MJX-ITABLE.:393"
+  ]
+ },
+ "tg": {
+  "sw": 390,
+  "cw": 390,
+  "over": []
+ },
+ "errs": []
+}

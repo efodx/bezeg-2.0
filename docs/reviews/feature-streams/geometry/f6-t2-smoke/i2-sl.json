@@ -1,0 +1,18 @@
+{
+ "opened": [
+  {
+   "url": "/compgeo/point-set-triangulation?example=lesson.triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+   "lesson": "Korak 1 od 7 · Okvir 1 od 2",
+   "h": "Triangulacija množice točk",
+   "svg": 4
+  },
+  {
+   "url": "/compgeo/delaunay?example=lesson.triangulations-voronoi.delaunay.delaunay",
+   "lesson": "Korak 1 od 7 · Okvir 1 od 2",
+   "h": "Delaunayeva triangulacija in Lawsonove zamenjave",
+   "svg": 4
+  }
+ ],
+ "hasLessonTitle": true,
+ "errs": []
+}

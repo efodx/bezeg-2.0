@@ -1,0 +1,8 @@
+{
+ "msgs": [
+  "Dve točki sta enaki. Premaknite ali odstranite eno od njiju; triangulacija zahteva različne točke.",
+  "Korak mreže: 1. Koordinate so cela števila korakov."
+ ],
+ "pts": 5,
+ "errs": []
+}
