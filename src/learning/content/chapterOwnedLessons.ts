@@ -4,9 +4,11 @@ import {complexMapsGuidedExamplePath, complexMapsGuidedExampleRegistry, COMPLEX_
 import {CONVEXITY_CHAPTER_ID} from './convexityChapterId';
 import {TRIANGULATION_CHAPTER_ID} from './triangulationChapterId';
 import {SWEEP_CHAPTER_ID} from './sweepChapterId';
+import {NUMERICAL_CHAPTER_ID} from './numericalChapterId';
 import {convexityGuidedExampleRegistry, convexityGuidedExamplePath} from './convexityChapterRegistry';
 import {triangulationGuidedExampleRegistry, triangulationGuidedExamplePath} from './triangulationChapterRegistry';
 import {sweepGuidedExampleRegistry, sweepGuidedExamplePath} from './sweepChapterRegistry';
+import {numericalGuidedExampleRegistry, numericalGuidedExamplePath} from './numericalChapterRegistry';
 import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAPS_CHAPTER_ID} from './linearMapsChapterRegistry';
 import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry, TRIANGLE_GEOMETRY_CHAPTER_ID} from './triangleGeometryChapterRegistry';
 import {patchGuidedExamplePath, patchGuidedExampleRegistry} from './patchGuidedExampleRegistry';
@@ -38,6 +40,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [CONVEXITY_CHAPTER_ID]: ownedLessons(() => convexityGuidedExampleRegistry, sectionId => convexityGuidedExamplePath(sectionId)),
     [TRIANGULATION_CHAPTER_ID]: ownedLessons(() => triangulationGuidedExampleRegistry, sectionId => triangulationGuidedExamplePath(sectionId)),
     [SWEEP_CHAPTER_ID]: ownedLessons(() => sweepGuidedExampleRegistry, sectionId => sweepGuidedExamplePath(sectionId)),
+    [NUMERICAL_CHAPTER_ID]: ownedLessons(() => numericalGuidedExampleRegistry, sectionId => numericalGuidedExamplePath(sectionId)),
     [COMPLEX_MAPS_CHAPTER_ID]: ownedLessons(complexMapsGuidedExampleRegistry, complexMapsGuidedExamplePath),
     [TRIANGLE_GEOMETRY_CHAPTER_ID]: ownedLessons(triangleGeometryGuidedExampleRegistry, triangleGeometryGuidedExamplePath),
 };

@@ -6,6 +6,7 @@ import {triangleGeometryChapter} from './triangleGeometryChapter';
 import {convexityChapter} from './convexityChapter';
 import {triangulationChapter} from './triangulationChapter';
 import {sweepChapter} from './sweepChapter';
+import {numericalChapter} from './numericalChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
@@ -366,6 +367,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
             ], undefined, ['bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'fixed-point'], {investigationPrompts: analysisPrompts}),
         ],
     },
+    numericalChapter, // Numerical methods batch A: the root-finding lesson (N1 to N3) of numericalMethodsGuidedLessons.ts.
 ];
 
 
