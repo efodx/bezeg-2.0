@@ -13,11 +13,13 @@ import {centroid, circumcentre, circumradius, circumradiusSquared, classifyTrian
 import {analyseInscribedAngle} from '../../compgeo/inscribedAngleModel';
 import {analyseNotablePoints} from '../../compgeo/notablePointsModel';
 import {InscribedAngleGraph} from '../../graphs/compgeo/InscribedAngleGraph';
+import {EulerLineGraph} from '../../graphs/compgeo/EulerLineGraph';
+import {analyseEulerLine, eulerExample} from '../../compgeo/eulerLineModel';
 import {NotablePointsGraph} from '../../graphs/compgeo/NotablePointsGraph';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {getChapterOwnedLessons} from './chapterOwnedLessons';
 import {
-    DEFAULT_TRIANGLE, inscribedAngleLesson, OBTUSE_TRIANGLE, OBTUSE_VIEW, RIGHT_TRIANGLE, THALES_TRIANGLE, THALES_VIEW, triangleCentresLesson,
+    DEFAULT_TRIANGLE, eulerLineLesson, inscribedAngleLesson, NEAR_EQUILATERAL_TRIANGLE, NEAR_EQUILATERAL_VIEW, OBTUSE_TRIANGLE, OBTUSE_VIEW, RIGHT_TRIANGLE, THALES_TRIANGLE, THALES_VIEW, triangleCentresLesson,
 } from './triangleGeometryChapterLessons';
 import {triangleGeometryGuidedExamplePath} from './triangleGeometryChapterRegistry';
 
@@ -27,28 +29,27 @@ describe('triangle geometry reading chapter', () => {
     const words = (source: string) => mathFree(source).trim().split(/\s+/u).filter(Boolean).length;
     const sectionProse = (index: number, language: 'sl' | 'en') => triangleGeometryChapter.sections[index].paragraphs.map(p => p[language]).join(' ');
 
-    test('is registered in family plane-geometry, advertising only T1 and T2', () => {
+    test('is registered in family plane-geometry, advertising T1, T2 and T3 and no later batch', () => {
         expect(triangleGeometryChapter.family).toBe('plane-geometry');
         expect(triangleGeometryChapter.title).toEqual({sl: 'Geometrija trikotnika in inverzija', en: 'Triangle geometry and inversion'});
-        expect(triangleGeometryChapter.sections.map(section => section.id)).toEqual(['notable-points', 'inscribed-angle']);
-        expect(triangleGeometryChapter.sections.map(section => section.demonstrationIds)).toEqual([['triangle-centres'], ['inscribed-angle']]);
+        expect(triangleGeometryChapter.sections.map(section => section.id)).toEqual(['notable-points', 'inscribed-angle', 'euler-line']);
+        expect(triangleGeometryChapter.sections.map(section => section.demonstrationIds)).toEqual([['triangle-centres'], ['inscribed-angle'], ['euler-line']]);
         expect(familyChapters.some(chapter => chapter.id === TRIANGLE_GEOMETRY_CHAPTER_ID)).toBe(true);
         expect(learningChapters.some(chapter => chapter.id === TRIANGLE_GEOMETRY_CHAPTER_ID)).toBe(true);
-        // Later batches (Euler line, Simson line, inversion) are not promised as available.
+        // Later batches (Simson line, inversion) are not promised as available.
         for (const language of ['sl', 'en'] as const) {
             const all = triangleGeometryChapter.sections.map((_, index) => sectionProse(index, language)).join(' ');
-            expect(all).not.toMatch(language === 'sl' ? /Eulerjev|Simson|devetih točk/u : /Euler line|Simson|nine-point/u);
+            expect(all).not.toMatch(/Simson|inverz|invers/iu);
         }
     });
 
-    // The Euler line Demonstration is registered in F2b; the chapter links it with its section in F4.
     test('links existing Demonstrations of the plane geometry family', () => {
         const demonstrations = getDemonstrationCatalog().demonstrations;
         for (const section of triangleGeometryChapter.sections) {
             for (const id of section.demonstrationIds ?? []) expect(demonstrations.find(demo => demo.id === id)?.family).toBe('plane-geometry');
         }
         const linked = triangleGeometryChapter.sections.flatMap(section => section.demonstrationIds ?? []);
-        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry' && demo.id !== 'euler-line').map(demo => demo.id).sort());
+        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry').map(demo => demo.id).sort());
     });
 
     test('puts each section example at its end and keeps both languages complete', () => {
@@ -395,6 +396,219 @@ describe('triangle geometry lessons (T1 and T2)', () => {
                 expect(analysis.glider!.relation, item.id).toBe(item.id === 'other-arc' ? 'otherArc' : 'sameArc');
                 if (item.id === 'central') expect(analysis.centralAngle).toBeCloseTo(2 * analysis.angleAcb, 10);
             }
+        });
+    });
+});
+
+// Lesson T3 (Euler line and nine-point circle): every number in the lesson and in the chapter section is recomputed from the model and the kernel.
+describe('triangle geometry lesson T3 (Euler line and nine-point circle)', () => {
+    beforeAll(installBoardShims);
+    beforeEach(() => setLanguage('sl'));
+    vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
+
+    /** Prose without TeX backslashes, so `\approx` reads `approx` and the thin space `\,` disappears. */
+    const plain = (value: string) => value.replace(/\\,/gu, '').split(String.fromCharCode(92)).join('');
+    const bodyOf = (stepId: string, language: 'sl' | 'en') => plain(eulerLineLesson.steps.find(item => item.id === stepId)!.body[language]);
+    const sectionPlain = (language: 'sl' | 'en') => plain(triangleGeometryChapter.sections[2].paragraphs.map(p => p[language]).join(' '));
+    /** The snippet is written with a decimal point; the Slovenian prose must have the decimal comma in braces. */
+    const inBoth = (read: (language: 'sl' | 'en') => string, snippet: string) =>
+        read('en').includes(snippet) && read('sl').includes(snippet.split('.').join('{,}'));
+    const stepHas = (stepId: string, snippet: string) => inBoth(language => bodyOf(stepId, language), snippet);
+    const sectionHas = (snippet: string) => inBoth(sectionPlain, snippet);
+    const triangleOf = (id: Parameters<typeof eulerExample>[0]) => {
+        const analysis = analyseEulerLine(eulerExample(id).points);
+        if (analysis.kind !== 'triangle') throw new Error('expected a triangle');
+        return analysis;
+    };
+    const pointText = (p: RationalPoint) => `(${p.x.format()}, ${p.y.format()})`;
+    const sq = (from: RationalPoint, to: RationalPoint) => to.sub(from).dot(to.sub(from));
+
+    test('is owned by the euler-line section, complete in both languages, with the default scene first on every step', () => {
+        const owned = getChapterOwnedLessons('triangle-geometry')!;
+        expect(owned.lesson('euler-line')).toBe(eulerLineLesson);
+        expect(owned.path('euler-line')).toBe(triangleGeometryGuidedExamplePath('euler-line'));
+        expect(triangleGeometryGuidedExamplePath('euler-line')).toBe('/bezeg-2.0/euler-line?example=lesson.triangle-geometry.euler-line.euler-line');
+        expect(eulerLineLesson.id).toBe('euler-line-nine-point');
+        expect(eulerLineLesson.steps.map(item => item.id)).toEqual(['centres', 'line', 'drag', 'nine-points', 'special', 'near-equilateral', 'explore']);
+        for (const label of [eulerLineLesson.title, eulerLineLesson.summary]) {
+            expect(label.sl.length).toBeGreaterThan(10);
+            expect(label.en.length).toBeGreaterThan(10);
+        }
+        for (const item of eulerLineLesson.steps) {
+            for (const label of [item.title, item.body, item.prompt!]) {
+                expect(label.sl.length).toBeGreaterThan(10);
+                expect(label.en.length).toBeGreaterThan(10);
+            }
+            expect(item.scene!.actions[0]).toMatchObject({kind: 'prepared-scene', source: 'demonstration-default'});
+        }
+    });
+
+    test('the authored triangles are the graph examples', () => {
+        const as = (points: readonly {x: number; y: number}[]) => points.map(p => [p.x, p.y]);
+        expect(as(eulerExample('default').points)).toEqual(DEFAULT_TRIANGLE.map(p => [...p]));
+        expect(as(eulerExample('right').points)).toEqual(RIGHT_TRIANGLE.map(p => [...p]));
+        expect(as(eulerExample('near-equilateral').points)).toEqual(NEAR_EQUILATERAL_TRIANGLE.map(p => [...p]));
+    });
+
+    test('default triangle: H, G, O, N, the exact decisions, the distances and the nine-point circle equal the prose', () => {
+        const a = triangleOf('default');
+        expect([pointText(a.h.point), pointText(a.g.point), pointText(a.o.point), pointText(a.n.point)]).toEqual(['(2, 2)', '(3, 5/3)', '(7/2, 3/2)', '(11/4, 7/4)']);
+        expect(a.r2Quarter.format()).toBe('29/8');
+        expect(a.collinear).toBe(true);
+        expect(a.ratioHolds).toBe(true);
+        expect(sq(a.g.point, a.h.point).format()).toBe('10/9');
+        expect(sq(a.o.point, a.g.point).format()).toBe('5/18');
+        expect(a.hg.toFixed(5)).toBe('1.05409');
+        expect(a.go.toFixed(5)).toBe('0.52705');
+        expect(a.halfCircumradius.toFixed(5)).toBe('1.90394');
+        expect(a.nine.distinctCount).toBe(9);
+        // The foot of the altitude from C and the midpoint of CH, both quoted in the prose, and every one of the nine points is at R^2/4 from N.
+        expect(pointText(a.nine.feet[2])).toBe('(2, 0)');
+        expect(pointText(a.nine.vertexMidpoints[2])).toBe('(2, 7/2)');
+        for (const p of a.nine.all) expect(sq(a.n.point, p).equals(a.r2Quarter)).toBe(true);
+        expect(a.n.point.equals(a.o.point.add(a.h.point).scale(Rational.of(1, 2)))).toBe(true);
+        for (const snippet of ['O=(7/2,3/2)', 'G=(3,5/3)', 'H=(2,2)']) expect(stepHas('centres', snippet), snippet).toBe(true);
+        for (const snippet of ['HGapprox1.05409', 'GOapprox0.52705', 'HG^2=10/9', 'GO^2=5/18', 'HG^2=4GO^2']) expect(stepHas('line', snippet), snippet).toBe(true);
+        for (const snippet of ['N=(11/4,7/4)', 'R^2/4=29/8', 'R/2approx1.90394', '(2,0)', '(2,7/2)', '|X-N|^2=29/8']) expect(stepHas('nine-points', snippet), snippet).toBe(true);
+        for (const snippet of ['HG^2=10/9', 'GO^2=5/18', 'HG^2=4GO^2', 'N=(11/4,7/4)', 'R^2/4=29/8', 'R/2approx1.90394', '(2,0)', '(2,7/2)', 'HGapprox1.05409', 'GOapprox0.52705']) {
+            expect(sectionHas(snippet), snippet).toBe(true);
+        }
+    });
+
+    test('distinct counts: 5 for the right triangle, 8 for the isosceles one, and the right triangle merges the stated points', () => {
+        const right = triangleOf('right');
+        expect(right.nine.distinctCount).toBe(5);
+        expect(pointText(right.n.point)).toBe('(1, 3/4)');
+        expect(right.r2Quarter.format()).toBe('25/16');
+        const [a, , ] = right.vertices.map(v => RationalPoint.fromGrid(v));
+        expect(right.h.point.equals(a)).toBe(true);
+        expect(right.nine.feet[1].equals(a) && right.nine.feet[2].equals(a) && right.nine.vertexMidpoints[0].equals(a)).toBe(true);
+        expect(right.nine.vertexMidpoints[1].equals(right.nine.midpoints[2])).toBe(true);
+        expect(right.nine.vertexMidpoints[2].equals(right.nine.midpoints[1])).toBe(true);
+        expect(triangleOf('isosceles').nine.distinctCount).toBe(8);
+        const special = bodyOf('special', 'en');
+        for (const snippet of ['(5) of the (9)', 'N=(1,3/4)', 'R^2/4=25/16', '((0,0)), ((6,0)), ((3,5))', '(8) distinct points']) expect(special, snippet).toContain(snippet);
+        const slSpecial = bodyOf('special', 'sl');
+        for (const snippet of ['le (5) od (9)', 'N=(1,3/4)', 'R^2/4=25/16', '(8) različnih točk']) expect(slSpecial, snippet).toContain(snippet);
+        const chapter = sectionPlain('en');
+        expect(chapter).toContain('only (5) distinct points out of nine');
+        expect(chapter).toContain('((6,0)), ((3,5)) has (8)');
+    });
+
+    test('near-equilateral triangle: H, O, |HO| = 1/14 and R = 65/14 equal the prose, and the line direction is exact', () => {
+        const a = triangleOf('near-equilateral');
+        expect([pointText(a.h.point), pointText(a.o.point)]).toEqual(['(4, 16/7)', '(4, 33/14)']);
+        expect(sq(a.o.point, a.h.point).format()).toBe('1/196');
+        expect(a.ho.toFixed(4)).toBe('0.0714');
+        expect(circumradiusSquared(...a.vertices)).toMatchObject({kind: 'value'});
+        expect(a.circumradius).toBeCloseTo(65 / 14, 12);
+        expect(a.circumradius.toFixed(5)).toBe('4.64286');
+        expect(a.collinear && a.ratioHolds).toBe(true);
+        expect(a.line).toBeDefined();
+        expect(a.nine.distinctCount).toBe(8);
+        for (const snippet of ['H=(4,16/7)', 'O=(4,33/14)', '|HO|=1/14approx0.0714', 'R=65/14approx4.64286']) expect(stepHas('near-equilateral', snippet), snippet).toBe(true);
+        for (const snippet of ['|HO|=1/14', 'R=65/14approx4.64286']) expect(sectionHas(snippet), snippet).toBe(true);
+        // The equilateral limit is only a remark (H = O, no line), with no unsourced claim about lattice triangles.
+        for (const language of ['sl', 'en'] as const) {
+            const all = [...eulerLineLesson.steps.map(item => bodyOf(item.id, language)), sectionPlain(language)].join(' ');
+            expect(all).not.toMatch(/never equilateral|nikoli enakostrani|mrežn\w* trikotnik\w* ni|lattice triangle/iu);
+        }
+    });
+
+    test('the lesson and the section state theorems with the source, name the drag an illustration and give no proof idea', () => {
+        for (const language of ['sl', 'en'] as const) {
+            for (const [name, prose] of [['drag step', bodyOf('drag', language)], ['nine-point step', bodyOf('nine-points', language)], ['section', sectionPlain(language)]] as const) {
+                if (name !== 'nine-point step') expect(prose, name).toContain('Coxeter, Introduction to Geometry');
+                expect(prose, name).not.toMatch(/Introduction to Geometry\W{0,3}(\bp\.|\bstr\.|§|\d)/u);
+                expect(prose, name).not.toMatch(/homothet|homotetij/iu);
+            }
+            expect(bodyOf('drag', language)).toMatch(language === 'sl' ? /ponazarja/u : /illustrates/u);
+            expect(sectionPlain(language)).toMatch(language === 'sl' ? /ponazarja/u : /illustrates/u);
+            expect(sectionPlain(language)).toMatch(language === 'sl' ? /ne dokazujemo/u : /do not prove/u);
+        }
+        expect(bodyOf('nine-points', 'en')).toContain('(Coxeter)');
+    });
+
+    test('the section is complete, delimited and long enough', () => {
+        const section = triangleGeometryChapter.sections[2];
+        expect(section.id).toBe('euler-line');
+        expect(section.demonstrationIds).toEqual(['euler-line']);
+        expect(section.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: 'triangle-geometry.euler-line.euler-line'});
+        expect(section.formula).not.toMatch(/\\[()[\]]/u);
+        for (const language of ['sl', 'en'] as const) {
+            const mathFreeProse = section.paragraphs.map(p => p[language]).join(' ').replace(/\\\((?:(?!\\\)).)*\\\)/gsu, ' ');
+            expect(mathFreeProse).not.toMatch(/\\[A-Za-z]+/u);
+            expect(mathFreeProse.trim().split(/\s+/u).length, language).toBeGreaterThanOrEqual(250);
+        }
+        const slMath = section.paragraphs.flatMap(p => p.sl.match(/\\\((?:(?!\\\)).)*\\\)/gsu) ?? []);
+        for (const math of slMath) expect(math).not.toMatch(/\d\.\d/u);
+        expect(section.paragraphs.map(p => p.en).join(' ')).not.toContain('{,}');
+        // The reading chapter promises nothing beyond the three lessons.
+        for (const language of ['sl', 'en'] as const) {
+            expect([triangleGeometryChapter.purpose[language], triangleGeometryChapter.prerequisites[language]].join(' ')).not.toMatch(/Simson|inverz|invers/iu);
+        }
+    });
+
+    describe('scenes on the real graph', () => {
+        const viewOf = (graph: EulerLineGraph) => [...(Reflect.get(graph, 'board') as JXG.Board).getBoundingBox()].map(Number);
+        const holds = (view: readonly number[], wanted: readonly number[]) => view[0] <= wanted[0] && view[1] >= wanted[1] && view[2] >= wanted[2] && view[3] <= wanted[3];
+        const scene = (graph: EulerLineGraph, checkpoint: unknown, stepId: string) => act(() => {
+            const capabilities = graph.getLessonCapabilities();
+            capabilities.restoreState(checkpoint as never);
+            for (const action of eulerLineLesson.steps.find(item => item.id === stepId)!.scene!.actions as LessonAction[]) capabilities.apply(action);
+        });
+
+        test('every T3 scene sets the stated vertices and overlays, and its view holds every point the step talks about, in any order', () => {
+            const graph = new EulerLineGraph();
+            mountGraph(graph);
+            const checkpoint = graph.getLessonCapabilities().captureState();
+            const all = ['triangle', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle'] as const;
+            const lineShown = ['triangle', 'centres', 'line'];
+            const circleShown = ['triangle', 'centres', 'line', 'circle', 'ninepoints'];
+            const expected: Record<string, {points: readonly (readonly [number, number])[]; shown: readonly string[]; view?: readonly number[]}> = {
+                centres: {points: DEFAULT_TRIANGLE, shown: ['triangle', 'centres']},
+                line: {points: DEFAULT_TRIANGLE, shown: lineShown},
+                drag: {points: DEFAULT_TRIANGLE, shown: lineShown},
+                'nine-points': {points: DEFAULT_TRIANGLE, shown: circleShown},
+                special: {points: RIGHT_TRIANGLE, shown: circleShown},
+                'near-equilateral': {points: NEAR_EQUILATERAL_TRIANGLE, shown: ['triangle', 'centres', 'line', 'circle'], view: NEAR_EQUILATERAL_VIEW},
+                explore: {points: DEFAULT_TRIANGLE, shown: all},
+            };
+            expect(eulerLineLesson.steps.map(item => item.id)).toEqual(Object.keys(expected));
+            for (const item of [...eulerLineLesson.steps, ...[...eulerLineLesson.steps].reverse()]) {
+                scene(graph, checkpoint, item.id);
+                const want = expected[item.id];
+                expect(graph.model.points.map(p => [p.x, p.y]), item.id).toEqual(want.points.map(p => [...p]));
+                expect(all.filter(id => graph.overlayShown(id)), item.id).toEqual(all.filter(id => want.shown.includes(id)));
+                const analysis = graph.analysis();
+                if (analysis.kind !== 'triangle') throw new Error('expected a triangle');
+                const [left, top, right, bottom] = viewOf(graph);
+                const inside = (label: string, board: {x: number; y: number} | undefined) => {
+                    expect(board, `${item.id} ${label}`).toBeDefined();
+                    expect(board!.x > left && board!.x < right && board!.y < top && board!.y > bottom, `${item.id} ${label} in view`).toBe(true);
+                };
+                analysis.vertices.forEach((v, i) => inside(`vertex ${i}`, v));
+                if (want.shown.includes('centres')) for (const key of ['h', 'g', 'o'] as const) inside(key, analysis[key].board);
+                if (want.shown.includes('circle')) inside('n', analysis.n.board);
+                if (want.shown.includes('ninepoints')) analysis.ninePoints.forEach((p, i) => inside(`nine ${i}`, p.board));
+                expect(holds(viewOf(graph), want.view ?? [-1, 6, 8, -3]), item.id).toBe(true);
+                expect([...graph.outsideView()], item.id).toEqual([]);
+            }
+            // The near-equilateral step holds both close points (they need not be told apart on the board) and its explicit box.
+            scene(graph, checkpoint, 'near-equilateral');
+            const near = graph.analysis();
+            if (near.kind !== 'triangle') throw new Error('expected a triangle');
+            expect(near.ho).toBeLessThan(0.1);
+            // Scenes in one synchronous sequence without a restore: each begins with the default scene and leaves nothing behind.
+            act(() => {
+                for (const item of [eulerLineLesson.steps[5], eulerLineLesson.steps[4], eulerLineLesson.steps[0]]) {
+                    for (const action of item.scene!.actions as LessonAction[]) graph.getLessonCapabilities().apply(action);
+                }
+            });
+            expect(graph.model.points.map(p => [p.x, p.y])).toEqual(DEFAULT_TRIANGLE.map(p => [...p]));
+            expect(graph.overlayShown('ninepoints')).toBe(false);
+            expect(['centres', 'line', 'circle'].map(id => graph.overlayShown(id as 'centres'))).toEqual([true, false, false]);
+            expect(holds(viewOf(graph), [-1, 6, 8, -3])).toBe(true);
         });
     });
 });

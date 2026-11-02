@@ -30,7 +30,7 @@ function withoutMath(source: string) {
 // Registered before their reading chapter exists. Computational geometry is released in batches: ear clipping and the
 // sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
 // patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'euler-line',
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons',
     'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;

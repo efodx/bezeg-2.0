@@ -34,7 +34,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'fourier-series' && section.id !== 'fourier-idea' ? [`fourier-series.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'school-function-graphs' ? [`school-function-graphs.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'complex-maps' ? [`complex-maps.${section.id}.${section.id === 'roots' ? 'complex-roots' : 'complex-reciprocal'}`] : []),
-                    ...(chapter.id === 'triangle-geometry' ? [`triangle-geometry.${section.id}.${section.id === 'notable-points' ? 'triangle-centres' : 'inscribed-angle'}`] : []),
+                    ...(chapter.id === 'triangle-geometry' ? [`triangle-geometry.${section.id}.${(section.id === 'notable-points' ? 'triangle-centres' : section.id)}`] : []),
                 ].sort();
                 const references = exampleReferences<unknown>(content ?? []);
                 expect([...references].sort(), `${language}/${chapter.id}/${section.id}`).toEqual(expected);
@@ -43,7 +43,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(83);
-        expect(new Set(allReferences).size).toBe(83);
+        expect(allReferences).toHaveLength(84);
+        expect(new Set(allReferences).size).toBe(84);
     }
 });

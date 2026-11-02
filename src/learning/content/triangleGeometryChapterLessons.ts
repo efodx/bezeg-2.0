@@ -1,7 +1,7 @@
 import type {LessonAction, LessonDefinition, LessonPoint, LessonStep, LessonViewBox, LocalizedText} from '../model';
 import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
 
-// Triangle geometry chapter-owned guided activities (spec T1 and T2). Every number is recomputed in triangleGeometryChapter.test.ts
+// Triangle geometry chapter-owned guided activities (spec T1, T2 and T3). Every number is recomputed in triangleGeometryChapter.test.ts
 // from the triangle and circle kernel. Scene actions run synchronously in one tick; each scene starts from the Demonstration
 // default (which also resets the overlays and the view) and then names its state.
 // Sources are given by author and title only: H. S. M. Coxeter, Introduction to Geometry; Euclid, Elements III.20, III.21, III.22, III.31.
@@ -149,5 +149,75 @@ export const inscribedAngleLesson: LessonDefinition = {
                 'Everything is shown. Drag \\(A\\), \\(B\\), \\(C\\) and the point \\(P\\) and watch the three angles. Each position is an instance of the theorem, not a proof of it; the only approximate object is \\(P\\), everything else is computed exactly on the grid.'),
             words('Poišči tetivo, pri kateri je obodni kot topi, in preveri središčni kot.', 'Find a chord whose inscribed angle is obtuse and check the central angle.'),
             ['angles', 'radii'], 90),
+    ],
+};
+
+// Spec T3 (Euler line and nine-point circle). Sources by author and title only: H. S. M. Coxeter, Introduction to Geometry.
+// The drag is called an illustration; no proof idea is given because the board does not show the homothety.
+const EULER_OVERLAYS = ['triangle', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle'] as const;
+/** The checked near-equilateral example: H = (4, 16/7), O = (4, 33/14), |HO| = 1/14, R = 65/14. */
+export const NEAR_EQUILATERAL_TRIANGLE: readonly LessonPoint[] = [[0, 0], [8, 0], [4, 7]];
+/** The apex C = (4, 7) is above the graph's default view; the box holds the vertices, the circumcircle about (4, 33/14) with R = 65/14 and the nine-point circle. */
+export const NEAR_EQUILATERAL_VIEW: LessonViewBox = [-2, 9, 10, -3];
+
+function eulerStep(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, shown: readonly (typeof EULER_OVERLAYS)[number][],
+                   options: {points?: readonly LessonPoint[]; view?: LessonViewBox} = {}): LessonStep {
+    return {
+        id, title, body, prompt,
+        scene: {actions: [defaultScene(`euler-line-${id}`, options.view), ...(options.points ? [triangle(...options.points)] : []), ...overlays(shown, EULER_OVERLAYS)]},
+    };
+}
+
+export const eulerLineLesson: LessonDefinition = {
+    id: 'euler-line-nine-point',
+    demonstrationId: 'euler-line',
+    title: words('Eulerjeva premica in krožnica devetih točk', 'The Euler line and the nine-point circle'),
+    summary: words(
+        'Središče očrtane krožnice \\(O\\), težišče \\(G\\) in višinska točka \\(H\\) ležijo na eni premici, Eulerjevi premici, in velja \\(HG=2\\,GO\\). Razpolovišča stranic, vznožja višin in razpolovišča daljic od oglišč do \\(H\\) ležijo na krožnici s središčem \\((O+H)/2\\) in polmerom \\(R/2\\); pri posebnih trikotnikih nekatere od teh devetih točk sovpadejo.',
+        'The circumcentre \\(O\\), the centroid \\(G\\) and the orthocentre \\(H\\) lie on one line, the Euler line, and \\(HG=2\\,GO\\). The midpoints of the sides, the feet of the altitudes and the midpoints of the segments from the vertices to \\(H\\) lie on a circle with centre \\((O+H)/2\\) and radius \\(R/2\\); for special triangles some of these nine points coincide.',
+    ),
+    steps: [
+        eulerStep('centres',
+            words('O, G in H trikotnika', 'O, G and H of the triangle'),
+            words('Trikotnik \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2), \\(C=(2,5)\\) (P3) iz prve naloge ima središče očrtane krožnice \\(O=(7/2,\\,3/2)\\), težišče \\(G=(3,\\,5/3)\\) in višinsko točko \\(H=(2,\\,2)\\). To so tri različne točke, vse izračunane natančno kot ulomki. Ali ležijo na isti premici, še ne vemo; to bomo preverili.',
+                'The triangle \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2), \\(C=(2,5)\\) (P3) from the first lesson has circumcentre \\(O=(7/2,\\,3/2)\\), centroid \\(G=(3,\\,5/3)\\) and orthocentre \\(H=(2,\\,2)\\). These are three different points, all computed exactly as fractions. Whether they lie on one line we do not know yet; we are going to check it.'),
+            words('Napovej, ali lahko ležijo \\(O\\), \\(G\\) in \\(H\\) na isti premici, in kje bo \\(G\\) glede na \\(O\\) in \\(H\\).', 'Predict whether \\(O\\), \\(G\\) and \\(H\\) can lie on one line, and where \\(G\\) will be relative to \\(O\\) and \\(H\\).'),
+            ['triangle', 'centres']),
+        eulerStep('line',
+            words('Premica skozi O, G in H', 'The line through O, G and H'),
+            words('Premica skozi \\(O\\), \\(G\\) in \\(H\\) je Eulerjeva premica. Razdalji sta \\(HG\\approx1{,}05409\\) in \\(GO\\approx0{,}52705\\), torej \\(HG=2\\,GO\\). Graf to presodi natančno z ulomki: \\(HG^2=10/9\\) in \\(GO^2=5/18\\), zato je \\(HG^2=4\\,GO^2\\), orientacija trojice \\(O,G,H\\) pa je natanko \\(0\\). Decimalni zapisi so le zaokrožitve odčitkov.',
+                'The line through \\(O\\), \\(G\\) and \\(H\\) is the Euler line. The distances are \\(HG\\approx1.05409\\) and \\(GO\\approx0.52705\\), so \\(HG=2\\,GO\\). The graph decides this exactly with fractions: \\(HG^2=10/9\\) and \\(GO^2=5/18\\), so \\(HG^2=4\\,GO^2\\), and the orientation of the triple \\(O,G,H\\) is exactly \\(0\\). The decimals are only roundings of the readouts.'),
+            words('Preberi \\(HG\\) in \\(GO\\) ter izračunaj njun količnik.', 'Read \\(HG\\) and \\(GO\\) and compute their quotient.'),
+            ['triangle', 'centres', 'line']),
+        eulerStep('drag',
+            words('Premik oglišča: razmerje ostane 2', 'Dragging a vertex: the ratio stays 2'),
+            words('Izrek (H. S. M. Coxeter, Introduction to Geometry): v vsakem trikotniku, ki ni enakostraničen, ležijo \\(O\\), \\(G\\) in \\(H\\) na eni premici, Eulerjevi premici, in velja \\(HG=2\\,GO\\). Povleci oglišče: premica se premakne, odčitka \\(HG\\) in \\(GO\\) se spreminjata, njun količnik pa je pri vsakem trikotniku natanko \\(2\\). Vlečenje izrek le ponazarja; veljavnost zagotavlja dokaz, ne slika. Če je trikotnik enakostraničen, je \\(H=O\\) in premica ni določena.',
+                'Theorem (H. S. M. Coxeter, Introduction to Geometry): in every triangle that is not equilateral, \\(O\\), \\(G\\) and \\(H\\) lie on one line, the Euler line, and \\(HG=2\\,GO\\). Drag a vertex: the line moves and the readouts \\(HG\\) and \\(GO\\) change, but their quotient is exactly \\(2\\) for every triangle. Dragging only illustrates the theorem; it holds because of its proof, not the picture. If the triangle is equilateral then \\(H=O\\) and the line is not defined.'),
+            words('Povleci \\(C\\) (P3) na nekaj mest in vsakič preveri odčitka \\(HG\\) in \\(GO\\).', 'Drag \\(C\\) (P3) to several positions and check the readouts \\(HG\\) and \\(GO\\) each time.'),
+            ['triangle', 'centres', 'line']),
+        eulerStep('nine-points',
+            words('Devet točk in krožnica', 'The nine points and the circle'),
+            words('Devet točk je: razpolovišča treh stranic, vznožja treh višin in razpolovišča daljic \\(AH\\), \\(BH\\), \\(CH\\). Izrek (Coxeter): ležijo na eni krožnici, krožnici devetih točk, s središčem \\(N=(O+H)/2\\) in polmerom \\(R/2\\). Tu je \\(N=(11/4,\\,7/4)\\) in \\(R^2/4=29/8\\), torej \\(R/2\\approx1{,}90394\\). Vznožje višine iz \\(C\\) je \\((2,0)\\), razpolovišče daljice \\(CH\\) je \\((2,\\,7/2)\\) in za obe velja \\(|X-N|^2=29/8\\), natančno. Pri tem trikotniku je devet točk različnih; pri posebnih trikotnikih je različnih točk manj.',
+                'The nine points are the midpoints of the three sides, the feet of the three altitudes and the midpoints of the segments \\(AH\\), \\(BH\\), \\(CH\\). Theorem (Coxeter): they lie on one circle, the nine-point circle, with centre \\(N=(O+H)/2\\) and radius \\(R/2\\). Here \\(N=(11/4,\\,7/4)\\) and \\(R^2/4=29/8\\), so \\(R/2\\approx1.90394\\). The foot of the altitude from \\(C\\) is \\((2,0)\\) and the midpoint of the segment \\(CH\\) is \\((2,\\,7/2)\\), and both satisfy \\(|X-N|^2=29/8\\), exactly. For this triangle the nine points are all different; for special triangles there are fewer distinct ones.'),
+            words('Preštej, koliko od devetih točk je različnih, in preveri, da je središče \\(N\\) na polovici daljice \\(OH\\).', 'Count how many of the nine points are distinct, and check that the centre \\(N\\) is halfway along \\(OH\\).'),
+            ['triangle', 'centres', 'line', 'circle', 'ninepoints']),
+        eulerStep('special',
+            words('Posebni trikotnik: točke sovpadejo', 'A special triangle: points coincide'),
+            words('Za pravokotni trikotnik \\(A=(0,0)\\), \\(B=(4,0)\\), \\(C=(0,3)\\) je \\(H=(0,0)\\) kar oglišče \\(A\\). Zato se vznožji višin iz \\(B\\) in \\(C\\) ter razpolovišče daljice \\(AH\\) sovpadejo v \\(A\\), razpolovišči daljic \\(BH\\) in \\(CH\\) pa sovpadata z razpoloviščema stranic \\(AB\\) in \\(CA\\). Različnih točk je le \\(5\\) od \\(9\\); krožnica devetih točk ima središče \\(N=(1,\\,3/4)\\) in \\(R^2/4=25/16\\). Enakokraki trikotnik \\((0,0)\\), \\((6,0)\\), \\((3,5)\\) ima \\(8\\) različnih točk. Število različnih točk graf določi natančno.',
+                'For the right triangle \\(A=(0,0)\\), \\(B=(4,0)\\), \\(C=(0,3)\\) the orthocentre \\(H=(0,0)\\) is the vertex \\(A\\) itself. So the feet of the altitudes from \\(B\\) and \\(C\\) and the midpoint of the segment \\(AH\\) all coincide at \\(A\\), and the midpoints of \\(BH\\) and \\(CH\\) coincide with the midpoints of the sides \\(AB\\) and \\(CA\\). Only \\(5\\) of the \\(9\\) points are different; the nine-point circle has centre \\(N=(1,\\,3/4)\\) and \\(R^2/4=25/16\\). The isosceles triangle \\((0,0)\\), \\((6,0)\\), \\((3,5)\\) has \\(8\\) distinct points. The graph decides the number of distinct points exactly.'),
+            words('Povleci \\(C\\) (P3) za en korak stran od osi \\(y\\) in preberi, koliko različnih točk je zdaj.', 'Drag \\(C\\) (P3) one step away from the \\(y\\)-axis and read how many distinct points there are now.'),
+            ['triangle', 'centres', 'line', 'circle', 'ninepoints'], {points: RIGHT_TRIANGLE}),
+        eulerStep('near-equilateral',
+            words('Skoraj enakostranični trikotnik', 'A near-equilateral triangle'),
+            words('Za \\(A=(0,0)\\), \\(B=(8,0)\\), \\(C=(4,7)\\) je \\(H=(4,\\,16/7)\\) in \\(O=(4,\\,33/14)\\). Razdalja \\(|HO|=1/14\\approx0{,}0714\\) je zelo majhna v primerjavi s polmerom \\(R=65/14\\approx4{,}64286\\). Smer Eulerjeve premice je natančna, tukaj navpična, vendar je vizualno nestabilna: pri enakostraničnem trikotniku bi bila \\(H=O\\) in premice ne bi bilo. Točki \\(O\\) in \\(H\\) se na platnu skoraj prekrivata; njuni koordinati sta v odčitkih. Pogled je prilagojen, da je viden tudi vrh \\(C\\).',
+                'For \\(A=(0,0)\\), \\(B=(8,0)\\), \\(C=(4,7)\\) we get \\(H=(4,\\,16/7)\\) and \\(O=(4,\\,33/14)\\). The distance \\(|HO|=1/14\\approx0.0714\\) is tiny compared with the radius \\(R=65/14\\approx4.64286\\). The direction of the Euler line is exact, here vertical, but visually unstable: for an equilateral triangle \\(H=O\\) and there would be no line. On the board \\(O\\) and \\(H\\) almost overlap; their coordinates are in the readouts. The view is adjusted so that the apex \\(C\\) is visible too.'),
+            words('Povleci \\(C\\) za en korak levo ali desno: kaj se zgodi s smerjo premice?', 'Drag \\(C\\) one step left or right: what happens to the direction of the line?'),
+            ['triangle', 'centres', 'line', 'circle'], {points: NEAR_EQUILATERAL_TRIANGLE, view: NEAR_EQUILATERAL_VIEW}),
+        eulerStep('explore',
+            words('Prosto raziskovanje', 'Free exploration'),
+            words('Pokazano je vse, tudi očrtana krožnica. Povleci oglišča ali vpiši koordinate. Tri točke na isti premici ne tvorijo trikotnika, zato Eulerjeve premice ni. Vsak položaj je primer izreka, ne njegov dokaz.',
+                'Everything is shown, including the circumcircle. Drag the vertices or type coordinates. Three points on one line do not form a triangle, so there is no Euler line. Each position is an instance of the theorem, not a proof of it.'),
+            words('Poišči trikotnik, pri katerem je število različnih točk \\(5\\), in trikotnik z \\(8\\) različnimi točkami.', 'Find a triangle with \\(5\\) distinct points and a triangle with \\(8\\) distinct points.'),
+            ['triangle', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle']),
     ],
 };
