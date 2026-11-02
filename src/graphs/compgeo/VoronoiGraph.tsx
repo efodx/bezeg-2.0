@@ -17,11 +17,13 @@ import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {drawSelectableTriangles, sameTriple, sortedTriple, type TriangleSelectionNames} from "./circumcircleDrawing";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
-import {VoronoiControlActions, VoronoiControls, VoronoiStatus, VoronoiTriangles} from "./VoronoiControls";
+import {VoronoiControlActions, VoronoiControls, VoronoiExampleId, VoronoiStatus, VoronoiTriangles} from "./VoronoiControls";
+import {fourPointReadout} from "./degenerateSites";
 import {bisectorOrder, constructionRegion, parseRationalText} from "./voronoiConstruction";
 import {clipToBox, createVoronoiDrawing, frame, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
 import {
-    VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE, VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, voronoiCollection, type VoronoiQuery,
+    FOUR_POINT_SITES, isVoronoiMode, VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE, VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, voronoiCollection,
+    type VoronoiMode, type VoronoiQuery,
 } from "./voronoiPresetCollection";
 
 /** The scene: the points and overlays (`PointSetGraphState`), the chosen site, how many bisectors are shown and the query point. */
@@ -32,6 +34,8 @@ export interface VoronoiGraphState extends PointSetGraphState {
     construction: number;
     /** The query point, exact, grid units. */
     query: VoronoiQuery;
+    /** `sites` (any number of sites, the default) or `four-point` (exactly four sites with the incircle readout). */
+    mode: VoronoiMode;
 }
 
 /** A move of the query point by the arrow buttons, in grid units, and the grid it snaps to when dragged. */
@@ -46,6 +50,7 @@ const storedSite = (value: unknown, sites: number): number | null =>
     typeof value === "number" && Number.isInteger(value) && value >= 0 && value < sites ? value : null;
 const storedCount = (value: unknown, total: number): number =>
     typeof value === "number" && Number.isInteger(value) ? Math.max(0, Math.min(total, value)) : 0;
+const storedMode = (value: unknown): VoronoiMode => (isVoronoiMode(value) ? value : "sites");
 const storedQuery = (value: unknown): VoronoiQuery => {
     const record: {x?: unknown; y?: unknown} = typeof value === "object" && value !== null ? value : {};
     const ok = typeof record.x === "string" && typeof record.y === "string"
@@ -99,10 +104,18 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     /** The last move of the query point was refused beyond the coordinate limit; shown until the next move. */
     private queryRefused = false;
     /** The Preset's site, count and query, handed from `importPreset` to the import it triggers and consumed once. */
-    private carried?: {cellSite: unknown; construction: unknown; query: unknown};
+    private carried?: {cellSite: unknown; construction: unknown; query: unknown; mode: unknown};
+    private readonly siteLimit: number;
+    /** A switch to four-point mode was refused because there are not exactly four sites; shown until the next edit or switch. */
+    private modeRefused = false;
 
     constructor(options: PointSetOptions = {}) {
-        super({pointLimit: VORONOI_MAX_POINTS, ...options});
+        const siteLimit = options.pointLimit ?? VORONOI_MAX_POINTS;
+        // The base checks adds against its options object, so `pointLimit` reads the live mode through this holder (set below).
+        const holder: {graph?: VoronoiGraph} = {};
+        super({...options, get pointLimit() { return holder.graph?.pointLimit ?? siteLimit; }});
+        holder.graph = this;
+        this.siteLimit = siteLimit;
     }
 
     // ---- Reads ---------------------------------------------------------------------------------------------------
@@ -185,7 +198,48 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     // ---- State ---------------------------------------------------------------------------------------------------
 
     override getInitialState(): VoronoiGraphState {
-        return {...super.getInitialState(), cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY};
+        return {...super.getInitialState(), cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: this.defaultMode()};
+    }
+
+    /** The mode a fresh scene starts in; a subclass fixes it. */
+    protected defaultMode(): VoronoiMode {
+        return "sites";
+    }
+
+    /** The mode: `sites` unless the scene says `four-point`. */
+    get mode(): VoronoiMode {
+        return storedMode("mode" in this.state ? this.state.mode : undefined);
+    }
+
+    /** Exactly four sites in four-point mode, else the point-set limit. */
+    override get pointLimit(): number {
+        return this.mode === "four-point" ? FOUR_POINT_SITES : this.siteLimit;
+    }
+
+    /** Four-point mode keeps exactly four sites: removing one is refused (the panel says why). */
+    override removeSelected(): boolean {
+        return this.mode !== "four-point" && super.removeSelected();
+    }
+
+    override clear(): boolean {
+        return this.mode !== "four-point" && super.clear();
+    }
+
+    /**
+     * Switches the mode and keeps the sites. Four-point mode needs exactly four sites; with any other count the switch is
+     * refused, the mode stays and the panel says how many sites there are. No site is ever moved, added or removed.
+     */
+    setMode(mode: VoronoiMode): boolean {
+        if (!isVoronoiMode(mode)) return false;
+        if (mode === "four-point" && this.model.points.length !== FOUR_POINT_SITES) {
+            this.modeRefused = true;
+            this.requestRender();
+            return false;
+        }
+        this.modeRefused = false;
+        if (mode !== this.mode) this.setState(this.patch({mode}));
+        this.requestRender();
+        return true;
     }
 
     private patch(fields: Partial<VoronoiGraphState>): Partial<PointSetGraphState> {
@@ -203,7 +257,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
             return edit && !named ? this.patch({...raw, cellSite: null, construction: 0}) : raw;
         };
         super.setState(wrapped, callback);
-        if (this.state.model !== before) this.selectedTriangleValue = undefined;
+        if (this.state.model !== before) {
+            this.selectedTriangleValue = undefined;
+            this.modeRefused = false;
+        }
     }
 
     /** Chooses the site whose cell is constructed (null or an invalid index clears it); the count returns to 0. */
@@ -264,12 +321,18 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         this.syncScene();
     }
 
-    /** Restores the B4 example, the overlay off, no selection and the starting query point (C2). */
+    /** The sites Reset example restores. */
+    protected exampleModel(): PointSetModel {
+        return VORONOI_EXAMPLE;
+    }
+
+    /** Restores the example, the overlay off, no selection, the starting query point and the default mode (C2). */
     resetExample(): void {
-        this.importPresetData(serializePointSetModel(VORONOI_EXAMPLE));
+        this.importPresetData(serializePointSetModel(this.exampleModel()));
         this.selectedTriangleValue = undefined;
         this.queryRefused = false;
-        this.setState(this.patch({overlays: {}, cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY}));
+        this.modeRefused = false;
+        this.setState(this.patch({overlays: {}, cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: this.defaultMode()}));
         this.requestRender();
         this.syncScene();
     }
@@ -554,14 +617,14 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     }
 
     protected override sceneGraphState(): PointSetGraphState {
-        const state: VoronoiGraphState = {...super.sceneGraphState(), cellSite: this.cellSite, construction: this.construction, query: this.queryText};
+        const state: VoronoiGraphState = {...super.sceneGraphState(), cellSite: this.cellSite, construction: this.construction, query: this.queryText, mode: this.mode};
         return state;
     }
 
     /** A Preset that names no site, count or query starts without them: nothing stale survives from the previous scene. */
     override importPreset(preset: Preset): void {
-        const graphState = preset.graphState && {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, ...preset.graphState};
-        this.carried = graphState && {cellSite: graphState.cellSite, construction: graphState.construction, query: graphState.query};
+        const graphState = preset.graphState && {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: "sites", ...preset.graphState};
+        this.carried = graphState && {cellSite: graphState.cellSite, construction: graphState.construction, query: graphState.query, mode: graphState.mode};
         try {
             super.importPreset(graphState ? {...preset, graphState} : preset);
         } finally {
@@ -571,12 +634,16 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
 
     /** An imported model takes the site, count and query that `importPreset` handed over, clamped to the new points; a bare import has none. */
     override importPresetData(data: PointSetModel): void {
-        const raw: {cellSite?: unknown; construction?: unknown; query?: unknown} = this.carried ?? {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY};
+        const raw: {cellSite?: unknown; construction?: unknown; query?: unknown; mode?: unknown} = this.carried
+            ?? {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: this.mode};
         this.carried = undefined;
         super.importPresetData(data);
         const sites = this.model.points.length;
         const site = storedSite(raw.cellSite, sites);
-        this.setState(this.patch({cellSite: site, construction: site === null ? 0 : storedCount(raw.construction, sites - 1), query: storedQuery(raw.query)}));
+        // Backward compatibility: a four-point Preset with a site count other than 4 loads in `sites` mode. Four-point mode needs exactly four sites; otherwise the sites stay as imported and the mode falls back to `sites`.
+        const mode = storedMode(raw.mode) === "four-point" && sites === FOUR_POINT_SITES ? "four-point" : "sites";
+        this.modeRefused = false;
+        this.setState(this.patch({cellSite: site, construction: site === null ? 0 : storedCount(raw.construction, sites - 1), query: storedQuery(raw.query), mode}));
         this.requestRender();
     }
 
@@ -588,6 +655,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
             ...merged, cellSite: site,
             construction: site === null ? 0 : storedCount("construction" in merged ? merged.construction : undefined, sites - 1),
             query: storedQuery("query" in merged ? merged.query : undefined),
+            mode: storedMode("mode" in merged ? merged.mode : undefined) === "four-point" && sites === FOUR_POINT_SITES ? "four-point" : "sites",
         };
         return state;
     }
@@ -604,7 +672,23 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         setQuery: (x, y) => this.setQueryText(x, y),
         moveQuery: (dx, dy) => { this.moveQuery(dx, dy); },
         selectTriangle: index => this.selectTriangle(index),
+        setMode: mode => { this.setMode(mode); },
+        loadExample: id => this.loadExample(id),
     };
+
+    /** Whether the panel offers the mode switch; only the degenerate-sites graph does. */
+    protected showsModeSwitch(): boolean {
+        return false;
+    }
+
+    /** The named examples the panel offers (none here); a subclass lists them and loads one by id. */
+    protected exampleIds(): readonly VoronoiExampleId[] {
+        return [];
+    }
+
+    protected loadExample(_id: VoronoiExampleId): void {
+        // no examples in the base graph
+    }
 
     protected override showsModeToggle(): boolean {
         return false;
@@ -625,6 +709,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
             vertices: [], cellSite: null,
             query: {x: query.x, y: query.y, nearest: this.queryNearest()},
             coordinateLimit: this.coordinateLimit, queryRefused: this.queryRefused, overlayShown: this.overlayShown("delaunay"), triangles: [],
+            mode: this.mode, modeSwitch: this.showsModeSwitch(), modeRefused: this.modeRefused, examples: this.exampleIds(),
         } satisfies VoronoiStatus;
         if (!diagram) {
             const duplicate = !outcome.ok && outcome.refusal.kind === "duplicate-point" ? outcome.refusal.indices : undefined;
@@ -645,6 +730,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         return {
             ...base,
             collinear: tri === undefined,
+            fourPoint: this.mode === "four-point" ? fourPointReadout(points, diagram) : undefined,
             counts: {sites: points.length, vertices: diagram.vertices.length, finite: dual.finite.length, rays, lines, bounded, unbounded: points.length - bounded},
             vertices: diagram.vertices.map(v => ({x: v.point.x.format(), y: v.point.y.format(), sites: v.sites})),
             cellSite: site,

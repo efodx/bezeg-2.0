@@ -12,6 +12,11 @@ import {parseRationalText} from "./voronoiConstruction";
  */
 export const VORONOI_PRESET_KEY = "compgeo-voronoi";
 export const VORONOI_OVERLAY_IDS = ["grid", "delaunay"] as const;
+/** The modes of the scene field `mode`: any number of sites (the default), or exactly four (the incircle readout of B5). */
+export const VORONOI_MODES = ["sites", "four-point"] as const;
+export type VoronoiMode = typeof VORONOI_MODES[number];
+export const FOUR_POINT_SITES = 4;
+export const isVoronoiMode = (value: unknown): value is VoronoiMode => VORONOI_MODES.some(mode => mode === value);
 export const VORONOI_MAX_POINTS = TRIANGULATION_MAX_POINTS;
 
 /** The B2/B4 example: the seven points (grid units). */
@@ -36,15 +41,17 @@ const validQuery = (value: unknown): boolean =>
  * The Voronoi graph's Preset collection: the point-set collection (points, 40 at most, integer range, points mode only is the
  * graph's, see `check`) with its overlay switches. `graphState` may also carry the selected site (`cellSite`, an integer or
  * null), the construction count (`construction`, a non-negative integer) and the query point (`query`); a stale site or count
- * is clamped on restore, not rejected. The diagram is derived and never stored.
+ * is clamped on restore, not rejected. The optional `mode` is `sites` (default) or `four-point`; any other value is refused with
+ * an actionable message. The diagram is derived and never stored.
  */
-export function voronoiPresetCollection(): PresetCollection<PointSetModel> {
-    const base = pointSetPresetCollection(VORONOI_PRESET_KEY, VORONOI_OVERLAY_IDS, {pointLimit: VORONOI_MAX_POINTS});
+export function voronoiPresetCollection(key: string = VORONOI_PRESET_KEY): PresetCollection<PointSetModel> {
+    const base = pointSetPresetCollection(key, VORONOI_OVERLAY_IDS, {pointLimit: VORONOI_MAX_POINTS});
     return Object.freeze({
-        key: VORONOI_PRESET_KEY,
+        key,
         checkGraphState(graphState: unknown): Message | undefined {
             if (!isRecord(graphState)) return message("invalid_state");
-            const {cellSite, construction, query, ...rest} = graphState;
+            const {cellSite, construction, query, mode, ...rest} = graphState;
+            if (mode !== undefined && !isVoronoiMode(mode)) return message("deg_invalid_mode");
             if (cellSite !== undefined && cellSite !== null && !Number.isInteger(cellSite)) return message("vor_invalid_state");
             if (construction !== undefined && !(typeof construction === "number" && Number.isInteger(construction) && construction >= 0)) return message("vor_invalid_state");
             if (query !== undefined && !validQuery(query)) return message("vor_invalid_state");

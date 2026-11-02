@@ -1,5 +1,13 @@
 import React, {useState} from "react";
 import {useT} from "../../localization";
+import type {FourPointReadout} from "./degenerateSites";
+import type {VoronoiMode} from "./voronoiPresetCollection";
+
+/** The named examples of the degenerate-sites graph. */
+export type VoronoiExampleId = "square" | "trapezoid" | "near" | "collinear";
+const EXAMPLE_LABEL = {
+    square: "deg_example_square", trapezoid: "deg_example_trapezoid", near: "deg_example_near", collinear: "deg_example_collinear",
+} as const;
 
 export interface VoronoiControlActions {
     /** Restores the B4 example, the overlay off, no selection (C2). */
@@ -16,6 +24,10 @@ export interface VoronoiControlActions {
     /** Moves the query point by a step in grid units. */
     moveQuery(dx: number, dy: number): void;
     selectTriangle(index: number | undefined): void;
+    /** Switches between `sites` and `four-point` mode; refused (with a message) unless there are exactly four sites for the latter. */
+    setMode(mode: VoronoiMode): void;
+    /** Loads one named example (sites, overlays and mode). */
+    loadExample(id: VoronoiExampleId): void;
 }
 
 /** Everything the panel shows; all numbers are already computed, rationals as exact text. 0-based site indices. */
@@ -35,6 +47,14 @@ export interface VoronoiStatus {
     triangles: readonly (readonly [number, number, number])[];
     selectedTriangle?: number;
     selectedVertex?: {corners: readonly [number, number, number]; x: string; y: string; sites: readonly number[]};
+    mode: VoronoiMode;
+    /** Whether the panel offers the mode switch (the degenerate-sites graph). */
+    modeSwitch: boolean;
+    /** The last switch to four-point mode was refused because there are not exactly four sites. */
+    modeRefused: boolean;
+    examples: readonly VoronoiExampleId[];
+    /** The four-point readout: set in four-point mode while there are exactly four distinct sites. */
+    fourPoint?: FourPointReadout;
 }
 
 export interface VoronoiControlsProps {
@@ -74,6 +94,51 @@ function QueryFields(props: {x: string; y: string; invalid: boolean; message: st
 const vertexTextOf = (t: ReturnType<typeof useT>, vertex: VoronoiStatus["selectedVertex"]) => vertex
     ? t("vor_tri_vertex", {...triple(vertex.corners), value3: vertex.x, value4: vertex.y, value5: siteList(vertex.sites)})
     : undefined;
+
+/** The sentences of the four-point readout; undefined while there is nothing to read (not four distinct sites). */
+function fourPointText(t: ReturnType<typeof useT>, status: VoronoiStatus) {
+    const f = status.fourPoint;
+    if (!f) return undefined;
+    const circle = f.circle;
+    const triple = circle ? `P${circle.a + 1}, P${circle.b + 1}, P${circle.c + 1}` : "";
+    const fourth = circle ? `P${circle.d + 1}` : "";
+    const values = {value0: f.determinant ?? "", value1: triple, value2: fourth};
+    const incircle = !circle || f.sign === undefined ? t("deg_no_circle")
+        : f.sign === "inside" ? t("deg_incircle_inside", values)
+        : f.sign === "on" ? t("deg_incircle_on", values)
+        : t("deg_incircle_outside", values);
+    const vertices = f.degrees.length > 0 ? t("deg_vertices", {value0: f.degrees.length, value1: f.degrees.join(", ")}) : t("deg_vertices_none");
+    const diagonals = (f.diagonals ?? []).map(d => {
+        const names = {value0: d.from + 1, value1: d.to + 1};
+        return {key: `${d.from}-${d.to}`, text: d.legal ? t("deg_diagonal_legal", names) : t("deg_diagonal_illegal", names)};
+    });
+    const legal = (f.diagonals ?? []).filter(d => d.legal);
+    const verdict = !f.diagonals ? t("deg_not_convex")
+        : legal.length === 2 ? t("deg_not_unique")
+        : legal.length === 1 ? t("deg_unique", {value0: legal[0].from + 1, value1: legal[0].to + 1})
+        : undefined;
+    return {incircle, vertices, diagonals, verdict};
+}
+
+/** The mode switch and the named examples of the degenerate-sites graph. */
+function DegenerateModes(props: VoronoiControlsProps) {
+    const t = useT();
+    const {status, actions} = props;
+    if (!status.modeSwitch && status.examples.length === 0) return null;
+    return <div className="inspector-group">
+        {status.modeSwitch && <>
+            <h3 className="inspector-reveals-title">{t("deg_title")}</h3>
+            <div className="inspector-playback" role="group" aria-label={t("deg_mode_group")} data-voronoi="mode">
+                <button type="button" data-action="mode-sites" aria-pressed={status.mode === "sites"} onClick={() => actions.setMode("sites")}>{t("deg_mode_sites")}</button>
+                <button type="button" data-action="mode-four-point" aria-pressed={status.mode === "four-point"} onClick={() => actions.setMode("four-point")}>{t("deg_mode_four")}</button>
+            </div>
+            {status.modeRefused && <p className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p>}
+        </>}
+        {status.examples.length > 0 && <div className="inspector-playback" role="group" aria-label={t("deg_example_group")} data-voronoi="examples">
+            {status.examples.map(id => <button type="button" key={id} data-example={id} onClick={() => actions.loadExample(id)}>{t(EXAMPLE_LABEL[id])}</button>)}
+        </div>}
+    </div>;
+}
 
 /** The triangles of the Delaunay overlay and the selected triangle's Voronoi vertex; placed after the overlay switch. */
 export function VoronoiTriangles(props: VoronoiControlsProps) {
@@ -121,6 +186,11 @@ export function VoronoiControls(props: VoronoiControlsProps) {
         : construction.count === 0 ? t("vor_construct_start", {value0: status.cellSite + 1, value1: construction.total})
         : construction.done ? t("vor_construct_done", {value0: status.cellSite + 1, value1: construction.count})
         : t("vor_construct_step", {value0: construction.count, value1: construction.total, value2: status.cellSite + 1, value3: (construction.other ?? 0) + 1});
+    const four = fourPointText(t, status);
+    // Short on purpose: the live text changes only when the sign, the verdict or the vertex degrees change, not on every determinant value.
+    const fourSign = status.fourPoint?.sign;
+    const fourAnnouncement = four ? [fourSign === undefined ? four.incircle : t(fourSign === "inside" ? "deg_say_inside" : fourSign === "on" ? "deg_say_on" : "deg_say_outside"), four.verdict, four.vertices] : [];
+    const collinearAnnouncement = status.collinear && !refusal ? t("vor_collinear_note") : undefined;
     const overlayText = status.overlayShown ? t("vor_overlay_on") : t("vor_overlay_off");
     const nextUnavailable = !construction || construction.count >= construction.total;
     const backUnavailable = !construction || construction.count <= 0;
@@ -131,9 +201,20 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 <button type="button" data-action="reset-view" onClick={actions.resetView}>{t("vor_view_reset")}</button>
             </div>
         </div>
+        <DegenerateModes status={status} actions={actions}/>
         <div className="inspector-group" data-voronoi-status="">
             {refusalText && <p className="inspector-help" role="alert" data-voronoi="refusal">{refusalText}</p>}
             {status.collinear && !refusal && <p className="inspector-help" data-voronoi="collinear">{t("vor_collinear_note")}</p>}
+            {status.mode === "four-point" && <p className="inspector-help" data-voronoi="four-fixed">{t("deg_four_fixed")}</p>}
+            {status.mode === "four-point" && status.counts.sites !== 4 && <p className="inspector-help" role="alert" data-voronoi="wrong-count">{t("deg_wrong_count", {value0: status.counts.sites})}</p>}
+            {four && <div data-voronoi="four-point" role="group" aria-label={t("deg_readout_label")}>
+                <p className="inspector-help" data-fourpoint="incircle">{four.incircle}</p>
+                <p className="inspector-help" data-fourpoint="vertices">{four.vertices}</p>
+                {four.diagonals.length > 0 && <ul aria-label={t("deg_diagonals_label")} data-fourpoint="diagonals">
+                    {four.diagonals.map(d => <li key={d.key}>{d.text}</li>)}
+                </ul>}
+                {four.verdict && <p className="inspector-help" data-fourpoint="verdict">{four.verdict}</p>}
+            </div>}
             {!refusal && <ul aria-label={t("vor_readout_label")} data-voronoi="readout">
                 <li data-readout="sites">{t("vor_count_sites", {value0: counts.sites})}</li>
                 <li data-readout="vertices">{t("vor_count_vertices", {value0: counts.vertices})}</li>
@@ -178,6 +259,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             {queryText && <p className="inspector-help" data-voronoi="query-nearest">{queryText}</p>}
         </div>
         <p className="visually-hidden" role="status" aria-live="polite" data-voronoi-live="">
-            {[overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined, queryAnswer, queryMessage].filter(Boolean).join(" ")}</p>
+            {[overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined, queryAnswer, queryMessage,
+                ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" ")}</p>
     </>;
 }
