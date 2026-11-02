@@ -1,0 +1,22 @@
+PASS [sl] sections :: sweep-idea,interval-sweep,segment-intersections
+PASS [sl] heading :: Algoritmi pometanja
+PASS [sl] chapter prerequisite link to orientation
+PASS [sl] no horizontal page overflow
+PASS [sl] activity link :: /bezeg-2.0/compgeo/segment-intersections?example=lesson.sweep-algorithms.segment-intersections.segment-intersections
+PASS [sl] lesson opens with board
+PASS [sl] reading return link visible
+PASS [sl] focus returns to the activity link :: focused=example-sweep-algorithms-segment-intersections-sweep-algorithms.segment-intersections.segment-intersections expected=example-sweep-algorithms-segment-intersections-sweep-algorithms.segment-intersections.segment-intersections
+PASS [sl->en] live switch changes the chapter heading :: Algoritmi pometanja -> Sweep-line algorithms
+PASS [sl->en] live switch changes section prose
+PASS [sl->en] focus/URL kept on the section :: http://127.0.0.1:4313/bezeg-2.0/learn/sweep-algorithms#segment-intersections
+PASS [sl] no page errors
+PASS [en] sections :: sweep-idea,interval-sweep,segment-intersections
+PASS [en] heading :: Sweep-line algorithms
+PASS [en] chapter prerequisite link to orientation
+PASS [en] no horizontal page overflow
+PASS [en] activity link :: /bezeg-2.0/compgeo/segment-intersections?example=lesson.sweep-algorithms.segment-intersections.segment-intersections
+PASS [en] lesson opens with board
+PASS [en] reading return link visible
+PASS [en] focus returns to the activity link :: focused=example-sweep-algorithms-segment-intersections-sweep-algorithms.segment-intersections.segment-intersections expected=example-sweep-algorithms-segment-intersections-sweep-algorithms.segment-intersections.segment-intersections
+PASS [en] no page errors
+SUMMARY 21/21 passed
