@@ -1,0 +1,5 @@
+Waiting for check-localization (pid 127936) to finish starting before reading free memory.
+Waiting for typecheck (pid 90712) to finish starting before reading free memory.
+Waiting for unit (pid 132848) to finish starting before reading free memory.
+Memory available for unit after 140s.
+unit: passed in 49.9s (2 workers, no slot); revision 790f844047dc87eadd7b56a09fc5a060304a7304; dirty; log .command-logs\2026-11-02T05-41-51-242Z-19096-b914def5.log

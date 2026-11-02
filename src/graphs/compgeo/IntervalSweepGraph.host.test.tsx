@@ -1,3 +1,4 @@
+import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
 import {act, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -99,7 +100,7 @@ function tick(frames: ReturnType<typeof manualScheduler>, ticks: number) {
     for (let i = 0; i < ticks; i++) act(() => { frames.frame(INTERVAL_SWEEP_STEP_INTERVAL_MS); });
 }
 const saveState = (fields: object) => ({initialized: true, ...fields});
-const atEnd = (graph: Observed) => { while (graph.step < graph.run().length - 1) click('next-step'); };
+const atEnd = (graph: Observed) => { stepWhile(() => graph.step < graph.run().length - 1, () => click('next-step')); };
 
 test('the default scene is example 1 at step 0 with the sweep line drawn at the first event and no mode choice', () => {
     const graph = new Observed();
@@ -509,7 +510,7 @@ describe('side lists', () => {
             hoverOpen(graph);
             click('next-step');
             expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
-            while (!button('next-step').getAttribute('aria-disabled')?.includes('true')) click('next-step');
+            stepWhile(() => !button('next-step').getAttribute('aria-disabled')?.includes('true'), () => click('next-step'));
             expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
         });
 

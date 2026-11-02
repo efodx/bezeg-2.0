@@ -1,3 +1,4 @@
+import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
 import {act, cleanup, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -57,7 +58,7 @@ function setup() {
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     return {graph, frames};
 }
-const toEnd = (graph: Observed) => { while (graph.step < graph.run().length - 1) apply(graph, trace('next-step')); };
+const toEnd = (graph: Observed) => { stepWhile(() => graph.step < graph.run().length - 1, () => apply(graph, trace('next-step'))); };
 /** Starts Play and runs one full tick. */
 const playOneTick = (graph: Observed, frames: ReturnType<typeof manualScheduler>) => {
     apply(graph, trace('play'));

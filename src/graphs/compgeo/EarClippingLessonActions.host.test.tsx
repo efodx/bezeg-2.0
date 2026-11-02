@@ -1,3 +1,4 @@
+import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
 import {act, cleanup, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -98,7 +99,7 @@ test('set-trace-step end equals Next step pressed until done: step, readouts, bo
     for (const comb of [false, true]) {
         const viaNext = setup();
         if (comb) apply(viaNext.graph, {kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: EAR_CLIPPING_EXAMPLE_2.points.map(p => [p.x, p.y])});
-        while (viaNext.graph.step < viaNext.graph.run().length - 1) apply(viaNext.graph, trace('next-step'));
+        stepWhile(() => viaNext.graph.step < viaNext.graph.run().length - 1, () => apply(viaNext.graph, trace('next-step')));
         const fromNext = snapshot(viaNext.graph);
         const board = viaNext.graph['board'].objectsList.length;
 

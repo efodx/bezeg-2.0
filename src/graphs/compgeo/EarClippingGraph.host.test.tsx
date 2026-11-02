@@ -1,3 +1,4 @@
+import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
 import {act, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -80,7 +81,7 @@ const button = (action: string) => document.querySelector(`button[data-action="$
 const click = (action: string) => act(() => { fireEvent.click(button(action)); });
 const model = (points: Array<[number, number]>): PointSetModel => ({mode: 'polygon', closed: true, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
 const load = (graph: Observed, next: PointSetModel) => act(() => { graph.loadModel(next); });
-const toEnd = (graph: Observed) => { while (graph.step < graph.run().length - 1) click('next-step'); };
+const toEnd = (graph: Observed) => { stepWhile(() => graph.step < graph.run().length - 1, () => click('next-step')); };
 async function settle(start: () => Promise<void>): Promise<void> {
     let pending: Promise<void> = Promise.resolve();
     act(() => { pending = start(); });
@@ -114,11 +115,11 @@ test('Example 1 clips the three listed triangles in order when stepped to the en
     only(graph, 'trace');
     const clipped: number[][][] = [];
     let seen = 0;
-    while (graph.step < graph.run().length - 1) {
+    stepWhile(() => graph.step < graph.run().length - 1, () => {
         click('next-step');
         const so = graph.run().state(graph.step).triangles;
         if (so.length > seen) { seen = so.length; clipped.push(so.map(t => [...t])); }
-    }
+    });
     expect(clipped.at(-1)).toEqual([[1, 2, 3], [0, 1, 3], [0, 3, 4]]);
     // (6,0)(6,4)(3,2), then (0,0)(6,0)(3,2), then (0,0)(3,2)(0,4): as input vertices 1,2,3 / 0,1,3 / 0,3,4
     expect(part('triangles')).toBe('Odrezani trikotniki doslej: 3');

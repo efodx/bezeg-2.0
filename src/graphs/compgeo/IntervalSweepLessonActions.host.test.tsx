@@ -1,3 +1,4 @@
+import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
 import {act, cleanup, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -94,7 +95,7 @@ test('set-trace-step clamps a number like a stored Preset step, and end is the l
 
 test('set-trace-step end equals Next step pressed until done: step, readouts and board', () => {
     const viaNext = setup();
-    while (viaNext.graph.step < viaNext.graph.run().length - 1) apply(viaNext.graph, trace('next-step'));
+    stepWhile(() => viaNext.graph.step < viaNext.graph.run().length - 1, () => apply(viaNext.graph, trace('next-step')));
     const fromNext = snapshot(viaNext.graph);
     const board = viaNext.graph['board'].objectsList.length;
 

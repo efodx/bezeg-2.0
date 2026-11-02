@@ -1,3 +1,4 @@
+import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
 import {act, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -95,7 +96,7 @@ function tick(frames: ReturnType<typeof manualScheduler>, ticks: number) {
     for (let i = 0; i < ticks; i++) act(() => { frames.frame(BENTLEY_OTTMANN_STEP_INTERVAL_MS); });
 }
 const saveState = (fields: object) => ({initialized: true, ...fields});
-const atEnd = (graph: Observed) => { while (graph.step < graph.run().length - 1) click('next-step'); };
+const atEnd = (graph: Observed) => { stepWhile(() => graph.step < graph.run().length - 1, () => click('next-step')); };
 const pos = (graph: Observed, step: number) => {
     const p = graph.run().view(step).position;
     return p ? `${p.x.format()},${p.y.format()}` : '';
@@ -164,7 +165,7 @@ test('the degenerate example reports one point with all four segments and revers
     const run = graph.run();
     const swaps = [...Array(run.length).keys()].filter(i => run.event(i)?.note === 'swap');
     expect(swaps).toHaveLength(1);
-    while (graph.step < swaps[0]) click('next-step');
+    stepWhile(() => graph.step < swaps[0], () => click('next-step'));
     expect(part('note')).toMatch(/^Daljice s\d(, s\d){3} se v stanju obrnejo/);
     expect(run.view(swaps[0] - 1).status).toHaveLength(4);
     expect([...run.view(swaps[0]).status]).toEqual([...run.view(swaps[0] - 1).status].reverse());
@@ -358,7 +359,7 @@ test('a language switch re-renders the panel text, the fractions and the overlay
     mount(graph);
     const run = graph.run();
     const report = [...Array(run.length).keys()].find(i => run.event(i)?.note === 'report' && run.event(i)?.through?.length === 2)!;
-    while (graph.step < report) click('next-step');
+    stepWhile(() => graph.step < report, () => click('next-step'));
     const before = drawn(graph);
     expect(part('note')).toContain('Presečišče (33/20 = 1,65; 29/10 = 2,9): skozi točko gredo daljice s2, s3.');
     act(() => { setLanguage('en'); });
@@ -478,7 +479,7 @@ describe('side lists', () => {
         load(graph, BENTLEY_OTTMANN_EXAMPLE_2);
         const second = graph.run();
         const popAt = [...Array(second.length).keys()].find(i => second.event(i)?.note === 'pop' && second.view(i).kind === 'crossing') as number;
-        while (graph.step < popAt) click('next-step');
+        stepWhile(() => graph.step < popAt, () => click('next-step'));
         const current = entries('status', 'data-current');
         expect(current.map(e => e.getAttribute('data-status-entry')).sort()).toEqual(['s1', 's2', 's3', 's4']);
         expect(current[0].getAttribute('aria-current')).toBe('true');

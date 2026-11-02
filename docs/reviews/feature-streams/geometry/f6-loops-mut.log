@@ -1,0 +1,436 @@
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx (16 tests | 8 failed) 5084ms
+   × Example 1 clips the three listed triangles in order when stepped to the end 515ms
+   × the current ear test is highlighted: a blocked apex draws its triangle and a cross on the vertex found inside 125ms
+   × Next step repeated k times and Play advanced k ticks give the same state; Play stops at done 361ms
+   × the comb shows colour class sizes 4, 4, 3, nine triangles, eight diagonals and three guards when done 461ms
+   × the guard view equals the triangles at the guard vertex, for the first guard and for a selected one 439ms
+   × a clockwise polygon is reversed for the trace, the panel says so and the stored model is unchanged 402ms
+   × the polygon and step survive a Preset round trip; an out-of-range step is clamped; the collection validates 160ms
+   × a live language switch re-renders the panel and the overlay labels; the board letters stay 399ms
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx (24 tests | 14 failed) 5499ms
+   × example 1 stepped through: the 13 events in order, the status after each, and the line, event point and highlighted segments on the board 167ms
+   × the five crossings appear with their exact fractions next to the decimals in the panel and as points on the board 472ms
+   × the degenerate example reports one point with all four segments and reverses the block in one step 406ms
+   × the neighbour test of the current step is shown as a link and two marks, and the counter equals the tests of the trace 142ms
+   × Next step repeated k times and Play advanced k ticks give the same drawn state and status; Play stops at done 162ms
+   × an edit while playing recomputes the trace, returns to step 0 and pauses; Reset does the same 342ms
+   × the Preset keeps the segments and the step; an out-of-range step is clamped; the degenerate example imports 134ms
+   × a language switch re-renders the panel text, the fractions and the overlay switch and keeps the step and the board 400ms
+   ❯ side lists (6)
+     × example 1 stepped through: the 13 events in order and the status after each, read from the side lists 150ms
+     × the current event marks its segments, and a crossing marks every segment through the point 177ms
+     × hovering or focusing a status entry highlights its segment on the board and leaving removes it 111ms
+     ❯ a hover goes stale (2)
+       × on a step 101ms
+       × on Reset 94ms
+     × the lists follow a language switch 103ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > example 1 stepped through: the 13 events in order, the status after each, and the line, event point and highlighted segments on the board
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:130:72
+    128|         if (view.position && (next === 'pop' || next === 'done')) {
+    129|             seen.push([pos(graph, step), [...view.status]]);
+    130|             expect(objectsNamed(graph, 'sweep-open', 'sweep-current'))…
+       |                                                                        ^
+    131|             expect(objectsNamed(graph, 'sweep-line')[0].dataY).toEqual…
+    132|             expect(objectsNamed(graph, 'sweep-event')).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > the five crossings appear with their exact fractions next to the decimals in the panel and as points on the board
+Error: The trace did not finish within 1000 steps.
+ ❯ Module.stepWhile src/graphs/compgeo/boundedSteps.testing.ts:10:35
+      8| export function stepWhile(condition: () => boolean, step: () => void, …
+      9|     for (let taken = 0; condition(); taken++) {
+     10|         if (taken >= limit) throw new Error(`The trace did not finish …
+       |                                   ^
+     11|         step();
+     12|     }
+ ❯ atEnd src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:99:38
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:146:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > the degenerate example reports one point with all four segments and reverses the block in one step
+Error: The trace did not finish within 1000 steps.
+ ❯ Module.stepWhile src/graphs/compgeo/boundedSteps.testing.ts:10:35
+      8| export function stepWhile(condition: () => boolean, step: () => void, …
+      9|     for (let taken = 0; condition(); taken++) {
+     10|         if (taken >= limit) throw new Error(`The trace did not finish …
+       |                                   ^
+     11|         step();
+     12|     }
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:168:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > the neighbour test of the current step is shown as a link and two marks, and the counter equals the tests of the trace
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:186:60
+    184|         if (run.event(step)?.note === 'test') {
+    185|             tests++;
+    186|             expect(objectsNamed(graph, 'sweep-test-link')).toHaveLengt…
+       |                                                            ^
+    187|             expect(objectsNamed(graph, 'sweep-test-mark')).toHaveLengt…
+    188|             expect(part('note')).toContain('Preizkus sosednjih daljic'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > Next step repeated k times and Play advanced k ticks give the same drawn state and status; Play stops at done
+AssertionError: expected +0 to be 17 // Object.is equality
+
+- Expected
++ Received
+
+- 17
++ 0
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:205:24
+    203|     const expectedDrawn = drawn(first);
+    204|     const expectedStatus = status();
+    205|     expect(first.step).toBe(k);
+       |                        ^
+    206|     expect(expectedDrawn.length).toBeGreaterThan(0);
+    207|     firstView.unmount();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > an edit while playing recomputes the trace, returns to step 0 and pauses; Reset does the same
+AssertionError: expected +0 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:241:24
+    239|     click('next-step');
+    240|     click('next-step');
+    241|     expect(graph.step).toBe(2);
+       |                        ^
+    242|     click('reset');
+    243|     expect([graph.step, graph.isPlaying]).toEqual([0, false]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > the Preset keeps the segments and the step; an out-of-range step is clamped; the degenerate example imports
+AssertionError: expected { initialized: true, …(2) } to match object { step: 9 }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "step": 9,
++   "step": 0,
+  }
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:319:30
+    317|     expect(graph.presets()).toBe(BENTLEY_OTTMANN_PRESET_KEY);
+    318|     const saved = graph.exportPreset();
+    319|     expect(saved.graphState).toMatchObject({step: 9});
+       |                              ^
+    320|     expect(saved.graphState).not.toHaveProperty('playing');
+    321|     load(graph, segs([0, 0, 1, 1]));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > a language switch re-renders the panel text, the fractions and the overlay switch and keeps the step and the board
+Error: The trace did not finish within 1000 steps.
+ ❯ Module.stepWhile src/graphs/compgeo/boundedSteps.testing.ts:10:35
+      8| export function stepWhile(condition: () => boolean, step: () => void, …
+      9|     for (let taken = 0; condition(); taken++) {
+     10|         if (taken >= limit) throw new Error(`The trace did not finish …
+       |                                   ^
+     11|         step();
+     12|     }
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:362:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > example 1 stepped through: the 13 events in order and the status after each, read from the side lists
+AssertionError: expected [] to deeply equal [ 's3' ]
+
+- Expected
++ Received
+
+- [
+-   "s3",
+- ]
++ []
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:448:35
+    446|                 expect(marked[0].textContent).toContain('naslednji dog…
+    447|             }
+    448|             expect(statusNames()).toEqual(names(run.view(step).status)…
+       |                                   ^
+    449|             if (next === 'pop') heads.push(marked[0].title);
+    450|             if (run.view(step).position && (next === 'pop' || next ===…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > the current event marks its segments, and a crossing marks every segment through the point
+AssertionError: expected [] to deeply equal [ 's2', 's1' ]
+
+- Expected
++ Received
+
+- [
+-   "s2",
+-   "s1",
+- ]
++ []
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:475:30
+    473|             if (run.event(step)?.note === 'pop' || run.event(step)?.no…
+    474|         }
+    475|         expect(marks['3,2']).toEqual(['s2', 's1']);
+       |                              ^
+    476|         expect(marks['2,5']).toEqual(['s3']);
+    477|         expect(marks['33/20,29/10']).toEqual(['s2', 's3']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > hovering or focusing a status entry highlights its segment on the board and leaving removes it
+Error: Unable to fire a "mouseenter" event - please provide a DOM element.
+ ❯ createEvent ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/events.js:27:11
+ ❯ createEvent.<computed> [as mouseEnter] ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/events.js:106:38
+ ❯ fireEvent.<computed> [as mouseEnter] ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/events.js:110:68
+ ❯ fireEvent.<computed> ../../../node_modules/@testing-library/react/dist/fire-event.js:18:52
+ ❯ fireEvent.mouseEnter ../../../node_modules/@testing-library/react/dist/fire-event.js:27:3
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:502:31
+    500|         const [first, second] = entries('status', 'data-status-entry');
+    501|         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+    502|         act(() => { fireEvent.mouseEnter(second); });
+       |                               ^
+    503|         expect(objectsNamed(graph, 'sweep-hover').map(o => [o.dataX, o…
+    504|         expect(entries('status', 'data-hovered')).toEqual([second]);
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:64:24
+ ❯ act ../../../node_modules/react/cjs/react.development.js:2512:16
+ ❯ actWithWarning ../../../node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10
+ ❯ Proxy.<anonymous> ../../../node_modules/@testing-library/react/dist/act-compat.js:63:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > a hover goes stale > on a step
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > a hover goes stale > on Reset
+Error: Unable to fire a "mouseenter" event - please provide a DOM element.
+ ❯ createEvent ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/events.js:27:11
+ ❯ createEvent.<computed> [as mouseEnter] ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/events.js:106:38
+ ❯ fireEvent.<computed> [as mouseEnter] ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/events.js:110:68
+ ❯ fireEvent.<computed> ../../../node_modules/@testing-library/react/dist/fire-event.js:18:52
+ ❯ fireEvent.mouseEnter ../../../node_modules/@testing-library/react/dist/fire-event.js:27:3
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:517:35
+    515|         const hoverOne = (graph: Observed) => {
+    516|             for (let i = 0; i < 6; i++) click('next-step');
+    517|             act(() => { fireEvent.mouseEnter(entries('status', 'data-s…
+       |                                   ^
+    518|             expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(1);
+    519|         };
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:64:24
+ ❯ act ../../../node_modules/react/cjs/react.development.js:2512:16
+ ❯ actWithWarning ../../../node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10
+ ❯ Proxy.<anonymous> ../../../node_modules/@testing-library/react/dist/act-compat.js:63:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/22]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > the lists follow a language switch
+AssertionError: expected 'Upper endpoint at the point (2; 5)' to be 'Upper endpoint at the point (4; 5)' // Object.is equality
+
+Expected: "Upper endpoint at the point (4; 5)"
+Received: "Upper endpoint at the point (2; 5)"
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:547:56
+    545|         act(() => { setLanguage('en'); });
+    546|         expect(document.querySelector('[data-bentley-ottmann-list="que…
+    547|         expect(entries('queue', 'data-next')[0].title).toBe('Upper end…
+       |                                                        ^
+    548|         expect(entries('status', 'data-status-entry')[0].title).toBe('…
+    549|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/22]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingGraph.host.test.tsx > Example 1 clips the three listed triangles in order when stepped to the end
+Error: The trace did not finish within 1000 steps.
+ ❯ Module.stepWhile src/graphs/compgeo/boundedSteps.testing.ts:10:35
+      8| export function stepWhile(condition: () => boolean, step: () => void, …
+      9|     for (let taken = 0; condition(); taken++) {
+     10|         if (taken >= limit) throw new Error(`The trace did not finish …
+       |                                   ^
+     11|         step();
+     12|     }
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx:118:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/22]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingGraph.host.test.tsx > the current ear test is highlighted: a blocked apex draws its triangle and a cross on the vertex found inside
+AssertionError: expected 'Oglišča si sledijo v nasprotni smeri …' to be 'Oglišče je izbočeno, a v trikotniku s…' // Object.is equality
+
+Expected: "Oglišče je izbočeno, a v trikotniku s sosedama leži drugo oglišče: ni ušesa."
+Received: "Oglišča si sledijo v nasprotni smeri urinega kazalca. Oglišča preizkušamo po vrsti, od najnižje številke naprej."
+
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx:136:26
+    134|     only(graph, 'trace');
+    135|     click('next-step');
+    136|     expect(part('note')).toBe('Oglišče je izbočeno, a v trikotniku s s…
+       |                          ^
+    137|     expect(part('detail')).toBe('Preizkušeno oglišče P1, trikotnik P5 …
+    138|     expect(drawnPolygons(graph)).toEqual([[[0, 4], [0, 0], [6, 0]]]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/22]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingGraph.host.test.tsx > Next step repeated k times and Play advanced k ticks give the same state; Play stops at done
+AssertionError: expected { step: 5, status: [ …(5) ], …(2) } to deeply equal { step: +0, status: [ …(5) ], …(2) }
+
+- Expected
++ Received
+
+  {
+-   "objects": 41,
+-   "polygons": [],
++   "objects": 48,
++   "polygons": [
++     [
++       [
++         6,
++         0,
++       ],
++       [
++         6,
++         4,
++       ],
++       [
++         3,
++         2,
++       ],
++     ],
++   ],
+    "status": [
+-     "Korak 1 od 12",
+-     "Oglišča si sledijo v nasprotni smeri urinega kazalca. Oglišča preizkušamo po vrsti, od najnižje številke naprej.",
++     "Korak 6 od 12",
++     "Odrezani trikotnik je del triangulacije.",
+      undefined,
+-     "Odrezani trikotniki doslej: 0",
+-     "Orientacijskih preizkusov doslej: 0",
++     "Odrezani trikotniki doslej: 1",
++     "Orientacijskih preizkusov doslej: 17",
+    ],
+-   "step": 0,
++   "step": 5,
+  }
+
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx:163:30
+    161|     expect(button('play-pause').textContent).toBe('Premor');
+    162|     tick(frames, k);
+    163|     expect(snapshot(byPlay)).toEqual(nextSnapshot);
+       |                              ^
+    164|     expect(nextSnapshot.step).toBe(k);
+    165|     expect(nextSnapshot.polygons.length).toBeGreaterThan(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/22]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingGraph.host.test.tsx > the comb shows colour class sizes 4, 4, 3, nine triangles, eight diagonals and three guards when done
+Error: The trace did not finish within 1000 steps.
+ ❯ Module.stepWhile src/graphs/compgeo/boundedSteps.testing.ts:10:35
+      8| export function stepWhile(condition: () => boolean, step: () => void, …
+      9|     for (let taken = 0; condition(); taken++) {
+     10|         if (taken >= limit) throw new Error(`The trace did not finish …
+       |                                   ^
+     11|         step();
+     12|     }
+ ❯ toEnd src/graphs/compgeo/EarClippingGraph.host.test.tsx:84:38
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx:207:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/22]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingGraph.host.test.tsx > the guard view equals the triangles at the guard vertex, for the first guard and for a selected one
+Error: The trace did not finish within 1000 steps.
+ ❯ Module.stepWhile src/graphs/compgeo/boundedSteps.testing.ts:10:35
+      8| export function stepWhile(condition: () => boolean, step: () => void, …
+      9|     for (let taken = 0; condition(); taken++) {
+     10|         if (taken >= limit) throw new Error(`The trace did not finish …
+       |                                   ^
+     11|         step();
+     12|     }
+ ❯ toEnd src/graphs/compgeo/EarClippingGraph.host.test.tsx:84:38
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx:231:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/22]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingGraph.host.test.tsx > a clockwise polygon is reversed for the trace, the panel says so and the stored model is unchanged
+Error: The trace did not finish within 1000 steps.
+ ❯ Module.stepWhile src/graphs/compgeo/boundedSteps.testing.ts:10:35
+      8| export function stepWhile(condition: () => boolean, step: () => void, …
+      9|     for (let taken = 0; condition(); taken++) {
+     10|         if (taken >= limit) throw new Error(`The trace did not finish …
+       |                                   ^
+     11|         step();
+     12|     }
+ ❯ toEnd src/graphs/compgeo/EarClippingGraph.host.test.tsx:84:38
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx:316:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/22]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingGraph.host.test.tsx > the polygon and step survive a Preset round trip; an out-of-range step is clamped; the collection validates
+AssertionError: expected { initialized: true, …(2) } to match object { step: 3 }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "step": 3,
++   "step": 0,
+  }
+
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx:333:30
+    331|     expect(graph.presets()).toBe(EAR_CLIPPING_PRESET_KEY);
+    332|     const saved = graph.exportPreset();
+    333|     expect(saved.graphState).toMatchObject({step: 3});
+       |                              ^
+    334|     expect(saved.graphState).not.toHaveProperty('playing');
+    335|     expect(saved.graphState).not.toHaveProperty('model');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/22]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingGraph.host.test.tsx > a live language switch re-renders the panel and the overlay labels; the board letters stay
+Error: The trace did not finish within 1000 steps.
+ ❯ Module.stepWhile src/graphs/compgeo/boundedSteps.testing.ts:10:35
+      8| export function stepWhile(condition: () => boolean, step: () => void, …
+      9|     for (let taken = 0; condition(); taken++) {
+     10|         if (taken >= limit) throw new Error(`The trace did not finish …
+       |                                   ^
+     11|         step();
+     12|     }
+ ❯ toEnd src/graphs/compgeo/EarClippingGraph.host.test.tsx:84:38
+ ❯ src/graphs/compgeo/EarClippingGraph.host.test.tsx:366:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/22]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  22 failed | 18 passed (40)
+   Start at  06:43:42
+   Duration  11.82s (tests 47%, transform 22%, import 15%, environment 10%, setup 6%)
+
