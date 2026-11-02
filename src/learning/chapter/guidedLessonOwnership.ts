@@ -40,6 +40,9 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'linear-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'exponential-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'trigonometric-functions': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
+    // School function graphs batch A (S1, S2): the function-rules section holds the other function-family lessons; no chapter text yet (F4).
+    'function-transformation': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
+    'function-inverse': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},
     derivative: {chapterId: 'functions-and-calculus', sectionId: 'derivatives'},
     'definite-integral': {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
