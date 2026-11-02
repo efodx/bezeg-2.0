@@ -1812,19 +1812,20 @@ const interpolationSubdivision = {
     },
 };
 
-// Numerical methods N1 and N2 (root-finding): the board caption names the revealed step count, the status line the end of a run. Steps per scene: 0, 1, 3, 4, 1, 0, then 0, 2 (repeat status), 1, 4, 1, 0, 0.
-const ROOT_FINDING_STEP_COUNTS = [0, 1, 3, 4, 1, 0, 0, 2, 1, 4, 1, 0, 0];
+// Numerical methods N1, N2 and N3 (root-finding): the board caption names the revealed step count, the status line the end of a run. Steps per scene: 0, 1, 3, 4, 1, 0, then 0, 2 (repeat status), 1, 4, 1, 0, 0, then the secant scenes 0, 1, 4, 4, 0 (horizontal secant), 1 (root found), 0.
+const ROOT_FINDING_STEP_COUNTS = [0, 1, 3, 4, 1, 0, 0, 2, 1, 4, 1, 0, 0, 0, 1, 4, 4, 0, 1, 0];
 const rootFinding = {
     id: 'root-finding',
     path: `${BASE}/analysis/root-finding`,
-    titles: {sl: 'Tangentna (Newtonova) metoda in kdaj odpove', en: "Newton's method and when it fails"},
-    steps: 13,
-    minFrames: 26, // at least 2 frames per step (steps with a worked example add a calculation frame)
+    titles: {sl: 'Tangentna (Newtonova) in sekantna metoda', en: "Newton's method and the secant method"},
+    steps: 20,
+    minFrames: 40, // at least 2 frames per step (steps with a worked example add a calculation frame)
     offscreenSteps: [11], // x1 = 12.2 lies far right of the window on purpose
     stepProbe: async (page, ctx, step, label) => {
         await expect(boardText(page, new RegExp(`(korak|step) ${ROOT_FINDING_STEP_COUNTS[step - 1]},`)).first(), `root-finding step count at ${label}`).toBeVisible();
         if (step === 8) await expect(boardText(page, /približki se ponavljajo|iterates repeat/).first(), `repeat status at ${label}`).toBeVisible();
-        if (step === 5) await expect(boardText(page, /ustalitev pri|settled at/).first(), `root found at ${label}`).toBeVisible();
+        if (step === 5 || step === 19) await expect(boardText(page, /ustalitev pri|settled at/).first(), `root found at ${label}`).toBeVisible();
+        if (step === 18) await expect(boardText(page, /vodoravna sekanta|horizontal secant/).first(), `horizontal secant at ${label}`).toBeVisible();
     },
 };
 
