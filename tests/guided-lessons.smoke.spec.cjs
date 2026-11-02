@@ -1812,7 +1812,23 @@ const interpolationSubdivision = {
     },
 };
 
-const LESSONS = [segmentIntersections, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Numerical methods N1 and N2 (root-finding): the board caption names the revealed step count, the status line the end of a run. Steps per scene: 0, 1, 3, 4, 1, 0, then 0, 2 (repeat status), 1, 4, 1, 0, 0.
+const ROOT_FINDING_STEP_COUNTS = [0, 1, 3, 4, 1, 0, 0, 2, 1, 4, 1, 0, 0];
+const rootFinding = {
+    id: 'root-finding',
+    path: `${BASE}/analysis/root-finding`,
+    titles: {sl: 'Tangentna (Newtonova) metoda in kdaj odpove', en: "Newton's method and when it fails"},
+    steps: 13,
+    minFrames: 26, // at least 2 frames per step (steps with a worked example add a calculation frame)
+    offscreenSteps: [11], // x1 = 12.2 lies far right of the window on purpose
+    stepProbe: async (page, ctx, step, label) => {
+        await expect(boardText(page, new RegExp(`(korak|step) ${ROOT_FINDING_STEP_COUNTS[step - 1]},`)).first(), `root-finding step count at ${label}`).toBeVisible();
+        if (step === 8) await expect(boardText(page, /približki se ponavljajo|iterates repeat/).first(), `repeat status at ${label}`).toBeVisible();
+        if (step === 5) await expect(boardText(page, /ustalitev pri|settled at/).first(), `root found at ${label}`).toBeVisible();
+    },
+};
+
+const LESSONS = [segmentIntersections, rootFinding, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

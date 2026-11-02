@@ -20,6 +20,7 @@ import {curveGeometryGuidedLessons} from './curveGeometryGuidedLessons';
 import {expansionGuidedLessons} from './expansionGuidedLessons';
 import {foundationGuidedLessons} from './foundationGuidedLessons';
 import {interpolationGuidedLessons} from './interpolationGuidedLessons';
+import {numericalMethodsGuidedLessons} from './numericalMethodsGuidedLessons';
 import {functionGuidedLessons} from './functionGuidedLessons';
 import {parameterizationGuidedLessons} from './parameterizationGuidedLessons';
 import {constructionGuidedLessons} from './constructionGuidedLessons';
@@ -729,7 +730,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
 ];
 
 const lessonByDemonstration = new Map(pilotGuidedLessons.map(lesson => [lesson.demonstrationId, lesson]));
-const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons, ...functionGuidedLessons, ...analysisGuidedLessons, ...compgeoGuidedLessons, ...curveGeometryGuidedLessons, ...interpolationGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
+const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons, ...functionGuidedLessons, ...analysisGuidedLessons, ...compgeoGuidedLessons, ...curveGeometryGuidedLessons, ...interpolationGuidedLessons, ...numericalMethodsGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
 
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {
