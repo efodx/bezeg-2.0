@@ -5,8 +5,10 @@ import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {
-    CROSS_RATIO_EXAMPLES, CROSS_RATIO_VIEW_BOX, CrossRatioExampleId, CrossRatioModel, CrossRatioScene, DEFAULT_CROSS_RATIO_MODEL, evaluateCrossRatio,
+    CROSS_RATIO_COORD_LIMIT, CROSS_RATIO_EXAMPLE_IDS, CROSS_RATIO_EXAMPLES, CROSS_RATIO_VIEW_BOX, CrossRatioExampleId, CrossRatioModel, CrossRatioScene, DEFAULT_CROSS_RATIO_MODEL, evaluateCrossRatio,
     serializeCrossRatioModel,
 } from "./crossRatioModel";
 import {HANDLE_COUNT, handlePosition, isHandle, moveHandle, nudgeHandle} from "./crossRatioEdit";
@@ -102,6 +104,36 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
         this.nudged = undefined;
         this.setState({model: serializeCrossRatioModel(model)});
         this.requestRender();
+    }
+
+    /**
+     * Lesson actions (`projective`): `load-example` is the example button and `move-handle` is `moveHandleTo`, the drag path.
+     * Values are checked strictly (a lesson-content error throws, nothing is snapped), then the control's own edit runs.
+     */
+    applyProjectiveAction(action: Extract<LessonAction, {kind: "projective"}>): void {
+        if (action.operation === "load-example") {
+            const id = CROSS_RATIO_EXAMPLE_IDS.find(candidate => candidate === action.exampleId);
+            if (id === undefined) throw new Error(`projective load-example: exampleId must be one of ${CROSS_RATIO_EXAMPLE_IDS.join(", ")}.`);
+            this.loadExample(id);
+            return;
+        }
+        if (action.operation !== "move-handle") throw new Error("projective: the cross-ratio graph has no such operation.");
+        const {handle, x, y} = action;
+        if (!isHandle(handle)) throw new Error(`projective move-handle: handle must be an integer from 0 to ${HANDLE_COUNT - 1}.`);
+        const onGrid = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && Math.abs(value) <= CROSS_RATIO_COORD_LIMIT;
+        if (!onGrid(x)) throw new Error(`projective move-handle: x must be an integer within ±${CROSS_RATIO_COORD_LIMIT}.`);
+        if (handle < 4) {
+            if (y !== undefined && y !== 0) throw new Error("projective move-handle: the points A-D stay on the line y = 0; omit y.");
+            this.moveHandleTo(handle, x, 0);
+            return;
+        }
+        if (!onGrid(y)) throw new Error(`projective move-handle: y must be an integer within ±${CROSS_RATIO_COORD_LIMIT}.`);
+        this.moveHandleTo(handle, x, y);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("projective", action => this.applyProjectiveAction(action));
     }
 
     select(handle: number | undefined): void {

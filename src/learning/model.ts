@@ -1,5 +1,6 @@
 import type {DemonstrationId} from '../demonstrations';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
+import type {CrossRatioExampleId} from '../graphs/projective/crossRatioModel';
 import type {ParametricCurveId} from '../graphs/curves/parametric/parametricCatalogue';
 import {BISECTION_EXAMPLE_IDS} from '../analysis/bisection';
 import {ROOT_FINDING_EXAMPLE_IDS} from '../analysis/rootFinding';
@@ -211,6 +212,14 @@ export type LessonAction =
     | {readonly kind: 'point-set'; readonly operation: 'set-algorithm'; readonly algorithm: HullAlgorithm}
     /** EarClippingGraph only (any other point-set graph throws `UnsupportedLessonActionError`): pauses playback and sets the trace step; a number is clamped like a stored Preset step and `'end'` is the last step. */
     | {readonly kind: 'point-set'; readonly operation: 'set-trace-step'; readonly step: number | 'end'}
+    /**
+     * Projective graphs' scene actions; the union stays open for the other projective graphs. CrossRatioGraph (K1): `load-example`
+     * is the example button; `move-handle` is a drag to the grid point (`handle` 0-3 are A-D on the line y = 0 and take only `x`,
+     * 4 is the centre O, 5-6 are M and N and take `x` and `y`). Scene data is strict: a non-integer or out-of-range value is a
+     * lesson-content error and is never snapped.
+     */
+    | {readonly kind: 'projective'; readonly operation: 'load-example'; readonly exampleId: CrossRatioExampleId}
+    | {readonly kind: 'projective'; readonly operation: 'move-handle'; readonly handle: number; readonly x: number; readonly y?: number}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */
