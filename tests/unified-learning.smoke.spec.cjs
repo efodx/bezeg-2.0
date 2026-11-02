@@ -2,7 +2,7 @@ const {test, expect} = require('@playwright/test');
 const h = require('./lesson-smoke-helpers.cjs');
 h.failOnRuntimeErrors();
 
-const chapters = ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'functions-and-calculus', 'analysis'];
+const chapters = ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'functions-and-calculus', 'analysis'];
 
 const patchSections = [
     ['curve-to-patch', 'Od krivulje do krpe', 'From curve to patch'],
@@ -74,7 +74,7 @@ for (const chapter of chapters) {
         await page.goto(`/bezeg-2.0/learn/${chapter}`);
         const heading = await page.locator('h1').textContent();
         expect(heading.trim().length).toBeGreaterThan(5);
-        expect(await page.locator('.chapter-section').count()).toBeGreaterThanOrEqual(({'linear-maps': 2, 'complex-maps': 2, 'convexity-hulls': 4})[chapter] ?? 5); // the minimums of familyChapters.test.ts
+        expect(await page.locator('.chapter-section').count()).toBeGreaterThanOrEqual(({'linear-maps': 2, 'complex-maps': 2, 'convexity-hulls': 4, 'triangulations-voronoi': 2})[chapter] ?? 5); // the minimums of familyChapters.test.ts
         if (chapter === 'bezier-patches') {
             expect(await page.locator('.chapter-section').evaluateAll(sections => sections.map(section => section.id)))
                 .toEqual(patchSections.map(([id]) => id));

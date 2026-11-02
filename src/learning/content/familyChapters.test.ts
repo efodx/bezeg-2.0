@@ -30,7 +30,7 @@ function withoutMath(source: string) {
 // Registered before their reading chapter exists. Computational geometry is released in batches: ear clipping and the
 // sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
 // patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
-const CHAPTER_LINK_PENDING: readonly string[] = ['ear-clipping', 'interval-sweep', 'segment-intersections', 'patch-coons',
+const CHAPTER_LINK_PENDING: readonly string[] = ['interval-sweep', 'segment-intersections', 'patch-coons',
     'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'root-finding'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
@@ -88,13 +88,13 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('publishes eleven bilingual chapters with stable section anchors and substantial prose', () => {
+    test('publishes twelve bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'functions-and-calculus', 'analysis',
+            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'functions-and-calculus', 'analysis',
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'convexity-hulls' ? 4 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);

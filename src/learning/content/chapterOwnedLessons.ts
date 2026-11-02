@@ -2,7 +2,9 @@ import type {DemonstrationId} from '../../demonstrations';
 import type {LessonDefinition} from '../model';
 import {complexMapsGuidedExamplePath, complexMapsGuidedExampleRegistry, COMPLEX_MAPS_CHAPTER_ID} from './complexMapsChapterRegistry';
 import {CONVEXITY_CHAPTER_ID} from './convexityChapterId';
+import {TRIANGULATION_CHAPTER_ID} from './triangulationChapterId';
 import {convexityGuidedExampleRegistry, convexityGuidedExamplePath} from './convexityChapterRegistry';
+import {triangulationGuidedExampleRegistry, triangulationGuidedExamplePath} from './triangulationChapterRegistry';
 import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAPS_CHAPTER_ID} from './linearMapsChapterRegistry';
 import {patchGuidedExamplePath, patchGuidedExampleRegistry} from './patchGuidedExampleRegistry';
 
@@ -31,6 +33,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     'bezier-patches': ownedLessons(patchGuidedExampleRegistry, patchGuidedExamplePath),
     [LINEAR_MAPS_CHAPTER_ID]: ownedLessons(linearMapsGuidedExampleRegistry, linearMapsGuidedExamplePath),
     [CONVEXITY_CHAPTER_ID]: ownedLessons(() => convexityGuidedExampleRegistry, sectionId => convexityGuidedExamplePath(sectionId)),
+    [TRIANGULATION_CHAPTER_ID]: ownedLessons(() => triangulationGuidedExampleRegistry, sectionId => triangulationGuidedExamplePath(sectionId)),
     [COMPLEX_MAPS_CHAPTER_ID]: ownedLessons(complexMapsGuidedExampleRegistry, complexMapsGuidedExamplePath),
 };
 

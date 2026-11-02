@@ -3,6 +3,7 @@ import {patchChapter} from './patchChapter';
 import {linearMapsChapter} from './linearMapsChapter';
 import {complexMapsChapter} from './complexMapsChapter';
 import {convexityChapter} from './convexityChapter';
+import {triangulationChapter} from './triangulationChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
@@ -305,6 +306,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     linearMapsChapter, // Maps of the plane: chapter-owned activities live in linearMapsChapterLessons.ts.
     complexMapsChapter, // Maps of the plane, complex part: activities live in complexMapsChapterLessons.ts.
     convexityChapter, // Computational geometry batch 1: activities reuse the reviewed lessons of compgeoGuidedLessons.ts.
+    triangulationChapter, // Computational geometry batch T1: the ear clipping lesson of compgeoGuidedLessons.ts.
     {
         id: 'functions-and-calculus', family: '/bezeg-2.0/functions',
         title: text('Funkcije in računanje', 'Functions and calculus'),
