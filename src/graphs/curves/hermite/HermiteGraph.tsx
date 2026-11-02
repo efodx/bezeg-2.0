@@ -9,6 +9,7 @@ import {catmullRomTangents} from "../../../analysis/hermite";
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN} from "../../../analysis/interpolation";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import {Preset} from "../../base/presets/Presets";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {
     catmullRomStored, DEFAULT_HERMITE_PRESET, firstCoincidentPair, HERMITE_COORDINATE_LIMIT, HERMITE_TANGENT_LIMIT, HERMITE_TENSION_MAX,
     HERMITE_TENSION_MIN, HERMITE_TENSION_STEP, hermiteRejection, HermiteMode, HermitePresetData, hermiteViewBox, isHermiteMode, isParameterRule,
@@ -66,6 +67,12 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
     protected override lessonDefaultState(): HermiteGraphState {
         const {points, mode, tangents, parameterRule, tension, showTangents, showBezier} = this.state;
         return {initialized: true, points, mode, tangents, parameterRule, tension, showTangents, showBezier, notice: ''};
+    }
+
+    /** A lesson scene starts from the default points in their fitted view, since an earlier scene may have added points. */
+    protected override prepareLessonDefaultScene(): void {
+        super.prepareLessonDefaultScene();
+        this.fit();
     }
 
     /** Rejects data the model cannot draw before touching the state, then rebuilds the scene. */
@@ -244,6 +251,35 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
 
     setShowBezier(show: boolean) {
         this.setState({showBezier: show});
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('hermite', action => {
+            if (action.operation === 'set-mode') {
+                if (!isHermiteMode(action.mode)) throw new Error('The mode must be "catmull-rom" or "hermite".');
+                this.setMode(action.mode);
+            } else if (action.operation === 'set-rule') {
+                if (!isParameterRule(action.rule)) throw new Error('The parameter rule must be "uniform" or "chord".');
+                this.setParameterRule(action.rule);
+            } else if (action.operation === 'set-tension') {
+                if (!Number.isFinite(action.value) || action.value < HERMITE_TENSION_MIN || action.value > HERMITE_TENSION_MAX) {
+                    throw new Error(`The tension must be a number from ${HERMITE_TENSION_MIN} to ${HERMITE_TENSION_MAX}.`);
+                }
+                this.setTension(action.value);
+            } else if (action.operation === 'set-overlay') {
+                if (typeof action.visible !== 'boolean') throw new Error('A hermite set-overlay action needs a boolean visible.');
+                if (action.overlay === 'tangents') this.setShowTangents(action.visible);
+                else if (action.overlay === 'bezier') this.setShowBezier(action.visible);
+                else throw new Error('The overlay must be "tangents" or "bezier".');
+            } else if (action.operation === 'add-point') {
+                this.addPoint();
+            } else {
+                throw new Error('A hermite action needs the operation set-mode, set-rule, set-tension, set-overlay or add-point.');
+            }
+        });
     }
 
     // ---- Controls ----------------------------------------------------------------------------------------------------

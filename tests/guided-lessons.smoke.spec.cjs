@@ -1742,7 +1742,20 @@ const interpolationLagrange = {
     },
 };
 
-const LESSONS = [interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Interpolation I3: the board has only a status line (no tangent or point readout), so the probe is the mode text per step 1..6: Hermite for steps 1-2, Catmull-Rom with tension 1 for steps 3-6.
+const HERMITE_READOUTS = [/Hermiteova krivulja z izbranimi tangentami|Hermite curve with chosen tangents/, /Hermiteova krivulja z izbranimi tangentami|Hermite curve with chosen tangents/, /Catmull-Rom.*(napetost|tension) 1(?![.,]?\d)/, /Catmull-Rom.*(napetost|tension) 1(?![.,]?\d)/, /Catmull-Rom.*(napetost|tension) 1(?![.,]?\d)/, /Catmull-Rom.*(napetost|tension) 1(?![.,]?\d)/];
+const interpolationHermite = {
+    id: 'interp-hermite',
+    path: `${BASE}/interpolation/hermite`,
+    titles: {sl: 'Hermiteova interpolacija in Catmull-Romov zlepek', en: 'Hermite interpolation and the Catmull-Rom spline'},
+    steps: 6,
+    minFrames: 14, // 2 frames per step, 3 on steps 2 and 3 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect(boardText(page, HERMITE_READOUTS[step - 1]).first(), `hermite status at ${label}`).toBeVisible();
+    },
+};
+
+const LESSONS = [interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

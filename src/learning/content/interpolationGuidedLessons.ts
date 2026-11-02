@@ -1,9 +1,10 @@
 /**
  * Guided lessons of the Interpolation and approximation family (docs/specs/interpolation-approximation-lessons.md): I1,
- * Lagrange interpolation versus Bézier approximation. The text is a one-shot draft (docs/specs/new-lesson-families.md,
+ * Lagrange interpolation versus Bézier approximation, and I3, Hermite and Catmull-Rom curves. The text is a one-shot draft (docs/specs/new-lesson-families.md,
  * "One-shot lesson text"): every value it quotes is the readout of the scene it belongs to, and
  * `interpolationGuidedLessons.test.ts` checks that against the real graph and the kernel in `src/analysis/interpolation.ts`.
- * Scenes use the `interpolation` (`set-rule`, `set-overlay`, `add-point`) and `parameter` (`t`, the shared position s) actions.
+ * I1 scenes use the `interpolation` (`set-rule`, `set-overlay`, `add-point`) and `parameter` (`t`, the shared position s) actions;
+ * I3 scenes use the `hermite` action (`set-mode`, `set-rule`, `set-tension`, `set-overlay`, `add-point`).
  */
 import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
@@ -211,4 +212,189 @@ const lagrangeLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const interpolationGuidedLessons: readonly GuidedLesson[] = [lagrangeLesson];
+/** A scene from the default four points: mode, parameter rule, tension, overlays, then optionally more points at the Add button's places. */
+const hermiteScene = (
+    id: string, mode: 'catmull-rom' | 'hermite', overlays: {tangents: boolean; bezier: boolean}, extraPoints: number, sl: string, en: string,
+): LessonScene => {
+    const actions: LessonAction[] = [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'hermite', operation: 'set-rule', rule: 'uniform'},
+        // The tension is set before the mode: it has no effect in Hermite mode, and the switch copies the tension-scaled tangents.
+        {kind: 'hermite', operation: 'set-tension', value: 1},
+        {kind: 'hermite', operation: 'set-mode', mode},
+        {kind: 'hermite', operation: 'set-overlay', overlay: 'tangents', visible: overlays.tangents},
+        {kind: 'hermite', operation: 'set-overlay', overlay: 'bezier', visible: overlays.bezier},
+        ...Array.from({length: extraPoints}, () => ({kind: 'hermite', operation: 'add-point'}) as const),
+    ];
+    return {id, basedOn: 'demonstration-default', actions, expectedState: text(sl, en)};
+};
+
+const hermiteLesson: GuidedLesson = {
+    demonstrationId: 'interp-hermite',
+    title: text('Hermiteova interpolacija in Catmull-Romov zlepek', 'Hermite interpolation and the Catmull-Rom spline'),
+    summary: text(
+        'Hermiteova interpolacija predpiše v vsaki interpolacijski točki lego in tangento in da lokalno krivuljo razreda \\(C^1\\). Catmull-Romov zlepek tangente izbere iz sosednjih točk, zato ostane krivulja skozi vse točke, premik ene točke pa spremeni le nekaj sosednjih odsekov.',
+        'Hermite interpolation prescribes a position and a tangent at every interpolation point and gives a local \\(C^1\\) curve. The Catmull-Rom spline chooses the tangents from the neighbouring points, so the curve passes through every point and moving one point changes only a few neighbouring segments.',
+    ),
+    prerequisites: [
+        text('Potrebno je poznavanje zlepkov iz poglavja o zlepkih: tangentna zveznost \\(C^1\\) in kubični Bézierjevi odseki.', 'Assumes the splines chapter: tangent continuity \\(C^1\\) and cubic Bézier segments.'),
+        text('Potrebna je lekcija o Lagrangeevi interpolaciji: tam krivulja skozi točke ni lokalna.', 'Assumes the Lagrange interpolation lesson: there the curve through the points is not local.'),
+    ],
+    learningGoals: [
+        text('Napoveš obliko kubičnega Hermiteovega odseka iz leg in tangent v krajiščih in jo pretvoriš v Bézierjeve kontrolne točke.', 'Predict the shape of a cubic Hermite segment from the positions and tangents at its ends and convert it to Bézier control points.'),
+        text('Izračunaš tangento Catmull-Romovega zlepka iz sosednjih točk in veš, da so tangente v krajiščih enostranske.', 'Compute a Catmull-Rom tangent from the neighbouring points and know that the end tangents are one-sided.'),
+        text('Razložiš, zakaj je zlepek zvezen razreda \\(C^1\\), a drugi odvodi se v točkah na splošno razlikujejo, in zakaj je lokalen.', 'Explain why the spline is \\(C^1\\) but its second derivatives generally differ at the points, and why it is local.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'hermite-bezier',
+            latex: 'Q_0=P_i,\\quad Q_1=P_i+\\tfrac13 h_i m_i,\\quad Q_2=P_{i+1}-\\tfrac13 h_i m_{i+1},\\quad Q_3=P_{i+1},\\qquad h_i=t_{i+1}-t_i',
+            notation: text(
+                '\\(P_i\\) so interpolacijske točke, \\(m_i\\) tangente (odvodi po skupnem parametru \\(t\\)), \\(t_i\\) parametri točk in \\(Q_j\\) kontrolne točke Bézierjevega odseka.',
+                '\\(P_i\\) are the interpolation points, \\(m_i\\) the tangents (derivatives with respect to the common parameter \\(t\\)), \\(t_i\\) the parameters of the points and \\(Q_j\\) the control points of the Bézier segment.',
+            ),
+            explanation: text(
+                'Odsek je kubični Hermiteov polinom z lokalnima tangentama \\(h_i m_i\\), enak Bézierjevemu odseku s kontrolnimi točkami \\(Q_j\\). Pri enakomernih parametrih je \\(h_i=1\\) in so točki \\(P_i+\\tfrac13 m_i\\) ter \\(P_{i+1}-\\tfrac13 m_{i+1}\\); sicer lokalno tangento določa še \\(h_i\\).',
+                'The segment is a cubic Hermite polynomial with the local tangents \\(h_i m_i\\), equal to the Bézier segment with the control points \\(Q_j\\). With uniform parameters \\(h_i=1\\) and the points are \\(P_i+\\tfrac13 m_i\\) and \\(P_{i+1}-\\tfrac13 m_{i+1}\\); otherwise \\(h_i\\) scales the local tangent too.',
+            ),
+        },
+        {
+            id: 'catmull-rom-tangent',
+            latex: 'm_i=\\frac{P_{i+1}-P_{i-1}}{t_{i+1}-t_{i-1}},\\qquad m_i=\\tfrac12\\,(P_{i+1}-P_{i-1})\\ \\text{(uniform)}',
+            notation: text(
+                'V krajiščih velja enostranska razlika: \\(m_0=(P_1-P_0)/(t_1-t_0)\\). Napetost tangente le pomnoži.',
+                'At the ends the one-sided difference is used: \\(m_0=(P_1-P_0)/(t_1-t_0)\\). The tension just multiplies the tangents.',
+            ),
+            explanation: text(
+                'Tangenta v točki je vzporedna tetivi med sosednjima točkama. Zato na njen odsek vplivata le najbližji sosedi: premik notranje točke spremeni tangenti v obeh sosedih, sama točka pa se premakne, torej se spremenijo največ štirje odseki.',
+                'The tangent at a point is parallel to the chord between its two neighbours. So only the nearest neighbours enter a segment: moving an interior point changes the tangents at both neighbours and moves the point itself, hence at most four segments change.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'hermite-midpoint-example',
+            title: text('Sredina odseka od \\(P_1\\) do \\(P_2\\)', 'The middle of the segment from \\(P_1\\) to \\(P_2\\)'),
+            calculationLatex: 'P\\!\\left(\\tfrac12\\right)=\\tfrac12(P_1+P_2)+\\tfrac18(m_1-m_2)=\\left(2,\\,\\tfrac52\\right)+\\tfrac18\\,(0,\\,\\tfrac52)',
+            resultLatex: 'P\\!\\left(\\tfrac12\\right)=(2,\\;2{,}8125)',
+            check: text(
+                'Pri enakomernih parametrih ima Catmull-Romov zlepek na sredini odseka uteži \\(-\\tfrac1{16},\\tfrac9{16},\\tfrac9{16},-\\tfrac1{16}\\) za \\(P_0,\\dots,P_3\\), kar je ista točka \\((2;\\ 2{,}8125)\\) kot pri Lagrangeevi krivulji skozi iste štiri točke.',
+                'With uniform parameters the Catmull-Rom spline has the weights \\(-\\tfrac1{16},\\tfrac9{16},\\tfrac9{16},-\\tfrac1{16}\\) for \\(P_0,\\dots,P_3\\) at the middle of the segment, which is the same point \\((2;\\ 2.8125)\\) as the Lagrange curve through the same four points.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'hermite-predict-segment', order: 1,
+            title: text('Dve točki in dve tangenti', 'Two points and two tangents'),
+            purpose: text('Pred razkritjem napovedati obliko krivulje med dvema točkama z danima tangentama.', 'Predicting, before the reveal, the shape of the curve between two points with given tangents.'),
+            explanation: text(
+                'Graf je v Hermiteovem načinu: vsaka interpolacijska točka ima puščico tangente. Odsek od \\(P_1=(1,2)\\) do \\(P_2=(3,3)\\) izhaja iz \\(P_1\\) s tangento \\((1{,}5;\\ 1{,}5)\\) in prihaja v \\(P_2\\) s tangento \\((1{,}5;\\ -1)\\). Napovej: ali bo krivulja ob prihodu v \\(P_2\\) šla nad točko ali pod njo, preden se obrne? Potem opazuj odsek.',
+                'The graph is in Hermite mode: every interpolation point has a tangent arrow. The segment from \\(P_1=(1,2)\\) to \\(P_2=(3,3)\\) leaves \\(P_1\\) with the tangent \\((1.5;\\ 1.5)\\) and arrives at \\(P_2\\) with the tangent \\((1.5;\\ -1)\\). Predict: will the curve arrive at \\(P_2\\) above the point or below it before it turns? Then watch the segment.',
+            ),
+            formulaIds: ['hermite-bezier'],
+            frames: [frame('hermite-predict-segment-explanation', 'explanation'), frame('hermite-predict-segment-observation', 'observation')],
+            observationPrompt: text('Pred razkritjem si zamisli odsek: kje je njegov najvišji del glede na \\(P_2\\)?', 'Before the reveal picture the segment: where is its highest part relative to \\(P_2\\)?'),
+            expectedObservations: [text('Odsek gre skozi obe točki in se ob vsaki dotika svoje tangente; zadnja tangenta kaže navzdol, zato krivulja v \\(P_2\\) pada.', 'The segment passes through both points and touches its tangent at each; the last tangent points down, so the curve is falling at \\(P_2\\).')],
+            scene: hermiteScene('hermite-predict-segment-start', 'hermite', {tangents: true, bezier: false}, 0,
+                'Hermiteov način s tangentami \\((1;\\ 2)\\), \\((1{,}5;\\ 1{,}5)\\), \\((1{,}5;\\ -1)\\), \\((1;\\ -3)\\) v štirih točkah.',
+                'Hermite mode with the tangents \\((1;\\ 2)\\), \\((1.5;\\ 1.5)\\), \\((1.5;\\ -1)\\), \\((1;\\ -3)\\) at the four points.'),
+        },
+        {
+            id: 'hermite-handle', order: 2,
+            title: text('Ročica tangente in Bézierjeva oblika', 'The tangent handle and the Bézier form'),
+            purpose: text('Povleči ročico tangente in videti, da Hermiteov odsek isto krivuljo opiše z Bézierjevimi kontrolnimi točkami.', 'Dragging a tangent handle and seeing that the Hermite segment describes the same curve with Bézier control points.'),
+            explanation: text(
+                'Prikazani so kontrolni poligoni Bézierjevih odsekov. Pri enakomernih parametrih je \\(h_i=1\\), zato odsek od \\(P_1\\) do \\(P_2\\) dobi kontrolni točki \\(P_1+\\tfrac13 m_1=(1{,}5;\\ 2{,}5)\\) in \\(P_2-\\tfrac13 m_2=(2{,}5;\\ 3{,}333)\\). Splošna oblika je \\(P_i+\\tfrac13 h_i m_i\\); enaka zapisu \\(P_i+\\tfrac13 m_i\\) je le pri \\(h_i=1\\). Sredina odseka je \\(\\tfrac12(P_1+P_2)+\\tfrac18(m_1-m_2)=(2;\\ 2{,}8125)\\). Napovej, kaj se zgodi z odsekom, če ročico pri \\(P_1\\) podaljšaš na dvojno dolžino, in jo povleci.',
+                'The control polygons of the Bézier segments are shown. With uniform parameters \\(h_i=1\\), so the segment from \\(P_1\\) to \\(P_2\\) has the control points \\(P_1+\\tfrac13 m_1=(1.5;\\ 2.5)\\) and \\(P_2-\\tfrac13 m_2=(2.5;\\ 3.333)\\). The general form is \\(P_i+\\tfrac13 h_i m_i\\); it equals \\(P_i+\\tfrac13 m_i\\) only when \\(h_i=1\\). The middle of the segment is \\(\\tfrac12(P_1+P_2)+\\tfrac18(m_1-m_2)=(2;\\ 2.8125)\\). Predict what happens to the segment if you stretch the handle at \\(P_1\\) to twice its length, then drag it.',
+            ),
+            formulaIds: ['hermite-bezier'], workedExampleId: 'hermite-midpoint-example',
+            frames: [frame('hermite-handle-explanation', 'explanation'), frame('hermite-handle-calculation', 'calculation'), frame('hermite-handle-observation', 'observation')],
+            observationPrompt: text('Povleci konico puščice tangente pri \\(P_1\\) in opazuj, kako se premikata kontrolni točki.', 'Drag the tip of the tangent arrow at \\(P_1\\) and watch how the control points move.'),
+            expectedObservations: [text('Kontrolna točka sledi tangenti, krivulja pa ostane skozi obe točki; spremeni se le oblika odseka ob \\(P_1\\).', 'The control point follows the tangent while the curve still passes through both points; only the segments next to \\(P_1\\) change shape.')],
+            scene: hermiteScene('hermite-handle-bezier', 'hermite', {tangents: true, bezier: true}, 0,
+                'Hermiteov način z Bézierovima kontrolnima točkama \\((1{,}5;\\ 2{,}5)\\) in \\((2{,}5;\\ 3{,}333)\\) na odseku od \\(P_1\\) do \\(P_2\\).',
+                'Hermite mode with the Bézier control points \\((1.5;\\ 2.5)\\) and \\((2.5;\\ 3.333)\\) on the segment from \\(P_1\\) to \\(P_2\\).'),
+        },
+        {
+            id: 'hermite-catmull-rom', order: 3,
+            title: text('Tangente iz sosednjih točk', 'Tangents from the neighbours'),
+            purpose: text('Pred razkritjem napovedati tangento, ki da gladko verigo, in razkriti Catmull-Romovo izbiro.', 'Predicting, before the reveal, the tangent that makes a smooth chain, and revealing the Catmull-Rom choice.'),
+            explanation: text(
+                'Zdaj tangent ne izbiraš: graf je v načinu Catmull-Rom. Napovej, kakšna je tangenta v \\(P_1=(1,2)\\), če naj bo vzporedna tetivi med sosedama \\(P_0\\) in \\(P_2\\) in imeti polovično dolžino. Preveri: \\(m_1=\\tfrac12(P_2-P_0)=(1{,}5;\\ 1{,}5)\\), v \\(P_2\\) pa \\(m_2=\\tfrac12(P_3-P_1)=(1{,}5;\\ -1)\\). Tangenti v krajiščih sta enostranski: \\(m_0=P_1-P_0=(1;\\ 2)\\) in \\(m_3=P_3-P_2=(1;\\ -3)\\), ker nimata drugega soseda. Sredina odseka je spet \\((2;\\ 2{,}8125)\\), isto kot pri Lagrangeevi krivulji, ker so uteži pri enakomernih parametrih \\(-\\tfrac1{16},\\tfrac9{16},\\tfrac9{16},-\\tfrac1{16}\\).',
+                'You no longer choose the tangents: the graph is in Catmull-Rom mode. Predict the tangent at \\(P_1=(1,2)\\) if it is to be parallel to the chord between the neighbours \\(P_0\\) and \\(P_2\\) and half as long. Check: \\(m_1=\\tfrac12(P_2-P_0)=(1.5;\\ 1.5)\\), and at \\(P_2\\) it is \\(m_2=\\tfrac12(P_3-P_1)=(1.5;\\ -1)\\). The tangents at the ends are one-sided: \\(m_0=P_1-P_0=(1;\\ 2)\\) and \\(m_3=P_3-P_2=(1;\\ -3)\\), since they have only one neighbour. The middle of the segment is again \\((2;\\ 2.8125)\\), the same as for the Lagrange curve, because with uniform parameters the weights are \\(-\\tfrac1{16},\\tfrac9{16},\\tfrac9{16},-\\tfrac1{16}\\).',
+            ),
+            formulaIds: ['catmull-rom-tangent'], workedExampleId: 'hermite-midpoint-example',
+            frames: [frame('hermite-catmull-rom-explanation', 'explanation'), frame('hermite-catmull-rom-calculation', 'calculation'), frame('hermite-catmull-rom-observation', 'observation')],
+            observationPrompt: text('Povleci \\(P_1\\) in opazuj, kako se obe sosednji tangenti prilagodita.', 'Drag \\(P_1\\) and watch how the neighbouring tangents adjust.'),
+            expectedObservations: [text('Puščica v \\(P_1\\) je vedno vzporedna tetivi \\(P_0P_2\\); krivulja ostane gladka v vsaki točki.', 'The arrow at \\(P_1\\) is always parallel to the chord \\(P_0P_2\\); the curve stays smooth at every point.')],
+            scene: hermiteScene('hermite-catmull-rom-start', 'catmull-rom', {tangents: true, bezier: false}, 0,
+                'Catmull-Romov način, napetost \\(1\\); tangenta v \\(P_1\\) je \\((1{,}5;\\ 1{,}5)\\), v \\(P_2\\) je \\((1{,}5;\\ -1)\\).',
+                'Catmull-Rom mode, tension \\(1\\); the tangent at \\(P_1\\) is \\((1.5;\\ 1.5)\\), at \\(P_2\\) it is \\((1.5;\\ -1)\\).'),
+        },
+        {
+            id: 'hermite-locality', order: 4,
+            title: text('Lokalnost', 'Locality'),
+            purpose: text('Pred razkritjem napovedati, koliko odsekov spremeni premik ene točke.', 'Predicting, before the reveal, how many segments moving one point changes.'),
+            explanation: text(
+                'Točk je šest in odsekov pet. Napovej: koliko odsekov se spremeni, če povlečeš tretjo točko \\(P_2\\)? Za razliko od Lagrangeeve krivulje ne vse. Tangenti se spremenita v \\(P_1\\) in \\(P_3\\), točka \\(P_2\\) pa se premakne, zato se spremenijo štirje odseki, od \\(P_0\\) do \\(P_4\\); zadnji odsek od \\(P_4\\) do \\(P_5\\) ostane nespremenjen. Splošno: premik ene točke spremeni največ štiri odseke, ne dveh, ker se spremenijo tudi tangente obeh sosedov. Premik prve ali zadnje točke spremeni le dva odseka.',
+                'There are six points and five segments. Predict: how many segments change if you drag the third point \\(P_2\\)? Unlike the Lagrange curve, not all of them. The tangents change at \\(P_1\\) and \\(P_3\\), and \\(P_2\\) itself moves, so four segments change, from \\(P_0\\) to \\(P_4\\); the last segment from \\(P_4\\) to \\(P_5\\) stays the same. In general moving one point changes at most four segments, not two, because the tangents of both neighbours change as well. Moving the first or the last point changes only two segments.',
+            ),
+            formulaIds: ['catmull-rom-tangent'],
+            frames: [frame('hermite-locality-explanation', 'explanation'), frame('hermite-locality-observation', 'observation')],
+            observationPrompt: text('Povleci \\(P_2\\) in preštej odseke, ki se premaknejo; nato povleci \\(P_5\\).', 'Drag \\(P_2\\) and count the segments that move; then drag \\(P_5\\).'),
+            expectedObservations: [text('Pri \\(P_2\\) se premakne štiri od petih odsekov, pri \\(P_5\\) pa dva.', 'Four of the five segments move for \\(P_2\\) and two for \\(P_5\\).')],
+            scene: hermiteScene('hermite-locality-six', 'catmull-rom', {tangents: true, bezier: false}, 2,
+                'Šest točk, \\(P_4=(5,0)\\) in \\(P_5=(6,0)\\) sta dodani; Catmull-Romov način.',
+                'Six points, \\(P_4=(5,0)\\) and \\(P_5=(6,0)\\) added; Catmull-Rom mode.'),
+        },
+        {
+            id: 'hermite-c1-only', order: 5,
+            title: text('Samo \\(C^1\\), ne \\(C^2\\)', 'Only \\(C^1\\), not \\(C^2\\)'),
+            purpose: text('Pred razkritjem napovedati, ali se drugi odvod v točki ujema, in primerjati z globalnim kubičnim zlepkom.', 'Predicting, before the reveal, whether the second derivative matches at a point, and comparing with the global cubic spline.'),
+            explanation: text(
+                'Kubični zlepek iz poglavja o zlepkih je razreda \\(C^2\\), a globalen: ena točka vpliva na vse odseke. Catmull-Romov zlepek je lokalen, a je samo razreda \\(C^1\\). Napovej: ali sta drugi odvod levo in desno od \\(P_1\\) enaka? Pri enakomernih parametrih je levo \\((2;\\ -2)\\), desno \\((3;\\ 2)\\): prvi odvod se ujema, drugi ne. Tangente so v vseh točkah enake z obeh strani, zato ni vogalov, ukrivljenost pa se v točki skokovito spremeni.',
+                'The cubic spline from the splines chapter is \\(C^2\\) but global: one point affects every segment. The Catmull-Rom spline is local but only \\(C^1\\). Predict: are the second derivatives to the left and right of \\(P_1\\) equal? With uniform parameters it is \\((2;\\ -2)\\) on the left and \\((3;\\ 2)\\) on the right: the first derivative matches, the second does not. The tangents agree from both sides at every point, so there are no corners, but the curvature jumps at a point.',
+            ),
+            formulaIds: ['catmull-rom-tangent', 'hermite-bezier'],
+            frames: [frame('hermite-c1-only-explanation', 'explanation'), frame('hermite-c1-only-observation', 'observation')],
+            observationPrompt: text('Poišči točko, v kateri se ukrivljenost krivulje najbolj skokovito spremeni.', 'Find a point where the curvature of the curve changes most abruptly.'),
+            expectedObservations: [text('Krivulja nima vogalov, drugi odvod pa se v točkah na splošno razlikuje z obeh strani.', 'The curve has no corners, but the second derivative generally differs between the two sides of a point.')],
+            scene: hermiteScene('hermite-c1-only-pieces', 'catmull-rom', {tangents: true, bezier: true}, 0,
+                'Catmull-Romov način z Bézierovimi odseki; v \\(P_1\\) je drugi odvod levo \\((2;\\ -2)\\), desno \\((3;\\ 2)\\).',
+                'Catmull-Rom mode with the Bézier pieces; at \\(P_1\\) the second derivative is \\((2;\\ -2)\\) on the left and \\((3;\\ 2)\\) on the right.'),
+        },
+        {
+            id: 'hermite-explore', order: 6,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno spreminjati napetost, pravilo parametrov in način ter primerjati krivulje.', 'Changing the tension, the parameter rule and the mode on your own and comparing the curves.'),
+            explanation: text(
+                'Štiri točke so spet na začetnem mestu. Premikaj točke, spreminjaj napetost, ki množi vse Catmull-Romove tangente (pri \\(0\\) krivulja teče po daljicah med točkami), in preklopi enakomerne parametre na parametre po dolžini tetiv. V Hermiteovem načinu preklop pravila preoblikuje lokalne tangente \\(h_i m_i\\) in zato spremeni obliko krivulje. Pri nekaterih razporeditvah točk lahko enakomerni parametri povzročijo prenihaj ali zanko; poskusi jo najti.',
+                'The four points are back at their starting place. Move the points, change the tension, which multiplies all Catmull-Rom tangents (at \\(0\\) the curve runs along the segments between the points), and switch the uniform parameters to chord-length parameters. In Hermite mode a rule switch rescales the local tangents \\(h_i m_i\\) and therefore changes the shape of the curve. For some arrangements of the points uniform parameters can cause overshoot or a loop; try to find one.',
+            ),
+            formulaIds: ['catmull-rom-tangent', 'hermite-bezier'],
+            frames: [frame('hermite-explore-explanation', 'explanation'), frame('hermite-explore-observation', 'observation')],
+            observationPrompt: text('Poišči razporeditev točk, pri kateri enakomerni parametri dajo prenihaj, in preveri, ali parametri po tetivah to omilijo.', 'Find an arrangement of the points where uniform parameters overshoot, and check whether chord-length parameters tame it.'),
+            expectedObservations: [text('Napetost spremeni dolžino tangent, pravilo parametrov pa čas, v katerem krivulja preteče odseke; oboje vpliva na obliko.', 'The tension changes the length of the tangents and the parameter rule the time the curve spends on each segment; both affect the shape.')],
+            scene: hermiteScene('hermite-explore-start', 'catmull-rom', {tangents: true, bezier: false}, 0,
+                'Štiri točke, Catmull-Romov način, napetost \\(1\\), enakomerni parametri; vse je prosto za raziskovanje.',
+                'Four points, Catmull-Rom mode, tension \\(1\\), uniform parameters; everything is free to explore.'),
+        },
+    ],
+    sources: [
+        {id: 'farin-curves-hermite', citation: 'Farin, G. Curves and Surfaces for CAGD, 5th ed., chapters on cubic Hermite and Bézier forms.'},
+        {id: 'catmull-rom-1974', citation: 'Catmull, E. and Rom, R. A class of local interpolating splines. In Computer Aided Geometric Design, Academic Press (1974).'},
+        {
+            id: 'bezeg-hermite-implementation',
+            citation: 'Bezeg source: src/analysis/hermite.ts, src/graphs/curves/hermite/hermiteModel.ts and HermiteGraph.tsx.',
+            implementationCorrespondence: 'All values come from the Hermite kernel; a lesson scene sets the mode, parameter rule, tension, overlays and extra points with the hermite action.',
+        },
+    ],
+    edgeCases: [
+        text('Dve zaporedni točki z enakim položajem (ničelna tetiva) graf zavrne in to izpiše, ker parametra po tetivah ne bi bila različna.', 'Two consecutive points at the same position (a zero chord) are refused by the graph with a message, since chord-length parameters would not be distinct.'),
+        text('Točk je lahko največ \\(12\\); dodajanje pri največjem številu ne naredi ničesar.', 'There can be at most \\(12\\) points; adding one at the maximum does nothing.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const interpolationGuidedLessons: readonly GuidedLesson[] = [lagrangeLesson, hermiteLesson];

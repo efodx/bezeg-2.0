@@ -76,6 +76,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'interval-sweep': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Interim owner until an Interpolation chapter exists: the lesson contrasts the Lagrange curve with the Bezier convex hull property.
     'interp-lagrange': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    // Interim owner until an Interpolation chapter exists: the lesson builds on the splines chapter's tangent continuity, and the Bezier form of a Hermite segment sits with the Bezier curves.
+    'interp-hermite': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},

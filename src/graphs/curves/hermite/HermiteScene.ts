@@ -116,7 +116,8 @@ export class HermiteScene {
                 {...quiet, strokeColor: GraphPalette.controlPolygon, strokeWidth: 2, dash: 2, visible: bezierVisible});
             polygon.updateDataArray = () => {
                 const chain = this.chain();
-                const control = chain ? chainBezier(chain)[i] : [];
+                // A scene built for more points is disposed after the state already has fewer (a lesson checkpoint restore): no such segment then.
+                const control = chain ? chainBezier(chain)[i] ?? [] : [];
                 polygon.dataX = control.map(c => c[0]);
                 polygon.dataY = control.map(c => c[1]);
             };
@@ -129,7 +130,7 @@ export class HermiteScene {
             for (const k of [1, 2] as const) {
                 const at = (axis: 0 | 1) => () => {
                     const chain = this.chain();
-                    return chain ? chainBezier(chain)[i][k][axis] : NaN;
+                    return chain ? chainBezier(chain)[i]?.[k][axis] ?? NaN : NaN;
                 };
                 this.create<Point>('point', [at(0), at(1)], {
                     ...quiet, name: '', size: 3, face: '[]', strokeColor: GraphPalette.comparisonCurve, fillColor: GraphPalette.comparisonCurve,

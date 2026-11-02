@@ -249,6 +249,16 @@ export type LessonAction =
     | {readonly kind: 'interpolation'; readonly operation: 'set-overlay'; readonly overlay: 'hull' | 'bezier' | 'basis'; readonly visible: boolean}
     | {readonly kind: 'interpolation'; readonly operation: 'add-point'}
     /**
+     * HermiteGraph only (Hermite and Catmull-Rom, lesson I3): `set-mode` picks the mode (switching to Hermite copies the current
+     * Catmull-Rom tangents), `set-rule` the parameter rule, `set-tension` the Catmull-Rom tension (0 to 2; ignored in Hermite mode),
+     * `set-overlay` shows or hides the tangent arrows or the Bezier control polygons, and `add-point` appends a point like the Add button.
+     */
+    | {readonly kind: 'hermite'; readonly operation: 'set-mode'; readonly mode: 'catmull-rom' | 'hermite'}
+    | {readonly kind: 'hermite'; readonly operation: 'set-rule'; readonly rule: 'uniform' | 'chord'}
+    | {readonly kind: 'hermite'; readonly operation: 'set-tension'; readonly value: number}
+    | {readonly kind: 'hermite'; readonly operation: 'set-overlay'; readonly overlay: 'tangents' | 'bezier'; readonly visible: boolean}
+    | {readonly kind: 'hermite'; readonly operation: 'add-point'}
+    /**
      * Drives a graph-owned animation. `next-step` runs one iteration transition and `reset` returns an iterative
      * playback (`bisection`, `sequence`, `fixed-point`) to its initial state; a scene repeats `next-step` once per step
      * it shows. Play and pause are not scene actions there: playback is initially stopped and under the learner's
