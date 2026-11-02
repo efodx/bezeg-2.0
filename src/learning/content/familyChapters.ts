@@ -8,6 +8,7 @@ import {triangulationChapter} from './triangulationChapter';
 import {sweepChapter} from './sweepChapter';
 import {numericalChapter} from './numericalChapter';
 import {fourierChapter} from './fourierChapter';
+import {bsplineChapter} from './bsplineChapter';
 import {schoolFunctionGraphsChapter} from './schoolFunctionGraphsChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
@@ -231,6 +232,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
             ], undefined, ['spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric'], {investigationPrompts: splinePrompts}),
         ],
     },
+    bsplineChapter, // B-splines batch A: the basis and de Boor lessons (L1, L2) of bsplineBasisGuidedLessons.ts and bsplineDeBoorGuidedLessons.ts.
     {
         id: 'ph-curves', family: '/bezeg-2.0/ph',
         title: text('PH-krivulje: polinomska dolžina loka', 'PH curves: polynomial arc length'),
