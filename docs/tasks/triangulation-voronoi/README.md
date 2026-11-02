@@ -30,7 +30,7 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 ## Later batches
 
 - **T1 (B1 ear clipping):** kernel [06 ear-clipping trace, 3-colouring and guards](06-ear-clipping-kernel.md) (F1, accepted 2026-10-31 after math review and test repairs) needs only `orient` and can run beside T0; graph F2a [07 ear-clipping graph](07-ear-clipping-graph.md) (accepted 2026-11-01); registration and lessons wait for `G-REG`.
-- **T3 (B4, B5):** graphs, registration, lessons, chapter, media and acceptance as in the spec's release batches. Task files are written when T2 is released.
+- **T3 (B4, B5):** see [Batch T3](#batch-t3--b4-and-b5-task-files-written-2026-11-02-handler-34-t2-released) below.
 
 ## Batch T2 — B2 and B3 (task files written 2026-11-02, handler 25; T0 kernels accepted)
 
@@ -44,3 +44,28 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 | 16 | [Delaunay lesson B3](16-delaunay-lesson.md) | F3 | 13, 14, 15 | 16a accepted 2026-11-02 (handler 32); 16b accepted 2026-11-02 (handler 33) |
 | 17 | [Chapter sections for B2 and B3](17-t2-chapter.md) | F4 | 15, 16 | 17a (B2 section) accepted 2026-11-02 (handler 31); 17b (`delaunay`) accepted 2026-11-02 (handler 33) |
 | F6 | T2 acceptance | F6 | 11–17 | accepted 2026-11-02 ([record](../../reviews/feature-streams/geometry/f6-t2-acceptance.md)) |
+
+## Batch T3 — B4 and B5 (task files written 2026-11-02, handler 34; T2 released)
+
+Release condition (spec): T2 released; Voronoi drawing reviewed for reuse by Fortune (task 18, item 7). The Voronoi value (05) is already accepted.
+
+### Decisions (T3, 2026-11-02, geometry handler 34)
+
+- Whether a partial diagram is a valid `VoronoiDiagram` stays an item of 18's Fortune reuse review.
+- Cell construction (B4 step 3): other sites by increasing distance from the chosen site, ties by index.
+- B5 coordinates: 20's worker derives the near-circle quadruple and the on-circle move from the spec's examples (unit square scaled to the grid, or the trapezoid) with `python -I`; the handler confirms them in 20's review before 23 quotes them. Convention: a diagonal is legal when `incircle <= 0`.
+- B5 gets its own Demonstration and route `voronoi-degenerate`, because lessons are keyed one per Demonstration (`getGuidedLesson(demonstrationId)`, `lessonCatalog.ts`). It is served by `DegenerateSitesGraph extends VoronoiGraph`, which opens in the four-point mode; the modes live in `VoronoiGraph` and its scene, and the subclass only fixes the default mode, its Presets collection `compgeo-voronoi-degenerate` and its title. Lesson B5 may switch four-point and collinear by `set-mode`. Chapter sections open their own routes.
+- `VoronoiGraph extends PointSetGraph`; the circumcircle and triangle-selection drawing of `DelaunayGraph` is extracted into a shared module first (19 item 1).
+- Routes and posters follow T2: route registered before its lesson with `lesson: false`; poster at the next joint capture.
+- 24 narrows the T2 Voronoi-free test to the B2/B3 sections, adds a B3-to-B4 forward link and may name the diagram in the chapter opening.
+
+| # | Task | Kind | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| 18 | [Voronoi drawing module and Fortune reuse review](18-voronoi-drawing.md) | F2a-support | 05 | planned |
+| 19 | [Voronoi graph with the Delaunay duality overlay](19-voronoi-graph.md) (B4) | F2a | 18, 13 | planned |
+| 20 | [Four-point and collinear modes and `DegenerateSitesGraph`](20-degenerate-sites-graph.md) (B5) | F2a | 19 | planned |
+| 21 | [Registration of `voronoi` and `voronoi-degenerate`](21-t3-registration.md) | F2b | 19, 20 | planned |
+| 22 | [Voronoi lesson actions and lesson B4](22-voronoi-lesson.md) | F3 | 19, 21 | planned |
+| 23 | [Degenerate sites lesson B5](23-degenerate-lesson.md) | F3 | 20, 21, 22 | planned |
+| 24 | [Chapter sections for B4 and B5](24-t3-chapter.md) | F4 | 22, 23 | planned |
+| F6 | T3 acceptance | F6 | 18–24 | planned |
