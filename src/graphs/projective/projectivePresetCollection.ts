@@ -5,6 +5,7 @@ import {FivePointModel, parseFivePointModel} from "./fivePointModel";
 import {parsePascalModel, PascalModel} from "./pascalModel";
 import {parsePolePolarModel, PolePolarModel} from "./polePolarModel";
 import {ProjectiveCheck} from "./projectiveValidation";
+import {parseThreeViewsModel, ThreeViewsModel} from "./threeViewsModel";
 
 /**
  * The Preset collections of the projective graph family (ADR 0016, ADR 0033 section 4). A Preset keeps only the example id
@@ -55,3 +56,9 @@ export const FIVE_POINT_PRESET_KEY = "projective-five-point";
 const FIVE_POINT_COLLECTION = projectivePresetCollection(FIVE_POINT_PRESET_KEY, parseFivePointModel);
 
 export const fivePointPresetCollection = (): PresetCollection<FivePointModel> => FIVE_POINT_COLLECTION;
+
+export const THREE_VIEWS_PRESET_KEY = "projective-three-views";
+
+const THREE_VIEWS_COLLECTION = projectivePresetCollection(THREE_VIEWS_PRESET_KEY, parseThreeViewsModel);
+
+export const threeViewsPresetCollection = (): PresetCollection<ThreeViewsModel> => THREE_VIEWS_COLLECTION;

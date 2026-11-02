@@ -18,7 +18,7 @@ import {hermitePresetCollection} from "../../curves/hermite/hermitePresetCollect
 import {subdivisionPresetCollection} from "../../curves/subdivisionCurves/subdivisionPresetCollection";
 import {bsplinePresetCollection} from "../../curves/bspline/bsplinePresetCollection";
 import {coonsPresetCollection} from "../../patches/coonsPresetCollection";
-import {crossRatioPresetCollection, fivePointPresetCollection, pascalPresetCollection, polePolarPresetCollection} from "../../projective/projectivePresetCollection";
+import {crossRatioPresetCollection, fivePointPresetCollection, pascalPresetCollection, polePolarPresetCollection, threeViewsPresetCollection} from "../../projective/projectivePresetCollection";
 
 /**
  * Every collection a file may hold: each Demonstration's definition, from the family module that owns it, and the
@@ -29,7 +29,7 @@ export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
     ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection, simsonLineCollection, inversionCollection,
     parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
-    coonsPresetCollection, bsplinePresetCollection, crossRatioPresetCollection(), pascalPresetCollection(), polePolarPresetCollection(), fivePointPresetCollection(),
+    coonsPresetCollection, bsplinePresetCollection, crossRatioPresetCollection(), pascalPresetCollection(), polePolarPresetCollection(), fivePointPresetCollection(), threeViewsPresetCollection(),
 ];
 const collectionsByStorageKey = new Map(presetCollections.map(collection => [`preset-${collection.key}`, collection]));
 
