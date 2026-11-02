@@ -502,6 +502,19 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         }
     };
 
+    /**
+     * Runs a board object's press handler after JSXGraph has finished dispatching the pointer event. A press that rebuilds the
+     * overlays synchronously removes objects the board is still hit-testing (a browser `reading 'hasPoint'` error on the next
+     * press). The action is dropped when the board was torn down or the graph is locked by then.
+     */
+    protected afterBoardPress(action: () => void): void {
+        if (this.graphInteractionLocked) return;
+        const session = this.graphSession;
+        queueMicrotask(() => {
+            if (session?.isAlive && this.graphSession === session && !this.graphInteractionLocked) action();
+        });
+    }
+
     private onBoardDown(event: unknown): void {
         if (!this.addModeOn || this.graphInteractionLocked || !this.hasBoard) return;
         if (this.board.getAllObjectsUnderMouse(event).some(object => (object as {elType?: string}).elType === "point")) return;

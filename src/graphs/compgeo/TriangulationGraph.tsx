@@ -419,7 +419,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
                 strokeColor: isSelected ? GraphPalette.constructionAccent : GraphPalette.referenceCurve,
                 strokeWidth: isSelected ? 8 : edge.interior ? 1.5 : 3.5, dash: isSelected ? 2 : 0,
             }) as JXG.GeometryElement;
-            curve.on("down", () => { if (!this.graphInteractionLocked) this.selectEdge(edge.a, edge.b); });
+            curve.on("down", () => this.afterBoardPress(() => this.selectEdge(edge.a, edge.b)));
             return curve;
         });
     }

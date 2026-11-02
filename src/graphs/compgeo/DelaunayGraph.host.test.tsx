@@ -442,27 +442,47 @@ test('the selected triangle draws its exact circumcircle (centre (2, 7/3), radiu
 
 type Clickable = Shown & {triggerEventHandlers(names: string[], args: unknown[]): void};
 const triangleShapes = (graph: Observed) => objects(graph).filter(o => o.name === 'delaunay-triangle' || o.name === 'delaunay-selected-triangle') as Clickable[];
-const clickShape = (graph: Observed, index: number) => act(() => { triangleShapes(graph)[index].triggerEventHandlers(['down'], []); });
+// The press runs after the board's pointer dispatch (a microtask); the async act flushes it.
+const clickShape = (graph: Observed, index: number) => act(async () => { triangleShapes(graph)[index].triggerEventHandlers(['down'], []); });
 
-test('pressing a board triangle selects it, pressing the selected one deselects, and a locked board ignores the press', () => {
+test('pressing a board triangle selects it, pressing the selected one deselects, and a locked board ignores the press', async () => {
     const graph = new Observed();
     mount(graph);
     click('example-square');
     expect(triangleShapes(graph).length).toBeGreaterThan(1);
-    clickShape(graph, 1);
+    await clickShape(graph, 1);
     expect(graph.selectedTriangle()).toBe(1);
     expect(triangleShapes(graph)[1].name).toBe('delaunay-selected-triangle');
     expect(document.querySelector('button[data-triangle="1"]')?.getAttribute('aria-pressed')).toBe('true');
     expect(neighbourTexts().length).toBeGreaterThan(0);
-    clickShape(graph, 1);
+    await clickShape(graph, 1);
     expect(graph.selectedTriangle()).toBeUndefined();
     expect(document.querySelector('button[data-triangle="1"]')?.getAttribute('aria-pressed')).toBe('false');
     graph.lock(true);
-    clickShape(graph, 0);
+    await clickShape(graph, 0);
     expect(graph.selectedTriangle()).toBeUndefined();
     graph.lock(false);
-    clickShape(graph, 0);
+    await clickShape(graph, 0);
     expect(graph.selectedTriangle()).toBe(0);
+});
+
+test('a board press leaves the board objects in place until the pointer dispatch has returned', async () => {
+    const graph = new Observed();
+    mount(graph);
+    const before = [...objects(graph)];
+    const same = () => objects(graph).length === before.length && objects(graph).every((o, i) => o === before[i]);
+    // JSXGraph keeps hit-testing its object list after a down handler; removing objects there threw `reading 'hasPoint'`.
+    triangleShapes(graph)[0].triggerEventHandlers(['down'], []);
+    expect(same()).toBe(true);
+    expect(graph.selectedTriangle()).toBeUndefined();
+    await act(async () => {});
+    expect(graph.selectedTriangle()).toBe(0);
+    expect(same()).toBe(false);
+});
+
+test('the default view frames the default quad and its circumcircles for projection', () => {
+    const graph = new Observed();
+    expect(graph['initialView']()).toEqual([-2, 6, 7, -1.5]);
 });
 
 test('loading another scene clears a selected triangle', () => {

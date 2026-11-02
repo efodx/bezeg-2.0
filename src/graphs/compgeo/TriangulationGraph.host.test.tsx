@@ -121,12 +121,15 @@ test('the board draws 13 edge curves, 5 of them heavier hull edges, and shades a
     expect(edgeCurves(graph)).toHaveLength(13);
 });
 
-test('clicking an edge on the board selects it and shades its quadrilateral', () => {
+test('clicking an edge on the board selects it, after the pointer dispatch, and shades its quadrilateral', async () => {
     const graph = new Observed();
     mount(graph);
     const curves = edgeCurves(graph).filter(o => o.name === 'triangulation-edge');
     expect(curves).toHaveLength(8);
-    act(() => { curves[0].triggerEventHandlers(['down'], []); });
+    curves[0].triggerEventHandlers(['down'], []);
+    // Still drawn: the board may still be hit-testing these curves (the overlay redraw would remove them).
+    expect(graph.selectedEdge()).toBeUndefined();
+    await act(async () => {});
     expect(graph.selectedEdge()?.interior).toBe(true);
     expect(quads(graph)).toHaveLength(1);
     expect(list().value).toMatch(/^\d+-\d+$/);

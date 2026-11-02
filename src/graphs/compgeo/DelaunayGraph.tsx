@@ -111,6 +111,11 @@ export class DelaunayGraph extends TriangulationGraph {
         return {...super.getInitialState(), step: 0};
     }
 
+    /** The default quad (x 0 to 5, y 0 to 3) and the circumcircle of abc (y up to about 5.4) with a margin, for projection. */
+    protected override initialView(): [number, number, number, number] {
+        return [-2, 6, 7, -1.5];
+    }
+
     /** The index in the shown triangulation of the selected triangle, while it still exists. */
     selectedTriangle(): number | undefined {
         const tri = this.triangulation();
@@ -359,7 +364,7 @@ export class DelaunayGraph extends TriangulationGraph {
                 hasInnerPoints: true, layer: isSelected ? 2 : 0, fillColor: GraphPalette.constructionAccent, fillOpacity: isSelected ? 0.2 : 0,
                 borders: {visible: false, highlight: false, fixed: true},
             }) as JXG.GeometryElement;
-            polygon.on("down", () => { if (!this.graphInteractionLocked) this.selectTriangle(this.selectedTriangle() === index ? undefined : index); });
+            polygon.on("down", () => this.afterBoardPress(() => this.selectTriangle(this.selectedTriangle() === index ? undefined : index)));
             objects.push(polygon);
         });
         const chosen = selected === undefined ? undefined : tri.triangles[selected];
