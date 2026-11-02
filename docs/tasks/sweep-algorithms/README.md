@@ -33,7 +33,7 @@ Source: [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md). 
 | 10 | [Sweep registration](10-sweep-registration.md) | F2b | 08, 09, `G-REG` | accepted 2026-11-01 (handler 15); default-view follow-up |
 | 11 | [Interval-sweep lesson C1](11-interval-sweep-lesson.md): `set-points` modes, `set-trace-step` | F3 | 08, 10 | accepted 2026-11-01 (handler 20) |
 | 12 | [Bentley–Ottmann lesson C2](12-segment-intersections-lesson.md) | F3 | 09, 10, 11 | accepted 2026-11-02 (handler 21) |
-| 13 | [Sweep-line algorithms chapter](13-sweep-chapter.md) | F4 | 11, 12 | in progress (handler 22) |
+| 13 | [Sweep-line algorithms chapter](13-sweep-chapter.md) | F4 | 11, 12 | implemented 2026-11-02 (handler 22), awaiting smoke |
 
 ## Later batches
 
