@@ -1,0 +1,25 @@
+Visual check of the 24 new posters (src/images/demonstrations/catalog/<id>.png), each opened with Read; all show a graph, none blank/error/loading.
+- linear-map: skewed image grid over the unit grid, unit-square parallelogram, handles, label a1=(2,1), a2=(-1,1)
+- complex-reciprocal: unit circle, z arrow and point inside, 1/z square outside, conjugate marker, Im/Re labels
+- complex-roots: three cube roots on a dashed circle with triangle, dashed arrow to w=2i
+- triangle-centres: acute triangle, circumcircle, incircle, medians/bisectors/altitudes, centre markers
+- inscribed-angle: chord AB, circle, inscribed angles at C and P, central angle arc, label 66,8 / 133,6
+- orientation: triangle with dashed base line, label "+8: levi zavoj"
+- polygon-area: hull pentagon, lattice crosses, boundary squares, fan labels +12/+18/+12
+- convex-hull: nine points, partial hull chain of two segments (early Next step)
+- ear-clipping: bow-tie-like pentagon with reflex vertex, triangulated fill
+- interval-sweep: five labelled intervals, vertical sweep line, overlap bars
+- segment-intersections: four crossing segments, horizontal sweep line, intersection markers
+- curve-parametric: cycloid arc with generating circle, velocity arrow, readout text
+- curve-curvature: parabola with osculating circle, T/N vectors, kappa/R/phi readout
+- interp-lagrange: Lagrange curve with points and dashed Bezier comparison; readout text overlaps curve slightly
+- interp-hermite: Catmull-Rom curve with tangent arrows, caption
+- interp-subdivision: Chaikin step 0 of 6, only the 4-vertex control polygon (no refined curve visible; recipe text says first refinement)
+- patch-coons: shaded Coons surface patch with control net
+- projective-cross-ratio: two lines, central projection from a point with dashed rays, four points (small, clustered near the middle)
+- projective-pascal: ellipse with six points, hexagon sides s1..s6, Pascal line p
+- projective-pole-polar: ellipse, external pole P, tangents t1/t2, polar line
+- root-finding: f(x)=x^2-2 with axes, Newton tangent step, "korak 1" readout
+- function-transformation: faint dashed base parabola, transformed parabola, formula
+- function-inverse: y=x^2 branch, inverse sqrt branch, y=x mirror line, linked points
+- fourier-series: square wave target with partial sum, jump markers, zoom box
