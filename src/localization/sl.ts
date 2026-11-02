@@ -2976,5 +2976,8 @@ export const sl = {
     "prob_density_legend_area": "Ploščina med a in b",
     "prob_density_invalid_mu": "polje mu mora biti število med −{value0} in {value0}; popravi vrednost v datoteki",
     "prob_density_invalid_sigma": "polje sigma mora biti število med 0,1 in 20; popravi vrednost v datoteki",
-    "prob_density_invalid_bound": "polje {value0} mora biti število med −{value1} in {value1}; popravi vrednost v datoteki"
+    "prob_density_invalid_bound": "polje {value0} mora biti število med −{value1} in {value1}; popravi vrednost v datoteki",
+    "probability_and_statistics": "Verjetnost in statistika",
+    "prob_density_title": "Gostota in verjetnost kot ploščina",
+    "prompt_prob_density": "Premikaj krajišči a in b ter spreminjaj μ in σ. Kolikšen delež ploščine pod krivuljo leži med μ − σ in μ + σ in zakaj se ta delež ne spremeni, ko krivulja zdrsne ali se splošči?"
 } as const;

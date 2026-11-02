@@ -68,6 +68,7 @@ import { SimsonLineGraph } from './compgeo/SimsonLineGraph';
 import { InversionGraph } from './compgeo/InversionGraph';
 import { LinearMapGraph } from './linear/LinearMapGraph';
 import { FixedPointGraph } from './functions/FixedPointGraph';
+import DensityAreaGraph from './functions/DensityAreaGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
 import RationalSubdivisionGraph2 from './curves/rational/RationalSubdivisionGraph2';
@@ -157,6 +158,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'uniform-convergence': () => new UniformConvergenceGraph(),
     'fourier-series': () => new FourierSeriesGraph(),
     'fixed-point': () => new FixedPointGraph(),
+    'prob-density': () => new DensityAreaGraph(),
     'linear-map': () => new LinearMapGraph(),
     'complex-reciprocal': () => new ComplexReciprocalGraph(),
     'complex-roots': () => new ComplexRootsGraph(),

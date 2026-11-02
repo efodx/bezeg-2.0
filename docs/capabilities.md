@@ -68,6 +68,7 @@ The catalog publishes its reviewed poster set and 51 silent four-second WebM cli
 | Analysis | `/analysis/sequence` | Sequence convergence with an ε-band and a threshold certificate (`SequenceGraph`) |
 | Analysis | `/analysis/uniform-convergence` | Pointwise versus uniform convergence of function sequences (`UniformConvergenceGraph`) |
 | Analysis | `/analysis/fixed-point` | Fixed-point iteration, cobweb and contraction bounds (`FixedPointGraph`) |
+| Probability and statistics | `/probability/density` | Density and probability as area: normal density with draggable interval ends, area and z readouts (`DensityAreaGraph`); no lesson yet |
 | Computational geometry | `/compgeo/orientation` | Orientation of three grid points: exact value, turn word and collinear case (`OrientationGraph`, a `PointSetGraph` subclass) |
 | Computational geometry | `/compgeo/polygon-area` | Signed polygon area by the shoelace formula, lattice counts and Pick's theorem; a self-intersecting polygon shows the signed sum without Pick (`PolygonAreaGraph`) |
 | Computational geometry | `/compgeo/convex-hull` | Convex hull by the slow edge test, monotone chain and gift wrapping, stepped trace with orientation-test counts (`HullTraceGraph`) |

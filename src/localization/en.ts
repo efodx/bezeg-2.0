@@ -2977,5 +2977,8 @@ export const en: Record<keyof typeof sl, string> = {
     "prob_density_legend_area": "Area between a and b",
     "prob_density_invalid_mu": "the mu field must be a number between −{value0} and {value0}; correct the value in the file",
     "prob_density_invalid_sigma": "the sigma field must be a number between 0.1 and 20; correct the value in the file",
-    "prob_density_invalid_bound": "the {value0} field must be a number between −{value1} and {value1}; correct the value in the file"
+    "prob_density_invalid_bound": "the {value0} field must be a number between −{value1} and {value1}; correct the value in the file",
+    "probability_and_statistics": "Probability and statistics",
+    "prob_density_title": "Density and probability as area",
+    "prompt_prob_density": "Drag the ends a and b and change μ and σ. What share of the area under the curve lies between μ − σ and μ + σ, and why does it not change when the curve slides or flattens?"
 };
