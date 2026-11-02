@@ -7,6 +7,7 @@ import {convexityChapter} from './convexityChapter';
 import {triangulationChapter} from './triangulationChapter';
 import {sweepChapter} from './sweepChapter';
 import {numericalChapter} from './numericalChapter';
+import {schoolFunctionGraphsChapter} from './schoolFunctionGraphsChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
@@ -333,6 +334,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
             ], undefined, ['area-between-curves', 'arc-length', 'definite-integral', 'derivative'], {investigationPrompts: calculusPrompts}),
         ],
     },
+    schoolFunctionGraphsChapter, // School function graphs batch A: the graph transformation and inverse function lessons (S1, S2) of schoolFunctionGraphsGuidedLessons.ts.
     {
         id: 'analysis', family: 'analysis',
         title: text('Analiza: od lokalnih korakov do sklepov', 'Analysis: from local steps to conclusions'),

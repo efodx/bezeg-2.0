@@ -40,9 +40,9 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'linear-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'exponential-function': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'trigonometric-functions': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
-    // School function graphs batch A (S1, S2): the function-rules section holds the other function-family lessons; no chapter text yet (F4).
-    'function-transformation': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
-    'function-inverse': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
+    // School function graphs batch A: the Function graphs for the matura chapter owns S1 (graph transformations) and S2 (inverse functions), one section each.
+    'function-transformation': {chapterId: 'school-function-graphs', sectionId: 'function-transformation'},
+    'function-inverse': {chapterId: 'school-function-graphs', sectionId: 'function-inverse'},
     // Fourier series F1 and F3: pointwise versus uniform convergence belongs with the analysis convergence section; no chapter text yet (F4).
     'fourier-series': {chapterId: 'analysis', sectionId: 'convergence'},
     continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},
