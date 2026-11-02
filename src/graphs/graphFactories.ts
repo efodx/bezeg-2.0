@@ -85,6 +85,8 @@ import DeBoorGraph from './curves/bspline/DeBoorGraph';
 import {CrossRatioGraph} from './projective/CrossRatioGraph';
 import {PascalGraph} from './projective/PascalGraph';
 import {PolePolarGraph} from './projective/PolePolarGraph';
+import {FivePointGraph} from './projective/FivePointGraph';
+import {ThreeViewsGraph} from './projective/ThreeViewsGraph';
 import type {DemonstrationId} from '../demonstrations';
 
 /** Executable graph constructors live behind graph-route lazy imports. */
@@ -174,4 +176,6 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'projective-cross-ratio': () => new CrossRatioGraph(),
     'projective-pascal': () => new PascalGraph(),
     'projective-pole-polar': () => new PolePolarGraph(),
+    'projective-five-point': () => new FivePointGraph(),
+    'projective-three-views': () => new ThreeViewsGraph(),
 };

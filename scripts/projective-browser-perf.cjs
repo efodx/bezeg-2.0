@@ -1,5 +1,6 @@
 // Frame-interval measurement for the projective routes on the production preview (ADR 0033, slice 06):
 //   node scripts/projective-browser-perf.cjs     // PREVIEW_BASE_URL defaults to http://127.0.0.1:4315/bezeg-2.0
+// Slice 07d adds K4 five-point drags (ellipse, hyperbola, parabola; extrapolation on), K4 arc-end/third-point changes and a K5 c-slider keyboard sweep.
 // Cases: K2 Pascal handle drag on the ellipse, parabola and hyperbola; K3 P drag; K2 and K3 conic switch (clicks every 150 ms).
 // Env: PERF_RUNS (default 3), PERF_STEPS (default 150), PERF_DRAG_MS (default 2000). Frames are sampled by rAF only inside the
 // interaction. Fails if a drag moved nothing, too few frames were sampled, or the page raised errors. Gap: mouse input only.
@@ -11,11 +12,17 @@ const MIN_SAMPLES = 60, WARMUP = 15;
 const viewport = {width: 1440, height: 900};
 const CONIC = {ellipse: /^(Ellipse|Elipsa)$/, parabola: /^Parabola$/, hyperbola: /^(Hyperbola|Hiperbola)$/};
 const GROUP = /^(Conic|Stožnica)$/;
+const EXAMPLE_GROUP = /^(Example|Primer)$/;
+const EXTRAPOLATION = /Continue the arc|Nadaljuj lok/;
 const cases = [
     ...['ellipse', 'parabola', 'hyperbola'].map(c => ({name: `K2 Pascal handle drag (${c})`, route: 'projective/pascal', kind: 'drag', conic: c})),
     {name: 'K3 P drag (ellipse)', route: 'projective/pole-polar', kind: 'drag', conic: 'ellipse'},
     {name: 'K2 conic switch (ellipse/parabola/hyperbola)', route: 'projective/pascal', kind: 'switch'},
     {name: 'K3 conic switch (ellipse/parabola/hyperbola)', route: 'projective/pole-polar', kind: 'switch'},
+    ...['ellipse', 'hyperbola', 'parabola'].map(c => ({name: `K4 point drag (${c})`, route: 'projective/five-point', kind: 'drag', example: c})),
+    {name: 'K4 point drag (hyperbola, extrapolation on)', route: 'projective/five-point', kind: 'drag', example: 'hyperbola', extrapolation: true},
+    {name: 'K4 arc-end and third-point changes (ellipse)', route: 'projective/five-point', kind: 'selects'},
+    {name: 'K5 c slider sweep by keyboard (-3..3)', route: 'projective/three-views', kind: 'slider'},
 ];
 const pct = (sorted, q) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))];
 const median = xs => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
@@ -45,8 +52,11 @@ async function runOnce(browser, c) {
         await page.waitForTimeout(2000);
         const group = page.getByRole('group', {name: GROUP});
         let iv;
+        const exampleGroup = page.getByRole('group', {name: EXAMPLE_GROUP});
+        if (c.route.endsWith('five-point') && c.example && c.example !== 'ellipse') { await exampleGroup.getByRole('button', {name: CONIC[c.example]}).click(); await page.waitForTimeout(500); }
+        if (c.extrapolation) { await page.getByLabel(EXTRAPOLATION).check(); await page.waitForTimeout(500); }
         if (c.kind === 'drag') {
-            if (c.conic !== 'ellipse') { await group.getByRole('button', {name: CONIC[c.conic]}).click(); await page.waitForTimeout(500); }
+            if (c.conic && c.conic !== 'ellipse') { await group.getByRole('button', {name: CONIC[c.conic]}).click(); await page.waitForTimeout(500); }
             await page.evaluate(readBoard); await page.waitForTimeout(600); // the first scrollIntoView settles before positions are read
             const s = await page.evaluate(readBoard);
             if (!s.pts.length) throw new Error('no draggable point found');
@@ -64,6 +74,25 @@ async function runOnce(browser, c) {
             const e = await page.evaluate(readBoard);
             const moved = Math.max(...e.pts.map((q, i) => Math.hypot(q[0] - s.pts[i][0], q[1] - s.pts[i][1])));
             if (!(moved > 10)) throw new Error(`drag moved nothing (${moved} px) ${JSON.stringify([s, e])}`);
+            iv = intervals(stamps, t0, t1);
+        } else if (c.kind === 'selects') {
+            const selects = page.locator('select');
+            await startSampling(page);
+            const t0 = await page.evaluate(() => performance.now());
+            for (let k = 0; k < 12; k++) { const sel = selects.nth(k % 2 ? 2 : 0), n = await sel.locator('option').count(); await sel.selectOption({index: (k >> 1) % n}); await page.waitForTimeout(120); }
+            const t1 = await page.evaluate(() => performance.now());
+            const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
+            iv = intervals(stamps, t0, t1);
+        } else if (c.kind === 'slider') {
+            const slider = page.locator('input[type=range]').first();
+            await slider.focus();
+            for (let k = 0; k < 30; k++) await slider.press('ArrowLeft');
+            await startSampling(page);
+            const t0 = await page.evaluate(() => performance.now());
+            for (let k = 0; k < 60; k++) { await slider.press('ArrowRight'); await page.waitForTimeout(30); }
+            for (let k = 0; k < 60; k++) { await slider.press('ArrowLeft'); await page.waitForTimeout(30); }
+            const t1 = await page.evaluate(() => performance.now());
+            const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
             iv = intervals(stamps, t0, t1);
         } else {
             await startSampling(page);

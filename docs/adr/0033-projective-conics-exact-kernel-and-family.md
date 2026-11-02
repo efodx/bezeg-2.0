@@ -133,3 +133,19 @@ Rows with a bare range are the single-point cases where the arc was `ok` for mos
 **Vertices redrawn per move** (JSXGraph repaints these on every board update): the conic polyline 348 to 427 vertices (median; 361 for most ellipses, 380 to 430 for hyperbolas and parabolas, which add NaN-broken branches), the arc curve 81, the extrapolated pieces 0 (toggle off) or about 120 to 200 when on and the arc has a zero of its denominator. About 440 to 630 vertices in total, against 354 to 439 for the K2 and K3 drags measured in 05d (conic polyline only), which held 60 Hz in the browser (slice 06); the browser cost of the extra arc curves is for F2b.
 
 **Decision.** The per-move median (0.2 to 0.35 ms) and p95 (0.3 to 0.47 ms) are far below the thresholds that would justify a change (about 2 ms and 4 ms), so density 360 and `DEVIATION_SAMPLES` = 200 stand and nothing under `src/` changes. For the record, the variant sweep (evaluation with its own deviation swapped, same moves) gives median / p95 ms: deviation 100, 200, 400 samples at density 360: 0.234 / 0.338, 0.238 / 0.353, 0.244 / 0.417; at density 180: 0.205 / 0.307, 0.209 / 0.323, 0.218 / 0.388. Halving the density saves about 0.03 ms per move and halving the deviation samples under 0.005 ms; neither is worth the larger worst-case gap. F2b confirms or reverses this with the browser frame numbers.
+
+## Browser measurement (slice 07d)
+
+The K4 and K5 routes (`/bezeg-2.0/projective/five-point`, `three-views`) are registered, so the browser cost left open in the slice 07c addendum is measured. Method: `node scripts/projective-browser-perf.cjs` (extended with the K4 and K5 cases below; existing cases kept) against a fresh `just build` served by `just preview 4315`; Chromium via Playwright, 1440 x 900 viewport, mouse drags of 150 steps over 2 s, rAF frame intervals sampled only inside the interaction (first 15 drag frames dropped), 3 runs per case. Machine: DESKTOP-A0J72SV (Windows 11), 60 Hz display, other sessions possibly active. Commit: 0965368e plus the uncommitted 07d registration. Each route was also loaded directly (page errors fail the script; none occurred).
+
+| Interaction | Frame p50 / p95 / max (ms) | Frames per run |
+| --- | --- | --- |
+| K4 point drag, ellipse | 16.7 / 16.8 / 16.8 | 286, 293, 295 |
+| K4 point drag, hyperbola | 16.7 / 16.7 / 16.8 | 289, 289, 291 |
+| K4 point drag, parabola | 16.7 / 16.8 / 16.8 | 292, 282, 291 |
+| K4 point drag, hyperbola, extrapolation on | 16.7 / 16.8 / 16.8 | 293, 281, 276 |
+| K4 arc-end and third-point changes (12 select changes, 120 ms apart, ellipse) | 16.7 / 16.7 / 16.8 | 99, 100, 99 |
+| K5 c slider sweep by keyboard (60 ArrowRight then 60 ArrowLeft, 30 ms apart) | 16.7 / 16.7 / 16.8 | 333, 333, 333 |
+| Same run, existing K2 and K3 cases (drag and conic switch) | 16.7 / 16.7 to 16.8 / 16.8 | 104 to 313 |
+
+p50 and p95 are medians over the three runs; max is the largest of any run. No frame in any case exceeded 16.8 ms, so every K4 and K5 interaction held the display's 60 Hz frame. Conclusion: density 360 and `DEVIATION_SAMPLES` = 200 stand; nothing under `src/` changes. Gaps: mouse and keyboard input only, no touch; frames per run are lower than in slice 06 because this run's pointer steps took longer on a loaded machine, and the drag path of K4 is a straight 150 by 40 px move that may cross degenerate positions (the stale-conic state is exercised, not isolated).

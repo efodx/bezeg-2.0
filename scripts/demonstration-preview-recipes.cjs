@@ -97,6 +97,8 @@ const targets = {
     'projective-cross-ratio': ['Default central projection of four points A, B, C, D from the centre O onto the second line, with both cross-ratios 9/8', [], [-14, 9, 14, -7]],
     'projective-pascal': ['Default Pascal hexagon inscribed in the ellipse with the three intersections of opposite sides on one line', [], [-12, 10.5, 12, -10.5]],
     'projective-pole-polar': ['Default point P outside the ellipse with its polar and the two tangents from P', [], [-12, 10.5, 12, -10.5]],
+    'projective-five-point': ['Default five points on an ellipse with the unique conic through them and the highlighted arc', [], [-12, 10.5, 12, -10.5]],
+    'projective-three-views': ['Default circle, line L and the two image views of the circle under the projective map', [], [-12, 10.5, 12, -10.5]],
     'patch-tensor': ['Default bicubic dome, fitted to the preview frame, with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-decasteljau': ['Default bicubic dome, fitted to the preview frame, in the de Casteljau workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
     'patch-derivatives': ['Default bicubic dome, fitted to the preview frame, in the derivatives workspace with control net, boundary curves and iso-curves', [button('Ponastavi pogled')]],
