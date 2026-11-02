@@ -11,6 +11,10 @@ import {HULL_TRACE_SAMPLE_1, HullTraceGraph} from './HullTraceGraph';
 import {HULL_PENTAGON_MODEL, PolygonAreaGraph} from './PolygonAreaGraph';
 import {IntervalSweepGraph} from './IntervalSweepGraph';
 import {BentleyOttmannGraph} from './BentleyOttmannGraph';
+import {MonotonePartitionGraph} from './MonotonePartitionGraph';
+import {MonotoneTriangulationGraph} from './MonotoneTriangulationGraph';
+import {MONOTONE_PARTITION_EXAMPLE_1} from './monotonePartitionPresetCollection';
+import {MONOTONE_TRIANGULATION_EXAMPLE_1} from './monotoneTriangulationPresetCollection';
 import {NotablePointsGraph} from './NotablePointsGraph';
 import {InscribedAngleGraph} from './InscribedAngleGraph';
 import {EAR_CLIPPING_EXAMPLE_1} from './earClippingPresetCollection';
@@ -24,14 +28,18 @@ beforeEach(() => window.localStorage.clear());
 class ObservedEar extends EarClippingGraph { liveBoard(): Board { return this.board; } }
 class ObservedInterval extends IntervalSweepGraph { liveBoard(): Board { return this.board; } }
 class ObservedSweep extends BentleyOttmannGraph { liveBoard(): Board { return this.board; } }
+class ObservedPartition extends MonotonePartitionGraph { liveBoard(): Board { return this.board; } }
+class ObservedMonotoneTriangulation extends MonotoneTriangulationGraph { liveBoard(): Board { return this.board; } }
 class ObservedHull extends HullTraceGraph { liveBoard(): Board { return this.board; } }
 class ObservedArea extends PolygonAreaGraph { liveBoard(): Board { return this.board; } }
 
-type Observed = (ObservedEar | ObservedInterval | ObservedSweep | ObservedHull | ObservedArea);
+type Observed = (ObservedPartition | ObservedMonotoneTriangulation | ObservedEar | ObservedInterval | ObservedSweep | ObservedHull | ObservedArea);
 const cases: [string, () => Observed, PointSetModel][] = [
     ['ear clipping', () => new ObservedEar(), EAR_CLIPPING_EXAMPLE_1],
     ['interval sweep', () => new ObservedInterval(), INTERVAL_SWEEP_EXAMPLE_1],
     ['segment intersections', () => new ObservedSweep(), BENTLEY_OTTMANN_EXAMPLE_1],
+    ['monotone partition', () => new ObservedPartition(), MONOTONE_PARTITION_EXAMPLE_1],
+    ['monotone triangulation', () => new ObservedMonotoneTriangulation(), MONOTONE_TRIANGULATION_EXAMPLE_1],
     ['convex hull', () => new ObservedHull(), HULL_TRACE_SAMPLE_1],
     ['polygon area', () => new ObservedArea(), HULL_PENTAGON_MODEL],
 ];

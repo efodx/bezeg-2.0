@@ -1,0 +1,24 @@
+# Brief (handoff-v12): sweep task 18, S2 registration of the monotone graphs
+
+- **Role:** implementation, edit permission in the stream worktree `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry` (branch `stream-geometry` at `origin/master` `88a4f305`). Do not commit, push or delegate. Preserve the many untracked files under `docs/reviews/`. Another worker builds `VoronoiGraph` in a separate worktree. It adds a localization block after the Delaunay keys; keep your keys at your own position. Your files are those task 18 names: `src/demonstrations.ts`, `src/graphs/graphFactories.ts`, the Preset catalog lists and tests, `graphTransientStateContract.tsx`, `familyChapters.test.ts`, the poster pending list, `compgeoDefaultView.host.test.tsx`, `initialView()` in `MonotonePartitionGraph.tsx`/`MonotoneTriangulationGraph.tsx`, the enumerating tests, `src/localization/{sl,en}.ts`, `docs/current-architecture.md`. Logs go under `docs/reviews/sweep-algorithms/18-*.log`.
+- **Goal:** all of [task 18](../../tasks/sweep-algorithms/18-s2-registration.md) (read it whole). Template: [task 10](../../tasks/sweep-algorithms/10-sweep-registration.md). Find its commits with `git log --oneline --grep="sweep task 10\|sweep registration"` and follow the same file list; the default-view follow-up is part of it.
+- **Context:** the graphs were accepted in tasks 16 and 17 (`src/graphs/compgeo/MonotonePartition*`, `MonotoneTriangulation*`). Their Preset collections already carry the keys `compgeo-monotone-partition` and `compgeo-monotone-triangulation`. Routes are new only: existing routes and stored Presets must keep working.
+  - Titles: *Razdelitev na monotone večkotnike* / *Monotone partition*; *Triangulacija monotonega večkotnika* / *Monotone triangulation*.
+  - Write two prompts per route in natural Slovenian, consistent with the neighbouring `segment-intersections` prompts.
+- **Localization:** typed per key, `sl.ts`/`en.ts` in lockstep, no `any` or casts.
+- **Checks:**
+  - `npx tsc --noEmit --pretty false`.
+  - `just lint` on touched paths.
+  - `just unit src/graphs/compgeo src/graphs/base src/demonstrations.test.ts src/demonstrationPreviewAssets.test.ts src/Routes.test.tsx src/learning/runtime`.
+  - The full `just unit` once, then `just build`.
+  - For the default-view test, observe it fail against a deliberate mutation (for example the default `initialView`), then revert and confirm with `cmp`.
+  - No browser: the handler runs the smoke.
+  - Logs go to `docs/reviews/sweep-algorithms/18-*.log`; read only failures.
+- **Return (≤250 words):**
+  - files changed;
+  - how each of items 1–7 is met;
+  - the prompts in both languages;
+  - check results with counts;
+  - the mutation evidence;
+  - anything not run.
+- **Budget:** locate with `grep -n` first; read at most 150 lines per call. On `HANDOFF`, or past about 30 turns, stop at a consistent point and write `docs/reviews/sweep-algorithms/18-handoff.md` (state, remaining steps, files touched, checks run), then return partial.

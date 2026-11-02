@@ -6,6 +6,8 @@ import {TriangulationGraph} from './compgeo/TriangulationGraph';
 import {DelaunayGraph} from './compgeo/DelaunayGraph';
 import {IntervalSweepGraph} from './compgeo/IntervalSweepGraph';
 import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
+import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
+import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
 import { BernsteinGraph } from './bernstein/BernsteinGraph';
 import { ComplexMultiplicationGraph } from './complex/ComplexMultiplicationGraph';
 import BezierCurveGraph from './curves/bezier/BezierCurveGraph';
@@ -175,6 +177,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'delaunay': () => new DelaunayGraph(),
     'interval-sweep': () => new IntervalSweepGraph(),
     'segment-intersections': () => new BentleyOttmannGraph(),
+    'monotone-partition': () => new MonotonePartitionGraph(),
+    'monotone-triangulation': () => new MonotoneTriangulationGraph(),
     'projective-cross-ratio': () => new CrossRatioGraph(),
     'projective-pascal': () => new PascalGraph(),
     'projective-pole-polar': () => new PolePolarGraph(),

@@ -73,6 +73,8 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'delaunay': ['model', 'triangles', 'previous'],
     'interval-sweep': ['model'],
     'segment-intersections': ['model'],
+    'monotone-partition': ['model'],
+    'monotone-triangulation': ['model'],
     'triangle-centres': ['model'],
     'inscribed-angle': ['model'],
     'euler-line': ['model'],
