@@ -547,7 +547,8 @@ async function main() {
     const sourceFingerprint = crypto.createHash('sha256');
     for (const file of sourceFiles) sourceFingerprint.update(file).update(fs.readFileSync(path.join(root, file)));
     const graphSourceFingerprint = sourceFingerprint.digest('hex');
-    const graphDirtyFiles = execFileSync('git', ['diff', '--name-only', 'HEAD', '--', ...sourceFiles], {cwd: root, encoding: 'utf8'}).trim().split(/\r?\n/).filter(Boolean);
+    const graphDirtyFiles = [];
+    for (let i = 0; i < sourceFiles.length; i += 150) graphDirtyFiles.push(...execFileSync('git', ['diff', '--name-only', 'HEAD', '--', ...sourceFiles.slice(i, i + 150)], {cwd: root, encoding: 'utf8'}).trim().split(/\r?\n/).filter(Boolean));
     const graphSourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: root, encoding: 'utf8'}).trim();
     const launchOptions = {headless: true};
     if (process.env.PREVIEW_BROWSER_EXECUTABLE_PATH) {
