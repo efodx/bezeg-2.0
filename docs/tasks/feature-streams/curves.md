@@ -1,5 +1,5 @@
 # Stream: Curves
-Run state: stopped: PC switch 2026-11-02, resume on the new PC from the latest handoff
+Run state: active
 
 Rules and slice template: [feature streams](README.md). Port 4314. Handoffs: `docs/reviews/feature-streams/curves/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
