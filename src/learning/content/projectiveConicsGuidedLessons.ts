@@ -1,12 +1,13 @@
 /**
  * Guided lessons of the Projective geometry and conics family (docs/specs/projective-conics-lessons.md), batch A: K1, the cross-ratio,
- * on `projective-cross-ratio`, K2, Pascal's theorem, on `projective-pascal`, K3, pole and polar, on `projective-pole-polar`, and K4, the five-point conic, on `projective-five-point` (its own module). The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every number it
+ * on `projective-cross-ratio`, K2, Pascal's theorem, on `projective-pascal`, K3, pole and polar, on `projective-pole-polar`, and K4, the five-point conic, on `projective-five-point` (its own module), and K5, one conic in three views, on `projective-three-views` (its own module). The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every number it
  * quotes is a value of the scene it belongs to, and `projectiveConicsGuidedLessons.test.ts` recomputes them with exact fractions, without
  * the projective kernel, and checks them against the real graph. Scenes use only the `projective` actions the graph of their lesson registers
  * (K1: `load-example` and `move-handle`; K2: the `pascal-*` operations; K3: the `pole-polar-*` operations), and every scene sets every value it states, so it does not depend on the scene before it.
  */
 import type {LessonAction} from '../model';
 import {fivePointLesson} from './projectiveFivePointGuidedLesson';
+import {threeViewsLesson} from './projectiveThreeViewsGuidedLesson';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -665,4 +666,4 @@ const polePolarLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const projectiveConicsGuidedLessons: readonly GuidedLesson[] = [crossRatioLesson, pascalLesson, polePolarLesson, fivePointLesson];
+export const projectiveConicsGuidedLessons: readonly GuidedLesson[] = [crossRatioLesson, pascalLesson, polePolarLesson, fivePointLesson, threeViewsLesson];

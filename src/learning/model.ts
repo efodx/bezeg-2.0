@@ -253,6 +253,11 @@ export type LessonAction =
      * examples, not only the 1/5 grid of a drag), and `five-point-set-extrapolation` is the checkbox that continues the arc outside
      * t in [0, 1] (not part of the example, so a scene sets it explicitly). Scene data is strict: a non-integer, off-grid or out-of-range
      * value is a lesson-content error, never snapped.
+     * ThreeViewsGraph (K5) has its own `three-views-*` operations, which the other projective graphs reject (and the reverse):
+     * `three-views-set-c` is the slider for the height of L, `tenths` an integer from -25 to 25 (c = tenths / 10),
+     * `three-views-set-point` is the checkbox for the point P on the circle and its image, and `three-views-set-angle` puts P at `step`,
+     * an integer from 0 to 23 (steps of 15 degrees from (1, 0), counter-clockwise). Scene data is strict: a non-integer or out-of-range
+     * value is a lesson-content error, never rounded, clamped or wrapped.
      */
     | {readonly kind: 'projective'; readonly operation: 'load-example'; readonly exampleId: CrossRatioExampleId}
     | {readonly kind: 'projective'; readonly operation: 'move-handle'; readonly handle: number; readonly x: number; readonly y?: number}
@@ -269,6 +274,9 @@ export type LessonAction =
     | {readonly kind: 'projective'; readonly operation: 'five-point-set-third'; readonly index: number}
     | {readonly kind: 'projective'; readonly operation: 'five-point-place'; readonly index: number; readonly x: number; readonly y: number}
     | {readonly kind: 'projective'; readonly operation: 'five-point-set-extrapolation'; readonly on: boolean}
+    | {readonly kind: 'projective'; readonly operation: 'three-views-set-c'; readonly tenths: number}
+    | {readonly kind: 'projective'; readonly operation: 'three-views-set-point'; readonly on: boolean}
+    | {readonly kind: 'projective'; readonly operation: 'three-views-set-angle'; readonly step: number}
     /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.

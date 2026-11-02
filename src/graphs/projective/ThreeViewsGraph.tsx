@@ -5,7 +5,10 @@ import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {
+    THREE_VIEWS_ANGLE_STEPS, THREE_VIEWS_LIMIT, THREE_VIEWS_TENTHS,
     DEFAULT_THREE_VIEWS_MODEL, directionAnchor, directionSegments, evaluateThreeViews, IMAGE_CENTRE, imagePolyline, PANEL_HALF_HEIGHT, PANEL_HALF_WIDTH,
     serializeThreeViewsModel, SOURCE_CENTRE, SOURCE_SCALE, THREE_VIEWS_VIEW_BOX, ThreeViewsModel, ThreeViewsScene, windowExit,
 } from "./threeViewsModel";
@@ -102,6 +105,43 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
     loadModel(model: ThreeViewsModel): void {
         this.setState({model: serializeThreeViewsModel(model)});
         this.requestRender();
+    }
+
+    /**
+     * Lesson actions (`projective`, the `three-views-*` operations): each is the matching control action. Values are checked strictly (a
+     * lesson-content error throws, nothing is clamped, rounded or wrapped, as the controls do), then the control's own graph method runs.
+     */
+    applyProjectiveAction(action: Extract<LessonAction, {kind: "projective"}>): void {
+        switch (action.operation) {
+            case "three-views-set-c": {
+                const {tenths} = action;
+                if (typeof tenths !== "number" || !Number.isInteger(tenths) || Math.abs(tenths) > THREE_VIEWS_LIMIT) {
+                    throw new Error(`projective three-views-set-c: tenths must be an integer from ${-THREE_VIEWS_LIMIT} to ${THREE_VIEWS_LIMIT} (c in steps of 1/${THREE_VIEWS_TENTHS}).`);
+                }
+                this.setCTenths(tenths);
+                return;
+            }
+            case "three-views-set-point": {
+                if (typeof action.on !== "boolean") throw new Error("projective three-views-set-point: on must be true or false.");
+                this.togglePoint(action.on);
+                return;
+            }
+            case "three-views-set-angle": {
+                const {step} = action;
+                if (typeof step !== "number" || !Number.isInteger(step) || step < 0 || step >= THREE_VIEWS_ANGLE_STEPS) {
+                    throw new Error(`projective three-views-set-angle: step must be an integer from 0 to ${THREE_VIEWS_ANGLE_STEPS - 1} (steps of 15 degrees).`);
+                }
+                this.placePoint(step);
+                return;
+            }
+            default:
+                throw new Error(`projective: the three-views graph has no operation ${action.operation}.`);
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("projective", action => this.applyProjectiveAction(action));
     }
 
     // ---- Presets -------------------------------------------------------------------------------------------------
