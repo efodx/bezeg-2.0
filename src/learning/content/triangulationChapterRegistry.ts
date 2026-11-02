@@ -11,6 +11,7 @@ export {TRIANGULATION_CHAPTER_ID};
 const sectionDemonstrations = {
     'ear-clipping': 'ear-clipping',
     'point-set-triangulation': 'point-set-triangulation',
+    'delaunay': 'delaunay',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type TriangulationSectionId = keyof typeof sectionDemonstrations;

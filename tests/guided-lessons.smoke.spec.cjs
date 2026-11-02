@@ -1756,6 +1756,19 @@ const pointSetTriangulation = {
     },
 };
 
+// Delaunay: the trace step counter "Korak k od N" (k = trace index + 1) per lesson step 1..7 (quad start, predict, test of ac, test of bd after the flip, T0 start, first test of the seven points, test of the square's diagonal); the number is language independent.
+const DELAUNAY_STEPS = ['1', '1', '2', '4', '1', '2', '2'];
+const delaunay = {
+    id: 'delaunay',
+    path: `${BASE}/compgeo/delaunay`,
+    titles: {sl: 'Delaunayeva triangulacija in Lawsonove zamenjave', en: 'Delaunay triangulation and Lawson flips'},
+    steps: 7,
+    minFrames: 16, // 2 frames per step, 3 on steps 3 and 7 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => ((await page.locator('[data-delaunay="step"]').textContent()) || '').match(/\d+/)?.[0], {message: `delaunay trace step at ${label}`}).toBe(DELAUNAY_STEPS[step - 1]);
+    },
+};
+
 // Curve geometry L1/L2: a text of the board (the readout) that must show per lesson step 1..7; the patterns accept the Slovenian comma and the English point.
 const boardText = (page, pattern) => page.locator('.JXGtext').filter({hasText: pattern});
 const PARAMETRIC_READOUTS = [/\(ost\)|\(cusp\)/, /\(1, 1\).*1[.,]4142/s, /9[.,]4248/, /3[.,]1416/, /\([-−]1, [-−]1\)/, /\(ost\)|\(cusp\)/, /8\b.*9[.,]4248/s];
@@ -1971,7 +1984,7 @@ const bsplineDeBoor = {
     minFrames: 12, // at least 2 frames per step
 };
 
-const LESSONS = [interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

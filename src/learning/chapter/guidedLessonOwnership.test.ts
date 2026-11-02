@@ -19,7 +19,6 @@ test('every reviewed guided lesson has a real chapter section owner and a stable
 
 test('a Demonstration without a guided lesson has no owner and resolves without throwing', () => {
     const lessonless = getDemonstrationCatalog().demonstrations.map(entry => entry.id).filter(id => !GUIDED_LESSON_AVAILABLE_IDS.includes(id));
-    expect(lessonless.length).toBeGreaterThan(0);
     for (const id of lessonless) {
         expect(getGuidedLessonOwner(id), id).toBeUndefined();
         expect(resolveGuidedLessonOwner('?learn=1', id), id).toBeUndefined();

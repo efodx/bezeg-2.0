@@ -996,8 +996,8 @@ const pointSetTriangulation: GuidedLesson = {
             title: text('Dve triangulaciji: najmanjši kot', 'Two triangulations: the smallest angle'),
             purpose: text('Primerjati najmanjši kot T0 in Delaunayeve triangulacije iste množice.', 'Comparing the smallest angle of T0 and the Delaunay triangulation of the same set.'),
             explanation: text(
-                'Isto množico sedmih točk smo prej triangulirali s T0, kjer je najmanjši kot \\(1{,}91^\\circ\\). Zdaj graf kaže Delaunayevo triangulacijo: tudi ta ima \\(7\\) trikotnikov in \\(13\\) robov, najmanjši kot pa je \\(25{,}35^\\circ\\). Števila so ista, kakovost trikotnikov pa ne.',
-                'Earlier we triangulated the same seven points with T0, whose smallest angle is \\(1.91^\\circ\\). The graph now shows the Delaunay triangulation: it too has \\(7\\) triangles and \\(13\\) edges, but its smallest angle is \\(25.35^\\circ\\). The counts agree, the quality of the triangles does not.',
+                'Isto množico sedmih točk smo prej triangulirali s T0, kjer je najmanjši kot \\(1{,}91^\\circ\\). Zdaj graf kaže Delaunayevo triangulacijo: tudi ta ima \\(7\\) trikotnikov in \\(13\\) robov, najmanjši kot pa je \\(25{,}35^\\circ\\). Števila so ista, kakovost trikotnikov pa ne. Kako pridemo do take triangulacije, pokaže lekcija o Delaunayevi triangulaciji.',
+                'Earlier we triangulated the same seven points with T0, whose smallest angle is \\(1.91^\\circ\\). The graph now shows the Delaunay triangulation: it too has \\(7\\) triangles and \\(13\\) edges, but its smallest angle is \\(25.35^\\circ\\). The counts agree, the quality of the triangles does not. The lesson on the Delaunay triangulation shows how to reach such a triangulation.',
             ),
             formulaIds: ['tri-count-formula'],
             frames: [frame('tri-delaunay-explanation', 'explanation'), frame('tri-delaunay-observation', 'observation')],
@@ -1035,6 +1035,209 @@ const pointSetTriangulation: GuidedLesson = {
     edgeCases: [
         text('Kolinearne točke na robu ovojnice štejejo v \\(k\\), izpis pa jih navede posebej; skrajni primer so vse točke na isti premici, kjer triangulacije ni.', 'Collinear points on the hull boundary count in \\(k\\) and the readout lists them separately; the extreme case is all points on one line, where there is no triangulation.'),
         text('Zamenjava roba spremeni najmanjši kot, ne pa števila trikotnikov in robov; ta lekcija ne trdi, da je kateri koli rob najboljša izbira.', 'A flip changes the smallest angle but not the numbers of triangles and edges; this lesson does not claim that any particular edge is the best choice.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+/**
+ * Delaunay lesson (docs/specs/triangulation-voronoi-lessons.md, B3). The scenes use the `point-set` actions (`set-points`,
+ * `set-triangulation`, `set-trace-step`, `select-triangle`) of `DelaunayGraph`; `compgeoDelaunayLesson.test.ts` checks every
+ * quoted value against the real graph's readout or the kernel (`circumcircle`, `runDelaunay`). The panel names the points 1-based, so
+ * the spec's p1p4, p2p4, p4p6 are P2P5, P3P5, P5P7 here, and the quad a, b, c, d are P1, P2, P3, P4.
+ */
+export const DELAUNAY_QUAD: readonly LessonPoint[] = [[0, 0], [4, 0], [5, 3], [0, 2]];
+/** The quad's start (diagonal ac) and the unit square (four cocircular points) with the same triangle list. */
+export const DELAUNAY_QUAD_START: readonly (readonly [number, number, number])[] = [[0, 1, 2], [0, 2, 3]];
+export const DELAUNAY_SQUARE: readonly LessonPoint[] = [[0, 0], [1, 0], [1, 1], [0, 1]];
+/** Trace steps of the quad (events: phase, test ac, flip, test bd, done) and of the unit square (phase, test, done). */
+export const DELAUNAY_TRACE_STEPS = {testAc: 1, testBd: 3, sevenFirstTest: 1} as const;
+/** The three illegal edges of T0 on the seven points (0-based index pairs, P2P5, P3P5, P5P7) and the trace steps at which the Lawson trace tests them as illegal. */
+export const DELAUNAY_ILLEGAL_EDGES: readonly (readonly [number, number])[] = [[1, 4], [2, 4], [4, 6]];
+export const DELAUNAY_ILLEGAL_STEPS: readonly number[] = [1, 6, 14];
+/** The quad view: the circle through a, b, c reaches y about 5.4 (the graph's own initial view). */
+const DELAUNAY_QUAD_VIEW: LessonViewBox = [-2, 6, 7, -1.5];
+/** A Delaunay scene framed on its points: the points, exactly the listed overlays, the starting triangulation (back to step 0, paused), then the step actions. */
+const delScene = (id: string, list: readonly LessonPoint[], triangles: readonly (readonly [number, number, number])[], shown: readonly TriOverlay[], view: LessonViewBox, steps: readonly LessonAction[], sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view, actions: [points(list), ...TRI_OVERLAYS.map(name => overlay(name, shown.includes(name))), setTriangulation(triangles), ...steps], expectedState: text(sl, en)});
+const selectTriangle = (triangle: number | null): LessonAction => ({kind: 'point-set', operation: 'select-triangle', triangle});
+
+const delaunay: GuidedLesson = {
+    demonstrationId: 'delaunay',
+    title: text('Delaunayeva triangulacija in Lawsonove zamenjave', 'Delaunay triangulation and Lawson flips'),
+    summary: text(
+        'Rob triangulacije je neustrezen, če leži nasprotno oglišče sosednjega trikotnika znotraj očrtane krožnice; zamenjava neustreznega roba poveča najmanjši kot, ko pa ni več neustreznih robov, imamo Delaunayevo triangulacijo.',
+        'An edge of a triangulation is illegal if the opposite vertex of the neighbouring triangle lies inside the circumcircle; flipping an illegal edge raises the smallest angle, and when no illegal edge is left we have the Delaunay triangulation.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o triangulaciji množice točk: zamenjava roba in najmanjši kot dveh triangulacij.', 'The lesson on triangulating a set of points is required: the edge flip and the smallest angle of two triangulations.'),
+        text('Priporočena je lekcija o orientaciji treh točk, ker predznak preizkusa krožnice predpostavlja trikotnik v pozitivni smeri.', 'Recommended is the lesson on the orientation of three points, because the sign of the circle test assumes a counter-clockwise triangle.'),
+    ],
+    learningGoals: [
+        text('S preizkusom krožnice (determinanto) ugotoviš, ali je rob triangulacije ustrezen ali neustrezen.', 'Use the circle test (a determinant) to decide whether an edge of a triangulation is legal or illegal.'),
+        text('Z zamenjavami neustreznih robov povečaš najmanjši kot in pride do Delaunayeve triangulacije; razložiš, zakaj zamenjava nikoli ne odpove.', 'Flip illegal edges to raise the smallest angle until you reach the Delaunay triangulation, and explain why a flip never fails.'),
+        text('Na enotskem kvadratu razložiš, zakaj pri štirih točkah na isti krožnici Delaunayeva triangulacija ni enolična.', 'On the unit square explain why the Delaunay triangulation is not unique when four points lie on one circle.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'del-incircle-formula',
+            latex: 'D=\\begin{vmatrix}a_x-d_x&a_y-d_y&(a_x-d_x)^2+(a_y-d_y)^2\\\\b_x-d_x&b_y-d_y&(b_x-d_x)^2+(b_y-d_y)^2\\\\c_x-d_x&c_y-d_y&(c_x-d_x)^2+(c_y-d_y)^2\\end{vmatrix}',
+            notation: text(
+                'Točke \\(a\\), \\(b\\), \\(c\\) so v pozitivni smeri, \\(d\\) je preizkušana točka. \\(D>0\\): \\(d\\) je znotraj očrtane krožnice trikotnika \\(abc\\); \\(D=0\\): na krožnici; \\(D<0\\): zunaj.',
+                'The points \\(a\\), \\(b\\), \\(c\\) are counter-clockwise and \\(d\\) is the tested point. \\(D>0\\): \\(d\\) is inside the circumcircle of \\(abc\\); \\(D=0\\): on it; \\(D<0\\): outside.',
+            ),
+            explanation: text(
+                'Rob \\(ac\\) štirikotnika \\(abcd\\) je neustrezen natanko tedaj, ko je \\(D>0\\); rob je ustrezen za \\(D\\le0\\), zato se pri \\(D=0\\) ne zamenja. Determinanta je celo število pri celoštevilskih koordinatah, zato je preizkus natančen.',
+                'The edge \\(ac\\) of the quadrilateral \\(abcd\\) is illegal exactly when \\(D>0\\); it is legal for \\(D\\le0\\), so it is not flipped at \\(D=0\\). With integer coordinates the determinant is an integer, so the test is exact.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'del-circle-example',
+            title: text('Štirikotnik \\(abcd\\)', 'The quadrilateral \\(abcd\\)'),
+            calculationLatex: 'D=0\\cdot(-72)+2\\cdot4+4\\cdot14',
+            resultLatex: 'D=64',
+            check: text(
+                'Izpis pod grafom pokaže vrednost preizkusa krožnice \\(+64\\) pri robu \\(P_1P_3\\).',
+                'The readout under the graph shows the circle test value \\(+64\\) for the edge \\(P_1P_3\\).',
+            ),
+        },
+        {
+            id: 'del-square-example',
+            title: text('Enotski kvadrat', 'The unit square'),
+            calculationLatex: 'D=0\\cdot(-1)+1\\cdot(-1)+1\\cdot1',
+            resultLatex: 'D=0',
+            check: text(
+                'Izpis pod grafom pokaže vrednost preizkusa krožnice \\(0\\): točka je na krožnici.',
+                'The readout under the graph shows the circle test value \\(0\\): the point is on the circle.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'del-quad', order: 1,
+            title: text('Štirikotnik z diagonalo', 'A quadrilateral with a diagonal'),
+            purpose: text('Spoznati štirikotnik in njegovi dve triangulaciji.', 'Meeting the quadrilateral and its two triangulations.'),
+            explanation: text(
+                'Štirikotnik ima oglišča \\(a=P_1=(0,0)\\), \\(b=P_2=(4,0)\\), \\(c=P_3=(5,3)\\) in \\(d=P_4=(0,2)\\); tako jih imenuje izpis pod grafom. Trikotnika \\(abc\\) in \\(acd\\) ga triangulirata z diagonalo \\(ac=P_1P_3\\). Druga možnost je diagonala \\(bd=P_2P_4\\). Katera triangulacija je boljša?',
+                'The quadrilateral has the vertices \\(a=P_1=(0,0)\\), \\(b=P_2=(4,0)\\), \\(c=P_3=(5,3)\\) and \\(d=P_4=(0,2)\\); this is how the readout under the graph names them. The triangles \\(abc\\) and \\(acd\\) triangulate it with the diagonal \\(ac=P_1P_3\\). The other possibility is the diagonal \\(bd=P_2P_4\\). Which triangulation is better?',
+            ),
+            formulaIds: ['del-incircle-formula'],
+            frames: [frame('del-quad-explanation', 'explanation'), frame('del-quad-observation', 'observation')],
+            observationPrompt: text('Ugotovi, katera diagonala je narisana, in oceni, ali bi bila druga boljša.', 'Find which diagonal is drawn and guess whether the other would be better.'),
+            expectedObservations: [text('Narisana je diagonala \\(P_1P_3\\); druga možnost je \\(P_2P_4\\).', 'The diagonal \\(P_1P_3\\) is drawn; the other possibility is \\(P_2P_4\\).')],
+            scene: delScene('del-quad', DELAUNAY_QUAD, DELAUNAY_QUAD_START, ['triangulation'], DELAUNAY_QUAD_VIEW, [],
+                'Štirikotnik \\(P_1P_2P_3P_4\\) z diagonalo \\(P_1P_3\\); algoritem je ustavljen.',
+                'The quadrilateral \\(P_1P_2P_3P_4\\) with the diagonal \\(P_1P_3\\); the algorithm is stopped.'),
+        },
+        {
+            id: 'del-predict', order: 2,
+            title: text('Napovej: je \\(d\\) znotraj krožnice?', 'Predict: is \\(d\\) inside the circle?'),
+            purpose: text('Pred izračunom napovedati, ali je točka znotraj krožnice.', 'Predicting before the calculation whether the point is inside the circle.'),
+            explanation: text(
+                'Skozi \\(a\\), \\(b\\) in \\(c\\) gre natanko ena krožnica. Napovej: ali je \\(d\\) znotraj nje, na njej ali zunaj? Odgovor pove, ali je diagonala \\(ac\\) ustrezna. Graf zaenkrat ne kaže krožnice, v izpisu pa je vrstica o neustreznih robih, ki odgovor že izda; ne beri je še.',
+                'Exactly one circle passes through \\(a\\), \\(b\\) and \\(c\\). Predict: is \\(d\\) inside it, on it or outside? The answer tells whether the diagonal \\(ac\\) is legal. The graph shows no circle yet, but the readout has a line about illegal edges that already gives the answer away; do not read it yet.',
+            ),
+            formulaIds: ['del-incircle-formula'],
+            frames: [frame('del-predict-explanation', 'explanation'), frame('del-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši napoved in utemelji.', 'Write down your prediction and give your reason.'),
+            expectedObservations: [text('Napoved še ni preverjena; v naslednjem koraku jo primerjamo z izračunom.', 'The prediction is not yet checked; the next step compares it with the calculation.')],
+            scene: delScene('del-predict', DELAUNAY_QUAD, DELAUNAY_QUAD_START, ['triangulation'], DELAUNAY_QUAD_VIEW, [],
+                'Krožnica še ni prikazana; napoved se preveri v naslednjem koraku.',
+                'The circle is not shown yet; the prediction is checked in the next step.'),
+        },
+        {
+            id: 'del-circle', order: 3,
+            title: text('Očrtana krožnica in determinanta', 'The circumcircle and the determinant'),
+            purpose: text('Izračunati, da je \\(d\\) znotraj krožnice \\(abc\\), in iz tega sklepati, da je \\(ac\\) neustrezen.', 'Calculating that \\(d\\) is inside the circle \\(abc\\) and concluding that \\(ac\\) is illegal.'),
+            explanation: text(
+                'Graf preizkuša rob \\(ac\\) in riše očrtano krožnico trikotnika \\(abc\\). Izračunamo jo: središče \\(S\\) ima \\(x=2\\), ker je enako oddaljeno od \\(a\\) in \\(b\\); iz \\(|c-S|^2=|a-S|^2\\) dobimo \\(S=(2,\\tfrac{7}{3})\\) in \\(r^2=\\tfrac{85}{9}\\). Središče in polmer graf ne izpiše. Za točko \\(d\\) je \\(|d-S|^2=\\tfrac{37}{9}<\\tfrac{85}{9}\\), zato je znotraj krožnice. Determinanta je \\(D=+64\\), kar izpis pokaže kot vrednost preizkusa krožnice \\(+64\\), zato je rob \\(ac\\) neustrezen.',
+                'The graph tests the edge \\(ac\\) and draws the circumcircle of the triangle \\(abc\\). We compute it: the centre \\(S\\) has \\(x=2\\), because it is equally far from \\(a\\) and \\(b\\); from \\(|c-S|^2=|a-S|^2\\) we get \\(S=(2,\\tfrac{7}{3})\\) and \\(r^2=\\tfrac{85}{9}\\). The graph does not print the centre or the radius. For the point \\(d\\), \\(|d-S|^2=\\tfrac{37}{9}<\\tfrac{85}{9}\\), so it is inside the circle. The determinant is \\(D=+64\\), which the readout shows as the circle test value \\(+64\\), so the edge \\(ac\\) is illegal.',
+            ),
+            formulaIds: ['del-incircle-formula'], workedExampleId: 'del-circle-example',
+            frames: [frame('del-circle-explanation', 'explanation'), frame('del-circle-calculation', 'calculation'), frame('del-circle-observation', 'observation')],
+            observationPrompt: text('Primerjaj napoved z grafom: je \\(d\\) znotraj narisane krožnice?', 'Compare your prediction with the graph: is \\(d\\) inside the drawn circle?'),
+            expectedObservations: [text('Točka \\(d\\) je znotraj krožnice, izpis pokaže vrednost \\(+64\\) in \\(1\\) neustrezen rob.', 'The point \\(d\\) is inside the circle, the readout shows the value \\(+64\\) and \\(1\\) illegal edge.')],
+            scene: delScene('del-circle', DELAUNAY_QUAD, DELAUNAY_QUAD_START, ['triangulation'], DELAUNAY_QUAD_VIEW, [setTraceStep(DELAUNAY_TRACE_STEPS.testAc)],
+                'Preizkus roba \\(P_1P_3\\): krožnica \\(abc\\) vsebuje \\(d\\), vrednost je \\(+64\\) in rob je neustrezen.',
+                'The test of the edge \\(P_1P_3\\): the circle \\(abc\\) contains \\(d\\), the value is \\(+64\\) and the edge is illegal.'),
+        },
+        {
+            id: 'del-flip', order: 4,
+            title: text('Zamenjava na \\(bd\\)', 'The flip to \\(bd\\)'),
+            purpose: text('Videti, da je novi rob ustrezen in da se najmanjši kot poveča.', 'Seeing that the new edge is legal and the smallest angle grows.'),
+            explanation: text(
+                'Neustrezni rob \\(ac\\) zamenjamo z drugo diagonalo \\(bd=P_2P_4\\). Zdaj graf preizkuša \\(bd\\): vrednost je \\(-64\\), točka je zunaj krožnice. Izberi oba trikotnika na seznamu: preizkus čez rob \\(P_2P_4\\) da v obeh primerih \\(-64\\), rob je torej ustrezen. Najmanjši kot se je povečal z \\(19{,}65^\\circ\\) na \\(26{,}57^\\circ\\); oba seznama kotov, prej in zdaj, sta pod grafom in se pri prvem kotu prvič razlikujeta navzgor.',
+                'We replace the illegal edge \\(ac\\) with the other diagonal \\(bd=P_2P_4\\). The graph now tests \\(bd\\): the value is \\(-64\\), the point is outside the circle. Select both triangles in the list: the test across the edge \\(P_2P_4\\) gives \\(-64\\) both times, so the edge is legal. The smallest angle grew from \\(19.65^\\circ\\) to \\(26.57^\\circ\\); the two angle lists, before and now, are under the graph and differ upward at the first angle.',
+            ),
+            formulaIds: ['del-incircle-formula'],
+            frames: [frame('del-flip-explanation', 'explanation'), frame('del-flip-observation', 'observation')],
+            observationPrompt: text('Preberi najmanjša kota in oba seznama kotov; izberi še drugi trikotnik in preberi njegov preizkus.', 'Read the two smallest angles and both angle lists; select the other triangle too and read its test.'),
+            expectedObservations: [text('Najmanjši kot je \\(26{,}57^\\circ\\) (na začetku \\(19{,}65^\\circ\\)), vrednost preizkusa roba \\(P_2P_4\\) je \\(-64\\) iz obeh strani.', 'The smallest angle is \\(26.57^\\circ\\) (at the start \\(19.65^\\circ\\)), and the test value of the edge \\(P_2P_4\\) is \\(-64\\) from both sides.')],
+            scene: delScene('del-flip', DELAUNAY_QUAD, DELAUNAY_QUAD_START, ['triangulation', 'angles'], DELAUNAY_QUAD_VIEW, [setTraceStep(DELAUNAY_TRACE_STEPS.testBd), selectTriangle(0)],
+                'Po zamenjavi je diagonala \\(P_2P_4\\) ustrezna (\\(-64\\)); najmanjši kot je \\(26{,}57^\\circ\\), prej \\(19{,}65^\\circ\\).',
+                'After the flip the diagonal \\(P_2P_4\\) is legal (\\(-64\\)); the smallest angle is \\(26.57^\\circ\\), before it was \\(19.65^\\circ\\).'),
+        },
+        {
+            id: 'del-seven', order: 5,
+            title: text('Sedem točk: neustrezni robovi', 'Seven points: the illegal edges'),
+            purpose: text('V znani triangulaciji T0 poiskati neustrezne robove.', 'Finding the illegal edges in the familiar triangulation T0.'),
+            explanation: text(
+                'Sedem točk \\(P_1,\\dots,P_7\\) iz lekcije o triangulaciji množice točk s triangulacijo T0. Graf črtkano označi neustrezne robe: \\(P_2P_5\\), \\(P_3P_5\\) in \\(P_5P_7\\); izpis pokaže, da so \\(3\\), najmanjši kot v T0 pa je \\(1{,}91^\\circ\\). Vsi drugi notranji robovi so ustrezni.',
+                'The seven points \\(P_1,\\dots,P_7\\) of the lesson on triangulating a set of points, with the triangulation T0. The graph marks the illegal edges with a dashed line: \\(P_2P_5\\), \\(P_3P_5\\) and \\(P_5P_7\\); the readout shows that there are \\(3\\) of them, and the smallest angle in T0 is \\(1.91^\\circ\\). All other interior edges are legal.',
+            ),
+            formulaIds: ['del-incircle-formula'],
+            frames: [frame('del-seven-explanation', 'explanation'), frame('del-seven-observation', 'observation')],
+            observationPrompt: text('Poišči tri črtkane robe na grafu in preberi njihovo število v izpisu.', 'Find the three dashed edges on the graph and read their number in the readout.'),
+            expectedObservations: [text('Izpis pokaže \\(3\\) neustrezne robe in najmanjši kot \\(1{,}91^\\circ\\).', 'The readout shows \\(3\\) illegal edges and a smallest angle of \\(1.91^\\circ\\).')],
+            scene: delScene('del-seven', TRI_EXAMPLE_POINTS, TRI_T0, ['triangulation', 'angles'], earView(TRI_EXAMPLE_POINTS), [],
+                'T0 ima \\(3\\) neustrezne robe, \\(P_2P_5\\), \\(P_3P_5\\) in \\(P_5P_7\\); najmanjši kot je \\(1{,}91^\\circ\\).',
+                'T0 has \\(3\\) illegal edges, \\(P_2P_5\\), \\(P_3P_5\\) and \\(P_5P_7\\); the smallest angle is \\(1.91^\\circ\\).'),
+        },
+        {
+            id: 'del-flips', order: 6,
+            title: text('Naslednji korak: tri zamenjave', 'Next step: three flips'),
+            purpose: text('Z zaporednimi zamenjavami priti do Delaunayeve triangulacije.', 'Reaching the Delaunay triangulation by successive flips.'),
+            explanation: text(
+                'Pritiskaj Naslednji korak. Algoritem po vrsti preizkuša notranje robe in prvi neustrezni rob zamenja, nato začne znova. Po treh zamenjavah (izpis: Zamenjav doslej: 3) ni več neustreznih robov, najmanjši kot pa je \\(25{,}35^\\circ\\) namesto \\(1{,}91^\\circ\\). Zamenjava nikoli ne odpove: pri neustreznem robu je štirikotnik vedno izbočen (de Berg, Cheong, van Kreveld in Overmars, Computational Geometry, 9. poglavje). Rezultat je Delaunayeva triangulacija; ker nobene štiri točke niso na isti krožnici, je enolična.',
+                'Press Next step. The algorithm tests the interior edges in order and flips the first illegal one, then starts again. After three flips (readout: Flips so far: 3) no illegal edge is left, and the smallest angle is \\(25.35^\\circ\\) instead of \\(1.91^\\circ\\). A flip never fails: the quadrilateral of an illegal edge is always convex (de Berg, Cheong, van Kreveld and Overmars, Computational Geometry, chapter 9). The result is the Delaunay triangulation; since no four points lie on one circle, it is unique.',
+            ),
+            formulaIds: ['del-incircle-formula'],
+            frames: [frame('del-flips-explanation', 'explanation'), frame('del-flips-observation', 'observation')],
+            observationPrompt: text('Pritisni Naslednji korak, dokler se algoritem ne konča, in preberi število zamenjav ter najmanjši kot.', 'Press Next step until the algorithm finishes and read the number of flips and the smallest angle.'),
+            expectedObservations: [text('Izpis pokaže \\(3\\) zamenjave, \\(0\\) neustreznih robov in najmanjši kot \\(25{,}35^\\circ\\) (na začetku \\(1{,}91^\\circ\\)).', 'The readout shows \\(3\\) flips, \\(0\\) illegal edges and a smallest angle of \\(25.35^\\circ\\) (at the start \\(1.91^\\circ\\)).')],
+            scene: delScene('del-flips', TRI_EXAMPLE_POINTS, TRI_T0, ['triangulation', 'angles'], earView(TRI_EXAMPLE_POINTS), [setTraceStep(DELAUNAY_TRACE_STEPS.sevenFirstTest)],
+                'Preizkus roba \\(P_2P_5\\) je prvi korak; po treh zamenjavah je najmanjši kot \\(25{,}35^\\circ\\).',
+                'The test of the edge \\(P_2P_5\\) is the first step; after three flips the smallest angle is \\(25.35^\\circ\\).'),
+        },
+        {
+            id: 'del-square', order: 7,
+            title: text('Enotski kvadrat in prosto raziskovanje', 'The unit square and free exploration'),
+            purpose: text('Videti, da pri štirih točkah na isti krožnici triangulacija ni enolična, nato samostojno raziskovati.', 'Seeing that with four points on one circle the triangulation is not unique, then exploring on your own.'),
+            explanation: text(
+                'Enotski kvadrat \\((0,0),(1,0),(1,1),(0,1)\\) ima vse štiri točke na isti krožnici. Preizkus roba \\(P_1P_3\\) da \\(D=0\\): točka je na krožnici, rob je ustrezen in se ne zamenja. Tudi druga diagonala \\(P_2P_4\\) je ustrezna, zato imata obe triangulaciji lastnost Delaunayeve: triangulacija ni enolična, graf pa to na koncu izpiše. Zdaj raziskuj sam: povleci točke ali naloži primer; sled se ob vsaki spremembi preračuna, zamenjan rob pa lahko spet postane neustrezen.',
+                'The unit square \\((0,0),(1,0),(1,1),(0,1)\\) has all four points on one circle. The test of the edge \\(P_1P_3\\) gives \\(D=0\\): the point is on the circle, the edge is legal and is not flipped. The other diagonal \\(P_2P_4\\) is legal too, so both triangulations are Delaunay: the triangulation is not unique, and the graph says so at the end. Now explore on your own: drag the points or load an example; the trace is recomputed after every change, and a flipped edge may become illegal again.',
+            ),
+            formulaIds: ['del-incircle-formula'], workedExampleId: 'del-square-example',
+            frames: [frame('del-square-explanation', 'explanation'), frame('del-square-calculation', 'calculation'), frame('del-square-observation', 'observation')],
+            observationPrompt: text('Pritisni Naslednji korak do konca in preberi, ali je triangulacija enolična; premakni eno točko kvadrata s krožnice in poglej, kaj se zgodi.', 'Press Next step to the end and read whether the triangulation is unique; move one point of the square off the circle and see what happens.'),
+            expectedObservations: [text('Vrednost preizkusa je \\(0\\), zamenjav ni, na koncu izpis pravi, da triangulacija ni enolična.', 'The test value is \\(0\\), there are no flips, and at the end the readout says the triangulation is not unique.')],
+            scene: delScene('del-square', DELAUNAY_SQUARE, DELAUNAY_QUAD_START, ['triangulation'], earView(DELAUNAY_SQUARE), [setTraceStep(DELAUNAY_TRACE_STEPS.testAc)],
+                'Enotski kvadrat: preizkus roba \\(P_1P_3\\) da \\(0\\), rob je ustrezen.',
+                'The unit square: the test of the edge \\(P_1P_3\\) gives \\(0\\), the edge is legal.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-delaunay', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Chapter 9 (Delaunay triangulations, legal edges and the edge flip).'},
+        {
+            id: 'bezeg-delaunay-implementation',
+            citation: 'Bezeg source: src/compgeo/delaunay.ts, src/compgeo/predicates.ts and src/graphs/compgeo/DelaunayGraph.tsx.',
+            implementationCorrespondence: 'The trace scans the interior edges in lexicographic order of their point indices, tests each with the exact integer incircle determinant, flips the first edge with a positive value and starts again; a lesson scene sets the points and the starting triangulation, then moves the trace with set-trace-step and select-triangle. The circle is drawn from the exact rational centre and radius.',
+        },
+    ],
+    edgeCases: [
+        text('Pri štirih točkah na isti krožnici je determinanta \\(0\\), oba roba sta ustrezna in Delaunayeva triangulacija ni enolična; algoritem teh robov ne zamenja.', 'For four points on one circle the determinant is \\(0\\), both edges are legal and the Delaunay triangulation is not unique; the algorithm does not flip these edges.'),
+        text('Lekcija ne trdi, da je vsaka triangulacija z največjim najmanjšim kotom Delaunayeva; trdi le, da zamenjave povečajo seznam kotov in se ustavijo.', 'The lesson does not claim that every triangulation with the largest smallest angle is Delaunay; it only claims that the flips raise the angle list and stop.'),
     ],
     unresolvedQuestions: [],
 };
@@ -1472,4 +1675,4 @@ const segmentIntersections: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, intervalSweep, segmentIntersections];
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, intervalSweep, segmentIntersections];

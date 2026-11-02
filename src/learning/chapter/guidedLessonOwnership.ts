@@ -85,6 +85,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'ear-clipping': {chapterId: 'triangulations-voronoi', sectionId: 'ear-clipping'},
     // The chapter's own section for counting the triangles of a point-set triangulation (lesson B2).
     'point-set-triangulation': {chapterId: 'triangulations-voronoi', sectionId: 'point-set-triangulation'},
+    // The chapter's own section for the Delaunay triangulation and Lawson flips (lesson B3).
+    'delaunay': {chapterId: 'triangulations-voronoi', sectionId: 'delaunay'},
     // Interim owners until a Curve geometry chapter exists: trace versus parameter belongs with parametrization, curvature with the geometric properties of a curve.
     'curve-parametric': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
     'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
