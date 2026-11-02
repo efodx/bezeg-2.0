@@ -5,11 +5,11 @@ Written 2026-11-02 by handler 13 (Opus 5.5, `auto`, effort `medium`) at the 150k
 ## Done this session (all on `origin/master`)
 
 - `15601082`: handoff 12, plus the 05 F3+F4 brief and W1 notes.
-- `8ab6a707` **triangle geometry 05 F3+F4**: Learn chapter `triangle-geometry` with lessons T1 `triangle-notable-points` and T2 `inscribed-angle-thales`. Handler additions to handoff 12's WIP: preview copy for both lessons in `guidedExamplePreviewCopy.ts` (the counts there are now 67/74), and rebase resolutions that kept both sides against the projective and triangulations work.
-- `40a83c70`: Learn chapter count 14, since the triangulations and triangle geometry chapters both landed.
-- `e1e2df18` **05 F5 poster recipes** for `triangle-centres` (O, I, H overlays on) and `inscribed-angle` (radii on), framed `[-3.55, 5.81, 10.55, -2.81]`, with exact-point evidence. `validateRecipes` now passes for the whole catalog.
+- `96c0b2c9` **triangle geometry 05 F3+F4**: Learn chapter `triangle-geometry` with lessons T1 `triangle-notable-points` and T2 `inscribed-angle-thales`. Handler additions to handoff 12's WIP: preview copy for both lessons in `guidedExamplePreviewCopy.ts` (the counts there are now 67/74), and rebase resolutions that kept both sides against the projective and triangulations work.
+- `cdd3fb34`: Learn chapter count 14, since the triangulations and triangle geometry chapters both landed.
+- `35fe9a2a` **05 F5 poster recipes** for `triangle-centres` (O, I, H overlays on) and `inscribed-angle` (radii on), framed `[-3.55, 5.81, 10.55, -2.81]`, with exact-point evidence. `validateRecipes` now passes for the whole catalog.
 
-Checks: tsc after each rebase; eslint on the changed files. Focused `just unit` on learning, localization, compgeo, catalog and routes: 2078 tests before the rebases. After the triangulations rebase, the full `src/learning`, demonstrations and routes run passed at `e1e2df18`. Also: `just build`; `just smoke-lesson triangle-centres inscribed-angle`; the unified-learning smoke (before the last rebase); and `node --test scripts/demonstration-preview-capture.test.cjs` (36/36).
+Checks: tsc after each rebase; eslint on the changed files. Focused `just unit` on learning, localization, compgeo, catalog and routes: 2078 tests before the rebases. After the triangulations rebase, the full `src/learning`, demonstrations and routes run passed at `35fe9a2a`. Also: `just build`; `just smoke-lesson triangle-centres inscribed-angle`; the unified-learning smoke (before the last rebase); and `node --test scripts/demonstration-preview-capture.test.cjs` (36/36).
 
 Review: engineering + mathematical review by `bezeg-reviewer` (Sonnet). It found nothing blocking and recomputed every quoted number: G, O, R, I, r, H, ∠ACB 66.8°, the obtuse, right and Thales examples and views, and the glider arcs. Its one minor finding is fixed: the preview copy now names the central angle.
 
