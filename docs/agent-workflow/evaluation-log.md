@@ -1583,3 +1583,19 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Repairs: none.
 - Checks: tsc, lint, focused unit and build by the worker. No full `just check` after the repair; the record gives the scope argument, and hosted CI covers the full suite.
 - Handoff evidence: both briefs named exact `file:line` locations and expected texts, so neither worker needed to explore. The smoke brief's "missing points must fail" rule made the marker count mismatch visible instead of silently passing.
+
+## 2026-11-02 — Geometry: T2 task 12 point-set triangulation graph (geometry handler 27)
+
+- Task: [12](../tasks/triangulation-voronoi/12-point-set-triangulation-graph.md), class implementation, size L, split into two sequential slices. Handler Opus 5.5, auto, effort medium.
+- Workers: 5.
+  - 12a `bezeg-worker`, Sonnet medium, dispatched 07:08Z: 108k tokens, 36 tools, 13 min.
+  - 12b `bezeg-worker`, Sonnet medium, dispatched 07:22Z: 109k tokens, 47 tools, 15 min.
+  - Engineering review `bezeg-reviewer`, Sonnet: 32k tokens, 8 tools, under 1 min.
+  - UI/accessibility review `bezeg-reviewer`, Haiku: 44k tokens, 8 tools, 1.3 min. The two reviews ran in parallel.
+  - Repair `bezeg-worker`, Sonnet medium: 48k tokens, 27 tools, 12 min.
+- Outcome: accepted at 07:51Z at `86a157cb`, 43 min after the first dispatch.
+  - Both slices finished within budget, with mutation evidence for each new assertion.
+  - The engineering review confirmed the updater side effect the 12a worker had flagged, and the false `inserted` event on load. The UI review found a doubly announced refusal and a Slovenian number-agreement error. The repair fixed all eight findings in one pass; the handler confirmed them without re-review.
+- Repairs: one round. Cause: code issues (lifecycle and wording), no environment failure.
+- Gaps: no browser run (no route until task 14); the drag measurement is deferred to task 14 (jsdom only: 1 ms for state, 75–84 ms for a full redraw).
+- Handoff evidence: the 12a report's "for 12b" notes (Preset field, overlay ids, hooks) were enough for 12b to start without exploring. Asking the worker to list its own risks put the updater side effect in front of the reviewer.

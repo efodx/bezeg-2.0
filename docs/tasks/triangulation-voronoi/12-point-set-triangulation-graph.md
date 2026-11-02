@@ -1,6 +1,6 @@
 # 12 — Point-set triangulation graph (T2, F2a)
 
-Status: open (task file written 2026-11-02, geometry handler 25). Source: spec [B2](../../specs/triangulation-voronoi-lessons.md#b2-triangulating-a-set-of-points) (example, capabilities, acceptance 1, 3–7), common criteria C1–C6 ([concept contracts](../../specs/triangulation-voronoi-lessons.md#concept-contracts-and-acceptance-criteria)), [implementation decisions](../../specs/triangulation-voronoi-lessons.md#implementation-decisions) (Preset contents and validation). Kind: F2a (no route, no registration), engineering plus UI/accessibility review. Depends on 11 (`insertPoint`, `boundaryCount`) and the point-set graph (convexity 05). Template: `EarClippingGraph` (07) for structure and tests.
+Status: accepted 2026-11-02 (geometry handler 27; task file written by handler 25). Evidence at the end. Source: spec [B2](../../specs/triangulation-voronoi-lessons.md#b2-triangulating-a-set-of-points) (example, capabilities, acceptance 1, 3–7), common criteria C1–C6 ([concept contracts](../../specs/triangulation-voronoi-lessons.md#concept-contracts-and-acceptance-criteria)), [implementation decisions](../../specs/triangulation-voronoi-lessons.md#implementation-decisions) (Preset contents and validation). Kind: F2a (no route, no registration), engineering plus UI/accessibility review. Depends on 11 (`insertPoint`, `boundaryCount`) and the point-set graph (convexity 05). Template: `EarClippingGraph` (07) for structure and tests.
 
 `TriangulationGraph extends PointSetGraph` in `src/graphs/compgeo/`, points mode only. Its scene is the points plus a current triangulation (a triangle index list). 13 extends it for B3, so keep the drawing of triangles and edges, the edge selection and the readouts in overridable pieces.
 
@@ -24,3 +24,21 @@ Not in scope: route, registration, lessons; the Lawson trace (13).
 Performance: at most 40 points and \(2\cdot40-2-3=75\) triangles; redraw on drag as the ear-clipping graph does. Measure a drag at 40 points before choosing another approach ([performance plan](../../performance-plan.md)).
 
 Checks: `just unit src/graphs/compgeo --maxWorkers=2`, `just lint` on touched files, `npx tsc --noEmit --pretty false`, `just build`.
+
+## Evidence (handler 27, 2026-11-02)
+
+- Two Sonnet workers. 12a (`4723a290`) built the graph core: board, readouts, flip, edit rule, 31 `tri_*` keys. 12b (`3df4564b`) added the `edges` overlay, reused `angles`, built the `compgeo-triangulation` collection (T0, the B3 Delaunay list, the nine hull points with \(k=6\)) and import validation. Each new assertion was observed failing under a mutation.
+- Reviews: a Sonnet engineering review (no high findings; two medium, three low) and a Haiku UI/accessibility review (two medium, four low). One Sonnet repair worker fixed all of them in the repair commit that follows `3df4564b`:
+  - The `setState` updater is now pure; the event and selection are decided after the synchronous write.
+  - Only `addPointAt` reports `inserted`; `loadModel` and import report no event.
+  - A refusal is announced once.
+  - The collinear readout no longer depends on the count's grammatical number.
+  - Hint `aria-describedby`, plain list semantics, and the selected edge drawn dashed and wider.
+  - The unmount test checks the graph's overlay cache.
+  - Each new assertion was observed failing under a mutation. The handler confirmed the repairs; they are local, so there was no re-review.
+- Checks at each step: tsc, lint on the touched files, `just unit src/graphs/compgeo --maxWorkers=2`, `just unit src/localization`, `just unit src/compgeo` (12b), and `just build`. Logs are in `docs/reviews/triangulation-voronoi/12*-*.log` (untracked).
+- Gaps:
+  - No browser run: there is no route until task 14. The browser drag measurement at 40 points moves to task 14. Here, jsdom timed the store write plus retriangulation at about 1 ms per move, and a full jsdom/JSXGraph redraw at 75–84 ms (141 ms with both overlays). Measure in a browser before batching the edge curves.
+  - Edge clicks are tested only through `triggerEventHandlers`.
+  - The two Reset clearing sites are redundant, so the Reset test cannot tell them apart.
+  - Selection and event are transient UI state: lesson checkpoint restore and any triangle-list write drop them.
