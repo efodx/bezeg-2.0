@@ -83,7 +83,9 @@ export function activeSimsonExampleId(id: SimsonExampleId | undefined, points: r
     return id;
 }
 
-/** The status of the feet, in words. Tolerance statuses say "within"; only `collinear-exact` says exact. */
+/** The status of the feet. `collinear-within` is glider mode at offset 0: P is on the circle by construction, so the residue of at most
+ * `SIMSON_GLIDER_TOLERANCE` is rounding and learners read plain "collinear" with area 0 (owner decision 2026-11-02, spec T4 acceptance 2);
+ * only `collinear-exact` says exact. */
 export type SimsonStatus = 'collinear-exact' | 'collinear-within' | 'not-collinear' | 'coincident';
 
 export const FOOT_NAMES = ['D', 'E', 'F'] as const;

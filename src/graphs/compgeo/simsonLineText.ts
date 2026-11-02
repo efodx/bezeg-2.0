@@ -60,7 +60,7 @@ export function simsonVertexTexts(vertices: readonly {x: number; y: number}[], t
 export function simsonStatusText(status: SimsonStatus, translate: typeof t): string {
     switch (status) {
         case "collinear-exact": return translate("simson_status_exact");
-        case "collinear-within": return translate("simson_status_within");
+        case "collinear-within": return translate("simson_status_collinear");
         case "coincident": return translate("simson_status_coincident");
         default: return translate("simson_status_not");
     }
@@ -94,7 +94,7 @@ export function simsonTexts(analysis: Extract<SimsonAnalysis, {kind: "triangle"}
     }
     let area: string;
     if (exact) area = translate("simson_area_exact", {value0: exactText(exact.areaRatio)});
-    else if (analysis.collinear) area = translate("simson_area_tolerance");
+    else if (analysis.collinear) area = translate("simson_area_zero");
     else area = translate("simson_area_glider", {value0: areaRatioText(analysis.glider?.relative ?? 0, language)});
     return {
         state: exact ? "exact" : "glider",

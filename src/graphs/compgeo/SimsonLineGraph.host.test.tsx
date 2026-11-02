@@ -86,10 +86,10 @@ test('the default scene is the glider on the circle: chip, rows, area tolerance,
     expect(graph.pointLimit).toBe(3);
     expect(graph.exampleId).toBe('default');
     expect(graph.settings).toEqual({mode: 'glider', t: 60, epsilon: 0, pPrime: {x: 2, y: -2}});
-    expect(text('[data-simson-chip]')).toBe('Nožišča D, E, F: kolinearna (znotraj 10⁻⁹ ploščine trikotnika)');
+    expect(text('[data-simson-chip]')).toBe('Nožišča D, E, F: kolinearna');
     expect(exact(graph, 'simson-chip')[0].plaintext).toBe(text('[data-simson-chip]'));
     expect(text('[data-simson-readout="circle"]')).toBe('O = (7/2, 3/2), R² = 29/2');
-    expect(text('[data-simson-readout="area"]')).toBe('Ploščina nožiščnega trikotnika / S ≤ 10⁻⁹');
+    expect(text('[data-simson-readout="area"]')).toBe('Ploščina nožiščnega trikotnika / S = 0');
     expect(statusOf()).toBe('collinear-within');
     for (const name of ['P', 'D', 'E', 'F', 'O', 'circumcircle', 'simson-line']) expect(exact(graph, name), name).toHaveLength(1);
     expect(exact(graph, 'pedal-triangle')).toHaveLength(0);
@@ -99,9 +99,11 @@ test('the default scene is the glider on the circle: chip, rows, area tolerance,
     for (const language of ['sl', 'en'] as const) {
         act(() => { setLanguage(language); });
         for (const selector of ['[data-simson-chip]', '[data-simson-readout="area"]']) {
-            expect(text(selector), `${language} ${selector}`).toMatch(/10⁻⁹/);
-            expect(text(selector), `${language} ${selector}`).not.toMatch(/exactly|natančno/i);
+            // Owner decision 2026-11-02 (spec T4 acceptance 2): plain "collinear" and area 0, with no tolerance or exactness qualifier.
+            expect(text(selector), `${language} ${selector}`).not.toMatch(/10⁻⁹|within|znotraj|exactly|natančno/i);
         }
+        expect(text('[data-simson-chip]')).toBe(language === 'sl' ? 'Nožišča D, E, F: kolinearna' : 'Feet D, E, F: collinear');
+        expect(text('[data-simson-readout="area"]')).toBe(language === 'sl' ? 'Ploščina nožiščnega trikotnika / S = 0' : 'Area of the foot triangle / S = 0');
     }
     act(() => { setLanguage('sl'); });
     noNaN(graph);
@@ -327,7 +329,7 @@ test('dragging P on the board sets t by the angle about O in glider mode and sna
     expect(statusOf()).toBe('not-collinear');
 });
 
-test('every offset stop changes the status as specified: collinear within at 0, not collinear at every other stop, with the readout', () => {
+test('every offset stop changes the status as specified: plain collinear at 0, not collinear at every other stop, with the readout', () => {
     const graph = new Observed();
     mount(graph);
     const slider = field('[data-simson-epsilon]');
@@ -339,8 +341,8 @@ test('every offset stop changes the status as specified: collinear within at 0, 
         const area = text('[data-simson-readout="area"]');
         if (epsilon === 0) {
             expect(statusOf()).toBe('collinear-within');
-            expect(text('[data-simson-chip]')).toContain('kolinearna (znotraj 10⁻⁹ ploščine trikotnika)');
-            expect(area).toBe('Ploščina nožiščnega trikotnika / S ≤ 10⁻⁹');
+            expect(text('[data-simson-chip]')).toContain('kolinearna');
+            expect(area).toBe('Ploščina nožiščnega trikotnika / S = 0');
             expect(exact(graph, 'simson-line')).toHaveLength(1);
         } else {
             expect(statusOf(), `ε ${epsilon}`).toBe('not-collinear');
@@ -442,12 +444,12 @@ test('a foot on a side line outside its segment is drawn and reported with no er
 test('a live Slovenian to English switch updates the panel and the board labels', () => {
     const graph = new Observed();
     const view = mount(graph, true);
-    expect(exact(graph, 'simson-chip')[0].plaintext).toBe('Nožišča D, E, F: kolinearna (znotraj 10⁻⁹ ploščine trikotnika)');
+    expect(exact(graph, 'simson-chip')[0].plaintext).toBe('Nožišča D, E, F: kolinearna');
     act(() => { setLanguage('en'); });
-    const english = 'Feet D, E, F: collinear (within 10⁻⁹ of the triangle\'s area)';
+    const english = 'Feet D, E, F: collinear';
     expect(text('[data-simson-chip]')).toBe(english);
     expect(exact(graph, 'simson-chip')[0].plaintext).toBe(english);
-    expect(text('[data-simson-readout="area"]')).toBe('Area of the foot triangle / S ≤ 10⁻⁹');
+    expect(text('[data-simson-readout="area"]')).toBe('Area of the foot triangle / S = 0');
     expect(screen.getByLabelText(/^Offset ε of P from the circle \(relative to the radius\)/)).toBeInTheDocument();
     act(() => { graph.setEpsilon(0.01); });
     expect(text('[data-simson-chip]')).toBe('Feet D, E, F: not collinear');
