@@ -38,6 +38,7 @@ function noteText(t: Translate, note: HullNote): string {
         case "accept-push": return t("hulltrace_note_accept_push");
         case "reject-pop": return t("hulltrace_note_reject_pop");
         case "output-hull": return t("hulltrace_note_output_hull");
+        case "output-small": return t("hulltrace_note_output_small");
         case "done-hull": return t("hulltrace_note_done_hull");
         case "done-collinear": return t("hulltrace_note_done_collinear");
         case "done-fewer-than-three": return t("hulltrace_note_done_fewer_than_three");

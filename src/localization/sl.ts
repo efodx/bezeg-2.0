@@ -1885,6 +1885,7 @@ export const sl = {
     "hulltrace_note_accept_push": "Kandidata dodamo na verigo.",
     "hulltrace_note_reject_pop": "Srednjo točko odstranimo z verige.",
     "hulltrace_note_output_hull": "Verigi združimo v konveksno ovojnico.",
+    "hulltrace_note_output_small": "Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.",
     "hulltrace_note_done_hull": "Konec: konveksna ovojnica je izrisana.",
     "hulltrace_note_done_collinear": "Konec: vse točke so na isti premici, ovojnica je daljica.",
     "hulltrace_note_done_fewer_than_three": "Konec: manj kot tri različne točke, ovojnica je točka ali daljica.",

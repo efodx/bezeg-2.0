@@ -1886,6 +1886,7 @@ export const en: Record<keyof typeof sl, string> = {
     "hulltrace_note_accept_push": "The candidate is added to the chain.",
     "hulltrace_note_reject_pop": "The middle point is removed from the chain.",
     "hulltrace_note_output_hull": "The chains are joined into the convex hull.",
+    "hulltrace_note_output_small": "With fewer than three distinct points, every point is a hull vertex.",
     "hulltrace_note_done_hull": "Done: the convex hull is drawn.",
     "hulltrace_note_done_collinear": "Done: all the points are collinear, so the hull is a segment.",
     "hulltrace_note_done_fewer_than_three": "Done: fewer than three distinct points, so the hull is a point or a segment.",

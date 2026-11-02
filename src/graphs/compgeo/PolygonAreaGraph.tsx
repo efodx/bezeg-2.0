@@ -79,6 +79,11 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
         return copy(HULL_PENTAGON_MODEL);
     }
 
+    /** The default example (x -1 to 5, y 0 to 5) with a half-unit margin; the app default box would put its top point on the frame. */
+    protected override initialView(): [number, number, number, number] {
+        return [-1.5, 5.5, 5.5, -0.5];
+    }
+
     /** Reverses the vertex order (v0 stays first); the selection follows its vertex. Returns false when there is nothing to reverse. */
     reverseOrder(): boolean {
         const model = this.model;

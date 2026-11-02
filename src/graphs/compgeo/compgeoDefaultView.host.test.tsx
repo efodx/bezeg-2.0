@@ -7,6 +7,8 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestH
 import type {Preset} from '../base/presets/Presets';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {EarClippingGraph} from './EarClippingGraph';
+import {HULL_TRACE_SAMPLE_1, HullTraceGraph} from './HullTraceGraph';
+import {HULL_PENTAGON_MODEL, PolygonAreaGraph} from './PolygonAreaGraph';
 import {IntervalSweepGraph} from './IntervalSweepGraph';
 import {BentleyOttmannGraph} from './BentleyOttmannGraph';
 import {NotablePointsGraph} from './NotablePointsGraph';
@@ -22,12 +24,16 @@ beforeEach(() => window.localStorage.clear());
 class ObservedEar extends EarClippingGraph { liveBoard(): Board { return this.board; } }
 class ObservedInterval extends IntervalSweepGraph { liveBoard(): Board { return this.board; } }
 class ObservedSweep extends BentleyOttmannGraph { liveBoard(): Board { return this.board; } }
+class ObservedHull extends HullTraceGraph { liveBoard(): Board { return this.board; } }
+class ObservedArea extends PolygonAreaGraph { liveBoard(): Board { return this.board; } }
 
-type Observed = (ObservedEar | ObservedInterval | ObservedSweep);
+type Observed = (ObservedEar | ObservedInterval | ObservedSweep | ObservedHull | ObservedArea);
 const cases: [string, () => Observed, PointSetModel][] = [
     ['ear clipping', () => new ObservedEar(), EAR_CLIPPING_EXAMPLE_1],
     ['interval sweep', () => new ObservedInterval(), INTERVAL_SWEEP_EXAMPLE_1],
     ['segment intersections', () => new ObservedSweep(), BENTLEY_OTTMANN_EXAMPLE_1],
+    ['convex hull', () => new ObservedHull(), HULL_TRACE_SAMPLE_1],
+    ['polygon area', () => new ObservedArea(), HULL_PENTAGON_MODEL],
 ];
 
 describe.each(cases)('%s default view', (_name, create, example) => {

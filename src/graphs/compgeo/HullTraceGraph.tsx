@@ -291,6 +291,11 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         return serializePointSetModel(HULL_TRACE_SAMPLE_1);
     }
 
+    /** The default example (x -1 to 5, y 0 to 5) with a half-unit margin; the app default box would put its top point on the frame. */
+    protected override initialView(): [number, number, number, number] {
+        return [-1.5, 5.5, 5.5, -0.5];
+    }
+
     /** The saved scene state, with the step clamped to the trace of the saved points. */
     protected override sceneGraphState(): PointSetGraphState {
         const state: HullTraceGraphState = {...this.state, algorithm: this.algorithm, step: this.step};

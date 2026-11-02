@@ -26,7 +26,8 @@ export function parseHullStep(value: unknown): number | undefined {
     return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
-export type HullNote = MonotoneChainNote | SlowHullNote | GiftWrappingNote;
+/** `output-small` is the output step of a run with fewer than three distinct points, which no algorithm builds chains for. */
+export type HullNote = MonotoneChainNote | SlowHullNote | GiftWrappingNote | "output-small";
 
 export interface HullEventInfo {
     readonly kind: string;
@@ -150,6 +151,10 @@ function giftRun(points: readonly GridPoint[]): HullRun {
     };
 }
 
+const endsFewerThanThree = (run: HullRun): boolean => run.length > 0 && run.event(run.length - 1)?.note === "done-fewer-than-three";
+const relabelOutput = (info: HullEventInfo | undefined): HullEventInfo | undefined =>
+    info && info.note === "output-hull" ? {...info, note: "output-small"} : info;
+
 /**
  * Runs one algorithm on the points. Never throws: input a trace refuses (more than 40 points, non-grid points) gives an
  * empty run, which the graph shows as an empty trace. `noteKey` strings are narrowed with the algorithm's own union.
@@ -157,9 +162,8 @@ function giftRun(points: readonly GridPoint[]): HullRun {
 export function runHullTrace(algorithm: HullAlgorithm, points: readonly GridPoint[]): HullRun {
     const empty: HullRun = {algorithm, length: 0, totalPredicates: 0, clamp: () => 0, event: () => undefined, view: () => EMPTY_VIEW};
     try {
-        if (algorithm === "monotone-chain") return monotoneRun(points);
-        if (algorithm === "slow-edge-test") return slowRun(points);
-        return giftRun(points);
+        const run = algorithm === "monotone-chain" ? monotoneRun(points) : algorithm === "slow-edge-test" ? slowRun(points) : giftRun(points);
+        return endsFewerThanThree(run) ? {...run, event: index => relabelOutput(run.event(index))} : run;
     } catch {
         return empty;
     }

@@ -369,3 +369,22 @@ test('only the slow edge test plays on the shorter interval and the cost note sh
     act(() => { frames.frame(HULL_TRACE_STEP_INTERVAL_MS); });
     expect(graph.step).toBe(1);
 });
+
+test('with fewer than three points every algorithm shows the neutral output note; three points keep the chain note on the chain algorithm', () => {
+    const chain = 'Verigi združimo v konveksno ovojnico.';
+    const small = 'Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.';
+    const graph = new Observed();
+    const view = mount(graph);
+    for (const algorithm of HULL_ALGORITHMS) {
+        for (const points of [[[2, 2]], [[2, 2], [4, 0]], [[2, 2], [2, 2], [4, 0]]] as Array<Array<[number, number]>>) {
+            act(() => { graph.setAlgorithm(algorithm); });
+            load(graph, model(points));
+            expect(part('note')).toBe(small);
+        }
+    }
+    act(() => { graph.setAlgorithm('monotone-chain'); });
+    load(graph, HULL_TRACE_SAMPLE_1);
+    while (!graph.run().event(graph.step)?.note.startsWith('output')) click('next-step');
+    expect(part('note')).toBe(chain);
+    view.unmount();
+});
