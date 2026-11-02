@@ -1,0 +1,11 @@
+# 21 — Sweep chapter sections for S2 (F4)
+
+Status: planned 2026-11-02 (geometry handler 26). Source: spec [Solution](../../specs/sweep-algorithms-lessons.md#solution), [release batches](../../specs/sweep-algorithms-lessons.md#release-batches), [terms](../../specs/sweep-algorithms-lessons.md#slovenian-and-english-terms-proposals), lessons C3 and C4; [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31). Kind: F4. Depends on 19 and 20. Template: [task 13](13-sweep-chapter.md) (`sweepChapter*.ts` and its test).
+
+1. **Sections** in the existing `sweep-algorithms` chapter, after `segment-intersections`: `monotone-partition` (C3's goal; key facts: the five vertex types, only split and merge vertices break \(y\)-monotonicity, a diagonal to the helper, pieces \(=\) diagonals \(+1\)) and `monotone-triangulation` (C4's goal; key facts: two chains, one stack, \(n-2\) triangles, \(O(n)\) per piece after sorting). Both link the triangulation chapter's ear-clipping section as the contrast (`/bezeg-2.0/learn/triangulations-voronoi#ear-clipping`; check the section id) and each has a chapter-owned activity link. C5 (Fortune) and C6 stay unmentioned.
+2. **Ownership:** move both lessons from the interim owner to the new sections through `chapterOwnedLessons` entries, read lazily from `compgeoGuidedLessons.ts`; remove both ids from `CHAPTER_LINK_PENDING` (added by task 18). Record the breaking change of the interim example ids and their replacements, as task 13 did. Return-to-chapter links land on the owning section and restore focus.
+3. **Tests:** `sweepChapter.test.ts` (sections, activity identity, prerequisite links, both languages, no unreleased lesson advertised); `familyChapters`, `authoredChapterCoverage`, `guidedLessonOwnership`, `lessonCatalog` and Learn page tests updated; `lessonMathNotation.test.ts` passes unchanged. Observe a mutation failure for the ownership entries.
+
+Checks: `just unit src/learning`, tsc, lint on touched files, build; `just smoke-lesson monotone-partition monotone-triangulation`, and a chapter-page check in both languages with an activity's return link (handler).
+
+Then F6 for S2: evidence matrix, `just check`, bilingual smoke and an acceptance record, as for S1.

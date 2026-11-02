@@ -36,6 +36,22 @@ Source: [sweep-algorithms-lessons.md](../../specs/sweep-algorithms-lessons.md). 
 | 13 | [Sweep-line algorithms chapter](13-sweep-chapter.md) | F4 | 11, 12 | accepted 2026-11-02 (handlers 22, 23) |
 | F6 | [S1 acceptance (C1, C2)](../../reviews/feature-streams/geometry/f6-t1-s1-acceptance.md) | F6 | 02–13 | accepted 2026-11-02 (handler 24); S1 released |
 
+## Batch S2 — C3 and C4 (planned 2026-11-02, handler 26)
+
+S1 and triangulation T1 are released, so C4 makes the ear-clipping contrast. The kernels are independent of the triangulation T2 tasks and may interleave with them.
+
+| # | Task | Kind | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| 14 | [Monotone partition kernel](14-monotone-partition-kernel.md) | F1 | 02 | planned |
+| 15 | [Monotone triangulation kernel](15-monotone-triangulation-kernel.md) | F1 | 14, triangulation 06 | planned |
+| 16 | [Monotone partition graph](16-monotone-partition-graph.md) | F2a | 14, 09, triangulation 07 | planned |
+| 17 | [Monotone triangulation graph](17-monotone-triangulation-graph.md) | F2a | 15, 16 | planned |
+| 18 | [S2 registration](18-s2-registration.md) | F2b | 16, 17 | planned |
+| 19 | [Monotone partition lesson C3](19-monotone-partition-lesson.md) | F3 | 16, 18 | planned |
+| 20 | [Monotone triangulation lesson C4](20-monotone-triangulation-lesson.md) | F3 | 17, 18, 19 | planned |
+| 21 | [Chapter sections for S2](21-s2-chapter-sections.md) | F4 | 19, 20 | planned |
+| F6 | S2 acceptance (C3, C4) | F6 | 14–21 | — |
+
 ## Later batches
 
-- **S1 graphs and lessons, S2 (C3, C4), S3 (C5):** kernels, graphs, registration, lessons and media as in the spec's release batches; S2 needs triangulation T1 (ear clipping) released or its absence stated in C4; S3 needs triangulation T0 and the Voronoi value. Task files are written when the kernels they use are accepted. Registration and lessons wait for `G-REG`.
+- **S3 (C5):** kernel, graph, registration, lesson and media as in the spec's release batches; S3 needs triangulation T0 and T3 (the Voronoi value) and a measured beach-line drawing. Task files are written when the kernels they use are accepted.
