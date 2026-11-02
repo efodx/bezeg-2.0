@@ -10,7 +10,6 @@ Handler 23 (Opus 5.5, `--permission-mode auto`, `--effort medium`) wrote this no
 
 ## Next, in order
 
-1. If 07g/07h are not on master: run the recheck above in the worktree (no worker editing), fix failures (likely counts or lists changed by other streams: preview counts in `guidedExamplePreviewCopy.test.ts`, `lessonCatalog.test.ts`, `familyChapters.test.ts` `CHAPTER_LINK_PENDING`), then `git fetch`, `git rebase origin/master`, push `HEAD:master`.
 1. Projective 07i (F6 gate): the K4 equality with the rational chapter (Batch B release condition, spec K4 acceptance 1 and 7: the S6 weight and existing rational Demonstrations, routes and Presets unchanged), `just check`, browser smoke of the two routes and `/learn/projective-conics` (seven sections, five cards) in SL/EN with a live switch, CI. Follow Batch A F6 (`06-batch-a-release.md` F6 row, brief `briefs/projective-06-f6-smoke.md`). Rebuild before smoke.
 2. Numerical Batch B F3 (lesson N4, add `quadrature-*` names to `scripts/generate-guided-example-inventory.cjs` `numericalExpectedFor`), F4, F5 (cards only), F6 (`docs/tasks/numerical-methods/06-batch-b.md`).
 3. Then `school-function-graphs/06` and `fourier-series/05`.
