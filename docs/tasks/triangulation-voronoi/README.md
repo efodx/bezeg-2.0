@@ -52,6 +52,7 @@ Release condition (spec): T2 released; Voronoi drawing reviewed for reuse by For
 ### Decisions (T3, 2026-11-02, geometry handler 34)
 
 - Whether a partial diagram is a valid `VoronoiDiagram` stays an item of 18's Fortune reuse review.
+- **Settled by handler 35 (18 accepted):** a partial diagram is not a `VoronoiDiagram`. A mid-sweep edge has no valid value, `clipCell` over-fills a cell whose edge list is incomplete, and "open" would stop meaning "continues beyond the box". Fortune's graph therefore draws its own sweep state (sweep line, beach line, breakpoints, traced half-edges, circle events), owns and disposes those objects, and may reuse `clipToBox`, `edgeInBox` and `frame`. At `done` it hands its final value to `voronoiDrawing`. The optional final-cells sub-diagram must meet the invariant in [18-fortune-reuse.md](../../reviews/triangulation-voronoi/18-fortune-reuse.md) (b).
 - Cell construction (B4 step 3): other sites by increasing distance from the chosen site, ties by index.
 - B5 coordinates: 20's worker derives the near-circle quadruple and the on-circle move from the spec's examples (unit square scaled to the grid, or the trapezoid) with `python -I`; the handler confirms them in 20's review before 23 quotes them. Convention: a diagonal is legal when `incircle <= 0`.
 - B5 gets its own Demonstration and route `voronoi-degenerate`, because lessons are keyed one per Demonstration (`getGuidedLesson(demonstrationId)`, `lessonCatalog.ts`). It is served by `DegenerateSitesGraph extends VoronoiGraph`, which opens in the four-point mode; the modes live in `VoronoiGraph` and its scene, and the subclass only fixes the default mode, its Presets collection `compgeo-voronoi-degenerate` and its title. Lesson B5 may switch four-point and collinear by `set-mode`. Chapter sections open their own routes.
@@ -61,7 +62,7 @@ Release condition (spec): T2 released; Voronoi drawing reviewed for reuse by For
 
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
-| 18 | [Voronoi drawing module and Fortune reuse review](18-voronoi-drawing.md) | F2a-support | 05 | planned |
+| 18 | [Voronoi drawing module and Fortune reuse review](18-voronoi-drawing.md) | F2a-support | 05 | accepted 2026-11-02 (handler 35, [record](../../reviews/triangulation-voronoi/18-acceptance.md)) |
 | 19 | [Voronoi graph with the Delaunay duality overlay](19-voronoi-graph.md) (B4) | F2a | 18, 13 | planned |
 | 20 | [Four-point and collinear modes and `DegenerateSitesGraph`](20-degenerate-sites-graph.md) (B5) | F2a | 19 | planned |
 | 21 | [Registration of `voronoi` and `voronoi-degenerate`](21-t3-registration.md) | F2b | 19, 20 | planned |
