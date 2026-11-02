@@ -117,7 +117,7 @@ export class CrossRatioGraph extends BaseGraph<CrossRatioGraphState, CrossRatioM
             this.loadExample(id);
             return;
         }
-        if (action.operation !== "move-handle") throw new Error("projective: the cross-ratio graph has no such operation.");
+        if (action.operation !== "move-handle") throw new Error(`projective: the cross-ratio graph has no operation ${action.operation}.`);
         const {handle, x, y} = action;
         if (!isHandle(handle)) throw new Error(`projective move-handle: handle must be an integer from 0 to ${HANDLE_COUNT - 1}.`);
         const onGrid = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && Math.abs(value) <= CROSS_RATIO_COORD_LIMIT;

@@ -8,10 +8,12 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {sampleConic} from "../../projective/conicSampler";
 import {Hom, toAffine} from "../../projective/homogeneous";
 import {
-    DEFAULT_PASCAL_MODEL, isLineAtInfinity, PASCAL_CONICS, PASCAL_EXAMPLES, PASCAL_HANDLE_COUNT, PASCAL_ORDERS, PASCAL_VIEW_BOX, PascalConicId,
+    DEFAULT_PASCAL_MODEL, isLineAtInfinity, PASCAL_CONIC_IDS, PASCAL_CONICS, PASCAL_EXAMPLE_IDS, PASCAL_EXAMPLES, PASCAL_HANDLE_COUNT, PASCAL_ORDER_IDS, PASCAL_ORDERS, isReachable, PASCAL_VIEW_BOX, PascalConicId,
     PascalExampleId, PascalModel, PascalOrderId, PascalScene, evaluatePascal, serializePascalModel,
 } from "./pascalModel";
-import {dragHandle, SHIFT_STEP, setConic, setOrder, stepHandle} from "./pascalEdit";
+import {dragHandle, SHIFT_STEP, setConic, setIndex, setOrder, stepHandle} from "./pascalEdit";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PascalControls} from "./PascalControls";
 import {definingPoints} from "./definingPoints";
 import {PASCAL_POINT_NAMES, SIDE_NAMES} from "./pascalText";
@@ -137,6 +139,56 @@ export class PascalGraph extends BaseGraph<PascalGraphState, PascalModel> {
 
     chooseOrder(id: PascalOrderId): boolean {
         return this.commit(setOrder(this.model, PASCAL_ORDERS[id]));
+    }
+
+    /** Puts a handle at a direction-table index (the path stepping ends in); a no-op when it is already there. */
+    setHandleIndex(handle: number, index: number): boolean {
+        return this.commit(setIndex(this.model, handle, index));
+    }
+
+    /**
+     * Lesson actions (`projective`, the `pascal-*` operations): each is the matching control action. Values are checked strictly (a
+     * lesson-content error throws, nothing is snapped), then the control's own edit runs.
+     */
+    applyProjectiveAction(action: Extract<LessonAction, {kind: "projective"}>): void {
+        switch (action.operation) {
+            case "pascal-load-example": {
+                const id = PASCAL_EXAMPLE_IDS.find(candidate => candidate === action.exampleId);
+                if (id === undefined) throw new Error(`projective pascal-load-example: exampleId must be one of ${PASCAL_EXAMPLE_IDS.join(", ")}.`);
+                this.loadExample(id);
+                return;
+            }
+            case "pascal-set-conic": {
+                const id = PASCAL_CONIC_IDS.find(candidate => candidate === action.conic);
+                if (id === undefined) throw new Error(`projective pascal-set-conic: conic must be one of ${PASCAL_CONIC_IDS.join(", ")}.`);
+                this.chooseConic(id);
+                return;
+            }
+            case "pascal-set-order": {
+                const id = PASCAL_ORDER_IDS.find(candidate => candidate === action.order);
+                if (id === undefined) throw new Error(`projective pascal-set-order: order must be one of ${PASCAL_ORDER_IDS.join(", ")}.`);
+                this.chooseOrder(id);
+                return;
+            }
+            case "pascal-set-index": {
+                const {handle, index} = action;
+                if (!Number.isInteger(handle) || handle < 0 || handle >= PASCAL_HANDLE_COUNT) {
+                    throw new Error(`projective pascal-set-index: handle must be an integer from 0 to ${PASCAL_HANDLE_COUNT - 1}.`);
+                }
+                if (!isReachable(this.model.conic, handle, index)) {
+                    throw new Error(`projective pascal-set-index: index ${String(index)} is not a reachable position of handle ${handle} on the ${this.model.conic}.`);
+                }
+                this.setHandleIndex(handle, index);
+                return;
+            }
+            default:
+                throw new Error(`projective: the Pascal graph has no operation ${action.operation}.`);
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("projective", action => this.applyProjectiveAction(action));
     }
 
     nudgeSelected(steps: number): boolean {

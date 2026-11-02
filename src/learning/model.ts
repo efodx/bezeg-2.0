@@ -1,6 +1,7 @@
 import type {DemonstrationId} from '../demonstrations';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
 import type {CrossRatioExampleId} from '../graphs/projective/crossRatioModel';
+import type {PascalConicId, PascalExampleId, PascalOrderId} from '../graphs/projective/pascalModel';
 import type {ParametricCurveId} from '../graphs/curves/parametric/parametricCatalogue';
 import {BISECTION_EXAMPLE_IDS} from '../analysis/bisection';
 import {ROOT_FINDING_EXAMPLE_IDS} from '../analysis/rootFinding';
@@ -220,9 +221,17 @@ export type LessonAction =
      * is the example button; `move-handle` is a drag to the grid point (`handle` 0-3 are A-D on the line y = 0 and take only `x`,
      * 4 is the centre O, 5-6 are M and N and take `x` and `y`). Scene data is strict: a non-integer or out-of-range value is a
      * lesson-content error and is never snapped.
+     * PascalGraph (K2) has its own operations, which CrossRatioGraph rejects (and the reverse): `pascal-load-example` is the example
+     * button, `pascal-set-conic` and `pascal-set-order` are the conic and hexagon-order buttons (a new conic restarts the six points
+     * at its defaults), and `pascal-set-index` puts `handle` 0-5 at a direction-table `index`, the path of the arrow keys. Scene data
+     * is strict: an index that is not a reachable position of that handle on the current conic is a lesson-content error, never snapped.
      */
     | {readonly kind: 'projective'; readonly operation: 'load-example'; readonly exampleId: CrossRatioExampleId}
     | {readonly kind: 'projective'; readonly operation: 'move-handle'; readonly handle: number; readonly x: number; readonly y?: number}
+    | {readonly kind: 'projective'; readonly operation: 'pascal-load-example'; readonly exampleId: PascalExampleId}
+    | {readonly kind: 'projective'; readonly operation: 'pascal-set-conic'; readonly conic: PascalConicId}
+    | {readonly kind: 'projective'; readonly operation: 'pascal-set-order'; readonly order: PascalOrderId}
+    | {readonly kind: 'projective'; readonly operation: 'pascal-set-index'; readonly handle: number; readonly index: number}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */

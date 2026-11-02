@@ -1,9 +1,9 @@
 /**
  * Guided lessons of the Projective geometry and conics family (docs/specs/projective-conics-lessons.md), batch A: K1, the cross-ratio,
- * on `projective-cross-ratio`. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every number it
+ * on `projective-cross-ratio`, and K2, Pascal's theorem, on `projective-pascal`. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every number it
  * quotes is a value of the scene it belongs to, and `projectiveConicsGuidedLessons.test.ts` recomputes them with exact fractions, without
- * the projective kernel, and checks them against the real graph. Scenes use only the `projective` actions `CrossRatioGraph` registers
- * (`load-example` and `move-handle`), and every scene sets every value it states, so it does not depend on the scene before it.
+ * the projective kernel, and checks them against the real graph. Scenes use only the `projective` actions the graph of their lesson registers
+ * (K1: `load-example` and `move-handle`; K2: the `pascal-*` operations), and every scene sets every value it states, so it does not depend on the scene before it.
  */
 import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
@@ -42,6 +42,12 @@ const crossRatioScene = (
     ];
     return {id, basedOn: 'demonstration-default', actions, expectedState: text(sl, en)};
 };
+
+export type PascalLessonExample = 'default' | 'infinity';
+type PascalSceneOperation = Extract<LessonAction, {kind: 'projective'; operation: 'pascal-set-conic' | 'pascal-set-order' | 'pascal-set-index'}>;
+
+/** The direction-table index of the line direction (5, 4), the position of the point D in the K2 drag scene (the test pins it to that direction). */
+export const PASCAL_DRAG_INDEX = 52;
 
 const crossRatioLesson: GuidedLesson = {
     demonstrationId: 'projective-cross-ratio',
@@ -240,4 +246,216 @@ const crossRatioLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const projectiveConicsGuidedLessons: readonly GuidedLesson[] = [crossRatioLesson];
+/** A K2 scene from the default scene: `pascal-load-example`, then the conic, order and position operations (PascalGraph's own control actions). */
+const pascalScene = (
+    id: string, example: PascalLessonExample, operations: readonly PascalSceneOperation[], sl: string, en: string,
+): LessonScene => {
+    const actions: LessonAction[] = [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'projective', operation: 'pascal-load-example', exampleId: example},
+        ...operations,
+    ];
+    return {id, basedOn: 'demonstration-default', actions, expectedState: text(sl, en)};
+};
+
+const pascalLesson: GuidedLesson = {
+    demonstrationId: 'projective-pascal',
+    title: text('Pascalov izrek', 'Pascal\'s theorem'),
+    summary: text(
+        'Če je šest točk \\(A_1,\\dots,A_6\\) na stožnici in je šestkotnik \\(A_1A_2A_3A_4A_5A_6\\), ležijo presečišča nasprotnih stranic, \\(P_1=s_1\\cap s_4\\), \\(P_2=s_2\\cap s_5\\) in \\(P_3=s_3\\cap s_6\\), na eni premici (Pascalov izrek). Za izrojeno stožnico, par premic, je to Pappusov izrek. Presečišče lahko leži v neskončnosti; takrat ga graf ne nariše kot končno točko, ampak navede smer.',
+        'If six points \\(A_1,\\dots,A_6\\) lie on a conic and form the hexagon \\(A_1A_2A_3A_4A_5A_6\\), the intersections of opposite sides, \\(P_1=s_1\\cap s_4\\), \\(P_2=s_2\\cap s_5\\) and \\(P_3=s_3\\cap s_6\\), lie on one line (Pascal\'s theorem). For a degenerate conic, a pair of lines, this is Pappus\'s theorem. An intersection may lie at infinity; the graph then does not draw it as a finite point but states its direction.',
+    ),
+    prerequisites: [
+        text('Koordinate točk v ravnini in enačba premice skozi dve točki; lekcija o dvorazmerju pomaga pri točkah v neskončnosti, vendar ni pogoj.', 'Coordinates of points in the plane and the equation of a line through two points; the cross-ratio lesson helps with points at infinity but is not required.'),
+    ],
+    learningGoals: [
+        text('Poiščeš tri presečišča nasprotnih stranic šestkotnika s šestimi točkami na stožnici in preveriš, da ležijo na isti premici.', 'Find the three intersections of opposite sides of a hexagon with six points on a conic and check that they lie on one line.'),
+        text('Razložiš Pascalov izrek kot izrek, ki ga lekcija ne dokazuje, in premikanje točk po stožnici kot ilustracijo, ne dokaz.', 'State Pascal\'s theorem as a theorem that the lesson does not prove, and dragging the points along the conic as an illustration, not a proof.'),
+        text('Prepoznaš Pappusov izrek kot izrek o paru premic in presečišče nasprotnih stranic v neskončnosti kot smer.', 'Recognise Pappus\'s theorem as the theorem for a pair of lines, and an intersection of opposite sides at infinity as a direction.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'pascal-points',
+            latex: 'P_1=s_1\\cap s_4,\\quad P_2=s_2\\cap s_5,\\quad P_3=s_3\\cap s_6',
+            notation: text(
+                '\\(s_i\\) je stranica, ki povezuje \\(i\\)-to in \\((i+1)\\)-to oglišče šestkotnika (\\(s_6\\) zadnje z prvim); \\(P_1\\), \\(P_2\\), \\(P_3\\) so presečišča nasprotnih stranic in jih graf poimenuje enako.',
+                '\\(s_i\\) is the side joining the \\(i\\)-th and \\((i+1)\\)-th vertex of the hexagon (\\(s_6\\) joins the last to the first); \\(P_1\\), \\(P_2\\), \\(P_3\\) are the intersections of opposite sides and the graph names them the same way.',
+            ),
+            explanation: text(
+                'Izrek (Pascal): za šest točk na stožnici so \\(P_1\\), \\(P_2\\) in \\(P_3\\) kolinearne, kar velja za vsak vrstni red oglišč, tudi za prekrižan šestkotnik. Izrek je naveden po temi Pascalov izrek v učnem načrtu FMF (Afina in projektivna geometrija) in v standardnem učbeniku projektivne geometrije; lekcija ga ne dokazuje. Premikanje točk po stožnici je ilustracija izreka, ne dokaz.',
+                'Theorem (Pascal): for six points on a conic, \\(P_1\\), \\(P_2\\) and \\(P_3\\) are collinear, for every order of the vertices, including a self-crossing hexagon. The theorem is stated after the topic Pascal\'s theorem in the FMF syllabus (Afina in projektivna geometrija) and in a standard textbook of projective geometry; the lesson does not prove it. Dragging the points along the conic is an illustration of the theorem, not a proof.',
+            ),
+        },
+        {
+            id: 'pascal-collinear',
+            latex: 'D=\\begin{vmatrix}x_1&y_1&w_1\\\\x_2&y_2&w_2\\\\x_3&y_3&w_3\\end{vmatrix}=0',
+            notation: text(
+                '\\((x_i,y_i,w_i)\\) so homogene koordinate točke \\(P_i\\); točka v neskončnosti ima \\(w_i=0\\). Tri točke so kolinearne natanko tedaj, ko je \\(D=0\\).',
+                '\\((x_i,y_i,w_i)\\) are the homogeneous coordinates of the point \\(P_i\\); a point at infinity has \\(w_i=0\\). Three points are collinear exactly when \\(D=0\\).',
+            ),
+            explanation: text(
+                'Točke imajo celoštevilske ali ulomljene koordinate, zato graf izračuna \\(D\\) natančno z ulomki in izpiše \\(0\\) ali pravo vrednost; zaokroževalne napake ne obstajajo. Pascalov izrek zagotavlja \\(D=0\\); odčitek je preverjanje na primeru.',
+                'The points have integer or fractional coordinates, so the graph computes \\(D\\) exactly with fractions and writes \\(0\\) or the actual value; there are no rounding errors. Pascal\'s theorem guarantees \\(D=0\\); the readout is a check on an example.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'k2-default-point',
+            title: text('Presečišče \\(P_1\\) na elipsi', 'The intersection \\(P_1\\) on the ellipse'),
+            calculationLatex: '6x+5y=30,\\quad 9x+5y=-15',
+            resultLatex: 'P_1=(-15,24)',
+            check: text(
+                'Stranica \\(s_1\\) povezuje \\(A=(5,0)\\) in \\(B=(3,\\tfrac{12}5)\\) in ima enačbo \\(6x+5y=30\\); stranica \\(s_4\\) povezuje \\(D=(-3,\\tfrac{12}5)\\) in \\(E=(0,-3)\\) in ima enačbo \\(9x+5y=-15\\). Odštejemo: \\(-3x=45\\), zato je \\(x=-15\\) in \\(y=\\tfrac{30+90}5=24\\), torej \\(P_1=(-15,24)\\).',
+                'The side \\(s_1\\) joins \\(A=(5,0)\\) and \\(B=(3,\\tfrac{12}5)\\) and has the equation \\(6x+5y=30\\); the side \\(s_4\\) joins \\(D=(-3,\\tfrac{12}5)\\) and \\(E=(0,-3)\\) and has the equation \\(9x+5y=-15\\). Subtracting gives \\(-3x=45\\), so \\(x=-15\\) and \\(y=\\tfrac{30+90}5=24\\), hence \\(P_1=(-15,24)\\).',
+            ),
+        },
+        {
+            id: 'k2-pappus-point',
+            title: text('Presečišče \\(P_1\\) pri Pappusovem izreku', 'The intersection \\(P_1\\) in Pappus\'s theorem'),
+            calculationLatex: 'y=\\tfrac34x,\\quad y=6-3x',
+            resultLatex: 'P_1=\\left(\\tfrac85,\\tfrac65\\right)',
+            check: text(
+                'Stranica \\(s_1\\) povezuje \\(A_1=(0,0)\\) in \\(B_2=(4,3)\\), zato je \\(y=\\tfrac34x\\); stranica \\(s_4\\) povezuje \\(B_1=(1,3)\\) in \\(A_2=(2,0)\\), zato je \\(y=6-3x\\). Iz \\(\\tfrac34x=6-3x\\) sledi \\(\\tfrac{15}4x=6\\), torej \\(x=\\tfrac85\\) in \\(y=\\tfrac65\\).',
+                'The side \\(s_1\\) joins \\(A_1=(0,0)\\) and \\(B_2=(4,3)\\), so \\(y=\\tfrac34x\\); the side \\(s_4\\) joins \\(B_1=(1,3)\\) and \\(A_2=(2,0)\\), so \\(y=6-3x\\). From \\(\\tfrac34x=6-3x\\) we get \\(\\tfrac{15}4x=6\\), so \\(x=\\tfrac85\\) and \\(y=\\tfrac65\\).',
+            ),
+        },
+    ],
+    steps: [
+        step({
+            id: 'pascal-predict', order: 1,
+            title: text('Šest točk na elipsi', 'Six points on an ellipse'),
+            purpose: text('Napovedati, kaj lahko rečemo o presečiščih nasprotnih stranic, preden jih poiščemo.', 'Predicting what can be said about the intersections of opposite sides before finding them.'),
+            explanation: text(
+                'Elipsa \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\) ima točke \\(A=(5,0)\\), \\(B=(3,\\tfrac{12}5)\\), \\(C=(0,3)\\), \\(D=(-3,\\tfrac{12}5)\\), \\(E=(0,-3)\\), \\(F=(4,-\\tfrac95)\\). Šestkotnik \\(ABCDEF\\) ima stranice \\(s_1=AB\\), \\(s_2=BC\\), \\(s_3=CD\\), \\(s_4=DE\\), \\(s_5=EF\\), \\(s_6=FA\\); nasprotni stranici sta \\(s_1\\) in \\(s_4\\), \\(s_2\\) in \\(s_5\\), \\(s_3\\) in \\(s_6\\). Napovej, kje bodo ležala njihova presečišča.',
+                'The ellipse \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\) has the points \\(A=(5,0)\\), \\(B=(3,\\tfrac{12}5)\\), \\(C=(0,3)\\), \\(D=(-3,\\tfrac{12}5)\\), \\(E=(0,-3)\\), \\(F=(4,-\\tfrac95)\\). The hexagon \\(ABCDEF\\) has the sides \\(s_1=AB\\), \\(s_2=BC\\), \\(s_3=CD\\), \\(s_4=DE\\), \\(s_5=EF\\), \\(s_6=FA\\); the opposite sides are \\(s_1\\) and \\(s_4\\), \\(s_2\\) and \\(s_5\\), \\(s_3\\) and \\(s_6\\). Predict where their intersections will lie.',
+            ),
+            formulaIds: ['pascal-points'],
+            observationPrompt: text('Poišči šest točk, šest stranic in preberi vrstni red oglišč v seznamu.', 'Find the six points and the six sides and read the order of the vertices in the list.'),
+            expectedObservations: [text('Šest točk leži na elipsi, vrstni red oglišč je \\(A\\,B\\,C\\,D\\,E\\,F\\).', 'The six points lie on the ellipse, and the order of the vertices is \\(A\\,B\\,C\\,D\\,E\\,F\\).')],
+            scene: pascalScene('pascal-predict-scene', 'default', [],
+                'Elipsa \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\), točke \\(A=(5,0)\\), \\(B=(3,\\tfrac{12}5)\\), \\(C=(0,3)\\), \\(D=(-3,\\tfrac{12}5)\\), \\(E=(0,-3)\\), \\(F=(4,-\\tfrac95)\\) in vrstni red \\(A\\,B\\,C\\,D\\,E\\,F\\).',
+                'The ellipse \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\), the points \\(A=(5,0)\\), \\(B=(3,\\tfrac{12}5)\\), \\(C=(0,3)\\), \\(D=(-3,\\tfrac{12}5)\\), \\(E=(0,-3)\\), \\(F=(4,-\\tfrac95)\\) and the order \\(A\\,B\\,C\\,D\\,E\\,F\\).'),
+        }),
+        step({
+            id: 'pascal-points', order: 2,
+            title: text('Tri presečišča in premica', 'The three intersections and the line'),
+            purpose: text('Izračunati presečišča nasprotnih stranic in videti, da so kolinearna.', 'Computing the intersections of opposite sides and seeing that they are collinear.'),
+            explanation: text(
+                'Presečišča so \\(P_1=s_1\\cap s_4=(-15,24)\\), \\(P_2=s_2\\cap s_5=(12,\\tfrac35)\\) in \\(P_3=s_3\\cap s_6=(\\tfrac{15}2,\\tfrac92)\\). Prvo smo izračunali ročno; graf jih označi z imeni \\(P_1\\), \\(P_2\\), \\(P_3\\) in izpiše tudi v seznamu, premico \\(p\\) skoznje pa nariše. \\(P_1\\) je zunaj prikazanega območja, zato je v seznamu, v grafu pa ni narisana. Determinanta \\(D\\) je natanko \\(0\\) in graf zapiše, da so presečišča natančno kolinearna. To je Pascalov izrek na enem primeru; primer izreka ne dokazuje.',
+                'The intersections are \\(P_1=s_1\\cap s_4=(-15,24)\\), \\(P_2=s_2\\cap s_5=(12,\\tfrac35)\\) and \\(P_3=s_3\\cap s_6=(\\tfrac{15}2,\\tfrac92)\\). The first was computed by hand; the graph labels them \\(P_1\\), \\(P_2\\), \\(P_3\\), also lists them as text and draws the line \\(p\\) through them. \\(P_1\\) is outside the visible area, so it is in the list and not drawn. The determinant \\(D\\) is exactly \\(0\\), and the graph writes that the intersections are exactly collinear. This is Pascal\'s theorem on one example; an example does not prove the theorem.',
+            ),
+            formulaIds: ['pascal-points', 'pascal-collinear'],
+            workedExampleId: 'k2-default-point',
+            observationPrompt: text('Preberi tri presečišča v seznamu in odčitek determinante.', 'Read the three intersections in the list and the determinant readout.'),
+            expectedObservations: [text('Odčitek navede determinanto \\(0\\) in da so presečišča natančno kolinearna.', 'The readout gives the determinant \\(0\\) and says that the intersections are exactly collinear.')],
+            scene: pascalScene('pascal-points-scene', 'default', [],
+                'Presečišča so \\(P_1=(-15,24)\\), \\(P_2=(12,\\tfrac35)\\), \\(P_3=(\\tfrac{15}2,\\tfrac92)\\); determinanta je \\(0\\) in graf navede, da so natančno kolinearna.',
+                'The intersections are \\(P_1=(-15,24)\\), \\(P_2=(12,\\tfrac35)\\), \\(P_3=(\\tfrac{15}2,\\tfrac92)\\); the determinant is \\(0\\) and the graph states that they are exactly collinear.'),
+        }),
+        step({
+            id: 'pascal-drag', order: 3,
+            title: text('Premik točke po stožnici', 'Moving a point along the conic'),
+            purpose: text('Preizkusiti izrek na drugi postavitvi; premik je ilustracija, ne dokaz.', 'Trying the theorem on another set-up; moving is an illustration, not a proof.'),
+            explanation: text(
+                'Točka \\(D\\) se s puščičnimi tipkami ali z vlečenjem premakne po elipsi v \\(D=(-\\tfrac75,\\tfrac{72}{25})\\); drugih pet točk ostane. Presečišči \\(P_1=(-3,\\tfrac{48}5)\\) in \\(P_3=(7,\\tfrac{18}5)\\) se premakneta, ker stranici \\(s_3\\) in \\(s_4\\) vsebujeta \\(D\\), \\(P_2=(12,\\tfrac35)\\) pa ostane, ker \\(s_2\\) in \\(s_5\\) nista povezani z \\(D\\). Determinanta je spet natanko \\(0\\). Opazovanje na več položajih ilustrira izrek in ga ne dokaže.',
+                'The point \\(D\\) moves along the ellipse, with the arrow keys or by dragging, to \\(D=(-\\tfrac75,\\tfrac{72}{25})\\); the other five points stay. The intersections \\(P_1=(-3,\\tfrac{48}5)\\) and \\(P_3=(7,\\tfrac{18}5)\\) move because the sides \\(s_3\\) and \\(s_4\\) contain \\(D\\), while \\(P_2=(12,\\tfrac35)\\) stays because \\(s_2\\) and \\(s_5\\) do not touch \\(D\\). The determinant is again exactly \\(0\\). Watching several positions illustrates the theorem and does not prove it.',
+            ),
+            formulaIds: ['pascal-collinear'],
+            observationPrompt: text('Premikaj točko \\(D\\) in spremljaj, katera presečišča se premikajo in kaj kaže determinanta.', 'Move the point \\(D\\) and watch which intersections move and what the determinant shows.'),
+            expectedObservations: [text('\\(P_1\\) in \\(P_3\\) se premikata, \\(P_2\\) ostane, determinanta ostane \\(0\\).', '\\(P_1\\) and \\(P_3\\) move, \\(P_2\\) stays, the determinant stays \\(0\\).')],
+            scene: pascalScene('pascal-drag-scene', 'default', [{kind: 'projective', operation: 'pascal-set-index', handle: 3, index: PASCAL_DRAG_INDEX}],
+                'Točka \\(D=(-\\tfrac75,\\tfrac{72}{25})\\); presečišča so \\(P_1=(-3,\\tfrac{48}5)\\), \\(P_2=(12,\\tfrac35)\\), \\(P_3=(7,\\tfrac{18}5)\\); determinanta je \\(0\\).',
+                'The point \\(D=(-\\tfrac75,\\tfrac{72}{25})\\); the intersections are \\(P_1=(-3,\\tfrac{48}5)\\), \\(P_2=(12,\\tfrac35)\\), \\(P_3=(7,\\tfrac{18}5)\\); the determinant is \\(0\\).'),
+        }),
+        step({
+            id: 'pascal-order', order: 4,
+            title: text('Prekrižan šestkotnik', 'A self-crossing hexagon'),
+            purpose: text('Videti, da izrek velja za vsak vrstni red oglišč, premica pa se spremeni.', 'Seeing that the theorem holds for every order of the vertices while the line changes.'),
+            explanation: text(
+                'Točke so spet kot v koraku 1, vrstni red pa je \\(A\\,E\\,C\\,D\\,B\\,F\\), zato se stranice križajo. Presečišča so \\(P_1=(9,\\tfrac{12}5)\\), \\(P_2=(0,15)\\) in \\(P_3=(\\tfrac{15}2,\\tfrac92)\\); \\(P_2\\) je zunaj prikazanega območja, zato je v seznamu in ni narisana. Determinanta je \\(0\\), premica pa je druga kot pri običajnem vrstnem redu. Pascalov izrek ne zahteva izbočenega šestkotnika.',
+                'The points are again those of step 1, and the order is \\(A\\,E\\,C\\,D\\,B\\,F\\), so the sides cross. The intersections are \\(P_1=(9,\\tfrac{12}5)\\), \\(P_2=(0,15)\\) and \\(P_3=(\\tfrac{15}2,\\tfrac92)\\); \\(P_2\\) is outside the visible area, so it is in the list and not drawn. The determinant is \\(0\\) and the line is different from the one for the usual order. Pascal\'s theorem does not require a convex hexagon.',
+            ),
+            formulaIds: ['pascal-points'],
+            observationPrompt: text('Preklopi med vrstnima redoma in primerjaj premici skozi presečišča.', 'Switch between the two orders and compare the lines through the intersections.'),
+            expectedObservations: [text('Točke so iste, presečišča in premica so drugi, determinanta ostane \\(0\\).', 'The points are the same, the intersections and the line are different, the determinant stays \\(0\\).')],
+            scene: pascalScene('pascal-order-scene', 'default', [{kind: 'projective', operation: 'pascal-set-order', order: 'pappus'}],
+                'Vrstni red \\(A\\,E\\,C\\,D\\,B\\,F\\); presečišča so \\(P_1=(9,\\tfrac{12}5)\\), \\(P_2=(0,15)\\) (izven prikazanega območja), \\(P_3=(\\tfrac{15}2,\\tfrac92)\\); determinanta je \\(0\\).',
+                'The order \\(A\\,E\\,C\\,D\\,B\\,F\\); the intersections are \\(P_1=(9,\\tfrac{12}5)\\), \\(P_2=(0,15)\\) (outside the visible area), \\(P_3=(\\tfrac{15}2,\\tfrac92)\\); the determinant is \\(0\\).'),
+        }),
+        step({
+            id: 'pascal-pappus', order: 5,
+            title: text('Par premic: Pappusov izrek', 'A pair of lines: Pappus\'s theorem'),
+            purpose: text('Prepoznati, da je Pappusov izrek Pascalov izrek za izrojeno stožnico.', 'Recognising Pappus\'s theorem as Pascal\'s theorem for a degenerate conic.'),
+            explanation: text(
+                'Stožnica je zdaj izrojena stožnica, par premic \\(y=0\\) in \\(y=3\\). Na prvi so \\(A_1=(0,0)\\), \\(A_2=(2,0)\\), \\(A_3=(5,0)\\), na drugi \\(B_1=(1,3)\\), \\(B_2=(4,3)\\), \\(B_3=(6,3)\\), šestkotnik pa je \\(A_1B_2A_3B_1A_2B_3\\). Presečišča so \\(P_1=(\\tfrac85,\\tfrac65)\\), \\(P_2=(\\tfrac{22}5,\\tfrac95)\\), \\(P_3=(3,\\tfrac32)\\) in determinanta je natanko \\(0\\). To je Pappusov izrek, naveden po standardnem učbeniku projektivne geometrije in ne dokazan v lekciji.',
+                'The conic is now a degenerate conic, the pair of lines \\(y=0\\) and \\(y=3\\). On the first are \\(A_1=(0,0)\\), \\(A_2=(2,0)\\), \\(A_3=(5,0)\\), on the second \\(B_1=(1,3)\\), \\(B_2=(4,3)\\), \\(B_3=(6,3)\\), and the hexagon is \\(A_1B_2A_3B_1A_2B_3\\). The intersections are \\(P_1=(\\tfrac85,\\tfrac65)\\), \\(P_2=(\\tfrac{22}5,\\tfrac95)\\), \\(P_3=(3,\\tfrac32)\\) and the determinant is exactly \\(0\\). This is Pappus\'s theorem, stated after a standard textbook of projective geometry and not proved in the lesson.',
+            ),
+            formulaIds: ['pascal-points', 'pascal-collinear'],
+            workedExampleId: 'k2-pappus-point',
+            observationPrompt: text('Poišči šest točk na obeh premicah in preberi odčitek determinante.', 'Find the six points on the two lines and read the determinant readout.'),
+            expectedObservations: [text('Presečišča so natančno kolinearna kljub izrojeni stožnici.', 'The intersections are exactly collinear although the conic is degenerate.')],
+            scene: pascalScene('pascal-pappus-scene', 'default', [
+                {kind: 'projective', operation: 'pascal-set-conic', conic: 'linePair'},
+                {kind: 'projective', operation: 'pascal-set-order', order: 'pappus'},
+            ],
+                'Par premic \\(y=0\\) in \\(y=3\\), vrstni red \\(A_1\\,B_2\\,A_3\\,B_1\\,A_2\\,B_3\\); presečišča so \\(P_1=(\\tfrac85,\\tfrac65)\\), \\(P_2=(\\tfrac{22}5,\\tfrac95)\\), \\(P_3=(3,\\tfrac32)\\); determinanta je \\(0\\).',
+                'The pair of lines \\(y=0\\) and \\(y=3\\), the order \\(A_1\\,B_2\\,A_3\\,B_1\\,A_2\\,B_3\\); the intersections are \\(P_1=(\\tfrac85,\\tfrac65)\\), \\(P_2=(\\tfrac{22}5,\\tfrac95)\\), \\(P_3=(3,\\tfrac32)\\); the determinant is \\(0\\).'),
+        }),
+        step({
+            id: 'pascal-infinity', order: 6,
+            title: text('Vzporedni stranici: presečišče v neskončnosti', 'Parallel sides: an intersection at infinity'),
+            purpose: text('Videti, da izrek velja tudi, ko je presečišče točka v neskončnosti.', 'Seeing that the theorem also holds when an intersection is a point at infinity.'),
+            explanation: text(
+                'Točke \\(A_1=(0,0)\\), \\(A_2=(1,0)\\), \\(A_3=(6,0)\\) in \\(B_1=(4,3)\\), \\(B_2=(3,3)\\), \\(B_3=(8,3)\\) dajo vzporedni stranici \\(s_1=A_1B_2\\) in \\(s_4=B_1A_2\\) (obe imata smer \\((1,1)\\)). Njuno presečišče \\(P_1\\) je zato točka v neskončnosti; graf je ne nariše kot končno točko, ampak navede njeno smer. Drugi presečišči sta \\(P_2=(\\tfrac92,\\tfrac32)\\) in \\(P_3=(\\tfrac{24}5,\\tfrac95)\\) in ležita na premici z naklonom \\(1\\), torej v smeri \\(P_1\\). Determinanta je natanko \\(0\\).',
+                'The points \\(A_1=(0,0)\\), \\(A_2=(1,0)\\), \\(A_3=(6,0)\\) and \\(B_1=(4,3)\\), \\(B_2=(3,3)\\), \\(B_3=(8,3)\\) give parallel sides \\(s_1=A_1B_2\\) and \\(s_4=B_1A_2\\) (both have the direction \\((1,1)\\)). Their intersection \\(P_1\\) is therefore a point at infinity; the graph does not draw it as a finite point but states its direction. The other two intersections are \\(P_2=(\\tfrac92,\\tfrac32)\\) and \\(P_3=(\\tfrac{24}5,\\tfrac95)\\) and they lie on a line of slope \\(1\\), the direction of \\(P_1\\). The determinant is exactly \\(0\\).',
+            ),
+            formulaIds: ['pascal-collinear'],
+            observationPrompt: text('Poišči presečišče, ki ga graf navede kot točko v neskončnosti, in primerjaj njegovo smer z naklonom premice skozi drugi dve presečišči.', 'Find the intersection that the graph lists as a point at infinity and compare its direction with the slope of the line through the other two.'),
+            expectedObservations: [text('\\(P_1\\) je v neskončnosti v smeri \\((1,1)\\), premica \\(p\\) ima naklon \\(1\\).', '\\(P_1\\) is at infinity in the direction \\((1,1)\\), and the line \\(p\\) has slope \\(1\\).')],
+            scene: pascalScene('pascal-infinity-scene', 'infinity', [],
+                'Par premic \\(y=0\\) in \\(y=3\\), vrstni red \\(A_1\\,B_2\\,A_3\\,B_1\\,A_2\\,B_3\\); \\(P_1\\) je točka v neskončnosti v smeri \\((1,1)\\); \\(P_2=(\\tfrac92,\\tfrac32)\\), \\(P_3=(\\tfrac{24}5,\\tfrac95)\\) ležita na premici z naklonom \\(1\\); determinanta je \\(0\\).',
+                'The pair of lines \\(y=0\\) and \\(y=3\\), the order \\(A_1\\,B_2\\,A_3\\,B_1\\,A_2\\,B_3\\); \\(P_1\\) is a point at infinity in the direction \\((1,1)\\); \\(P_2=(\\tfrac92,\\tfrac32)\\), \\(P_3=(\\tfrac{24}5,\\tfrac95)\\) lie on a line of slope \\(1\\); the determinant is \\(0\\).'),
+        }),
+        step({
+            id: 'pascal-explore', order: 7,
+            title: text('Samostojno raziskovanje', 'Free exploration'),
+            purpose: text('Preizkusiti izrek na drugih stožnicah in položajih.', 'Testing the theorem on other conics and positions.'),
+            explanation: text(
+                'Stožnica je hiperbola \\(\\tfrac{x^2}{16}-\\tfrac{y^2}9=1\\), oglišča so v običajnem vrstnem redu \\(A\\,B\\,C\\,D\\,E\\,F\\). Izberi parabolo, elipso, hiperbolo ali par premic, spremeni vrstni red in premikaj točke s puščičnimi tipkami; Shift premakne za več položajev. Če se dve sosednji točki ujameta, stranica ni določena in graf to navede namesto presečišč. Vsak položaj, ki ga preizkusiš, je ilustracija izreka, ne dokaz.',
+                'The conic is the hyperbola \\(\\tfrac{x^2}{16}-\\tfrac{y^2}9=1\\), and the vertices are in the usual order \\(A\\,B\\,C\\,D\\,E\\,F\\). Choose a parabola, ellipse, hyperbola or pair of lines, change the order and move the points with the arrow keys; Shift moves several positions. If two neighbouring points coincide, the side is undefined and the graph says so instead of listing intersections. Every position you try is an illustration of the theorem, not a proof.',
+            ),
+            formulaIds: ['pascal-points', 'pascal-collinear'],
+            observationPrompt: text('Poišči položaj, pri katerem se dve sosednji točki ujameta, in preberi, kaj graf navede.', 'Find a position where two neighbouring points coincide and read what the graph says.'),
+            expectedObservations: [text('Dokler so stranice določene, je determinanta \\(0\\); sicer graf navede, katera stranica ni določena.', 'As long as the sides are defined, the determinant is \\(0\\); otherwise the graph says which side is undefined.')],
+            scene: pascalScene('pascal-explore-scene', 'default', [{kind: 'projective', operation: 'pascal-set-conic', conic: 'hyperbola'}],
+                'Hiperbola \\(\\tfrac{x^2}{16}-\\tfrac{y^2}9=1\\), vrstni red \\(A\\,B\\,C\\,D\\,E\\,F\\); determinanta presečišč je \\(0\\) in graf navede, da so natančno kolinearna.',
+                'The hyperbola \\(\\tfrac{x^2}{16}-\\tfrac{y^2}9=1\\), the order \\(A\\,B\\,C\\,D\\,E\\,F\\); the determinant of the intersections is \\(0\\) and the graph states that they are exactly collinear.'),
+        }),
+    ],
+    sources: [
+        {
+            id: 'fmf-pascal-syllabus',
+            citation: 'Fakulteta za matematiko in fiziko, Univerza v Ljubljani, učni načrt Afina in projektivna geometrija (1Mate/2Mate 2025), tema Pascalov izrek. Cited from the syllabus topic list; not opened beyond the list.',
+            implementationCorrespondence: 'Pascal\'s theorem for six points on a conic, with intersections that may be points at infinity, is the statement of docs/specs/projective-conics-lessons.md section K2 and is checked in the app by the exact determinant of the three intersections on the examples; the lesson does not prove it.',
+        },
+        {
+            id: 'coxeter-pascal-pappus',
+            citation: 'Coxeter, H. S. M. Projective Geometry, 2nd ed., Springer, 1987, the chapters on conics and on Pascal\'s and Pappus\'s theorems. Standard text, cited and not opened.',
+            implementationCorrespondence: 'The text supplies Pascal\'s theorem and Pappus\'s theorem (the case of a degenerate conic) that the lesson states; the lesson reproduces no proof, and moving the points on the graph is labelled an illustration.',
+        },
+        {
+            id: 'bezeg-pascal-implementation',
+            citation: 'Bezeg source: src/projective/homogeneous.ts, src/graphs/projective/pascalModel.ts and src/graphs/projective/PascalGraph.tsx.',
+            implementationCorrespondence: 'A scene loads an example and applies the graph\'s own conic, order and position edits; the lesson text quotes only values of those scenes, and the test recomputes them with exact fractions.',
+        },
+    ],
+    edgeCases: [
+        text('Če se dve sosednji točki šestkotnika ujameta, stranica ni določena; graf to navede in presečišč ne izpiše.', 'If two neighbouring vertices of the hexagon coincide, the side is undefined; the graph says so and lists no intersections.'),
+        text('Presečišče je lahko točka v neskončnosti; graf navede smer, nikoli velike končne koordinate, in Pascalova premica je lahko premica v neskončnosti, kar navede v besedilu.', 'An intersection may be a point at infinity; the graph gives the direction, never a huge finite coordinate, and the Pascal line may be the line at infinity, which it states in text.'),
+        text('Točke ležijo na tabeli smeri, zato so koordinate natančni ulomki in je determinanta natančna za vsak položaj.', 'The points sit on a table of directions, so the coordinates are exact fractions and the determinant is exact for every position.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const projectiveConicsGuidedLessons: readonly GuidedLesson[] = [crossRatioLesson, pascalLesson];

@@ -110,7 +110,7 @@ const definitions = [
     {id: 'interval-sweep', path: '/bezeg-2.0/compgeo/interval-sweep', family: 'computational-geometry', title: 'compgeo_interval_sweep_title', prompts: ['prompt_compgeo_interval_sweep_events', 'prompt_compgeo_interval_sweep_depth']},
     {id: 'segment-intersections', path: '/bezeg-2.0/compgeo/segment-intersections', family: 'computational-geometry', title: 'compgeo_segment_intersections_title', prompts: ['prompt_compgeo_segment_intersections_neighbours', 'prompt_compgeo_segment_intersections_swap']},
     {id: 'projective-cross-ratio', path: '/bezeg-2.0/projective/cross-ratio', family: 'projective', title: 'projective_cross_ratio_title', prompts: ['prompt_projective_cross_ratio_preserved', 'prompt_projective_cross_ratio_infinity']},
-    {id: 'projective-pascal', path: '/bezeg-2.0/projective/pascal', family: 'projective', title: 'projective_pascal_title', prompts: ['prompt_projective_pascal_collinear', 'prompt_projective_pascal_degenerate'], lesson: false},
+    {id: 'projective-pascal', path: '/bezeg-2.0/projective/pascal', family: 'projective', title: 'projective_pascal_title', prompts: ['prompt_projective_pascal_collinear', 'prompt_projective_pascal_degenerate']},
     {id: 'projective-pole-polar', path: '/bezeg-2.0/projective/pole-polar', family: 'projective', title: 'projective_pole_polar_title', prompts: ['prompt_projective_pole_polar_tangents', 'prompt_projective_pole_polar_infinity'], lesson: false},
 ] as const satisfies readonly Definition[];
 export type DemonstrationId = typeof definitions[number]['id'];

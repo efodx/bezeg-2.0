@@ -33,6 +33,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     circle: {chapterId: 'rational-curves', sectionId: 'worked-conic'},
     // Projective conics K1 (cross-ratio): interim home in the worked-conic section, where conics are first met as rational curves; the Projective chapter and its sections are authored in F4.
     'projective-cross-ratio': {chapterId: 'rational-curves', sectionId: 'worked-conic'},
+    // Projective conics K2 (Pascal): the same interim home as K1.
+    'projective-pascal': {chapterId: 'rational-curves', sectionId: 'worked-conic'},
     'spline-cn': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-c1': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-c2': {chapterId: 'splines', sectionId: 'continuity-levels'},
