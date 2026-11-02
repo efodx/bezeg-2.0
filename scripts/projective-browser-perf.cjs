@@ -77,19 +77,29 @@ async function runOnce(browser, c) {
             iv = intervals(stamps, t0, t1);
         } else if (c.kind === 'selects') {
             const selects = page.locator('select');
+            if (await selects.count() < 3) throw new Error(`expected at least 3 selects, found ${await selects.count()}`);
             await startSampling(page);
             const t0 = await page.evaluate(() => performance.now());
-            for (let k = 0; k < 12; k++) { const sel = selects.nth(k % 2 ? 2 : 0), n = await sel.locator('option').count(); await sel.selectOption({index: (k >> 1) % n}); await page.waitForTimeout(120); }
+            let changed = 0;
+            for (let k = 0; k < 12; k++) {
+                const sel = selects.nth(k % 2 ? 2 : 0), n = await sel.locator('option').count(), was = await sel.inputValue();
+                await sel.selectOption({index: (k >> 1) % n}); await page.waitForTimeout(120);
+                if (await sel.inputValue() !== was) changed++;
+            }
             const t1 = await page.evaluate(() => performance.now());
+            if (changed === 0) throw new Error('select changes changed nothing');
             const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
             iv = intervals(stamps, t0, t1);
         } else if (c.kind === 'slider') {
             const slider = page.locator('input[type=range]').first();
             await slider.focus();
             for (let k = 0; k < 30; k++) await slider.press('ArrowLeft');
+            const low = await slider.inputValue();
             await startSampling(page);
             const t0 = await page.evaluate(() => performance.now());
             for (let k = 0; k < 60; k++) { await slider.press('ArrowRight'); await page.waitForTimeout(30); }
+            const high = await slider.inputValue();
+            if (!(Number(high) > Number(low))) throw new Error(`slider did not move (${low} -> ${high})`);
             for (let k = 0; k < 60; k++) { await slider.press('ArrowLeft'); await page.waitForTimeout(30); }
             const t1 = await page.evaluate(() => performance.now());
             const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
