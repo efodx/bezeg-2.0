@@ -1,0 +1,68 @@
+{
+ "highlightPixelsChanged": false,
+ "bb": {
+  "x": 649.484375,
+  "y": 107.1875,
+  "width": 180,
+  "height": 154.28125
+ },
+ "editedVals": "0,0,6,0,6,4,4,2,0,4,0,0",
+ "lessonUrl": "http://127.0.0.1:4313/bezeg-2.0/compgeo/ear-clipping?learn=1&learnChapter=triangulations-voronoi&learnSection=ear-clipping",
+ "lessonVals": "0,0,6,0,6,4,3,2,0,4,0,0",
+ "steps": [
+  {
+   "i": 0,
+   "panel": "Rezanje ušes in izrek o galeriji Skrij Končaj Triangulacije in Voronojevi diagrami · Rezanje ušes in izrek o galeriji Nazaj v poglavje Vsak enostaven večkotnik z 𝑛 oglišči lahko razrežemo na 𝑛 − 2 trikotnikov, če znova in znova odrežemo uho; Fiskovo 3-barvanje oglišč nato pokaže, da zadošča ⌊ 𝑛 /",
+   "sig": 15982,
+   "trace": "1/7",
+   "vals": "0,0,6,0,6,4,3,2,0,4,0,0"
+  },
+  {
+   "i": 1,
+   "panel": "Rezanje ušes in izrek o galeriji Končaj Triangulacije in Voronojevi diagrami · Rezanje ušes in izrek o galeriji Nazaj v poglavje Petkotnik z zarezo Poišči vbočeno oglišče in ugotovi, kateri vogali večkotnika so izbočeni. Opazovanje Korak 1 od 7 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na",
+   "sig": 1394,
+   "trace": "1/7",
+   "vals": "0,0,6,0,6,4,3,2,0,4,0,0"
+  },
+  {
+   "i": 2,
+   "panel": "Rezanje ušes in izrek o galeriji Skrij Končaj Triangulacije in Voronojevi diagrami · Rezanje ušes in izrek o galeriji Nazaj v poglavje Napovej uho Preden prikažeš preizkuse, napovej: katero oglišče lahko odrežemo kot uho? Namig: oglišči ( 0 , 0 ) in ( 6 , 0 ) imata v trikotniku s sosedama vbočeno og",
+   "sig": 2849,
+   "trace": "2/7",
+   "vals": "0,0,6,0,6,4,3,2,0,4,0,0"
+  },
+  {
+   "i": 3,
+   "panel": "Rezanje ušes in izrek o galeriji Končaj Triangulacije in Voronojevi diagrami · Rezanje ušes in izrek o galeriji Nazaj v poglavje Napovej uho Zapiši oglišče, ki ga lahko odrežemo, in utemelji. Opazovanje Korak 2 od 7 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na grafu",
+   "sig": 1394,
+   "trace": "2/7",
+   "vals": "0,0,6,0,6,4,3,2,0,4,0,0"
+  },
+  {
+   "i": 4,
+   "panel": "Rezanje ušes in izrek o galeriji Skrij Končaj Triangulacije in Voronojevi diagrami · Rezanje ušes in izrek o galeriji Nazaj v poglavje Prvo uho Pravilo: oglišča preizkušamo po vrsti od najnižje številke naprej, v nasprotni smeri urinega kazalca, in odrežemo prvo uho. Tri pritiske na Naslednji korak ",
+   "sig": 3696,
+   "trace": "4/12",
+   "vals": "0,0,6,0,6,4,3,2,0,4,0,0"
+  },
+  {
+   "i": 5,
+   "panel": "Rezanje ušes in izrek o galeriji Skrij Končaj Triangulacije in Voronojevi diagrami · Rezanje ušes in izrek o galeriji Nazaj v poglavje Prvo uho Prvo uho: ( 6 , 0 ) , ( 6 , 4 ) , ( 3 , 2 ) 𝐷 = ( 6 − 6 ) ( 2 − 0 ) − ( 4 − 0 ) ( 3 − 6 ) = 0 + 12 𝐷 = 12 Vrednost 𝐷 = 12 > 0 pove, da je oglišče ( 6 , 4",
+   "sig": 2411,
+   "trace": "3/7",
+   "vals": "0,0,6,0,6,4,3,2,0,4,0,0"
+  },
+  {
+   "i": "back",
+   "panel": "Rezanje ušes in izrek o galeriji Skrij Končaj Triangulacije in Voronojevi diagrami · Rezanje ušes in izrek o galeriji Nazaj v poglavje Prvo uho Pravilo: oglišča preizkušamo po vrsti od najnižje številke naprej, v nasprotni smeri urinega kazalca, in odrežemo prvo uho. Tri pritiske na Naslednji korak ",
+   "sig": 3696,
+   "trace": "4/12",
+   "vals": "0,0,6,0,6,4,3,2,0,4,0,0"
+  }
+ ],
+ "confirmText": "Zapustiti vodeni primer?\n\nGraf se bo povrnil v stanje pred začetkom vodenega primera. Vaš napredek v vodenem primeru ni shranjen.\n\nNadaljuj vodeni primer\nZapusti in povrni graf",
+ "exitUrl": "http://127.0.0.1:4313/bezeg-2.0/compgeo/ear-clipping?learnChapter=triangulations-voronoi&learnSection=ear-clipping",
+ "exitVals": "0,0,6,0,6,4,4,2,0,4,0,0",
+ "exitPanel": 0,
+ "errs": []
+}

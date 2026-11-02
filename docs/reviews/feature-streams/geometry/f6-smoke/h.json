@@ -1,0 +1,70 @@
+{
+ "SVG": {
+  "name": "izvoz.svg",
+  "size": 18479
+ },
+ "svgHead": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"847.625\" height=\"475.1875\" style=\"overflow: hidden; display: block;\"><defs><filter id=\"jgbox_f1\" width=\"300%\" height=\"300%\" filterUnits=\"userSpaceOnUse\">",
+ "svgEls": 34,
+ "svgTags": "<svg <defs <filter <fe <clip <rect <g <line <path <ellipse <foreign <text",
+ "svgPolygon": 5,
+ "svgText": ">P1<,>P2<,>P3<,>P4<,>P5<",
+ "PNG": {
+  "name": "izvoz.png",
+  "size": 24001
+ },
+ "pngSig": "89504e470d0a1a0a",
+ "pngWH": [
+  848,
+  476
+ ],
+ "hl_ear-clipping": {
+  "bb": {
+   "x": 52.1875,
+   "y": 368.875,
+   "width": 847.625,
+   "height": 475.1875
+  },
+  "changedOf4": 3
+ },
+ "hl_interval-sweep": {
+  "bb": {
+   "x": 52.1875,
+   "y": 316.65625,
+   "width": 847.625,
+   "height": 475.1875
+  },
+  "changedOf4": 4
+ },
+ "hl_segment-intersections": {
+  "bb": {
+   "x": 52.1875,
+   "y": 316.65625,
+   "width": 847.625,
+   "height": 475.1875
+  },
+  "changedOf4": 4
+ },
+ "narrow": {
+  "sw": 390,
+  "cw": 390,
+  "bw": 390
+ },
+ "narrowNext": [
+  27,
+  166
+ ],
+ "narrowSvg": [
+  13,
+  364,
+  295
+ ],
+ "narrowStep": [
+  "1",
+  "2"
+ ],
+ "narrowLesson": {
+  "sw": 390,
+  "cw": 390
+ },
+ "errs": []
+}

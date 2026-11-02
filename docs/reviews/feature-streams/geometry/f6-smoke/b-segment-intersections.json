@@ -1,0 +1,68 @@
+{
+ "highlightPixelsChanged": false,
+ "bb": {
+  "x": 604.8125,
+  "y": 107.1875,
+  "width": 180,
+  "height": 154.28125
+ },
+ "editedVals": "0,0,6,4,0,4,7,0,1,-1,2,5,4,5,5,-1",
+ "lessonUrl": "http://127.0.0.1:4313/bezeg-2.0/compgeo/segment-intersections?learn=1&learnChapter=sweep-algorithms&learnSection=segment-intersections",
+ "lessonVals": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1",
+ "steps": [
+  {
+   "i": 0,
+   "panel": "Presečišča daljic Skrij Končaj Algoritmi pometanja · Presečišča daljic Nazaj v poglavje Pometalna premica gre navzdol po ravnini, stanje hrani daljice po vrsti od leve proti desni, presečišča pa najdemo s preizkusom samo sosednjih daljic. Štiri daljice Na sliki so štiri daljice: 𝑠 1 od ( 0 , 0 ) do",
+   "sig": 15245,
+   "trace": "1/47",
+   "vals": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1"
+  },
+  {
+   "i": 1,
+   "panel": "Presečišča daljic Končaj Algoritmi pometanja · Presečišča daljic Nazaj v poglavje Štiri daljice Poglej daljice in z očmi poišči pare, ki se sekajo. Opazovanje Korak 1 od 7 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na grafu",
+   "sig": 13358,
+   "trace": "1/7",
+   "vals": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1"
+  },
+  {
+   "i": 2,
+   "panel": "Presečišča daljic Skrij Končaj Algoritmi pometanja · Presečišča daljic Nazaj v poglavje Napovej presečišča Preden premakneš pometalno premico, napovej: koliko presečišč je in kateri pari daljic se sekajo? Namig: vsaka daljica se lahko seka z vsemi tremi drugimi, zato je največ 6 presečišč. Sled je š",
+   "sig": 13358,
+   "trace": "2/7",
+   "vals": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1"
+  },
+  {
+   "i": 3,
+   "panel": "Presečišča daljic Končaj Algoritmi pometanja · Presečišča daljic Nazaj v poglavje Napovej presečišča Zapiši število presečišč in pare, ki se po tvoji presoji sekajo. Opazovanje Korak 2 od 7 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na grafu",
+   "sig": 13358,
+   "trace": "2/7",
+   "vals": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1"
+  },
+  {
+   "i": 4,
+   "panel": "Presečišča daljic Skrij Končaj Algoritmi pometanja · Presečišča daljic Nazaj v poglavje Vrsta dogodkov in stanje Vrsta dogodkov hrani krajišča od zgoraj navzdol, pri enaki višini od leve proti desni. Pometalna premica skoči na prvi dogodek in ga obdela: zgornje krajišče vstavi daljico v stanje na me",
+   "sig": 13358,
+   "trace": "12/47",
+   "vals": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1"
+  },
+  {
+   "i": 5,
+   "panel": "Presečišča daljic Končaj Algoritmi pometanja · Presečišča daljic Nazaj v poglavje Vrsta dogodkov in stanje Pritiskaj Naslednji korak in pri vsakem vstavljanju povej, kje v stanju je nova daljica. Opazovanje Korak 3 od 7 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na grafu",
+   "sig": 13358,
+   "trace": "3/7",
+   "vals": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1"
+  },
+  {
+   "i": "back",
+   "panel": "Presečišča daljic Skrij Končaj Algoritmi pometanja · Presečišča daljic Nazaj v poglavje Vrsta dogodkov in stanje Vrsta dogodkov hrani krajišča od zgoraj navzdol, pri enaki višini od leve proti desni. Pometalna premica skoči na prvi dogodek in ga obdela: zgornje krajišče vstavi daljico v stanje na me",
+   "sig": 13358,
+   "trace": "12/47",
+   "vals": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1"
+  }
+ ],
+ "confirmText": "Zapustiti vodeni primer?\n\nGraf se bo povrnil v stanje pred začetkom vodenega primera. Vaš napredek v vodenem primeru ni shranjen.\n\nNadaljuj vodeni primer\nZapusti in povrni graf",
+ "exitUrl": "http://127.0.0.1:4313/bezeg-2.0/compgeo/segment-intersections?learnChapter=sweep-algorithms&learnSection=segment-intersections",
+ "exitVals": "0,0,6,4,0,4,7,0,1,-1,2,5,4,5,5,-1",
+ "exitPanel": 0,
+ "errs": []
+}

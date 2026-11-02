@@ -1,0 +1,48 @@
+{
+ "entryStep": 1,
+ "entryPlayLabel": "Predvajaj",
+ "hasSvg": 110,
+ "afterReload": 1,
+ "afterReloadSvg": 110,
+ "afterNext": 2,
+ "svgChangedOnNext": false,
+ "afterNext2": 3,
+ "afterPlay": 8,
+ "playLabel": "Premor",
+ "pausedStable": [
+  8,
+  8
+ ],
+ "pauseLabel": "Predvajaj",
+ "afterReset": 1,
+ "beforeEditStep": 5,
+ "arrowEdit": {
+  "before": "3",
+  "after": "4",
+  "step": 1,
+  "playLabel": "Predvajaj",
+  "stepLater": 1
+ },
+ "notesBefore": "Jezik || krivulja || pogled || primer || Korak 1 od 12. Oglišča si sledijo v nasprotni smeri urinega kazalca. Oglišča preizkušamo po vrsti, od najnižje številke naprej.. Odrezani trikotniki doslej: 0. Orientacijskih preizkusov doslej: 0 || Večkotnik je enostaven. || Izberi točko 1 || Izberi točko 2 || Izberi točko 3 || Izberi točko 4 || Izberi točko 5 || Velikost elementov grafa, vrednost",
+ "after_Točka 4: x": {
+  "val": "6",
+  "notes": "Jezik || krivulja || pogled || primer || Stranice večkotnika se sekajo ali dotikajo. Premaknite oglišča, da bo večkotnik enostaven; rezanje ušes zahteva enostaven večkotnik. || Večkotnik ni enostaven: stranici 2 in 3 se stikata ali sekata. || Izberi točko 1 || Izberi točko 2 || Izberi točko 3 || Izberi točko 4 || Izberi točko 5 || Velikost elementov grafa, vrednost"
+ },
+ "after_Točka 4: y": {
+  "val": "2",
+  "notes": "Jezik || krivulja || pogled || primer || Stranice večkotnika se sekajo ali dotikajo. Premaknite oglišča, da bo večkotnik enostaven; rezanje ušes zahteva enostaven večkotnik. || Večkotnik ni enostaven: stranici 2 in 3 se stikata ali sekata. || Izberi točko 1 || Izberi točko 2 || Izberi točko 3 || Izberi točko 4 || Izberi točko 5 || Velikost elementov grafa, vrednost"
+ },
+ "after2_Točka 4: x": {
+  "val": "7",
+  "notes": "Jezik || krivulja || pogled || primer || Stranice večkotnika se sekajo ali dotikajo. Premaknite oglišča, da bo večkotnik enostaven; rezanje ušes zahteva enostaven večkotnik. || Večkotnik ni enostaven: stranici 2 in 4 se stikata ali sekata. || Izberi točko 1 || Izberi točko 2 || Izberi točko 3 || Izberi točko 4 || Izberi točko 5 || Velikost elementov grafa, vrednost"
+ },
+ "after2_Točka 4: y": {
+  "val": "-1",
+  "notes": "Jezik || krivulja || pogled || primer || Stranice večkotnika se sekajo ali dotikajo. Premaknite oglišča, da bo večkotnik enostaven; rezanje ušes zahteva enostaven večkotnik. || Večkotnik ni enostaven: stranici 1 in 4 se stikata ali sekata. || Izberi točko 1 || Izberi točko 2 || Izberi točko 3 || Izberi točko 4 || Izberi točko 5 || Velikost elementov grafa, vrednost"
+ },
+ "beforeVals": [
+  "3",
+  "2"
+ ],
+ "errs": []
+}

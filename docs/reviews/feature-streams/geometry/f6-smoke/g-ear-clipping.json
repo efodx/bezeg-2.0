@@ -1,0 +1,41 @@
+{
+ "focusNext": {
+  "da": "next-step",
+  "ol": "solid 3px",
+  "bs": "none"
+ },
+ "kbNext": [
+  1,
+  2,
+  3
+ ],
+ "focusPlay": {
+  "da": "play-pause",
+  "ol": "solid 3px"
+ },
+ "kbPlay": [
+  3,
+  7,
+  "Premor",
+  7,
+  7,
+  "Predvajaj"
+ ],
+ "focusReset": "reset",
+ "kbReset": 1,
+ "edited": "0,0,6,0,6,4,4,2,0,4,0,0",
+ "optsBefore": [
+  "Privzeta"
+ ],
+ "optsAfterSave": [
+  "Privzeta",
+  "smoke-f6-ear-clipping"
+ ],
+ "valsAfterReload": "0,0,6,0,6,4,3,2,0,4,0,0",
+ "valsAfterLoad": "0,0,6,0,6,4,4,2,0,4,0,0",
+ "deleteButtons": 1,
+ "optsAfterDelete": [
+  "Privzeta"
+ ],
+ "errs": []
+}

@@ -1,0 +1,41 @@
+{
+ "focusNext": {
+  "da": "next-step",
+  "ol": "solid 3px",
+  "bs": "none"
+ },
+ "kbNext": [
+  1,
+  2,
+  3
+ ],
+ "focusPlay": {
+  "da": "play-pause",
+  "ol": "solid 3px"
+ },
+ "kbPlay": [
+  3,
+  9,
+  "Premor",
+  9,
+  9,
+  "Predvajaj"
+ ],
+ "focusReset": "reset",
+ "kbReset": 1,
+ "edited": "0,0,6,4,0,4,7,0,1,-1,2,5,4,5,5,-1",
+ "optsBefore": [
+  "Privzeta"
+ ],
+ "optsAfterSave": [
+  "Privzeta",
+  "smoke-f6-segment-intersections"
+ ],
+ "valsAfterReload": "0,0,6,4,0,4,6,0,1,-1,2,5,4,5,5,-1",
+ "valsAfterLoad": "0,0,6,4,0,4,7,0,1,-1,2,5,4,5,5,-1",
+ "deleteButtons": 1,
+ "optsAfterDelete": [
+  "Privzeta"
+ ],
+ "errs": []
+}

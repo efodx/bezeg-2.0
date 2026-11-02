@@ -1,0 +1,45 @@
+{
+ "sl/triangulations-voronoi": {
+  "h": "Triangulacije in Voronojevi diagrami",
+  "body": 3934,
+  "links": [
+   "Vodeni primer → -> /bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping"
+  ],
+  "landed": "http://127.0.0.1:4313/bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+  "lessonPanel": 1,
+  "board": 1
+ },
+ "sl/sweep-algorithms": {
+  "h": "Algoritmi pometanja",
+  "body": 4160,
+  "links": [
+   "Vodeni primer → -> /bezeg-2.0/compgeo/interval-sweep?example=lesson.sweep-algorithms.interval-sweep.interval-sweep",
+   "Vodeni primer → -> /bezeg-2.0/compgeo/segment-intersections?example=lesson.sweep-algorithms.segment-intersections.segment-intersections"
+  ],
+  "landed": "http://127.0.0.1:4313/bezeg-2.0/compgeo/interval-sweep?example=lesson.sweep-algorithms.interval-sweep.interval-sweep",
+  "lessonPanel": 1,
+  "board": 1
+ },
+ "en/triangulations-voronoi": {
+  "h": "Triangulations and Voronoi diagrams",
+  "body": 4090,
+  "links": [
+   "Guided example → -> /bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping"
+  ],
+  "landed": "http://127.0.0.1:4313/bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+  "lessonPanel": 1,
+  "board": 1
+ },
+ "en/sweep-algorithms": {
+  "h": "Sweep-line algorithms",
+  "body": 4327,
+  "links": [
+   "Guided example → -> /bezeg-2.0/compgeo/interval-sweep?example=lesson.sweep-algorithms.interval-sweep.interval-sweep",
+   "Guided example → -> /bezeg-2.0/compgeo/segment-intersections?example=lesson.sweep-algorithms.segment-intersections.segment-intersections"
+  ],
+  "landed": "http://127.0.0.1:4313/bezeg-2.0/compgeo/interval-sweep?example=lesson.sweep-algorithms.interval-sweep.interval-sweep",
+  "lessonPanel": 1,
+  "board": 1
+ },
+ "errs": []
+}

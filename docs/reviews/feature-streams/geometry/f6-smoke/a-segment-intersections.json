@@ -1,0 +1,50 @@
+{
+ "entryStep": 1,
+ "entryPlayLabel": "Predvajaj",
+ "hasSvg": 115,
+ "afterReload": 1,
+ "afterReloadSvg": 115,
+ "afterNext": 2,
+ "svgChangedOnNext": false,
+ "afterNext2": 3,
+ "afterPlay": 11,
+ "playLabel": "Premor",
+ "pausedStable": [
+  11,
+  11
+ ],
+ "pauseLabel": "Predvajaj",
+ "afterReset": 1,
+ "beforeEditStep": 7,
+ "arrowEdit": {
+  "before": "6",
+  "after": "7",
+  "step": 1,
+  "playLabel": "Predvajaj",
+  "stepLater": 1
+ },
+ "notesBefore": "Jezik || krivulja || pogled || primer || Korak 1 od 47. Vrsta dogodkov vsebuje vsa krajišča daljic. Pometalna premica še miruje nad njimi. || naslednji dogodek || Izberi daljico s1 || Odstrani daljico s1 || Izberi daljico s2 || Odstrani daljico s2 || Izberi daljico s3 || Odstrani daljico s3 || Izberi daljico s4 || Odstrani daljico s4 || Velikost elementov grafa, vrednost",
+ "after_Daljica s2, krajišče 1: x": {
+  "val": "3",
+  "notes": "Jezik || krivulja || pogled || primer || Korak 1 od 43. Vrsta dogodkov vsebuje vsa krajišča daljic. Pometalna premica še miruje nad njimi. || naslednji dogodek || Izberi daljico s1 || Odstrani daljico s1 || Izberi daljico s2 || Odstrani daljico s2 || Izberi daljico s3 || Odstrani daljico s3 || Izberi daljico s4 || Odstrani daljico s4 || Velikost elementov grafa, vrednost"
+ },
+ "after_Daljica s2, krajišče 1: y": {
+  "val": "2",
+  "notes": "Jezik || krivulja || pogled || primer || Korak 1 od 40. Vrsta dogodkov vsebuje vsa krajišča daljic. Pometalna premica še miruje nad njimi. || naslednji dogodek || Izberi daljico s1 || Odstrani daljico s1 || Izberi daljico s2 || Odstrani daljico s2 || Izberi daljico s3 || Odstrani daljico s3 || Izberi daljico s4 || Odstrani daljico s4 || Velikost elementov grafa, vrednost"
+ },
+ "after_Daljica s2, krajišče 2: x": {
+  "val": "9",
+  "notes": "Jezik || krivulja || pogled || primer || Korak 1 od 40. Vrsta dogodkov vsebuje vsa krajišča daljic. Pometalna premica še miruje nad njimi. || naslednji dogodek || Izberi daljico s1 || Odstrani daljico s1 || Izberi daljico s2 || Odstrani daljico s2 || Izberi daljico s3 || Odstrani daljico s3 || Izberi daljico s4 || Odstrani daljico s4 || Velikost elementov grafa, vrednost"
+ },
+ "after_Daljica s2, krajišče 2: y": {
+  "val": "6",
+  "notes": "Jezik || krivulja || pogled || primer || Pometanje je zavrnjeno: daljici s1 in s2 se prekrivata v daljici, ne v točki. Premakni eno od njiju. || Izberi daljico s1 || Odstrani daljico s1 || Izberi daljico s2 || Odstrani daljico s2 || Izberi daljico s3 || Odstrani daljico s3 || Izberi daljico s4 || Odstrani daljico s4 || Velikost elementov grafa, vrednost"
+ },
+ "beforeVals": [
+  "0",
+  "4",
+  "6",
+  "0"
+ ],
+ "errs": []
+}

@@ -1,0 +1,41 @@
+{
+ "focusNext": {
+  "da": "next-step",
+  "ol": "solid 3px",
+  "bs": "none"
+ },
+ "kbNext": [
+  1,
+  2,
+  3
+ ],
+ "focusPlay": {
+  "da": "play-pause",
+  "ol": "solid 3px"
+ },
+ "kbPlay": [
+  3,
+  9,
+  "Premor",
+  9,
+  9,
+  "Predvajaj"
+ ],
+ "focusReset": "reset",
+ "kbReset": 1,
+ "edited": "0,4,3,7,3,5,6,9,8,10",
+ "optsBefore": [
+  "Privzeta"
+ ],
+ "optsAfterSave": [
+  "Privzeta",
+  "smoke-f6-interval-sweep"
+ ],
+ "valsAfterReload": "0,4,2,7,3,5,6,9,8,10",
+ "valsAfterLoad": "0,4,3,7,3,5,6,9,8,10",
+ "deleteButtons": 1,
+ "optsAfterDelete": [
+  "Privzeta"
+ ],
+ "errs": []
+}

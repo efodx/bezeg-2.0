@@ -25,6 +25,7 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 | 08 | [Ear-clipping registration](08-ear-clipping-registration.md) | F2b | 07, `G-REG` | accepted 2026-11-01 (handler 15) |
 | 09 | [Ear-clipping lesson actions and lesson B1](09-ear-clipping-lesson.md) | F3 | 07, 08 | accepted 2026-11-01 (handler 18) |
 | 10 | [Triangulations and Voronoi chapter, T1](10-triangulation-chapter.md) | F4 | 09 | accepted 2026-11-02 (handler 21) |
+| F6 | [T1 acceptance (B1)](../../reviews/feature-streams/geometry/f6-t1-s1-acceptance.md) | F6 | 06–10 | accepted 2026-11-02 (handler 24); T1 released |
 
 ## Later batches
 

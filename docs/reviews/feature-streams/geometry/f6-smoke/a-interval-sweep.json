@@ -1,0 +1,40 @@
+{
+ "entryStep": 1,
+ "entryPlayLabel": "Predvajaj",
+ "hasSvg": 121,
+ "afterReload": 1,
+ "afterReloadSvg": 121,
+ "afterNext": 2,
+ "svgChangedOnNext": false,
+ "afterNext2": 3,
+ "afterPlay": 11,
+ "playLabel": "Premor",
+ "pausedStable": [
+  11,
+  11
+ ],
+ "pauseLabel": "Predvajaj",
+ "afterReset": 1,
+ "beforeEditStep": 7,
+ "arrowEdit": {
+  "before": "2",
+  "after": "3",
+  "step": 1,
+  "playLabel": "Predvajaj",
+  "stepLater": 1
+ },
+ "notesBefore": "Jezik || krivulja || pogled || primer || Korak 1 od 26. Pometalna premica se premakne na x = 0: dogodek vstopa intervala a. || naslednji dogodek || Izberi interval a || Odstrani interval a || Izberi interval b || Odstrani interval b || Izberi interval c || Odstrani interval c || Izberi interval d || Odstrani interval d || Izberi interval e || Odstrani interval e || Velikost elementov grafa, vrednost",
+ "after_Interval b: levo krajišče": {
+  "val": "4",
+  "notes": "Jezik || krivulja || pogled || primer || Korak 1 od 26. Pometalna premica se premakne na x = 0: dogodek vstopa intervala a. || naslednji dogodek || Izberi interval a || Odstrani interval a || Izberi interval b || Odstrani interval b || Izberi interval c || Odstrani interval c || Izberi interval d || Odstrani interval d || Izberi interval e || Odstrani interval e || Velikost elementov grafa, vrednost"
+ },
+ "after_Interval b: desno krajišče": {
+  "val": "4",
+  "notes": "Jezik || krivulja || pogled || primer || Korak 1 od 25. Pometalna premica se premakne na x = 0: dogodek vstopa intervala a. || naslednji dogodek || Izberi interval a || Odstrani interval a || Izberi interval b || Odstrani interval b || Izberi interval c || Odstrani interval c || Izberi interval d || Odstrani interval d || Izberi interval e || Odstrani interval e || Velikost elementov grafa, vrednost"
+ },
+ "beforeVals": [
+  "2",
+  "7"
+ ],
+ "errs": []
+}

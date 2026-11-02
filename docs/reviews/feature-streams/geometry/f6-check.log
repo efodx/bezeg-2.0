@@ -1,0 +1,4 @@
+Waiting for smoke-lesson (pid 100940) to finish starting before reading free memory.
+Memory available for check after 30s.
+check: passed in 1151.8s (test slot 2/2, 3 workers); revision 790f844047dc87eadd7b56a09fc5a060304a7304; dirty; log .command-logs\2026-11-02T05-17-10-064Z-131268-29d27276.log
+check build: passed in 12.5s (test slot 2/2, 3 workers); revision 790f844047dc87eadd7b56a09fc5a060304a7304; dirty; log .command-logs\2026-11-02T05-36-22-663Z-131268-4d84f3aa.log; warnings present (see log)

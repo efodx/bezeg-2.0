@@ -1,0 +1,68 @@
+{
+ "highlightPixelsChanged": true,
+ "bb": {
+  "x": 52.1875,
+  "y": 316.65625,
+  "width": 847.625,
+  "height": 475.1875
+ },
+ "editedVals": "0,4,3,7,3,5,6,9,8,10",
+ "lessonUrl": "http://127.0.0.1:4313/bezeg-2.0/compgeo/interval-sweep?learn=1&learnChapter=sweep-algorithms&learnSection=interval-sweep",
+ "lessonVals": "0,4,2,7,3,5,6,9,8,10",
+ "steps": [
+  {
+   "i": 0,
+   "panel": "Pometanje intervalov Skrij Končaj Algoritmi pometanja · Pometanje intervalov Nazaj v poglavje Navpična pometalna premica, ki potuje po osi 𝑥 , in razvrščena vrsta dogodkov spremenita vprašanje „kateri intervali se prekrivajo“ v zaporedje majhnih sprememb stanja. Pet intervalov Na osi 𝑥 je pet inte",
+   "sig": 48978,
+   "trace": "1/26",
+   "vals": "0,4,2,7,3,5,6,9,8,10"
+  },
+  {
+   "i": 1,
+   "panel": "Pometanje intervalov Končaj Algoritmi pometanja · Pometanje intervalov Nazaj v poglavje Pet intervalov Poglej intervale in z očmi poišči pare, ki se prekrivajo. Opazovanje Korak 1 od 7 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na grafu",
+   "sig": 24181,
+   "trace": "1/7",
+   "vals": "0,4,2,7,3,5,6,9,8,10"
+  },
+  {
+   "i": 2,
+   "panel": "Pometanje intervalov Skrij Končaj Algoritmi pometanja · Pometanje intervalov Nazaj v poglavje Napovej največ Preden premakneš pometalno premico, napovej: največ koliko intervalov ima skupno točko? Namig: poišči točko na osi 𝑥 , kjer navpična črta prereže največ vrstic. Sled je še na koraku 1 od 26 ",
+   "sig": 40269,
+   "trace": "2/7",
+   "vals": "0,4,2,7,3,5,6,9,8,10"
+  },
+  {
+   "i": 3,
+   "panel": "Pometanje intervalov Končaj Algoritmi pometanja · Pometanje intervalov Nazaj v poglavje Napovej največ Zapiši število in točko 𝑥 , kjer po tvoji presoji leži največ intervalov. Opazovanje Korak 2 od 7 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na grafu",
+   "sig": 24998,
+   "trace": "2/7",
+   "vals": "0,4,2,7,3,5,6,9,8,10"
+  },
+  {
+   "i": 4,
+   "panel": "Pometanje intervalov Skrij Končaj Algoritmi pometanja · Pometanje intervalov Nazaj v poglavje Dogodki in stanje Dogodki so krajišča intervalov; vrsta dogodkov jih hrani po vrsti: 0 + , 2 + , 3 + , 4 − , 5 − , 6 + , 7 − , 8 + , 9 − , 10 − , pri čemer 𝑥 + pomeni vstop in 𝑥 − izstop. Pometalna premic",
+   "sig": 53432,
+   "trace": "3/7",
+   "vals": "0,4,2,7,3,5,6,9,8,10"
+  },
+  {
+   "i": 5,
+   "panel": "Pometanje intervalov Skrij Končaj Algoritmi pometanja · Pometanje intervalov Nazaj v poglavje Dogodki in stanje Število odprtih intervalov po dogodkih 0 + , 2 + , 3 + , 4 − , 5 − , 6 + , 7 − , 8 + , 9 − , 10 − : 1 , 2 , 3 , 2 , 1 , 2 , 1 , 2 , 1 , 0 𝑘 max = 3 on [ 3 , 4 ] Izpis „Odprtih po dogodkih",
+   "sig": 32455,
+   "trace": "3/7",
+   "vals": "0,4,2,7,3,5,6,9,8,10"
+  },
+  {
+   "i": "back",
+   "panel": "Pometanje intervalov Skrij Končaj Algoritmi pometanja · Pometanje intervalov Nazaj v poglavje Dogodki in stanje Dogodki so krajišča intervalov; vrsta dogodkov jih hrani po vrsti: 0 + , 2 + , 3 + , 4 − , 5 − , 6 + , 7 − , 8 + , 9 − , 10 − , pri čemer 𝑥 + pomeni vstop in 𝑥 − izstop. Pometalna premic",
+   "sig": 53432,
+   "trace": "3/7",
+   "vals": "0,4,2,7,3,5,6,9,8,10"
+  }
+ ],
+ "confirmText": "Zapustiti vodeni primer?\n\nGraf se bo povrnil v stanje pred začetkom vodenega primera. Vaš napredek v vodenem primeru ni shranjen.\n\nNadaljuj vodeni primer\nZapusti in povrni graf",
+ "exitUrl": "http://127.0.0.1:4313/bezeg-2.0/compgeo/interval-sweep?learnChapter=sweep-algorithms&learnSection=interval-sweep",
+ "exitVals": "0,4,3,7,3,5,6,9,8,10",
+ "exitPanel": 0,
+ "errs": []
+}
