@@ -1933,6 +1933,8 @@ export const sl = {
     "earclip_invalid_step": "Indeks koraka mora biti število. Popravite ali odstranite polje step.",
     // Computational geometry: triangulation of a point set (task 12).
     "tri_overlay_triangulation": "Triangulacija množice točk",
+    "tri_overlay_edges": "Številke robov",
+    "tri_overlay_angles": "Najmanjši kot",
     "tri_flip_group": "Zamenjava roba",
     "tri_edge_select": "Izbrani rob",
     "tri_edge_none": "Noben rob ni izbran",
@@ -1962,6 +1964,11 @@ export const sl = {
     "tri_refusal_duplicate": "Dve točki sta enaki. Premaknite ali odstranite eno od njiju; triangulacija zahteva različne točke.",
     "tri_refusal_degenerate": "Triangulacija potrebuje vsaj tri točke, ki ne ležijo vse na isti premici. Dodajte točko izven premice.",
     "tri_refusal_unsupported": "Te množice točk ni mogoče triangulirati. Uporabite največ 40 točk s celoštevilskimi koordinatami.",
+    "tri_invalid_mode": "Triangulacija deluje samo na množici točk. Nastavite polje mode na points.",
+    "tri_invalid_triangles": "Seznam trikotnikov manjka ali ni pravilen. Polje triangles mora biti seznam trojic celih števil, ki so indeksi točk.",
+    "tri_invalid_index": "Trikotnik {value0} se sklicuje na točko, ki je ni: indeksi so od 0 do {value1}. Popravite indekse v polju triangles.",
+    "tri_invalid_clockwise": "Trikotnik {value0} ni obrnjen v nasprotni smeri urnega kazalca. Zamenjajte vrstni red njegovih točk.",
+    "tri_invalid_triangulation": "Trikotniki niso triangulacija shranjenih točk: prekrivajo se, imajo vrzeli ali ne uporabljajo vseh točk. Popravite polje triangles.",
     // Computational geometry: family and Batch 1 Demonstration titles and prompts.
     "computational_geometry": "Računska geometrija",
     "compgeo_orientation_title": "Orientacija treh točk",

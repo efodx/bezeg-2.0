@@ -1934,6 +1934,8 @@ export const en: Record<keyof typeof sl, string> = {
     "earclip_invalid_step": "The step index must be a number. Correct or remove the step field.",
     // Computational geometry: triangulation of a point set (task 12).
     "tri_overlay_triangulation": "Triangulation of the point set",
+    "tri_overlay_edges": "Edge numbers",
+    "tri_overlay_angles": "Smallest angle",
     "tri_flip_group": "Edge flip",
     "tri_edge_select": "Selected edge",
     "tri_edge_none": "No edge selected",
@@ -1963,6 +1965,11 @@ export const en: Record<keyof typeof sl, string> = {
     "tri_refusal_duplicate": "Two points are equal. Move or remove one of them; a triangulation needs distinct points.",
     "tri_refusal_degenerate": "A triangulation needs at least three points that do not all lie on one line. Add a point off the line.",
     "tri_refusal_unsupported": "This point set cannot be triangulated. Use at most 40 points with integer coordinates.",
+    "tri_invalid_mode": "The triangulation works on a point set only. Set the field mode to points.",
+    "tri_invalid_triangles": "The triangle list is missing or malformed. The field triangles must be a list of triples of whole numbers that are point indices.",
+    "tri_invalid_index": "Triangle {value0} refers to a point that does not exist: indices run from 0 to {value1}. Correct the indices in the field triangles.",
+    "tri_invalid_clockwise": "Triangle {value0} does not run counter-clockwise. Swap the order of two of its points.",
+    "tri_invalid_triangulation": "The triangles are not a triangulation of the stored points: they overlap, leave gaps or do not use every point. Correct the field triangles.",
     // Computational geometry: family and Batch 1 Demonstration titles and prompts.
     "computational_geometry": "Computational geometry",
     "compgeo_orientation_title": "Orientation of three points",

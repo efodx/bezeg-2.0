@@ -13,24 +13,17 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {TriangulationControls} from "./TriangulationControls";
 import type {Preset} from "../base/presets/Presets";
+import type {PresetCollection} from "../base/presets/PresetCollection";
+import {
+    parseTriangleList, TRIANGULATION_EXAMPLE_POINTS, TRIANGULATION_MAX_POINTS, TRIANGULATION_OVERLAY_IDS, TRIANGULATION_T0,
+    triangulationCollection, triangulationRejection, type TriangulationPresetData,
+} from "./triangulationPresetCollection";
 
 /** At most this many points: 2*40 - 2 - 3 = 75 triangles. */
-export const TRIANGULATION_MAX_POINTS = 40;
-export const TRIANGULATION_OVERLAY_IDS = ["grid", "triangulation"] as const;
-export type TriangulationOverlayId = "triangulation";
-
-const point = (x: number, y: number) => ({x, y});
-
-/** The B2 example (spec): n = 7, hull k = 5. */
-export const TRIANGULATION_EXAMPLE_POINTS: PointSetModel = {
-    mode: "points", closed: false, gridStepExponent: 0,
-    points: [point(0, 0), point(8, 0), point(9, 6), point(4, 8), point(-1, 5), point(3, 3), point(6, 3)],
+export {
+    TRIANGULATION_EXAMPLE_POINTS, TRIANGULATION_MAX_POINTS, TRIANGULATION_OVERLAY_IDS, TRIANGULATION_T0, type TriangulationPresetData,
 };
-/** The starting triangulation T0 of the B2 example, by point index (counter-clockwise). */
-export const TRIANGULATION_T0: readonly (readonly number[])[] = [[1, 2, 6], [1, 5, 4], [1, 6, 5], [2, 3, 4], [4, 0, 1], [4, 5, 6], [6, 2, 4]];
-
-/** Preset data of this graph: the points as a point-set model plus the triangle list (checked by the collection, task 12b). */
-export type TriangulationPresetData = PointSetModel & {readonly triangles?: readonly (readonly number[])[]};
+export type TriangulationOverlayId = "triangulation" | "edges" | "angles";
 
 /** The saved configuration beyond the points: the triangle list and the list before the last flip. */
 export interface TriangulationGraphState extends PointSetGraphState {
@@ -77,6 +70,20 @@ function storedTriangles(value: unknown): number[][] {
 /** The triangulation graph works on points only, whatever mode a restored or imported model names. */
 function asPoints(model: PointSetModel): PointSetModel {
     return model.mode === "points" && !model.closed ? model : {...model, mode: "points", closed: false};
+}
+
+/** The corner with the smallest interior angle: its vertex, the two other points of its triangle, and the signed sweep from the first to the second (radians, |sweep| < pi). */
+function smallestCorner(tri: Triangulation): {vertex: number; toward: [number, number]; delta: number} | undefined {
+    let best: {vertex: number; toward: [number, number]; delta: number} | undefined;
+    for (const [a, b, c] of tri.triangles) {
+        for (const [p, q, r] of [[a, b, c], [b, c, a], [c, a, b]]) {
+            const o = tri.points[p], u = tri.points[q], v = tri.points[r];
+            const ux = u.x - o.x, uy = u.y - o.y, vx = v.x - o.x, vy = v.y - o.y;
+            const delta = Math.atan2(ux * vy - uy * vx, ux * vx + uy * vy);
+            if (!best || Math.abs(delta) < Math.abs(best.delta)) best = {vertex: p, toward: [q, r], delta};
+        }
+    }
+    return best;
 }
 
 const sameEdge = (e: readonly [number, number], a: number, b: number): boolean => e[0] === Math.min(a, b) && e[1] === Math.max(a, b);
@@ -276,11 +283,23 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         return data;
     }
 
-    /** The triangle list in `data` is kept when it is a valid triangulation of its points; otherwise the points are rebuilt. */
+    override presetCollection(): PresetCollection<PointSetModel> {
+        return triangulationCollection;
+    }
+
+    /**
+     * A stored triangle list is imported as it is. A list that is not a valid counter-clockwise triangulation of the stored
+     * points is refused (the file importer and `storedPresetData` check first, with a localized message), and the scene stays
+     * as it was. Data without a list (a plain point set) is triangulated by the starting rule.
+     */
     override importPresetData(data: PointSetModel): void {
-        const stored = "triangles" in data ? storedTriangles(data.triangles) : [];
+        const raw: unknown = "triangles" in data ? data.triangles : undefined;
+        const stored = raw === undefined ? undefined : parseTriangleList(raw);
         const {mode: _mode, closed: _closed, ...rest} = serializePointSetModel(data);
-        this.incoming = stored.length > 0 ? stored : undefined;
+        if (raw !== undefined && (stored === undefined || triangulationRejection(rest.points, stored) !== undefined || (stored.length === 0 && createTriangulation(rest.points, []).ok))) {
+            throw new Error("Triangulation preset: the stored triangle list is not a valid triangulation of the stored points.");
+        }
+        this.incoming = stored && stored.length > 0 ? stored : undefined;
         try {
             super.importPresetData(asPoints({...rest, mode: "points", closed: false, points: rest.points}));
         } finally {
@@ -319,7 +338,12 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
     }
 
     protected override overlayLabel(id: TriangulationOverlayId | "grid"): string {
-        return id === "triangulation" ? t("tri_overlay_triangulation") : super.overlayLabel(id);
+        switch (id) {
+            case "triangulation": return t("tri_overlay_triangulation");
+            case "edges": return t("tri_overlay_edges");
+            case "angles": return t("tri_overlay_angles");
+            default: return super.overlayLabel(id);
+        }
     }
 
     /** The drawing follows the triangle list and the selected edge; neither is part of the model. */
@@ -337,6 +361,8 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         if (id === "grid") return super.drawOverlay(id, model);
         const tri = this.triangulation();
         if (!tri) return [];
+        if (id === "edges") return this.drawEdgeLabels(tri, model);
+        if (id === "angles") return this.drawMinAngle(tri, model);
         const selected = this.selectedEdge();
         return [...this.drawSelectedEdge(tri, selected, model), ...this.drawTriangulation(tri, selected, model)];
     }
@@ -356,6 +382,48 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
             curve.on("down", () => { if (!this.graphInteractionLocked) this.selectEdge(edge.a, edge.b); });
             return curve;
         });
+    }
+
+    /** The edge index list on the board: each edge is labelled with its two point numbers, as in the panel's edge list. Digits only, so nothing to translate. */
+    protected drawEdgeLabels(tri: Triangulation, model: PointSetModel): JXG.GeometryElement[] {
+        return edges(tri).map(edge => {
+            const from = gridToBoard(tri.points[edge.a], model.gridStepExponent);
+            const to = gridToBoard(tri.points[edge.b], model.gridStepExponent);
+            return this.board.create("text", [(from.x + to.x) / 2, (from.y + to.y) / 2, `${edge.a}–${edge.b}`], {
+                name: "triangulation-edge-label", fixed: true, highlight: false, anchorX: "middle", anchorY: "middle", layer: 5,
+                fontSize: 11, strokeColor: GraphPalette.referenceCurve,
+            }) as JXG.GeometryElement;
+        });
+    }
+
+    /** The smallest angle of the triangulation: an arc at its corner and the letter alpha (language-neutral; the value is in the panel). */
+    protected drawMinAngle(tri: Triangulation, model: PointSetModel): JXG.GeometryElement[] {
+        const found = smallestCorner(tri);
+        if (!found) return [];
+        const {vertex, toward, delta} = found;
+        const corner = gridToBoard(tri.points[vertex], model.gridStepExponent);
+        const a = gridToBoard(tri.points[toward[0]], model.gridStepExponent);
+        const b = gridToBoard(tri.points[toward[1]], model.gridStepExponent);
+        const reach = Math.min(Math.hypot(a.x - corner.x, a.y - corner.y), Math.hypot(b.x - corner.x, b.y - corner.y));
+        const radius = 0.3 * reach;
+        const start = Math.atan2(a.y - corner.y, a.x - corner.x);
+        const steps = 16;
+        const xs: number[] = [], ys: number[] = [];
+        for (let i = 0; i <= steps; i++) {
+            const angle = start + delta * i / steps;
+            xs.push(corner.x + radius * Math.cos(angle));
+            ys.push(corner.y + radius * Math.sin(angle));
+        }
+        const mid = start + delta / 2;
+        const arc = this.board.create("curve", [xs, ys], {
+            name: "triangulation-min-angle", highlight: false, fixed: true, layer: 4,
+            strokeColor: GraphPalette.constructionAccent, strokeWidth: 3,
+        }) as JXG.GeometryElement;
+        const label = this.board.create("text", [corner.x + 1.7 * radius * Math.cos(mid), corner.y + 1.7 * radius * Math.sin(mid), "α"], {
+            name: "triangulation-min-angle-label", fixed: true, highlight: false, anchorX: "middle", anchorY: "middle", layer: 5,
+            fontSize: 14, strokeColor: GraphPalette.constructionAccent,
+        }) as JXG.GeometryElement;
+        return [arc, label];
     }
 
     /** The quadrilateral of the selected edge: its two triangles, in counter-clockwise order (a hull edge has one triangle, so none). */

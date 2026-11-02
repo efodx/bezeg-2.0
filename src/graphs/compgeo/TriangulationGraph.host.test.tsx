@@ -7,11 +7,33 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestH
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {angleVector} from '../../compgeo/delaunay';
 import {createTriangulation, edges, flip} from '../../compgeo/triangulation';
-import {setLanguage} from '../../localization';
+import {renderMessage, setLanguage} from '../../localization';
+import {
+    TRIANGULATION_DELAUNAY, TRIANGULATION_EXAMPLES, TRIANGULATION_NINE_POINTS, TRIANGULATION_NINE_POINTS_TRIANGLES,
+    TRIANGULATION_PRESET_KEY, triangulationCollection,
+} from './triangulationPresetCollection';
+import {incrementalTriangulation} from '../../compgeo/delaunay';
+import {HULL_TRACE_SAMPLE_1} from './HullTraceGraph';
+
+// Counts the live subscriptions of the language listener, so unmount can be checked to release it.
+const languageListeners = vi.hoisted(() => ({live: 0}));
+vi.mock('../../localization', async importOriginal => {
+    const original = await importOriginal<typeof import('../../localization')>();
+    return {
+        ...original,
+        onLanguageChange: (listener: () => void) => {
+            languageListeners.live++;
+            const off = original.onLanguageChange(listener);
+            let released = false;
+            return () => { if (!released) languageListeners.live--; released = true; off(); };
+        },
+    };
+});
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeEach(() => {
+    languageListeners.live = 0;
     window.localStorage.clear();
     setLanguage('sl');
 });
@@ -251,4 +273,259 @@ test('the panel text follows a live language switch', () => {
     expect(readout('triangles')).toBe('Triangles: 7 = 2n − 2 − k = 2 · 7 − 2 − 5');
     act(() => { setLanguage('sl'); });
     expect(readout('triangles')).toContain('Trikotnikov: 7');
+});
+
+// ---- Overlays, Presets, Reset, disposal, performance (task 12b) ---------------------------------------------------------
+
+const labelsOf = (graph: Observed, name: string) => objects(graph).filter(o => o.name === name);
+const settle = async (start: () => Promise<void>) => {
+    let pending: Promise<void> = Promise.resolve();
+    act(() => { pending = start(); });
+    await act(async () => { await pending; });
+};
+const checked = (data: unknown) => triangulationCollection.check(data);
+const refusalKey = (data: unknown) => {
+    const result = checked(data);
+    return 'rejection' in result ? result.rejection.key : undefined;
+};
+const example = (id: string) => {
+    const found = TRIANGULATION_EXAMPLES.find(e => e.id === id);
+    if (!found) throw new Error(id);
+    return found.data;
+};
+const copy = (data: unknown): Record<string, unknown> => JSON.parse(JSON.stringify(data));
+const scene = (graph: Observed) => JSON.stringify([graph.model.points, graph.triangles]);
+
+test('the edges overlay labels every edge with its two point numbers; the angles overlay marks the smallest angle; both toggle off', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(labelsOf(graph, 'triangulation-edge-label')).toHaveLength(0);
+    expect(labelsOf(graph, 'triangulation-min-angle')).toHaveLength(0);
+    act(() => { graph.setOverlay('edges', true); });
+    expect(labelsOf(graph, 'triangulation-edge-label')).toHaveLength(13);
+    expect(labelsOf(graph, 'triangulation-min-angle')).toHaveLength(0);
+    act(() => { graph.setOverlay('angles', true); });
+    expect(labelsOf(graph, 'triangulation-min-angle')).toHaveLength(1);
+    expect(labelsOf(graph, 'triangulation-min-angle-label')).toHaveLength(1);
+    expect(edgeCurves(graph)).toHaveLength(13);
+    act(() => { graph.setOverlay('edges', false); graph.setOverlay('angles', false); });
+    expect(labelsOf(graph, 'triangulation-edge-label')).toHaveLength(0);
+    expect(labelsOf(graph, 'triangulation-min-angle')).toHaveLength(0);
+    expect(labelsOf(graph, 'triangulation-min-angle-label')).toHaveLength(0);
+    expect(edgeCurves(graph)).toHaveLength(13);
+});
+
+test('the board text is language-neutral, the overlay switches are labelled in both languages, and the marker survives a flip', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.setOverlay('edges', true); graph.setOverlay('angles', true); });
+    const texts = () => objects(graph).filter(o => o.elType === 'text').map(o => String((o as unknown as {plaintext?: string}).plaintext ?? ''));
+    const before = texts();
+    expect(before).toContain('α');
+    expect(before).toContain('1–2');
+    act(() => { setLanguage('en'); });
+    expect(texts()).toEqual(before);
+    const labels = () => Array.from(document.querySelectorAll('label')).map(l => (l.textContent ?? '').trim());
+    expect(labels()).toEqual(expect.arrayContaining(['Edge numbers', 'Smallest angle']));
+    act(() => { setLanguage('sl'); });
+    expect(labels()).toEqual(expect.arrayContaining(['Številke robov', 'Najmanjši kot']));
+    const e = legalEdge();
+    choose(e.a, e.b);
+    flipIt();
+    expect(labelsOf(graph, 'triangulation-edge-label')).toHaveLength(13);
+    expect(labelsOf(graph, 'triangulation-min-angle')).toHaveLength(1);
+});
+
+test('the Preset examples are T0, the Delaunay triangulation and the nine hull-lesson points, all valid', () => {
+    expect(TRIANGULATION_EXAMPLES.map(e => e.id)).toEqual(['t0', 'delaunay', 'nine-points']);
+    expect(TRIANGULATION_NINE_POINTS.points).toEqual(HULL_TRACE_SAMPLE_1.points);
+    const built = incrementalTriangulation(TRIANGULATION_NINE_POINTS.points);
+    expect(built.ok && built.value.triangles).toEqual(TRIANGULATION_NINE_POINTS_TRIANGLES);
+    expect(example('t0').triangles).toEqual(TRIANGULATION_T0);
+    expect(example('delaunay').triangles).toEqual(TRIANGULATION_DELAUNAY);
+    for (const {data} of TRIANGULATION_EXAMPLES) expect('data' in checked(data)).toBe(true);
+});
+
+test('every collection Preset loads and shows its counts', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(graph.presetCollection().key).toBe(TRIANGULATION_PRESET_KEY);
+    act(() => { graph.importPreset({id: TRIANGULATION_PRESET_KEY, graphState: {initialized: true}, data: example('delaunay')}); });
+    expect(graph.triangles).toEqual(TRIANGULATION_DELAUNAY);
+    expect(readout('triangles')).toBe('Trikotnikov: 7 = 2n − 2 − k = 2 · 7 − 2 − 5');
+    expect(readout('edges')).toBe('Robov: 13 = 3n − 3 − k = 3 · 7 − 3 − 5; notranjih 8, na ovojnici 5');
+    expect(readout('angle')).toBe(`Najmanjši kot zdaj: ${minOf(TRIANGULATION_DELAUNAY)}°`);
+    expect(part('event')).toBeUndefined();
+    act(() => { graph.importPreset({id: TRIANGULATION_PRESET_KEY, graphState: {initialized: true}, data: example('nine-points')}); });
+    expect(graph.triangles).toEqual(TRIANGULATION_NINE_POINTS_TRIANGLES);
+    expect(readout('k')).toBe('Točk na robu ovojnice: k = 6');
+    expect(readout('triangles')).toBe('Trikotnikov: 10 = 2n − 2 − k = 2 · 9 − 2 − 6');
+    expect(edgeCurves(graph)).toHaveLength(3 * 9 - 3 - 6);
+    act(() => { graph.importPreset({id: TRIANGULATION_PRESET_KEY, graphState: {initialized: true}, data: example('t0')}); });
+    expect(graph.triangles).toEqual(TRIANGULATION_T0);
+    expect(readout('triangles')).toBe('Trikotnikov: 7 = 2n − 2 − k = 2 · 7 − 2 − 5');
+    expect(readout('edges')).toBe('Robov: 13 = 3n − 3 − k = 3 · 7 − 3 − 5; notranjih 8, na ovojnici 5');
+});
+
+test('a Preset round trip keeps the points and the triangle list, a flipped one included, and stores the list once', async () => {
+    const graph = new Observed();
+    mount(graph);
+    const e = legalEdge();
+    choose(e.a, e.b);
+    flipIt();
+    const flipped = graph.triangles;
+    expect(flipped).not.toEqual(TRIANGULATION_T0);
+    const exported = graph.exportPreset();
+    expect(exported.id).toBe(TRIANGULATION_PRESET_KEY);
+    expect(exported.graphState).not.toHaveProperty('triangles');
+    expect(exported.graphState).not.toHaveProperty('previous');
+    expect(exported.graphState).not.toHaveProperty('model');
+    expect(triangulationCollection.checkGraphState?.(exported.graphState)).toBeUndefined();
+    expect('data' in checked(exported.data)).toBe(true);
+    const points = graph.model.points;
+    act(() => { graph.saveCurrentPreset('mine'); });
+    act(() => { graph.importPreset({id: TRIANGULATION_PRESET_KEY, graphState: {initialized: true}, data: example('nine-points')}); });
+    expect(graph.model.points).toHaveLength(9);
+    await settle(() => graph.selectPreset('mine'));
+    expect(graph.model.points).toEqual(points);
+    expect(graph.triangles).toEqual(flipped);
+    expect(readout('triangles')).toBe('Trikotnikov: 7 = 2n − 2 − k = 2 · 7 − 2 − 5');
+    expect(graph.selectedEdge()).toBeUndefined();
+});
+
+test('graphState with an unknown overlay or a stray field is refused; the known overlay ids are accepted', () => {
+    const state = (graphState: unknown) => triangulationCollection.checkGraphState?.(graphState)?.key;
+    expect(state({initialized: true, overlays: {triangulation: true, edges: false, angles: true, grid: true}})).toBeUndefined();
+    expect(state({initialized: true, overlays: {nope: true}})).toBe('pointset_invalid_overlays');
+    expect(state({initialized: true, triangles: []})).toBe('invalid_value');
+});
+
+describe('import refusals', () => {
+    const t0 = () => copy(example('t0'));
+    const rest = (): number[][] => (t0().triangles as number[][]).slice(1);
+    const tail = (): unknown[] => (t0().points as unknown[]).slice(1);
+    const cases: Array<[string, () => unknown, string]> = [
+        ['41 points', () => ({...t0(), points: Array.from({length: 41}, (_, i) => ({x: i, y: i * i % 7})), triangles: []}), 'pointset_invalid_too_many_points'],
+        ['a non-integer coordinate', () => ({...t0(), points: [{x: 0.5, y: 0}, ...tail()]}), 'pointset_invalid_non_integer_coordinate'],
+        ['a coordinate out of range', () => ({...t0(), points: [{x: 1e9, y: 0}, ...tail()]}), 'pointset_invalid_coordinate_out_of_range'],
+        ['polygon mode', () => ({...t0(), mode: 'polygon', closed: true}), 'tri_invalid_mode'],
+        ['segments mode', () => ({...t0(), mode: 'segments'}), 'tri_invalid_mode'],
+        ['no triangle list', () => { const d = t0(); delete d.triangles; return d; }, 'tri_invalid_triangles'],
+        ['a triangle that is not a triple', () => ({...t0(), triangles: [[1, 2]]}), 'tri_invalid_triangles'],
+        ['a non-integer index', () => ({...t0(), triangles: [[1, 2, 6.5]]}), 'tri_invalid_triangles'],
+        ['a wrong point index', () => ({...t0(), triangles: [...rest(), [6, 2, 99]]}), 'tri_invalid_index'],
+        ['a clockwise triangle', () => ({...t0(), triangles: [[1, 6, 2], ...rest()]}), 'tri_invalid_clockwise'],
+        ['overlapping triangles', () => ({...t0(), triangles: [...rest(), [1, 2, 6], [1, 2, 6]]}), 'tri_invalid_triangulation'],
+        ['a missing triangle', () => ({...t0(), triangles: rest()}), 'tri_invalid_triangulation'],
+        ['an empty list for valid points', () => ({...t0(), triangles: []}), 'tri_invalid_triangulation'],
+        ['the nine-point list on the seven points', () => ({...t0(), triangles: TRIANGULATION_NINE_POINTS_TRIANGLES}), 'tri_invalid_index'],
+    ];
+    test.each(cases)('%s is refused with its localized message', (_name, make, key) => {
+        expect(refusalKey(make())).toBe(key);
+        const result = checked(make());
+        if (!('rejection' in result)) throw new Error('not refused');
+        setLanguage('sl');
+        const sl = renderMessage(result.rejection);
+        setLanguage('en');
+        const en = renderMessage(result.rejection);
+        expect(sl).not.toBe(en);
+        expect(sl).not.toMatch(/\{value\d\}/);
+        expect(en).not.toMatch(/\{value\d\}/);
+    });
+
+    test('importPresetData refuses a bad stored list by throwing and leaves the scene unchanged', () => {
+        const graph = new Observed();
+        mount(graph);
+        const e = legalEdge();
+        choose(e.a, e.b);
+        flipIt();
+        const before = scene(graph);
+        const selected = graph.selectedEdge();
+        const clockwise = {...t0(), triangles: [[1, 6, 2], ...rest()]} as unknown as PointSetModel;
+        expect(() => graph.importPresetData(clockwise)).toThrow(/not a valid triangulation/);
+        expect(scene(graph)).toBe(before);
+        expect(graph.selectedEdge()).toEqual(selected);
+        expect(part('event')).toContain('je zamenjan z robom');
+        const wrongList = {...t0(), triangles: [[0, 1, 2]]} as unknown as PointSetModel;
+        expect(() => graph.importPresetData(wrongList)).toThrow();
+        expect(scene(graph)).toBe(before);
+    });
+});
+
+test('points without a triangulation are saved with an empty list and import again', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.loadModel(pts([[0, 0], [1, 1], [0, 0]])); });
+    const exported = graph.exportPreset();
+    expect((exported.data as unknown as {triangles: unknown}).triangles).toEqual([]);
+    expect('data' in checked(exported.data)).toBe(true);
+    act(() => { graph.importPreset({id: TRIANGULATION_PRESET_KEY, graphState: {initialized: true}, data: example('t0')}); });
+    expect(graph.triangles).toEqual(TRIANGULATION_T0);
+    act(() => { graph.importPreset(exported); });
+    expect(part('refusal')).toContain('Dve točki sta enaki');
+});
+
+test('Reset returns to the default scene and clears the selection and the event', async () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.addPointAt({x: 6, y: 2}); });
+    const e = legalEdge();
+    choose(e.a, e.b);
+    flipIt();
+    act(() => { graph.setOverlay('edges', true); });
+    expect(graph.model.points).toHaveLength(8);
+    await settle(() => graph.reset());
+    expect(graph.model.points).toEqual(TRIANGULATION_EXAMPLE_POINTS.points);
+    expect(graph.triangles).toEqual(TRIANGULATION_T0);
+    expect(graph.selectedEdge()).toBeUndefined();
+    expect(graph.event).toBeUndefined();
+    expect(part('event')).toBeUndefined();
+    expect(list().value).not.toMatch(/^\d+-\d+$/);
+    expect(labelsOf(graph, 'triangulation-edge-label')).toHaveLength(0);
+    expect(readout('triangles')).toBe('Trikotnikov: 7 = 2n − 2 − k = 2 · 7 − 2 − 5');
+});
+
+test('a live language switch re-renders the panel text, the refusal and the readouts', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.loadModel(pts([[0, 0], [1, 1], [0, 0]])); });
+    expect(part('refusal')).toContain('Dve točki sta enaki');
+    act(() => { setLanguage('en'); });
+    expect(part('refusal')).toContain('Two points are equal');
+    act(() => { graph.loadModel(TRIANGULATION_EXAMPLE_POINTS); });
+    expect(readout('edges')).toContain('Edges: 13');
+    expect(readout('angle')).toMatch(/^Smallest angle now: \d+\.\d\d°$/);
+    act(() => { setLanguage('sl'); });
+    expect(readout('angle')).toMatch(/^Najmanjši kot zdaj: \d+,\d\d°$/);
+});
+
+test('unmount leaves no board objects, language listeners or key listeners', () => {
+    const graph = new Observed();
+    const view = mount(graph);
+    act(() => { graph.setOverlay('edges', true); graph.setOverlay('angles', true); });
+    const board = graph.liveBoard();
+    const box = board.containerObj as HTMLElement;
+    const remove = vi.spyOn(box, 'removeEventListener');
+    expect(languageListeners.live).toBeGreaterThan(0);
+    expect((board.objectsList as unknown[]).length).toBeGreaterThan(0);
+    view.unmount();
+    expect(languageListeners.live).toBe(0);
+    expect(remove.mock.calls.filter(([type, listener]) => type === 'keydown' && listener === graph['onKeyDown'])).toHaveLength(1);
+    expect(box.childElementCount).toBe(0);
+    expect(() => act(() => { setLanguage('en'); })).not.toThrow();
+});
+
+// The model-edit path (store write, triangle list kept or rebuilt) at the 40-point limit. The board redraw that follows is
+// JSXGraph object creation and is measured in a browser (docs/reviews/triangulation-voronoi/12b-handoff.md has the jsdom numbers).
+test('performance: 20 consecutive single-point moves at 40 points stay far below one frame through the model-edit API', () => {
+    const graph = new Observed();
+    mount(graph);
+    const spread = Array.from({length: 40}, (_, i): [number, number] => [(i * 7) % 41 - 20, (i * 13 + 5) % 37 - 18]);
+    act(() => { graph.loadModel(pts(spread)); });
+    expect(graph.triangulation()).toBeDefined();
+    const started = performance.now();
+    for (let i = 0; i < 20; i++) graph.movePointTo(20, {x: spread[20][0] + (i % 2 ? 1 : -1) * (1 + i % 3), y: spread[20][1] + (i % 5) - 2});
+    const mean = (performance.now() - started) / 20;
+    expect(graph.triangulation()).toBeDefined();
+    expect(mean, `mean ${mean.toFixed(2)} ms per move`).toBeLessThan(16);
 });
