@@ -1,0 +1,19 @@
+# Brief IA-A-2d (handoff-v12): register `interp-runge` (I2)
+
+- **Role:** implementation, edit permission in the worktree `C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-curves` (branch `worktree-stream-curves`). Do not commit, push or delegate.
+- **Goal:** F2b registration of the existing I2 graph `src/graphs/functions/RungeInterpolationGraph.tsx` as Demonstration `interp-runge` at `/bezeg-2.0/interpolation/runge`, family `/bezeg-2.0/interpolation`, `lesson: false` (the lesson is a later F3 slice). Spec: `docs/specs/interpolation-approximation-lessons.md` §I2 (lines 55-75) and the batch gate (161-167); plan `docs/tasks/interpolation-approximation/README.md` (ids, routes).
+- **Acceptance:**
+  1. The route opens directly and after refresh; the catalog lists the card in the interpolation family with a localized title and prompts (SL and EN, keys in the existing interpolation block, same positions in `sl.ts`/`en.ts`).
+  2. The id is in `POSTER_PENDING` (`src/demonstrationPosterPending.ts`) and has a preview recipe in `scripts/demonstration-preview-recipes.cjs` (default scene, Runge function, equispaced; add a framing window only if needed, and if so with the 720:440 aspect, because the graph draws a semicircle). No capture.
+  3. Preset collection `interp-runge` is reachable from the Preset catalog/import paths the other interpolation ids use; Presets and routes valid at HEAD keep working (new keys only).
+  4. Transient-state contract and real-graph scene harness include the new graph, as for `interp-lagrange`.
+  5. All registry tests that enumerate Demonstrations are updated, not weakened.
+- **Scope:** follow commit `2a6e9c4` exactly as a pattern (`git show --stat 2a6e9c4`; read its diff per file only where needed): `src/demonstrations.ts`, `src/graphs/graphFactories.ts`, `src/graphs/base/graphTransientStateContract.tsx`, `src/graphs/base/presets/PresetImport.ts`, `src/graphs/base/realGraphScenes.ts`, `src/graphs/base/realGraphTestHarness.tsx`, locale catalogs, recipes, POSTER_PENDING, and the tests in that commit plus any newer registry test that fails. Do not edit the graph's mathematics. If the graph itself needs a change to register (e.g. a missing contract method), make the minimal change and flag it.
+- **Context:** `G-REG` is open. Other streams edit the same registries; keep each edit minimal and in place, never at file ends of locale catalogs. Localization rules: AGENTS.md (typed `t()` calls, no casts).
+- **Checks:** `just unit src/demonstrations src/graphs/base src/graphs/functions/RungeInterpolationGraph src/DemonstrationsPage src/demonstrationPreviewAssets src/learning/runtime/lessonCatalog src/localization`, `npx tsc --noEmit --pretty false`, `just lint`, then `just build` (localization changed). Run heavy checks one at a time; never bare `npx vitest`. For each changed registry test report that it failed before your registration edit (or by deliberate mutation). Logs to `C:\Users\NonFriedMotherBoard\.claude\jobs\d23acd6a\tmp\ia-a-2d-*.log`. No browser check: the handler runs a smoke after.
+- **Return:** ≤250 words: files changed, check results, pre-change failure evidence, flags with `file:line`.
+- **Budget:** v12 budget rules; past about 30 turns write a handoff note to `C:\Users\NonFriedMotherBoard\.claude\jobs\d23acd6a\tmp\ia-a-2d-handoff.md` and return partial.
+
+## Known pre-change failures (handler, broad unit run at `f6fb1895` rebased)
+
+`src/graphs/base/presets/PresetCatalog.test.tsx` fails 2 tests (lines 50 and 67): the `interp-runge` collection exists but no Demonstration uses it. Registration must make both pass by updating the key lists the test checks (`CURVE_STREAM_KEYS` or equivalent), not by exempting `interp-runge` as unused. All other 383 files under `src/graphs src/localization src/analysis src/learning` passed.
