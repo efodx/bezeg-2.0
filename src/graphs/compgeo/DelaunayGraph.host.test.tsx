@@ -390,3 +390,109 @@ test('a scene change and unmount pause playback and leave no board objects, list
     expect(box.childElementCount).toBe(0);
     expect(() => act(() => { setLanguage('en'); })).not.toThrow();
 });
+
+// ---- Triangle selection (slice 13b) ----------------------------------------------------------------------------
+
+const triangleButton = (corners: string) =>
+    [...document.querySelectorAll('button[data-triangle]')].find(b => b.textContent?.replace(/^\S+ /, '') === corners) as HTMLButtonElement;
+const pick = (corners: string) => act(() => { fireEvent.click(triangleButton(corners)); });
+const neighbourTexts = () => [...document.querySelectorAll('[data-neighbour]')].map(n => n.textContent);
+const selectedCircles = (graph: Observed) => named(graph, 'delaunay-selected-circle');
+const live = () => document.querySelector('[data-delaunay-live]')?.textContent ?? '';
+
+test('example 1: abc shows +64 for d before the flip, and after the flip each of abd and bcd shows -64 outside for the other vertex', () => {
+    const graph = new Observed();
+    mount(graph);
+    pick('P1P2P3');
+    expect(neighbourTexts()).toEqual(['Čez rob P1–P3: nasprotna točka P4, determinanta incircle = +64: točka je znotraj očrtane krožnice']);
+    expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 2; čeznje ni sosednjega trikotnika.');
+    expect(triangleButton('P1P2P3').getAttribute('aria-pressed')).toBe('true');
+    expect(live()).toContain('determinanta incircle = +64');
+    toEnd(graph);
+    expect(graph.selectedTriangle()).toBeUndefined();
+    expect(neighbourTexts()).toEqual([]);
+    pick('P1P2P4');
+    expect(neighbourTexts()).toEqual(['Čez rob P2–P4: nasprotna točka P3, determinanta incircle = -64: točka je zunaj očrtane krožnice']);
+    pick('P2P3P4');
+    expect(neighbourTexts()).toEqual(['Čez rob P2–P4: nasprotna točka P1, determinanta incircle = -64: točka je zunaj očrtane krožnice']);
+    expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 2; čeznje ni sosednjega trikotnika.');
+});
+
+test('the selected triangle draws its exact circumcircle (centre (2, 7/3), radius sqrt(85)/3 for abc), dashed, and none otherwise', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(selectedCircles(graph)).toHaveLength(0);
+    pick('P1P2P3');
+    const [circle] = selectedCircles(graph);
+    expect(selectedCircles(graph)).toHaveLength(1);
+    expect(circle.center?.X()).toBe(2);
+    expect(circle.center?.Y()).toBe(7 / 3);
+    expect(circle.Radius?.()).toBeCloseTo(Math.sqrt(85) / 3, 12);
+    expect(named(graph, 'delaunay-selected-triangle')).toHaveLength(1);
+    // the second triangle abd... of the quad before the flip is acd: another circle, the first is gone
+    pick('P1P3P4');
+    expect(selectedCircles(graph)).toHaveLength(1);
+    expect(selectedCircles(graph)[0].center?.X()).not.toBe(2);
+    // the trace test circle and the selected circle may show together
+    act(() => { graph.selectTriangle(0); });
+    click('next-step');
+    expect(selectedCircles(graph)).toHaveLength(0);
+});
+
+test('a triangle with three hull edges reports no neighbour; clearing deselects and clicking the selected triangle again deselects', () => {
+    const graph = new Observed();
+    mount(graph);
+    click('example-square');
+    const first = graph.triangulation()?.triangles[0] ?? [0, 0, 0];
+    act(() => { graph.selectTriangle(0); });
+    expect(neighbourTexts()).toHaveLength(1);
+    expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 2; čeznje ni sosednjega trikotnika.');
+    click('clear-triangle');
+    expect(graph.selectedTriangle()).toBeUndefined();
+    expect(selectedCircles(graph)).toHaveLength(0);
+    const label = first.map(i => i + 1).join('P');
+    pick(`P${label}`);
+    expect(graph.selectedTriangle()).toBe(0);
+    pick(`P${label}`);
+    expect(graph.selectedTriangle()).toBeUndefined();
+    // a single triangle: all three edges on the hull
+    load(graph, {...DELAUNAY_QUAD, points: DELAUNAY_QUAD.points.slice(0, 3)});
+    act(() => { graph.selectTriangle(0); });
+    expect(neighbourTexts()).toEqual([]);
+    expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 3; čeznje ni sosednjega trikotnika.');
+});
+
+test('an edit, a step and a manual flip clear the selection', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.selectTriangle(0); });
+    expect(graph.selectedTriangle()).toBe(0);
+    click('next-step');
+    expect(graph.selectedTriangle()).toBeUndefined();
+    act(() => { graph.selectTriangle(0); });
+    load(graph, DELAUNAY_QUAD);
+    expect(graph.selectedTriangle()).toBeUndefined();
+    act(() => { graph.selectTriangle(1); });
+    act(() => { graph.selectEdge(0, 2); });
+    act(() => { graph.flipSelected(); });
+    expect(graph.selectedTriangle()).toBeUndefined();
+    expect(selectedCircles(graph)).toHaveLength(0);
+    expect(document.querySelector('[data-delaunay="selected-triangle"]')).toBeNull();
+});
+
+test('a live language switch re-renders the selection text, and unmount releases the selection objects', () => {
+    const graph = new Observed();
+    const view = mount(graph);
+    pick('P1P2P3');
+    expect(document.querySelector('button[data-action="clear-triangle"]')?.textContent).toBe('Počisti izbiro trikotnika');
+    act(() => { setLanguage('en'); });
+    expect(neighbourTexts()).toEqual(['Across edge P1–P3: opposite point P4, incircle determinant = +64: the point is inside the circumcircle']);
+    expect(part('hull-edges')).toBe('2 of its edges lie on the hull: there is no neighbour across them.');
+    expect(document.querySelector('button[data-action="clear-triangle"]')?.textContent).toBe('Clear triangle selection');
+    const board = graph.liveBoard();
+    const box = board.containerObj as HTMLElement;
+    expect(selectedCircles(graph)).toHaveLength(1);
+    view.unmount();
+    expect(box.childElementCount).toBe(0);
+    expect(languageListeners.live).toBe(0);
+});

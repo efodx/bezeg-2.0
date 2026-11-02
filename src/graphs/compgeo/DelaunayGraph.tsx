@@ -9,9 +9,9 @@ import {GraphSession} from "../base/GraphSession";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
-import {DelaunayControlActions, DelaunayControls, DelaunayStatus} from "./DelaunayControls";
+import {DelaunayControlActions, DelaunayControls, DelaunaySelection, DelaunayStatus} from "./DelaunayControls";
 import {DELAUNAY_EXAMPLES, delaunayCollection} from "./delaunayPresetCollection";
-import {angleSummary, circumcircle, DelaunayRun, edgeQuad, runDelaunay} from "./delaunayRun";
+import {angleSummary, circumcircle, DelaunayRun, edgeQuad, runDelaunay, triangleNeighbours} from "./delaunayRun";
 import {parseHullStep} from "./hullTraceRun";
 import {PointSetGraphState} from "./PointSetGraph";
 import {TriangulationGraph, type TriangulationGraphState, type TriangulationReadout} from "./TriangulationGraph";
@@ -43,9 +43,12 @@ const runFor = (points: PointSetModel["points"], triangles: unknown): DelaunayRu
  * with its two triangles and the circumcircle of the triangle whose opposite vertex is tested, from the exact rational
  * circumcentre and radius, converted to doubles only for drawing.
  *
- * Task 13b seam: `drawExtras` (called at the end of `drawTriangulation`) and `drawCircle` draw the circumcircle of any
- * triangle triple; a triangle selection outside the trace adds its objects through `drawExtras` and its inputs to
- * `overlayInputs`.
+ * Triangle selection (task 13b): a board click on a triangle or the triangle list in the panel selects it; its circumcircle
+ * is drawn dashed and the panel lists, across each interior edge, the neighbour's opposite vertex with the exact incircle
+ * determinant (bigint text) and a sign word. Edges on the hull have no neighbour and are only counted. The selection is
+ * transient (not in the scene state or Presets), kept as the sorted vertex triple, and cleared by any edit of the points or
+ * the triangle list, by any change of the trace step, and when its triangle no longer exists. The solid circle of a trace
+ * `test` event and the dashed selected circle may show together; they differ in dash, not only in position.
  */
 export class DelaunayGraph extends TriangulationGraph {
     private controller: IterationController;
@@ -53,7 +56,8 @@ export class DelaunayGraph extends TriangulationGraph {
     private advancing = false;
     private runMemo?: {start: Triangulation | undefined; run: DelaunayRun};
     private displayMemo?: {run: DelaunayRun; step: number; tri: Triangulation | undefined};
-    private traceInputs?: {base: unknown; step: number};
+    private traceInputs?: {base: unknown; step: number; triangle: string};
+    private selectedTriangleValue?: readonly [number, number, number];
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super(options);
@@ -112,6 +116,24 @@ export class DelaunayGraph extends TriangulationGraph {
         return {...super.getInitialState(), step: 0};
     }
 
+    /** The index in the shown triangulation of the selected triangle, while it still exists. */
+    selectedTriangle(): number | undefined {
+        const tri = this.triangulation();
+        const chosen = this.selectedTriangleValue;
+        if (!tri || !chosen) return undefined;
+        const index = tri.triangles.findIndex(corners => sameTriple(sortedTriple(corners), chosen));
+        return index < 0 ? undefined : index;
+    }
+
+    /** Selects the triangle at `index` of `triangulation().triangles`, or clears the selection (undefined or out of range). */
+    selectTriangle(index: number | undefined): void {
+        const tri = this.triangulation();
+        const corners = index === undefined ? undefined : tri?.triangles[index];
+        this.selectedTriangleValue = corners ? sortedTriple(corners) : undefined;
+        this.requestRender();
+        this.syncScene();
+    }
+
     // ---- State ---------------------------------------------------------------------------------------------------
 
     private stepPatch(fields: Partial<PointSetGraphState> & {step?: number}): Partial<PointSetGraphState> {
@@ -121,6 +143,7 @@ export class DelaunayGraph extends TriangulationGraph {
     /** Every write of a new model or triangle list returns the step to 0 and pauses, unless the write names the step itself. */
     override setState(update: SceneStateUpdate<PointSetGraphState>, callback?: () => void): void {
         const beforeModel = this.state.model;
+        const beforeStep = this.controller ? this.step : 0;
         const beforeTriangles = "triangles" in this.state ? this.state.triangles : undefined;
         let namedStep = false;
         const wrapped: SceneStateUpdate<PointSetGraphState> = state => {
@@ -134,6 +157,7 @@ export class DelaunayGraph extends TriangulationGraph {
         // The controller does not exist yet while the base class is being constructed.
         if (!this.controller) return;
         const afterTriangles = "triangles" in this.state ? this.state.triangles : undefined;
+        if (this.state.model !== beforeModel || afterTriangles !== beforeTriangles || this.step !== beforeStep) this.selectedTriangleValue = undefined;
         if (this.state.model !== beforeModel || afterTriangles !== beforeTriangles) {
             this.controller.reset(namedStep ? this.step : 0);
             this.requestRender();
@@ -278,9 +302,10 @@ export class DelaunayGraph extends TriangulationGraph {
     protected override overlayInputs(): unknown {
         const base = super.overlayInputs();
         const step = this.step;
+        const triangle = String(this.selectedTriangle() ?? "");
         const memo = this.traceInputs;
-        if (memo && memo.base === base && memo.step === step) return memo;
-        this.traceInputs = {base, step};
+        if (memo && memo.base === base && memo.step === step && memo.triangle === triangle) return memo;
+        this.traceInputs = {base, step, triangle};
         return this.traceInputs;
     }
 
@@ -323,19 +348,37 @@ export class DelaunayGraph extends TriangulationGraph {
         return [...objects, ...this.drawExtras(tri, model)];
     }
 
-    /** Task 13b seam: further objects (a selected triangle's circle and its neighbours' determinants); none yet. */
-    protected drawExtras(_tri: Triangulation, _model: PointSetModel): JXG.GeometryElement[] {
-        return [];
+    /** One polygon per triangle (clickable inside); the selected one is filled and outlined, with its dashed circumcircle. */
+    protected drawExtras(tri: Triangulation, model: PointSetModel): JXG.GeometryElement[] {
+        const selected = this.selectedTriangle();
+        const objects: JXG.GeometryElement[] = [];
+        tri.triangles.forEach((corners, index) => {
+            const isSelected = index === selected;
+            const polygon = this.board.create("polygon", corners.map(i => {
+                const p = gridToBoard(tri.points[i], model.gridStepExponent);
+                return [p.x, p.y];
+            }), {
+                name: isSelected ? "delaunay-selected-triangle" : "delaunay-triangle", vertices: {visible: false}, highlight: false, fixed: true,
+                hasInnerPoints: true, layer: isSelected ? 2 : 0, fillColor: GraphPalette.constructionAccent, fillOpacity: isSelected ? 0.2 : 0,
+                borders: {visible: false, highlight: false, fixed: true},
+            }) as JXG.GeometryElement;
+            polygon.on("down", () => { if (!this.graphInteractionLocked) this.selectTriangle(this.selectedTriangle() === index ? undefined : index); });
+            objects.push(polygon);
+        });
+        const chosen = selected === undefined ? undefined : tri.triangles[selected];
+        const circle = chosen && this.drawCircle(tri, chosen, model, "delaunay-selected-circle", 2);
+        if (circle) objects.push(circle);
+        return objects;
     }
 
     /** The circumcircle of the triangle `corners`: centre and radius from the exact rationals, converted to doubles here for drawing only. */
-    protected drawCircle(tri: Triangulation, corners: readonly [number, number, number], model: PointSetModel, name: string): JXG.GeometryElement | undefined {
+    protected drawCircle(tri: Triangulation, corners: readonly [number, number, number], model: PointSetModel, name: string, dash = 0): JXG.GeometryElement | undefined {
         const circle = circumcircle(tri.points[corners[0]], tri.points[corners[1]], tri.points[corners[2]]);
         if (!circle) return undefined;
         const scale = 2 ** model.gridStepExponent;
         return this.board.create("circle", [[circle.x * scale, circle.y * scale], circle.r * scale], {
             name, withLabel: false, fixed: true, highlight: false, layer: 3, fillOpacity: 0,
-            strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2,
+            strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash,
         }) as JXG.GeometryElement;
     }
 
@@ -346,6 +389,7 @@ export class DelaunayGraph extends TriangulationGraph {
         playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
         loadExample: index => this.loadExample(index),
+        selectTriangle: index => this.selectTriangle(index),
     };
 
     private status(): DelaunayStatus | undefined {
@@ -361,7 +405,14 @@ export class DelaunayGraph extends TriangulationGraph {
         const test = payload?.edge && payload.apexes && payload.value !== undefined && payload.sign !== undefined
             ? {edge: payload.edge, apexes: payload.apexes, value: `${payload.value > 0n ? "+" : ""}${payload.value}`, sign: payload.sign}
             : undefined;
+        const selectedIndex = this.selectedTriangle();
+        const detailed = selectedIndex === undefined ? undefined : triangleNeighbours(tri, selectedIndex);
+        const selection: DelaunaySelection | undefined = detailed && {
+            corners: detailed.corners, hullCount: detailed.hullCount,
+            neighbours: detailed.neighbours.map(n => ({edge: n.edge, vertex: n.vertex, value: `${n.value > 0n ? "+" : ""}${n.value}`, sign: n.sign})),
+        };
         return {
+            triangles: tri.triangles, selectedIndex, selection,
             step, length: run.length, note: info?.note ?? "phase-start", flips: state.flips, illegalCount: run.illegal(step).length, test,
             minNow: now.min, minStart: first.min, anglesNow: now.vector, anglesStart: first.vector,
             done: state.done ? {cocircular: run.cocircular} : undefined,
@@ -375,3 +426,9 @@ export class DelaunayGraph extends TriangulationGraph {
         </>;
     }
 }
+
+const sortedTriple = (corners: readonly number[]): readonly [number, number, number] => {
+    const [a, b, c] = [...corners].sort((x, y) => x - y);
+    return [a, b, c];
+};
+const sameTriple = (x: readonly number[], y: readonly number[]) => x[0] === y[0] && x[1] === y[1] && x[2] === y[2];

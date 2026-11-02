@@ -125,3 +125,31 @@ export function angleSummary(tri: Triangulation): {min: number; vector: readonly
     const vector = angleVector(tri);
     return {min: vector[0], vector};
 }
+
+/** One neighbour of a selected triangle: the shared edge, the neighbour's opposite vertex, and its exact incircle determinant. */
+export interface TriangleNeighbour {
+    edge: readonly [number, number];
+    vertex: number;
+    value: bigint;
+    /** Sign of `value`: 1 inside the selected triangle's circumcircle, 0 on it, -1 outside. */
+    sign: -1 | 0 | 1;
+}
+
+/** The neighbours across the interior edges of triangle `index` (counter-clockwise corners), and how many edges lie on the hull. */
+export function triangleNeighbours(tri: Triangulation, index: number): {corners: readonly [number, number, number]; neighbours: TriangleNeighbour[]; hullCount: number} | undefined {
+    const corners = tri.triangles[index];
+    if (!corners) return undefined;
+    const neighbours: TriangleNeighbour[] = [];
+    let hullCount = 0;
+    for (let corner = 0; corner < 3; corner++) {
+        const across = tri.nbr[index][corner];
+        if (across < 0) { hullCount++; continue; }
+        const shared = [corners[(corner + 1) % 3], corners[(corner + 2) % 3]];
+        const edge: readonly [number, number] = [Math.min(...shared), Math.max(...shared)];
+        const vertex = tri.triangles[across].find(v => v !== edge[0] && v !== edge[1]);
+        if (vertex === undefined) continue;
+        const value = incircleValue(tri.points[corners[0]], tri.points[corners[1]], tri.points[corners[2]], tri.points[vertex]);
+        neighbours.push({edge, vertex, value, sign: value > 0n ? 1 : value < 0n ? -1 : 0});
+    }
+    return {corners, neighbours, hullCount};
+}

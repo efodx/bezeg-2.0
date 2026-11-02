@@ -7,6 +7,15 @@ export interface DelaunayControlActions {
     playPause(): void;
     reset(): void;
     loadExample(index: 0 | 1 | 2): void;
+    /** Selects the triangle at `index` of the status list, or clears the selection (undefined). */
+    selectTriangle(index: number | undefined): void;
+}
+
+/** The selected triangle: its corners and, across each interior edge, the neighbour's opposite vertex with the exact determinant (0-based indices). */
+export interface DelaunaySelection {
+    corners: readonly [number, number, number];
+    neighbours: readonly {edge: readonly [number, number]; vertex: number; value: string; sign: -1 | 0 | 1}[];
+    hullCount: number;
 }
 
 /** What the panel shows at one step; every number is already computed (exact incircle value as text). */
@@ -24,6 +33,10 @@ export interface DelaunayStatus {
     anglesStart: readonly number[];
     /** Present only once the trace is done. */
     done?: {cocircular: boolean};
+    /** The triangles of the shown triangulation (0-based corners) and the selected one, if any. */
+    triangles: readonly (readonly [number, number, number])[];
+    selectedIndex?: number;
+    selection?: DelaunaySelection;
 }
 
 export interface DelaunayControlsProps {
@@ -62,6 +75,20 @@ function signText(t: Translate, sign: -1 | 0 | 1): string {
     }
 }
 
+function circleSignText(t: Translate, sign: -1 | 0 | 1): string {
+    switch (sign) {
+        case 1: return t("del_tri_sign_inside");
+        case 0: return t("del_tri_sign_on");
+        case -1: return t("del_tri_sign_outside");
+    }
+}
+
+/** The corner numbers of a triangle in ascending order, so that its name does not depend on the stored rotation. */
+const triple = (corners: readonly number[]) => {
+    const [a, b, c] = [...corners].sort((x, y) => x - y);
+    return {value0: a + 1, value1: b + 1, value2: c + 1};
+};
+
 function angleLine(t: Translate, angles: readonly number[], whole: "del_angles_now" | "del_angles_start"): string {
     const list = (items: readonly number[]) => items.map(degrees).join("; ");
     if (angles.length <= FULL_ANGLES) return t(whole, {value0: list(angles)});
@@ -87,6 +114,14 @@ export function DelaunayControls(props: DelaunayControlsProps) {
         : undefined;
     const doneText = status?.done ? t("del_result_done") : undefined;
     const cocircularText = status?.done?.cocircular ? t("del_result_cocircular") : undefined;
+    const selection = status?.selection;
+    const selectedText = selection
+        ? t("del_tri_selected", triple(selection.corners))
+        : undefined;
+    const neighbourTexts = selection?.neighbours.map(n => t("del_tri_neighbour", {
+        value0: n.edge[0] + 1, value1: n.edge[1] + 1, value2: n.vertex + 1, value3: n.value, value4: circleSignText(t, n.sign),
+    })) ?? [];
+    const hullText = selection && selection.hullCount > 0 ? t("del_tri_hull", {value0: selection.hullCount}) : undefined;
     return <>
         <div className="inspector-group">
             <div className="inspector-playback" role="group" aria-label={t("del_example_group")}>
@@ -119,11 +154,25 @@ export function DelaunayControls(props: DelaunayControlsProps) {
                 <li data-readout="angles-now">{angleLine(t, status.anglesNow, "del_angles_now")}</li>
                 <li data-readout="angles-start">{angleLine(t, status.anglesStart, "del_angles_start")}</li>
             </ul>
+            <div className="inspector-playback" role="group" aria-label={t("del_tri_list_label")} data-delaunay="triangles">
+                {status.triangles.map((corners, index) => (
+                    <button type="button" key={corners.join("-")} data-triangle={index} aria-pressed={status.selectedIndex === index}
+                            onClick={() => actions.selectTriangle(status.selectedIndex === index ? undefined : index)}>
+                        {t("del_tri_item", triple(corners))}</button>
+                ))}
+                <button type="button" data-action="clear-triangle" aria-disabled={selection === undefined}
+                        onClick={() => { if (selection) actions.selectTriangle(undefined); }}>{t("del_tri_clear")}</button>
+            </div>
+            {selectedText && <p className="inspector-help" data-delaunay="selected-triangle">{selectedText}</p>}
+            {neighbourTexts.length > 0 && <ul aria-label={selectedText} data-delaunay="neighbours">
+                {neighbourTexts.map((text, index) => <li key={index} data-neighbour={index}>{text}</li>)}
+            </ul>}
+            {hullText && <p className="inspector-help" data-delaunay="hull-edges">{hullText}</p>}
             {doneText && <p className="inspector-help" data-delaunay="done">{doneText}</p>}
             {cocircularText && <p className="inspector-help" data-delaunay="cocircular">{cocircularText}</p>}
             {/* Silent while Play runs; announces the status once on Pause or at the end. */}
             <p className="visually-hidden" role="status" aria-live="polite" data-delaunay-live="">
-                {playing ? "" : [stepText, noteSentence, detail, incircle, doneText, cocircularText].filter(Boolean).join(". ")}</p>
+                {playing ? "" : [stepText, noteSentence, detail, incircle, doneText, cocircularText, selectedText, ...neighbourTexts, hullText].filter(Boolean).join(". ")}</p>
         </div>}
     </>;
 }
