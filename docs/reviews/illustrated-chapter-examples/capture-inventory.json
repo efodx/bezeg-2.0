@@ -78,6 +78,9 @@
         "expectChange": true,
         "checks": {
           "curveCount": 1,
+          "types": {
+            "segment": 4
+          },
           "points": [
             [
               5,
@@ -94,7 +97,7 @@
           ]
         }
       },
-      "recipeFingerprint": "50104ed69ed7173d2ebb769fe8d0689169f6a18e38810e83f83ac1772c917d1a"
+      "recipeFingerprint": "d3dce95d48334042abf27dce3ebcdfcc0f8a14786bd40bc33d6771e1e10f8e63"
     },
     {
       "id": "analysis.convergence.uniform-convergence",
@@ -1879,11 +1882,25 @@
                 1,
                 0.45969769413186023
               ]
+            ],
+            [
+              [
+                0,
+                -0.40244801710422107
+              ],
+              [
+                0.5,
+                0.0522006963086199
+              ],
+              [
+                1,
+                0.5068494097214606
+              ]
             ]
           ]
         }
       },
-      "recipeFingerprint": "680c919cf363f8a7f7a80d7ffb986e1e294cc21122ce4c24bf5f37448cf4940f"
+      "recipeFingerprint": "7dbc88e4b9955567575ae744ed3d05ccd6177ad124318effd29a204d20a1d1c2"
     },
     {
       "id": "functions-and-calculus.integrals.definite-integral",
