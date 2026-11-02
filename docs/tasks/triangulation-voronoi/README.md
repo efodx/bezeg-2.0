@@ -63,7 +63,7 @@ Release condition (spec): T2 released; Voronoi drawing reviewed for reuse by For
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | 18 | [Voronoi drawing module and Fortune reuse review](18-voronoi-drawing.md) | F2a-support | 05 | accepted 2026-11-02 (handler 35, [record](../../reviews/triangulation-voronoi/18-acceptance.md)) |
-| 19 | [Voronoi graph with the Delaunay duality overlay](19-voronoi-graph.md) (B4) | F2a | 18, 13 | planned |
+| 19 | [Voronoi graph with the Delaunay duality overlay](19-voronoi-graph.md) (B4) | F2a | 18, 13 | accepted 2026-11-03 (handler 36, [record](../../reviews/triangulation-voronoi/19-acceptance.md)) |
 | 20 | [Four-point and collinear modes and `DegenerateSitesGraph`](20-degenerate-sites-graph.md) (B5) | F2a | 19 | planned |
 | 21 | [Registration of `voronoi` and `voronoi-degenerate`](21-t3-registration.md) | F2b | 19, 20 | planned |
 | 22 | [Voronoi lesson actions and lesson B4](22-voronoi-lesson.md) | F3 | 19, 21 | planned |

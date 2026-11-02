@@ -46,7 +46,7 @@ S1 and triangulation T1 are released, so C4 makes the ear-clipping contrast. The
 | 15 | [Monotone triangulation kernel](15-monotone-triangulation-kernel.md) | F1 | 14, triangulation 06 | accepted 2026-11-02 (handler 33): mathematical review |
 | 16 | [Monotone partition graph](16-monotone-partition-graph.md) | F2a | 14, 09, triangulation 07 | accepted 2026-11-02 |
 | 17 | [Monotone triangulation graph](17-monotone-triangulation-graph.md) | F2a | 15, 16 | accepted 2026-11-02 (handler 35, [record](../../reviews/sweep-algorithms/17-acceptance.md)) |
-| 18 | [S2 registration](18-s2-registration.md) | F2b | 16, 17 | registered 2026-11-02 (handler 35, `just unit` full and build passed); browser smoke pending |
+| 18 | [S2 registration](18-s2-registration.md) | F2b | 16, 17 | accepted 2026-11-03 (handler 36): registered by handler 35 (`just unit` full and build passed); [browser smoke](../../reviews/sweep-algorithms/18-smoke.md) 8/8 passed on `538ce186`. Follow-ups (minor, task 19 or later): vertex-type labels overprint their point names; the "zgornje oglišče" label clips at the top edge in the default view |
 | 19 | [Monotone partition lesson C3](19-monotone-partition-lesson.md) | F3 | 16, 18 | planned |
 | 20 | [Monotone triangulation lesson C4](20-monotone-triangulation-lesson.md) | F3 | 17, 18, 19 | planned |
 | 21 | [Chapter sections for S2](21-s2-chapter-sections.md) | F4 | 19, 20 | planned |
