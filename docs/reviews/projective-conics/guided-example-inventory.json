@@ -166,6 +166,150 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "projective-conics.projective-five-point.projective-five-point",
+      "demonstrationId": "projective-five-point",
+      "path": "/bezeg-2.0/projective/five-point?example=lesson.projective-conics.projective-five-point.projective-five-point",
+      "sceneFingerprint": "13b5eb1e1dd61f1c1a7c2fa3085294c8e2dc4c3dc39e1bb06576a9386567af1a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"five-point-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"five-point-predict-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"five-point-load-example\",\"exampleId\":\"ellipse\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"five-point-set-extrapolation\",\"on\":false}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "line": 2,
+          "point": 9
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            5,
+            0
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            -5,
+            0
+          ],
+          [
+            4,
+            1.8
+          ],
+          [
+            -3,
+            2.4
+          ],
+          [
+            5,
+            3
+          ],
+          [
+            5,
+            1.2426406871192854
+          ],
+          [
+            2.0710678118654755,
+            3.0000000000000004
+          ],
+          [
+            3.5355339059327378,
+            2.121320343559643
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "projective-conics.projective-three-views.projective-three-views",
+      "demonstrationId": "projective-three-views",
+      "path": "/bezeg-2.0/projective/three-views?example=lesson.projective-conics.projective-three-views.projective-three-views",
+      "sceneFingerprint": "dc7b010f1dfd99349a59f77c7c994912938d47215d662c92f8752f2e3b14c06c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"three-views-source-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"three-views-source-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"three-views-set-c\",\"tenths\":20}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"three-views-set-point\",\"on\":false}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 5,
+          "point": 0
+        },
+        "curveCount": 5,
+        "points": [],
+        "curves": [
+          [
+            [
+              -11.5,
+              -7
+            ],
+            [
+              -6,
+              -7
+            ],
+            [
+              -0.5,
+              -7
+            ]
+          ],
+          [
+            [
+              0.5,
+              -7
+            ],
+            [
+              6,
+              -7
+            ],
+            [
+              11.5,
+              -7
+            ]
+          ],
+          [
+            [
+              -11.5,
+              4
+            ],
+            [
+              -6,
+              4
+            ],
+            [
+              -0.5,
+              4
+            ]
+          ],
+          [
+            [
+              -4,
+              0
+            ],
+            [
+              -4.001370465245426,
+              0.05233595624294383
+            ],
+            [
+              -4.0027409304908526,
+              0.10467191248588766
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

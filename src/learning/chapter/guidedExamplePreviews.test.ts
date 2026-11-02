@@ -213,8 +213,10 @@ const functionsCards = [
         ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation'], counts: [[2, 2], [2, 2]]},
     {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-series.fourier-series'], counts: [[6, 7]]},
     {chapterId: 'projective-conics', copy: projectiveConicsPreviewCopy,
-        ids: ['projective-conics.projective-cross-ratio.projective-cross-ratio', 'projective-conics.projective-pascal.projective-pascal', 'projective-conics.projective-pole-polar.projective-pole-polar'],
-        counts: [[0, 11], [1, 8], [1, 4]]},
+        ids: ['projective-conics.projective-cross-ratio.projective-cross-ratio', 'projective-conics.projective-five-point.projective-five-point',
+            'projective-conics.projective-pascal.projective-pascal', 'projective-conics.projective-pole-polar.projective-pole-polar',
+            'projective-conics.projective-three-views.projective-three-views'],
+        counts: [[0, 11], [3, 9], [1, 8], [1, 4], [5, 0]]},
 ] as const;
 
 for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {
@@ -228,7 +230,7 @@ for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {
         const ids = homes.map(home => home.id).sort();
         expect(ids).toEqual([...expectedIds]);
         expect(Object.keys(copy).sort()).toEqual(ids);
-        const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]}})[]} = JSON.parse(
+        const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]; curves?: unknown[]}})[]} = JSON.parse(
             readFileSync(resolve('docs/reviews', chapterId, 'guided-example-inventory.json'), 'utf8'));
         const manifest: {captures: Capture[]} = JSON.parse(readFileSync(resolve(destination, 'manifest.json'), 'utf8'));
         expect(inventory.examples.map(entry => entry.id).sort()).toEqual(ids);
@@ -245,7 +247,8 @@ for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {
             expect(entry).toMatchObject({id: home.id, path: home.path, recipe: {kind: 'start'}});
             expect(entry.actions).toEqual(step.scene?.actions.map(action => `${action.kind}: ${JSON.stringify(action)}`));
             expect(entry.expected.curveCount).toBeGreaterThanOrEqual(0);
-            expect(entry.expected.points.length).toBeGreaterThan(0);
+            // A first frame with no visible point (K5 at c = 2) is checked by its authored curve samples instead.
+            expect(entry.expected.points.length + (entry.expected.curves?.length ?? 0)).toBeGreaterThan(0);
             expect(capture).toMatchObject({file: `${home.id}.png`, width: 840, height: 520, path: home.path,
                 initialFrame: {firstFrame: true, backNavigationDisabled: true},
                 framing: {boardOnly: true, guidedLessonOverlayHidden: true}, captureEvidence: {servedBuildVerified: true, pageErrors: []}});

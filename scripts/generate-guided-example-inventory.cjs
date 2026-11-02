@@ -456,12 +456,68 @@ function polePolarExpectedFor(id, actions) {
     return {types: {curve: 1, line: 3, point: 4}, curveCount: 1, points: [[x0, y0], ...tangency, [0, 0]]};
 }
 
+/** Fails unless the opening scene is the prepared scene and then exactly the listed projective actions in order; each is `{operation, ...fields}` of a projective action. */
+function projectiveSequence(id, actions, wanted, lesson) {
+    const projective = actions.filter(item => item.kind === 'projective');
+    const prepared = actions.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length >= 1 && prepared.length + projective.length === actions.length && actions[0].kind === 'prepared-scene' && projective.length === wanted.length
+        && wanted.every((item, index) => Object.entries(item).every(([key, value]) => projective[index][key] === value)),
+    `${id}: the authored first-frame expectation assumes the ${lesson} opening ${JSON.stringify(wanted)} after the prepared scene; extend projectiveConicsExpectedFor`);
+}
+
+/**
+ * K4 (five points, ellipse example, extrapolation off): the grid points A..E = (5, 0), (0, 3), (-5, 0), (4, 9/5), (-3, 12/5) on x^2/25 + y^2/9 = 1,
+ * and the arc from A to B (ends a = 0, b = 1) with the weight point D. The tangents at A (x = 5) and at B (y = 3) meet in P1 = (5, 3). In barycentric
+ * coordinates (al, be, ga) of D against the triangle A P1 B the arc obeys be^2 = 4 w^2 al ga, which gives w (the square root of 1/2 here); the Farin points
+ * are F1 = (A + w P1) / (1 + w), F2 = (w P1 + B) / (1 + w) and the shoulder S their midpoint. Visible: the conic, the arc and the control polygon (three
+ * curves), the two end tangents (lines) and the nine points (the weight readout is text); the extrapolation and the line pair are hidden.
+ */
+function fivePointExpectedFor(id, actions) {
+    projectiveSequence(id, actions, [{operation: 'five-point-load-example', exampleId: 'ellipse'}, {operation: 'five-point-set-extrapolation', on: false}], 'five-point');
+    const grid = [[5, 0], [0, 3], [-5, 0], [4, 9 / 5], [-3, 12 / 5]];
+    for (const [x, y] of grid) assert.ok(Math.abs(x * x / 25 + y * y / 9 - 1) < 1e-12, `${id}: every point must lie on the ellipse`);
+    const [a, b, , d] = grid;
+    const pole = [a[0], b[1]];
+    // Barycentric coordinates of D against A, P1, B: solve D - A = u (P1 - A) + v (B - A).
+    const e1 = [pole[0] - a[0], pole[1] - a[1]], e2 = [b[0] - a[0], b[1] - a[1]], r = [d[0] - a[0], d[1] - a[1]];
+    const det = e1[0] * e2[1] - e1[1] * e2[0];
+    const u = (r[0] * e2[1] - r[1] * e2[0]) / det, v = (e1[0] * r[1] - e1[1] * r[0]) / det;
+    const [alpha, beta, gamma] = [1 - u - v, u, v];
+    assert.ok(alpha > 0 && gamma > 0, `${id}: the weight point must lie on the arc between the ends`);
+    const w = Math.sqrt(beta * beta / (4 * alpha * gamma));
+    assert.ok(w < 1, `${id}: the authored expectation assumes the elliptic weight`);
+    const mix = (p, q, s, t) => [(s * p[0] + t * q[0]) / (s + t), (s * p[1] + t * q[1]) / (s + t)];
+    const farin = [mix(a, pole, 1, w), mix(pole, b, w, 1)];
+    return {types: {curve: 3, line: 2, point: 9}, curveCount: 3, points: [...grid, pole, ...farin, mix(farin[0], farin[1], 1, 1)]};
+}
+
+/**
+ * K5 (three views, c = 2, no point P): two panels of half width 11/2 and half height 7 centred at x = -6 (source plane, scale 2) and x = 6 (image plane).
+ * L: y = 2 misses the unit circle, so the points Q1, Q2, Q1', Q2', P and P' are hidden and no handle shows. Visible: both panel frames, the circle, the
+ * line L and the image ellipse (five curves). A point sequence is JSXGraph's linear interpolation at t = 0, 1/2, 1 of the first two vertices, so
+ * the samples are the corner and edge midpoint of each frame, the end and midpoint of L (y = 2 * 2 = 4 over x = -6 +- 11/2) and the circle's first two
+ * vertices at angles 0 and 2 pi / 120 at x = -6 + 2 cos, y = 2 sin.
+ */
+function threeViewsExpectedFor(id, actions) {
+    projectiveSequence(id, actions, [{operation: 'three-views-set-c', tenths: 20}, {operation: 'three-views-set-point', on: false}], 'three-views');
+    const c = 2, half = [5.5, 7], centres = [-6, 6];
+    assert.ok(c > 1, `${id}: L must miss the circle so that no marker is shown`);
+    const edge = (x0, x1, y) => [[x0, y], [(x0 + x1) / 2, y], [x1, y]];
+    const step = 2 * Math.PI / 120;
+    const circle = [[-6 + 2, 0], [-6 + 2 * (1 + Math.cos(step)) / 2, 2 * Math.sin(step) / 2], [-6 + 2 * Math.cos(step), 2 * Math.sin(step)]];
+    const curves = [...centres.map(m => edge(m - half[0], m + half[0], -half[1])),
+        edge(-6 - half[0], -6 + half[0], 2 * c), circle];
+    return {types: {curve: 5, point: 0}, curveCount: 5, points: [], curves};
+}
+
 /** First-frame expectation of a Projective conics lesson, chosen by the Demonstration the id ends with. */
 function projectiveConicsExpectedFor(id, step) {
     const actions = step.scene.actions;
     if (id.endsWith('.projective-cross-ratio')) return crossRatioExpectedFor(id, actions);
     if (id.endsWith('.projective-pascal')) return pascalExpectedFor(id, actions);
     if (id.endsWith('.projective-pole-polar')) return polePolarExpectedFor(id, actions);
+    if (id.endsWith('.projective-five-point')) return fivePointExpectedFor(id, actions);
+    if (id.endsWith('.projective-three-views')) return threeViewsExpectedFor(id, actions);
     assert.fail(`${id}: no authored Projective conics first frame`);
 }
 
@@ -470,7 +526,8 @@ function assertExpectation(id, expected) {
     assert.ok(expected && typeof expected === 'object', `${id}: chapter-owned example needs authored expected checks`);
     assert.ok(expected.types && Object.keys(expected.types).length > 0, `${id}: expected.types must be nonempty`);
     assert.ok(Number.isInteger(expected.curveCount) && expected.curveCount >= 0, `${id}: expected.curveCount must be a nonnegative integer (0 for a lesson that draws no curve)`);
-    assert.ok(Array.isArray(expected.points) && expected.points.length > 0, `${id}: expected.points must be nonempty`);
+    assert.ok(Array.isArray(expected.points) && (expected.points.length > 0 || (Array.isArray(expected.curves) && expected.curves.length > 0)),
+        `${id}: expected.points must be nonempty (or, for a lesson whose first frame shows no point, expected.curves)`);
 }
 
 async function generateChapterInventory(chapterId) {

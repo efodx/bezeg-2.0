@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+  "sourceRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+    "revision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
     "dirty": true,
-    "inputs": "76b5916520c61b4e7f67190ec22fbba0eb6f0f42bf425edd19ad327ab8393adc",
-    "output": "fd387e4bff6e7074b347db5d69f5c26ff38c014321608a9dba31451de840f10f"
+    "inputs": "83844c6170901b5c8d05db7867c3923eca663ec812cfaad7d6899884537b7821",
+    "output": "3dbbddb3282602f66b9181196eb4adfa7c192a504f430b20323510ab017880d6"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
-    "stampRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+    "stampRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
     "stampDirty": true,
-    "localOutputHash": "fd387e4bff6e7074b347db5d69f5c26ff38c014321608a9dba31451de840f10f",
+    "localOutputHash": "3dbbddb3282602f66b9181196eb4adfa7c192a504f430b20323510ab017880d6",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BVfAeM7w.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BVfAeM7w.js",
-        "sha256": "632c39a5e10d33462172e39434d27b2cd6ae433455e815202db0659a9d4c2a43",
+        "name": "index-D_6dgg29.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-D_6dgg29.js",
+        "sha256": "8cf612168c90fbafe1e0cf4e1179a703017b432c7e85d789238b091de69896dc",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-ChJX4NYZ.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-ChJX4NYZ.js",
-        "sha256": "56154de613136e92d3fb2111341d6c1a5e9657129749ccf7ec5c31c96e64594d",
+        "name": "jsx-runtime-Bc82w7z8.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-Bc82w7z8.js",
+        "sha256": "f83f6cdb08a8d6400f51e451516c621feea291daaa7ba5411fb60efa5a1ef6db",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-CMH2cK3S.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-CMH2cK3S.js",
-        "sha256": "936a89aba2243ad27b3c7f00cbcfe506570ff830e156fc6b8449a6c312a98066",
+        "name": "react-dom-cnPjenR0.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-cnPjenR0.js",
+        "sha256": "869fdb484fb3cee75c3f04d80b3a50a4b31abf269920b35723f0e26550e43962",
         "matchesLocalBuild": true
       },
       {
@@ -55,15 +55,17 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "a9df4cd6b106bb125ac2df5550898faa13db252b24c5df820af1e555261804e1",
+    "inventory": "fa613adf053b853b3ab189d4977bcac5613d3d9977534c30deb48c61c7e717dc",
     "entries": {
       "projective-conics.projective-cross-ratio.projective-cross-ratio": "d635de78d2ef4a43106203c4bb99c172410bc676e5fd41083129f798b1960379",
       "projective-conics.projective-pascal.projective-pascal": "a3e7eeae9c046f1491b23e8e9d926926a80151330df8b7fbf6267316fcff88f6",
-      "projective-conics.projective-pole-polar.projective-pole-polar": "ff430235a7ac2568f9077007b204c1cd05ce9cad8bc1144ef9c1885851b558e9"
+      "projective-conics.projective-pole-polar.projective-pole-polar": "ff430235a7ac2568f9077007b204c1cd05ce9cad8bc1144ef9c1885851b558e9",
+      "projective-conics.projective-five-point.projective-five-point": "05e8ca947254188a109af9e70afc55e07e8f5e8a05ffbcddf4fa40e8d7c2fdc3",
+      "projective-conics.projective-three-views.projective-three-views": "9ca48efa2e5108a14274dda753881585badc7ca933d1f38fea176a06f26c70ee"
     },
-    "presentation": "cfc8857a2ea3ead0b654bbfce3ffcca8fafbb7728d58d5bb3db37a996c967193",
-    "buildOutput": "fd387e4bff6e7074b347db5d69f5c26ff38c014321608a9dba31451de840f10f",
-    "buildInputs": "76b5916520c61b4e7f67190ec22fbba0eb6f0f42bf425edd19ad327ab8393adc"
+    "presentation": "3f7821e293332e7653806e724fa9bf4a949b6472f0018ce1e0652cd7d2f14468",
+    "buildOutput": "3dbbddb3282602f66b9181196eb4adfa7c192a504f430b20323510ab017880d6",
+    "buildInputs": "83844c6170901b5c8d05db7867c3923eca663ec812cfaad7d6899884537b7821"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -111,6 +113,32 @@
       {
         "id": "projective-conics.projective-pole-polar.projective-pole-polar",
         "demonstrationId": "projective-pole-polar",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -12,
+            10.5,
+            12,
+            -10.5
+          ]
+        }
+      },
+      {
+        "id": "projective-conics.projective-five-point.projective-five-point",
+        "demonstrationId": "projective-five-point",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -12,
+            10.5,
+            12,
+            -10.5
+          ]
+        }
+      },
+      {
+        "id": "projective-conics.projective-three-views.projective-three-views",
+        "demonstrationId": "projective-three-views",
         "framing": {
           "kind": "coordinate-window",
           "window": [
@@ -225,8 +253,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
-        "sourceRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "buildRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
+        "sourceRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
         "pageErrors": []
       }
     },
@@ -354,8 +382,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
-        "sourceRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "buildRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
+        "sourceRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
         "pageErrors": []
       }
     },
@@ -475,8 +503,424 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
-        "sourceRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "buildRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
+        "sourceRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "projective-conics.projective-five-point.projective-five-point",
+      "demonstrationId": "projective-five-point",
+      "path": "/bezeg-2.0/projective/five-point?example=lesson.projective-conics.projective-five-point.projective-five-point",
+      "sceneFingerprint": "13b5eb1e1dd61f1c1a7c2fa3085294c8e2dc4c3dc39e1bb06576a9386567af1a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"five-point-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"five-point-predict-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"five-point-load-example\",\"exampleId\":\"ellipse\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"five-point-set-extrapolation\",\"on\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "projective-conics.projective-five-point.projective-five-point.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "0809a14c94b6e6d4a5730877f4799157e714f36c4743c58f2d8d0aea995e21a8",
+      "scene": {
+        "visibleElementCount": 15,
+        "visibleElementTypes": {
+          "curve": 3,
+          "line": 2,
+          "point": 9,
+          "text": 1
+        },
+        "visiblePointCount": 9,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              3
+            ],
+            [
+              -0.072709,
+              2.999365
+            ],
+            [
+              -0.145417,
+              2.998731
+            ]
+          ],
+          [
+            [
+              5,
+              0
+            ],
+            [
+              4.999607,
+              0.026612
+            ],
+            [
+              4.999213,
+              0.053224
+            ]
+          ],
+          [
+            [
+              5,
+              0
+            ],
+            [
+              5,
+              1.5
+            ],
+            [
+              5,
+              3
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:line",
+          "type:point",
+          "curve-count",
+          "point:5,0",
+          "point:0,3",
+          "point:-5,0",
+          "point:4,1.8",
+          "point:-3,2.4",
+          "point:5,3",
+          "point:5,1.2426406871192854",
+          "point:2.0710678118654755,3.0000000000000004",
+          "point:3.5355339059327378,2.121320343559643"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 48,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 29,
+            "curve": 3,
+            "line": 2,
+            "point": 9,
+            "text": 1
+          },
+          "visiblePointCount": 9,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                3
+              ],
+              [
+                -0.072709,
+                2.999365
+              ],
+              [
+                -0.145417,
+                2.998731
+              ]
+            ],
+            [
+              [
+                5,
+                0
+              ],
+              [
+                4.999607,
+                0.026612
+              ],
+              [
+                4.999213,
+                0.053224
+              ]
+            ],
+            [
+              [
+                5,
+                0
+              ],
+              [
+                5,
+                1.5
+              ],
+              [
+                5,
+                3
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:line",
+            "type:point",
+            "curve-count",
+            "point:5,0",
+            "point:0,3",
+            "point:-5,0",
+            "point:4,1.8",
+            "point:-3,2.4",
+            "point:5,3",
+            "point:5,1.2426406871192854",
+            "point:2.0710678118654755,3.0000000000000004",
+            "point:3.5355339059327378,2.121320343559643"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "line": 2,
+          "point": 9,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
+        "sourceRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "projective-conics.projective-three-views.projective-three-views",
+      "demonstrationId": "projective-three-views",
+      "path": "/bezeg-2.0/projective/three-views?example=lesson.projective-conics.projective-three-views.projective-three-views",
+      "sceneFingerprint": "dc7b010f1dfd99349a59f77c7c994912938d47215d662c92f8752f2e3b14c06c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"three-views-source-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"three-views-source-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"three-views-set-c\",\"tenths\":20}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"three-views-set-point\",\"on\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "projective-conics.projective-three-views.projective-three-views.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "81d88364815def163827c5585121d580e6e499cee4dc4e1bf1639e727ad3a829",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "curve": 5,
+          "text": 5
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              -11.5,
+              -7
+            ],
+            [
+              -6,
+              -7
+            ],
+            [
+              -0.5,
+              -7
+            ]
+          ],
+          [
+            [
+              -11.5,
+              4
+            ],
+            [
+              -6,
+              4
+            ],
+            [
+              -0.5,
+              4
+            ]
+          ],
+          [
+            [
+              -4,
+              0
+            ],
+            [
+              -4.00137,
+              0.052336
+            ],
+            [
+              -4.002741,
+              0.104672
+            ]
+          ],
+          [
+            [
+              0.5,
+              -7
+            ],
+            [
+              6,
+              -7
+            ],
+            [
+              11.5,
+              -7
+            ]
+          ],
+          [
+            [
+              6,
+              -0.333333
+            ],
+            [
+              5.991275,
+              -0.333409
+            ],
+            [
+              5.98255,
+              -0.333486
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 36,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "curve": 5,
+            "text": 5
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                -11.5,
+                -7
+              ],
+              [
+                -6,
+                -7
+              ],
+              [
+                -0.5,
+                -7
+              ]
+            ],
+            [
+              [
+                -11.5,
+                4
+              ],
+              [
+                -6,
+                4
+              ],
+              [
+                -0.5,
+                4
+              ]
+            ],
+            [
+              [
+                -4,
+                0
+              ],
+              [
+                -4.00137,
+                0.052336
+              ],
+              [
+                -4.002741,
+                0.104672
+              ]
+            ],
+            [
+              [
+                0.5,
+                -7
+              ],
+              [
+                6,
+                -7
+              ],
+              [
+                11.5,
+                -7
+              ]
+            ],
+            [
+              [
+                6,
+                -0.333333
+              ],
+              [
+                5.991275,
+                -0.333409
+              ],
+              [
+                5.98255,
+                -0.333486
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "curve-samples",
+            "curve-samples",
+            "curve-samples",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 5,
+        "finalLabelCount": 5,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 5,
+          "text": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
+        "sourceRevision": "87d69f04e6ca4e6ddcdad032cd9a7ceefe0d1db0",
         "pageErrors": []
       }
     }

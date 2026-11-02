@@ -57,7 +57,7 @@ const chapterFamilies = {
     'numerical-methods': {label: 'numerical-methods', idPrefix: 'numerical-methods.', route: /^\/bezeg-2\.0\/analysis\/root-finding(?:\/|$)/, routeText: '/bezeg-2.0/analysis/root-finding'},
     'school-function-graphs': {label: 'school-function-graphs', idPrefix: 'school-function-graphs.', route: /^\/bezeg-2\.0\/functions\/(?:transformations|inverse)(?:\/|$)/, routeText: '/bezeg-2.0/functions/transformations or /bezeg-2.0/functions/inverse'},
     'fourier-series': {label: 'fourier-series', idPrefix: 'fourier-series.', route: /^\/bezeg-2\.0\/analysis\/fourier-series(?:\/|$)/, routeText: '/bezeg-2.0/analysis/fourier-series'},
-    'projective-conics': {label: 'projective-conics', idPrefix: 'projective-conics.', route: /^\/bezeg-2\.0\/projective\/(?:cross-ratio|pascal|pole-polar)(?:\/|$)/, routeText: '/bezeg-2.0/projective/cross-ratio, /pascal or /pole-polar'},
+    'projective-conics': {label: 'projective-conics', idPrefix: 'projective-conics.', route: /^\/bezeg-2\.0\/projective\/(?:cross-ratio|pascal|pole-polar|five-point|three-views)(?:\/|$)/, routeText: '/bezeg-2.0/projective/cross-ratio, /pascal, /pole-polar, /five-point or /three-views'},
 };
 
 function parseArgs(argv) {

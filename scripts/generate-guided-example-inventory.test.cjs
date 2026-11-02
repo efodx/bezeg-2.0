@@ -171,6 +171,34 @@ test('projective conics expectations are authored from the example numbers and w
     assert.deepEqual(k3.types, {curve: 1, line: 3, point: 4});
     assert.equal(k3.curveCount, 1);
     pointsNear(k3.points, [[1, 21 / 5], [4, 9 / 5], [-3, 12 / 5], [0, 0]]);
+    // K4: P1 = (5, 3), w = sqrt(1/2) (D = (4, 9/5) has barycentric coordinates against A P1 B, Farin points and the shoulder from it.
+    const w = Math.SQRT1_2;
+    const k4Actions = [{kind: 'projective', operation: 'five-point-load-example', exampleId: 'ellipse'}, {kind: 'projective', operation: 'five-point-set-extrapolation', on: false}];
+    const k4 = projectiveConicsExpectedFor('projective-conics.projective-five-point.projective-five-point', step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...k4Actions]}}));
+    assert.deepEqual(k4.types, {curve: 3, line: 2, point: 9});
+    assert.equal(k4.curveCount, 3);
+    const f1 = [(5 + 5 * w) / (1 + w), 3 * w / (1 + w)], f2 = [5 * w / (1 + w), (3 * w + 3) / (1 + w)];
+    pointsNear(k4.points, [[5, 0], [0, 3], [-5, 0], [4, 9 / 5], [-3, 12 / 5], [5, 3], f1, f2, [(f1[0] + f2[0]) / 2, (f1[1] + f2[1]) / 2]]);
+    // K5: c = 2 misses the circle, so no point shows; the checked curves are the frames, L = 4 and the circle's first vertices.
+    const k5Actions = [{kind: 'projective', operation: 'three-views-set-c', tenths: 20}, {kind: 'projective', operation: 'three-views-set-point', on: false}];
+    const k5Id = 'projective-conics.projective-three-views.projective-three-views';
+    const k5 = projectiveConicsExpectedFor(k5Id, step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...k5Actions]}}));
+    assert.deepEqual(k5.types, {curve: 5, point: 0});
+    assert.equal(k5.curveCount, 5);
+    assert.deepEqual(k5.points, []);
+    assert.equal(k5.curves.length, 4);
+    pointsNear(k5.curves[0], [[-11.5, -7], [-6, -7], [-0.5, -7]]);
+    pointsNear(k5.curves[1], [[0.5, -7], [6, -7], [11.5, -7]]);
+    pointsNear(k5.curves[2], [[-11.5, 4], [-6, 4], [-0.5, 4]]);
+    pointsNear(k5.curves[3], [[-4, 0], [-6 + 2 * (1 + Math.cos(Math.PI / 60)) / 2, Math.sin(Math.PI / 60)], [-6 + 2 * Math.cos(Math.PI / 60), 2 * Math.sin(Math.PI / 60)]]);
+    assert.doesNotThrow(() => assertExpectation(k5Id, k5));
+    assert.throws(() => assertExpectation(k5Id, {...k5, curves: []}), /expected.points must be nonempty/);
+    assert.throws(() => assertExpectation('x', {...k4, points: []}), /expected.points must be nonempty/);
+    const sceneOf = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+    assert.throws(() => projectiveConicsExpectedFor('p.projective-five-point.projective-five-point', sceneOf([k4Actions[0]])), /five-point opening/);
+    assert.throws(() => projectiveConicsExpectedFor('p.projective-five-point.projective-five-point', sceneOf([k4Actions[0], {...k4Actions[1], on: true}])), /five-point opening/);
+    assert.throws(() => projectiveConicsExpectedFor('p.projective-three-views.projective-three-views', sceneOf([{...k5Actions[0], tenths: 10}, k5Actions[1]])), /three-views opening/);
+    assert.throws(() => projectiveConicsExpectedFor('p.projective-three-views.projective-three-views', sceneOf([...k5Actions, {kind: 'projective', operation: 'three-views-set-angle', step: 1}])), /three-views opening/);
     // Other examples, extra actions, wrong operations and unknown lessons have no authored first frame.
     assert.throws(() => projectiveConicsExpectedFor('p.projective-cross-ratio.projective-cross-ratio', pcStep('load-example', 'infinity')), /exactly one load-example of the default example/);
     assert.throws(() => projectiveConicsExpectedFor('p.projective-pascal.projective-pascal', pcStep('pascal-load-example', 'default', [{kind: 'projective', operation: 'pascal-set-conic', conic: 'hyperbola'}])), /exactly one pascal-load-example/);

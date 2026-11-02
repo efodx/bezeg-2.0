@@ -236,7 +236,9 @@ test('numerical, school, fourier and projective capture families accept exactly 
         'projective-conics': [
             {id: 'projective-conics.projective-cross-ratio.projective-cross-ratio', path: '/bezeg-2.0/projective/cross-ratio?example=lesson.projective-conics.projective-cross-ratio.projective-cross-ratio'},
             {id: 'projective-conics.projective-pascal.projective-pascal', path: '/bezeg-2.0/projective/pascal?example=lesson.projective-conics.projective-pascal.projective-pascal'},
-            {id: 'projective-conics.projective-pole-polar.projective-pole-polar', path: '/bezeg-2.0/projective/pole-polar?example=lesson.projective-conics.projective-pole-polar.projective-pole-polar'}],
+            {id: 'projective-conics.projective-pole-polar.projective-pole-polar', path: '/bezeg-2.0/projective/pole-polar?example=lesson.projective-conics.projective-pole-polar.projective-pole-polar'},
+            {id: 'projective-conics.projective-five-point.projective-five-point', path: '/bezeg-2.0/projective/five-point?example=lesson.projective-conics.projective-five-point.projective-five-point'},
+            {id: 'projective-conics.projective-three-views.projective-three-views', path: '/bezeg-2.0/projective/three-views?example=lesson.projective-conics.projective-three-views.projective-three-views'}],
     };
     const root = path.resolve(__dirname, '..');
     for (const [family, list] of Object.entries(entries)) {
@@ -256,7 +258,7 @@ test('numerical, school, fourier and projective capture families accept exactly 
     assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][0], path: '/bezeg-2.0/analysis/root-findingx'}], 'numerical-methods'), /requires a numerical-methods inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['school-function-graphs'][0], path: '/bezeg-2.0/functions/derivative'}], 'school-function-graphs'), /requires a school-function-graphs inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][0], path: '/bezeg-2.0/analysis/fourier-seriesx'}], 'fourier-series'), /requires a fourier-series inventory/);
-    for (const path of ['/bezeg-2.0/projective/cross-ratiox', '/bezeg-2.0/projective', '/bezeg-2.0/projective/conics', '/bezeg-2.0/pascal'])
+    for (const path of ['/bezeg-2.0/projective/cross-ratiox', '/bezeg-2.0/projective', '/bezeg-2.0/projective/conics', '/bezeg-2.0/pascal', '/bezeg-2.0/projective/five-pointx', '/bezeg-2.0/projective/tangent'])
         assert.throws(() => assertInventoryFamily([{...entries['projective-conics'][0], path}], 'projective-conics'), /requires a projective-conics inventory/);
 });
 
