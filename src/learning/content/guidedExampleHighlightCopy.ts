@@ -136,7 +136,7 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
     'splines.continuity-levels.spline-c1': copy(
         'Zlepek C1 iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, stično točko in kontrolnim poligonom.',
         'A C1 spline of two quadratic Bézier pieces with four free points, the joint and the control polygon.',
-        'Stična točka (0; 2) je razpolovišče stranice med drugo in tretjo prosto točko. Odvoda obeh odsekov sta tam enaka, (8; 0), zato se krivulja gladko dotika vodoravne stranice poligona. Do tega pogleda prideš z vklopom kontrolnega poligona.',
+        'Stična točka (0, 2) je razpolovišče stranice med drugo in tretjo prosto točko. Odvoda obeh odsekov sta tam enaka, (8, 0), zato se krivulja gladko dotika vodoravne stranice poligona. Do tega pogleda prideš z vklopom kontrolnega poligona.',
         'The joint (0, 2) is the midpoint of the edge between the second and third free points. The derivatives of both pieces there are equal, (8, 0), so the curve touches the horizontal polygon edge smoothly. Reach this view by turning on the control polygon.',
     ),
     'splines.continuity-levels.spline-c2': copy(
@@ -148,19 +148,19 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
     'splines.geometric-vs-parametric.spline-g1': copy(
         'Zlepek G1 iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, izpeljano točko in kontrolnim poligonom.',
         'A G1 spline of two quadratic Bézier pieces with four free points, the derived point and the control polygon.',
-        'Pri b = 1 je izpeljana točka (2; −2) in leži na isti premici kot (−2; 2) in stična točka (0; 0). Tangenti obeh odsekov sta v stiku vzporedni in enako usmerjeni. Do tega pogleda prideš z vklopom kontrolnega poligona pri b = 1.',
+        'Pri b = 1 je izpeljana točka (2, −2) in leži na isti premici kot (−2, 2) in stična točka (0, 0). Tangenti obeh odsekov sta v stiku vzporedni in enako usmerjeni. Do tega pogleda prideš z vklopom kontrolnega poligona pri b = 1.',
         'At b = 1 the derived point is (2, −2) and lies on one line with (−2, 2) and the joint (0, 0). The tangents of both pieces at the joint are parallel and point the same way. Reach this view by turning on the control polygon at b = 1.',
     ),
     'splines.geometric-vs-parametric.spline-g1-symmetric': copy(
         'Simetrični zlepek G1 iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, stično točko blizu druge proste točke in kontrolnim poligonom.',
         'A symmetric G1 spline of two quadratic Bézier pieces with four free points, the joint near the second free point and the control polygon.',
-        'Pri β1 = 0,25 je stična točka (−1; 1,5), bliže drugi prosti točki na stranici poligona. Odvoda sta (4; −2) in (12; −6), vzporedna, desni je trikrat večji. Do tega pogleda prideš z nastavitvijo β1 na 0,25 ter vklopom kontrolnega poligona.',
+        'Pri β1 = 0,25 je stična točka (−1; 1,5), bliže drugi prosti točki na stranici poligona. Odvoda sta (4, −2) in (12, −6), vzporedna, desni je trikrat večji. Do tega pogleda prideš z nastavitvijo β1 na 0,25 ter vklopom kontrolnega poligona.',
         'At β1 = 0.25 the joint is (−1, 1.5), closer to the second free point on the polygon edge. The derivatives are (4, −2) and (12, −6), parallel, the right one three times larger. Reach this view by setting β1 to 0.25 and turning on the control polygon.',
     ),
     'splines.piecewise.spline-cn': copy(
         'Zlepek iz dveh kvadratnih Bézierjevih odsekov s štirimi prostimi točkami, izpeljano točko in kontrolnim poligonom.',
         'A spline of two quadratic Bézier pieces with four free points, the derived point and the control polygon.',
-        'Izpeljana točka (2; −4) je podaljšek zadnje stranice prvega odseka: stična točka (0; −3) je na sredini med (−2; −2) in njo. Odvoda obeh odsekov v stiku sta enaka, (8; −4). Do tega pogleda prideš z vklopom kontrolnega poligona.',
+        'Izpeljana točka (2, −4) je podaljšek zadnje stranice prvega odseka: stična točka (0, −3) je na sredini med (−2, −2) in njo. Odvoda obeh odsekov v stiku sta enaka, (8, −4). Do tega pogleda prideš z vklopom kontrolnega poligona.',
         'The derived point (2, −4) extends the last edge of the first piece: the joint (0, −3) is midway between (−2, −2) and it. The derivatives of both pieces at the joint are equal, (8, −4). Reach this view by turning on the control polygon.',
     ),
     'ph-curves.arc-length-problem.ph-cubic-speed': copy(
@@ -292,14 +292,14 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
     'analysis.existence.bisection': copy(
         'Graf f(x) = x² − 2 na [1, 2] po enem koraku bisekcije z označenim razpoloviščem 1,5 in poudarjenim ohranjenim intervalom [1; 1,5].',
         'The graph of f(x) = x² − 2 on [1, 2] after one bisection step with the midpoint 1.5 marked and the kept interval [1, 1.5] highlighted.',
-        'En korak bisekcije za x² − 2 na [1, 2]: f(1,5) = 0,25 > 0 in f(1) = −1 < 0, zato se ohrani interval [1; 1,5]. To je en korak, ne končna ničla. Prizor je pripravljen v koraku lekcije s prvo razpolovitvijo.',
+        'En korak bisekcije za x² − 2 na [1; 2]: f(1,5) = 0,25 > 0 in f(1) = −1 < 0, zato se ohrani interval [1; 1,5]. To je en korak, ne končna ničla. Prizor je pripravljen v koraku lekcije s prvo razpolovitvijo.',
         'One bisection step for x² − 2 on [1, 2]: f(1.5) = 0.25 > 0 and f(1) = −1 < 0, so the interval [1, 1.5] is kept. This is one step, not the final root. The first bisection step of the lesson prepares this view.',
     ),
     'analysis.integrability.darboux': copy(
         'Parabola y = x² na [0, 2] s spodnjimi in zgornjimi pravokotniki Darbouxa za razdelitev na štiri dele.',
         'The parabola y = x² on [0, 2] with the lower and upper Darboux rectangles for a partition into four parts.',
-        'Pri razdelitvi [0, 2] na štiri dele je spodnja vsota 1,75, zgornja 3,75, integral 8/3 pa leži med njima. To je ena končna razdelitev; gumb »Zgosti razdelitev« ohrani stare delilne točke. Do pogleda prideš v koraku mej, ko se prikažeta obe vsoti.',
-        'For the partition of [0, 2] into four parts the lower sum is 1.75 and the upper sum 3.75, and the integral 8/3 lies between them. This is one finite partition; “Refine the partition” keeps the old division points. Reach this view in the bounds step, when both sums are shown.',
+        'Po izračunu lekcije je pri razdelitvi [0; 2] na štiri dele spodnja vsota 1,75, zgornja 3,75 (vrednosti sta izračunani, ne odčitani s slike), integral 8/3 pa leži med njima. To je ena končna razdelitev; gumb »Zgosti razdelitev« ohrani stare delilne točke. Do pogleda prideš v koraku mej, ko se prikažeta obe vsoti.',
+        'By the lesson calculation, for the partition of [0, 2] into four parts the lower sum is 1.75 and the upper sum 3.75 (computed values, not read off the picture), and the integral 8/3 lies between them. This is one finite partition; “Refine the partition” keeps the old division points. Reach this view in the bounds step, when both sums are shown.',
     ),
     'analysis.taylor.taylor': copy(
         'Graf eˣ in njegov Taylorjev polinom stopnje 6 okoli 0, s točkami pri x = 1.',

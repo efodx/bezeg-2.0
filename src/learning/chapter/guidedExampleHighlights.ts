@@ -446,7 +446,7 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
     // accumulation-reveal-observation shows A for sin from a = 0 to x = 2: f, A, the tangent to A, the shaded region; f(2), A(2), a and x are points.
     'functions-and-calculus.integrals.accumulation': {
         kind: 'highlight', frame: 'accumulation-reveal-observation', steps: [], expectChange: true,
-        checks: {curveCount: 4, points: [[0, 0], [2, 0], [2, Math.sin(2)], [2, 1 - Math.cos(2)]], curves: [graphSamples(Math.sin), graphSamples(x => 1 - Math.cos(x))]},
+        checks: {curveCount: 4, points: [[0, 0], [2, 0], [2, Math.sin(2)], [2, 1 - Math.cos(2)]], curves: [graphSamples(Math.sin), graphSamples(x => 1 - Math.cos(x)), graphSamples(x => 1 - Math.cos(2) + Math.sin(2) * (x - 2))]},
     },
     // The default x^2 on [0, 2] with four left rectangles is the first frame: the parabola and the rectangle outline; bound points (0, 0), (2, 0).
     'functions-and-calculus.integrals.definite-integral': {
@@ -462,7 +462,7 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
     // sequence-threshold-scene shows twelve terms of 1/n with epsilon 0.1, N = 11 and the certificate: a_5 = 0.2 outside the band, a_11 and a_12 inside. curveCount 1: the band.
     'analysis.convergence.sequence': {
         kind: 'highlight', frame: 'sequence-threshold-observation', steps: [], expectChange: true,
-        checks: {curveCount: 1, points: [[5, 1 / 5], [11, 1 / 11], [12, 1 / 12]]},
+        checks: {curveCount: 1, types: {segment: 4}, points: [[5, 1 / 5], [11, 1 / 11], [12, 1 / 12]]},
     },
     // The lesson frames offer no Show supremum button (frames carry no action), and that toggle is not a checkbox. The shared-N frame shows the supremum already (n = 11), so the recipe
     // lowers the index to n = 5 in the Uredi tab: the supremum stays shown. Points: the supremum (0.8, 0.8^5), the term (0.5, 0.5^5) and its limit (0.5, 0). curveCount 2: the band and f_n (bounded domain, not sampled).
@@ -491,7 +491,7 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
         kind: 'highlight', frame: 'bisection-first-step-observation', steps: [], expectChange: true,
         checks: {curveCount: 1, points: [[bisectionFirst.mid, 0], [bisectionFirst.mid, bisectionFirst.fMid]], curves: [graphSamples(bisectionFn)]},
     },
-    // darboux-bounds-scene shows the lower and upper sums for x^2 on [0, 2], n = 4. curveCount 4: lower rectangles, upper rectangles, the partition marks and the graph.
+    // darboux-bounds-scene shows the lower and upper sums for x^2 on [0, 2], n = 4. The sums 1.75 and 3.75 are the lesson's calculation and are not asserted here: the rectangle curves are data arrays that sample as degenerate, so the caption hedges them. curveCount 4: lower rectangles, upper rectangles, the partition marks and the graph.
     'analysis.integrability.darboux': {
         kind: 'highlight', frame: 'darboux-bounds-observation', steps: [], expectChange: true,
         checks: {curveCount: 4, curves: [graphSamples(squareFn)]},
