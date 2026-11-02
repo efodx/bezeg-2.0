@@ -231,6 +231,16 @@ describe('typed scene actions', () => {
         }
     });
 
+    test('select-triangle needs a non-negative integer index or null', () => {
+        const run = (action: unknown) => sceneActions(scene([action as Parameters<typeof sceneActions>[0]['actions'][number]]));
+        const ps = (fields: object) => ({kind: 'point-set', operation: 'select-triangle', ...fields});
+        for (const triangle of [0, 3, null]) expect(() => run(ps({triangle}))).not.toThrow();
+        for (const triangle of [undefined, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, '2', [1], {}]) {
+            expect(() => run(ps({triangle}))).toThrow('select-triangle');
+        }
+        expect(() => run(ps({}))).toThrow('select-triangle');
+    });
+
     test('lesson ids distinguish pilot content from other guided content', () => {
         expect(getLessonForDemonstration('bezier')!.id).toBe('bezier-pilot');
         expect(getLessonForDemonstration('elevation')!.id).toBe('elevation-guided');

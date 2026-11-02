@@ -16,6 +16,9 @@ import {parseHullStep} from "./hullTraceRun";
 import {PointSetGraphState} from "./PointSetGraph";
 import {TriangulationGraph, type TriangulationGraphState} from "./TriangulationGraph";
 import {parseTriangleList} from "./triangulationPresetCollection";
+import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /** Time between two playback steps (one step per interval, never more). */
 export const DELAUNAY_STEP_INTERVAL_MS = 600;
@@ -216,6 +219,51 @@ export class DelaunayGraph extends TriangulationGraph {
     loadExample(index: 0 | 1 | 2): void {
         this.setState(this.stepPatch({step: 0}));
         this.importPresetData(DELAUNAY_EXAMPLES[index].data);
+    }
+
+    // ---- Lesson actions ------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson actions: the `algorithm-trace` animation runs the very transitions of the buttons (`registerLessonActions`),
+     * `set-trace-step` pauses playback and sets the step (a number is clamped like a stored Preset step, `'end'` is the last
+     * step) and `select-triangle` is the board click on a triangle of the triangulation shown at the current step (`null`
+     * clears; a non-integer or out-of-range index is a lesson-content error and changes nothing).
+     *
+     * The 15a operations act on the starting triangulation exactly as the panel does, so trace and drawing never disagree:
+     * `set-triangulation` (and `set-points`) replace the start, recompute the trace, return to step 0 and pause; `flip-edge`
+     * flips an edge of the triangulation shown at the current step and makes the result the new start (step 0, paused);
+     * `select-edge` only selects. Selections are cleared by any step change or edit.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation === "set-trace-step") {
+            this.setTraceStep(requestedTraceStep(action, this.run().length));
+            return;
+        }
+        if (action.operation === "select-triangle") {
+            const index: unknown = action.triangle;
+            if (index === null) {
+                this.selectTriangle(undefined);
+                return;
+            }
+            const count = this.triangulation()?.triangles.length ?? 0;
+            if (typeof index !== "number" || !Number.isInteger(index) || index < 0 || index >= count) {
+                throw new Error(`point-set select-triangle: triangle must be null or an integer from 0 to ${String(count - 1)} (the triangles shown at this step), got ${String(index)}.`);
+            }
+            this.selectTriangle(index);
+            return;
+        }
+        super.applyPointSetAction(action);
+    }
+
+    /** Shows the trace at `step` (clamped); the same write as a Preset restore. A named step resets the controller in `setState`, which pauses playback. */
+    private setTraceStep(step: number): void {
+        this.setState(this.stepPatch({step: this.run().clamp(step)}));
+        this.requestRender();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registerTraceCommands(registry, this);
     }
 
     // ---- Lifecycle -----------------------------------------------------------------------------------------------

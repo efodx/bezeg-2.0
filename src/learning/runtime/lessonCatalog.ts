@@ -72,8 +72,11 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
     } else if (operation === 'select-edge') {
         const edge = (data as Record<string, unknown>).edge;
         if (edge !== null && !isIndexList(2)(edge)) throw new Error('A point-set select-edge action needs an edge of two integer point indices (0 or more), or null.');
+    } else if (operation === 'select-triangle') {
+        const triangle = (data as Record<string, unknown>).triangle;
+        if (triangle !== null && !(typeof triangle === 'number' && Number.isInteger(triangle) && triangle >= 0)) throw new Error('A point-set select-triangle action needs a triangle index (an integer, 0 or more), or null.');
     } else {
-        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge or select-edge.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge or select-triangle.');
     }
     return action;
 }
