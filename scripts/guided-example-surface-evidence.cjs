@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('node:crypto');
 const {inspectSurfaceViewInPage} = require('./surface-view-evidence.cjs');
 
 const OWNER_KINDS = new Set(['tensor', 'triangular', 'join', 'teapot']);
@@ -100,4 +101,35 @@ function validateSurfaceEvidence({framing, surfaceRenderer, renderedOwners, expe
         projectedControlPoints: framing.points.map(point => ({id: point.id, x: point.x, y: point.y, inFrustum: point.inFrustum}))};
 }
 
-module.exports = {readPublishedSurfaceEvidence, validateSurfaceEvidence, SVG_RENDERER};
+/**
+ * Order-independent signature of the observable surface state, from route-published evidence only (camera, rendered
+ * owners with their geometry samples, projected control point ids); never from pixels.
+ */
+function surfaceSignature(evidence) {
+    const owners = [...(evidence?.renderedOwners || [])].sort((a, b) => String(a.id).localeCompare(String(b.id)))
+        .map(owner => ({id: owner.id, kind: owner.kind, geometrySamples: owner.geometrySamples}));
+    const pointIds = (evidence?.framing?.points || []).map(point => point.id).sort();
+    return crypto.createHash('sha256').update(JSON.stringify({camera: evidence?.framing?.camera, owners, pointIds})).digest('hex');
+}
+
+/**
+ * Checks the settled surface of a highlight recipe against the recipe's resolved `checks.surface` and the expectChange
+ * rule, and returns the manifest `highlight` record (same shape as the board verifier's).
+ */
+function verifySurfaceHighlight(entry, startEvidence, resultEvidence) {
+    const recipe = entry.recipe;
+    if (recipe?.kind !== 'highlight') fail(`${entry.id}: verifySurfaceHighlight needs a highlight recipe`);
+    const surface = recipe.checks?.surface;
+    if (!surface) fail(`${entry.id}: surface recipe has no checks.surface; regenerate the inventory`);
+    const scene = validateSurfaceEvidence({...resultEvidence, expected: surface});
+    const startSignature = surfaceSignature(startEvidence), resultSignature = surfaceSignature(resultEvidence);
+    const changed = startSignature !== resultSignature;
+    if (recipe.expectChange && !changed) fail(`${entry.id}: recipe expects the surface to change from the start scene, but the highlight state is identical; check the steps`);
+    if (!recipe.expectChange && changed) fail(`${entry.id}: recipe states the surface stays as in the start scene, but the highlight state differs`);
+    return {frame: recipe.frame, position: recipe.position, steps: recipe.steps, expectChange: recipe.expectChange,
+        startFingerprint: startSignature, resultFingerprint: resultSignature, changedFromStart: changed,
+        checks: [...surface.owners.map(owner => `owner:${owner.id}`), 'camera'].map(name => ({name, passed: true})),
+        evidence: {visibleElementCount: scene.ownerIds.length, visibleElementTypes: {}, visiblePointCount: scene.projectedControlPoints.length}};
+}
+
+module.exports = {readPublishedSurfaceEvidence, validateSurfaceEvidence, surfaceSignature, verifySurfaceHighlight, SVG_RENDERER};

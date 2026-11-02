@@ -9,6 +9,7 @@ const {generatePatchGuidedExampleInventory} = require('./patch-guided-example-ex
 
 const root = path.resolve(__dirname, '..');
 const defaultOutput = 'docs/reviews/illustrated-chapter-examples/capture-inventory.json';
+const patchChapterId = 'bezier-patches';
 const workedParabolaId = 'splines.worked-join.spline-c1.parabola-derivatives';
 const workedWeightId = 'foundations.worked-weight.bernstein.degree-comparison';
 
@@ -81,7 +82,7 @@ function locateFrame(id, lesson, frameId, where) {
 }
 
 /** Resolves an authored recipe (or its absence) against the example's lesson into the explicit inventory form. */
-function resolveRecipe(id, lesson, authored) {
+function resolveRecipe(id, lesson, authored, resolveChecks) {
     const recipe = authored === undefined ? {kind: 'start'} : authored;
     if (recipe.kind === 'start') return validateRecipe(id, {kind: 'start'});
     assert.equal(recipe.kind, 'highlight', `${id}: unknown recipe kind ${JSON.stringify(recipe.kind)} (expected "start" or "highlight")`);
@@ -107,8 +108,10 @@ function resolveRecipe(id, lesson, authored) {
         assert.ok(typeof label === 'string' && label, `${id}: ${where} frame action has no Slovenian button label`);
         return {kind: 'frame-action', frame: current.frame.id, position: current.position, label};
     });
+    // `current` is the frame the lesson is on after the steps; surface checks resolve against the step that frame belongs to.
+    const checks = resolveChecks ? resolveChecks(recipe.checks, current.position) : recipe.checks;
     return validateRecipe(id, {kind: 'highlight', frame: recipe.frame, position: target.position, steps,
-        expectChange: recipe.expectChange, checks: recipe.checks});
+        expectChange: recipe.expectChange, checks});
 }
 
 function withRecipe(record, recipe) {
@@ -123,7 +126,7 @@ async function generateInventory() {
         const homesModule = await server.ssrLoadModule('/src/learning/chapter/retainedExamples.ts');
         const homes = homesModule.retainedExampleHomes;
         const authoredRecipes = (await server.ssrLoadModule('/src/learning/chapter/guidedExampleHighlights.ts')).guidedExampleHighlightRecipes;
-        for (const key of Object.keys(authoredRecipes)) assert.ok(homes.some(home => home[0] === key), `${key}: highlight recipe belongs to no retained guided example`);
+        for (const key of Object.keys(authoredRecipes)) assert.ok(key.startsWith(`${patchChapterId}.`) || homes.some(home => home[0] === key), `${key}: highlight recipe belongs to no retained guided example`);
         assert.equal(homes.length, 56, `Expected 56 retained example homes, found ${homes.length}`);
         const examples = [];
         for (const home of homes) {
@@ -150,6 +153,24 @@ async function generateInventory() {
     }
 }
 
+/**
+ * Resolves a patch example's authored recipe. `checks: {surfaceStep}` names the lesson step whose independently computed
+ * expected surface (patch-guided-example-expectations.cjs) the settled surface evidence must equal; it must be the step the
+ * lesson is on after the recipe steps. The resolved inventory checks carry that expected surface as `{surface}`.
+ */
+function resolvePatchRecipe(example, lesson, authored) {
+    return resolveRecipe(example.id, lesson, authored, (checks, position) => {
+        assert.ok(checks && typeof checks.surfaceStep === 'string' && checks.surfaceStep,
+            `${example.id}: a patch highlight recipe needs checks.surfaceStep naming the lesson step whose expected surface must hold`);
+        assert.deepEqual(Object.keys(checks), ['surfaceStep'], `${example.id}: patch recipe checks may only name surfaceStep`);
+        const step = lesson.steps[position.step];
+        assert.equal(step.id, checks.surfaceStep, `${example.id}: checks.surfaceStep "${checks.surfaceStep}" is not the step "${step.id}" the recipe ends on`);
+        const surface = example.steps?.[position.step]?.expected?.surface;
+        assert.ok(surface, `${example.id}: no expected surface was computed for step "${step.id}"`);
+        return {surface};
+    });
+}
+
 async function generatePatchInventory() {
     const {createServer} = await import('vite');
     const server = await createServer({configFile: path.join(root, 'vite.config.mts'), server: {middlewareMode: true}, appType: 'custom'});
@@ -163,8 +184,14 @@ async function generatePatchInventory() {
             {joinScenes, teapotPatches: Array.from({length: 32}, (_, index) => teapot.resolveTeapotPatch(index)),
                 pathForSection: registry.patchGuidedExamplePath});
         const authoredRecipes = (await server.ssrLoadModule('/src/learning/chapter/guidedExampleHighlights.ts')).guidedExampleHighlightRecipes;
-        for (const key of Object.keys(authoredRecipes)) assert.ok(!key.startsWith('bezier-patches.'), `${key}: highlight recipes are not supported for the patches family yet`);
-        inventory.examples = inventory.examples.map(example => withRecipe(example, {kind: 'start'}));
+        const known = new Set(inventory.examples.map(example => example.id));
+        for (const key of Object.keys(authoredRecipes)) if (key.startsWith(`${patchChapterId}.`)) {
+            assert.ok(known.has(key), `${key}: highlight recipe belongs to no section-owned patch example (keys are full example ids ${patchChapterId}.<section>.<demonstration>)`);
+        }
+        inventory.examples = inventory.examples.map(example => {
+            const sectionId = example.id.split('.')[1];
+            return withRecipe(example, resolvePatchRecipe(example, registry.patchGuidedExampleRegistry[sectionId], authoredRecipes[example.id]));
+        });
         validateInventory(inventory.examples);
         assert.equal(inventory.examples.length, 11, 'Expected all eleven section-owned patch examples');
         return inventory;
@@ -299,4 +326,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, assertExpectation};

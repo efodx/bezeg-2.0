@@ -50,6 +50,13 @@ export interface HighlightChecks {
     readonly points?: readonly (readonly [number, number])[];
     /** Curves that must be visible, each as samples at parameter 0, 0.5 and 1 in `[x, y]`. */
     readonly curves?: readonly (readonly [readonly [number, number], readonly [number, number], readonly [number, number]])[];
+    /**
+     * Bezier patches only (surface routes): the id of the lesson step whose independently computed expected surface
+     * (camera, owner ids and kinds, geometry samples; `scripts/patch-guided-example-expectations.cjs`) the settled route
+     * evidence must equal. The generator requires it to be the step containing the recipe's final frame and writes the
+     * resolved `surface` expectation into the inventory.
+     */
+    readonly surfaceStep?: string;
 }
 
 export type HighlightRecipe =
@@ -494,6 +501,23 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
         kind: 'highlight', frame: 'taylor-exp-observation', steps: [], expectChange: true,
         checks: {curveCount: 2, points: [[0, 1], [1, Math.E], [1, expTaylorPolynomial(6, 1)]], curves: [graphSamples(Math.exp), graphSamples(x => expTaylorPolynomial(6, x))]},
     },
+    // Bezier patches (task 06a): the card boards are SVG surface views, so checks name the lesson step whose expected surface
+    // (scripts/patch-guided-example-expectations.cjs, computed from the lesson fixture, never from the board) must be published.
+    // No patch lesson has a frame action or a view-switch control, so every highlight is a frame of the single scene of its step and
+    // expectChange is false; the recipe documents the intended frame and the capture proves the surface equals the start scene.
+    // tensor-decasteljau: the rows/columns switch is not a learner action of this lesson (frame order-columns shows the same scene), so the first frame is used.
+    // tensor-subdivision: the elevation is applied by the step scene itself, so the first frame already shows the elevated net.
+    'bezier-patches.curve-to-patch.patch-tensor': {kind: 'highlight', frame: 'curve-to-patch-explain', steps: [], expectChange: false, checks: {surfaceStep: 'curve-to-patch-scene'}},
+    'bezier-patches.bilinear-patch.patch-tensor': {kind: 'highlight', frame: 'bilinear-calculation', steps: [], expectChange: false, checks: {surfaceStep: 'bilinear-patch-scene'}},
+    'bezier-patches.control-net.patch-tensor': {kind: 'highlight', frame: 'control-net-calculate', steps: [], expectChange: false, checks: {surfaceStep: 'control-net-scene'}},
+    'bezier-patches.boundary-iso-curves.patch-tensor': {kind: 'highlight', frame: 'boundary-compute', steps: [], expectChange: false, checks: {surfaceStep: 'boundary-iso-curves-scene'}},
+    'bezier-patches.tensor-decasteljau.patch-decasteljau': {kind: 'highlight', frame: 'order-rows', steps: [], expectChange: false, checks: {surfaceStep: 'order-independence'}},
+    'bezier-patches.properties.patch-tensor': {kind: 'highlight', frame: 'hull', steps: [], expectChange: false, checks: {surfaceStep: 'hull-affine'}},
+    'bezier-patches.tensor-derivatives.patch-derivatives': {kind: 'highlight', frame: 'partials', steps: [], expectChange: false, checks: {surfaceStep: 'saddle-derivatives'}},
+    'bezier-patches.tensor-subdivision.patch-subdivision': {kind: 'highlight', frame: 'elevation-calculate', steps: [], expectChange: false, checks: {surfaceStep: 'elevate-saddle'}},
+    'bezier-patches.tensor-joins.patch-joins': {kind: 'highlight', frame: 'join-c0-calculate', steps: [], expectChange: false, checks: {surfaceStep: 'join-c0'}},
+    'bezier-patches.triangular-patches.patch-triangular': {kind: 'highlight', frame: 'triangle-calculate', steps: [], expectChange: false, checks: {surfaceStep: 'triangular-centroid'}},
+    'bezier-patches.square-vs-triangular.patch-triangular': {kind: 'highlight', frame: 'compare-calculate', steps: [], expectChange: false, checks: {surfaceStep: 'compare-domains'}},
     // The worked-join family card is the prepared parabola join scene ('worked-parabola-join'); it has no lesson frame, so it stays the start scene.
     'splines.worked-join.spline-c1.parabola-derivatives': {kind: 'start'},
 };

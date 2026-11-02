@@ -96,9 +96,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "curve-to-patch-explain",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    -1,
+                    -1,
+                    0
+                  ],
+                  [
+                    0,
+                    -1,
+                    -0.125
+                  ],
+                  [
+                    1,
+                    0.875,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "cc811d51d92b05c24eea73536df5f9944241f9fe529ab17810ea29d464994b28"
     },
     {
       "id": "bezier-patches.bilinear-patch.patch-tensor",
@@ -196,9 +242,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "bilinear-calculation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0.9375
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "5381640142737cc06a1ba202b2c1d445f1fc6c0dc63f1bd3d00b4040f1a955a2"
     },
     {
       "id": "bezier-patches.control-net.patch-tensor",
@@ -296,9 +388,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "control-net-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    -1,
+                    -1,
+                    0
+                  ],
+                  [
+                    0,
+                    -1,
+                    0
+                  ],
+                  [
+                    1,
+                    0.875,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "172f12dd35346b3739b727daabac71498096407f33190cefa88a4767707d529d"
     },
     {
       "id": "bezier-patches.boundary-iso-curves.patch-tensor",
@@ -396,9 +534,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "boundary-compute",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    -1,
+                    -1,
+                    0
+                  ],
+                  [
+                    0,
+                    -1,
+                    0
+                  ],
+                  [
+                    1,
+                    0.875,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "a6438c3f4e6a4f48e0d83133f3737c2d5e38dd419479aed95668b2525ff316a5"
     },
     {
       "id": "bezier-patches.tensor-decasteljau.patch-decasteljau",
@@ -494,9 +678,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "order-rows",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 15,
+              "target": [
+                0.5,
+                0.5,
+                2
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "73db87bcef73dfeef3685be09fee228c88c6c5b1657baace679f4e2d6a675ef4"
     },
     {
       "id": "bezier-patches.properties.patch-tensor",
@@ -677,9 +907,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "hull",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 15,
+              "target": [
+                0.5,
+                0.5,
+                2
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "5007c09ed2ad73727c07cc836766db840f26cab17b1651787c656c0642f03ff7"
     },
     {
       "id": "bezier-patches.tensor-derivatives.patch-derivatives",
@@ -777,9 +1053,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "partials",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0.5,
+                0.5,
+                0.5
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0.9375
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "7f002a0407358e9057684eb364aa43028268e39477d11b863b1d73b1d00c4f51"
     },
     {
       "id": "bezier-patches.tensor-subdivision.patch-subdivision",
@@ -918,9 +1240,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "elevation-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0.5,
+                0.5,
+                0.5
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0.9375
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "d9d99d292bbf6d856decd231add5892c6a5de5df76d0dcff4757058859aa75b5"
     },
     {
       "id": "bezier-patches.tensor-joins.patch-joins",
@@ -1876,9 +2244,76 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "join-c0-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": -1.5,
+              "el": -1.54,
+              "distance": 11.5,
+              "target": [
+                1.5,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "join-patch-a",
+                "kind": "join",
+                "geometrySamples": [
+                  [
+                    -1.5,
+                    -1.5,
+                    0
+                  ],
+                  [
+                    0,
+                    -1.5,
+                    0
+                  ],
+                  [
+                    1.5,
+                    1.3125,
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "join-patch-b",
+                "kind": "join",
+                "geometrySamples": [
+                  [
+                    1.5,
+                    -1.5,
+                    0
+                  ],
+                  [
+                    3,
+                    -1.5,
+                    0
+                  ],
+                  [
+                    4.5,
+                    1.3125,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "9f7ad7c8fa98ebead6fdc3a4a21af556f12b0119b3438918f65c92d191208764"
     },
     {
       "id": "bezier-patches.triangular-patches.patch-triangular",
@@ -1976,9 +2411,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "triangle-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.6,
+              "el": -1.39,
+              "distance": 3,
+              "target": [
+                0.3333333333333333,
+                0.3333333333333333,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "triangular-patch-0",
+                "kind": "triangular",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.25,
+                    0.5,
+                    0.84375
+                  ],
+                  [
+                    0.9375,
+                    0,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "3e98f3d9c19d4b527725fb101702785a2461d4c6409694de3cbb8dc5841174f2"
     },
     {
       "id": "bezier-patches.square-vs-triangular.patch-triangular",
@@ -2076,9 +2557,55 @@
         }
       ],
       "recipe": {
-        "kind": "start"
+        "kind": "highlight",
+        "frame": "compare-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.6,
+              "el": -1.39,
+              "distance": 3,
+              "target": [
+                0.3333333333333333,
+                0.3333333333333333,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "triangular-patch-0",
+                "kind": "triangular",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.25,
+                    0.5,
+                    0.84375
+                  ],
+                  [
+                    0.9375,
+                    0,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
       },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      "recipeFingerprint": "5f233403b1f548c54784ab0454f2d6b5cef17d425432f812838ef7dbbfb78659"
     }
   ]
 }

@@ -14,7 +14,7 @@ const {presentBoard, hashFile, pngDimensions} = require('./capture-demonstration
 const {digestBuild, digestInputs} = require('./commands.cjs');
 const {validateInventory, verifyEvidence, validateRetained, validatePublishedSet, validateSurfacePresentation,
     parseGuidedProgress, navigationDirection, verifyHighlight, recipeRecord} = require('./guided-example-preview-api.cjs');
-const {readPublishedSurfaceEvidence, validateSurfaceEvidence} = require('./guided-example-surface-evidence.cjs');
+const {readPublishedSurfaceEvidence, validateSurfaceEvidence, verifySurfaceHighlight} = require('./guided-example-surface-evidence.cjs');
 
 const root = path.resolve(__dirname, '..');
 const defaultDestination = path.join(root, 'src/images/learning/examples');
@@ -36,7 +36,7 @@ function presentationHelpers() {
     return [presentBoard, inspectBoard, captureSurfaceExample, resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame,
         isViewportSpanningHorizontalCurve, isCameraScaledCurve,
         isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, captureRecipeForEntry,
-        reachFrame, applyHighlightRecipe, readPublishedSurfaceEvidence, validateSurfaceEvidence];
+        reachFrame, applyHighlightRecipe, readPublishedSurfaceEvidence, validateSurfaceEvidence, verifySurfaceHighlight, assertSurfaceRecipeSteps];
 }
 
 function presentationFingerprint({recipeFraming = [], entryFraming = [], helpers = presentationHelpers()} = {}) {
@@ -295,6 +295,14 @@ async function prepareSurfaceCaptureFrame(page) {
     return {evidence, visibleLabelBounds};
 }
 
+/** A surface lesson has no inspector, so only frame navigation and frame actions can reach a highlight state. */
+function assertSurfaceRecipeSteps(entry) {
+    for (const [index, step] of entry.recipe.steps.entries()) {
+        assert.ok(step.kind === 'goto-frame' || step.kind === 'frame-action',
+            `${entry.id}: recipe step ${index + 1} (${step.kind}) is not supported on surface routes; use goto-frame or frame-action`);
+    }
+}
+
 async function captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors, destination) {
     assert.ok(entry.expected?.surface, `${entry.id}: expected.surface authored camera and owner geometry are required`);
     const initial = await readPublishedSurfaceEvidence(page);
@@ -303,11 +311,21 @@ async function captureSurfaceExample(page, entry, browserVersion, servedBuild, b
     const settled = await readPublishedSurfaceEvidence(page);
     assert.deepEqual(settled, initial, `${entry.id}: surface changed after initial-frame settling; refusing a later or animated frame`);
     assert.equal(page.url(), new URL(entry.path, new URL(appBaseUrl).origin).toString(), `${entry.id}: route or example identity changed before capture`);
+    let highlighted = initial, highlight;
+    if (entry.recipe.kind === 'highlight') {
+        assertSurfaceRecipeSteps(entry);
+        await applyHighlightRecipe(page, entry);
+        highlighted = await readPublishedSurfaceEvidence(page);
+        await page.waitForTimeout(250);
+        assert.deepEqual(await readPublishedSurfaceEvidence(page), highlighted, `${entry.id}: surface still changing after the recipe steps; refusing an unsettled highlight`);
+        highlight = verifySurfaceHighlight(entry, initial, highlighted);
+    }
+    const expectedSurface = highlight ? entry.recipe.checks.surface : entry.expected.surface;
     await page.evaluate(async () => { await document.fonts.ready; });
     const guidedLessonOverlayHidden = await hideGuidedLessonOverlay(page);
     const {evidence, visibleLabelBounds} = await prepareSurfaceCaptureFrame(page);
-    const sceneEvidence = validateSurfaceEvidence({...evidence, expected: entry.expected.surface});
-    assert.deepEqual(evidence.framing.camera, initial.framing.camera, `${entry.id}: capture frame sizing changed the authored surface camera`);
+    const sceneEvidence = validateSurfaceEvidence({...evidence, expected: expectedSurface});
+    assert.deepEqual(evidence.framing.camera, highlighted.framing.camera, `${entry.id}: capture frame sizing changed the authored surface camera`);
     assert.deepEqual([evidence.framing.width, evidence.framing.height], [frame.width, frame.height], `${entry.id}: surface capture frame size`);
     assert.deepEqual(pageErrors, [], `${entry.id}: browser runtime errors`);
     const host = page.locator('#jgbox');
@@ -322,7 +340,7 @@ async function captureSurfaceExample(page, entry, browserVersion, servedBuild, b
     const dimensions = pngDimensions(output);
     assert.deepEqual(dimensions, {width: frame.width * deviceScaleFactor, height: frame.height * deviceScaleFactor});
     return {id: entry.id, demonstrationId: entry.demonstrationId, path: entry.path, sceneFingerprint: entry.sceneFingerprint,
-        actions: entry.actions || [], ...recipeRecord(entry), file, width: dimensions.width, height: dimensions.height, sha256: hashFile(output),
+        actions: entry.actions || [], ...recipeRecord(entry, highlight), file, width: dimensions.width, height: dimensions.height, sha256: hashFile(output),
         scene: {...sceneEvidence, visibleLabelBounds}, initialFrame: {firstFrame: true, backNavigationDisabled: true, stableAcrossMs: 250,
             preparedSurfaceEvidence},
         framing: {surfaceHostOnly: true, width: frame.width, height: frame.height, scale: deviceScaleFactor, guidedLessonOverlayHidden,
@@ -438,7 +456,6 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     assert.match(progress, /Korak 1 od \d+\s*·\s*Okvir 1 od \d+/, `${entry.id}: capture did not begin on step 1, frame 1`);
     await settle(page);
     if (demonstration.view === 'surface') {
-        assert.equal(entry.recipe.kind, 'start', `${entry.id}: highlight recipes are not supported on surface routes; use a start recipe`);
         return captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors, destination);
     }
     const initial = await inspectBoard(page);
@@ -546,5 +563,5 @@ async function main(argv = process.argv.slice(2)) {
 module.exports = {reachFrame, applyHighlightRecipe, readGuidedPosition, parseArgs, readInventory, destinationForFamily, assertInventoryFamily, captureOutputPath, fingerprintInventory, fingerprintEntries, inspectBoard, isViewportSpanningHorizontalCurve,
     isCameraScaledCurve, isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, entryBundles,
     verifyServedBuild, captureRecipeForEntry, captureSurfaceExample, resizeSurfaceCaptureHost, readSurfaceVisibleLabelBounds,
-    prepareSurfaceCaptureFrame, presentationHelpers, presentationFingerprint, captureExample};
+    prepareSurfaceCaptureFrame, presentationHelpers, presentationFingerprint, captureExample, assertSurfaceRecipeSteps};
 if (require.main === module) main().catch(error => { console.error(error); process.exitCode = 1; });

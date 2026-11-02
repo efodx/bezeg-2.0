@@ -11,7 +11,7 @@ const graphGeometryTypes = new Set(['curve', 'functiongraph', 'circle', 'point',
     'polygon', 'arc', 'sector', 'ellipse', 'conic', 'spline', 'turtle']);
 
 const RECIPE_STEP_KINDS = new Set(['goto-frame', 'frame-action', 'explore', 'select-tab', 'set-control']);
-const CHECK_FIELDS = ['types', 'curveCount', 'points', 'curves'];
+const CHECK_FIELDS = ['types', 'curveCount', 'points', 'curves', 'surface'];
 
 function canonicalJson(value) {
     if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
@@ -61,7 +61,7 @@ function validateRecipe(id, recipe) {
     validateStepOrder(id, recipe.steps);
     assert.equal(typeof recipe.expectChange, 'boolean', `${id}: highlight recipe must state expectChange true or false`);
     assert.ok(recipe.checks && typeof recipe.checks === 'object' && CHECK_FIELDS.some(field => recipe.checks[field] !== undefined),
-        `${id}: highlight recipe needs at least one expected-geometry check (types, curveCount, points or curves)`);
+        `${id}: highlight recipe needs at least one expected-geometry check (types, curveCount, points, curves or surface)`);
     validateExpected(id, recipe.checks);
     return recipe;
 }
@@ -314,19 +314,20 @@ function validatePublishedSet(inventory, captures, destination) {
     assert.equal(captures.length, inventory.length, 'Capture manifest includes mappings outside the complete inventory');
 }
 
-function validateStoredSurfaceEvidence(entry, record, label) {
+function validateStoredSurfaceEvidence(entry, record, label, expectedSurface = entry.expected.surface) {
     assert.ok(record && record.view === 'surface', `${entry.id}: ${label} surface evidence is missing`);
     const validated = validateSurfaceEvidence({
         framing: {width: record.frame?.width, height: record.frame?.height, camera: record.camera,
             points: record.projectedControlPoints, meshBounds: record.meshBounds},
-        surfaceRenderer: record.surfaceRenderer, renderedOwners: record.renderedOwners, expected: entry.expected.surface,
+        surfaceRenderer: record.surfaceRenderer, renderedOwners: record.renderedOwners, expected: expectedSurface,
     });
     assert.deepEqual(record.ownerIds, validated.ownerIds, `${entry.id}: ${label} owner IDs do not match observed owner samples`);
     return validated;
 }
 
 function validateSurfaceCaptureRecord(entry, capture) {
-    const scene = validateStoredSurfaceEvidence(entry, capture.scene, 'captured scene');
+    const scene = validateStoredSurfaceEvidence(entry, capture.scene, 'captured scene',
+        entry.recipe?.kind === 'highlight' ? entry.recipe.checks.surface : entry.expected.surface);
     validateStoredSurfaceEvidence(entry, capture.initialFrame?.preparedSurfaceEvidence, 'prepared first-frame');
     assert.equal(capture.initialFrame?.firstFrame, true, `${entry.id}: missing first-frame capture evidence`);
     assert.equal(capture.initialFrame?.backNavigationDisabled, true, `${entry.id}: missing initial navigation evidence`);

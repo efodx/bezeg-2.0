@@ -1,4 +1,5 @@
 import type {GuidedExamplePreviewCopy} from './guidedExamplePreviewCopy';
+import {patchGuidedPreviewCopy} from './patchGuidedPreviewCopy';
 
 const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string): GuidedExamplePreviewCopy => ({
     alt: {sl: altSl, en: altEn},
@@ -306,5 +307,17 @@ export const guidedExampleHighlightCopy: Readonly<Record<string, GuidedExamplePr
         'Polinom stopnje 6 da T₆(1) = 1957/720 ≈ 2,7181, dejanska napaka pa je približno 2,3 · 10⁻⁴ in je pod mejo napake e/5040 ≈ 5,4 · 10⁻⁴. Do pogleda prideš v koraku za eˣ, ko je stopnja 6 in se prikaže meja napake.',
         'The degree 6 polynomial gives T₆(1) = 1957/720 ≈ 2.7181, and the actual error is about 2.3 · 10⁻⁴, below the error bound e/5040 ≈ 5.4 · 10⁻⁴. Reach this view in the eˣ step, with degree 6 and the error bound shown.',
     ),
+    // Bezier patches (task 06): each highlight is its step's start surface (expectChange false, enforced at capture), so the
+    // section copy, written for that scene and stating its claim, is the highlight copy.
+    'bezier-patches.curve-to-patch.patch-tensor': patchGuidedPreviewCopy['curve-to-patch'],
+    'bezier-patches.bilinear-patch.patch-tensor': patchGuidedPreviewCopy['bilinear-patch'],
+    'bezier-patches.control-net.patch-tensor': patchGuidedPreviewCopy['control-net'],
+    'bezier-patches.boundary-iso-curves.patch-tensor': patchGuidedPreviewCopy['boundary-iso-curves'],
+    'bezier-patches.tensor-decasteljau.patch-decasteljau': patchGuidedPreviewCopy['tensor-decasteljau'],
+    'bezier-patches.properties.patch-tensor': patchGuidedPreviewCopy.properties,
+    'bezier-patches.tensor-derivatives.patch-derivatives': patchGuidedPreviewCopy['tensor-derivatives'],
+    'bezier-patches.tensor-subdivision.patch-subdivision': patchGuidedPreviewCopy['tensor-subdivision'],
+    'bezier-patches.tensor-joins.patch-joins': patchGuidedPreviewCopy['tensor-joins'],
+    'bezier-patches.triangular-patches.patch-triangular': patchGuidedPreviewCopy['triangular-patches'],
+    'bezier-patches.square-vs-triangular.patch-triangular': patchGuidedPreviewCopy['square-vs-triangular'],
 };
-
