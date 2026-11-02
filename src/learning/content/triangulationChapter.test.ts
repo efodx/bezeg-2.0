@@ -6,6 +6,7 @@ import {
 import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
+import {getGuidedLesson} from './guidedLessons';
 import {triangulationChapter} from './triangulationChapter';
 import {TRIANGULATION_CHAPTER_ID, triangulationGuidedExamplePath, triangulationGuidedExampleRegistry} from './triangulationChapterRegistry';
 
@@ -134,7 +135,11 @@ describe('chapter structure and registration', () => {
             const comma = (text: string) => language === 'sl' ? text : text.replaceAll('{,}', '.');
             for (const fact of ['D>0', 'D=64>0', '-64', '\\tfrac{85}{9}', '\\tfrac{37}{9}', comma('19{,}65^\\circ'), comma('26{,}57^\\circ'), 'D=0']) expect(prose, `${language}: ${fact}`).toContain(fact);
             expect(section.investigationPrompts![B3]![language].length).toBeGreaterThan(20);
+            const convexity = language === 'sl' ? 'Pri neustreznem robu je štirikotnik vedno izbočen' : 'For an illegal edge the quadrilateral is always convex';
+            expect(prose, `${language}: convexity of the illegal-edge quadrilateral`).toContain(convexity);
         }
+        // The convexity fact is cited from de Berg et al.: the Delaunay lesson carries that source.
+        expect(getGuidedLesson(B3)!.sources.some(source => source.id === 'berg-delaunay' && source.citation.startsWith('de Berg, M., Cheong, O.'))).toBe(true);
         expect(getChapterGuidedExamples(TRIANGULATION_CHAPTER_ID, B3).map(link => link.path)).toEqual([triangulationGuidedExamplePath(B3)]);
         expect(triangulationGuidedExamplePath(B3)).toContain(`?example=lesson.${TRIANGULATION_CHAPTER_ID}.${B3}.${B3}`);
     });

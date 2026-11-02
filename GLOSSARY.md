@@ -11,7 +11,7 @@ The educational app for students and educators exploring Bézier, rational Bézi
 A Demonstration of a real function graph `y = f(x)` in the *Functions and calculus* family (linear, exponential and trigonometric functions, continuity, derivative, definite integral, area between curves, arc length), as distinct from a curve demonstration driven by control points.
 
 **Trace**:
-The recorded sequence of steps of an algorithm Demonstration in the *Računska geometrija* family (convex hull, ear clipping, sweeps). Next step and playback walk the same trace; editing the input recomputes it and returns to step 0.
+The recorded sequence of steps of an algorithm Demonstration in the *Računska geometrija* family (convex hull, ear clipping, sweeps, Lawson flips). Next step and playback walk the same trace; editing the input recomputes it and returns to step 0.
 
 **Orientation**:
 The sign of the cross product \((q-p)\times(r-p)\) of three grid points, computed exactly (`orient`): positive is a left (counter-clockwise) turn, negative a right turn, zero collinear. Every decision of the *Računska geometrija* family reduces to orientation or another exact sign test, never to a floating-point comparison.
@@ -24,6 +24,21 @@ The smallest convex polygon containing a point set. The hull Demonstration build
 
 **Ear**:
 Three consecutive polygon vertices whose turn is strictly convex and whose triangle contains no other vertex; ear clipping removes one ear per step until a triangle remains.
+
+**Triangulation** (*triangulacija*):
+A maximal set of non-crossing segments between the points of a point set, which divides the convex hull into triangles. It exists only for at least three points that are not all collinear and are pairwise distinct; the point-set triangulation Demonstration refuses other input.
+
+**Edge flip** (*zamenjava roba*, Lawson flip):
+Replacing the diagonal of a convex quadrilateral formed by the two triangles at an interior edge with its other diagonal. The counts of triangles and edges do not change; a flip is refused for a boundary edge or when the quadrilateral is not strictly convex.
+
+**Illegal edge** (*neustrezen rob*):
+An interior edge \(ac\) of a triangulation whose neighbouring triangle has its opposite vertex \(d\) strictly inside the circumcircle of \(abc\) (incircle determinant \(D>0\)). Flipping it increases the sorted angle vector lexicographically; an edge with \(D\le0\) is legal.
+
+**Empty circle / incircle test** (*preizkus krožnice*):
+The exact sign of the incircle determinant of four grid points, which tells whether the fourth lies inside, on or outside the circle (*očrtana krožnica*) through the first three taken counter-clockwise. A triangulation whose circumcircles all pass this test empty is a Delaunay triangulation.
+
+**Delaunay triangulation** (*Delaunayeva triangulacija*):
+A triangulation in which every edge is legal, equivalently no triangle's circumcircle holds another point strictly inside; it is unique when no four points lie on one circle. Lawson's algorithm reaches it from any triangulation by flipping illegal edges until none remain; the Delaunay Demonstration records those flips as a trace.
 
 **Sweep line**:
 A line moved across the plane that stops only at events (interval or segment endpoints, intersections) held in the event queue; the status is the ordered list of objects the line currently crosses.

@@ -517,6 +517,28 @@ test('a triangle with three hull edges reports no neighbour; clearing deselects 
     expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 3; čeznje ni sosednjega trikotnika.');
 });
 
+test('a triangle is selected and cleared with the native buttons alone: focusable, no pointer event', () => {
+    const graph = new Observed();
+    mount(graph);
+    const target = document.querySelector('button[data-triangle="1"]') as HTMLButtonElement;
+    expect(target.tagName).toBe('BUTTON');
+    expect(target.tabIndex).toBeGreaterThanOrEqual(0);
+    expect(target.getAttribute('aria-pressed')).toBe('false');
+    // A keyboard activation of a native button is a click on the focused element; nothing pointer-based is dispatched.
+    act(() => { target.focus(); fireEvent.click(target); });
+    expect(document.activeElement).toBe(target);
+    expect(graph.selectedTriangle()).toBe(1);
+    expect(target.getAttribute('aria-pressed')).toBe('true');
+    expect(selectedCircles(graph)).toHaveLength(1);
+    expect(document.querySelector('[data-delaunay="selected-triangle"]')).not.toBeNull();
+    const clear = button('clear-triangle');
+    expect(clear.tabIndex).toBeGreaterThanOrEqual(0);
+    act(() => { clear.focus(); fireEvent.click(clear); });
+    expect(graph.selectedTriangle()).toBeUndefined();
+    expect(target.getAttribute('aria-pressed')).toBe('false');
+    expect(selectedCircles(graph)).toHaveLength(0);
+});
+
 test('an edit, a step and a manual flip clear the selection', () => {
     const graph = new Observed();
     mount(graph);

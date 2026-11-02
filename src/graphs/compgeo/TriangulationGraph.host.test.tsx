@@ -156,6 +156,27 @@ test('a legal flip keeps both counts, changes the smallest angle and shows both 
     expect(readout('triangles')).toBe('Trikotnikov: 7 = 2n − 2 − k = 2 · 7 − 2 − 5');
 });
 
+test('a legal flip changes the whole sorted angle vector, not only its minimum, and keeps the angle sum', () => {
+    const graph = new Observed();
+    mount(graph);
+    const e = legalEdge();
+    const vector = (triangles: readonly (readonly number[])[]) => {
+        const made = createTriangulation(TRIANGULATION_EXAMPLE_POINTS.points, triangles);
+        if (!made.ok) throw new Error('invalid triangulation');
+        return angleVector(made.value);
+    };
+    const before = vector(graph.triangles);
+    choose(e.a, e.b);
+    flipIt();
+    const after = vector(graph.triangles);
+    expect(before).toHaveLength(21);
+    expect(after).toHaveLength(21);
+    // Both triangles at the edge are replaced, so angles beyond the smallest change as well.
+    expect(after.slice(1).some((angle, i) => Math.abs(angle - before[i + 1]) > 1e-9)).toBe(true);
+    expect(after.reduce((a, b) => a + b, 0)).toBeCloseTo(before.reduce((a, b) => a + b, 0), 9);
+    for (let i = 1; i < after.length; i++) expect(after[i]).toBeGreaterThanOrEqual(after[i - 1]);
+});
+
 test('a flip of a non-convex quadrilateral and of a hull edge each show their reason and change nothing', () => {
     const graph = new Observed();
     mount(graph);
