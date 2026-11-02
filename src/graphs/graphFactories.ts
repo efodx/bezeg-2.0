@@ -72,6 +72,8 @@ import InterpolationGraph from './curves/interpolation/InterpolationGraph';
 import HermiteGraph from './curves/hermite/HermiteGraph';
 import SubdivisionCurveGraph from './curves/subdivisionCurves/SubdivisionCurveGraph';
 import CoonsPatchGraph from './patches/CoonsPatchGraph';
+import BSplineBasisGraph from './curves/bspline/BSplineBasisGraph';
+import DeBoorGraph from './curves/bspline/DeBoorGraph';
 import {CrossRatioGraph} from './projective/CrossRatioGraph';
 import {PascalGraph} from './projective/PascalGraph';
 import {PolePolarGraph} from './projective/PolePolarGraph';
@@ -117,6 +119,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'interp-lagrange': () => new InterpolationGraph(),
     'interp-hermite': () => new HermiteGraph(),
     'interp-subdivision': () => new SubdivisionCurveGraph(),
+    'bspline-basis': () => new BSplineBasisGraph(),
+    'bspline-deboor': () => new DeBoorGraph(),
     'patch-coons': () => new CoonsPatchGraph(),
     'linear-function': () => new LinearFunctionGraph(),
     'exponential-function': () => new ExponentialFunctionGraph(),

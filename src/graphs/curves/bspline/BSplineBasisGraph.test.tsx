@@ -83,8 +83,8 @@ describe('basis values through the graph (defaults: degree 2, knots 0,0,0,1,2,2,
         const values = activeValues(graph, graph.state.t);
         expected.forEach((value, i) => expect(Math.abs(values[i] - value)).toBeLessThanOrEqual(TOL));
         expect(Math.abs(values.reduce((a, b) => a + b, 0) - 1)).toBeLessThanOrEqual(TOL);
-        // The drawn dots sit at the kernel values: elements after the n + 1 curves and the rule are the dots.
-        const dots = graph.sceneOf().ownedElements().slice(graph.functionCount + 1, 2 * graph.functionCount + 1) as unknown as {Y(): number}[];
+        // The drawn dots sit at the kernel values: elements after the n + 1 curves and the rule (a segment with its two end points) are the dots.
+        const dots = graph.sceneOf().ownedElements().slice(graph.functionCount + 3, 2 * graph.functionCount + 3) as unknown as {Y(): number}[];
         dots.forEach((dot, i) => expect(Math.abs(dot.Y() - expected[i])).toBeLessThanOrEqual(TOL));
         // The readout names the k + 1 active values and their sum.
         const text = graph.sceneOf().readoutText();
@@ -298,6 +298,14 @@ describe('knot editor', () => {
 
 describe('Presets, scenes and reset', () => {
     const cubic = basisPresetData(3, [0, 0, 0, 0, 1, 2, 2, 2, 2]);
+
+    test('a real lesson fixture action gives clamped uniform knots for its degree and point count', () => {
+        const {graph, view} = mount();
+        const points: [number, number][] = [[0, 0], [1, 2], [3, 2], [4, 0], [5, 1]];
+        act(() => graph.getLessonCapabilities().apply({kind: 'prepared-scene', sceneId: 's', source: 'lesson-fixture', curve: {points, degree: 3}}));
+        expect([graph.state.degree, graph.state.knots]).toEqual([3, [0, 0, 0, 0, 1, 2, 2, 2, 2]]);
+        view.unmount();
+    });
 
     test('every scene path carries the degree and knots', () => {
         const {graph, view} = mount();

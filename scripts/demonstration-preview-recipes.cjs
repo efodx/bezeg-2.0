@@ -38,6 +38,8 @@ const targets = {
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-hermite': ['Default points with the Catmull-Rom curve and its tangents', []],
     'interp-subdivision': ['Default control polygon with the first refinement of the subdivision curve', []],
+    'bspline-basis': ['Default clamped cubic knot vector with the basis functions, the knot editor and the slider at its opening parameter', []],
+    'bspline-deboor': ['Default B-spline with its control polygon and the de Boor triangle at the opening parameter', []],
     'linear-function': ['Unchanged line with its slope triangle', [], [-0.8, 6.5, 3, -1.5]],
     'exponential-function': ['Original growth region and reference points', [], [-1.5, 5, 2.5, -0.6]],
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],

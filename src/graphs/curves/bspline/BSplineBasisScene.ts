@@ -116,7 +116,11 @@ export class BSplineBasisScene {
         }
 
         const atT = () => this.valid() ? this.view().toDisplay(clampToDomain(this.settings.knots(), degree, this.settings.position())) : NaN;
-        this.create('segment', [[atT, 0], [atT, 1]], {...quiet, strokeColor: GraphPalette.label, strokeWidth: 1.5, dash: 2});
+        // Explicit end points: a segment made from coordinate arrays leaves its two implicit points on the board after removal.
+        const hidden = {...quiet, visible: false, name: '', size: 0};
+        const foot = this.create<Point>('point', [atT, 0], hidden);
+        const top = this.create<Point>('point', [atT, 1], hidden);
+        this.create('segment', [foot, top], {...quiet, strokeColor: GraphPalette.label, strokeWidth: 1.5, dash: 2});
         for (let i = 0; i < this.functionCount; i++) {
             const height = () => {
                 const values = this.valid() ? allValuesAt(this.settings.knots(), this.settings.degree(), this.settings.position()) : undefined;

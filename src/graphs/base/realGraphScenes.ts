@@ -19,6 +19,8 @@ import {type MountedGraph, observe, observeScene, surfaceViewOf} from './realGra
 
 export type Internals = {
     board: JXG.Board;
+    /** Protected on the graph: false for plots with free axes. */
+    equalAxisUnits?: boolean;
     jxgCurves?: Array<{getJxgPoints(): unknown[]}>;
     exportPresetFigures(presets: Preset[]): Promise<void>;
     captureTransientState?: () => unknown;
@@ -92,6 +94,13 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
         case 'projective-cross-ratio': g.importPresetData(CROSS_RATIO_EXAMPLES[pick('harmonic', 'infinity')]); return;
         case 'projective-pascal': g.importPresetData(PASCAL_EXAMPLES[pick('pappus', 'infinity')]); return;
         case 'projective-pole-polar': g.importPresetData(POLE_POLAR_EXAMPLES[pick('inside', 'infinity')]); return;
+        case 'bspline-curve': {
+            // B-spline graphs: move the first interior knot within its neighbours and lift the first control point.
+            const {degree, knots, points} = exported as {degree: number, knots: number[], points: [number, number][]};
+            const moved = knots.map((knot, i) => i === degree + 1 ? knots[degree] + (knots[degree + 2] - knots[degree]) * (variant === 'a' ? 0.75 : 0.25) : knot);
+            g.importPresetData({...exported as object, knots: moved, points: points.map((point, i) => i === 0 ? [point[0], point[1] + (variant === 'a' ? 0.5 : -0.5)] : point)});
+            return;
+        }
     }
     if (!collection || exported === null || typeof exported !== 'object' || Array.isArray(exported)) return;
     let model = {...exported as Record<string, unknown>};

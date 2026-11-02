@@ -94,7 +94,8 @@ function resetDisplay(graph: BaseGraph<BaseGraphState>, reference: BaseGraph<Bas
     }
     if (!internals(graph).board) return;
     act(() => {
-        internals(graph).board.setBoundingBox(internals(reference).board.getBoundingBox() as [number, number, number, number], true);
+        // Keep the aspect only for graphs with equal axis units; a plot with free axes would be rescaled to the container.
+        internals(graph).board.setBoundingBox(internals(reference).board.getBoundingBox() as [number, number, number, number], internals(graph).equalAxisUnits !== false);
         graph.setElementSize(reference.displaySettings.getSize());
         graph.setAxisSelect(reference.displaySettings.getAxisSelect());
         graph.setPointLabelsVisible(reference.displaySettings.pointLabelsVisible);

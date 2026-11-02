@@ -36,6 +36,8 @@ const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hu
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar"];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
 const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-subdivision", "patch-coons"];
+/** One collection serves both B-spline Demonstrations (ADR 0024), so it is the one collection allowed to be shared. */
+const SHARED_COLLECTION_IDS: readonly string[] = ["bspline-basis", "bspline-deboor"];
 
 /** Rounds away floating-point noise from view arithmetic (a bounding box computed from the container size). */
 const rounded = (value: unknown) => JSON.parse(JSON.stringify(value, (_key, item) =>
@@ -46,7 +48,7 @@ describe('Preset collection definitions', () => {
         const keys = presetCollections.map(collection => collection.key);
         expect(new Set(keys).size).toBe(keys.length);
         expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS,
-            ...CURVE_STREAM_KEYS, ...PROJECTIVE_KEYS].sort());
+            ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS].sort());
     });
 
     test('every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys', () => {
@@ -58,7 +60,7 @@ describe('Preset collection definitions', () => {
                 continue;
             }
             expect(presetCollections, id).toContain(collection);
-            expect(used.has(collection), `${id} shares another Demonstration's collection`).toBe(false);
+            if (!SHARED_COLLECTION_IDS.includes(id)) expect(used.has(collection), `${id} shares another Demonstration's collection`).toBe(false);
             used.add(collection);
         }
         const unused = presetCollections.filter(collection => !used.has(collection));

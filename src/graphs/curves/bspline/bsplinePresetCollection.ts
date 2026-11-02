@@ -1,5 +1,5 @@
 import {message, Message} from "../../../localization";
-import {isFiniteNumber, isIntegerAtLeast, isRecord, PresetCollection, PresetDataCheck} from "../../base/presets/PresetCollection";
+import {checkSceneState, isFiniteNumber, isIntegerAtLeast, isRecord, PresetCollection, PresetDataCheck} from "../../base/presets/PresetCollection";
 import {validateKnotVector, validateWeights} from "../../../bezeg/impl/curve/bspline";
 import {knotRejectionMessage} from "./bsplineKnotMessages";
 
@@ -44,6 +44,17 @@ function rejectionOf(value: unknown): Message | undefined {
  */
 export const bsplinePresetCollection: PresetCollection<BSplinePresetData> = Object.freeze({
     key: BSPLINE_COLLECTION_KEY,
+    /**
+     * The graphs keep `degree`, `knots` and `points` in their scene state, so a stored `graphState` holds the two arrays; the flat
+     * scene-state check would refuse them. They are checked for shape here, and a restored Preset takes them from `data`.
+     */
+    checkGraphState(graphState: unknown): Message | undefined {
+        if (!isRecord(graphState)) return message("invalid_state");
+        const {knots, points, ...rest} = graphState;
+        if (knots !== undefined && !(Array.isArray(knots) && knots.every(isFiniteNumber))) return message("invalid_value", {value0: "knots"});
+        if (points !== undefined && !(Array.isArray(points) && points.every(isPoint))) return message("invalid_value", {value0: "points"});
+        return checkSceneState(rest);
+    },
     check(data: unknown): PresetDataCheck<BSplinePresetData> {
         const rejection = rejectionOf(data);
         if (rejection) return {rejection};

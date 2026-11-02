@@ -364,21 +364,17 @@ describe('Reset, scenes, language and disposal', () => {
         view.unmount();
     });
 
-    test('a lesson fixture scene loads its points and knots through the collection check', () => {
+    test('a real lesson fixture action loads its points on clamped knots through the collection check', () => {
         const cubic: BSplinePresetData = {degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};
-        let fixture: BSplinePresetData = cubic;
-        class FixtureGraph extends ObservedGraph {
-            protected override lessonFixtureData() { return fixture; }
-        }
-        const graph = new FixtureGraph();
-        const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-        const action = {kind: 'prepared-scene', sceneId: 's', source: 'lesson-fixture', curve: {}} as unknown as LessonAction;
+        const fixtureAction = (points: BSplinePresetData['points'], degree?: number) =>
+            ({kind: 'prepared-scene', sceneId: 's', source: 'lesson-fixture', curve: {points: points.map(([x, y]) => [x, y]), ...(degree ? {degree} : {})}}) as unknown as LessonAction;
+        const {graph, view} = mount();
+        const action = fixtureAction(cubic.points, 3);
         act(() => graph.getLessonCapabilities().apply(action));
         expect([graph.state.degree, graph.state.knots, graph.state.points]).toEqual([3, cubic.knots, cubic.points]);
         expect(graph.sceneOf().degree).toBe(3);
         // Invalid fixture data is rejected by the collection with the lesson geometry error; the scene stays.
-        fixture = {...cubic, knots: [0, 0, 0, 1, 1, 1, 1, 1]};
-        expect(() => act(() => graph.getLessonCapabilities().apply(action))).toThrow('The lesson geometry is invalid');
+        expect(() => act(() => graph.getLessonCapabilities().apply(fixtureAction(cubic.points.slice(0, 3), 3)))).toThrow('The lesson geometry is invalid');
         expect([graph.state.degree, graph.state.knots]).toEqual([3, cubic.knots]);
         view.unmount();
     });
