@@ -75,6 +75,10 @@ const targets = {
     'interval-sweep': ['Sample 1 of five intervals at step 5 of the sweep: the sweep line at x = 2 with the first overlapping pair', [button('Naslednji korak', 4)], [-1, 6, 11, 0]],
     // Sample 1: four segments spanning x 0..6 and y -1..5.
     'segment-intersections': ['Sample 1 of four segments at step 25 of 47 of the Bentley-Ottmann sweep: the sweep line at y = 2 and the intersections found above it', [button('Naslednji korak', 24)], [-0.8, 5.8, 6.8, -1.8]],
+    // Default triangle A(0,0), B(7,0), C(2,5): circumcircle about O = (7/2, 3/2) with R = 3.81 spans y -2.31..5.31; the window keeps 360:220 around it.
+    'triangle-centres': ['Default acute triangle with all four notable points G, O, I, H, their constructions and the circumcircle', [toggle('Središče očrtane krožnice O (simetrale stranic)'), toggle('Središče včrtane krožnice I (simetrale kotov)'), toggle('Višinska točka H (višine)')], [-3.55, 5.81, 10.55, -2.81]],
+    // The same triangle and circle; the glider P at t = 90 is the top of the circle (3.5, 5.31), on the arc of C, with both inscribed angles and the central angle marked.
+    'inscribed-angle': ['Default chord AB with the inscribed angles at C and P, the central angle at O and the radii OA, OB', [toggle('Polmera OA in OB')], [-3.55, 5.81, 10.55, -2.81]],
     'patch-coons': ['Default Coons patch, fitted to the preview frame, with its four boundary curves, control net and shaded surface', [button('Ponastavi pogled')]],
     'projective-cross-ratio': ['Default central projection of four points A, B, C, D from the centre O onto the second line, with both cross-ratios 9/8', [], [-14, 9, 14, -7]],
     'projective-pascal': ['Default Pascal hexagon inscribed in the ellipse with the three intersections of opposite sides on one line', [], [-12, 10.5, 12, -10.5]],
@@ -257,7 +261,7 @@ async function outcome(page, id) {
 }
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
-const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections']);
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle']);
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
@@ -296,6 +300,16 @@ function assertOutcomeEvidence(id, evidence) {
         }
         assert.ok(evidence.points.some(p => near(p, 0, 2)), 'Missing w = 2i');
         assert.ok(evidence.curves >= 5, 'Root circle, three triangle edges and the arrow of w required');
+    }
+    if (id === 'triangle-centres' || id === 'inscribed-angle') {
+        for (const [x, y] of [[0, 0], [7, 0], [2, 5]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing default vertex (${x},${y}): ${JSON.stringify(evidence.points)}`);
+        assert.ok(evidence.lines >= 3, 'The triangle sides or the chord and angle sides required');
+    }
+    if (id === 'triangle-centres') {
+        for (const [x, y] of [[3, 5 / 3], [3.5, 1.5], [2, 2]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing exact centre G, O or H (${x},${y}): ${JSON.stringify(evidence.points)}`);
+    }
+    if (id === 'inscribed-angle') {
+        assert.ok(evidence.points.some(p => near(p, 3.5, 1.5 + Math.sqrt(29 / 2))), `Glider P must be at t = 90 (3.5, 5.308): ${JSON.stringify(evidence.points)}`);
     }
     if (id === 'bisection') assert.equal(evidence.readouts.step, '1', 'First exact bisection step required');
     if (id === 'fixed-point') assert.equal(evidence.readouts.step, '1', 'First exact cobweb step required');
