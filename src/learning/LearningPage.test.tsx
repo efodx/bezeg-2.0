@@ -36,10 +36,10 @@ test('Learn contains every family chapter and keeps guided activities inside cha
     expect(learningChapters.some(chapter => FAMILY_CHAPTER_PENDING.includes(chapter.family))).toBe(false);
     // A family may own several chapters (maps: linear and complex).
     expect([...new Set(learningChapters.map(chapter => chapter.family))].sort()).toEqual(familiesWithChapters.sort());
-    expect(container.querySelectorAll('.learning-family')).toHaveLength(17);
-    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(17);
+    expect(container.querySelectorAll('.learning-family')).toHaveLength(18);
+    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(18);
     // Every chapter has a thumbnail now that no poster is pending.
-    expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(17);
+    expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(18);
     expect(learningStrands.flatMap(strand => strand.chapters)).toEqual(learningChapters.map(chapter => chapter.id));
     expect(container.querySelectorAll('.learning-step')).toHaveLength(0);
     for (const chapter of learningChapters) {

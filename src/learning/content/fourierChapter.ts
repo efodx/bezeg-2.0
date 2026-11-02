@@ -1,0 +1,54 @@
+import type {LocalizedText} from '../model';
+import type {OrderedChapterContent} from '../chapter/orderedContent';
+import type {FamilyChapter, FamilyChapterSection} from './familyChapters';
+import {
+    FOURIER_CHAPTER_ID, fourierGuidedExampleDemonstration, type FourierSectionId,
+} from './fourierChapterRegistry';
+
+// Local helper: familyChapters.ts imports this chapter, so it must not import values from familyChapters.ts.
+const text = (sl: string, en: string): LocalizedText => ({sl, en});
+
+/** Reading material first, then the prepared activity at the section end. */
+function withExample(sectionId: FourierSectionId, section: FamilyChapterSection): FamilyChapterSection {
+    const demonstrationId = fourierGuidedExampleDemonstration(sectionId);
+    const content: OrderedChapterContent<LocalizedText>[] = [
+        ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
+        ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
+        {kind: 'example', exampleId: `${FOURIER_CHAPTER_ID}.${sectionId}.${demonstrationId}`},
+    ];
+    return {...section, orderedContent: content};
+}
+
+/** Batch A of the Fourier series spec: only the released lesson (F1 partial sums of a square wave, F3 the Gibbs phenomenon) is mentioned. */
+export const fourierChapter: FamilyChapter = {
+    id: FOURIER_CHAPTER_ID,
+    family: 'analysis',
+    title: text('Fourierove vrste', 'Fourier series'),
+    purpose: text('Periodično funkcijo lahko zapišemo kot vsoto sinusov in kosinusov. Poglavje na pravokotnem valu pokaže, kako delne vsote vrste sledijo funkciji, kaj vrsta pove v točki skoka in zakaj ob skoku preseg ne izgine, čeprav v vsaki točki konvergira.', 'A periodic function can be written as a sum of sines and cosines. On a square wave, the chapter shows how the partial sums of the series follow the function, what the series gives at a jump, and why the overshoot at a jump does not disappear even though the series converges at every point.'),
+    prerequisites: text('Sinus, amplituda in frekvenca ter razlika med točkovno in enakomerno konvergenco zaporedja funkcij.', 'Sine, amplitude and frequency, and the difference between pointwise and uniform convergence of a sequence of functions.'),
+    prerequisiteLinks: [{path: '/bezeg-2.0/learn/analysis#convergence', title: text('Analiza: enakomerna konvergenca', 'Analysis: uniform convergence')}],
+    sections: [
+        {
+            id: 'fourier-idea',
+            title: text('Delne vsote in dva pojma konvergence', 'Partial sums and two notions of convergence'),
+            paragraphs: [
+                text('Cilj razdelka: znaš povedati, kaj je delna vsota in v katerem smislu naj bi zaporedje delnih vsot konvergiralo. Funkcija \\(f\\) s periodo \\(2\\pi\\) ima Fourierovo vrsto, vsota sinusov in kosinusov; \\(N\\)-ta delna vsota \\(S_N\\) vzame prvih \\(N\\) harmonikov. Vprašanje je, ali in kako \\(S_N\\) konvergira k \\(f\\), ko \\(N\\) raste.', 'Learning outcome: you can say what a partial sum is and in which sense the sequence of partial sums is meant to converge. A function \\(f\\) of period \\(2\\pi\\) has a Fourier series, a sum of sines and cosines; the \\(N\\)-th partial sum \\(S_N\\) takes the first \\(N\\) harmonics. The question is whether and how \\(S_N\\) converges to \\(f\\) as \\(N\\) grows.'),
+                text('Točkovna konvergenca pomeni, da se pri vsakem fiksnem \\(x\\) napaka \\(|S_N(x)-f(x)|\\) približuje \\(0\\). Enakomerna konvergenca zahteva več: supremum napake \\(\\sup_x|S_N(x)-f(x)|\\) mora iti proti \\(0\\), kar je razloženo v poglavju o analizi. Druga ne sledi iz prve in v tem poglavju ju ločimo na primeru, kjer prva velja, druga pa ne.', 'Pointwise convergence means that at every fixed \\(x\\) the error \\(|S_N(x)-f(x)|\\) tends to \\(0\\). Uniform convergence asks for more: the supremum of the error \\(\\sup_x|S_N(x)-f(x)|\\) must tend to \\(0\\), as explained in the analysis chapter. The second does not follow from the first, and this chapter separates them on an example where the first holds and the second fails.'),
+                text('Vsi izreki v poglavju imajo hipoteze, slike pa so ilustracije ene funkcije in enega \\(N\\) naenkrat, ne dokazi. To, da vsota na sliki »izgleda« konvergentna, ni izrek.', 'All theorems in this chapter have hypotheses, and the pictures are illustrations of one function and one \\(N\\) at a time, not proofs. That a sum looks convergent in the picture is not a theorem.'),
+            ],
+        },
+        withExample('fourier-series', {
+            id: 'fourier-series',
+            demonstrationIds: ['fourier-series'],
+            investigationPrompts: {'fourier-series': text('Napovej, kateri člen dodaš po \\(\\sin x\\), nato dodaj člene in preveri. Nato poišči vrh vsote ob skoku in ugotovi, kaj se mu zgodi, ko povečaš \\(N\\).', 'Predict which term you add after \\(\\sin x\\), then add terms and check. Then find the peak of the sum next to the jump and see what happens to it as you raise \\(N\\).')},
+            title: text('Pravokotni val, skok in Gibbsov pojav', 'The square wave, the jump and the Gibbs phenomenon'),
+            formula: String.raw`S_N(x)=\frac4\pi\sum_{k\ \mathrm{odd},\ k\le N}\frac{\sin kx}{k}`,
+            paragraphs: [
+                text('Cilj razdelka: sestaviš delno vsoto pravokotnega vala in veš, kaj vrsta pove v točki skoka. Pravokotni val ima vrednost \\(-1\\) na \\((-\\pi,0)\\) in \\(1\\) na \\((0,\\pi)\\); njegova vrsta ima samo lihe sinuse z utežmi \\(1/k\\), kot kaže obrazec spodaj. Zgled pri \\(x=1{,}57\\): \\(S_3\\approx0{,}84883\\) je pod vrednostjo vala \\(1\\), \\(S_{11}\\approx0{,}94731\\) in \\(S_{101}\\approx1{,}00622\\). Sodi členi so enaki \\(0\\), zato je \\(S_{12}=S_{11}\\): za sodi \\(N\\) vsota ostane enaka kot pri \\(N-1\\).', 'Learning outcome: you build a partial sum of the square wave and know what the series gives at a jump. The square wave has the value \\(-1\\) on \\((-\\pi,0)\\) and \\(1\\) on \\((0,\\pi)\\); its series has only odd sines with weights \\(1/k\\), as the formula below shows. Example at \\(x=1.57\\): \\(S_3\\approx0.84883\\) is below the value \\(1\\) of the wave, \\(S_{11}\\approx0.94731\\) and \\(S_{101}\\approx1.00622\\). The even terms equal \\(0\\), so \\(S_{12}=S_{11}\\): for an even \\(N\\) the sum stays equal to the one at \\(N-1\\).'),
+                text('Izrek (Dirichlet): naj bo \\(f\\) periodična in odsekoma gladka, torej odsekoma zvezno odvedljiva z enostranskimi limitami. Tedaj \\(S_N(x)\\) v vsaki točki \\(x\\) konvergira k \\(\\tfrac12\\bigl(f(x^-)+f(x^+)\\bigr)\\), v točki skoka torej k sredini enostranskih limit. Za pravokotni val je to \\(0\\) in res je \\(S_N(0)=0\\) za vsak \\(N\\). Izrek ne trdi, da vrsta konvergira za vsako zvezno funkcijo: obstajajo zvezne funkcije, katerih vrsta v neki točki divergira (citirano, ne dokazano; Zygmund).', 'Theorem (Dirichlet): let \\(f\\) be periodic and piecewise smooth, that is piecewise continuously differentiable with one-sided limits. Then \\(S_N(x)\\) converges at every point \\(x\\) to \\(\\tfrac12\\bigl(f(x^-)+f(x^+)\\bigr)\\), so at a jump to the midpoint of the one-sided limits. For the square wave this is \\(0\\), and indeed \\(S_N(0)=0\\) for every \\(N\\). The theorem does not claim that the series converges for every continuous function: there are continuous functions whose series diverges at some point (cited, not proved; Zygmund).'),
+                text('Gibbsov pojav: ob skoku vsota preseže vrednost vala in preseg z večanjem \\(N\\) ne pojema. Največja vrednost \\(S_N\\) na \\((0,\\pi)\\) je pri \\(x=\\pi/(N+1)\\): pri \\(N=11\\) je \\(1{,}18130\\) pri \\(x=\\pi/12\\approx0{,}2618\\), kar je \\(9{,}07\\,\\%\\) skoka \\(2\\); pri \\(N=101\\) je \\(1{,}17901\\), ob \\(8{,}95\\,\\%\\) skoka. Limita je \\(\\tfrac2\\pi\\mathrm{Si}(\\pi)=1{,}17898\\), preseg pa je torej približno \\(8{,}95\\,\\%\\) skoka v limiti, kjer je \\(\\mathrm{Si}(\\pi)=\\int_0^\\pi\\tfrac{\\sin t}{t}\\,dt\\). To je izrek (Gibbsov pojav; Zygmund, citirano, ne dokazano); vrednosti za končni \\(N\\) so ilustracije, ne dokaz. Vrh se z večanjem \\(N\\) le premakne proti skoku, nikoli ni v skoku samem. Preseg ni napaka računanja ali risanja.', 'The Gibbs phenomenon: next to a jump the sum overshoots the value of the wave, and the overshoot does not shrink as \\(N\\) grows. The maximum of \\(S_N\\) on \\((0,\\pi)\\) is at \\(x=\\pi/(N+1)\\): for \\(N=11\\) it is \\(1.18130\\) at \\(x=\\pi/12\\approx0.2618\\), which is \\(9.07\\,\\%\\) of the jump \\(2\\); for \\(N=101\\) it is \\(1.17901\\), at \\(8.95\\,\\%\\) of the jump. The limit is \\(\\tfrac2\\pi\\mathrm{Si}(\\pi)=1.17898\\), so the overshoot is about \\(8.95\\,\\%\\) of the jump in the limit, where \\(\\mathrm{Si}(\\pi)=\\int_0^\\pi\\tfrac{\\sin t}{t}\\,dt\\). This is a theorem (the Gibbs phenomenon; Zygmund, cited, not proved); the values for finite \\(N\\) are illustrations, not a proof. As \\(N\\) grows the peak only moves toward the jump, and it is never at the jump itself. The overshoot is not a numerical or plotting error.'),
+                text('Posledica: pri vsakem fiksnem \\(x\\) napaka pada k \\(0\\), vendar za vsak \\(N\\) napaka \\(|S_N(x)-f(x)|\\) pri \\(x\\to0^+\\) gre proti \\(1\\) (za \\(N=101\\) je pri \\(x=10^{-6}\\) enaka \\(0{,}99994\\)). Zato je \\(\\sup_x|S_N-f|\\ge1\\) za vsak \\(N\\) in vsota konvergira točkovno, enakomerno pa ne. Pas \\(f\\pm\\varepsilon\\) torej vsota ob skoku zapusti pri vsakem \\(N\\). Trditve, da preseg izgine pri drugih načinih seštevanja, poglavje ne podaja.', 'Consequence: at every fixed \\(x\\) the error falls to \\(0\\), yet for every \\(N\\) the error \\(|S_N(x)-f(x)|\\) tends to \\(1\\) as \\(x\\to0^+\\) (for \\(N=101\\) it is \\(0.99994\\) at \\(x=10^{-6}\\)). Hence \\(\\sup_x|S_N-f|\\ge1\\) for every \\(N\\), and the sum converges pointwise but not uniformly. So the sum leaves the band \\(f\\pm\\varepsilon\\) next to the jump for every \\(N\\). The chapter makes no claim that the overshoot disappears under other ways of summing.'),
+            ],
+        }),
+    ],
+};

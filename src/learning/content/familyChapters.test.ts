@@ -31,7 +31,7 @@ function withoutMath(source: string) {
 // sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
 // patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
 const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons',
-    'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'fourier-series'];
+    'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
@@ -88,13 +88,13 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('publishes sixteen bilingual chapters with stable section anchors and substantial prose', () => {
+    test('publishes seventeen bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods',
+            'foundations', 'rational-curves', 'splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series',
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps', 'triangle-geometry'].includes(chapter.id) ? 2 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' ? 3 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' ? 2 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps', 'triangle-geometry'].includes(chapter.id) ? 2 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' ? 3 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' || chapter.id === 'fourier-series' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);

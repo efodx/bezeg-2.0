@@ -27,6 +27,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
     'functions-and-calculus': {demonstration: 'derivative', alt: {sl: 'Graf kvadratne funkcije z označeno tangentno premico pri izbrani točki.', en: 'A quadratic function graph with a tangent line marked at a selected point.'}},
     'school-function-graphs': {demonstration: 'function-transformation', alt: {sl: 'Graf kvadratne funkcije, ki je premaknjen, raztegnjen in zrcaljen, z njegovim senčnim izvirnikom.', en: 'The graph of a quadratic function shifted, stretched and reflected, with its original shown as a ghost.'}},
     'numerical-methods': {demonstration: 'root-finding', alt: {sl: 'Graf funkcije z začetnim približkom in tangento, ki seka os x.', en: 'The graph of a function with a starting iterate and a tangent meeting the x-axis.'}},
+    'fourier-series': {demonstration: 'fourier-series', alt: {sl: 'Graf pravokotnega vala z delno vsoto Fourierove vrste, ki ob skoku preseže vrednost vala.', en: 'The graph of a square wave with a Fourier partial sum that overshoots the wave at the jump.'}},
     analysis: {demonstration: 'bisection', alt: {sl: 'Graf kvadratne funkcije z intervalom in razpoloviščem pri bisekcijski metodi.', en: 'A quadratic graph with an interval and midpoint for the bisection method.'}},
 };
 
@@ -37,7 +38,7 @@ export const learningStrands: readonly {id: string; title: LocalizedText; chapte
     {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps', 'complex-maps']},
     {id: 'computational-geometry', title: {sl: 'Računska geometrija', en: 'Computational geometry'}, chapters: ['convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms']},
     {id: 'plane-geometry', title: {sl: 'Geometrija ravnine', en: 'Plane geometry'}, chapters: ['triangle-geometry']},
-    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods']},
+    {id: 'functions', title: {sl: 'Funkcije in analiza', en: 'Functions and analysis'}, chapters: ['functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series']},
 ];
 
 function chapterOutline(chapterId: string, language: LessonLanguage) {

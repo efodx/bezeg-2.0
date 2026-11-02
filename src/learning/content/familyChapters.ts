@@ -7,6 +7,7 @@ import {convexityChapter} from './convexityChapter';
 import {triangulationChapter} from './triangulationChapter';
 import {sweepChapter} from './sweepChapter';
 import {numericalChapter} from './numericalChapter';
+import {fourierChapter} from './fourierChapter';
 import {schoolFunctionGraphsChapter} from './schoolFunctionGraphsChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
@@ -370,6 +371,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
         ],
     },
     numericalChapter, // Numerical methods batch A: the root-finding lesson (N1 to N3) of numericalMethodsGuidedLessons.ts.
+    fourierChapter, // Fourier series batch A: the partial-sum and Gibbs lesson (F1, F3) of fourierSeriesGuidedLessons.ts.
 ];
 
 

@@ -44,7 +44,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'function-transformation': {chapterId: 'school-function-graphs', sectionId: 'function-transformation'},
     'function-inverse': {chapterId: 'school-function-graphs', sectionId: 'function-inverse'},
     // Fourier series F1 and F3: pointwise versus uniform convergence belongs with the analysis convergence section; no chapter text yet (F4).
-    'fourier-series': {chapterId: 'analysis', sectionId: 'convergence'},
+    'fourier-series': {chapterId: 'fourier-series', sectionId: 'fourier-series'},
     continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},
     derivative: {chapterId: 'functions-and-calculus', sectionId: 'derivatives'},
     'definite-integral': {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
