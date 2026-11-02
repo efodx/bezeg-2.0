@@ -1655,3 +1655,16 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - IA-A-3b lesson worker `bezeg-worker` Sonnet medium: 116k tokens, 41 tools, about 21 min. It strengthened its own vacuous prose-number test after a mutation and reported 2 spec mismatches; both were correct readings.
 - Review `bezeg-reviewer` Sonnet: 32k tokens, 5 tools, 26 s. No blocking finding, 2 nits (deferred, recorded in the task row).
 - Handler 24 (PC switch) dispatched no workers.
+## 2026-11-02 — Functions: projective 07a K4 five-point graph and numerical 06 F2a quadrature graph (functions handler 21)
+
+- Class/size: implementation, M each (07a resumed from an unverified WIP commit; 06 F2a new graph on an existing kernel). Handler Opus 5.5 medium, auto mode; restarted by the supervisor after the PC switch.
+- Workers, all `bezeg-worker`/`bezeg-reviewer` Sonnet medium:
+  - 07a W1 (brief `projective-07a-resume.md`, dispatched 20:36): 87k tokens, 39 tools. Wrote 35 tests, 5 mutation failures, no source defects; then a repair round on the same worker (123k at return) after both reviews, with 3 more observed failures.
+  - 06 F2a W1 (brief `numerical-06-f2a.md`, 20:37): 141k tokens, 59 tools, 9 min; watcher hit 137k at 50 turns, HANDOFF. Source written, wide unit run red, no mutations.
+  - 06 F2a W2 (resume brief): 45k tokens, 41 tools. Found that the reported "ratio 19.25" was a wrong hard-coded half-error in W1's host test, not a source bug; 4 mutations. Repair round after review: ratio from displayed errors, even-n hint.
+  - 07a engineering + UI review: 47k, 0.9 min. Two medium findings (divergent inspector vs app Reset; vacuous import, extrapolation, language and unmount assertions), two low (focus jump, silent coordinate rejection, deferred).
+  - 07a mathematical review: 39k, 0.8 min. No mathematical error; coverage gaps (hyperbola Farin/shoulder, 3e-15 on-conic claim, S6 bridge tie, lastUnique reset).
+  - 06 F2a engineering + UI + math sanity review: 43k, 0.9 min. Ratio of raw vs displayed errors disagrees at trapezoid n=20 (acceptance 1); even-n hint never shown; parabola test only on `square`.
+- Integration: two concurrent workers both added an allowance list to `PresetCatalog.test.tsx`; the handler merged them into one `PENDING_ROUTE_KEYS`. Shared `sl.ts`/`en.ts` hunks were split per commit; the 07a commit was typechecked and unit-tested alone in a temporary worktree.
+- Checks at acceptance: tsc 0 errors, eslint clean, `just unit` over projective, analysis, functions, presets, localization, inputs passed (192 s), `just build` passed. No smoke: neither slice adds a route.
+- Lesson: running two workers in one worktree worked when the brief named the other worker's files and told it to edit shared catalogs only by targeted insertion; the one collision was a shared test allowance list, which a brief can pre-assign to the handler.

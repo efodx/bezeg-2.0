@@ -1,0 +1,13 @@
+# Brief handoff-v12: numerical methods 05 F3b (lesson N3)
+
+- **Role:** implementation; edit permission in the stream worktree `.claude/worktrees/stream-functions`. Do not commit, push or delegate.
+- **Goal:** append spec N3 "Secant method" (`docs/specs/numerical-methods-lessons.md` §N3: learning goal, steps, checked numbers, acceptance) as further steps of the existing `root-finding` lesson in `src/learning/content/numericalMethodsGuidedLessons.ts` (steps 1–6 are N1, 7–13 are N2; a Demonstration holds one lesson). The lesson's final "free exploration" step may move to the end. One-shot text in SL and EN, terms from the spec's terms table as written.
+- **Scope:** `numericalMethodsGuidedLessons.ts` and its test; the `root-finding` row in `tests/guided-lessons.smoke.spec.cjs` (step count, step-count array, `minFrames`, any `offscreenSteps`); the SL/EN lesson title if it names only Newton. Registration lists need no change. `src/learning/model.ts` / `RootFindingGraph.tsx` only if a step cannot be shown with existing actions (`root-finding-method` `newton|secant`, `root-finding-example`, `root-x0`, `root-x1`, animation `root-finding` `next-step`); say why.
+- **Context:** kernels `src/analysis/rootFinding*.ts`. Template: the existing N1/N2 scenes and tests in the same files. AGENTS.md: scene actions run synchronously in one tick; every symbol in `\\(...\\)`, `{,}` decimal commas; `latex` fields undelimited; `sl.ts`/`en.ts` in lockstep. Check the `root-x1` valid range before setting it in scenes.
+- **Checks:**
+  - Extend the real-graph scene test: every N3 scene applied out of order and twice in one synchronous sequence, asserting method `secant`, example, x₀, x₁, step and termination; existing N1/N2 assertions keep passing unchanged (only step indices may shift).
+  - The spec's N3 checked numbers recomputed independently in the test; every number the N3 text quotes matches the scene in SL and EN.
+  - One observed failure per new assertion against a deliberate mutation (all-occurrence mutations for repeated numbers).
+  - `just typecheck`; `just unit src/learning/content/numericalMethodsGuidedLessons.test.ts src/learning/runtime src/learning/content/lessonMathNotation.test.ts` with `BEZEG_MEMORY_FLOOR_GB=0.5`, logs to a tmp file. Never bare `npx vitest`. No smoke or build.
+- **Return:** ≤200 words: files changed, new scene list (one line each), check results, observed mutation failures, deviations with `file:line`.
+- **Budget:** read ≤100 lines per call; the file you extend is ~330 lines, so read it in ranges. Past ~30 turns or on `HANDOFF`, stop and write `docs/reviews/feature-streams/functions/worker-numerical-f3b-handoff.md`.

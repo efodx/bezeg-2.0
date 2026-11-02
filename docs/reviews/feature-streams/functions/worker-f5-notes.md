@@ -1,0 +1,9 @@
+# Functions F5 worker notes (partial)
+
+State: inventories, copy, registration, script and unit tests are written; numerical-methods and fourier-series cards are captured. The school-function-graphs cards are NOT in the committed set yet.
+
+Blocker: capture of `school-function-graphs.function-transformation.function-transformation` fails in `assertPresentationGeometryStable` (capture-guided-example-previews.cjs): the transformation graph plots view-dependent polylines clamped at top+height, so the resize changes curve samples. I added an optional `boxes` argument to `isSameGraphOnOverlap` (compares only abscissas on screen in both boxes); it did NOT fix it yet (same error at curve index 0). Next step: inspect the actual `curveData.points` of both views (why overlap on-screen samples disagree, or `compared.length < 5`), or revert that tooling edit and decide with the handler. No test covers the new `boxes` branch yet. The function-inverse card captured fine alone (temp inventory), but the school manifest/PNG written then is a single-entry run; a full run (both ids) must be redone.
+
+Touched: scripts/generate-guided-example-inventory.cjs (+test), scripts/capture-guided-example-previews.cjs (+test), src/learning/content/{numerical,schoolFunctionGraphs,fourier}PreviewCopy.ts, src/learning/chapter/guidedExamplePreviews.ts (+test), docs/commands.md, docs/reviews/{numerical-methods,school-function-graphs,fourier-series}/guided-example-inventory.json, src/images/learning/examples/{numerical-methods,fourier-series,school-function-graphs}/.
+Note: segments count as elType `segment` (not `line`); y=x in inverse is `line`.
+Checks: node --test on both scripts tests 24/24 pass (before tooling edit); tsc and eslint clean; `just build` passed. Not run: just unit, mutation checks, PNG review, retest of node tests after tooling edit. Logs: C:/Users/NonFriedMotherBoard/.claude/jobs/8ac03473/tmp/f5/. Preview server on 4315 stopped.
