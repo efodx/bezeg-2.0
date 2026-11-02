@@ -12,12 +12,14 @@ const sectionDemonstrations = {
     'projective-cross-ratio': 'projective-cross-ratio',
     'projective-pascal': 'projective-pascal',
     'projective-pole-polar': 'projective-pole-polar',
+    'projective-five-point': 'projective-five-point',
+    'projective-three-views': 'projective-three-views',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type ProjectiveConicsSectionId = keyof typeof sectionDemonstrations;
 
 /**
- * Section-owned activity (spec K1 to K3). The lesson text stays in projectiveConicsGuidedLessons.ts; the getters read it lazily because
+ * Section-owned activity (spec K1 to K5). The lesson text stays in projectiveConicsGuidedLessons.ts; the getters read it lazily because
  * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
  */
 export const projectiveConicsGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(

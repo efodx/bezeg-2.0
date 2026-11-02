@@ -14,7 +14,7 @@ import {
 } from './projectiveConicsChapterRegistry';
 import {triangleGeometryChapter} from './triangleGeometryChapter';
 
-const LESSONS = ['projective-cross-ratio', 'projective-pascal', 'projective-pole-polar'] as const;
+const LESSONS = ['projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'projective-five-point', 'projective-three-views'] as const;
 const sectionOf = (id: typeof LESSONS[number]) => projectiveConicsChapter.sections.find(section => section.id === id)!;
 const proseOf = (id: typeof LESSONS[number], language: 'sl' | 'en') => sectionOf(id).paragraphs.map(p => p[language]).join(' ') + sectionOf(id).formula;
 
@@ -48,9 +48,9 @@ describe('chapter structure and registration', () => {
         for (const id of LESSONS) expect(sectionOf(id).demonstrationIds).toEqual([id]);
     });
 
-    test('only batch A is advertised and no school level is claimed', () => {
+    test('no school level is claimed', () => {
         const everything = JSON.stringify({...projectiveConicsChapter, title: undefined}).toLowerCase();
-        for (const word of ['pet točk', 'five-point', 'five point', 'three views', 'tri pogledi', 'matura', 'matur']) expect(everything, word).not.toContain(word);
+        for (const word of ['matura', 'matur']) expect(everything, word).not.toContain(word);
     });
 
     test('there are no figures, the text is bilingual and each example link closes its lesson section', () => {
@@ -61,7 +61,7 @@ describe('chapter structure and registration', () => {
         const fields = [projectiveConicsChapter.purpose, projectiveConicsChapter.prerequisites, ...projectiveConicsChapter.sections.flatMap(section => section.paragraphs)];
         for (const field of fields) { expect(field.sl.length).toBeGreaterThan(20); expect(field.en.length).toBeGreaterThan(20); }
         for (const title of projectiveConicsChapter.sections.map(section => section.title)) { expect(title.sl.length).toBeGreaterThan(5); expect(title.en.length).toBeGreaterThan(5); }
-        expect(projectiveConicsChapter.prerequisiteLinks?.map(link => link.path)).toEqual(['/bezeg-2.0/learn/rational-curves#worked-conic']);
+        expect(projectiveConicsChapter.prerequisiteLinks?.map(link => link.path)).toEqual(['/bezeg-2.0/learn/rational-curves#worked-conic', '/bezeg-2.0/learn/rational-curves#operations']);
         expect(registered.sections[0].orderedContent!.some(item => item.kind === 'example')).toBe(false);
         for (const id of LESSONS) {
             const section = registered.sections.find(entry => entry.id === id)!;
@@ -83,6 +83,14 @@ describe('chapter structure and registration', () => {
             'projective-pole-polar': {
                 sl: ['Izrek (pol in polara)', 'nedegenerirana', 'glede na stožnico', 'premica v neskončnosti', 'Coxeter', 'ne odprto', 'ne dokaz'],
                 en: ['Theorem (pole and polar)', 'non-degenerate', 'with respect to the conic', 'line at infinity', 'Coxeter', 'not opened', 'not a proof'],
+            },
+            'projective-five-point': {
+                sl: ['Izrek (pet točk)', 'nobene tri ne ležijo na isti premici', 'natanko ena stožnica', 'polom tetive', 'krajnima utežema', 'Coxeter', 'ne odprto', 'ne dokaz', 'preverjanje na vzorcu'],
+                en: ['Theorem (five points)', 'no three on a line', 'exactly one conic', 'pole of the chord', 'end weights', 'Coxeter', 'not opened', 'not a proof', 'sample'],
+            },
+            'projective-three-views': {
+                sl: ['Izrek (klasifikacija stožnic)', 'projektivno ekvivalentni', 'klasifikacija stožnic', 'Coxeter', 'ne odprto', 'ne dokaz'],
+                en: ['Theorem (classification of conics)', 'projectively equivalent', 'classification of conics', 'Coxeter', 'not opened', 'not a proof'],
             },
         } as const;
         for (const id of LESSONS) {
@@ -156,6 +164,46 @@ describe('chapter structure and registration', () => {
         expect(eq(sub(mul(f(9), mul(P[0], P[0])), mul(f(-25), mul(P[1], P[1]))), f(450))).toBe(true);
         const sl = proseOf('projective-pole-polar', 'sl'), en = proseOf('projective-pole-polar', 'en');
         for (const quoted of ['3x+35y-75=0', '-9x+20y=75', '4x+5y=25', '(1,\\tfrac{21}5)', '-9+84=75', '12+63=75']) { expect(sl, quoted).toContain(quoted); expect(en, quoted).toContain(quoted); }
+    });
+});
+
+describe('K4 and K5 numbers', () => {
+    test('K4: the ellipse points, P1, lambda and w = sqrt(2)/2, and the hyperbola w = 2/sqrt(3), are recomputed by hand', () => {
+        // Ellipse 9x^2 + 25y^2 = 225 and its five points.
+        const pts: readonly (readonly [Fr, Fr])[] = [[f(5), f(0)], [f(0), f(3)], [f(-5), f(0)], [f(4), f(9, 5)], [f(-3), f(12, 5)]];
+        for (const [x, y] of pts) expect(eq(sub(mul(f(9), mul(x, x)), mul(f(-25), mul(y, y))), f(225))).toBe(true);
+        // Tangents x = 5 (9*5*x = 225) and y = 3 (25*3*y = 225) meet in P1 = (5,3).
+        expect(9 * 5 * 5).toBe(225);
+        expect(25 * 3 * 3).toBe(225);
+        // M = (5/2, 3/2); the ray M + l (P1 - M) = ((5/2)(1+l), (3/2)(1+l)) meets the ellipse where (225/2)(1+l)^2 = 225, i.e. (1+l)^2 = 2.
+        // With m = 1 + l: m^2 = 2. The weight w = l/(1-l) satisfies w^2 = 1/2 iff 2 l^2 = (1-l)^2 iff l^2 + 2 l - 1 = 0 iff m^2 - 2 = 0 (substitute l = m - 1).
+        // Polynomial in m: l^2 + 2l - 1 = (m-1)^2 + 2(m-1) - 1 = m^2 - 2: coefficients [1, 0, -2] (m^2, m, 1).
+        const [c2, c1, c0] = [1, -2 + 2, 1 - 2 - 1];
+        expect([c2, c1, c0]).toEqual([1, 0, -2]);
+        // Hyperbola 16x^2 - 9y^2 = 144, arc (3,0) to (5,16/3).
+        const Q: readonly [Fr, Fr] = [f(5), f(16, 3)];
+        expect(eq(sub(mul(f(16), mul(Q[0], Q[0])), mul(f(9), mul(Q[1], Q[1]))), f(144))).toBe(true);
+        // Tangent at (3,0): 48x = 144, x = 3. Tangent at Q: 16*5 x - 9*(16/3) y = 144, i.e. 80x - 48y = 144, i.e. 5x - 3y = 9; at x = 3: y = 2, so P1 = (3,2).
+        expect(eq(sub(mul(f(80), f(3)), mul(f(48), f(2))), f(144))).toBe(true);
+        expect(eq(sub(mul(f(80), Q[0]), mul(f(48), Q[1])), f(144))).toBe(true);
+        // M = (4, 8/3); M + l (P1 - M) = (4 - l, 8/3 - (2/3) l) is on the hyperbola iff 12 l^2 - 96 l + 48 = 0, i.e. l^2 - 8 l + 4 = 0.
+        // Expand 16 (4-l)^2 - (8-2l)^2 - 144 coefficientwise: l^2: 16 - 4; l: -128 + 32; 1: 256 - 64 - 144.
+        expect([16 - 4, -128 + 32, 256 - 64 - 144]).toEqual([12, -96, 48]);
+        // w = l/(1-l) has w^2 = 4/3 iff 4 (1-l)^2 = 3 l^2 iff l^2 - 8 l + 4 = 0: the same polynomial, so w^2 = 4/3, w = 2/sqrt(3) > 1.
+        expect([4 - 3, -8, 4]).toEqual([1, -8, 4]);
+        expect(4 / 3).toBeGreaterThan(1);
+        const sl = proseOf('projective-five-point', 'sl'), en = proseOf('projective-five-point', 'en');
+        for (const quoted of ['9x^2+25y^2=225', '(5,3)', '\\tfrac{\\sqrt2}2', '\\tfrac2{\\sqrt3}>1', '16x^2-9y^2=144']) { expect(sl, quoted).toContain(quoted); expect(en, quoted).toContain(quoted); }
+    });
+
+    test('K5: B^2 - 4AC for the image of the unit circle is -12, 0 and 4 for c = 2, 1, 0', () => {
+        // X^2 + (c^2 - 1) Y^2 + 2 c Y + 1 = 0: A = 1, B = 0, C = c^2 - 1.
+        const discriminant = (c: number) => 0 * 0 - 4 * 1 * (c * c - 1);
+        expect([2, 1, 0].map(discriminant)).toEqual([-12, 0, 4]);
+        // The line y = c misses the unit circle iff c^2 > 1 (c = 2), touches iff c^2 = 1 (c = 1), cuts iff c^2 < 1 (c = 0).
+        expect([2 * 2 > 1, 1 * 1 === 1, 0 * 0 < 1]).toEqual([true, true, true]);
+        const sl = proseOf('projective-three-views', 'sl'), en = proseOf('projective-three-views', 'en');
+        for (const quoted of ['B^2-4AC=-12<0', 'B^2-4AC=0', 'B^2-4AC=4>0', 'X^2+(c^2-1)Y^2+2cY+1=0']) { expect(sl, quoted).toContain(quoted); expect(en, quoted).toContain(quoted); }
     });
 });
 
