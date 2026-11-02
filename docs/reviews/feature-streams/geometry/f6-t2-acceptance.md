@@ -22,7 +22,7 @@ Handler: geometry handler 34 (Opus 5.5), 2026-11-02. Spec: [triangulations and V
 - **Bilingual smoke:** [f6-t2-smoke.md](f6-t2-smoke.md), Sonnet `bezeg-smoke` against the production preview on port 4313 built from that tree. 20 cells passed, 0 failed, 0 blocked, 1 skipped by design (preset on `point-set-triangulation`; run on `delaunay`), 1 not applicable (that route has no trace; the flip workflow was tested instead). No console or page errors.
   - Both routes: deep link and reload, refusals, keyboard-only use with a visible focus ring, SVG/PNG export in SL and EN (Delaunay with its circle overlay), the SL and EN lesson walks with back and exit restoring the scene, the live SL→EN switch mid-lesson, and the chapter page in both languages with all three Learn links.
   - Delaunay: trace Next/Play/Pause/Reset, an edit resets to the first step and pauses, preset save/reopen/delete.
-- **Hosted CI:** the runs for `2512429b` and `e3f90da5` were superseded by later pushes (one unit shard cancelled, so the "Require every check job" gate shows failure); every job that ran passed. The run for this record's push is the hosted evidence.
+- **Hosted CI:** the runs for `2512429b` and `e3f90da5` were superseded by later pushes (one unit shard cancelled, so the "Require every check job" gate shows failure); every job that ran passed. The run for this record's push, `22254d51` (run 41529409890), passed every job.
 
 ## Gaps and notes
 
