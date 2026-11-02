@@ -184,9 +184,9 @@ test('every active demonstration route has an available lesson unless it opts ou
     const lessonIds = ids.filter(id => LESSON_DEMONSTRATION_IDS.includes(id));
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
-    // The compgeo triangulation ids ship without lessons.
+    // interp-runge and the compgeo triangulation ids ship without lessons.
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual([
-        'point-set-triangulation', 'delaunay']);
+        'interp-runge', 'point-set-triangulation', 'delaunay']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 
