@@ -1631,3 +1631,17 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
   - The handler repaired both itself (a small, coupled change), with a mutation check and a browser A/B on the smoke worker's own click sequences.
 - Repairs: one round. Cause: a browser-only lifecycle defect that the host tests' synchronous `triggerEventHandlers` cannot show.
 - Lesson: the smoke worker's saved repro scripts let the handler run an exact A/B against the fixed build without a second smoke dispatch. Asking smoke workers to keep repro scripts in the job tmp directory paid off.
+
+## 2026-11-02 — Maps: triangle geometry 07 F2b, glider wording repair, F3+F4 (maps handler 17)
+
+- Tasks: [07](../tasks/triangle-geometry/07-batch-c.md) F2b (registration, S), owner-decision wording repair (S, handler-only), F3+F4 (lesson T4, chapter section, new `simson` lesson action kind; M). Handler Opus 5.5, auto, effort medium.
+- Workers: 5.
+  - F2b `bezeg-worker` Sonnet medium: 39k tokens, 21 tools, 17 min (a focused `just unit` took 16 min). The build and preview were skipped for memory; the handler ran them.
+  - F3+F4 W1 `bezeg-worker` Sonnet medium: 141k tokens, 61 tools, 9 min. The watcher hit 136.7k input at 55 turns and HANDOFF followed. Everything was written but only tsc had run.
+  - F3+F4 W2 `bezeg-worker` Sonnet medium: 41k tokens, 29 tools, 23 min. It fixed 3 unit failures (2 count bumps, 1 prose snippet) and ran 6 mutations, the transient-state contract, eslint and tsc.
+  - Engineering review `bezeg-reviewer` Sonnet: 52k tokens, 1.7 min. No blocking finding. One SL grammar should-fix. Contract coverage of the `simson` kind was accepted as covered by the dedicated synchronous-sequence test. One smoke nit (bound raised from 3 to 4 points).
+  - Content review `bezeg-reviewer` Haiku: 69k tokens, 3.5 min. Four should-fixes: the same comma; summary prose saying the readout decides "only if" (wrong; fixed); "izrek" should be "izreka", also in shipped T3; a missing ε = −0,2 value. The last was declined, since the step asks the learner to read it from the readout.
+- Integration: the F2b rebase conflicted mechanically with Geometry's two new routes (counts 81, family counts). One lessonless-list order failure was caught by the rerun.
+- Checks at acceptance: tsc, build, focused unit, `smoke-lesson simson-line euler-line` 4/4, unified-learning smoke.
+- Context: handler soft threshold of 150k reached during review; no new step started after.
+- Lesson: W1 spent its budget writing a 330-line test block without running it. Briefs for M lesson slices should ask for a unit run after the first describe block.

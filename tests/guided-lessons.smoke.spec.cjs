@@ -1382,7 +1382,7 @@ const complexRoots = {
     },
 };
 
-// Chapter-owned triangle geometry lessons T1, T2 and T3 (src/learning/content/triangleGeometryChapterLessons.ts): seven steps each, one body/prompt frame each.
+// Chapter-owned triangle geometry lessons T1, T2, T3 and T4 (src/learning/content/triangleGeometryChapterLessons.ts): seven steps each, one body/prompt frame each.
 const triangleCentres = {
     id: 'triangle-centres',
     path: `${BASE}/triangle-centres`,
@@ -1418,6 +1418,19 @@ const eulerLine = {
     setup: async page => {
         // The three vertices are board points from the first step.
         await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(3);
+        return {};
+    },
+};
+
+const simsonLine = {
+    id: 'simson-line',
+    path: `${BASE}/simson-line`,
+    titles: {sl: 'Simsonova premica', en: 'The Simson line'},
+    steps: 7,
+    minFrames: 7,
+    setup: async page => {
+        // The three vertices and the glider P are board points from the first step (the feet D, E, F may add more).
+        await expect.poll(async () => (await boardStats(page)).points).toBeGreaterThanOrEqual(4);
         return {};
     },
 };
@@ -1929,7 +1942,7 @@ const bsplineDeBoor = {
 };
 
 const LESSONS = [bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

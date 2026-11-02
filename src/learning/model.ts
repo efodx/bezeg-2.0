@@ -1,6 +1,7 @@
 import type {DemonstrationId} from '../demonstrations';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
 import type {CrossRatioExampleId} from '../graphs/projective/crossRatioModel';
+import type {SimsonExampleId, SimsonOffset} from '../compgeo/simsonLineModel';
 import type {PascalConicId, PascalExampleId, PascalOrderId} from '../graphs/projective/pascalModel';
 import type {PolePolarConicId, PolePolarExampleId} from '../graphs/projective/polePolarModel';
 import type {ParametricCurveId} from '../graphs/curves/parametric/parametricCatalogue';
@@ -248,6 +249,13 @@ export type LessonAction =
     | {readonly kind: 'projective'; readonly operation: 'pole-polar-set-conic'; readonly conic: PolePolarConicId}
     | {readonly kind: 'projective'; readonly operation: 'pole-polar-place'; readonly x: number; readonly y: number}
     | {readonly kind: 'projective'; readonly operation: 'pole-polar-set-direction'; readonly dx?: number; readonly dy?: number}
+    /**
+     * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
+     * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
+     * Scene data is strict: another offset or example id is a lesson-content error, never snapped.
+     */
+    | {readonly kind: 'simson'; readonly operation: 'load-example'; readonly exampleId: SimsonExampleId}
+    | {readonly kind: 'simson'; readonly operation: 'set-offset'; readonly epsilon: SimsonOffset}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */

@@ -1,7 +1,8 @@
 import type {LessonAction, LessonDefinition, LessonPoint, LessonStep, LessonViewBox, LocalizedText} from '../model';
 import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
+import type {SimsonExampleId, SimsonOffset} from '../../compgeo/simsonLineModel';
 
-// Triangle geometry chapter-owned guided activities (spec T1, T2 and T3). Every number is recomputed in triangleGeometryChapter.test.ts
+// Triangle geometry chapter-owned guided activities (spec T1, T2, T3 and T4). Every number is recomputed in triangleGeometryChapter.test.ts
 // from the triangle and circle kernel. Scene actions run synchronously in one tick; each scene starts from the Demonstration
 // default (which also resets the overlays and the view) and then names its state.
 // Sources are given by author and title only: H. S. M. Coxeter, Introduction to Geometry; Euclid, Elements III.20, III.21, III.22, III.31.
@@ -191,7 +192,7 @@ export const eulerLineLesson: LessonDefinition = {
             ['triangle', 'centres', 'line']),
         eulerStep('drag',
             words('Premik oglišča: razmerje ostane 2', 'Dragging a vertex: the ratio stays 2'),
-            words('Izrek (H. S. M. Coxeter, Introduction to Geometry): v vsakem trikotniku, ki ni enakostraničen, ležijo \\(O\\), \\(G\\) in \\(H\\) na eni premici, Eulerjevi premici, in velja \\(HG=2\\,GO\\). Povleci oglišče: premica se premakne, odčitka \\(HG\\) in \\(GO\\) se spreminjata, njun količnik pa je pri vsakem trikotniku natanko \\(2\\). Vlečenje izrek le ponazarja; veljavnost zagotavlja dokaz, ne slika. Če je trikotnik enakostraničen, je \\(H=O\\) in premica ni določena.',
+            words('Izrek (H. S. M. Coxeter, Introduction to Geometry): v vsakem trikotniku, ki ni enakostraničen, ležijo \\(O\\), \\(G\\) in \\(H\\) na eni premici, Eulerjevi premici, in velja \\(HG=2\\,GO\\). Povleci oglišče: premica se premakne, odčitka \\(HG\\) in \\(GO\\) se spreminjata, njun količnik pa je pri vsakem trikotniku natanko \\(2\\). Vlečenje izreka le ponazarja; veljavnost zagotavlja dokaz, ne slika. Če je trikotnik enakostraničen, je \\(H=O\\) in premica ni določena.',
                 'Theorem (H. S. M. Coxeter, Introduction to Geometry): in every triangle that is not equilateral, \\(O\\), \\(G\\) and \\(H\\) lie on one line, the Euler line, and \\(HG=2\\,GO\\). Drag a vertex: the line moves and the readouts \\(HG\\) and \\(GO\\) change, but their quotient is exactly \\(2\\) for every triangle. Dragging only illustrates the theorem; it holds because of its proof, not the picture. If the triangle is equilateral then \\(H=O\\) and the line is not defined.'),
             words('Povleci \\(C\\) (P3) na nekaj mest in vsakič preveri odčitka \\(HG\\) in \\(GO\\).', 'Drag \\(C\\) (P3) to several positions and check the readouts \\(HG\\) and \\(GO\\) each time.'),
             ['triangle', 'centres', 'line']),
@@ -219,5 +220,79 @@ export const eulerLineLesson: LessonDefinition = {
                 'Everything is shown, including the circumcircle. Drag the vertices or type coordinates. Three points on one line do not form a triangle, so there is no Euler line. Each position is an instance of the theorem, not a proof of it.'),
             words('Poišči trikotnik, pri katerem je število različnih točk \\(5\\), in trikotnik z \\(8\\) različnimi točkami.', 'Find a triangle with \\(5\\) distinct points and a triangle with \\(8\\) distinct points.'),
             ['triangle', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle']),
+    ],
+};
+
+// Spec T4 (Simson line). Source by author and title only: H. S. M. Coxeter, Introduction to Geometry. The drags are illustrations of the
+// "if" of the theorem and of how the foot triangle opens off the circle; neither the picture nor the readout decides the "only if"; the theorem does.
+// Owner decision 2026-11-02: in glider mode at offset 0 the status is plain "collinear" and the area readout is 0.
+const SIMSON_OVERLAYS = ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson', 'pedal'] as const;
+/** The glider angles of the scenes, in degrees: P below AB, where all three feet and P itself lie in the default view. */
+export const SIMSON_T_BELOW = 250;
+export const SIMSON_T_LEFT = 150;
+export const SIMSON_T_RIGHT = 320;
+
+function simsonStep(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, shown: readonly (typeof SIMSON_OVERLAYS)[number][],
+                    setup: readonly LessonAction[]): LessonStep {
+    return {
+        id, title, body, prompt,
+        scene: {actions: [defaultScene(`simson-line-${id}`), ...overlays(shown, SIMSON_OVERLAYS), ...setup]},
+    };
+}
+
+const simsonOffset = (epsilon: SimsonOffset): LessonAction => ({kind: 'simson', operation: 'set-offset', epsilon});
+const simsonExampleAction = (exampleId: SimsonExampleId): LessonAction => ({kind: 'simson', operation: 'load-example', exampleId});
+
+export const simsonLineLesson: LessonDefinition = {
+    id: 'simson-line',
+    demonstrationId: 'simson-line',
+    title: words('Simsonova premica', 'The Simson line'),
+    summary: words(
+        'Nožišča pravokotnic iz točke \\(P\\) na nosilke stranic trikotnika ležijo na eni premici natanko tedaj, ko \\(P\\) leži na očrtani krožnici; ta premica je Simsonova premica. Vlečenje točke po krožnici ponazarja »če«, odmik od krožnice pa pokaže, kako nožiščni trikotnik hitro dobi ploščino; »samo če« ne odločita ne slika ne odčitek, temveč izrek.',
+        'The feet of the perpendiculars from a point \\(P\\) to the lines carrying the sides of a triangle lie on one line exactly when \\(P\\) lies on the circumcircle; this line is the Simson line. Dragging the point along the circle illustrates the "if", and an offset from the circle shows how the foot triangle gets an area; neither the picture nor the readout decides the "only if"; the theorem does.',
+    ),
+    steps: [
+        simsonStep('circle',
+            words('Trikotnik, krožnica in točka P', 'The triangle, the circle and the point P'),
+            words('Trikotnik \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2), \\(C=(2,5)\\) (P3) iz prve naloge ima ploščino \\(S=35/2\\), očrtana krožnica pa središče \\(O=(7/2,\\,3/2)\\) in \\(R^2=29/2\\). Točka \\(P\\) drsi po tej krožnici s parametrom \\(t\\) v stopinjah; zdaj je pri \\(t=250^\\circ\\) pod stranico \\(AB\\), odmik od krožnice pa je \\(\\varepsilon=0\\). Iz \\(P\\) spustimo pravokotnice na nosilke stranic; njihova nožišča \\(D\\), \\(E\\), \\(F\\) so označena na nosilkah stranic \\(BC\\), \\(CA\\), \\(AB\\). Premice skozi nožišča še ni.',
+                'The triangle \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2), \\(C=(2,5)\\) (P3) from the first lesson has area \\(S=35/2\\), and its circumcircle has centre \\(O=(7/2,\\,3/2)\\) and \\(R^2=29/2\\). The point \\(P\\) glides along this circle by the parameter \\(t\\) in degrees; it is now at \\(t=250^\\circ\\), below the side \\(AB\\), and the offset from the circle is \\(\\varepsilon=0\\). From \\(P\\) we drop perpendiculars to the lines carrying the sides; their feet \\(D\\), \\(E\\), \\(F\\) are marked on the sidelines \\(BC\\), \\(CA\\), \\(AB\\). The line through the feet is not drawn yet.'),
+            words('Napovej, ali nožišča \\(D\\), \\(E\\) in \\(F\\) ležijo na isti premici, in ugotovi, kje bi morala ležati.', 'Predict whether the feet \\(D\\), \\(E\\) and \\(F\\) lie on one line, and where such a line would have to run.'),
+            ['triangle', 'sidelines', 'circumcircle'], [glider(SIMSON_T_BELOW)]),
+        simsonStep('feet',
+            words('Nožišča in premica skoznje', 'The feet and the line through them'),
+            words('Pravokotnice iz \\(P\\) so narisane. Pri \\(t=250^\\circ\\) je \\(F\\approx(2{,}20,\\,0)\\) na stranici \\(AB\\), \\(D\\approx(5{,}64,\\,1{,}36)\\) na nosilki \\(BC\\) in \\(E\\approx(-0{,}41,\\,-1{,}03)\\) na podaljšku nosilke \\(CA\\). Nožišča ležijo na eni premici, Simsonovi premici. Za \\(P\\) na očrtani krožnici stanje pove »kolinearna«, odčitek ploščine nožiščnega trikotnika pa je \\(0\\); preostanek v računu je le zaokrožitvena napaka decimalnih števil.',
+                'The perpendiculars from \\(P\\) are drawn. At \\(t=250^\\circ\\) we get \\(F\\approx(2.20,\\,0)\\) on the side \\(AB\\), \\(D\\approx(5.64,\\,1.36)\\) on the line \\(BC\\) and \\(E\\approx(-0.41,\\,-1.03)\\) on the extension of the line \\(CA\\). The feet lie on one line, the Simson line. For \\(P\\) on the circumcircle the status reads "collinear" and the readout of the foot triangle\'s area is \\(0\\); what remains in the computation is only the rounding error of floating-point numbers.'),
+            words('Preveri, da je nožišče \\(E\\) zunaj stranice \\(CA\\), pa je vseeno na isti premici kot \\(D\\) in \\(F\\).', 'Check that the foot \\(E\\) is outside the side \\(CA\\) and is still on the same line as \\(D\\) and \\(F\\).'),
+            ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson'], [glider(SIMSON_T_BELOW)]),
+        simsonStep('drag',
+            words('Premik točke P po krožnici', 'Moving P around the circle'),
+            words('Izrek (H. S. M. Coxeter, Introduction to Geometry): nožišča pravokotnic iz točke \\(P\\) na nosilke stranic trikotnika ležijo na eni premici natanko tedaj, ko \\(P\\) leži na očrtani krožnici. Pri \\(t=150^\\circ\\) je \\(P\\approx(0{,}20,\\,3{,}40)\\), pri \\(t=320^\\circ\\) pa \\(P\\approx(6{,}42,\\,-0{,}95)\\). Povsod ostanejo nožišča na eni premici, ki se pri tem premika. Vlečenje izreka le ponazarja, saj pokaže nekaj leg; veljavnost zagotavlja dokaz, ki ga tukaj ne izvajamo in ki temelji na tetivnih štirikotnikih iz naloge o obodnem kotu.',
+                'Theorem (H. S. M. Coxeter, Introduction to Geometry): the feet of the perpendiculars from a point \\(P\\) to the lines carrying the sides of a triangle lie on one line exactly when \\(P\\) lies on the circumcircle. At \\(t=150^\\circ\\) we get \\(P\\approx(0.20,\\,3.40)\\) and at \\(t=320^\\circ\\) we get \\(P\\approx(6.42,\\,-0.95)\\). In every position the feet stay on one line, which moves as \\(P\\) moves. Dragging only illustrates the theorem, since it shows a few positions; it holds because of its proof, which we do not carry out here and which rests on cyclic quadrilaterals from the inscribed angle lesson.'),
+            words('Povleci \\(P\\) po vsej krožnici in opazuj premico. Kaj se zgodi, ko je \\(P\\) blizu oglišča?', 'Drag \\(P\\) all the way around the circle and watch the line. What happens when \\(P\\) is near a vertex?'),
+            ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson'], [glider(SIMSON_T_LEFT)]),
+        simsonStep('offset',
+            words('Odmik od krožnice: nožiščni trikotnik se odpre', 'Off the circle: the foot triangle opens'),
+            words('Drsnik odmika premakne \\(P\\) z očrtane krožnice: polmer se poveča na \\((1+\\varepsilon)R\\). Pri \\(\\varepsilon=0{,}2\\) nožišča ne ležijo več na eni premici, ampak tvorijo nožiščni trikotnik, ki je jasno viden; njegova ploščina je \\(0{,}11\\,S\\), odčitek pa pove »ni kolinearna«. Tudi odmik \\(\\varepsilon=-0{,}2\\), proti notranjosti krožnice, odpre trikotnik. Pri \\(\\varepsilon=0{,}001\\) pa je odprtina na platnu skoraj nevidna; to preveri v naslednjem koraku.',
+                'The offset slider moves \\(P\\) off the circumcircle: the radius becomes \\((1+\\varepsilon)R\\). At \\(\\varepsilon=0.2\\) the feet no longer lie on one line but form a foot triangle that is clearly visible; its area is \\(0.11\\,S\\), and the readout says "not collinear". The offset \\(\\varepsilon=-0.2\\), towards the inside of the circle, opens the triangle too. At \\(\\varepsilon=0.001\\), however, the opening is almost invisible on the board; check that in the next step.'),
+            words('Preberi odčitek ploščine pri \\(\\varepsilon=0{,}2\\) in pri \\(\\varepsilon=-0{,}2\\). Ali je trikotnik v obeh primerih enako velik?', 'Read the area readout at \\(\\varepsilon=0.2\\) and at \\(\\varepsilon=-0.2\\). Is the triangle equally large in both cases?'),
+            ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'pedal'], [glider(SIMSON_T_BELOW), simsonOffset(0.2)]),
+        simsonStep('readout',
+            words('Odčitek in stanje odločita, ne slika', 'The readout and the status decide, not the picture'),
+            words('Pri \\(\\varepsilon=0{,}001\\) so nožišča na platnu videti kolinearna, a odčitek ploščine pove \\(0{,}0005\\,S\\) in stanje pove »ni kolinearna«. Ploščino graf izračuna iz koordinat nožišč, ne iz slike, zato to odločitev lahko sprejme tudi tam, kjer oko ne loči več. Vlečenje torej pokaže le »če«: točka na krožnici da nožišča na premici. »Samo če« ne moremo prebrati s slike; izrek ga zagotavlja, odčitek pa pokaže, kako hitro se nožiščni trikotnik odpre, ko točka zapusti krožnico.',
+                'At \\(\\varepsilon=0.001\\) the feet look collinear on the board, yet the area readout says \\(0.0005\\,S\\) and the status says "not collinear". The graph computes the area from the coordinates of the feet, not from the picture, so it can decide where the eye can no longer tell. The drag therefore shows only the "if": a point on the circle gives feet on a line. The "only if" cannot be read from the picture; the theorem guarantees it, and the readout shows how quickly the foot triangle opens when the point leaves the circle.'),
+            words('Nastavi odmik \\(0\\) in nato \\(0{,}001\\). Ali opaziš razliko na platnu? Kaj pokažeta stanje in odčitek?', 'Set the offset to \\(0\\) and then to \\(0.001\\). Do you see a difference on the board? What do the status and the readout show?'),
+            ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson', 'pedal'], [glider(SIMSON_T_BELOW), simsonOffset(0.001)]),
+        simsonStep('vertex',
+            words('Točka v oglišču', 'The point at a vertex'),
+            words('Primer »oglišče« je v natančnem načinu: točka \\(P^{\\prime}\\) je mrežna točka, tu \\(P^{\\prime}=B=(7,0)\\). Nožišči pravokotnic iz \\(B\\) na nosilki \\(BC\\) in \\(AB\\) sta v \\(B\\), zato \\(D=F=B\\); tretje nožišče je \\(E=(28/29,\\,70/29)\\) na \\(CA\\). Dve nožišči sovpadata, zato ostaneta dve različni nožišči in premica skoznje je višina iz \\(B\\). Stanje pove, da dve nožišči sovpadata in da premica poteka skozi različni nožišči; natančna orientacija nožiščnih točk je \\(0\\).',
+                'The example "vertex" is in exact mode: the point \\(P^{\\prime}\\) is a grid point, here \\(P^{\\prime}=B=(7,0)\\). The feet of the perpendiculars from \\(B\\) to the lines \\(BC\\) and \\(AB\\) are at \\(B\\), so \\(D=F=B\\); the third foot is \\(E=(28/29,\\,70/29)\\) on \\(CA\\). Two feet coincide, so two distinct feet remain, and the line through them is the altitude from \\(B\\). The status says that two feet coincide and that the line passes through the two distinct feet; the exact orientation of the feet is \\(0\\).'),
+            words('Preveri, da je premica skozi \\(B\\) in \\(E\\) pravokotna na \\(CA\\).', 'Check that the line through \\(B\\) and \\(E\\) is perpendicular to \\(CA\\).'),
+            ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson'], [simsonExampleAction('vertex')]),
+        simsonStep('explore',
+            words('Prosto raziskovanje', 'Free exploration'),
+            words('Pokazano je vse. Povleci \\(P\\) po krožnici, premakni oglišča ali preklopi v natančni način. Primer »mrežna točka na krožnici« postavi \\(P^{\\prime}=(2,-2)\\) z nožišči \\((11/2,\\,3/2)\\), \\((-12/29,\\,-30/29)\\) in \\((2,0)\\); njihova orientacija je natanko \\(0\\), ker račun poteka z ulomki. Vsak položaj je primer izreka, ne njegov dokaz.',
+                'Everything is shown. Drag \\(P\\) along the circle, move the vertices or switch to exact mode. The example "grid point on the circle" sets \\(P^{\\prime}=(2,-2)\\) with feet \\((11/2,\\,3/2)\\), \\((-12/29,\\,-30/29)\\) and \\((2,0)\\); their orientation is exactly \\(0\\) because the computation uses fractions. Each position is an instance of the theorem, not a proof of it.'),
+            words('Poišči mrežno točko \\(P^{\\prime}\\) izven krožnice in preberi ploščino nožiščnega trikotnika.', 'Find a grid point \\(P^{\\prime}\\) off the circle and read the area of its foot triangle.'),
+            ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson', 'pedal'], [glider(SIMSON_T_BELOW)]),
     ],
 };

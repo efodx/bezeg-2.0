@@ -57,7 +57,7 @@ export const TRANSIENT_STATE_PARTS = 4;
 // These plane geometry graphs support none of the generic scene actions (their lessons use `set-points` and overlay
 // actions, which `sceneActions` does not apply), and their Preset collections fix the grid step, the model's only
 // number. The inscribed angle graph is not listed: its `parameter t` lesson action moves the glider.
-const NO_SYNCHRONOUS_SCENE_CHANGE = new Set<DemonstrationId>(['triangle-centres', 'euler-line', 'simson-line']);
+const NO_SYNCHRONOUS_SCENE_CHANGE = new Set<DemonstrationId>(['triangle-centres', 'euler-line']);
 /** No browser-local Preset collection (`presets()` is undefined), so no stored Preset can be loaded or exported. */
 const NO_PRESET_COLLECTION = new Set<DemonstrationId>(['circle']);
 /** The scene is described by its scene state alone: the Preset has no Preset data. */

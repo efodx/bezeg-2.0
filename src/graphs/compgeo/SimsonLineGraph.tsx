@@ -1,6 +1,8 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {GraphSession} from "../base/GraphSession";
+import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import type {LessonAction} from "../../learning/model";
 import {onLanguageChange, t} from "../../localization";
 import {GridPoint, isGridPoint} from "../../compgeo/grid";
 import {PointSetModel} from "../../compgeo/pointSetModel";
@@ -9,7 +11,7 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {inBox} from "../../compgeo/notablePointsModel";
 import {normaliseDegrees} from "../../compgeo/inscribedAngleModel";
 import {
-    activeSimsonExampleId, analyseSimson, DEFAULT_SIMSON_SETTINGS, FOOT_NAMES, isSimsonMode, isSimsonOffset, resolveOffset, SimsonAnalysis,
+    activeSimsonExampleId, analyseSimson, DEFAULT_SIMSON_SETTINGS, FOOT_NAMES, isSimsonExampleId, isSimsonMode, isSimsonOffset, resolveOffset, SimsonAnalysis,
     SimsonExampleId, simsonExample, SimsonMode, SimsonSettings, simsonTFromBoard, stepSimsonT,
 } from "../../compgeo/simsonLineModel";
 import {SIMSON_LINE_OVERLAY_IDS, SIMSON_POINT_COUNT, simsonLineCollection} from "./simsonLinePresetCollection";
@@ -36,7 +38,7 @@ import {SIMSON_PLACE_IDS, SimsonPlaceId, simsonChip} from "./simsonLineText";
  * merely outside the view is reported "outside the view" in the inspector; the view is never rescaled silently.
  *
  * The example id is part of the scene state and names the example only while the vertices, the mode and (exact mode) P'
- * still equal it. No route, catalog entry, lesson or Demonstration registration yet.
+ * still equal it.
  */
 export type SimsonOverlayId = Exclude<typeof SIMSON_LINE_OVERLAY_IDS[number], "grid">;
 
@@ -171,6 +173,33 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
         const example = simsonExample(id);
         this.loadModel({...DEFAULT_SIMSON_MODEL, points: example.points.map(p => ({...p}))});
         this.patch({exampleId: id, mode: example.mode, t: example.t, epsilon: example.epsilon, pPrime: {...example.pPrime}});
+    }
+
+    /**
+     * Lesson scenes set the glider with the `parameter` action named `t` (degrees) and use the `simson` kind for the example and the offset;
+     * the vertices and overlays go through `point-set`. Values are checked strictly: a lesson-content error throws and changes nothing.
+     */
+    applySimsonAction(action: Extract<LessonAction, {kind: "simson"}>): void {
+        const payload = action as unknown as Record<string, unknown>;
+        if (action.operation === "load-example") {
+            if (!isSimsonExampleId(payload.exampleId)) throw new Error("simson load-example: exampleId must be one of the Simson line examples.");
+            this.loadExample(action.exampleId);
+            return;
+        }
+        if (action.operation === "set-offset") {
+            if (!this.setEpsilon(action.epsilon)) throw new Error("simson set-offset: epsilon must be one of the offsets of the slider.");
+            return;
+        }
+        throw new Error(`simson: the Simson line graph has no operation ${String(payload.operation)}.`);
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated("parameter", "t", action => {
+            if (!Number.isFinite(action.value)) throw new Error("The glider parameter t must be a finite number of degrees.");
+            this.setT(action.value);
+        });
+        registry.on("simson", action => this.applySimsonAction(action));
     }
 
     // ---- Lifecycle -----------------------------------------------------------------------------------------------
