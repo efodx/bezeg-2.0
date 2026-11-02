@@ -2,6 +2,8 @@
 
 Status: complete 2026-10-26; implementation authorized 2026-10-26 by the owner's request to implement the tasks from `2c3df6a`. See the [curriculum audit](../reviews/illustrated-chapter-examples/curriculum-audit.md), [eight implementation tasks](../tasks/illustrated-chapter-examples/README.md), and [acceptance record](../reviews/illustrated-chapter-examples/acceptance.md). All tasks and A1–A8 are accepted; the acceptance record distinguishes local verification from hosted delivery.
 
+Partly superseded 2026-11-02 by [guided example highlights](guided-example-highlights.md): each card now shows an authored highlight image (a later lesson state, or the start scene where the recipe records that choice) rather than always the starting graph; section figures and the `figure` content kind are removed; the `chapterActivityFigures.ts` module and `scripts/capture-chapter-figures.cjs` named under *Starting seams* below are retired. Example IDs, routes, launch scenes and return behavior are unchanged.
+
 ## Outcome and scope
 
 Every guided example in every chapter has a picture of its actual prepared starting graph and a short caption explaining what to notice. Examples appear where they develop the teaching argument, with prose before, between and after examples as appropriate. Substantially overlapping short prompts and longer guided sequences become one stronger example. Rewrite or split surrounding Slovenian and English prose to support that sequence while preserving distinct learning goals.
