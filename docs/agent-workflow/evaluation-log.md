@@ -1697,3 +1697,11 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Review `bezeg-reviewer` Sonnet: 33k tokens, 49 s. No blocking; one valid accessibility should-fix (status live region inserted with its content) and one spec gap (acceptance 5 wording), both fixed by the handler; one false claim (k=2,3 not asserted).
 - PS-A-2b `bezeg-worker` Sonnet: 51k tokens, 23 tools, 10 min; complete without a browser check (no browser tool). Rebase conflict in `lessonCatalog.test.ts` (inversion lost its opt-out on master while prob-density gained one), resolved mechanically and rechecked.
 - Context: soft threshold (175k) reached while PS-A-2b ran; integrated, pushed and handed off without browser smoke.
+
+## Curves handler 28 (Opus, auto, medium), 2026-11-02/03
+
+- PS-A-2b smoke `bezeg-smoke` Sonnet medium: 53k tokens, 26 tools, 10 min, 13/13 checks with concrete readouts. It left the 200 % text screenshot unviewed; the handler viewed it and found the shared inspector overflow (μ field past the edge, header overlapping "Strni"), which the worker's text heuristic had dismissed as visually hidden labels. Lesson: require the smoke worker to open every screenshot it cites as a verdict.
+- Joint poster capture (handler only, six ids): first publish failed because the captured ids were still in `POSTER_PENDING`; empty it and the `DemonstrationsPage.test.tsx` exemptions, then rebuild before capturing. The node capture test's absolute-path check flagged projective captions ("L: y = 2") as drive paths and was tightened. The VP9 colour-metadata test fails with local FFmpeg 9.0.2 (environment).
+- PS-A-3a `bezeg-worker` Sonnet medium, v12: 54k tokens, 27 tools, 8 min; complete, five mutations seen failing. Its view test refuted the handler's step-4 value σ=0.7 (peak above the view) and proposed 0.85, which was accepted. Lesson: an asserted geometric premise in the brief caught a handler error before lesson text depended on it.
+- PS-A-3b `bezeg-worker` Sonnet medium, v12: 112k tokens, 52 tools, 15 min; complete including build and `smoke-lesson`. It adapted step 1 (±6 left the lesson view, so ±4) after the smoke failed. Rebase conflict in `lessonCatalog.test.ts` again (sweep added opt-outs), resolved mechanically and rechecked.
+- Context: soft threshold (175k) fired after PS-A-3b was pushed; P2 planned but not dispatched.
