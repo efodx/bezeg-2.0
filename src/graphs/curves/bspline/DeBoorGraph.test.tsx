@@ -436,6 +436,9 @@ describe('Reset, scenes, language and disposal', () => {
         show(graph, 0.5, 1);
         const readout = graph.sceneOf().readout() as unknown as {plaintext: string};
         expect(readout.plaintext).toContain('vozelni razpon');
+        // Board text is HTML: each readout line ends in a <br>, never a collapsed "\n".
+        expect(readout.plaintext).toContain('<br>');
+        expect(readout.plaintext).not.toContain('\n');
         act(() => setLanguage('en'));
         expect(readout.plaintext).toContain('knot span');
         expect(readout.plaintext).toContain('level 1');

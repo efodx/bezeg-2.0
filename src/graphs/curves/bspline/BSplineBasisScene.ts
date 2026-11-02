@@ -158,7 +158,7 @@ export class BSplineBasisScene {
         this.create<Text>('text', [
             () => box()[0] + 0.02 * (box()[2] - box()[0]),
             () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => this.readoutText(),
+            () => this.readoutText().split("\n").join("<br>"),
         ], {anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
             strokeColor: GraphPalette.label});
         this.create<Text>('text', [

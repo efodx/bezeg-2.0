@@ -397,6 +397,9 @@ describe('language and disposal', () => {
         const texts = graph.ownedElements().filter(e => (e as {elType?: string}).elType === 'text') as unknown as {plaintext: string}[];
         const [readout, domain] = texts.slice(-2);
         expect(readout.plaintext).toContain('neničelne bazne funkcije');
+        // Board text is HTML: each readout line ends in a <br>, never a collapsed "\n".
+        expect(readout.plaintext).toContain('<br>');
+        expect(readout.plaintext).not.toContain('\n');
         expect(domain.plaintext).toBe('definicijsko območje [0, 2]');
         act(() => setLanguage('en'));
         expect(readout.plaintext).toContain('nonzero basis functions');
