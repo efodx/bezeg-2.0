@@ -2030,7 +2030,21 @@ const projectiveThreeViews = {
     minFrames: 14, // at least 2 frames per step
 };
 
-const LESSONS = [interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Probability P1 (density and probability as area): the area-percent readout per lesson step 1..6 (the interval -4 to 4, the bounds -1.5 and 0.5, mu +- sigma, N(1; 1.5^2) with mu +- sigma, N(100; 15^2) with 85 and 130, the default); language independent once the decimal comma is normalised.
+const DENSITY_PERCENTS = ['99.99', '62.47', '68.27', '68.27', '81.86', '68.27'];
+const densityReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(',', '.');
+const probabilityDensity = {
+    id: 'prob-density',
+    path: `${BASE}/probability/density`,
+    titles: {sl: 'Gostota in verjetnost kot ploščina', en: 'Density and probability as area'},
+    steps: 6,
+    minFrames: 12, // 2 frames per step
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(() => densityReadout(page, 'area-percent'), {message: `density area percent at ${label}`}).toBe(DENSITY_PERCENTS[step - 1]);
+    },
+};
+
+const LESSONS = [probabilityDensity, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

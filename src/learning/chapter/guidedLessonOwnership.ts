@@ -56,6 +56,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},
     derivative: {chapterId: 'functions-and-calculus', sectionId: 'derivatives'},
     'definite-integral': {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
+    // Interim owner until the probability chapter exists: the lesson reads the definite integral as an area (spec P1 prerequisite).
+    'prob-density': {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
     'area-between-curves': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     'arc-length': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     bisection: {chapterId: 'analysis', sectionId: 'existence'},
