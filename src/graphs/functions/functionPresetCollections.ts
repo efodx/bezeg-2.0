@@ -32,6 +32,8 @@ import {checkRungeModel, parseRungeModel} from "../../analysis/rungeInterpolatio
 import {rungeFileMessage} from "./rungeInterpolationMessages";
 import {checkLeastSquaresModel, DEFAULT_LEAST_SQUARES_MODEL, LeastSquaresModel, parseLeastSquaresModel} from "../../analysis/leastSquaresModel";
 import {leastSquaresFileMessage} from "./leastSquaresMessages";
+import {checkDensityAreaModel, parseDensityAreaModel} from "../../analysis/densityAreaModel";
+import {densityAreaFileMessage} from "./densityAreaMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
 import {checkSequenceModel, parseSequenceModel} from "../../analysis/sequenceModel";
@@ -138,6 +140,11 @@ const leastSquaresCollection = (): PresetCollection<LeastSquaresModel> => {
         },
     });
 };
+/** The model module names the rule a rejected density-area model broke; this only localizes it. */
+const diagnoseDensityArea: Diagnosis = data => {
+    const check = checkDensityAreaModel(data);
+    return check.ok || check.issue === undefined ? undefined : densityAreaFileMessage(check.issue);
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -199,6 +206,7 @@ export const functionPresetCollections = {
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
     "interp-least-squares": leastSquaresCollection(),
+    "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
