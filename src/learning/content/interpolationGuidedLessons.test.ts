@@ -15,6 +15,9 @@ import {statusLine} from '../../graphs/curves/hermite/HermiteScene';
 import {catmullRomSegments, catmullRomTangents, hermiteDerivative, hermitePoint} from '../../analysis/hermite';
 import type {RungeInterpolationGraph} from '../../graphs/functions/RungeInterpolationGraph';
 import {rungeData} from '../../analysis/rungeInterpolationModel';
+import type {LeastSquaresGraph} from '../../graphs/functions/LeastSquaresGraph';
+import {DEFAULT_LEAST_SQUARES_MODEL, leastSquaresView, normalEquations} from '../../analysis/leastSquaresModel';
+import type {LeastSquaresView} from '../../analysis/leastSquaresModel';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -570,4 +573,261 @@ test('every decimal number with three or more fractional digits in the I2 prose 
         expect(found.length).toBeGreaterThan(20);
         for (const value of found) expect(allowedForms.has(value.replace(/^-/, '')), `${language} ${value}`).toBe(true);
     }
+});
+
+// ---- I4: least squares (interp-least-squares) ----------------------------------------------------------------------------
+
+const lsqLesson = interpolationGuidedLessons.find(entry => entry.demonstrationId === 'interp-least-squares')!;
+const lsqStepOf = (stepId: string): GuidedLessonStep => lsqLesson.steps.find(step => step.id === stepId)!;
+const lsqProse = (step: GuidedLessonStep, language: 'sl' | 'en') =>
+    [step.explanation[language], step.scene!.expectedState[language], ...step.expectedObservations.map(o => o[language])].join(' ');
+const lsqStepIds = ['lsq-predict', 'lsq-manual', 'lsq-outlier', 'lsq-normal', 'lsq-degree', 'lsq-explore'];
+
+function mountLsq() {
+    const graph = createGraph('interp-least-squares');
+    const mounted = mountGraph(graph);
+    const capabilities = graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    return {
+        graph: graph as unknown as LeastSquaresGraph, mounted, capabilities,
+        scene: (step: GuidedLessonStep) => act(() => {
+            capabilities.restoreState(checkpoint);
+            for (const action of actionsOf(step)) capabilities.apply(action);
+        }),
+        run: (step: GuidedLessonStep) => act(() => { for (const action of actionsOf(step)) capabilities.apply(action); }),
+        apply: (...actions: LessonAction[]) => act(() => { for (const action of actions) capabilities.apply(action); }),
+    };
+}
+type LsqHarness = ReturnType<typeof mountLsq>;
+
+/** What the graph's own readout rows say, with the minus sign replaced. */
+const lsqReadout = (id: string) => (document.querySelector(`[data-readout="${id}"] dd`)?.textContent ?? '').replace(/−/g, '-');
+/** The kernel's view of the graph's current model. */
+const lsqView = (h: LsqHarness) => leastSquaresView(h.graph.state);
+const fitOfView = (view: LeastSquaresView) => {
+    if (!view.fit.ok) throw new Error('The scene has no fit.');
+    return view.fit.fit;
+};
+const lsqFit = (h: LsqHarness) => fitOfView(lsqView(h));
+const lsqFitCoefficients = (h: LsqHarness) => lsqView(h).drawn!;
+/** A number as the Slovenian readout prints it, the way the graph writes it. */
+const lsqText = (value: number) => formatSignificant(value, 'sl', 4).replace('−', '-');
+const lsqPlain = (value: number) => formatNumber(value, 'sl', 3).replace('−', '-');
+const lsqProseHas = (stepId: string, quoted: string, language: 'sl' | 'en') => lsqProse(lsqStepOf(stepId), language).includes(proseForm(quoted, language));
+
+/** The sum of the products of the residuals with the columns 1 and x of the design matrix (orthogonality of the residuals). */
+const lsqOrthogonality = (h: LsqHarness) => {
+    const view = lsqView(h);
+    const points = h.graph.state.points;
+    return [view.residuals.reduce((a, r) => a + r, 0), view.residuals.reduce((a, r, i) => a + r * points[i][0], 0)];
+};
+
+test('each least-squares scene sets the data, degree, mode, line and switches its text describes and shows the quoted readout, in one synchronous sequence', () => {
+    const h = mountLsq();
+    try {
+        // Step 1: the start (horizontal manual line, best line and squares hidden), then the reveal a learner makes.
+        h.scene(lsqStepOf('lsq-predict'));
+        expect([h.graph.state.manualLine, h.graph.state.slope, h.graph.state.intercept, h.graph.state.showSquares, h.graph.state.showNormalEquations]).toEqual([true, 0, 2, false, false]);
+        expect(lsqReadout('equation')).toBe('y = 2');
+        expect(lsqReadout('sum')).toBe('5');
+        h.apply({kind: 'lsq', operation: 'set-mode', mode: 'best'}, {kind: 'lsq', operation: 'set-overlay', overlay: 'squares', visible: true});
+        expect(lsqReadout('equation')).toBe('y = 0,9x + 0,9');
+        expect(lsqReadout('sum')).toBe('0,7');
+        expect(lsqReadout('residuals')).toBe('0,1; 0,2; -0,7; 0,4');
+        expect(lsqView(h).residuals.map(lsqPlain)).toEqual(['0,1', '0,2', '-0,7', '0,4']);
+        expect(lsqView(h).sumOfSquares).toBeCloseTo(0.7, 12);
+        expect(lsqView(h).residuals.reduce((a, r) => a + r, 0)).toBeCloseTo(0, 12);
+
+        // Step 2: the manual line y = x + 1 has sum 1 beside the minimum 0,7; the sliders' optimum 0,9 / 0,9 reaches it.
+        h.scene(lsqStepOf('lsq-manual'));
+        expect([h.graph.state.manualLine, h.graph.state.slope, h.graph.state.intercept, h.graph.state.showSquares]).toEqual([true, 1, 1, true]);
+        expect(lsqReadout('equation')).toBe('y = x + 1');
+        expect(lsqReadout('sum')).toBe('1');
+        expect(lsqReadout('optimal-sum')).toBe('0,7');
+        h.apply({kind: 'lsq', operation: 'set-line', slope: 0.9, intercept: 0.9});
+        expect(lsqReadout('sum')).toBe('0,7');
+        expect(lsqReadout('optimal-sum')).toBe('0,7');
+        // No line has a smaller sum: a grid of lines around the optimum never beats the readout's minimum.
+        for (const [slope, intercept] of [[0.8, 0.9], [1, 0.9], [0.9, 0.8], [0.9, 1], [0.85, 0.95]]) {
+            h.apply({kind: 'lsq', operation: 'set-line', slope, intercept});
+            expect(lsqView(h).sumOfSquares!, `${slope} ${intercept}`).toBeGreaterThan(lsqView(h).optimalSumOfSquares!);
+        }
+
+        // Step 3: (3,4) replaced by (3,8).
+        h.scene(lsqStepOf('lsq-outlier'));
+        expect(h.graph.state.points).toEqual([[0, 1], [1, 2], [2, 2], [3, 8]]);
+        expect([h.graph.state.manualLine, h.graph.state.degree, h.graph.state.showSquares]).toEqual([false, 1, true]);
+        expect(lsqReadout('equation')).toBe('y = 2,1x + 0,1');
+        expect(lsqReadout('sum')).toBe('8,7');
+        // The residuals grow at most points (stated as "most of the other points").
+        const before = [0.1, 0.2, -0.7, 0.4].map(Math.abs);
+        const after = lsqView(h).residuals.map(Math.abs);
+        expect(after.filter((r, i) => i < 3 && r > before[i]).length).toBeGreaterThanOrEqual(2);
+
+        // Step 4: the normal equations of the original data.
+        h.scene(lsqStepOf('lsq-normal'));
+        expect(h.graph.state.points).toEqual([[0, 1], [1, 2], [2, 2], [3, 4]]);
+        expect([h.graph.state.manualLine, h.graph.state.degree, h.graph.state.showNormalEquations]).toEqual([false, 1, true]);
+        const equations = normalEquations(lsqFit(h))!;
+        expect(equations.matrix.map(row => row.map(lsqPlain))).toEqual([['4', '6'], ['6', '14']]);
+        expect(equations.rhs.map(lsqPlain)).toEqual(['9', '18']);
+        expect(equations.coefficients.map(lsqPlain)).toEqual(['0,9', '0,9']);
+        const latex = document.querySelector('[data-lsq="normal-latex"]')?.textContent ?? '';
+        expect(latex).toContain('4 & 6');
+        expect(latex).toContain('6 & 14');
+        expect(latex).toContain('9 ');
+        expect(lsqReadout('equation')).toBe('y = 0,9x + 0,9');
+        expect(lsqReadout('sum')).toBe('0,7');
+        const [sumOfResiduals, sumWithX] = lsqOrthogonality(h);
+        expect(Math.abs(sumOfResiduals)).toBeLessThan(1e-10);
+        expect(Math.abs(sumWithX)).toBeLessThan(1e-10);
+
+        // Step 5: the quadratic, then the cubic a learner reaches by raising the degree.
+        h.scene(lsqStepOf('lsq-degree'));
+        expect([h.graph.state.degree, h.graph.state.manualLine, h.graph.state.showSquares]).toEqual([2, false, true]);
+        expect(lsqReadout('equation')).toBe('y = 1,15 + 0,15x + 0,25x²');
+        expect(lsqReadout('sum')).toBe('0,45');
+        expect(lsqFitCoefficients(h).map(lsqPlain)).toEqual(['1,15', '0,15', '0,25']);
+        h.apply({kind: 'lsq', operation: 'set-degree', value: 3});
+        expect(lsqReadout('equation')).toBe('y = 1 + 2,5x - 2x² + 0,5x³');
+        expect(lsqFitCoefficients(h).map(lsqPlain)).toEqual(['1', '2,5', '-2', '0,5']);
+        expect(lsqView(h).sumOfSquares!).toBeLessThan(1e-12);
+        expect(lsqView(h).residuals.every(r => Math.abs(r) < 1e-10)).toBe(true);
+        expect(lsqReadout('sum')).toBe('≈ 0');
+
+        // Step 6: the default.
+        h.scene(lsqStepOf('lsq-explore'));
+        expect(h.graph.state).toMatchObject({...DEFAULT_LEAST_SQUARES_MODEL});
+        expect(lsqReadout('equation')).toBe('y = 0,9x + 0,9');
+        expect(lsqReadout('sum')).toBe('0,7');
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('every number the least-squares prose quotes is the kernel value of its scene, in both languages', () => {
+    const h = mountLsq();
+    try {
+        const sum = () => lsqText(lsqView(h).sumOfSquares!);
+        const rows: Array<[string, string, string]> = [];
+        const row = (stepId: string, kernel: string, quoted: string) => rows.push([stepId, kernel, quoted]);
+        // Step 1 reveal (the best line of the default data), reused by steps 2 and 4.
+        h.scene(lsqStepOf('lsq-normal'));
+        const best = lsqView(h);
+        const coefficients = lsqFitCoefficients(h).map(lsqPlain);
+        row('lsq-predict', coefficients[1], '0,9'); row('lsq-predict', coefficients[0], '0,9');
+        best.residuals.map(lsqPlain).forEach((value, i) => row('lsq-predict', value, ['0,1', '0,2', '-0,7', '0,4'][i]));
+        row('lsq-predict', sum(), '0,7');
+        row('lsq-manual', lsqText(best.optimalSumOfSquares!), '0,7');
+        row('lsq-normal', coefficients[0], '0,9'); row('lsq-normal', coefficients[1], '0,9');
+        row('lsq-normal', sum(), '0,7');
+        const eq = normalEquations(fitOfView(best))!;
+        row('lsq-normal', lsqPlain(eq.matrix[0][0]), '4'); row('lsq-normal', lsqPlain(eq.matrix[0][1]), '6');
+        row('lsq-normal', lsqPlain(eq.matrix[1][0]), '6'); row('lsq-normal', lsqPlain(eq.matrix[1][1]), '14');
+        row('lsq-normal', lsqPlain(eq.rhs[0]), '9'); row('lsq-normal', lsqPlain(eq.rhs[1]), '18');
+        // Step 2 start.
+        h.scene(lsqStepOf('lsq-manual'));
+        row('lsq-manual', lsqText(lsqView(h).sumOfSquares!), '1');
+        // Step 3.
+        h.scene(lsqStepOf('lsq-outlier'));
+        const outlier = lsqFitCoefficients(h).map(lsqPlain);
+        row('lsq-outlier', outlier[1], '2,1'); row('lsq-outlier', outlier[0], '0,1'); row('lsq-outlier', sum(), '8,7');
+        row('lsq-outlier', coefficients[1], '0,9');
+        // Step 5.
+        h.scene(lsqStepOf('lsq-degree'));
+        const quadratic = lsqFitCoefficients(h).map(lsqPlain);
+        row('lsq-degree', quadratic[0], '1,15'); row('lsq-degree', quadratic[1], '0,15'); row('lsq-degree', quadratic[2], '0,25');
+        row('lsq-degree', sum(), '0,45');
+        h.apply({kind: 'lsq', operation: 'set-degree', value: 3});
+        const cubic = lsqFitCoefficients(h).map(lsqPlain);
+        row('lsq-degree', cubic[0], '1'); row('lsq-degree', cubic[1], '2,5'); row('lsq-degree', cubic[2], '-2'); row('lsq-degree', cubic[3], '0,5');
+        expect(rows.length).toBeGreaterThan(25);
+        for (const [stepId, kernel, quoted] of rows) {
+            expect(kernel, `${stepId} kernel value for ${quoted}`).toBe(quoted);
+            for (const language of ['sl', 'en'] as const) {
+                const magnitude = quoted.replace(/^-/, '');
+                expect(lsqProseHas(stepId, magnitude, language), `${stepId} ${language} quotes ${quoted}`).toBe(true);
+            }
+        }
+        // The step 3 residuals of the outlier line the prose does not quote are not asserted; the outlier sum of residuals still vanishes.
+        h.scene(lsqStepOf('lsq-outlier'));
+        expect(Math.abs(lsqOrthogonality(h)[0])).toBeLessThan(1e-10);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the lsq lesson state survives Reset, a restored checkpoint and a language switch', () => {
+    const h = mountLsq();
+    try {
+        h.run(lsqStepOf('lsq-outlier'));
+        expect(lsqReadout('sum')).toBe('8,7');
+        const checkpoint = h.capabilities.captureState();
+        act(() => h.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
+        expect(h.graph.state).toMatchObject({...DEFAULT_LEAST_SQUARES_MODEL});
+        expect(lsqReadout('sum')).toBe('0,7');
+        act(() => h.capabilities.restoreState(checkpoint));
+        expect(h.graph.state.points[3]).toEqual([3, 8]);
+        expect(lsqReadout('sum')).toBe('8,7');
+        act(() => { setLanguage('en'); });
+        expect(h.graph.state.points[3]).toEqual([3, 8]);
+        expect(lsqReadout('equation')).toBe('y = 2.1x + 0.1');
+        expect(lsqReadout('sum')).toBe('8.7');
+        // Consecutive steps without a restore end in the last step's state, because each scene starts from the default.
+        h.run(lsqStepOf('lsq-degree'));
+        h.run(lsqStepOf('lsq-predict'));
+        expect([h.graph.state.manualLine, h.graph.state.degree, h.graph.state.slope, h.graph.state.intercept, h.graph.state.showSquares]).toEqual([true, 1, 0, 2, false]);
+        expect(h.graph.state.points[3]).toEqual([3, 4]);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the lsq action rejects invalid inputs with a clear error and leaves the state alone', () => {
+    const h = mountLsq();
+    try {
+        const before = JSON.stringify(h.graph.state);
+        const bad: unknown[] = [
+            {kind: 'lsq', operation: 'set-point', index: 4, x: 1, y: 1},
+            {kind: 'lsq', operation: 'set-point', index: 0, x: 'a', y: 1},
+            {kind: 'lsq', operation: 'set-point', index: 0, x: 100, y: 1},
+            {kind: 'lsq', operation: 'set-degree', value: 0},
+            {kind: 'lsq', operation: 'set-degree', value: 4},
+            {kind: 'lsq', operation: 'set-degree', value: 1.5},
+            {kind: 'lsq', operation: 'set-degree', value: '2'},
+            {kind: 'lsq', operation: 'set-mode', mode: 'both'},
+            {kind: 'lsq', operation: 'set-line', slope: 11, intercept: 0},
+            {kind: 'lsq', operation: 'set-line', slope: 1, intercept: 'x'},
+            {kind: 'lsq', operation: 'set-overlay', overlay: 'residuals', visible: true},
+            {kind: 'lsq', operation: 'set-overlay', overlay: 'squares', visible: 'yes'},
+            {kind: 'lsq', operation: 'remove-point'},
+        ];
+        for (const action of bad) expect(() => h.capabilities.apply(action as LessonAction), JSON.stringify(action)).toThrow(/./);
+        expect(JSON.stringify(h.graph.state)).toBe(before);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the I4 lesson has six steps with predictions, a free last step, the required caveats and the one-shot terms', () => {
+    expect(lsqLesson.steps.map(step => step.id)).toEqual(lsqStepIds);
+    for (const step of [lsqStepOf('lsq-predict'), lsqStepOf('lsq-outlier'), lsqStepOf('lsq-degree')]) {
+        expect(step.explanation.sl, step.id).toMatch(/[Nn]apovej/);
+        expect(step.explanation.en, step.id).toMatch(/[Pp]redict/);
+    }
+    const all = JSON.stringify(lsqLesson);
+    for (const term of ['najmanjših kvadratov', 'ostanek', 'osamelec', 'normalni sistem', 'ročna premica']) expect(all.toLowerCase(), term).toContain(term);
+    for (const language of ['sl', 'en'] as const) {
+        const prose = lsqLesson.steps.map(step => lsqProse(step, language)).join(' ') + lsqLesson.formulaBlocks.map(block => block.explanation[language]).join(' ');
+        // Spec acceptance 3: squared vertical residuals are a modelling choice, not the geometric distance; what outliers do.
+        expect(prose, language).toMatch(language === 'sl' ? /modelska izbira, ne geometrijska razdalja/ : /modelling choice, not the geometric distance/);
+        expect(prose, language).toMatch(language === 'sl' ? /osamelec/ : /outlier/);
+        expect(prose, language).toMatch(language === 'sl' ? /občutljiva na osamelce/ : /sensitive to outliers/);
+    }
+    // The prerequisites name the Lagrange lesson (I1); the degree step links to the Runge lesson (I2) and to interpolation (I1).
+    expect(lsqLesson.prerequisites.map(entry => entry.en).join(' ')).toMatch(/Lagrange/);
+    expect(lsqProse(lsqStepOf('lsq-degree'), 'en')).toMatch(/Lagrange/);
+    expect(lsqProse(lsqStepOf('lsq-degree'), 'en')).toMatch(/Runge/);
+    // Every scene action is an lsq action or the prepared scene.
+    for (const step of lsqLesson.steps) for (const action of actionsOf(step)) expect(['prepared-scene', 'lsq'], step.id).toContain(action.kind);
 });

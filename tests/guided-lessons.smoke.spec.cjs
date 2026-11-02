@@ -1851,6 +1851,21 @@ const interpolationRunge = {
     },
 };
 
+// Interpolation I4 (least squares): the sum-of-squares readout per lesson step 1..6 (the manual line y = 2, y = x + 1, the outlier line, the best line, the quadratic, the default); the number is language independent once the decimal comma is normalised.
+const LSQ_SUMS = ['5', '1', '8.7', '0.7', '0.45', '0.7'];
+const lsqReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(',', '.');
+const interpolationLeastSquares = {
+    id: 'interp-least-squares',
+    path: `${BASE}/interpolation/least-squares`,
+    titles: {sl: 'Metoda najmanjših kvadratov', en: 'Least squares'},
+    steps: 6,
+    minFrames: 12, // 2 frames per step
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(() => lsqReadout(page, 'sum'), {message: `least-squares sum of squares at ${label}`}).toBe(LSQ_SUMS[step - 1]);
+        if (step === 2) await expect.poll(() => lsqReadout(page, 'optimal-sum'), {message: `least-squares minimum at ${label}`}).toBe('0.7');
+    },
+};
+
 // Segment intersections: the trace step shown per lesson step 1..7 (start, start, step 12, step 10, step 17, done, the degenerate example's step 16); the number is language independent.
 const SEGMENT_STEPS = ['1', '1', '12', '10', '17', '47', '16'];
 const segmentIntersections = {
@@ -1984,7 +1999,7 @@ const bsplineDeBoor = {
     minFrames: 12, // at least 2 frames per step
 };
 
-const LESSONS = [interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

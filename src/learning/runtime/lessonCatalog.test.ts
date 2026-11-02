@@ -184,8 +184,8 @@ test('every active demonstration route has an available lesson unless it opts ou
     const lessonIds = ids.filter(id => LESSON_DEMONSTRATION_IDS.includes(id));
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
-    // The interp-least-squares, quadrature and inversion ids ship without a lesson; the Delaunay lesson B3 ended its opt-out.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['interp-least-squares', 'quadrature', 'inversion']);
+    // The quadrature and inversion ids ship without a lesson; the Delaunay lesson B3 and the least-squares lesson I4 ended their opt-outs.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['quadrature', 'inversion']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

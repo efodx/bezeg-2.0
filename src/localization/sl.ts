@@ -2887,6 +2887,7 @@ export const sl = {
     "interp_lsq_normal_title": "Normalni sistem",
     "interp_lsq_normal_unavailable": "Normalni sistem je prikazan za stopnjo 1 in 2.",
     "interp_lsq_normal_help": "Rešitev c je enaka tisti, ki jo program izračuna s QR-razcepom; normalni sistem je tu samo prikazan.",
+    "interp_lsq_normal_manual_note": "Prikazan je normalni sistem najboljše premice, ne ročne premice.",
     "interp_lsq_legend_points": "Podatki",
     "interp_lsq_legend_fit": "Prilegajoča se krivulja",
     "interp_lsq_legend_manual": "Ročna premica",

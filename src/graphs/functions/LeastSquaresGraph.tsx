@@ -18,6 +18,7 @@ import {
 } from "./leastSquaresMessages";
 import {useTypesetMath} from "../../learning/useTypesetMath";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -103,6 +104,35 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
         const edit = moveLsqPoint(this.model, index, value);
         if (!edit.ok) return String(leastSquaresEditMessage(edit.issue));
         if (edit.model !== this.model) this.commitModel(edit.model);
+    }
+
+    // ---- Lesson actions ------------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("lsq", action => {
+            if (action.operation === "set-point") {
+                this.setPoint(action.index, [action.x, action.y]);
+            } else if (action.operation === "set-degree") {
+                this.setDegree(action.value);
+            } else if (action.operation === "set-mode") {
+                if (action.mode !== "best" && action.mode !== "manual") throw new Error('The mode must be "best" or "manual".');
+                this.setManualLine(action.mode === "manual");
+            } else if (action.operation === "set-line") {
+                // Both values are checked before either is written, so a refused line leaves the model alone.
+                this.accepted(setLsqLine(this.model, "slope", action.slope));
+                this.accepted(setLsqLine(this.model, "intercept", action.intercept));
+                this.setLine("slope", action.slope);
+                this.setLine("intercept", action.intercept);
+            } else if (action.operation === "set-overlay") {
+                if (typeof action.visible !== "boolean") throw new Error("An lsq set-overlay action needs a boolean visible.");
+                if (action.overlay === "squares") this.setShowSquares(action.visible);
+                else if (action.overlay === "normal-equations") this.setShowNormalEquations(action.visible);
+                else throw new Error('The overlay must be "squares" or "normal-equations".');
+            } else {
+                throw new Error("An lsq action needs the operation set-point, set-degree, set-mode, set-line or set-overlay.");
+            }
+        });
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -259,6 +289,7 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
             </div>
             {state.showNormalEquations && <div className="inspector-group" data-lsq="normal-equations">
                 <h3>{t("interp_lsq_normal_title")}</h3>
+                {state.manualLine && <p className="inspector-help" data-lsq="normal-manual-note">{t("interp_lsq_normal_manual_note")}</p>}
                 {equations
                     ? <>
                         <NormalEquationsDisplay latex={normalEquationsLatex(equations, currentLanguage())}/>

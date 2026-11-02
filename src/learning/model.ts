@@ -324,6 +324,17 @@ export type LessonAction =
     | {readonly kind: 'runge'; readonly operation: 'set-rule'; readonly rule: 'equispaced' | 'chebyshev'}
     | {readonly kind: 'runge'; readonly operation: 'set-overlay'; readonly overlay: 'error' | 'semicircle'; readonly visible: boolean}
     /**
+     * LeastSquaresGraph only (least squares, lesson I4): `set-point` puts data point `index` (0-based) at (x, y), `set-degree` picks the
+     * fit's degree (a whole number from 1 to min(points - 1, 5)), `set-mode` switches between the best fit and the manual line,
+     * `set-line` writes the manual line y = intercept + slope x (kept while the best fit is shown), and `set-overlay` shows or hides the
+     * squares of the residuals or the normal equations. Invalid values are refused with a message, never clamped.
+     */
+    | {readonly kind: 'lsq'; readonly operation: 'set-point'; readonly index: number; readonly x: number; readonly y: number}
+    | {readonly kind: 'lsq'; readonly operation: 'set-degree'; readonly value: number}
+    | {readonly kind: 'lsq'; readonly operation: 'set-mode'; readonly mode: 'best' | 'manual'}
+    | {readonly kind: 'lsq'; readonly operation: 'set-line'; readonly slope: number; readonly intercept: number}
+    | {readonly kind: 'lsq'; readonly operation: 'set-overlay'; readonly overlay: 'squares' | 'normal-equations'; readonly visible: boolean}
+    /**
      * CoonsPatchGraph only (Coons patch, lesson D4): `set-shown` picks the surface the mesh shows (`lc`, `ld`, `b` or the blend `s`),
      * `set-linked-corners` turns corner sharing on (the corner pairs snap to their average) or off, and `move-point` puts control
      * point `index` (0 to 3) of the boundary `name` (`c0`, `c1`, `d0`, `d1`) at `xyz`, like a drag; with linked corners the other end point

@@ -99,6 +99,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'interp-hermite': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Interim owner until an Interpolation chapter exists: the lesson follows the Lagrange lesson, which sits with the Bezier curves.
     'interp-runge': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    // Interim owner until an Interpolation chapter exists: the lesson follows the Runge lesson and fits data with polynomials, which sits with the Bezier curves.
+    'interp-least-squares': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'segment-intersections': {chapterId: 'sweep-algorithms', sectionId: 'segment-intersections'},
     // Interim owner until an Interpolation chapter exists: the lesson builds on the Bezier subdivision (de Casteljau) of the Bezier curves chapter.
     'interp-subdivision': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},

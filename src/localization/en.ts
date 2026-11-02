@@ -2888,6 +2888,7 @@ export const en: Record<keyof typeof sl, string> = {
     "interp_lsq_normal_title": "Normal equations",
     "interp_lsq_normal_unavailable": "The normal equations are shown for degree 1 and 2.",
     "interp_lsq_normal_help": "The solution c equals the one the program computes by QR factorization; the normal equations are only displayed here.",
+    "interp_lsq_normal_manual_note": "This is the normal system of the best line, not of the manual line.",
     "interp_lsq_legend_points": "Data",
     "interp_lsq_legend_fit": "Fitted curve",
     "interp_lsq_legend_manual": "Manual line",

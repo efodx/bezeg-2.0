@@ -35,10 +35,23 @@ export function leastSquaresReason(reason: LeastSquaresUnfittable): string {
     }
 }
 
-/** A number with significant digits in the current language. */
-export const leastSquaresNumber = (value: number, digits = 4) => formatSignificant(value, currentLanguage(), digits);
-/** A coefficient or residual, rounded to three decimals in the current language. */
-export const leastSquaresCoefficient = (value: number) => formatNumber(value, currentLanguage(), 3);
+/** A rounding within this relative or absolute distance is float noise, not a rounding: 0,7000000000000001 is exactly 0,7. */
+const ROUNDING_NOISE = 1e-9;
+
+/** Whether showing `value` as `rounded` loses something: a non-zero value that shows as 0 is always approximate. */
+const isRounded = (value: number, rounded: number): boolean =>
+    Number.isFinite(value) && (rounded === 0 ? value !== 0 : Math.abs(value - rounded) > ROUNDING_NOISE * Math.abs(value));
+
+/** A number with significant digits in the current language, "≈ " before it when the digits are rounded. */
+export const leastSquaresNumber = (value: number, digits = 4) => {
+    const text = formatSignificant(value, currentLanguage(), digits);
+    return isRounded(value, Math.abs(value) < 1e-12 ? 0 : Number(value.toPrecision(digits))) ? `≈ ${text}` : text;
+};
+/** A coefficient or residual, rounded to three decimals in the current language, "≈ " before it when the rounding is not exact. */
+export const leastSquaresCoefficient = (value: number) => {
+    const text = formatNumber(value, currentLanguage(), 3);
+    return isRounded(value, Number(value.toFixed(3))) ? `≈ ${text}` : text;
+};
 
 const SUPERSCRIPTS = ["", "", "²", "³", "⁴", "⁵"];
 
@@ -61,9 +74,9 @@ export function polynomialText(coefficients: readonly number[], language: Number
     return `y = ${text}`;
 }
 
-/** A number inside LaTeX: three decimals at most, `{,}` as the decimal comma of Slovenian, ASCII minus. */
+/** A number inside LaTeX: three decimals at most, `\approx ` before it when rounded, `{,}` as the decimal comma of Slovenian, ASCII minus. */
 const latexNumber = (value: number, language: NumberLanguage): string =>
-    formatNumber(value, language, 3).replace(MINUS_SIGN, "-").replace(",", "{,}");
+    `${isRounded(value, Number(value.toFixed(3))) ? "\\approx " : ""}${formatNumber(value, language, 3).replace(MINUS_SIGN, "-").replace(",", "{,}")}`;
 
 /**
  * The display of A^T A c = A^T y with the fit's numbers, as MathJax display math (`\[...\]`): the symbolic equation, the system

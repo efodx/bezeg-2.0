@@ -6,10 +6,12 @@
  * I1 scenes use the `interpolation` (`set-rule`, `set-overlay`, `add-point`) and `parameter` (`t`, the shared position s) actions;
  * I2 scenes use the `runge` action (`set-function`, `set-degree`, `set-rule`, `set-overlay`);
  * I3 scenes use the `hermite` action (`set-mode`, `set-rule`, `set-tension`, `set-overlay`, `add-point`);
+ * I4, least squares, lives in `interpolationLeastSquaresLesson.ts` (the `lsq` action);
  * I5 scenes use the `subdivision` action (`set-rule`, `set-closed`, `set-overlay`) and the `animation` action `next-step` of `interp-subdivision-rounds`.
  */
 import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {leastSquaresLesson} from './interpolationLeastSquaresLesson';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
@@ -753,4 +755,4 @@ const rungeLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const interpolationGuidedLessons: readonly GuidedLesson[] = [lagrangeLesson, rungeLesson, hermiteLesson, subdivisionLesson];
+export const interpolationGuidedLessons: readonly GuidedLesson[] = [lagrangeLesson, rungeLesson, hermiteLesson, leastSquaresLesson, subdivisionLesson];

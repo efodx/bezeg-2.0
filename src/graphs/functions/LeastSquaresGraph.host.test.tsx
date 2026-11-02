@@ -89,8 +89,8 @@ test('degree 2 and 3 reproduce the spec equations and sums; English uses the dec
     expect(graph.visibleFunctionGraphs()[0].Y(2)).toBeCloseTo(1.15 + 0.3 + 1, 12);
     setDegree(3);
     expect(readout('equation')).toBe('y = 1 + 2,5x − 2x² + 0,5x³');
-    expect(readout('sum')).toBe('0');
-    expect(readout('residuals')).toBe('0; 0; 0; 0');
+    expect(readout('sum')).toBe('≈ 0');
+    expect(readout('residuals')).toBe('≈ 0; ≈ 0; ≈ 0; ≈ 0');
     act(() => { setLanguage('en'); });
     expect(readout('equation')).toBe('y = 1 + 2.5x − 2x² + 0.5x³');
     setDegree(1);
@@ -349,4 +349,24 @@ test('dispose removes the owned board objects, and a later drag or language chan
     expect(update).not.toHaveBeenCalled();
     expect(() => (graph as unknown as { setPoint(i: number, v: unknown): void }).setPoint(0, [0, 3])).not.toThrow();
     expect(update).not.toHaveBeenCalled();
+});
+
+test('the cubic fit through four points shows its float-noise sum of squares and residuals with ≈ 0', () => {
+    mount();
+    setDegree(3);
+    expect(readout('sum')).toBe('≈ 0');
+    expect(readout('residuals')).toBe('≈ 0; ≈ 0; ≈ 0; ≈ 0');
+});
+
+test('in manual mode the normal-equations display says it is the best line\'s system; in fit mode it does not', () => {
+    mount();
+    act(() => { fireEvent.click(normalSwitch()); });
+    const note = () => document.querySelector('[data-lsq="normal-manual-note"]')?.textContent;
+    expect(note()).toBeUndefined();
+    act(() => { fireEvent.click(manualSwitch()); });
+    expect(note()).toBe('Prikazan je normalni sistem najboljše premice, ne ročne premice.');
+    act(() => { setLanguage('en'); });
+    expect(note()).toBe('This is the normal system of the best line, not of the manual line.');
+    act(() => { fireEvent.click(manualSwitch()); });
+    expect(note()).toBeUndefined();
 });
