@@ -5,6 +5,7 @@ import {complexMapsChapter} from './complexMapsChapter';
 import {triangleGeometryChapter} from './triangleGeometryChapter';
 import {convexityChapter} from './convexityChapter';
 import {triangulationChapter} from './triangulationChapter';
+import {sweepChapter} from './sweepChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
@@ -301,6 +302,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     complexMapsChapter, // Maps of the plane, complex part: activities live in complexMapsChapterLessons.ts.
     convexityChapter, // Computational geometry batch 1: activities reuse the reviewed lessons of compgeoGuidedLessons.ts.
     triangulationChapter, // Computational geometry batch T1: the ear clipping lesson of compgeoGuidedLessons.ts.
+    sweepChapter, // Computational geometry batch S1: the interval sweep and segment intersection lessons of compgeoGuidedLessons.ts.
     triangleGeometryChapter, // Plane geometry batch A: activities live in triangleGeometryChapterLessons.ts.
     {
         id: 'functions-and-calculus', family: '/bezeg-2.0/functions',

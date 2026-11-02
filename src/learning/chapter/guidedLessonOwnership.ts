@@ -80,12 +80,13 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // Interim owners until a Curve geometry chapter exists: trace versus parameter belongs with parametrization, curvature with the geometric properties of a curve.
     'curve-parametric': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
     'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    'interval-sweep': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    // The Sweep-line algorithms chapter owns the interval sweep and segment intersection lessons (batch S1).
+    'interval-sweep': {chapterId: 'sweep-algorithms', sectionId: 'interval-sweep'},
     // Interim owner until an Interpolation chapter exists: the lesson contrasts the Lagrange curve with the Bezier convex hull property.
     'interp-lagrange': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Interim owner until an Interpolation chapter exists: the lesson builds on the splines chapter's tangent continuity, and the Bezier form of a Hermite segment sits with the Bezier curves.
     'interp-hermite': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    'segment-intersections': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    'segment-intersections': {chapterId: 'sweep-algorithms', sectionId: 'segment-intersections'},
     // Interim owner until an Interpolation chapter exists: the lesson builds on the Bezier subdivision (de Casteljau) of the Bezier curves chapter.
     'interp-subdivision': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
