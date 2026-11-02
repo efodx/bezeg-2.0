@@ -146,7 +146,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             <p className="inspector-help" data-delaunay="note">{noteSentence}</p>
             {detail && <p className="inspector-help" data-delaunay="detail">{detail}</p>}
             {incircle && <p className="inspector-help" data-delaunay="incircle">{incircle}</p>}
-            <ul aria-label={t("del_controls_label")} data-delaunay="readout">
+            <ul aria-label={t("del_readout_label")} data-delaunay="readout">
                 <li data-readout="flips">{t("del_flips", {value0: status.flips})}</li>
                 <li data-readout="illegal">{t("del_illegal_count", {value0: status.illegalCount})}</li>
                 <li data-readout="min-now">{t("del_min_now", {value0: degrees(status.minNow)})}</li>
@@ -164,7 +164,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
                         onClick={() => { if (selection) actions.selectTriangle(undefined); }}>{t("del_tri_clear")}</button>
             </div>
             {selectedText && <p className="inspector-help" data-delaunay="selected-triangle">{selectedText}</p>}
-            {neighbourTexts.length > 0 && <ul aria-label={selectedText} data-delaunay="neighbours">
+            {neighbourTexts.length > 0 && <ul aria-label={t("del_tri_neighbours_label")} data-delaunay="neighbours">
                 {neighbourTexts.map((text, index) => <li key={index} data-neighbour={index}>{text}</li>)}
             </ul>}
             {hullText && <p className="inspector-help" data-delaunay="hull-edges">{hullText}</p>}

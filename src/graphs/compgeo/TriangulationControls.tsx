@@ -105,10 +105,10 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                 <li data-readout="edges">{t("tri_readout_edges", {
                     value0: readout.counts.edges, value1: readout.n, value2: readout.boundary.k,
                     value3: readout.counts.interiorEdges, value4: readout.counts.hullEdges})}</li>
-                {!readout.anglesHidden && <li data-readout="angle">{t("tri_readout_angle_now", {value0: degrees(readout.minAngle)})}</li>}
-                {!readout.anglesHidden && <li data-readout="angle-before">{readout.minAngleBefore === undefined
+                <li data-readout="angle">{t("tri_readout_angle_now", {value0: degrees(readout.minAngle)})}</li>
+                <li data-readout="angle-before">{readout.minAngleBefore === undefined
                     ? t("tri_readout_angle_before_none")
-                    : t("tri_readout_angle_before", {value0: degrees(readout.minAngleBefore)})}</li>}
+                    : t("tri_readout_angle_before", {value0: degrees(readout.minAngleBefore)})}</li>
             </ul>}
             <p className="visually-hidden" role="status" aria-live="polite" data-triangulation="live">
                 {eventSentence}</p>

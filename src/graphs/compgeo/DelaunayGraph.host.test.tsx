@@ -55,6 +55,7 @@ function manualScheduler() {
 
 class Observed extends DelaunayGraph {
     liveBoard() { return this.board; }
+    lock(locked: boolean) { this.graphInteractionLocked = locked; }
 }
 
 type Shown = {elType: string; name?: string; plaintext?: string; center?: {X(): number; Y(): number}; Radius?(): number};
@@ -105,7 +106,7 @@ test('example 1: +64 at the first test, a flip to bd, then the trace own -64 tes
     expect(readout('min-now')).toBe('Najmanjši kot zdaj: 19,65°');
     expect(readout('angles-now')).toBe('Koti zdaj, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43');
     click('next-step');
-    expect(part('incircle')).toBe('Vrednost preizkusa krožnice (incircle) = +64: preizkušana točka je znotraj krožnice');
+    expect(part('incircle')).toBe('Vrednost preizkusa krožnice = +64: preizkušana točka je znotraj krožnice');
     expect(part('detail')).toBe('Preizkušeni rob P1–P3; nasprotni točki P2 in P4');
     expect(part('note')).toBe('Rob je neustrezen: preizkušana točka je znotraj očrtane krožnice drugega trikotnika.');
     expect(readout('flips')).toBe('Zamenjav doslej: 0');
@@ -115,7 +116,7 @@ test('example 1: +64 at the first test, a flip to bd, then the trace own -64 tes
     expect(readout('illegal')).toBe('Neustreznih robov: 0');
     expect(triangleSet(graph.triangulation()?.triangles ?? [])).toEqual([[0, 1, 3], [1, 2, 3]]);
     click('next-step');
-    expect(part('incircle')).toBe('Vrednost preizkusa krožnice (incircle) = -64: preizkušana točka je zunaj krožnice');
+    expect(part('incircle')).toBe('Vrednost preizkusa krožnice = -64: preizkušana točka je zunaj krožnice');
     click('next-step');
     expect(part('done')).toBe('Vsi robovi so ustrezni: Delaunayeva triangulacija.');
     expect(part('cocircular')).toBeUndefined();
@@ -167,7 +168,7 @@ test('the unit square ends with zero flips, both diagonals legal with determinan
     click('example-square');
     expect(readout('illegal')).toBe('Neustreznih robov: 0');
     click('next-step');
-    expect(part('incircle')).toBe('Vrednost preizkusa krožnice (incircle) = 0: preizkušana točka je na krožnici');
+    expect(part('incircle')).toBe('Vrednost preizkusa krožnice = 0: preizkušana točka je na krožnici');
     expect(part('cocircular')).toBeUndefined();
     toEnd(graph);
     expect(readout('flips')).toBe('Zamenjav doslej: 0');
@@ -403,18 +404,18 @@ const live = () => document.querySelector('[data-delaunay-live]')?.textContent ?
 test('example 1: abc shows +64 for d before the flip, and after the flip each of abd and bcd shows -64 outside for the other vertex', () => {
     const graph = new Observed();
     mount(graph);
-    pick('P1P2P3');
-    expect(neighbourTexts()).toEqual(['Čez rob P1–P3: nasprotna točka P4, determinanta incircle = +64: točka je znotraj očrtane krožnice']);
+    pick('P1, P2, P3');
+    expect(neighbourTexts()).toEqual(['Čez rob P1–P3: nasprotna točka P4, determinanta preizkusa krožnice = +64: točka je znotraj očrtane krožnice']);
     expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 2; čeznje ni sosednjega trikotnika.');
-    expect(triangleButton('P1P2P3').getAttribute('aria-pressed')).toBe('true');
-    expect(live()).toContain('determinanta incircle = +64');
+    expect(triangleButton('P1, P2, P3').getAttribute('aria-pressed')).toBe('true');
+    expect(live()).toContain('determinanta preizkusa krožnice = +64');
     toEnd(graph);
     expect(graph.selectedTriangle()).toBeUndefined();
     expect(neighbourTexts()).toEqual([]);
-    pick('P1P2P4');
-    expect(neighbourTexts()).toEqual(['Čez rob P2–P4: nasprotna točka P3, determinanta incircle = -64: točka je zunaj očrtane krožnice']);
-    pick('P2P3P4');
-    expect(neighbourTexts()).toEqual(['Čez rob P2–P4: nasprotna točka P1, determinanta incircle = -64: točka je zunaj očrtane krožnice']);
+    pick('P1, P2, P4');
+    expect(neighbourTexts()).toEqual(['Čez rob P2–P4: nasprotna točka P3, determinanta preizkusa krožnice = -64: točka je zunaj očrtane krožnice']);
+    pick('P2, P3, P4');
+    expect(neighbourTexts()).toEqual(['Čez rob P2–P4: nasprotna točka P1, determinanta preizkusa krožnice = -64: točka je zunaj očrtane krožnice']);
     expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 2; čeznje ni sosednjega trikotnika.');
 });
 
@@ -422,7 +423,7 @@ test('the selected triangle draws its exact circumcircle (centre (2, 7/3), radiu
     const graph = new Observed();
     mount(graph);
     expect(selectedCircles(graph)).toHaveLength(0);
-    pick('P1P2P3');
+    pick('P1, P2, P3');
     const [circle] = selectedCircles(graph);
     expect(selectedCircles(graph)).toHaveLength(1);
     expect(circle.center?.X()).toBe(2);
@@ -430,7 +431,7 @@ test('the selected triangle draws its exact circumcircle (centre (2, 7/3), radiu
     expect(circle.Radius?.()).toBeCloseTo(Math.sqrt(85) / 3, 12);
     expect(named(graph, 'delaunay-selected-triangle')).toHaveLength(1);
     // the second triangle abd... of the quad before the flip is acd: another circle, the first is gone
-    pick('P1P3P4');
+    pick('P1, P3, P4');
     expect(selectedCircles(graph)).toHaveLength(1);
     expect(selectedCircles(graph)[0].center?.X()).not.toBe(2);
     // the trace test circle and the selected circle may show together
@@ -439,7 +440,41 @@ test('the selected triangle draws its exact circumcircle (centre (2, 7/3), radiu
     expect(selectedCircles(graph)).toHaveLength(0);
 });
 
-test('a triangle with three hull edges reports no neighbour; clearing deselects and clicking the selected triangle again deselects', () => {
+type Clickable = Shown & {triggerEventHandlers(names: string[], args: unknown[]): void};
+const triangleShapes = (graph: Observed) => objects(graph).filter(o => o.name === 'delaunay-triangle' || o.name === 'delaunay-selected-triangle') as Clickable[];
+const clickShape = (graph: Observed, index: number) => act(() => { triangleShapes(graph)[index].triggerEventHandlers(['down'], []); });
+
+test('pressing a board triangle selects it, pressing the selected one deselects, and a locked board ignores the press', () => {
+    const graph = new Observed();
+    mount(graph);
+    click('example-square');
+    expect(triangleShapes(graph).length).toBeGreaterThan(1);
+    clickShape(graph, 1);
+    expect(graph.selectedTriangle()).toBe(1);
+    expect(triangleShapes(graph)[1].name).toBe('delaunay-selected-triangle');
+    expect(document.querySelector('button[data-triangle="1"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(neighbourTexts().length).toBeGreaterThan(0);
+    clickShape(graph, 1);
+    expect(graph.selectedTriangle()).toBeUndefined();
+    expect(document.querySelector('button[data-triangle="1"]')?.getAttribute('aria-pressed')).toBe('false');
+    graph.lock(true);
+    clickShape(graph, 0);
+    expect(graph.selectedTriangle()).toBeUndefined();
+    graph.lock(false);
+    clickShape(graph, 0);
+    expect(graph.selectedTriangle()).toBe(0);
+});
+
+test('loading another scene clears a selected triangle', () => {
+    const graph = new Observed();
+    mount(graph);
+    click('example-square');
+    act(() => { graph.selectTriangle(0); });
+    click('example-quad');
+    expect(graph.selectedTriangle()).toBeUndefined();
+});
+
+test('a triangle with three hull edges reports no neighbour; clearing deselects and the panel button on the selected triangle again deselects', () => {
     const graph = new Observed();
     mount(graph);
     click('example-square');
@@ -450,7 +485,7 @@ test('a triangle with three hull edges reports no neighbour; clearing deselects 
     click('clear-triangle');
     expect(graph.selectedTriangle()).toBeUndefined();
     expect(selectedCircles(graph)).toHaveLength(0);
-    const label = first.map(i => i + 1).join('P');
+    const label = first.map(i => i + 1).join(', P');
     pick(`P${label}`);
     expect(graph.selectedTriangle()).toBe(0);
     pick(`P${label}`);
@@ -483,7 +518,7 @@ test('an edit, a step and a manual flip clear the selection', () => {
 test('a live language switch re-renders the selection text, and unmount releases the selection objects', () => {
     const graph = new Observed();
     const view = mount(graph);
-    pick('P1P2P3');
+    pick('P1, P2, P3');
     expect(document.querySelector('button[data-action="clear-triangle"]')?.textContent).toBe('Počisti izbiro trikotnika');
     act(() => { setLanguage('en'); });
     expect(neighbourTexts()).toEqual(['Across edge P1–P3: opposite point P4, incircle determinant = +64: the point is inside the circumcircle']);

@@ -51,8 +51,6 @@ export interface TriangulationReadout {
     counts: TriangulationCounts;
     minAngle: number;
     minAngleBefore: number | undefined;
-    /** A subclass that shows its own angle lines (the Delaunay graph) sets this; the panel then omits the two angle lines. */
-    anglesHidden?: true;
 }
 
 const isTriple = (value: readonly number[]): boolean => value.length === 3;

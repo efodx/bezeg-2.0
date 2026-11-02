@@ -109,7 +109,7 @@ The static document initially declares Slovenian, and runtime selection updates 
 | logaritem z osnovo a | logarithm to base a (S2); \(\log_a\) inverts \(a^x\), "naravni logaritem" for \(\ln\). x² is offered only as a "zožitev" (restriction) to x ≥ 0, so that it is one-to-one ("povratno enolična") |
 | Delaunayeva triangulacija | Delaunay triangulation (computational geometry, Delaunay flips graph; "Delaunayeva" as in Slovenian usage of the surname adjective, like *Bézierjeva*; no empty-circle wording in the panel title) |
 | neustrezen rob; ustrezen rob | illegal edge; legal edge (Delaunay flips: the edge fails the empty circumcircle test and is flipped; "neustrezen" is a transparent plain-language gloss, the English term is shown in the lesson) |
-| preizkus krožnice (incircle) | incircle test (the sign of the incircle determinant: +, point inside the circle; −, outside; 0, on it) |
+| preizkus krožnice | incircle test (the sign of the incircle determinant: +, point inside the circle; −, outside; 0, on it) |
 | kocirkularne točke | cocircular points (four points on one circle: determinant 0, both diagonals legal, the Delaunay triangulation is not unique) |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).

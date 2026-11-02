@@ -14,7 +14,7 @@ import {DELAUNAY_EXAMPLES, delaunayCollection} from "./delaunayPresetCollection"
 import {angleSummary, circumcircle, DelaunayRun, edgeQuad, runDelaunay, triangleNeighbours} from "./delaunayRun";
 import {parseHullStep} from "./hullTraceRun";
 import {PointSetGraphState} from "./PointSetGraph";
-import {TriangulationGraph, type TriangulationGraphState, type TriangulationReadout} from "./TriangulationGraph";
+import {TriangulationGraph, type TriangulationGraphState} from "./TriangulationGraph";
 import {parseTriangleList} from "./triangulationPresetCollection";
 
 /** Time between two playback steps (one step per interval, never more). */
@@ -105,11 +105,6 @@ export class DelaunayGraph extends TriangulationGraph {
             this.displayMemo = {run, step, tri: run.state(step).triangulation ?? run.start};
         }
         return this.displayMemo.tri;
-    }
-
-    override readout(): TriangulationReadout | undefined {
-        const base = super.readout();
-        return base && {...base, anglesHidden: true};
     }
 
     override getInitialState(): TriangulationGraphState & DelaunayGraphState {
@@ -257,11 +252,13 @@ export class DelaunayGraph extends TriangulationGraph {
 
     protected override disposeFigureScene(): void {
         if (this.controller) this.controller.pause();
+        this.selectedTriangleValue = undefined;
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
         if (this.controller) this.controller.pause();
+        this.selectedTriangleValue = undefined;
         super.syncReplacedScene();
     }
 
