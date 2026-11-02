@@ -16,3 +16,4 @@ Curves handler 18, 2026-11-02. Spec: [advanced-bezier-lessons.md](../../specs/ad
 - Math (Sonnet): no error; all quoted numbers re-derived. Lows deferred: prose number checks use `toContain` on short strings ('0', '3', '12', '16'), so some wrong numbers would pass.
 - Engineering (Sonnet): no medium. Lows deferred: loose error regex for bad payloads (test :300); camera refit check compares only `el` (test :246); no-op `move-point` accepted silently.
 - Not checked: live SL→EN switch in the browser.
+- Follow-up (handler 18): the `prepareLessonDefaultScene` refit broke master's transient-state contract (`GraphTransientState.part3` patch-coons, CI run 41386174893); removed, the default Preset's fitted camera already restores the view.

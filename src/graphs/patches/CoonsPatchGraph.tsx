@@ -174,11 +174,8 @@ export default class CoonsPatchGraph extends BaseSurfaceGraph<CoonsGraphState, C
 
     // ---- Lesson actions ----------------------------------------------------------------------------------------
 
-    /** A lesson scene starts from the default boundaries in a view fitted to the host's current shape, like the Reset view button. */
-    protected override prepareLessonDefaultScene(): void {
-        super.prepareLessonDefaultScene();
-        this.resetView();
-    }
+    // A lesson default scene keeps the default Preset's fitted camera (`defaultDto`), so it equals a fresh graph's scene; refitting
+    // to the host's shape here broke the transient-state contract ("the lesson default scene drops every earlier change").
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
         super.registerLessonActions(registry);
