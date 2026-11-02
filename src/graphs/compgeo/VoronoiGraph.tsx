@@ -17,7 +17,7 @@ import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {drawSelectableTriangles, sameTriple, sortedTriple, type TriangleSelectionNames} from "./circumcircleDrawing";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
-import {VoronoiControlActions, VoronoiControls, VoronoiStatus} from "./VoronoiControls";
+import {VoronoiControlActions, VoronoiControls, VoronoiStatus, VoronoiTriangles} from "./VoronoiControls";
 import {bisectorOrder, constructionRegion, parseRationalText} from "./voronoiConstruction";
 import {clipToBox, createVoronoiDrawing, frame, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
 import {
@@ -96,6 +96,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     private constructionDrawnFor?: {points: readonly GridPoint[]; site: number | null; count: number; scale: number; box?: RationalBox};
     private queryPoint?: JXG.Point;
     private inQuerySnap = false;
+    /** The last move of the query point was refused beyond the coordinate limit; shown until the next move. */
+    private queryRefused = false;
+    /** The Preset's site, count and query, handed from `importPreset` to the import it triggers and consumed once. */
+    private carried?: {cellSite: unknown; construction: unknown; query: unknown};
 
     constructor(options: PointSetOptions = {}) {
         super({pointLimit: VORONOI_MAX_POINTS, ...options});
@@ -224,7 +228,12 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     setQueryPoint(point: RationalPoint): boolean {
         const limit = Rational.fromInt(this.coordinateLimit);
         const inRange = (v: Rational) => v.compare(limit) <= 0 && v.compare(limit.neg()) >= 0;
-        if (!inRange(point.x) || !inRange(point.y)) return false;
+        if (!inRange(point.x) || !inRange(point.y)) {
+            this.queryRefused = true;
+            this.requestRender();
+            return false;
+        }
+        this.queryRefused = false;
         this.setState(this.patch({query: {x: point.x.format(), y: point.y.format()}}));
         this.requestRender();
         return true;
@@ -232,9 +241,12 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
 
     /** The numeric alternative to dragging: typed integer, fraction or decimal. False when the text is not valid or is out of range. */
     setQueryText(x: string, y: string): boolean {
+        this.queryRefused = false;
         const px = parseRationalText(x);
         const py = parseRationalText(y);
-        return px !== undefined && py !== undefined && this.setQueryPoint(new RationalPoint(px, py));
+        const placed = px !== undefined && py !== undefined && this.setQueryPoint(new RationalPoint(px, py));
+        this.queryRefused = false; // a typed error is shown by the panel itself
+        return placed;
     }
 
     /** Keyboard move of the query point by `steps` of half a grid unit in each direction. */
@@ -256,6 +268,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     resetExample(): void {
         this.importPresetData(serializePointSetModel(VORONOI_EXAMPLE));
         this.selectedTriangleValue = undefined;
+        this.queryRefused = false;
         this.setState(this.patch({overlays: {}, cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY}));
         this.requestRender();
         this.syncScene();
@@ -364,7 +377,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         if (centre?.kind === "point") {
             const scale = 2 ** model.gridStepExponent;
             objects.push(this.board.create("point", [centre.point.x.toNumber() * scale, centre.point.y.toNumber() * scale], {
-                name: "voronoi-selected-vertex", withLabel: false, size: 8, face: "diamond", fixed: true, showInfobox: false, highlight: false,
+                name: "voronoi-selected-vertex", withLabel: false, size: 9, face: "square", fixed: true, showInfobox: false, highlight: false,
                 fillColor: GraphPalette.warningText, strokeColor: GraphPalette.selectedControlPointOutline, strokeWidth: 2, layer: 8,
             }) as JXG.GeometryElement);
         }
@@ -433,6 +446,11 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         this.constructionDrawnFor = {points, site, count, scale, box: this.drawBox()};
         const box = this.drawBox();
         if (site === null || !box) return true;
+        // A ring round the chosen site: told apart from the other sites by shape, already at count 0.
+        this.constructionObjects.push(this.board.create("point", [points[site].x * scale, points[site].y * scale], {
+            name: "voronoi-chosen-site", withLabel: false, face: "circle", size: 12, fixed: true, showInfobox: false, highlight: false,
+            fillOpacity: 0, highlightFillOpacity: 0, strokeColor: GraphPalette.warningText, strokeWidth: 3, layer: 5,
+        }) as JXG.GeometryElement);
         const order = bisectorOrder(points, site);
         const half = Rational.of(1, 2);
         order.slice(0, count).forEach((other, k) => {
@@ -543,16 +561,18 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     /** A Preset that names no site, count or query starts without them: nothing stale survives from the previous scene. */
     override importPreset(preset: Preset): void {
         const graphState = preset.graphState && {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, ...preset.graphState};
-        super.importPreset(graphState ? {...preset, graphState} : preset);
+        this.carried = graphState && {cellSite: graphState.cellSite, construction: graphState.construction, query: graphState.query};
+        try {
+            super.importPreset(graphState ? {...preset, graphState} : preset);
+        } finally {
+            this.carried = undefined;
+        }
     }
 
-    /** An imported model keeps the site, count and query that the Preset's `graphState` just set, clamped to the new points. */
+    /** An imported model takes the site, count and query that `importPreset` handed over, clamped to the new points; a bare import has none. */
     override importPresetData(data: PointSetModel): void {
-        const raw: {cellSite?: unknown; construction?: unknown; query?: unknown} = {
-            cellSite: "cellSite" in this.state ? this.state.cellSite : undefined,
-            construction: "construction" in this.state ? this.state.construction : undefined,
-            query: "query" in this.state ? this.state.query : undefined,
-        };
+        const raw: {cellSite?: unknown; construction?: unknown; query?: unknown} = this.carried ?? {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY};
+        this.carried = undefined;
         super.importPresetData(data);
         const sites = this.model.points.length;
         const site = storedSite(raw.cellSite, sites);
@@ -604,7 +624,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
             counts: {sites: points.length, vertices: 0, finite: 0, rays: 0, lines: 0, bounded: 0, unbounded: 0},
             vertices: [], cellSite: null,
             query: {x: query.x, y: query.y, nearest: this.queryNearest()},
-            coordinateLimit: this.coordinateLimit, overlayShown: this.overlayShown("delaunay"), triangles: [],
+            coordinateLimit: this.coordinateLimit, queryRefused: this.queryRefused, overlayShown: this.overlayShown("delaunay"), triangles: [],
         } satisfies VoronoiStatus;
         if (!diagram) {
             const duplicate = !outcome.ok && outcome.refusal.kind === "duplicate-point" ? outcome.refusal.indices : undefined;
@@ -638,9 +658,11 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     }
 
     protected override workspaceEdit(): React.ReactNode {
+        const status = this.status();
         return <>
-            <VoronoiControls status={this.status()} actions={this.voronoiActions}/>
+            <VoronoiControls status={status} actions={this.voronoiActions}/>
             {super.workspaceEdit()}
+            <VoronoiTriangles status={status} actions={this.voronoiActions}/>
         </>;
     }
 }

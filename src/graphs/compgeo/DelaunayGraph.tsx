@@ -35,7 +35,7 @@ const DELAUNAY_NAMES: TriangleSelectionNames = {
     triangle: "delaunay-triangle", selectedTriangle: "delaunay-selected-triangle", selectedCircle: "delaunay-selected-circle",
 };
 
-const runFor =(points: PointSetModel["points"], triangles: unknown): DelaunayRun => {
+const runFor = (points: PointSetModel["points"], triangles: unknown): DelaunayRun => {
     const result = createTriangulation(points, parseTriangleList(triangles) ?? []);
     return runDelaunay(result.ok ? result.value : undefined);
 };
