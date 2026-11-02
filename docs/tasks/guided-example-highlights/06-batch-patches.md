@@ -1,6 +1,6 @@
 # 06 — Bézier patches
 
-Status: planned. Source: [spec H1, H2, H4, H6, owner decisions D1, D2, D4, D6](../../specs/guided-example-highlights.md). Dependencies: 00 accepted with owner decisions resolved; 01 recipe format and runner available. Role: chapter content worker.
+Status: done 2026-11-02 ([note](../../reviews/guided-example-highlights/batch-patches-note.md)). Source: [spec H1, H2, H4, H6, owner decisions D1, D2, D4, D6](../../specs/guided-example-highlights.md). Dependencies: 00 accepted with owner decisions resolved; 01 recipe format and runner available. Role: chapter content worker.
 
 Scope: chapter `bezier-patches`. Its content lives in `patchChapter*.ts` and the patch guided-example registry (`patchGuidedExampleRegistry.ts` and its parts), not in `familyChapters.ts`.
 
