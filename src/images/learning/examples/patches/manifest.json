@@ -1,58 +1,77 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+  "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "b625888358448e6ad4893a98219e3aad410cca26",
+    "revision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
     "dirty": true,
-    "inputs": "2a9e1e86cc80f3704695274752ff33961452c528788e72bdaa3bfb2a89a8b738",
-    "output": "348291fd03120913819a3a8cd372f77b99a3959b0b4ec7c451f94cac64d73e87"
+    "inputs": "92f4b3f529a3441a777569c0debc16a1977247d4d25200445dbc416cc82a8857",
+    "output": "ce94dfe3b60ba77fffdcc03ea6b68a1054cbd035a2d1dd3c5b9e367748cb1f91"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
-    "stampRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
+    "stampRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
     "stampDirty": true,
-    "localOutputHash": "348291fd03120913819a3a8cd372f77b99a3959b0b4ec7c451f94cac64d73e87",
+    "localOutputHash": "ce94dfe3b60ba77fffdcc03ea6b68a1054cbd035a2d1dd3c5b9e367748cb1f91",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-CVz0-Ojq.js",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-CVz0-Ojq.js",
-        "sha256": "8327901db6b01e8ed8dc4f9f448204ebbeba700022369443038dd3670ec13e87",
+        "name": "index-uDOfr0Z6.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-uDOfr0Z6.js",
+        "sha256": "69f600f815e9f01e99d0125372476defb7c9f9c0105b4d0dee3f8e5ee55dea5f",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
         "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BtpGEvSk.js",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-BtpGEvSk.js",
-        "sha256": "cab294c9353fe8440d061ec64297ef080318357aaea4f96da146d8a2e4828b9d",
+        "name": "jsx-runtime-X5UiEto9.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-X5UiEto9.js",
+        "sha256": "c07f0846e92ed00480b36ee2d5cef7781e4a70e146ea87dbc7184a84a6547cb0",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-3PxAN9kg.css",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-3PxAN9kg.css",
-        "sha256": "e4575c48cd4045b8fb53cea20ebc4d98c7b2db4fb8614756fd58e90eab739a05",
+        "name": "react-dom-FuAmTaaE.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-FuAmTaaE.js",
+        "sha256": "c07f25468b6d5889568808e2048bb72a3b2d2455e9fbc18cd438de9cfc5d7465",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-BaMZB5Fy.css",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-BaMZB5Fy.css",
+        "sha256": "bae643a297d5885e35dc68f252ac298fc5cd08ac7952ed15ca8f6fb80d6272fc",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "763fe326be8e2fbfdf572dd54c49ec57c6b5f44c5e2b51c18ecd8c4f058a78e9",
-    "presentation": "c5067ff74ae9668293300467b40c4dee60b05611ba139c3706d3fc23044cddab",
-    "buildOutput": "348291fd03120913819a3a8cd372f77b99a3959b0b4ec7c451f94cac64d73e87",
-    "buildInputs": "2a9e1e86cc80f3704695274752ff33961452c528788e72bdaa3bfb2a89a8b738"
+    "inventory": "e3d26cd48f33a300ed92f3fef64a961ab41d916f79c325b482bc997d209a253c",
+    "entries": {
+      "bezier-patches.curve-to-patch.patch-tensor": "dafba6720636fd09eae7283fd8a5b94221521e9c84415f36eefca0ba9774c436",
+      "bezier-patches.bilinear-patch.patch-tensor": "2c0e10da9c9e5690705231f0d767e9945810af79d2d18ed02742763fe7971b95",
+      "bezier-patches.control-net.patch-tensor": "de40479954f8924d2533367d47599e24cf43afbb79facb737b7d379306dc50a4",
+      "bezier-patches.boundary-iso-curves.patch-tensor": "294cf48dd8d304d431249509911ae0e4909e440e1276da218dd551ee13aa6575",
+      "bezier-patches.tensor-decasteljau.patch-decasteljau": "b7e2e77efb082749db7c94b8f0f1bb00f91f5c37d5e8d35fa90e9d14984eede8",
+      "bezier-patches.properties.patch-tensor": "04ad5011e5f9c8a6b2d2cb324d72b37ada088765f2f530d9c2cf016ac1aadfba",
+      "bezier-patches.tensor-derivatives.patch-derivatives": "86b39c4a03c06eedb40ea45981e57645aef1f784eee37866100871ffaaaff165",
+      "bezier-patches.tensor-subdivision.patch-subdivision": "5b6f20ea09df8f8fa267b11d118506703a583aba8142e4db53c92bf5b874bf9b",
+      "bezier-patches.tensor-joins.patch-joins": "d8121ddf8a377786da3af9c41ed717e7d41261c11b3b20be3fc91b60bb2b1a89",
+      "bezier-patches.triangular-patches.patch-triangular": "6af46d830495ecb84d832060567758284b465990ffcaa19638b1ca94db130f0f",
+      "bezier-patches.square-vs-triangular.patch-triangular": "f3029dd6988f077b11b67373c0108a74d3200a7f9860d5409a5171da520a7834"
+    },
+    "presentation": "0561533dd16d33a06d4617e73ee4d58a998dbe644ece30640c72199a66bbc3e4",
+    "buildOutput": "ce94dfe3b60ba77fffdcc03ea6b68a1054cbd035a2d1dd3c5b9e367748cb1f91",
+    "buildInputs": "92f4b3f529a3441a777569c0debc16a1977247d4d25200445dbc416cc82a8857"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -66,7 +85,7 @@
       "height": 920
     },
     "deviceScaleFactor": 2,
-    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query; no controls/actions changed",
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
     "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
     "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
     "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
@@ -274,6 +293,88 @@
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "curve-to-patch-explain",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    -1,
+                    -1,
+                    0
+                  ],
+                  [
+                    0,
+                    -1,
+                    -0.125
+                  ],
+                  [
+                    1,
+                    0.875,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "cc811d51d92b05c24eea73536df5f9944241f9fe529ab17810ea29d464994b28",
+      "highlight": {
+        "frame": "curve-to-patch-explain",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "04315b7165840366ea33eec01674837cf310790b804d8a1673981f6a39592fdb",
+        "resultFingerprint": "04315b7165840366ea33eec01674837cf310790b804d8a1673981f6a39592fdb",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:tensor-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 6
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.curve-to-patch.patch-tensor.png",
       "width": 840,
       "height": 520,
@@ -493,14 +594,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.bilinear-patch.patch-tensor",
@@ -514,6 +611,88 @@
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "bilinear-calculation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0.9375
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "5381640142737cc06a1ba202b2c1d445f1fc6c0dc63f1bd3d00b4040f1a955a2",
+      "highlight": {
+        "frame": "bilinear-calculation",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "109f2c522759725b59e0310a8bd0e061d7e1b2e5899db508235f35ed1516010a",
+        "resultFingerprint": "109f2c522759725b59e0310a8bd0e061d7e1b2e5899db508235f35ed1516010a",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:tensor-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 4
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.bilinear-patch.patch-tensor.png",
       "width": 840,
       "height": 520,
@@ -709,14 +888,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.control-net.patch-tensor",
@@ -730,6 +905,88 @@
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.25,\"v\":0.5}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "control-net-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    -1,
+                    -1,
+                    0
+                  ],
+                  [
+                    0,
+                    -1,
+                    0
+                  ],
+                  [
+                    1,
+                    0.875,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "172f12dd35346b3739b727daabac71498096407f33190cefa88a4767707d529d",
+      "highlight": {
+        "frame": "control-net-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "75837cff6938742eb63917d71b79f26b4a1c21c14f6659ff148e61314c6b9f70",
+        "resultFingerprint": "75837cff6938742eb63917d71b79f26b4a1c21c14f6659ff148e61314c6b9f70",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:tensor-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 9
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.control-net.patch-tensor.png",
       "width": 840,
       "height": 520,
@@ -985,14 +1242,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.boundary-iso-curves.patch-tensor",
@@ -1006,6 +1259,88 @@
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"boundary-curves\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "boundary-compute",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    -1,
+                    -1,
+                    0
+                  ],
+                  [
+                    0,
+                    -1,
+                    0
+                  ],
+                  [
+                    1,
+                    0.875,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "a6438c3f4e6a4f48e0d83133f3737c2d5e38dd419479aed95668b2525ff316a5",
+      "highlight": {
+        "frame": "boundary-compute",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "75837cff6938742eb63917d71b79f26b4a1c21c14f6659ff148e61314c6b9f70",
+        "resultFingerprint": "75837cff6938742eb63917d71b79f26b4a1c21c14f6659ff148e61314c6b9f70",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:tensor-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 9
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.boundary-iso-curves.patch-tensor.png",
       "width": 840,
       "height": 520,
@@ -1261,14 +1596,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.tensor-decasteljau.patch-decasteljau",
@@ -1280,6 +1611,88 @@
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.25,\"v\":0.5}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "order-rows",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 15,
+              "target": [
+                0.5,
+                0.5,
+                2
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "73db87bcef73dfeef3685be09fee228c88c6c5b1657baace679f4e2d6a675ef4",
+      "highlight": {
+        "frame": "order-rows",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "8ca055769e9c91348aae55e1b0f4425fba854b59b40d83a49bc140d081b42ea8",
+        "resultFingerprint": "8ca055769e9c91348aae55e1b0f4425fba854b59b40d83a49bc140d081b42ea8",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:tensor-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 9
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.tensor-decasteljau.patch-decasteljau.png",
       "width": 840,
       "height": 520,
@@ -1519,14 +1932,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.properties.patch-tensor",
@@ -1539,6 +1948,88 @@
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"shading\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "hull",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 15,
+              "target": [
+                0.5,
+                0.5,
+                2
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "5007c09ed2ad73727c07cc836766db840f26cab17b1651787c656c0642f03ff7",
+      "highlight": {
+        "frame": "hull",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "8ca055769e9c91348aae55e1b0f4425fba854b59b40d83a49bc140d081b42ea8",
+        "resultFingerprint": "8ca055769e9c91348aae55e1b0f4425fba854b59b40d83a49bc140d081b42ea8",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:tensor-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 9
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.properties.patch-tensor.png",
       "width": 840,
       "height": 520,
@@ -1794,14 +2285,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.tensor-derivatives.patch-derivatives",
@@ -1815,6 +2302,88 @@
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"twist\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.5,\"v\":0.5}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "partials",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0.5,
+                0.5,
+                0.5
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0.9375
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "7f002a0407358e9057684eb364aa43028268e39477d11b863b1d73b1d00c4f51",
+      "highlight": {
+        "frame": "partials",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "ac2d5f4cd6d30e1b1310580c856cd82dc6be4439782f78065dd76c4d1a07f591",
+        "resultFingerprint": "ac2d5f4cd6d30e1b1310580c856cd82dc6be4439782f78065dd76c4d1a07f591",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:tensor-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 4
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.tensor-derivatives.patch-derivatives.png",
       "width": 840,
       "height": 520,
@@ -2066,14 +2635,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.tensor-subdivision.patch-subdivision",
@@ -2086,6 +2651,88 @@
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.25,\"v\":0.5}",
         "patch-elevate: {\"kind\":\"patch-elevate\",\"direction\":\"u\"}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "elevation-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.72,
+              "el": 0.48,
+              "distance": 5.5,
+              "target": [
+                0.5,
+                0.5,
+                0.5
+              ]
+            },
+            "owners": [
+              {
+                "id": "tensor-patch-0",
+                "kind": "tensor",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.5,
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.9375,
+                    0.9375
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "d9d99d292bbf6d856decd231add5892c6a5de5df76d0dcff4757058859aa75b5",
+      "highlight": {
+        "frame": "elevation-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "2d9db56d69cf62282d0e756d5c904a0b11a363898a576bfd4691726fd65fa0de",
+        "resultFingerprint": "2d9db56d69cf62282d0e756d5c904a0b11a363898a576bfd4691726fd65fa0de",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:tensor-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 0
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.tensor-subdivision.patch-subdivision.png",
       "width": 840,
       "height": 520,
@@ -2259,14 +2906,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.tensor-joins.patch-joins",
@@ -2277,6 +2920,113 @@
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"advanced-join-c0\",\"source\":\"demonstration-default\"}",
         "patch-join-scene: {\"kind\":\"patch-join-scene\",\"scene\":\"join-c0-kink\",\"view3d\":{\"az\":-1.5,\"el\":-1.54,\"distance\":11.5,\"target\":{\"x\":1.5,\"y\":0,\"z\":0}}}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "join-c0-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": -1.5,
+              "el": -1.54,
+              "distance": 11.5,
+              "target": [
+                1.5,
+                0,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "join-patch-a",
+                "kind": "join",
+                "geometrySamples": [
+                  [
+                    -1.5,
+                    -1.5,
+                    0
+                  ],
+                  [
+                    0,
+                    -1.5,
+                    0
+                  ],
+                  [
+                    1.5,
+                    1.3125,
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "join-patch-b",
+                "kind": "join",
+                "geometrySamples": [
+                  [
+                    1.5,
+                    -1.5,
+                    0
+                  ],
+                  [
+                    3,
+                    -1.5,
+                    0
+                  ],
+                  [
+                    4.5,
+                    1.3125,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "9f7ad7c8fa98ebead6fdc3a4a21af556f12b0119b3438918f65c92d191208764",
+      "highlight": {
+        "frame": "join-c0-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "f3189956767991060fab7c29829cf1a500e816ca3e02e0670d391dd5d19f4d61",
+        "resultFingerprint": "f3189956767991060fab7c29829cf1a500e816ca3e02e0670d391dd5d19f4d61",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:join-patch-a",
+            "passed": true
+          },
+          {
+            "name": "owner:join-patch-b",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 2,
+          "visibleElementTypes": {},
+          "visiblePointCount": 32
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.tensor-joins.patch-joins.png",
       "width": 840,
       "height": 520,
@@ -2867,14 +3617,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.triangular-patches.patch-triangular",
@@ -2888,6 +3634,88 @@
         "patch-visibility: {\"kind\":\"patch-visibility\",\"target\":\"decasteljau-scheme\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.3333333333333333,\"v\":0.3333333333333333,\"w\":0.3333333333333333}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "triangle-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.6,
+              "el": -1.39,
+              "distance": 3,
+              "target": [
+                0.3333333333333333,
+                0.3333333333333333,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "triangular-patch-0",
+                "kind": "triangular",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.25,
+                    0.5,
+                    0.84375
+                  ],
+                  [
+                    0.9375,
+                    0,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "3e98f3d9c19d4b527725fb101702785a2461d4c6409694de3cbb8dc5841174f2",
+      "highlight": {
+        "frame": "triangle-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "139f31a9d4dd84b3bcfb9030187b9445ac865bf3a94c18115fd928eecb9d6b1e",
+        "resultFingerprint": "139f31a9d4dd84b3bcfb9030187b9445ac865bf3a94c18115fd928eecb9d6b1e",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:triangular-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 10
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.triangular-patches.patch-triangular.png",
       "width": 840,
       "height": 520,
@@ -3155,14 +3983,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     },
     {
       "id": "bezier-patches.square-vs-triangular.patch-triangular",
@@ -3176,6 +4000,88 @@
         "patch-tensor-comparison: {\"kind\":\"patch-tensor-comparison\",\"visible\":true}",
         "patch-evaluation: {\"kind\":\"patch-evaluation\",\"u\":0.3333333333333333,\"v\":0.3333333333333333,\"w\":0.3333333333333333}"
       ],
+      "recipe": {
+        "kind": "highlight",
+        "frame": "compare-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "checks": {
+          "surface": {
+            "camera": {
+              "az": 0.6,
+              "el": -1.39,
+              "distance": 3,
+              "target": [
+                0.3333333333333333,
+                0.3333333333333333,
+                0
+              ]
+            },
+            "owners": [
+              {
+                "id": "triangular-patch-0",
+                "kind": "triangular",
+                "geometrySamples": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0.25,
+                    0.5,
+                    0.84375
+                  ],
+                  [
+                    0.9375,
+                    0,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "geometryTolerance": 0.000001,
+            "cameraTolerance": 0.000001
+          }
+        }
+      },
+      "recipeFingerprint": "5f233403b1f548c54784ab0454f2d6b5cef17d425432f812838ef7dbbfb78659",
+      "highlight": {
+        "frame": "compare-calculate",
+        "position": {
+          "step": 0,
+          "frame": 0
+        },
+        "steps": [],
+        "expectChange": false,
+        "startFingerprint": "139f31a9d4dd84b3bcfb9030187b9445ac865bf3a94c18115fd928eecb9d6b1e",
+        "resultFingerprint": "139f31a9d4dd84b3bcfb9030187b9445ac865bf3a94c18115fd928eecb9d6b1e",
+        "changedFromStart": false,
+        "checks": [
+          {
+            "name": "owner:triangular-patch-0",
+            "passed": true
+          },
+          {
+            "name": "camera",
+            "passed": true
+          }
+        ],
+        "evidence": {
+          "visibleElementCount": 1,
+          "visibleElementTypes": {},
+          "visiblePointCount": 10
+        }
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "deviceScaleFactor": 2,
       "file": "bezier-patches.square-vs-triangular.patch-triangular.png",
       "width": 840,
       "height": 520,
@@ -3443,14 +4349,10 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "b625888358448e6ad4893a98219e3aad410cca26",
-        "sourceRevision": "b625888358448e6ad4893a98219e3aad410cca26",
+        "buildRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
+        "sourceRevision": "4a5de72fe44ca0a7421424b972b7802d50652d23",
         "pageErrors": []
-      },
-      "recipe": {
-        "kind": "start"
-      },
-      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+      }
     }
   ]
 }
