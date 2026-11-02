@@ -1689,3 +1689,11 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Poster `bezeg-worker` Sonnet: 38k tokens, 33 tools, 17 min; blocked, correctly reported, nothing landed. The selective capture cannot run while another stream's pending id (`inversion`) has no recipe. It left two background capture processes running after its report; the handler stopped one and had the worker stop the other. Lesson: capture briefs should check that every `POSTER_PENDING` id has a recipe before building.
 - CI: the two master runs containing IA-B-2d were cancelled by newer pushes before `unit (1)` finished; the full run at `19aef2ba` was green, deploy included.
 - Context: 157k after the poster attempt; handoff written without starting a new slice.
+
+## Curves handler 27 (Opus, auto, medium), 2026-11-02
+
+- IA-F4 `bezeg-worker` Sonnet medium, v12, brief inline: 105k tokens, 27 tools, 7 min. Complete: chapter, counts, ten tests with numbers recomputed from kernels, six mutations seen failing (one mis-applied, reported honestly). Handler review found a defect no test caught: prose said "formula above" while `withExample` renders the formula after the paragraphs (four places), plus two imprecise sentences. Lesson: chapter briefs should state where the formula renders.
+- PS-A-2a `bezeg-worker` Sonnet medium: hit the 135k watcher at 37 turns with code and 65 tests done but wider checks, evidence and README row missing. The handler ran the checks itself instead of a successor worker, which was cheaper for check-only remainder. Lesson: a graph core with model + graph + host tests + Preset entry is near the 20-turn budget; split checks/docs into the brief's final quarter or a second worker.
+- Review `bezeg-reviewer` Sonnet: 33k tokens, 49 s. No blocking; one valid accessibility should-fix (status live region inserted with its content) and one spec gap (acceptance 5 wording), both fixed by the handler; one false claim (k=2,3 not asserted).
+- PS-A-2b `bezeg-worker` Sonnet: 51k tokens, 23 tools, 10 min; complete without a browser check (no browser tool). Rebase conflict in `lessonCatalog.test.ts` (inversion lost its opt-out on master while prob-density gained one), resolved mechanically and rechecked.
+- Context: soft threshold (175k) reached while PS-A-2b ran; integrated, pushed and handed off without browser smoke.
