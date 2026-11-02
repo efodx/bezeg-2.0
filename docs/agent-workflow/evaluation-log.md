@@ -1599,3 +1599,21 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Repairs: one round. Cause: code issues (lifecycle and wording), no environment failure.
 - Gaps: no browser run (no route until task 14); the drag measurement is deferred to task 14 (jsdom only: 1 ms for state, 75–84 ms for a full redraw).
 - Handoff evidence: the 12a report's "for 12b" notes (Preset field, overlay ids, hooks) were enough for 12b to start without exploring. Asking the worker to list its own risks put the updater side effect in front of the reviewer.
+
+## 2026-11-02 — Geometry: T2 task 13 Delaunay graph (geometry handler 28)
+
+- Task: [13](../tasks/triangulation-voronoi/13-delaunay-graph.md), class implementation, size L, split into two sequential slices (13a trace, board, readouts and Presets; 13b triangle overlay). Handler Opus 5.5, auto, effort medium.
+- Workers: 7.
+  - 13a `bezeg-worker`, Sonnet medium, dispatched 07:55Z: 142k tokens, 47 tools, 12 min. It reached the 135k watcher threshold with 11 of 13 tests passing and no mutations run, and returned partial after `HANDOFF`.
+  - 13a continuation `bezeg-worker`, Sonnet medium, started from the handoff note: 41k tokens, 28 tools, 11 min. Both failures were in the tests (an order-sensitive list, and a refused flip used as the edit), not in the graph.
+  - 13b `bezeg-worker`, Sonnet medium: 69k tokens, 34 tools, 12 min.
+  - Reviews in parallel: Sonnet engineering (40k tokens, 14 tools, 1.2 min), Sonnet mathematical (30k tokens, 9 tools, 41 s) and Haiku UI/accessibility (38k tokens, 9 tools, 1.3 min).
+  - Repair `bezeg-worker`, Sonnet medium: 30k tokens, 13 tools, 7 min.
+- Outcome: accepted at `5f37d372`.
+  - Mathematics: no finding.
+  - Engineering: three low findings (an untested board-click path, a stale selection after scene replacement, an add-mode double action that was kept).
+  - UI: four low findings plus dead code. The 13a worker had added an `anglesHidden` path to the parent controls that the Delaunay graph never renders.
+  - All findings were fixed in one pass and confirmed by the handler.
+- Repairs: one round. Cause: test coverage and wording. The 13a overrun was a sizing issue: the first slice carried four task items plus the controls.
+- Gaps: no browser run (no route until task 14). Task 14's smoke takes the real board click, keyboard activation, Play timing and live SL/EN board text.
+- Handoff evidence: the 13a handoff note was enough for a fresh worker to finish in 41k tokens without re-exploring. That was cheaper than continuing the first worker past its budget.
