@@ -1,6 +1,6 @@
 # Resume the feature streams on a new PC
 
-On 2026-11-02 the owner moved Bezeg development to a new computer. Every stream handler on the old PC wrote a handoff and pushed it. Its stream file on `origin/master` reads `Run state: stopped: PC switch 2026-11-02, resume on the new PC from the latest handoff`. Each handler also pushed its unfinished work and untracked review evidence as `wip:` commits on its stream branch on `origin`.
+On 2026-11-02 the owner moved Bezeg development to a new computer. Every stream handler on the old PC wrote a handoff and pushed it. Its stream file on `origin/master` reads `Run state: stopped: PC switch 2026-11-02, resume on the new PC from the latest handoff`. Each handler's unfinished work and untracked review evidence is in `wip:` commits, listed per stream in step 6. Geometry's WIP is only in the bundle below, because its push was not allowed.
 
 Machine-only state is in the folder `bezeg-pc-move` from the old PC, if the owner copied it:
 
@@ -54,15 +54,34 @@ Wait until the required tools are present.
 
 Without the folder, skip this step.
 
-**5. Old local refs (optional).** If `bezeg-pc-move/bezeg-local.bundle` is available:
+**5. Old local refs.** If `bezeg-pc-move/bezeg-local.bundle` is available:
 
 - Run `git bundle verify` on it, then `git fetch <bundle> 'refs/*:refs/old-pc/*'`. This puts everything under `refs/old-pc/` and touches no existing branch.
-- None of it is part of a stream: the bundle holds old prototypes, five stashes, snapshots of three abandoned worktrees, and one unpushed docs commit (`lesson-minimise-header`). List the refs for the owner and do nothing else with them.
+- `refs/old-pc/heads/stream-geometry-wip-pc-switch` is geometry's WIP; step 6 uses it.
+- The rest is not part of any stream:
+  - learn-ui's review evidence (`refs/old-pc/heads/worktree-stream-learn-ui`);
+  - old prototype branches;
+  - five stashes (`refs/old-pc/pc-move/stash-*`);
+  - snapshots of four abandoned worktrees (`refs/old-pc/pc-move/*`);
+  - one unpushed docs commit (`refs/old-pc/heads/worktree-lesson-minimise-header`).
+
+  List these for the owner and do nothing else with them.
+
+Without the bundle, geometry resumes from `origin/master`. Tell the owner the geometry 16b worker plan and evidence were lost.
 
 **6. Stream worktrees.** The streams still to run are the ones whose `Run state` on `origin/master` starts with `stopped: PC switch` (expected: geometry, functions, curves, maps; platform and learn-ui are complete). For each `<id>`:
 
-1. Read its newest `docs/reviews/feature-streams/<id>/handler-handoff-<n>.md`, the highest `<n>`. It names the stream branch and the WIP commit. The expected branches are `stream-geometry`, `worktree-stream-functions`, `worktree-stream-curves` and `worktree-stream-maps`; trust the note.
-2. Create the worktree at exactly `.claude/worktrees/stream-<id>`, tracking the remote branch: `git worktree add .claude/worktrees/stream-<id> -b <branch> origin/<branch>`. If the branch was not pushed, base it on `origin/master` and tell the owner.
+1. Read its newest `docs/reviews/feature-streams/<id>/handler-handoff-<n>.md`, the highest `<n>`.
+2. Create the worktree at exactly `.claude/worktrees/stream-<id>` with `git worktree add --no-track .claude/worktrees/stream-<id> -b <branch> <start>`, using:
+
+   | Stream | `<branch>` | `<start>` | Handoff |
+   | --- | --- | --- | --- |
+   | geometry | `stream-geometry` | `refs/old-pc/heads/stream-geometry-wip-pc-switch` (`173a00ed`), else `origin/master` | 32 |
+   | functions | `worktree-stream-functions` | `origin/wip/functions-pc-switch` (`54ec5703`) | 20 |
+   | curves | `worktree-stream-curves` | `origin/master`; it had no WIP | 24 |
+   | maps | `worktree-stream-maps` | `origin/maps-wip-pc-switch` (`bb66362b`) | 19 |
+
+   If a note disagrees with this table, follow the note. Remote branches that share these local names (`origin/stream-geometry`, `origin/worktree-stream-*`) hold old diverged history: never track them, push to them, or force-push them. The handler rebases its WIP onto `origin/master` itself.
 3. Run `npm ci` inside the worktree. Do not link `node_modules` with a junction: removing a worktree that has one deletes the main install.
 
 The supervisor resumes a stream from that path. When the path is missing, it starts a first handler that would ignore the WIP branch.
