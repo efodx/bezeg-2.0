@@ -11,6 +11,7 @@ import {complexMapsPreviewCopy} from '../content/complexMapsPreviewCopy';
 import {numericalPreviewCopy} from '../content/numericalPreviewCopy';
 import {schoolFunctionGraphsPreviewCopy} from '../content/schoolFunctionGraphsPreviewCopy';
 import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
+import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -211,6 +212,9 @@ const functionsCards = [
     {chapterId: 'school-function-graphs', copy: schoolFunctionGraphsPreviewCopy,
         ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation'], counts: [[2, 2], [2, 2]]},
     {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-series.fourier-series'], counts: [[6, 7]]},
+    {chapterId: 'projective-conics', copy: projectiveConicsPreviewCopy,
+        ids: ['projective-conics.projective-cross-ratio.projective-cross-ratio', 'projective-conics.projective-pascal.projective-pascal', 'projective-conics.projective-pole-polar.projective-pole-polar'],
+        counts: [[0, 11], [1, 8], [1, 4]]},
 ] as const;
 
 for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {
@@ -240,7 +244,7 @@ for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {
             if (!step) throw new Error(`${home.id}: missing prepared example`);
             expect(entry).toMatchObject({id: home.id, path: home.path, recipe: {kind: 'start'}});
             expect(entry.actions).toEqual(step.scene?.actions.map(action => `${action.kind}: ${JSON.stringify(action)}`));
-            expect(entry.expected.curveCount).toBeGreaterThan(0);
+            expect(entry.expected.curveCount).toBeGreaterThanOrEqual(0);
             expect(entry.expected.points.length).toBeGreaterThan(0);
             expect(capture).toMatchObject({file: `${home.id}.png`, width: 840, height: 520, path: home.path,
                 initialFrame: {firstFrame: true, backNavigationDisabled: true},

@@ -235,6 +235,12 @@ const chapterInventories = {
         pathExport: 'fourierGuidedExamplePath',
         expectedFor: fourierExpectedFor,
     },
+    'projective-conics': {
+        module: '/src/learning/content/projectiveConicsChapterRegistry.ts',
+        registryExport: 'projectiveConicsGuidedExampleRegistry',
+        pathExport: 'projectiveConicsGuidedExamplePath',
+        expectedFor: projectiveConicsExpectedFor,
+    },
 };
 
 // Authored from src/linear/matrix2.ts (rows of the example matrices) and src/graphs/linear/linearMapScene.ts, not from a capture.
@@ -386,11 +392,84 @@ function fourierExpectedFor(id, step) {
         points: [[0, -1], [0, 1], [0, 0], [peakX, partialSum(peakX)], [x, sum], [x, target], [x, 0]]};
 }
 
+/** Fails unless the opening scene is the prepared scene plus exactly one projective load-example action for the named example. */
+function projectiveOpening(id, actions, operation, exampleId) {
+    const loads = actions.filter(item => item.kind === 'projective');
+    assert.ok(actions.every(item => item.kind === 'prepared-scene' || item.kind === 'projective'),
+        `${id}: the authored first-frame expectation assumes an opening scene of the prepared scene and one projective ${operation}; extend projectiveConicsExpectedFor`);
+    assert.ok(loads.length === 1 && loads[0].operation === operation && loads[0].exampleId === exampleId,
+        `${id}: the authored first-frame expectation assumes exactly one ${operation} of the ${exampleId} example; extend projectiveConicsExpectedFor`);
+}
+
+/**
+ * K1 (cross ratio, default example): the line y = 0 with A, B, C, D at x = 0, 1, 3, 4, the centre O = (0, 5), the handles M = (0, 1) and N = (2, 2)
+ * of the second line y = 1 + x/2, and the images A'..D' where the ray from O through (a, 0) meets that line: t = 4 / (5 + a/2) along the ray gives
+ * x = 8a / (10 + a). Visible: the two lines, the four dashed rays from O, seven handles and four images.
+ */
+function crossRatioExpectedFor(id, actions) {
+    projectiveOpening(id, actions, 'load-example', 'default');
+    const abscissae = [0, 1, 3, 4];
+    const images = abscissae.map(a => [8 * a / (10 + a), 1 + 4 * a / (10 + a)]);
+    return {types: {line: 2, segment: 4, point: 11}, curveCount: 0, points: [...abscissae.map(a => [a, 0]), [0, 5], [0, 1], [2, 2], ...images]};
+}
+
+/**
+ * K2 (Pascal, default example): the ellipse x^2/25 + y^2/9 = 1 through the points (5(1-t^2)/(1+t^2), 6t/(1+t^2)) for t = 0, 1/2, 1, 2, -1, -1/3
+ * in the order A..F. Opposite sides s_i and s_(i+3) meet in the three Pascal points, which lie on one line p. Visible: the conic (a curve), six side lines
+ * and p (seven lines), the six handles and each Pascal point inside the view box [-12, 12] x [-10.5, 10.5].
+ */
+function pascalExpectedFor(id, actions) {
+    projectiveOpening(id, actions, 'pascal-load-example', 'default');
+    const vertices = [0, 1 / 2, 1, 2, -1, -1 / 3].map(t => [5 * (1 - t * t) / (1 + t * t), 6 * t / (1 + t * t)]);
+    const side = i => {
+        const [x1, y1] = vertices[i];
+        const [x2, y2] = vertices[(i + 1) % 6];
+        return [y1 - y2, x2 - x1, x1 * y2 - x2 * y1];
+    };
+    const meet = (m, n) => {
+        const d = m[0] * n[1] - m[1] * n[0];
+        return [(m[1] * n[2] - m[2] * n[1]) / d, (m[2] * n[0] - m[0] * n[2]) / d];
+    };
+    const crossings = [0, 1, 2].map(i => meet(side(i), side(i + 3)));
+    const inView = ([x, y]) => Math.abs(x) <= 12 && Math.abs(y) <= 10.5;
+    const shown = crossings.filter(inView);
+    assert.equal(shown.length, 2, `${id}: the authored expectation assumes exactly one Pascal point outside the view box`);
+    return {types: {curve: 1, line: 7, point: 6 + shown.length}, curveCount: 1, points: [...vertices, ...shown]};
+}
+
+/**
+ * K3 (pole and polar, default example): the ellipse 9x^2 + 25y^2 = 225 and P = (1, 21/5), outside it (the sum is above 1). The polar of (x0, y0) is
+ * 9 x0 x + 25 y0 y = 225; it meets the ellipse in the two points of tangency T1, T2 (a quadratic in y). Visible: the conic (a curve), the polar and
+ * both tangents (three lines), and the points P, T1, T2 and the centre S = (0, 0).
+ */
+function polePolarExpectedFor(id, actions) {
+    projectiveOpening(id, actions, 'pole-polar-load-example', 'default');
+    const [x0, y0] = [1, 21 / 5];
+    assert.ok(9 * x0 * x0 + 25 * y0 * y0 > 225, `${id}: P must lie outside the ellipse`);
+    // x = (225 - 25 y0 y) / (9 x0) put into 9x^2 + 25y^2 = 225.
+    const k = 25 * y0 / (9 * x0);
+    const a = 9 * k * k + 25;
+    const b = -2 * 9 * k * 225 / (9 * x0);
+    const c = 9 * (225 / (9 * x0)) ** 2 - 225;
+    const root = Math.sqrt(b * b - 4 * a * c);
+    const tangency = [(-b - root) / (2 * a), (-b + root) / (2 * a)].map(y => [(225 - 25 * y0 * y) / (9 * x0), y]);
+    return {types: {curve: 1, line: 3, point: 4}, curveCount: 1, points: [[x0, y0], ...tangency, [0, 0]]};
+}
+
+/** First-frame expectation of a Projective conics lesson, chosen by the Demonstration the id ends with. */
+function projectiveConicsExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    if (id.endsWith('.projective-cross-ratio')) return crossRatioExpectedFor(id, actions);
+    if (id.endsWith('.projective-pascal')) return pascalExpectedFor(id, actions);
+    if (id.endsWith('.projective-pole-polar')) return polePolarExpectedFor(id, actions);
+    assert.fail(`${id}: no authored Projective conics first frame`);
+}
+
 /** A chapter-owned entry must carry real expectations; a missing or empty one is a generation error. */
 function assertExpectation(id, expected) {
     assert.ok(expected && typeof expected === 'object', `${id}: chapter-owned example needs authored expected checks`);
     assert.ok(expected.types && Object.keys(expected.types).length > 0, `${id}: expected.types must be nonempty`);
-    assert.ok(Number.isInteger(expected.curveCount) && expected.curveCount > 0, `${id}: expected.curveCount must be a positive integer`);
+    assert.ok(Number.isInteger(expected.curveCount) && expected.curveCount >= 0, `${id}: expected.curveCount must be a nonnegative integer (0 for a lesson that draws no curve)`);
     assert.ok(Array.isArray(expected.points) && expected.points.length > 0, `${id}: expected.points must be nonempty`);
 }
 
@@ -446,4 +525,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, projectiveConicsExpectedFor, assertExpectation};

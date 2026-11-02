@@ -226,13 +226,17 @@ test('surface capture resizes before rejecting an out-of-frame projected point',
     await assert.rejects(prepareSurfaceCaptureFrame(page), /mesh bounds are cropped or behind/);
 });
 
-test('numerical, school and fourier capture families accept exactly their own routes', () => {
+test('numerical, school, fourier and projective capture families accept exactly their own routes', () => {
     const entries = {
         'numerical-methods': [{id: 'numerical-methods.root-finding.root-finding', path: '/bezeg-2.0/analysis/root-finding?example=lesson.numerical-methods.root-finding.root-finding'}],
         'school-function-graphs': [
             {id: 'school-function-graphs.function-transformation.function-transformation', path: '/bezeg-2.0/functions/transformations?example=lesson.school-function-graphs.function-transformation.function-transformation'},
             {id: 'school-function-graphs.function-inverse.function-inverse', path: '/bezeg-2.0/functions/inverse?example=lesson.school-function-graphs.function-inverse.function-inverse'}],
         'fourier-series': [{id: 'fourier-series.fourier-series.fourier-series', path: '/bezeg-2.0/analysis/fourier-series?example=lesson.fourier-series.fourier-series.fourier-series'}],
+        'projective-conics': [
+            {id: 'projective-conics.projective-cross-ratio.projective-cross-ratio', path: '/bezeg-2.0/projective/cross-ratio?example=lesson.projective-conics.projective-cross-ratio.projective-cross-ratio'},
+            {id: 'projective-conics.projective-pascal.projective-pascal', path: '/bezeg-2.0/projective/pascal?example=lesson.projective-conics.projective-pascal.projective-pascal'},
+            {id: 'projective-conics.projective-pole-polar.projective-pole-polar', path: '/bezeg-2.0/projective/pole-polar?example=lesson.projective-conics.projective-pole-polar.projective-pole-polar'}],
     };
     const root = path.resolve(__dirname, '..');
     for (const [family, list] of Object.entries(entries)) {
@@ -252,6 +256,8 @@ test('numerical, school and fourier capture families accept exactly their own ro
     assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][0], path: '/bezeg-2.0/analysis/root-findingx'}], 'numerical-methods'), /requires a numerical-methods inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['school-function-graphs'][0], path: '/bezeg-2.0/functions/derivative'}], 'school-function-graphs'), /requires a school-function-graphs inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][0], path: '/bezeg-2.0/analysis/fourier-seriesx'}], 'fourier-series'), /requires a fourier-series inventory/);
+    for (const path of ['/bezeg-2.0/projective/cross-ratiox', '/bezeg-2.0/projective', '/bezeg-2.0/projective/conics', '/bezeg-2.0/pascal'])
+        assert.throws(() => assertInventoryFamily([{...entries['projective-conics'][0], path}], 'projective-conics'), /requires a projective-conics inventory/);
 });
 
 test('accepts a view-clamped function graph and its coinciding ghost across capture reframing, and pairs them by id', () => {

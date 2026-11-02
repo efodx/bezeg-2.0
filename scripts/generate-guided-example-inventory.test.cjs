@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, projectiveConicsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -147,11 +147,47 @@ test('fourier series expectations are authored from the closed-form partial sum'
     assert.ok(chapterInventories['fourier-series']);
 });
 
+const pcStep = (operation, exampleId, extra = []) => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'},
+    {kind: 'projective', operation, exampleId}, ...extra]}});
+
+test('projective conics expectations are authored from the example numbers and what each graph draws', () => {
+    const near = (actual, wanted) => assert.ok(Math.abs(actual - wanted) < 1e-9, `${actual} != ${wanted}`);
+    const pointsNear = (actual, wanted) => {
+        assert.equal(actual.length, wanted.length);
+        wanted.forEach((point, index) => point.forEach((value, axis) => near(actual[index][axis], value)));
+    };
+    // K1: images where the rays from O = (0, 5) meet y = 1 + x/2: x = 0, 8/11, 24/13, 16/7.
+    const k1 = projectiveConicsExpectedFor('projective-conics.projective-cross-ratio.projective-cross-ratio', pcStep('load-example', 'default'));
+    assert.deepEqual(k1.types, {line: 2, segment: 4, point: 11});
+    assert.equal(k1.curveCount, 0);
+    pointsNear(k1.points, [[0, 0], [1, 0], [3, 0], [4, 0], [0, 5], [0, 1], [2, 2], [0, 1], [8 / 11, 1 + 4 / 11], [24 / 13, 1 + 12 / 13], [16 / 7, 1 + 8 / 7]]);
+    // K2: the six ellipse points, the Pascal points (12, 3/5) and (15/2, 9/2); (-15, 24) is outside the view box.
+    const k2 = projectiveConicsExpectedFor('projective-conics.projective-pascal.projective-pascal', pcStep('pascal-load-example', 'default'));
+    assert.deepEqual(k2.types, {curve: 1, line: 7, point: 8});
+    assert.equal(k2.curveCount, 1);
+    pointsNear(k2.points, [[5, 0], [3, 12 / 5], [0, 3], [-3, 12 / 5], [0, -3], [4, -9 / 5], [12, 3 / 5], [15 / 2, 9 / 2]]);
+    // K3: P = (1, 21/5), tangency points (-3, 12/5) and (4, 9/5), centre (0, 0).
+    const k3 = projectiveConicsExpectedFor('projective-conics.projective-pole-polar.projective-pole-polar', pcStep('pole-polar-load-example', 'default'));
+    assert.deepEqual(k3.types, {curve: 1, line: 3, point: 4});
+    assert.equal(k3.curveCount, 1);
+    pointsNear(k3.points, [[1, 21 / 5], [4, 9 / 5], [-3, 12 / 5], [0, 0]]);
+    // Other examples, extra actions, wrong operations and unknown lessons have no authored first frame.
+    assert.throws(() => projectiveConicsExpectedFor('p.projective-cross-ratio.projective-cross-ratio', pcStep('load-example', 'infinity')), /exactly one load-example of the default example/);
+    assert.throws(() => projectiveConicsExpectedFor('p.projective-pascal.projective-pascal', pcStep('pascal-load-example', 'default', [{kind: 'projective', operation: 'pascal-set-conic', conic: 'hyperbola'}])), /exactly one pascal-load-example/);
+    assert.throws(() => projectiveConicsExpectedFor('p.projective-pole-polar.projective-pole-polar', pcStep('load-example', 'default')), /exactly one pole-polar-load-example/);
+    assert.throws(() => projectiveConicsExpectedFor('p.projective-pole-polar.projective-pole-polar', pcStep('pole-polar-load-example', 'default', [{kind: 'parameter', name: 't', value: 1}])), /prepared scene and one projective/);
+    assert.throws(() => projectiveConicsExpectedFor('p.other.other', pcStep('load-example', 'default')), /no authored Projective conics first frame/);
+    assert.ok(chapterInventories['projective-conics']);
+});
+
 test('a missing or empty chapter-owned expectation fails', () => {
     const good = {types: {curve: 1}, curveCount: 1, points: [[0, 0]]};
     assert.doesNotThrow(() => assertExpectation('x', good));
     assert.throws(() => assertExpectation('x', undefined), /needs authored expected checks/);
     assert.throws(() => assertExpectation('x', {...good, types: {}}), /expected.types must be nonempty/);
-    assert.throws(() => assertExpectation('x', {...good, curveCount: 0}), /curveCount must be a positive integer/);
+    assert.throws(() => assertExpectation('x', {...good, curveCount: 1.5}), /curveCount must be a nonnegative integer/);
+    assert.throws(() => assertExpectation('x', {...good, curveCount: undefined}), /curveCount must be a nonnegative integer/);
+    assert.throws(() => assertExpectation('x', {...good, curveCount: -1}), /curveCount must be a nonnegative integer/);
+    assert.doesNotThrow(() => assertExpectation('x', {...good, curveCount: 0}));
     assert.throws(() => assertExpectation('x', {...good, points: []}), /expected.points must be nonempty/);
 });

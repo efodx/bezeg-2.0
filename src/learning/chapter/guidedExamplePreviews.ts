@@ -15,6 +15,7 @@ import {complexMapsPreviewCopy} from '../content/complexMapsPreviewCopy';
 import {numericalPreviewCopy} from '../content/numericalPreviewCopy';
 import {schoolFunctionGraphsPreviewCopy} from '../content/schoolFunctionGraphsPreviewCopy';
 import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
+import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
     eager: true,
@@ -45,6 +46,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     'numerical-methods': numericalPreviewCopy,
     'school-function-graphs': schoolFunctionGraphsPreviewCopy,
     'fourier-series': fourierPreviewCopy,
+    'projective-conics': projectiveConicsPreviewCopy,
 };
 
 function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {

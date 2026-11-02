@@ -1,0 +1,484 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+    "dirty": true,
+    "inputs": "76b5916520c61b4e7f67190ec22fbba0eb6f0f42bf425edd19ad327ab8393adc",
+    "output": "fd387e4bff6e7074b347db5d69f5c26ff38c014321608a9dba31451de840f10f"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
+    "stampRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+    "stampDirty": true,
+    "localOutputHash": "fd387e4bff6e7074b347db5d69f5c26ff38c014321608a9dba31451de840f10f",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-BVfAeM7w.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BVfAeM7w.js",
+        "sha256": "632c39a5e10d33462172e39434d27b2cd6ae433455e815202db0659a9d4c2a43",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-ChJX4NYZ.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-ChJX4NYZ.js",
+        "sha256": "56154de613136e92d3fb2111341d6c1a5e9657129749ccf7ec5c31c96e64594d",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-CMH2cK3S.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-CMH2cK3S.js",
+        "sha256": "936a89aba2243ad27b3c7f00cbcfe506570ff830e156fc6b8449a6c312a98066",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-BaMZB5Fy.css",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BaMZB5Fy.css",
+        "sha256": "bae643a297d5885e35dc68f252ac298fc5cd08ac7952ed15ca8f6fb80d6272fc",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4315/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "a9df4cd6b106bb125ac2df5550898faa13db252b24c5df820af1e555261804e1",
+    "entries": {
+      "projective-conics.projective-cross-ratio.projective-cross-ratio": "d635de78d2ef4a43106203c4bb99c172410bc676e5fd41083129f798b1960379",
+      "projective-conics.projective-pascal.projective-pascal": "a3e7eeae9c046f1491b23e8e9d926926a80151330df8b7fbf6267316fcff88f6",
+      "projective-conics.projective-pole-polar.projective-pole-polar": "ff430235a7ac2568f9077007b204c1cd05ce9cad8bc1144ef9c1885851b558e9"
+    },
+    "presentation": "cfc8857a2ea3ead0b654bbfce3ffcca8fafbb7728d58d5bb3db37a996c967193",
+    "buildOutput": "fd387e4bff6e7074b347db5d69f5c26ff38c014321608a9dba31451de840f10f",
+    "buildInputs": "76b5916520c61b4e7f67190ec22fbba0eb6f0f42bf425edd19ad327ab8393adc"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "projective-conics.projective-cross-ratio.projective-cross-ratio",
+        "demonstrationId": "projective-cross-ratio",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -14,
+            9,
+            14,
+            -7
+          ]
+        }
+      },
+      {
+        "id": "projective-conics.projective-pascal.projective-pascal",
+        "demonstrationId": "projective-pascal",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -12,
+            10.5,
+            12,
+            -10.5
+          ]
+        }
+      },
+      {
+        "id": "projective-conics.projective-pole-polar.projective-pole-polar",
+        "demonstrationId": "projective-pole-polar",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -12,
+            10.5,
+            12,
+            -10.5
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "projective-conics.projective-cross-ratio.projective-cross-ratio",
+      "demonstrationId": "projective-cross-ratio",
+      "path": "/bezeg-2.0/projective/cross-ratio?example=lesson.projective-conics.projective-cross-ratio.projective-cross-ratio",
+      "sceneFingerprint": "bc7f5dd04668d4e9f8faa7988c3759de8a2a870f9b051bc70df189a0ad39352a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ratio-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ratio-predict-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"load-example\",\"exampleId\":\"default\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "projective-conics.projective-cross-ratio.projective-cross-ratio.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6d2c371cb8a8123742a678afc866b10ec9f3f56b11ad3b2cace78a7a63c76b45",
+      "scene": {
+        "visibleElementCount": 19,
+        "visibleElementTypes": {
+          "line": 2,
+          "label": 2,
+          "point": 11,
+          "segment": 4
+        },
+        "visiblePointCount": 11,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:line",
+          "type:segment",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:1,0",
+          "point:3,0",
+          "point:4,0",
+          "point:0,5",
+          "point:0,1",
+          "point:2,2",
+          "point:0,1",
+          "point:0.7272727272727273,1.3636363636363638",
+          "point:1.8461538461538463,1.9230769230769231",
+          "point:2.2857142857142856,2.142857142857143"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 52,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 28,
+            "line": 2,
+            "point": 11,
+            "segment": 4,
+            "text": 3
+          },
+          "visiblePointCount": 11,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:line",
+            "type:segment",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:1,0",
+            "point:3,0",
+            "point:4,0",
+            "point:0,5",
+            "point:0,1",
+            "point:2,2",
+            "point:0,1",
+            "point:0.7272727272727273,1.3636363636363638",
+            "point:1.8461538461538463,1.9230769230769231",
+            "point:2.2857142857142856,2.142857142857143"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "line": 2,
+          "label": 2,
+          "point": 11,
+          "segment": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "sourceRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "projective-conics.projective-pascal.projective-pascal",
+      "demonstrationId": "projective-pascal",
+      "path": "/bezeg-2.0/projective/pascal?example=lesson.projective-conics.projective-pascal.projective-pascal",
+      "sceneFingerprint": "541a192d0873d8c7978cf1d4348559df8077856abe5726eefa7fc1c701f62fb7",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pascal-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pascal-predict-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"pascal-load-example\",\"exampleId\":\"default\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "projective-conics.projective-pascal.projective-pascal.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "7417dd83a0641d94ffc504940c22e163d96e6817b15395dad3105b3096ffd233",
+      "scene": {
+        "visibleElementCount": 23,
+        "visibleElementTypes": {
+          "curve": 1,
+          "line": 7,
+          "label": 7,
+          "point": 8
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              3
+            ],
+            [
+              -0.072709,
+              2.999365
+            ],
+            [
+              -0.145417,
+              2.998731
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:line",
+          "type:point",
+          "curve-count",
+          "point:5,0",
+          "point:3,2.4",
+          "point:0,3",
+          "point:-3,2.4",
+          "point:0,-3",
+          "point:4,-1.7999999999999998",
+          "point:11.999999999999998,0.5999999999999999",
+          "point:7.500000000000002,4.500000000000001"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 55,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 35,
+            "curve": 1,
+            "line": 7,
+            "point": 8
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                3
+              ],
+              [
+                -0.072709,
+                2.999365
+              ],
+              [
+                -0.145417,
+                2.998731
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:line",
+            "type:point",
+            "curve-count",
+            "point:5,0",
+            "point:3,2.4",
+            "point:0,3",
+            "point:-3,2.4",
+            "point:0,-3",
+            "point:4,-1.7999999999999998",
+            "point:11.999999999999998,0.5999999999999999",
+            "point:7.500000000000002,4.500000000000001"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 1,
+          "line": 7,
+          "label": 7,
+          "point": 8
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "sourceRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "projective-conics.projective-pole-polar.projective-pole-polar",
+      "demonstrationId": "projective-pole-polar",
+      "path": "/bezeg-2.0/projective/pole-polar?example=lesson.projective-conics.projective-pole-polar.projective-pole-polar",
+      "sceneFingerprint": "275dab4b445b13204b13f2c5d479456eb988cd8c58c37ab7efc1c7177a1d9c86",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pole-polar-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pole-polar-predict-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"pole-polar-load-example\",\"exampleId\":\"default\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "projective-conics.projective-pole-polar.projective-pole-polar.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "7bef4873ffa2f1d6f777678bd9f00c4308d7b12ad0ec8d54def3ed978eb81938",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "curve": 1,
+          "line": 3,
+          "label": 3,
+          "point": 4
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              3
+            ],
+            [
+              -0.072709,
+              2.999365
+            ],
+            [
+              -0.145417,
+              2.998731
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:line",
+          "type:point",
+          "curve-count",
+          "point:1,4.2",
+          "point:4,1.8",
+          "point:-3,2.4",
+          "point:0,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 39,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 27,
+            "curve": 1,
+            "line": 3,
+            "point": 4
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                3
+              ],
+              [
+                -0.072709,
+                2.999365
+              ],
+              [
+                -0.145417,
+                2.998731
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:line",
+            "type:point",
+            "curve-count",
+            "point:1,4.2",
+            "point:4,1.8",
+            "point:-3,2.4",
+            "point:0,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 1,
+          "line": 3,
+          "label": 3,
+          "point": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "sourceRevision": "e762b6214d4f2ee950d32804fd3193e6ddae95ea",
+        "pageErrors": []
+      }
+    }
+  ]
+}

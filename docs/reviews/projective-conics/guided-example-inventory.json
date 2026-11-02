@@ -1,0 +1,171 @@
+{
+  "examples": [
+    {
+      "id": "projective-conics.projective-cross-ratio.projective-cross-ratio",
+      "demonstrationId": "projective-cross-ratio",
+      "path": "/bezeg-2.0/projective/cross-ratio?example=lesson.projective-conics.projective-cross-ratio.projective-cross-ratio",
+      "sceneFingerprint": "bc7f5dd04668d4e9f8faa7988c3759de8a2a870f9b051bc70df189a0ad39352a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ratio-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"ratio-predict-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"load-example\",\"exampleId\":\"default\"}"
+      ],
+      "expected": {
+        "types": {
+          "line": 2,
+          "segment": 4,
+          "point": 11
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0.7272727272727273,
+            1.3636363636363638
+          ],
+          [
+            1.8461538461538463,
+            1.9230769230769231
+          ],
+          [
+            2.2857142857142856,
+            2.142857142857143
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "projective-conics.projective-pascal.projective-pascal",
+      "demonstrationId": "projective-pascal",
+      "path": "/bezeg-2.0/projective/pascal?example=lesson.projective-conics.projective-pascal.projective-pascal",
+      "sceneFingerprint": "541a192d0873d8c7978cf1d4348559df8077856abe5726eefa7fc1c701f62fb7",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pascal-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pascal-predict-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"pascal-load-example\",\"exampleId\":\"default\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "line": 7,
+          "point": 8
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            5,
+            0
+          ],
+          [
+            3,
+            2.4
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            -3,
+            2.4
+          ],
+          [
+            0,
+            -3
+          ],
+          [
+            4,
+            -1.7999999999999998
+          ],
+          [
+            11.999999999999998,
+            0.5999999999999999
+          ],
+          [
+            7.500000000000002,
+            4.500000000000001
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "projective-conics.projective-pole-polar.projective-pole-polar",
+      "demonstrationId": "projective-pole-polar",
+      "path": "/bezeg-2.0/projective/pole-polar?example=lesson.projective-conics.projective-pole-polar.projective-pole-polar",
+      "sceneFingerprint": "275dab4b445b13204b13f2c5d479456eb988cd8c58c37ab7efc1c7177a1d9c86",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pole-polar-predict-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pole-polar-predict-scene\",\"source\":\"demonstration-default\"}",
+        "projective: {\"kind\":\"projective\",\"operation\":\"pole-polar-load-example\",\"exampleId\":\"default\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "line": 3,
+          "point": 4
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            1,
+            4.2
+          ],
+          [
+            4,
+            1.8
+          ],
+          [
+            -3,
+            2.4
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}
