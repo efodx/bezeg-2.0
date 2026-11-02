@@ -1,0 +1,78 @@
+unit: failed (1) in 36.8s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-34-15-262Z-104216-5d0733e2.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (20 tests | 1 failed) 4006ms
+   ❯ side lists (4)
+     × match the sweep state after every step of the default example; the highlighted entry is the current interval 65ms
+ ❯ src/graphs/compgeo/intervalSweepRun.test.ts (8 tests | 1 failed) 12ms
+   ❯ the queue of a view (1)
+     × lists the pops after the step, entering as + 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > match the sweep state after every step of the default example; the highlighted entry is the current interval
+AssertionError: expected [ 'a+', 'b+', 'c+', 'a-', 'c-', …(5) ] to deeply equal [ 'b+', 'c+', 'a-', 'c-', 'd+', …(4) ]
+
+- Expected
++ Received
+
+@@ -1,6 +1,7 @@
+  [
++   "a+",
+    "b+",
+    "c+",
+    "a-",
+    "c-",
+    "d+",
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:418:34
+    416|         for (let step = 0; step < run.length; step++) {
+    417|             if (step > 0) click('next-step');
+    418|             expect(queueTexts()).toEqual(queueOf(exampleIntervals, ste…
+       |                                  ^
+    419|             expect(statusLetters()).toEqual(statusOf(exampleIntervals,…
+    420|             const current = entries('status', 'data-current');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/intervalSweepRun.test.ts > the queue of a view > lists the pops after the step, entering as +
+AssertionError: expected [ '0+0', '1+2', '0-4', '1-7' ] to deeply equal [ '1+2', '0-4', '1-7' ]
+
+- Expected
++ Received
+
+  [
++   "0+0",
+    "1+2",
+    "0-4",
+    "1-7",
+  ]
+
+ ❯ src/graphs/compgeo/intervalSweepRun.test.ts:44:25
+     42|         const run = runIntervalSweep([iv(0, 4), iv(2, 7)]);
+     43|         const left = (i: number) => run.view(i).queue.map(q => `${q.in…
+     44|         expect(left(0)).toEqual(['1+2', '0-4', '1-7']);
+       |                         ^
+     45|         expect(left(run.length - 1)).toEqual([]);
+     46|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 12 passed (14)
+      Tests  2 failed | 166 passed (168)
+   Start at  05:34:15
+   Duration  36.02s (tests 55%, environment 15%, import 13%, setup 9%, transform 7%)
+
+    Isolate  14 workers spawned · ~913ms startup each (spawn + environment, per file)
+             at least ~5.48s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

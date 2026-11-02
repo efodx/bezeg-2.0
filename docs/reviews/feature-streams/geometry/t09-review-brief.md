@@ -1,0 +1,12 @@
+# Brief handoff-v12 — engineering review, triangulation 09
+
+- **Role:** review, read-only. Worktree `C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry`, uncommitted diff on top of `dc899f60` (`git diff` plus untracked `src/graphs/compgeo/EarClippingLessonActions.host.test.tsx`, `src/learning/content/compgeoEarClippingLesson.test.ts`). Do not edit files.
+- **Goal:** find defects against [docs/tasks/triangulation-voronoi/09-ear-clipping-lesson.md](../../../tasks/triangulation-voronoi/09-ear-clipping-lesson.md) (Decisions, Acceptance 1, 2, 4). Not prose style; the lesson text is one-shot.
+- **Focus:**
+  1. Scene actions: `set-trace-step` (clamp like Preset step restore, `'end'` = last step, pauses playback), edit actions pause and return to step 0, `set-overlay` keeps the step, base `PointSetGraph` and `HullTraceGraph` reject `set-trace-step` and the four new overlays; `lessonCatalog.ts` validation of shape and finiteness only. `src/learning/model.ts` adds only new members.
+  2. `algorithm-trace` on `EarClippingGraph` goes through the same transitions as the buttons; Back, scene change, Reset and unmount leave no pending scheduler callback; playback never autoplays.
+  3. Lesson scenes in `compgeoGuidedLessons.ts`: every quoted number/vertex (first ear \(\triangle(6,0)(6,4)(3,2)\), 3 triangles, 2 diagonals, colour classes, guard at \((3,2)\), comb n=11, 9 triangles, 8 diagonals, classes 4,4,3, three guards) matches what the scene's actions actually produce. Check each step's actions put the board in the stated state, under one synchronous sequence (AGENTS.md "Lesson scene actions").
+  4. Consumers: anything enumerating lesson ids, overlay names, or point-set operations that the diff missed; interim chapter owner in `guidedLessonOwnership.ts`; `tests/guided-lessons.smoke.spec.cjs` row.
+  5. Test non-vacuity: for each new assertion, would it fail if the behaviour were removed? Name any that would pass vacuously (missing or empty data passing).
+- **Budget:** start with `git diff --stat`; read diffs per file, ≤150 lines per call; `grep -l`/`-c` before `grep -n`. You may run focused tests (`just unit <path>`) with output to `docs/reviews/feature-streams/geometry/t09-review-*.log`. Past ~30 turns, return what you have.
+- **Return:** ≤300 words: findings ranked by severity, each with `file:line`, observed vs expected behaviour; then "no finding" areas checked.

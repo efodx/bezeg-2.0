@@ -1,0 +1,43 @@
+unit: failed (1) in 967.9s (2 workers, no slot); revision 17934fc7b2b1616dc8af708f5a24be2cf885a44c; dirty; log .command-logs\2026-11-01T09-55-26-726Z-78592-4379ebff.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/runtime/lessonRestoration.part1.test.tsx (28 tests | 1 failed) 435506ms
+   ❯ circle (2)
+     × closing the lesson restores the edited graph and its resources, twice; it stays interactive; finishing keeps the final scene 162529ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/runtime/lessonRestoration.part1.test.tsx > circle > closing the lesson restores the edited graph and its resources, twice; it stays interactive; finishing keeps the final scene
+Error: Test timed out in 120000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/learning/runtime/lessonRestorationContract.tsx:131:9
+    129|
+    130|     describe.each(ids)('%s', id => {
+    131|         test('closing the lesson restores the edited graph and its res…
+       |         ^
+    132|             const mounted = mountGraph(createGraph(id));
+    133|             changeScene(mounted, 'a');
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 68 passed (69)
+      Tests  1 failed | 1155 passed (1156)
+   Start at  10:55:27
+   Duration  967.01s (tests 89%, environment 5%, setup 3%, import 3%, transform 1%)
+
+    Isolate  69 workers spawned · ~1.58s startup each (spawn + environment, per file)
+             at least ~52.89s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,54 @@
+Waiting for unit (pid 113444) to finish starting before reading free memory.
+Memory available for unit after 50s.
+unit: failed (1) in 603.5s (1 workers, no slot); revision a94c4e98b83b71a7946a8374b62cc6e44d05953f; dirty; log .command-logs\2026-11-01T11-19-20-307Z-79548-9e7b14d2.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning src/demonstrations.test.ts src/Routes.test.tsx src/DemonstrationsPage.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/familyChapters.test.ts (10 tests | 1 failed) 48ms
+   ❯ family reading chapters (10)
+     × links every existing demonstration from its matching family chapter 9ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/familyChapters.test.ts > family reading chapters > links every existing demonstration from its matching family chapter
+AssertionError: expected [ 'linear-map' ] to deeply equal [ 'complex-reciprocal', …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "complex-reciprocal",
+-   "complex-roots",
+    "linear-map",
+  ]
+
+ ❯ src/learning/content/familyChapters.test.ts:130:46
+    128|             const unreleased = chapter.id === 'convexity-hulls' ? ['ea…
+    129|             const expected = demonstrations.filter(demo => demo.family…
+    130|             expect([...new Set(ids)].sort()).toEqual(expected);
+       |                                              ^
+    131|             for (const section of chapter.sections) {
+    132|                 for (const id of section.demonstrationIds ?? []) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 71 passed (72)
+      Tests  1 failed | 1177 passed (1178)
+   Start at  12:19:20
+   Duration  602.71s (tests 81%, environment 9%, setup 5%, import 4%, transform 1%)
+
+    Isolate  72 workers spawned · ~870ms startup each (spawn + environment, per file)
+             at least ~61.74s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,36 @@
+{
+ "errs": [],
+ "trail": [
+  "A:Bezeg · začetna stran",
+  "A:Učenje",
+  "A:Demonstracije",
+  "SELECT:SLEN",
+  "A:Demonstracije",
+  "A:Računska geometrija",
+  "BUTTON:Zamenjaj demonstracijo",
+  "BUTTON:Spoznaj to demonstracijo",
+  "BUTTON:Predstavitveni način",
+  "DIV:Točke na mreži. Izbrano točko []"
+ ],
+ "board": {
+  "tag": "DIV",
+  "role": "region",
+  "label": "Točke na mreži. Izbrano točko ",
+  "cls": "",
+  "outline": "solid 3px"
+ },
+ "boardAt": 10,
+ "start": "Orientacija treh točk p, q, r: +8 (levi zavoj)",
+ "backToBoard": 26,
+ "focusBoard": {
+  "tag": "DIV",
+  "role": "region",
+  "label": "Točke na mreži. Izbrano točko ",
+  "cls": "",
+  "outline": "solid 3px"
+ },
+ "afterDown2": {
+  "nums": "0,0,4,0,3,0,0,0",
+  "readout": "Orientacija treh točk p, q, r: 0 (kolinearne točke)"
+ }
+}

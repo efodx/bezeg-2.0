@@ -1,0 +1,50 @@
+unit: failed (1) in 31.3s (2 workers, no slot); revision 8ae72bfd2c64027ef7b7886ab93d4e168886ebf7; dirty; log .command-logs\2026-11-02T08-52-25-250Z-115496-a4d944ed.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/demonstrations.test.ts src/Routes.test.tsx src/DemonstrationsPage.test.tsx src/demonstrationPreviewAssets.test.ts src/graphs/base/presets/PresetCatalog.test.tsx src/graphs/base/graphTransientStateContract src/learning/runtime/lessonCatalog.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/runtime/lessonCatalog.test.ts (13 tests | 1 failed) 26ms
+   × every active demonstration route has an available lesson unless it opts out with lesson: false 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/runtime/lessonCatalog.test.ts > every active demonstration route has an available lesson unless it opts out with lesson: false
+AssertionError: expected [ 'bspline-deboor', …(4) ] to deeply equal [ 'bspline-deboor', …(2) ]
+
+- Expected
++ Received
+
+  [
+    "bspline-deboor",
++   "point-set-triangulation",
++   "delaunay",
+    "projective-pascal",
+    "projective-pole-polar",
+  ]
+
+ ❯ src/learning/runtime/lessonCatalog.test.ts:188:70
+    186|     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqu…
+    187|     // The remaining curves-stream ids (lessons in later F3 slices) an…
+    188|     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).t…
+       |                                                                      ^
+    189|         'bspline-deboor',
+    190|         'projective-pascal', 'projective-pole-polar']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 197 passed (198)
+   Start at  09:52:26
+   Duration  30.34s (tests 68%, environment 11%, transform 7%, import 7%, setup 7%)
+
+    Isolate  6 workers spawned · ~940ms startup each (spawn + environment, per file)
+             at least ~1.88s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

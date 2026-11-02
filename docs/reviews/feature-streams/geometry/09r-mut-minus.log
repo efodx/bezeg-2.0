@@ -1,0 +1,79 @@
+unit: failed (1) in 10.6s (2 workers, no slot); revision bb906f20807fe24906140c6f4a64749374ff8efe; dirty; log .command-logs\2026-11-01T05-18-58-796Z-66636-92b71639.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/bentleyOttmann src/graphs/compgeo/BentleyOttmannGraph.host --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/bentleyOttmannRun.test.ts (8 tests | 1 failed) 27ms
+   ❯ rationalText (2)
+     × writes a negative fraction and integer with the app minus sign 7ms
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx (24 tests | 1 failed) 6065ms
+   ❯ side lists (6)
+     × example 1 stepped through: the 13 events in order and the status after each, read from the side lists 788ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > example 1 stepped through: the 13 events in order and the status after each, read from the side lists
+AssertionError: expected [ …(13) ] to deeply equal [ …(13) ]
+
+- Expected
++ Received
+
+@@ -8,8 +8,8 @@
+    "Presečišče v točki (3; 2)",
+    "Presečišče v točki (21/16 = 1,3125; 7/8 = 0,875)",
+    "Presečišče v točki (75/16 = 4,6875; 7/8 = 0,875)",
+    "Spodnje krajišče v točki (0; 0)",
+    "Spodnje krajišče v točki (6; 0)",
+-   "Spodnje krajišče v točki (1; −1)",
+-   "Spodnje krajišče v točki (5; −1)",
++   "Spodnje krajišče v točki (1; -1)",
++   "Spodnje krajišče v točki (5; -1)",
+  ]
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:451:23
+    449|             if (run.view(step).position && (next === 'pop' || next ===…
+    450|         }
+    451|         expect(heads).toEqual([
+       |                       ^
+    452|             'Zgornje krajišče v točki (2; 5)', 'Zgornje krajišče v toč…
+    453|             'Presečišče v točki (33/20 = 1,65; 29/10 = 2,9)', 'Preseči…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/bentleyOttmannRun.test.ts > rationalText > writes a negative fraction and integer with the app minus sign
+AssertionError: expected { fraction: '-3/4', …(3) } to match object { fraction: '−3/4', …(2) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "decimal": "−0,75",
+    "exact": true,
+-   "fraction": "−3/4",
++   "fraction": "-3/4",
+  }
+
+ ❯ src/graphs/compgeo/bentleyOttmannRun.test.ts:92:58
+     90|     test('writes a negative fraction and integer with the app minus si…
+     91|         const signed = (v: number, d: number) => decimal(v, d).replace…
+     92|         expect(rationalText(Rational.of(-3, 4), signed)).toMatchObject…
+       |                                                          ^
+     93|         expect(rationalText(Rational.of(-1), signed)).toMatchObject({f…
+     94|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 1 skipped (3)
+      Tests  2 failed | 30 passed | 1 skipped (33)
+   Start at  06:18:59
+   Duration  9.83s (tests 42%, transform 21%, environment 15%, import 13%, setup 9%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

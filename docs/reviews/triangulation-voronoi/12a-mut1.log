@@ -1,0 +1,56 @@
+unit: failed (1) in 8.3s (2 workers, no slot); revision 535925bdd284a3696b24bf90a3607641004d92b4; dirty; log .command-logs\2026-11-02T07-17-06-666Z-123488-37ccd1e3.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (14 tests | 2 failed) 2464ms
+   × an added point inside a triangle gives +2 triangles and names the case 137ms
+   × an added point outside the hull matches 2n - 2 - k, and a collinear boundary point is counted with its note 115ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > an added point inside a triangle gives +2 triangles and names the case
+AssertionError: expected 'Triangulacija je ponovno zgrajena po …' to contain 'znotraj trikotnika'
+
+Expected: "znotraj trikotnika"
+Received: "Triangulacija je ponovno zgrajena po začetnem pravilu (vstavljanje točk po vrsti, od leve proti desni), ker prejšnja ni več veljavna."
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:164:27
+    162|     act(() => { graph.addPointAt({x: 6, y: 2}); });
+    163|     expect(graph.triangles).toHaveLength(9);
+    164|     expect(part('event')).toContain('znotraj trikotnika');
+       |                           ^
+    165|     expect(readout('triangles')).toBe('Trikotnikov: 9 = 2n − 2 − k = 2…
+    166|     expect(readout('edges')).toBe('Robov: 16 = 3n − 3 − k = 3 · 8 − 3 …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > an added point outside the hull matches 2n - 2 - k, and a collinear boundary point is counted with its note
+AssertionError: expected 'Triangulacija je ponovno zgrajena po …' to contain 'zunaj ovojnice'
+
+Expected: "zunaj ovojnice"
+Received: "Triangulacija je ponovno zgrajena po začetnem pravilu (vstavljanje točk po vrsti, od leve proti desni), ker prejšnja ni več veljavna."
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:173:27
+    171|     mount(graph);
+    172|     act(() => { graph.addPointAt({x: 10, y: 0}); });
+    173|     expect(part('event')).toContain('zunaj ovojnice');
+       |                           ^
+    174|     expect(readout('k')).toBe('Točk na robu ovojnice: k = 6');
+    175|     expect(readout('collinear')).toContain('Med njimi 1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 12 passed (14)
+   Start at  08:17:07
+   Duration  7.23s (tests 35%, transform 27%, import 18%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

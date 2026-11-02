@@ -1,0 +1,42 @@
+unit: failed (1) in 9.1s (2 workers, no slot); revision ed4248c22970b4ee7d01829c2f0a34fc7b679bd3; dirty; log .command-logs\2026-11-01T08-54-33-460Z-97452-03751369.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (11 tests | 1 failed) 4169ms
+   × every ear clipping scene starts in a view that contains its whole polygon, the comb included 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > every ear clipping scene starts in a view that contains its whole polygon, the comb included
+AssertionError: earclip-polygon: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:277:77
+    275|         const prepared = sceneOf(stepId)[0];
+    276|         const polygonAction = sceneOf(stepId).find(action => action.ki…
+    277|         expect(prepared.kind === 'prepared-scene' && prepared.view, st…
+       |                                                                             ^
+    278|         if (prepared.kind !== 'prepared-scene' || !prepared.view || !p…
+    279|         const [left, top, right, bottom] = prepared.view;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  09:54:34
+   Duration  8.29s (tests 51%, transform 19%, import 14%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

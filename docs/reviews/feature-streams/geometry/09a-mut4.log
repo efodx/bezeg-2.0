@@ -1,0 +1,62 @@
+unit: failed (1) in 8.0s (2 workers, no slot); revision aa9f4e19a6dc68cbf234c0634cfa2bff5d4ffb64; dirty; log .command-logs\2026-11-01T05-05-38-241Z-70320-3e2408d1.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx src/graphs/compgeo/bentleyOttmannRun.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx (18 tests | 2 failed) 3939ms
+   × an edit while playing recomputes the trace, returns to step 0 and pauses; Reset does the same 110ms
+   × the Preset keeps the segments and the step; an out-of-range step is clamped; the degenerate example imports 128ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > an edit while playing recomputes the trace, returns to step 0 and pauses; Reset does the same
+AssertionError: expected 5 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 5
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:232:24
+    230|     const length = graph.run().length;
+    231|     act(() => { graph.addSegmentAt({x: 0, y: -3}, {x: 6, y: -3}); });
+    232|     expect(graph.step).toBe(0);
+       |                        ^
+    233|     expect(graph.isPlaying).toBe(false);
+    234|     expect(frames.callbacks.size).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > the Preset keeps the segments and the step; an out-of-range step is clamped; the degenerate example imports
+AssertionError: expected 5 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 5
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:321:24
+    319|     expect(saved.graphState).not.toHaveProperty('playing');
+    320|     load(graph, segs([0, 0, 1, 1]));
+    321|     expect(graph.step).toBe(0);
+       |                        ^
+    322|     await settle(() => graph.selectPreset('mine'));
+    323|     expect([graph.step, graph.model]).toEqual([9, BENTLEY_OTTMANN_EXAM…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 23 passed (25)
+   Start at  06:05:38
+   Duration  7.33s (tests 45%, transform 18%, environment 16%, import 10%, setup 10%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

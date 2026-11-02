@@ -1,0 +1,39 @@
+unit: failed (1) in 9.7s (2 workers, no slot); revision 3df4564b92c8a3b70679edc35ac55f1d49ce984b; dirty; log .command-logs\2026-11-02T07-41-39-509Z-126264-c09659d2.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (45 tests | 1 failed) 4534ms
+   × a refusal is announced once: by its alert, not by the polite live region 110ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > a refusal is announced once: by its alert, not by the polite live region
+AssertionError: expected 'Dve točki sta enaki. Premaknite ali o…' not to contain 'Dve točki sta enaki'
+
+Expected: "Dve točki sta enaki"
+Received: "Dve točki sta enaki. Premaknite ali odstranite eno od njiju; triangulacija zahteva različne točke."
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:520:30
+    518|     expect(document.querySelectorAll('[role="alert"]')).toHaveLength(1…
+    519|     expect(part('refusal')).toContain('Dve točki sta enaki');
+    520|     expect(part('live')).not.toContain('Dve točki sta enaki');
+       |                              ^
+    521| });
+    522|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 44 passed (45)
+   Start at  08:41:40
+   Duration  8.71s (tests 53%, transform 19%, import 14%, environment 9%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

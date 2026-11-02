@@ -1,0 +1,80 @@
+Waiting for unit (pid 109004) to finish starting before reading free memory.
+Memory available for unit after 10s.
+unit: failed (1) in 6.3s (2 workers, no slot); revision 6f3c67cfa904e82c81b8630b53c7344acc1eed4c; dirty; log .command-logs\2026-11-02T10-47-27-391Z-94608-0477dc80.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationLessonActions src/learning/runtime/lessonCatalog --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationLessonActions.host.test.tsx (9 tests | 2 failed) 1242ms
+   × select-edge selects without flipping, null clears, a non-edge throws 127ms
+   × the Delaunay graph accepts select-edge 141ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationLessonActions.host.test.tsx > select-edge selects without flipping, null clears, a non-edge throws
+AssertionError: expected { a: +0, b: 2, interior: true, …(1) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "a": 0,
+  "b": 2,
+  "interior": true,
+  "triangles": [
+    0,
+    1,
+  ],
+}
+
+ ❯ src/graphs/compgeo/TriangulationLessonActions.host.test.tsx:120:34
+    118|     expect(sorted(graph.triangles)).toEqual(before);
+    119|     apply(graph, selectEdge(null));
+    120|     expect(graph.selectedEdge()).toBeUndefined();
+       |                                  ^
+    121|     expect(() => graph.run1(selectEdge([1, 3]))).toThrow('select-edge'…
+    122|     expect(() => graph.run1(selectEdge([0, 0]))).toThrow('select-edge'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationLessonActions.host.test.tsx > the Delaunay graph accepts select-edge
+AssertionError: expected { a: +0, b: 2, interior: true, …(1) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "a": 0,
+  "b": 2,
+  "interior": true,
+  "triangles": [
+    0,
+    1,
+  ],
+}
+
+ ❯ src/graphs/compgeo/TriangulationLessonActions.host.test.tsx:146:34
+    144|     expect(graph.selectedEdge()).toMatchObject({a: 0, b: 2});
+    145|     act(() => { graph.run1(selectEdge(null)); });
+    146|     expect(graph.selectedEdge()).toBeUndefined();
+       |                                  ^
+    147| });
+    148|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 21 passed (23)
+   Start at  11:47:28
+   Duration  5.36s (transform 30%, environment 22%, tests 18%, import 17%, setup 13%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

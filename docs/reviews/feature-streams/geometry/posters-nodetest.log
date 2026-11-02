@@ -1,0 +1,44 @@
+✔ compact evidence preserves numeric observations and retained records without repeated new SVG strings (3.7625ms)
+✔ camera provenance canonicalizes only numerical roundoff and rejects a real camera change (1.1752ms)
+✔ surface outcome evidence requires a drawn SVG surface view (0.9678ms)
+✔ surface camera provenance validates orbit cameras while retaining board cameras (1.4479ms)
+✔ registry exhaustively matches the live catalog and rejects missing/unknown recipes (3.1724ms)
+✔ unsupported controls fail instead of silently capturing a default (0.8551ms)
+✔ number actions distinguish a rounded input draft from a full-precision graph value (1.5904ms)
+✔ semantic assertions reject empty, wrong-degree, missing-Farin and unrevealed evidence (6.6089ms)
+✔ step provenance requires exact consecutive states and the common camera (2.0789ms)
+✔ smooth evidence rejects stroke compounding, stationary-point drift and a failed exact return (3.4383ms)
+✔ elevation provenance rejects an inexact rational control point or changed underlying curve (0.9536ms)
+✔ affine provenance rejects a wrong intermediate rotation and shifted camera (0.6332ms)
+✔ parameter sweep provenance rejects a moved fixed point, wrong intermediate, a jump at the loop seam and a target mismatch (18.4452ms)
+✔ decasteljau-alternative sweep: A, B, C and the connecting segment match pure evaluations at the reported t, with the seam checked (20.5257ms)
+✔ derivative sweep provenance rejects a moved x0, a wrong secant slope, a moved tangent, a non-seamless end, a non-identical end PNG and the excluded band (7.6391ms)
+✔ Farin pointer-drag provenance rejects a moved control point, a changed non-dragged ratio, a weight text mismatch and a non-seamless end (20.4123ms)
+✔ weighted-parameterization sweep: markers equal B(phi_alpha(t_k)) at the reported alpha, with a fixed curve path (13.9041ms)
+✔ ph-cubic sweep: three visible offsets track d, 2d, 3d on one side; the PH curve stays fixed and the seam matches (3947.7818ms)
+✔ ph-quintic sweep: three signed-normal offsets stay cusp-free and keep their fixed quintic curve (753.9861ms)
+✔ exact subdivision holds both child representations on the unchanged parent and resets to its poster (4.172ms)
+✔ selective motion recapture replaces only selected clips and keeps the other evidence in order (0.3596ms)
+✔ darboux reference sums: x² on [0, 2] gives the recipe readouts and agrees with closed forms at every checkpoint (0.6407ms)
+✔ darboux stepped clip: readouts equal the pure sums at each checkpoint, press counts, camera and seam are enforced (2.5449ms)
+✔ definite-integral stepped clip: readouts equal the left sum, h, exact and sum − exact at each checkpoint; range, holds and seam are enforced (1.5027ms)
+✔ real VP9 encoding retains exact RGB background samples and declares its color metadata (3400.0083ms)
+✔ validation or partial-run failure preserves the complete published set and maps (11.9707ms)
+✔ pruning failure also restores prior published bytes and obsolete files (8.2367ms)
+✔ complex multiplication: snapped w, z·w product, caption and exact return pass on consistent evidence (4.474ms)
+✔ complex multiplication rejects a product off by 1e-6, a moved z and a final w other than i (3.5252ms)
+✔ accumulation reference integral agrees with the antiderivative on both signed stretches (0.9192ms)
+✔ path counts ignore curves without path data, so an empty snapshot cannot pass the path-present checks (0.1187ms)
+✔ trigonometric sweep: the solid curve equals A·sin(ωx + φ) + B at the reported φ, A, ω, B fixed, phi readout and equation match the input, seam checked (34.7489ms)
+✔ sweepValue snaps every existing clip exactly as before the origin option (bit-identical over the 96 frames) (2.4573ms)
+✔ spline-g1 sweep snaps to the offset grid 0.01 + k·0.0299 and reaches the recipe value exactly (0.7876ms)
+✔ spline-g1 sweep: N2 and N3 follow the reported b1 and the b2 readout, G1 holds at both joins, the path follows b1, seam checked (11.2948ms)
+✔ the retained capture manifest lives outside src and carries no machine-specific absolute paths (1038.3312ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10573.9051

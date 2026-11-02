@@ -1,0 +1,83 @@
+unit: failed (1) in 6.8s (2 workers, no slot); revision 02a6ac3a41f0191f548484e9e08b233d6107b63f; dirty; log .command-logs\2026-11-01T04-13-42-243Z-109192-e6faf6dc.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullTraceLessonActions.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx (10 tests | 2 failed) 2861ms
+   × monotone chain Next steps reach the pop at (2, 0) with value -2 and the collinear rejection at (2, 5) with value 0 839ms
+   × the next-step action repeated k times equals the Next button repeated k times, for every algorithm 226ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullTraceLessonActions.host.test.tsx > monotone chain Next steps reach the pop at (2, 0) with value -2 and the collinear rejection at (2, 5) with value 0
+AssertionError: expected 101 to be less than 100
+ ❯ stepsUntil src/graphs/compgeo/HullTraceLessonActions.host.test.tsx:93:23
+     91|         let guard = 0;
+     92|         while (!matches() && guard++ < 100) apply(graph, trace('next-s…
+     93|         expect(guard).toBeLessThan(100);
+       |                       ^
+     94|     };
+     95|     stepsUntil(() => (part('detail') ?? '').includes('−2'));
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx:95:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/HullTraceLessonActions.host.test.tsx > the next-step action repeated k times equals the Next button repeated k times, for every algorithm
+AssertionError: expected { step: 9, state: { …(5) }, …(2) } to deeply equal { step: 18, state: { …(5) }, …(2) }
+
+- Expected
++ Received
+
+@@ -1,12 +1,12 @@
+  {
+    "playing": false,
+    "shown": [
+-     "Korak 19 od 56",
+-     "Kandidata dodamo na verigo.",
+-     undefined,
+-     "Orientacijskih preizkusov doslej: 8",
++     "Korak 10 od 56",
++     "Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.",
++     "Orientacija trojice = 4; preizkušana točka P1 (2, 2)",
++     "Orientacijskih preizkusov doslej: 4",
+    ],
+    "state": {
+      "algorithm": "monotone-chain",
+      "initialized": true,
+      "model": {
+@@ -54,9 +54,9 @@
+      },
+      "overlays": {
+        "hull": true,
+        "trace": true,
+      },
+-     "step": 18,
++     "step": 9,
+    },
+-   "step": 18,
++   "step": 9,
+  }
+
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx:139:129
+    137|         act(() => { viaButton.graph.setAlgorithm(algorithm); });
+    138|         for (let k = 0; k < 9; k++) click('next-step');
+    139|         expect({step: viaButton.graph.step, state: viaButton.graph.sta…
+       |                                                                                                                                 ^
+    140|         expect(fromAction.step).toBe(9);
+    141|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed (10)
+   Start at  05:13:42
+   Duration  6.07s (tests 48%, transform 20%, import 14%, environment 11%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

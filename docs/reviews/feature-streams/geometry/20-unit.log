@@ -1,0 +1,174 @@
+unit: failed (1) in 1327.1s (test slot 1/2, 3 workers); revision d712d744c61c6f582ec0ce7579a41e02329febba; dirty; log .command-logs\2026-11-01T20-28-38-176Z-131928-c4804ec8.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/base/GraphTransientState.part2.test.tsx > inscribed-angle > a rollback within one tick leaves the board drawn for the restored scene before the host commits
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+stderr | src/graphs/base/GraphTransientState.part2.test.tsx > inscribed-angle > Preset export and checkpoints keep transient state out of the Preset
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part2.test.tsx (136 tests | 2 failed) 196483ms
+   ❯ inscribed-angle (8)
+     × a rollback within one tick leaves the board drawn for the restored scene before the host commits 1117ms
+     × Preset export and checkpoints keep transient state out of the Preset 1319ms
+stderr | src/graphs/base/GraphTransientState.part1.test.tsx > triangle-centres > a rollback within one tick leaves the board drawn for the restored scene before the host commits
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+stderr | src/graphs/base/GraphTransientState.part1.test.tsx > triangle-centres > Preset export and checkpoints keep transient state out of the Preset
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part1.test.tsx (136 tests | 2 failed) 242625ms
+   ❯ triangle-centres (8)
+     × a rollback within one tick leaves the board drawn for the restored scene before the host commits 564ms
+     × Preset export and checkpoints keep transient state out of the Preset 327ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part1.test.tsx > triangle-centres > a rollback within one tick leaves the board drawn for the restored scene before the host commits
+ FAIL  src/graphs/base/GraphTransientState.part2.test.tsx > inscribed-angle > a rollback within one tick leaves the board drawn for the restored scene before the host commits
+AssertionError: expected { Object (data, state, ...) } to not deeply equal { Object (data, state, ...) }
+
+Compared values have no visual difference.
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:187:50
+    185|             });
+    186|             if (NO_SYNCHRONOUS_SCENE_CHANGE.has(id)) expect(mainScene(…
+    187|             else expect(mainScene(changed!)).not.toEqual(mainScene(cap…
+       |                                                  ^
+    188|             // A child board (the PH hodograph) is recreated by the in…
+    189|             // waits in the declared transient state, which is compare…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part1.test.tsx > triangle-centres > Preset export and checkpoints keep transient state out of the Preset
+AssertionError: expected [ 'exampleId', 'initialized', …(1) ] to deeply equal [ 'exampleId', 'initialized', …(2) ]
+
+- Expected
++ Received
+
+  [
+    "exampleId",
+    "initialized",
+-   "model",
+    "overlays",
+  ]
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:318:69
+    316|                 const dataKeys = PRESET_DATA_STATE_KEYS[id] ?? [];
+    317|                 for (const key of dataKeys) expect(graph.state).toHave…
+    318|                 expect(Object.keys(preset.graphState ?? {}).sort()).to…
+       |                                                                     ^
+    319|             } else {
+    320|                 // All surface state is Preset data; the Preset's grap…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part2.test.tsx > inscribed-angle > Preset export and checkpoints keep transient state out of the Preset
+AssertionError: expected [ 'exampleId', 'initialized', …(2) ] to deeply equal [ 'exampleId', 'initialized', …(3) ]
+
+- Expected
++ Received
+
+  [
+    "exampleId",
+    "initialized",
+-   "model",
+    "overlays",
+    "t",
+  ]
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:318:69
+    316|                 const dataKeys = PRESET_DATA_STATE_KEYS[id] ?? [];
+    317|                 for (const key of dataKeys) expect(graph.state).toHave…
+    318|                 expect(Object.keys(preset.graphState ?? {}).sort()).to…
+       |                                                                     ^
+    319|             } else {
+    320|                 // All surface state is Preset data; the Preset's grap…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  2 failed | 411 passed | 1 skipped (414)
+      Tests  4 failed | 7554 passed | 1 skipped (7559)
+   Start at  21:28:39
+   Duration  1325.92s (tests 67%, environment 15%, setup 8%, import 7%, transform 2%)
+
+    Isolate  414 workers spawned · ~1.72s startup each (spawn + environment, per file)
+             at least ~235.51s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

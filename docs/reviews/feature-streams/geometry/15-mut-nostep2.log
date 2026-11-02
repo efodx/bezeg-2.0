@@ -1,0 +1,172 @@
+unit: failed (1) in 7.4s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-23-34-830Z-45832-3c9c614f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (16 tests | 7 failed) 2749ms
+   × example 1 stepped to the end: open counts 1,2,3,2,1,2,1,2,1,0, maximum 3 on [3, 4] and pairs ab ac bc bd de, on the panel and on the board 161ms
+   × while sweeping, the open intervals are highlighted and the current interval is thicker than the other open ones 185ms
+   × ties: the entering events of 3 are processed before the leaving ones and the zero-length interval is reported as touching 253ms
+   × Next step repeated k times and Play advanced k ticks give the same drawn state and status; Play stops at done 214ms
+   × an edit while playing recomputes the trace, returns to step 0 and pauses; Reset does the same 200ms
+   × the Preset keeps the intervals and the step; an out-of-range step is clamped; a Preset in another mode is refused 142ms
+   × a language switch re-renders the panel text and the overlay switch and keeps the step and the board 106ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > example 1 stepped to the end: open counts 1,2,3,2,1,2,1,2,1,0, maximum 3 on [3, 4] and pairs ab ac bc bd de, on the panel and on the board
+AssertionError: expected [ <Anonymous Class>{ …(55) }, …(1) ] to have a length of +0 but got 2
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:130:56
+    128|         }
+    129|         boardPairs.push(...boardPair(graph));
+    130|         expect(objectsNamed(graph, 'sweep-pair-mark')).toHaveLength(ru…
+       |                                                        ^
+    131|     }
+    132|     expect(boardCounts).toEqual([1, 2, 3, 2, 1, 2, 1, 2, 1, 0]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > while sweeping, the open intervals are highlighted and the current interval is thicker than the other open ones
+AssertionError: expected [ +0, 1 ] to deeply equal [ 1, 2 ]
+
+- Expected
++ Received
+
+  [
++   0,
+    1,
+-   2,
+  ]
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:151:43
+    149|     const current = objectsNamed(graph, 'sweep-current');
+    150|     const open = objectsNamed(graph, 'sweep-open');
+    151|     expect([current.length, open.length]).toEqual([1, 2]);
+       |                                           ^
+    152|     expect(current[0].dataY).toEqual([3, 3]);
+    153|     expect(open.map(o => o.dataY![0]).sort()).toEqual([1, 2]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > ties: the entering events of 3 are processed before the leaving ones and the zero-length interval is reported as touching
+AssertionError: expected [ …(4) ] to deeply equal [ …(4) ]
+
+- Expected
++ Received
+
+  [
+-   "ab:Najden par ab: intervala se dotikata v eni točki.",
+-   "ac:Najden par ac: intervala se dotikata v eni točki.",
+    "bc:Najden par bc: intervala se dotikata v eni točki.",
+-   "bd:Najden par bd: intervala se prekrivata.",
++   "undefined:Interval d vstopi v stanje pometalne premice. Odprtih intervalov: 2.",
++   "undefined:Pometalna premica se premakne na x = 6: dogodek izstopa intervala b.",
++   "undefined:Vsi dogodki so obdelani.",
+  ]
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:170:19
+    168|         if (run.event(step)?.note === 'report') notes.push(`${boardPai…
+    169|     }
+    170|     expect(notes).toEqual([
+       |                   ^
+    171|         'ab:Najden par ab: intervala se dotikata v eni točki.',
+    172|         'ac:Najden par ac: intervala se dotikata v eni točki.',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > Next step repeated k times and Play advanced k ticks give the same drawn state and status; Play stops at done
+AssertionError: expected 22 to be 11 // Object.is equality
+
+- Expected
++ Received
+
+- 11
++ 22
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:187:24
+    185|     const expectedDrawn = drawn(first);
+    186|     const expectedStatus = status();
+    187|     expect(first.step).toBe(k);
+       |                        ^
+    188|     firstView.unmount();
+    189|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > an edit while playing recomputes the trace, returns to step 0 and pauses; Reset does the same
+AssertionError: expected 4 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 4
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:221:24
+    219|     click('next-step');
+    220|     click('next-step');
+    221|     expect(graph.step).toBe(2);
+       |                        ^
+    222|     click('reset');
+    223|     expect([graph.step, graph.isPlaying]).toEqual([0, false]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > the Preset keeps the intervals and the step; an out-of-range step is clamped; a Preset in another mode is refused
+AssertionError: expected { initialized: true, …(2) } to match object { step: 7 }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "step": 7,
++   "step": 14,
+  }
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:293:30
+    291|     expect(graph.presets()).toBe(INTERVAL_SWEEP_PRESET_KEY);
+    292|     const saved = graph.exportPreset();
+    293|     expect(saved.graphState).toMatchObject({step: 7});
+       |                              ^
+    294|     expect(saved.graphState).not.toHaveProperty('playing');
+    295|     load(graph, ivs([0, 1]));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > a language switch re-renders the panel text and the overlay switch and keeps the step and the board
+AssertionError: expected 'Najden par bc: intervala se prekrivat…' to be 'Najden par ab: intervala se prekrivat…' // Object.is equality
+
+Expected: "Najden par ab: intervala se prekrivata."
+Received: "Najden par bc: intervala se prekrivata."
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:334:26
+    332|     for (let i = 0; i < 4; i++) click('next-step');
+    333|     const before = drawn(graph);
+    334|     expect(part('note')).toBe('Najden par ab: intervala se prekrivata.…
+       |                          ^
+    335|     act(() => { setLanguage('en'); });
+    336|     expect(part('note')).toBe('Pair ab found: the intervals overlap.');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 9 passed (16)
+   Start at  05:23:35
+   Duration  6.52s (tests 43%, transform 22%, import 15%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

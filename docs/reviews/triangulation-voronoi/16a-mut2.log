@@ -1,0 +1,46 @@
+unit: failed (1) in 10.0s (2 workers, no slot); revision 1dfddf0c4b4ca6064291717cbb84e5a169878c88; dirty; log .command-logs\2026-11-02T12-47-45-933Z-65080-9a73e714.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayLessonActions --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx (12 tests | 1 failed) 4233ms
+   × select-triangle selects like a panel click, null clears, and a step change clears it 112ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > select-triangle selects like a panel click, null clears, and a step change clears it
+AssertionError: expected [ 1, …(1) ] to deeply equal [ undefined, undefined ]
+
+- Expected
++ Received
+
+  [
+-   undefined,
+-   undefined,
++   1,
++   "Izbrani trikotnik P1P3P4: njegova očrtana krožnica je črtkana.",
+  ]
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:180:52
+    178|     expect(viaAction).toBeTruthy();
+    179|     apply(graph, selectTriangle(null));
+    180|     expect([graph.selectedTriangle(), selected()]).toEqual([undefined,…
+       |                                                    ^
+    181|     clickTriangle(1);
+    182|     expect([graph.selectedTriangle(), selected()]).toEqual([1, viaActi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  13:47:46
+   Duration  9.03s (tests 48%, transform 21%, import 15%, environment 11%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

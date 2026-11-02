@@ -1,0 +1,39 @@
+unit: failed (1) in 7.0s (2 workers, no slot); revision 9bede337ab81dac3946d1d1ff544b1dd29fd10eb; dirty; log .command-logs\2026-11-02T11-20-57-002Z-118244-3360c41a.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoPointSetTriangulationLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts (12 tests | 1 failed) 2236ms
+   × the quoted numbers appear in the step text and the scene description of both languages 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoPointSetTriangulationLesson.test.ts > the quoted numbers appear in the step text and the scene description of both languages
+AssertionError: tri-delaunay scene sl \(25{,}35^\circ\): expected 'Delaunayeva triangulacija ima \(7\) t…' to contain '\(25{,}35^\circ\)'
+
+Expected: "\(25{,}35^\circ\)"
+Received: "Delaunayeva triangulacija ima \(7\) trikotnikov, \(13\) robov in najmanjši kot \(25{,}36^\circ\)."
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts:228:64
+    226|         const expected = compgeoGuidedLessons.find(l => l.demonstratio…
+    227|         for (const token of tokens) {
+    228|             expect(expected.sl, `${stepId} scene sl ${token}`).toConta…
+       |                                                                ^
+    229|             expect(expected.en, `${stepId} scene en ${token}`).toConta…
+    230|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  12:20:57
+   Duration  6.17s (tests 37%, transform 25%, import 18%, environment 13%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

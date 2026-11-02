@@ -1,0 +1,33 @@
+{
+ "errs": [],
+ "before": {
+  "prog": "Korak 3 od 7 · Okvir 1 od 3",
+  "nums": "2,2,4,0,0,0,5,3,2,5,-1,3,3,1,2,0,1,1,0,0",
+  "sig": "64",
+  "txt": "Konveksna ovojnica Skrij Končaj Konveksnost in ovojnice · Konveksna ovojnica Nazaj v poglavje Razkritje robov Sled je izvedena do konca: sprejetih je 5 usmerjenih robov in uporabljenih je 9 ⋅ 8 ⋅ 7 = 504 orientacijskih preizkusov. Par ( 0 , 0 ) , ( 4 , 0 ) je rob, ker točka ( 2 , 0 ) leži na daljici; ta točka pa ni oglišče ovojnice. 𝑇 slow = 𝑛 ( 𝑛 − 1 ) ( 𝑛 − 2 ) , 𝑇 wrap = ℎ ( 𝑛 − 2 ) 𝑛 je število točk, ℎ število ovojničnih oglišč, 𝑇 število orientacijskih preizkusov. Razlaga Korak 3 od 7 · Okvir 1 od 3 Prejšnji okvir Naslednji okvir"
+ },
+ "after": {
+  "prog": "Step 3 of 7 · Frame 1 of 3",
+  "nums": "2,2,4,0,0,0,5,3,2,5,-1,3,3,1,2,0,1,1,0,0",
+  "sig": "64",
+  "txt": "Convex hull Hide Exit Convexity and hulls · Convex hull Return to chapter Revealing the edges The trace has run to the end: 5 directed edges are accepted and 9 ⋅ 8 ⋅ 7 = 504 orientation tests were used. The pair ( 0 , 0 ) , ( 4 , 0 ) is an edge because ( 2 , 0 ) lies on the segment; that point is not a hull vertex. 𝑇 slow = 𝑛 ( 𝑛 − 1 ) ( 𝑛 − 2 ) , 𝑇 wrap = ℎ ( 𝑛 − 2 ) 𝑛 is the number of points, ℎ the number of hull vertices and 𝑇 the number of orientation tests. Explanation Step 3 of 7 · Frame 1 of 3 Previous frame Next frame"
+ },
+ "keptStepAndScene": true,
+ "bodyEn": " Za uporabo Bezega omogoči JavaScript. <span lang=\"en\">Enable JavaScript to use Bezeg.</span> BezegLearningDemonstrationsLanguage SLENDemonstrations / Computational geometry / Convex hullConvex hullChange the settings and observe their effect on the graph.Switch demonstrationPresentation modeConvex hullHideExitConvexity and hulls · Convex hullReturn to chapterRevealing the edgesThe trace has run to the end: 5 directed edges are accepted and 9⋅8⋅7=504 orientation tests were used. The pair (0,0), (4,0) is an edge because (2,0) lies on the segment; that point is not a hull vertex.Tslow=n(n−1)(n−2),Twrap=h(n−2)n is the number of points, h the number of hull vertices and T the number of orientation tests.ExplanationStep 3 of 7 · Frame 1 of 3Previous frameNext frameGraph0,02468−2−4−6−81234−1−2−3−4P1P2P3P4P5P6P7P8P9←↑↓→+−Fit to pointsPan: Shift + drag · Zoom: Shift + mouse wheelTry and observePress Next step and predict which point the algorithm keeps or discards next. Which turn makes a point drop out of the hull?Next promptTools for this graphToolsCollapseEditDisplaySavecurveviewexampleAlgorithmMonotone chain (Andrew)Slow edge test (teaching algorithm)Gift wrapping (Jarvis)A teaching algorithm: it tests every ordered pair of points against all the other points, so it needs about n³ orientation tests and is very slow already for a few dozen points. This trace has 74 steps.Next stepPlayResetPlayback takes one step at a time and stops at the end. Changing the points or the algorithm returns to the start and stops playback. Solid line: accepted edges; dashed line: the tested edge or candidate.Step 74 of 74Done: the convex hull is drawn.Orientation tests so far: 504Step 74 of 74. Done: the convex hull is drawn.. Orientation tests so far: 504Number of orientation tests on these pointsMonotone chain (Andrew): 23Slow edge test (teaching algorithm): 504Gift wrapping (Jarvis): 35 Grid Algorithm trace Convex hullGrid step: 1. Coordinates are whole numbers of steps.Add by tapping or clickingRemoveClearPoints: 9 of at most 40No point is selected.PointsP1Select point 1P2Select point 2P3Select point 3P4Select point 4P5Select point 5P6Select point 6P7Select point 7P8Select point 8P9Select point 9Add pointCoordinate systemCoordinate systemNoneAxes onlyAxes and gridAxes, grid, and ticksAllElement sizesGraph element sizeGraph element size, valueMin: 0Max: 25Size of points, lines, and labels; does not change the viewport zoom.Presets in this browserStored in this browser. Export a",
+ "slovenianLike": [
+  "Za",
+  "omogoči",
+  "so",
+  "in"
+ ],
+ "aria": [
+  "Slovenščina"
+ ],
+ "enNext": {
+  "prog": "Step 3 of 7 · Frame 2 of 3",
+  "nums": "2,2,4,0,0,0,5,3,2,5,-1,3,3,1,2,0,1,1,0,0",
+  "sig": "64",
+  "txt": "Convex hull Hide Exit Convexity and hulls · Convex hull Return to chapter Revealing the edges The number of tests 𝑇 slow = 9 ⋅ 8 ⋅ 7 = 504 , 𝑇 wrap = 5 ⋅ 7 = 35 𝑇 slow = 504 , 𝑇 wrap = 35 The row of counts under the graph shows 504 for the slow test and 35 for gift wrapping. Calculation Step 3 of 7 · Frame 2 of 3 Previous frame Next frame"
+ },
+ "enBackProg": "Step 3 of 7 · Frame 1 of 3"
+}

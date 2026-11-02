@@ -1,0 +1,60 @@
+unit: failed (1) in 11.4s (2 workers, no slot); revision 4723a2907ee102217636c7eefdeabb836b3c68c4; dirty; log .command-logs\2026-11-02T07-32-05-650Z-19840-65fcd704.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (40 tests | 2 failed) 4861ms
+   ❯ import refusals (15)
+     × polygon mode is refused with its localized message 8ms
+     × segments mode is refused with its localized message 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > polygon mode is refused with its localized message
+AssertionError: expected undefined to be 'tri_invalid_mode' // Object.is equality
+
+- Expected:
+"tri_invalid_mode"
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:424:36
+    422|     ];
+    423|     test.each(cases)('%s is refused with its localized message', (_nam…
+    424|         expect(refusalKey(make())).toBe(key);
+       |                                    ^
+    425|         const result = checked(make());
+    426|         if (!('rejection' in result)) throw new Error('not refused');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > segments mode is refused with its localized message
+AssertionError: expected 'pointset_invalid_unknown_mode' to be 'tri_invalid_mode' // Object.is equality
+
+Expected: "tri_invalid_mode"
+Received: "pointset_invalid_unknown_mode"
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:424:36
+    422|     ];
+    423|     test.each(cases)('%s is refused with its localized message', (_nam…
+    424|         expect(refusalKey(make())).toBe(key);
+       |                                    ^
+    425|         const result = checked(make());
+    426|         if (!('rejection' in result)) throw new Error('not refused');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 38 passed (40)
+   Start at  08:32:06
+   Duration  10.16s (tests 49%, transform 21%, import 15%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

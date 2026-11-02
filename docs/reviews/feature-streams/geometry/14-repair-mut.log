@@ -1,0 +1,213 @@
+unit: failed (1) in 6.6s (2 workers, no slot); revision a370ab98ae713a5b310f86fc1d5971e8cdeccef4; dirty; log .command-logs\2026-11-01T03-55-30-224Z-80824-7c8d0e8b.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/PointSetIntervals --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx (14 tests | 1 failed) 2636ms
+   × Add mode: two clicks add an interval on the next row from the snapped x values; Escape cancels 118ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/PointSetIntervals.host.test.tsx > Add mode: two clicks add an interval on the next row from the snapped x values; Escape cancels
+TestingLibraryElementError: Unable to find an element with the text: /Prvo krajišče je postavljeno pri x = 2\./. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"demonstration-workspace  "[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"workspace-heading"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"workspace-heading-copy"[39m
+        [36m>[39m
+          [36m<nav[39m
+            [33maria-label[39m=[32m"Pot do demonstracije"[39m
+            [33mclass[39m=[32m"workspace-breadcrumb"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mhref[39m=[32m"/bezeg-2.0/demonstrations"[39m
+            [36m>[39m
+              [0mDemonstracije[0m
+            [36m</a>[39m
+          [36m</nav>[39m
+          [36m<h1>[39m
+            [0mBezeg[0m
+          [36m</h1>[39m
+          [36m<p>[39m
+            [0mSpreminjaj nastavitve in opazuj njihov vpliv na graf.[0m
+          [36m</p>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"workspace-botanical"[39m
+            [33mfocusable[39m=[32m"false"[39m
+            [33mviewBox[39m=[32m"0 0 420 360"[39m
+          [36m>[39m
+            [36m<g[39m
+              [33mclass[39m=[32m"workspace-botanical-stems"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M410 358C367 279 327 207 278 157S203 69 170 7"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M278 157C313 120 350 96 402 83M326 207C364 193 391 170 416 137"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M237 108C204 91 164 76 122 42M266 140C265 95 259 51 253 7"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M356 271C386 250 402 226 414 198M205 74C174 68 145 69 111 77"[39m
+              [36m/>[39m
+            [36m</g>[39m
+            [36m<g[39m
+              [33mclass[39m=[32m"workspace-botanical-leaves"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M331 204C327 164 346 137 387 119C384 162 366 190 331 204Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M350 257C343 219 359 192 397 174C398 211 381 240 350 257Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M273 151C284 111 312 94 355 96C337 131 309 150 273 151Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M232 106C192 105 164 84 146 46C186 53 216 73 232 106Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M265 129C239 101 234 68 250 30C273 63 280 96 265 129Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M201 76C166 96 134 91 99 66C136 49 170 51 201 76Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M380 293C388 263 408 245 437 239C430 269 411 289 380 293Z"[39m
+              [36m/>[39m
+            [36m</g>[39m
+            [36m<g[39m
+              [33mclass[39m=[32m"workspace-botanical-flowers"[39m
+            [36m>[39m
+              [36m<g[39m
+                [33mtransform[39m=[32m"translate(394 80)"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"0"[39m
+                  [33mcy[39m=[32m"0"[39m
+                  [33mr[39m=[32m"5"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"-10"[39m
+                  [33mcy[39m=[32m"-4"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"9"[39m
+                  [33mcy[39m=[32m"-7"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"-7"[39m
+                  [33mcy[39m=[32m"8"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"8"[39m
+                  [33mcy[39m=[32m"8"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"-1"[39m
+                  [33mcy[39m=[32m"-13"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"14"[39m
+                  [33mcy[39m=[32m"2"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"-15"[39m
+                  [33mcy[39m=[32m"4"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+              [36m</g>[39m
+              [36m<g[39m
+                [33mtransform[39m=[32m"translate(416 131)"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"0"[39m
+                  [33mcy[39m=[32m"0"[39m
+                  [33mr[39m=[32m"5"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"-10"[39m
+                  [33mcy[39m=[32m"-5"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"8"[39m
+                  [33mcy[39m=[32m"-8"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"-8"[39m
+                  [33mcy[39m=[32m"8"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"9"[39m
+                  [33mcy[39m=[32m"8"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"-1"[39m
+                  [33mcy[39m=[32m"-14"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"15"[39m
+                  [33mcy[39m=[32m"2"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"-15"[39m
+                  [33mcy[39m=[32m"3"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+              [36m</g>[39m
+              [36m<g[39m
+                [33mtransform[39m=[32m"translate(252 8)"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"0"[39m
+                  [33mcy[39m=[32m"0"[39m
+                  [33m...
+ ❯ Object.getElementError ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx:117:19
+    115|     expect(pendingObjects(graph)).toHaveLength(1);
+    116|     // The pending text names only x: the row is not user data.
+    117|     expect(screen.getByText(/Prvo krajišče je postavljeno pri x = 2\./…
+       |                   ^
+    118|     expect(screen.queryByText(/\(2, 2\)/)).toBeNull();
+    119|     click(graph, -1.2, -9);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  04:55:30
+   Duration  5.90s (tests 46%, transform 21%, import 15%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

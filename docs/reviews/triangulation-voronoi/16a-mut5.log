@@ -1,0 +1,43 @@
+unit: failed (1) in 2.9s (2 workers, no slot); revision 1dfddf0c4b4ca6064291717cbb84e5a169878c88; dirty; log .command-logs\2026-11-02T12-49-26-206Z-38776-ada650e7.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/runtime/lessonCatalog.test.ts --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/runtime/lessonCatalog.test.ts (15 tests | 1 failed) 27ms
+   ❯ typed scene actions (5)
+     × select-triangle needs a non-negative integer index or null 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/runtime/lessonCatalog.test.ts > typed scene actions > select-triangle needs a non-negative integer index or null
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/learning/runtime/lessonCatalog.test.ts:239:47
+    237|         for (const triangle of [0, 3, null]) expect(() => run(ps({tria…
+    238|         for (const triangle of [undefined, -1, 1.5, Number.NaN, Number…
+    239|             expect(() => run(ps({triangle}))).toThrow('select-triangle…
+       |                                               ^
+    240|         }
+    241|         expect(() => run(ps({}))).toThrow('select-triangle');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  13:49:26
+   Duration  2.01s (environment 42%, setup 25%, transform 25%, import 7%, tests 1%, worker 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

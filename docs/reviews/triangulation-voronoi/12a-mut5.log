@@ -1,0 +1,119 @@
+unit: failed (1) in 9.0s (1 workers, no slot); revision 535925bdd284a3696b24bf90a3607641004d92b4; dirty; log .command-logs\2026-11-02T07-17-41-975Z-86292-c59acb0d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+TypeError: Cannot read properties of undefined (reading 'find')
+    at apex (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:365:54)
+    at corners (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:370:36)
+    at Observed.drawSelectedEdge (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:373:22)
+    at Observed.drawOverlay (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:341:25)
+    at Observed.redrawOverlays (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/PointSetGraph.tsx:691:32)
+    at Observed.syncScene (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/PointSetGraph.tsx:580:161)
+    at Observed.selectEdge (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:236:14)
+    at Object.selectEdge (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:398:73)
+    at onChange (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationControls.tsx:83:104)
+    at HTMLUnknownElement.callCallback (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+TypeError: Cannot read properties of undefined (reading 'find')
+    at apex (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:365:54)
+    at corners (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:370:36)
+    at Observed.drawSelectedEdge (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:373:22)
+    at Observed.drawOverlay (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:341:25)
+    at Observed.redrawOverlays (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/PointSetGraph.tsx:691:32)
+    at Observed.syncScene (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/PointSetGraph.tsx:580:161)
+    at Observed.selectEdge (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:236:14)
+    at Object.selectEdge (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationGraph.tsx:398:73)
+    at onChange (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/TriangulationControls.tsx:83:104)
+    at HTMLUnknownElement.callCallback (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (14 tests | 1 failed) 2612ms
+   × the board draws 13 edge curves, 5 of them heavier hull edges, and shades a quadrilateral only for a selected interior edge 232ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > the board draws 13 edge curves, 5 of them heavier hull edges, and shades a quadrilateral only for a selected interior edge
+AssertionError: expected [] to have a length of 13 but got +0
+
+- Expected
++ Received
+
+- 13
++ 0
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:99:31
+     97|     choose(hull.a, hull.b);
+     98|     expect(quads(graph)).toHaveLength(0);
+     99|     expect(edgeCurves(graph)).toHaveLength(13);
+       |                               ^
+    100| });
+    101|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+TypeError: Cannot read properties of undefined (reading 'find')
+ ❯ apex src/graphs/compgeo/TriangulationGraph.tsx:365:54
+    363|         if (!selected) return [];
+    364|         const [first, second] = selected.triangles;
+    365|         const apex = (t: number) => tri.triangles[t].find(v => v !== s…
+       |                                                      ^
+    366|         const corners = (t: number, other: number) => {
+    367|             const v = tri.triangles[t];
+ ❯ corners src/graphs/compgeo/TriangulationGraph.tsx:370:36
+ ❯ Observed.drawSelectedEdge src/graphs/compgeo/TriangulationGraph.tsx:373:22
+ ❯ Observed.drawOverlay src/graphs/compgeo/TriangulationGraph.tsx:341:25
+ ❯ Observed.redrawOverlays src/graphs/compgeo/PointSetGraph.tsx:691:32
+ ❯ Observed.syncScene src/graphs/compgeo/PointSetGraph.tsx:580:161
+ ❯ Observed.selectEdge src/graphs/compgeo/TriangulationGraph.tsx:236:14
+ ❯ Object.selectEdge src/graphs/compgeo/TriangulationGraph.tsx:398:73
+ ❯ onChange src/graphs/compgeo/TriangulationControls.tsx:83:104
+ ❯ HTMLUnknownElement.callCallback ../../../node_modules/react-dom/cjs/react-dom.development.js:4164:14
+
+This error originated in "src/graphs/compgeo/TriangulationGraph.host.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "the board draws 13 edge curves, 5 of them heavier hull edges, and shades a quadrilateral only for a selected interior edge". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+TypeError: Cannot read properties of undefined (reading 'find')
+ ❯ apex src/graphs/compgeo/TriangulationGraph.tsx:365:54
+    363|         if (!selected) return [];
+    364|         const [first, second] = selected.triangles;
+    365|         const apex = (t: number) => tri.triangles[t].find(v => v !== s…
+       |                                                      ^
+    366|         const corners = (t: number, other: number) => {
+    367|             const v = tri.triangles[t];
+ ❯ corners src/graphs/compgeo/TriangulationGraph.tsx:370:36
+ ❯ Observed.drawSelectedEdge src/graphs/compgeo/TriangulationGraph.tsx:373:22
+ ❯ Observed.drawOverlay src/graphs/compgeo/TriangulationGraph.tsx:341:25
+ ❯ Observed.redrawOverlays src/graphs/compgeo/PointSetGraph.tsx:691:32
+ ❯ Observed.syncScene src/graphs/compgeo/PointSetGraph.tsx:580:161
+ ❯ Observed.selectEdge src/graphs/compgeo/TriangulationGraph.tsx:236:14
+ ❯ Object.selectEdge src/graphs/compgeo/TriangulationGraph.tsx:398:73
+ ❯ onChange src/graphs/compgeo/TriangulationControls.tsx:83:104
+ ❯ HTMLUnknownElement.callCallback ../../../node_modules/react-dom/cjs/react-dom.development.js:4164:14
+
+This error originated in "src/graphs/compgeo/TriangulationGraph.host.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "a flip of a non-convex quadrilateral and of a hull edge each show their reason and change nothing". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+     Errors  2 errors
+   Start at  08:17:42
+   Duration  7.89s (tests 34%, transform 28%, import 20%, environment 11%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

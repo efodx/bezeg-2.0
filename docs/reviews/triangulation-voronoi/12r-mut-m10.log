@@ -1,0 +1,182 @@
+unit: failed (1) in 10.9s (2 workers, no slot); revision 3df4564b92c8a3b70679edc35ac55f1d49ce984b; dirty; log .command-logs\2026-11-02T07-45-46-073Z-89752-6cefa690.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (45 tests | 8 failed) 5041ms
+   × an added point inside a triangle gives +2 triangles and names the case 141ms
+   × an added point outside the hull matches 2n - 2 - k, and a collinear boundary point is counted with its note 127ms
+   × a move that keeps the triangulation valid keeps the triangle list; one that breaks it rebuilds and says so 142ms
+   × removing a point rebuilds the triangulation 108ms
+   × a Preset round trip keeps the points and the triangle list, a flipped one included, and stores the list once 268ms
+   × Reset returns to the default scene and clears the selection and the event 278ms
+   × a state write carrying a triangle list (a lesson action or checkpoint) clears the flip event and the selection 159ms
+   × only the user add path reports an insertion: loadModel with a one-point superset shows no event 112ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > an added point inside a triangle gives +2 triangles and names the case
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:186:27
+    184|     act(() => { graph.addPointAt({x: 6, y: 2}); });
+    185|     expect(graph.triangles).toHaveLength(9);
+    186|     expect(part('event')).toContain('znotraj trikotnika');
+       |                           ^
+    187|     expect(readout('triangles')).toBe('Trikotnikov: 9 = 2n − 2 − k = 2…
+    188|     expect(readout('edges')).toBe('Robov: 16 = 3n − 3 − k = 3 · 8 − 3 …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > an added point outside the hull matches 2n - 2 - k, and a collinear boundary point is counted with its note
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:195:27
+    193|     mount(graph);
+    194|     act(() => { graph.addPointAt({x: 10, y: 0}); });
+    195|     expect(part('event')).toContain('zunaj ovojnice');
+       |                           ^
+    196|     expect(readout('k')).toBe('Točk na robu ovojnice: k = 6');
+    197|     expect(readout('collinear')).toContain('Točke na stranicah ovojnic…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > a move that keeps the triangulation valid keeps the triangle list; one that breaks it rebuilds and says so
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:222:27
+    220|     expect(graph.triangles).not.toEqual(TRIANGULATION_T0);
+    221|     expect(graph.triangulation()).toBeDefined();
+    222|     expect(part('event')).toContain('ponovno zgrajena po začetnem prav…
+       |                           ^
+    223|     expect(part('live')).toContain('ponovno zgrajena');
+    224| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > removing a point rebuilds the triangulation
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:232:27
+    230|     expect(graph.model.points).toHaveLength(6);
+    231|     expect(graph.triangulation()).toBeDefined();
+    232|     expect(part('event')).toContain('ponovno zgrajena po začetnem prav…
+       |                           ^
+    233|     expect(readout('n')).toBe('Točk: n = 6');
+    234| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > a Preset round trip keeps the points and the triangle list, a flipped one included, and stores the list once
+AssertionError: expected { a: +0, b: 5, interior: true, …(1) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "a": 0,
+  "b": 5,
+  "interior": true,
+  "triangles": [
+    1,
+    4,
+  ],
+}
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:393:34
+    391|     expect(graph.triangles).toEqual(flipped);
+    392|     expect(readout('triangles')).toBe('Trikotnikov: 7 = 2n − 2 − k = 2…
+    393|     expect(graph.selectedEdge()).toBeUndefined();
+       |                                  ^
+    394| });
+    395|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > Reset returns to the default scene and clears the selection and the event
+AssertionError: expected { kind: 'flipped', …(2) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "created": [
+    0,
+    5,
+  ],
+  "edge": [
+    1,
+    4,
+  ],
+  "kind": "flipped",
+}
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:481:25
+    479|     expect(graph.triangles).toEqual(TRIANGULATION_T0);
+    480|     expect(graph.selectedEdge()).toBeUndefined();
+    481|     expect(graph.event).toBeUndefined();
+       |                         ^
+    482|     expect(part('event')).toBeUndefined();
+    483|     expect(list().value).not.toMatch(/^\d+-\d+$/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > a state write carrying a triangle list (a lesson action or checkpoint) clears the flip event and the selection
+AssertionError: expected { kind: 'flipped', …(2) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "created": [
+    0,
+    5,
+  ],
+  "edge": [
+    1,
+    4,
+  ],
+  "kind": "flipped",
+}
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:497:25
+    495|     act(() => { graph.setState({triangles: TRIANGULATION_T0.map(tri =>…
+    496|     expect(graph.triangles).toEqual(TRIANGULATION_T0);
+    497|     expect(graph.event).toBeUndefined();
+       |                         ^
+    498|     expect(part('event')).toBeUndefined();
+    499|     expect(graph.selectedEdge()).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > only the user add path reports an insertion: loadModel with a one-point superset shows no event
+AssertionError: expected undefined to be 'inserted' // Object.is equality
+
+- Expected:
+"inserted"
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:506:31
+    504|     mount(graph);
+    505|     act(() => { graph.addPointAt({x: 6, y: 2}); });
+    506|     expect(graph.event?.kind).toBe('inserted');
+       |                               ^
+    507|     const superset = pts([...graph.model.points.map((p): [number, numb…
+    508|     act(() => { graph.loadModel(superset); });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 37 passed (45)
+   Start at  08:45:46
+   Duration  9.84s (tests 52%, transform 20%, import 14%, environment 9%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,279 @@
+unit: failed (1) in 3.6s (2 workers, no slot); revision 69be60e567c4b5a8ec75561478450d398d7d1020; dirty; log .command-logs\2026-10-31T20-47-51-281Z-120636-ba174f1c.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/giftWrapping --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/giftWrapping.test.ts (12 tests | 8 failed) 70ms
+   ❯ giftWrappingTrace on sample 1 (3)
+     × makes 5 wraps and 35 orientation tests with exact values 12ms
+     × ends with the CCW hull from the smallest point; (2,0) is skipped 3ms
+     × takes the farthest of collinear candidates 2ms
+   ❯ agreement and oracle (3)
+     × matches monotoneChainTrace and slowHullTrace on sample 1, collinear input and n in {0,1,2} 2ms
+     × matches convexHull on random sets with duplicates and collinear points 5ms
+     × gives a point or segment with a distinct noteKey for degenerate input 1ms
+   ❯ trace contract (4)
+     × ends with exactly one done and stays within n(n-1)+2 <= 1562 events 5ms
+     × predicateCount is non-decreasing and equals the number of test events so far 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > giftWrappingTrace on sample 1 > makes 5 wraps and 35 orientation tests with exact values
+AssertionError: expected [ { kind: 'accept', …(3) }, …(5) ] to have a length of 5 but got 6
+
+- Expected
++ Received
+
+- 5
++ 6
+
+ ❯ src/compgeo/giftWrapping.test.ts:33:58
+     31|
+     32|     it('makes 5 wraps and 35 orientation tests with exact values', () …
+     33|         expect(trace.filter((e) => e.kind === 'accept')).toHaveLength(…
+       |                                                          ^
+     34|         const tests = trace.filter((e) => e.kind === 'test');
+     35|         expect(tests).toHaveLength(35);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > giftWrappingTrace on sample 1 > ends with the CCW hull from the smallest point; (2,0) is skipped
+AssertionError: expected [ [ -1, 3 ], [ +0, +0 ], …(4) ] to deeply equal [ [ -1, 3 ], [ +0, +0 ], …(3) ]
+
+- Expected
++ Received
+
+@@ -6,10 +6,14 @@
+    [
+      0,
+      0,
+    ],
+    [
++     2,
++     0,
++   ],
++   [
+      4,
+      0,
+    ],
+    [
+      5,
+
+ ❯ src/compgeo/giftWrapping.test.ts:48:41
+     46|         const s = finalState(trace);
+     47|         expect(s.done).toBe(true);
+     48|         expect(coords(SAMPLE, s.hull!)).toEqual([[-1, 3], [0, 0], [4, …
+       |                                         ^
+     49|         expect(coords(SAMPLE, s.hull!)).not.toContainEqual([2, 0]);
+     50|         expect(coords(SAMPLE, s.wrapped)).toEqual(coords(SAMPLE, s.hul…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > giftWrappingTrace on sample 1 > takes the farthest of collinear candidates
+AssertionError: expected [ [ [ -1, 3 ], [ +0, +0 ] ], …(5) ] to deep equally contain [ [ +0, +0 ], [ 4, +0 ] ]
+
+- Expected
++ Received
+
+  [
+    [
++     [
++       -1,
++       3,
++     ],
++     [
++       0,
++       0,
++     ],
++   ],
++   [
++     [
++       0,
++       0,
++     ],
++     [
++       2,
++       0,
++     ],
++   ],
++   [
++     [
++       2,
+        0,
++     ],
++     [
++       4,
+        0,
++     ],
+    ],
++   [
+      [
+        4,
+        0,
++     ],
++     [
++       5,
++       3,
++     ],
++   ],
++   [
++     [
++       5,
++       3,
++     ],
++     [
++       2,
++       5,
++     ],
++   ],
++   [
++     [
++       2,
++       5,
++     ],
++     [
++       -1,
++       3,
++     ],
+    ],
+  ]
+
+ ❯ src/compgeo/giftWrapping.test.ts:56:22
+     54|         // From (0,0) the candidates (2,0) and (4,0) are collinear: th…
+     55|         const wrap = trace.filter((e) => e.kind === 'accept').map((e) …
+     56|         expect(wrap).toContainEqual([[0, 0], [4, 0]]);
+       |                      ^
+     57|         expect(trace.some((e) => e.noteKey === 'test-replace-farther' …
+     58|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > agreement and oracle > matches monotoneChainTrace and slowHullTrace on sample 1, collinear input and n in {0,1,2}
+AssertionError: expected [ [ -1, 3 ], [ +0, +0 ], …(4) ] to deeply equal [ [ -1, 3 ], [ +0, +0 ], …(3) ]
+
+- Expected
++ Received
+
+@@ -6,10 +6,14 @@
+    [
+      0,
+      0,
+    ],
+    [
++     2,
++     0,
++   ],
++   [
+      4,
+      0,
+    ],
+    [
+      5,
+
+ ❯ src/compgeo/giftWrapping.test.ts:77:46
+     75|             [p(0, 0), p(1, 1), p(2, 2), p(3, 3), p(-1, -1)], [p(1, 5),…
+     76|         for (const pts of cases) {
+     77|             expect(coords(pts, hullOf(pts))).toEqual(coords(pts, chain…
+       |                                              ^
+     78|             expect(coords(pts, hullOf(pts))).toEqual(coords(pts, slowH…
+     79|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > agreement and oracle > matches convexHull on random sets with duplicates and collinear points
+AssertionError: expected [ Array(6) ] to deeply equal [ Array(4) ]
+
+- Expected
++ Received
+
+@@ -7,10 +7,18 @@
+      2,
+      -1,
+    ],
+    [
+      2,
++     1,
++   ],
++   [
++     2,
++     3,
++   ],
++   [
++     0,
+      3,
+    ],
+    [
+      -2,
+      3,
+
+ ❯ src/compgeo/giftWrapping.test.ts:89:46
+     87|             const pts = Array.from({length: n}, () => p(next(range) - …
+     88|             const expected = convexHull(asOracle(pts)).map((q) => [q.X…
+     89|             expect(coords(pts, hullOf(pts))).toEqual(expected);
+       |                                              ^
+     90|         }
+     91|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > agreement and oracle > gives a point or segment with a distinct noteKey for degenerate input
+AssertionError: expected [ +0, 1 ] to deeply equal [ +0, 3 ]
+
+- Expected
++ Received
+
+  [
+    0,
+-   3,
++   1,
+  ]
+
+ ❯ src/compgeo/giftWrapping.test.ts:102:26
+    100|         const seg = last([p(0, 0), p(1, 1), p(2, 2), p(3, 3)]);
+    101|         expect(seg.e.noteKey).toBe('done-collinear');
+    102|         expect(seg.hull).toEqual([0, 3]);
+       |                          ^
+    103|         expect(last(SAMPLE).e.noteKey).toBe('done-hull');
+    104|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > trace contract > ends with exactly one done and stays within n(n-1)+2 <= 1562 events
+Error: gift wrapping did not close; invalid orientation result
+ ❯ giftWrappingTrace src/compgeo/giftWrapping.ts:63:49
+     61|     let current = start;
+     62|     do {
+     63|         if (hull.length >= unique.length) throw new Error('gift wrappi…
+       |                                                 ^
+     64|         hull.push(current);
+     65|         const others = unique.filter((i) => i !== current);
+ ❯ src/compgeo/giftWrapping.test.ts:118:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > trace contract > predicateCount is non-decreasing and equals the number of test events so far
+Error: gift wrapping did not close; invalid orientation result
+ ❯ giftWrappingTrace src/compgeo/giftWrapping.ts:63:49
+     61|     let current = start;
+     62|     do {
+     63|         if (hull.length >= unique.length) throw new Error('gift wrappi…
+       |                                                 ^
+     64|         hull.push(current);
+     65|         const others = unique.filter((i) => i !== current);
+ ❯ src/compgeo/giftWrapping.test.ts:131:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 4 passed (12)
+   Start at  21:47:52
+   Duration  2.50s (environment 49%, setup 26%, transform 21%, tests 3%, import 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

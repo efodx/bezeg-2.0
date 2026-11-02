@@ -1,0 +1,70 @@
+Waiting for unit (pid 117272) to finish starting before reading free memory.
+Memory available for unit after 45s.
+unit: failed (1) in 5.5s (1 workers, no slot); revision b213a37d2787597bdcd9d330356c2c74538c98b2; dirty; log .command-logs\2026-11-02T01-30-33-125Z-90268-6e5c4921.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/triangulationChapter.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/triangulationChapter.test.ts (7 tests | 2 failed) 29ms
+   ❯ chapter structure and registration (7)
+     × the lesson resolves, owns its section and keeps both languages complete 8ms
+     × learn launches, example links and old routes land on the owning section 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > the lesson resolves, owns its section and keeps both languages complete
+AssertionError: expected [ { …(2) }, { …(2) } ] to deeply equal [ { …(2) } ]
+
+- Expected
++ Received
+
+  [
+    {
++     "chapterId": "bezier-curves",
++     "sectionId": "geometric-properties",
++   },
++   {
+      "chapterId": "triangulations-voronoi",
+      "sectionId": "ear-clipping",
+    },
+  ]
+
+ ❯ src/learning/content/triangulationChapter.test.ts:57:43
+     55|
+     56|     test('the lesson resolves, owns its section and keeps both languag…
+     57|         expect(getGuidedLessonOwners(ID)).toEqual([{chapterId: TRIANGU…
+       |                                           ^
+     58|         expect(getGuidedLessonOwner(ID)).toEqual({chapterId: TRIANGULA…
+     59|         expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, ID)).…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > learn launches, example links and old routes land on the owning section
+AssertionError: expected '/bezeg-2.0/compgeo/ear-clipping?learn…' to contain 'learnChapter=triangulations-voronoi&l…'
+
+Expected: "learnChapter=triangulations-voronoi&learnSection=ear-clipping"
+Received: "/bezeg-2.0/compgeo/ear-clipping?learn=1&learnChapter=bezier-curves&learnSection=geometric-properties"
+
+ ❯ src/learning/content/triangulationChapter.test.ts:74:24
+     72|     test('learn launches, example links and old routes land on the own…
+     73|         const launch = guidedLessonLaunchPath(ID);
+     74|         expect(launch).toContain(`learnChapter=${TRIANGULATION_CHAPTER…
+       |                        ^
+     75|         expect(guidedLessonReturnPath(getGuidedLessonOwner(ID)!)).toBe…
+     76|         const search = launch.slice(launch.indexOf('?'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  02:30:34
+   Duration  4.04s (environment 37%, transform 34%, setup 19%, import 9%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

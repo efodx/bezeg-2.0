@@ -1,0 +1,39 @@
+unit: failed (1) in 8.1s (1 workers, no slot); revision 535925bdd284a3696b24bf90a3607641004d92b4; dirty; log .command-logs\2026-11-02T07-17-33-241Z-92104-f7e425ba.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (14 tests | 1 failed) 2432ms
+   × a legal flip keeps both counts, changes the smallest angle and shows both minima 241ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > a legal flip keeps both counts, changes the smallest angle and shows both minima
+AssertionError: expected 'Najmanjši kot pred zadnjo zamenjavo: …' to be 'Najmanjši kot pred zadnjo zamenjavo: …' // Object.is equality
+
+Expected: "Najmanjši kot pred zadnjo zamenjavo: 1,91°"
+Received: "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:124:37
+    122|     expect(readout('edges')).toBe('Robov: 13 = 3n − 3 − k = 3 · 7 − 3 …
+    123|     expect(readout('angle')).not.toBe(before);
+    124|     expect(readout('angle-before')).toBe(`Najmanjši kot pred zadnjo za…
+       |                                     ^
+    125|     expect(part('event')).toContain('je zamenjan z robom');
+    126|     expect(part('live')).toContain('je zamenjan z robom');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  08:17:34
+   Duration  7.11s (tests 35%, transform 26%, import 18%, environment 13%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

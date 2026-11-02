@@ -1,0 +1,89 @@
+unit: failed (1) in 11.1s (2 workers, no slot); revision 4723a2907ee102217636c7eefdeabb836b3c68c4; dirty; log .command-logs\2026-11-02T07-31-53-572Z-88316-36748437.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (40 tests | 6 failed) 4698ms
+   ❯ import refusals (15)
+     × a wrong point index is refused with its localized message 6ms
+     × a clockwise triangle is refused with its localized message 1ms
+     × overlapping triangles is refused with its localized message 1ms
+     × a missing triangle is refused with its localized message 1ms
+     × an empty list for valid points is refused with its localized message 0ms
+     × the nine-point list on the seven points is refused with its localized message 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > a wrong point index is refused with its localized message
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > the nine-point list on the seven points is refused with its localized message
+AssertionError: expected undefined to be 'tri_invalid_index' // Object.is equality
+
+- Expected:
+"tri_invalid_index"
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:424:36
+    422|     ];
+    423|     test.each(cases)('%s is refused with its localized message', (_nam…
+    424|         expect(refusalKey(make())).toBe(key);
+       |                                    ^
+    425|         const result = checked(make());
+    426|         if (!('rejection' in result)) throw new Error('not refused');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > a clockwise triangle is refused with its localized message
+AssertionError: expected undefined to be 'tri_invalid_clockwise' // Object.is equality
+
+- Expected:
+"tri_invalid_clockwise"
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:424:36
+    422|     ];
+    423|     test.each(cases)('%s is refused with its localized message', (_nam…
+    424|         expect(refusalKey(make())).toBe(key);
+       |                                    ^
+    425|         const result = checked(make());
+    426|         if (!('rejection' in result)) throw new Error('not refused');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > overlapping triangles is refused with its localized message
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > a missing triangle is refused with its localized message
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > an empty list for valid points is refused with its localized message
+AssertionError: expected undefined to be 'tri_invalid_triangulation' // Object.is equality
+
+- Expected:
+"tri_invalid_triangulation"
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:424:36
+    422|     ];
+    423|     test.each(cases)('%s is refused with its localized message', (_nam…
+    424|         expect(refusalKey(make())).toBe(key);
+       |                                    ^
+    425|         const result = checked(make());
+    426|         if (!('rejection' in result)) throw new Error('not refused');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 34 passed (40)
+   Start at  08:31:54
+   Duration  9.80s (tests 49%, transform 21%, import 15%, environment 10%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

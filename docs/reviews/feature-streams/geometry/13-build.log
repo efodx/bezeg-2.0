@@ -1,0 +1,4 @@
+Waiting for memory: build needs about 1.5 GB above the 0.5 GB floor; 1.6 GB available.
+Waiting for unit (pid 117032) to finish starting before reading free memory.
+Memory available for build after 90s.
+build: passed in 16.2s (test slot 2/2, 1 workers); revision 1f39cd2c86ec861317887f6c613d2a5356cf88ed; dirty; log .command-logs\2026-11-02T02-29-16-505Z-131352-3a619079.log; warnings present (see log)

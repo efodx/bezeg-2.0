@@ -1,0 +1,121 @@
+unit: failed (1) in 10.1s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-32-17-953Z-19352-8b399627.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoGuidedLessons.test.ts src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 4 failed) 2410ms
+   × the seven scenes show the polygon, step, overlays and result the text relies on, and never play 946ms
+   × step 7, the comb: n = 11, 9 triangles, 8 diagonals, classes 4, 4, 3 and three guards = floor(11/3) 236ms
+   × the worked examples equal the orientation value and the scene counts 302ms
+   × Back and a scene change while playing leave playback paused with no pending scheduler callback 208ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+AssertionError: expected [ …(7) ] to deeply equal [ …(7) ]
+
+- Expected
++ Received
+
+@@ -70,13 +70,13 @@
+      true,
+      false,
+      0,
+    ],
+    [
+-     11,
+-     34,
+-     35,
++     9,
++     27,
++     28,
+      true,
+      true,
+      true,
+      true,
+      true,
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:64:22
+     62|             return [h.graph.model.points.length, h.graph.step, run.len…
+     63|         });
+     64|         expect(seen).toEqual([
+       |                      ^
+     65|             [5, 0, 12, true, true, false, false, false, false, 0],
+     66|             [5, 0, 12, false, true, false, false, false, false, 0],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > step 7, the comb: n = 11, 9 triangles, 8 diagonals, classes 4, 4, 3 and three guards = floor(11/3)
+AssertionError: expected [ { x: +0, y: +0 }, …(8) ] to have a length of 11 but got 9
+
+- Expected
++ Received
+
+- 11
++ 9
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:168:38
+    166|         h.scene('earclip-comb');
+    167|         const summary = h.graph.run().summary!;
+    168|         expect(h.graph.model.points).toHaveLength(11);
+       |                                      ^
+    169|         expect([summary.triangles, summary.diagonals, ...summary.class…
+    170|         expect(summary.guardCount).toBe(Math.floor(11 / 3));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the worked examples equal the orientation value and the scene counts
+AssertionError: expected 'T=9,\; d=8,\; g=3' to be 'T=7,\; d=6,\; g=3' // Object.is equality
+
+Expected: "T=7,\; d=6,\; g=3"
+Received: "T=9,\; d=8,\; g=3"
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:195:57
+    193|         h.scene('earclip-comb');
+    194|         const comb = h.graph.run().summary!;
+    195|         expect(example('ear-comb-example').resultLatex).toBe(`T=${comb…
+       |                                                         ^
+    196|     } finally {
+    197|         h.mounted.view.unmount();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > Back and a scene change while playing leave playback paused with no pending scheduler callback
+AssertionError: expected [ false, +0, 27 ] to deeply equal [ false, +0, 34 ]
+
+- Expected
++ Received
+
+  [
+    false,
+    0,
+-   34,
++   27,
+  ]
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:234:64
+    232|         expect(h.pending()).toBe(1);
+    233|         h.scene('earclip-comb');
+    234|         expect([h.graph.isPlaying, h.pending(), h.graph.step]).toEqual…
+       |                                                                ^
+    235|         act(() => { h.capabilities.apply(PLAY); });
+    236|         expect([h.graph.isPlaying, h.pending()]).toEqual([false, 0]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 32 passed (36)
+   Start at  08:32:18
+   Duration  9.27s (tests 50%, transform 20%, import 14%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

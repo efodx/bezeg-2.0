@@ -1,0 +1,46 @@
+unit: failed (1) in 8.5s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-24-32-391Z-124776-9ca5587f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (16 tests | 1 failed) 4059ms
+   × while sweeping, the open intervals are highlighted and the current interval is thicker than the other open ones 195ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > while sweeping, the open intervals are highlighted and the current interval is thicker than the other open ones
+AssertionError: expected [ +0, 3 ] to deeply equal [ 1, 2 ]
+
+- Expected
++ Received
+
+  [
+-   1,
+-   2,
++   0,
++   3,
+  ]
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:151:43
+    149|     const current = objectsNamed(graph, 'sweep-current');
+    150|     const open = objectsNamed(graph, 'sweep-open');
+    151|     expect([current.length, open.length]).toEqual([1, 2]);
+       |                                           ^
+    152|     expect(current[0].dataY).toEqual([3, 3]);
+    153|     expect(open.map(o => o.dataY![0]).sort()).toEqual([1, 2]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  05:24:33
+   Duration  7.74s (tests 53%, transform 18%, import 13%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

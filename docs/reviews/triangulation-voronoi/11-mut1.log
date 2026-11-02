@@ -1,0 +1,173 @@
+unit: failed (1) in 5.0s (1 workers, no slot); revision 303432078802bca5d82c47ee73f5fb142b9edcbe; dirty; log .command-logs\2026-11-02T06-32-48-368Z-12092-dd34a3c3.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/pointInsertion.test.ts src/compgeo/delaunay.test.ts --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/pointInsertion.test.ts (11 tests | 6 failed) 67ms
+   ❯ boundaryCount (2)
+     × sample 1 (nine hull-lesson points): k = 6, one collinear, 10 triangles 5ms
+   ❯ insertPoint cases (7)
+     × outside: joined to the strictly visible edges, not to a collinear one 1ms
+     × refuses a duplicate and a point above the limit 1ms
+     × never mutates the input 1ms
+   ❯ random insertion after random flips (2)
+     × general-position grid sets 45ms
+     × collinear-rich grid sets 1ms
+ ❯ src/compgeo/delaunay.test.ts (18 tests | 4 failed) 278ms
+   ❯ incrementalTriangulation (5)
+     × a point collinear with a hull edge is not joined to it, so no degenerate triangle arises 9ms
+     × is valid on random sets with collinear points, with the 2n-2-k triangle count 1ms
+   ❯ Delaunay triangulation against an independent oracle (2)
+     × with degeneracies: valid, no illegal edge, and no point strictly inside any circumcircle 2ms
+   ❯ Lawson trace from random starts (6)
+     × terminates with done; angle vector grows strictly at every flip; flip order and result match the references 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/delaunay.test.ts > incrementalTriangulation > a point collinear with a hull edge is not joined to it, so no degenerate triangle arises
+Error: internal error: incremental triangulation refused (not-counter-clockwise)
+ ❯ incrementalTriangulation src/compgeo/delaunay.ts:100:27
+     98|     }
+     99|     const result = createTriangulation(points, triangles);
+    100|     if (!result.ok) throw new Error(`internal error: incremental trian…
+       |                           ^
+    101|     return {ok: true, value: result.value};
+    102| }
+ ❯ mustIncremental src/compgeo/delaunay.test.ts:35:20
+ ❯ src/compgeo/delaunay.test.ts:254:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/compgeo/delaunay.test.ts > incrementalTriangulation > is valid on random sets with collinear points, with the 2n-2-k triangle count
+Error: internal error: incremental triangulation refused (not-counter-clockwise)
+ ❯ incrementalTriangulation src/compgeo/delaunay.ts:100:27
+     98|     }
+     99|     const result = createTriangulation(points, triangles);
+    100|     if (!result.ok) throw new Error(`internal error: incremental trian…
+       |                           ^
+    101|     return {ok: true, value: result.value};
+    102| }
+ ❯ src/compgeo/delaunay.test.ts:269:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/compgeo/delaunay.test.ts > Delaunay triangulation against an independent oracle > with degeneracies: valid, no illegal edge, and no point strictly inside any circumcircle
+Error: internal error: incremental triangulation refused (not-counter-clockwise)
+ ❯ incrementalTriangulation src/compgeo/delaunay.ts:100:27
+     98|     }
+     99|     const result = createTriangulation(points, triangles);
+    100|     if (!result.ok) throw new Error(`internal error: incremental trian…
+       |                           ^
+    101|     return {ok: true, value: result.value};
+    102| }
+ ❯ delaunayTriangulation src/compgeo/delaunay.ts:214:19
+ ❯ src/compgeo/delaunay.test.ts:303:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/compgeo/delaunay.test.ts > Lawson trace from random starts > terminates with done; angle vector grows strictly at every flip; flip order and result match the references
+Error: internal error: incremental triangulation refused (not-counter-clockwise)
+ ❯ incrementalTriangulation src/compgeo/delaunay.ts:100:27
+     98|     }
+     99|     const result = createTriangulation(points, triangles);
+    100|     if (!result.ok) throw new Error(`internal error: incremental trian…
+       |                           ^
+    101|     return {ok: true, value: result.value};
+    102| }
+ ❯ src/compgeo/delaunay.test.ts:334:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > boundaryCount > sample 1 (nine hull-lesson points): k = 6, one collinear, 10 triangles
+Error: internal error: incremental triangulation refused (not-counter-clockwise)
+ ❯ incrementalTriangulation src/compgeo/delaunay.ts:100:27
+     98|     }
+     99|     const result = createTriangulation(points, triangles);
+    100|     if (!result.ok) throw new Error(`internal error: incremental trian…
+       |                           ^
+    101|     return {ok: true, value: result.value};
+    102| }
+ ❯ src/compgeo/pointInsertion.test.ts:79:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > insertPoint cases > outside: joined to the strictly visible edges, not to a collinear one
+Error: internal error: point insertion produced an invalid triangulation (not-counter-clockwise)
+ ❯ insertPoint src/compgeo/pointInsertion.ts:115:27
+    113|     }
+    114|     const result = createTriangulation(points, triangles);
+    115|     if (!result.ok) throw new Error(`internal error: point insertion p…
+       |                           ^
+    116|     return {ok: true, value: result.value, change};
+    117| }
+ ❯ src/compgeo/pointInsertion.test.ts:118:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > insertPoint cases > refuses a duplicate and a point above the limit
+Error: internal error: incremental triangulation refused (not-counter-clockwise)
+ ❯ incrementalTriangulation src/compgeo/delaunay.ts:100:27
+     98|     }
+     99|     const result = createTriangulation(points, triangles);
+    100|     if (!result.ok) throw new Error(`internal error: incremental trian…
+       |                           ^
+    101|     return {ok: true, value: result.value};
+    102| }
+ ❯ src/compgeo/pointInsertion.test.ts:141:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > insertPoint cases > never mutates the input
+Error: internal error: point insertion produced an invalid triangulation (not-counter-clockwise)
+ ❯ insertPoint src/compgeo/pointInsertion.ts:115:27
+    113|     }
+    114|     const result = createTriangulation(points, triangles);
+    115|     if (!result.ok) throw new Error(`internal error: point insertion p…
+       |                           ^
+    116|     return {ok: true, value: result.value, change};
+    117| }
+ ❯ src/compgeo/pointInsertion.test.ts:151:81
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > random insertion after random flips > general-position grid sets
+Error: internal error: incremental triangulation refused (not-counter-clockwise)
+ ❯ incrementalTriangulation src/compgeo/delaunay.ts:100:27
+     98|     }
+     99|     const result = createTriangulation(points, triangles);
+    100|     if (!result.ok) throw new Error(`internal error: incremental trian…
+       |                           ^
+    101|     return {ok: true, value: result.value};
+    102| }
+ ❯ run src/compgeo/pointInsertion.test.ts:170:22
+ ❯ src/compgeo/pointInsertion.test.ts:205:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > random insertion after random flips > collinear-rich grid sets
+Error: internal error: incremental triangulation refused (not-counter-clockwise)
+ ❯ incrementalTriangulation src/compgeo/delaunay.ts:100:27
+     98|     }
+     99|     const result = createTriangulation(points, triangles);
+    100|     if (!result.ok) throw new Error(`internal error: incremental trian…
+       |                           ^
+    101|     return {ok: true, value: result.value};
+    102| }
+ ❯ run src/compgeo/pointInsertion.test.ts:170:22
+ ❯ src/compgeo/pointInsertion.test.ts:211:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  10 failed | 19 passed (29)
+   Start at  07:32:49
+   Duration  3.45s (environment 49%, transform 24%, setup 20%, tests 6%, worker 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

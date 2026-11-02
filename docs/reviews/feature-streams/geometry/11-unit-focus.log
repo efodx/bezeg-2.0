@@ -1,0 +1,110 @@
+unit: failed (1) in 839.2s (1 workers, no slot); revision b97a330aa07e8891646e2ec79302da24f150ba28; dirty; log .command-logs\2026-11-01T12-38-43-542Z-129240-ff23e8de.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo src/learning
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts (26 tests | 1 failed) 4816ms
+   ❯ point-set scene actions are strict (15)
+     × the catalog checks shapes and finiteness only 8ms
+stderr | src/learning/LearningPage.test.tsx > Learn contains every family chapter and keeps guided activities inside chapters
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/LearningPage.test.tsx (27 tests | 1 failed) 2989ms
+   × Learn contains every family chapter and keeps guided activities inside chapters 69ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/content/familyChapters.test.ts (10 tests | 1 failed) 44ms
+   ❯ family reading chapters (10)
+     × links every existing demonstration from its matching family chapter 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/LearningPage.test.tsx > Learn contains every family chapter and keeps guided activities inside chapters
+AssertionError: expected [ '/bezeg-2.0/bezier', …(10) ] to deeply equal [ '/bezeg-2.0/bezier', …(12) ]
+
+- Expected
++ Received
+
+@@ -1,10 +1,8 @@
+  [
+    "/bezeg-2.0/bezier",
+-   "/bezeg-2.0/curve-geometry",
+    "/bezeg-2.0/functions",
+-   "/bezeg-2.0/interpolation",
+    "/bezeg-2.0/param",
+    "/bezeg-2.0/patches",
+    "/bezeg-2.0/ph",
+    "/bezeg-2.0/rational",
+    "/bezeg-2.0/spline",
+
+ ❯ src/learning/LearningPage.test.tsx:32:68
+     30|     const {container} = render(<MemoryRouter><LearningPage/></MemoryRo…
+     31|     const familiesWithChapters = getDemonstrationCatalog().families.ma…
+     32|     expect(learningChapters.map(chapter => chapter.family).sort()).toE…
+       |                                                                    ^
+     33|     expect(container.querySelectorAll('.learning-family')).toHaveLengt…
+     34|     expect(container.querySelectorAll('.learning-topic-heading')).toHa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > point-set scene actions are strict > the catalog checks shapes and finiteness only
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:230:131
+    228|         expect(() => sceneActions(scene(setPoints([[0, 0]])))).not.toT…
+    229|         expect(() => sceneActions(scene(setPoints([[0.5, Number.NaN]])…
+    230|         expect(() => sceneActions(scene({kind: 'point-set', operation:…
+       |                                                                                                                                   ^
+    231|         expect(() => sceneActions(scene({kind: 'point-set', operation:…
+    232|         // off-grid values are the graph's decision, not the catalog's
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/learning/content/familyChapters.test.ts > family reading chapters > links every existing demonstration from its matching family chapter
+AssertionError: expected [ 'patch-decasteljau', …(5) ] to deeply equal [ 'patch-coons', …(6) ]
+
+- Expected
++ Received
+
+@@ -1,7 +1,6 @@
+  [
+-   "patch-coons",
+    "patch-decasteljau",
+    "patch-derivatives",
+    "patch-joins",
+    "patch-subdivision",
+    "patch-tensor",
+
+ ❯ src/learning/content/familyChapters.test.ts:135:46
+    133|                 .filter(demo => demo.family === chapter.family && !CHA…
+    134|                 .map(demo => demo.id).sort();
+    135|             expect([...new Set(ids)].sort()).toEqual(expected);
+       |                                              ^
+    136|             for (const section of chapter.sections) {
+    137|                 for (const id of section.demonstrationIds ?? []) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 89 passed | 1 skipped (93)
+      Tests  3 failed | 1436 passed | 1 skipped (1440)
+   Start at  13:38:44
+   Duration  838.33s (tests 80%, environment 9%, setup 5%, import 5%, transform 1%)
+
+    Isolate  93 workers spawned · ~918ms startup each (spawn + environment, per file)
+             at least ~84.45s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,47 @@
+unit: failed (1) in 10.6s (2 workers, no slot); revision 1dfddf0c4b4ca6064291717cbb84e5a169878c88; dirty; log .command-logs\2026-11-02T12-49-56-493Z-121792-9452872d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayLessonActions --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx (12 tests | 1 failed) 4154ms
+   × set-trace-step pauses a running playback and leaves no scheduler callback 125ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > set-trace-step pauses a running playback and leaves no scheduler callback
+AssertionError: expected [ 1, true, 1 ] to deeply equal [ 1, false, +0 ]
+
+- Expected
++ Received
+
+  [
+    1,
+-   false,
+-   0,
++   true,
++   1,
+  ]
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:119:66
+    117|     expect([graph.isPlaying, frames.callbacks.size]).toEqual([true, 1]…
+    118|     apply(graph, traceStep(1));
+    119|     expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqu…
+       |                                                                  ^
+    120|     apply(graph, trace('next-step'));
+    121|     expect(graph.step).toBe(2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  13:49:57
+   Duration  9.12s (tests 47%, transform 21%, import 14%, environment 12%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

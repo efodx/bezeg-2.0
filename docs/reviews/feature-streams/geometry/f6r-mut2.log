@@ -1,0 +1,41 @@
+Waiting for build (pid 85660) to finish starting before reading free memory.
+Memory available for unit after 10s.
+unit: failed (1) in 7.9s (2 workers, no slot); revision 0ba214ac26dca130b067717a5b6d5ab4d90d28d9; dirty; log .command-logs\2026-11-02T06-58-18-556Z-118580-1314ab41.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/compgeoDefaultView.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/compgeoDefaultView.host.test.tsx (12 tests | 2 failed) 1901ms
+   ❯ convex hull default view (2)
+     × the first view holds the default example with a margin of at least half a unit on every side 93ms
+   ❯ polygon area default view (2)
+     × the first view holds the default example with a margin of at least half a unit on every side 125ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/compgeoDefaultView.host.test.tsx > convex hull default view > the first view holds the default example with a margin of at least half a unit on every side
+ FAIL  src/graphs/compgeo/compgeoDefaultView.host.test.tsx > polygon area default view > the first view holds the default example with a margin of at least half a unit on every side
+AssertionError: expected 0 to be greater than or equal to 0.5
+ ❯ src/graphs/compgeo/compgeoDefaultView.host.test.tsx:47:29
+     45|             expect(x - left).toBeGreaterThanOrEqual(0.5);
+     46|             expect(right - x).toBeGreaterThanOrEqual(0.5);
+     47|             expect(top - y).toBeGreaterThanOrEqual(0.5);
+       |                             ^
+     48|             expect(y - bottom).toBeGreaterThanOrEqual(0.5);
+     49|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  07:58:19
+   Duration  6.77s (transform 29%, tests 29%, import 21%, environment 13%, setup 8%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,45 @@
+unit: failed (1) in 6.6s (2 workers, no slot); revision cc35b8425a83e7db719a91c604392d30bc2324a4; dirty; log .command-logs\2026-11-02T11-39-06-217Z-114912-a5d04998.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host -t only n and k
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/compgeo/TriangulationGraph.host.test.tsx > with the triangulation overlay hidden the panel shows only n and k: no counts, angles or edge list give the triangulation away
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (46 tests | 1 failed | 45 skipped) 443ms
+   × with the triangulation overlay hidden the panel shows only n and k: no counts, angles or edge list give the triangulation away 439ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > with the triangulation overlay hidden the panel shows only n and k: no counts, angles or edge list give the triangulation away
+AssertionError: expected 'Trikotnikov: 7 = 2n − 2 − k = 2 · 7 −…' to be undefined
+
+- Expected:
+undefined
+
++ Received:
+"Trikotnikov: 7 = 2n − 2 − k = 2 · 7 − 2 − 5"
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:327:95
+    325|     expect(readout('n')).toContain('7');
+    326|     expect(readout('k')).toContain('5');
+    327|     for (const name of ['triangles', 'edges', 'angle', 'angle-before']…
+       |                                                                                               ^
+    328|     expect(list()).toBeNull();
+    329|     expect(button()).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 45 skipped (46)
+   Start at  12:39:07
+   Duration  5.57s (transform 39%, import 27%, environment 16%, setup 10%, tests 8%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

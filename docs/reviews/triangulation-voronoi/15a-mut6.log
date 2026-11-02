@@ -1,0 +1,43 @@
+unit: failed (1) in 6.3s (2 workers, no slot); revision 6f3c67cfa904e82c81b8630b53c7344acc1eed4c; dirty; log .command-logs\2026-11-02T10-47-40-716Z-16192-ae81e8aa.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationLessonActions src/learning/runtime/lessonCatalog --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/runtime/lessonCatalog.test.ts (14 tests | 1 failed) 26ms
+   ❯ typed scene actions (4)
+     × triangulation point-set actions pass with the right shape and are rejected otherwise 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/runtime/lessonCatalog.test.ts > typed scene actions > triangulation point-set actions pass with the right shape and are rejected otherwise
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/learning/runtime/lessonCatalog.test.ts:226:69
+    224|         expect(() => run(ps('select-edge', {edge: null}))).not.toThrow…
+    225|         for (const triangles of [undefined, 'x', [[0, 1]], [[0, 1, 2, …
+    226|             expect(() => run(ps('set-triangulation', {triangles}))).to…
+       |                                                                     ^
+    227|         }
+    228|         for (const edge of [undefined, null, 'ab', [0], [0, 1, 2], [0,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 22 passed (23)
+   Start at  11:47:41
+   Duration  5.45s (transform 29%, environment 21%, tests 18%, import 18%, setup 13%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,49 @@
+unit: failed (1) in 6.9s (2 workers, no slot); revision 02a6ac3a41f0191f548484e9e08b233d6107b63f; dirty; log .command-logs\2026-11-01T04-13-28-841Z-117836-0be45e1f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullTraceLessonActions.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx (10 tests | 1 failed) 2911ms
+   × set-algorithm switches, returns to step 0 and pauses a running playback 75ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullTraceLessonActions.host.test.tsx > set-algorithm switches, returns to step 0 and pauses a running playback
+AssertionError: expected [ 'gift-wrapping', 1, true, 1 ] to deeply equal [ 'gift-wrapping', +0, false, +0 ]
+
+- Expected
++ Received
+
+  [
+    "gift-wrapping",
+-   0,
+-   false,
+-   0,
++   1,
++   true,
++   1,
+  ]
+
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx:150:83
+    148|     expect(graph.step).toBeGreaterThan(0);
+    149|     apply(graph, setAlgorithm('gift-wrapping'));
+    150|     expect([graph.algorithm, graph.step, graph.isPlaying, frames.callb…
+       |                                                                                   ^
+    151|     expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
+    152| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  05:13:29
+   Duration  6.23s (tests 48%, transform 21%, import 14%, environment 11%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

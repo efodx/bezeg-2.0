@@ -1,0 +1,38 @@
+warning: in the working copy of 'scripts/demonstration-preview-recipes.cjs', LF will be replaced by CRLF the next time Git touches it
+Captured point-set-triangulation: 720×440, axes/grid hide, 20 framed objects
+Captured delaunay: 720×440, axes/grid hide, 17 framed objects
+AssertionError [ERR_ASSERTION]: Capture order and exhaustive route metadata no longer match
++ actual - expected
+... Skipped lines
+
+  [
+    'bernstein',
+    'complex-multiplication',
+    'bezier',
+    'decasteljau',
+...
+    'interp-subdivision',
+-   'bspline-basis',
+-   'bspline-deboor',
+    'patch-tensor',
+    'patch-decasteljau',
+    'patch-derivatives',
+    'patch-subdivision',
+    'patch-joins',
+...
+    'inscribed-angle',
+-   'euler-line',
+    'orientation',
+    'polygon-area',
+    'convex-hull',
+    'ear-clipping',
+    'point-set-triangulation',
+
+    at main (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\scripts\capture-demonstration-previews.cjs:776:12) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [Array],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}

@@ -1,0 +1,39 @@
+unit: failed (1) in 9.5s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-39-42-378Z-133084-9867d394.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 1 failed) 4020ms
+   × the quoted numbers appear in the step text of both languages 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the quoted numbers appear in the step text of both languages
+AssertionError: earclip-comb scene sl \(8\): expected 'Glavnik: \(9\) trikotnikov, \(7\) dia…' to contain '\(8\)'
+
+Expected: "\(8\)"
+Received: "Glavnik: \(9\) trikotnikov, \(7\) diagonal, razredi \(4\), \(4\), \(3\) in tri stražarji; predvajanje je ustavljeno."
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:224:64
+    222|         const expected = authored.scene!.expectedState;
+    223|         for (const token of tokens) {
+    224|             expect(expected.sl, `${stepId} scene sl ${token}`).toConta…
+       |                                                                ^
+    225|             expect(expected.en, `${stepId} scene en ${token}`).toConta…
+    226|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  08:39:43
+   Duration  8.53s (tests 48%, transform 20%, import 14%, environment 10%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

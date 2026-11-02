@@ -1,0 +1,49 @@
+unit: failed (1) in 863.1s (2 workers, no slot); revision cc35b8425a83e7db719a91c604392d30bc2324a4; dirty; log .command-logs\2026-11-02T11-39-28-744Z-88412-31c63bed.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning src/graphs/compgeo
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts (6 tests | 1 failed) 16ms
+   ❯ guided example preview copy (6)
+     × provides a bilingual alt and observation caption for every available lesson and activity 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/guidedExamplePreviewCopy.test.ts > guided example preview copy > provides a bilingual alt and observation caption for every available lesson and activity
+AssertionError: expected [ 'bernstein', …(79) ] to have a length of 79 but got 80
+
+- Expected
++ Received
+
+- 79
++ 80
+
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts:23:45
+     21|         const missingActivityCopy = activityIds.filter(id => !Object.h…
+     22|
+     23|         expect(GUIDED_LESSON_AVAILABLE_IDS).toHaveLength(79);
+       |                                             ^
+     24|         expect(lessonIds).toHaveLength(GUIDED_LESSON_AVAILABLE_IDS.len…
+     25|         expect(missingLessonCopy).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 122 passed | 1 skipped (124)
+      Tests  1 failed | 1938 passed | 1 skipped (1940)
+   Start at  12:39:29
+   Duration  861.97s (tests 83%, environment 7%, import 5%, setup 4%, transform 1%)
+
+    Isolate  124 workers spawned · ~1.13s startup each (spawn + environment, per file)
+             at least ~68.95s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

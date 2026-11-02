@@ -1,0 +1,112 @@
+smoke-built: failed (1) in 90.7s (test slot 1/1, 2 workers); revision a94c4e98b83b71a7946a8374b62cc6e44d05953f; dirty; reusing build from revision a94c4e98b83b71a7946a8374b62cc6e44d05953f (dirty at build time); log .command-logs\2026-11-01T11-49-12-497Z-97724-81cc5301.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test:smoke:built
+> playwright test tests/demonstrations.smoke.spec.cjs --grep renders its heading
+
+[WebServer] Production smoke preview: http://127.0.0.1:4313/bezeg-2.0
+
+Running 60 tests using 1 worker
+
+  ok  1 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › bernstein renders its heading, graph, and inspector (4.2s)
+  ok  2 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › complex-multiplication renders its heading, graph, and inspector (1.1s)
+  ok  3 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › bezier renders its heading, graph, and inspector (971ms)
+  ok  4 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › decasteljau renders its heading, graph, and inspector (1.0s)
+  ok  5 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › decasteljau-alternative renders its heading, graph, and inspector (939ms)
+  ok  6 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › affine renders its heading, graph, and inspector (883ms)
+  ok  7 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › subdivision renders its heading, graph, and inspector (911ms)
+  ok  8 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › repeated-subdivision renders its heading, graph, and inspector (902ms)
+  ok  9 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › extrapolation renders its heading, graph, and inspector (1.1s)
+  ok 10 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › elevation renders its heading, graph, and inspector (1.0s)
+  ok 11 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › rational renders its heading, graph, and inspector (903ms)
+  ok 12 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › rational-decasteljau renders its heading, graph, and inspector (1.1s)
+  ok 13 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › rational-elevation renders its heading, graph, and inspector (922ms)
+  ok 14 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › rational-extrapolation renders its heading, graph, and inspector (955ms)
+  ok 15 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › rational-subdivision renders its heading, graph, and inspector (977ms)
+  ok 16 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › farin renders its heading, graph, and inspector (915ms)
+  ok 17 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › circle renders its heading, graph, and inspector (1.0s)
+  ok 18 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › spline-cn renders its heading, graph, and inspector (1.0s)
+  ok 19 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › spline-c1 renders its heading, graph, and inspector (3.6s)
+  ok 20 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › spline-c2 renders its heading, graph, and inspector (1.1s)
+  ok 21 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › spline-g1 renders its heading, graph, and inspector (1.2s)
+  ok 22 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › spline-g1-symmetric renders its heading, graph, and inspector (1.1s)
+  ok 23 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › ph-cubic renders its heading, graph, and inspector (1.1s)
+  ok 24 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › ph-quintic renders its heading, graph, and inspector (1.2s)
+  ok 25 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › spline-parameterization renders its heading, graph, and inspector (1.2s)
+  ok 26 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › weighted-parameterization renders its heading, graph, and inspector (1.1s)
+  ok 27 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › uniform-parameterization renders its heading, graph, and inspector (1.0s)
+  ok 28 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › patch-tensor renders its heading, graph, and inspector (1.3s)
+  ok 29 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › patch-decasteljau renders its heading, graph, and inspector (1.2s)
+  ok 30 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › patch-derivatives renders its heading, graph, and inspector (1.3s)
+  ok 31 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › patch-subdivision renders its heading, graph, and inspector (1.2s)
+  ok 32 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › patch-joins renders its heading, graph, and inspector (1.4s)
+  ok 33 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › patch-triangular renders its heading, graph, and inspector (1.3s)
+  ok 34 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › linear-function renders its heading, graph, and inspector (877ms)
+  ok 35 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › exponential-function renders its heading, graph, and inspector (908ms)
+  ok 36 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › trigonometric-functions renders its heading, graph, and inspector (922ms)
+  ok 37 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › continuity renders its heading, graph, and inspector (867ms)
+  ok 38 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › derivative renders its heading, graph, and inspector (810ms)
+  ok 39 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › definite-integral renders its heading, graph, and inspector (896ms)
+  ok 40 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › area-between-curves renders its heading, graph, and inspector (921ms)
+  ok 41 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › arc-length renders its heading, graph, and inspector (1.0s)
+  ok 42 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › bisection renders its heading, graph, and inspector (996ms)
+  ok 43 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › mean-value renders its heading, graph, and inspector (970ms)
+  ok 44 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › accumulation renders its heading, graph, and inspector (938ms)
+  ok 45 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › darboux renders its heading, graph, and inspector (801ms)
+  ok 46 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › extrema renders its heading, graph, and inspector (889ms)
+  ok 47 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › convexity renders its heading, graph, and inspector (824ms)
+  ok 48 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › taylor renders its heading, graph, and inspector (925ms)
+  ok 49 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › sequence renders its heading, graph, and inspector (874ms)
+  ok 50 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › uniform-convergence renders its heading, graph, and inspector (902ms)
+  ok 51 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › fixed-point renders its heading, graph, and inspector (902ms)
+  ok 52 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › linear-map renders its heading, graph, and inspector (942ms)
+  ok 53 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › complex-reciprocal renders its heading, graph, and inspector (965ms)
+  ok 54 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › complex-roots renders its heading, graph, and inspector (1.2s)
+  ok 55 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › orientation renders its heading, graph, and inspector (867ms)
+  ok 56 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › polygon-area renders its heading, graph, and inspector (962ms)
+  x  57 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › convex-hull renders its heading, graph, and inspector (20.3s)
+  ok 58 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › ear-clipping renders its heading, graph, and inspector (1.0s)
+  ok 59 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › interval-sweep renders its heading, graph, and inspector (1.1s)
+  ok 60 [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › segment-intersections renders its heading, graph, and inspector (861ms)
+
+
+  1) [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › convex-hull renders its heading, graph, and inspector 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+    Call Log:
+    - Timeout 20000ms exceeded while waiting on the predicate
+
+      45 |                 return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
+      46 |             }).length;
+    > 47 |         }), {timeout: 20_000}).toBeGreaterThan(0);
+         |                                ^
+      48 |     }
+      49 |
+      50 |     const inspector = page.getByRole('complementary', {name: 'Demonstration tools'});
+        at expectRenderedWorkspace (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\tests\demonstrations.smoke.spec.cjs:47:32)
+        at C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\tests\demonstrations.smoke.spec.cjs:268:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-4313\demonstrations.smoke-conve-dd790-heading-graph-and-inspector-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-4313\demonstrations.smoke-conve-dd790-heading-graph-and-inspector-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-4313\demonstrations.smoke-conve-dd790-heading-graph-and-inspector-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-4313\demonstrations.smoke-conve-dd790-heading-graph-and-inspector-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\demonstrations.smoke.spec.cjs:266:5 › convex-hull renders its heading, graph, and inspector 
+  59 passed (1.5m)
+
+error: recipe `smoke-built` failed on line 38 with exit code 1

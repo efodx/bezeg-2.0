@@ -1,0 +1,5 @@
+Waiting for a test slot; all 1 busy: check in stream-platform (pid 119720).
+Got test slot 1/1 after 2s.
+Waiting for memory: build needs about 1.5 GB above the 2 GB floor; 1.9 GB available.
+Memory available for build after 10s.
+build: passed in 10.2s (test slot 1/1, 1 workers); revision 18bf042fbf4cd3cff1118db504cf52cfee3d1879; dirty; log .command-logs\2026-11-01T12-24-05-075Z-520-9da49103.log; warnings present (see log)

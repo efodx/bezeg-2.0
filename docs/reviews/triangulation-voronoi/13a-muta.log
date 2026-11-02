@@ -1,0 +1,41 @@
+Waiting for typecheck (pid 91764) to finish starting before reading free memory.
+Memory available for unit after 15s.
+unit: failed (1) in 17.7s (2 workers, no slot); revision 280d86ea7e0e12de8e65ddb7db535012006a039d; dirty; log .command-logs\2026-11-02T08-12-05-827Z-14604-34212df3.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (13 tests | 1 failed) 12678ms
+   × the unit square ends with zero flips, both diagonals legal with determinant 0, and the non-unique note 7183ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > the unit square ends with zero flips, both diagonals legal with determinant 0, and the non-unique note
+AssertionError: expected 'Zamenjav doslej: 299' to be 'Zamenjav doslej: 0' // Object.is equality
+
+Expected: "Zamenjav doslej: 0"
+Received: "Zamenjav doslej: 299"
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:173:30
+    171|     expect(part('cocircular')).toBeUndefined();
+    172|     toEnd(graph);
+    173|     expect(readout('flips')).toBe('Zamenjav doslej: 0');
+       |                              ^
+    174|     expect(part('done')).toBe('Vsi robovi so ustrezni: Delaunayeva tri…
+    175|     expect(part('cocircular')).toBe('Kocirkularne točke: triangulacija…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  09:12:06
+   Duration  16.81s (tests 76%, transform 10%, import 7%, environment 5%, setup 3%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,78 @@
+unit: failed (1) in 4.9s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-27-25-964Z-39104-b83fbaac.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoHullLesson --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/content/compgeoHullLesson.test.ts > the seven scenes show the algorithm, step, tests so far, accepted edges and overlays the text relies on, and never play
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/content/compgeoHullLesson.test.ts (6 tests | 2 failed) 948ms
+   × the seven scenes show the algorithm, step, tests so far, accepted edges and overlays the text relies on, and never play 442ms
+   × monotone chain: -2 at (2, 0) removes (1, 1), then 0 at (2, 5) removes (2, 2); the worked examples equal the orientation values 85ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoHullLesson.test.ts > the seven scenes show the algorithm, step, tests so far, accepted edges and overlays the text relies on, and never play
+AssertionError: expected [ …(7) ] to deeply equal [ …(7) ]
+
+- Expected
++ Received
+
+@@ -28,14 +28,14 @@
+      true,
+      false,
+      0,
+    ],
+    [
+-     "monotone-chain",
++     "gift-wrapping",
+      5,
+-     2,
+-     1,
++     6,
++     0,
+      true,
+      true,
+      false,
+      0,
+    ],
+
+ ❯ src/learning/content/compgeoHullLesson.test.ts:58:22
+     56|                 h.graph.overlayShown('trace'), h.graph.overlayShown('h…
+     57|         });
+     58|         expect(seen).toEqual([
+       |                      ^
+     59|             ['slow-edge-test', 0, 7, 0, true, true, false, 0],
+     60|             ['slow-edge-test', 0, 7, 0, false, false, false, 0],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/compgeoHullLesson.test.ts > monotone chain: -2 at (2, 0) removes (1, 1), then 0 at (2, 5) removes (2, 2); the worked examples equal the orientation values
+AssertionError: expected 'Orientacija trojice = 6; preizkušana …' to be 'Orientacija trojice = −2; preizkušana…' // Object.is equality
+
+Expected: "Orientacija trojice = −2; preizkušana točka P8 (2, 0)"
+Received: "Orientacija trojice = 6; preizkušana točka P8 (2, 0)"
+
+ ❯ src/learning/content/compgeoHullLesson.test.ts:96:32
+     94|     try {
+     95|         h.scene('hull-monotone-chain');
+     96|         expect(part('detail')).toBe('Orientacija trojice = −2; preizku…
+       |                                ^
+     97|         h.press();
+     98|         expect(h.graph.run().event(h.graph.step)?.note).toBe('reject-p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  05:27:26
+   Duration  4.23s (transform 30%, tests 23%, import 21%, environment 16%, setup 10%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

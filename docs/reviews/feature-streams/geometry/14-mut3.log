@@ -1,0 +1,115 @@
+unit: failed (1) in 6.0s (2 workers, no slot); revision a370ab98ae713a5b310f86fc1d5971e8cdeccef4; dirty; log .command-logs\2026-11-01T03-47-17-273Z-102032-f047d81c.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/pointSetIntervals src/graphs/compgeo/PointSetIntervals --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx (14 tests | 4 failed) 1944ms
+   × Add interval (keyboard) appends on the next row and the board and counter follow; the 11th is refused 230ms
+   × Add mode: two clicks add an interval on the next row from the snapped x values; Escape cancels 148ms
+   × removing interval 0 shifts the later intervals down a row on the board; Delete and the buttons remove the whole interval 136ms
+   × switching to intervals puts the points on rows (even prefix) and back to points keeps them 150ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/PointSetIntervals.host.test.tsx > Add interval (keyboard) appends on the next row and the board and counter follow; the 11th is refused
+AssertionError: expected [ 'a', 'a', 'b' ] to deeply equal [ 'a', 'b' ]
+
+- Expected
++ Received
+
+  [
+    "a",
++   "a",
+    "b",
+  ]
+
+ ❯ expectBoardMatchesModel src/graphs/compgeo/PointSetIntervals.host.test.tsx:46:42
+     44|     expect(endpointObjects(graph).map(p => [p.X!(), p.Y!()])).toEqual(…
+     45|     const labels = labelObjects(graph);
+     46|     expect(labels.map(l => l.plaintext)).toEqual(modelIntervals(graph)…
+       |                                          ^
+     47|     labels.forEach((label, k) => {
+     48|         const [[ax], [bx]] = modelIntervals(graph)[k];
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx:98:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/graphs/compgeo/PointSetIntervals.host.test.tsx > Add mode: two clicks add an interval on the next row from the snapped x values; Escape cancels
+AssertionError: expected [ 'a', 'a', 'b' ] to deeply equal [ 'a', 'b' ]
+
+- Expected
++ Received
+
+  [
+    "a",
++   "a",
+    "b",
+  ]
+
+ ❯ expectBoardMatchesModel src/graphs/compgeo/PointSetIntervals.host.test.tsx:46:42
+     44|     expect(endpointObjects(graph).map(p => [p.X!(), p.Y!()])).toEqual(…
+     45|     const labels = labelObjects(graph);
+     46|     expect(labels.map(l => l.plaintext)).toEqual(modelIntervals(graph)…
+       |                                          ^
+     47|     labels.forEach((label, k) => {
+     48|         const [[ax], [bx]] = modelIntervals(graph)[k];
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx:119:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/graphs/compgeo/PointSetIntervals.host.test.tsx > removing interval 0 shifts the later intervals down a row on the board; Delete and the buttons remove the whole interval
+AssertionError: expected [ 'a', 'b', 'c', 'a', 'b' ] to deeply equal [ 'a', 'b' ]
+
+- Expected
++ Received
+
+  [
+    "a",
+    "b",
++   "c",
++   "a",
++   "b",
+  ]
+
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx:167:55
+    165|     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ods…
+    166|     expect(graph.model.points).toEqual([{x: -3, y: 1}, {x: 1, y: 1}, {…
+    167|     expect(labelObjects(graph).map(l => l.plaintext)).toEqual(['a', 'b…
+       |                                                       ^
+    168|     expectBoardMatchesModel(graph);
+    169|     act(() => { graph.select(3); });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/graphs/compgeo/PointSetIntervals.host.test.tsx > switching to intervals puts the points on rows (even prefix) and back to points keeps them
+AssertionError: expected [ <Anonymous Class>{ …(68) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx:262:33
+    260|     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Toč…
+    261|     expect(segmentObjects(graph)).toHaveLength(0);
+    262|     expect(labelObjects(graph)).toHaveLength(0);
+       |                                 ^
+    263|     expect(endpointObjects(graph)).toHaveLength(2);
+    264| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 15 passed (19)
+   Start at  04:47:17
+   Duration  5.34s (tests 29%, transform 25%, environment 21%, setup 13%, import 13%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

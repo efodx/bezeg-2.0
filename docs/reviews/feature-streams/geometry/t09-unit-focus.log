@@ -1,0 +1,124 @@
+unit: failed (1) in 342.3s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T06-58-37-707Z-93556-2a9694b4.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning src/graphs/compgeo
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 1 failed) 3589ms
+   × the quoted numbers appear in the step text of both languages 7ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/content/lessonMathNotation.test.ts (3 tests | 1 failed) 128ms
+   × scans every lesson module 8ms
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts (6 tests | 1 failed) 12ms
+   ❯ guided example preview copy (6)
+     × provides a bilingual alt and observation caption for every available lesson and activity 7ms
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts (2 tests | 1 failed) 10ms
+   × every available demonstration has exactly one default smoke row and patch sections add only their explicit extras 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the quoted numbers appear in the step text of both languages
+AssertionError: earclip-polygon sl \(12\): expected 'Večkotnik ima oglišča \((0,0)\), \((6…' to contain '\(12\)'
+
+Expected: "\(12\)"
+Received: "Večkotnik ima oglišča \((0,0)\), \((6,0)\), \((6,4)\), \((3,2)\), \((0,4)\) in ploščino \(18\). Oglišče \((3,2)\) je vbočeno (reflektno): tam se rob zavije v desno, notranji kot pa je večji od \(180^\circ\). Označeno je z rombom; ostala štiri oglišča so izbočena. Uho je izbočeno oglišče, v trikotniku katerega in njegovih sosed ni nobenega drugega oglišča. Rezanje ušes večkotnik razreže na trikotnike tako, da vedno odreže eno uho."
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:212:59
+    210|         const step = stepOf(stepId);
+    211|         for (const token of tokens) {
+    212|             expect(step.body.sl, `${stepId} sl ${token}`).toContain(to…
+       |                                                           ^
+    213|             expect(step.body.en, `${stepId} en ${token}`).toContain(to…
+    214|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/learning/content/guidedExamplePreviewCopy.test.ts > guided example preview copy > provides a bilingual alt and observation caption for every available lesson and activity
+AssertionError: expected [ 'bernstein', …(54) ] to have a length of 54 but got 55
+
+- Expected
++ Received
+
+- 54
++ 55
+
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts:23:45
+     21|         const missingActivityCopy = activityIds.filter(id => !Object.h…
+     22|
+     23|         expect(GUIDED_LESSON_AVAILABLE_IDS).toHaveLength(54);
+       |                                             ^
+     24|         expect(lessonIds).toHaveLength(GUIDED_LESSON_AVAILABLE_IDS.len…
+     25|         expect(missingLessonCopy).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > scans every lesson module
+AssertionError: expected [ 'accumulation', 'affine', …(58) ] to deeply equal [ 'accumulation', 'affine', …(57) ]
+
+- Expected
++ Received
+
+@@ -14,10 +14,11 @@
+    "darboux",
+    "decasteljau",
+    "decasteljau-alternative",
+    "definite-integral",
+    "derivative",
++   "ear-clipping",
+    "elevation",
+    "exponential-function",
+    "extrapolation",
+    "extrema",
+    "farin",
+
+ ❯ src/learning/content/lessonMathNotation.test.ts:155:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/learning/runtime/lessonSmokeCoverage.test.ts > every available demonstration has exactly one default smoke row and patch sections add only their explicit extras
+AssertionError: expected [ 'accumulation', 'affine', …(52) ] to deeply equal [ 'accumulation', 'affine', …(53) ]
+
+- Expected
++ Received
+
+@@ -14,11 +14,10 @@
+    "darboux",
+    "decasteljau",
+    "decasteljau-alternative",
+    "definite-integral",
+    "derivative",
+-   "ear-clipping",
+    "elevation",
+    "exponential-function",
+    "extrapolation",
+    "extrema",
+    "farin",
+
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts:20:34
+     18|     expect(new Set(rowIds).size).toBe(rowIds.length);
+     19|     const defaults = rowIds.filter(id => !sectionRows.includes(id));
+     20|     expect([...defaults].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_I…
+       |                                  ^
+     21|     expect([...patchRowIds].filter(id => sectionRows.includes(id)).sor…
+     22| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  4 failed | 79 passed | 1 skipped (84)
+      Tests  4 failed | 1320 passed | 1 skipped (1325)
+   Start at  07:58:38
+   Duration  341.55s (tests 80%, environment 9%, setup 5%, import 5%, transform 1%)
+
+    Isolate  84 workers spawned · ~826ms startup each (spawn + environment, per file)
+             at least ~33.88s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

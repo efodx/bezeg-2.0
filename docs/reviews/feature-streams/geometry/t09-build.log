@@ -1,0 +1,3 @@
+Waiting for a test slot; all 1 busy: check in stream-platform (pid 103632).
+Got test slot 1/1 after 219s.
+build: passed in 6.0s (test slot 1/1, 4 workers); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-52-13-930Z-110588-6bb8cf8d.log; warnings present (see log)

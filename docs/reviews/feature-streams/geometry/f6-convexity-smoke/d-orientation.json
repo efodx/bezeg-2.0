@@ -1,0 +1,33 @@
+{
+ "errs": [],
+ "before": {
+  "prog": "Korak 3 od 6 · Okvir 1 od 3",
+  "nums": "0,0,4,0,3,2,0,0",
+  "sig": "52",
+  "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Vrednost in predznak Za 𝑝 = ( 0 , 0 ) , 𝑞 = ( 4 , 0 ) , 𝑟 = ( 3 , 2 ) je 𝐷 = ( 4 − 0 ) ( 2 − 0 ) − ( 0 − 0 ) ( 3 − 0 ) = 8 . Vrednost je pozitivna, zato je zavoj levi; trikotnik je obarvan in na grafu piše + 8 . 𝐷 = ( 𝑞 𝑥 − 𝑝 𝑥 ) ( 𝑟 𝑦 − 𝑝 𝑦 ) − ( 𝑞 𝑦 − 𝑝 𝑦 ) ( 𝑟 𝑥 − 𝑝 𝑥 ) 𝑝 , 𝑞 , 𝑟 so točke s koordinatama ( 𝑥 , 𝑦 ) ; 𝐷 je celo število, če so koordinate cele. Razlaga Korak 3 od 6 · Okvir 1 od 3 Prejšnji okvir Naslednji okvir"
+ },
+ "after": {
+  "prog": "Step 3 of 6 · Frame 1 of 3",
+  "nums": "0,0,4,0,3,2,0,0",
+  "sig": "52",
+  "txt": "Orientation of three points Hide Exit Convexity and hulls · Orientation of three points Return to chapter The value and the sign For 𝑝 = ( 0 , 0 ) , 𝑞 = ( 4 , 0 ) , 𝑟 = ( 3 , 2 ) we get 𝐷 = ( 4 − 0 ) ( 2 − 0 ) − ( 0 − 0 ) ( 3 − 0 ) = 8 . The value is positive, so the turn is left; the triangle is shaded and the graph shows + 8 . 𝐷 = ( 𝑞 𝑥 − 𝑝 𝑥 ) ( 𝑟 𝑦 − 𝑝 𝑦 ) − ( 𝑞 𝑦 − 𝑝 𝑦 ) ( 𝑟 𝑥 − 𝑝 𝑥 ) 𝑝 , 𝑞 , 𝑟 are points with coordinates ( 𝑥 , 𝑦 ) ; 𝐷 is an integer when the coordinates are integers. Explanation Step 3 of 6 · Frame 1 of 3 Previous frame Next frame"
+ },
+ "keptStepAndScene": true,
+ "bodyEn": " Za uporabo Bezega omogoči JavaScript. <span lang=\"en\">Enable JavaScript to use Bezeg.</span> BezegLearningDemonstrationsLanguage SLENDemonstrations / Computational geometry / Orientation of three pointsOrientation of three pointsChange the settings and observe their effect on the graph.Switch demonstrationPresentation modeOrientation of three pointsHideExitConvexity and hulls · Orientation of three pointsReturn to chapterThe value and the signFor p=(0,0), q=(4,0), r=(3,2) we get D=(4−0)(2−0)−(0−0)(3−0)=8. The value is positive, so the turn is left; the triangle is shaded and the graph shows +8.D=(qx−px)(ry−py)−(qy−py)(rx−px)p, q, r are points with coordinates (x,y); D is an integer when the coordinates are integers.ExplanationStep 3 of 6 · Frame 1 of 3Previous frameNext frameGraph0,02468−2−4−6−81234−1−2−3−4P1P2P3+8: left turn←↑↓→+−Fit to pointsPan: Shift + drag · Zoom: Shift + mouse wheelTry and observeMove the point r and watch when the turn p, q, r changes from left to right. What does the sign of the determinant expression say, and where does r lie when the value is 0?Next promptTools for this graphToolsCollapseEditDisplaySavecurveviewexampleOrientation of p, q, r: +8 (left turn)PointsPolygon Grid Turn Numeric valuesGrid step: 1. Coordinates are whole numbers of steps.Add by tapping or clickingRemoveClearPoints: 3 of at most 3No point is selected.PointsP1Select point 1P2Select point 2P3Select point 3Add pointCoordinate systemCoordinate systemNoneAxes onlyAxes and gridAxes, grid, and ticksAllElement sizesGraph element sizeGraph element size, valueMin: 0Max: 25Size of points, lines, and labels; does not change the viewport zoom.Presets in this browserStored in this browser. Export a file to back up your presets or transfer them to another browser.PresetsDefaultResetSaveDeleteExport presetsImport presetsGenerate preset figuresExport figureSVGPNG ",
+ "slovenianLike": [
+  "Za",
+  "omogoči",
+  "so",
+  "in"
+ ],
+ "aria": [
+  "Slovenščina"
+ ],
+ "enNext": {
+  "prog": "Step 3 of 6 · Frame 2 of 3",
+  "nums": "0,0,4,0,3,2,0,0",
+  "sig": "52",
+  "txt": "Orientation of three points Hide Exit Convexity and hulls · Orientation of three points Return to chapter The value and the sign The points 𝑝 = ( 0 , 0 ) , 𝑞 = ( 4 , 0 ) , 𝑟 = ( 3 , 2 ) 𝐷 = ( 4 − 0 ) ( 2 − 0 ) − ( 0 − 0 ) ( 3 − 0 ) = 8 − 0 𝐷 = + 8 The readout under the graph shows + 8 and a left turn, which matches the calculation. Calculation Step 3 of 6 · Frame 2 of 3 Previous frame Next frame"
+ },
+ "enBackProg": "Step 3 of 6 · Frame 1 of 3"
+}

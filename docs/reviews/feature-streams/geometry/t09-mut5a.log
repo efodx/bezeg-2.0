@@ -1,0 +1,72 @@
+unit: failed (1) in 11.9s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-33-09-405Z-129204-6e71005f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/EarClippingLessonActions.host.test.tsx src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 1 failed) 3308ms
+   × Back and a scene change while playing leave playback paused with no pending scheduler callback 141ms
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx (11 tests | 1 failed) 5451ms
+   × Back (stopping the lesson animations), a state restore and unmount pause playback and leave no scheduler callback 105ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/EarClippingLessonActions.host.test.tsx > Back (stopping the lesson animations), a state restore and unmount pause playback and leave no scheduler callback
+AssertionError: expected [ true, 1, 1 ] to deeply equal [ false, +0, 1 ]
+
+- Expected
++ Received
+
+  [
+-   false,
+-   0,
++   true,
++   1,
+    1,
+  ]
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx:176:66
+    174|     const stoppedAt = graph.step;
+    175|     act(() => { capabilities.stopAnimations?.(); });
+    176|     expect([graph.isPlaying, frames.callbacks.size, graph.step]).toEqu…
+       |                                                                  ^
+    177|
+    178|     apply(graph, traceStep(8));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > Back and a scene change while playing leave playback paused with no pending scheduler callback
+AssertionError: expected [ true, 1 ] to deeply equal [ false, +0 ]
+
+- Expected
++ Received
+
+  [
+-   false,
+-   0,
++   true,
++   1,
+  ]
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:230:50
+    228|         expect([h.graph.isPlaying, h.pending()]).toEqual([true, 1]);
+    229|         act(() => { h.capabilities.stopAnimations?.(); });
+    230|         expect([h.graph.isPlaying, h.pending()]).toEqual([false, 0]);
+       |                                                  ^
+    231|         act(() => { h.capabilities.apply(PLAY); });
+    232|         expect(h.pending()).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 19 passed (21)
+   Start at  08:33:10
+   Duration  10.90s (tests 45%, transform 22%, import 16%, environment 9%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

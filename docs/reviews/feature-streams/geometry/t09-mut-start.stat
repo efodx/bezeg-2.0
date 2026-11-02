@@ -1,0 +1,15 @@
+ src/compgeo/pointSetModel.ts                       |   2 +-
+ src/demonstrations.ts                              |   2 +-
+ src/graphs/compgeo/EarClippingGraph.host.test.tsx  |   2 +-
+ src/graphs/compgeo/EarClippingGraph.tsx            |  48 +++++
+ src/learning/chapter/guidedLessonOwnership.ts      |   1 +
+ src/learning/content/compgeoGuidedLessons.test.ts  |   5 +-
+ src/learning/content/compgeoGuidedLessons.ts       | 229 ++++++++++++++++++++-
+ .../content/guidedExamplePreviewCopy.test.ts       |   4 +-
+ src/learning/content/guidedExamplePreviewCopy.ts   |   1 +
+ src/learning/content/lessonMathNotation.test.ts    |   2 +-
+ src/learning/model.ts                              |   2 +
+ src/learning/runtime/lessonCatalog.test.ts         |   2 +-
+ src/learning/runtime/lessonCatalog.ts              |   5 +-
+ tests/guided-lessons.smoke.spec.cjs                |  15 +-
+ 14 files changed, 306 insertions(+), 14 deletions(-)

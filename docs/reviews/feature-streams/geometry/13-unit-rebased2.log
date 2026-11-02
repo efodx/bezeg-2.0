@@ -1,0 +1,52 @@
+Waiting for unit (pid 130332) to finish starting before reading free memory.
+Waiting for typecheck (pid 109676) to finish starting before reading free memory.
+Waiting for unit (pid 116712) to finish starting before reading free memory.
+Memory available for unit after 80s.
+unit: failed (1) in 541.4s (2 workers, no slot); revision 63e3568fe0622c555aa370773d448fdf13e53044; dirty; log .command-logs\2026-11-02T03-59-42-311Z-94612-99187701.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/chapter/authoredChapterCoverage.test.ts (1 test | 1 failed) 34ms
+   × both published languages place every audited home exactly once in its owning section 32ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/authoredChapterCoverage.test.ts > both published languages place every audited home exactly once in its owning section
+AssertionError: expected [ …(79) ] to have a length of 77 but got 79
+
+- Expected
++ Received
+
+- 77
++ 79
+
+ ❯ src/learning/chapter/authoredChapterCoverage.test.ts:43:31
+     41|             }
+     42|         }
+     43|         expect(allReferences).toHaveLength(77);
+       |                               ^
+     44|         expect(new Set(allReferences).size).toBe(77);
+     45|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 77 passed (78)
+      Tests  1 failed | 1330 passed (1331)
+   Start at  04:59:43
+   Duration  540.31s (tests 84%, environment 7%, setup 4%, import 3%, transform 1%)
+
+    Isolate  78 workers spawned · ~1.23s startup each (spawn + environment, per file)
+             at least ~46.71s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

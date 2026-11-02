@@ -1,0 +1,307 @@
+unit: failed (1) in 786.0s (2 workers, no slot); revision 4b987b86e641b301931e3363429f19f8402f4666; dirty; log .command-logs\2026-10-31T23-42-50-506Z-128584-5675e1d2.log
+
+Recent output:
+��⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5893:21
+ ❯ EventEmitter.emit node:events:526:24
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5368:22
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+Caused by: Error: Worker exited unexpectedly with exit code 3221225794 during starting state
+ ❯ ChildProcess.emitUnexpectedExit ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5366:33
+ ❯ ChildProcess.emit node:events:514:28
+ ❯ ChildProcess._handle.onexit node:internal/child_process:295:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  2 passed (2)
+      Tests  50 passed (50)
+     Errors  40 errors
+   Start at  00:42:53
+   Duration  781.33s (tests 94%, transform 4%, import 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

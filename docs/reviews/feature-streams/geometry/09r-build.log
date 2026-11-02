@@ -1,0 +1,3 @@
+Waiting for a test slot; all 1 busy: unit in stream-geometry (pid 97944).
+Got test slot 1/1 after 508s.
+build: passed in 6.5s (test slot 1/1, 4 workers); revision bb906f20807fe24906140c6f4a64749374ff8efe; dirty; log .command-logs\2026-11-01T05-28-57-452Z-114740-d11d3169.log; warnings present (see log)

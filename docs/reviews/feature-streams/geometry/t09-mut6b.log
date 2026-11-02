@@ -1,0 +1,100 @@
+unit: failed (1) in 13.2s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-33-50-181Z-120120-14919583.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoGuidedLessons.test.ts src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 3 failed) 2390ms
+   × the seven scenes show the polygon, step, overlays and result the text relies on, and never play 1029ms
+   × step 7, the comb: n = 11, 9 triangles, 8 diagonals, classes 4, 4, 3 and three guards = floor(11/3) 138ms
+   × Back and a scene change while playing leave playback paused with no pending scheduler callback 154ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+AssertionError: expected [ …(7) ] to deeply equal [ …(7) ]
+
+- Expected
++ Received
+
+@@ -71,11 +71,11 @@
+      false,
+      0,
+    ],
+    [
+      11,
+-     34,
++     0,
+      35,
+      true,
+      true,
+      true,
+      true,
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:64:22
+     62|             return [h.graph.model.points.length, h.graph.step, run.len…
+     63|         });
+     64|         expect(seen).toEqual([
+       |                      ^
+     65|             [5, 0, 12, true, true, false, false, false, false, 0],
+     66|             [5, 0, 12, false, true, false, false, false, false, 0],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > step 7, the comb: n = 11, 9 triangles, 8 diagonals, classes 4, 4, 3 and three guards = floor(11/3)
+AssertionError: expected undefined to be 'Trikotnikov: 9 (n − 2, kjer je n = 11…' // Object.is equality
+
+- Expected:
+"Trikotnikov: 9 (n − 2, kjer je n = 11 število oglišč)"
+
++ Received:
+undefined
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:171:37
+    169|         expect([summary.triangles, summary.diagonals, ...summary.class…
+    170|         expect(summary.guardCount).toBe(Math.floor(11 / 3));
+    171|         expect(result('triangles')).toBe('Trikotnikov: 9 (n − 2, kjer …
+       |                                     ^
+    172|         expect(result('diagonals')).toBe('Diagonal: 8 (n − 3)');
+    173|         expect(result('classes')).toBe('Barvni razredi (A, B, C): 4, 4…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > Back and a scene change while playing leave playback paused with no pending scheduler callback
+AssertionError: expected [ false, +0, +0 ] to deeply equal [ false, +0, 34 ]
+
+- Expected
++ Received
+
+  [
+    false,
+    0,
+-   34,
++   0,
+  ]
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:234:64
+    232|         expect(h.pending()).toBe(1);
+    233|         h.scene('earclip-comb');
+    234|         expect([h.graph.isPlaying, h.pending(), h.graph.step]).toEqual…
+       |                                                                ^
+    235|         act(() => { h.capabilities.apply(PLAY); });
+    236|         expect([h.graph.isPlaying, h.pending()]).toEqual([false, 0]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  3 failed | 33 passed (36)
+   Start at  08:33:51
+   Duration  12.24s (tests 39%, transform 29%, import 15%, environment 11%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

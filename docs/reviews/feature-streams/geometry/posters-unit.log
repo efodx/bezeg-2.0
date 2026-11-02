@@ -1,0 +1,50 @@
+unit: failed (1) in 9.8s (2 workers, no slot); revision 2c0faf56509b13399677fdcdc417af8c8a3a53c6; dirty; log .command-logs\2026-11-02T04-55-53-928Z-117784-9b9d4da9.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/demonstrationPreviewAssets.test.ts src/DemonstrationsPage.test.tsx src/learning/LearningPage.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/LearningPage.test.tsx > Learn contains every family chapter and keeps guided activities inside chapters
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/LearningPage.test.tsx (35 tests | 1 failed) 4676ms
+   × Learn contains every family chapter and keeps guided activities inside chapters 138ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/LearningPage.test.tsx > Learn contains every family chapter and keeps guided activities inside chapters
+AssertionError: expected <img …(5)></img>
+<img …(5)></img>
+…(13) to have a length of 9 but got 15
+
+- Expected
++ Received
+
+- 9
++ 15
+
+ ❯ src/learning/LearningPage.test.tsx:42:79
+     40|     expect(container.querySelectorAll('.learning-topic-heading')).toHa…
+     41|     // The linear maps, complex maps and triangle geometry chapters ha…
+     42|     expect(container.querySelectorAll('.learning-thumb img[loading="la…
+       |                                                                               ^
+     43|     expect(learningStrands.flatMap(strand => strand.chapters)).toEqual…
+     44|     expect(container.querySelectorAll('.learning-step')).toHaveLength(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 43 passed (44)
+   Start at  05:55:55
+   Duration  8.53s (tests 46%, environment 19%, transform 18%, setup 11%, import 7%)
+
+    Isolate  3 workers spawned · ~1.15s startup each (spawn + environment, per file)
+             at least ~574ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

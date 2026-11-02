@@ -1,0 +1,51 @@
+unit: failed (1) in 7.6s (1 workers, no slot); revision 303432078802bca5d82c47ee73f5fb142b9edcbe; dirty; log .command-logs\2026-11-02T06-35-02-320Z-80984-cc4b2b00.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/pointInsertion.test.ts --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/pointInsertion.test.ts (11 tests | 2 failed) 4348ms
+   ❯ random insertion after random flips (2)
+     × general-position grid sets 1706ms
+     × collinear-rich grid sets 2624ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > random insertion after random flips > general-position grid sets
+AssertionError: expected 0 to be greater than 300
+ ❯ expectExercised src/compgeo/pointInsertion.test.ts:165:25
+    163|     /** The random runs must not be vacuous: flips happened, points we…
+    164|     function expectExercised(t: Tally, cases: readonly string[]) {
+    165|         expect(t.flips).toBeGreaterThan(300);
+       |                         ^
+    166|         expect(t.insertions).toBeGreaterThan(300);
+    167|         for (const c of cases) expect(t.cases[c] ?? 0, c).toBeGreaterT…
+ ❯ src/compgeo/pointInsertion.test.ts:224:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > random insertion after random flips > collinear-rich grid sets
+AssertionError: expected 0 to be greater than 300
+ ❯ expectExercised src/compgeo/pointInsertion.test.ts:165:25
+    163|     /** The random runs must not be vacuous: flips happened, points we…
+    164|     function expectExercised(t: Tally, cases: readonly string[]) {
+    165|         expect(t.flips).toBeGreaterThan(300);
+       |                         ^
+    166|         expect(t.insertions).toBeGreaterThan(300);
+    167|         for (const c of cases) expect(t.cases[c] ?? 0, c).toBeGreaterT…
+ ❯ src/compgeo/pointInsertion.test.ts:232:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  07:35:03
+   Duration  6.52s (tests 69%, environment 16%, setup 8%, transform 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

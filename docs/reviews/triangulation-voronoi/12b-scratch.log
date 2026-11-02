@@ -1,0 +1,37 @@
+Waiting for unit (pid 115428) to finish starting before reading free memory.
+Memory available for unit after 55s.
+unit: failed (1) in 2.6s (2 workers, no slot); revision 4723a2907ee102217636c7eefdeabb836b3c68c4; dirty; log .command-logs\2026-11-02T07-28-50-613Z-122812-d431ffdf.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/zzScratch.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/zzScratch.test.ts (1 test | 1 failed) 29ms
+   × scratch 28ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/zzScratch.test.ts > scratch
+Error: SCRATCH {"incremental":0.523599999999999,"create":0.35711499999999885,"angle":0.13009499999999435,"boundary":0.037734999999997854}
+ ❯ src/compgeo/zzScratch.test.ts:16:11
+     14|         boundary: time(() => { boundaryCount(built.value); }),
+     15|     };
+     16|     throw new Error('SCRATCH ' + JSON.stringify(r));
+       |           ^
+     17| });
+     18|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  08:28:51
+   Duration  1.73s (environment 48%, setup 28%, transform 21%, tests 2%, worker 1%, import 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

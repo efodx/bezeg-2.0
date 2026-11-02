@@ -1,0 +1,39 @@
+unit: failed (1) in 6.9s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-20-33-318Z-128784-b0a31a27.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (16 tests | 1 failed) 2830ms
+   × example 1 stepped to the end: open counts 1,2,3,2,1,2,1,2,1,0, maximum 3 on [3, 4] and pairs ab ac bc bd de, on the panel and on the board 391ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > example 1 stepped to the end: open counts 1,2,3,2,1,2,1,2,1,0, maximum 3 on [3, 4] and pairs ab ac bc bd de, on the panel and on the board
+AssertionError: expected 'Odprtih po dogodkih: 1, 3, 3, 2, 1, 2…' to be 'Odprtih po dogodkih: 1, 2, 3, 2, 1, 2…' // Object.is equality
+
+Expected: "Odprtih po dogodkih: 1, 2, 3, 2, 1, 2, 1, 2, 1, 0"
+Received: "Odprtih po dogodkih: 1, 3, 3, 2, 1, 2, 1, 2, 1, 0"
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:134:28
+    132|     expect(boardCounts).toEqual([1, 2, 3, 2, 1, 2, 1, 2, 1, 0]);
+    133|     expect(panelCounts.map(text => Number(text.replace(/\D/g, '')))).t…
+    134|     expect(part('counts')).toBe('Odprtih po dogodkih: 1, 2, 3, 2, 1, 2…
+       |                            ^
+    135|     expect(part('max')).toBe('Največ odprtih: 3 na [3, 4]');
+    136|     expect(part('pairs')).toBe('Prekrivajoči pari doslej (5): ab, ac, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  05:20:33
+   Duration  6.21s (tests 47%, transform 20%, import 14%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

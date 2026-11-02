@@ -1,0 +1,48 @@
+unit: failed (1) in 33.7s (2 workers, no slot); revision d355d114b21aaf0039431453f965185b152179c1; dirty; log .command-logs\2026-11-01T04-35-58-836Z-121960-1fefa315.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (20 tests | 1 failed) 4387ms
+   ❯ side lists (4)
+     × match the sweep state after every step of the default example; the highlighted entry is the current interval 108ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > match the sweep state after every step of the default example; the highlighted entry is the current interval
+AssertionError: expected [] to deeply equal [ 'a' ]
+
+- Expected
++ Received
+
+- [
+-   "a",
+- ]
++ []
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:423:61
+    421|             const view = run.view(step);
+    422|             const expected = view.current !== undefined && view.open.i…
+    423|             expect(current.map(e => e.dataset.statusEntry)).toEqual(ex…
+       |                                                             ^
+    424|             for (const entry of current) {
+    425|                 expect(entry.getAttribute('aria-current')).toBe('true'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  1 failed | 167 passed (168)
+   Start at  05:35:59
+   Duration  33.06s (tests 56%, environment 16%, import 13%, setup 9%, transform 6%)
+
+    Isolate  14 workers spawned · ~850ms startup each (spawn + environment, per file)
+             at least ~5.10s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

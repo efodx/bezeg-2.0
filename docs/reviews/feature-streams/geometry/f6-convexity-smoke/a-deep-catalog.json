@@ -1,0 +1,166 @@
+{
+ "errs": [],
+ "routes": {
+  "orientation": {
+   "a": {
+    "svg": "52",
+    "nums": "0,0,4,0,3,2,0,0",
+    "h1": "Orientacija treh točk",
+    "inspector": true,
+    "title": "Bezeg",
+    "readout": "Orientacija treh točk p, q, r: +8 (levi zavoj)"
+   },
+   "b": {
+    "svg": "52",
+    "nums": "0,0,4,0,3,2,0,0",
+    "h1": "Orientacija treh točk",
+    "inspector": true,
+    "title": "Bezeg",
+    "readout": "Orientacija treh točk p, q, r: +8 (levi zavoj)"
+   },
+   "same": true
+  },
+  "polygon-area": {
+   "a": {
+    "svg": "96",
+    "nums": "-1,3,0,0,4,0,5,3,2,5,0,0",
+    "h1": "Ploščina večkotnika",
+    "inspector": true,
+    "title": "Bezeg",
+    "readout": "Ploščina večkotnika"
+   },
+   "b": {
+    "svg": "96",
+    "nums": "-1,3,0,0,4,0,5,3,2,5,0,0",
+    "h1": "Ploščina večkotnika",
+    "inspector": true,
+    "title": "Bezeg",
+    "readout": "Ploščina večkotnika"
+   },
+   "same": true
+  },
+  "convex-hull": {
+   "a": {
+    "svg": "48",
+    "nums": "2,2,4,0,0,0,5,3,2,5,-1,3,3,1,2,0,1,1,0,0",
+    "h1": "Konveksna ovojnica",
+    "inspector": true,
+    "title": "Bezeg",
+    "readout": "Korak 1 od 56"
+   },
+   "b": {
+    "svg": "48",
+    "nums": "2,2,4,0,0,0,5,3,2,5,-1,3,3,1,2,0,1,1,0,0",
+    "h1": "Konveksna ovojnica",
+    "inspector": true,
+    "title": "Bezeg",
+    "readout": "Korak 1 od 56"
+   },
+   "same": true
+  }
+ },
+ "catalog": {
+  "orientation": [
+   {
+    "text": "",
+    "img": {
+     "src": "/bezeg-2.0/assets/orientation-BsmB2lGg.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": ""
+   },
+   {
+    "text": "Orientacija treh točk",
+    "img": {
+     "src": "/bezeg-2.0/assets/orientation-BsmB2lGg.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": "Računska geometrija Orientacija treh točk Premikaj točko r in opazuj, kdaj se zavoj p, q, r spremeni iz levega v desnega. Kaj pove predznak določenih izrazov in"
+   },
+   {
+    "text": "Odpri",
+    "img": {
+     "src": "/bezeg-2.0/assets/orientation-BsmB2lGg.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": "Računska geometrija Orientacija treh točk Premikaj točko r in opazuj, kdaj se zavoj p, q, r spremeni iz levega v desnega. Kaj pove predznak določenih izrazov in"
+   }
+  ],
+  "polygon-area": [
+   {
+    "text": "",
+    "img": {
+     "src": "/bezeg-2.0/assets/polygon-area-BrSuJiVn.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": ""
+   },
+   {
+    "text": "Ploščina večkotnika",
+    "img": {
+     "src": "/bezeg-2.0/assets/polygon-area-BrSuJiVn.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": "Računska geometrija Ploščina večkotnika Premikaj oglišča in opazuj podpisano ploščino po obrazcu z determinantami (shoelace). Kaj se zgodi s predznakom, če obrn"
+   },
+   {
+    "text": "Odpri",
+    "img": {
+     "src": "/bezeg-2.0/assets/polygon-area-BrSuJiVn.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": "Računska geometrija Ploščina večkotnika Premikaj oglišča in opazuj podpisano ploščino po obrazcu z determinantami (shoelace). Kaj se zgodi s predznakom, če obrn"
+   }
+  ],
+  "convex-hull": [
+   {
+    "text": "",
+    "img": {
+     "src": "/bezeg-2.0/assets/convex-hull-FBfpCclw.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": ""
+   },
+   {
+    "text": "Konveksna ovojnica",
+    "img": {
+     "src": "/bezeg-2.0/assets/convex-hull-FBfpCclw.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": "Računska geometrija Konveksna ovojnica Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da "
+   },
+   {
+    "text": "Odpri",
+    "img": {
+     "src": "/bezeg-2.0/assets/convex-hull-FBfpCclw.png",
+     "w": 720,
+     "h": 440,
+     "alt": ""
+    },
+    "card": "Računska geometrija Konveksna ovojnica Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da "
+   }
+  ]
+ },
+ "catalogClickUrl": "http://127.0.0.1:4313/bezeg-2.0/compgeo/convex-hull",
+ "catalogEn": [
+  "",
+  "",
+  ""
+ ]
+}

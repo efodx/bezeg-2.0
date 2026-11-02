@@ -1,0 +1,154 @@
+unit: failed (1) in 8.9s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-31-47-859Z-128260-7ac5120d.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/EarClippingLessonActions.host.test.tsx src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx (11 tests | 2 failed) 4391ms
+   × set-trace-step pauses a running playback, leaves no scheduler callback and keeps later Next steps working 219ms
+   × the next-step action repeated k times equals the Next button repeated k times 429ms
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 2 failed) 4818ms
+   × the seven scenes show the polygon, step, overlays and result the text relies on, and never play 1065ms
+   × step 3: the first two tests are blocked by (3, 2), the first ear is (6, 0)(6, 4)(3, 2) at step 4 of 12, and two more presses clip it 140ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/EarClippingLessonActions.host.test.tsx > set-trace-step pauses a running playback, leaves no scheduler callback and keeps later Next steps working
+AssertionError: expected 6 to be 5 // Object.is equality
+
+- Expected
++ Received
+
+- 5
++ 6
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx:117:24
+    115|     expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqu…
+    116|     apply(graph, trace('next-step'));
+    117|     expect(graph.step).toBe(5);
+       |                        ^
+    118|     apply(graph, traceStep('end'));
+    119|     apply(graph, trace('next-step'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingLessonActions.host.test.tsx > the next-step action repeated k times equals the Next button repeated k times
+AssertionError: expected { step: 7, state: { …(4) }, …(3) } to deeply equal { step: 11, state: { …(4) }, …(3) }
+
+- Expected
++ Received
+
+@@ -1,18 +1,18 @@
+  {
+    "playing": false,
+    "result": [
+-     "Trikotnikov: 3 (n − 2, kjer je n = 5 število oglišč)",
+-     "Diagonal: 2 (n − 3)",
+-     "Barvni razredi (A, B, C): 2, 1, 2",
+-     "Stražarjev: 1 (⌊n/3⌋); najmanjši barvni razred jih postavi v oglišča P4.",
++     undefined,
++     undefined,
++     undefined,
++     undefined,
+    ],
+    "shown": [
+-     "Korak 12 od 12",
+-     "Konec: večkotnik je razrezan na trikotnike.",
+-     undefined,
+-     "Odrezani trikotniki doslej: 3",
++     "Korak 8 od 12",
++     "Oglišče je izbočeno in v trikotniku ni drugih oglišč: to je uho.",
++     "Preizkušeno oglišče P2, trikotnik P1 P2 P4",
++     "Odrezani trikotniki doslej: 1",
+      "Orientacijskih preizkusov doslej: 25",
+    ],
+    "state": {
+      "initialized": true,
+      "model": {
+@@ -44,9 +44,9 @@
+      },
+      "overlays": {
+        "reflex": true,
+        "trace": true,
+      },
+-     "step": 11,
++     "step": 7,
+    },
+-   "step": 11,
++   "step": 7,
+  }
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx:132:39
+    130|     const viaButton = setup();
+    131|     for (let k = 0; k < 7; k++) click('next-step');
+    132|     expect(snapshot(viaButton.graph)).toEqual(fromAction);
+       |                                       ^
+    133|     expect(fromAction.step).toBe(7);
+    134| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+AssertionError: expected [ …(7) ] to deeply equal [ …(7) ]
+
+- Expected
++ Received
+
+@@ -23,11 +23,11 @@
+      false,
+      0,
+    ],
+    [
+      5,
+-     3,
++     6,
+      12,
+      true,
+      true,
+      false,
+      false,
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:64:22
+     62|             return [h.graph.model.points.length, h.graph.step, run.len…
+     63|         });
+     64|         expect(seen).toEqual([
+       |                      ^
+     65|             [5, 0, 12, true, true, false, false, false, false, 0],
+     66|             [5, 0, 12, false, true, false, false, false, false, 0],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > step 3: the first two tests are blocked by (3, 2), the first ear is (6, 0)(6, 4)(3, 2) at step 4 of 12, and two more presses clip it
+AssertionError: expected 6 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 6
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:103:30
+    101|         expect(coords(h, run.event(1)!.points)).toEqual([[0, 4], [0, 0…
+    102|         expect(coords(h, run.event(2)!.points)).toEqual([[0, 0], [6, 0…
+    103|         expect(h.graph.step).toBe(3);
+       |                              ^
+    104|         expect(run.event(3)?.note).toBe('test-ear');
+    105|         expect(coords(h, run.event(3)!.points)).toEqual([[6, 0], [6, 4…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 17 passed (21)
+   Start at  08:31:48
+   Duration  8.20s (tests 59%, transform 14%, import 12%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

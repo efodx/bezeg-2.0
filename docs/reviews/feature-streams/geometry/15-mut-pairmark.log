@@ -1,0 +1,42 @@
+unit: failed (1) in 8.2s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-23-16-949Z-92384-35bd2a8d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (16 tests | 1 failed) 3643ms
+   × example 1 stepped to the end: open counts 1,2,3,2,1,2,1,2,1,0, maximum 3 on [3, 4] and pairs ab ac bc bd de, on the panel and on the board 194ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > example 1 stepped to the end: open counts 1,2,3,2,1,2,1,2,1,0, maximum 3 on [3, 4] and pairs ab ac bc bd de, on the panel and on the board
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:130:56
+    128|         }
+    129|         boardPairs.push(...boardPair(graph));
+    130|         expect(objectsNamed(graph, 'sweep-pair-mark')).toHaveLength(ru…
+       |                                                        ^
+    131|     }
+    132|     expect(boardCounts).toEqual([1, 2, 3, 2, 1, 2, 1, 2, 1, 0]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  05:23:17
+   Duration  7.39s (tests 50%, transform 20%, import 13%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

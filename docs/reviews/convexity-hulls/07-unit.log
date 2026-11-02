@@ -1,0 +1,93 @@
+unit: failed (1) in 16.5s (2 workers, no slot); revision 69be60e567c4b5a8ec75561478450d398d7d1020; dirty; log .command-logs\2026-10-31T20-44-52-519Z-93792-d5ab0aec.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/giftWrapping.test.ts (12 tests | 1 failed) 452ms
+   ❯ agreement and oracle (3)
+     × matches convexHull on random sets with duplicates and collinear points 12ms
+ ❯ src/compgeo/slowHull.test.ts (12 tests | 1 failed) 722ms
+   ❯ agreement and oracle (3)
+     × matches convexHull on random sets with duplicates and collinear points 24ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/giftWrapping.test.ts > agreement and oracle > matches convexHull on random sets with duplicates and collinear points
+AssertionError: expected [ [ +0, 3 ], [ -2, -1 ] ] to deeply equal [ [ -2, -1 ], [ +0, 3 ] ]
+
+- Expected
++ Received
+
+  [
+    [
+-     -2,
+-     -1,
+-   ],
+-   [
+      0,
+      3,
++   ],
++   [
++     -2,
++     -1,
+    ],
+  ]
+
+ ❯ src/compgeo/giftWrapping.test.ts:89:46
+     87|             const pts = Array.from({length: n}, () => p(next(range) - …
+     88|             const expected = convexHull(asOracle(pts)).map((q) => [q.X…
+     89|             expect(coords(pts, hullOf(pts))).toEqual(expected);
+       |                                              ^
+     90|         }
+     91|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/compgeo/slowHull.test.ts > agreement and oracle > matches convexHull on random sets with duplicates and collinear points
+AssertionError: expected [ [ -1, 2 ], [ -2, -2 ] ] to deeply equal [ [ -2, -2 ], [ -1, 2 ] ]
+
+- Expected
++ Received
+
+  [
+    [
+-     -2,
+-     -2,
+-   ],
+-   [
+      -1,
+      2,
++   ],
++   [
++     -2,
++     -2,
+    ],
+  ]
+
+ ❯ src/compgeo/slowHull.test.ts:72:46
+     70|             const pts = Array.from({length: n}, () => p(next(range) - …
+     71|             const expected = convexHull(asOracle(pts)).map((q) => [q.X…
+     72|             expect(coords(pts, hullOf(pts))).toEqual(expected);
+       |                                              ^
+     73|         }
+     74|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  2 failed | 98 passed (100)
+   Start at  21:44:53
+   Duration  15.35s (environment 55%, setup 24%, transform 10%, tests 10%, import 1%, worker 1%)
+
+Environment  jsdom was created 8 times · 15.10s total, 55% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,46 @@
+unit: failed (1) in 6.9s (2 workers, no slot); revision 9bede337ab81dac3946d1d1ff544b1dd29fd10eb; dirty; log .command-logs\2026-11-02T11-20-49-378Z-23148-d35f3e91.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoPointSetTriangulationLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts (12 tests | 1 failed) 2099ms
+   × step 5: an inside point adds 2 triangles, an outside point adds 1 (one visible hull side); n = 9, k = 6, 10 triangles 207ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoPointSetTriangulationLesson.test.ts > step 5: an inside point adds 2 triangles, an outside point adds 1 (one visible hull side); n = 9, k = 6, 10 triangles
+AssertionError: expected { points: 9, triangles: 11, …(3) } to match object { points: 9, triangles: 10 }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "points": 9,
+-   "triangles": 10,
++   "triangles": 11,
+  }
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts:145:26
+    143|         h.scene('tri-add');
+    144|         const r = readout(h);
+    145|         expect(r.counts).toMatchObject({points: 9, triangles: 10});
+       |                          ^
+    146|         expect([r.n, r.boundary.k, 2 * r.n - 2 - r.boundary.k]).toEqua…
+    147|         expect(h.graph.model.points.map(p => [p.x, p.y])).toEqual([...…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  12:20:50
+   Duration  5.99s (tests 36%, transform 26%, import 19%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

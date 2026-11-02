@@ -1,0 +1,34 @@
+## clamp removed (setTraceStep)
+exit=1 ['unit: failed (1) in 10.6s (2 workers, no slot); revision 023b737720e67df3379d4b06ce05ed87377604c0; dirty; log .command-logs\\2026-11-01T23-20-56-653Z-97316-fe0d70f0.log']
+failing: ['set-trace-step clamps a number like a stored Preset step, and end is the last step']
+
+## 'end' off by one (helper)
+exit=0 ['unit: passed in 8.2s (2 workers, no slot); revision 023b737720e67df3379d4b06ce05ed87377604c0; dirty; log .command-logs\\2026-11-01T23-21-07-514Z-99232-bb79ee3c.log']
+failing: []
+
+## next-step command does nothing (helper)
+exit=1 ['unit: failed (1) in 10.4s (2 workers, no slot); revision 35306eb6e6fb372607b8257b8eb9af172c7af94a; dirty; log .command-logs\\2026-11-02T00-13-56-445Z-33720-32948d6d.log']
+failing: ['set-trace-step end equals Next step pressed until done: step, readouts and board', 'set-trace-step pauses a running playback, leaves no scheduler callback and keeps later Next steps working', 'the next-step action repeated k times equals the Next button repeated k times']
+
+MUTATION NOT APPLIED: Back does not pause
+## edit leaves controller playing
+exit=1 ['unit: failed (1) in 11.7s (2 workers, no slot); revision 35306eb6e6fb372607b8257b8eb9af172c7af94a; dirty; log .command-logs\\2026-11-02T00-14-07-103Z-113288-0dcf665c.log']
+failing: ['an edit action pauses playback and returns to step 0']
+
+## lesson first swap step 16 -> 15
+exit=1 ['unit: failed (1) in 10.0s (2 workers, no slot); revision 35306eb6e6fb372607b8257b8eb9af172c7af94a; dirty; log .command-logs\\2026-11-02T00-14-19-024Z-103816-03313795.log']
+failing: ['the seven scenes run in one synchronous sequence, show the readouts the text quotes, frame their segments and never play']
+
+## lesson view top of default example
+exit=1 ['unit: failed (1) in 10.3s (2 workers, no slot); revision 35306eb6e6fb372607b8257b8eb9af172c7af94a; dirty; log .command-logs\\2026-11-02T00-14-29-349Z-102536-0db2deb4.log']
+failing: ['the default example shows the 13 events, the five crossings with their exact rationals and 9 tests against 6 pairs, as the text says', 'the degenerate example reports the point (2,2) once with all four segments, in one swap']
+
+## lesson degenerate step 15 -> 14
+exit=1 ['unit: failed (1) in 9.8s (1 workers, no slot); revision 35306eb6e6fb372607b8257b8eb9af172c7af94a; dirty; log .command-logs\\2026-11-02T00-14-39-975Z-117456-0ab9d8ca.log']
+failing: ['the seven scenes run in one synchronous sequence, show the readouts the text quotes, frame their segments and never play']
+
+MUTATION NOT APPLIED: Back does not pause
+## Back does not pause
+exit=1 ['unit: failed (1) in 9.3s (2 workers, no slot); revision 35306eb6e6fb372607b8257b8eb9af172c7af94a; dirty; log .command-logs\\2026-11-02T00-15-29-786Z-117572-7f8f5736.log']
+failing: ['Back (stopping the lesson animations), a state restore and unmount pause playback and leave no scheduler callback']
+

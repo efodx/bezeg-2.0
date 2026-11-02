@@ -1,0 +1,3 @@
+Waiting for lint (pid 112552) to finish starting before reading free memory.
+Memory available for unit after 30s.
+unit: passed in 26.3s (2 workers, no slot); revision 3aea61ed21da749e0349b418695d82ee70878aac; dirty; log .command-logs\2026-11-02T08-25-07-655Z-7532-3190250d.log

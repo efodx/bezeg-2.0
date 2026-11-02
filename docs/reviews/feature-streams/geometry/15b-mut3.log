@@ -1,0 +1,71 @@
+unit: failed (1) in 32.8s (2 workers, no slot); revision d355d114b21aaf0039431453f965185b152179c1; dirty; log .command-logs\2026-11-01T04-35-25-631Z-114904-a04765b9.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (20 tests | 2 failed) 4139ms
+   ❯ side lists (4)
+     × hovering or focusing a status entry highlights its interval on the board and leaving removes it 152ms
+     × re-render on a language switch and unmount leaves no hover state or language listeners 131ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > hovering or focusing a status entry highlights its interval on the board and leaving removes it
+AssertionError: expected [] to deeply equal [ [ 1, 1 ] ]
+
+- Expected
++ Received
+
+- [
+-   [
+-     1,
+-     1,
+-   ],
+- ]
++ []
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:462:70
+    460|         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+    461|         act(() => { fireEvent.focus(first); });
+    462|         expect(objectsNamed(graph, 'sweep-hover').map(o => o.dataY)).t…
+       |                                                                      ^
+    463|         act(() => { fireEvent.blur(first); });
+    464|         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > re-render on a language switch and unmount leaves no hover state or language listeners
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:477:52
+    475|         expect(entries('queue', 'data-queue-entry')[0].getAttribute('a…
+    476|         act(() => { fireEvent.focus(entries('status', 'data-status-ent…
+    477|         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(1);
+       |                                                    ^
+    478|         view.unmount();
+    479|         expect(graph['hovered']).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  2 failed | 166 passed (168)
+   Start at  05:35:26
+   Duration  32.06s (tests 56%, environment 16%, import 14%, setup 9%, transform 5%)
+
+    Isolate  14 workers spawned · ~838ms startup each (spawn + environment, per file)
+             at least ~5.03s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

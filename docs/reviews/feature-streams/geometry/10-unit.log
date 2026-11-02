@@ -1,0 +1,50 @@
+unit: failed (1) in 264.6s (2 workers, no slot); revision a2e28387ec4b5f22f3c727d55ccb58c36cf54e63; dirty; log .command-logs\2026-11-01T05-33-55-467Z-89456-dd60c0dc.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo src/graphs/base/presets src/demonstrations.test.ts src/demonstrationPreviewAssets.test.ts src/Routes.test.tsx src/DemonstrationsPage.test.tsx src/learning/runtime --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+Not implemented: navigation to another Document
+ ❯ src/learning/runtime/lessonCatalog.test.ts (13 tests | 1 failed) 20ms
+   × every active demonstration route has an available lesson unless it opts out with lesson: false 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/runtime/lessonCatalog.test.ts > every active demonstration route has an available lesson unless it opts out with lesson: false
+AssertionError: expected [ 'linear-map', 'ear-clipping', …(2) ] to deeply equal [ 'linear-map' ]
+
+- Expected
++ Received
+
+  [
+    "linear-map",
++   "ear-clipping",
++   "interval-sweep",
++   "segment-intersections",
+  ]
+
+ ❯ src/learning/runtime/lessonCatalog.test.ts:186:70
+    184|     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqu…
+    185|     // `linear-map` stays lessonless until the linear maps lesson task…
+    186|     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).t…
+       |                                                                      ^
+    187|     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && …
+    188| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 35 passed | 1 skipped (37)
+      Tests  1 failed | 551 passed | 1 skipped (553)
+   Start at  06:33:56
+   Duration  263.90s (tests 87%, environment 5%, import 3%, setup 3%, transform 1%)
+
+    Isolate  37 workers spawned · ~849ms startup each (spawn + environment, per file)
+             at least ~14.85s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

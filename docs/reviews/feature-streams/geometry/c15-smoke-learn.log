@@ -1,0 +1,68 @@
+smoke-built: failed (1) in 48.3s (test slot 1/1, 4 workers); revision 17934fc7b2b1616dc8af708f5a24be2cf885a44c; dirty; reusing build from revision 17934fc7b2b1616dc8af708f5a24be2cf885a44c (dirty at build time); log .command-logs\2026-11-01T10-29-32-178Z-92192-8daff24c.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test:smoke:built
+> playwright test tests/unified-learning.smoke.spec.cjs
+
+[WebServer] Production smoke preview: http://127.0.0.1:4313/bezeg-2.0
+
+Running 11 tests using 1 worker
+
+  x   1 [chromium] › tests\unified-learning.smoke.spec.cjs:21:1 › Learn opens chapters whose Guided examples return to their owning section (10.4s)
+  ok  2 [chromium] › tests\unified-learning.smoke.spec.cjs:56:1 › Demonstrations catalog guidance opens the chapter-owned example while graph entry remains free exploration (2.2s)
+  ok  3 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › foundations: production deep link, refresh, contents and translated reading (2.5s)
+  ok  4 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › bezier-curves: production deep link, refresh, contents and translated reading (3.9s)
+  ok  5 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › rational-curves: production deep link, refresh, contents and translated reading (2.5s)
+  ok  6 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › splines: production deep link, refresh, contents and translated reading (2.3s)
+  ok  7 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › ph-curves: production deep link, refresh, contents and translated reading (2.4s)
+  ok  8 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › parametrization: production deep link, refresh, contents and translated reading (2.1s)
+  ok  9 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › bezier-patches: production deep link, refresh, contents and translated reading (11.6s)
+  ok 10 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › functions-and-calculus: production deep link, refresh, contents and translated reading (2.3s)
+  ok 11 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › analysis: production deep link, refresh, contents and translated reading (3.0s)
+
+
+  1) [chromium] › tests\unified-learning.smoke.spec.cjs:21:1 › Learn opens chapters whose Guided examples return to their owning section 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.learning-family')
+    Expected: 9
+    Received: 11
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.learning-family') with timeout 10000ms
+      - waiting for locator('.learning-family')
+        23 × locator resolved to 11 elements
+           - unexpected value "11"
+
+
+      22 |     await h.useLanguage(page, 'sl');
+      23 |     await page.goto('/bezeg-2.0/learn');
+    > 24 |     await expect(page.locator('.learning-family')).toHaveCount(chapters.length);
+         |                                                    ^
+      25 |     expect(await page.locator('.learning-family').evaluateAll(families => families.map(family => family.id))).toEqual(chapters);
+      26 |     await expect(page.locator('.learning-lessons')).toHaveCount(0);
+      27 |     await expect(page.locator('.app-header-actions a')).toHaveCount(2);
+        at C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\tests\unified-learning.smoke.spec.cjs:24:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-4313\unified-learning.smoke-Lea-bae5e-urn-to-their-owning-section-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-4313\unified-learning.smoke-Lea-bae5e-urn-to-their-owning-section-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-4313\unified-learning.smoke-Lea-bae5e-urn-to-their-owning-section-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-4313\unified-learning.smoke-Lea-bae5e-urn-to-their-owning-section-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\unified-learning.smoke.spec.cjs:21:1 › Learn opens chapters whose Guided examples return to their owning section 
+  10 passed (47.4s)
+
+error: recipe `smoke-built` failed on line 38 with exit code 1

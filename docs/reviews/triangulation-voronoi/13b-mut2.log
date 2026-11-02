@@ -1,0 +1,66 @@
+unit: failed (1) in 29.3s (2 workers, no slot); revision 3aea61ed21da749e0349b418695d82ee70878aac; dirty; log .command-logs\2026-11-02T08-26-21-148Z-92080-6785b94f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (18 tests | 2 failed) 22186ms
+   × example 1: abc shows +64 for d before the flip, and after the flip each of abd and bcd shows -64 outside for the other vertex 128ms
+   × a live language switch re-renders the selection text, and unmount releases the selection objects 124ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > example 1: abc shows +64 for d before the flip, and after the flip each of abd and bcd shows -64 outside for the other vertex
+AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Čez rob P1–P3: nasprotna točka P4, determinanta incircle = +64: točka je znotraj očrtane krožnice",
++   "Čez rob P2–P3: nasprotna točka P1, determinanta incircle = 0: točka je na očrtani krožnici",
+  ]
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:407:30
+    405|     mount(graph);
+    406|     pick('P1P2P3');
+    407|     expect(neighbourTexts()).toEqual(['Čez rob P1–P3: nasprotna točka …
+       |                              ^
+    408|     expect(part('hull-edges')).toBe('Robov na konveksni ovojnici: 2; č…
+    409|     expect(triangleButton('P1P2P3').getAttribute('aria-pressed')).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > a live language switch re-renders the selection text, and unmount releases the selection objects
+AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Across edge P1–P3: opposite point P4, incircle determinant = +64: the point is inside the circumcircle",
++   "Across edge P2–P3: opposite point P1, incircle determinant = 0: the point is on the circumcircle",
+  ]
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:489:30
+    487|     expect(document.querySelector('button[data-action="clear-triangle"…
+    488|     act(() => { setLanguage('en'); });
+    489|     expect(neighbourTexts()).toEqual(['Across edge P1–P3: opposite poi…
+       |                              ^
+    490|     expect(part('hull-edges')).toBe('2 of its edges lie on the hull: t…
+    491|     expect(document.querySelector('button[data-action="clear-triangle"…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 16 passed (18)
+   Start at  09:26:22
+   Duration  27.88s (tests 81%, transform 8%, import 5%, environment 4%, setup 2%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

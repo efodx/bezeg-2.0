@@ -1,0 +1,47 @@
+unit: failed (1) in 7.6s (2 workers, no slot); revision 02a6ac3a41f0191f548484e9e08b233d6107b63f; dirty; log .command-logs\2026-11-01T04-13-57-139Z-107504-e8839101.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullTraceLessonActions.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx (10 tests | 1 failed) 3540ms
+   × pause and reset act like their buttons; set-points pauses and resets 65ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullTraceLessonActions.host.test.tsx > pause and reset act like their buttons; set-points pauses and resets
+AssertionError: expected [ true, true, 1 ] to deeply equal [ false, true, +0 ]
+
+- Expected
++ Received
+
+  [
+-   false,
+    true,
+-   0,
++   true,
++   1,
+  ]
+
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx:158:70
+    156|     playOneTick(graph, frames);
+    157|     apply(graph, trace('pause'));
+    158|     expect([graph.isPlaying, graph.step > 0, frames.callbacks.size]).t…
+       |                                                                      ^
+    159|     apply(graph, trace('reset'));
+    160|     expect([graph.step, graph.isPlaying]).toEqual([0, false]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  05:13:57
+   Duration  6.87s (tests 53%, transform 18%, import 13%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

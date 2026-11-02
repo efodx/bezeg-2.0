@@ -1,0 +1,46 @@
+Waiting for unit (pid 120032) to finish starting before reading free memory.
+Waiting for unit (pid 66276) to finish starting before reading free memory.
+Waiting for build (pid 83572) to finish starting before reading free memory.
+Memory available for unit after 35s.
+unit: failed (1) in 9.5s (2 workers, no slot); revision 3df4564b92c8a3b70679edc35ac55f1d49ce984b; dirty; log .command-logs\2026-11-02T07-42-24-802Z-105632-1dc95434.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (45 tests | 1 failed) 4440ms
+   × the selected edge is heavier and dashed, apart from colour, and the hull stays heavier than the interior 110ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > the selected edge is heavier and dashed, apart from colour, and the hull stays heavier than the interior
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:541:20
+    539|     const heaviest = Math.max(...curves.map(width));
+    540|     const dashed = curves.filter(o => dashOf(o) > 0);
+    541|     expect(dashed).toHaveLength(1);
+       |                    ^
+    542|     expect(width(dashed[0])).toBe(heaviest);
+    543|     const plain = curves.filter(o => dashOf(o) === 0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 44 passed (45)
+   Start at  08:42:25
+   Duration  8.61s (tests 52%, transform 20%, import 13%, environment 9%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

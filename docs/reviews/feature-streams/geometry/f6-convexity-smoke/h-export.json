@@ -1,0 +1,31 @@
+{
+ "errs": [],
+ "SVG": {
+  "name": "izvoz.svg",
+  "bytes": 20114,
+  "root": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"928\" height=\"506.875\" style=\"overflow: hidden; display: block;\"><defs><fi",
+  "validRoot": true,
+  "labels": [
+   "P1",
+   "P2",
+   "P5",
+   "P9"
+  ],
+  "counts": {
+   "path": 4,
+   "circle": 0,
+   "line": 2,
+   "text": 25
+  }
+ },
+ "PNG": {
+  "name": "izvoz.png",
+  "bytes": 24984,
+  "sig": "89504e470d0a1a0a",
+  "valid": true,
+  "dims": [
+   928,
+   507
+  ]
+ }
+}

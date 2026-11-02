@@ -1,0 +1,114 @@
+unit: failed (1) in 9.7s (2 workers, no slot); revision 1dfddf0c4b4ca6064291717cbb84e5a169878c88; dirty; log .command-logs\2026-11-02T12-49-07-567Z-108204-868a7bbd.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayLessonActions --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx (12 tests | 2 failed) 4279ms
+   × set-trace-step clamps a number, end equals Next pressed until done, and a bad step throws 510ms
+   × set-points, set-trace-step and select-triangle run in one synchronous sequence 124ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > set-trace-step clamps a number, end equals Next pressed until done, and a bad step throws
+AssertionError: expected { step: 3, state: { …(6) }, …(3) } to deeply equal { step: 4, state: { …(6) }, …(3) }
+
+- Expected
++ Received
+
+@@ -1,19 +1,20 @@
+  {
+    "playing": false,
+    "shown": [
+-     "Korak 5 od 5",
+-     "Vsi robovi so ustrezni: Delaunayeva triangulacija.",
++     "Korak 4 od 5",
++     "Rob je ustrezen: preizkušana točka ni znotraj očrtane krožnice drugega trikotnika.",
++     "Preizkušeni rob P2–P4; nasprotni točki P1 in P3",
++     "Vrednost preizkusa krožnice = -64: preizkušana točka je zunaj krožnice",
+      "Zamenjav doslej: 1Neustreznih robov: 0Najmanjši kot zdaj: 26,57°Najmanjši kot na začetku (korak 1): 19,65°Koti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90,00Koti na začetku, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43",
+      "Zamenjav doslej: 1",
+      "Neustreznih robov: 0",
+      "Najmanjši kot zdaj: 26,57°",
+      "Najmanjši kot na začetku (korak 1): 19,65°",
+      "Koti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90,00",
+      "Koti na začetku, naraščajoče: 19,65; 30,96; 40,60; 59,04; 101,31; 108,43",
+      "Trikotnik P2, P3, P4Trikotnik P1, P2, P4Počisti izbiro trikotnika",
+-     "Vsi robovi so ustrezni: Delaunayeva triangulacija.",
+      "Točk: n = 4",
+      "Točk na robu ovojnice: k = 4",
+      "Trikotnikov: 2 = 2n − 2 − k = 2 · 4 − 2 − 4",
+      "Robov: 5 = 3n − 3 − k = 3 · 4 − 3 − 4; notranjih 1, na ovojnici 4",
+      "Najmanjši kot zdaj: 26,57°",
+@@ -58,11 +59,11 @@
+      },
+      "overlays": {
+        "triangulation": true,
+      },
+      "previous": undefined,
+-     "step": 4,
++     "step": 3,
+      "triangles": [
+        [
+          0,
+          1,
+          2,
+@@ -72,11 +73,11 @@
+          2,
+          3,
+        ],
+      ],
+    },
+-   "step": 4,
++   "step": 3,
+    "triangles": [
+      [
+        2,
+        3,
+        1,
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:108:29
+    106|     apply(graph, traceStep(0));
+    107|     apply(graph, traceStep('end'));
+    108|     expect(snapshot(graph)).toEqual(fromNext);
+       |                             ^
+    109|     expect(() => graph.run1(traceStep(Number.NaN))).toThrow('set-trace…
+    110|     expect(() => graph.run1(traceStep('last' as 'end'))).toThrow('set-…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > set-points, set-trace-step and select-triangle run in one synchronous sequence
+AssertionError: expected [ 7, false, +0 ] to deeply equal [ 8, false, +0 ]
+
+- Expected
++ Received
+
+  [
+-   8,
++   7,
+    false,
+    0,
+  ]
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:225:66
+    223|     });
+    224|     expect(graph.model.points).toHaveLength(5);
+    225|     expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqu…
+       |                                                                  ^
+    226|     expect(graph.selectedTriangle()).toBe(2);
+    227|     expect(selected()).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  13:49:08
+   Duration  8.76s (tests 50%, transform 20%, import 15%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

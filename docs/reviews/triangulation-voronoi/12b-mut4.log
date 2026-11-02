@@ -1,0 +1,55 @@
+unit: failed (1) in 10.7s (2 workers, no slot); revision 4723a2907ee102217636c7eefdeabb836b3c68c4; dirty; log .command-logs\2026-11-02T07-32-29-116Z-63528-edb71b6f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (40 tests | 2 failed) 4454ms
+   × the edges overlay labels every edge with its two point numbers; the angles overlay marks the smallest angle; both toggle off 124ms
+   × the board text is language-neutral, the overlay switches are labelled in both languages, and the marker survives a flip 97ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > the edges overlay labels every edge with its two point numbers; the angles overlay marks the smallest angle; both toggle off
+AssertionError: expected [] to have a length of 13 but got +0
+
+- Expected
++ Received
+
+- 13
++ 0
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:305:57
+    303|     expect(labelsOf(graph, 'triangulation-min-angle')).toHaveLength(0);
+    304|     act(() => { graph.setOverlay('edges', true); });
+    305|     expect(labelsOf(graph, 'triangulation-edge-label')).toHaveLength(1…
+       |                                                         ^
+    306|     expect(labelsOf(graph, 'triangulation-min-angle')).toHaveLength(0);
+    307|     act(() => { graph.setOverlay('angles', true); });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > the board text is language-neutral, the overlay switches are labelled in both languages, and the marker survives a flip
+AssertionError: expected [ '0,0', 'α' ] to include '1–2'
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:325:20
+    323|     const before = texts();
+    324|     expect(before).toContain('α');
+    325|     expect(before).toContain('1–2');
+       |                    ^
+    326|     act(() => { setLanguage('en'); });
+    327|     expect(texts()).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 38 passed (40)
+   Start at  08:32:30
+   Duration  9.58s (tests 47%, transform 22%, import 15%, environment 10%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

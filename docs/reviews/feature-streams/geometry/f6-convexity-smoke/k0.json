@@ -1,0 +1,39 @@
+{
+ "errs": [],
+ "links": [
+  "Bezeg > /bezeg-2.0",
+  "Učenje > /bezeg-2.0/learn",
+  "Demonstracije > /bezeg-2.0/demonstrations",
+  "Zakaj ovojnice > #why-hulls",
+  "Orientacija treh točk > #orientation",
+  "Ploščina večkotnika in Pickov izrek > #polygon-area",
+  "Konveksna ovojnica > #convex-hull",
+  "Prejšnje poglavjeKompleksne preslikave > /bezeg-2.0/learn/complex-maps",
+  "Naslednje poglavjeTriangulacije in Voron > /bezeg-2.0/learn/triangulations-voronoi",
+  "Zakaj ovojnice > #why-hulls",
+  "Orientacija treh točk > #orientation",
+  "Ploščina večkotnika in Pickov izrek > #polygon-area",
+  "Konveksna ovojnica > #convex-hull",
+  "←Vsa učna vsebina > /bezeg-2.0/learn#convexity-hulls",
+  "Bézierjeve krivulje: lastnosti in konvek > /bezeg-2.0/learn/bezier-curves#geometric-properties",
+  "¶ > #why-hulls",
+  "¶ > #orientation",
+  "Vodeni primer → > /bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation",
+  "¶ > #polygon-area",
+  "Vodeni primer → > /bezeg-2.0/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area",
+  "¶ > #convex-hull",
+  "Vodeni primer → > /bezeg-2.0/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull",
+  "Prejšnje poglavje: Kompleksne preslikave > /bezeg-2.0/learn/complex-maps",
+  "Naslednje poglavje: Triangulacije in Vor > /bezeg-2.0/learn/triangulations-voronoi"
+ ],
+ "h": [
+  "Konveksnost in ovojnice",
+  "Zakaj ovojnice",
+  "Orientacija treh točk",
+  "Orientacija treh točk",
+  "Ploščina večkotnika in Pickov izrek",
+  "Ploščina večkotnika in Pickov izrek",
+  "Konveksna ovojnica",
+  "Konveksna ovojnica"
+ ]
+}

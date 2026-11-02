@@ -1,0 +1,39 @@
+unit: failed (1) in 15.5s (2 workers, no slot); revision 0ba214ac26dca130b067717a5b6d5ab4d90d28d9; dirty; log .command-logs\2026-11-02T06-57-46-495Z-85056-6c865200.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/compgeoDefaultView.host.test.tsx src/graphs/compgeo/HullTraceGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullTraceGraph.host.test.tsx (15 tests | 1 failed) 8983ms
+   × with fewer than three points every algorithm shows the neutral output note; three points keep the chain note on the chain algorithm 96ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullTraceGraph.host.test.tsx > with fewer than three points every algorithm shows the neutral output note; three points keep the chain note on the chain algorithm
+AssertionError: expected 'Verigi združimo v konveksno ovojnico.' to be 'Pri manj kot treh različnih točkah so…' // Object.is equality
+
+Expected: "Pri manj kot treh različnih točkah so vse točke oglišča ovojnice."
+Received: "Verigi združimo v konveksno ovojnico."
+
+ ❯ src/graphs/compgeo/HullTraceGraph.host.test.tsx:382:34
+    380|             act(() => { graph.setAlgorithm(algorithm); });
+    381|             load(graph, model(points));
+    382|             expect(part('note')).toBe(small);
+       |                                  ^
+    383|         }
+    384|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 26 passed (27)
+   Start at  07:57:47
+   Duration  14.25s (tests 53%, transform 17%, import 15%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

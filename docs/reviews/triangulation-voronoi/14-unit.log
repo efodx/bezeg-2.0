@@ -1,0 +1,142 @@
+unit: failed (1) in 1155.6s (test slot 1/2, 3 workers); revision 8ae72bfd2c64027ef7b7886ab93d4e168886ebf7; dirty; log .command-logs\2026-11-02T08-53-08-120Z-102312-5f850ff2.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/base/GraphTransientState.part3.test.tsx > delaunay > Preset export and checkpoints keep transient state out of the Preset
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part3.test.tsx (160 tests | 1 failed) 146751ms
+   ❯ delaunay (8)
+     × Preset export and checkpoints keep transient state out of the Preset 244ms
+stderr | src/graphs/base/GraphTransientState.part2.test.tsx > point-set-triangulation > Preset export and checkpoints keep transient state out of the Preset
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part2.test.tsx (160 tests | 1 failed) 138876ms
+   ❯ point-set-triangulation (8)
+     × Preset export and checkpoints keep transient state out of the Preset 217ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+ ❯ src/learning/content/familyChapters.test.ts (11 tests | 1 failed) 98ms
+   ❯ family reading chapters (11)
+     × links every existing demonstration from its matching family chapters 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part2.test.tsx > point-set-triangulation > Preset export and checkpoints keep transient state out of the Preset
+AssertionError: expected [ 'initialized', 'overlays' ] to deeply equal [ 'initialized', 'overlays', …(2) ]
+
+- Expected
++ Received
+
+  [
+    "initialized",
+    "overlays",
+-   "previous",
+-   "triangles",
+  ]
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:379:69
+    377|                 const dataKeys = PRESET_DATA_STATE_KEYS[id] ?? [];
+    378|                 for (const key of dataKeys) expect(graph.state).toHave…
+    379|                 expect(Object.keys(preset.graphState ?? {}).sort()).to…
+       |                                                                     ^
+    380|             } else {
+    381|                 // All surface state is Preset data; the Preset's grap…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part3.test.tsx > delaunay > Preset export and checkpoints keep transient state out of the Preset
+AssertionError: expected [ 'initialized', 'overlays', 'step' ] to deeply equal [ 'initialized', 'overlays', …(3) ]
+
+- Expected
++ Received
+
+  [
+    "initialized",
+    "overlays",
+-   "previous",
+    "step",
+-   "triangles",
+  ]
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:379:69
+    377|                 const dataKeys = PRESET_DATA_STATE_KEYS[id] ?? [];
+    378|                 for (const key of dataKeys) expect(graph.state).toHave…
+    379|                 expect(Object.keys(preset.graphState ?? {}).sort()).to…
+       |                                                                     ^
+    380|             } else {
+    381|                 // All surface state is Preset data; the Preset's grap…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/learning/content/familyChapters.test.ts > family reading chapters > links every existing demonstration from its matching family chapters
+AssertionError: expected [ 'convex-hull', 'ear-clipping', …(4) ] to deeply equal [ 'convex-hull', 'delaunay', …(6) ]
+
+- Expected
++ Received
+
+  [
+    "convex-hull",
+-   "delaunay",
+    "ear-clipping",
+    "interval-sweep",
+    "orientation",
+-   "point-set-triangulation",
+    "polygon-area",
+    "segment-intersections",
+  ]
+
+ ❯ src/learning/content/familyChapters.test.ts:132:46
+    130|                 .flatMap(chapter => chapter.sections.flatMap(section =…
+    131|             const expected = demonstrations.filter(demo => demo.family…
+    132|             expect([...new Set(ids)].sort()).toEqual(expected);
+       |                                              ^
+    133|         }
+    134|         for (const chapter of familyChapters) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 450 passed | 1 skipped (454)
+      Tests  3 failed | 8576 passed | 1 skipped (8580)
+   Start at  09:53:08
+   Duration  1154.61s (tests 68%, environment 15%, setup 8%, import 7%, transform 1%)
+
+    Isolate  454 workers spawned · ~1.30s startup each (spawn + environment, per file)
+             at least ~195.72s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

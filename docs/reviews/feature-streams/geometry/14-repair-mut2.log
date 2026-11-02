@@ -1,0 +1,67 @@
+unit: failed (1) in 7.9s (2 workers, no slot); revision b3ed5795a3082a4eea3499de2b48bf788c6c8ab0; dirty; log .command-logs\2026-11-01T04-45-48-625Z-96412-12a5a841.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweepGraph.host
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (25 tests | 2 failed) 3902ms
+   ❯ side lists (9)
+     × match the sweep state after every step of the default example; the highlighted entry is the current interval 68ms
+     × the default example at step 0 lists the nine events after the first pop, in x order, the head marked as next 53ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > match the sweep state after every step of the default example; the highlighted entry is the current interval
+AssertionError: expected [] to deeply equal [ 'b+' ]
+
+- Expected
++ Received
+
+- [
+-   "b+",
+- ]
++ []
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:430:57
+    428|             sawCurrent += current.length;
+    429|             const next = entries('queue', 'data-next');
+    430|             expect(next.map(e => e.dataset.queueEntry)).toEqual(queueT…
+       |                                                         ^
+    431|             for (const entry of next) {
+    432|                 expect(entry.getAttribute('aria-current')).toBe('step'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > the default example at step 0 lists the nine events after the first pop, in x order, the head marked as next
+AssertionError: expected [] to deeply equal [ 'b+' ]
+
+- Expected
++ Received
+
+- [
+-   "b+",
+- ]
++ []
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:446:78
+    444|         mount(graph);
+    445|         expect(queueTexts()).toEqual(['b+', 'c+', 'a-', 'c-', 'd+', 'b…
+    446|         expect(entries('queue', 'data-next').map(e => e.dataset.queueE…
+       |                                                                              ^
+    447|         click('next-step');
+    448|         click('next-step');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 23 passed (25)
+   Start at  05:45:49
+   Duration  7.22s (tests 55%, transform 17%, import 12%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

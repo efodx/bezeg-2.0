@@ -1,0 +1,5 @@
+Waiting for unit (pid 88828) to finish starting before reading free memory.
+Waiting for typecheck (pid 114412) to finish starting before reading free memory.
+Waiting for lint (pid 112384) to finish starting before reading free memory.
+Memory available for build after 65s.
+build: passed in 8.1s (test slot 1/2, 2 workers); revision 69c5ccfb3f93c3e0851adbbaead7ae0abbc4b83f; dirty; log .command-logs\2026-11-01T22-15-00-141Z-123352-9ddd8751.log; warnings present (see log)

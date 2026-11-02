@@ -1,0 +1,43 @@
+unit: failed (1) in 3.7s (2 workers, no slot); revision 69be60e567c4b5a8ec75561478450d398d7d1020; dirty; log .command-logs\2026-10-31T20-47-47-591Z-108772-4a57b123.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/polygonMeasures --maxWorkers=1
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/polygonMeasures.test.ts (18 tests | 1 failed) 56ms
+   ❯ exactness and refusal (4)
+     × extreme corners: a non-simple sum above 2^53 is exact, not a rounded double 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/polygonMeasures.test.ts > exactness and refusal > extreme corners: a non-simple sum above 2^53 is exact, not a rounded double
+AssertionError: expected 13510798815002624n to be 13510798815002625n // Object.is equality
+
+- Expected
++ Received
+
+- 13510798815002625n
++ 13510798815002624n
+
+ ❯ src/compgeo/polygonMeasures.test.ts:159:40
+    157|         expect(m.kind).toBe('signed-sum');
+    158|         if (m.kind === 'signed-sum') {
+    159|             expect(m.doubledSignedSum).toBe(expected);
+       |                                        ^
+    160|             expect(m.fan.reduce((a, b) => a + b, 0n)).toBe(expected);
+    161|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  21:47:48
+   Duration  2.62s (environment 43%, setup 27%, transform 27%, tests 2%, worker 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

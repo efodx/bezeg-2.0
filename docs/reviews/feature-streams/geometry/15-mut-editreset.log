@@ -1,0 +1,62 @@
+unit: failed (1) in 8.1s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-23-25-864Z-117756-57cd75b1.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (16 tests | 2 failed) 3561ms
+   × an edit while playing recomputes the trace, returns to step 0 and pauses; Reset does the same 161ms
+   × the Preset keeps the intervals and the step; an out-of-range step is clamped; a Preset in another mode is refused 179ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > an edit while playing recomputes the trace, returns to step 0 and pauses; Reset does the same
+AssertionError: expected 5 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 5
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:213:24
+    211|     expect(graph.step).toBe(5);
+    212|     act(() => { graph.addIntervalAt(1, 2); });
+    213|     expect(graph.step).toBe(0);
+       |                        ^
+    214|     expect(graph.isPlaying).toBe(false);
+    215|     expect(frames.callbacks.size).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > the Preset keeps the intervals and the step; an out-of-range step is clamped; a Preset in another mode is refused
+AssertionError: expected 4 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 4
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:296:24
+    294|     expect(saved.graphState).not.toHaveProperty('playing');
+    295|     load(graph, ivs([0, 1]));
+    296|     expect(graph.step).toBe(0);
+       |                        ^
+    297|     await settle(() => graph.selectPreset('mine'));
+    298|     expect([graph.step, graph.model]).toEqual([7, INTERVAL_SWEEP_EXAMP…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 14 passed (16)
+   Start at  05:23:26
+   Duration  7.30s (tests 50%, transform 20%, import 13%, environment 11%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

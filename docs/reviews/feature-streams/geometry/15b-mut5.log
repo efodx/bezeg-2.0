@@ -1,0 +1,46 @@
+unit: failed (1) in 33.0s (2 workers, no slot); revision d355d114b21aaf0039431453f965185b152179c1; dirty; log .command-logs\2026-11-01T04-36-32-901Z-87836-7912a4a9.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (20 tests | 1 failed) 4864ms
+   ❯ side lists (4)
+     × hovering or focusing a status entry highlights its interval on the board and leaving removes it 149ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > hovering or focusing a status entry highlights its interval on the board and leaving removes it
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:460:52
+    458|         expect(entries('status', 'data-hovered')).toHaveLength(1);
+    459|         act(() => { fireEvent.mouseLeave(second); });
+    460|         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+       |                                                    ^
+    461|         act(() => { fireEvent.focus(first); });
+    462|         expect(objectsNamed(graph, 'sweep-hover').map(o => o.dataY)).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  1 failed | 167 passed (168)
+   Start at  05:36:33
+   Duration  32.34s (tests 55%, environment 16%, import 13%, setup 9%, transform 6%)
+
+    Isolate  14 workers spawned · ~846ms startup each (spawn + environment, per file)
+             at least ~5.08s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

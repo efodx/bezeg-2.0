@@ -1,0 +1,359 @@
+{
+ "check1": [
+  {
+   "route": "polygon-area",
+   "boardW": 928,
+   "boardH": 507,
+   "expected": 5,
+   "labelCount": 5,
+   "dotCount": 5,
+   "minMargin": 67,
+   "pass": true,
+   "p5": {
+    "t": 67,
+    "b": 422,
+    "l": 472
+   },
+   "bad": []
+  },
+  {
+   "route": "convex-hull",
+   "boardW": 928,
+   "boardH": 507,
+   "expected": 9,
+   "labelCount": 9,
+   "dotCount": 9,
+   "minMargin": 67,
+   "pass": true,
+   "p5": {
+    "t": 67,
+    "b": 422,
+    "l": 472
+   },
+   "bad": []
+  }
+ ],
+ "check2": [
+  {
+   "setup": "points x values",
+   "values": [
+    "0",
+    "2"
+   ]
+  },
+  {
+   "sel": "monotone-chain",
+   "lang": "sl",
+   "alg": "monotone-chain"
+  },
+  {
+   "lang": "sl",
+   "alg": "monotone-chain",
+   "markers": {
+    "boardW": 928,
+    "boardH": 507,
+    "expected": 2,
+    "labelCount": 2,
+    "dotCount": 1,
+    "minMargin": 78,
+    "pass": false,
+    "p5": null,
+    "bad": []
+   },
+   "step1Notes": [
+    "Demonstracije / Računska geometrija / Konveksna ovojnica",
+    "Konveksna ovojnica",
+    "Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da točka izpade iz ovojnice?",
+    "Monotona veriga (Andrew)",
+    "Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.",
+    "Korak 1 od 2. Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.. Orientacijskih preizkusov doslej: 0",
+    "Mreža Sled algoritma Konveksna ovojnica"
+   ],
+   "allNotes": [
+    "Demonstracije / Računska geometrija / Konveksna ovojnica",
+    "Konveksna ovojnica",
+    "Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da točka izpade iz ovojnice?",
+    "Monotona veriga (Andrew)",
+    "Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.",
+    "Korak 1 od 2. Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.. Orientacijskih preizkusov doslej: 0",
+    "Mreža Sled algoritma Konveksna ovojnica",
+    "Konec: manj kot tri različne točke, ovojnica je točka ali daljica.",
+    "Korak 2 od 2. Konec: manj kot tri različne točke, ovojnica je točka ali daljica.. Orientacijskih preizkusov doslej: 0",
+    "Monotona veriga (Andrew): 0"
+   ],
+   "chainNotePresent": false
+  },
+  {
+   "sel": "slow-edge-test",
+   "lang": "sl",
+   "alg": "slow-edge-test"
+  },
+  {
+   "lang": "sl",
+   "alg": "slow-edge-test",
+   "markers": {
+    "boardW": 928,
+    "boardH": 507,
+    "expected": 2,
+    "labelCount": 2,
+    "dotCount": 1,
+    "minMargin": 78,
+    "pass": false,
+    "p5": null,
+    "bad": []
+   },
+   "step1Notes": [
+    "Demonstracije / Računska geometrija / Konveksna ovojnica",
+    "Konveksna ovojnica",
+    "Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da točka izpade iz ovojnice?",
+    "Monotona veriga (Andrew)",
+    "Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.",
+    "Korak 1 od 2. Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.. Orientacijskih preizkusov doslej: 0",
+    "Mreža Sled algoritma Konveksna ovojnica"
+   ],
+   "allNotes": [
+    "Demonstracije / Računska geometrija / Konveksna ovojnica",
+    "Konveksna ovojnica",
+    "Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da točka izpade iz ovojnice?",
+    "Monotona veriga (Andrew)",
+    "Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.",
+    "Korak 1 od 2. Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.. Orientacijskih preizkusov doslej: 0",
+    "Mreža Sled algoritma Konveksna ovojnica",
+    "Konec: manj kot tri različne točke, ovojnica je točka ali daljica.",
+    "Korak 2 od 2. Konec: manj kot tri različne točke, ovojnica je točka ali daljica.. Orientacijskih preizkusov doslej: 0",
+    "Monotona veriga (Andrew): 0"
+   ],
+   "chainNotePresent": false
+  },
+  {
+   "sel": "gift-wrapping",
+   "lang": "sl",
+   "alg": "gift-wrapping"
+  },
+  {
+   "lang": "sl",
+   "alg": "gift-wrapping",
+   "markers": {
+    "boardW": 928,
+    "boardH": 507,
+    "expected": 2,
+    "labelCount": 2,
+    "dotCount": 1,
+    "minMargin": 78,
+    "pass": false,
+    "p5": null,
+    "bad": []
+   },
+   "step1Notes": [
+    "Demonstracije / Računska geometrija / Konveksna ovojnica",
+    "Konveksna ovojnica",
+    "Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da točka izpade iz ovojnice?",
+    "Monotona veriga (Andrew)",
+    "Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.",
+    "Korak 1 od 2. Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.. Orientacijskih preizkusov doslej: 0",
+    "Mreža Sled algoritma Konveksna ovojnica"
+   ],
+   "allNotes": [
+    "Demonstracije / Računska geometrija / Konveksna ovojnica",
+    "Konveksna ovojnica",
+    "Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da točka izpade iz ovojnice?",
+    "Monotona veriga (Andrew)",
+    "Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.",
+    "Korak 1 od 2. Pri manj kot treh različnih točkah so vse točke oglišča ovojnice.. Orientacijskih preizkusov doslej: 0",
+    "Mreža Sled algoritma Konveksna ovojnica",
+    "Konec: manj kot tri različne točke, ovojnica je točka ali daljica.",
+    "Korak 2 od 2. Konec: manj kot tri različne točke, ovojnica je točka ali daljica.. Orientacijskih preizkusov doslej: 0",
+    "Monotona veriga (Andrew): 0"
+   ],
+   "chainNotePresent": false
+  },
+  {
+   "sel": "monotone-chain",
+   "lang": "en",
+   "alg": "monotone-chain"
+  },
+  {
+   "lang": "en",
+   "alg": "monotone-chain",
+   "markers": {
+    "boardW": 928,
+    "boardH": 507,
+    "expected": 2,
+    "labelCount": 2,
+    "dotCount": 1,
+    "minMargin": 78,
+    "pass": false,
+    "p5": null,
+    "bad": []
+   },
+   "step1Notes": [
+    "Demonstrations / Computational geometry / Convex hull",
+    "Convex hull",
+    "With fewer than three distinct points, every point is a hull vertex.",
+    "Step 1 of 2. With fewer than three distinct points, every point is a hull vertex.. Orientation tests so far: 0",
+    "Grid Algorithm trace Convex hull"
+   ],
+   "allNotes": [
+    "Demonstrations / Computational geometry / Convex hull",
+    "Convex hull",
+    "With fewer than three distinct points, every point is a hull vertex.",
+    "Step 1 of 2. With fewer than three distinct points, every point is a hull vertex.. Orientation tests so far: 0",
+    "Grid Algorithm trace Convex hull",
+    "Done: fewer than three distinct points, so the hull is a point or a segment.",
+    "Step 2 of 2. Done: fewer than three distinct points, so the hull is a point or a segment.. Orientation tests so far: 0"
+   ],
+   "chainNotePresent": false
+  },
+  {
+   "sel": "slow-edge-test",
+   "lang": "en",
+   "alg": "slow-edge-test"
+  },
+  {
+   "lang": "en",
+   "alg": "slow-edge-test",
+   "markers": {
+    "boardW": 928,
+    "boardH": 507,
+    "expected": 2,
+    "labelCount": 2,
+    "dotCount": 1,
+    "minMargin": 78,
+    "pass": false,
+    "p5": null,
+    "bad": []
+   },
+   "step1Notes": [
+    "Demonstrations / Computational geometry / Convex hull",
+    "Convex hull",
+    "With fewer than three distinct points, every point is a hull vertex.",
+    "Step 1 of 2. With fewer than three distinct points, every point is a hull vertex.. Orientation tests so far: 0",
+    "Grid Algorithm trace Convex hull"
+   ],
+   "allNotes": [
+    "Demonstrations / Computational geometry / Convex hull",
+    "Convex hull",
+    "With fewer than three distinct points, every point is a hull vertex.",
+    "Step 1 of 2. With fewer than three distinct points, every point is a hull vertex.. Orientation tests so far: 0",
+    "Grid Algorithm trace Convex hull",
+    "Done: fewer than three distinct points, so the hull is a point or a segment.",
+    "Step 2 of 2. Done: fewer than three distinct points, so the hull is a point or a segment.. Orientation tests so far: 0"
+   ],
+   "chainNotePresent": false
+  },
+  {
+   "sel": "gift-wrapping",
+   "lang": "en",
+   "alg": "gift-wrapping"
+  },
+  {
+   "lang": "en",
+   "alg": "gift-wrapping",
+   "markers": {
+    "boardW": 928,
+    "boardH": 507,
+    "expected": 2,
+    "labelCount": 2,
+    "dotCount": 1,
+    "minMargin": 78,
+    "pass": false,
+    "p5": null,
+    "bad": []
+   },
+   "step1Notes": [
+    "Demonstrations / Computational geometry / Convex hull",
+    "Convex hull",
+    "With fewer than three distinct points, every point is a hull vertex.",
+    "Step 1 of 2. With fewer than three distinct points, every point is a hull vertex.. Orientation tests so far: 0",
+    "Grid Algorithm trace Convex hull"
+   ],
+   "allNotes": [
+    "Demonstrations / Computational geometry / Convex hull",
+    "Convex hull",
+    "With fewer than three distinct points, every point is a hull vertex.",
+    "Step 1 of 2. With fewer than three distinct points, every point is a hull vertex.. Orientation tests so far: 0",
+    "Grid Algorithm trace Convex hull",
+    "Done: fewer than three distinct points, so the hull is a point or a segment.",
+    "Step 2 of 2. Done: fewer than three distinct points, so the hull is a point or a segment.. Orientation tests so far: 0"
+   ],
+   "chainNotePresent": false
+  }
+ ],
+ "check3": {
+  "notes": [
+   "Demonstracije / Računska geometrija / Konveksna ovojnica",
+   "Konveksna ovojnica",
+   "Pritiskaj Naslednji korak in napovej, katero točko bo algoritem naslednjo obdržal ali zavrgel. Kateri zavoj povzroči, da točka izpade iz ovojnice?",
+   "Monotona veriga (Andrew)",
+   "Spodnja veriga: točke po vrsti dodajamo od leve proti desni.",
+   "Korak 1 od 56. Spodnja veriga: točke po vrsti dodajamo od leve proti desni.. Orientacijskih preizkusov doslej: 0",
+   "Mreža Sled algoritma Konveksna ovojnica",
+   "Kandidata dodamo na verigo.",
+   "Korak 2 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 0",
+   "Korak 3 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 0",
+   "Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.",
+   "Korak 4 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 4; preizkušana točka P9 (1, 1). Orientacijskih preizkusov doslej: 1",
+   "Korak 5 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 1",
+   "Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.",
+   "Korak 6 od 56. Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.. Orientacija trojice = −2; preizkušana točka P8 (2, 0). Orientacijskih preizkusov doslej: 2",
+   "Srednjo točko odstranimo z verige.",
+   "Korak 7 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 2",
+   "Korak 8 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 6; preizkušana točka P8 (2, 0). Orientacijskih preizkusov doslej: 3",
+   "Korak 9 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 3",
+   "Korak 10 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 4; preizkušana točka P1 (2, 2). Orientacijskih preizkusov doslej: 4",
+   "Korak 11 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 4",
+   "Točke so na isti premici: srednjo točko odstranimo, ker ni oglišče ovojnice.",
+   "Korak 12 od 56. Točke so na isti premici: srednjo točko odstranimo, ker ni oglišče ovojnice.. Orientacija trojice = 0; preizkušana točka P5 (2, 5). Orientacijskih preizkusov doslej: 5",
+   "Korak 13 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 5",
+   "Korak 14 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 10; preizkušana točka P5 (2, 5). Orientacijskih preizkusov doslej: 6",
+   "Korak 15 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 6",
+   "Korak 16 od 56. Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.. Orientacija trojice = −5; preizkušana točka P7 (3, 1). Orientacijskih preizkusov doslej: 7",
+   "Korak 17 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 7",
+   "Korak 18 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 2; preizkušana točka P7 (3, 1). Orientacijskih preizkusov doslej: 8",
+   "Korak 19 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 8",
+   "Korak 20 od 56. Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.. Orientacija trojice = −2; preizkušana točka P2 (4, 0). Orientacijskih preizkusov doslej: 9",
+   "Korak 21 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 9",
+   "Korak 22 od 56. Točke so na isti premici: srednjo točko odstranimo, ker ni oglišče ovojnice.. Orientacija trojice = 0; preizkušana točka P2 (4, 0). Orientacijskih preizkusov doslej: 10",
+   "Korak 23 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 10",
+   "Korak 24 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 12; preizkušana točka P2 (4, 0). Orientacijskih preizkusov doslej: 11",
+   "Korak 25 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 11",
+   "Korak 26 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 12; preizkušana točka P4 (5, 3). Orientacijskih preizkusov doslej: 12",
+   "Korak 27 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 12",
+   "Zgornja veriga: točke po vrsti dodajamo od desne proti levi.",
+   "Korak 28 od 56. Zgornja veriga: točke po vrsti dodajamo od desne proti levi.. Orientacijskih preizkusov doslej: 12",
+   "Korak 29 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 12",
+   "Korak 30 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 12",
+   "Korak 31 od 56. Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.. Orientacija trojice = −4; preizkušana točka P7 (3, 1). Orientacijskih preizkusov doslej: 13",
+   "Korak 32 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 13",
+   "Korak 33 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 13",
+   "Korak 34 od 56. Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.. Orientacija trojice = −10; preizkušana točka P5 (2, 5). Orientacijskih preizkusov doslej: 14",
+   "Korak 35 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 14",
+   "Korak 36 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 14",
+   "Korak 37 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 9; preizkušana točka P1 (2, 2). Orientacijskih preizkusov doslej: 15",
+   "Korak 38 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 15",
+   "Korak 39 od 56. Točke so na isti premici: srednjo točko odstranimo, ker ni oglišče ovojnice.. Orientacija trojice = 0; preizkušana točka P8 (2, 0). Orientacijskih preizkusov doslej: 16",
+   "Korak 40 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 16",
+   "Korak 41 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 15; preizkušana točka P8 (2, 0). Orientacijskih preizkusov doslej: 17",
+   "Korak 42 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 17",
+   "Korak 43 od 56. Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.. Orientacija trojice = −5; preizkušana točka P9 (1, 1). Orientacijskih preizkusov doslej: 18",
+   "Korak 44 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 18",
+   "Korak 45 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 14; preizkušana točka P9 (1, 1). Orientacijskih preizkusov doslej: 19",
+   "Korak 46 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 19",
+   "Korak 47 od 56. Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.. Orientacija trojice = −3; preizkušana točka P3 (0, 0). Orientacijskih preizkusov doslej: 20",
+   "Korak 48 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 20",
+   "Korak 49 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 19; preizkušana točka P3 (0, 0). Orientacijskih preizkusov doslej: 21",
+   "Korak 50 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 21",
+   "Korak 51 od 56. Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.. Orientacija trojice = −11; preizkušana točka P6 (−1, 3). Orientacijskih preizkusov doslej: 22",
+   "Korak 52 od 56. Srednjo točko odstranimo z verige.. Orientacijskih preizkusov doslej: 22",
+   "Korak 53 od 56. Zavoj v levo: zadnji rob verige ostane, kandidat je sprejemljiv.. Orientacija trojice = 12; preizkušana točka P6 (−1, 3). Orientacijskih preizkusov doslej: 23",
+   "Korak 54 od 56. Kandidata dodamo na verigo.. Orientacijskih preizkusov doslej: 23",
+   "Verigi združimo v konveksno ovojnico.",
+   "Korak 55 od 56. Verigi združimo v konveksno ovojnico.. Orientacijskih preizkusov doslej: 23",
+   "Konec: konveksna ovojnica je izrisana.",
+   "Korak 56 od 56. Konec: konveksna ovojnica je izrisana.. Orientacijskih preizkusov doslej: 23",
+   "Monotona veriga (Andrew): 23"
+  ],
+  "chainNotePresent": true
+ },
+ "consoleErrors": []
+}

@@ -1,0 +1,2 @@
+src/learning/content/compgeoHullLesson.test.ts(106,50): error TS2339: Property 'workedExamples' does not exist on type 'LessonDefinition'.
+src/learning/content/compgeoHullLesson.test.ts(106,70): error TS7006: Parameter 'e' implicitly has an 'any' type.

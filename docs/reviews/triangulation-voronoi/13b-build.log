@@ -1,0 +1,3 @@
+Waiting for unit (pid 131784) to finish starting before reading free memory.
+Memory available for build after 5s.
+build: passed in 8.7s (test slot 1/2, 3 workers); revision 3aea61ed21da749e0349b418695d82ee70878aac; dirty; log .command-logs\2026-11-02T08-30-45-195Z-81000-49a19e2d.log; warnings present (see log)

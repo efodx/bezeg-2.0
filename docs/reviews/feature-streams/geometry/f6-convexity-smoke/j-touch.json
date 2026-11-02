@@ -1,0 +1,49 @@
+{
+ "errs": [],
+ "convex-hull": {
+  "ovf0": {
+   "sw": 390,
+   "cw": 390,
+   "bsw": 390
+  },
+  "count0": "Točk: 9 od največ 40",
+  "box": {
+   "x": 13,
+   "y": 305.484375,
+   "w": 364,
+   "h": 295.390625
+  },
+  "addModeLabel": "true",
+  "countBeforeTap": "Točk: 9 od največ 40",
+  "countAfterTap": "Točk: 10 od največ 40",
+  "ovfAfter": {
+   "sw": 390,
+   "cw": 390,
+   "bsw": 390
+  },
+  "ok": true
+ },
+ "polygon-area": {
+  "ovf0": {
+   "sw": 390,
+   "cw": 390,
+   "bsw": 390
+  },
+  "count0": "Točk: 5 od največ 40",
+  "box": {
+   "x": 13,
+   "y": 305.484375,
+   "w": 364,
+   "h": 295.390625
+  },
+  "addModeLabel": "true",
+  "countBeforeTap": "Točk: 5 od največ 40",
+  "countAfterTap": "Točk: 6 od največ 40",
+  "ovfAfter": {
+   "sw": 390,
+   "cw": 390,
+   "bsw": 390
+  },
+  "ok": true
+ }
+}

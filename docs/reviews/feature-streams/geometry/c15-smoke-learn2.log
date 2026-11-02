@@ -1,0 +1,94 @@
+Waiting for a test slot; all 1 busy: check in stream-learn-ui (pid 126796).
+Got test slot 1/1 after 631s.
+smoke-built: failed (1) in 50.8s (test slot 1/1, 4 workers); revision 17934fc7b2b1616dc8af708f5a24be2cf885a44c; dirty; reusing build from revision 17934fc7b2b1616dc8af708f5a24be2cf885a44c (dirty at build time); log .command-logs\2026-11-01T10-41-13-413Z-122916-6bf80b4f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test:smoke:built
+> playwright test tests/unified-learning.smoke.spec.cjs
+
+[WebServer] Production smoke preview: http://127.0.0.1:4313/bezeg-2.0
+
+Running 13 tests using 1 worker
+
+  ok  1 [chromium] › tests\unified-learning.smoke.spec.cjs:21:1 › Learn opens chapters whose Guided examples return to their owning section (5.7s)
+  ok  2 [chromium] › tests\unified-learning.smoke.spec.cjs:56:1 › Demonstrations catalog guidance opens the chapter-owned example while graph entry remains free exploration (2.0s)
+  ok  3 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › foundations: production deep link, refresh, contents and translated reading (2.6s)
+  ok  4 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › bezier-curves: production deep link, refresh, contents and translated reading (4.0s)
+  ok  5 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › rational-curves: production deep link, refresh, contents and translated reading (2.2s)
+  ok  6 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › splines: production deep link, refresh, contents and translated reading (2.4s)
+  ok  7 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › ph-curves: production deep link, refresh, contents and translated reading (2.6s)
+  ok  8 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › parametrization: production deep link, refresh, contents and translated reading (2.7s)
+  ok  9 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › bezier-patches: production deep link, refresh, contents and translated reading (13.7s)
+  x  10 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › linear-maps: production deep link, refresh, contents and translated reading (1.0s)
+  x  11 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › convexity-hulls: production deep link, refresh, contents and translated reading (469ms)
+  ok 12 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › functions-and-calculus: production deep link, refresh, contents and translated reading (2.5s)
+  ok 13 [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › analysis: production deep link, refresh, contents and translated reading (3.7s)
+
+
+  1) [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › linear-maps: production deep link, refresh, contents and translated reading 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 5
+    Received:    2
+
+      75 |         const heading = await page.locator('h1').textContent();
+      76 |         expect(heading.trim().length).toBeGreaterThan(5);
+    > 77 |         expect(await page.locator('.chapter-section').count()).toBeGreaterThanOrEqual(5);
+         |                                                                ^
+      78 |         if (chapter === 'bezier-patches') {
+      79 |             expect(await page.locator('.chapter-section').evaluateAll(sections => sections.map(section => section.id)))
+      80 |                 .toEqual(patchSections.map(([id]) => id));
+        at C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\tests\unified-learning.smoke.spec.cjs:77:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-4313\unified-learning.smoke-lin-6089f-ents-and-translated-reading-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-4313\unified-learning.smoke-lin-6089f-ents-and-translated-reading-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-4313\unified-learning.smoke-lin-6089f-ents-and-translated-reading-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-4313\unified-learning.smoke-lin-6089f-ents-and-translated-reading-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › convexity-hulls: production deep link, refresh, contents and translated reading 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 5
+    Received:    4
+
+      75 |         const heading = await page.locator('h1').textContent();
+      76 |         expect(heading.trim().length).toBeGreaterThan(5);
+    > 77 |         expect(await page.locator('.chapter-section').count()).toBeGreaterThanOrEqual(5);
+         |                                                                ^
+      78 |         if (chapter === 'bezier-patches') {
+      79 |             expect(await page.locator('.chapter-section').evaluateAll(sections => sections.map(section => section.id)))
+      80 |                 .toEqual(patchSections.map(([id]) => id));
+        at C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\tests\unified-learning.smoke.spec.cjs:77:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-4313\unified-learning.smoke-con-f42cb-ents-and-translated-reading-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-4313\unified-learning.smoke-con-f42cb-ents-and-translated-reading-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-4313\unified-learning.smoke-con-f42cb-ents-and-translated-reading-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-4313\unified-learning.smoke-con-f42cb-ents-and-translated-reading-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › linear-maps: production deep link, refresh, contents and translated reading 
+    [chromium] › tests\unified-learning.smoke.spec.cjs:72:5 › convexity-hulls: production deep link, refresh, contents and translated reading 
+  11 passed (49.8s)
+
+error: recipe `smoke-built` failed on line 38 with exit code 1

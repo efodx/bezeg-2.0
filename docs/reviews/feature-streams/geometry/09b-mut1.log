@@ -1,0 +1,56 @@
+unit: failed (1) in 9.2s (2 workers, no slot); revision 9817fd72555c97b73a1be1fd019150d8ea4140d6; dirty; log .command-logs\2026-11-01T05-11-16-117Z-15760-4b55e49f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx (24 tests | 2 failed) 5224ms
+   ❯ side lists (6)
+     × example 1 stepped through: the 13 events in order and the status after each, read from the side lists 54ms
+     × the lists follow a language switch 70ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > example 1 stepped through: the 13 events in order and the status after each, read from the side lists
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:440:35
+    438|             // Exactly the head of the queue is marked as the next eve…
+    439|             const marked = entries('queue', 'data-next');
+    440|             expect(marked.length).toBe(run.view(step).queue.length > 0…
+       |                                   ^
+    441|             if (marked.length) {
+    442|                 expect(marked[0]).toBe(entries('queue', 'data-queue-en…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > the lists follow a language switch
+TypeError: Cannot read properties of undefined (reading 'title')
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:546:48
+    544|         act(() => { setLanguage('en'); });
+    545|         expect(document.querySelector('[data-bentley-ottmann-list="que…
+    546|         expect(entries('queue', 'data-next')[0].title).toBe('Upper end…
+       |                                                ^
+    547|         expect(entries('status', 'data-status-entry')[0].title).toBe('…
+    548|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 22 passed (24)
+   Start at  06:11:16
+   Duration  8.50s (tests 62%, transform 14%, import 10%, environment 8%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

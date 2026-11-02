@@ -1,0 +1,39 @@
+unit: failed (1) in 10.9s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-35-34-669Z-78284-b66729a4.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoGuidedLessons.test.ts src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 1 failed) 4379ms
+   × the quoted numbers appear in the step text of both languages 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the quoted numbers appear in the step text of both languages
+AssertionError: earclip-comb sl \(3\): expected 'Glavnik ima \(n=11\) oglišč. Izpis po…' to contain '\(3\)'
+
+Expected: "\(3\)"
+Received: "Glavnik ima \(n=11\) oglišč. Izpis pokaže \(9\) trikotnikov, \(8\) diagonal, barvne razrede velikosti \(4\), \(4\), \(2\) in tri stražarje: \(3=\lfloor11/3\rfloor\). Pri tem večkotniku so trije stražarji tudi potrebni: tri konice \((3,6)\), \((9,6)\), \((15,6)\) so v ločenih klinih, zato nobena točka ne vidi več kot ene od njih. To velja za ta glavnik; Fiskov izrek daje le zadostno število in za druge večkotnike ne pove najmanjšega števila stražarjev. Zdaj dodajaj, odstranjuj in premikaj oglišča. Vsaka sprememba vrne sled na korak \(1\) in ustavi predvajanje; večkotnik v smeri urinega kazalca se za rezanje obrne, shranjen pa ostane nespremenjen."
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:213:59
+    211|         const step = stepOf(stepId);
+    212|         for (const token of tokens) {
+    213|             expect(step.body.sl, `${stepId} sl ${token}`).toContain(to…
+       |                                                           ^
+    214|             expect(step.body.en, `${stepId} en ${token}`).toContain(to…
+    215|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 35 passed (36)
+   Start at  08:35:35
+   Duration  10.06s (tests 53%, transform 19%, import 13%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

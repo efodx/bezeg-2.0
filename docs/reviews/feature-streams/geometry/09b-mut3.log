@@ -1,0 +1,107 @@
+unit: failed (1) in 9.8s (2 workers, no slot); revision 9817fd72555c97b73a1be1fd019150d8ea4140d6; dirty; log .command-logs\2026-11-01T05-11-35-498Z-106824-e8f7a310.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx (24 tests | 4 failed) 5847ms
+   ❯ refusals (4)
+     × too many segments, and removing one lifts the refusal 107ms
+     × an endpoint outside the range 72ms
+     × a non-integer endpoint, in both languages 59ms
+     × an overlapping collinear pair names the pair and is not drawn 60ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > refusals > too many segments, and removing one lifts the refusal
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ refusalCase src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:259:37
+    257|         expect(part('refusal')).toBeTruthy();
+    258|         expect(document.querySelector('[data-bentley-ottmann="refusal"…
+    259|         expect(sweepObjects(graph)).toHaveLength(0);
+       |                                     ^
+    260|         expect([graph.run().length, graph.step]).toEqual([0, 0]);
+    261|         expect(part('step')).toBeUndefined();
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:274:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > refusals > an endpoint outside the range
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ refusalCase src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:259:37
+    257|         expect(part('refusal')).toBeTruthy();
+    258|         expect(document.querySelector('[data-bentley-ottmann="refusal"…
+    259|         expect(sweepObjects(graph)).toHaveLength(0);
+       |                                     ^
+    260|         expect([graph.run().length, graph.step]).toEqual([0, 0]);
+    261|         expect(part('step')).toBeUndefined();
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:285:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > refusals > a non-integer endpoint, in both languages
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ refusalCase src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:259:37
+    257|         expect(part('refusal')).toBeTruthy();
+    258|         expect(document.querySelector('[data-bentley-ottmann="refusal"…
+    259|         expect(sweepObjects(graph)).toHaveLength(0);
+       |                                     ^
+    260|         expect([graph.run().length, graph.step]).toEqual([0, 0]);
+    261|         expect(part('step')).toBeUndefined();
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:294:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > refusals > an overlapping collinear pair names the pair and is not drawn
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ refusalCase src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:259:37
+    257|         expect(part('refusal')).toBeTruthy();
+    258|         expect(document.querySelector('[data-bentley-ottmann="refusal"…
+    259|         expect(sweepObjects(graph)).toHaveLength(0);
+       |                                     ^
+    260|         expect([graph.run().length, graph.step]).toEqual([0, 0]);
+    261|         expect(part('step')).toBeUndefined();
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:304:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 20 passed (24)
+   Start at  06:11:36
+   Duration  9.09s (tests 65%, transform 13%, import 9%, environment 7%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

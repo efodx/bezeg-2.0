@@ -1,0 +1,42 @@
+unit: failed (1) in 8.4s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-24-05-320Z-108972-cc2f7e52.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (16 tests | 1 failed) 3903ms
+   × a scene change and unmount pause playback and leave no board objects, listeners or timers 231ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > a scene change and unmount pause playback and leave no board objects, listeners or timers
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:375:29
+    373|     expect(sweepObjects(graph).length).toBeGreaterThan(0);
+    374|     view.unmount();
+    375|     expect(graph.isPlaying).toBe(false);
+       |                             ^
+    376|     expect(frames.callbacks.size).toBe(0);
+    377|     expect(frames.frame(INTERVAL_SWEEP_STEP_INTERVAL_MS)).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  05:24:05
+   Duration  7.57s (tests 53%, transform 19%, import 13%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

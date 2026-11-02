@@ -1,0 +1,46 @@
+unit: failed (1) in 3.6s (2 workers, no slot); revision 89e12b7f05b7b474bd66c234dce2cefe61abcdbf; dirty; log .command-logs\2026-11-02T12-16-13-244Z-120152-22aed934.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/triangulationChapter
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/triangulationChapter.test.ts (9 tests | 1 failed) 26ms
+   ❯ chapter structure and registration (9)
+     × lesson B2 opens from its own section and no longer from ear clipping 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > lesson B2 opens from its own section and no longer from ear clipping
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "chapterId": "triangulations-voronoi",
+-   "sectionId": "point-set-triangulation",
++   "sectionId": "ear-clipping",
+  }
+
+ ❯ src/learning/content/triangulationChapter.test.ts:80:42
+     78|         expect(lesson).toBe(triangulationGuidedExampleRegistry[B2]);
+     79|         expect(resolveGuidedExample('?learn=1&learnChapter=triangulati…
+     80|         expect(getGuidedLessonOwner(B2)).toEqual({chapterId: TRIANGULA…
+       |                                          ^
+     81|         expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, B2)).…
+     82|         expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, ID)).…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  13:16:14
+   Duration  2.52s (environment 40%, transform 28%, setup 22%, import 8%, tests 1%, worker 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

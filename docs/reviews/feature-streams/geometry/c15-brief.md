@@ -1,0 +1,50 @@
+# Brief handoff-v12 — convexity 15 (Convexity and hulls chapter, F4)
+
+- **Role:** implementation. You may edit in worktree `C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry` (branch `stream-geometry`). Do not commit, push, or delegate.
+- **Goal:** implement [docs/tasks/convexity-hulls/15-chapter.md](../../../tasks/convexity-hulls/15-chapter.md) in full, items 1–4. Read that file first. Its "Blocked" line is obsolete: Maps' `src/learning/content/chapterOwnedLessons.ts` is on `master` (commit `d3183f3f`). Read only these spec sections of `docs/specs/convexity-hulls-lessons.md`: Solution, Placement, A1, A2, A4 and the term table. Also read the one-shot lesson text section of `docs/specs/new-lesson-families.md`.
+- **Scope:**
+  - Owned:
+    - new `src/learning/content/convexityChapter*.ts` files and their test;
+    - the `chapterOwnedLessons.ts` entry (one entry; no second mechanism);
+    - `familyChapters.ts`;
+    - `src/learning/chapter/guidedLessonOwnership.ts`: move `orientation`, `polygon-area` and `convex-hull` only;
+    - `lessonCatalog.ts` and its tests, but only if the move requires it;
+    - the enumerating tests that the move changes.
+  - Leave alone:
+    - `ear-clipping`: it stays at its interim owner (`bezier-curves`/`geometric-properties`), because it belongs to the later triangulation chapter;
+    - `interval-sweep`, `segment-intersections`.
+  - Shared files:
+    - Do not edit `BaseGraph.tsx`, `GraphSession.ts` or the lesson runtime.
+    - Locale keys: if the chapter needs `sl.ts`/`en.ts` keys, add them in one block at the anchor of the area they belong to, in matching positions in both files.
+    - The lessons' content in `compgeoGuidedLessons.ts` may move into the chapter files only if the linear-maps model requires it. Report it if you move it.
+  - Preserve all untracked `docs/reviews/**` files.
+- **Context:**
+  - Model the slice on the linear-maps chapter: `linearMapsChapter.ts`, `linearMapsChapterLessons.ts`, `linearMapsChapterRegistry.ts`, `linearMapsChapter.test.ts`, and how `chapterOwnedLessons.ts` and `guidedLessonOwnership.ts` reference `linear-map`.
+  - Lesson routes and stored Presets that are valid at HEAD must keep working. Return links must land on the owning section and restore focus.
+  - Lesson prose: math in `\(...\)` with doubled backslashes in TS, and `{,}` for decimal commas. `lessonMathNotation.test.ts` must pass unchanged.
+  - Localization rules: see AGENTS.md "Localization calls".
+  - Use the spec's Slovenian terms.
+  - Do not advertise A3, A5 or A6.
+- **Checks:**
+  - Ownership move: report an observed failure under a deliberate mutation (revert one lesson's owner) and name the failing test. Log it to `docs/reviews/feature-streams/geometry/c15-mut<N>.log`.
+  - Run each of these and log it to `docs/reviews/feature-streams/geometry/c15-<name>.log`:
+    - `npx tsc --noEmit --pretty false`;
+    - `just lint` on touched paths;
+    - `just unit src/learning`;
+    - full `just unit` once at the end;
+    - `just build`.
+  - Start with `just --list`. The handler runs review and the browser smoke.
+- **Return:** at most 350 words:
+  - files changed, one line each;
+  - each item 1–4 with its evidence or gap;
+  - mutation → failing-test pairs;
+  - decisions or contradictions you found, as `file:line`;
+  - cases you did not verify.
+
+  Bulky output goes to the named log files.
+- **Budget:**
+  - Locate with `grep -l`/`-c` before `grep -n`, and batch searches.
+  - Read at most 150 lines per call, and never a whole file over about 300 lines.
+  - Quote `file:line` instead of pasting code.
+  - Send full test, build and diff output to log files.
+  - On a `HANDOFF` message, or past about 30 turns before acceptance, stop at a consistent point. Write a handoff note to `docs/reviews/feature-streams/geometry/c15-handoff.md` (state, remaining steps, files touched, checks run) and return it as partial.

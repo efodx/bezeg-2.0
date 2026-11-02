@@ -1,0 +1,55 @@
+PASS [orientation] opens in Slovenian :: heading="Orientacija treh točk"
+PASS [orientation] step 2: readout says values hidden (sl) :: text="Številske vrednosti so skrite. Vklopi jih v stikalu prekrivanj." attr=""
+FAIL [orientation] step 2: no numbers in board text :: found 2,4,6,8,2,4,6,8,1,2,3,4,1,2,3,4,1,2,3 in "2
+4
+6
+8
+−2
+−4
+−6
+−8
+1
+2
+3
+4
+−1
+−2
+−3
+−4
+P1
+P2
+P3"
+PASS [orientation] step 3: readout shows value :: attr="8" text="Orientacija treh točk p, q, r: +8 (levi zavoj)"
+PASS [orientation] live switch to EN changes readout text :: sl="Orientacija treh točk p, q, r: +8 (levi zavoj)" en="Orientation of p, q, r: +8 (left turn)"
+PASS [orientation] live switch to EN changes lesson heading :: heading="Orientation of three points"
+PASS [orientation] back to step 2: value hidden again :: step=2 attr="" text="Numeric values are hidden. Turn them on in the overlay switch."
+PASS [orientation] no page errors :: none
+PASS [polygon-area] opens in Slovenian :: heading="Ploščina večkotnika in Pickov izrek"
+PASS [polygon-area] step 2: readout says values hidden (sl) :: text="Številske vrednosti so skrite. Vklopi jih v stikalu prekrivanj." attr=""
+FAIL [polygon-area] step 2: no numbers in board text :: found 2,4,6,8,2,4,6,8,1,2,3,4,1,2,3,4,1,2,3,4,5 in "2
+4
+6
+8
+−2
+−4
+−6
+−8
+1
+2
+3
+4
+−1
+−2
+−3
+−4
+P1
+P2
+P3
+P4
+P5"
+PASS [polygon-area] step 3: readout shows value :: attr="42" text="Ploščina: 21Dvojna predznačena ploščina (obrazec z determinantami, shoelace): +42Oglišča si sledijo v nasprotni smeri urinega kazalca.Robne mrežne točke B: 8Notranje mrežne točke I: 18Pickov izrek: 2I + B − 2 = 42 je enako dvojni ploščini 42."
+PASS [polygon-area] live switch to EN changes readout text :: sl="Ploščina: 21Dvojna predznačena ploščina (obrazec z determinantami, shoelace): +42Oglišča si sledijo v nasprotni smeri urinega kazalca.Robne mrežne točke B: 8Notranje mrežne točke I: 18Pickov izrek: 2I + B − 2 = 42 je enako dvojni ploščini 42." en="Area: 21Doubled signed area (shoelace formula): +42The vertices run counter-clockwise.Boundary lattice points B: 8Interior lattice points I: 18Pick's theorem: 2I + B − 2 = 42 equals the doubled area 42."
+PASS [polygon-area] live switch to EN changes lesson heading :: heading="Polygon area and Pick's theorem"
+PASS [polygon-area] back to step 2: value hidden again :: step=2 attr="" text="Numeric values are hidden. Turn them on in the overlay switch."
+PASS [polygon-area] no page errors :: none
+SUMMARY 14/16 passed

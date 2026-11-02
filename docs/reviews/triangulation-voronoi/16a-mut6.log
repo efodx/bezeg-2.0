@@ -1,0 +1,37 @@
+Waiting for unit (pid 472) to finish starting before reading free memory.
+Memory available for unit after 5s.
+unit: failed (1) in 10.1s (2 workers, no slot); revision 1dfddf0c4b4ca6064291717cbb84e5a169878c88; dirty; log .command-logs\2026-11-02T12-49-45-805Z-101160-1fad5b80.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayLessonActions --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx (12 tests | 1 failed) 4483ms
+   × select-triangle is refused by the triangulation, ear clipping, hull trace and base point-set graphs 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > select-triangle is refused by the triangulation, ear clipping, hull trace and base point-set graphs
+AssertionError: expected function to throw an error, but it didn't
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:232:68
+    230| test('select-triangle is refused by the triangulation, ear clipping, h…
+    231|     for (const other of [new TriangulationGraph(), new EarClippingGrap…
+    232|         expect(() => other.applyPointSetAction(selectTriangle(0))).toT…
+       |                                                                    ^
+    233|         expect(() => other.applyPointSetAction(selectTriangle(null))).…
+    234|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  13:49:46
+   Duration  9.12s (tests 50%, transform 21%, import 14%, environment 10%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

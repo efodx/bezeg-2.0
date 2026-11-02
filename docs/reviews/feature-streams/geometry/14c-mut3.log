@@ -1,0 +1,42 @@
+unit: failed (1) in 7.4s (2 workers, no slot); revision 02a6ac3a41f0191f548484e9e08b233d6107b63f; dirty; log .command-logs\2026-11-01T04-13-49-430Z-121644-a7983d26.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullTraceLessonActions.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx (10 tests | 1 failed) 3489ms
+   × Back (stopping the lesson animations) and unmount pause playback and leave no scheduler callback 68ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullTraceLessonActions.host.test.tsx > Back (stopping the lesson animations) and unmount pause playback and leave no scheduler callback
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/HullTraceLessonActions.host.test.tsx:177:35
+    175|     expect(frames.callbacks.size).toBe(1);
+    176|     act(() => { graph.unmount(); });
+    177|     expect(frames.callbacks.size).toBe(0);
+       |                                   ^
+    178| });
+    179|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  05:13:50
+   Duration  6.71s (tests 53%, transform 18%, import 13%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,101 @@
+{
+ "errs": [],
+ "sl": {
+  "h1": "Konveksnost in ovojnice",
+  "links": [
+   {
+    "t": "Vodeni primer →",
+    "h": "/bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation"
+   },
+   {
+    "t": "Vodeni primer →",
+    "h": "/bezeg-2.0/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area"
+   },
+   {
+    "t": "Vodeni primer →",
+    "h": "/bezeg-2.0/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull"
+   }
+  ],
+  "headings": [
+   "Zakaj ovojnice",
+   "Orientacija treh točk",
+   "Orientacija treh točk",
+   "Ploščina večkotnika in Pickov izrek",
+   "Ploščina večkotnika in Pickov izrek",
+   "Konveksna ovojnica",
+   "Konveksna ovojnica"
+  ],
+  "clicks": [
+   {
+    "href": "/bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation",
+    "url": "/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation",
+    "h1": "Orientacija treh točk",
+    "prog": "Korak 1 od 6 · Okvir 1 od 2",
+    "svg": "44"
+   },
+   {
+    "href": "/bezeg-2.0/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area",
+    "url": "/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area",
+    "h1": "Ploščina večkotnika",
+    "prog": "Korak 1 od 7 · Okvir 1 od 2",
+    "svg": "70"
+   },
+   {
+    "href": "/bezeg-2.0/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull",
+    "url": "/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull",
+    "h1": "Konveksna ovojnica",
+    "prog": "Korak 1 od 7 · Okvir 1 od 2",
+    "svg": "50"
+   }
+  ]
+ },
+ "en": {
+  "h1": "Convexity and hulls",
+  "links": [
+   {
+    "t": "Guided example →",
+    "h": "/bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation"
+   },
+   {
+    "t": "Guided example →",
+    "h": "/bezeg-2.0/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area"
+   },
+   {
+    "t": "Guided example →",
+    "h": "/bezeg-2.0/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull"
+   }
+  ],
+  "headings": [
+   "Why hulls",
+   "Orientation of three points",
+   "Orientation of three points",
+   "Polygon area and Pick's theorem",
+   "Polygon area and Pick's theorem",
+   "Convex hull",
+   "Convex hull"
+  ],
+  "clicks": [
+   {
+    "href": "/bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation",
+    "url": "/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation",
+    "h1": "Orientation of three points",
+    "prog": "Step 1 of 6 · Frame 1 of 2",
+    "svg": "44"
+   },
+   {
+    "href": "/bezeg-2.0/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area",
+    "url": "/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area",
+    "h1": "Polygon area",
+    "prog": "Step 1 of 7 · Frame 1 of 2",
+    "svg": "70"
+   },
+   {
+    "href": "/bezeg-2.0/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull",
+    "url": "/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull",
+    "h1": "Convex hull",
+    "prog": "Step 1 of 7 · Frame 1 of 2",
+    "svg": "50"
+   }
+  ]
+ }
+}

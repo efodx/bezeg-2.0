@@ -1,0 +1,21 @@
+{
+ "errs": [],
+ "default": "0,0,4,0,3,2,0,0",
+ "edited": "-3,0,4,0,3,2,0,0",
+ "dialog": "Shrani prednastavitev Ime prednastavitve Zapri Shrani",
+ "options1": [
+  [
+   "Privzeta",
+   "smoke-f6c-orientation"
+  ]
+ ],
+ "afterReload": "0,0,4,0,3,2,0,0",
+ "afterOpen": "-3,0,4,0,3,2,0,0",
+ "restored": true,
+ "confirm": "Izbriši prednastavitev? DaNe",
+ "optionsAfterDelete": [
+  "Privzeta"
+ ],
+ "deleted": true,
+ "afterDeleteReload": "0,0,4,0,3,2,0,0"
+}

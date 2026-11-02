@@ -1,0 +1,35 @@
+unit: failed (1) in 8.3s (1 workers, no slot); revision 535925bdd284a3696b24bf90a3607641004d92b4; dirty; log .command-logs\2026-11-02T07-17-24-348Z-100204-5d73bab8.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (14 tests | 1 failed) 2461ms
+   × the board draws 13 edge curves, 5 of them heavier hull edges, and shades a quadrilateral only for a selected interior edge 126ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > the board draws 13 edge curves, 5 of them heavier hull edges, and shades a quadrilateral only for a selected interior edge
+AssertionError: expected 1.5 to be greater than 1.5
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:89:42
+     87|     const weight = (o: Shown | undefined) => Number(o?.visProp?.stroke…
+     88|     const interior = edgeCurves(graph).find(o => o.name === 'triangula…
+     89|     expect(weight(hullCurves(graph)[0])).toBeGreaterThan(weight(interi…
+       |                                          ^
+     90|     const e = legalEdge();
+     91|     choose(e.a, e.b);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  08:17:25
+   Duration  7.23s (tests 35%, transform 26%, import 19%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

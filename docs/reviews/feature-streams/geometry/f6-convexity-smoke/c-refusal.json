@@ -1,0 +1,36 @@
+{
+ "errs": [],
+ "A1": {
+  "input": "P1=(0,0) P2=(2,1) P3=(4,2)",
+  "nums": "0,0,2,1,4,2,0,0",
+  "text": "Orientacija treh točk p, q, r: 0 (kolinearne točke)TočkeVečkotnik",
+  "full": "nostiKorak mreže: 1. Koordinate so cela števila korakov.Dodajanje z dotikom ali klikomOdstraniPočistiTočk: 3 od največ 3Nobena točka ni izbrana.TočkeP1Izberi točko 1P2Izberi točko 2P3Izberi točko 3Dodaj točkoKoordinatni sistemKoordinatni sistemBrezSamo osiOsi in mrežaOsi in mreža in črticeVseVelikost elementovVelikost elementov grafaVelikost elementov grafa, vrednostMin: 0Max: 25Velikost točk, črt in oznak; ne spreminja povečave pogleda.Prednastavitve v tem brskalnikuShranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik.PrednastavitvePrivzetaPonastaviShraniIzbrišiIzvozi prednastavitveUvozi prednastavitveGeneriraj slike za prednastavitveIzvoz slikeSVGPNG "
+ },
+ "A1b": {
+  "input": "P3=(4,3)",
+  "text": "Orientacija treh točk p, q, r: +2 (levi"
+ },
+ "A2default": " 42 je enako dvojni ploščini 42.Obrni vrstni redTočkeVečkotnik Sklenjen večkotnik Mreža Trikotniki iz prvega oglišča Mrežne točke Številske vrednostiKorak mreže: 1. Koordinate so cela števila korakov.Dodajanje z dotikom ali klikomOdstraniPočistiTočk: 5 od največ 40Nobena točka ni izbrana.Večkotnik je enostaven.TočkeP1Izberi točko 1P2Izberi točko 2P3Izberi točko 3P4Izberi točko 4P5Izberi točko 5Dodaj točkoKoordinatni sistemKoordinatni sistemBrezSamo osiOsi in mrežaOsi in mreža in črticeVseVelikost elementovVelikost elementov grafaVelikost elementov grafa, vrednostMin: 0Max: 25Velikost točk, črt in oznak; ne spreminja povečave pogleda.Prednastavitve v tem brskalnikuShranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik.PrednastavitvePrivzetaPonastaviShraniIzbrišiIzvozi prednastavitveUvozi prednastavitveGeneriraj slike za prednastavitveIzvoz slikeSVGPNG ",
+ "A2": {
+  "input": "vertices (-1,3),(0,0),(5,3),(4,0),(2,5); edges (0,0)-(5,3) and (4,0)-(2,5) cross",
+  "nums": "-1,3,0,0,5,3,4,0,2,5,0,0",
+  "full": "fOrodjaStrniUrediPrikazShranikrivuljapogledprimerVečkotnik ni enostaven, zato ta vsota ni ploščina in Pickov izrek ne velja.Predznačena vsota ovojnega števila in ploščine (dvojna vrednost): +19Obrni vrstni redTočkeVečkotnik Sklenjen večkotnik Mreža Trikotniki iz prvega oglišča Mrežne točke Številske vrednostiKorak mreže: 1. Koordinate so cela števila korakov.Dodajanje z dotikom ali klikomOdstraniPočistiTočk: 5 od največ 40Nobena točka ni izbrana.Večkotnik ni enostaven: stranici 2 in 4 se stikata ali sekata.TočkeP1Izberi točko 1P2Izberi točko 2P3Izberi točko 3P4Izberi točko 4P5Izberi točko 5Dodaj točkoKoordinatni sistemKoordinatni sistemBrezSamo osiOsi in mrežaOsi in mreža in črticeVseVelikost elementovVelikost elementov grafaVelikost elementov grafa, vrednostMin: 0Max: 25Velikost točk, črt in oznak; ne spreminja povečave pogleda.Prednastavitve v tem brskalnikuShranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik.PrednastavitvePrivzetaPonastaviShraniIzbrišiIzvozi prednastavitveUvozi prednastavitveGeneriraj slike za prednastavitveIzvoz slikeSVGPNG ",
+  "hasPick": true
+ },
+ "A4": {
+  "n1": {
+   "input": "(0,0)",
+   "text": "j: 0 Mreža Sled algoritma Konveksna ovojnicaKorak mreže: 1. Koordinate so cela števila korakov.Dodajanje z dotikom ali klikomOdstraniPočistiTočk: 1 od največ 40Izbrana točka: 1TočkeP1Izberi točko 1Dodaj točkoKoordinatni sistemKoordinatni sistemBrezSamo osiOsi in mrežaOsi in mreža in črticeVseVelikost elementovVelikost elementov grafaVelikost elementov grafa, vrednostMin: 0Max: 25Velikost točk, črt in oznak; ne spreminja povečave pogleda.Prednastavitve v tem brskalnikuShranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik.PrednastavitvePrivzetaPonastaviShraniIzbrišiIzvozi prednastavitveUvozi prednastavitveGeneriraj slike za prednastavitveIzvoz slikeSVGPNG "
+  },
+  "n2": {
+   "input": "(0,0),(2,1)",
+   "text": "algoritma Konveksna ovojnicaKorak mreže: 1. Koordinate so cela števila korakov.Dodajanje z dotikom ali klikomOdstraniPočistiTočk: 2 od največ 40Izbrana točka: 2TočkeP1Izberi točko 1P2Izberi točko 2Dodaj točkoKoordinatni sistemKoordinatni sistemBrezSamo osiOsi in mrežaOsi in mreža in črticeVseVelikost elementovVelikost elementov grafaVelikost elementov grafa, vrednostMin: 0Max: 25Velikost točk, črt in oznak; ne spreminja povečave pogleda.Prednastavitve v tem brskalnikuShranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik.PrednastavitvePrivzetaPonastaviShraniIzbrišiIzvozi prednastavitveUvozi prednastavitveGeneriraj slike za prednastavitveIzvoz slikeSVGPNG "
+  },
+  "col": {
+   "input": "(0,0),(2,1),(4,2),(6,3)",
+   "text": "d leve proti desni.. Orientacijskih preizkusov doslej: 0 Mreža Sled algoritma Konveksna ovojnicaKorak mreže: 1. Koordinate so cela števila korakov.Dodajanje z dotikom ali klikomOdstraniPočistiTočk: 4 od največ 40Izbrana točka: 4TočkeP1Izberi točko 1P2Izberi točko 2P3Izberi točko 3P4Izberi točko 4Dodaj točkoKoordinatni sistemKoordinatni sistemBrezSamo osiOsi in mrežaOsi in mreža in črticeVseVelikost elementovVelikost elementov grafaVelikost elementov grafa, vrednostMin: 0Max: 25Velikost točk, črt in oznak; ne spreminja povečave pogleda.Prednastavitve v tem brskalnikuShranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik.PrednastavitvePrivzetaPonastaviShraniIzbrišiIzvozi prednastavitveUvozi prednastavitveGeneriraj slike za prednastavitveIzvoz slikeSVGPNG "
+  },
+  "col_slow": "(0, 0) do P2 (2, 1). Orientacijskih preizkusov doslej: 2 Mreža Sled algoritma Konveksna ovojnicaKorak mreže: 1. Koordinate so cela števila korakov.Dodajanje z dotikom ali klikomOdstraniPočistiTočk: 4 od največ 40Izbrana točka: 4TočkeP1Izberi točko 1P2Izberi točko 2P3Izberi točko 3P4Izberi točko 4Dodaj točkoKoordinatni sistemKoordinatni sistemBrezSamo osiOsi in mrežaOsi in mreža in črticeVseVelikost elementovVelikost elementov grafaVelikost elementov grafa, vrednostMin: 0Max: 25Velikost točk, črt in oznak; ne spreminja povečave pogleda.Prednastavitve v tem brskalnikuShranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik.PrednastavitvePrivzetaPonastaviShraniIzbrišiIzvozi prednastavitveUvozi prednastavitveGeneriraj slike za prednastavitveIzvoz slikeSVGPNG ",
+  "col_wrap": "ana točka P3 (4, 2). Orientacijskih preizkusov doslej: 1 Mreža Sled algoritma Konveksna ovojnicaKorak mreže: 1. Koordinate so cela števila korakov.Dodajanje z dotikom ali klikomOdstraniPočistiTočk: 4 od največ 40Izbrana točka: 4TočkeP1Izberi točko 1P2Izberi točko 2P3Izberi točko 3P4Izberi točko 4Dodaj točkoKoordinatni sistemKoordinatni sistemBrezSamo osiOsi in mrežaOsi in mreža in črticeVseVelikost elementovVelikost elementov grafaVelikost elementov grafa, vrednostMin: 0Max: 25Velikost točk, črt in oznak; ne spreminja povečave pogleda.Prednastavitve v tem brskalnikuShranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik.PrednastavitvePrivzetaPonastaviShraniIzbrišiIzvozi prednastavitveUvozi prednastavitveGeneriraj slike za prednastavitveIzvoz slikeSVGPNG "
+ }
+}

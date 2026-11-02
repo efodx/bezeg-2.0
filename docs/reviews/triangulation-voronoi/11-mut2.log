@@ -1,0 +1,96 @@
+unit: failed (1) in 3.2s (1 workers, no slot); revision 303432078802bca5d82c47ee73f5fb142b9edcbe; dirty; log .command-logs\2026-11-02T06-33-00-723Z-106376-974ecebe.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/pointInsertion.test.ts --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/pointInsertion.test.ts (11 tests | 5 failed) 224ms
+   ❯ insertPoint cases (7)
+     × in the relative interior of an interior edge: both neighbours split, +2 6ms
+     × in the relative interior of a hull edge: one triangle splits, +1, a collinear boundary point 1ms
+     × never mutates the input 1ms
+   ❯ random insertion after random flips (2)
+     × general-position grid sets 200ms
+     × collinear-rich grid sets 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > insertPoint cases > in the relative interior of an interior edge: both neighbours split, +2
+Error: internal error: point insertion produced an invalid triangulation (not-counter-clockwise)
+ ❯ insertPoint src/compgeo/pointInsertion.ts:115:27
+    113|     }
+    114|     const result = createTriangulation(points, triangles);
+    115|     if (!result.ok) throw new Error(`internal error: point insertion p…
+       |                           ^
+    116|     return {ok: true, value: result.value, change};
+    117| }
+ ❯ src/compgeo/pointInsertion.test.ts:98:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > insertPoint cases > in the relative interior of a hull edge: one triangle splits, +1, a collinear boundary point
+Error: internal error: point insertion produced an invalid triangulation (not-counter-clockwise)
+ ❯ insertPoint src/compgeo/pointInsertion.ts:115:27
+    113|     }
+    114|     const result = createTriangulation(points, triangles);
+    115|     if (!result.ok) throw new Error(`internal error: point insertion p…
+       |                           ^
+    116|     return {ok: true, value: result.value, change};
+    117| }
+ ❯ src/compgeo/pointInsertion.test.ts:107:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > insertPoint cases > never mutates the input
+Error: internal error: point insertion produced an invalid triangulation (not-counter-clockwise)
+ ❯ insertPoint src/compgeo/pointInsertion.ts:115:27
+    113|     }
+    114|     const result = createTriangulation(points, triangles);
+    115|     if (!result.ok) throw new Error(`internal error: point insertion p…
+       |                           ^
+    116|     return {ok: true, value: result.value, change};
+    117| }
+ ❯ src/compgeo/pointInsertion.test.ts:151:81
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > random insertion after random flips > general-position grid sets
+Error: internal error: point insertion produced an invalid triangulation (not-counter-clockwise)
+ ❯ insertPoint src/compgeo/pointInsertion.ts:115:27
+    113|     }
+    114|     const result = createTriangulation(points, triangles);
+    115|     if (!result.ok) throw new Error(`internal error: point insertion p…
+       |                           ^
+    116|     return {ok: true, value: result.value, change};
+    117| }
+ ❯ run src/compgeo/pointInsertion.test.ts:187:23
+ ❯ src/compgeo/pointInsertion.test.ts:205:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/compgeo/pointInsertion.test.ts > random insertion after random flips > collinear-rich grid sets
+Error: internal error: point insertion produced an invalid triangulation (not-counter-clockwise)
+ ❯ insertPoint src/compgeo/pointInsertion.ts:115:27
+    113|     }
+    114|     const result = createTriangulation(points, triangles);
+    115|     if (!result.ok) throw new Error(`internal error: point insertion p…
+       |                           ^
+    116|     return {ok: true, value: result.value, change};
+    117| }
+ ❯ run src/compgeo/pointInsertion.test.ts:187:23
+ ❯ src/compgeo/pointInsertion.test.ts:211:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 6 passed (11)
+   Start at  07:33:01
+   Duration  2.17s (environment 43%, setup 24%, transform 20%, tests 11%, import 1%, worker 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

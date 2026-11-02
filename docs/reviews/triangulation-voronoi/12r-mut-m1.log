@@ -1,0 +1,54 @@
+Waiting for unit (pid 117744) to finish starting before reading free memory.
+Memory available for unit after 20s.
+unit: failed (1) in 11.2s (2 workers, no slot); revision 3df4564b92c8a3b70679edc35ac55f1d49ce984b; dirty; log .command-logs\2026-11-02T07-41-16-126Z-113192-c79ca87c.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (45 tests | 1 failed) 5081ms
+   × a state write carrying a triangle list (a lesson action or checkpoint) clears the flip event and the selection 167ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > a state write carrying a triangle list (a lesson action or checkpoint) clears the flip event and the selection
+AssertionError: expected { kind: 'flipped', …(2) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "created": [
+    0,
+    5,
+  ],
+  "edge": [
+    1,
+    4,
+  ],
+  "kind": "flipped",
+}
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:497:25
+    495|     act(() => { graph.setState({triangles: TRIANGULATION_T0.map(tri =>…
+    496|     expect(graph.triangles).toEqual(TRIANGULATION_T0);
+    497|     expect(graph.event).toBeUndefined();
+       |                         ^
+    498|     expect(part('event')).toBeUndefined();
+    499|     expect(graph.selectedEdge()).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 44 passed (45)
+   Start at  08:41:17
+   Duration  10.15s (tests 51%, transform 20%, import 14%, environment 9%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

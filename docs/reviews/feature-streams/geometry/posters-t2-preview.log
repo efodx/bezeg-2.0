@@ -1,0 +1,7 @@
+Starting production preview from C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry at http://127.0.0.1:4313/bezeg-2.0; checkout revision e47d5341c0d17c88afdb65bda4ee000cb797b6f1 (dirty); build revision e47d5341c0d17c88afdb65bda4ee000cb797b6f1 (dirty at build time); log .command-logs\2026-11-02T10-15-36-497Z-113220-1b9cc9e5.log
+preview: failed (4294967295) in 430.1s; revision e47d5341c0d17c88afdb65bda4ee000cb797b6f1; dirty; reusing build from revision e47d5341c0d17c88afdb65bda4ee000cb797b6f1 (dirty at build time); log .command-logs\2026-11-02T10-15-36-497Z-113220-1b9cc9e5.log
+
+Recent output:
+Production smoke preview: http://127.0.0.1:4313/bezeg-2.0
+
+error: recipe `preview` failed on line 54 with exit code -1

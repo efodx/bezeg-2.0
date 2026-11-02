@@ -1,0 +1,89 @@
+unit: failed (1) in 9.9s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T06-58-21-801Z-107104-fc777a7f.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoEarClippingLesson src/learning/content/compgeoGuidedLessons
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 2 failed) 4230ms
+   × the seven scenes show the polygon, step, overlays and result the text relies on, and never play 972ms
+   × the quoted numbers appear in the step text of both languages 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+AssertionError: expected { kind: 'prepared-scene', …(2) } to match object { operation: 'set-points', …(1) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "operation": "set-points",
+-   "points": [
+-     [
+-       0,
+-       0,
+-     ],
+-     [
+-       6,
+-       0,
+-     ],
+-     [
+-       6,
+-       4,
+-     ],
+-     [
+-       3,
+-       2,
+-     ],
+-     [
+-       0,
+-       4,
+-     ],
+-   ],
++   "kind": "prepared-scene",
++   "sceneId": "earclip-polygon",
++   "source": "demonstration-default",
+  }
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:75:47
+     73|         expect(EAR_TRACE_STEPS).toEqual({firstEarTest: 3, firstEarClip…
+     74|         expect(EAR_COMB).toEqual(EAR_CLIPPING_EXAMPLE_2.points.map(p =…
+     75|         expect(sceneOf('earclip-polygon')[0]).toMatchObject({operation…
+       |                                               ^
+     76|     } finally {
+     77|         h.mounted.view.unmount();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the quoted numbers appear in the step text of both languages
+AssertionError: earclip-polygon sl \(12\): expected 'Večkotnik ima oglišča \((0,0)\), \((6…' to contain '\(12\)'
+
+Expected: "\(12\)"
+Received: "Večkotnik ima oglišča \((0,0)\), \((6,0)\), \((6,4)\), \((3,2)\), \((0,4)\) in ploščino \(18\). Oglišče \((3,2)\) je vbočeno (reflektno): tam se rob zavije v desno, notranji kot pa je večji od \(180^\circ\). Označeno je z rombom; ostala štiri oglišča so izbočena. Uho je izbočeno oglišče, v trikotniku katerega in njegovih sosed ni nobenega drugega oglišča. Rezanje ušes večkotnik razreže na trikotnike tako, da vedno odreže eno uho."
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:212:59
+    210|         const step = stepOf(stepId);
+    211|         for (const token of tokens) {
+    212|             expect(step.body.sl, `${stepId} sl ${token}`).toContain(to…
+       |                                                           ^
+    213|             expect(step.body.en, `${stepId} en ${token}`).toContain(to…
+    214|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 34 passed (36)
+   Start at  07:58:22
+   Duration  9.09s (tests 54%, transform 18%, import 13%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

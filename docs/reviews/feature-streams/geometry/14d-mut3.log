@@ -1,0 +1,80 @@
+unit: failed (1) in 4.9s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-27-36-526Z-100232-22311b9b.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoHullLesson --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/content/compgeoHullLesson.test.ts > the seven scenes show the algorithm, step, tests so far, accepted edges and overlays the text relies on, and never play
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/content/compgeoHullLesson.test.ts (6 tests | 2 failed) 946ms
+   × the seven scenes show the algorithm, step, tests so far, accepted edges and overlays the text relies on, and never play 472ms
+   × Back and a scene change while playing leave playback paused with no pending scheduler callback 129ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoHullLesson.test.ts > the seven scenes show the algorithm, step, tests so far, accepted edges and overlays the text relies on, and never play
+AssertionError: expected [ …(7) ] to deeply equal [ …(7) ]
+
+- Expected
++ Received
+
+@@ -64,9 +64,9 @@
+      0,
+      0,
+      0,
+      true,
+      true,
+-     false,
+-     0,
++     true,
++     1,
+    ],
+  ]
+
+ ❯ src/learning/content/compgeoHullLesson.test.ts:58:22
+     56|                 h.graph.overlayShown('trace'), h.graph.overlayShown('h…
+     57|         });
+     58|         expect(seen).toEqual([
+       |                      ^
+     59|             ['slow-edge-test', 0, 7, 0, true, true, false, 0],
+     60|             ['slow-edge-test', 0, 7, 0, false, false, false, 0],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/compgeoHullLesson.test.ts > Back and a scene change while playing leave playback paused with no pending scheduler callback
+AssertionError: expected [ true, 1, +0 ] to deeply equal [ false, +0, +0 ]
+
+- Expected
++ Received
+
+  [
+-   false,
+-   0,
++   true,
++   1,
+    0,
+  ]
+
+ ❯ src/learning/content/compgeoHullLesson.test.ts:154:64
+    152|         expect(h.pending()).toBe(1);
+    153|         h.scene('hull-explore');
+    154|         expect([h.graph.isPlaying, h.pending(), h.graph.step]).toEqual…
+       |                                                                ^
+    155|         for (const stepId of STEPS) {
+    156|             h.scene(stepId);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  05:27:37
+   Duration  4.24s (transform 30%, tests 23%, import 21%, environment 16%, setup 10%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

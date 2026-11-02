@@ -1,0 +1,249 @@
+unit: failed (1) in 1573.8s (2 workers, no slot); revision b1c4c35b3cadab69d6c95a52a831e7515228d9d4; dirty; log .command-logs\2026-10-31T23-20-02-548Z-87260-a758a264.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo src/graphs/base/presets src/demonstrations.test.ts src/demonstrationPreviewAssets.test.ts src/Routes.test.tsx src/learning
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/base/presets/PresetCatalog.test.tsx > linear-function: the default Preset exports, preflights, imports and loads
+Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. 
+
+stderr | src/graphs/base/presets/PresetCatalog.test.tsx > linear-function: the default Preset exports, preflights, imports and loads
+Warning: You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. 
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx (112 tests | 9 failed) 360826ms
+   × ph-cubic: the default Preset exports, preflights, imports and loads 204420ms
+   × ph-quintic: the default Preset exports, preflights, imports and loads 476ms
+   × spline-parameterization: the default Preset exports, preflights, imports and loads 26ms
+   × weighted-parameterization: the default Preset exports, preflights, imports and loads 18ms
+   × uniform-parameterization: the default Preset exports, preflights, imports and loads 3ms
+   × linear-function: the default Preset exports, preflights, imports and loads 60584ms
+   × orientation: the default Preset exports, preflights, imports and loads 22ms
+   × polygon-area: the default Preset exports, preflights, imports and loads 6ms
+   × convex-hull: the default Preset exports, preflights, imports and loads 30ms
+[vitest-pool]: Timeout terminating forks worker for test files C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/base/presets/PresetCatalog.test.tsx.
+[vitest-pool]: Timeout terminating forks worker for test files C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/OrientationGraph.host.test.tsx.
+ ❯ src/learning/content/guidedExampleScenes.test.tsx (79 tests | 3 failed) 281883ms
+   ❯ family guided examples apply to their real demonstration graphs (79)
+     × ph-curves / complex-hodograph / ph-cubic 42883ms
+     × parametrization / trace-vs-parameter / spline-parameterization 53889ms
+     × parametrization / uniform-timing / uniform-parameterization 17850ms
+stderr | src/learning/LearningPage.test.tsx > Learn contains every family chapter and keeps guided activities inside chapters
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/LearningPage.test.tsx (23 tests | 1 failed) 7807ms
+   × Learn contains every family chapter and keeps guided activities inside chapters 321ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+ ❯ src/learning/chapter/guidedLessonOwnership.test.ts (4 tests | 1 failed) 252ms
+   × a Demonstration without a guided lesson has no owner and resolves without throwing 44ms
+ ❯ src/learning/runtime/lessonCatalog.test.ts (13 tests | 1 failed) 220ms
+   × every active demonstration route has an available lesson 59ms
+ ❯ src/demonstrationPreviewAssets.test.ts (1 test | 1 failed) 40ms
+   ❯ generated Demonstration preview posters (1)
+     × has a poster for every Demonstration 35ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/demonstrationPreviewAssets.test.ts > generated Demonstration preview posters > has a poster for every Demonstration
+AssertionError: expected { …(3) } to deeply equal { missing: [], unknown: [], …(1) }
+
+- Expected
++ Received
+
+  {
+-   "hint": "complete",
+-   "missing": [],
++   "hint": "Regenerate src/demonstrationPreviewAssets.ts with \"node scripts/capture-demonstration-previews.cjs\" (needs a served build; see docs/commands.md). Missing: orientation, polygon-area, convex-hull; unknown: none.",
++   "missing": [
++     "orientation",
++     "polygon-area",
++     "convex-hull",
++   ],
+    "unknown": [],
+  }
+
+ ❯ src/demonstrationPreviewAssets.test.ts:16:12
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  src/learning/LearningPage.test.tsx > Learn contains every family chapter and keeps guided activities inside chapters
+AssertionError: expected [ '/bezeg-2.0/bezier', …(8) ] to deeply equal [ '/bezeg-2.0/bezier', …(9) ]
+
+- Expected
++ Received
+
+@@ -6,7 +6,6 @@
+    "/bezeg-2.0/ph",
+    "/bezeg-2.0/rational",
+    "/bezeg-2.0/spline",
+    "analysis",
+    "basics",
+-   "computational-geometry",
+  ]
+
+ ❯ src/learning/LearningPage.test.tsx:32:68
+     30|     const {container} = render(<MemoryRouter><LearningPage/></MemoryRo…
+     31|     const familiesWithChapters = getDemonstrationCatalog().families.ma…
+     32|     expect(learningChapters.map(chapter => chapter.family).sort()).toE…
+       |                                                                    ^
+     33|     expect(container.querySelectorAll('.learning-family')).toHaveLengt…
+     34|     expect(container.querySelectorAll('.learning-topic-heading')).toHa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  src/learning/chapter/guidedLessonOwnership.test.ts > a Demonstration without a guided lesson has no owner and resolves without throwing
+Error: Demonstration "orientation" has no guided lesson owner.
+ ❯ primaryOwner src/learning/chapter/guidedLessonOwnership.ts:77:23
+     77| }
+     78|
+     79| export function getGuidedLessonOwners(id: DemonstrationId): readonly G…
+       |                  ^
+     80|     const familyOwners = familyChapters.flatMap(chapter => chapter.sec…
+     81|         .filter(section => section.demonstrationIds?.includes(id))
+ ❯ getGuidedLessonOwner src/learning/chapter/guidedLessonOwnership.ts:94:36
+ ❯ src/learning/chapter/guidedLessonOwnership.test.ts:24:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  src/learning/content/guidedExampleScenes.test.tsx > family guided examples apply to their real demonstration graphs > ph-curves / complex-hodograph / ph-cubic
+ FAIL  src/learning/content/guidedExampleScenes.test.tsx > family guided examples apply to their real demonstration graphs > parametrization / trace-vs-parameter / spline-parameterization
+ FAIL  src/learning/content/guidedExampleScenes.test.tsx > family guided examples apply to their real demonstration graphs > parametrization / uniform-timing / uniform-parameterization
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/learning/content/guidedExampleScenes.test.tsx:61:119
+     59|
+     60| describe('family guided examples apply to their real demonstration gra…
+     61|     test.each(familyExamples.map(example => [example.chapterId, exampl…
+       |                                                                                                                       ^
+     62|         '%s / %s / %s', (chapterId, sectionId, rawId) => {
+     63|             const id = rawId as DemonstrationId;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  src/learning/runtime/lessonCatalog.test.ts > every active demonstration route has an available lesson
+AssertionError: expected [ 'orientation', 'polygon-area', …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "orientation",
++   "polygon-area",
++   "convex-hull",
++ ]
+
+ ❯ src/learning/runtime/lessonCatalog.test.ts:183:60
+    181|     const ids = getDemonstrationCatalog().demonstrations.map(demonstra…
+    182|     // Task13 publishes the six patch demonstrations alongside the exi…
+    183|     expect(ids.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
+       |                                                            ^
+    184| });
+    185|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > ph-cubic: the default Preset exports, preflights, imports and loads
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > linear-function: the default Preset exports, preflights, imports and loads
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:101:15
+     99| });
+    100|
+    101| test.each(ids)('%s: the default Preset exports, preflights, imports an…
+       |               ^
+    102|     const warn = vi.spyOn(console, 'warn');
+    103|     const mounted = mountGraph(createGraph(id));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > ph-quintic: the default Preset exports, preflights, imports and loads
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > spline-parameterization: the default Preset exports, preflights, imports and loads
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > weighted-parameterization: the default Preset exports, preflights, imports and loads
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > uniform-parameterization: the default Preset exports, preflights, imports and loads
+AssertionError: expected { rejection: { …(2) } } to deeply equal { data: [] }
+
+- Expected
++ Received
+
+  {
+-   "data": [],
++   "rejection": {
++     "key": "preset_has_no_curve",
++     "params": {},
++   },
+  }
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:114:64
+    112|     // The graph's own import checks stored (serialized) data with the…
+    113|     const stored = exported.data === undefined ? undefined : JSON.pars…
+    114|     if (stored !== undefined) expect(collection.check(stored)).toEqual…
+       |                                                                ^
+    115|     const before = observeScene(graph);
+    116|     const file = JSON.stringify({[`preset-${collection.key}`]: {data: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > orientation: the default Preset exports, preflights, imports and loads
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > polygon-area: the default Preset exports, preflights, imports and loads
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > convex-hull: the default Preset exports, preflights, imports and loads
+Error: Datoteka ni podprta: neveljavna vrednost model. Izvozi prednastavitve iz Bezega in preveri podatke.
+ ❯ fail src/graphs/base/presets/PresetImport.ts:19:11
+     17|
+     18| function fail(detail: Message): never {
+     19|     throw new LocalizedError(message("unsupported_file_export_presets_…
+       |           ^
+     20| }
+     21|
+ ❯ checkPreset src/graphs/base/presets/PresetImport.ts:31:22
+ ❯ preflightPresetImport src/graphs/base/presets/PresetImport.ts:53:13
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:117:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Failed to start forks worker for test files C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/HullTraceGraph.host.test.tsx.
+ ❯ ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5899:94
+ ❯ Pool.schedule ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5899:5
+
+Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond
+
+ ❯ Timeout.<anonymous> ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5396:58
+ ❯ listOnTimeout node:internal/timers:685:17
+ ❯ process.processTimers node:internal/timers:618:7
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Failed to start forks worker for test files C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/compgeo/OrientationGraph.host.test.tsx.
+ ❯ ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5899:94
+ ❯ Pool.schedule ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5899:5
+
+Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond
+ ❯ Timeout.<anonymous> ../../../node_modules/vitest/dist/chunks/index.B8VfM7Mf.js:5396:58
+ ❯ listOnTimeout node:internal/timers:685:17
+ ❯ process.processTimers node:internal/timers:618:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ Test Files  6 failed | 69 passed (75)
+      Tests  16 failed | 1242 passed (1258)
+     Errors  2 errors
+   Start at  00:20:04
+   Duration  1569.48s (tests 77%, environment 8%, setup 7%, import 5%, transform 3%)
+
+    Isolate  75 workers spawned · ~3.65s startup each (spawn + environment, per file)
+             at least ~133.13s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

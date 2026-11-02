@@ -1,0 +1,7 @@
+Waiting for unit (pid 104964) to finish starting before reading free memory.
+Waiting for unit (pid 88600) to finish starting before reading free memory.
+Waiting for lint (pid 107024) to finish starting before reading free memory.
+Waiting for unit (pid 4392) to finish starting before reading free memory.
+Waiting for typecheck (pid 98188) to finish starting before reading free memory.
+Memory available for unit after 95s.
+unit: passed in 40.3s (2 workers, no slot); revision 89e12b7f05b7b474bd66c234dce2cefe61abcdbf; dirty; log .command-logs\2026-11-02T12-13-08-159Z-79108-10281dfa.log

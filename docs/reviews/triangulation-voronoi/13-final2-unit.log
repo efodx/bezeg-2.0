@@ -1,0 +1,4 @@
+Waiting for typecheck (pid 118184) to finish starting before reading free memory.
+Waiting for unit (pid 106420) to finish starting before reading free memory.
+Memory available for unit after 95s.
+unit: passed in 131.7s (2 workers, no slot); revision 8ae72bfd2c64027ef7b7886ab93d4e168886ebf7; dirty; log .command-logs\2026-11-02T08-47-22-108Z-111864-d176f91b.log

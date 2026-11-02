@@ -1,0 +1,69 @@
+unit: failed (1) in 9.2s (2 workers, no slot); revision 9817fd72555c97b73a1be1fd019150d8ea4140d6; dirty; log .command-logs\2026-11-01T05-11-25-777Z-122160-bfd219f7.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx (24 tests | 2 failed) 5275ms
+   ❯ side lists (6)
+     × example 1 stepped through: the 13 events in order and the status after each, read from the side lists 133ms
+     × the current event marks its segments, and a crossing marks every segment through the point 493ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > example 1 stepped through: the 13 events in order and the status after each, read from the side lists
+AssertionError: expected [ 's4', 's3' ] to deeply equal [ 's3', 's4' ]
+
+- Expected
++ Received
+
+  [
+-   "s3",
+    "s4",
++   "s3",
+  ]
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:447:35
+    445|                 expect(marked[0].textContent).toContain('naslednji dog…
+    446|             }
+    447|             expect(statusNames()).toEqual(names(run.view(step).status)…
+       |                                   ^
+    448|             if (next === 'pop') heads.push(marked[0].title);
+    449|             if (run.view(step).position && (next === 'pop' || next ===…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx > side lists > the current event marks its segments, and a crossing marks every segment through the point
+AssertionError: expected [ 's1', 's2' ] to deeply equal [ 's2', 's1' ]
+
+- Expected
++ Received
+
+  [
+-   "s2",
+    "s1",
++   "s2",
+  ]
+
+ ❯ src/graphs/compgeo/BentleyOttmannGraph.host.test.tsx:474:30
+    472|             if (run.event(step)?.note === 'pop' || run.event(step)?.no…
+    473|         }
+    474|         expect(marks['3,2']).toEqual(['s2', 's1']);
+       |                              ^
+    475|         expect(marks['2,5']).toEqual(['s3']);
+    476|         expect(marks['33/20,29/10']).toEqual(['s2', 's3']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 22 passed (24)
+   Start at  06:11:26
+   Duration  8.52s (tests 63%, transform 14%, import 10%, environment 8%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

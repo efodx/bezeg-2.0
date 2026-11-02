@@ -1,0 +1,104 @@
+unit: failed (1) in 4.3s (2 workers, no slot); revision 69be60e567c4b5a8ec75561478450d398d7d1020; dirty; log .command-logs\2026-10-31T20-44-47-379Z-81516-7f8ffea0.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/polygonMeasures --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/polygonMeasures.test.ts (18 tests | 4 failed) 22ms
+   ❯ polygonMeasures reference numbers (3)
+     × hull pentagon: doubled 42, B 8, I 18, Pick 42 10ms
+     × reversing negates the signed area and keeps |A|, B, I; rotating changes nothing 2ms
+   ❯ lattice counting (4)
+     × a ray through a vertex is counted once (half-open rule) 1ms
+     × Pick holds on random simple lattice polygons 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/polygonMeasures.test.ts > polygonMeasures reference numbers > hull pentagon: doubled 42, B 8, I 18, Pick 42
+AssertionError: expected 13 to be 18 // Object.is equality
+
+- Expected
++ Received
+
+- 18
++ 13
+
+ ❯ src/compgeo/polygonMeasures.test.ts:39:31
+     37|         expect(m.orientation).toBe('ccw');
+     38|         expect(m.boundary).toBe(8);
+     39|         expect(interiorOf(m)).toBe(18);
+       |                               ^
+     40|         expect(m.pickDoubledArea).toBe(42);
+     41|         expect(m.pickHolds).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/compgeo/polygonMeasures.test.ts > polygonMeasures reference numbers > reversing negates the signed area and keeps |A|, B, I; rotating changes nothing
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/compgeo/polygonMeasures.test.ts:61:33
+     59|             expect(r.boundary).toBe(a.boundary);
+     60|             expect(interiorOf(r)).toBe(interiorOf(a));
+     61|             expect(r.pickHolds).toBe(true);
+       |                                 ^
+     62|             for (let k = 1; k < v.length; k++) {
+     63|                 const rot = simple(polygonMeasures([...v.slice(k), ...…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/compgeo/polygonMeasures.test.ts > lattice counting > a ray through a vertex is counted once (half-open rule)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/compgeo/polygonMeasures.test.ts:124:57
+    122|     it('a ray through a vertex is counted once (half-open rule)', () =…
+    123|         const diamond = poly([0, 0], [2, -2], [4, 0], [2, 2]);
+    124|         expect(strictlyInsidePolygon(p(1, 0), diamond)).toBe(true);
+       |                                                         ^
+    125|         expect(strictlyInsidePolygon(p(-1, 0), diamond)).toBe(false);
+    126|         expect(strictlyInsidePolygon(p(5, 0), diamond)).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/compgeo/polygonMeasures.test.ts > lattice counting > Pick holds on random simple lattice polygons
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/compgeo/polygonMeasures.test.ts:138:33
+    136|             const m = simple(polygonMeasures(v));
+    137|             expect(m.interior.ok).toBe(true);
+    138|             expect(m.pickHolds).toBe(true);
+       |                                 ^
+    139|             expect(m.doubledSignedArea === 0n).toBe(false);
+    140|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 14 passed (18)
+   Start at  21:44:48
+   Duration  3.06s (environment 47%, setup 27%, transform 24%, tests 1%, worker 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

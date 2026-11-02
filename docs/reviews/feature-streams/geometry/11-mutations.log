@@ -1,0 +1,7 @@
+M1 gate removed exit 1 | × set-points with intervals is accepted by the interval sweep, refused by the hull trace; 
+M2 no clamp exit 1 | × set-trace-step clamps a number like a stored Preset step, and end is the last step 235ms
+M3 next-step unsupported exit 1 | × the default scene is Example 1 at step 0, stopped with nothing scheduled, and the trace  || × set-trace-step end equals Next step pressed until done: step, readouts and board 128ms || × set-trace-step pauses a running playback, leaves no scheduler callback and keeps later N || × the next-step action repeated k times equals the Next button repeated k times 88ms || × the seven scenes run in one synchronous sequence, show the readouts the text quotes, fra
+M4 events scene 5 presses exit 1 | × the seven scenes run in one synchronous sequence, show the readouts the text quotes, fra
+M5 no controller reset on named step exit 1 | × set-trace-step pauses a running playback, leaves no scheduler callback and keeps later N
+M6 narrow view exit 1 | × the seven scenes run in one synchronous sequence, show the readouts the text quotes, fra
+M7 end is last-1 exit 1 | × set-trace-step clamps a number like a stored Preset step, and end is the last step 255ms || × set-trace-step end equals Next step pressed until done: step, readouts and board 566ms || × the seven scenes run in one synchronous sequence, show the readouts the text quotes, fra || × the second sample of step 7 ends with 4 pairs out of 6 and 3 open on [3, 3], as the text

@@ -1,0 +1,138 @@
+✔ compact evidence preserves numeric observations and retained records without repeated new SVG strings (2.0876ms)
+✔ camera provenance canonicalizes only numerical roundoff and rejects a real camera change (1.0867ms)
+✔ surface outcome evidence requires a drawn SVG surface view (0.7899ms)
+✔ surface camera provenance validates orbit cameras while retaining board cameras (0.7445ms)
+✖ registry exhaustively matches the live catalog and rejects missing/unknown recipes (1.3553ms)
+✔ unsupported controls fail instead of silently capturing a default (0.5967ms)
+✔ number actions distinguish a rounded input draft from a full-precision graph value (1.2168ms)
+✔ semantic assertions reject empty, wrong-degree, missing-Farin and unrevealed evidence (5.0052ms)
+✔ step provenance requires exact consecutive states and the common camera (1.9131ms)
+✔ smooth evidence rejects stroke compounding, stationary-point drift and a failed exact return (2.9822ms)
+✔ elevation provenance rejects an inexact rational control point or changed underlying curve (0.6878ms)
+✔ affine provenance rejects a wrong intermediate rotation and shifted camera (0.6068ms)
+✔ parameter sweep provenance rejects a moved fixed point, wrong intermediate, a jump at the loop seam and a target mismatch (17.1974ms)
+✔ decasteljau-alternative sweep: A, B, C and the connecting segment match pure evaluations at the reported t, with the seam checked (18.4496ms)
+✔ derivative sweep provenance rejects a moved x0, a wrong secant slope, a moved tangent, a non-seamless end, a non-identical end PNG and the excluded band (9.7714ms)
+✔ Farin pointer-drag provenance rejects a moved control point, a changed non-dragged ratio, a weight text mismatch and a non-seamless end (23.4272ms)
+✔ weighted-parameterization sweep: markers equal B(phi_alpha(t_k)) at the reported alpha, with a fixed curve path (14.2649ms)
+✔ ph-cubic sweep: three visible offsets track d, 2d, 3d on one side; the PH curve stays fixed and the seam matches (3458.4082ms)
+✔ ph-quintic sweep: three signed-normal offsets stay cusp-free and keep their fixed quintic curve (754.9875ms)
+✔ exact subdivision holds both child representations on the unchanged parent and resets to its poster (4.76ms)
+✔ selective motion recapture replaces only selected clips and keeps the other evidence in order (0.381ms)
+✔ darboux reference sums: x² on [0, 2] gives the recipe readouts and agrees with closed forms at every checkpoint (0.7919ms)
+✔ darboux stepped clip: readouts equal the pure sums at each checkpoint, press counts, camera and seam are enforced (3.1367ms)
+✔ definite-integral stepped clip: readouts equal the left sum, h, exact and sum − exact at each checkpoint; range, holds and seam are enforced (1.995ms)
+✔ real VP9 encoding retains exact RGB background samples and declares its color metadata (3170.0994ms)
+✔ validation or partial-run failure preserves the complete published set and maps (15.4644ms)
+✔ pruning failure also restores prior published bytes and obsolete files (7.116ms)
+✔ complex multiplication: snapped w, z·w product, caption and exact return pass on consistent evidence (3.2535ms)
+✔ complex multiplication rejects a product off by 1e-6, a moved z and a final w other than i (3.546ms)
+✔ accumulation reference integral agrees with the antiderivative on both signed stretches (1.2431ms)
+✔ path counts ignore curves without path data, so an empty snapshot cannot pass the path-present checks (0.1534ms)
+✔ trigonometric sweep: the solid curve equals A·sin(ωx + φ) + B at the reported φ, A, ω, B fixed, phi readout and equation match the input, seam checked (27.4883ms)
+✔ sweepValue snaps every existing clip exactly as before the origin option (bit-identical over the 96 frames) (1.6066ms)
+✔ spline-g1 sweep snaps to the offset grid 0.01 + k·0.0299 and reaches the recipe value exactly (0.3051ms)
+✔ spline-g1 sweep: N2 and N3 follow the reported b1 and the b2 readout, G1 holds at both joins, the path follows b1, seam checked (8.7001ms)
+✔ the retained capture manifest lives outside src and carries no machine-specific absolute paths (881.791ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 35
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9640.3137
+
+✖ failing tests:
+
+test at scripts\demonstration-preview-capture.test.cjs:66:1
+✖ registry exhaustively matches the live catalog and rejects missing/unknown recipes (1.3553ms)
+  AssertionError [ERR_ASSERTION]: Recipes must exhaustively match shipped IDs
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      'accumulation',
+      'affine',
+      'arc-length',
+      'area-between-curves',
+  ...
+      'sequence',
+  -   'simson-line',
+      'spline-c1',
+      'spline-c2',
+      'spline-cn',
+      'spline-g1',
+      'spline-g1-symmetric',
+  
+      at validateRecipes (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\scripts\demonstration-preview-recipes.cjs:143:12)
+      at TestContext.<anonymous> (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\scripts\demonstration-preview-capture.test.cjs:67:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [
+      'accumulation',             'affine',                    'arc-length',
+      'area-between-curves',      'bernstein',                 'bezier',
+      'bisection',                'bspline-basis',             'bspline-deboor',
+      'circle',                   'complex-multiplication',    'complex-reciprocal',
+      'complex-roots',            'continuity',                'convex-hull',
+      'convexity',                'curve-curvature',           'curve-parametric',
+      'darboux',                  'decasteljau',               'decasteljau-alternative',
+      'definite-integral',        'delaunay',                  'derivative',
+      'ear-clipping',             'elevation',                 'euler-line',
+      'exponential-function',     'extrapolation',             'extrema',
+      'farin',                    'fixed-point',               'fourier-series',
+      'function-inverse',         'function-transformation',   'inscribed-angle',
+      'interp-hermite',           'interp-lagrange',           'interp-subdivision',
+      'interval-sweep',           'linear-function',           'linear-map',
+      'mean-value',               'orientation',               'patch-coons',
+      'patch-decasteljau',        'patch-derivatives',         'patch-joins',
+      'patch-subdivision',        'patch-tensor',              'patch-triangular',
+      'ph-cubic',                 'ph-quintic',                'point-set-triangulation',
+      'polygon-area',             'projective-cross-ratio',    'projective-pascal',
+      'projective-pole-polar',    'rational',                  'rational-decasteljau',
+      'rational-elevation',       'rational-extrapolation',    'rational-subdivision',
+      'repeated-subdivision',     'root-finding',              'segment-intersections',
+      'sequence',                 'spline-c1',                 'spline-c2',
+      'spline-cn',                'spline-g1',                 'spline-g1-symmetric',
+      'spline-parameterization',  'subdivision',               'taylor',
+      'triangle-centres',         'trigonometric-functions',   'uniform-convergence',
+      'uniform-parameterization', 'weighted-parameterization'
+    ],
+    expected: [
+      'accumulation',          'affine',                   'arc-length',
+      'area-between-curves',   'bernstein',                'bezier',
+      'bisection',             'bspline-basis',            'bspline-deboor',
+      'circle',                'complex-multiplication',   'complex-reciprocal',
+      'complex-roots',         'continuity',               'convex-hull',
+      'convexity',             'curve-curvature',          'curve-parametric',
+      'darboux',               'decasteljau',              'decasteljau-alternative',
+      'definite-integral',     'delaunay',                 'derivative',
+      'ear-clipping',          'elevation',                'euler-line',
+      'exponential-function',  'extrapolation',            'extrema',
+      'farin',                 'fixed-point',              'fourier-series',
+      'function-inverse',      'function-transformation',  'inscribed-angle',
+      'interp-hermite',        'interp-lagrange',          'interp-subdivision',
+      'interval-sweep',        'linear-function',          'linear-map',
+      'mean-value',            'orientation',              'patch-coons',
+      'patch-decasteljau',     'patch-derivatives',        'patch-joins',
+      'patch-subdivision',     'patch-tensor',             'patch-triangular',
+      'ph-cubic',              'ph-quintic',               'point-set-triangulation',
+      'polygon-area',          'projective-cross-ratio',   'projective-pascal',
+      'projective-pole-polar', 'rational',                 'rational-decasteljau',
+      'rational-elevation',    'rational-extrapolation',   'rational-subdivision',
+      'repeated-subdivision',  'root-finding',             'segment-intersections',
+      'sequence',              'simson-line',              'spline-c1',
+      'spline-c2',             'spline-cn',                'spline-g1',
+      'spline-g1-symmetric',   'spline-parameterization',  'subdivision',
+      'taylor',                'triangle-centres',         'trigonometric-functions',
+      'uniform-convergence',   'uniform-parameterization', 'weighted-parameterization'
+    ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,42 @@
+unit: failed (1) in 8.3s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-32-29-072Z-122136-95ce57e5.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/runtime/lessonCatalog.test.ts src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 1 failed) 3712ms
+   × the catalog checks the shape and finiteness of set-trace-step only 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the catalog checks the shape and finiteness of set-trace-step only
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:256:62
+    254|     expect(() => sceneActions(scene(traceStep('end')))).not.toThrow();
+    255|     expect(() => sceneActions(scene(traceStep(10 ** 9)))).not.toThrow(…
+    256|     expect(() => sceneActions(scene(traceStep(Number.NaN)))).toThrow(/…
+       |                                                              ^
+    257|     expect(() => sceneActions(scene(traceStep(Number.POSITIVE_INFINITY…
+    258|     expect(() => sceneActions(scene(traceStep('last')))).toThrow(/set-…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 22 passed (23)
+   Start at  08:32:29
+   Duration  7.46s (tests 41%, transform 20%, environment 17%, import 12%, setup 10%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

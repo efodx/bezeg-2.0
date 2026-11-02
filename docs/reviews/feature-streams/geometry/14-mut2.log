@@ -1,0 +1,69 @@
+unit: failed (1) in 6.8s (2 workers, no slot); revision a370ab98ae713a5b310f86fc1d5971e8cdeccef4; dirty; log .command-logs\2026-11-01T03-47-10-152Z-101656-8d3a5cac.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/pointSetIntervals src/graphs/compgeo/PointSetIntervals --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/pointSetIntervals.test.ts (5 tests | 1 failed) 12ms
+   ❯ intervals mode (5)
+     × keeps the row invariant after move, nudge, remove and setMode 6ms
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx (14 tests | 1 failed) 2624ms
+   × arrow keys nudge horizontally; vertical arrows are no-ops with no notice; the coordinate limit refuses 84ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/pointSetIntervals.test.ts > intervals mode > keeps the row invariant after move, nudge, remove and setMode
+AssertionError: expected { x: 6, y: 8 } to deeply equal { x: 6, y: 3 }
+
+- Expected
++ Received
+
+  {
+    "x": 6,
+-   "y": 3,
++   "y": 8,
+  }
+
+ ❯ src/compgeo/pointSetIntervals.test.ts:40:29
+     38|         expect(m.points[3]).toEqual({x: 9, y: 2});
+     39|         m = model(nudgePoint(m, 4, 2, 5));
+     40|         expect(m.points[4]).toEqual({x: 6, y: 3});
+       |                             ^
+     41|         expect(rowsHold(m)).toBe(true);
+     42|         expect(model(nudgePoint(m, 4, 0, 1)).points).toEqual(m.points);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/PointSetIntervals.host.test.tsx > arrow keys nudge horizontally; vertical arrows are no-ops with no notice; the coordinate limit refuses
+AssertionError: expected { mode: 'intervals', …(3) } to be { mode: 'intervals', …(3) } // Object.is equality
+
+If it should pass with deep equality, replace "toBe" with "toStrictEqual"
+
+Expected: { mode: 'intervals', …(3) }
+Received: serializes to the same string
+
+
+Compared values have no visual difference.
+
+ ❯ src/graphs/compgeo/PointSetIntervals.host.test.tsx:149:25
+    147|     act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowUp'});…
+    148|     act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowDown'}…
+    149|     expect(graph.model).toBe(before);
+       |                         ^
+    150|     expect(graph.notice).toBeUndefined();
+    151|     expectBoardMatchesModel(graph);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 17 passed (19)
+   Start at  04:47:10
+   Duration  6.09s (tests 35%, transform 23%, environment 19%, import 12%, setup 11%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

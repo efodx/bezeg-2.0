@@ -1,0 +1,69 @@
+unit: failed (1) in 32.9s (2 workers, no slot); revision d355d114b21aaf0039431453f965185b152179c1; dirty; log .command-logs\2026-11-01T04-34-52-367Z-106756-c633bf33.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/intervalSweepRun.test.ts (8 tests | 2 failed) 12ms
+   ❯ intervalsTouch (4)
+     × identical intervals, also zero-length, do not touch 5ms
+   ❯ runIntervalSweep reports (3)
+     × two identical zero-length intervals overlap 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/intervalSweepRun.test.ts > intervalsTouch > identical intervals, also zero-length, do not touch
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/graphs/compgeo/intervalSweepRun.test.ts:16:52
+     14|     });
+     15|     test('identical intervals, also zero-length, do not touch', () => {
+     16|         expect(intervalsTouch(iv(2, 2), iv(2, 2))).toBe(false);
+       |                                                    ^
+     17|         expect(intervalsTouch(iv(1, 3), iv(1, 3))).toBe(false);
+     18|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/intervalSweepRun.test.ts > runIntervalSweep reports > two identical zero-length intervals overlap
+AssertionError: expected [ true ] to deeply equal [ false ]
+
+- Expected
++ Received
+
+  [
+-   false,
++   true,
+  ]
+
+ ❯ src/graphs/compgeo/intervalSweepRun.test.ts:33:48
+     31|     });
+     32|     test('two identical zero-length intervals overlap', () => {
+     33|         expect(touching([iv(2, 2), iv(2, 2)])).toEqual([false]);
+       |                                                ^
+     34|     });
+     35|     test('a zero-length interval on an endpoint touches', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  2 failed | 166 passed (168)
+   Start at  05:34:52
+   Duration  32.22s (tests 56%, environment 16%, import 14%, setup 10%, transform 5%)
+
+    Isolate  14 workers spawned · ~841ms startup each (spawn + environment, per file)
+             at least ~5.05s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

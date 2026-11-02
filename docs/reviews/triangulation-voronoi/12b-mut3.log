@@ -1,0 +1,61 @@
+unit: failed (1) in 10.7s (2 workers, no slot); revision 4723a2907ee102217636c7eefdeabb836b3c68c4; dirty; log .command-logs\2026-11-02T07-32-17-748Z-107996-3c006633.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stdout | src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > importPresetData refuses a bad stored list by throwing and leaves the scene unchanged
+Triangulation preset: the stored triangle list is not a valid triangulation of the stored points.
+
+stderr | src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > importPresetData refuses a bad stored list by throwing and leaves the scene unchanged
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (40 tests | 1 failed) 4542ms
+   ❯ import refusals (15)
+     × importPresetData refuses a bad stored list by throwing and leaves the scene unchanged 187ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > import refusals > importPresetData refuses a bad stored list by throwing and leaves the scene unchanged
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:445:57
+    443|         const selected = graph.selectedEdge();
+    444|         const clockwise = {...t0(), triangles: [[1, 6, 2], ...rest()]}…
+    445|         expect(() => graph.importPresetData(clockwise)).toThrow(/not a…
+       |                                                         ^
+    446|         expect(scene(graph)).toBe(before);
+    447|         expect(graph.selectedEdge()).toEqual(selected);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 39 passed (40)
+   Start at  08:32:18
+   Duration  9.61s (tests 48%, transform 22%, import 15%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

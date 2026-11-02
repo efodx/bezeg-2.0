@@ -1,0 +1,35 @@
+{
+ "errs": [],
+ "n2input": "(0,0),(2,1)",
+ "n2_alg0": {
+  "start": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 1 od 2Verigi združimo v konveksno ovojnico.Orientacijskih preizkusov doslej: 0Korak 1 od 2. Verigi združimo v konveksno ovojnico.. Orientacijskih preizkusov doslej: 0 ",
+  "clicks": 1,
+  "end": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 2 od 2Konec: manj kot tri različne točke, ovojnica je točka ali daljica.Orientacijskih preizkusov doslej: 0Korak 2 od 2. Konec: manj kot tri različne točke, ovojnica je točka ali daljica.. Orientacijskih preizkusov doslej: 0Število orientacijskih preizkusov na teh točkahMonotona veriga (Andrew): 0Počasen preizkus robov (učni algoritem): 0Ovijanje (Jarvisov algoritem): 0 "
+ },
+ "n2_alg1": {
+  "start": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 1 od 2Verigi združimo v konveksno ovojnico.Orientacijskih preizkusov doslej: 0Korak 1 od 2. Verigi združimo v konveksno ovojnico.. Orientacijskih preizkusov doslej: 0 ",
+  "clicks": 1,
+  "end": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 2 od 2Konec: manj kot tri različne točke, ovojnica je točka ali daljica.Orientacijskih preizkusov doslej: 0Korak 2 od 2. Konec: manj kot tri različne točke, ovojnica je točka ali daljica.. Orientacijskih preizkusov doslej: 0Število orientacijskih preizkusov na teh točkahMonotona veriga (Andrew): 0Počasen preizkus robov (učni algoritem): 0Ovijanje (Jarvisov algoritem): 0 "
+ },
+ "n2_alg2": {
+  "start": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 1 od 2Verigi združimo v konveksno ovojnico.Orientacijskih preizkusov doslej: 0Korak 1 od 2. Verigi združimo v konveksno ovojnico.. Orientacijskih preizkusov doslej: 0 ",
+  "clicks": 1,
+  "end": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 2 od 2Konec: manj kot tri različne točke, ovojnica je točka ali daljica.Orientacijskih preizkusov doslej: 0Korak 2 od 2. Konec: manj kot tri različne točke, ovojnica je točka ali daljica.. Orientacijskih preizkusov doslej: 0Število orientacijskih preizkusov na teh točkahMonotona veriga (Andrew): 0Počasen preizkus robov (učni algoritem): 0Ovijanje (Jarvisov algoritem): 0 "
+ },
+ "colinput": "(0,0),(2,1),(4,2),(6,3)",
+ "col_alg0": {
+  "start": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 1 od 20Spodnja veriga: točke po vrsti dodajamo od leve proti desni.Orientacijskih preizkusov doslej: 0Korak 1 od 20. Spodnja veriga: točke po vrsti dodajamo od leve proti desni.. Orientacijskih preizkusov doslej: 0 ",
+  "clicks": 19,
+  "end": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 20 od 20Konec: vse točke so na isti premici, ovojnica je daljica.Orientacijskih preizkusov doslej: 4Korak 20 od 20. Konec: vse točke so na isti premici, ovojnica je daljica.. Orientacijskih preizkusov doslej: 4Število orientacijskih preizkusov na teh točkahMonotona veriga (Andrew): 4Počasen preizkus robov (učni algoritem): 24Ovijanje (Jarvisov algoritem): 4 "
+ },
+ "col_alg1": {
+  "start": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 1 od 14Rob ni na ovojnici: najdena je točka desno od njega ali na premici zunaj daljice.Usmerjeni rob od P1 (0, 0) do P2 (2, 1)Orientacijskih preizkusov doslej: 2Korak 1 od 14. Rob ni na ovojnici: najdena je točka desno od njega ali na premici zunaj daljice.. Usmerjeni rob od P1 (0, 0) do P2 (2, 1). Orientacijskih preizkusov doslej: 2 ",
+  "clicks": 13,
+  "end": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 14 od 14Konec: vse točke so na isti premici, ovojnica je daljica.Orientacijskih preizkusov doslej: 24Korak 14 od 14. Konec: vse točke so na isti premici, ovojnica je daljica.. Orientacijskih preizkusov doslej: 24Število orientacijskih preizkusov na teh točkahMonotona veriga (Andrew): 4Počasen preizkus robov (učni algoritem): 24Ovijanje (Jarvisov algoritem): 4 "
+ },
+ "col_alg2": {
+  "start": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 1 od 8Točke so na isti premici in preizkušana je dlje: postane novi kandidat.Orientacija trojice = 0; preizkušana točka P3 (4, 2)Orientacijskih preizkusov doslej: 1Korak 1 od 8. Točke so na isti premici in preizkušana je dlje: postane novi kandidat.. Orientacija trojice = 0; preizkušana točka P3 (4, 2). Orientacijskih preizkusov doslej: 1 ",
+  "clicks": 7,
+  "end": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba točk ali algoritma vrne prikaz na začetek in ustavi predvajanje. Polna črta: sprejeti robovi; črtkana: preizkušeni rob ali kandidat.Korak 8 od 8Konec: vse točke so na isti premici, ovojnica je daljica.Orientacijskih preizkusov doslej: 4Korak 8 od 8. Konec: vse točke so na isti premici, ovojnica je daljica.. Orientacijskih preizkusov doslej: 4Število orientacijskih preizkusov na teh točkahMonotona veriga (Andrew): 4Počasen preizkus robov (učni algoritem): 24Ovijanje (Jarvisov algoritem): 4 "
+ }
+}

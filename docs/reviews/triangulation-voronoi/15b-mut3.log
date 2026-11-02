@@ -1,0 +1,77 @@
+unit: failed (1) in 7.1s (2 workers, no slot); revision 9bede337ab81dac3946d1d1ff544b1dd29fd10eb; dirty; log .command-logs\2026-11-02T11-21-04-430Z-94036-4175e779.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoPointSetTriangulationLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts (12 tests | 2 failed) 2242ms
+   × the lesson data equals the kernel: T0, the Delaunay triangulation, the example and the nine hull points 10ms
+   × step 6: the Delaunay triangulation has 7 triangles, 13 edges and smallest angle 25,35; T0 had 1,91 139ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoPointSetTriangulationLesson.test.ts > the lesson data equals the kernel: T0, the Delaunay triangulation, the example and the nine hull points
+AssertionError: expected [ '0,1,4', '1,2,6', '1,4,5', …(4) ] to deeply equal [ '0,1,5', '0,4,5', '1,2,6', …(4) ]
+
+- Expected
++ Received
+
+  [
+-   "0,1,5",
+-   "0,4,5",
++   "0,1,4",
+    "1,2,6",
++   "1,4,5",
+    "1,5,6",
+-   "2,3,6",
+-   "3,4,5",
+-   "3,5,6",
++   "2,3,4",
++   "2,4,6",
++   "4,5,6",
+  ]
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts:55:41
+     53|     expect(TRI_EXAMPLE_POINTS).toEqual(TRIANGULATION_EXAMPLE_POINTS.po…
+     54|     expect(TRI_T0).toEqual(TRIANGULATION_T0);
+     55|     expect(sortedTriples(TRI_DELAUNAY)).toEqual(sortedTriples(TRIANGUL…
+       |                                         ^
+     56|     const kernel = delaunayTriangulation(grid(TRI_EXAMPLE_POINTS));
+     57|     if (!kernel.ok) throw new Error('delaunay');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/compgeoPointSetTriangulationLesson.test.ts > step 6: the Delaunay triangulation has 7 triangles, 13 edges and smallest angle 25,35; T0 had 1,91
+AssertionError: expected [ '1.91', '1.91' ] to deeply equal [ '1.91', '25.35' ]
+
+- Expected
++ Received
+
+  [
+    "1.91",
+-   "25.35",
++   "1.91",
+  ]
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts:170:50
+    168|         const r = readout(h);
+    169|         expect(r.counts).toEqual({points: 7, triangles: 7, edges: 13, …
+    170|         expect([t0Angle, r.minAngle.toFixed(2)]).toEqual(['1.91', '25.…
+       |                                                  ^
+    171|         expect(dom('angle')).toBe('Najmanjši kot zdaj: 25,35°');
+    172|         const kernel = delaunayTriangulation(grid(TRI_EXAMPLE_POINTS));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  12:21:05
+   Duration  6.17s (tests 37%, transform 26%, import 18%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,42 @@
+unit: failed (1) in 9.4s (2 workers, no slot); revision 3df4564b92c8a3b70679edc35ac55f1d49ce984b; dirty; log .command-logs\2026-11-02T07-42-34-774Z-116416-a51cc96b.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (45 tests | 1 failed) 4284ms
+   × unmount leaves no board objects, language listeners or key listeners 96ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > unmount leaves no board objects, language listeners or key listeners
+AssertionError: expected 28 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 28
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:574:21
+    572|     expect(edgeCurves(graph).length).toBeGreaterThan(0);
+    573|     view.unmount();
+    574|     expect(owned()).toBe(0);
+       |                     ^
+    575|     expect(languageListeners.live).toBe(0);
+    576|     expect(remove.mock.calls.filter(([type, listener]) => type === 'ke…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 44 passed (45)
+   Start at  08:42:35
+   Duration  8.49s (tests 51%, transform 20%, import 13%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,4 @@
+Waiting for unit (pid 89804) to finish starting before reading free memory.
+Waiting for memory: smoke-lesson needs about 1.5 GB above the 0.5 GB floor; 2.0 GB available.
+Memory available for smoke-lesson after 65s.
+smoke-lesson: passed in 17.5s (test slot 1/2, 1 workers); revision 69c5ccfb3f93c3e0851adbbaead7ae0abbc4b83f; dirty; reusing build from revision 69c5ccfb3f93c3e0851adbbaead7ae0abbc4b83f (dirty at build time); log .command-logs\2026-11-01T22-16-20-175Z-90960-6e9593b3.log

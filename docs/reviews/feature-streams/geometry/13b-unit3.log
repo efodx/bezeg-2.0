@@ -1,0 +1,46 @@
+unit: failed (1) in 88.2s (2 workers, no slot); revision a0f55631163dbc2ddb48e5605e340dfe68a09750; dirty; log .command-logs\2026-11-01T02-58-31-349Z-112864-8ab2e93d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content src/graphs/compgeo
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts (6 tests | 1 failed) 13ms
+   ❯ guided example preview copy (6)
+     × provides a bilingual alt and observation caption for every available lesson and activity 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/guidedExamplePreviewCopy.test.ts > guided example preview copy > provides a bilingual alt and observation caption for every available lesson and activity
+AssertionError: expected [ { alt: { …(2) }, …(1) }, …(59) ] to have a length of 58 but got 60
+
+- Expected
++ Received
+
+- 58
++ 60
+
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts:28:25
+     26|         expect(Object.keys(guidedActivityPreviewCopyById)).toHaveLengt…
+     27|         expect(missingActivityCopy).toEqual([]);
+     28|         expect(allCopy).toHaveLength(58);
+       |                         ^
+     29|
+     30|         for (const item of allCopy) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 40 passed (41)
+      Tests  1 failed | 832 passed (833)
+   Start at  03:58:31
+   Duration  87.50s (tests 62%, environment 17%, setup 10%, import 8%, transform 2%)
+
+    Isolate  41 workers spawned · ~842ms startup each (spawn + environment, per file)
+             at least ~16.42s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

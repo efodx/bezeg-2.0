@@ -1,0 +1,156 @@
+unit: failed (1) in 312.6s (2 workers, no slot); revision a0f55631163dbc2ddb48e5605e340dfe68a09750; dirty; log .command-logs\2026-11-01T02-52-27-563Z-114512-c2ee34c9.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo src/learning
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts (24 tests | 2 failed) 3803ms
+   ❯ predict steps hide the values and reveal steps show them (2)
+     × A1: values are off only in the predict step, and the readout then carries no value 208ms
+     × A2: values are off only in the predict step, and the readout then carries no area 653ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/content/lessonMathNotation.test.ts (3 tests | 1 failed) 108ms
+   × scans every lesson module 9ms
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts (6 tests | 1 failed) 13ms
+   ❯ guided example preview copy (6)
+     × provides a bilingual alt and observation caption for every available lesson and activity 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > predict steps hide the values and reveal steps show them > A1: values are off only in the predict step, and the readout then carries no value
+AssertionError: expected [ [ true, '8' ], [ false, '8' ], …(4) ] to deeply equal [ [ true, '' ], [ false, '' ], …(4) ]
+
+- Expected
++ Received
+
+  [
+    [
+      true,
+-     "",
++     "8",
+    ],
+    [
+      false,
+-     "",
++     "8",
+    ],
+    [
+      true,
+      "8",
+    ],
+    [
+      true,
+-     "-8",
++     "8",
+    ],
+    [
+      true,
+      "8",
+    ],
+    [
+      true,
+-     "0",
++     "8",
+    ],
+  ]
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:238:22
+    236|         const steps = ['orientation-line', 'orientation-predict', 'ori…
+    237|         const seen = walk('orientation', steps, graph => [graph.overla…
+    238|         expect(seen).toEqual([[true, ''], [false, ''], [true, '8'], [t…
+       |                      ^
+    239|     });
+    240|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > predict steps hide the values and reveal steps show them > A2: values are off only in the predict step, and the readout then carries no area
+AssertionError: expected '42' to be '' // Object.is equality
+
+- Expected
++ Received
+
++ 42
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:245:28
+    243|         const seen = walk('polygon-area', steps, graph => [graph.overl…
+    244|         expect(seen.map(([shown]) => shown)).toEqual([true, false, tru…
+    245|         expect(seen[1][1]).toBe('');
+       |                            ^
+    246|         expect(seen[2][1]).toBe('42');
+    247|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/learning/content/guidedExamplePreviewCopy.test.ts > guided example preview copy > provides a bilingual alt and observation caption for every available lesson and activity
+AssertionError: expected [ 'bernstein', …(52) ] to have a length of 51 but got 53
+
+- Expected
++ Received
+
+- 51
++ 53
+
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts:23:45
+     21|         const missingActivityCopy = activityIds.filter(id => !Object.h…
+     22|
+     23|         expect(GUIDED_LESSON_AVAILABLE_IDS).toHaveLength(51);
+       |                                             ^
+     24|         expect(lessonIds).toHaveLength(GUIDED_LESSON_AVAILABLE_IDS.len…
+     25|         expect(missingLessonCopy).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > scans every lesson module
+AssertionError: expected [ 'accumulation', 'affine', …(56) ] to deeply equal [ 'accumulation', 'affine', …(54) ]
+
+- Expected
++ Received
+
+@@ -21,10 +21,11 @@
+    "extrema",
+    "farin",
+    "fixed-point",
+    "linear-function",
+    "mean-value",
++   "orientation",
+    "patch-decasteljau",
+    "patch-derivatives",
+    "patch-joins",
+    "patch-subdivision",
+    "patch-tensor",
+@@ -34,10 +35,11 @@
+    "patch-tensor",
+    "patch-triangular",
+    "patch-triangular",
+    "ph-cubic",
+    "ph-quintic",
++   "polygon-area",
+    "rational",
+    "rational-decasteljau",
+    "rational-elevation",
+    "rational-extrapolation",
+    "rational-subdivision",
+
+ ❯ src/learning/content/lessonMathNotation.test.ts:155:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed | 70 passed (73)
+      Tests  4 failed | 1189 passed (1193)
+   Start at  03:52:28
+   Duration  311.94s (tests 82%, environment 8%, setup 5%, import 4%, transform 1%)
+
+    Isolate  73 workers spawned · ~841ms startup each (spawn + environment, per file)
+             at least ~29.87s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

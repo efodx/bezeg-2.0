@@ -1,0 +1,46 @@
+unit: failed (1) in 10.7s (2 workers, no slot); revision 280d86ea7e0e12de8e65ddb7db535012006a039d; dirty; log .command-logs\2026-11-02T08-13-28-511Z-96700-4d28d592.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (13 tests | 1 failed) 5524ms
+   × an edit while playing (move, add, remove, manual flip, example) returns to step 0, pauses and leaves nothing scheduled 218ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > an edit while playing (move, add, remove, manual flip, example) returns to step 0, pauses and leaves nothing scheduled
+AssertionError: expected [ 4, false, +0 ] to deeply equal [ +0, false, +0 ]
+
+- Expected
++ Received
+
+  [
+-   0,
++   4,
+    false,
+    0,
+  ]
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:252:66
+    250|     expect(graph.step).toBe(4);
+    251|     act(() => { graph.movePointTo(3, {x: 4, y: 7}); });
+    252|     expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqu…
+       |                                                                  ^
+    253|
+    254|     click('play-pause');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  09:13:29
+   Duration  9.66s (tests 58%, transform 17%, import 12%, environment 8%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

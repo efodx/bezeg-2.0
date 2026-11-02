@@ -1,0 +1,67 @@
+unit: failed (1) in 8.2s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-23-07-948Z-130480-eada8e08.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (16 tests | 2 failed) 3711ms
+   × ties: the entering events of 3 are processed before the leaving ones and the zero-length interval is reported as touching 347ms
+   × a language switch re-renders the panel text and the overlay switch and keeps the step and the board 111ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > ties: the entering events of 3 are processed before the leaving ones and the zero-length interval is reported as touching
+AssertionError: expected [ …(4) ] to deeply equal [ …(4) ]
+
+- Expected
++ Received
+
+  [
+-   "ab:Najden par ab: intervala se dotikata v eni točki.",
+-   "ac:Najden par ac: intervala se dotikata v eni točki.",
+-   "bc:Najden par bc: intervala se dotikata v eni točki.",
+-   "bd:Najden par bd: intervala se prekrivata.",
++   "ab:Najden par ab: intervala se prekrivata.",
++   "ac:Najden par ac: intervala se prekrivata.",
++   "bc:Najden par bc: intervala se prekrivata.",
++   "bd:Najden par bd: intervala se dotikata v eni točki.",
+  ]
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:170:19
+    168|         if (run.event(step)?.note === 'report') notes.push(`${boardPai…
+    169|     }
+    170|     expect(notes).toEqual([
+       |                   ^
+    171|         'ab:Najden par ab: intervala se dotikata v eni točki.',
+    172|         'ac:Najden par ac: intervala se dotikata v eni točki.',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > a language switch re-renders the panel text and the overlay switch and keeps the step and the board
+AssertionError: expected 'Najden par ab: intervala se dotikata …' to be 'Najden par ab: intervala se prekrivat…' // Object.is equality
+
+Expected: "Najden par ab: intervala se prekrivata."
+Received: "Najden par ab: intervala se dotikata v eni točki."
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:334:26
+    332|     for (let i = 0; i < 4; i++) click('next-step');
+    333|     const before = drawn(graph);
+    334|     expect(part('note')).toBe('Najden par ab: intervala se prekrivata.…
+       |                          ^
+    335|     act(() => { setLanguage('en'); });
+    336|     expect(part('note')).toBe('Pair ab found: the intervals overlap.');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 14 passed (16)
+   Start at  05:23:08
+   Duration  7.45s (tests 51%, transform 19%, import 13%, environment 11%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,118 @@
+unit: failed (1) in 11.4s (2 workers, no slot); revision 1dfddf0c4b4ca6064291717cbb84e5a169878c88; dirty; log .command-logs\2026-11-02T12-47-33-795Z-106072-f808f656.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayLessonActions --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > select-triangle out of range, negative or not an integer throws and changes nothing
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+
+stderr | src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > the index is into the triangulation shown at the current step
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx (12 tests | 2 failed) 4430ms
+   × select-triangle out of range, negative or not an integer throws and changes nothing 132ms
+   × the index is into the triangulation shown at the current step 320ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > select-triangle out of range, negative or not an integer throws and changes nothing
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:196:60
+    194|     const before = snapshot(graph);
+    195|     for (const triangle of [2, 99, -1, 0.5, Number.NaN, '1' as unknown…
+    196|         expect(() => graph.run1(selectTriangle(triangle))).toThrow('se…
+       |                                                            ^
+    197|     }
+    198|     expect(snapshot(graph)).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > the index is into the triangulation shown at the current step
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:213:53
+    211|     expect(graph.selectedTriangle()).toBe(count - 1);
+    212|     expect(selected()).toContain(`P${String(Math.min(...corners) + 1)}…
+    213|     expect(() => graph.run1(selectTriangle(count))).toThrow('select-tr…
+       |                                                     ^
+    214| });
+    215|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  13:47:34
+   Duration  10.25s (tests 44%, transform 24%, import 15%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,78 @@
+{
+ "errs": [],
+ "A1": {
+  "start": "Orientacija treh točk p, q, r: +8 (levi zavoj)",
+  "startNums": "0,0,4,0,3,2,0,0",
+  "tab": 36,
+  "focus": {
+   "tag": "BUTTON",
+   "label": "P3Izberi točko 3",
+   "outline": "solid 3px rgb(87, 124, 195)",
+   "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+  },
+  "trail": [
+   "Točka 1: x",
+   "Točka 1: y",
+   "P2Izberi točko 2",
+   "Točka 2: x",
+   "Točka 2: y",
+   "P3Izberi točko 3"
+  ],
+  "afterEnter": "Izbrana točka: 3",
+  "focusAfterEnter": {
+   "tag": "BUTTON",
+   "label": "P3Izberi točko 3",
+   "outline": "solid 3px rgb(87, 124, 195)",
+   "shadow": "rgba(250, 249, 224, 0.5) 0px 0px 0px 4px"
+  },
+  "afterDown2": {
+   "nums": "0,0,4,0,3,2,0,0",
+   "readout": "Orientacija treh točk p, q, r: +8 (levi zavoj)"
+  },
+  "arrowTab": -1,
+  "afterRight": {
+   "nums": "0,0,4,0,3,2,0,0",
+   "readout": "Orientacija treh točk p, q, r: +8 (levi zavoj)"
+  }
+ },
+ "A4": {
+  "start": "Korak 1 od 56",
+  "tabNext": 24,
+  "focusNext": {
+   "tag": "BUTTON",
+   "label": "Naslednji korak",
+   "outline": "solid 3px rgb(87, 124, 195)",
+   "shadow": "none"
+  },
+  "afterEnter": "Korak 2 od 56",
+  "afterSpace": "Korak 3 od 56",
+  "afterEnter2": "Korak 5 od 56",
+  "focusPlay": {
+   "tag": "BUTTON",
+   "label": "Predvajaj",
+   "outline": "solid 3px rgb(87, 124, 195)",
+   "shadow": "none"
+  },
+  "playing": {
+   "step": "Korak 8 od 56",
+   "label": "Premor"
+  },
+  "paused": {
+   "step": "Korak 8 od 56",
+   "stable": true,
+   "label": "Predvajaj"
+  },
+  "focusReset": {
+   "tag": "BUTTON",
+   "label": "Ponastavi",
+   "outline": "solid 3px rgb(87, 124, 195)",
+   "shadow": "none"
+  },
+  "afterReset": "Korak 1 od 56",
+  "tabToInput": 7,
+  "afterEditInput": {
+   "nums": "3,2,4,0,0,",
+   "step": "Korak 1 od 56"
+  }
+ }
+}

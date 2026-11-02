@@ -1,0 +1,247 @@
+unit: failed (1) in 492.1s (2 workers, no slot); revision 9bede337ab81dac3946d1d1ff544b1dd29fd10eb; dirty; log .command-logs\2026-11-02T11-09-23-661Z-91676-fae7acf9.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning src/graphs/compgeo/Triangulation --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts (26 tests | 1 failed) 5439ms
+   × the lessons are bounded, bilingual, and found by the catalog 9ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts (12 tests | 3 failed) 2126ms
+   × step 4: the flip of P2-P5 keeps 7/13/8 and changes the triangles; P2-P7 is selected and a Flip press is refused as not convex 195ms
+   × the quoted numbers appear in the step text and the scene description of both languages 4ms
+   × the other point-set graphs reject the three triangulation actions 2ms
+ ❯ src/learning/content/lessonMathNotation.test.ts (3 tests | 3 failed) 175ms
+   × scans every lesson module 9ms
+   × lesson sources double the backslash of every MathJax delimiter 22ms
+   × lesson prose wraps math in MathJax delimiters and latex fields stay bare 142ms
+ ❯ src/learning/chapter/guidedLessonOwnership.test.ts (4 tests | 1 failed) 42ms
+   × every reviewed guided lesson has a real chapter section owner and a stable launch/return route 35ms
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts (6 tests | 1 failed) 16ms
+   ❯ guided example preview copy (6)
+     × provides a bilingual alt and observation caption for every available lesson and activity 8ms
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts (2 tests | 1 failed) 11ms
+   × every available demonstration has exactly one default smoke row and patch sections add only their explicit extras 9ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedLessonOwnership.test.ts > every reviewed guided lesson has a real chapter section owner and a stable launch/return route
+AssertionError: point-set-triangulation: expected undefined to be defined
+ ❯ src/learning/chapter/guidedLessonOwnership.test.ts:14:29
+     12|             ? bezierChapter.en.sections.find(entry => entry.id === own…
+     13|             : familyChapters.find(chapter => chapter.id === owner.chap…
+     14|         expect(section, id).toBeDefined();
+       |                             ^
+     15|         expect(guidedLessonLaunchPath(id)).toContain(`learnChapter=${o…
+     16|         expect(guidedLessonReturnPath(owner)).toBe(`/bezeg-2.0/learn/$…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/learning/runtime/lessonSmokeCoverage.test.ts > every available demonstration has exactly one default smoke row and patch sections add only their explicit extras
+AssertionError: expected [ 'accumulation', 'affine', …(76) ] to deeply equal [ 'accumulation', 'affine', …(77) ]
+
+- Expected
++ Received
+
+@@ -49,11 +49,10 @@
+    "patch-subdivision",
+    "patch-tensor",
+    "patch-triangular",
+    "ph-cubic",
+    "ph-quintic",
+-   "point-set-triangulation",
+    "polygon-area",
+    "projective-cross-ratio",
+    "projective-pascal",
+    "projective-pole-polar",
+    "rational",
+
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts:20:34
+     18|     expect(new Set(rowIds).size).toBe(rowIds.length);
+     19|     const defaults = rowIds.filter(id => !sectionRows.includes(id));
+     20|     expect([...defaults].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_I…
+       |                                  ^
+     21|     expect([...patchRowIds].filter(id => sectionRows.includes(id)).sor…
+     22| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > the lessons are bounded, bilingual, and found by the catalog
+AssertionError: expected [ 'orientation', 'polygon-area', …(5) ] to deeply equal [ 'orientation', 'polygon-area', …(4) ]
+
+- Expected
++ Received
+
+  [
+    "orientation",
+    "polygon-area",
+    "convex-hull",
+    "ear-clipping",
++   "point-set-triangulation",
+    "interval-sweep",
+    "segment-intersections",
+  ]
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:44:72
+     42|
+     43| test('the lessons are bounded, bilingual, and found by the catalog', (…
+     44|     expect(compgeoGuidedLessons.map(lesson => lesson.demonstrationId))…
+       |                                                                        ^
+     45|     expect(compgeoGuidedLessons.map(lesson => lesson.steps.length)).to…
+     46|     for (const lesson of compgeoGuidedLessons) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/learning/content/compgeoPointSetTriangulationLesson.test.ts > step 4: the flip of P2-P5 keeps 7/13/8 and changes the triangles; P2-P7 is selected and a Flip press is refused as not convex
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts:111:51
+    109|         const tri = createTriangulation(grid(TRI_EXAMPLE_POINTS), h.gr…
+    110|         if (!tri.ok) throw new Error('triangulation');
+    111|         expect(flip(tri.value, TRI_FLIP_EDGE).ok).toBe(true);
+       |                                                   ^
+    112|         expect(h.graph.selectedEdge()).toMatchObject({a: TRI_REFUSED_E…
+    113|         const refusal = flip(tri.value, TRI_REFUSED_EDGE);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  src/learning/content/compgeoPointSetTriangulationLesson.test.ts > the quoted numbers appear in the step text and the scene description of both languages
+AssertionError: tri-t0 sl \(2\cdot7-2-5=7\): expected 'Graf prikazuje triangulacijo T0. Na r…' to contain '\(2\cdot7-2-5=7\)'
+
+Expected: "\(2\cdot7-2-5=7\)"
+Received: "Graf prikazuje triangulacijo T0. Na robu ovojnice je \(k=5\) točk, zato je trikotnikov \(2n-2-k=2\cdot7-2-5=7\). Robov je \(3n-3-k=13\), od tega \(8\) notranjih in \(5\) na ovojnici. Najmanjši kot v T0 je \(1{,}91^\circ\); to številko bomo primerjali v šestem koraku."
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts:209:59
+    207|         const step = stepOf(stepId);
+    208|         for (const token of tokens) {
+    209|             expect(step.body.sl, `${stepId} sl ${token}`).toContain(to…
+       |                                                           ^
+    210|             expect(step.body.en, `${stepId} en ${token}`).toContain(to…
+    211|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  src/learning/content/compgeoPointSetTriangulationLesson.test.ts > the other point-set graphs reject the three triangulation actions
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts:289:82
+    287|     ];
+    288|     for (const graph of [new EarClippingGraph(), new HullTraceGraph()]…
+    289|         for (const action of actions) expect(graph.supportsLessonActio…
+       |                                                                                  ^
+    290|     }
+    291|     expect(new TriangulationGraph().supportsLessonAction(actions[0])).…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  src/learning/content/guidedExamplePreviewCopy.test.ts > guided example preview copy > provides a bilingual alt and observation caption for every available lesson and activity
+AssertionError: expected [ 'bernstein', …(78) ] to have a length of 78 but got 79
+
+- Expected
++ Received
+
+- 78
++ 79
+
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts:23:45
+     21|         const missingActivityCopy = activityIds.filter(id => !Object.h…
+     22|
+     23|         expect(GUIDED_LESSON_AVAILABLE_IDS).toHaveLength(78);
+       |                                             ^
+     24|         expect(lessonIds).toHaveLength(GUIDED_LESSON_AVAILABLE_IDS.len…
+     25|         expect(missingLessonCopy).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > scans every lesson module
+AssertionError: expected [ 'accumulation', 'affine', …(76) ] to deeply equal [ 'accumulation', 'affine', …(75) ]
+
+- Expected
++ Received
+
+@@ -49,10 +49,11 @@
+    "patch-tensor",
+    "patch-triangular",
+    "patch-triangular",
+    "ph-cubic",
+    "ph-quintic",
++   "point-set-triangulation",
+    "polygon-area",
+    "projective-cross-ratio",
+    "projective-pascal",
+    "projective-pole-polar",
+    "rational",
+
+ ❯ src/learning/content/lessonMathNotation.test.ts:173:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > lesson sources double the backslash of every MathJax delimiter
+AssertionError: expected [ 'guidedExamplePreviewCopy.ts:74' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "guidedExamplePreviewCopy.ts:74",
++ ]
+
+ ❯ src/learning/content/lessonMathNotation.test.ts:190:19
+    188|         .flatMap(name => readFileSync(join(directory, name), 'utf-8').…
+    189|             .flatMap((line, index) => /(?<!\\)\\[()[\]]/.test(line) ? …
+    190|     expect(found).toEqual([]);
+       |                   ^
+    191| });
+    192|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > lesson prose wraps math in MathJax delimiters and latex fields stay bare
+Error: 6 notation problem(s):
+compgeoGuidedLessons/point-set-triangulation steps[2].explanation [en] decimal comma inside math (use a point): The graph shows the triangulation T0. There are \(k=5\) points on the hull boundary, so the number of triangles is \(2n-2-k=2\cdot7-2-5=7\). There are \(3n-3-k=13\) edges, \(8\) interior and \(5\) on the hull. The smallest angle in T0 is \(1{,}91^\circ\); we compare this number in step 6.
+compgeoGuidedLessons/point-set-triangulation steps[2].expectedObservations[0] [en] decimal comma inside math (use a point): The readout shows \(7\) triangles, \(13\) edges (\(8\) interior) and \(k=5\); the smallest angle is \(1{,}91^\circ\).
+compgeoGuidedLessons/point-set-triangulation steps[2].scene.expectedState [en] decimal comma inside math (use a point): T0 has \(7\) triangles and \(13\) edges, \(8\) of them interior; the smallest angle is \(1{,}91^\circ\).
+compgeoGuidedLessons/point-set-triangulation steps[5].explanation [en] decimal comma inside math (use a point): Earlier we triangulated the same seven points with T0, whose smallest angle is \(1{,}91^\circ\). The graph now shows the Delaunay triangulation: it too has \(7\) triangles and \(13\) edges, but its smallest angle is \(25{,}35^\circ\). The counts agree, the quality of the triangles does not.
+compgeoGuidedLessons/point-set-triangulation steps[5].expectedObservations[0] [en] decimal comma inside math (use a point): The readout shows \(7\) triangles, \(13\) edges and a smallest angle of \(25{,}35^\circ\), whereas in T0 it was \(1{,}91^\circ\).
+compgeoGuidedLessons/point-set-triangulation steps[5].scene.expectedState [en] decimal comma inside math (use a point): The Delaunay triangulation has \(7\) triangles, \(13\) edges and a smallest angle of \(25{,}35^\circ\).
+ ❯ src/learning/content/lessonMathNotation.test.ts:195:29
+    193| test('lesson prose wraps math in MathJax delimiters and latex fields s…
+    194|     const found = findings();
+    195|     if (found.length) throw new Error(`${found.length} notation proble…
+       |                             ^
+    196| });
+    197|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  6 failed | 87 passed (93)
+      Tests  10 failed | 1534 passed (1544)
+   Start at  12:09:24
+   Duration  491.21s (tests 82%, environment 7%, import 5%, setup 4%, transform 1%)
+
+    Isolate  93 workers spawned · ~942ms startup each (spawn + environment, per file)
+             at least ~42.86s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

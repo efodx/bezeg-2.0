@@ -1,0 +1,32 @@
+Captured curve-parametric: 720×440, axes/grid hide, 7 framed objects
+Captured curve-curvature: 720×440, axes/grid hide, 12 framed objects
+Captured interp-lagrange: 720×440, axes/grid hide, 9 framed objects
+Captured interp-hermite: 720×440, axes/grid hide, 14 framed objects
+Captured interp-subdivision: 720×440, axes/grid hide, 11 framed objects
+Captured patch-coons: 720×440, surface view, 12 control points framed
+Captured function-transformation: 720×440, axes/grid retain, 5 framed objects
+Captured function-inverse: 720×440, axes/grid retain, 9 framed objects
+Captured root-finding: 720×440, axes/grid retain, 8 framed objects
+Captured fourier-series: 720×440, axes/grid retain, 28 framed objects
+Captured linear-map: 720×440, axes/grid hide, 17 framed objects
+Captured complex-reciprocal: 720×440, axes/grid hide, 9 framed objects
+Captured complex-roots: 720×440, axes/grid hide, 11 framed objects
+Captured triangle-centres: 720×440, axes/grid hide, 25 framed objects
+Captured inscribed-angle: 720×440, axes/grid hide, 17 framed objects
+Captured orientation: 720×440, axes/grid hide, 6 framed objects
+Captured polygon-area: 720×440, axes/grid hide, 42 framed objects
+Captured convex-hull: 720×440, axes/grid hide, 10 framed objects
+Captured ear-clipping: 720×440, axes/grid hide, 23 framed objects
+Captured interval-sweep: 720×440, axes/grid hide, 26 framed objects
+Captured segment-intersections: 720×440, axes/grid hide, 24 framed objects
+AssertionError [ERR_ASSERTION]: projective-cross-ratio has no visible defining curve/line
+    at assertOutcomeEvidence (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\scripts\demonstration-preview-recipes.cjs:275:12)
+    at outcome (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\scripts\demonstration-preview-recipes.cjs:259:5)
+    at async main (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\scripts\capture-demonstration-previews.cjs:652:34) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

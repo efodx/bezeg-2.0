@@ -1,0 +1,9 @@
+AssertionError [ERR_ASSERTION]: Capture presentation fingerprint changed; run full generation or explicitly verify the selective recapture presentation
+    at main (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-geometry\scripts\capture-demonstration-previews.cjs:583:53) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

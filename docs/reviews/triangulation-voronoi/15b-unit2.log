@@ -1,0 +1,92 @@
+unit: failed (1) in 12.1s (2 workers, no slot); revision 9bede337ab81dac3946d1d1ff544b1dd29fd10eb; dirty; log .command-logs\2026-11-02T11-21-30-840Z-94568-235c8d1a.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/lessonMathNotation src/learning/content/guidedExamplePreviewCopy src/learning/content/compgeoGuidedLessons src/learning/chapter/guidedLessonOwnership src/learning/runtime/lessonCatalog src/learning/runtime/lessonSmokeCoverage src/learning/content/familyChapters
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/chapter/guidedLessonOwnership.test.ts (4 tests | 1 failed) 32ms
+   × every reviewed guided lesson has a real chapter section owner and a stable launch/return route 27ms
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts (6 tests | 1 failed) 16ms
+   ❯ guided example preview copy (6)
+     × provides a bilingual alt and observation caption for every available lesson and activity 10ms
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts (2 tests | 1 failed) 11ms
+   × every available demonstration has exactly one default smoke row and patch sections add only their explicit extras 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedLessonOwnership.test.ts > every reviewed guided lesson has a real chapter section owner and a stable launch/return route
+AssertionError: point-set-triangulation: expected undefined to be defined
+ ❯ src/learning/chapter/guidedLessonOwnership.test.ts:14:29
+     12|             ? bezierChapter.en.sections.find(entry => entry.id === own…
+     13|             : familyChapters.find(chapter => chapter.id === owner.chap…
+     14|         expect(section, id).toBeDefined();
+       |                             ^
+     15|         expect(guidedLessonLaunchPath(id)).toContain(`learnChapter=${o…
+     16|         expect(guidedLessonReturnPath(owner)).toBe(`/bezeg-2.0/learn/$…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/learning/runtime/lessonSmokeCoverage.test.ts > every available demonstration has exactly one default smoke row and patch sections add only their explicit extras
+AssertionError: expected [ 'accumulation', 'affine', …(76) ] to deeply equal [ 'accumulation', 'affine', …(77) ]
+
+- Expected
++ Received
+
+@@ -49,11 +49,10 @@
+    "patch-subdivision",
+    "patch-tensor",
+    "patch-triangular",
+    "ph-cubic",
+    "ph-quintic",
+-   "point-set-triangulation",
+    "polygon-area",
+    "projective-cross-ratio",
+    "projective-pascal",
+    "projective-pole-polar",
+    "rational",
+
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts:20:34
+     18|     expect(new Set(rowIds).size).toBe(rowIds.length);
+     19|     const defaults = rowIds.filter(id => !sectionRows.includes(id));
+     20|     expect([...defaults].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_I…
+       |                                  ^
+     21|     expect([...patchRowIds].filter(id => sectionRows.includes(id)).sor…
+     22| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/learning/content/guidedExamplePreviewCopy.test.ts > guided example preview copy > provides a bilingual alt and observation caption for every available lesson and activity
+AssertionError: expected [ { alt: { …(2) }, …(1) }, …(85) ] to have a length of 85 but got 86
+
+- Expected
++ Received
+
+- 85
++ 86
+
+ ❯ src/learning/content/guidedExamplePreviewCopy.test.ts:28:25
+     26|         expect(Object.keys(guidedActivityPreviewCopyById)).toHaveLengt…
+     27|         expect(missingActivityCopy).toEqual([]);
+     28|         expect(allCopy).toHaveLength(85);
+       |                         ^
+     29|
+     30|         for (const item of allCopy) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 5 passed (8)
+      Tests  3 failed | 68 passed (71)
+   Start at  12:21:31
+   Duration  11.31s (environment 31%, tests 30%, setup 17%, transform 12%, import 10%)
+
+Environment  jsdom was created 8 times · 6.07s total, 31% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+error: recipe `unit` failed on line 22 with exit code 1

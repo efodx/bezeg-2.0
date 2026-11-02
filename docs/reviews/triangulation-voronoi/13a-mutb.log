@@ -1,0 +1,45 @@
+Waiting for typecheck (pid 116604) to finish starting before reading free memory.
+Waiting for lint (pid 85764) to finish starting before reading free memory.
+Memory available for unit after 30s.
+unit: failed (1) in 10.9s (2 workers, no slot); revision 280d86ea7e0e12de8e65ddb7db535012006a039d; dirty; log .command-logs\2026-11-02T08-12-54-228Z-95288-217db0e3.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (13 tests | 1 failed) 5995ms
+   × the drawn circle at a test is the exact circumcircle of abc: centre (2, 7/3), radius sqrt(85)/3, only at test events 77ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > the drawn circle at a test is the exact circumcircle of abc: centre (2, 7/3), radius sqrt(85)/3, only at test events
+AssertionError: expected 2.8 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 2.8
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:187:32
+    185|     expect(circles(graph)).toHaveLength(1);
+    186|     expect(circle.elType).toBe('circle');
+    187|     expect(circle.center?.X()).toBe(2);
+       |                                ^
+    188|     expect(circle.center?.Y()).toBe(7 / 3);
+    189|     expect(circle.Radius?.()).toBeCloseTo(Math.sqrt(85) / 3, 12);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  09:12:55
+   Duration  9.91s (tests 61%, transform 16%, import 11%, environment 8%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

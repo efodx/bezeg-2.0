@@ -1,0 +1,40 @@
+unit: failed (1) in 7.7s (2 workers, no slot); revision a0f55631163dbc2ddb48e5605e340dfe68a09750; dirty; log .command-logs\2026-11-01T03-29-32-228Z-130956-a130f743.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoGuidedLessons
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts (26 tests | 1 failed) 3665ms
+   ❯ worked examples quote the scene readouts (2)
+     × A2: the shoelace and Pick examples use the scene doubled area, B and I 191ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > worked examples quote the scene readouts > A2: the shoelace and Pick examples use the scene doubled area, B and I
+AssertionError: expected '2I+B-2=2\cdot11+15-2=36' to be '2I+B-2=2\cdot11+16-2=36' // Object.is equality
+
+Expected: "2I+B-2=2\cdot11+16-2=36"
+Received: "2I+B-2=2\cdot11+15-2=36"
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:286:39
+    284|         expect(shoelace.resultLatex).toBe(`A=${Number(hull.doubledArea…
+    285|         const pick = example('polygon-area', 'area-pick-example');
+    286|         expect(pick.calculationLatex).toBe(`2I+B-2=2\\cdot${notched.in…
+       |                                       ^
+    287|         expect(pick.resultLatex).toBe(`A=\\tfrac{${notched.doubledArea…
+    288|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 25 passed (26)
+   Start at  04:29:32
+   Duration  6.94s (tests 54%, transform 18%, import 12%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,35 @@
+unit: failed (1) in 9.2s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-32-07-475Z-120504-0d960bb3.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/EarClippingLessonActions.host.test.tsx src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx (11 tests | 1 failed) 4600ms
+   × the four new overlays are accepted by the ear clipping graph and rejected by the hull trace and the base graph 128ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/EarClippingLessonActions.host.test.tsx > the four new overlays are accepted by the ear clipping graph and rejected by the hull trace and the base graph
+AssertionError: expected function to throw an error, but it didn't
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx:212:74
+    210|     for (const other of [new HullTraceGraph(), new PointSetGraph()]) {
+    211|         for (const name of names) {
+    212|             expect(() => other.applyPointSetAction(overlay(name, true)…
+       |                                                                          ^
+    213|         }
+    214|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 20 passed (21)
+   Start at  08:32:08
+   Duration  8.37s (tests 54%, transform 16%, import 14%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

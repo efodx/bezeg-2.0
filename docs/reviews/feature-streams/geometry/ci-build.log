@@ -1,0 +1,3 @@
+Waiting for a test slot; all 1 busy: unit in stream-maps (pid 103628).
+Got test slot 1/1 after 1100s.
+build: passed in 6.0s (test slot 1/1, 2 workers); revision a94c4e98b83b71a7946a8374b62cc6e44d05953f; dirty; log .command-logs\2026-11-01T11-49-05-897Z-128168-949dfeab.log; warnings present (see log)

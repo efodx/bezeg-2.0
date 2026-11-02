@@ -1,0 +1,115 @@
+{
+ "errs": [],
+ "defaultNums": "0,0,4,0,3,2,0,0",
+ "defaultSig": "95393850:52",
+ "editedNums": "-3,0,4,0,3,2,0,0",
+ "editedSig": "1231954048:52",
+ "url": "http://127.0.0.1:4313/bezeg-2.0/compgeo/orientation?learn=1&learnChapter=convexity-hulls&learnSection=orientation",
+ "frames": [
+  {
+   "prog": "Korak 1 od 6 · Okvir 1 od 2",
+   "nums": "0,0,4,0,0,0",
+   "sig": "-1939509762:44",
+   "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Predznak vrednosti 𝐷 = ( 𝑞 𝑥 − 𝑝 𝑥 ) ( 𝑟 𝑦 − 𝑝 𝑦 ) − ( 𝑞 𝑦 − 𝑝 𝑦 ) ( 𝑟 𝑥 − 𝑝 𝑥 ) pove, ali točke 𝑝 , 𝑞 , 𝑟 zavijajo v levo ali v desno; vred"
+  },
+  {
+   "prog": "Korak 1 od 6 · Okvir 2 od 2",
+   "nums": "0,0,4,0,0,0",
+   "sig": "2027013694:44",
+   "txt": "Orientacija treh točk Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Točki 𝑝 in 𝑞 ter premica 𝑝 𝑞 Premakni 𝑞 in opazuj, kako se premica 𝑝 𝑞 vrti okoli 𝑝 . Opazovanje Korak 1 od 6 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Op"
+  },
+  {
+   "prog": "Korak 2 od 6 · Okvir 1 od 2",
+   "nums": "0,0,4,0,3,2,0,0",
+   "sig": "-847812329:42",
+   "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Napovej stran točke 𝑟 Dodali smo točko 𝑟 = ( 3 , 2 ) . Preden prikažeš barvno sled zavoja, napovej: ali 𝑟 leži na levi ali na desni strani premice 𝑝 𝑞 , če"
+  },
+  {
+   "prog": "Korak 2 od 6 · Okvir 2 od 2",
+   "nums": "0,0,4,0,3,2,0,0",
+   "sig": "-847812329:42",
+   "txt": "Orientacija treh točk Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Napovej stran točke 𝑟 Reci naglas, ali je zavoj 𝑝 → 𝑞 → 𝑟 levi ali desni. Opazovanje Korak 2 od 6 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na grafu"
+  },
+  {
+   "prog": "Korak 3 od 6 · Okvir 1 od 3",
+   "nums": "0,0,4,0,3,2,0,0",
+   "sig": "498960563:52",
+   "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Vrednost in predznak Za 𝑝 = ( 0 , 0 ) , 𝑞 = ( 4 , 0 ) , 𝑟 = ( 3 , 2 ) je 𝐷 = ( 4 − 0 ) ( 2 − 0 ) − ( 0 − 0 ) ( 3 − 0 ) = 8 . Vrednost je pozitivna, zato je "
+  },
+  {
+   "prog": "Korak 3 od 6 · Okvir 2 od 3",
+   "nums": "0,0,4,0,3,2,0,0",
+   "sig": "115709524:52",
+   "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Vrednost in predznak Točke 𝑝 = ( 0 , 0 ) , 𝑞 = ( 4 , 0 ) , 𝑟 = ( 3 , 2 ) 𝐷 = ( 4 − 0 ) ( 2 − 0 ) − ( 0 − 0 ) ( 3 − 0 ) = 8 − 0 𝐷 = + 8 Odčitek pod grafom p"
+  },
+  {
+   "prog": "Korak 3 od 6 · Okvir 3 od 3",
+   "nums": "0,0,4,0,3,2,0,0",
+   "sig": "323690687:52",
+   "txt": "Orientacija treh točk Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Vrednost in predznak Primerjaj izpis na grafu z izračunom 𝐷 . Opazovanje Korak 3 od 6 · Okvir 3 od 3 Prejšnji okvir Naslednji okvir Opazuj na grafu"
+  },
+  {
+   "prog": "Korak 4 od 6 · Okvir 1 od 2",
+   "nums": "0,0,4,0,3,-2,0,0",
+   "sig": "1381983407:52",
+   "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Premik čez premico Če točko 𝑟 prestaviš na ( 3 , − 2 ) , je pod premico in je 𝐷 = − 8 : desni zavoj. Na premici sami, na primer pri 𝑟 = ( 2 , 0 ) , je 𝐷 = 0"
+  },
+  {
+   "prog": "Korak 4 od 6 · Okvir 2 od 2",
+   "nums": "0,0,4,0,3,-2,0,0",
+   "sig": "1552039568:52",
+   "txt": "Orientacija treh točk Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Premik čez premico Povleci 𝑟 čez premico in opazuj predznak in besedo za zavoj. Opazovanje Korak 4 od 6 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na grafu"
+  },
+  {
+   "prog": "Korak 5 od 6 · Okvir 1 od 2",
+   "nums": "0,0,4,0,3,2,0,0",
+   "sig": "-1870881071:54",
+   "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Dvojna ploščina trikotnika Trikotnik 𝑝 𝑞 𝑟 z 𝑟 = ( 3 , 2 ) ima osnovnico 4 in višino 2 , torej ploščino 4 . Dvojna ploščina je 8 in je enaka 𝐷 ; pri desnem"
+  },
+  {
+   "prog": "Korak 5 od 6 · Okvir 2 od 2",
+   "nums": "0,0,4,0,3,2,0,0",
+   "sig": "-655572541:54",
+   "txt": "Orientacija treh točk Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Dvojna ploščina trikotnika Preštej kvadratke trikotnika in pomnoži ploščino z 2 . Opazovanje Korak 5 od 6 · Okvir 2 od 2 Prejšnji okvir Naslednji okvir Opazuj na graf"
+  },
+  {
+   "prog": "Korak 6 od 6 · Okvir 1 od 2",
+   "nums": "0,0,4,0,2,0,0,0",
+   "sig": "-616805197:45",
+   "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Prosto raziskovanje Točka 𝑟 je zdaj na premici, pri ( 2 , 0 ) , zato je 𝐷 = 0 in točke so kolinearne. Premikaj vse tri točke (tudi s tipkovnico), poišči druge"
+  },
+  {
+   "prog": "Korak 6 od 6 · Okvir 2 od 2",
+   "nums": "0,0,4,0,2,0,0,0",
+   "sig": "478496725:45",
+   "txt": "Orientacija treh točk Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Prosto raziskovanje Poišči tri kolinearne točke, ki niso vse na osi 𝑥 . Opazovanje Korak 6 od 6 · Okvir 2 od 2 Prejšnji okvir Zaključi vodeni primer Opazuj na grafu"
+  }
+ ],
+ "backFromIdx3": {
+  "prog": "Korak 2 od 6 · Okvir 1 od 2",
+  "nums": "0,0,4,0,3,2,0,0",
+  "sig": "-847812329:42",
+  "txt": "Orientacija treh točk Skrij Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Napovej stran točke 𝑟 Dodali smo točko 𝑟 = ( 3 , 2 ) . Preden prikažeš barvno sled zavoja, napovej: ali 𝑟 leži na levi ali na desni strani premice 𝑝 𝑞 , če"
+ },
+ "backMatchesIdx2": true,
+ "reForward": true,
+ "advanced": 12,
+ "final": {
+  "prog": "Korak 6 od 6 · Okvir 2 od 2",
+  "nums": "0,0,4,0,2,0,0,0",
+  "sig": "478496725:45",
+  "txt": "Orientacija treh točk Končaj Konveksnost in ovojnice · Orientacija treh točk Nazaj v poglavje Prosto raziskovanje Poišči tri kolinearne točke, ki niso vse na osi 𝑥 . Opazovanje Korak 6 od 6 · Okvir 2 od 2 Prejšnji okvir Zaključi vodeni primer Opazuj na grafu"
+ },
+ "finalButtons": [
+  "Končaj vodeni primer",
+  "Prejšnji okvir"
+ ],
+ "nextDisabledAtEnd": true,
+ "urlAtEnd": "http://127.0.0.1:4313/bezeg-2.0/compgeo/orientation?learn=1&learnChapter=convexity-hulls&learnSection=orientation",
+ "confirmText": "Zapustiti vodeni primer? Graf se bo povrnil v stanje pred začetkom vodenega primera. Vaš napredek v vodenem primeru ni shranjen. Nadaljuj vodeni primer Zapusti in povrni graf",
+ "afterExitNums": "-3,0,4,0,3,2,0,0",
+ "afterExitSig": "-210388938:52",
+ "restoredEdited": true,
+ "urlAfter": "http://127.0.0.1:4313/bezeg-2.0/compgeo/orientation?learnChapter=convexity-hulls&learnSection=orientation",
+ "lessonPanelGone": true
+}

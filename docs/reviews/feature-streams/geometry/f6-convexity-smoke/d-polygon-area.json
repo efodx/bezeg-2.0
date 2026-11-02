@@ -1,0 +1,32 @@
+{
+ "errs": [],
+ "before": {
+  "prog": "Korak 3 od 7 · Okvir 1 od 3",
+  "nums": "-1,3,0,0,4,0,5,3,2,5,0,0",
+  "sig": "70",
+  "txt": "Ploščina večkotnika in Pickov izrek Skrij Končaj Konveksnost in ovojnice · Ploščina večkotnika in Pickov izrek Nazaj v poglavje Obrazec z determinantami (shoelace) Vsota 𝑥 𝑖 𝑦 𝑖 + 1 − 𝑥 𝑖 + 1 𝑦 𝑖 po vseh robovih je 0 + 0 + 12 + 19 + 11 = 42 , ploščina pa polovica: 𝐴 = 21 . Vsota je pozitivna, ker si oglišča sledijo v nasprotni smeri urinega kazalca. 𝐴 = 1 2 ∑ 𝑖 = 0 𝑛 − 1 ( 𝑥 𝑖 𝑦 𝑖 + 1 − 𝑥 𝑖 + 1 𝑦 𝑖 ) , ( 𝑥 𝑛 , 𝑦 𝑛 ) = ( 𝑥 0 , 𝑦 0 ) ( 𝑥 𝑖 , 𝑦 𝑖 ) so oglišča po vrsti; vsota brez faktorja 1 2 je dvojna predznačena ploščina. Razlaga Korak 3 od 7 · Okvir 1 od 3 Prejšnji okvir Naslednji okvir"
+ },
+ "after": {
+  "prog": "Step 3 of 7 · Frame 1 of 3",
+  "nums": "-1,3,0,0,4,0,5,3,2,5,0,0",
+  "sig": "70",
+  "txt": "Polygon area and Pick's theorem Hide Exit Convexity and hulls · Polygon area and Pick's theorem Return to chapter The shoelace formula The sum of 𝑥 𝑖 𝑦 𝑖 + 1 − 𝑥 𝑖 + 1 𝑦 𝑖 over all edges is 0 + 0 + 12 + 19 + 11 = 42 , and the area is half of it: 𝐴 = 21 . The sum is positive because the vertices follow each other counter-clockwise. 𝐴 = 1 2 ∑ 𝑖 = 0 𝑛 − 1 ( 𝑥 𝑖 𝑦 𝑖 + 1 − 𝑥 𝑖 + 1 𝑦 𝑖 ) , ( 𝑥 𝑛 , 𝑦 𝑛 ) = ( 𝑥 0 , 𝑦 0 ) ( 𝑥 𝑖 , 𝑦 𝑖 ) are the vertices in order; the sum without the factor 1 2 is twice the signed area. Explanation Step 3 of 7 · Frame 1 of 3 Previous frame Next frame"
+ },
+ "keptStepAndScene": true,
+ "bodyEn": " Za uporabo Bezega omogoči JavaScript. <span lang=\"en\">Enable JavaScript to use Bezeg.</span> BezegLearningDemonstrationsLanguage SLENDemonstrations / Computational geometry / Polygon areaPolygon areaChange the settings and observe their effect on the graph.Switch demonstrationPresentation modePolygon area and Pick's theoremHideExitConvexity and hulls · Polygon area and Pick's theoremReturn to chapterThe shoelace formulaThe sum of xiyi+1−xi+1yi over all edges is 0+0+12+19+11=42, and the area is half of it: A=21. The sum is positive because the vertices follow each other counter-clockwise.A=12∑i=0n−1(xiyi+1−xi+1yi),(xn,yn)=(x0,y0)(xi,yi) are the vertices in order; the sum without the factor 12 is twice the signed area.ExplanationStep 3 of 7 · Frame 1 of 3Previous frameNext frameGraph0,02468−2−4−6−81234−1−2−3−4P1P2P3P4P5+12+18+12←↑↓→+−Fit to pointsPan: Shift + drag · Zoom: Shift + mouse wheelTry and observeMove the vertices and watch the signed area from the shoelace formula. What happens to the sign if you reverse the order of the vertices?Next promptTools for this graphToolsCollapseEditDisplaySavecurveviewexampleArea: 21Doubled signed area (shoelace formula): +42The vertices run counter-clockwise.Boundary lattice points B: 8Interior lattice points I: 18Pick's theorem: 2I + B − 2 = 42 equals the doubled area 42.Reverse orderPointsPolygon Closed polygon Grid Triangles from the first vertex Lattice points Numeric valuesGrid step: 1. Coordinates are whole numbers of steps.Add by tapping or clickingRemoveClearPoints: 5 of at most 40No point is selected.The polygon is simple.PointsP1Select point 1P2Select point 2P3Select point 3P4Select point 4P5Select point 5Add pointCoordinate systemCoordinate systemNoneAxes onlyAxes and gridAxes, grid, and ticksAllElement sizesGraph element sizeGraph element size, valueMin: 0Max: 25Size of points, lines, and labels; does not change the viewport zoom.Presets in this browserStored in this browser. Export a file to back up your presets or transfer them to another browser.PresetsDefaultResetSaveDeleteExport presetsImport presetsGenerate preset figuresExport figureSVGPNG ",
+ "slovenianLike": [
+  "Za",
+  "omogoči",
+  "in"
+ ],
+ "aria": [
+  "Slovenščina"
+ ],
+ "enNext": {
+  "prog": "Step 3 of 7 · Frame 2 of 3",
+  "nums": "-1,3,0,0,4,0,5,3,2,5,0,0",
+  "sig": "70",
+  "txt": "Polygon area and Pick's theorem Hide Exit Convexity and hulls · Polygon area and Pick's theorem Return to chapter The shoelace formula The pentagon ( − 1 , 3 ) , ( 0 , 0 ) , ( 4 , 0 ) , ( 5 , 3 ) , ( 2 , 5 ) 0 + 0 + 12 + 19 + 11 = 42 , 𝐴 = 42 2 𝐴 = 21 The readout under the graph shows the doubled signed area 42 and the area 21 . Calculation Step 3 of 7 · Frame 2 of 3 Previous frame Next frame"
+ },
+ "enBackProg": "Step 3 of 7 · Frame 1 of 3"
+}

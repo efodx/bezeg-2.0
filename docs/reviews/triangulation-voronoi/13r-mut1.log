@@ -1,0 +1,44 @@
+Waiting for unit (pid 19888) to finish starting before reading free memory.
+Memory available for unit after 10s.
+unit: failed (1) in 25.8s (2 workers, no slot); revision b0c358d4ac84c6c8fffef1dbc63c347372d87fd4; dirty; log .command-logs\2026-11-02T08-35-53-053Z-10980-86fe0429.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (20 tests | 1 failed) 19932ms
+   × pressing a board triangle selects it, pressing the selected one deselects, and a locked board ignores the press 96ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > pressing a board triangle selects it, pressing the selected one deselects, and a locked board ignores the press
+AssertionError: expected undefined to be 1 // Object.is equality
+
+- Expected:
+1
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:453:38
+    451|     expect(triangleShapes(graph).length).toBeGreaterThan(1);
+    452|     clickShape(graph, 1);
+    453|     expect(graph.selectedTriangle()).toBe(1);
+       |                                      ^
+    454|     expect(triangleShapes(graph)[1].name).toBe('delaunay-selected-tria…
+    455|     expect(document.querySelector('button[data-triangle="1"]')?.getAtt…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 passed (20)
+   Start at  09:35:53
+   Duration  24.82s (tests 81%, transform 8%, import 6%, environment 3%, setup 2%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

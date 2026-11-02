@@ -1,0 +1,39 @@
+unit: failed (1) in 8.3s (2 workers, no slot); revision 67da7944d82f66dc80677786fb78e5be1d433281; dirty; log .command-logs\2026-11-01T04-24-23-337Z-97916-0804b459.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (16 tests | 1 failed) 3809ms
+   × a language switch re-renders the panel text and the overlay switch and keeps the step and the board 125ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > a language switch re-renders the panel text and the overlay switch and keeps the step and the board
+AssertionError: expected 'Pair ab found.' to be 'Pair ab found: the intervals overlap.' // Object.is equality
+
+Expected: "Pair ab found: the intervals overlap."
+Received: "Pair ab found."
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:336:26
+    334|     expect(part('note')).toBe('Najden par ab: intervala se prekrivata.…
+    335|     act(() => { setLanguage('en'); });
+    336|     expect(part('note')).toBe('Pair ab found: the intervals overlap.');
+       |                          ^
+    337|     expect(part('step')).toBe('Step 5 of 26');
+    338|     expect(document.querySelector('[data-interval-sweep="tie-rule"]')?…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  05:24:23
+   Duration  7.53s (tests 52%, transform 19%, import 13%, environment 10%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

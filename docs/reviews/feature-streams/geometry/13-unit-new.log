@@ -1,0 +1,58 @@
+unit: failed (1) in 6.6s (2 workers, no slot); revision a0f55631163dbc2ddb48e5605e340dfe68a09750; dirty; log .command-logs\2026-11-01T02-47-48-552Z-117308-30c42606.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoGuidedLessons.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts (22 tests | 2 failed) 2509ms
+   ❯ A1 orientation: every quoted value is the scene readout (3)
+     × the quoted values appear in the step text and the sign equals orient 7ms
+   ❯ A2 polygon area: every quoted value is the scene readout (3)
+     × the quoted values appear in the step text 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > A1 orientation: every quoted value is the scene readout > the quoted values appear in the step text and the sign equals orient
+AssertionError: orientation-flip sl -8: expected 'Če točko \(r\) prestaviš na \((3,-2)\…' to contain '\(-8'
+
+Expected: "\(-8"
+Received: "Če točko \(r\) prestaviš na \((3,-2)\), je pod premico in je \(D=-8\): desni zavoj. Na premici sami, na primer pri \(r=(2,0)\), je \(D=0\) in točke so kolinearne. Povleci \(r\) navzgor in navzdol čez premico, da vidiš prehod."
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:91:63
+     89|             const step = lessonOf('orientation').steps.find(s => s.id …
+     90|             for (const token of tokens) {
+     91|                 expect(step.body.sl, `${stepId} sl ${token}`).toContai…
+       |                                                               ^
+     92|                 expect(step.body.en, `${stepId} en ${token}`).toContai…
+     93|             }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > A2 polygon area: every quoted value is the scene readout > the quoted values appear in the step text
+AssertionError: area-explore sl B=8: expected 'Spet je petkotnik z ploščino \(21\), …' to contain 'B=8'
+
+Expected: "B=8"
+Received: "Spet je petkotnik z ploščino \(21\), s trikotniki in mrežnimi točkami. Premikaj oglišča po mreži, dodajaj jih ali jih odstrani in opazuj, kdaj se Pickov izrek ujema in kdaj izpis ne ponudi ploščine."
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:160:63
+    158|             const step = lessonOf('polygon-area').steps.find(s => s.id…
+    159|             for (const token of tokens) {
+    160|                 expect(step.body.sl, `${stepId} sl ${token}`).toContai…
+       |                                                               ^
+    161|                 expect(step.body.en, `${stepId} en ${token}`).toContai…
+    162|             }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 20 passed (22)
+   Start at  03:47:49
+   Duration  5.85s (tests 44%, transform 22%, import 15%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

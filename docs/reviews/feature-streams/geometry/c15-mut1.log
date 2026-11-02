@@ -1,0 +1,68 @@
+unit: failed (1) in 4.1s (2 workers, no slot); revision 17934fc7b2b1616dc8af708f5a24be2cf885a44c; dirty; log .command-logs\2026-11-01T09-54-27-368Z-123092-281bf045.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/convexityChapter.test.ts src/learning/chapter/guidedLessonOwnership.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/convexityChapter.test.ts (7 tests | 2 failed) 47ms
+   ❯ chapter structure and registration (7)
+     × lessons resolve, own their sections and keep both languages complete 17ms
+     × learn launches, example links and old routes land on the owning section 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/convexityChapter.test.ts > chapter structure and registration > lessons resolve, own their sections and keep both languages complete
+AssertionError: expected [ { …(2) }, { …(2) } ] to deeply equal [ { …(2) } ]
+
+- Expected
++ Received
+
+  [
+    {
++     "chapterId": "bezier-curves",
++     "sectionId": "geometric-properties",
++   },
++   {
+      "chapterId": "convexity-hulls",
+      "sectionId": "convex-hull",
+    },
+  ]
+
+ ❯ src/learning/content/convexityChapter.test.ts:58:47
+     56|     test('lessons resolve, own their sections and keep both languages …
+     57|         for (const id of SECTIONS) {
+     58|             expect(getGuidedLessonOwners(id)).toEqual([{chapterId: 'co…
+       |                                               ^
+     59|             expect(getGuidedLessonOwner(id)).toEqual({chapterId: 'conv…
+     60|             expect(authoredGuidedLessonIds('convexity-hulls', id)).toE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/convexityChapter.test.ts > chapter structure and registration > learn launches, example links and old routes land on the owning section
+AssertionError: expected '/bezeg-2.0/compgeo/convex-hull?learn=…' to contain 'learnChapter=convexity-hulls&learnSec…'
+
+Expected: "learnChapter=convexity-hulls&learnSection=convex-hull"
+Received: "/bezeg-2.0/compgeo/convex-hull?learn=1&learnChapter=bezier-curves&learnSection=geometric-properties"
+
+ ❯ src/learning/content/convexityChapter.test.ts:77:28
+     75|         for (const id of SECTIONS) {
+     76|             const launch = guidedLessonLaunchPath(id);
+     77|             expect(launch).toContain(`learnChapter=convexity-hulls&lea…
+       |                            ^
+     78|             expect(guidedLessonReturnPath(getGuidedLessonOwner(id)!)).…
+     79|             const search = launch.slice(launch.indexOf('?'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 9 passed (11)
+   Start at  10:54:28
+   Duration  3.19s (transform 38%, environment 30%, setup 22%, import 8%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

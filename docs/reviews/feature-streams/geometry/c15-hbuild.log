@@ -1,0 +1,3 @@
+Waiting for a test slot; all 1 busy: check in stream-learn-ui (pid 101584).
+Got test slot 1/1 after 62s.
+build: passed in 6.6s (test slot 1/1, 4 workers); revision 17934fc7b2b1616dc8af708f5a24be2cf885a44c; dirty; log .command-logs\2026-11-01T10-29-03-970Z-113728-013b693d.log; warnings present (see log)

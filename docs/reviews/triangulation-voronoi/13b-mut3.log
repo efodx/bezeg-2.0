@@ -1,0 +1,42 @@
+unit: failed (1) in 28.8s (2 workers, no slot); revision 3aea61ed21da749e0349b418695d82ee70878aac; dirty; log .command-logs\2026-11-02T08-26-51-035Z-22940-38e8918a.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (18 tests | 1 failed) 22979ms
+   × the selected triangle draws its exact circumcircle (centre (2, 7/3), radius sqrt(85)/3 for abc), dashed, and none otherwise 120ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > the selected triangle draws its exact circumcircle (centre (2, 7/3), radius sqrt(85)/3 for abc), dashed, and none otherwise
+AssertionError: expected 2.8 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 2.8
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:428:32
+    426|     const [circle] = selectedCircles(graph);
+    427|     expect(selectedCircles(graph)).toHaveLength(1);
+    428|     expect(circle.center?.X()).toBe(2);
+       |                                ^
+    429|     expect(circle.center?.Y()).toBe(7 / 3);
+    430|     expect(circle.Radius?.()).toBeCloseTo(Math.sqrt(85) / 3, 12);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  09:26:51
+   Duration  27.81s (tests 83%, transform 7%, import 5%, environment 3%, setup 2%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

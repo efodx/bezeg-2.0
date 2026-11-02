@@ -1,0 +1,44 @@
+unit: failed (1) in 9.4s (2 workers, no slot); revision 3df4564b92c8a3b70679edc35ac55f1d49ce984b; dirty; log .command-logs\2026-11-02T07-42-44-609Z-109180-c9dfdded.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/TriangulationGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx (45 tests | 1 failed) 4331ms
+   × only the user add path reports an insertion: loadModel with a one-point superset shows no event 108ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/TriangulationGraph.host.test.tsx > only the user add path reports an insertion: loadModel with a one-point superset shows no event
+AssertionError: expected { kind: 'rebuilt' } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "kind": "rebuilt",
+}
+
+ ❯ src/graphs/compgeo/TriangulationGraph.host.test.tsx:510:25
+    508|     act(() => { graph.loadModel(superset); });
+    509|     expect(graph.model.points).toHaveLength(9);
+    510|     expect(graph.event).toBeUndefined();
+       |                         ^
+    511|     expect(part('event')).toBeUndefined();
+    512| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 44 passed (45)
+   Start at  08:42:45
+   Duration  8.41s (tests 53%, transform 19%, import 13%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

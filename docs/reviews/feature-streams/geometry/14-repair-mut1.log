@@ -1,0 +1,84 @@
+unit: failed (1) in 8.2s (2 workers, no slot); revision b3ed5795a3082a4eea3499de2b48bf788c6c8ab0; dirty; log .command-logs\2026-11-01T04-45-40-114Z-128348-0c5973a9.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/IntervalSweepGraph.host
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx (25 tests | 3 failed) 4194ms
+   ❯ side lists (9)
+     ❯ a hover goes stale (3)
+       × when a step passes the exit of the hovered interval 105ms
+       × on Reset 98ms
+       × on a preset restore 122ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > a hover goes stale > when a step passes the exit of the hovered interval
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:511:56
+    509|             hoverOpen(graph);
+    510|             click('next-step');
+    511|             expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+       |                                                        ^
+    512|             while (!button('next-step').getAttribute('aria-disabled')?…
+    513|             expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > a hover goes stale > on Reset
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:521:56
+    519|             hoverOpen(graph);
+    520|             click('reset');
+    521|             expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+       |                                                        ^
+    522|             expect(entries('status', 'data-hovered')).toHaveLength(0);
+    523|         });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/compgeo/IntervalSweepGraph.host.test.tsx > side lists > a hover goes stale > on a preset restore
+AssertionError: expected [ <Anonymous Class>{ …(55) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/IntervalSweepGraph.host.test.tsx:530:56
+    528|             hoverOpen(graph);
+    529|             act(() => { graph.importPreset({id: INTERVAL_SWEEP_PRESET_…
+    530|             expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+       |                                                        ^
+    531|             expect(entries('status', 'data-hovered')).toHaveLength(0);
+    532|         });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 22 passed (25)
+   Start at  05:45:40
+   Duration  7.48s (tests 57%, transform 16%, import 12%, environment 9%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

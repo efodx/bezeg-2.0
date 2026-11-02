@@ -1,0 +1,178 @@
+unit: failed (1) in 7.6s (2 workers, no slot); revision 1dfddf0c4b4ca6064291717cbb84e5a169878c88; dirty; log .command-logs\2026-11-02T12-49-17-965Z-60316-9c350ed2.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayLessonActions --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > the default scene is stopped with nothing scheduled, and the trace actions and set-trace-step are supported
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx (12 tests | 8 failed) 2224ms
+   × the default scene is stopped with nothing scheduled, and the trace actions and set-trace-step are supported 391ms
+   × the next-step action repeated k times equals the Next button repeated k times, step and readouts 125ms
+   × set-trace-step pauses a running playback and leaves no scheduler callback 93ms
+   × reset, pause, play and replay act like their buttons 81ms
+   × play then pause, a scene change, Back, a state restore and unmount leave no pending scheduler callback 75ms
+   × select-triangle selects like a panel click, null clears, and a step change clears it 188ms
+   × set-points, set-trace-step and select-triangle run in one synchronous sequence 78ms
+   × 15a operations on the Delaunay graph restart the trace from the new start, never leaving trace and drawing apart 137ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > the default scene is stopped with nothing scheduled, and the trace actions and set-trace-step are supported
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:78:138
+     76|     const {graph, frames} = setup();
+     77|     expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqu…
+     78|     for (const command of ['next-step', 'reset', 'play', 'pause', 'rep…
+       |                                                                                                                                          ^
+     79|     expect(graph.supportsLessonAction(traceStep('end'))).toBe(true);
+     80|     expect(graph.supportsLessonAction(selectTriangle(0))).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > the next-step action repeated k times equals the Next button repeated k times, step and readouts
+UnsupportedLessonActionError: This demonstration does not support lesson action “animation”.
+ ❯ LessonActionRegistry.apply src/graphs/base/lesson/LessonActionRegistry.ts:76:29
+     74|     apply(action: LessonAction): void {
+     75|         const handler = this.find(action);
+     76|         if (!handler) throw new UnsupportedLessonActionError(action);
+       |                             ^
+     77|         handler(action, rejected => { throw new UnsupportedLessonActio…
+     78|     }
+ ❯ Observed.applyLessonAction src/graphs/base/BaseGraph.tsx:531:32
+ ❯ Observed.run1 src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:44:39
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:112
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:64:24
+ ❯ act ../../../node_modules/react/cjs/react.development.js:2512:16
+ ❯ actWithWarning ../../../node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:63:25
+ ❯ apply src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:64
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:86:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > set-trace-step pauses a running playback and leaves no scheduler callback
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > reset, pause, play and replay act like their buttons
+UnsupportedLessonActionError: This demonstration does not support lesson action “animation”.
+ ❯ LessonActionRegistry.apply src/graphs/base/lesson/LessonActionRegistry.ts:76:29
+     74|     apply(action: LessonAction): void {
+     75|         const handler = this.find(action);
+     76|         if (!handler) throw new UnsupportedLessonActionError(action);
+       |                             ^
+     77|         handler(action, rejected => { throw new UnsupportedLessonActio…
+     78|     }
+ ❯ Observed.applyLessonAction src/graphs/base/BaseGraph.tsx:531:32
+ ❯ Observed.run1 src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:44:39
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:112
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:64:24
+ ❯ act ../../../node_modules/react/cjs/react.development.js:2512:16
+ ❯ actWithWarning ../../../node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:63:25
+ ❯ apply src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:64
+ ❯ playOneTick src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:70:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > play then pause, a scene change, Back, a state restore and unmount leave no pending scheduler callback
+UnsupportedLessonActionError: This demonstration does not support lesson action “animation”.
+ ❯ LessonActionRegistry.apply src/graphs/base/lesson/LessonActionRegistry.ts:76:29
+     74|     apply(action: LessonAction): void {
+     75|         const handler = this.find(action);
+     76|         if (!handler) throw new UnsupportedLessonActionError(action);
+       |                             ^
+     77|         handler(action, rejected => { throw new UnsupportedLessonActio…
+     78|     }
+ ❯ Observed.applyLessonAction src/graphs/base/BaseGraph.tsx:531:32
+ ❯ Observed.run1 src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:44:39
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:112
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:64:24
+ ❯ act ../../../node_modules/react/cjs/react.development.js:2512:16
+ ❯ actWithWarning ../../../node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:63:25
+ ❯ apply src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:64
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:149:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > select-triangle selects like a panel click, null clears, and a step change clears it
+UnsupportedLessonActionError: This demonstration does not support lesson action “animation”.
+ ❯ LessonActionRegistry.apply src/graphs/base/lesson/LessonActionRegistry.ts:76:29
+     74|     apply(action: LessonAction): void {
+     75|         const handler = this.find(action);
+     76|         if (!handler) throw new UnsupportedLessonActionError(action);
+       |                             ^
+     77|         handler(action, rejected => { throw new UnsupportedLessonActio…
+     78|     }
+ ❯ Observed.applyLessonAction src/graphs/base/BaseGraph.tsx:531:32
+ ❯ Observed.run1 src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:44:39
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:112
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:64:24
+ ❯ act ../../../node_modules/react/cjs/react.development.js:2512:16
+ ❯ actWithWarning ../../../node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:63:25
+ ❯ apply src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:64
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:185:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > set-points, set-trace-step and select-triangle run in one synchronous sequence
+UnsupportedLessonActionError: This demonstration does not support lesson action “animation”.
+ ❯ LessonActionRegistry.apply src/graphs/base/lesson/LessonActionRegistry.ts:76:29
+     74|     apply(action: LessonAction): void {
+     75|         const handler = this.find(action);
+     76|         if (!handler) throw new UnsupportedLessonActionError(action);
+       |                             ^
+     77|         handler(action, rejected => { throw new UnsupportedLessonActio…
+     78|     }
+ ❯ Observed.applyLessonAction src/graphs/base/BaseGraph.tsx:531:32
+ ❯ Observed.run1 src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:44:39
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:219:15
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:64:24
+ ❯ act ../../../node_modules/react/cjs/react.development.js:2512:16
+ ❯ actWithWarning ../../../node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:63:25
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:218:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayLessonActions.host.test.tsx > 15a operations on the Delaunay graph restart the trace from the new start, never leaving trace and drawing apart
+UnsupportedLessonActionError: This demonstration does not support lesson action “animation”.
+ ❯ LessonActionRegistry.apply src/graphs/base/lesson/LessonActionRegistry.ts:76:29
+     74|     apply(action: LessonAction): void {
+     75|         const handler = this.find(action);
+     76|         if (!handler) throw new UnsupportedLessonActionError(action);
+       |                             ^
+     77|         handler(action, rejected => { throw new UnsupportedLessonActio…
+     78|     }
+ ❯ Observed.applyLessonAction src/graphs/base/BaseGraph.tsx:531:32
+ ❯ Observed.run1 src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:44:39
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:112
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:64:24
+ ❯ act ../../../node_modules/react/cjs/react.development.js:2512:16
+ ❯ actWithWarning ../../../node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10
+ ❯ ../../../node_modules/@testing-library/react/dist/act-compat.js:63:25
+ ❯ apply src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:52:64
+ ❯ src/graphs/compgeo/DelaunayLessonActions.host.test.tsx:247:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 4 passed (12)
+   Start at  13:49:18
+   Duration  6.64s (tests 35%, transform 28%, import 19%, environment 12%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

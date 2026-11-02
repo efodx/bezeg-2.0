@@ -1,0 +1,42 @@
+unit: failed (1) in 10.8s (2 workers, no slot); revision 280d86ea7e0e12de8e65ddb7db535012006a039d; dirty; log .command-logs\2026-11-02T08-13-11-374Z-109360-7a2dcbaa.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (13 tests | 1 failed) 6021ms
+   × the start and the step survive a Preset round trip; a stale step is clamped; the collection validates 295ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > the start and the step survive a Preset round trip; a stale step is clamped; the collection validates
+AssertionError: expected 999999 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 999999
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:315:24
+    313|     const seven = DELAUNAY_EXAMPLES[1].data;
+    314|     act(() => { graph.importPreset({id: DELAUNAY_PRESET_KEY, graphStat…
+    315|     expect(graph.step).toBe(graph.run().length - 1);
+       |                        ^
+    316|     act(() => { graph.importPreset({id: DELAUNAY_PRESET_KEY, graphStat…
+    317|     expect(graph.step).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  09:13:12
+   Duration  9.95s (tests 61%, transform 16%, import 11%, environment 7%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

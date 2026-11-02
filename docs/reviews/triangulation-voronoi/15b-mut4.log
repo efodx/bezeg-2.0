@@ -1,0 +1,42 @@
+unit: failed (1) in 7.3s (2 workers, no slot); revision 9bede337ab81dac3946d1d1ff544b1dd29fd10eb; dirty; log .command-logs\2026-11-02T11-21-11-947Z-110968-76414678.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoPointSetTriangulationLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts (12 tests | 1 failed) 2279ms
+   × step 4: the flip of P2-P5 keeps 7/13/8 and changes the triangles; P2-P7 is selected and a Flip press is refused as not convex 216ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoPointSetTriangulationLesson.test.ts > step 4: the flip of P2-P5 keeps 7/13/8 and changes the triangles; P2-P7 is selected and a Flip press is refused as not convex
+AssertionError: expected false to be 'not-convex' // Object.is equality
+
+- Expected:
+"not-convex"
+
++ Received:
+false
+
+ ❯ src/learning/content/compgeoPointSetTriangulationLesson.test.ts:119:53
+    117|         expect(h.graph.selectedEdge()).toMatchObject({a: TRI_REFUSED_E…
+    118|         const refusal = flip(tri.value, TRI_REFUSED_EDGE);
+    119|         expect(!refusal.ok && refusal.refusal.kind).toBe('not-convex');
+       |                                                     ^
+    120|         // The Flip button is what the text asks for: it states the re…
+    121|         const triangles = h.graph.triangles;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  12:21:12
+   Duration  6.46s (tests 36%, transform 26%, import 19%, environment 11%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

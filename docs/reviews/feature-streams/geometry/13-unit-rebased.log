@@ -1,0 +1,71 @@
+unit: failed (1) in 615.7s (2 workers, no slot); revision 63e3568fe0622c555aa370773d448fdf13e53044; dirty; log .command-logs\2026-11-02T03-44-34-641Z-94280-ebba13bf.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/LearningPage.test.tsx > Learn contains every family chapter and keeps guided activities inside chapters
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/LearningPage.test.tsx (35 tests | 1 failed) 4259ms
+   × Learn contains every family chapter and keeps guided activities inside chapters 97ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/chapter/authoredChapterCoverage.test.ts (1 test | 1 failed) 11ms
+   × both published languages place every audited home exactly once in its owning section 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/LearningPage.test.tsx > Learn contains every family chapter and keeps guided activities inside chapters
+AssertionError: expected …(15) to have a length of 14 but got 15
+
+- Expected
++ Received
+
+- 14
++ 15
+
+ ❯ src/learning/LearningPage.test.tsx:39:60
+     37|     // A family may own several chapters (maps: linear and complex).
+     38|     expect([...new Set(learningChapters.map(chapter => chapter.family)…
+     39|     expect(container.querySelectorAll('.learning-family')).toHaveLengt…
+       |                                                            ^
+     40|     expect(container.querySelectorAll('.learning-topic-heading')).toHa…
+     41|     // The linear maps, complex maps and triangle geometry chapters ha…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/chapter/authoredChapterCoverage.test.ts > both published languages place every audited home exactly once in its owning section
+AssertionError: expected [ Array(15) ] to have a length of 14 but got 15
+
+- Expected
++ Received
+
+- 14
++ 15
+
+ ❯ src/learning/chapter/authoredChapterCoverage.test.ts:15:26
+     13|             ...familyChapters,
+     14|         ];
+     15|         expect(chapters).toHaveLength(14);
+       |                          ^
+     16|         const allReferences: string[] = [];
+     17|         for (const chapter of chapters) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 76 passed (78)
+      Tests  2 failed | 1329 passed (1331)
+   Start at  04:44:35
+   Duration  614.41s (tests 87%, environment 6%, setup 3%, import 3%, transform 1%)
+
+    Isolate  78 workers spawned · ~1.08s startup each (spawn + environment, per file)
+             at least ~40.89s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

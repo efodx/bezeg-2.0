@@ -1,0 +1,42 @@
+unit: failed (1) in 13.7s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-33-22-109Z-88328-db2ba605.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/EarClippingLessonActions.host.test.tsx src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx (11 tests | 1 failed) 5484ms
+   × Back (stopping the lesson animations), a state restore and unmount pause playback and leave no scheduler callback 136ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/EarClippingLessonActions.host.test.tsx > Back (stopping the lesson animations), a state restore and unmount pause playback and leave no scheduler callback
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx:187:35
+    185|     expect(frames.callbacks.size).toBe(1);
+    186|     act(() => { graph.unmount(); });
+    187|     expect(frames.callbacks.size).toBe(0);
+       |                                   ^
+    188| });
+    189|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 20 passed (21)
+   Start at  08:33:23
+   Duration  12.51s (tests 45%, transform 20%, import 15%, environment 14%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

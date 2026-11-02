@@ -1,0 +1,64 @@
+Waiting for lint (pid 113800) to finish starting before reading free memory.
+Waiting for build (pid 115988) to finish starting before reading free memory.
+Waiting for unit (pid 10260) to finish starting before reading free memory.
+Waiting for smoke-lesson (pid 108284) to finish starting before reading free memory.
+Waiting for unit (pid 130932) to finish starting before reading free memory.
+Waiting for unit (pid 12064) to finish starting before reading free memory.
+Memory available for unit after 160s.
+unit: failed (1) in 19.9s (2 workers, no slot); revision 3296b119456a1efea5adc863ed4703f5a7d66ad6; dirty; log .command-logs\2026-11-02T09-58-01-315Z-92880-dc29241e.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/compgeo/DelaunayGraph.host.test.tsx > a board press leaves the board objects in place until the pointer dispatch has returned
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (22 tests | 1 failed) 14830ms
+   × a board press leaves the board objects in place until the pointer dispatch has returned 105ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > a board press leaves the board objects in place until the pointer dispatch has returned
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:476:20
+    474|     // JSXGraph keeps hit-testing its object list after a down handler…
+    475|     triangleShapes(graph)[0].triggerEventHandlers(['down'], []);
+    476|     expect(same()).toBe(true);
+       |                    ^
+    477|     expect(graph.selectedTriangle()).toBeUndefined();
+    478|     await act(async () => {});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 21 passed (22)
+   Start at  10:58:02
+   Duration  18.99s (tests 79%, transform 8%, import 6%, environment 4%, setup 2%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

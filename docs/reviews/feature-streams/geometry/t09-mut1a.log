@@ -1,0 +1,233 @@
+unit: failed (1) in 5.9s (2 workers, no slot); revision dc899f604da52acecc683e5c2defce48b4e6d2af; dirty; log .command-logs\2026-11-01T07-30-49-719Z-90792-e14867de.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/EarClippingLessonActions.host.test.tsx src/learning/content/compgeoEarClippingLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts (10 tests | 4 failed) 1690ms
+   × the seven scenes show the polygon, step, overlays and result the text relies on, and never play 693ms
+   × steps 4 to 6: 3 triangles, 2 diagonals, classes 2, 1, 2 with the quoted members, and one guard at (3, 2) = floor(5/3) 97ms
+   × step 7, the comb: n = 11, 9 triangles, 8 diagonals, classes 4, 4, 3 and three guards = floor(11/3) 157ms
+   × Back and a scene change while playing leave playback paused with no pending scheduler callback 186ms
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx (11 tests | 2 failed) 2156ms
+   × set-trace-step clamps a number like a stored Preset step, and end is the last step 270ms
+   × set-trace-step end equals Next step pressed until done: step, readouts, board and result 444ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/EarClippingLessonActions.host.test.tsx > set-trace-step clamps a number like a stored Preset step, and end is the last step
+AssertionError: expected 10 to be 11 // Object.is equality
+
+- Expected
++ Received
+
+- 11
++ 10
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx:84:30
+     82|     const stepAfter = (step: number | 'end') => { apply(graph, traceSt…
+     83|     expect([stepAfter(5), stepAfter(999), stepAfter(-3), stepAfter(2.9…
+     84|     expect(stepAfter('end')).toBe(last);
+       |                              ^
+     85|     expect(graph.state).toMatchObject({step: last});
+     86|     expect(() => graph.run1(traceStep(Number.NaN))).toThrow('set-trace…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/graphs/compgeo/EarClippingLessonActions.host.test.tsx > set-trace-step end equals Next step pressed until done: step, readouts, board and result
+AssertionError: expected { step: 10, state: { …(4) }, …(3) } to deeply equal { step: 11, state: { …(4) }, …(3) }
+
+- Expected
++ Received
+
+@@ -1,16 +1,16 @@
+  {
+    "playing": false,
+    "result": [
+-     "Trikotnikov: 3 (n − 2, kjer je n = 5 število oglišč)",
+-     "Diagonal: 2 (n − 3)",
+-     "Barvni razredi (A, B, C): 2, 1, 2",
+-     "Stražarjev: 1 (⌊n/3⌋); najmanjši barvni razred jih postavi v oglišča P4.",
++     undefined,
++     undefined,
++     undefined,
++     undefined,
+    ],
+    "shown": [
+-     "Korak 12 od 12",
+-     "Konec: večkotnik je razrezan na trikotnike.",
++     "Korak 11 od 12",
++     "Ostala so le še tri oglišča: to je zadnji trikotnik.",
+      undefined,
+      "Odrezani trikotniki doslej: 3",
+      "Orientacijskih preizkusov doslej: 25",
+    ],
+    "state": {
+@@ -44,9 +44,9 @@
+      },
+      "overlays": {
+        "reflex": true,
+        "trace": true,
+      },
+-     "step": 11,
++     "step": 10,
+    },
+-   "step": 11,
++   "step": 10,
+  }
+
+ ❯ src/graphs/compgeo/EarClippingLessonActions.host.test.tsx:103:40
+    101|         if (comb) apply(viaEnd.graph, {kind: 'point-set', operation: '…
+    102|         apply(viaEnd.graph, traceStep('end'));
+    103|         expect(snapshot(viaEnd.graph)).toEqual(fromNext);
+       |                                        ^
+    104|         expect(viaEnd.graph['board'].objectsList.length).toBe(board);
+    105|         expect(fromNext.step).toBe(viaEnd.graph.run().length - 1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > the seven scenes show the polygon, step, overlays and result the text relies on, and never play
+AssertionError: expected [ …(7) ] to deeply equal [ …(7) ]
+
+- Expected
++ Received
+
+@@ -35,11 +35,11 @@
+      false,
+      0,
+    ],
+    [
+      5,
+-     11,
++     10,
+      12,
+      true,
+      true,
+      true,
+      false,
+@@ -47,11 +47,11 @@
+      false,
+      0,
+    ],
+    [
+      5,
+-     11,
++     10,
+      12,
+      true,
+      true,
+      true,
+      true,
+@@ -59,11 +59,11 @@
+      false,
+      0,
+    ],
+    [
+      5,
+-     11,
++     10,
+      12,
+      true,
+      true,
+      true,
+      true,
+@@ -71,11 +71,11 @@
+      false,
+      0,
+    ],
+    [
+      11,
+-     34,
++     33,
+      35,
+      true,
+      true,
+      true,
+      true,
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:64:22
+     62|             return [h.graph.model.points.length, h.graph.step, run.len…
+     63|         });
+     64|         expect(seen).toEqual([
+       |                      ^
+     65|             [5, 0, 12, true, true, false, false, false, false, 0],
+     66|             [5, 0, 12, false, true, false, false, false, false, 0],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > steps 4 to 6: 3 triangles, 2 diagonals, classes 2, 1, 2 with the quoted members, and one guard at (3, 2) = floor(5/3)
+AssertionError: expected undefined to be 'Trikotnikov: 3 (n − 2, kjer je n = 5 …' // Object.is equality
+
+- Expected:
+"Trikotnikov: 3 (n − 2, kjer je n = 5 število oglišč)"
+
++ Received:
+undefined
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:144:37
+    142|         expect(summary.triangles).toBe(h.graph.model.points.length - 2…
+    143|         expect(summary.diagonals).toBe(h.graph.model.points.length - 3…
+    144|         expect(result('triangles')).toBe('Trikotnikov: 3 (n − 2, kjer …
+       |                                     ^
+    145|         expect(result('diagonals')).toBe('Diagonal: 2 (n − 3)');
+    146|         h.scene('earclip-colouring');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > step 7, the comb: n = 11, 9 triangles, 8 diagonals, classes 4, 4, 3 and three guards = floor(11/3)
+AssertionError: expected undefined to be 'Trikotnikov: 9 (n − 2, kjer je n = 11…' // Object.is equality
+
+- Expected:
+"Trikotnikov: 9 (n − 2, kjer je n = 11 število oglišč)"
+
++ Received:
+undefined
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:171:37
+    169|         expect([summary.triangles, summary.diagonals, ...summary.class…
+    170|         expect(summary.guardCount).toBe(Math.floor(11 / 3));
+    171|         expect(result('triangles')).toBe('Trikotnikov: 9 (n − 2, kjer …
+       |                                     ^
+    172|         expect(result('diagonals')).toBe('Diagonal: 8 (n − 3)');
+    173|         expect(result('classes')).toBe('Barvni razredi (A, B, C): 4, 4…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/learning/content/compgeoEarClippingLesson.test.ts > Back and a scene change while playing leave playback paused with no pending scheduler callback
+AssertionError: expected [ false, +0, 33 ] to deeply equal [ false, +0, 34 ]
+
+- Expected
++ Received
+
+  [
+    false,
+    0,
+-   34,
++   33,
+  ]
+
+ ❯ src/learning/content/compgeoEarClippingLesson.test.ts:234:64
+    232|         expect(h.pending()).toBe(1);
+    233|         h.scene('earclip-comb');
+    234|         expect([h.graph.isPlaying, h.pending(), h.graph.step]).toEqual…
+       |                                                                ^
+    235|         act(() => { h.capabilities.apply(PLAY); });
+    236|         expect([h.graph.isPlaying, h.pending()]).toEqual([false, 0]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  6 failed | 15 passed (21)
+   Start at  08:30:50
+   Duration  5.19s (tests 40%, transform 20%, import 18%, environment 14%, setup 9%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

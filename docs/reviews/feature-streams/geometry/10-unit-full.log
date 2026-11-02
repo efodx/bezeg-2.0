@@ -1,0 +1,103 @@
+unit: failed (1) in 504.4s (test slot 1/1, 4 workers); revision a2e28387ec4b5f22f3c727d55ccb58c36cf54e63; dirty; log .command-logs\2026-11-01T05-42-51-784Z-103544-94f751e8.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run
+
+
+ RUN  v5.0.4 C:/Users/NonFriedMotherBoard/IdeaProjects/bezeg/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/base/GraphTransientState.part1.test.tsx > interval-sweep > Preset export and checkpoints keep transient state out of the Preset
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part1.test.tsx (120 tests | 1 failed) 106063ms
+   ❯ interval-sweep (8)
+     × Preset export and checkpoints keep transient state out of the Preset 197ms
+stderr | src/graphs/base/GraphTransientState.part2.test.tsx > segment-intersections > Preset export and checkpoints keep transient state out of the Preset
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part2.test.tsx (120 tests | 1 failed) 85244ms
+   ❯ segment-intersections (8)
+     × Preset export and checkpoints keep transient state out of the Preset 143ms
+stderr | src/graphs/base/GraphTransientState.part4.test.tsx > ear-clipping > Preset export and checkpoints keep transient state out of the Preset
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part4.test.tsx (112 tests | 1 failed) 66449ms
+   ❯ ear-clipping (8)
+     × Preset export and checkpoints keep transient state out of the Preset 149ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part1.test.tsx > interval-sweep > Preset export and checkpoints keep transient state out of the Preset
+ FAIL  src/graphs/base/GraphTransientState.part2.test.tsx > segment-intersections > Preset export and checkpoints keep transient state out of the Preset
+ FAIL  src/graphs/base/GraphTransientState.part4.test.tsx > ear-clipping > Preset export and checkpoints keep transient state out of the Preset
+AssertionError: expected [ 'initialized', 'overlays', 'step' ] to deeply equal [ 'initialized', 'model', …(2) ]
+
+- Expected
++ Received
+
+  [
+    "initialized",
+-   "model",
+    "overlays",
+    "step",
+  ]
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:310:69
+    308|                 const dataKeys = PRESET_DATA_STATE_KEYS[id] ?? [];
+    309|                 for (const key of dataKeys) expect(graph.state).toHave…
+    310|                 expect(Object.keys(preset.graphState ?? {}).sort()).to…
+       |                                                                     ^
+    311|             } else {
+    312|                 // All surface state is Preset data; the Preset's grap…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  3 failed | 377 passed | 1 skipped (381)
+      Tests  3 failed | 6961 passed | 1 skipped (6965)
+   Start at  06:42:52
+   Duration  503.67s (tests 65%, environment 16%, setup 9%, import 7%, transform 1%)
+
+    Isolate  381 workers spawned · ~994ms startup each (spawn + environment, per file)
+             at least ~93.65s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1
