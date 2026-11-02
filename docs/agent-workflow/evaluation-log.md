@@ -1571,3 +1571,15 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Outcome: accepted. Its row classes fit, and every spec number had a cited assertion. It found one real gap, the glossary vocabulary (MISSING), plus a thin capabilities description (PARTIAL), which the handler fixed in the docs. The browser-only rows are handed to the smoke.
 - Repairs: none.
 - Handoff evidence: the brief reused the T1/S1 matrix format and also asked the reviewer to check the documentation and the independence of the interior count I. Both were answered. The reviewer cannot write files, and the brief said so only halfway through, so the handler saved the matrix itself.
+
+## 2026-11-02 — Geometry: convexity Batch 1 F6 repair and acceptance (geometry handler 27)
+
+- Task: repair the two defects found by the F6 bilingual smoke (default view on `polygon-area`/`convex-hull`, n<3 chain wording), recheck, and accept Batch 1 ([record](../reviews/feature-streams/geometry/f6-convexity-acceptance.md)). Class: fix, size S. Handler Opus 5.5, auto, effort medium.
+- Workers: 2, run one after the other. (1) `bezeg-worker`, Sonnet, effort medium, dispatched 06:40Z; tool-reported usage 49k tokens, 31 tools, about 20 min. (2) `bezeg-smoke`, Haiku, effort medium, a narrow recheck dispatched about 07:01Z; tool-reported usage 59k tokens, 22 tools, 6.5 min.
+- Outcome: accepted 07:08Z at `e9f07099`, about 28 min after dispatch.
+  - Worker 1 fixed both defects in one pass and showed mutation failures for each new test. It added a run-level relabel (`output-small`) instead of touching the kernels. It skipped the optional "+12" overdraw as not a one-line fix.
+  - The handler reviewed the diff and found nothing.
+  - The smoke passed all three checks in both languages. It counted one point marker of two in the two-point state; the handler resolved this from the screenshot (the selected-point marker is styled differently).
+- Repairs: none.
+- Checks: tsc, lint, focused unit and build by the worker. No full `just check` after the repair; the record gives the scope argument, and hosted CI covers the full suite.
+- Handoff evidence: both briefs named exact `file:line` locations and expected texts, so neither worker needed to explore. The smoke brief's "missing points must fail" rule made the marker count mismatch visible instead of silently passing.

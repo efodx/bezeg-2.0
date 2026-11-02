@@ -26,4 +26,3 @@ Handler: geometry handler 24 (Opus 5.5), 2026-11-02. Specs: [triangulations and 
 - Touch and mouse drag were not exercised; points were edited by numeric field and arrow keys.
 - Projection readability was judged from screenshots only.
 - The `segment-intersections` link on the sweep chapter page was checked by href, not clicked.
-- Not done: convexity Batch 1 has no F6 record yet.

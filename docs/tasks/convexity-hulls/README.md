@@ -35,7 +35,7 @@ Kernels and graphs (F1, F2a) are not gated. Registration, lessons, chapter and m
 | 13 | [Lessons A1 orientation, A2 polygon area](13-lessons-orientation-area.md) | F3 | 12 | accepted 2026-11-01 (handler 12): `point-set` actions, `values` overlay, interim chapter owner until F4 |
 | 14 | [Hull trace actions and lesson A4](14-lesson-convex-hull.md) | F3 | 13 | accepted 2026-11-01 (handler 14): F3 review, `just smoke-lesson convex-hull`, bilingual walk |
 | 15 | [Convexity and hulls chapter, Batch 1](15-chapter.md) | F4 | 13, 14, Maps `chapterOwnedLessons` on `master` | accepted 2026-11-01 (handler 18) |
-| — | F5 media; F6 acceptance | F5–F6 | 15 | files pending |
+| — | F5 media; F6 acceptance | F5–F6 | 15 | F6 accepted 2026-11-02 (handler 27, [record](../../reviews/feature-streams/geometry/f6-convexity-acceptance.md); repair `e9f07099`); F5 media files pending |
 
 ## Later batches (task files written when the previous batch is accepted)
 - **Batch 2 (A3, A5):** kernels — point in polygon with half-open rule and winding number, pentagram lattice approximation (A3); the `<`/`<=` chain variants and duplicates (A5, the Kettner reference is in task 02); F2b, F3, F4 update, F5, F6.
