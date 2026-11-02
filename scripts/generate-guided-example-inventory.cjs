@@ -217,6 +217,24 @@ const chapterInventories = {
         pathExport: 'complexMapsGuidedExamplePath',
         expectedFor: complexMapsExpectedFor,
     },
+    'numerical-methods': {
+        module: '/src/learning/content/numericalChapterRegistry.ts',
+        registryExport: 'numericalGuidedExampleRegistry',
+        pathExport: 'numericalGuidedExamplePath',
+        expectedFor: numericalExpectedFor,
+    },
+    'school-function-graphs': {
+        module: '/src/learning/content/schoolFunctionGraphsChapterRegistry.ts',
+        registryExport: 'schoolFunctionGraphsGuidedExampleRegistry',
+        pathExport: 'schoolFunctionGraphsGuidedExamplePath',
+        expectedFor: schoolFunctionGraphsExpectedFor,
+    },
+    'fourier-series': {
+        module: '/src/learning/content/fourierChapterRegistry.ts',
+        registryExport: 'fourierGuidedExampleRegistry',
+        pathExport: 'fourierGuidedExamplePath',
+        expectedFor: fourierExpectedFor,
+    },
 };
 
 // Authored from src/linear/matrix2.ts (rows of the example matrices) and src/graphs/linear/linearMapScene.ts, not from a capture.
@@ -264,6 +282,108 @@ function complexMapsExpectedFor(id, step) {
     const example = complexRootsExamples[value];
     assert.ok(example, `${id}: no authored roots example ${JSON.stringify(value)}`);
     return {types: {curve: 1, point: 1}, curveCount: 1, points: [example.w]};
+}
+
+/** The one value of a `function-choice` or `function-parameter` action named `name` in an opening scene; a missing or repeated one is an error. */
+function sceneValue(id, actions, kind, name) {
+    const found = actions.filter(item => item.kind === kind && item.name === name);
+    assert.equal(found.length, 1, `${id}: opening scene must set ${name} exactly once`);
+    return found[0].value;
+}
+
+/** Fails when the opening scene holds an action outside the allowed set: the authored expectation assumes the first frame only sets those values. */
+function assertOnlyActions(id, actions, allowed, extend) {
+    for (const item of actions) {
+        assert.ok(item.kind === 'prepared-scene' || allowed.some(([kind, pattern]) => item.kind === kind && pattern.test(item.name ?? item.target ?? '')),
+            `${id}: the authored first-frame expectation assumes an opening scene that only sets ${allowed.map(([kind, pattern]) => `${kind} ${pattern}`).join(', ')}; extend ${extend}`);
+    }
+}
+
+// Authored from src/analysis/rootFinding.ts (the example functions), not from a capture.
+const rootFindingExamples = {'square-minus-two': x => x * x - 2};
+
+/**
+ * First-frame expectation of a Numerical methods lesson (Newton, no step taken): the graph of f (one curve), the drop line from the
+ * last iterate x0 to f(x0) (one line; the tangent is hidden until a step), and three points: (x0, f(x0)), (x0, 0) and the start x0 on
+ * the axis (the line's origin marker and x1 are hidden). Secant scenes also show x1 and are not authored yet.
+ */
+function numericalExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    assertOnlyActions(id, actions, [['function-choice', /^root-finding-(method|example)$/], ['function-parameter', /^root-x0$/]], 'numericalExpectedFor');
+    assert.equal(sceneValue(id, actions, 'function-choice', 'root-finding-method'), 'newton', `${id}: only the Newton first frame is authored`);
+    const example = sceneValue(id, actions, 'function-choice', 'root-finding-example');
+    assert.ok(Object.hasOwn(rootFindingExamples, example), `${id}: no authored root-finding example ${JSON.stringify(example)}`);
+    const x0 = sceneValue(id, actions, 'function-parameter', 'root-x0');
+    assert.ok(Number.isFinite(x0), `${id}: root-x0 must be a finite number`);
+    return {types: {point: 3, segment: 1}, curveCount: 1, points: [[x0, rootFindingExamples[example](x0)], [x0, 0]]};
+}
+
+// Authored from src/analysis/transformation.ts (base functions) and the rule y = a f(b (x - c)) + d, not from a capture.
+const transformBases = {square: x => x * x, cube: x => x ** 3, abs: Math.abs, exp: Math.exp};
+
+/**
+ * First-frame expectation of the Graph transformations lesson: the ghost and the transformed graph (two curves), the tracked point
+ * (u, f(u)) of the ghost and its image (u / b + c, a f(u) + d) (two points). The opening scene must show the ghost.
+ */
+function transformationExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^transform-base$/], ['function-parameter', /^transform-[abcdu]$/], ['function-visibility', /^reference$/]], 'schoolFunctionGraphsExpectedFor');
+    const visibility = actions.filter(item => item.kind === 'function-visibility');
+    assert.ok(visibility.length === 1 && visibility[0].target === 'reference' && visibility[0].visible === true, `${id}: the authored expectation assumes the ghost is shown`);
+    const base = sceneValue(id, actions, 'function-choice', 'transform-base');
+    assert.ok(Object.hasOwn(transformBases, base), `${id}: no authored transformation base ${JSON.stringify(base)}`);
+    const [a, b, c, d, u] = ['a', 'b', 'c', 'd', 'u'].map(name => sceneValue(id, actions, 'function-parameter', `transform-${name}`));
+    assert.ok([a, b, c, d, u].every(Number.isFinite) && b !== 0, `${id}: transformation parameters must be finite with b not zero`);
+    const f = transformBases[base];
+    return {types: {curve: 2, point: 2}, curveCount: 2, points: [[u, f(u)], [u / b + c, a * f(u) + d]]};
+}
+
+/**
+ * First-frame expectation of the Inverse functions lesson with the square restriction (y = x^2 on x >= 0, mirrored across y = x):
+ * the forward graph and the dashed connector from P to its mirror point (two curves), the line y = x, and the points P = (x0, x0^2)
+ * and P' = (x0^2, x0). The inverse curve, the tangents and the asymptotes are hidden.
+ */
+function inverseExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^inverse-restriction$/], ['function-parameter', /^inverse-(base|x0)$/], ['function-visibility', /^(inverse-curve|tangent)$/]], 'schoolFunctionGraphsExpectedFor');
+    assert.equal(sceneValue(id, actions, 'function-choice', 'inverse-restriction'), 'square', `${id}: only the square restriction is authored`);
+    const visibility = Object.fromEntries(actions.filter(item => item.kind === 'function-visibility').map(item => [item.target, item.visible]));
+    assert.deepEqual(visibility, {'inverse-curve': false, tangent: false}, `${id}: the authored expectation assumes the inverse curve and tangents are hidden`);
+    const x0 = sceneValue(id, actions, 'function-parameter', 'inverse-x0');
+    assert.ok(Number.isFinite(x0) && x0 >= 0, `${id}: inverse-x0 must be finite and inside the restriction`);
+    return {types: {curve: 2, line: 1, point: 2}, curveCount: 2, points: [[x0, x0 * x0], [x0 * x0, x0]]};
+}
+
+/** First-frame expectation of a School function graphs lesson, chosen by the Demonstration the id ends with. */
+function schoolFunctionGraphsExpectedFor(id, step) {
+    if (id.endsWith('.function-transformation')) return transformationExpectedFor(id, step.scene.actions);
+    if (id.endsWith('.function-inverse')) return inverseExpectedFor(id, step.scene.actions);
+    assert.fail(`${id}: no authored School function graphs first frame`);
+}
+
+/**
+ * First-frame expectation of the Fourier series lesson (square wave): per piece of f (four on [-2pi, 2pi], split at -pi, 0 and pi) a
+ * band curve, two band edges and the target segment; the zoom window and S_N (curves); the error segment, which shows while S_N differs
+ * from f at x. Points: the jump limits (0, -1) and (0, 1), the midpoint (0, 0), the Gibbs peak (pi/(N+1), S_N(pi/(N+1))), the values
+ * (x, S_N(x)) and (x, f(x)), and the draggable x on the axis. S_N is the closed form 4/pi * sum over odd k <= N of sin(kx)/k.
+ */
+function fourierExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    assertOnlyActions(id, actions, [['function-choice', /^fourier-example$/], ['function-parameter', /^fourier-(n|x|epsilon)$/]], 'fourierExpectedFor');
+    assert.equal(sceneValue(id, actions, 'function-choice', 'fourier-example'), 'square', `${id}: only the square wave is authored`);
+    const n = sceneValue(id, actions, 'function-parameter', 'fourier-n');
+    const x = sceneValue(id, actions, 'function-parameter', 'fourier-x');
+    assert.ok(Number.isInteger(n) && n >= 1 && Number.isFinite(x), `${id}: fourier-n must be a positive integer and fourier-x finite`);
+    const order = n % 2 === 0 ? n - 1 : n;
+    const partialSum = at => {
+        let sum = 0;
+        for (let k = 1; k <= order; k += 2) sum += Math.sin(k * at) / k;
+        return 4 / Math.PI * sum;
+    };
+    const target = Math.sign(Math.sin(x));
+    const sum = partialSum(x);
+    assert.ok(Math.abs(target - sum) > 0, `${id}: the authored expectation assumes the error segment shows`);
+    const peakX = Math.PI / (order + 1);
+    return {types: {curve: 6, segment: 13, point: 7}, curveCount: 6,
+        points: [[0, -1], [0, 1], [0, 0], [peakX, partialSum(peakX)], [x, sum], [x, target], [x, 0]]};
 }
 
 /** A chapter-owned entry must carry real expectations; a missing or empty one is a generation error. */
@@ -326,4 +446,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, assertExpectation};

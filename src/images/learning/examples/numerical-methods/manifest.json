@@ -1,0 +1,224 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "98d667e658ef3944caed78a43911871e43362862",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "98d667e658ef3944caed78a43911871e43362862",
+    "dirty": true,
+    "inputs": "17aede000fb5c84af8a736c756434be951eb9ab1a62b3d6475cfebd0cead2879",
+    "output": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
+    "stampRevision": "98d667e658ef3944caed78a43911871e43362862",
+    "stampDirty": true,
+    "localOutputHash": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-DwNxeaFN.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-DwNxeaFN.js",
+        "sha256": "9c710e1c860ba6f3baef243bdad521490d21e98465f5a61fc399be39795a4915",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-DeI_2rhE.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-DeI_2rhE.js",
+        "sha256": "f172c865d3678086d6af61a4627198203e27541702b000bc3ff4a46b66f6bb56",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-p4AlnUVy.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-p4AlnUVy.js",
+        "sha256": "38303c72cac94e4f430e6e0d963f7ed5ad25bc88f9d6bd23dde4a02154aceb71",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-BaMZB5Fy.css",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BaMZB5Fy.css",
+        "sha256": "bae643a297d5885e35dc68f252ac298fc5cd08ac7952ed15ca8f6fb80d6272fc",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4315/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "91d7f910180528473960f369af9ff50497b3cb97c7c483373e88beb5eea6983d",
+    "entries": {
+      "numerical-methods.root-finding.root-finding": "b3e5f9c0e4ea4662394a5ca262c87a2b0131ea03b59cc1135ab951510e368cc0"
+    },
+    "presentation": "650935b10ac4daab1998c971642ee0bb14fcbfc61a289f6ee3c987c7f5d20ac3",
+    "buildOutput": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600",
+    "buildInputs": "17aede000fb5c84af8a736c756434be951eb9ab1a62b3d6475cfebd0cead2879"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "numerical-methods.root-finding.root-finding",
+        "demonstrationId": "root-finding",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.5,
+            6,
+            4.5,
+            -3
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "numerical-methods.root-finding.root-finding",
+      "demonstrationId": "root-finding",
+      "path": "/bezeg-2.0/analysis/root-finding?example=lesson.numerical-methods.root-finding.root-finding",
+      "sceneFingerprint": "cb18daef1287be6047e0ec2323fc48b2a647ff342325c6f7a8f12b2ffc3ddc4e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"newton-predict-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"newton-predict-start\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"root-finding-method\",\"value\":\"newton\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"root-finding-example\",\"value\":\"square-minus-two\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"root-x0\",\"value\":1}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "numerical-methods.root-finding.root-finding.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "c495c7a85beca1a5767bbef2f922dc75a360efc6ed4da8a36c87cd28cfd5601d",
+      "scene": {
+        "visibleElementCount": 23,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "curve": 1,
+          "segment": 1,
+          "point": 3,
+          "text": 1
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              -2
+            ],
+            [
+              0.5,
+              -1.75
+            ],
+            [
+              1,
+              -1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:1,-1",
+          "point:1,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 26,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 1,
+            "segment": 1,
+            "point": 3,
+            "text": 1
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                -2
+              ],
+              [
+                0.5,
+                -1.75
+              ],
+              [
+                1,
+                -1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:1,-1",
+            "point:1,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "curve": 1,
+          "segment": 1,
+          "point": 3,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "98d667e658ef3944caed78a43911871e43362862",
+        "sourceRevision": "98d667e658ef3944caed78a43911871e43362862",
+        "pageErrors": []
+      }
+    }
+  ]
+}

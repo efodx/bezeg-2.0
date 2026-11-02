@@ -54,6 +54,9 @@ const chapterFamilies = {
     patches: {label: 'patch', idPrefix: 'bezier-patches.', route: /^\/bezeg-2\.0\/patches(?:\/|$)/, routeText: '/bezeg-2.0/patches'},
     'linear-maps': {label: 'linear-maps', idPrefix: 'linear-maps.', route: /^\/bezeg-2\.0\/linear-map(?:\/|$)/, routeText: '/bezeg-2.0/linear-map'},
     'complex-maps': {label: 'complex-maps', idPrefix: 'complex-maps.', route: /^\/bezeg-2\.0\/complex-(?:reciprocal|roots)(?:\/|$)/, routeText: '/bezeg-2.0/complex-reciprocal or /bezeg-2.0/complex-roots'},
+    'numerical-methods': {label: 'numerical-methods', idPrefix: 'numerical-methods.', route: /^\/bezeg-2\.0\/analysis\/root-finding(?:\/|$)/, routeText: '/bezeg-2.0/analysis/root-finding'},
+    'school-function-graphs': {label: 'school-function-graphs', idPrefix: 'school-function-graphs.', route: /^\/bezeg-2\.0\/functions\/(?:transformations|inverse)(?:\/|$)/, routeText: '/bezeg-2.0/functions/transformations or /bezeg-2.0/functions/inverse'},
+    'fourier-series': {label: 'fourier-series', idPrefix: 'fourier-series.', route: /^\/bezeg-2\.0\/analysis\/fourier-series(?:\/|$)/, routeText: '/bezeg-2.0/analysis/fourier-series'},
 };
 
 function parseArgs(argv) {
@@ -155,7 +158,12 @@ function inspectBoard(page) {
     });
 }
 
-function isSameGraphOnOverlap(before, after) {
+/**
+ * With `boxes` (the bounding boxes before and after the presentation resize), only abscissas where both graphs lie inside the vertical
+ * range both boxes share are compared: a plotter that clamps what leaves the view to a view-relative height (the function graphs of the
+ * Functions stream) draws off-screen pieces that differ between two views, and those never reach the image.
+ */
+function isSameGraphOnOverlap(before, after, boxes) {
     if (!before || !after || before.id !== after.id || !Array.isArray(before.points) || !Array.isArray(after.points)
         || before.points.length < 2 || after.points.length < 2) return false;
     const direction = points => Math.sign(points.at(-1)[0] - points[0][0]);
@@ -175,12 +183,21 @@ function isSameGraphOnOverlap(before, after) {
         }
         return undefined;
     };
-    return [0, 0.25, 0.5, 0.75, 1].every(fraction => {
-        const x = left + (right - left) * fraction;
-        const beforeY = interpolate(before.points, x), afterY = interpolate(after.points, x);
-        return Number.isFinite(beforeY) && Number.isFinite(afterY)
-            && Math.abs(beforeY - afterY) <= 1e-4 * Math.max(1, Math.abs(beforeY), Math.abs(afterY));
-    });
+    const agree = (beforeY, afterY) => Number.isFinite(beforeY) && Number.isFinite(afterY)
+        && Math.abs(beforeY - afterY) <= 1e-4 * Math.max(1, Math.abs(beforeY), Math.abs(afterY));
+    if (!boxes) {
+        return [0, 0.25, 0.5, 0.75, 1].every(fraction => {
+            const x = left + (right - left) * fraction;
+            return agree(interpolate(before.points, x), interpolate(after.points, x));
+        });
+    }
+    const low = Math.max(...boxes.map(box => box[3])), high = Math.min(...boxes.map(box => box[1]));
+    const onScreen = y => Number.isFinite(y) && y >= low && y <= high;
+    const compared = Array.from({length: 41}, (_, index) => left + (right - left) * index / 40).map(x => [interpolate(before.points, x), interpolate(after.points, x)])
+        .filter(([beforeY, afterY]) => onScreen(beforeY) && onScreen(afterY));
+    // The two views sample the function on different abscissas, so linear interpolation differs by far less than a pixel; 1e-3 of the shared height is about 0.6 px at capture scale.
+    const tolerance = 1e-3 * (high - low);
+    return compared.length >= 5 && compared.every(([beforeY, afterY]) => agree(beforeY, afterY) || Math.abs(beforeY - afterY) <= tolerance);
 }
 
 function isViewportSpanningHorizontalCurve(samples, box) {
@@ -237,8 +254,10 @@ function assertPresentationGeometryStable(initial, presented, exampleId = 'captu
             && before.every((point, sample) => Math.abs(point[1] - after[sample][1]) <= 1e-6);
         const cameraScaledConstruction = isCameraScaledCurve(before, after, initial.unitScale, presented.unitScale);
         const beforeData = initial.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(before));
-        const afterData = presented.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(after));
-        const sameFunctionOnOverlap = isSameGraphOnOverlap(beforeData, afterData);
+        // Pair by board id: two curves with identical samples (a graph and its coinciding ghost) may swap places in the sorted order.
+        const afterData = presented.curveData?.find(curve => beforeData && curve.id === beforeData.id)
+            ?? presented.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(after));
+        const sameFunctionOnOverlap = isSameGraphOnOverlap(beforeData, afterData, initial.boundingBox && presented.boundingBox ? [initial.boundingBox, presented.boundingBox] : undefined);
         if (!cameraDrivenHorizontal && !cameraScaledConstruction && !sameFunctionOnOverlap) {
             throw new Error(`${exampleId}: capture presentation changed curve geometry at index ${index}; before=${JSON.stringify(before)}; after=${JSON.stringify(after)}; unitScale=${JSON.stringify(initial.unitScale)}->${JSON.stringify(presented.unitScale)}; boundingBox=${JSON.stringify(initial.boundingBox)}->${JSON.stringify(presented.boundingBox)}`);
         }

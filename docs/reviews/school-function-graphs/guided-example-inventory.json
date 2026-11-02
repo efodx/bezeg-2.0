@@ -1,0 +1,79 @@
+{
+  "examples": [
+    {
+      "id": "school-function-graphs.function-transformation.function-transformation",
+      "demonstrationId": "function-transformation",
+      "path": "/bezeg-2.0/functions/transformations?example=lesson.school-function-graphs.function-transformation.function-transformation",
+      "sceneFingerprint": "09ca1ab03389f5821d48d600ecb3ac382866f448e2237dc3e4fba5d0dce8eaa4",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"transform-original-ghost\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"transform-original-ghost\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"transform-base\",\"value\":\"square\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"transform-a\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"transform-b\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"transform-c\",\"value\":0}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"transform-d\",\"value\":0}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"transform-u\",\"value\":2}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"reference\",\"visible\":true}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            4
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "school-function-graphs.function-inverse.function-inverse",
+      "demonstrationId": "function-inverse",
+      "path": "/bezeg-2.0/functions/inverse?example=lesson.school-function-graphs.function-inverse.function-inverse",
+      "sceneFingerprint": "18d873ea36fc4506f1e24e9a159f16d5ea314108666180cd1df12408422ebf90",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"inverse-mirror-point\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"inverse-mirror-point\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"inverse-restriction\",\"value\":\"square\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"inverse-base\",\"value\":2}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"inverse-x0\",\"value\":2}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"inverse-curve\",\"visible\":false}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"tangent\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "line": 1,
+          "point": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            2,
+            4
+          ],
+          [
+            4,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

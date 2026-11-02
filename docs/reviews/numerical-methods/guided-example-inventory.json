@@ -1,0 +1,38 @@
+{
+  "examples": [
+    {
+      "id": "numerical-methods.root-finding.root-finding",
+      "demonstrationId": "root-finding",
+      "path": "/bezeg-2.0/analysis/root-finding?example=lesson.numerical-methods.root-finding.root-finding",
+      "sceneFingerprint": "cb18daef1287be6047e0ec2323fc48b2a647ff342325c6f7a8f12b2ffc3ddc4e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"newton-predict-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"newton-predict-start\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"root-finding-method\",\"value\":\"newton\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"root-finding-example\",\"value\":\"square-minus-two\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"root-x0\",\"value\":1}"
+      ],
+      "expected": {
+        "types": {
+          "point": 3,
+          "segment": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            1,
+            -1
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

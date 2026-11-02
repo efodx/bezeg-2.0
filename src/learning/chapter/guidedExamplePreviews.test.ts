@@ -8,6 +8,9 @@ import {resolveGuidedExample} from './guidedExamples';
 import {getChapterOwnedLessons} from '../content/chapterOwnedLessons';
 import {linearMapsPreviewCopy} from '../content/linearMapsPreviewCopy';
 import {complexMapsPreviewCopy} from '../content/complexMapsPreviewCopy';
+import {numericalPreviewCopy} from '../content/numericalPreviewCopy';
+import {schoolFunctionGraphsPreviewCopy} from '../content/schoolFunctionGraphsPreviewCopy';
+import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -202,3 +205,59 @@ it('publishes the Complex maps example cards with their own checked images and p
     expect(inventory.examples.map(entry => [entry.id, entry.expected.curveCount, entry.expected.points.length]).sort())
         .toEqual([[ids[0], 3, 3], [ids[1], 1, 1]]);
 });
+
+const functionsCards = [
+    {chapterId: 'numerical-methods', copy: numericalPreviewCopy, ids: ['numerical-methods.root-finding.root-finding'], counts: [[1, 3]]},
+    {chapterId: 'school-function-graphs', copy: schoolFunctionGraphsPreviewCopy,
+        ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation'], counts: [[2, 2], [2, 2]]},
+    {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-series.fourier-series'], counts: [[6, 7]]},
+] as const;
+
+for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {
+    it(`publishes the ${chapterId} example cards with their own checked images and copy`, () => {
+        const destination = resolve('src/images/learning/examples', chapterId);
+        const owned = getChapterOwnedLessons(chapterId);
+        if (!owned) throw new Error(`${chapterId} is not chapter-owned`);
+        const homes = owned.entries().map(([sectionId, lesson]) => ({
+            id: `${chapterId}.${sectionId}.${lesson.demonstrationId}`, sectionId, demonstrationId: lesson.demonstrationId,
+            path: owned.path(sectionId) ?? ''}));
+        const ids = homes.map(home => home.id).sort();
+        expect(ids).toEqual([...expectedIds]);
+        expect(Object.keys(copy).sort()).toEqual(ids);
+        const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]}})[]} = JSON.parse(
+            readFileSync(resolve('docs/reviews', chapterId, 'guided-example-inventory.json'), 'utf8'));
+        const manifest: {captures: Capture[]} = JSON.parse(readFileSync(resolve(destination, 'manifest.json'), 'utf8'));
+        expect(inventory.examples.map(entry => entry.id).sort()).toEqual(ids);
+        expect(manifest.captures.map(entry => entry.id).sort()).toEqual(ids);
+        expect(readdirSync(destination).filter(file => file.endsWith('.png')).sort()).toEqual(ids.map(id => `${id}.png`));
+        for (const home of homes) {
+            const entry = inventory.examples.find(item => item.id === home.id);
+            const capture = manifest.captures.find(item => item.id === home.id);
+            if (!entry || !capture) throw new Error(`${home.id}: missing mapping`);
+            const example = resolveGuidedExample(new URL(home.path, 'https://bezeg.invalid').search, home.demonstrationId);
+            expect(example?.owner).toMatchObject({chapterId, sectionId: home.sectionId});
+            const step = example?.lesson.steps[0];
+            if (!step) throw new Error(`${home.id}: missing prepared example`);
+            expect(entry).toMatchObject({id: home.id, path: home.path, recipe: {kind: 'start'}});
+            expect(entry.actions).toEqual(step.scene?.actions.map(action => `${action.kind}: ${JSON.stringify(action)}`));
+            expect(entry.expected.curveCount).toBeGreaterThan(0);
+            expect(entry.expected.points.length).toBeGreaterThan(0);
+            expect(capture).toMatchObject({file: `${home.id}.png`, width: 840, height: 520, path: home.path,
+                initialFrame: {firstFrame: true, backNavigationDisabled: true},
+                framing: {boardOnly: true, guidedLessonOverlayHidden: true}, captureEvidence: {servedBuildVerified: true, pageErrors: []}});
+            const png = readFileSync(resolve(destination, capture.file));
+            expect(createHash('sha256').update(png).digest('hex')).toBe(capture.sha256);
+            for (const language of ['sl', 'en'] as const) {
+                const preview = resolveGuidedExamplePreview(home.id, home.demonstrationId, language);
+                expect(preview?.src, `${home.id}/${language}`).toBeTruthy();
+                expect(preview?.alt.trim()).toBeTruthy();
+                expect(preview?.caption.trim()).toBeTruthy();
+            }
+        }
+        // Authored first-frame sizes: curves, then points of the distinct expected point list.
+        expect(ids.map(id => {
+            const expected = inventory.examples.find(entry => entry.id === id)?.expected;
+            return [expected?.curveCount, (expected?.types as Record<string, number>).point];
+        })).toEqual(counts.map(([curves, points]) => [curves, points]));
+    });
+}

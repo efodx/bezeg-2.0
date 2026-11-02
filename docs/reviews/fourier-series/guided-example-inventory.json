@@ -1,0 +1,60 @@
+{
+  "examples": [
+    {
+      "id": "fourier-series.fourier-series.fourier-series",
+      "demonstrationId": "fourier-series",
+      "path": "/bezeg-2.0/analysis/fourier-series?example=lesson.fourier-series.fourier-series.fourier-series",
+      "sceneFingerprint": "632012a3d5f3e15f49cfc81e72d2bec2d704f1c4cfef2659c864f4047d52c52a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"fourier-wave-one-sine\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"fourier-wave-one-sine\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-example\",\"value\":\"square\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-n\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-x\",\"value\":1.57}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-epsilon\",\"value\":0.1}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 6,
+          "segment": 13,
+          "point": 7
+        },
+        "curveCount": 6,
+        "points": [
+          [
+            0,
+            -1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1.5707963267948966,
+            1.2732395447351628
+          ],
+          [
+            1.57,
+            1.2732391410314363
+          ],
+          [
+            1.57,
+            1
+          ],
+          [
+            1.57,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

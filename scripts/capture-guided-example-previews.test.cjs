@@ -225,3 +225,49 @@ test('surface capture resizes before rejecting an out-of-frame projected point',
     attrs['data-surface-framing'] = JSON.stringify(clipped);
     await assert.rejects(prepareSurfaceCaptureFrame(page), /mesh bounds are cropped or behind/);
 });
+
+test('numerical, school and fourier capture families accept exactly their own routes', () => {
+    const entries = {
+        'numerical-methods': [{id: 'numerical-methods.root-finding.root-finding', path: '/bezeg-2.0/analysis/root-finding?example=lesson.numerical-methods.root-finding.root-finding'}],
+        'school-function-graphs': [
+            {id: 'school-function-graphs.function-transformation.function-transformation', path: '/bezeg-2.0/functions/transformations?example=lesson.school-function-graphs.function-transformation.function-transformation'},
+            {id: 'school-function-graphs.function-inverse.function-inverse', path: '/bezeg-2.0/functions/inverse?example=lesson.school-function-graphs.function-inverse.function-inverse'}],
+        'fourier-series': [{id: 'fourier-series.fourier-series.fourier-series', path: '/bezeg-2.0/analysis/fourier-series?example=lesson.fourier-series.fourier-series.fourier-series'}],
+    };
+    const root = path.resolve(__dirname, '..');
+    for (const [family, list] of Object.entries(entries)) {
+        assert.equal(destinationForFamily(family), path.join(root, 'src/images/learning/examples', family));
+        assert.equal(parseArgs(['inventory.json', '--family', family]).family, family);
+        assert.doesNotThrow(() => assertInventoryFamily(list, family));
+        assert.throws(() => assertInventoryFamily(list, 'retained'), new RegExp(`require explicit --family ${family}`));
+        assert.throws(() => assertInventoryFamily([], family), new RegExp(`requires a ${family} inventory`));
+        assert.throws(() => assertInventoryFamily([{...list[0], id: 'chapter.example'}], family), new RegExp(`requires a ${family} inventory`));
+        assert.throws(() => assertInventoryFamily([{...list[0], path: '/bezeg-2.0/curves?example=x'}], family), new RegExp(`requires a ${family} inventory`));
+        for (const other of Object.keys(entries).filter(name => name !== family)) {
+            assert.throws(() => assertInventoryFamily(list, other), new RegExp(`requires a ${other} inventory`));
+        }
+    }
+    // Neighbouring routes of the same Demonstration families are refused.
+    assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][0], path: '/bezeg-2.0/analysis/bisection'}], 'numerical-methods'), /requires a numerical-methods inventory/);
+    assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][0], path: '/bezeg-2.0/analysis/root-findingx'}], 'numerical-methods'), /requires a numerical-methods inventory/);
+    assert.throws(() => assertInventoryFamily([{...entries['school-function-graphs'][0], path: '/bezeg-2.0/functions/derivative'}], 'school-function-graphs'), /requires a school-function-graphs inventory/);
+    assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][0], path: '/bezeg-2.0/analysis/fourier-seriesx'}], 'fourier-series'), /requires a fourier-series inventory/);
+});
+
+test('accepts a view-clamped function graph and its coinciding ghost across capture reframing, and pairs them by id', () => {
+    // x^2 plotted over the view with off-screen values clamped to a view-relative height, drawn twice (graph and ghost).
+    const frame = (box, clamp, ids) => {
+        const xs = Array.from({length: 401}, (_, index) => box[0] + (box[2] - box[0]) * index / 400);
+        const samples = xs.map(x => [Number(x.toFixed(6)), Math.min(x * x, clamp)]);
+        return {points: [], curves: [samples, samples], boundingBox: box, unitScale: [10, 10],
+            curveData: ids.map(id => ({id, samples, points: samples}))};
+    };
+    const initial = frame([-10.205931, 7, 16.205931, -9], 23, ['graph', 'ghost']);
+    const presented = frame([-8.52, 9.24, 14.52, -11.24], 29.72, ['ghost', 'graph']);
+    assert.doesNotThrow(() => assertPresentationGeometryStable(initial, presented, 'function-transformation'));
+    const changed = frame([-8.52, 9.24, 14.52, -11.24], 29.72, ['ghost', 'graph']);
+    changed.curveData = changed.curveData.map(curve => ({...curve, points: curve.points.map(([x]) => [x, Math.min((x - 0.5) * (x - 0.5), 29.72)])}));
+    changed.curves = changed.curveData.map(curve => curve.points);
+    changed.curveData = changed.curveData.map(curve => ({...curve, samples: curve.points}));
+    assert.throws(() => assertPresentationGeometryStable(initial, changed, 'function-transformation'), /curve geometry/);
+});
