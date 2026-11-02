@@ -47,6 +47,7 @@ import { AreaBetweenCurvesGraph } from './functions/AreaBetweenCurvesGraph';
 import { ArcLengthGraph } from './functions/ArcLengthGraph';
 import { BisectionGraph } from './functions/BisectionGraph';
 import { RootFindingGraph } from './functions/RootFindingGraph';
+import { QuadratureGraph } from './functions/QuadratureGraph';
 import { FunctionTransformationGraph } from './functions/FunctionTransformationGraph';
 import { FunctionInverseGraph } from './functions/FunctionInverseGraph';
 import { FourierSeriesGraph } from './functions/FourierSeriesGraph';
@@ -143,6 +144,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'arc-length': () => new ArcLengthGraph(),
     'bisection': () => new BisectionGraph(),
     'root-finding': () => new RootFindingGraph(),
+    'quadrature': () => new QuadratureGraph(),
     'mean-value': () => new MeanValueGraph(),
     'accumulation': () => new AccumulationGraph(),
     'darboux': () => new DarbouxGraph(),

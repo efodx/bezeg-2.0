@@ -26,7 +26,7 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
     "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function",
     "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value",
-    "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point", "root-finding", "function-transformation", "function-inverse", "fourier-series"];
+    "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point", "root-finding", "quadrature", "function-transformation", "function-inverse", "fourier-series"];
 /** Collections added after those files: the patch families . */
 const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-derivatives", "patch-subdivision", "patch-joins", "patch-triangular"];
 /** The computational-geometry Demonstrations, one collection each. */
@@ -34,8 +34,8 @@ const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hu
     "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle", "compgeo-euler-line", "compgeo-simson-line", "compgeo-inversion", "compgeo-triangulation", "compgeo-delaunay"];
 /** The projective-conics Demonstrations, one collection each. */
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar"];
-/** Collections registered with the importer before their Demonstration exists; each registration slice (projective conics 07 F2b, numerical methods 06 F2b, curves interpolation I4) removes its key when it adds the route. */
-const PENDING_ROUTE_KEYS = ["projective-five-point", "quadrature"];
+/** Collections registered with the importer before their Demonstration exists; each registration slice (projective conics 07 F2b, curves interpolation I4) removes its key when it adds the route. */
+const PENDING_ROUTE_KEYS = ["projective-five-point"];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
 const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-runge", "interp-least-squares", "interp-subdivision", "patch-coons"];
 /** One collection serves both B-spline Demonstrations (ADR 0024), so it is the one collection allowed to be shared. */

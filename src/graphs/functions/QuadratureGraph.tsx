@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -137,6 +137,20 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
 
     protected setCount(value: number): void {
         this.apply(setQuadratureCount(this.model, value));
+    }
+
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                "quadrature-a": value => this.setBound("a", value),
+                "quadrature-b": value => this.setBound("b", value),
+                "quadrature-n": value => this.setCount(value),
+            },
+            choices: {
+                "quadrature-function": value => this.setFunction(value),
+                "quadrature-rule": value => this.setRule(value),
+            },
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
