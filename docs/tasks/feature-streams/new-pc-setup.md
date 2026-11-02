@@ -1,7 +1,8 @@
 # Resume the feature streams on a new PC
 
 On 2026-11-02 the owner moved Bezeg development to a new computer. Every stream handler on the old PC wrote a handoff and pushed it. Its stream file on `origin/master` reads `Run state: stopped: PC switch 2026-11-02, resume on the new PC from the latest handoff`. Each handler's unfinished work and untracked review evidence is in `wip:` commits, listed per stream in step 6.
-Machine-only state is in the folder `bezeg-pc-move` from the old PC, if the owner copied it:
+
+The streams resume from GitHub alone. The folder `bezeg-pc-move` from the old PC is optional. It carries machine-only state that is worth copying for your settings, memory, stashes and old branches:
 
 - `claude-settings.json`: the old `~/.claude/settings.json`.
 - `memory/`: the old auto-memory.
@@ -13,6 +14,8 @@ The rest of this file is the prompt. Paste everything below the line into a Clau
 ---
 
 You are setting up the Bezeg repository (https://github.com/efodx/bezeg-2.0) on this new computer so the owner can resume its feature streams. Feature streams are long-running chains of Claude handler sessions, one chain per stream, started by a supervisor script. The streams were stopped on the old PC on 2026-11-02. Work through the steps in order. Keep the owner informed with one line per step. Stop and ask only when a step needs something the owner must do: an install that needs admin rights, a login, or a decision. Finish by giving the owner the command that starts the streams.
+
+Everything the streams need is on GitHub. Ask the owner once whether they copied the folder `bezeg-pc-move` from the old PC, and where. It holds old settings, memory and local git refs, and is optional: if they did not copy it, skip the steps that use it.
 
 **1. Tools.** Check each tool and report what is missing, with the install command (on Windows, `winget`):
 
