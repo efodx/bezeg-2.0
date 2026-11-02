@@ -78,6 +78,8 @@ const expected = [
     ['compgeo/polygon-area', 'computational-geometry', 'compgeo_polygon_area_title', 'compgeo_polygon_area_title', 'prompt_compgeo_polygon_area_shoelace'],
     ['compgeo/convex-hull', 'computational-geometry', 'compgeo_convex_hull_title', 'compgeo_convex_hull_title', 'prompt_compgeo_convex_hull_trace'],
     ['compgeo/ear-clipping', 'computational-geometry', 'compgeo_ear_clipping_title', 'compgeo_ear_clipping_title', 'prompt_compgeo_ear_clipping_ears'],
+    ['compgeo/point-set-triangulation', 'computational-geometry', 'compgeo_point_set_triangulation_title', 'compgeo_point_set_triangulation_title', 'prompt_compgeo_point_set_triangulation_flip'],
+    ['compgeo/delaunay', 'computational-geometry', 'compgeo_delaunay_title', 'compgeo_delaunay_title', 'prompt_compgeo_delaunay_illegal'],
     ['compgeo/interval-sweep', 'computational-geometry', 'compgeo_interval_sweep_title', 'compgeo_interval_sweep_title', 'prompt_compgeo_interval_sweep_events'],
     ['compgeo/segment-intersections', 'computational-geometry', 'compgeo_segment_intersections_title', 'compgeo_segment_intersections_title', 'prompt_compgeo_segment_intersections_neighbours'],
     ['projective/cross-ratio', 'projective', 'projective_cross_ratio_title', 'projective_cross_ratio_title', 'prompt_projective_cross_ratio_preserved'],
@@ -92,13 +94,13 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     const messages = language === 'sl' ? sl : en;
     const catalog = getDemonstrationCatalog();
     expect(catalog.demonstrations.map(entry => entry.path)).toEqual(expected.map(([path]) => `/bezeg-2.0/${path}`));
-    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(78);
+    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(80);
     for (const [path, family, title, heading, prompt] of expected) {
         const demonstration = findDemonstration(`/bezeg-2.0/${path}`)!;
         expect(demonstration.family).toBe(family);
         expect(demonstration.catalogTitle).toBe(messages[title]);
         expect(demonstration.workspaceTitle).toBe(messages[heading]);
-        expect(demonstration.prompts).toEqual([messages[prompt], messages[path === 'bezier/curve' ? 'prompt_control_polygon' : path === 'patches/coons' ? 'prompt_coons_blend' : path === 'patches/tensor' ? 'prompt_patch_degree' : path === 'patches/decasteljau' ? 'prompt_patch_decasteljau_levels' : path === 'patches/derivatives' ? 'prompt_patch_derivatives_normal' : path === 'patches/subdivision' ? 'prompt_patch_subdivision_elevation' : path === 'patches/joins' ? 'prompt_patch_joins_g1' : path === 'patches/triangular' ? 'prompt_patch_barycentric' : path === 'compgeo/orientation' ? 'prompt_compgeo_orientation_collinear' : path === 'compgeo/polygon-area' ? 'prompt_compgeo_polygon_area_pick' : path === 'compgeo/convex-hull' ? 'prompt_compgeo_convex_hull_degenerate' : path === 'compgeo/ear-clipping' ? 'prompt_compgeo_ear_clipping_reflex' : path === 'compgeo/interval-sweep' ? 'prompt_compgeo_interval_sweep_depth' : path === 'compgeo/segment-intersections' ? 'prompt_compgeo_segment_intersections_swap' : path === 'projective/cross-ratio' ? 'prompt_projective_cross_ratio_infinity' : path === 'projective/pascal' ? 'prompt_projective_pascal_degenerate' : path === 'projective/pole-polar' ? 'prompt_projective_pole_polar_infinity' : 'prompt_compare']]);
+        expect(demonstration.prompts).toEqual([messages[prompt], messages[path === 'bezier/curve' ? 'prompt_control_polygon' : path === 'patches/coons' ? 'prompt_coons_blend' : path === 'patches/tensor' ? 'prompt_patch_degree' : path === 'patches/decasteljau' ? 'prompt_patch_decasteljau_levels' : path === 'patches/derivatives' ? 'prompt_patch_derivatives_normal' : path === 'patches/subdivision' ? 'prompt_patch_subdivision_elevation' : path === 'patches/joins' ? 'prompt_patch_joins_g1' : path === 'patches/triangular' ? 'prompt_patch_barycentric' : path === 'compgeo/orientation' ? 'prompt_compgeo_orientation_collinear' : path === 'compgeo/polygon-area' ? 'prompt_compgeo_polygon_area_pick' : path === 'compgeo/convex-hull' ? 'prompt_compgeo_convex_hull_degenerate' : path === 'compgeo/ear-clipping' ? 'prompt_compgeo_ear_clipping_reflex' : path === 'compgeo/point-set-triangulation' ? 'prompt_compgeo_point_set_triangulation_count' : path === 'compgeo/delaunay' ? 'prompt_compgeo_delaunay_cocircular' : path === 'compgeo/interval-sweep' ? 'prompt_compgeo_interval_sweep_depth' : path === 'compgeo/segment-intersections' ? 'prompt_compgeo_segment_intersections_swap' : path === 'projective/cross-ratio' ? 'prompt_projective_cross_ratio_infinity' : path === 'projective/pascal' ? 'prompt_projective_pascal_degenerate' : path === 'projective/pole-polar' ? 'prompt_projective_pole_polar_infinity' : 'prompt_compare']]);
         expect(demonstration.navigationActions).toEqual(path === 'bernstein'
             ? ['left', 'up', 'down', 'right', 'in', 'out']
             : path.startsWith('patches/') ? [] : ['left', 'up', 'down', 'right', 'in', 'out', 'fit']);
@@ -108,7 +110,7 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     expect(catalog.families.map(family => family.title)).toEqual([
         messages.basics, messages.bezier_curves, messages.rational_bezier_curves, messages.splines, messages.ph_curves, messages.parametrizations, messages.curve_geometry, messages.interpolation_and_approximation, messages.b_splines, messages.bezier_patches, messages.functions_and_calculus, messages.analysis, messages.maps_of_the_plane, messages.plane_geometry, messages.computational_geometry, messages.projective_conics,
     ]);
-    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 8, 7, 5, 2, 3, 2, 3, 2, 7, 10, 12, 3, 3, 6, 3]);
+    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 8, 7, 5, 2, 3, 2, 3, 2, 7, 10, 12, 3, 3, 8, 3]);
     expect(catalog.families.flatMap(family => family.demonstrations)).toEqual(catalog.demonstrations);
     expect(catalog.starting.map(entry => [entry.demonstration.path, entry.title, entry.description, entry.caption])).toEqual([
         ['/bezeg-2.0/bezier/curve', messages.bezier_curve_209, messages.example_bezier, messages.points_to_shape],
@@ -139,7 +141,7 @@ test('queries resolve the current language and do not expose shared mutable meta
     expect(getDemonstrationCatalog().families[0].title).toBe(en.basics);
     expect(previous.families[0].title).toBe(sl.basics);
     previous.demonstrations.splice(0);
-    expect(getDemonstrationCatalog().demonstrations).toHaveLength(78);
+    expect(getDemonstrationCatalog().demonstrations).toHaveLength(80);
 });
 
 test('a surface definition has no pan or zoom actions and every catalog entry keeps the board view', () => {

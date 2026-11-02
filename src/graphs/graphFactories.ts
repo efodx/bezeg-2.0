@@ -2,6 +2,8 @@ import {OrientationGraph} from './compgeo/OrientationGraph';
 import {PolygonAreaGraph} from './compgeo/PolygonAreaGraph';
 import {HullTraceGraph} from './compgeo/HullTraceGraph';
 import {EarClippingGraph} from './compgeo/EarClippingGraph';
+import {TriangulationGraph} from './compgeo/TriangulationGraph';
+import {DelaunayGraph} from './compgeo/DelaunayGraph';
 import {IntervalSweepGraph} from './compgeo/IntervalSweepGraph';
 import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import { BernsteinGraph } from './bernstein/BernsteinGraph';
@@ -155,6 +157,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'polygon-area': () => new PolygonAreaGraph(),
     'convex-hull': () => new HullTraceGraph(),
     'ear-clipping': () => new EarClippingGraph(),
+    'point-set-triangulation': () => new TriangulationGraph(),
+    'delaunay': () => new DelaunayGraph(),
     'interval-sweep': () => new IntervalSweepGraph(),
     'segment-intersections': () => new BentleyOttmannGraph(),
     'projective-cross-ratio': () => new CrossRatioGraph(),

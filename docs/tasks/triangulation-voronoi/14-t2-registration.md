@@ -4,7 +4,7 @@ Status: open (task file written 2026-11-02, geometry handler 25). Source: spec [
 
 | Id | Path | Graph | Preset key |
 | --- | --- | --- | --- |
-| `point-set-triangulation` | `/bezeg-2.0/compgeo/point-set-triangulation` | `TriangulationGraph` | `compgeo-point-set-triangulation` |
+| `point-set-triangulation` | `/bezeg-2.0/compgeo/point-set-triangulation` | `TriangulationGraph` | `compgeo-triangulation` |
 | `delaunay` | `/bezeg-2.0/compgeo/delaunay` | `DelaunayGraph` | `compgeo-delaunay` |
 
 1. `src/demonstrations.ts`: both definitions after `ear-clipping` in family `computational-geometry`, `lesson: false` until 15 and 16. Two prompts each.
