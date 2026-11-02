@@ -1,0 +1,24 @@
+Brief handoff-v12 — BS-A-2a3: de Boor graph (curves stream, family B-splines)
+
+Role: implementation worker; edit permission in the worktree C:\Users\NonFriedMotherBoard\IdeaProjects\bezeg\.claude\worktrees\stream-curves (branch worktree-stream-curves). Do not commit, push or delegate.
+
+Goal: the L2 graph of docs/specs/b-splines-nurbs-lessons.md (L2, lines 64-71; Implementation Decisions 133-143), with no route, registration or lesson yet. Builds on: BS-A-2a1 (src/bezeg/impl/curve/bspline-curve.ts BSplineCurve + InvalidKnotVectorError; JXGBSplineCurve; src/graphs/curves/bspline/bsplinePresetCollection.ts) and BS-A-2a2 (commit 1b97c0df: BSplineBasisGraph.tsx as the BaseGraph-with-scene template, KnotEditor.tsx reusable with `knots` + `onEdit(index, value) => reason | undefined`, bsplineBasisModel.ts editedKnots/draggedKnots/rebuiltKnots, bsplineKnotMessages.ts). Kernel: src/bezeg/impl/curve/bspline/deboor.ts (deBoorTriangle, evaluate); weighted rows are homogeneous — project them with projectHomogeneous. Look template: src/graphs/curves/bezier/DecasteljauGraph.tsx and its 'decasteljau' iterative animation (IterationController lifecycle).
+
+Acceptance:
+1. De Boor graph (new files under src/graphs/curves/bspline/) with draggable control points, the B-spline curve via the 2a1 curve layer, a t slider over curve.getDomain(), and the de Boor triangle at t drawn level by level in the DecasteljauGraph look. Readout of the span, each level's points and each alpha.
+2. Exactly the k+1 active control points are highlighted (test counts highlighted board points).
+3. Iterative animation with id 'deboor': next step reveals one level, play/pause, reset to level 0, following the 'decasteljau' lifecycle (stopped by default; pauses on edit, scene change, import, capture, unmount). Do not add 'deboor' to LESSON_ANIMATION_IDS yet (registration slice) — export the id constant.
+4. Tests through the graph (1e-12): defaults degree 2, knots (0,0,0,1,2,2,2), points (0,0),(1,2),(3,2),(4,0). t=0.5: level 0 (0,0),(1,2),(3,2); level 1 (0.5,1),(1.5,2); result (1,1.5). t=1.5: level 0 (1,2),(3,2),(4,0); level 1 (2.5,2),(3.5,1); result (3,1.5). t=1: (2,2). Results equal the basis-sum value sum N_i(t) P_i (compute with basisAll, not with deBoorTriangle). Moving P0 leaves curve samples for t>1 unchanged (sampled). Convex hull: every sampled point of each span lies in the hull of that span's k+1 active points.
+5. Knot editor: reuse KnotEditor; edits go through setKnots and catch InvalidKnotVectorError.reason; a point-count change uses setSpline with new knots (rebuiltKnots keeps the clamped/uniform kind). Degree 1-3 control as in 2a2.
+6. Presets: the local B-spline collection wired in (save/restore, import applies view before data, invalid data refused with the localized reason). Paths that must carry scene data: prepareLessonFixtureScene, prepareLessonDefaultScene, checkpoint restore, figure batch (override figurePresetGraphState if degree/knots/points also live in scene state — 2a2 needed this; test through the state replacement), importPreset. Do not register the collection globally.
+7. Reset restores defaults; live language switch updates every board text; disposal leaves no board objects or listeners (test); no `as any`/casts to silence errors.
+
+Locale: one key block right after the bsb_* block in sl.ts and en.ts (same position; docs/localization.md; `t('key')` / `t('key', {value0})` exact names). Terms: de Boorov postopek, kontrolna točka, vozel.
+
+Scope: src/graphs/curves/bspline/** and the locale block. Do not edit GenericBezierSpline.ts, JXGGenericSplineCurve.ts, registration files (demonstrations.ts, graphFactories.ts, preset collection registry) or src/learning/**. Another worker may edit src/learning/*, src/graphs/curves/subdivisionCurves/*, demonstrations.ts and the smoke spec concurrently: ignore typecheck errors only from those paths.
+
+Checks (only through `just`): `just unit src/graphs/curves/bspline src/bezeg/impl/curve` (log to file), `just typecheck`, `just lint` on touched files, `just build` once at the end. Up to 8 deliberate mutations on key assertions (one per acceptance family); confirm each mutation applied (grep) and read the vitest summary in .command-logs, not the wrapper line. Measure a representative point drag and t sweep in the jsdom harness as 2a2 did. Evidence to docs/reviews/b-splines-nurbs/bs-a-2a3-graph.md (≤40 lines).
+
+Return (≤300 words): files, checks, mutations, measurement, decisions and notes for registration (2b), with file:line. Logs to C:\Users\NonFriedMotherBoard\.claude\jobs\96603abf\tmp\bs-a-2a3-*.log.
+
+Budget: grep -l/-c first, ≤150 lines per read, never whole files >300 lines, logs to files. Past about 30 turns before acceptance, or on HANDOFF, stop at a consistent point, write C:\Users\NonFriedMotherBoard\.claude\jobs\96603abf\tmp\bs-a-2a3-handoff.md and return partial. Priority if short of budget: 1, 2, 4, 3, 7, then 5-6.
