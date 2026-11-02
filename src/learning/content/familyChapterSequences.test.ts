@@ -122,7 +122,6 @@ describe('authored family chapter sequences', () => {
                 const paragraphs = content.filter(item => item.kind === 'paragraph').map(item => item.kind === 'paragraph' ? item.text : undefined);
                 for (const sourceParagraph of section.paragraphs) expect(paragraphs).toContain(sourceParagraph);
                 expect(content.filter(item => item.kind === 'formula')).toHaveLength(section.formula ? 1 : 0);
-                expect(content.filter(item => item.kind === 'figure')).toHaveLength(section.figures?.length ?? 0);
             }
         }
     });

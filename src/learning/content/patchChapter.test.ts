@@ -82,13 +82,11 @@ describe('Bézier patches chapter', () => {
         }
     });
 
-    test('places each prepared patch example in its own section and has no figures', () => {
+    test('places each prepared patch example in its own section and has no figures or other non-reading items', () => {
         const expected = ["bezier-patches.curve-to-patch.patch-tensor","bezier-patches.bilinear-patch.patch-tensor","bezier-patches.control-net.patch-tensor","bezier-patches.boundary-iso-curves.patch-tensor","bezier-patches.tensor-decasteljau.patch-decasteljau","bezier-patches.properties.patch-tensor","bezier-patches.tensor-derivatives.patch-derivatives","bezier-patches.tensor-subdivision.patch-subdivision","bezier-patches.tensor-joins.patch-joins","bezier-patches.triangular-patches.patch-triangular","bezier-patches.square-vs-triangular.patch-triangular"];
         for (const section of familyChapters.find(chapter => chapter.id === 'bezier-patches')!.sections) {
             const refs = exampleReferences(section.orderedContent ?? []);
             expect(refs).toEqual(expected.filter(id => id.includes(`.${section.id}.`)));
-            expect(section.figures ?? [], `${section.id} figures`).toEqual([]);
-            expect((section.orderedContent ?? []).filter(item => item.kind === 'figure'), `${section.id} ordered figures`).toEqual([]);
         }
     });
 

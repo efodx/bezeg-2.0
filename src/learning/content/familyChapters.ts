@@ -9,21 +9,14 @@ import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
 
-export interface FamilyChapterFigure {
-    src: string;
-    alt: LocalizedText;
-    caption: LocalizedText;
-}
-
 export interface FamilyChapterSection {
     id: string;
     title: LocalizedText;
     paragraphs: readonly LocalizedText[];
     formula?: string;
     demonstrationIds?: readonly DemonstrationId[];
-    figures?: readonly FamilyChapterFigure[];
     investigationPrompts?: Partial<Record<DemonstrationId, LocalizedText>>;
-    orderedContent?: readonly OrderedChapterContent<LocalizedText, FamilyChapterFigure>[];
+    orderedContent?: readonly OrderedChapterContent<LocalizedText>[];
 }
 
 export interface FamilyChapter {
@@ -44,7 +37,7 @@ const section = (
     paragraphs: readonly LocalizedText[],
     formula?: string,
     demonstrationIds?: readonly DemonstrationId[],
-    extras: Pick<FamilyChapterSection, 'figures' | 'investigationPrompts' | 'orderedContent'> = {},
+    extras: Pick<FamilyChapterSection, 'investigationPrompts' | 'orderedContent'> = {},
 ) => ({id, title: text(titleSl, titleEn), paragraphs, ...(formula ? {formula} : {}), ...(demonstrationIds ? {demonstrationIds} : {}), ...extras});
 
 const rationalPrompts: Partial<Record<DemonstrationId, LocalizedText>> = {
@@ -381,7 +374,6 @@ export const familyChapters: readonly FamilyChapter[] = chapterDrafts.map(chapte
         orderedContent: authorFamilyChapterSequence(chapter.id, section) ?? section.orderedContent ?? [
             ...section.paragraphs.map(text => ({kind: 'paragraph' as const, text})),
             ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
-            ...(section.figures ?? []).map(figure => ({kind: 'figure' as const, figure})),
         ],
     })),
 }));

@@ -1,6 +1,6 @@
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
-import type {FamilyChapter, FamilyChapterFigure, FamilyChapterSection} from './familyChapters';
+import type {FamilyChapter, FamilyChapterSection} from './familyChapters';
 import {LINEAR_MAPS_CHAPTER_ID, linearMapsGuidedExampleRegistry, type LinearMapsSectionId} from './linearMapsChapterRegistry';
 
 // Local helper: familyChapters.ts imports this chapter, so it must not import values from familyChapters.ts.
@@ -10,7 +10,7 @@ const keyFor = (sectionId: LinearMapsSectionId) => `${LINEAR_MAPS_CHAPTER_ID}.${
 
 /** Reading material first, then the prepared activity at the section end. */
 function withExample(sectionId: LinearMapsSectionId, section: FamilyChapterSection): FamilyChapterSection {
-    const content: OrderedChapterContent<LocalizedText, FamilyChapterFigure>[] = [
+    const content: OrderedChapterContent<LocalizedText>[] = [
         ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
         ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
         {kind: 'example', exampleId: keyFor(sectionId)},

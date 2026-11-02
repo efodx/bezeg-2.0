@@ -47,10 +47,6 @@ function ChapterContentView({block, chapterId, sectionId, language}: {
         {block.mode === 'draw' ? <DrawingPlayground mode="draw"/> : <LookUnderneath/>}
     </React.Suspense>;
     if (block.kind === 'example') return <ChapterGuidedLessons chapterId={chapterId} sectionId={sectionId} language={language} exampleId={block.exampleId}/>;
-    if (block.kind === 'figure') return <figure className="chapter-activity-figure">
-        <img src={block.figure.src} alt={block.figure.alt[language]} width="720" height="440" loading="lazy"/>
-        <figcaption>{block.figure.caption[language]}</figcaption>
-    </figure>;
     if (block.kind === 'formula') return <div className="chapter-formula" role="region" aria-label={block.label ?? ''} tabIndex={0}>{block.label && <span className="chapter-formula-label">{block.label}</span>}<div className="chapter-math">\[{block.latex}\]</div></div>;
     return <p className="chapter-paragraph">{renderParagraph(block.text, block.links)}</p>;
 }

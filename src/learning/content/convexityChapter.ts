@@ -1,6 +1,6 @@
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
-import type {FamilyChapter, FamilyChapterFigure, FamilyChapterSection} from './familyChapters';
+import type {FamilyChapter, FamilyChapterSection} from './familyChapters';
 import {
     CONVEXITY_CHAPTER_ID, convexityGuidedExampleDemonstration, type ConvexitySectionId,
 } from './convexityChapterRegistry';
@@ -11,7 +11,7 @@ const text = (sl: string, en: string): LocalizedText => ({sl, en});
 /** Reading material first, then the prepared activity at the section end. */
 function withExample(sectionId: ConvexitySectionId, section: FamilyChapterSection): FamilyChapterSection {
     const demonstrationId = convexityGuidedExampleDemonstration(sectionId);
-    const content: OrderedChapterContent<LocalizedText, FamilyChapterFigure>[] = [
+    const content: OrderedChapterContent<LocalizedText>[] = [
         ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
         ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
         {kind: 'example', exampleId: `${CONVEXITY_CHAPTER_ID}.${sectionId}.${demonstrationId}`},

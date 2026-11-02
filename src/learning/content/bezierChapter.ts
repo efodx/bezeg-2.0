@@ -1,5 +1,5 @@
 import type {Language} from '../../localization';
-import type {OrderedChapterContent, OrderedChapterFigure, PlaygroundContent} from '../chapter/orderedContent';
+import type {OrderedChapterContent, PlaygroundContent} from '../chapter/orderedContent';
 
 export type BezierSectionId = 'motivation' | 'control-points' | 'parameter' | 'interpolation' | 'bernstein-form' | 'geometric-properties' | 'affine-transformations' | 'next-ideas';
 export type BezierActivityId = 'shape-control' | 'curve-parameter' | 'repeated-interpolation' | 'blending-coefficients' | 'geometric-bounds' | 'transform-shape';
@@ -9,7 +9,7 @@ export type ChapterFormula = {kind: 'formula'; latex: string; label: string};
 export type ChapterActivity = {kind: 'activity'; id: BezierActivityId};
 export type ChapterPlayground = PlaygroundContent;
 export type ChapterBlock = ChapterParagraph | ChapterFormula | ChapterActivity | ChapterPlayground;
-export type BezierOrderedContent = OrderedChapterContent<string, OrderedChapterFigure> | ChapterPlayground;
+export type BezierOrderedContent = OrderedChapterContent<string> | ChapterPlayground;
 export type ChapterSection = {id: BezierSectionId; title: string; blocks: ChapterBlock[]; orderedContent?: readonly BezierOrderedContent[]};
 
 const retainedByActivity: Readonly<Record<BezierActivityId, string>> = {
@@ -22,7 +22,7 @@ const retainedByActivity: Readonly<Record<BezierActivityId, string>> = {
 };
 
 function authoredBezierSequence(section: ChapterSection, language: Language): BezierOrderedContent[] {
-    const insertions: Readonly<Record<string, readonly OrderedChapterContent<string, OrderedChapterFigure>[]>> = section.id === 'interpolation'
+    const insertions: Readonly<Record<string, readonly OrderedChapterContent<string>[]>> = section.id === 'interpolation'
         ? {
             [language === 'sl' ? 'Tri kontrolne točke zahtevajo dva kroga interpolacije' : 'Three controls need two interpolation rounds']: [
                 {kind: 'example', exampleId: 'bezier-curves.interpolation.decasteljau'},
@@ -49,7 +49,7 @@ function authoredBezierSequence(section: ChapterSection, language: Language): Be
 
     return section.blocks.flatMap((block): BezierOrderedContent[] => {
         if (block.kind === 'playground') return [block];
-        const ordered: OrderedChapterContent<string, OrderedChapterFigure> = block.kind === 'activity'
+        const ordered: OrderedChapterContent<string> = block.kind === 'activity'
             ? {kind: 'example', exampleId: retainedByActivity[block.id]}
             : block.kind === 'formula'
                 ? {kind: 'formula', latex: block.latex, label: block.label}

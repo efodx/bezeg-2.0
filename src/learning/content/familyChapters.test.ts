@@ -113,9 +113,6 @@ describe('family reading chapters', () => {
                     for (const paragraph of section.paragraphs) {
                         expect(withoutMath(paragraph[language])).not.toMatch(/\\[A-Za-z]+/u);
                     }
-                    for (const figure of section.figures ?? []) {
-                        expect(withoutMath(figure.caption[language])).not.toMatch(/\\[A-Za-z]+/u);
-                    }
                     for (const prompt of Object.values(section.investigationPrompts ?? {})) {
                         if (prompt) expect(withoutMath(prompt[language])).not.toMatch(/\\[A-Za-z]+/u);
                     }
@@ -153,7 +150,6 @@ describe('family reading chapters', () => {
             }
         }
 
-        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
         const prose = JSON.stringify(chapter.sections.map(section => section.orderedContent ?? []));
         expect(prose).toContain('kubični');
         expect(prose).toContain('three arcs');
@@ -178,7 +174,6 @@ describe('family reading chapters', () => {
             }
         }
 
-        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
         const prose = JSON.stringify(chapter.sections.map(section => section.orderedContent ?? []));
         expect(prose).toContain('parabol');
         expect(prose).toContain('parabolas');
@@ -220,7 +215,6 @@ describe('family reading chapters', () => {
         expect(worked).toContain('initial point at the origin');
         expect(worked).toContain('translation');
 
-        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
         const prompts = chapter.sections.flatMap(section => Object.values(section.investigationPrompts ?? {})).map(prompt => `${prompt!.sl} ${prompt!.en}`).join(' ');
         expect(prompts).toContain('not the curve integrated from the origin');
         expect(prompts).not.toMatch(/captur|zajet/iu);
@@ -261,7 +255,6 @@ describe('family reading chapters', () => {
                 expect(section.investigationPrompts?.[id]?.en, `${section.id}/${id} EN`).toBeTruthy();
             }
         }
-        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
         const prose = chapter.sections.flatMap(section => section.paragraphs).map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
         expect(prose).toContain('is not a reparametrization of one curve');
         expect(prose).toContain('do not prove equal arc lengths');
@@ -308,7 +301,6 @@ describe('family reading chapters', () => {
         expect(prose).toContain('h\\ne0');
         expect(prose).toContain('\\int_0^2 x\\,dx=2');
 
-        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
         expect(prose).toContain('a=1');
         expect(prose).toContain('not a proof of the general continuity criterion');
         expect(prose).toContain('ne dokaz splošnega kriterija zveznosti');
@@ -367,7 +359,6 @@ describe('family reading chapters', () => {
         expect(convergence).toContain('not uniform');
         expect(convergence).toContain('not attained');
 
-        expect(chapter.sections.flatMap(section => section.figures ?? [])).toEqual([]);
         const proseOf = (id: string) => chapter.sections.find(section => section.id === id)!.paragraphs.map(paragraph => `${paragraph.sl} ${paragraph.en}`).join(' ');
         expect(proseOf('existence')).toContain('This is one step, not the final root');
         expect(proseOf('existence')).toContain('To je en korak, ne končna ničla');

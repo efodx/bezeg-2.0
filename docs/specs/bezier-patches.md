@@ -45,7 +45,7 @@ Out of scope for this spec:
   - `learning/model.ts` uses 2D `LessonPoint`, `LessonViewBox` and `LessonCurveFixture`.
   - `LessonGraphCapabilities` and its checkpoints are opaque.
   - Actions register through `LessonActionRegistry`.
-- Previews: `scripts/demonstration-preview-motion.cjs` (`pointer-drag` is 2D; `parameter-sweep` is generic) and `scripts/capture-chapter-figures.cjs`.
+- Previews: `scripts/demonstration-preview-motion.cjs` (`pointer-drag` is 2D; `parameter-sweep` is generic).
 
 These are entry points for investigation. Implementations may reshape them.
 

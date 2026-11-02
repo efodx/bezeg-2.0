@@ -32,10 +32,10 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'complex-maps' ? [`complex-maps.${section.id}.${section.id === 'roots' ? 'complex-roots' : 'complex-reciprocal'}`] : []),
                     ...(chapter.id === 'triangle-geometry' ? [`triangle-geometry.${section.id}.${section.id === 'notable-points' ? 'triangle-centres' : 'inscribed-angle'}`] : []),
                 ].sort();
-                const references = exampleReferences<unknown, unknown>(content ?? []);
+                const references = exampleReferences<unknown>(content ?? []);
                 expect([...references].sort(), `${language}/${chapter.id}/${section.id}`).toEqual(expected);
                 const known = new Set(getChapterGuidedExamples(chapter.id, section.id).map(example => example.id));
-                expect(validateOrderedChapterContent<unknown, unknown>(content ?? [], known)).toEqual([]);
+                expect(validateOrderedChapterContent<unknown>(content ?? [], known)).toEqual([]);
                 allReferences.push(...references);
             }
         }

@@ -1,4 +1,4 @@
-import type {FamilyChapterFigure, FamilyChapterSection} from './familyChapters';
+import type {FamilyChapterSection} from './familyChapters';
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
 
@@ -54,7 +54,7 @@ const authored: Readonly<Record<string, SequenceSpec>> = {
 export function authorFamilyChapterSequence(
     chapterId: string,
     section: FamilyChapterSection,
-): readonly OrderedChapterContent<LocalizedText, FamilyChapterFigure>[] | undefined {
+): readonly OrderedChapterContent<LocalizedText>[] | undefined {
     const spec = authored[chapterId]?.[section.id];
     if (!spec) return undefined;
     return spec.map(item => {
@@ -65,10 +65,6 @@ export function authorFamilyChapterSequence(
             const text = section.paragraphs[Number(item.slice(1))];
             return text ? {kind: 'paragraph', text} : undefined;
         }
-        if (item.startsWith('fig')) {
-            const figure = section.figures?.[Number(item.slice(3))];
-            return figure ? {kind: 'figure', figure} : undefined;
-        }
         return undefined;
-    }).filter((item): item is OrderedChapterContent<LocalizedText, FamilyChapterFigure> => item !== undefined);
+    }).filter((item): item is OrderedChapterContent<LocalizedText> => item !== undefined);
 }
