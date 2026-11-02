@@ -32,6 +32,7 @@ Date: 2026-11-02. Spec: [guided-example-highlights.md](../../specs/guided-exampl
 ## Commands
 
 - `just check` at `12d5aadb`: passed in 1502 s (typecheck, lint, all unit tests, production build). The first run at `c0d1ab6a` failed typecheck on the upstream triangulation chapter, fixed by `12d5aadb`.
+- After a second rebase onto `df67c48e`, the Maps stream's new `triangleGeometryChapter.ts` needed the same type-argument fix. Typecheck, `just unit src/learning/content src/learning/chapter` (including the figure gate) and `just build` passed.
 - `node scripts/generate-guided-example-inventory.cjs` and `--patches`: exit 0.
 - `node scripts/capture-guided-example-previews.cjs docs/reviews/illustrated-chapter-examples/capture-inventory.json` (56) and `… docs/reviews/bezier-patches/guided-example-inventory.json --family patches` (11) against `just preview 4387`: exit 0. A first attempt was stopped by Claude Code for low memory and rerun once.
 - Earlier per-batch checks are in the stream record and batch notes ([A](batch-a-note.md), [B](batch-b-note.md), [patches](batch-patches-note.md)).

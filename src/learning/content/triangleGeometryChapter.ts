@@ -1,6 +1,6 @@
 import type {LocalizedText} from '../model';
 import type {OrderedChapterContent} from '../chapter/orderedContent';
-import type {FamilyChapter, FamilyChapterFigure, FamilyChapterSection} from './familyChapters';
+import type {FamilyChapter, FamilyChapterSection} from './familyChapters';
 import {TRIANGLE_GEOMETRY_CHAPTER_ID, triangleGeometryGuidedExampleRegistry, type TriangleGeometrySectionId} from './triangleGeometryChapterRegistry';
 
 // Local helper: familyChapters.ts imports this chapter, so it must not import values from familyChapters.ts.
@@ -10,7 +10,7 @@ const keyFor = (sectionId: TriangleGeometrySectionId) => `${TRIANGLE_GEOMETRY_CH
 
 /** Reading material first, then the prepared activity at the section end. */
 function withExample(sectionId: TriangleGeometrySectionId, section: FamilyChapterSection): FamilyChapterSection {
-    const content: OrderedChapterContent<LocalizedText, FamilyChapterFigure>[] = [
+    const content: OrderedChapterContent<LocalizedText>[] = [
         ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
         ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
         {kind: 'example', exampleId: keyFor(sectionId)},
