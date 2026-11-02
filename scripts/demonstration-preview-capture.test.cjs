@@ -717,6 +717,7 @@ test('the retained capture manifest lives outside src and carries no machine-spe
     const root=path.resolve(__dirname,'..');
     const text=fs.readFileSync(path.join(root,'scripts/demonstration-previews/manifest.json'),'utf8');
     assert.ok(!fs.existsSync(path.join(root,'src/images/demonstrations/catalog/manifest.json')),'manifest must not ship from src');
-    const absolute=JSON.stringify(JSON.parse(text)).match(/"(?:[A-Za-z]:|\/(?:Users|home)\/)[^"]*"/g)||[];
+    // A drive path needs a separator after the colon, so captions such as "L: y = 2" do not count.
+    const absolute=JSON.stringify(JSON.parse(text)).match(/"(?:[A-Za-z]:[\\/]|\/(?:Users|home)\/)[^"]*"/g)||[];
     assert.deepEqual(absolute,[],'manifest contains absolute paths; encode() records repo-relative names');
 });

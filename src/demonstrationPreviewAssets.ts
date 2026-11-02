@@ -33,6 +33,7 @@ import preview_curve_curvature from './images/demonstrations/catalog/curve-curva
 import preview_interp_lagrange from './images/demonstrations/catalog/interp-lagrange.png';
 import preview_interp_hermite from './images/demonstrations/catalog/interp-hermite.png';
 import preview_interp_runge from './images/demonstrations/catalog/interp-runge.png';
+import preview_interp_least_squares from './images/demonstrations/catalog/interp-least-squares.png';
 import preview_interp_subdivision from './images/demonstrations/catalog/interp-subdivision.png';
 import preview_bspline_basis from './images/demonstrations/catalog/bspline-basis.png';
 import preview_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.png';
@@ -55,6 +56,7 @@ import preview_area_between_curves from './images/demonstrations/catalog/area-be
 import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_bisection from './images/demonstrations/catalog/bisection.png';
 import preview_root_finding from './images/demonstrations/catalog/root-finding.png';
+import preview_quadrature from './images/demonstrations/catalog/quadrature.png';
 import preview_mean_value from './images/demonstrations/catalog/mean-value.png';
 import preview_accumulation from './images/demonstrations/catalog/accumulation.png';
 import preview_darboux from './images/demonstrations/catalog/darboux.png';
@@ -65,6 +67,7 @@ import preview_sequence from './images/demonstrations/catalog/sequence.png';
 import preview_uniform_convergence from './images/demonstrations/catalog/uniform-convergence.png';
 import preview_fourier_series from './images/demonstrations/catalog/fourier-series.png';
 import preview_fixed_point from './images/demonstrations/catalog/fixed-point.png';
+import preview_prob_density from './images/demonstrations/catalog/prob-density.png';
 import preview_linear_map from './images/demonstrations/catalog/linear-map.png';
 import preview_complex_reciprocal from './images/demonstrations/catalog/complex-reciprocal.png';
 import preview_complex_roots from './images/demonstrations/catalog/complex-roots.png';
@@ -72,6 +75,7 @@ import preview_triangle_centres from './images/demonstrations/catalog/triangle-c
 import preview_inscribed_angle from './images/demonstrations/catalog/inscribed-angle.png';
 import preview_euler_line from './images/demonstrations/catalog/euler-line.png';
 import preview_simson_line from './images/demonstrations/catalog/simson-line.png';
+import preview_inversion from './images/demonstrations/catalog/inversion.png';
 import preview_orientation from './images/demonstrations/catalog/orientation.png';
 import preview_polygon_area from './images/demonstrations/catalog/polygon-area.png';
 import preview_convex_hull from './images/demonstrations/catalog/convex-hull.png';
@@ -83,6 +87,8 @@ import preview_segment_intersections from './images/demonstrations/catalog/segme
 import preview_projective_cross_ratio from './images/demonstrations/catalog/projective-cross-ratio.png';
 import preview_projective_pascal from './images/demonstrations/catalog/projective-pascal.png';
 import preview_projective_pole_polar from './images/demonstrations/catalog/projective-pole-polar.png';
+import preview_projective_five_point from './images/demonstrations/catalog/projective-five-point.png';
+import preview_projective_three_views from './images/demonstrations/catalog/projective-three-views.png';
 
 export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>> = {
     'bernstein': preview_bernstein,
@@ -117,6 +123,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'interp-lagrange': preview_interp_lagrange,
     'interp-hermite': preview_interp_hermite,
     'interp-runge': preview_interp_runge,
+    'interp-least-squares': preview_interp_least_squares,
     'interp-subdivision': preview_interp_subdivision,
     'bspline-basis': preview_bspline_basis,
     'bspline-deboor': preview_bspline_deboor,
@@ -139,6 +146,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'arc-length': preview_arc_length,
     'bisection': preview_bisection,
     'root-finding': preview_root_finding,
+    'quadrature': preview_quadrature,
     'mean-value': preview_mean_value,
     'accumulation': preview_accumulation,
     'darboux': preview_darboux,
@@ -149,6 +157,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'uniform-convergence': preview_uniform_convergence,
     'fourier-series': preview_fourier_series,
     'fixed-point': preview_fixed_point,
+    'prob-density': preview_prob_density,
     'linear-map': preview_linear_map,
     'complex-reciprocal': preview_complex_reciprocal,
     'complex-roots': preview_complex_roots,
@@ -156,6 +165,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'inscribed-angle': preview_inscribed_angle,
     'euler-line': preview_euler_line,
     'simson-line': preview_simson_line,
+    'inversion': preview_inversion,
     'orientation': preview_orientation,
     'polygon-area': preview_polygon_area,
     'convex-hull': preview_convex_hull,
@@ -167,4 +177,6 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'projective-cross-ratio': preview_projective_cross_ratio,
     'projective-pascal': preview_projective_pascal,
     'projective-pole-polar': preview_projective_pole_polar,
+    'projective-five-point': preview_projective_five_point,
+    'projective-three-views': preview_projective_three_views,
 };
