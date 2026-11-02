@@ -69,6 +69,8 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'polygon-area': ['model'],
     'convex-hull': ['model'],
     'ear-clipping': ['model'],
+    'point-set-triangulation': ['model', 'triangles', 'previous'],
+    'delaunay': ['model', 'triangles', 'previous'],
     'interval-sweep': ['model'],
     'segment-intersections': ['model'],
     'triangle-centres': ['model'],

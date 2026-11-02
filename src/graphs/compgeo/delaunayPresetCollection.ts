@@ -8,7 +8,7 @@ import {
     triangulationPresetCollection,
 } from "./triangulationPresetCollection";
 
-/** The file contract key of the Delaunay graph's own Preset collection. Not yet listed in `presetCollections`: the route that first uses the graph does that. */
+/** The file contract key of the Delaunay graph's own Preset collection. Listed in `presetCollections` through compgeoPresetCollections. */
 export const DELAUNAY_PRESET_KEY = "compgeo-delaunay";
 export const DELAUNAY_OVERLAY_IDS = TRIANGULATION_OVERLAY_IDS;
 export const DELAUNAY_MAX_POINTS = TRIANGULATION_MAX_POINTS;

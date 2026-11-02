@@ -72,6 +72,8 @@ The catalog publishes its reviewed poster set and 51 silent four-second WebM cli
 | Computational geometry | `/compgeo/polygon-area` | Signed polygon area by the shoelace formula, lattice counts and Pick's theorem; a self-intersecting polygon shows the signed sum without Pick (`PolygonAreaGraph`) |
 | Computational geometry | `/compgeo/convex-hull` | Convex hull by the slow edge test, monotone chain and gift wrapping, stepped trace with orientation-test counts (`HullTraceGraph`) |
 | Computational geometry | `/compgeo/ear-clipping` | Ear clipping, three-colouring and the art gallery bound (`EarClippingGraph`) |
+| Computational geometry | `/compgeo/point-set-triangulation` | Triangulating a point set: triangle list, edge flips and angle readout (`TriangulationGraph`) |
+| Computational geometry | `/compgeo/delaunay` | Delaunay triangulation by Lawson flips with the incircle test and circumcircle overlay (`DelaunayGraph`) |
 | Computational geometry | `/compgeo/interval-sweep` | Sweep over intervals: overlapping pairs and maximum depth (`IntervalSweepGraph`) |
 | Computational geometry | `/compgeo/segment-intersections` | Bentley–Ottmann segment intersections with event queue and status (`BentleyOttmannGraph`) |
 
