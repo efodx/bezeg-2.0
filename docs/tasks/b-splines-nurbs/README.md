@@ -29,6 +29,6 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 | BS-A-3a | F3 | `LessonCurveFixture.knots` (optional; both B-spline graphs use it, else clamped uniform); L1 guided lesson on `bspline-basis` | BS-A-2b | done ([evidence](../../reviews/b-splines-nurbs/bs-a-3a-l1-lesson.md)) |
 | BS-A-3b | F3 | L2 guided lesson on `bspline-deboor` (`'deboor'` next-step/reset, local control, pieces) | BS-A-3a | done ([evidence](../../reviews/b-splines-nurbs/bs-a-3b-l2-lesson.md)) |
 | BS-A-4 | F4 | Chapter `b-splines` owning L1 and L2 | BS-A-3b | done ([evidence](../../reviews/b-splines-nurbs/bs-a-4-chapter.md)) |
-| BS-A-5…6 | F5–F6 | Media (two posters), Batch A gate | BS-A-4 | 5a recipes done (`c6dd85a9`); capture waits for the joint run ([handoff 21](../../reviews/feature-streams/curves/handler-handoff-21.md)) |
+| BS-A-5…6 | F5–F6 | Media (two posters), Batch A gate | BS-A-4 | 5a recipes done (`c6dd85a9`); 5b joint capture done (handler 23, `bbcd8a34`; posters checked by eye, capture test 36/36, catalog and motion smoke pass); BS-A-6 Batch A gate next |
 | BS-B-* | F2a–F6 | L3 insertion/multiplicity (comb from CG-1), L4 extraction | Batch A | planned |
 | BS-C-* | F2a–F6 | L5 NURBS circle, optional L6 blossoming | Batch B | planned |
