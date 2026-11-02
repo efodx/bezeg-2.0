@@ -19,6 +19,8 @@ export interface TriangulationControlsProps {
     event: TriangulationEvent | undefined;
     edges: readonly TriangulationEdgeChoice[];
     selected: readonly [number, number] | undefined;
+    /** False while the triangulation overlay is hidden: the panel then shows only n and k, so a hidden triangulation is not given away by its counts or edge list. */
+    triangulationShown: boolean;
     actions: TriangulationControlActions;
 }
 
@@ -68,12 +70,12 @@ export function eventText(t: Translate, event: TriangulationEvent): string {
 /** The readouts, the edge list and the Flip button of the triangulation graph. The live region announces the last event; a refusal is announced by its own alert only. */
 export function TriangulationControls(props: TriangulationControlsProps) {
     const t = useT();
-    const {readout, refusal, event, edges, selected, actions} = props;
+    const {readout, refusal, event, edges, selected, triangulationShown, actions} = props;
     const key = (a: number, b: number) => `${a}-${b}`;
     const eventSentence = event ? eventText(t, event) : "";
     const flipUnavailable = selected === undefined;
     return <>
-        <div className="inspector-group" data-triangulation="edge-flip">
+        {triangulationShown && <div className="inspector-group" data-triangulation="edge-flip">
             <div className="inspector-playback" role="group" aria-label={t("tri_flip_group")}>
                 <label htmlFor="triangulation-edge">{t("tri_edge_select")}</label>
                 <select id="triangulation-edge" aria-describedby="triangulation-flip-hint" data-triangulation="edge-list" value={selected ? key(selected[0], selected[1]) : ""}
@@ -92,7 +94,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                         onClick={() => actions.flip()}>{t("tri_flip")}</button>
             </div>
             <p className="inspector-help" id="triangulation-flip-hint">{t("tri_flip_hint")}</p>
-        </div>
+        </div>}
         <div className="inspector-group" data-triangulation="status">
             {refusal && <p className="inspector-help" role="alert" data-triangulation="refusal">{refusalText(t, refusal)}</p>}
             {eventSentence && <p className="inspector-help" data-triangulation="event">{eventSentence}</p>}
@@ -101,6 +103,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                 <li data-readout="k">{t("tri_readout_boundary", {value0: readout.boundary.k})}</li>
                 {readout.boundary.collinear > 0 &&
                     <li data-readout="collinear">{t("tri_readout_collinear", {value0: readout.boundary.collinear})}</li>}
+                {triangulationShown && <>
                 <li data-readout="triangles">{t("tri_readout_triangles", {value0: readout.counts.triangles, value1: readout.n, value2: readout.boundary.k})}</li>
                 <li data-readout="edges">{t("tri_readout_edges", {
                     value0: readout.counts.edges, value1: readout.n, value2: readout.boundary.k,
@@ -109,6 +112,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                 <li data-readout="angle-before">{readout.minAngleBefore === undefined
                     ? t("tri_readout_angle_before_none")
                     : t("tri_readout_angle_before", {value0: degrees(readout.minAngleBefore)})}</li>
+                </>}
             </ul>}
             <p className="visually-hidden" role="status" aria-live="polite" data-triangulation="live">
                 {eventSentence}</p>

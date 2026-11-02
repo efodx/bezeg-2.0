@@ -318,6 +318,21 @@ test('the edges overlay labels every edge with its two point numbers; the angles
     expect(edgeCurves(graph)).toHaveLength(13);
 });
 
+test('with the triangulation overlay hidden the panel shows only n and k: no counts, angles or edge list give the triangulation away', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.setOverlay('triangulation', false); });
+    expect(readout('n')).toContain('7');
+    expect(readout('k')).toContain('5');
+    for (const name of ['triangles', 'edges', 'angle', 'angle-before']) expect(readout(name)).toBeUndefined();
+    expect(list()).toBeNull();
+    expect(button()).toBeNull();
+    act(() => { graph.setOverlay('triangulation', true); });
+    expect(readout('triangles')).toContain('7');
+    expect(list().options).toHaveLength(14);
+    expect(button()).not.toBeNull();
+});
+
 test('the board text is language-neutral, the overlay switches are labelled in both languages, and the marker survives a flip', () => {
     const graph = new Observed();
     mount(graph);
