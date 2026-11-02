@@ -1541,3 +1541,11 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - **Judgment:**
   - Asking the smoke for object counts per Preset reload gave a direct lifecycle signal. The DOM-element count also surfaced a library-level leak, which needed handler triage to attribute.
   - The brief asked for switching to another built-in Preset; every route has only the default, so the worker used reset as the reload. That still runs the figure path, so it was adequate. Future reload briefs should name reset as the reload.
+
+## 2026-11-02 — Geometry: catalog posters for all pending Demonstrations (geometry handler 23; logged by handler 24)
+
+- Role: implementation (media capture), size M. Scope: capture posters for the 24 ids in `POSTER_PENDING` across every stream, with selective recapture and both preserve flags (`fe8be6b0`, `fb1d09e1`).
+- Worker: 1 `bezeg-worker`, requested Sonnet `medium`. Usage from the handoff note: 58k tokens, 35 turns.
+- Outcome: accepted by the handler. `POSTER_PENDING` is now `[]` and existing posters are byte-identical. Checks: `node --test scripts/demonstration-preview-capture.test.cjs` 36/36, poster/Learn unit tests, build, and the `demonstrations`/`demonstration-motion`/`home` smoke specs.
+- Repairs: one stop on a recipe assertion, which the handler resolved. The worker's final hand-back was not delivered (handler 23 integrated the work from the tree). That is a tool/delivery issue, not a code defect.
+- Gaps: the record was written retroactively from handoff 23, so there are no dispatch or acceptance timestamps and no context telemetry. A per-id visual list is in `docs/reviews/feature-streams/geometry/posters-visual.md`. One caption mismatch was found and routed to Curves (`interp-subdivision`).
