@@ -36,7 +36,7 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
-| 11 | [Point insertion and boundary counts](11-point-insertion-kernel.md) | F1 | 03, 04 | open |
+| 11 | [Point insertion and boundary counts](11-point-insertion-kernel.md) | F1 | 03, 04 | accepted 2026-11-02 (handler 26) |
 | 12 | [Point-set triangulation graph](12-point-set-triangulation-graph.md) (B2) | F2a | 11 | open |
 | 13 | [Delaunay graph with the Lawson trace](13-delaunay-graph.md) (B3) | F2a | 12, 04 | open |
 | 14 | [Registration of `point-set-triangulation` and `delaunay`](14-t2-registration.md) | F2b | 12, 13 | open |

@@ -27,6 +27,29 @@ function assertInput(points: readonly GridPoint[]): void {
 }
 
 /**
+ * The run of boundary edges of the counter-clockwise `cycle` (point indices, collinear boundary points included) that
+ * `q` sees strictly: edge i is `cycle[i] -> cycle[i + 1]` and is visible when `orient(a, b, q) < 0`. Returns the first
+ * and last visible edge as `start <= end < start + cycle.length`. An edge collinear with `q` is not visible. Throws an
+ * internal error when no edge is visible or the visible edges are not contiguous (impossible for a weakly convex
+ * boundary and a point outside it). Shared by `incrementalTriangulation` and `insertPoint`.
+ */
+export function visibleBoundaryArc(points: readonly GridPoint[], cycle: readonly number[], q: number): { start: number; end: number } {
+    const m = cycle.length;
+    const sees = cycle.map((a, i) => orient(points[a], points[cycle[(i + 1) % m]], points[q]) < 0);
+    let start = -1;
+    let runs = 0;
+    for (let i = 0; i < m; i++) if (sees[i] && !sees[(i + m - 1) % m]) {
+        start = i;
+        runs++;
+    }
+    if (start < 0) throw new Error('internal error: the point sees no boundary edge strictly');
+    if (runs > 1) throw new Error('internal error: the visible boundary edges are not contiguous');
+    let end = start;
+    while (sees[(end + 1) % m]) end++;
+    return {start, end};
+}
+
+/**
  * Incremental triangulation: points are inserted in lexicographic order of (x, y). The leading points collinear with
  * the first two form a chain; the first point off that line is joined to every chain segment. Each later point is
  * joined to every hull edge (counter-clockwise) it sees strictly (`orient(a, b, q) < 0`); a hull edge collinear with
@@ -64,12 +87,7 @@ export function incrementalTriangulation(points: readonly GridPoint[]): Delaunay
     for (let k = chainLength + 1; k < n; k++) {
         const q = order[k];
         const m = cycle.length;
-        const sees = cycle.map((a, i) => orient(points[a], points[cycle[(i + 1) % m]], points[q]) < 0);
-        let start = -1;
-        for (let i = 0; i < m; i++) if (sees[i] && !sees[(i + m - 1) % m]) start = i;
-        if (start < 0) throw new Error('internal error: a new lexicographic maximum sees no hull edge strictly');
-        let end = start;
-        while (sees[(end + 1) % m]) end++;
+        const {start, end} = visibleBoundaryArc(points, cycle, q);
         // Visible edge a -> b has q strictly on its right, so (a, q, b) is counter-clockwise.
         for (let i = start; i <= end; i++) triangles.push([cycle[i % m], q, cycle[(i + 1) % m]]);
         // The new cycle drops the vertices strictly inside the visible arc and puts q between its ends.
