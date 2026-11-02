@@ -28,6 +28,7 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 | BS-A-2b | F2b | Register `bspline-basis` and `bspline-deboor` (family `/bezeg-2.0/bspline`, `lesson: false`), factories, shared `bspline-curve` collection, `'deboor'` lesson animation id, `lessonFixtureData`, poster-pending and preview recipes | `G-REG`, 2a1–2a3b | done ([evidence](../../reviews/b-splines-nurbs/bs-a-2b-registration.md)) |
 | BS-A-3a | F3 | `LessonCurveFixture.knots` (optional; both B-spline graphs use it, else clamped uniform); L1 guided lesson on `bspline-basis` | BS-A-2b | done ([evidence](../../reviews/b-splines-nurbs/bs-a-3a-l1-lesson.md)) |
 | BS-A-3b | F3 | L2 guided lesson on `bspline-deboor` (`'deboor'` next-step/reset, local control, pieces) | BS-A-3a | done ([evidence](../../reviews/b-splines-nurbs/bs-a-3b-l2-lesson.md)) |
-| BS-A-4…6 | F4–F6 | Chapter `b-splines`, media, Batch A gate | BS-A-3b | planned |
+| BS-A-4 | F4 | Chapter `b-splines` owning L1 and L2 | BS-A-3b | done ([evidence](../../reviews/b-splines-nurbs/bs-a-4-chapter.md)) |
+| BS-A-5…6 | F5–F6 | Media (two posters), Batch A gate | BS-A-4 | planned |
 | BS-B-* | F2a–F6 | L3 insertion/multiplicity (comb from CG-1), L4 extraction | Batch A | planned |
 | BS-C-* | F2a–F6 | L5 NURBS circle, optional L6 blossoming | Batch B | planned |
