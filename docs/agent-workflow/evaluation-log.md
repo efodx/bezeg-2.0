@@ -1645,3 +1645,13 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Checks at acceptance: tsc, build, focused unit, `smoke-lesson simson-line euler-line` 4/4, unified-learning smoke.
 - Context: handler soft threshold of 150k reached during review; no new step started after.
 - Lesson: W1 spent its budget writing a 330-line test block without running it. Briefs for M lesson slices should ask for a unit run after the first describe block.
+
+## 2026-11-02 — Curves: IA-A-2d, BS-A-5b, IA-A-3b (curves handler 23; logged by handler 25)
+
+- Source: [curves handoff 23](../reviews/feature-streams/curves/handler-handoff-23.md#evaluation-record-not-yet-logged-with-do-log). Times and usage are as that note recorded them; dispatch and acceptance timestamps were not captured.
+- IA-A-2d registration worker `bezeg-worker` Sonnet medium, v12: 51k tokens, 29 tools, about 11 min. Accepted, apart from a missing `Routes.test.tsx` update: an escaped defect that hosted CI caught.
+- Smoke worker `bezeg-smoke` Sonnet: 31k tokens, 15 tools, about 4 min. Accurate, with useful cosmetic findings (label clipped at 390 px, select truncated at 200% text; deferred).
+- BS-A-5b capture worker `bezeg-worker` Sonnet medium: 63k tokens, 49 tools, about 10 min. It fixed 3 recipe windows itself; all posters were accepted.
+- IA-A-3b lesson worker `bezeg-worker` Sonnet medium: 116k tokens, 41 tools, about 21 min. It strengthened its own vacuous prose-number test after a mutation and reported 2 spec mismatches; both were correct readings.
+- Review `bezeg-reviewer` Sonnet: 32k tokens, 5 tools, 26 s. No blocking finding, 2 nits (deferred, recorded in the task row).
+- Handler 24 (PC switch) dispatched no workers.
