@@ -1,0 +1,653 @@
+import React from "react";
+import {t} from "../../localization";
+import type {GridPoint} from "../../compgeo/grid";
+import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
+import {Rational, RationalPoint} from "../../compgeo/rational";
+import {circumcentre} from "../../compgeo/triangle";
+import type {Triangulation} from "../../compgeo/triangulation";
+import {edges as triangulationEdges} from "../../compgeo/triangulation";
+import {delaunayTriangulation} from "../../compgeo/delaunay";
+import {dualEdges, nearestSites, type RationalBox, voronoiFromDelaunay, type VoronoiDiagram, type VoronoiOutcome} from "../../compgeo/voronoi";
+import {BaseGraphState} from "../base/BaseGraph";
+import type {GraphSession} from "../base/GraphSession";
+import {fitBoundingBox} from "../base/fitBoundingBox";
+import type {PresetCollection} from "../base/presets/PresetCollection";
+import type {Preset} from "../base/presets/Presets";
+import {SceneStateUpdate} from "../base/SceneStore";
+import {GraphPalette} from "../styles/GraphPalette";
+import {drawSelectableTriangles, sameTriple, sortedTriple, type TriangleSelectionNames} from "./circumcircleDrawing";
+import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import {VoronoiControlActions, VoronoiControls, VoronoiStatus} from "./VoronoiControls";
+import {bisectorOrder, constructionRegion, parseRationalText} from "./voronoiConstruction";
+import {clipToBox, createVoronoiDrawing, frame, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
+import {
+    VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE, VORONOI_MAX_POINTS, VORONOI_OVERLAY_IDS, voronoiCollection, type VoronoiQuery,
+} from "./voronoiPresetCollection";
+
+/** The scene: the points and overlays (`PointSetGraphState`), the chosen site, how many bisectors are shown and the query point. */
+export interface VoronoiGraphState extends PointSetGraphState {
+    /** The site whose cell is constructed, or null. */
+    cellSite: number | null;
+    /** Bisectors of `cellSite` shown, in construction order; 0 to (sites - 1). */
+    construction: number;
+    /** The query point, exact, grid units. */
+    query: VoronoiQuery;
+}
+
+/** A move of the query point by the arrow buttons, in grid units, and the grid it snaps to when dragged. */
+const QUERY_STEP = Rational.of(1, 2);
+const QUERY_SNAP = 4;
+
+const NAMES: TriangleSelectionNames = {
+    triangle: "voronoi-triangle", selectedTriangle: "voronoi-selected-triangle", selectedCircle: "voronoi-selected-circle",
+};
+
+const storedSite = (value: unknown, sites: number): number | null =>
+    typeof value === "number" && Number.isInteger(value) && value >= 0 && value < sites ? value : null;
+const storedCount = (value: unknown, total: number): number =>
+    typeof value === "number" && Number.isInteger(value) ? Math.max(0, Math.min(total, value)) : 0;
+const storedQuery = (value: unknown): VoronoiQuery => {
+    const record: {x?: unknown; y?: unknown} = typeof value === "object" && value !== null ? value : {};
+    const ok = typeof record.x === "string" && typeof record.y === "string"
+        && parseRationalText(record.x) !== undefined && parseRationalText(record.y) !== undefined;
+    return ok ? {x: String(record.x), y: String(record.y)} : VORONOI_DEFAULT_QUERY;
+};
+
+interface Derived {
+    readonly points: readonly GridPoint[];
+    readonly outcome: VoronoiOutcome;
+    /** The Delaunay triangulation (the dual); undefined when there is none (fewer than three or collinear sites). */
+    readonly tri?: Triangulation;
+    readonly box?: RationalBox;
+}
+
+/**
+ * The Voronoi diagram with the Delaunay duality overlay (task 19, spec B4). `VoronoiGraph extends PointSetGraph` in points
+ * mode only. The diagram is derived from the points (`voronoiFromDelaunay`) and never stored; the scene keeps the points,
+ * the overlay switches, the chosen site, the number of bisectors shown and the exact query point.
+ *
+ * Board: the diagram is drawn by `createVoronoiDrawing` (task 18) through one reused handle, updated when the points or the
+ * highlighted cell change. The Delaunay overlay (switch `delaunay`, off by default) draws hull edges thick and solid and
+ * interior edges thin and dashed, one clickable polygon per triangle (`circumcircleDrawing`, shared with `DelaunayGraph`) and,
+ * for the selected triangle, its circumcircle with the circumcentre marked as the matching Voronoi vertex. The selected
+ * triangle is transient and cleared by any edit and by switching the overlay off.
+ *
+ * Cell construction: for the chosen site, `construction` bisectors are shown in the decided order (other sites by increasing
+ * distance, ties by index) with the region that remains after intersecting those half-planes with the view box. Any edit of
+ * the points clears the chosen site and the count.
+ *
+ * Query point: a draggable point (snapped to quarters of a grid unit) with a numeric alternative and arrow moves; the panel
+ * names the nearest site from `nearestSites`, every tied site when it lies on a bisector, and the cell of the first of
+ * them is highlighted. It is not a site and does not count against the point limit.
+ *
+ * Ownership: the drawing handle, the construction objects and the query point are disposed with the figure scene and before
+ * the board is freed.
+ */
+export class VoronoiGraph extends PointSetGraph<"delaunay"> {
+    private derivedMemo?: Derived;
+    private selectedTriangleValue?: readonly [number, number, number];
+    private overlayMemo?: {base: unknown; triangle: string};
+    private drawing?: {handle: VoronoiDrawingHandle; scale: number};
+    private drawnFor?: {points: readonly GridPoint[]; highlight: number | undefined; box: RationalBox};
+    /** The visible area of the board as an exact box (rounded outward to integers) once the view has changed; undefined = `frame`. */
+    private followBox?: RationalBox;
+    private statsValue?: VoronoiDrawingStats;
+    private constructionObjects: JXG.GeometryElement[] = [];
+    private constructionDrawnFor?: {points: readonly GridPoint[]; site: number | null; count: number; scale: number; box?: RationalBox};
+    private queryPoint?: JXG.Point;
+    private inQuerySnap = false;
+
+    constructor(options: PointSetOptions = {}) {
+        super({pointLimit: VORONOI_MAX_POINTS, ...options});
+    }
+
+    // ---- Reads ---------------------------------------------------------------------------------------------------
+
+    /** The diagram, Delaunay triangulation and view box of the current points; recomputed only when the points change. */
+    private derive(): Derived {
+        const points = this.model.points;
+        if (this.derivedMemo?.points === points) return this.derivedMemo;
+        const outcome = voronoiFromDelaunay(points);
+        const delaunay = outcome.ok && points.length >= 3 ? delaunayTriangulation(points) : undefined;
+        const tri = delaunay?.ok ? delaunay.value : undefined;
+        const box = outcome.ok && points.length >= 2 ? frame(outcome.value, points) : undefined;
+        this.derivedMemo = {points, outcome, tri, box};
+        return this.derivedMemo;
+    }
+
+    /** The box the diagram and the construction are clipped to: the board's visible area once it changed, else `frame`. */
+    private drawBox(): RationalBox | undefined {
+        return this.followBox ?? this.derive().box;
+    }
+
+    /** The diagram, or undefined while the sites allow none (fewer than two, or two that coincide). */
+    diagram(): VoronoiDiagram | undefined {
+        const {outcome} = this.derive();
+        return outcome.ok && this.model.points.length >= 2 ? outcome.value : undefined;
+    }
+
+    /** The Delaunay triangulation shown by the duality overlay, if there is one. */
+    delaunay(): Triangulation | undefined {
+        return this.derive().tri;
+    }
+
+    /** What the last update of the drawing handle drew; undefined while nothing is drawn. */
+    drawingStats(): VoronoiDrawingStats | undefined {
+        return this.statsValue;
+    }
+
+    get cellSite(): number | null {
+        return storedSite("cellSite" in this.state ? this.state.cellSite : undefined, this.model.points.length);
+    }
+
+    /** The number of bisectors shown for the chosen site. */
+    get construction(): number {
+        return this.cellSite === null ? 0 : storedCount("construction" in this.state ? this.state.construction : undefined, this.model.points.length - 1);
+    }
+
+    private get queryText(): VoronoiQuery {
+        return storedQuery("query" in this.state ? this.state.query : undefined);
+    }
+
+    /** The query point (exact, grid units). */
+    get query(): RationalPoint {
+        const {x, y} = this.queryText;
+        return new RationalPoint(parseRationalText(x) ?? Rational.ZERO, parseRationalText(y) ?? Rational.ZERO);
+    }
+
+    /** Every site at the least distance from the query point, ascending (more than one when it lies on a bisector). */
+    queryNearest(): number[] {
+        return nearestSites(this.model.points, this.query);
+    }
+
+    /** The region left after the shown bisectors of the chosen site, clipped to the view box; empty when none is chosen. */
+    constructionPolygon(): RationalPoint[] {
+        const site = this.cellSite;
+        const box = this.drawBox();
+        if (site === null || !box || !this.diagram()) return [];
+        const points = this.model.points;
+        return constructionRegion(points, site, bisectorOrder(points, site), this.construction, box);
+    }
+
+    /** The index in the Delaunay triangulation of the selected triangle, while the overlay is on and the triangle exists. */
+    selectedTriangle(): number | undefined {
+        const tri = this.delaunay();
+        const chosen = this.selectedTriangleValue;
+        if (!tri || !chosen || !this.overlayShown("delaunay")) return undefined;
+        const index = tri.triangles.findIndex(corners => sameTriple(sortedTriple(corners), chosen));
+        return index < 0 ? undefined : index;
+    }
+
+    // ---- State ---------------------------------------------------------------------------------------------------
+
+    override getInitialState(): VoronoiGraphState {
+        return {...super.getInitialState(), cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY};
+    }
+
+    private patch(fields: Partial<VoronoiGraphState>): Partial<PointSetGraphState> {
+        return fields;
+    }
+
+    /** Any write of a new model clears the chosen site, the count and the selected triangle (C1), unless the write names them. */
+    override setState(update: SceneStateUpdate<PointSetGraphState>, callback?: () => void): void {
+        const before = this.state.model;
+        const wrapped: SceneStateUpdate<PointSetGraphState> = state => {
+            const raw = typeof update === "function" ? update(state) : update;
+            if (!raw) return raw;
+            const edit = raw.model !== undefined && raw.model !== state.model;
+            const named = "cellSite" in raw || "construction" in raw;
+            return edit && !named ? this.patch({...raw, cellSite: null, construction: 0}) : raw;
+        };
+        super.setState(wrapped, callback);
+        if (this.state.model !== before) this.selectedTriangleValue = undefined;
+    }
+
+    /** Chooses the site whose cell is constructed (null or an invalid index clears it); the count returns to 0. */
+    selectSite(site: number | null): void {
+        this.setState(this.patch({cellSite: storedSite(site, this.model.points.length), construction: 0}));
+        this.requestRender();
+    }
+
+    private setConstruction(count: number): void {
+        if (this.cellSite === null) return;
+        this.setState(this.patch({construction: storedCount(count, this.model.points.length - 1)}));
+        this.requestRender();
+    }
+
+    constructNext(): void { this.setConstruction(this.construction + 1); }
+
+    constructBack(): void { this.setConstruction(this.construction - 1); }
+
+    constructReset(): void { this.setConstruction(0); }
+
+    /** Places the query point at an exact position (grid units). False, and nothing changes, beyond the coordinate limit. */
+    setQueryPoint(point: RationalPoint): boolean {
+        const limit = Rational.fromInt(this.coordinateLimit);
+        const inRange = (v: Rational) => v.compare(limit) <= 0 && v.compare(limit.neg()) >= 0;
+        if (!inRange(point.x) || !inRange(point.y)) return false;
+        this.setState(this.patch({query: {x: point.x.format(), y: point.y.format()}}));
+        this.requestRender();
+        return true;
+    }
+
+    /** The numeric alternative to dragging: typed integer, fraction or decimal. False when the text is not valid or is out of range. */
+    setQueryText(x: string, y: string): boolean {
+        const px = parseRationalText(x);
+        const py = parseRationalText(y);
+        return px !== undefined && py !== undefined && this.setQueryPoint(new RationalPoint(px, py));
+    }
+
+    /** Keyboard move of the query point by `steps` of half a grid unit in each direction. */
+    moveQuery(dx: number, dy: number): boolean {
+        const q = this.query;
+        const step = (steps: number) => QUERY_STEP.mul(Rational.fromInt(steps));
+        return this.setQueryPoint(new RationalPoint(q.x.add(step(dx)), q.y.add(step(dy))));
+    }
+
+    /** Selects the triangle at `index` of `delaunay().triangles` (the board click and the panel list), or clears the selection. */
+    selectTriangle(index: number | undefined): void {
+        const corners = index === undefined ? undefined : this.delaunay()?.triangles[index];
+        this.selectedTriangleValue = corners && this.overlayShown("delaunay") ? sortedTriple(corners) : undefined;
+        this.requestRender();
+        this.syncScene();
+    }
+
+    /** Restores the B4 example, the overlay off, no selection and the starting query point (C2). */
+    resetExample(): void {
+        this.importPresetData(serializePointSetModel(VORONOI_EXAMPLE));
+        this.selectedTriangleValue = undefined;
+        this.setState(this.patch({overlays: {}, cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY}));
+        this.requestRender();
+        this.syncScene();
+    }
+
+    /** Shows the box of the drawing's `frame` again. */
+    resetView(): void {
+        if (!this.hasBoard) return;
+        const box = this.viewBox();
+        const fitted = this.equalAxisUnits ? fitBoundingBox([[box[0], box[1]], [box[2], box[3]]], this.board.canvasWidth, this.board.canvasHeight) : undefined;
+        this.board.setBoundingBox(fitted ?? box, this.equalAxisUnits);
+        // The drawing returns to the exact `frame` (the board's view is at least as large).
+        this.followBox = undefined;
+        this.syncScene();
+    }
+
+    /** The board's visible area as a box of integer grid units, rounded outward. */
+    private visibleBox(): RationalBox | undefined {
+        const [left, top, right, bottom] = this.board.getBoundingBox();
+        const scale = 2 ** this.model.gridStepExponent;
+        const edges = [left, right, bottom, top].map(v => v / scale);
+        if (!edges.every(Number.isFinite)) return undefined;
+        const [minX, maxX, minY, maxY] = [Math.floor(edges[0]), Math.ceil(edges[1]), Math.floor(edges[2]), Math.ceil(edges[3])];
+        if (maxX <= minX || maxY <= minY) return undefined;
+        return {minX: Rational.fromInt(minX), maxX: Rational.fromInt(maxX), minY: Rational.fromInt(minY), maxY: Rational.fromInt(maxY)};
+    }
+
+    /** The drawing follows the view: a changed visible area re-clips the diagram and the construction through the same handles. */
+    private followView(): void {
+        if (!this.hasBoard || !this.graphSession?.isAlive) return;
+        const next = this.visibleBox();
+        const current = this.followBox;
+        if (!next || (current && ["minX", "maxX", "minY", "maxY"].every(k => current[k as keyof RationalBox].equals(next[k as keyof RationalBox])))) return;
+        this.followBox = next;
+        const changed = [this.syncDiagram(), this.syncConstruction()];
+        if (changed.some(Boolean)) this.boardUpdate();
+    }
+
+    protected override createMainView(session: GraphSession, container: HTMLElement): void {
+        super.createMainView(session, container);
+        this.followBox = undefined;
+        session.on("boundingbox", () => this.followView());
+    }
+
+    /** `frame` of the current diagram (or of the example when there is none) as a board box [left, top, right, bottom]. */
+    private viewBox(): [number, number, number, number] {
+        const derived = this.derive();
+        const box = derived.box ?? frame(voronoiExample().diagram, VORONOI_EXAMPLE.points);
+        const scale = 2 ** this.model.gridStepExponent;
+        return [box.minX.toNumber() * scale, box.maxY.toNumber() * scale, box.maxX.toNumber() * scale, box.minY.toNumber() * scale];
+    }
+
+    protected override initialView(): [number, number, number, number] {
+        return this.viewBox();
+    }
+
+    // ---- Overlays ------------------------------------------------------------------------------------------------
+
+    protected override overlayIds(): readonly ("delaunay" | "grid")[] {
+        return VORONOI_OVERLAY_IDS;
+    }
+
+    protected override overlayLabel(id: "delaunay" | "grid"): string {
+        return id === "delaunay" ? t("vor_overlay_delaunay") : super.overlayLabel(id);
+    }
+
+    override setOverlay(id: "delaunay" | "grid", shown: boolean): void {
+        super.setOverlay(id, shown);
+        if (id === "delaunay" && !shown && this.selectedTriangleValue) {
+            this.selectedTriangleValue = undefined;
+            this.requestRender();
+            this.syncScene();
+        }
+    }
+
+    /** The overlay follows the selected triangle as well as the points and the switches. */
+    protected override overlayInputs(): unknown {
+        const base = super.overlayInputs();
+        const triangle = String(this.selectedTriangle() ?? "");
+        const memo = this.overlayMemo;
+        if (memo && memo.base === base && memo.triangle === triangle) return memo;
+        this.overlayMemo = {base, triangle};
+        return this.overlayMemo;
+    }
+
+    protected override drawOverlay(id: "delaunay" | "grid", model: PointSetModel): JXG.GeometryElement[] {
+        if (id !== "delaunay") return super.drawOverlay(id, model);
+        const tri = this.delaunay();
+        if (!tri) return [];
+        const at = (index: number) => gridToBoard(tri.points[index], model.gridStepExponent);
+        const objects: JXG.GeometryElement[] = [];
+        // Hull edges are thick and solid, interior edges thin and dashed: told apart without colour.
+        for (const edge of triangulationEdges(tri)) {
+            const from = at(edge.a);
+            const to = at(edge.b);
+            objects.push(this.board.create("curve", [[from.x, to.x], [from.y, to.y]], {
+                name: edge.interior ? "voronoi-delaunay-interior" : "voronoi-delaunay-hull", highlight: false, fixed: true, layer: 3,
+                strokeColor: GraphPalette.constructionAccent, strokeWidth: edge.interior ? 1.5 : 4.5, dash: edge.interior ? 3 : 0,
+            }) as JXG.GeometryElement);
+        }
+        objects.push(...drawSelectableTriangles(this.board, tri, model, this.selectedTriangle(), NAMES,
+            index => this.afterBoardPress(() => this.selectTriangle(this.selectedTriangle() === index ? undefined : index))));
+        const selected = this.selectedTriangle();
+        const corners = selected === undefined ? undefined : tri.triangles[selected];
+        const centre = corners && circumcentre(tri.points[corners[0]], tri.points[corners[1]], tri.points[corners[2]]);
+        if (centre?.kind === "point") {
+            const scale = 2 ** model.gridStepExponent;
+            objects.push(this.board.create("point", [centre.point.x.toNumber() * scale, centre.point.y.toNumber() * scale], {
+                name: "voronoi-selected-vertex", withLabel: false, size: 8, face: "diamond", fixed: true, showInfobox: false, highlight: false,
+                fillColor: GraphPalette.warningText, strokeColor: GraphPalette.selectedControlPointOutline, strokeWidth: 2, layer: 8,
+            }) as JXG.GeometryElement);
+        }
+        return objects;
+    }
+
+    // ---- Board ---------------------------------------------------------------------------------------------------
+
+    /** The sites and overlays (base), then the diagram, the construction and the query point. */
+    protected override syncScene(): void {
+        super.syncScene();
+        if (!this.graphSession?.isAlive || !this.hasBoard) return;
+        const changed = [this.syncDiagram(), this.syncConstruction(), this.syncQuery()];
+        if (changed.some(Boolean)) this.boardUpdate();
+    }
+
+    private removeOwned(objects: readonly JXG.GeometryElement[]): void {
+        if (!this.hasBoard) return;
+        const list = this.board.objectsList as unknown[];
+        const present = objects.filter(object => list.includes(object)).reverse();
+        if (present.length) this.board.removeObject(present);
+    }
+
+    /** Redraws the diagram through the reused handle when the points or the highlighted cell changed. */
+    private syncDiagram(): boolean {
+        const points = this.model.points;
+        const diagram = this.diagram();
+        const box = this.drawBox();
+        const scale = 2 ** this.model.gridStepExponent;
+        if (!diagram || !box) return this.disposeDiagram();
+        if (this.drawing && this.drawing.scale !== scale) this.disposeDiagram();
+        const highlight = this.queryNearest()[0];
+        const drawn = this.drawnFor;
+        if (this.drawing && drawn?.points === points && drawn.highlight === highlight && drawn.box === box && this.diagramObjectsAlive()) return false;
+        this.drawing ??= {handle: createVoronoiDrawing(this.board, scale), scale};
+        this.statsValue = this.drawing.handle.update(diagram, points, box, {cells: true, edges: true, vertices: true, highlightCell: highlight});
+        this.drawnFor = {points, highlight, box};
+        return true;
+    }
+
+    private diagramObjectsAlive(): boolean {
+        // The drawing owns its objects; a cleared board (scene replacement) leaves the handle pointing at removed ones.
+        return this.board.objectsList.some(object => (object as {name?: string}).name === "voronoi-cell" || (object as {name?: string}).name === "voronoi-edges");
+    }
+
+    private disposeDiagram(): boolean {
+        const had = this.drawing !== undefined;
+        this.drawing?.handle.dispose();
+        this.drawing = undefined;
+        this.drawnFor = undefined;
+        this.statsValue = undefined;
+        return had;
+    }
+
+    /** The shown bisectors of the chosen site (dashed, the latest thicker) and the region that remains. */
+    private syncConstruction(): boolean {
+        const points = this.model.points;
+        const site = this.diagram() ? this.cellSite : null;
+        const count = this.construction;
+        const scale = 2 ** this.model.gridStepExponent;
+        const drawn = this.constructionDrawnFor;
+        const alive = this.constructionObjects.every(object => (this.board.objectsList as unknown[]).includes(object));
+        if (drawn && drawn.points === points && drawn.site === site && drawn.count === count && drawn.scale === scale && drawn.box === this.drawBox() && alive) return false;
+        this.removeOwned(this.constructionObjects);
+        this.constructionObjects = [];
+        this.constructionDrawnFor = {points, site, count, scale, box: this.drawBox()};
+        const box = this.drawBox();
+        if (site === null || !box) return true;
+        const order = bisectorOrder(points, site);
+        const half = Rational.of(1, 2);
+        order.slice(0, count).forEach((other, k) => {
+            const s = points[site];
+            const o = points[other];
+            const middle = new RationalPoint(Rational.of(s.x + o.x).mul(half), Rational.of(s.y + o.y).mul(half));
+            const direction = new RationalPoint(Rational.fromInt(-(o.y - s.y)), Rational.fromInt(o.x - s.x));
+            const piece = clipToBox(middle, direction, undefined, undefined, box);
+            if (!piece) return;
+            const latest = k === count - 1;
+            this.constructionObjects.push(this.board.create("curve", [
+                [piece[0].x.toNumber() * scale, piece[1].x.toNumber() * scale], [piece[0].y.toNumber() * scale, piece[1].y.toNumber() * scale],
+            ], {
+                name: latest ? "voronoi-bisector-latest" : "voronoi-bisector", highlight: false, fixed: true, layer: 3,
+                strokeColor: GraphPalette.warningText, strokeWidth: latest ? 4 : 1.5, dash: latest ? 0 : 2,
+            }) as JXG.GeometryElement);
+        });
+        const region = this.constructionPolygon();
+        if (region.length >= 3) {
+            const xs = region.map(p => p.x.toNumber() * scale);
+            const ys = region.map(p => p.y.toNumber() * scale);
+            this.constructionObjects.push(this.board.create("curve", [[...xs, xs[0]], [...ys, ys[0]]], {
+                name: "voronoi-construction-region", highlight: false, fixed: true, layer: 1,
+                fillColor: GraphPalette.warningText, fillOpacity: 0.18, strokeColor: GraphPalette.warningText, strokeWidth: 3,
+            }) as JXG.GeometryElement);
+        }
+        return true;
+    }
+
+    /** The query point: created once, moved with the state, removed with the scene. */
+    private syncQuery(): boolean {
+        const scale = 2 ** this.model.gridStepExponent;
+        const q = this.query;
+        const target = [q.x.toNumber() * scale, q.y.toNumber() * scale];
+        let point = this.queryPoint;
+        if (point && !(this.board.objectsList as unknown[]).includes(point)) point = this.queryPoint = undefined;
+        if (!point) {
+            const created = this.board.create("point", target, {
+                name: "voronoi-query", withLabel: false, size: 6, face: "square", showInfobox: false,
+                fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.selectedControlPointOutline, strokeWidth: 2, layer: 9,
+            }) as JXG.Point;
+            created.on("drag", () => this.dragQuery(created));
+            this.queryPoint = created;
+            return true;
+        }
+        if (point.X() === target[0] && point.Y() === target[1]) return false;
+        this.inQuerySnap = true;
+        try { point.moveTo(target, 0); } finally { this.inQuerySnap = false; }
+        return true;
+    }
+
+    private dragQuery(point: JXG.Point): void {
+        if (this.inQuerySnap || this.graphInteractionLocked) return;
+        const scale = 2 ** this.model.gridStepExponent;
+        const snap = (v: number) => Rational.of(Math.round((v / scale) * QUERY_SNAP), QUERY_SNAP);
+        const wanted = new RationalPoint(snap(point.X()), snap(point.Y()));
+        if (!this.setQueryPoint(wanted)) {
+            // Beyond the coordinate limit: the point returns to its stored place.
+            const q = this.query;
+            this.inQuerySnap = true;
+            try { point.moveTo([q.x.toNumber() * scale, q.y.toNumber() * scale], 0); } finally { this.inQuerySnap = false; }
+        }
+    }
+
+    /** Removes the drawing, the construction and the query point; the next sync rebuilds them. */
+    protected override disposeFigureScene(): void {
+        this.disposeOwned();
+        this.selectedTriangleValue = undefined;
+        super.disposeFigureScene();
+    }
+
+    protected override syncReplacedScene(): void {
+        this.selectedTriangleValue = undefined;
+        super.syncReplacedScene();
+    }
+
+    private disposeOwned(): void {
+        this.disposeDiagram();
+        this.removeOwned(this.constructionObjects);
+        this.constructionObjects = [];
+        this.constructionDrawnFor = undefined;
+        if (this.queryPoint) this.removeOwned([this.queryPoint]);
+        this.queryPoint = undefined;
+    }
+
+    /** The handle must go before the board is freed: disposing removes its objects from that board. */
+    override unmount(): void {
+        this.disposeOwned();
+        this.overlayMemo = undefined;
+        super.unmount();
+    }
+
+    // ---- Presets -------------------------------------------------------------------------------------------------
+
+    override presetCollection(): PresetCollection<PointSetModel> {
+        return voronoiCollection;
+    }
+
+    override defaultPreset(): PointSetModel {
+        return serializePointSetModel(VORONOI_EXAMPLE);
+    }
+
+    protected override sceneGraphState(): PointSetGraphState {
+        const state: VoronoiGraphState = {...super.sceneGraphState(), cellSite: this.cellSite, construction: this.construction, query: this.queryText};
+        return state;
+    }
+
+    /** A Preset that names no site, count or query starts without them: nothing stale survives from the previous scene. */
+    override importPreset(preset: Preset): void {
+        const graphState = preset.graphState && {cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, ...preset.graphState};
+        super.importPreset(graphState ? {...preset, graphState} : preset);
+    }
+
+    /** An imported model keeps the site, count and query that the Preset's `graphState` just set, clamped to the new points. */
+    override importPresetData(data: PointSetModel): void {
+        const raw: {cellSite?: unknown; construction?: unknown; query?: unknown} = {
+            cellSite: "cellSite" in this.state ? this.state.cellSite : undefined,
+            construction: "construction" in this.state ? this.state.construction : undefined,
+            query: "query" in this.state ? this.state.query : undefined,
+        };
+        super.importPresetData(data);
+        const sites = this.model.points.length;
+        const site = storedSite(raw.cellSite, sites);
+        this.setState(this.patch({cellSite: site, construction: site === null ? 0 : storedCount(raw.construction, sites - 1), query: storedQuery(raw.query)}));
+        this.requestRender();
+    }
+
+    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
+        const merged = super.figurePresetGraphState(graphState);
+        const sites = merged.model.points.length;
+        const site = storedSite("cellSite" in merged ? merged.cellSite : undefined, sites);
+        const state: VoronoiGraphState = {
+            ...merged, cellSite: site,
+            construction: site === null ? 0 : storedCount("construction" in merged ? merged.construction : undefined, sites - 1),
+            query: storedQuery("query" in merged ? merged.query : undefined),
+        };
+        return state;
+    }
+
+    // ---- Inspector -----------------------------------------------------------------------------------------------
+
+    private readonly voronoiActions: VoronoiControlActions = {
+        resetExample: () => this.resetExample(),
+        resetView: () => this.resetView(),
+        selectSite: site => this.selectSite(site),
+        constructNext: () => this.constructNext(),
+        constructBack: () => this.constructBack(),
+        constructReset: () => this.constructReset(),
+        setQuery: (x, y) => this.setQueryText(x, y),
+        moveQuery: (dx, dy) => { this.moveQuery(dx, dy); },
+        selectTriangle: index => this.selectTriangle(index),
+    };
+
+    protected override showsModeToggle(): boolean {
+        return false;
+    }
+
+    protected override showsClosedToggle(): boolean {
+        return false;
+    }
+
+    private status(): VoronoiStatus {
+        const points = this.model.points;
+        const {outcome} = this.derive();
+        const diagram = this.diagram();
+        const query = this.queryText;
+        const base = {
+            collinear: false,
+            counts: {sites: points.length, vertices: 0, finite: 0, rays: 0, lines: 0, bounded: 0, unbounded: 0},
+            vertices: [], cellSite: null,
+            query: {x: query.x, y: query.y, nearest: this.queryNearest()},
+            coordinateLimit: this.coordinateLimit, overlayShown: this.overlayShown("delaunay"), triangles: [],
+        } satisfies VoronoiStatus;
+        if (!diagram) {
+            const duplicate = !outcome.ok && outcome.refusal.kind === "duplicate-point" ? outcome.refusal.indices : undefined;
+            return {...base, refusal: duplicate ? {kind: "duplicate", sites: duplicate} : {kind: "few"}};
+        }
+        const dual = dualEdges(diagram);
+        const rays = diagram.edges.filter(edge => edge.kind === "ray").length;
+        const lines = diagram.edges.filter(edge => edge.kind === "line").length;
+        const bounded = diagram.cells.filter(cell => cell.bounded).length;
+        const tri = this.delaunay();
+        const site = this.cellSite;
+        const count = this.construction;
+        const order = site === null ? [] : bisectorOrder(points, site);
+        const selectedIndex = this.selectedTriangle();
+        const corners = selectedIndex === undefined ? undefined : tri?.triangles[selectedIndex];
+        const centre = corners && circumcentre(points[corners[0]], points[corners[1]], points[corners[2]]);
+        const vertex = centre?.kind === "point" ? diagram.vertices.find(v => v.point.equals(centre.point)) : undefined;
+        return {
+            ...base,
+            collinear: tri === undefined,
+            counts: {sites: points.length, vertices: diagram.vertices.length, finite: dual.finite.length, rays, lines, bounded, unbounded: points.length - bounded},
+            vertices: diagram.vertices.map(v => ({x: v.point.x.format(), y: v.point.y.format(), sites: v.sites})),
+            cellSite: site,
+            construction: site === null ? undefined : {count, total: order.length, other: count > 0 ? order[count - 1] : undefined, done: order.length > 0 && count === order.length},
+            triangles: tri?.triangles ?? [],
+            selectedTriangle: selectedIndex,
+            selectedVertex: corners && centre?.kind === "point" && vertex
+                ? {corners: sortedTriple(corners), x: centre.point.x.format(), y: centre.point.y.format(), sites: vertex.sites}
+                : undefined,
+        };
+    }
+
+    protected override workspaceEdit(): React.ReactNode {
+        return <>
+            <VoronoiControls status={this.status()} actions={this.voronoiActions}/>
+            {super.workspaceEdit()}
+        </>;
+    }
+}
+
+/** The B4 example's diagram, for the view of a graph that has no diagram of its own yet. */
+function voronoiExample(): {diagram: VoronoiDiagram} {
+    const outcome = voronoiFromDelaunay(VORONOI_EXAMPLE.points);
+    if (!outcome.ok) throw new Error("internal error: the Voronoi example has no diagram");
+    return {diagram: outcome.value};
+}

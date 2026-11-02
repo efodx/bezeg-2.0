@@ -1,0 +1,513 @@
+import React from 'react';
+import {act, fireEvent, render} from '@testing-library/react';
+import {MemoryRouter} from 'react-router-dom';
+import {VoronoiGraph} from './VoronoiGraph';
+import {VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE, VORONOI_PRESET_KEY, voronoiCollection} from './voronoiPresetCollection';
+import {sameCyclicPolygon} from './voronoiConstruction';
+import {GraphHost} from '../base/GraphHost';
+import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {gridToBoard, serializePointSetModel} from '../../compgeo/pointSetModel';
+import {Rational, RationalPoint} from '../../compgeo/rational';
+import {edges as triangulationEdges} from '../../compgeo/triangulation';
+import {clipCell, nearestSites, voronoiFromDelaunay} from '../../compgeo/voronoi';
+import {setLanguage, t} from '../../localization';
+
+// Counts the live subscriptions of the language listener, so unmount can be checked to release it.
+const languageListeners = vi.hoisted(() => ({live: 0}));
+vi.mock('../../localization', async importOriginal => {
+    const original = await importOriginal<typeof import('../../localization')>();
+    return {
+        ...original,
+        onLanguageChange: (listener: () => void) => {
+            languageListeners.live++;
+            const off = original.onLanguageChange(listener);
+            let released = false;
+            return () => { if (!released) languageListeners.live--; released = true; off(); };
+        },
+    };
+});
+
+beforeAll(installBoardShims);
+vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
+beforeEach(() => {
+    languageListeners.live = 0;
+    window.localStorage.clear();
+    setLanguage('sl');
+});
+
+class Observed extends VoronoiGraph {
+    liveBoard() { return this.board; }
+    box() { return this['drawBox'](); }
+}
+
+type Shown = {elType: string; center?: {X(): number; Y(): number}; Radius?(): number; name?: string; plaintext?: string; X?: () => number; Y?: () => number; dataX?: number[]; dataY?: number[]; visProp?: Record<string, unknown>};
+const objects = (graph: Observed) => graph.liveBoard().objectsList as unknown as Shown[];
+const named = (graph: Observed, name: string) => objects(graph).filter(o => o.name === name);
+const mount = (graph: Observed) => render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+const readout = (name: string) => document.querySelector(`[data-readout="${name}"]`)?.textContent;
+const part = (name: string) => document.querySelector(`[data-voronoi="${name}"]`)?.textContent;
+const button = (action: string) => document.querySelector(`button[data-action="${action}"]`) as HTMLButtonElement;
+const click = (action: string) => act(() => { fireEvent.click(button(action)); });
+const siteButton = (site: number) => document.querySelector(`button[data-site="${site}"]`) as HTMLButtonElement;
+const triangleButton = (index: number) => document.querySelector(`button[data-triangle="${index}"]`) as HTMLButtonElement;
+const overlaySwitch = () => [...document.querySelectorAll('label.pointset-check')].find(l => /Dualnost|Duality/.test(l.textContent ?? ''))!.querySelector('input') as HTMLInputElement;
+const live = () => document.querySelector('[data-voronoi-live]')?.textContent ?? '';
+const sitePoints = (graph: Observed) => objects(graph).filter(o => o.elType === 'point' && /^P\d+$/.test(o.name ?? ''));
+const trigger = (target: object, name: string) => (target as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers([name], []);
+const dragSite = (graph: Observed, index: number, x: number, y: number) => {
+    const point = sitePoints(graph)[index] as unknown as JXG.Point;
+    act(() => { point.moveTo([x, y], 0); trigger(point, 'drag'); });
+};
+async function settle(start: () => Promise<void>): Promise<void> {
+    let pending: Promise<void> = Promise.resolve();
+    act(() => { pending = start(); });
+    await act(async () => { await pending; });
+}
+const sorted = (corners: readonly number[]) => [...corners].sort((a, b) => a - b);
+const numberOf = (text: string) => { const [n, d] = text.split('/').map(Number); return n / (d ?? 1); };
+
+/** The seven Voronoi vertices of the B4 example, as the spec lists them (exact text). */
+const SPEC_VERTICES: readonly (readonly [string, string])[] = [
+    ['4', '-1'], ['1/3', '8/3'], ['91/10', '29/10'], ['9/2', '-1/6'], ['85/14', '83/14'], ['21/11', '64/11'], ['9/2', '53/10'],
+];
+const pointText = (x: string, y: string) => `(${x}, ${y})`;
+
+test('the B4 example shows the 7 spec vertices as exact text, 8 finite edges, 5 rays, 5 unbounded and 2 bounded cells', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(graph.model.points).toEqual(VORONOI_EXAMPLE.points);
+    expect(readout('sites')).toBe('Mest: 7');
+    expect(readout('vertices')).toBe('Voronojevih oglišč: 7');
+    expect(readout('edges')).toBe('Končnih robov: 8');
+    expect(readout('rays')).toBe('Poltrakov: 5');
+    expect(readout('unbounded')).toBe('Neomejenih celic: 5');
+    expect(readout('bounded')).toBe('Omejenih celic: 2');
+    const listed = [...document.querySelectorAll('[data-vertex]')].map(v => v.textContent ?? '');
+    expect(listed).toHaveLength(7);
+    for (const [x, y] of SPEC_VERTICES) expect(listed.some(text => text.includes(`= ${pointText(x, y)};`))).toBe(true);
+    expect(graph.drawingStats()).toMatchObject({segments: 8, rays: 5, vertexMarkers: 7, openCells: 5, closedCells: 2});
+    expect(named(graph, 'voronoi-vertex')).toHaveLength(7);
+    expect(named(graph, 'voronoi-cell')).toHaveLength(7);
+    // the bounded cells are those of p5 and p6 (spec p5, p6: indices 5 and 6, labels P6, P7)
+    expect(graph.diagram()!.cells.filter(cell => cell.bounded).map(cell => cell.site)).toEqual([5, 6]);
+});
+
+test('the overlay is off after load, toggles on and off, and hull and interior edges differ without colour', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(graph.overlayShown('delaunay')).toBe(false);
+    expect(overlaySwitch().checked).toBe(false);
+    expect(named(graph, 'voronoi-delaunay-hull')).toHaveLength(0);
+    expect(document.querySelector('[data-voronoi="triangles"]')).toBeNull();
+    act(() => { fireEvent.click(overlaySwitch()); });
+    expect(graph.overlayShown('delaunay')).toBe(true);
+    const all = triangulationEdges(graph.delaunay()!);
+    const hull = named(graph, 'voronoi-delaunay-hull');
+    const interior = named(graph, 'voronoi-delaunay-interior');
+    expect(hull).toHaveLength(all.filter(e => !e.interior).length);
+    expect(interior).toHaveLength(all.filter(e => e.interior).length);
+    expect(hull.length).toBeGreaterThanOrEqual(3);
+    expect(interior.length).toBeGreaterThan(0);
+    expect(hull[0].visProp?.strokewidth).not.toBe(interior[0].visProp?.strokewidth);
+    expect(hull[0].visProp?.dash).not.toBe(interior[0].visProp?.dash);
+    expect(live()).toContain('Dualnost je vklopljena');
+    act(() => { fireEvent.click(overlaySwitch()); });
+    expect(graph.overlayShown('delaunay')).toBe(false);
+    expect(named(graph, 'voronoi-delaunay-hull')).toHaveLength(0);
+    expect(named(graph, 'voronoi-delaunay-interior')).toHaveLength(0);
+    expect(live()).toContain('Dualnost je izklopljena');
+});
+
+test('triangle (0,1,5) shows the vertex (4,-1); every triangle shows its own vertex from the spec list', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { fireEvent.click(overlaySwitch()); });
+    const tri = graph.delaunay()!;
+    expect(tri.triangles).toHaveLength(7);
+    const seen = new Set<string>();
+    let sawFirst = false;
+    tri.triangles.forEach((corners, index) => {
+        act(() => { fireEvent.click(triangleButton(index)); });
+        expect(graph.selectedTriangle()).toBe(index);
+        expect(named(graph, 'voronoi-selected-circle')).toHaveLength(1);
+        const text = part('selected-vertex') ?? '';
+        const found = SPEC_VERTICES.filter(([x, y]) => text.includes(`središče očrtane krožnice ${pointText(x, y)} `));
+        expect(found).toHaveLength(1);
+        seen.add(found[0].join(','));
+        // the circumcentre is marked where the vertex is
+        const mark = named(graph, 'voronoi-selected-vertex')[0];
+        expect(mark.X!()).toBeCloseTo(numberOf(found[0][0]), 9);
+        expect(mark.Y!()).toBeCloseTo(numberOf(found[0][1]), 9);
+        // the drawn circumcircle is centred on the vertex and passes through the three corners
+        const circle = named(graph, 'voronoi-selected-circle')[0];
+        expect(circle.center!.X()).toBeCloseTo(numberOf(found[0][0]), 9);
+        expect(circle.center!.Y()).toBeCloseTo(numberOf(found[0][1]), 9);
+        for (const corner of corners) {
+            const site = graph.model.points[corner];
+            expect(Math.hypot(site.x - circle.center!.X(), site.y - circle.center!.Y())).toBeCloseTo(circle.Radius!(), 9);
+        }
+        expect(named(graph, 'voronoi-selected-triangle')).toHaveLength(1);
+        const [a, b, c] = sorted(corners);
+        expect(text).toContain(`Trikotnik P${a + 1}, P${b + 1}, P${c + 1}`);
+        expect(text).toContain(`enako oddaljeno od mest P${a + 1}, P${b + 1}, P${c + 1}`);
+        if (sorted(corners).join() === '0,1,5') {
+            sawFirst = true;
+            expect(found[0]).toEqual(['4', '-1']);
+        }
+    });
+    expect(sawFirst).toBe(true);
+    expect(seen.size).toBe(7);
+    expect(graph.diagram()!.vertices.some(v => v.point.x.format() === '4' && v.point.y.format() === '-1' && v.sites.join() === '0,1,5')).toBe(true);
+});
+
+/** Squared distances in quarter units: exact integers. */
+function bruteNearest(points: readonly {x: number; y: number}[], qx4: number, qy4: number): number[] {
+    const d = points.map(p => (4 * p.x - qx4) ** 2 + (4 * p.y - qy4) ** 2);
+    const least = Math.min(...d);
+    return d.flatMap((v, i) => (v === least ? [i] : []));
+}
+function insideOrOn(xs: number[], ys: number[], px: number, py: number): boolean {
+    // convex polygon, counter-clockwise (the last vertex repeats the first)
+    for (let k = 0; k < xs.length - 1; k++) {
+        const cross = (xs[k + 1] - xs[k]) * (py - ys[k]) - (ys[k + 1] - ys[k]) * (px - xs[k]);
+        if (cross < -1e-9) return false;
+    }
+    return true;
+}
+
+test('the query point inside the p6 cell names P6 and highlights it; on seeded random positions the brute-force nearest equals the highlighted cell', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual([VORONOI_DEFAULT_QUERY.x, VORONOI_DEFAULT_QUERY.y]);
+    expect(graph.queryNearest()).toEqual([5]);
+    expect(part('query-nearest')).toBe('Najbližje mesto: P6; njegova celica je poudarjena.');
+    let seed = 12345;
+    const next = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+    const points = graph.model.points;
+    const highlightedSites = () => {
+        const cells = named(graph, 'voronoi-cell').filter(o => (o.visProp?.fillopacity as number) > 0.3);
+        expect(cells).toHaveLength(1);
+        return points.map((p, i) => ({p, i})).filter(({p}) => insideOrOn(cells[0].dataX!, cells[0].dataY!, p.x, p.y)).map(({i}) => i);
+    };
+    for (let k = 0; k < 40; k++) {
+        const qx4 = Math.round(next() * 56 - 16);
+        const qy4 = Math.round(next() * 56 - 8);
+        const point = new RationalPoint(Rational.of(qx4, 4), Rational.of(qy4, 4));
+        act(() => { expect(graph.setQueryPoint(point)).toBe(true); });
+        const brute = bruteNearest(points, qx4, qy4);
+        expect(graph.queryNearest()).toEqual(brute);
+        expect(highlightedSites()).toContain(brute[0]);
+        if (brute.length === 1) expect(highlightedSites()).toEqual([brute[0]]);
+        expect(part('query-nearest')).toContain(brute.length === 1 ? `P${brute[0] + 1}` : 'Točka leži na simetrali');
+    }
+    // a point exactly inside the p6 cell at a rational position
+    act(() => { graph.setQueryText('7/2', '5/2'); });
+    expect(graph.queryNearest()).toEqual([5]);
+});
+
+test('a query point on a bisector lists every tied site; invalid and out-of-range text is refused', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.loadModel(serializePointSetModel({...VORONOI_EXAMPLE, points: [{x: 0, y: 0}, {x: 4, y: 0}, {x: 0, y: 4}, {x: 4, y: 4}]})); });
+    act(() => { graph.setQueryText('2', '2'); });
+    expect(graph.queryNearest()).toEqual([0, 1, 2, 3]);
+    expect(part('query-nearest')).toBe('Točka leži na simetrali: enako blizu so mesta P1, P2, P3, P4.');
+    expect(graph.setQueryText('1000000000', '0')).toBe(false);
+    expect(graph.setQueryText('abc', '0')).toBe(false);
+    expect(graph.query.x.format()).toBe('2');
+    expect(graph.setQueryText('1,5', '3/2')).toBe(true);
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['3/2', '3/2']);
+});
+
+test('a site drag changes diagram and overlay together in one write; an edit clears selection and construction', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { fireEvent.click(siteButton(2)); });
+    click('construct-next');
+    click('construct-next');
+    act(() => { fireEvent.click(triangleButton(0)); });
+    expect([graph.cellSite, graph.construction, graph.selectedTriangle()]).toEqual([2, 2, 0]);
+    const before = graph.diagram()!.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`);
+    const writes = vi.spyOn(graph, 'setState');
+    dragSite(graph, 3, 5, 9);
+    expect(writes).toHaveBeenCalledTimes(1);
+    writes.mockRestore();
+    expect(graph.model.points[3]).toEqual({x: 5, y: 9});
+    const after = graph.diagram()!.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`);
+    expect(after).not.toEqual(before);
+    // diagram and overlay both come from the new points
+    expect(graph.delaunay()!.points).toEqual(graph.model.points);
+    const fresh = voronoiFromDelaunay(graph.model.points);
+    expect(fresh.ok && fresh.value.vertices.map(v => v.sites.join())).toEqual(graph.diagram()!.vertices.map(v => v.sites.join()));
+    expect(graph.drawingStats()).toMatchObject({vertexMarkers: graph.diagram()!.vertices.length});
+    expect(named(graph, 'voronoi-delaunay-hull').length + named(graph, 'voronoi-delaunay-interior').length).toBe(triangulationEdges(graph.delaunay()!).length);
+    expect([graph.cellSite, graph.construction, graph.selectedTriangle()]).toEqual([null, 0, undefined]);
+    expect(named(graph, 'voronoi-selected-circle')).toHaveLength(0);
+    expect(named(graph, 'voronoi-bisector')).toHaveLength(0);
+    expect(named(graph, 'voronoi-bisector-latest')).toHaveLength(0);
+    // add and remove edit too
+    act(() => { fireEvent.click(siteButton(1)); });
+    click('construct-next');
+    act(() => { graph.addPointAt({x: 9, y: -3}); });
+    expect([graph.cellSite, graph.construction, graph.model.points.length]).toEqual([null, 0, 8]);
+    act(() => { fireEvent.click(siteButton(1)); });
+    click('construct-next');
+    act(() => { graph.select(7); graph.removeSelected(); });
+    expect([graph.cellSite, graph.construction, graph.model.points.length]).toEqual([null, 0, 7]);
+});
+
+test('the construction ends at the polygon clipCell returns (exact) for every site, in the decided order', () => {
+    const graph = new Observed();
+    mount(graph);
+    const points = graph.model.points;
+    for (let site = 0; site < points.length; site++) {
+        act(() => { fireEvent.click(siteButton(site)); });
+        expect(graph.construction).toBe(0);
+        expect(part('construction')).toBe(`Celica mesta P${site + 1}: začetek, še brez simetral (0 od 6).`);
+        for (let k = 0; k < 6; k++) click('construct-next');
+        expect(graph.construction).toBe(6);
+        expect(part('construction')).toContain(`presek polravnin je celica mesta P${site + 1}`);
+        const expected = clipCell(graph.diagram()!, points, site, graph.box()!).polygon;
+        expect(sameCyclicPolygon(graph.constructionPolygon(), expected)).toBe(true);
+        expect(named(graph, 'voronoi-construction-region')[0].dataX).toHaveLength(expected.length + 1);
+        expect(named(graph, 'voronoi-bisector').length + named(graph, 'voronoi-bisector-latest').length).toBeGreaterThan(0);
+    }
+    // Back, Reset and a further Next are deterministic
+    click('construct-back');
+    expect(graph.construction).toBe(5);
+    click('construct-next');
+    expect(graph.construction).toBe(6);
+    click('construct-next');
+    expect(graph.construction).toBe(6);
+    click('construct-reset');
+    expect(graph.construction).toBe(0);
+    expect(named(graph, 'voronoi-construction-region')).toHaveLength(1);
+    expect(named(graph, 'voronoi-bisector-latest')).toHaveLength(0);
+});
+
+test('keyboard only: select a site, select a triangle, move the query point, toggle the overlay', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { fireEvent.click(siteButton(5)); });
+    expect(graph.cellSite).toBe(5);
+    expect(siteButton(5).getAttribute('aria-pressed')).toBe('true');
+    act(() => { fireEvent.click(triangleButton(1)); });
+    expect(graph.selectedTriangle()).toBe(1);
+    expect(triangleButton(1).getAttribute('aria-pressed')).toBe('true');
+    click('query-right');
+    click('query-right');
+    click('query-up');
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['5', '5/2']);
+    expect(part('query-at')).toBe('Točka poizvedbe: (5, 5/2).');
+    click('query-left');
+    click('query-down');
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['9/2', '2']);
+    // the numeric alternative
+    const x = document.querySelector('[data-voronoi="query-x"]') as HTMLInputElement;
+    const y = document.querySelector('[data-voronoi="query-y"]') as HTMLInputElement;
+    act(() => { fireEvent.change(x, {target: {value: '3/2'}}); fireEvent.change(y, {target: {value: '1'}}); });
+    click('query-set');
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['3/2', '1']);
+    act(() => { fireEvent.change(x, {target: {value: 'zz'}}); });
+    click('query-set');
+    expect(document.querySelector('[data-voronoi="query-invalid"]')).not.toBeNull();
+    expect(graph.query.x.format()).toBe('3/2');
+    act(() => { fireEvent.click(overlaySwitch()); });
+    expect(graph.overlayShown('delaunay')).toBe(false);
+    expect(graph.selectedTriangle()).toBeUndefined();
+});
+
+test('a query point dragged on the board snaps to quarters and stays exact', () => {
+    const graph = new Observed();
+    mount(graph);
+    const query = named(graph, 'voronoi-query')[0] as unknown as JXG.Point;
+    act(() => { query.moveTo([6.1, 1.9], 0); trigger(query, 'drag'); });
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['6', '2']);
+    expect([query.X(), query.Y()]).toEqual([6, 2]);
+    expect(graph.queryNearest()).toEqual(nearestSites(graph.model.points, graph.query));
+    expect(graph.model.points).toEqual(VORONOI_EXAMPLE.points);
+});
+
+test('Reset restores the example, switches the overlay off and clears selection, construction and the query point', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { fireEvent.click(triangleButton(2)); });
+    act(() => { fireEvent.click(siteButton(1)); });
+    click('construct-next');
+    click('query-up');
+    act(() => { graph.addPointAt({x: 9, y: -3}); });
+    click('reset-example');
+    expect(graph.model.points).toEqual(VORONOI_EXAMPLE.points);
+    expect(graph.overlayShown('delaunay')).toBe(false);
+    expect([graph.cellSite, graph.construction, graph.selectedTriangle()]).toEqual([null, 0, undefined]);
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['4', '2']);
+    expect(named(graph, 'voronoi-delaunay-hull')).toHaveLength(0);
+    expect(named(graph, 'voronoi-selected-circle')).toHaveLength(0);
+    expect(named(graph, 'voronoi-bisector-latest')).toHaveLength(0);
+    expect(overlaySwitch().checked).toBe(false);
+});
+
+test('duplicates and fewer than two sites refuse with a message and draw nothing; collinear sets are noted', () => {
+    const graph = new Observed();
+    mount(graph);
+    const load = (points: {x: number; y: number}[]) => act(() => { graph.loadModel(serializePointSetModel({...VORONOI_EXAMPLE, points})); });
+    load([{x: 1, y: 1}]);
+    expect(part('refusal')).toBe('Za Voronojev diagram sta potrebni vsaj dve mesti.');
+    expect(named(graph, 'voronoi-cell')).toHaveLength(0);
+    expect(graph.drawingStats()).toBeUndefined();
+    load([{x: 1, y: 1}, {x: 3, y: 3}, {x: 5, y: 5}]);
+    expect(part('collinear')).toContain('na isti premici');
+    expect(readout('sites')).toBe('Mest: 3');
+    load([{x: 1, y: 1}, {x: 3, y: 3}, {x: 1, y: 1}]);
+    expect(part('refusal')).toBe('Mesti P1 in P3 sta enaki; premakni eno od njiju.');
+    // the point limit is the point-set graph's refusal
+    load(Array.from({length: 40}, (_, i) => ({x: i - 20, y: (i * 7) % 11})));
+    expect(graph.model.points).toHaveLength(40);
+    act(() => { expect(graph.addPointAt({x: 30, y: 30})).toBe(false); });
+    expect(graph.model.points).toHaveLength(40);
+});
+
+test('the view follows the board: after a zoom out the rays reach the new box edge and every "continues" marker lies on it; Reset view restores the frame', () => {
+    const graph = new Observed();
+    mount(graph);
+    const board = graph.liveBoard();
+    const frameBox = graph.box()!;
+    const onBox = (box: NonNullable<ReturnType<Observed['box']>>) => {
+        const [minX, maxX, minY, maxY] = [box.minX, box.maxX, box.minY, box.maxY].map(v => v.toNumber());
+        const markers = named(graph, 'voronoi-continues');
+        expect(markers.length).toBeGreaterThanOrEqual(5);
+        for (const m of markers) {
+            const mx = m.X!(), my = m.Y!();
+            expect(mx >= minX - 1e-9 && mx <= maxX + 1e-9 && my >= minY - 1e-9 && my <= maxY + 1e-9).toBe(true);
+            expect(Math.abs(mx - minX) < 1e-9 || Math.abs(mx - maxX) < 1e-9 || Math.abs(my - minY) < 1e-9 || Math.abs(my - maxY) < 1e-9).toBe(true);
+        }
+        const drawn = named(graph, 'voronoi-edges')[0];
+        const touching = drawn.dataX!.map((px, k) => [px, drawn.dataY![k]]).filter(([px, py]) =>
+            Number.isFinite(px) && (Math.abs(px - minX) < 1e-9 || Math.abs(px - maxX) < 1e-9 || Math.abs(py - minY) < 1e-9 || Math.abs(py - maxY) < 1e-9));
+        expect(touching.length).toBeGreaterThanOrEqual(5);
+    };
+    onBox(frameBox);
+    act(() => { board.setBoundingBox([-40, 50, 60, -50], false); });
+    const zoomed = graph.box()!;
+    expect(zoomed).not.toBe(frameBox);
+    expect(zoomed.minX.toNumber()).toBeLessThanOrEqual(-40);
+    expect(zoomed.maxX.toNumber()).toBeGreaterThanOrEqual(60);
+    expect(zoomed.maxY.toNumber()).toBeGreaterThanOrEqual(50);
+    onBox(zoomed);
+    // a construction made now ends at clipCell of the new box
+    act(() => { fireEvent.click(siteButton(0)); });
+    for (let k = 0; k < 6; k++) click('construct-next');
+    expect(sameCyclicPolygon(graph.constructionPolygon(), clipCell(graph.diagram()!, graph.model.points, 0, zoomed).polygon)).toBe(true);
+    click('reset-view');
+    const restored = graph.box()!;
+    for (const key of ['minX', 'maxX', 'minY', 'maxY'] as const) expect(restored[key].equals(frameBox[key])).toBe(true);
+    onBox(restored);
+});
+
+test('the Preset round trip keeps points, overlay, site, count and query; stale values are clamped; the collection validates', async () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { fireEvent.click(siteButton(3)); });
+    click('construct-next');
+    click('construct-next');
+    act(() => { expect(graph.setQueryText('5/2', '1')).toBe(true); });
+    act(() => { graph.saveCurrentPreset('mine'); });
+    expect(graph.presets()).toBe(VORONOI_PRESET_KEY);
+    const saved = graph.exportPreset();
+    expect(saved.graphState).toMatchObject({cellSite: 3, construction: 2, query: {x: '5/2', y: '1'}, overlays: {delaunay: true}});
+    expect(saved.graphState).not.toHaveProperty('model');
+    click('reset-example');
+    expect([graph.cellSite, graph.construction, graph.overlayShown('delaunay')]).toEqual([null, 0, false]);
+    await settle(() => graph.selectPreset('mine'));
+    expect([graph.cellSite, graph.construction, graph.overlayShown('delaunay'), graph.query.x.format(), graph.query.y.format()]).toEqual([3, 2, true, '5/2', '1']);
+    expect(graph.model.points).toEqual(VORONOI_EXAMPLE.points);
+
+    const data = serializePointSetModel(VORONOI_EXAMPLE);
+    const stored = (fields: object) => ({initialized: true, ...fields});
+    act(() => { graph.importPreset({id: VORONOI_PRESET_KEY, graphState: stored({cellSite: 99, construction: 5}), data}); });
+    expect([graph.cellSite, graph.construction]).toEqual([null, 0]);
+    act(() => { graph.importPreset({id: VORONOI_PRESET_KEY, graphState: stored({cellSite: 2, construction: 99}), data}); });
+    expect([graph.cellSite, graph.construction]).toEqual([2, 6]);
+    // a Preset without the extra fields leaves no stale site, count or query
+    act(() => { graph.importPreset({id: VORONOI_PRESET_KEY, graphState: {initialized: true}, data}); });
+    expect([graph.cellSite, graph.construction, graph.query.x.format()]).toEqual([null, 0, '4']);
+});
+
+test('every import refusal is a localized, actionable message', () => {
+    const collection = voronoiCollection;
+    const state = (fields: object) => collection.checkGraphState?.({initialized: true, ...fields});
+    expect(collection.key).toBe('compgeo-voronoi');
+    expect(state({cellSite: 2, construction: 3, query: {x: '1/2', y: '-3'}, overlays: {delaunay: true}})).toBeUndefined();
+    expect(state({cellSite: null})).toBeUndefined();
+    for (const bad of [{cellSite: 'a'}, {cellSite: 1.5}, {construction: -1}, {construction: 'x'}, {query: {x: 'a', y: '1'}}, {query: {x: '1'}}, {query: 4}, {query: {x: '1', y: '1/0'}}]) {
+        expect(state(bad)?.key).toBe('vor_invalid_state');
+    }
+    expect(state({overlays: {nope: true}})?.key).toBe('pointset_invalid_overlays');
+    const data = serializePointSetModel(VORONOI_EXAMPLE);
+    expect('data' in collection.check(data)).toBe(true);
+    const polygon = collection.check({...data, mode: 'polygon'});
+    expect('rejection' in polygon && polygon.rejection.key).toBe('vor_invalid_mode');
+    expect('rejection' in collection.check({...data, points: Array.from({length: 41}, (_, i) => ({x: i, y: (i * i) % 7}))})).toBe(true);
+    expect('rejection' in collection.check({...data, points: [{x: 1e9, y: 0}]})).toBe(true);
+    expect('rejection' in collection.check('nonsense')).toBe(true);
+    // both messages exist in both languages and tell the student what to do
+    setLanguage('sl');
+    expect(t('vor_invalid_state')).toContain('popravi');
+    expect(t('vor_invalid_mode')).toContain('popravi');
+    setLanguage('en');
+    expect(t('vor_invalid_state')).toMatch(/fix|correct/i);
+    expect(t('vor_invalid_mode')).toMatch(/fix|correct/i);
+});
+
+test('a live language switch re-renders the panel and the query text', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(readout('sites')).toBe('Mest: 7');
+    expect(languageListeners.live).toBeGreaterThan(0);
+    act(() => { setLanguage('en'); });
+    expect(readout('sites')).toBe('Sites: 7');
+    expect(part('query-nearest')).toContain('P6');
+    expect(part('query-nearest')).not.toContain('Najbližje');
+    expect(overlaySwitch().closest('label')?.textContent).toContain('Duality');
+});
+
+test('unmount and a scene change leave no objects or listeners (the graph schedules no timers)', async () => {
+    const graph = new Observed();
+    const view = mount(graph);
+    const board = graph.liveBoard();
+    const box = board.containerObj as HTMLElement;
+    const remove = vi.spyOn(box, 'removeEventListener');
+    act(() => { fireEvent.click(overlaySwitch()); });
+    act(() => { fireEvent.click(triangleButton(0)); });
+    act(() => { fireEvent.click(siteButton(0)); });
+    click('construct-next');
+    act(() => { graph.saveCurrentPreset('mine'); });
+    const ours = () => (board.objectsList as unknown as Shown[]).filter(o => /^voronoi-/.test(o.name ?? '')).length;
+    expect(ours()).toBeGreaterThan(10);
+    await settle(() => graph.selectPreset('mine'));
+    expect(ours()).toBeGreaterThan(10);
+    act(() => { graph.setOverlay('delaunay', false); });
+    expect(named(graph, 'voronoi-delaunay-hull')).toHaveLength(0);
+    expect(named(graph, 'voronoi-selected-circle')).toHaveLength(0);
+    expect(languageListeners.live).toBeGreaterThan(0);
+    view.unmount();
+    expect(ours()).toBe(0);
+    expect(languageListeners.live).toBe(0);
+    expect(remove.mock.calls.filter(([type, listener]) => type === 'keydown' && listener === graph['onKeyDown'])).toHaveLength(1);
+    expect(box.childElementCount).toBe(0);
+    expect(() => act(() => { setLanguage('en'); })).not.toThrow();
+});
+
+test('the starting view frames the example sites', () => {
+    const graph = new Observed();
+    mount(graph);
+    const [left, top, right, bottom] = graph.liveBoard().getBoundingBox();
+    for (const p of VORONOI_EXAMPLE.points) {
+        const at = gridToBoard(p, 0);
+        expect(at.x >= left && at.x <= right && at.y >= bottom && at.y <= top).toBe(true);
+    }
+});
