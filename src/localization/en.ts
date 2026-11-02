@@ -1568,6 +1568,8 @@ export const en: Record<keyof typeof sl, string> = {
     "triangle_centres_prompt": "Move the triangle's vertices, predict where the circumcentre lies (inside the triangle, on its side or outside) and when the orthocentre ends up outside, and only then switch the points on and check.",
     "inscribed_angle_title": "Inscribed angle and Thales' theorem",
     "inscribed_angle_prompt": "Move the point P along the circle, predict how the inscribed angle over the chord changes and when it is a right angle (Thales' theorem), and only then read the angle sizes.",
+    "euler_line_title": "Euler line and nine-point circle",
+    "euler_line_prompt": "Move the triangle's vertices, predict whether the circumcentre O, the centroid G and the orthocentre H can lie on one line and how far G is from each of them, and only then switch the line on and measure.",
     "invalid_function_data":"invalid function data",
     "bernstein_polynomials": "Bernstein polynomials",
     "bezier_curve_209": "Bézier curve",

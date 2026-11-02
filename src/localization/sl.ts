@@ -1567,6 +1567,8 @@ export const sl = {
     "triangle_centres_prompt": "Premakni oglišča trikotnika, napovej, kje leži središče očrtane krožnice (znotraj trikotnika, na robu ali zunaj) in kdaj se višinska točka znajde izven trikotnika, in šele nato vklopi točke in preveri.",
     "inscribed_angle_title": "Obodni kot in Talesov izrek",
     "inscribed_angle_prompt": "Premikaj točko P po krožnici, napovej, kako se spreminja obodni kot nad tetivo in kdaj je pravi kot (Talesov izrek), in šele nato preberi velikosti kotov.",
+    "euler_line_title": "Eulerjeva premica in krožnica devetih točk",
+    "euler_line_prompt": "Premakni oglišča trikotnika, napovej, ali lahko središče očrtane krožnice O, težišče G in višinska točka H ležijo na isti premici in kako daleč je G od vsake izmed njih, in šele nato vklopi premico ter izmeri.",
     "invalid_function_data":"neveljavni podatki funkcije",
     "bernstein_polynomials": "Bernsteinovi Polinomi",
     "bezier_curve_209": "Bezierjeva Krivulja",

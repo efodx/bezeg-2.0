@@ -60,6 +60,7 @@ import { ComplexReciprocalGraph } from './complex/ComplexReciprocalGraph';
 import { ComplexRootsGraph } from './complex/ComplexRootsGraph';
 import { NotablePointsGraph } from './compgeo/NotablePointsGraph';
 import { InscribedAngleGraph } from './compgeo/InscribedAngleGraph';
+import { EulerLineGraph } from './compgeo/EulerLineGraph';
 import { LinearMapGraph } from './linear/LinearMapGraph';
 import { FixedPointGraph } from './functions/FixedPointGraph';
 import type BaseGraph from './base/BaseGraph';
@@ -149,6 +150,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'complex-roots': () => new ComplexRootsGraph(),
     'triangle-centres': () => new NotablePointsGraph(),
     'inscribed-angle': () => new InscribedAngleGraph(),
+    'euler-line': () => new EulerLineGraph(),
     'orientation': () => new OrientationGraph(),
     'polygon-area': () => new PolygonAreaGraph(),
     'convex-hull': () => new HullTraceGraph(),

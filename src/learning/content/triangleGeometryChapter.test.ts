@@ -41,13 +41,14 @@ describe('triangle geometry reading chapter', () => {
         }
     });
 
+    // The Euler line Demonstration is registered in F2b; the chapter links it with its section in F4.
     test('links existing Demonstrations of the plane geometry family', () => {
         const demonstrations = getDemonstrationCatalog().demonstrations;
         for (const section of triangleGeometryChapter.sections) {
             for (const id of section.demonstrationIds ?? []) expect(demonstrations.find(demo => demo.id === id)?.family).toBe('plane-geometry');
         }
         const linked = triangleGeometryChapter.sections.flatMap(section => section.demonstrationIds ?? []);
-        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry').map(demo => demo.id).sort());
+        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry' && demo.id !== 'euler-line').map(demo => demo.id).sort());
     });
 
     test('puts each section example at its end and keeps both languages complete', () => {

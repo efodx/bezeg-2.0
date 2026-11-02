@@ -4,6 +4,7 @@ import {curvePresetCollections, legacyCurvePresetCollections} from "../../curves
 import {functionPresetCollections} from "../../functions/functionPresetCollections";
 import {notablePointsCollection} from "../../compgeo/notablePointsPresetCollection";
 import {inscribedAngleCollection} from "../../compgeo/inscribedAnglePresetCollection";
+import {eulerLineCollection} from "../../compgeo/eulerLinePresetCollection";
 import {compgeoPresetCollections} from "../../compgeo/compgeoPresetCollections";
 import {patchPresetCollections} from "../../patches/patchPresetCollections";
 import {complexReciprocalPresetCollection} from "../../complex/complexReciprocalPresets";
@@ -24,7 +25,7 @@ import {crossRatioPresetCollection, pascalPresetCollection, polePolarPresetColle
 export const presetCollections: readonly PresetCollection<unknown>[] = [
     ...Object.values(curvePresetCollections), ...legacyCurvePresetCollections, ...Object.values(functionPresetCollections),
     ...Object.values(patchPresetCollections), linearMapPresetCollection, complexReciprocalPresetCollection, complexRootsPresetCollection,
-    ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection,
+    ...compgeoPresetCollections, notablePointsCollection, inscribedAngleCollection, eulerLineCollection,
     parametricPresetCollection, interpolationPresetCollection, hermitePresetCollection, subdivisionPresetCollection,
     coonsPresetCollection, bsplinePresetCollection, crossRatioPresetCollection(), pascalPresetCollection(), polePolarPresetCollection(),
 ];
