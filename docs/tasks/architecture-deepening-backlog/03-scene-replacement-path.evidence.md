@@ -54,6 +54,8 @@ After S4 the registry-wide case asserts, for every registered family, that no pr
 
 - After the review repair `ea1025a8`: the contract file and the hermite, interpolation and parametric tests (9 files, 338 tests), typecheck and lint passed.
 
+- After rebasing onto master's new families and lessons (`82c0d16e`, then `e9a3fa04`; pushed as `ef02a5c5`): the contract file (218 tests), `src/graphs/curves`, `compgeo` and `functions`, `src/learning/content`, the four `lessonRestoration` parts (now including lessons I3, I5 and C2), `src/learning/chapter`, typecheck, lint and build passed. Master's new graphs (de Boor, basis plot, inverse, transformation, Fourier) are not yet registered Demonstrations, so the registry-wide case does not reach them until they are.
+
 ## Review
 
 Engineering review of S3b and S4 (`bezeg-reviewer` Sonnet). No high-severity finding. Two low findings:
