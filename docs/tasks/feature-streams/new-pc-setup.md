@@ -1,7 +1,6 @@
 # Resume the feature streams on a new PC
 
-On 2026-11-02 the owner moved Bezeg development to a new computer. Every stream handler on the old PC wrote a handoff and pushed it. Its stream file on `origin/master` reads `Run state: stopped: PC switch 2026-11-02, resume on the new PC from the latest handoff`. Each handler's unfinished work and untracked review evidence is in `wip:` commits, listed per stream in step 6. Geometry's WIP is only in the bundle below, because its push was not allowed.
-
+On 2026-11-02 the owner moved Bezeg development to a new computer. Every stream handler on the old PC wrote a handoff and pushed it. Its stream file on `origin/master` reads `Run state: stopped: PC switch 2026-11-02, resume on the new PC from the latest handoff`. Each handler's unfinished work and untracked review evidence is in `wip:` commits, listed per stream in step 6.
 Machine-only state is in the folder `bezeg-pc-move` from the old PC, if the owner copied it:
 
 - `claude-settings.json`: the old `~/.claude/settings.json`.
@@ -57,8 +56,7 @@ Without the folder, skip this step.
 **5. Old local refs.** If `bezeg-pc-move/bezeg-local.bundle` is available:
 
 - Run `git bundle verify` on it, then `git fetch <bundle> 'refs/*:refs/old-pc/*'`. This puts everything under `refs/old-pc/` and touches no existing branch.
-- `refs/old-pc/heads/stream-geometry-wip-pc-switch` is geometry's WIP; step 6 uses it.
-- The rest is not part of any stream:
+- None of it is needed to resume the streams:
   - learn-ui's review evidence (`refs/old-pc/heads/worktree-stream-learn-ui`);
   - old prototype branches;
   - five stashes (`refs/old-pc/pc-move/stash-*`);
@@ -66,9 +64,6 @@ Without the folder, skip this step.
   - one unpushed docs commit (`refs/old-pc/heads/worktree-lesson-minimise-header`).
 
   List these for the owner and do nothing else with them.
-
-Without the bundle, geometry resumes from `origin/master`. Tell the owner the geometry 16b worker plan and evidence were lost.
-
 **6. Stream worktrees.** The streams still to run are the ones whose `Run state` on `origin/master` starts with `stopped: PC switch` (expected: geometry, functions, curves, maps; platform and learn-ui are complete). For each `<id>`:
 
 1. Read its newest `docs/reviews/feature-streams/<id>/handler-handoff-<n>.md`, the highest `<n>`.
@@ -76,7 +71,7 @@ Without the bundle, geometry resumes from `origin/master`. Tell the owner the ge
 
    | Stream | `<branch>` | `<start>` | Handoff |
    | --- | --- | --- | --- |
-   | geometry | `stream-geometry` | `refs/old-pc/heads/stream-geometry-wip-pc-switch` (`173a00ed`), else `origin/master` | 32 |
+   | geometry | `stream-geometry` | `origin/stream-geometry-wip-pc-switch` (`173a00ed`) | 32 |
    | functions | `worktree-stream-functions` | `origin/wip/functions-pc-switch` (`54ec5703`) | 20 |
    | curves | `worktree-stream-curves` | `origin/master`; it had no WIP | 24 |
    | maps | `worktree-stream-maps` | `origin/maps-wip-pc-switch` (`bb66362b`) | 19 |
