@@ -8,7 +8,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {Conic} from "../../projective/conic";
 import {sampleConic} from "../../projective/conicSampler";
 import {
-    arcPoint, DEFAULT_FIVE_POINT_MODEL, evaluateFivePoint, extrapolatedPieces, FIVE_POINT_COUNT, FIVE_POINT_DENOMINATOR, FIVE_POINT_EXAMPLES, FIVE_POINT_NAMES,
+    arcPoint, DEFAULT_FIVE_POINT_MODEL, evaluateFivePoint, extrapolatedPieces, FIVE_POINT_COUNT, FIVE_POINT_DENOMINATOR, FIVE_POINT_EXAMPLE_IDS, FIVE_POINT_EXAMPLES, FIVE_POINT_NAMES, FIVE_POINT_NUMERATOR_LIMIT,
     FIVE_POINT_STEP, FIVE_POINT_VIEW_BOX, FivePointExampleId, FivePointModel, FivePointScene, LastUnique, nextLastUnique, serializeFivePointModel, shownConic,
 } from "./fivePointModel";
 import {movePoint, nudgePoint, setEnd, setNumerators, setThird} from "./fivePointEdit";
@@ -16,6 +16,8 @@ import {FivePointControls} from "./FivePointControls";
 import {describeFivePoint} from "./fivePointText";
 import {definingPoints} from "./definingPoints";
 import {fivePointPresetCollection} from "./projectivePresetCollection";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /**
  * The five-point graph (K4 of projective-conics-lessons, ADR 0033): five draggable points A to E on the 1/5 grid, the unique conic through
@@ -178,6 +180,61 @@ export class FivePointGraph extends BaseGraph<FivePointGraphState, FivePointMode
         this.extrapolation = on;
         this.requestRender();
         this.boardUpdate();
+    }
+
+    /**
+     * Lesson actions (`projective`, the `five-point-*` operations): each is the matching control action. Values are checked strictly (a
+     * lesson-content error throws, nothing is clamped, snapped or ignored), then the control's own graph method runs.
+     */
+    applyProjectiveAction(action: Extract<LessonAction, {kind: "projective"}>): void {
+        const index = (value: unknown, operation: string): number => {
+            if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value >= FIVE_POINT_COUNT) {
+                throw new Error(`projective ${operation}: index must be an integer from 0 to ${FIVE_POINT_COUNT - 1}.`);
+            }
+            return value;
+        };
+        switch (action.operation) {
+            case "five-point-load-example": {
+                const id = FIVE_POINT_EXAMPLE_IDS.find(candidate => candidate === action.exampleId);
+                if (id === undefined) throw new Error(`projective five-point-load-example: exampleId must be one of ${FIVE_POINT_EXAMPLE_IDS.join(", ")}.`);
+                this.loadExample(id);
+                return;
+            }
+            case "five-point-set-end": {
+                const which = action.which === "a" || action.which === "b" ? action.which : undefined;
+                if (which === undefined) throw new Error("projective five-point-set-end: which must be \"a\" or \"b\".");
+                this.chooseEnd(which, index(action.index, "five-point-set-end"));
+                return;
+            }
+            case "five-point-set-third": {
+                const i = index(action.index, "five-point-set-third");
+                if (i === this.model.a || i === this.model.b) throw new Error(`projective five-point-set-third: point ${FIVE_POINT_NAMES[i]} is an arc end; the weight point must be another point.`);
+                this.chooseThird(i);
+                return;
+            }
+            case "five-point-place": {
+                const i = index(action.index, "five-point-place");
+                const {x, y} = action;
+                const whole = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && Math.abs(value) <= FIVE_POINT_NUMERATOR_LIMIT;
+                if (!whole(x) || !whole(y)) {
+                    throw new Error(`projective five-point-place: x and y must be integer numerators over ${FIVE_POINT_DENOMINATOR} within ±${FIVE_POINT_NUMERATOR_LIMIT}.`);
+                }
+                this.placeNumerators(i, x, y);
+                return;
+            }
+            case "five-point-set-extrapolation": {
+                if (typeof action.on !== "boolean") throw new Error("projective five-point-set-extrapolation: on must be true or false.");
+                this.setExtrapolation(action.on);
+                return;
+            }
+            default:
+                throw new Error(`projective: the five-point graph has no operation ${action.operation}.`);
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("projective", action => this.applyProjectiveAction(action));
     }
 
     // ---- Presets -------------------------------------------------------------------------------------------------

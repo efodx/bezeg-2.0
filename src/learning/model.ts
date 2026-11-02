@@ -5,6 +5,7 @@ import type {SimsonExampleId, SimsonOffset} from '../compgeo/simsonLineModel';
 import type {InversionExampleId} from '../compgeo/inversionModel';
 import type {InversionFocus} from '../graphs/compgeo/inversionPresetCollection';
 import type {PascalConicId, PascalExampleId, PascalOrderId} from '../graphs/projective/pascalModel';
+import type {FivePointExampleId} from '../graphs/projective/fivePointModel';
 import type {PolePolarConicId, PolePolarExampleId} from '../graphs/projective/polePolarModel';
 import type {ParametricCurveId} from '../graphs/curves/parametric/parametricCatalogue';
 import {BISECTION_EXAMPLE_IDS} from '../analysis/bisection';
@@ -245,6 +246,13 @@ export type LessonAction =
      * integer numerators `x`, `y` over 5 (each within +-50, a coordinate within +-10), and `pole-polar-set-direction` turns P into the
      * point at infinity of the integer direction `dx`, `dy` (each within +-5, not both 0); with both omitted it returns to the finite P.
      * Scene data is strict: a non-integer or out-of-range value is a lesson-content error, never snapped.
+     * FivePointGraph (K4) has its own `five-point-*` operations, which the other projective graphs reject (and the reverse):
+     * `five-point-load-example` is the example button, `five-point-set-end` makes point `index` 0-4 the arc end `which` ('a' or 'b';
+     * choosing the other end's point swaps the ends), `five-point-set-third` makes point `index` the weight point (not an arc end),
+     * `five-point-place` puts point `index` at integer numerators `x`, `y` over 15 (each within +-150, the 1/15 grid of the named
+     * examples, not only the 1/5 grid of a drag), and `five-point-set-extrapolation` is the checkbox that continues the arc outside
+     * t in [0, 1] (not part of the example, so a scene sets it explicitly). Scene data is strict: a non-integer, off-grid or out-of-range
+     * value is a lesson-content error, never snapped.
      */
     | {readonly kind: 'projective'; readonly operation: 'load-example'; readonly exampleId: CrossRatioExampleId}
     | {readonly kind: 'projective'; readonly operation: 'move-handle'; readonly handle: number; readonly x: number; readonly y?: number}
@@ -256,6 +264,11 @@ export type LessonAction =
     | {readonly kind: 'projective'; readonly operation: 'pole-polar-set-conic'; readonly conic: PolePolarConicId}
     | {readonly kind: 'projective'; readonly operation: 'pole-polar-place'; readonly x: number; readonly y: number}
     | {readonly kind: 'projective'; readonly operation: 'pole-polar-set-direction'; readonly dx?: number; readonly dy?: number}
+    | {readonly kind: 'projective'; readonly operation: 'five-point-load-example'; readonly exampleId: FivePointExampleId}
+    | {readonly kind: 'projective'; readonly operation: 'five-point-set-end'; readonly which: 'a' | 'b'; readonly index: number}
+    | {readonly kind: 'projective'; readonly operation: 'five-point-set-third'; readonly index: number}
+    | {readonly kind: 'projective'; readonly operation: 'five-point-place'; readonly index: number; readonly x: number; readonly y: number}
+    | {readonly kind: 'projective'; readonly operation: 'five-point-set-extrapolation'; readonly on: boolean}
     /**
      * SimsonLineGraph's scene actions (the glider angle is the `parameter` action named `t`, in degrees; the overlays are `point-set`
      * `set-overlay`). `load-example` is the example button; `set-offset` is the offset slider and takes only a member of `SIMSON_OFFSETS`.
