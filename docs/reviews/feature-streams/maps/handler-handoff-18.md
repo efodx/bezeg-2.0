@@ -3,7 +3,7 @@
 Written 2026-11-02 by handler 18 (Opus 5.5, `auto`, effort `medium`), which continued from [handoff 17](handler-handoff-17.md).
 - Gates: `G-REG` and `G-CG` open, `G-HL` closed. `Run state: active`.
 - Worktree `.claude/worktrees/stream-maps`, branch `worktree-stream-maps`.
-- `origin/master` is at `1d40b2cf`. The branch is one commit ahead, `d4ea091c` (the unreviewed inversion model), and is pushed to `origin/worktree-stream-maps`, **not** to master.
+- `origin/master` is at `1d40b2cf`. The branch is one commit ahead, `d4ea091c` (the unreviewed inversion model), and is pushed to `origin/maps-handoff-18`, **not** to master (`origin/worktree-stream-maps` holds old diverged history; I did not force it). After step 1 lands on master, delete `origin/maps-handoff-18`.
 - This note is the next commit on the branch.
 
 Reason for handoff: the handler context passed the 150k soft threshold while the 08 F2a model worker ran. Its slice was integrated and verified; no new step was started.
