@@ -84,6 +84,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | Eulerjeva premica | Euler line (triangle geometry, F2b) |
 | krožnica devetih točk | nine-point circle (triangle geometry, F2b) |
 | Simsonova premica | Simson line (triangle geometry, 07 F2b) |
+| inverzija | inversion (triangle geometry, 08 F2b) |
+| središče inverzije | centre of inversion (triangle geometry, 08 F2b) |
+| potenca točke na krožnico | power of a point with respect to a circle (triangle geometry, 08 F2b) |
+| posplošena krožnica | generalised circle (circle or line) (triangle geometry, 08 F2b) |
 | nožišče | foot of a perpendicular (pedal point) (triangle geometry, 07 F2b) |
 | nožiščni trikotnik | pedal triangle (triangle geometry, 07 F2b) |
 | nosilka stranice | side line (line carrying a side) (triangle geometry, 07 F2b) |

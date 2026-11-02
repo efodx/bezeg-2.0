@@ -64,6 +64,7 @@ import { NotablePointsGraph } from './compgeo/NotablePointsGraph';
 import { InscribedAngleGraph } from './compgeo/InscribedAngleGraph';
 import { EulerLineGraph } from './compgeo/EulerLineGraph';
 import { SimsonLineGraph } from './compgeo/SimsonLineGraph';
+import { InversionGraph } from './compgeo/InversionGraph';
 import { LinearMapGraph } from './linear/LinearMapGraph';
 import { FixedPointGraph } from './functions/FixedPointGraph';
 import type BaseGraph from './base/BaseGraph';
@@ -159,6 +160,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'inscribed-angle': () => new InscribedAngleGraph(),
     'euler-line': () => new EulerLineGraph(),
     'simson-line': () => new SimsonLineGraph(),
+    'inversion': () => new InversionGraph(),
     'orientation': () => new OrientationGraph(),
     'polygon-area': () => new PolygonAreaGraph(),
     'convex-hull': () => new HullTraceGraph(),

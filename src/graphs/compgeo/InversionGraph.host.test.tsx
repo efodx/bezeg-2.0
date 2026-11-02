@@ -295,7 +295,7 @@ test('angle example: 60 degrees before, signed -60 after, the sign flip sentence
     expectFiniteBoard(graph);
 });
 
-test('X = C shows the centre message and draws no image; a far image gets an edge marker and "outside the view"', () => {
+test('X = C shows the centre message and draws no image; an image beyond the draw cap gets an edge marker and "too far to draw"', () => {
     const graph = new Observed();
     mount(graph);
     act(() => { graph.setX({x: 0, y: 0}); });
@@ -307,12 +307,14 @@ test('X = C shows the centre message and draws no image; a far image gets an edg
     // The image distance is 64, beyond the draw cap of 30.
     expect(exact(graph, 'X′')).toHaveLength(0);
     expect(exact(graph, 'edge-marker-image')).toHaveLength(1);
-    expect(readout('image')).toContain('zunaj pogleda');
+    // Beyond the cap the image is not drawn at any zoom, so the readout says "too far to draw", not "outside the view".
+    expect(readout('image')).toContain('predaleč za risanje');
+    expect(readout('image')).not.toContain('zunaj pogleda');
     expect(readout('image')).toContain('(64, 0)');
     noNaN(graph);
     expect(expectFiniteBoard(graph)).toBeGreaterThan(5);
     act(() => { setLanguage('en'); });
-    expect(readout('image')).toContain('outside the view');
+    expect(readout('image')).toContain('too far to draw');
     // Back inside: the marker is gone and the image is drawn.
     act(() => { graph.setRadius(2); });
     expect(exact(graph, 'edge-marker-image')).toHaveLength(0);

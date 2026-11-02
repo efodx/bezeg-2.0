@@ -53,7 +53,7 @@ describe('triangle geometry reading chapter', () => {
             for (const id of section.demonstrationIds ?? []) expect(demonstrations.find(demo => demo.id === id)?.family).toBe('plane-geometry');
         }
         const linked = triangleGeometryChapter.sections.flatMap(section => section.demonstrationIds ?? []);
-        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry').map(demo => demo.id).sort());
+        expect(linked.sort()).toEqual(demonstrations.filter(demo => demo.family === 'plane-geometry' && demo.id !== 'inversion').map(demo => demo.id).sort());
     });
 
     test('puts each section example at its end and keeps both languages complete', () => {

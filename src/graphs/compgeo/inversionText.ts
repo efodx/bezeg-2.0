@@ -45,14 +45,22 @@ export function lineText(image: Extract<ExactImage, {kind: "line"}>): string {
     return `${parts.join(" ")} = ${exactText(image.c)}`;
 }
 
-function withOutside(text: string, outside: boolean, translate: typeof t): string {
-    return outside ? `${text}; ${translate("notable_outside_view")}` : text;
+/** Why the board does not show an object: outside the current view box, or beyond the model's draw cap (not drawn at any zoom). */
+type Hidden = false | "view" | "cap";
+
+function hidden(outsideView: boolean, beyondCap: boolean): Hidden {
+    return beyondCap ? "cap" : outsideView ? "view" : false;
+}
+
+function withOutside(text: string, where: Hidden, translate: typeof t): string {
+    if (where === false) return text;
+    return `${text}; ${translate(where === "cap" ? "inversion_beyond_cap" : "notable_outside_view")}`;
 }
 
 export function inversionTexts(view: InversionView, translate: typeof t, language: NumberLanguage, outside: ReadonlySet<InversionPlaceId>,
                                radius: number): InversionTexts {
     const num = (value: number) => formatNumber(value, language, 3);
-    const row = (id: string, text: string, isOutside = false): InversionRow => ({id, text: withOutside(text, isOutside, translate), outsideView: isOutside});
+    const row = (id: string, text: string, where: Hidden = false): InversionRow => ({id, text: withOutside(text, where, translate), outsideView: where !== false});
     if (view.kind === "no-centre") {
         const text = translate("inversion_no_centre");
         return {state: "no-centre", chip: text, rows: [row("no-centre", text)]};
@@ -68,7 +76,7 @@ export function inversionTexts(view: InversionView, translate: typeof t, languag
             const text = translate("inversion_centre_no_image");
             return {state: "centre", chip: text, rows: [row("centre", text)]};
         }
-        const isOutside = outside.has("image") || point.board === undefined;
+        const isOutside = hidden(outside.has("image"), point.board === undefined);
         const image = translate("inversion_point_image", {value0: pointText(point.exact)});
         const position = translate(point.position === "inside" ? "inversion_pos_inside" : point.position === "on" ? "inversion_pos_on" : "inversion_pos_outside", {value0: "X"});
         return {
@@ -85,7 +93,7 @@ export function inversionTexts(view: InversionView, translate: typeof t, languag
             ? translate(source.throughCentre ? "inversion_kind_circle_to_line" : "inversion_kind_circle_to_circle")
             : translate(source.throughCentre ? "inversion_kind_line_to_self" : "inversion_kind_line_to_circle");
         const state = isCircle ? (source.throughCentre ? "circle-to-line" : "circle-to-circle") : (source.throughCentre ? "line-to-self" : "line-to-circle");
-        const isOutside = outside.has("source-image") || (source.shape === "circle" && source.board === undefined);
+        const isOutside = hidden(outside.has("source-image"), source.shape === "circle" && source.board === undefined);
         const exact = source.exact;
         const image = exact.kind === "line"
             ? translate("inversion_image_line", {value0: lineText(exact)})
@@ -122,7 +130,7 @@ export function inversionTexts(view: InversionView, translate: typeof t, languag
         const text = translate(key);
         return {state: angle.kind, chip: text, rows: [row("angle-case", text)]};
     }
-    const isOutside = outside.has("q-image") || angle.imageBoard === undefined;
+    const isOutside = hidden(outside.has("q-image"), angle.imageBoard === undefined);
     const right = Math.abs(angle.before.unsigned - 90) < 1e-9 && Math.abs(angle.after.unsigned - 90) < 1e-9;
     const rows: InversionRow[] = right
         ? [row("angle-right", translate("inversion_angle_right", {value0: 90}), isOutside)]

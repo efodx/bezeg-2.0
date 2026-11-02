@@ -31,7 +31,7 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
 const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-derivatives", "patch-subdivision", "patch-joins", "patch-triangular"];
 /** The computational-geometry Demonstrations, one collection each. */
 const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hull-trace",
-    "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle", "compgeo-euler-line", "compgeo-simson-line", "compgeo-triangulation", "compgeo-delaunay"];
+    "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle", "compgeo-euler-line", "compgeo-simson-line", "compgeo-inversion", "compgeo-triangulation", "compgeo-delaunay"];
 /** The projective-conics Demonstrations, one collection each. */
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar"];
 /** Collections registered with the importer before their Demonstration exists; each registration slice (projective conics 07 F2b, numerical methods 06 F2b, curves interpolation I4) removes its key when it adds the route. */
