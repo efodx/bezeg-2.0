@@ -23,7 +23,7 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 | BS-A-2a1 | F2a | `BSplineCurve`, JSXGraph wrapper, local Preset collection with validation and localized reasons; L2 golden numbers through the class | BS-1a, `G-CURVE` | done (`9595193e`; engineering + mathematics review, medium finding fixed; [handoff 15](../../reviews/feature-streams/curves/handler-handoff-15.md)) |
 | BS-A-2a2 | F2a | Basis-plot graph (template `BernsteinGraph`), knot editor control (order-preserving drag, 0.01 snap, localized refusal), degree 1–3, clamped/unclamped; measured basis-plot drawing | BS-A-2a1 | done (`27a58bcf`; [evidence](../../reviews/b-splines-nurbs/bs-a-2a2-graph.md)) |
 | BS-A-2a3 | F2a | De Boor graph (`DecasteljauGraph` look), animation id `'deboor'`, active-point highlight, disposal test | BS-A-2a1, BS-A-2a2 (knot editor) | done (handler 17, [evidence](../../reviews/b-splines-nurbs/bs-a-2a3-graph.md)); Presets split out to 2a3b |
-| BS-A-2a3b | F2a | Wire the local B-spline Preset collection into `DeBoorGraph` (`presetCollection()` is undefined; fixture, default, checkpoint, figure and import paths) | BS-A-2a3 | next |
+| BS-A-2a3b | F2a | Wire the local B-spline Preset collection into `DeBoorGraph` (`presetCollection()` is undefined; fixture, default, checkpoint, figure and import paths) | BS-A-2a3 | done ([evidence](../../reviews/b-splines-nurbs/bs-a-2a3b-presets.md)) |
 | BS-A-2b…6 | F2b–F6 | Registration, L1/L2 lessons, chapter, media, Batch A gate | `G-REG`, 2a1–2a3 | planned |
 | BS-B-* | F2a–F6 | L3 insertion/multiplicity (comb from CG-1), L4 extraction | Batch A | planned |
 | BS-C-* | F2a–F6 | L5 NURBS circle, optional L6 blossoming | Batch B | planned |

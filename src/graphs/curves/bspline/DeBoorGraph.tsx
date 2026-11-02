@@ -7,7 +7,7 @@ import BaseGraph, {BaseGraphState, TransientState} from "../../base/BaseGraph";
 import {BSplineCurve, InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../../learning/runtime/iterationController";
-import {BSplinePresetData} from "./bsplinePresetCollection";
+import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {knotRejectionMessage} from "./bsplineKnotMessages";
 import {DeBoorScene} from "./DeBoorScene";
 import {KnotEditor} from "./KnotEditor";
@@ -40,7 +40,9 @@ const initialData = (): Omit<DeBoorGraphState, 'initialized'> => {
  * level in the De Casteljau look, with a readout of the span, every level's points and every alpha. A level-by-level animation
  * (`DEBOOR_ANIMATION_ID`) is driven by an `IterationController`. The scene state (degree, knots, points, t, revealed level) is the
  * only copy of the data; the owned {@link DeBoorScene} reads it lazily. It extends `BaseGraph` directly, like the basis graph, and
- * is not registered yet (no route, factory or lesson); its Preset collection is wired by the follow-up slice.
+ * is not registered yet (no route, factory or lesson). Its Preset collection is `bsplinePresetCollection`. The graph draws only
+ * the non-rational B-spline: optional NURBS `weights` pass the collection's check but are ignored by `importPresetData` and omitted
+ * from `exportPresetData`.
  */
 export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> {
     private scene?: DeBoorScene;
@@ -64,6 +66,10 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
 
     override getInitialState(): DeBoorGraphState {
         return {initialized: false, ...initialData()};
+    }
+
+    override presetCollection() {
+        return bsplinePresetCollection;
     }
 
     defaultPreset(): BSplinePresetData {

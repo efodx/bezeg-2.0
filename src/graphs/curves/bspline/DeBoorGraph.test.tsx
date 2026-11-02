@@ -8,7 +8,8 @@ import {GraphHost} from '../../base/GraphHost';
 import {basisAll} from '../../../bezeg/impl/curve/bspline';
 import {setLanguage} from '../../../localization';
 import {AnimationScheduler} from '../../../learning/runtime/animation';
-import type {BSplinePresetData} from './bsplinePresetCollection';
+import {bsplinePresetCollection, type BSplinePresetData} from './bsplinePresetCollection';
+import type {LessonAction} from '../../../learning/model';
 import type {Preset} from '../../base/presets/Presets';
 
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
@@ -338,25 +339,82 @@ describe('Reset, scenes, language and disposal', () => {
         view.unmount();
     });
 
-    test('lesson default, fixture, checkpoint and figure paths carry degree, knots and points', () => {
+    test('lesson default, checkpoint and figure paths carry degree, knots and points', () => {
         const {graph, view} = mount();
         const cubic: BSplinePresetData = {degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};
-        // The lesson fixture path needs the Preset collection, which the follow-up slice wires; the default scene needs none.
         act(() => graph.importPresetData(cubic));
         expect(graph.sceneOf().degree).toBe(3);
         act(() => graph.lessonDefault());
         expect(graph.state.degree).toBe(2);
         const capabilities = graph.getLessonCapabilities();
-        act(() => graph.importPresetData({...cubic, points: [[0, 0], [1, 2], [3, 2], [4, 0]]}));
+        act(() => graph.importPresetData(cubic));
         const checkpoint = capabilities.captureState();
         act(() => graph.setDegree(2));
         act(() => capabilities.restoreState(checkpoint));
+        expect([graph.state.degree, graph.state.knots, graph.state.points]).toEqual([3, cubic.knots, cubic.points]);
+        view.unmount();
+    });
+
+    test('the Preset collection checks the exported and the default data', () => {
+        const {graph, view} = mount();
+        const collection = graph.presetCollection()!;
+        expect(collection).toBe(bsplinePresetCollection);
+        expect(collection.check(graph.exportPresetData())).toEqual({data: graph.exportPresetData()});
+        expect(collection.check(graph.defaultPreset())).toEqual({data: graph.defaultPreset()});
+        view.unmount();
+    });
+
+    test('a lesson fixture scene loads its points and knots through the collection check', () => {
+        const cubic: BSplinePresetData = {degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};
+        let fixture: BSplinePresetData = cubic;
+        class FixtureGraph extends ObservedGraph {
+            protected override lessonFixtureData() { return fixture; }
+        }
+        const graph = new FixtureGraph();
+        const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        const action = {kind: 'prepared-scene', sceneId: 's', source: 'lesson-fixture', curve: {}} as unknown as LessonAction;
+        act(() => graph.getLessonCapabilities().apply(action));
+        expect([graph.state.degree, graph.state.knots, graph.state.points]).toEqual([3, cubic.knots, cubic.points]);
+        expect(graph.sceneOf().degree).toBe(3);
+        // Invalid fixture data is rejected by the collection with the lesson geometry error; the scene stays.
+        fixture = {...cubic, knots: [0, 0, 0, 1, 1, 1, 1, 1]};
+        expect(() => act(() => graph.getLessonCapabilities().apply(action))).toThrow('The lesson geometry is invalid');
         expect([graph.state.degree, graph.state.knots]).toEqual([3, cubic.knots]);
-        // The figure-batch data step needs the Preset collection (follow-up slice); without one it falls back to the default scene.
-        const next = graph.figureScene({id: 'x', graphState: {initialized: true, level: 5}} as unknown as Preset);
-        expect([next.degree, next.level]).toEqual([2, 2]);
-        expect(() => graph.importPresetData({degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2]]})).toThrow();
-        expect(graph.state.degree).toBe(2);
+        view.unmount();
+    });
+
+    test('a figure Preset restores its points and a Preset without data gives the default scene', () => {
+        const {graph, view} = mount();
+        const data: BSplinePresetData = {degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};
+        const next = graph.figureScene({id: 'x', data, graphState: {initialized: true, level: 5}} as unknown as Preset);
+        expect([next.degree, next.knots, next.points, next.level]).toEqual([3, data.knots, data.points, 3]);
+        const fallback = graph.figureScene({id: 'y', graphState: {initialized: true, level: 5}} as unknown as Preset);
+        expect([fallback.degree, fallback.level]).toEqual([2, 2]);
+        view.unmount();
+    });
+
+    test('invalid imports are rejected by the collection and the import leaves the state unchanged', () => {
+        const {graph, view} = mount();
+        const collection = graph.presetCollection()!;
+        const before = graph.exportPresetData();
+        const tooFew: BSplinePresetData = {degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2]]};
+        const badKnots: BSplinePresetData = {degree: 2, knots: [0, 0, 0, 2, 1, 2, 2, 2], points: [[0, 0], [1, 2], [3, 2], [4, 0], [5, 1]]};
+        for (const data of [tooFew, badKnots]) {
+            expect(collection.check(data)).toHaveProperty('rejection');
+            expect(() => graph.importPresetData(data)).toThrow();
+            expect(graph.exportPresetData()).toEqual(before);
+        }
+        view.unmount();
+    });
+
+    test('NURBS weights pass the collection but the graph ignores them and exports none', () => {
+        const {graph, view} = mount();
+        const weighted = {...graph.defaultPreset(), weights: [1, 2, 2, 1]};
+        const checked = bsplinePresetCollection.check(weighted);
+        expect(checked).toEqual({data: weighted});
+        act(() => graph.importPresetData(weighted));
+        expect(graph.exportPresetData()).not.toHaveProperty('weights');
+        expect(graph.exportPresetData()).toEqual(graph.defaultPreset());
         view.unmount();
     });
 
