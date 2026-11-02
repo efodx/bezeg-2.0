@@ -5,6 +5,10 @@ import {familyChapters} from '../content/familyChapters';
 import {getChapterGuidedExamples} from './guidedExamples';
 import {exampleReferences, validateOrderedChapterContent} from './orderedContent';
 
+const interpolationDemonstrations: Record<string, string> = {
+    lagrange: 'interp-lagrange', runge: 'interp-runge', hermite: 'interp-hermite', 'least-squares': 'interp-least-squares', subdivision: 'interp-subdivision',
+};
+
 test('both published languages place every audited home exactly once in its owning section', () => {
     expect(baseline.retainedHomes).toHaveLength(56);
     for (const language of ['sl', 'en'] as const) {
@@ -12,7 +16,7 @@ test('both published languages place every audited home exactly once in its owni
             {id: 'bezier-curves', sections: bezierChapter[language].sections},
             ...familyChapters,
         ];
-        expect(chapters).toHaveLength(20);
+        expect(chapters).toHaveLength(21);
         const allReferences: string[] = [];
         for (const chapter of chapters) {
             for (const section of chapter.sections) {
@@ -32,6 +36,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'sweep-algorithms' && section.id !== 'sweep-idea' ? [`sweep-algorithms.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'numerical-methods' && section.id !== 'numerical-idea' ? [`numerical-methods.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'b-splines' && section.id !== 'bspline-idea' ? [`b-splines.${section.id}.${section.id}`] : []),
+                    ...(chapter.id === 'interpolation' && section.id !== 'through-or-near' ? [`interpolation.${section.id}.${interpolationDemonstrations[section.id]}`] : []),
                     ...(chapter.id === 'projective-conics' && section.id !== 'projective-idea' ? [`projective-conics.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'fourier-series' && section.id !== 'fourier-idea' ? [`fourier-series.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'school-function-graphs' ? [`school-function-graphs.${section.id}.${section.id}`] : []),
@@ -45,7 +50,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(92);
-        expect(new Set(allReferences).size).toBe(92);
+        expect(allReferences).toHaveLength(97);
+        expect(new Set(allReferences).size).toBe(97);
     }
 });

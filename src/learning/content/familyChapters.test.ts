@@ -87,9 +87,9 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('publishes nineteen bilingual chapters with stable section anchors and substantial prose', () => {
+    test('publishes twenty bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'b-splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'projective-conics', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series',
+            'foundations', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'projective-conics', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series',
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).

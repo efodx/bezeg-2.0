@@ -93,17 +93,12 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     // The Sweep-line algorithms chapter owns the interval sweep and segment intersection lessons (batch S1).
     'interval-sweep': {chapterId: 'sweep-algorithms', sectionId: 'interval-sweep'},
-    // Interim owner until an Interpolation chapter exists: the lesson contrasts the Lagrange curve with the Bezier convex hull property.
-    'interp-lagrange': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    // Interim owner until an Interpolation chapter exists: the lesson builds on the splines chapter's tangent continuity, and the Bezier form of a Hermite segment sits with the Bezier curves.
-    'interp-hermite': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    // Interim owner until an Interpolation chapter exists: the lesson follows the Lagrange lesson, which sits with the Bezier curves.
-    'interp-runge': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    // Interim owner until an Interpolation chapter exists: the lesson follows the Runge lesson and fits data with polynomials, which sits with the Bezier curves.
-    'interp-least-squares': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    'interp-lagrange': {chapterId: 'interpolation', sectionId: 'lagrange'},
+    'interp-hermite': {chapterId: 'interpolation', sectionId: 'hermite'},
+    'interp-runge': {chapterId: 'interpolation', sectionId: 'runge'},
+    'interp-least-squares': {chapterId: 'interpolation', sectionId: 'least-squares'},
     'segment-intersections': {chapterId: 'sweep-algorithms', sectionId: 'segment-intersections'},
-    // Interim owner until an Interpolation chapter exists: the lesson builds on the Bezier subdivision (de Casteljau) of the Bezier curves chapter.
-    'interp-subdivision': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    'interp-subdivision': {chapterId: 'interpolation', sectionId: 'subdivision'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
     'patch-decasteljau': {chapterId: 'bezier-patches', sectionId: 'tensor-decasteljau'},

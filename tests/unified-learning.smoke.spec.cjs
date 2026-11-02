@@ -2,7 +2,7 @@ const {test, expect} = require('@playwright/test');
 const h = require('./lesson-smoke-helpers.cjs');
 h.failOnRuntimeErrors();
 
-const chapters = ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'b-splines', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'projective-conics', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series'];
+const chapters = ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'projective-conics', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series'];
 
 const patchSections = [
     ['curve-to-patch', 'Od krivulje do krpe', 'From curve to patch'],

@@ -10,6 +10,7 @@ import {numericalChapter} from './numericalChapter';
 import {fourierChapter} from './fourierChapter';
 import {projectiveConicsChapter} from './projectiveConicsChapter';
 import {bsplineChapter} from './bsplineChapter';
+import {interpolationChapter} from './interpolationChapter';
 import {schoolFunctionGraphsChapter} from './schoolFunctionGraphsChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
@@ -234,6 +235,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
         ],
     },
     bsplineChapter, // B-splines batch A: the basis and de Boor lessons (L1, L2) of bsplineBasisGuidedLessons.ts and bsplineDeBoorGuidedLessons.ts.
+    interpolationChapter, // Interpolation and approximation: I1 to I5 (interpolationGuidedLessons.ts, interpolationLeastSquaresLesson.ts); placed after the B-splines chapter.
     {
         id: 'ph-curves', family: '/bezeg-2.0/ph',
         title: text('PH-krivulje: polinomska dolžina loka', 'PH curves: polynomial arc length'),
