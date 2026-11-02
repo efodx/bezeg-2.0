@@ -1,0 +1,29 @@
+voronoiDrawing perf, 2026-11-02T21:53:47.459Z, jsdom SVG board, node v24.20.0
+
+== 12 sites ==
+kernel build (voronoiFromDelaunay): median 0.55 ms, p95 1.02 ms, max 3.38 ms (n=60)
+exact clipCell of all cells (inside draw): median 1.18 ms, p95 1.90 ms, max 2.43 ms (n=60)
+draw: update() with per-cell curves + edges + markers: median 3.09 ms, p95 5.40 ms, max 6.87 ms (n=60)
+alternative: cells as ONE batched curve (fill only, excludes clip): median 0.90 ms, p95 1.49 ms, max 1.83 ms (n=60)
+redraw of a final 12-site diagram (same value): median 1.98 ms, p95 2.88 ms, max 3.66 ms (n=60)
+
+== 40 sites ==
+kernel build (voronoiFromDelaunay): median 5.11 ms, p95 5.79 ms, max 6.63 ms (n=60)
+exact clipCell of all cells (inside draw): median 4.73 ms, p95 5.63 ms, max 5.89 ms (n=60)
+draw: update() with per-cell curves + edges + markers: median 9.21 ms, p95 13.87 ms, max 14.93 ms (n=60)
+alternative: cells as ONE batched curve (fill only, excludes clip): median 3.24 ms, p95 3.82 ms, max 4.03 ms (n=60)
+
+== 40 sites, options in isolation (redraw of the same value) ==
+cells only: median 6.37 ms, p95 7.66 ms, max 7.66 ms (n=20)
+edges only: median 0.78 ms, p95 0.82 ms, max 0.82 ms (n=20)
+vertices only: median 1.15 ms, p95 1.32 ms, max 1.32 ms (n=20)
+all: median 8.49 ms, p95 9.70 ms, max 9.70 ms (n=20)
+
+== Decision (task 18 item 6) ==
+Per-cell filled curves are kept. At 40 sites the cells-only redraw is ~6 ms, of which ~4.7 ms is the exact clipCell work that a
+batched curve would also need; the object overhead of 40 curves is ~1.6 ms. Full draw (cells, edges, vertices, markers) is ~9 ms
+median at 40 sites per drag step, plus ~5 ms kernel build; 12-site redraw ~2 ms. First version (setAttribute on every update,
+moveTo on markers, board.update) measured 173 ms median at 40 sites in the same harness and was replaced: restyle only on change,
+function-coordinate markers refreshed individually.
+Not measured: browser paint/compositing, real drag frame times (no browser run; jsdom script cost only). The "batched" figure above
+includes board.update() of all other objects, so it is an upper bound for that alternative.
