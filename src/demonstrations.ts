@@ -64,7 +64,7 @@ const definitions = [
     {id: 'curve-curvature', path: '/bezeg-2.0/curve-geometry/curvature', family: '/bezeg-2.0/curve-geometry', title: 'curvature_circle_title', prompts: ['prompt_curvature', 'prompt_compare']},
     {id: 'interp-lagrange', path: '/bezeg-2.0/interpolation/lagrange', family: '/bezeg-2.0/interpolation', title: 'interp_lagrange_title', prompts: ['prompt_interp_lagrange', 'prompt_compare']},
     {id: 'interp-hermite', path: '/bezeg-2.0/interpolation/hermite', family: '/bezeg-2.0/interpolation', title: 'interp_hermite_title', prompts: ['prompt_interp_hermite', 'prompt_compare']},
-    {id: 'interp-subdivision', path: '/bezeg-2.0/interpolation/subdivision', family: '/bezeg-2.0/interpolation', title: 'interp_subdivision_title', prompts: ['prompt_interp_subdivision', 'prompt_compare'], lesson: false},
+    {id: 'interp-subdivision', path: '/bezeg-2.0/interpolation/subdivision', family: '/bezeg-2.0/interpolation', title: 'interp_subdivision_title', prompts: ['prompt_interp_subdivision', 'prompt_compare']},
     {id: 'patch-tensor', path: '/bezeg-2.0/patches/tensor', family: '/bezeg-2.0/patches', title: 'tensor_product_bezier_patch', prompts: ['prompt_patch_net', 'prompt_patch_degree'], view: 'surface'},
     {id: 'patch-decasteljau', path: '/bezeg-2.0/patches/decasteljau', family: '/bezeg-2.0/patches', title: 'patch_decasteljau_algorithm', prompts: ['prompt_patch_decasteljau_order', 'prompt_patch_decasteljau_levels'], view: 'surface'},
     {id: 'patch-derivatives', path: '/bezeg-2.0/patches/derivatives', family: '/bezeg-2.0/patches', title: 'patch_derivatives_title', prompts: ['prompt_patch_derivatives_tangents', 'prompt_patch_derivatives_normal'], view: 'surface'},

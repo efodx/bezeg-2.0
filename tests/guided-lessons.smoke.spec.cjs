@@ -1768,7 +1768,24 @@ const segmentIntersections = {
     },
 };
 
-const LESSONS = [segmentIntersections, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Interpolation I5: the board status line names the rule, the step and the vertex count, which differ on every step (rule, step, vertices): Chaikin 0/4, Chaikin 1/8, Chaikin 2/16, four-point 0/4, four-point 2/13, Chaikin 3/32.
+const SUBDIVISION_READOUTS = [
+    /(Chaikinovo pravilo|Chaikin rule), (korak|step) 0 (od|of) 6, 4 (oglišč|vertices)/, /(Chaikinovo pravilo|Chaikin rule), (korak|step) 1 (od|of) 6, 8 (oglišč|vertices)/,
+    /(Chaikinovo pravilo|Chaikin rule), (korak|step) 2 (od|of) 6, 16 (oglišč|vertices)/, /(Štiritočkovno pravilo|Four-point rule), (korak|step) 0 (od|of) 6, 4 (oglišč|vertices)/,
+    /(Štiritočkovno pravilo|Four-point rule), (korak|step) 2 (od|of) 6, 13 (oglišč|vertices)/, /(Chaikinovo pravilo|Chaikin rule), (korak|step) 3 (od|of) 6, 32 (oglišč|vertices)/,
+];
+const interpolationSubdivision = {
+    id: 'interp-subdivision',
+    path: `${BASE}/interpolation/subdivision`,
+    titles: {sl: 'Subdivizijske krivulje: Chaikinovo in štiritočkovno pravilo', en: 'Subdivision curves: the Chaikin and four-point rules'},
+    steps: 6,
+    minFrames: 13, // 2 frames per step, 3 on step 3 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect(boardText(page, SUBDIVISION_READOUTS[step - 1]).first(), `subdivision status at ${label}`).toBeVisible();
+    },
+};
+
+const LESSONS = [segmentIntersections, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

@@ -4,12 +4,14 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PointListInput} from "../../../inputs/PointListInput";
+import type {LessonAnimationCommand} from "../../../learning/model";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
 import {IterationController} from "../../../learning/runtime/iterationController";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {Preset} from "../../base/presets/Presets";
 import {
-    DEFAULT_SUBDIVISION_PRESET, isSubdivisionRule, MAX_SUBDIVISION_ROUNDS, Row, stageOf, SUBDIVISION_CLOSED_POINTS_MIN,
+    DEFAULT_SUBDIVISION_PRESET, isSubdivisionRule, MAX_SUBDIVISION_ROUNDS, Row, stageOf, SUBDIVISION_ANIMATION_ID, SUBDIVISION_CLOSED_POINTS_MIN,
     SUBDIVISION_COORDINATE_LIMIT, SUBDIVISION_POINTS_MAX, SUBDIVISION_POINTS_MIN, SUBDIVISION_STEP_INTERVAL_MS, SubdivisionPresetData,
     subdivisionRejection, SubdivisionRule, subdivisionViewBox,
 } from "./subdivisionModel";
@@ -27,6 +29,7 @@ export interface SubdivisionGraphState extends BaseGraphState {
     notice: '' | 'closed-needs-three';
 }
 
+const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ['play', 'pause', 'replay', 'next-step', 'reset'];
 const clamp = (value: number) => Math.min(SUBDIVISION_COORDINATE_LIMIT, Math.max(-SUBDIVISION_COORDINATE_LIMIT, value));
 const copyRows = (rows: readonly Row[]) => rows.map(r => [r[0], r[1]] as const);
 
@@ -170,7 +173,7 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         this.boardUpdate();
     }
 
-    // ---- Playback (SUBDIVISION_ANIMATION_ID; lesson wiring belongs to the registration slice) ------------------------
+    // ---- Playback (SUBDIVISION_ANIMATION_ID) -------------------------------------------------------------------------
 
     /** True while every round up to the cap is shown. */
     isComplete(): boolean {
@@ -288,6 +291,42 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
 
     setShowLimit(show: boolean) {
         this.setState({showLimit: show});
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.onDiscriminated('animation', SUBDIVISION_ANIMATION_ID, action => this.lessonCommand(action.command), {
+            supports: action => LESSON_COMMANDS.includes(action.command),
+        });
+        registry.on('subdivision', action => {
+            if (action.operation === 'set-rule') {
+                if (!isSubdivisionRule(action.rule)) throw new Error('The subdivision rule must be "chaikin" or "four-point".');
+                this.pause();
+                this.setRule(action.rule);
+            } else if (action.operation === 'set-closed') {
+                if (typeof action.closed !== 'boolean') throw new Error('A subdivision set-closed action needs a boolean closed.');
+                this.setClosed(action.closed);
+            } else if (action.operation === 'set-overlay') {
+                if (action.overlay !== 'limit') throw new Error('The subdivision overlay must be "limit".');
+                if (typeof action.visible !== 'boolean') throw new Error('A subdivision set-overlay action needs a boolean visible.');
+                this.setShowLimit(action.visible);
+            } else {
+                throw new Error('A subdivision action needs the operation set-rule, set-closed or set-overlay.');
+            }
+        });
+    }
+
+    private lessonCommand(command: LessonAnimationCommand): void {
+        if (command === 'next-step') this.nextStep();
+        else if (command === 'play') this.play();
+        else if (command === 'pause') this.pause();
+        else if (command === 'reset') this.resetRounds();
+        else if (command === 'replay') {
+            this.resetRounds();
+            this.play();
+        }
     }
 
     // ---- Controls ----------------------------------------------------------------------------------------------------

@@ -76,7 +76,7 @@ export type CameraPresetName = typeof CAMERA_PRESET_NAMES[number];
  * `bisection` is the first iterative playback and `sequence` reveals the terms of a sequence one by one and `fixed-point` the iterates of a fixed-point iteration and `algorithm-trace` the steps of a convex hull algorithm trace. A graph registers only the ids it owns and the commands each supports;
  * the registry rejects the rest with `UnsupportedLessonActionError`.
  */
-export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'root-finding', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace', 'parametric-roll'] as const;
+export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'root-finding', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace', 'parametric-roll', 'interp-subdivision-rounds'] as const;
 export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
 
 /**
@@ -258,6 +258,14 @@ export type LessonAction =
     | {readonly kind: 'hermite'; readonly operation: 'set-tension'; readonly value: number}
     | {readonly kind: 'hermite'; readonly operation: 'set-overlay'; readonly overlay: 'tangents' | 'bezier'; readonly visible: boolean}
     | {readonly kind: 'hermite'; readonly operation: 'add-point'}
+    /**
+     * SubdivisionCurveGraph only (Chaikin and four-point subdivision, lesson I5): `set-rule` picks the rule (it returns to round 0),
+     * `set-closed` opens or closes the polygon (closing needs 3 points) and `set-overlay` shows or hides the Chaikin limit curve.
+     * Each pauses playback; the rounds themselves are the `animation` actions of the id `interp-subdivision-rounds`.
+     */
+    | {readonly kind: 'subdivision'; readonly operation: 'set-rule'; readonly rule: 'chaikin' | 'four-point'}
+    | {readonly kind: 'subdivision'; readonly operation: 'set-closed'; readonly closed: boolean}
+    | {readonly kind: 'subdivision'; readonly operation: 'set-overlay'; readonly overlay: 'limit'; readonly visible: boolean}
     /**
      * Drives a graph-owned animation. `next-step` runs one iteration transition and `reset` returns an iterative
      * playback (`bisection`, `sequence`, `fixed-point`) to its initial state; a scene repeats `next-step` once per step

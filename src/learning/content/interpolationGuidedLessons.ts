@@ -1,10 +1,11 @@
 /**
  * Guided lessons of the Interpolation and approximation family (docs/specs/interpolation-approximation-lessons.md): I1,
- * Lagrange interpolation versus Bézier approximation, and I3, Hermite and Catmull-Rom curves. The text is a one-shot draft (docs/specs/new-lesson-families.md,
+ * Lagrange interpolation versus Bézier approximation, I3, Hermite and Catmull-Rom curves, and I5, Chaikin and four-point subdivision. The text is a one-shot draft (docs/specs/new-lesson-families.md,
  * "One-shot lesson text"): every value it quotes is the readout of the scene it belongs to, and
  * `interpolationGuidedLessons.test.ts` checks that against the real graph and the kernel in `src/analysis/interpolation.ts`.
  * I1 scenes use the `interpolation` (`set-rule`, `set-overlay`, `add-point`) and `parameter` (`t`, the shared position s) actions;
- * I3 scenes use the `hermite` action (`set-mode`, `set-rule`, `set-tension`, `set-overlay`, `add-point`).
+ * I3 scenes use the `hermite` action (`set-mode`, `set-rule`, `set-tension`, `set-overlay`, `add-point`);
+ * I5 scenes use the `subdivision` action (`set-rule`, `set-closed`, `set-overlay`) and the `animation` action `next-step` of `interp-subdivision-rounds`.
  */
 import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
@@ -397,4 +398,194 @@ const hermiteLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const interpolationGuidedLessons: readonly GuidedLesson[] = [lagrangeLesson, hermiteLesson];
+/**
+ * A subdivision scene from the default open polygon (0,0), (1,2), (3,3), (4,0): the rule, whether the polygon is closed, the limit overlay,
+ * then `rounds` Next-step commands. Switching the rule returns to round 0 and every one of these actions pauses playback, so a scene never
+ * starts playing.
+ */
+const subdivisionScene = (
+    id: string, rule: 'chaikin' | 'four-point', closed: boolean, limit: boolean, rounds: number, sl: string, en: string,
+): LessonScene => {
+    const actions: LessonAction[] = [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'subdivision', operation: 'set-rule', rule},
+        {kind: 'subdivision', operation: 'set-closed', closed},
+        {kind: 'subdivision', operation: 'set-overlay', overlay: 'limit', visible: limit},
+        ...Array.from({length: rounds}, () => ({kind: 'animation', animationId: 'interp-subdivision-rounds', command: 'next-step'}) as const),
+    ];
+    return {id, basedOn: 'demonstration-default', actions, expectedState: text(sl, en)};
+};
+
+const subdivisionLesson: GuidedLesson = {
+    demonstrationId: 'interp-subdivision',
+    title: text('Subdivizijske krivulje: Chaikinovo in štiritočkovno pravilo', 'Subdivision curves: the Chaikin and four-point rules'),
+    summary: text(
+        'Subdivizijska krivulja nastane z večkratnim ponavljanjem lokalnega pravila na poligonu. Chaikinovo pravilo odreže oglišča in da v limiti kvadratni B-zlepek, ki le približa točke. Štiritočkovno pravilo ohrani vsa stara oglišča in vstavi nova, zato limita poteka skozi vse začetne točke.',
+        'A subdivision curve arises by repeating a local rule on a polygon. The Chaikin rule cuts the corners off and its limit is the quadratic B-spline, which only approximates the points. The four-point rule keeps every old vertex and inserts new ones, so its limit passes through all the starting points.',
+    ),
+    prerequisites: [
+        text('Potrebno je poznavanje subdivizije Bézierjeve krivulje iz poglavja o Bézierjevih krivuljah.', 'Assumes the subdivision of a Bézier curve from the Bézier curves chapter.'),
+        text('Priporočena sta lekciji o enakomernem kvadratnem B-zlepku in o Hermiteovi interpolaciji.', 'The lessons on the uniform quadratic B-spline and on Hermite interpolation are recommended.'),
+    ],
+    learningGoals: [
+        text('Napoveš, kaj Chaikinovo in štiritočkovno pravilo naredita s poligonom, in izračunaš nova oglišča prvega koraka.', 'Predict what the Chaikin and four-point rules do to a polygon and compute the new vertices of the first step.'),
+        text('Razložiš, zakaj je limita Chaikinovega pravila enakomerni kvadratni B-zlepek razreda \\(C^1\\).', 'Explain why the limit of the Chaikin rule is the uniform quadratic B-spline, of class \\(C^1\\).'),
+        text('Primerjaš pravili: aproksimacija proti interpolaciji, ohranitev starih oglišč in prenihaj.', 'Compare the rules: approximation versus interpolation, keeping the old vertices, and overshoot.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'chaikin-rule',
+            latex: 'Q_{2i}=\\tfrac34P_i+\\tfrac14P_{i+1},\\qquad Q_{2i+1}=\\tfrac14P_i+\\tfrac34P_{i+1}',
+            notation: text(
+                '\\(P_i\\) so oglišča poligona, \\(Q_j\\) oglišča naslednjega koraka. Vsaka stranica \\(P_iP_{i+1}\\) da dve novi oglišči, ki jo razdelita na četrtine.',
+                '\\(P_i\\) are the vertices of the polygon and \\(Q_j\\) the vertices of the next step. Every edge \\(P_iP_{i+1}\\) gives two new vertices that cut it in quarters.',
+            ),
+            explanation: text(
+                'Zaprt poligon z \\(n\\) oglišči ima po \\(k\\) korakih \\(2^k n\\) oglišč. Odprt poligon obdrži prvo in zadnje oglišče, zato ima \\(2(n-1)+2=2n\\) oglišč po koraku in tudi \\(2^k n\\) po \\(k\\) korakih.',
+                'A closed polygon with \\(n\\) vertices has \\(2^k n\\) vertices after \\(k\\) steps. An open polygon keeps its first and last vertex, so it has \\(2(n-1)+2=2n\\) vertices after one step and also \\(2^k n\\) after \\(k\\) steps.',
+            ),
+        },
+        {
+            id: 'four-point-rule',
+            latex: 'Q_{2i}=P_i,\\qquad Q_{2i+1}=\\frac{-P_{i-1}+9P_i+9P_{i+1}-P_{i+2}}{16}=\\left(\\tfrac12+w\\right)(P_i+P_{i+1})-w\\,(P_{i-1}+P_{i+2}),\\quad w=\\tfrac1{16}',
+            notation: text(
+                'Staro oglišče \\(P_i\\) ostane, na vsaki stranici \\(P_iP_{i+1}\\) pa se vstavi novo oglišče \\(Q_{2i+1}\\), ki ga določijo štiri zaporedna oglišča.',
+                'The old vertex \\(P_i\\) stays and on every edge \\(P_iP_{i+1}\\) a new vertex \\(Q_{2i+1}\\) is inserted, determined by four consecutive vertices.',
+            ),
+            explanation: text(
+                'Pravilo potrebuje soseda na vsaki strani stranice. Pri odprtem poligonu ju prva in zadnja stranica nimata, zato graf na ti dve stranici vstavi kar razpolovišče stranice; vsa stara oglišča ostanejo. Zaprt poligon ima po \\(k\\) korakih \\(2^k n\\) oglišč, odprt pa \\(2^k(n-1)+1\\).',
+                'The rule needs a neighbour on each side of the edge. In an open polygon the first and last edge lack one, so the graph inserts the plain midpoint of the edge on those two edges; every old vertex stays. A closed polygon has \\(2^k n\\) vertices after \\(k\\) steps and an open one \\(2^k(n-1)+1\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'chaikin-b-spline-example',
+            title: text('Sredina Chaikinovih točk in kvadratni B-zlepek', 'The midpoint of the Chaikin points and the quadratic B-spline'),
+            calculationLatex: '\\tfrac12\\left[\\left(\\tfrac14P_0+\\tfrac34P_1\\right)+\\left(\\tfrac34P_1+\\tfrac14P_2\\right)\\right]=\\tfrac18P_0+\\tfrac34P_1+\\tfrac18P_2',
+            resultLatex: '\\left(1{,}125,\\;1{,}875\\right)',
+            check: text(
+                'Za \\(P_0=(0,0)\\), \\(P_1=(1,2)\\), \\(P_2=(3,3)\\) sta Chaikinovi točki \\((0{,}75;\\ 1{,}5)\\) in \\((1{,}5;\\ 2{,}25)\\), njuna sredina pa je \\((1{,}125;\\ 1{,}875)\\). To je točka enakomernega kvadratnega B-zlepka s kontrolnimi točkami \\(P_0,P_1,P_2\\) pri parametru \\(\\tfrac12\\).',
+                'For \\(P_0=(0,0)\\), \\(P_1=(1,2)\\), \\(P_2=(3,3)\\) the Chaikin points are \\((0.75;\\ 1.5)\\) and \\((1.5;\\ 2.25)\\) and their midpoint is \\((1.125;\\ 1.875)\\). This is the point of the uniform quadratic B-spline with control points \\(P_0,P_1,P_2\\) at the parameter \\(\\tfrac12\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'subdivision-predict', order: 1,
+            title: text('Odrezani vogali', 'Corners cut off'),
+            purpose: text('Pred razkritjem napovedati obliko, proti kateri se Chaikinovo pravilo približuje.', 'Predicting, before the reveal, the shape the Chaikin rule approaches.'),
+            explanation: text(
+                'Graf kaže odprt poligon \\((0,0)\\), \\((1,2)\\), \\((3,3)\\), \\((4,0)\\) in Chaikinovo pravilo; prikazan je začetni poligon, nobenega koraka subdivizije še ni. Pravilo vsako stranico nadomesti z dvema točkama, ki ležita na četrtini in treh četrtinah stranice, in prvo ter zadnjo točko obdrži. Napovej: kakšna bo oblika po zelo veliko korakih? Bo imela vogale, bo šla skozi vse štiri točke?',
+                'The graph shows the open polygon \\((0,0)\\), \\((1,2)\\), \\((3,3)\\), \\((4,0)\\) and the Chaikin rule; the starting polygon is shown and no subdivision step has been taken yet. The rule replaces every edge by two points at one quarter and three quarters of the edge and keeps the first and last point. Predict: what shape will it have after very many steps? Will it have corners, will it pass through all four points?',
+            ),
+            formulaIds: ['chaikin-rule'],
+            frames: [frame('subdivision-predict-explanation', 'explanation'), frame('subdivision-predict-observation', 'observation')],
+            observationPrompt: text('Pred razkritjem si zamisli, kam se premakne vogal pri \\(P_1\\), ko ga rezemo znova in znova.', 'Before the reveal imagine where the corner at \\(P_1\\) goes when it is cut again and again.'),
+            expectedObservations: [text('Poligon ima štiri oglišča in tri stranice; vogali v \\(P_1\\) in \\(P_2\\) bodo odrezani.', 'The polygon has four vertices and three edges; the corners at \\(P_1\\) and \\(P_2\\) will be cut off.')],
+            scene: subdivisionScene('subdivision-predict-start', 'chaikin', false, false, 0,
+                'Chaikinovo pravilo, odprt poligon, korak \\(0\\) od \\(6\\), \\(4\\) oglišča; predvajanje je ustavljeno.',
+                'The Chaikin rule, open polygon, step \\(0\\) of \\(6\\), \\(4\\) vertices; playback is stopped.'),
+        },
+        {
+            id: 'subdivision-chaikin-rounds', order: 2,
+            title: text('Koraki Chaikinovega pravila', 'Steps of the Chaikin rule'),
+            purpose: text('Pred razkritjem napovedati novi točki prvega koraka in število oglišč v naslednjih korakih.', 'Predicting, before the reveal, the two new points of the first step and the vertex counts of the next steps.'),
+            explanation: text(
+                'Prikazan je prvi korak. Napovej: kje sta novi točki na stranici \\(P_1P_2\\) od \\((1,2)\\) do \\((3,3)\\)? Preveri: \\(\\tfrac34P_1+\\tfrac14P_2=(1{,}5;\\ 2{,}25)\\) in \\(\\tfrac14P_1+\\tfrac34P_2=(2{,}5;\\ 2{,}75)\\). Število oglišč se podvoji: \\(4\\), \\(8\\), \\(16\\), \\(32\\). Pritiskaj Naslednji korak ali Predvajaj; korakov je največ \\(6\\), nato sta oba gumba končana.',
+                'The first step is shown. Predict: where are the two new points on the edge \\(P_1P_2\\) from \\((1,2)\\) to \\((3,3)\\)? Check: \\(\\tfrac34P_1+\\tfrac14P_2=(1.5;\\ 2.25)\\) and \\(\\tfrac14P_1+\\tfrac34P_2=(2.5;\\ 2.75)\\). The number of vertices doubles: \\(4\\), \\(8\\), \\(16\\), \\(32\\). Press Next step or Play; there are at most \\(6\\) steps, after which both buttons are finished.',
+            ),
+            formulaIds: ['chaikin-rule'],
+            frames: [frame('subdivision-chaikin-rounds-explanation', 'explanation'), frame('subdivision-chaikin-rounds-observation', 'observation')],
+            animation: {animationId: 'interp-subdivision-rounds'},
+            observationPrompt: text('Pritisni Naslednji korak in pri vsakem koraku preberi število oglišč; nato poskusi Predvajaj.', 'Press Next step and read the number of vertices at each step; then try Play.'),
+            expectedObservations: [text('Število oglišč se pri vsakem koraku podvoji, poligon pa postaja vse bolj gladek in ne gre več skozi \\(P_1\\) in \\(P_2\\).', 'The number of vertices doubles at each step and the polygon gets smoother; it no longer passes through \\(P_1\\) and \\(P_2\\).')],
+            scene: subdivisionScene('subdivision-chaikin-step1', 'chaikin', false, false, 1,
+                'Chaikinovo pravilo, korak \\(1\\) od \\(6\\), \\(8\\) oglišč; stranico \\(P_1P_2\\) nadomestita točki \\((1{,}5;\\ 2{,}25)\\) in \\((2{,}5;\\ 2{,}75)\\).',
+                'The Chaikin rule, step \\(1\\) of \\(6\\), \\(8\\) vertices; the edge \\(P_1P_2\\) is replaced by the points \\((1.5;\\ 2.25)\\) and \\((2.5;\\ 2.75)\\).'),
+        },
+        {
+            id: 'subdivision-limit', order: 3,
+            title: text('Limita je kvadratni B-zlepek', 'The limit is the quadratic B-spline'),
+            purpose: text('Pred razkritjem napovedati, na kateri krivulji ležijo Chaikinove točke, in preveriti sredino odseka.', 'Predicting, before the reveal, which curve the Chaikin points lie on, and checking the middle of a piece.'),
+            explanation: text(
+                'Prikazana je limitna krivulja. Napovej: ali leže točke koraka na njej ali zunaj nje? Chaikinovi točki \\(\\tfrac14P_0+\\tfrac34P_1=(0{,}75;\\ 1{,}5)\\) in \\(\\tfrac34P_1+\\tfrac14P_2=(1{,}5;\\ 2{,}25)\\) imata sredino \\((1{,}125;\\ 1{,}875)\\), kar je enako \\(\\tfrac18P_0+\\tfrac34P_1+\\tfrac18P_2\\), točki enakomernega kvadratnega B-zlepka pri parametru \\(\\tfrac12\\). Limita Chaikinovega pravila je zato ta B-zlepek in je razreda \\(C^1\\). Pri odprtem poligonu ima tudi ravna odseka od \\(P_0\\) do razpolovišča stranice \\(P_0P_1\\) in od razpolovišča zadnje stranice do zadnje točke.',
+                'The limit curve is shown. Predict: do the points of the step lie on it or outside it? The Chaikin points \\(\\tfrac14P_0+\\tfrac34P_1=(0.75;\\ 1.5)\\) and \\(\\tfrac34P_1+\\tfrac14P_2=(1.5;\\ 2.25)\\) have the midpoint \\((1.125;\\ 1.875)\\), which equals \\(\\tfrac18P_0+\\tfrac34P_1+\\tfrac18P_2\\), the point of the uniform quadratic B-spline at the parameter \\(\\tfrac12\\). The limit of the Chaikin rule is therefore this B-spline and is of class \\(C^1\\). For an open polygon it also has straight pieces from \\(P_0\\) to the midpoint of the edge \\(P_0P_1\\) and from the midpoint of the last edge to the last point.',
+            ),
+            formulaIds: ['chaikin-rule'], workedExampleId: 'chaikin-b-spline-example',
+            frames: [frame('subdivision-limit-explanation', 'explanation'), frame('subdivision-limit-calculation', 'calculation'), frame('subdivision-limit-observation', 'observation')],
+            observationPrompt: text('Pritisni Naslednji korak in opazuj, kako se oglišča približujejo prikazani limitni krivulji.', 'Press Next step and watch the vertices approach the limit curve shown.'),
+            expectedObservations: [text('Oglišča vsakega koraka ležijo vse bližje limitni krivulji; krivulja nima vogalov.', 'The vertices of each step lie closer and closer to the limit curve; the curve has no corners.')],
+            scene: subdivisionScene('subdivision-limit-overlay', 'chaikin', false, true, 2,
+                'Chaikinovo pravilo, korak \\(2\\) od \\(6\\), \\(16\\) oglišč, prikazana limitna krivulja (kvadratni B-zlepek).',
+                'The Chaikin rule, step \\(2\\) of \\(6\\), \\(16\\) vertices, the limit curve (quadratic B-spline) shown.'),
+        },
+        {
+            id: 'subdivision-four-point', order: 4,
+            title: text('Štiritočkovno pravilo ohrani točke', 'The four-point rule keeps the points'),
+            purpose: text('Pred razkritjem napovedati, ali se stara oglišča premaknejo, in razkriti, da ostanejo.', 'Predicting, before the reveal, whether the old vertices move, and revealing that they stay.'),
+            explanation: text(
+                'Zdaj je izbrano štiritočkovno pravilo na istem poligonu, korak \\(0\\). Napovej: ali se bodo stara oglišča po koraku premaknila, kot pri Chaikinovem pravilu? Preveri na stranici \\(P_1P_2\\): vstavljena točka je \\(\\tfrac{1}{16}(-P_0+9P_1+9P_2-P_3)=(2;\\ 2{,}8125)\\). Na prvi in zadnji stranici pravilo nima soseda na eni strani, zato graf vstavi razpolovišči \\((0{,}5;\\ 1)\\) in \\((3{,}5;\\ 1{,}5)\\). Po prvem koraku je oglišč \\(7\\), vsa štiri stara so med njimi.',
+                'The four-point rule is now selected on the same polygon, step \\(0\\). Predict: will the old vertices move after a step, as with the Chaikin rule? Check on the edge \\(P_1P_2\\): the inserted point is \\(\\tfrac{1}{16}(-P_0+9P_1+9P_2-P_3)=(2;\\ 2.8125)\\). On the first and last edge the rule lacks a neighbour on one side, so the graph inserts the midpoints \\((0.5;\\ 1)\\) and \\((3.5;\\ 1.5)\\). After the first step there are \\(7\\) vertices and all four old ones are among them.',
+            ),
+            formulaIds: ['four-point-rule'],
+            frames: [frame('subdivision-four-point-explanation', 'explanation'), frame('subdivision-four-point-observation', 'observation')],
+            animation: {animationId: 'interp-subdivision-rounds'},
+            observationPrompt: text('Pritisni Naslednji korak in preveri, da so \\(P_0,\\dots,P_3\\) še vedno med oglišči.', 'Press Next step and check that \\(P_0,\\dots,P_3\\) are still among the vertices.'),
+            expectedObservations: [text('Stara oglišča se ne premaknejo; vstavljena točka med \\(P_1\\) in \\(P_2\\) je \\((2;\\ 2{,}8125)\\), krivulja pa je v limiti skozi vse začetne točke.', 'The old vertices do not move; the point inserted between \\(P_1\\) and \\(P_2\\) is \\((2;\\ 2.8125)\\) and the limit curve passes through all the starting points.')],
+            scene: subdivisionScene('subdivision-four-point-start', 'four-point', false, false, 0,
+                'Štiritočkovno pravilo, odprt poligon, korak \\(0\\) od \\(6\\), \\(4\\) oglišča.',
+                'The four-point rule, open polygon, step \\(0\\) of \\(6\\), \\(4\\) vertices.'),
+        },
+        {
+            id: 'subdivision-compare', order: 5,
+            title: text('Gladkost in prenihaj', 'Smoothness and overshoot'),
+            purpose: text('Pred razkritjem napovedati, katero pravilo lahko zapusti ovojnico točk, in primerjati gladkost.', 'Predicting, before the reveal, which rule can leave the hull of the points, and comparing smoothness.'),
+            explanation: text(
+                'Prikazan je drugi korak štiritočkovnega pravila, \\(13\\) oglišč. Napovej: katero od obeh pravil lahko vstavi točko zunaj konveksne ovojnice začetnih točk? Vsaka Chaikinova točka je konveksna kombinacija dveh sosednjih oglišč, zato ovojnice nikoli ne zapusti. Pri štiritočkovnem pravilu sta uteži \\(-\\tfrac1{16}\\) negativni, zato lahko pride do prenihaja: če so \\(P_0,P_1,P_2\\) na premici in \\(P_3\\) nad njo, pade vstavljena točka med \\(P_1\\) in \\(P_2\\) pod to premico. Limita Chaikinovega pravila je razreda \\(C^1\\). Za štiritočkovno pravilo z \\(w=\\tfrac1{16}\\) je limita razreda \\(C^1\\) (Dyn, Gregory in Levin, CAGD 4, 1987); več kot \\(C^1\\) tu ne trdimo.',
+                'The second step of the four-point rule is shown, \\(13\\) vertices. Predict: which of the two rules can insert a point outside the convex hull of the starting points? Every Chaikin point is a convex combination of two neighbouring vertices, so it never leaves the hull. In the four-point rule the weights \\(-\\tfrac1{16}\\) are negative, so overshoot can happen: if \\(P_0,P_1,P_2\\) are on a line and \\(P_3\\) is above it, the point inserted between \\(P_1\\) and \\(P_2\\) falls below that line. The limit of the Chaikin rule is of class \\(C^1\\). For the four-point rule with \\(w=\\tfrac1{16}\\), the limit is of class \\(C^1\\) (Dyn, Gregory and Levin, CAGD 4, 1987); we claim no more than \\(C^1\\) here.',
+            ),
+            formulaIds: ['four-point-rule', 'chaikin-rule'],
+            frames: [frame('subdivision-compare-explanation', 'explanation'), frame('subdivision-compare-observation', 'observation')],
+            observationPrompt: text('Povleci \\(P_3\\) nad premico skozi \\(P_0,P_1,P_2\\) in primerjaj obe pravili.', 'Drag \\(P_3\\) above the line through \\(P_0,P_1,P_2\\) and compare the two rules.'),
+            expectedObservations: [text('Chaikinova krivulja ostane znotraj ovojnice točk in jih zgladi; štiritočkovna gre skozi vse točke, a lahko zaniha čez ovojnico.', 'The Chaikin curve stays inside the hull of the points and smooths them; the four-point curve passes through all the points but can swing outside the hull.')],
+            scene: subdivisionScene('subdivision-compare-four-point', 'four-point', false, false, 2,
+                'Štiritočkovno pravilo, korak \\(2\\) od \\(6\\), \\(13\\) oglišč.',
+                'The four-point rule, step \\(2\\) of \\(6\\), \\(13\\) vertices.'),
+        },
+        {
+            id: 'subdivision-explore', order: 6,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno raziskovati sklenjen poligon in obe pravili.', 'Exploring a closed polygon and both rules on your own.'),
+            explanation: text(
+                'Poligon je zdaj sklenjen, Chaikinovo pravilo, korak \\(3\\) od \\(6\\). Sklenjen poligon z \\(n=4\\) oglišči ima po \\(k\\) korakih \\(2^k n\\) oglišč, zdaj \\(32\\), pri obeh pravilih. Premikaj točke, dodajaj in odstranjuj jih (sklenjen poligon jih potrebuje vsaj \\(3\\)), preklapljaj pravilo, odprtost in limitno krivuljo ter predvajaj do največ \\(6\\) korakov. Ponastavi poligon vrne prvotne točke in korak \\(0\\).',
+                'The polygon is now closed, the Chaikin rule, step \\(3\\) of \\(6\\). A closed polygon with \\(n=4\\) vertices has \\(2^k n\\) vertices after \\(k\\) steps, now \\(32\\), for both rules. Move the points, add and remove them (a closed polygon needs at least \\(3\\)), switch the rule, the open or closed polygon and the limit curve, and play up to \\(6\\) steps. Reset polygon returns the original points and step \\(0\\).',
+            ),
+            formulaIds: ['chaikin-rule', 'four-point-rule'],
+            frames: [frame('subdivision-explore-explanation', 'explanation'), frame('subdivision-explore-observation', 'observation')],
+            animation: {animationId: 'interp-subdivision-rounds'},
+            observationPrompt: text('Poišči poligon, pri katerem štiritočkovno pravilo očitno zaniha čez ovojnico, Chaikinovo pa ne.', 'Find a polygon where the four-point rule visibly swings outside the hull and the Chaikin rule does not.'),
+            expectedObservations: [text('Pri sklenjenem poligonu ni krajišč, zato obe pravili povsod uporabita isto pravilo in imata \\(2^k n\\) oglišč.', 'A closed polygon has no ends, so both rules apply the same formula everywhere and have \\(2^k n\\) vertices.')],
+            scene: subdivisionScene('subdivision-explore-closed', 'chaikin', true, false, 3,
+                'Sklenjen poligon z \\(4\\) točkami, Chaikinovo pravilo, korak \\(3\\) od \\(6\\), \\(32\\) oglišč; vse je prosto za raziskovanje.',
+                'A closed polygon with \\(4\\) points, the Chaikin rule, step \\(3\\) of \\(6\\), \\(32\\) vertices; everything is free to explore.'),
+        },
+    ],
+    sources: [
+        {id: 'chaikin-1974', citation: 'Chaikin, G. M. An algorithm for high-speed curve generation. Computer Graphics and Image Processing 3 (1974) 346-349.'},
+        {id: 'riesenfeld-1975', citation: 'Riesenfeld, R. F. On Chaikin\'s algorithm. Computer Graphics and Image Processing 4 (1975) 304-310.'},
+        {id: 'dyn-gregory-levin-1987', citation: 'Dyn, N., Gregory, J. A. and Levin, D. A 4-point interpolatory subdivision scheme for curve design. Computer Aided Geometric Design 4 (1987) 257-268.'},
+        {
+            id: 'bezeg-subdivision-implementation',
+            citation: 'Bezeg source: src/analysis/subdivision.ts, src/bezeg/impl/curve/bspline/uniform.ts and src/graphs/curves/subdivisionCurves/.',
+            implementationCorrespondence: 'The Chaikin step and the quadratic B-spline are the kernels of the B-spline family; the four-point step and the round cap are in subdivision.ts. A scene sets the rule, the closed flag, the limit overlay and the steps with the subdivision and animation actions.',
+        },
+    ],
+    edgeCases: [
+        text('Največ \\(6\\) korakov subdivizije; po šestem sta Naslednji korak in Predvajaj končana, Ponastavi poligon začne znova.', 'There are at most \\(6\\) subdivision steps; after the sixth, Next step and Play are finished and Reset polygon starts over.'),
+        text('Sklenjen poligon potrebuje vsaj \\(3\\) točke; graf zavrne zapiranje ali odstranitev, ki bi to kršila, in to izpiše.', 'A closed polygon needs at least \\(3\\) points; the graph refuses closing or removing a point that would break this and says so.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const interpolationGuidedLessons: readonly GuidedLesson[] = [lagrangeLesson, hermiteLesson, subdivisionLesson];

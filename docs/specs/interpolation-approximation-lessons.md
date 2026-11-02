@@ -113,7 +113,7 @@ Common to all lessons: prerequisites link the Bézier study chapter, `splines`, 
   1. The Chaikin identity above holds against the imported kernels; it is a test, not a copy.
   2. Four-point reproduces polynomials of degree \(\le3\) sampled uniformly (tested on \(x^3\)); old vertices are unchanged after every round.
   3. Vertex counts after \(k\) rounds are exact (closed polygon of \(n\) vertices: \(2^kn\) for both rules); the round cap (suggest 6) is stated.
-  4. Prose states smoothness only as far as sources were read: the Chaikin limit is the quadratic B-spline (\(C^1\)); the \(C^1\) claim for the four-point limit with \(w=\tfrac1{16}\) was **not read from a primary source** in the research note and is marked "to verify" before it ships.
+  4. Prose states smoothness only as far as sources were read: the Chaikin limit is the quadratic B-spline (\(C^1\)); the four-point limit with \(w=\tfrac1{16}\) is \(C^1\) (Dyn, Gregory, Levin, *A 4-point interpolatory subdivision scheme for curve design*, CAGD 4 (1987) 257–268). Secondary sources disagree on the paper's range: Dyn, Kuijt, Levin and van Damme cite \(0<w<\tfrac18\), a 2026-11-02 reviewer recalled \((\sqrt5-1)/8\), and Hechler, Mößner, Reif give the sharp bound \(w^*\approx0.1927\). The primary paper was not opened, but \(w=\tfrac1{16}\) lies inside every one of these ranges. The lesson therefore claims \(C^1\) for \(w=\tfrac1{16}\) only, with no range and no \(C^2\) claim.
   5. Playback is stopped by default and pauses on edit, scene change, exit, import, capture and unmount; reset restores the initial polygon.
   6. Reset, restore, Preset round trip and both languages pass.
 
