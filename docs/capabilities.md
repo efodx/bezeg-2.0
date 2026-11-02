@@ -66,8 +66,16 @@ The catalog publishes its reviewed poster set and 51 silent four-second WebM cli
 | Analysis | `/analysis/sequence` | Sequence convergence with an ε-band and a threshold certificate (`SequenceGraph`) |
 | Analysis | `/analysis/uniform-convergence` | Pointwise versus uniform convergence of function sequences (`UniformConvergenceGraph`) |
 | Analysis | `/analysis/fixed-point` | Fixed-point iteration, cobweb and contraction bounds (`FixedPointGraph`) |
+| Computational geometry | `/compgeo/orientation` | Orientation of three grid points (`PointSetGraph` subclass) |
+| Computational geometry | `/compgeo/polygon-area` | Signed polygon area by the shoelace formula |
+| Computational geometry | `/compgeo/convex-hull` | Convex hull by monotone chain, stepped trace (`HullTraceGraph`) |
+| Computational geometry | `/compgeo/ear-clipping` | Ear clipping, three-colouring and the art gallery bound (`EarClippingGraph`) |
+| Computational geometry | `/compgeo/interval-sweep` | Sweep over intervals: overlapping pairs and maximum depth (`IntervalSweepGraph`) |
+| Computational geometry | `/compgeo/segment-intersections` | Bentley–Ottmann segment intersections with event queue and status (`BentleyOttmannGraph`) |
 
 The Analysis family ([ADR 0011](adr/0011-analysis-family.md), [spec](specs/analysis-guided-lessons.md)) holds Batches A (released 2026-10-15), B and C (released 2026-10-16) of that spec; the spec's eleventh topic, complex multiplication, shipped with Batch C in Foundations. Each batch only adds routes, preset collections (`bisection`, `mean-value`, `accumulation`, `extrema`, `convexity`, `darboux`, `taylor`, `sequence`, `uniform-convergence`, `fixed-point`, `complex-multiplication`) and lessons; no existing route, stored preset or lesson changed, so there is no breaking change.
+
+The Computational geometry family (*Računska geometrija*) works on integer grid points with exact predicates ([ADR 0021](adr/0021-exact-grid-predicates.md)); sweep coordinates and intersection points are exact rationals ([ADR 0035](adr/0035-sweep-coordinates-and-exact-event-order.md)). Every route has a guided lesson. The trace Demonstrations (convex hull, ear clipping, both sweeps) step through a recorded trace with Next step, Play/Pause (stopped by default) and Reset; editing the input recomputes the trace and returns to step 0, and input that breaks a precondition (non-simple polygon, three consecutive collinear vertices, overlapping collinear segments) is refused with a message. Chapters: `convexity-hulls`, `triangulations-voronoi` and `sweep-algorithms`. Specs: [convexity and hulls](specs/convexity-hulls-lessons.md), [triangulations and Voronoi](specs/triangulation-voronoi-lessons.md), [sweep-line algorithms](specs/sweep-algorithms-lessons.md).
 
 The repeated `/param/param/` segment is present in the source. Treat any route cleanup as a compatibility decision.
 

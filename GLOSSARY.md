@@ -10,6 +10,15 @@ The educational app for students and educators exploring Bézier, rational Bézi
 **Function demonstration**:
 A Demonstration of a real function graph `y = f(x)` in the *Functions and calculus* family (linear, exponential and trigonometric functions, continuity, derivative, definite integral, area between curves, arc length), as distinct from a curve demonstration driven by control points.
 
+**Trace**:
+The recorded sequence of steps of an algorithm Demonstration in the *Računska geometrija* family (convex hull, ear clipping, sweeps). Next step and playback walk the same trace; editing the input recomputes it and returns to step 0.
+
+**Ear**:
+Three consecutive polygon vertices whose turn is strictly convex and whose triangle contains no other vertex; ear clipping removes one ear per step until a triangle remains.
+
+**Sweep line**:
+A line moved across the plane that stops only at events (interval or segment endpoints, intersections) held in the event queue; the status is the ordered list of objects the line currently crosses.
+
 **Iteration**:
 One revealed step of an iterative Demonstration such as bisection. Next step and playback run the same transition, so k steps by either route give the same state; the iteration index is saved with a Preset, running playback is not.
 
