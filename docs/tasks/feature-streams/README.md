@@ -126,7 +126,7 @@ It is a plain script, not a model. It does no code checks and costs no tokens wh
 1. It starts each stream that is `not started` and has no live session, in the order Platform, Learn UI, Geometry, Functions, Curves, Maps, 90 seconds apart. Order matters only for load: gates enforce the real dependencies.
 2. Every 10 minutes it fetches `origin/master`, reads each stream's `Run state` and the gate tables, and:
    - relaunches a `waiting on …` stream once all its gates are `open` and it has no live session;
-   - relaunches an `active` stream that has had no live session for two consecutive polls (a crash or a failed successor launch), at most three times per stream per supervisor run;
+   - relaunches an `active` stream that has had no live session for two consecutive polls (a crash or a failed successor launch), at most three times per stream per supervisor run. On the supervisor's first poll it starts such a stream at once, so a restarted supervisor resumes stopped streams without waiting 10 minutes;
    - prints `stopped:` streams for the owner and never relaunches them.
 3. It exits when every stream is `complete` or `stopped`.
 

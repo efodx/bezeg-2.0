@@ -111,7 +111,7 @@ The supervisor resumes a stream from that path. When the path is missing, it sta
 powershell -ExecutionPolicy Bypass -File tools\feature-streams\streams.ps1 -DryRun -Once -MaxLive <n> -MinFreeGB <m>
 ```
 
-It should fetch, list the sessions, and log the active streams without an error. It launches nothing yet: an active stream needs two polls without a session.
+It should fetch, list the sessions, and print a `DRY RUN would start` line for each active stream, without an error. A dry run launches nothing.
 
 **10. Hand over.** Tell the owner what you installed, the calibration figures and the chosen budget, which memories you imported or skipped, and the pushed commit hash. Then give the start command, run from the main checkout in a window they leave open:
 
@@ -119,4 +119,4 @@ It should fetch, list the sessions, and log the active streams without an error.
 cd <repo>; powershell -ExecutionPolicy Bypass -File tools\feature-streams\streams.ps1 -MaxLive <n> -MinFreeGB <m>
 ```
 
-Explain that the first stream starts at the second poll, after about 10 minutes, and the others follow 90 seconds apart within the `-MaxLive` limit. Each handler then rebases its branch onto `master` and continues from its latest handoff note. Do not start the supervisor or any handler yourself.
+Explain that the first stream starts at the first poll, right away, and the others follow 90 seconds apart within the `-MaxLive` limit. Each handler then rebases its branch onto `master` and continues from its latest handoff note. Do not start the supervisor or any handler yourself.

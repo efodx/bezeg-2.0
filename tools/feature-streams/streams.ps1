@@ -5,7 +5,9 @@
 .DESCRIPTION
   Plain script, no model. Starts each stream's first handler session, then polls
   origin/master and relaunches a stream only when it is waiting on gates that are
-  now open, or when an active stream has lost its session. It never reads or checks
+  now open, or when an active stream has lost its session. An active stream with no
+  session starts on the supervisor's first poll; later polls wait for two misses so
+  that a handoff in progress is not mistaken for a crash. It never reads or checks
   code. Handlers launch their own successors at context handoffs.
 
   A finished background session stays resident (about 0.7 GB each) until it is
@@ -210,6 +212,7 @@ function In-Grace([string]$id) {
     return ((Get-Date) - $lastLaunch[$id]).TotalMinutes -lt $GraceMinutes
 }
 
+$firstPoll = $true
 Log "supervising: $($Order -join ', ') (model $Model, effort $Effort, mode $PermissionMode, every $IntervalMinutes min, at most $MaxLive live, launch above $MinFreeGB GB free)"
 while ($true) {
     & git -C $Repo fetch -q origin
@@ -243,7 +246,9 @@ while ($true) {
             else { Log "$id waiting on $($closed -join ', ')" }
         } elseif ($state -eq 'active') {
             $missingPolls[$id] = 1 + [int]$missingPolls[$id]
-            if ($missingPolls[$id] -ge 2) {
+            if ($firstPoll) {
+                $reason = 'it is active but had no running session when the supervisor started'
+            } elseif ($missingPolls[$id] -ge 2) {
                 if ([int]$restarts[$id] -ge $MaxRestarts) { Log "$id is active with no session; restart limit reached  <- needs you" }
                 else { $reason = 'it was active but had no running session (crash or failed successor launch)' }
             }
@@ -265,5 +270,6 @@ while ($true) {
 
     if ($finished -eq $Order.Count) { Log 'every stream is complete or stopped; exiting'; break }
     if ($Once) { break }
+    $firstPoll = $false
     Start-Sleep -Seconds ($IntervalMinutes * 60)
 }
