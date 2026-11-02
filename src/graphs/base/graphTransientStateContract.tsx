@@ -54,8 +54,9 @@ export const TRANSIENT_STATE_PARTS = 4;
  * Graphs whose synchronous changes (lesson actions and model edits, the only changes possible inside one tick) cannot
  * change their scene. Their rollback test still compares the restored scene; it just cannot show a change first.
  */
-// The plane geometry graphs offer no lesson action, and their Preset collections fix the grid step, the model's only number.
-const NO_SYNCHRONOUS_SCENE_CHANGE = new Set<DemonstrationId>(['triangle-centres', 'inscribed-angle', 'euler-line']);
+// These plane geometry graphs offer no lesson action, and their Preset collections fix the grid step, the model's only
+// number. The inscribed angle graph is not listed: its `parameter t` lesson action moves the glider.
+const NO_SYNCHRONOUS_SCENE_CHANGE = new Set<DemonstrationId>(['triangle-centres', 'euler-line']);
 /** No browser-local Preset collection (`presets()` is undefined), so no stored Preset can be loaded or exported. */
 const NO_PRESET_COLLECTION = new Set<DemonstrationId>(['circle']);
 /** The scene is described by its scene state alone: the Preset has no Preset data. */
