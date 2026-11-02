@@ -1,6 +1,6 @@
 # 15 — Monotone triangulation kernel (C4)
 
-Status: planned 2026-11-02 (geometry handler 26). Source: [spec C4](../../specs/sweep-algorithms-lessons.md#c4-triangulating-a-monotone-polygon) (example, steps 6–7, acceptance 1–4), [implementation decisions](../../specs/sweep-algorithms-lessons.md#implementation-decisions) (the ear-clipping trace reused for the comparison), [correctness notes](../../specs/sweep-algorithms-lessons.md#correctness-notes). Kind: F1, mathematical review. Depends on 14 (`monotonePartitionTrace`, `isYMonotone`, the event order) and triangulation 06 (`earClippingTrace`, accepted).
+Status: accepted 2026-11-02 (geometry handler 33); planned 2026-11-02 (geometry handler 26). Source: [spec C4](../../specs/sweep-algorithms-lessons.md#c4-triangulating-a-monotone-polygon) (example, steps 6–7, acceptance 1–4), [implementation decisions](../../specs/sweep-algorithms-lessons.md#implementation-decisions) (the ear-clipping trace reused for the comparison), [correctness notes](../../specs/sweep-algorithms-lessons.md#correctness-notes). Kind: F1, mathematical review. Depends on 14 (`monotonePartitionTrace`, `isYMonotone`, the event order) and triangulation 06 (`earClippingTrace`, accepted).
 
 Pure TypeScript in `src/compgeo/sweep/monotoneTriangulation.ts`, free of React and JSXGraph. Reference: dBCKO §3.3 (`TriangulateMonotonePolygon`).
 
@@ -25,3 +25,13 @@ Pure TypeScript in `src/compgeo/sweep/monotoneTriangulation.ts`, free of React a
    - Observed failures under deliberate mutations: the visibility test's sign reversed; the opposite-chain case not popping the whole stack; one piece skipped in the combined run.
 
 Checks: `just unit src/compgeo/sweep --maxWorkers=2`, `just lint src/compgeo/sweep`, `npx tsc --noEmit --pretty false`.
+
+## Evidence (handler 33, 2026-11-02)
+
+- Worker (Sonnet, high effort: exact predicates): `monotoneTriangulation.ts`, `monotoneTriangulation.test.ts`, and `testPolygons.ts`, which holds task 14's generator, moved byte-identical (`monotonePartition.test.ts` only imports it). API: `monotoneTriangulationTrace(vertices, piece?)` returns `piece`, `order`, `chains`, `trace`, `diagonals`, `triangles`. `partitionAndTriangulate(vertices)` returns `partition`, `pieces`, a combined `trace` with `offsets`, `triangles`, `diagonals` and `counts`.
+- Trace length per piece: \(6m-9+T\), with \(T\) visibility tests, and `predicateCount` at `done` equals \(T\). The stack is empty at `done`.
+- C3 pieces: stacks \([P_5],[P_5,P_4],[P_5,P_1],[\,]\) (0-based input indices 5, 4, 1). The visibility test gives orient \(20>0\), so diagonal 1–5. The second piece's test gives orient \(-4\), blocked, and diagonal 2–4 is added at the bottom. Whole polygon: 4 triangles, diagonals 1–4, 1–5, 2–4, doubled area 80. Worker and reviewer each checked this by hand. Counts on C3: monotone 11 (partition 9 + 1 + 1) against ear clipping 21; these are observed values, not a growth-rate claim.
+- Random: 250 polygons, 132 blocked and 567 visible tests (floors asserted). The reviewer's throwaway stress run of about 5970 polygons found no failure.
+- Mutations, each observed failing then reverted: visibility sign reversed (6 tests); opposite-chain case leaving the bottom on the stack (3, caught by an added hand-checked zigzag test); one piece skipped (6); chain swapped (6); non-strict visibility (1); diagonal to the adjacent bottom vertex (7); monotone count omitting the partition (3).
+- Checks: `just unit src/compgeo/sweep --maxWorkers=2` 121 passed; lint and `npx tsc --noEmit` clean.
+- Mathematical review (Sonnet `bezeg-reviewer`): nothing blocking. Low notes, left as caller contracts: the `piece` argument is not checked to be a simple sub-cycle (`partitionAndTriangulate` only passes valid pieces); the throw on an `earClippingTrace` refusal is unreachable within the 20-vertex sweep limit.

@@ -12,6 +12,7 @@ import {
     type MonotonePartition,
     type VertexType,
 } from './monotonePartition';
+import {lcg, starPolygon, untangledPolygon} from './testPolygons';
 
 const pts = (...xy: [number, number][]): GridPoint[] => xy.map(([x, y]) => ({x, y}));
 const coord = (p: GridPoint): string => `${p.x},${p.y}`;
@@ -285,36 +286,6 @@ describe('isYMonotone', () => {
 });
 
 describe('random simple grid polygons', () => {
-    function lcg(seed: number) {
-        let s = seed;
-        return () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
-    }
-
-    /** Star-shaped polygons: random points sorted by angle around an off-lattice centre. */
-    function starPolygon(rnd: () => number): GridPoint[] {
-        const n = 4 + Math.floor(rnd() * 12);
-        const raw = Array.from({length: n}, () => ({x: Math.floor(rnd() * 21) - 10, y: Math.floor(rnd() * 21) - 10}));
-        const c = {x: 0.37, y: 0.41};
-        return raw.sort((a, b) => Math.atan2(a.y - c.y, a.x - c.x) - Math.atan2(b.y - c.y, b.x - c.x));
-    }
-
-    /** Non-star polygons: a random point cycle untangled by 2-opt reversals, bounded to 60 moves. */
-    function untangledPolygon(rnd: () => number): GridPoint[] {
-        const n = 5 + Math.floor(rnd() * 11);
-        const poly = Array.from({length: n}, () => ({x: Math.floor(rnd() * 21) - 10, y: Math.floor(rnd() * 21) - 10}));
-        for (let move = 0; move < 60; move++) {
-            const bad = polygonSimplicity(poly, true);
-            if (bad.simple) break;
-            const [i, j] = bad.edges;
-            if (i === j) break;
-            const lo = Math.min(i, j) + 1;
-            const hi = Math.max(i, j);
-            const reversed = poly.slice(lo, hi + 1).reverse();
-            poly.splice(lo, hi - lo + 1, ...reversed);
-        }
-        return poly;
-    }
-
     it('partitions, stays monotone, inside and non-crossing, and exercises split and merge vertices', () => {
         const rnd = lcg(20261102);
         let checked = 0;
