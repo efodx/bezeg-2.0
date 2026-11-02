@@ -80,7 +80,7 @@ function ExampleAndFocus(props: InversionPanelProps) {
     };
     return <>
         <label className="pointset-check">{t("inversion_example_label")}{" "}
-            <select value={props.exampleId ?? "custom"} data-inversion-example
+            <select value={props.exampleId ?? "custom"} data-inversion-example aria-label={t("inversion_example_label")}
                     onChange={event => {
                         const found = INVERSION_EXAMPLES.find(example => example.id === event.target.value);
                         if (found) props.onExample(found.id);
@@ -90,7 +90,7 @@ function ExampleAndFocus(props: InversionPanelProps) {
             </select>
         </label>
         <label className="pointset-check">{t("inversion_focus_label")}{" "}
-            <select value={props.fields.focus} data-inversion-focus
+            <select value={props.fields.focus} data-inversion-focus aria-label={t("inversion_focus_label")}
                     onChange={event => { if (isInversionFocus(event.target.value)) props.onFocus(event.target.value); }}>
                 {INVERSION_FOCI.map(focus => <option key={focus} value={focus}>{focusNames[focus]}</option>)}
             </select>

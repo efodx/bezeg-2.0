@@ -89,6 +89,9 @@ const targets = {
     // The same triangle; P at t = 60 on the circumcircle (5.40, 4.80) with all overlays on (the defaults). The foot E on CA is at (2.40, 6.00),
     // above the sibling window, so the top rises to 6.6 and the width keeps 360:220 about x = 3.5.
     'simson-line': ['Default triangle with P on the circumcircle at t = 60, the perpendiculars from P to the side lines, the collinear feet D, E, F on the Simson line and the pedal triangle', [], [-6.8, 6.6, 8.6, -2.81]],
+    // Example "circle not through the centre": C = (0,0), r = 2; the circle about (3,0) with radius 1 maps to the circle about (3/2,0) with radius 1/2.
+    // The window spans the circle of inversion (y -2..2) and the source circle (x up to 4) and keeps 360:220 about x = 1.
+    inversion: ['Example circle not through the centre: the circle of inversion about C, the circle about (3,0) and its image circle about (3/2,0)', [field('Primer', 'not-through-centre', 'select')], [-3.25, 2.6, 5.25, -2.6]],
     // Default B2 example: n = 7 points, hull k = 5, starting triangulation T0 (2n - 2 - k = 7 triangles).
     'point-set-triangulation': ['Default seven points with their starting triangulation T0 drawn as triangle edges', [], [-4.18, 9, 12.18, -1]],
     // Default quad (0,0), (4,0), (5,3), (0,2) with diagonal ac; the first Next step tests that edge and shows its circumcircle.
@@ -265,6 +268,7 @@ async function outcome(page, id) {
         const board = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
         const visible = Object.values(board.objects).filter(o => o.visProp?.visible !== false && o.visProp?.visible !== 'false' && o.rendNode && getComputedStyle(o.rendNode).display !== 'none' && getComputedStyle(o.rendNode).visibility !== 'hidden');
         return {curves: visible.filter(o => o.elType === 'curve').length, lines: visible.filter(o => ['line','segment'].includes(o.elType)).length,
+            circles: visible.filter(o => o.elType === 'circle').map(o => ({name: o.name, x: o.center.X(), y: o.center.Y(), r: o.Radius()})),
             points: visible.filter(o => ['point', 'glider', 'slider'].includes(o.elType)).map(o => ({type:o.elType, name: o.name, x: o.X(), y: o.Y(), fixed: o.visProp.fixed})),
             text: visible.filter(o => o.elType === 'text').map(o => o.rendNode.textContent),
             readouts: Object.fromEntries([...document.querySelectorAll('[data-readout]')].map(e => [e.dataset.readout, e.querySelector('dd')?.textContent])),
@@ -278,6 +282,8 @@ async function outcome(page, id) {
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
 const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay']);
+// Demonstrations whose defining objects are JSXGraph circles.
+const CIRCLE_DEFINED_IDS = new Set(['inversion']);
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
@@ -288,7 +294,7 @@ function assertOutcomeEvidence(id, evidence) {
         return evidence;
     }
     assert.ok(evidence && Array.isArray(evidence.points) && evidence.readouts && evidence.reveals && Array.isArray(evidence.controls), `${id} missing semantic evidence`);
-    assert.ok(evidence.curves > 0 || LINE_DEFINED_IDS.has(id) && evidence.lines > 0, `${id} has no visible defining curve/line`);
+    assert.ok(evidence.curves > 0 || LINE_DEFINED_IDS.has(id) && evidence.lines > 0 || CIRCLE_DEFINED_IDS.has(id) && evidence.circles?.length > 0, `${id} has no visible defining curve/line`);
     if (id === 'bernstein') {
         assert.equal(evidence.curves, 4, 'Cubic Bernstein must show four functions');
     }
@@ -339,6 +345,12 @@ function assertOutcomeEvidence(id, evidence) {
         const expected = [[0, 0], [7, 0], [2, 5], [px, py], foot([7, 0], [2, 5]), foot([2, 5], [0, 0]), foot([0, 0], [7, 0])];
         for (const [x, y] of expected) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing point (${x},${y}): ${JSON.stringify(evidence.points)}`);
         assert.ok(evidence.lines >= 4, 'The three side lines and the Simson line required');
+    }
+    if (id === 'inversion') {
+        // C = (0,0), r = 2; the circle about (3,0), radius 1, maps to the circle about (3/2,0), radius 1/2 (exact in the kernel, so to 1e-6).
+        assert.ok(evidence.controls.some(c => c.label === 'Primer' && c.value === 'not-through-centre'), 'The circle not through the centre example must be selected');
+        assert.ok(evidence.points.some(p => near(p, 0, 0)), `Missing centre of inversion C: ${JSON.stringify(evidence.points)}`);
+        for (const [x, y, r] of [[0, 0, 2], [3, 0, 1], [1.5, 0, 0.5]]) assert.ok(evidence.circles.some(c => near(c, x, y) && Math.abs(c.r - r) < 1e-6), `Missing circle about (${x},${y}) with radius ${r}: ${JSON.stringify(evidence.circles)}`);
     }
     if (id === 'triangle-centres' || id === 'inscribed-angle') {
         for (const [x, y] of [[0, 0], [7, 0], [2, 5]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing default vertex (${x},${y}): ${JSON.stringify(evidence.points)}`);
