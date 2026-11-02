@@ -1569,6 +1569,8 @@ export const sl = {
     "inscribed_angle_prompt": "Premikaj točko P po krožnici, napovej, kako se spreminja obodni kot nad tetivo in kdaj je pravi kot (Talesov izrek), in šele nato preberi velikosti kotov.",
     "euler_line_title": "Eulerjeva premica in krožnica devetih točk",
     "euler_line_prompt": "Premakni oglišča trikotnika, napovej, ali lahko središče očrtane krožnice O, težišče G in višinska točka H ležijo na isti premici in kako daleč je G od vsake izmed njih, in šele nato vklopi premico ter izmeri.",
+    "simson_line_title": "Simsonova premica",
+    "simson_line_prompt": "Premakni točko P po očrtani krožnici, napovej, kako so razporejena nožišča pravokotnic iz P na nosilke stranic, in šele nato vklopi nožišča ter premico in preveri.",
     "invalid_function_data":"neveljavni podatki funkcije",
     "bernstein_polynomials": "Bernsteinovi Polinomi",
     "bezier_curve_209": "Bezierjeva Krivulja",

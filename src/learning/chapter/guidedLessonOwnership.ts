@@ -76,6 +76,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'triangle-centres': {chapterId: 'triangle-geometry', sectionId: 'notable-points'},
     'inscribed-angle': {chapterId: 'triangle-geometry', sectionId: 'inscribed-angle'},
     'euler-line': {chapterId: 'triangle-geometry', sectionId: 'euler-line'},
+    'simson-line': {chapterId: 'triangle-geometry', sectionId: 'simson-line'},
     // The Convexity and hulls chapter owns the first three computational-geometry lessons, one section each.
     orientation: {chapterId: 'convexity-hulls', sectionId: 'orientation'},
     'polygon-area': {chapterId: 'convexity-hulls', sectionId: 'polygon-area'},

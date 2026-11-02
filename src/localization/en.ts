@@ -1570,6 +1570,8 @@ export const en: Record<keyof typeof sl, string> = {
     "inscribed_angle_prompt": "Move the point P along the circle, predict how the inscribed angle over the chord changes and when it is a right angle (Thales' theorem), and only then read the angle sizes.",
     "euler_line_title": "Euler line and nine-point circle",
     "euler_line_prompt": "Move the triangle's vertices, predict whether the circumcentre O, the centroid G and the orthocentre H can lie on one line and how far G is from each of them, and only then switch the line on and measure.",
+    "simson_line_title": "Simson line",
+    "simson_line_prompt": "Move the point P along the circumcircle, predict how the feet of the perpendiculars from P to the side lines are arranged, and only then switch on the feet and the line and check.",
     "invalid_function_data":"invalid function data",
     "bernstein_polynomials": "Bernstein polynomials",
     "bezier_curve_209": "Bézier curve",

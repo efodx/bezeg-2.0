@@ -42,7 +42,7 @@ test('the catalogue shows the ordered collection and only supported lesson desti
         expect(card.querySelector('.demonstrations-catalog-title')).toHaveTextContent(entry.catalogTitle);
         expect(card.querySelector('.demonstrations-catalog-copy p')).not.toBeEmptyDOMElement();
         // Posters are a partial record: these ids have none until their capture tasks.
-        if (!['linear-map', 'complex-reciprocal', 'complex-roots', 'triangle-centres', 'inscribed-angle', 'euler-line', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'interval-sweep',
+        if (!['linear-map', 'complex-reciprocal', 'complex-roots', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'interval-sweep',
             'segment-intersections', 'curve-parametric', 'curve-curvature', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'patch-coons', 'bspline-basis', 'bspline-deboor', 'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'root-finding', 'function-transformation', 'function-inverse', 'fourier-series'].includes(entry.id)) {
             expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('src');
             expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('alt', '');

@@ -83,6 +83,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | Talesov izrek | Thales' theorem (triangle geometry, F2b) |
 | Eulerjeva premica | Euler line (triangle geometry, F2b) |
 | krožnica devetih točk | nine-point circle (triangle geometry, F2b) |
+| Simsonova premica | Simson line (triangle geometry, 07 F2b) |
+| nožišče | foot of a perpendicular (pedal point) (triangle geometry, 07 F2b) |
+| nožiščni trikotnik | pedal triangle (triangle geometry, 07 F2b) |
+| nosilka stranice | side line (line carrying a side) (triangle geometry, 07 F2b) |
 | geometrija trikotnika in inverzija | triangle geometry and inversion (chapter title; only notable points and inscribed angle are published so far) |
 | težišče; višinska točka | centroid; orthocentre (triangle geometry chapter) |
 | središče očrtane krožnice; središče včrtane krožnice | circumcentre; incentre (triangle geometry chapter; the PIK formula sheet says *očrtan krog*, the app keeps *krožnica*) |
