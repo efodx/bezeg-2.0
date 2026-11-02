@@ -32,7 +32,10 @@ import preview_curve_parametric from './images/demonstrations/catalog/curve-para
 import preview_curve_curvature from './images/demonstrations/catalog/curve-curvature.png';
 import preview_interp_lagrange from './images/demonstrations/catalog/interp-lagrange.png';
 import preview_interp_hermite from './images/demonstrations/catalog/interp-hermite.png';
+import preview_interp_runge from './images/demonstrations/catalog/interp-runge.png';
 import preview_interp_subdivision from './images/demonstrations/catalog/interp-subdivision.png';
+import preview_bspline_basis from './images/demonstrations/catalog/bspline-basis.png';
+import preview_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.png';
 import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.png';
 import preview_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.png';
 import preview_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.png';
@@ -67,10 +70,14 @@ import preview_complex_reciprocal from './images/demonstrations/catalog/complex-
 import preview_complex_roots from './images/demonstrations/catalog/complex-roots.png';
 import preview_triangle_centres from './images/demonstrations/catalog/triangle-centres.png';
 import preview_inscribed_angle from './images/demonstrations/catalog/inscribed-angle.png';
+import preview_euler_line from './images/demonstrations/catalog/euler-line.png';
+import preview_simson_line from './images/demonstrations/catalog/simson-line.png';
 import preview_orientation from './images/demonstrations/catalog/orientation.png';
 import preview_polygon_area from './images/demonstrations/catalog/polygon-area.png';
 import preview_convex_hull from './images/demonstrations/catalog/convex-hull.png';
 import preview_ear_clipping from './images/demonstrations/catalog/ear-clipping.png';
+import preview_point_set_triangulation from './images/demonstrations/catalog/point-set-triangulation.png';
+import preview_delaunay from './images/demonstrations/catalog/delaunay.png';
 import preview_interval_sweep from './images/demonstrations/catalog/interval-sweep.png';
 import preview_segment_intersections from './images/demonstrations/catalog/segment-intersections.png';
 import preview_projective_cross_ratio from './images/demonstrations/catalog/projective-cross-ratio.png';
@@ -109,7 +116,10 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'curve-curvature': preview_curve_curvature,
     'interp-lagrange': preview_interp_lagrange,
     'interp-hermite': preview_interp_hermite,
+    'interp-runge': preview_interp_runge,
     'interp-subdivision': preview_interp_subdivision,
+    'bspline-basis': preview_bspline_basis,
+    'bspline-deboor': preview_bspline_deboor,
     'patch-tensor': preview_patch_tensor,
     'patch-decasteljau': preview_patch_decasteljau,
     'patch-derivatives': preview_patch_derivatives,
@@ -144,10 +154,14 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'complex-roots': preview_complex_roots,
     'triangle-centres': preview_triangle_centres,
     'inscribed-angle': preview_inscribed_angle,
+    'euler-line': preview_euler_line,
+    'simson-line': preview_simson_line,
     'orientation': preview_orientation,
     'polygon-area': preview_polygon_area,
     'convex-hull': preview_convex_hull,
     'ear-clipping': preview_ear_clipping,
+    'point-set-triangulation': preview_point_set_triangulation,
+    'delaunay': preview_delaunay,
     'interval-sweep': preview_interval_sweep,
     'segment-intersections': preview_segment_intersections,
     'projective-cross-ratio': preview_projective_cross_ratio,

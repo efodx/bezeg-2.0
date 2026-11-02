@@ -36,7 +36,7 @@ const targets = {
     'curve-parametric': ['Default cycloid with its generating circle, velocity vector and tangent at the opening parameter', []],
     'curve-curvature': ['Default parabola with the osculating circle, its centre and the curvature readout at the opening parameter', []],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
-    'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', []],
+    'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],
     'interp-hermite': ['Default points with the Catmull-Rom curve and its tangents', []],
     'interp-subdivision': ['Default control polygon with the first refinement of the subdivision curve (one Naslednji korak)', [button('Naslednji korak')]],
     'bspline-basis': ['Default clamped quadratic knot vector (0, 0, 0, 1, 2, 2, 2) with the basis functions, the knot editor and the slider at its opening parameter', [], [-0.35, 1.15, 2.35, -0.6]],
@@ -86,11 +86,11 @@ const targets = {
     'euler-line': ['Default triangle with O, G and H on the Euler line, the nine-point circle about N through its nine points, and the circumcircle', [toggle('Devet točk (krogci: razpolovišča stranic, kvadratki: vznožja višin, rombi: razpolovišča daljic AH, BH, CH)'), toggle('Očrtana krožnica')], [-3.55, 5.81, 10.55, -2.81]],
     // The same triangle; P at t = 60 on the circumcircle (5.40, 4.80) with all overlays on (the defaults). The foot E on CA is at (2.40, 6.00),
     // above the sibling window, so the top rises to 6.6 and the width keeps 360:220 about x = 3.5.
-    'simson-line': ['Default triangle with P on the circumcircle at t = 60, the perpendiculars from P to the side lines, the collinear feet D, E, F on the Simson line and the pedal triangle', [], [-4.2, 6.6, 11.2, -2.81]],
+    'simson-line': ['Default triangle with P on the circumcircle at t = 60, the perpendiculars from P to the side lines, the collinear feet D, E, F on the Simson line and the pedal triangle', [], [-6.8, 6.6, 8.6, -2.81]],
     // Default B2 example: n = 7 points, hull k = 5, starting triangulation T0 (2n - 2 - k = 7 triangles).
     'point-set-triangulation': ['Default seven points with their starting triangulation T0 drawn as triangle edges', [], [-4.18, 9, 12.18, -1]],
     // Default quad (0,0), (4,0), (5,3), (0,2) with diagonal ac; the first Next step tests that edge and shows its circumcircle.
-    'delaunay': ['Default quadrilateral abcd with diagonal ac at the first Lawson edge test, with the circumcircle of the tested triangle', [button('Naslednji korak', 1)], [-4.03, 5.6, 8.73, -2.2]],
+    'delaunay': ['Default quadrilateral abcd with diagonal ac at the first Lawson edge test, with the circumcircle of the tested triangle', [button('Naslednji korak', 1)], [-2, 4.78, 6, -0.11]],
     'patch-coons': ['Default Coons patch, fitted to the preview frame, with its four boundary curves, control net and shaded surface', [button('Ponastavi pogled')]],
     'projective-cross-ratio': ['Default central projection of four points A, B, C, D from the centre O onto the second line, with both cross-ratios 9/8', [], [-14, 9, 14, -7]],
     'projective-pascal': ['Default Pascal hexagon inscribed in the ellipse with the three intersections of opposite sides on one line', [], [-12, 10.5, 12, -10.5]],
