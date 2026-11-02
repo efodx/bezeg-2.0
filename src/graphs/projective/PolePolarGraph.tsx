@@ -7,9 +7,11 @@ import {Preset} from "../base/presets/Presets";
 import {GraphPalette} from "../styles/GraphPalette";
 import {sampleConic} from "../../projective/conicSampler";
 import {
-    DEFAULT_POLE_POLAR_MODEL, POLE_POLAR_CONICS, POLE_POLAR_DENOMINATOR, POLE_POLAR_EXAMPLES, POLE_POLAR_VIEW_BOX, PolePolarConicId, PolePolarDirection,
+    DEFAULT_POLE_POLAR_MODEL, POLE_POLAR_CONIC_IDS, POLE_POLAR_CONICS, POLE_POLAR_DENOMINATOR, POLE_POLAR_DIRECTION_LIMIT, POLE_POLAR_EXAMPLE_IDS, POLE_POLAR_EXAMPLES, POLE_POLAR_NUMERATOR_LIMIT, POLE_POLAR_VIEW_BOX, PolePolarConicId, PolePolarDirection,
     PolePolarExampleId, PolePolarModel, PolePolarScene, evaluatePolePolar, isLineAtInfinity, serializePolePolarModel,
 } from "./polePolarModel";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {moveP, nudgeP, setConic, setDirection, setNumerators} from "./polePolarEdit";
 import {PolePolarControls} from "./PolePolarControls";
 import {definingPoints} from "./definingPoints";
@@ -132,6 +134,55 @@ export class PolePolarGraph extends BaseGraph<PolePolarGraphState, PolePolarMode
 
     loadExample(id: PolePolarExampleId): void {
         this.loadModel(POLE_POLAR_EXAMPLES[id]);
+    }
+
+    /**
+     * Lesson actions (`projective`, the `pole-polar-*` operations): each is the matching control action. Values are checked strictly
+     * (a lesson-content error throws, nothing is clamped or snapped), then the control's own graph method runs.
+     */
+    applyProjectiveAction(action: Extract<LessonAction, {kind: "projective"}>): void {
+        const whole = (value: unknown, limit: number): value is number => typeof value === "number" && Number.isInteger(value) && Math.abs(value) <= limit;
+        switch (action.operation) {
+            case "pole-polar-load-example": {
+                const id = POLE_POLAR_EXAMPLE_IDS.find(candidate => candidate === action.exampleId);
+                if (id === undefined) throw new Error(`projective pole-polar-load-example: exampleId must be one of ${POLE_POLAR_EXAMPLE_IDS.join(", ")}.`);
+                this.loadExample(id);
+                return;
+            }
+            case "pole-polar-set-conic": {
+                const id = POLE_POLAR_CONIC_IDS.find(candidate => candidate === action.conic);
+                if (id === undefined) throw new Error(`projective pole-polar-set-conic: conic must be one of ${POLE_POLAR_CONIC_IDS.join(", ")}.`);
+                this.chooseConic(id);
+                return;
+            }
+            case "pole-polar-place": {
+                const {x, y} = action;
+                if (!whole(x, POLE_POLAR_NUMERATOR_LIMIT) || !whole(y, POLE_POLAR_NUMERATOR_LIMIT)) {
+                    throw new Error(`projective pole-polar-place: x and y must be integer numerators over ${POLE_POLAR_DENOMINATOR} within ±${POLE_POLAR_NUMERATOR_LIMIT}.`);
+                }
+                this.placeNumerators(x, y);
+                return;
+            }
+            case "pole-polar-set-direction": {
+                const {dx, dy} = action;
+                if (dx === undefined && dy === undefined) {
+                    this.chooseDirection(undefined);
+                    return;
+                }
+                if (!whole(dx, POLE_POLAR_DIRECTION_LIMIT) || !whole(dy, POLE_POLAR_DIRECTION_LIMIT) || (dx === 0 && dy === 0)) {
+                    throw new Error(`projective pole-polar-set-direction: dx and dy must be integers within ±${POLE_POLAR_DIRECTION_LIMIT}, not both 0 (omit both to return to the finite P).`);
+                }
+                this.chooseDirection({dx, dy});
+                return;
+            }
+            default:
+                throw new Error(`projective: the pole and polar graph has no operation ${action.operation}.`);
+        }
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("projective", action => this.applyProjectiveAction(action));
     }
 
     /** Replaces the whole model (an example or an import checked by `parsePolePolarModel`). */

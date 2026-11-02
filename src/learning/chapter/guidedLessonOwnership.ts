@@ -35,6 +35,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'projective-cross-ratio': {chapterId: 'rational-curves', sectionId: 'worked-conic'},
     // Projective conics K2 (Pascal): the same interim home as K1.
     'projective-pascal': {chapterId: 'rational-curves', sectionId: 'worked-conic'},
+    // Projective conics K3 (pole and polar): the same interim home as K1.
+    'projective-pole-polar': {chapterId: 'rational-curves', sectionId: 'worked-conic'},
     'spline-cn': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-c1': {chapterId: 'splines', sectionId: 'continuity-levels'},
     'spline-c2': {chapterId: 'splines', sectionId: 'continuity-levels'},

@@ -2,6 +2,7 @@ import type {DemonstrationId} from '../demonstrations';
 import type {HullAlgorithm} from '../graphs/compgeo/hullTraceRun';
 import type {CrossRatioExampleId} from '../graphs/projective/crossRatioModel';
 import type {PascalConicId, PascalExampleId, PascalOrderId} from '../graphs/projective/pascalModel';
+import type {PolePolarConicId, PolePolarExampleId} from '../graphs/projective/polePolarModel';
 import type {ParametricCurveId} from '../graphs/curves/parametric/parametricCatalogue';
 import {BISECTION_EXAMPLE_IDS} from '../analysis/bisection';
 import {ROOT_FINDING_EXAMPLE_IDS} from '../analysis/rootFinding';
@@ -225,6 +226,11 @@ export type LessonAction =
      * button, `pascal-set-conic` and `pascal-set-order` are the conic and hexagon-order buttons (a new conic restarts the six points
      * at its defaults), and `pascal-set-index` puts `handle` 0-5 at a direction-table `index`, the path of the arrow keys. Scene data
      * is strict: an index that is not a reachable position of that handle on the current conic is a lesson-content error, never snapped.
+     * PolePolarGraph (K3) has its own `pole-polar-*` operations, which the other projective graphs reject (and the reverse):
+     * `pole-polar-load-example` and `pole-polar-set-conic` are the example and conic buttons, `pole-polar-place` puts the finite P at
+     * integer numerators `x`, `y` over 5 (each within +-50, a coordinate within +-10), and `pole-polar-set-direction` turns P into the
+     * point at infinity of the integer direction `dx`, `dy` (each within +-5, not both 0); with both omitted it returns to the finite P.
+     * Scene data is strict: a non-integer or out-of-range value is a lesson-content error, never snapped.
      */
     | {readonly kind: 'projective'; readonly operation: 'load-example'; readonly exampleId: CrossRatioExampleId}
     | {readonly kind: 'projective'; readonly operation: 'move-handle'; readonly handle: number; readonly x: number; readonly y?: number}
@@ -232,6 +238,10 @@ export type LessonAction =
     | {readonly kind: 'projective'; readonly operation: 'pascal-set-conic'; readonly conic: PascalConicId}
     | {readonly kind: 'projective'; readonly operation: 'pascal-set-order'; readonly order: PascalOrderId}
     | {readonly kind: 'projective'; readonly operation: 'pascal-set-index'; readonly handle: number; readonly index: number}
+    | {readonly kind: 'projective'; readonly operation: 'pole-polar-load-example'; readonly exampleId: PolePolarExampleId}
+    | {readonly kind: 'projective'; readonly operation: 'pole-polar-set-conic'; readonly conic: PolePolarConicId}
+    | {readonly kind: 'projective'; readonly operation: 'pole-polar-place'; readonly x: number; readonly y: number}
+    | {readonly kind: 'projective'; readonly operation: 'pole-polar-set-direction'; readonly dx?: number; readonly dy?: number}
     /** AlphaParam and UniformParam parameterization: a number alpha (the target graph enforces its bounds). */
     | {readonly kind: 'parameterization-alpha'; readonly value: number}
     /** The parameterization sample count, an integer whose bounds differ by route (the target graph enforces them). */

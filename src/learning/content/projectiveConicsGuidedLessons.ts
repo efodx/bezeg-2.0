@@ -1,9 +1,9 @@
 /**
  * Guided lessons of the Projective geometry and conics family (docs/specs/projective-conics-lessons.md), batch A: K1, the cross-ratio,
- * on `projective-cross-ratio`, and K2, Pascal's theorem, on `projective-pascal`. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every number it
+ * on `projective-cross-ratio`, K2, Pascal's theorem, on `projective-pascal`, and K3, pole and polar, on `projective-pole-polar`. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every number it
  * quotes is a value of the scene it belongs to, and `projectiveConicsGuidedLessons.test.ts` recomputes them with exact fractions, without
  * the projective kernel, and checks them against the real graph. Scenes use only the `projective` actions the graph of their lesson registers
- * (K1: `load-example` and `move-handle`; K2: the `pascal-*` operations), and every scene sets every value it states, so it does not depend on the scene before it.
+ * (K1: `load-example` and `move-handle`; K2: the `pascal-*` operations; K3: the `pole-polar-*` operations), and every scene sets every value it states, so it does not depend on the scene before it.
  */
 import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
@@ -44,6 +44,8 @@ const crossRatioScene = (
 };
 
 export type PascalLessonExample = 'default' | 'infinity';
+export type PolePolarLessonExample = 'default' | 'on' | 'infinity';
+type PolePolarSceneOperation = Extract<LessonAction, {kind: 'projective'; operation: 'pole-polar-set-conic' | 'pole-polar-place' | 'pole-polar-set-direction'}>;
 type PascalSceneOperation = Extract<LessonAction, {kind: 'projective'; operation: 'pascal-set-conic' | 'pascal-set-order' | 'pascal-set-index'}>;
 
 /** The direction-table index of the line direction (5, 4), the position of the point D in the K2 drag scene (the test pins it to that direction). */
@@ -458,4 +460,208 @@ const pascalLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const projectiveConicsGuidedLessons: readonly GuidedLesson[] = [crossRatioLesson, pascalLesson];
+/** A K3 scene from the default scene: `pole-polar-load-example`, then the conic and position operations (PolePolarGraph's own control actions). */
+const polePolarScene = (
+    id: string, example: PolePolarLessonExample, operations: readonly PolePolarSceneOperation[], sl: string, en: string,
+): LessonScene => {
+    const actions: LessonAction[] = [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'projective', operation: 'pole-polar-load-example', exampleId: example},
+        ...operations,
+    ];
+    return {id, basedOn: 'demonstration-default', actions, expectedState: text(sl, en)};
+};
+
+const polePolarLesson: GuidedLesson = {
+    demonstrationId: 'projective-pole-polar',
+    title: text('Pol in polara', 'Pole and polar'),
+    summary: text(
+        'Vsaki točki \\(P\\) ravnine pripada glede na stožnico premica, njena polara. Če je \\(P\\) zunaj stožnice, polara poteka skozi obe dotikališči tangent iz \\(P\\); če je \\(P\\) na stožnici, je polara tangenta v \\(P\\); če je \\(P\\) znotraj stožnice, polara stožnice ne seka. Polara središča je premica v neskončnosti. To je izrek o polari (pol in polara glede na stožnico), ki ga lekcija navaja in ne dokazuje; premikanje točke \\(P\\) je ilustracija.',
+        'Every point \\(P\\) of the plane has a line with respect to a conic, its polar. If \\(P\\) is outside the conic, the polar passes through both points of tangency of the tangents from \\(P\\); if \\(P\\) is on the conic, the polar is the tangent at \\(P\\); if \\(P\\) is inside the conic, the polar does not meet the conic. The polar of the centre is the line at infinity. This is the theorem on the polar (pole and polar with respect to a conic), which the lesson states and does not prove; moving the point \\(P\\) is an illustration.',
+    ),
+    prerequisites: [
+        text('Koordinate in enačba premice ter enačba tangente na krožnico ali elipso v dani točki; lekcija o Pascalovem izreku pomaga, vendar ni pogoj.', 'Coordinates, the equation of a line, and the equation of a tangent to a circle or ellipse at a given point; the Pascal lesson helps but is not required.'),
+    ],
+    learningGoals: [
+        text('Iz točke \\(P\\) zunaj elipse poiščeš dotikališči tangent in preveriš, da polara točke \\(P\\) poteka skozi obe.', 'From a point \\(P\\) outside an ellipse find the points of tangency of the tangents and check that the polar of \\(P\\) passes through both.'),
+        text('Razločiš lege točke \\(P\\) zunaj, na in znotraj stožnice in odčitaš, kaj je polara v vsaki od njih.', 'Tell the positions of \\(P\\) outside, on and inside a conic apart and read what the polar is in each.'),
+        text('Poveš, da je polara točke v neskončnosti premer skozi središče, da je pol premice druga smer iste preslikave in da parabola nima končnega središča.', 'State that the polar of a point at infinity is a diameter through the centre, that the pole of a line is the same map read backwards, and that a parabola has no finite centre.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'pole-polar-polar',
+            latex: '\\frac{x\\,x_0}{a^2}+\\frac{y\\,y_0}{b^2}=1',
+            notation: text(
+                'Elipsa \\(\\tfrac{x^2}{a^2}+\\tfrac{y^2}{b^2}=1\\) in točka \\(P=(x_0,y_0)\\). Leva stran je enačba polare točke \\(P\\); kadar je \\(P\\) na elipsi, je to enačba tangente v \\(P\\). V lekciji je \\(a^2=25\\), \\(b^2=9\\).',
+                'The ellipse \\(\\tfrac{x^2}{a^2}+\\tfrac{y^2}{b^2}=1\\) and the point \\(P=(x_0,y_0)\\). The left side is the equation of the polar of \\(P\\); when \\(P\\) is on the ellipse it is the equation of the tangent at \\(P\\). In the lesson \\(a^2=25\\), \\(b^2=9\\).',
+            ),
+            explanation: text(
+                'Izrek (pol in polara): če je \\(P\\) zunaj stožnice, polara točke \\(P\\) poteka skozi obe dotikališči tangent iz \\(P\\); če je \\(P\\) na stožnici, je polara tangenta v \\(P\\); če je \\(P\\) znotraj, polara stožnice ne seka; polara središča je premica v neskončnosti. Izrek je naveden po temi pol in polara v učnem načrtu FMF (Afina in projektivna geometrija) in v standardnem učbeniku projektivne geometrije; lekcija ga ne dokazuje. Premikanje točke \\(P\\) je ilustracija izreka, ne dokaz.',
+                'Theorem (pole and polar): if \\(P\\) is outside a conic, the polar of \\(P\\) passes through both points of tangency of the tangents from \\(P\\); if \\(P\\) is on the conic, the polar is the tangent at \\(P\\); if \\(P\\) is inside, the polar does not meet the conic; the polar of the centre is the line at infinity. The theorem is stated after the topic pole and polar in the FMF syllabus (Afina in projektivna geometrija) and in a standard textbook of projective geometry; the lesson does not prove it. Moving the point \\(P\\) is an illustration of the theorem, not a proof.',
+            ),
+        },
+        {
+            id: 'pole-polar-region',
+            latex: '\\frac{x_0^2}{a^2}+\\frac{y_0^2}{b^2}\\gtrless 1',
+            notation: text(
+                'Vrednost \\(>1\\) pomeni, da je \\(P\\) zunaj elipse, \\(=1\\), da je na njej, in \\(<1\\), da je znotraj nje.',
+                'A value \\(>1\\) means that \\(P\\) is outside the ellipse, \\(=1\\) that it is on it, and \\(<1\\) that it is inside it.',
+            ),
+            explanation: text(
+                'Lega točke \\(P\\) se odloči natančno iz predznaka te vrednosti, brez tolerance. Če sta dotikališči iracionalni, graf njuni koordinati in tangenti navede kot številčni vrednosti z navedeno toleranco; lega točke ostane natančna.',
+                'The position of \\(P\\) is decided exactly from the sign of this value, with no tolerance. If the points of tangency are irrational, the graph gives their coordinates and the tangents as numerical values with a stated tolerance; the position of the point stays exact.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'k3-default-point',
+            title: text('Presečišče tangent v \\(T_1\\) in \\(T_2\\)', 'The intersection of the tangents at \\(T_1\\) and \\(T_2\\)'),
+            calculationLatex: '4x+5y=25,\\quad -9x+20y=75',
+            resultLatex: 'P=\\left(1,\\tfrac{21}5\\right)',
+            check: text(
+                'Tangenta v \\(T_1=(4,\\tfrac95)\\) je \\(\\tfrac{4x}{25}+\\tfrac y5=1\\), torej \\(4x+5y=25\\); tangenta v \\(T_2=(-3,\\tfrac{12}5)\\) je \\(-\\tfrac{3x}{25}+\\tfrac{4y}{15}=1\\), torej \\(-9x+20y=75\\). Prvo pomnožimo s \\(4\\): \\(16x+20y=100\\). Odštejemo drugo: \\(25x=25\\), zato je \\(x=1\\) in \\(y=\\tfrac{25-4}5=\\tfrac{21}5\\), torej \\(P=(1,\\tfrac{21}5)\\).',
+                'The tangent at \\(T_1=(4,\\tfrac95)\\) is \\(\\tfrac{4x}{25}+\\tfrac y5=1\\), that is \\(4x+5y=25\\); the tangent at \\(T_2=(-3,\\tfrac{12}5)\\) is \\(-\\tfrac{3x}{25}+\\tfrac{4y}{15}=1\\), that is \\(-9x+20y=75\\). Multiply the first by \\(4\\): \\(16x+20y=100\\). Subtract the second: \\(25x=25\\), so \\(x=1\\) and \\(y=\\tfrac{25-4}5=\\tfrac{21}5\\), hence \\(P=(1,\\tfrac{21}5)\\).',
+            ),
+        },
+    ],
+    steps: [
+        step({
+            id: 'pole-polar-predict', order: 1,
+            title: text('Elipsa in točka \\(P\\)', 'An ellipse and a point \\(P\\)'),
+            purpose: text('Napovedati, kje se tangenti iz točke dotikata stožnice, preden ju narišemo.', 'Predicting where the tangents from a point touch the conic before they are drawn.'),
+            explanation: text(
+                'Elipsa je \\(9x^2+25y^2=225\\), to je \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\), točka pa je \\(P=(1,\\tfrac{21}5)\\). Ker je \\(\\tfrac1{25}+\\tfrac{441}{225}=2>1\\), točka \\(P\\) leži zunaj elipse, zato iz nje potekata dve tangenti. Napovej, kje se dotikata elipse.',
+                'The ellipse is \\(9x^2+25y^2=225\\), that is \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\), and the point is \\(P=(1,\\tfrac{21}5)\\). Since \\(\\tfrac1{25}+\\tfrac{441}{225}=2>1\\), the point \\(P\\) lies outside the ellipse, so two tangents pass through it. Predict where they touch the ellipse.',
+            ),
+            formulaIds: ['pole-polar-region'],
+            observationPrompt: text('Preberi stanje točke \\(P\\) in poišči dotikališči.', 'Read the status of the point \\(P\\) and find the points of tangency.'),
+            expectedObservations: [text('Stanje pravi, da \\(P\\) leži zunaj stožnice.', 'The status says that \\(P\\) lies outside the conic.')],
+            scene: polePolarScene('pole-polar-predict-scene', 'default', [],
+                'Elipsa \\(9x^2+25y^2=225\\) in točka \\(P=(1,\\tfrac{21}5)\\), ki leži zunaj elipse (\\(\\tfrac1{25}+\\tfrac{441}{225}=2>1\\)).',
+                'The ellipse \\(9x^2+25y^2=225\\) and the point \\(P=(1,\\tfrac{21}5)\\), which lies outside the ellipse (\\(\\tfrac1{25}+\\tfrac{441}{225}=2>1\\)).'),
+        }),
+        step({
+            id: 'pole-polar-tangents', order: 2,
+            title: text('Tangenti in dotikališči', 'The tangents and the points of tangency'),
+            purpose: text('Videti obe tangenti iz točke \\(P\\) in njuni dotikališči.', 'Seeing both tangents from the point \\(P\\) and their points of tangency.'),
+            explanation: text(
+                'Tangenti iz \\(P\\) se elipse dotikata v \\(T_1=(4,\\tfrac95)\\) in \\(T_2=(-3,\\tfrac{12}5)\\). Tangenta v točki \\((x_0,y_0)\\) elipse ima enačbo \\(\\tfrac{x x_0}{25}+\\tfrac{y y_0}9=1\\), zato je \\(t_1\\): \\(\\tfrac{4x}{25}+\\tfrac y5=1\\) in \\(t_2\\): \\(-\\tfrac{3x}{25}+\\tfrac{4y}{15}=1\\); graf ju zapiše kot \\(4x+5y-25=0\\) in \\(9x-20y+75=0\\). Obe potekata skozi \\(P\\): \\(4+5\\cdot\\tfrac{21}5-25=0\\) in \\(9-20\\cdot\\tfrac{21}5+75=0\\).',
+                'The tangents from \\(P\\) touch the ellipse at \\(T_1=(4,\\tfrac95)\\) and \\(T_2=(-3,\\tfrac{12}5)\\). The tangent at the point \\((x_0,y_0)\\) of the ellipse has the equation \\(\\tfrac{x x_0}{25}+\\tfrac{y y_0}9=1\\), so \\(t_1\\) is \\(\\tfrac{4x}{25}+\\tfrac y5=1\\) and \\(t_2\\) is \\(-\\tfrac{3x}{25}+\\tfrac{4y}{15}=1\\); the graph writes them as \\(4x+5y-25=0\\) and \\(9x-20y+75=0\\). Both pass through \\(P\\): \\(4+5\\cdot\\tfrac{21}5-25=0\\) and \\(9-20\\cdot\\tfrac{21}5+75=0\\).',
+            ),
+            formulaIds: ['pole-polar-polar'],
+            workedExampleId: 'k3-default-point',
+            observationPrompt: text('Preberi enačbi tangent in koordinati dotikališč v seznamu.', 'Read the equations of the tangents and the coordinates of the points of tangency in the list.'),
+            expectedObservations: [text('Seznam navede dotikališči \\(T_1\\) in \\(T_2\\) ter tangenti \\(t_1\\) in \\(t_2\\).', 'The list gives the points of tangency \\(T_1\\) and \\(T_2\\) and the tangents \\(t_1\\) and \\(t_2\\).')],
+            scene: polePolarScene('pole-polar-tangents-scene', 'default', [],
+                'Točka \\(P=(1,\\tfrac{21}5)\\), dotikališči \\(T_1=(4,\\tfrac95)\\), \\(T_2=(-3,\\tfrac{12}5)\\) in tangenti \\(4x+5y-25=0\\), \\(9x-20y+75=0\\).',
+                'The point \\(P=(1,\\tfrac{21}5)\\), the points of tangency \\(T_1=(4,\\tfrac95)\\), \\(T_2=(-3,\\tfrac{12}5)\\) and the tangents \\(4x+5y-25=0\\), \\(9x-20y+75=0\\).'),
+        }),
+        step({
+            id: 'pole-polar-polar', order: 3,
+            title: text('Premica skozi dotikališči je polara', 'The line through the points of tangency is the polar'),
+            purpose: text('Videti, da polara točke \\(P\\) poteka skozi obe dotikališči.', 'Seeing that the polar of the point \\(P\\) passes through both points of tangency.'),
+            explanation: text(
+                'Polara točke \\(P=(1,\\tfrac{21}5)\\) glede na elipso je \\(\\tfrac x{25}+\\tfrac{7y}{15}=1\\); graf jo zapiše kot \\(3x+35y-75=0\\). Skozi \\(T_1\\) poteka: \\(\\tfrac4{25}+\\tfrac{7\\cdot 9}{15\\cdot 5}=\\tfrac4{25}+\\tfrac{21}{25}=1\\); skozi \\(T_2\\) tudi: \\(-\\tfrac3{25}+\\tfrac{7\\cdot 12}{15\\cdot 5}=-\\tfrac3{25}+\\tfrac{28}{25}=1\\). Da to velja za vsak \\(P\\) zunaj stožnice, je izrek o polari; ta primer ga ilustrira, ne dokaže.',
+                'The polar of the point \\(P=(1,\\tfrac{21}5)\\) with respect to the ellipse is \\(\\tfrac x{25}+\\tfrac{7y}{15}=1\\); the graph writes it as \\(3x+35y-75=0\\). It passes through \\(T_1\\): \\(\\tfrac4{25}+\\tfrac{7\\cdot 9}{15\\cdot 5}=\\tfrac4{25}+\\tfrac{21}{25}=1\\); and through \\(T_2\\): \\(-\\tfrac3{25}+\\tfrac{7\\cdot 12}{15\\cdot 5}=-\\tfrac3{25}+\\tfrac{28}{25}=1\\). That this holds for every \\(P\\) outside a conic is the theorem on the polar; this example illustrates it and does not prove it.',
+            ),
+            formulaIds: ['pole-polar-polar'],
+            observationPrompt: text('Preberi enačbo polare in preveri, da leži na njej vsaka od točk \\(T_1\\), \\(T_2\\).', 'Read the equation of the polar and check that each of the points \\(T_1\\), \\(T_2\\) lies on it.'),
+            expectedObservations: [text('Polara \\(3x+35y-75=0\\) poteka skozi \\(T_1\\) in \\(T_2\\).', 'The polar \\(3x+35y-75=0\\) passes through \\(T_1\\) and \\(T_2\\).')],
+            scene: polePolarScene('pole-polar-polar-scene', 'default', [],
+                'Točka \\(P=(1,\\tfrac{21}5)\\), polara \\(3x+35y-75=0\\) skozi dotikališči \\(T_1=(4,\\tfrac95)\\) in \\(T_2=(-3,\\tfrac{12}5)\\).',
+                'The point \\(P=(1,\\tfrac{21}5)\\), the polar \\(3x+35y-75=0\\) through the points of tangency \\(T_1=(4,\\tfrac95)\\) and \\(T_2=(-3,\\tfrac{12}5)\\).'),
+        }),
+        step({
+            id: 'pole-polar-on', order: 4,
+            title: text('\\(P\\) na elipsi in znotraj nje', '\\(P\\) on the ellipse and inside it'),
+            purpose: text('Videti, kaj je polara, ko točka \\(P\\) leži na stožnici in ko leži znotraj nje.', 'Seeing what the polar is when the point \\(P\\) lies on the conic and when it lies inside it.'),
+            explanation: text(
+                'Premakni \\(P\\) na elipso, v \\(P=(4,\\tfrac95)\\): \\(\\tfrac{16}{25}+\\tfrac{(9/5)^2}9=\\tfrac{16}{25}+\\tfrac9{25}=1\\), zato je \\(P\\) na elipsi. Polara je tedaj tangenta v \\(P\\), \\(\\tfrac{4x}{25}+\\tfrac y5=1\\), dotikališče pa je ena sama točka. Nato izberi primer Točka znotraj elipse, točko \\((1,1)\\): \\(\\tfrac1{25}+\\tfrac19=\\tfrac{34}{225}<1\\). Tangent ni, polara \\(9x+25y-225=0\\) pa elipse ne seka. Tudi to ilustrira izrek o polari.',
+                'Move \\(P\\) onto the ellipse, to \\(P=(4,\\tfrac95)\\): \\(\\tfrac{16}{25}+\\tfrac{(9/5)^2}9=\\tfrac{16}{25}+\\tfrac9{25}=1\\), so \\(P\\) is on the ellipse. The polar is then the tangent at \\(P\\), \\(\\tfrac{4x}{25}+\\tfrac y5=1\\), and the point of tangency is the single point \\(P\\). Then choose the example Point inside the ellipse, the point \\((1,1)\\): \\(\\tfrac1{25}+\\tfrac19=\\tfrac{34}{225}<1\\). There are no tangents, and the polar \\(9x+25y-225=0\\) does not meet the ellipse. This too illustrates the theorem on the polar.',
+            ),
+            formulaIds: ['pole-polar-polar', 'pole-polar-region'],
+            observationPrompt: text('Primerjaj polaro in tangento v točki \\(P\\), nato preberi stanje za točko znotraj elipse.', 'Compare the polar and the tangent at the point \\(P\\), then read the status for the point inside the ellipse.'),
+            expectedObservations: [text('Na elipsi je polara \\(4x+5y-25=0\\) tangenta v \\(P\\); znotraj elipse tangent ni.', 'On the ellipse the polar \\(4x+5y-25=0\\) is the tangent at \\(P\\); inside the ellipse there are no tangents.')],
+            scene: polePolarScene('pole-polar-on-scene', 'on', [],
+                'Točka \\(P=(4,\\tfrac95)\\) na elipsi \\(9x^2+25y^2=225\\); polara \\(4x+5y-25=0\\) je tangenta v \\(P\\) in dotikališče je \\(P\\).',
+                'The point \\(P=(4,\\tfrac95)\\) on the ellipse \\(9x^2+25y^2=225\\); the polar \\(4x+5y-25=0\\) is the tangent at \\(P\\) and the point of tangency is \\(P\\).'),
+        }),
+        step({
+            id: 'pole-polar-infinity', order: 5,
+            title: text('Točka v neskončnosti in njena polara', 'A point at infinity and its polar'),
+            purpose: text('Videti, da je polara točke v neskončnosti premer skozi središče.', 'Seeing that the polar of a point at infinity is a diameter through the centre.'),
+            explanation: text(
+                'Točka v neskončnosti v smeri \\((1,0)\\), to je homogeno \\((1,0,0)\\), leži zunaj elipse \\(9x^2+25y^2=225\\) (vrednost \\(9>0\\)). Njena polara je \\(9x=0\\), torej premica \\(x=0\\); poteka skozi središče \\((0,0)\\) elipse, je premer. Tangenti iz te točke sta vzporedni, \\(y=3\\) in \\(y=-3\\), z dotikališčema \\(T_1=(0,3)\\) in \\(T_2=(0,-3)\\). Obratno je središče pol premice v neskončnosti.',
+                'The point at infinity in the direction \\((1,0)\\), that is homogeneously \\((1,0,0)\\), lies outside the ellipse \\(9x^2+25y^2=225\\) (the value is \\(9>0\\)). Its polar is \\(9x=0\\), that is the line \\(x=0\\); it passes through the centre \\((0,0)\\) of the ellipse, so it is a diameter. The tangents from this point are parallel, \\(y=3\\) and \\(y=-3\\), with the points of tangency \\(T_1=(0,3)\\) and \\(T_2=(0,-3)\\). Conversely, the centre is the pole of the line at infinity.',
+            ),
+            formulaIds: ['pole-polar-polar'],
+            observationPrompt: text('Preberi smer točke \\(P\\), polaro in središče elipse.', 'Read the direction of the point \\(P\\), the polar and the centre of the ellipse.'),
+            expectedObservations: [text('Polara \\(9x=0\\) poteka skozi središče \\((0,0)\\); tangenti sta vzporedni.', 'The polar \\(9x=0\\) passes through the centre \\((0,0)\\); the tangents are parallel.')],
+            scene: polePolarScene('pole-polar-infinity-scene', 'infinity', [],
+                'Točka \\(P\\) v neskončnosti v smeri \\((1,0)\\); polara \\(9x=0\\) poteka skozi središče \\((0,0)\\) elipse \\(9x^2+25y^2=225\\); tangenti \\(y=3\\) in \\(y=-3\\) se dotikata v \\(T_1=(0,3)\\) in \\(T_2=(0,-3)\\).',
+                'The point \\(P\\) at infinity in the direction \\((1,0)\\); the polar \\(9x=0\\) passes through the centre \\((0,0)\\) of the ellipse \\(9x^2+25y^2=225\\); the tangents \\(y=3\\) and \\(y=-3\\) touch at \\(T_1=(0,3)\\) and \\(T_2=(0,-3)\\).'),
+        }),
+        step({
+            id: 'pole-polar-line', order: 6,
+            title: text('Pol premice: ista preslikava nazaj', 'The pole of a line: the same map in reverse'),
+            purpose: text('Videti, da iz polare dobimo točko \\(P\\) kot presečišče tangent.', 'Seeing that from the polar we recover the point \\(P\\) as the intersection of the tangents.'),
+            explanation: text(
+                'Premica \\(p\\): \\(x+7y=25\\) seka krožnico \\(x^2+y^2=25\\) v \\(T_1=(4,3)\\) in \\(T_2=(-3,4)\\), saj je \\(4+21=25\\) in \\(-3+28=25\\). Tangenti v teh točkah sta \\(4x+3y=25\\) in \\(-3x+4y=25\\) in se sekata v \\(P=(1,7)\\). Torej je \\(P\\) pol premice \\(p\\) glede na krožnico, \\(p\\) pa polara točke \\(P\\): slika je ista kot prej, preslikava pa je prebrana v nasprotni smeri.',
+                'The line \\(p\\): \\(x+7y=25\\) meets the circle \\(x^2+y^2=25\\) at \\(T_1=(4,3)\\) and \\(T_2=(-3,4)\\), since \\(4+21=25\\) and \\(-3+28=25\\). The tangents at these points are \\(4x+3y=25\\) and \\(-3x+4y=25\\), and they meet at \\(P=(1,7)\\). So \\(P\\) is the pole of the line \\(p\\) with respect to the circle, and \\(p\\) is the polar of the point \\(P\\): the picture is the same as before, and the map is read in the opposite direction.',
+            ),
+            formulaIds: ['pole-polar-polar'],
+            observationPrompt: text('Preberi polaro, obe tangenti in dotikališči.', 'Read the polar, both tangents and the points of tangency.'),
+            expectedObservations: [text('Polara \\(x+7y-25=0\\) poteka skozi \\(T_1\\) in \\(T_2\\), tangenti se sekata v \\(P\\).', 'The polar \\(x+7y-25=0\\) passes through \\(T_1\\) and \\(T_2\\), and the tangents meet at \\(P\\).')],
+            scene: polePolarScene('pole-polar-line-scene', 'default', [
+                {kind: 'projective', operation: 'pole-polar-set-conic', conic: 'circle'},
+                {kind: 'projective', operation: 'pole-polar-place', x: 5, y: 35},
+            ],
+                'Krožnica \\(x^2+y^2=25\\), točka \\(P=(1,7)\\) zunaj nje, polara \\(x+7y-25=0\\) skozi \\(T_1=(4,3)\\) in \\(T_2=(-3,4)\\); tangenti \\(4x+3y-25=0\\) in \\(3x-4y+25=0\\).',
+                'The circle \\(x^2+y^2=25\\), the point \\(P=(1,7)\\) outside it, the polar \\(x+7y-25=0\\) through \\(T_1=(4,3)\\) and \\(T_2=(-3,4)\\); the tangents \\(4x+3y-25=0\\) and \\(3x-4y+25=0\\).'),
+        }),
+        step({
+            id: 'pole-polar-explore', order: 7,
+            title: text('Samostojno raziskovanje: parabola', 'Free exploration: a parabola'),
+            purpose: text('Preizkusiti polaro na drugi stožnici in videti, da parabola nima končnega središča.', 'Trying the polar on another conic and seeing that a parabola has no finite centre.'),
+            explanation: text(
+                'Stožnica je parabola \\(x^2=4y\\), točka je \\(P=(2,0)\\), zunaj parabole. Polara je \\(x-y=0\\) in seka parabolo v \\(T_1=(0,0)\\) in \\(T_2=(4,4)\\); tangenti sta \\(y=0\\) in \\(2x-y-4=0\\). Središče parabole je pol premice v neskončnosti: to je točka v neskončnosti v smeri osi \\((0,1)\\), zato končnega središča ni in graf nobenega ne nariše. Izberi drugo stožnico ali premikaj \\(P\\) s puščičnimi tipkami; vsak položaj je ilustracija, ne dokaz.',
+                'The conic is the parabola \\(x^2=4y\\), and the point is \\(P=(2,0)\\), outside the parabola. The polar is \\(x-y=0\\) and meets the parabola at \\(T_1=(0,0)\\) and \\(T_2=(4,4)\\); the tangents are \\(y=0\\) and \\(2x-y-4=0\\). The centre of the parabola is the pole of the line at infinity: it is the point at infinity in the direction of the axis \\((0,1)\\), so there is no finite centre and the graph draws none. Choose another conic or move \\(P\\) with the arrow keys; every position is an illustration, not a proof.',
+            ),
+            formulaIds: ['pole-polar-polar', 'pole-polar-region'],
+            observationPrompt: text('Preberi, kje je središče parabole.', 'Read where the centre of the parabola is.'),
+            expectedObservations: [text('Središče je v neskončnosti v smeri \\((0,1)\\); končnega središča ni.', 'The centre is at infinity in the direction \\((0,1)\\); there is no finite centre.')],
+            scene: polePolarScene('pole-polar-explore-scene', 'default', [
+                {kind: 'projective', operation: 'pole-polar-set-conic', conic: 'parabola'},
+                {kind: 'projective', operation: 'pole-polar-place', x: 10, y: 0},
+            ],
+                'Parabola \\(x^2=4y\\), točka \\(P=(2,0)\\) zunaj nje, polara \\(x-y=0\\) skozi \\(T_1=(0,0)\\) in \\(T_2=(4,4)\\); središče je v neskončnosti v smeri \\((0,1)\\) in ni narisano.',
+                'The parabola \\(x^2=4y\\), the point \\(P=(2,0)\\) outside it, the polar \\(x-y=0\\) through \\(T_1=(0,0)\\) and \\(T_2=(4,4)\\); the centre is at infinity in the direction \\((0,1)\\) and is not drawn.'),
+        }),
+    ],
+    sources: [
+        {
+            id: 'fmf-pole-polar-syllabus',
+            citation: 'Fakulteta za matematiko in fiziko, Univerza v Ljubljani, učni načrt Afina in projektivna geometrija (1Mate/2Mate 2025), tema pol in polara. Cited from the syllabus topic list; not opened beyond the list.',
+            implementationCorrespondence: 'The theorem on the polar (outside, on, inside, the polar of the centre) is the statement of docs/specs/projective-conics-lessons.md section K3 and is checked in the app by exact residuals of the points of tangency on the polar and the tangents; the lesson does not prove it.',
+        },
+        {
+            id: 'coxeter-pole-polar',
+            citation: 'Coxeter, H. S. M. Projective Geometry, 2nd ed., Springer, 1987, the chapters on conics and on pole and polar. Standard text, cited and not opened.',
+            implementationCorrespondence: 'The text supplies the theorem on the polar that the lesson states; the lesson reproduces no proof, and moving the point P on the graph is labelled an illustration.',
+        },
+        {
+            id: 'bezeg-pole-polar-implementation',
+            citation: 'Bezeg source: src/projective/conic.ts, src/graphs/projective/polePolarModel.ts and src/graphs/projective/PolePolarGraph.tsx.',
+            implementationCorrespondence: 'A scene loads an example and applies the graph\'s own conic and position edits; the lesson text quotes only values of those scenes, and the test recomputes them with exact fractions.',
+        },
+    ],
+    edgeCases: [
+        text('Če je stožnica izrojena, lega točke ni določena; graf to navede namesto tangent.', 'If the conic is degenerate, the position of the point is not determined; the graph says so instead of drawing tangents.'),
+        text('Če sta dotikališči iracionalni, graf njuni koordinati in tangenti navede kot številčni vrednosti z navedeno toleranco; zunaj, na in znotraj se odloči natančno.', 'If the points of tangency are irrational, the graph gives their coordinates and the tangents as numerical values with a stated tolerance; outside, on and inside are decided exactly.'),
+        text('Točka je na mreži s korakom \\(\\tfrac15\\), točka v neskončnosti pa ima celoštevilsko smer, zato so polare natančne.', 'The point sits on a grid of step \\(\\tfrac15\\) and a point at infinity has an integer direction, so the polars are exact.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const projectiveConicsGuidedLessons: readonly GuidedLesson[] = [crossRatioLesson, pascalLesson, polePolarLesson];
