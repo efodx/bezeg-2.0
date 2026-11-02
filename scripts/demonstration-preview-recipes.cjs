@@ -81,6 +81,8 @@ const targets = {
     'triangle-centres': ['Default acute triangle with all four notable points G, O, I, H, their constructions and the circumcircle', [toggle('Središče očrtane krožnice O (simetrale stranic)'), toggle('Središče včrtane krožnice I (simetrale kotov)'), toggle('Višinska točka H (višine)')], [-3.55, 5.81, 10.55, -2.81]],
     // The same triangle and circle; the glider P at t = 90 is the top of the circle (3.5, 5.31), on the arc of C, with both inscribed angles and the central angle marked.
     'inscribed-angle': ['Default chord AB with the inscribed angles at C and P, the central angle at O and the radii OA, OB', [toggle('Polmera OA in OB')], [-3.55, 5.81, 10.55, -2.81]],
+    // The same triangle and window; the default overlays (O, G, H, the Euler line, the nine-point circle about N) plus the nine points and the circumcircle.
+    'euler-line': ['Default triangle with O, G and H on the Euler line, the nine-point circle about N through its nine points, and the circumcircle', [toggle('Devet točk (krogci: razpolovišča stranic, kvadratki: vznožja višin, rombi: razpolovišča daljic AH, BH, CH)'), toggle('Očrtana krožnica')], [-3.55, 5.81, 10.55, -2.81]],
     'patch-coons': ['Default Coons patch, fitted to the preview frame, with its four boundary curves, control net and shaded surface', [button('Ponastavi pogled')]],
     'projective-cross-ratio': ['Default central projection of four points A, B, C, D from the centre O onto the second line, with both cross-ratios 9/8', [], [-14, 9, 14, -7]],
     'projective-pascal': ['Default Pascal hexagon inscribed in the ellipse with the three intersections of opposite sides on one line', [], [-12, 10.5, 12, -10.5]],
@@ -263,7 +265,7 @@ async function outcome(page, id) {
 }
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
-const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'projective-cross-ratio']);
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'projective-cross-ratio']);
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
@@ -302,6 +304,13 @@ function assertOutcomeEvidence(id, evidence) {
         }
         assert.ok(evidence.points.some(p => near(p, 0, 2)), 'Missing w = 2i');
         assert.ok(evidence.curves >= 5, 'Root circle, three triangle edges and the arrow of w required');
+    }
+    if (id === 'euler-line') {
+        // Vertices, H, G, O, N, then the side midpoints, the altitude feet and the midpoints of AH, BH, CH (all at distance sqrt(29/8) from N).
+        const expected = [[0, 0], [7, 0], [2, 5], [2, 2], [3, 5 / 3], [3.5, 1.5], [11 / 4, 7 / 4],
+            [3.5, 0], [4.5, 2.5], [1, 2.5], [3.5, 3.5], [28 / 29, 70 / 29], [2, 0], [1, 1], [4.5, 1], [2, 3.5]];
+        for (const [x, y] of expected) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing exact point (${x},${y}): ${JSON.stringify(evidence.points)}`);
+        assert.ok(evidence.lines >= 4, 'Three triangle sides and the Euler line required');
     }
     if (id === 'triangle-centres' || id === 'inscribed-angle') {
         for (const [x, y] of [[0, 0], [7, 0], [2, 5]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing default vertex (${x},${y}): ${JSON.stringify(evidence.points)}`);
