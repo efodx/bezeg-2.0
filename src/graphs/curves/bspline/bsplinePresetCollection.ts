@@ -38,7 +38,7 @@ function rejectionOf(value: unknown): Message | undefined {
 }
 
 /**
- * The Preset collection of the B-spline Demonstrations (not yet registered in `curvePresetCollections`). The data is one
+ * The Preset collection shared by both B-spline Demonstrations (registered once in `PresetImport.ts`). The data is one
  * curve; its knot vector is checked by the kernel's `validateKnotVector` for the DTO's own point count, its weights by
  * `validateWeights`. `check` keeps only the four stored fields.
  */

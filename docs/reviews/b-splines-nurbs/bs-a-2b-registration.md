@@ -16,9 +16,15 @@ Source: [task plan](../../tasks/b-splines-nurbs/README.md), [ADR 0024](../../adr
 `just typecheck` and `just lint` pass. The full unit run (`src/graphs`, `src/learning/runtime`, demonstration tests, localization) found B-spline failures that were fixed: the collection lacked `checkGraphState` (a stored `graphState` holds the `knots` and `points` arrays), `perturbModel` did not edit B-spline data, the basis scene's slider segment left two implicit points on the board, and `resetDisplay` forced aspect on a free-axes plot. After the fixes the affected files pass (466 s focused re-run, transient contract for both ids). Mutation: dropping `bsplinePresetCollection` from `PresetImport.ts` failed 4 `PresetCatalog` tests; reverted.
 Not caused by this slice and not fixed: `GraphTransientState.part1` patch-coons (camera distance after the lesson default scene) and `part4` inscribed-angle (rollback `t`) failed in the full run.
 
+### Handler 19 verification (c2b479a1 plus the follow-up commit)
+
+- Full scope unit run (`src/graphs src/learning src/demonstrations.test.ts src/DemonstrationsPage.test.tsx src/demonstrationPreviewAssets.test.ts src/localization`): 5928 passed, 2 failed. `LearningPage` "every family chapter" failed because the new family had no chapter. Fixed by adding `/bezeg-2.0/bspline` to `FAMILY_CHAPTER_PENDING`, which BS-A-3…6 removes. The other failure is `part4` inscribed-angle rollback, which has failed on master since `c8b27a2a`. The patch-coons `part1` failure was fixed on master by `f66e274b`.
+- `just typecheck`, `just lint`, `just check-localization` (typecheck and production build) pass.
+- Engineering review (Sonnet): no high or medium findings. It found the contract-test edits narrow and non-vacuous: `resetDisplay` keeps aspect for every graph whose `equalAxisUnits` is not `false`, and only four free-axis graphs override that. It reported three lows, all deferred: `DemonstrationsPage.test.tsx` duplicates the poster-pending ids instead of reading `POSTER_PENDING`; `checkGraphState` reports only `invalid_value` for knots and points, while `check()` validates `data`; and `perturbModel` assumes `knots[degree+2]` exists.
+- Browser smoke (Sonnet `bezeg-smoke`, production preview of c2b479a1, Chromium 1440×900): both routes render with no console errors. The SL catalog lists the family "B-zlepki" and its two entries. A knot edit changes the basis curves. Dragging a ringed control point changes the de Boor curve, and "Naslednja raven" moves the level from 0 to 1 of 2. A live SL→EN switch translates the breadcrumb, panel, knot labels and level status. The Bézier baseline loads. The preset switch was not exercised, because only the default Preset exists (as designed). The family path `/bezeg-2.0/bspline` is not a route, as for other families. Knots were edited through the field, not by a pixel drag on the t axis.
+
 ## Gaps
 
-- Two unrelated contract failures above remain.
-- Not smoke-tested or built; SL/EN titles and prompts not browser-checked.
+- The inscribed-angle contract failure remains (not ours).
 - A fixture cannot express non-clamped or non-uniform knots; L1/L2 may need a knot field on `LessonCurveFixture`.
 - Both Demonstrations share one saved-Preset list: a basis Preset (placeholder points) appears in the de Boor list.
