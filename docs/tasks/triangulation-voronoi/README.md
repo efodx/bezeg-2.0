@@ -41,6 +41,6 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 | 13 | [Delaunay graph with the Lawson trace](13-delaunay-graph.md) (B3) | F2a | 12, 04 | accepted 2026-11-02 (handler 28) |
 | 14 | [Registration of `point-set-triangulation` and `delaunay`](14-t2-registration.md) | F2b | 12, 13 | accepted 2026-11-02 (posters pending) |
 | 15 | [Triangulation lesson actions and lesson B2](15-point-set-triangulation-lesson.md) | F3 | 12, 14 | accepted 2026-11-02 (handler 31): review fix (hidden counts), B2 section pulled forward as 17a |
-| 16 | [Delaunay lesson B3](16-delaunay-lesson.md) | F3 | 13, 14, 15 | open |
-| 17 | [Chapter sections for B2 and B3](17-t2-chapter.md) | F4 | 15, 16 | 17a (B2 section) accepted 2026-11-02 (handler 31); 17b (`delaunay`) open |
+| 16 | [Delaunay lesson B3](16-delaunay-lesson.md) | F3 | 13, 14, 15 | 16a accepted 2026-11-02 (handler 32); 16b accepted 2026-11-02 (handler 33) |
+| 17 | [Chapter sections for B2 and B3](17-t2-chapter.md) | F4 | 15, 16 | 17a (B2 section) accepted 2026-11-02 (handler 31); 17b (`delaunay`) accepted 2026-11-02 (handler 33) |
 | F6 | T2 acceptance | F6 | 11–17 | open |
