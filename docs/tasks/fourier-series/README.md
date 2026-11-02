@@ -9,7 +9,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Return at most 400 words. Bulky ev
 | [01 Coefficient kernel](01-coefficient-kernel.md) | A, B | F1 | none | — | accepted 2026-10-31 |
 | [02 Closed loop and epicycle chain kernel](02-closed-loop-kernel.md) | C | F1 | none | 01 | accepted 2026-10-31 |
 | [03 Batch A graph: partial sums and Gibbs](03-batch-a-graph.md) | A | F2a | `G-FN` | 01 | planned |
-| [04 Batch A release](04-batch-a-release.md) | A | F2b–F6 | `G-REG` | 03 | F2b accepted (route `/analysis/fourier-series`); F3 next |
+| [04 Batch A release](04-batch-a-release.md) | A | F2b–F6 | `G-REG` | 03 | F2b accepted (route `/analysis/fourier-series`); F3 lessons F1, F3 accepted; F4 chapter next |
 | [05 Batch B: coefficients and decay](05-batch-b.md) | B | F2a–F6 | `G-FN`, `G-REG` | 01, 04 | planned |
 | [06 Batch C: epicycles](06-batch-c.md) | C | F2a–F6 | `G-FN`, `G-REG` | 02, 05 | planned |
 

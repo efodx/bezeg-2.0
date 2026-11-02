@@ -43,6 +43,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // School function graphs batch A (S1, S2): the function-rules section holds the other function-family lessons; no chapter text yet (F4).
     'function-transformation': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
     'function-inverse': {chapterId: 'functions-and-calculus', sectionId: 'function-rules'},
+    // Fourier series F1 and F3: pointwise versus uniform convergence belongs with the analysis convergence section; no chapter text yet (F4).
+    'fourier-series': {chapterId: 'analysis', sectionId: 'convergence'},
     continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},
     derivative: {chapterId: 'functions-and-calculus', sectionId: 'derivatives'},
     'definite-integral': {chapterId: 'functions-and-calculus', sectionId: 'integrals'},

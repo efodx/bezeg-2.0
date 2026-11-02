@@ -186,7 +186,6 @@ test('every active demonstration route has an available lesson unless it opts ou
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
     // The remaining curves-stream ids (lessons in later F3 slices) and the remaining compgeo ids ship without lessons.
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual([
-        'fourier-series',
         'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
