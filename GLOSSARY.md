@@ -13,6 +13,15 @@ A Demonstration of a real function graph `y = f(x)` in the *Functions and calcul
 **Trace**:
 The recorded sequence of steps of an algorithm Demonstration in the *Računska geometrija* family (convex hull, ear clipping, sweeps). Next step and playback walk the same trace; editing the input recomputes it and returns to step 0.
 
+**Orientation**:
+The sign of the cross product \((q-p)\times(r-p)\) of three grid points, computed exactly (`orient`): positive is a left (counter-clockwise) turn, negative a right turn, zero collinear. Every decision of the *Računska geometrija* family reduces to orientation or another exact sign test, never to a floating-point comparison.
+
+**Signed area**:
+The shoelace sum \(\tfrac12\sum(x_iy_{i+1}-x_{i+1}y_i)\) of a polygon: positive for counter-clockwise vertex order, negative for clockwise. For a self-intersecting polygon it is the sum of winding number times area, not "the area", and Pick's theorem (\(A=I+B/2-1\) for lattice polygons) is not offered.
+
+**Convex hull**:
+The smallest convex polygon containing a point set. The hull Demonstration builds it by three algorithms (the slow edge test, the monotone chain and gift wrapping) that must return the same vertices; a point on a hull edge is on the boundary but not a vertex.
+
 **Ear**:
 Three consecutive polygon vertices whose turn is strictly convex and whose triangle contains no other vertex; ear clipping removes one ear per step until a triangle remains.
 

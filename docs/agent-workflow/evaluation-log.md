@@ -1563,3 +1563,11 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Handoff evidence:
   - The reviewer brief asked for a COVERED/PARTIAL/MANUAL/MISSING class per item, the matrix written to a file, and a 25-line reply. The reply came in about 30 lines and folded MANUAL into PARTIAL. That was usable.
   - The smoke brief named the `data-action` ids and the refusal cases to try. The worker did not record the coordinates of the collinear attempt, so the handler had to infer the case. Future briefs should ask for the exact input of every refusal check.
+
+## 2026-11-02 — Geometry: convexity Batch 1 F6 evidence matrix (geometry handler 25)
+
+- Role: review (read-only), size M. Scope: map the A1, A2 and A4 acceptance lists, the testing decisions and the batch gate to test evidence. Record: `docs/reviews/feature-streams/geometry/f6-convexity-evidence-matrix.md`. Handler: Opus 5.5, auto, effort medium.
+- Worker: `bezeg-reviewer`, requested Sonnet with the agent's default effort, dispatched 05:56Z. Tool-reported usage: 47k tokens, 11 tools, 1.3 min. It ran in parallel with the handler's `just check`.
+- Outcome: accepted. Its row classes fit, and every spec number had a cited assertion. It found one real gap, the glossary vocabulary (MISSING), plus a thin capabilities description (PARTIAL), which the handler fixed in the docs. The browser-only rows are handed to the smoke.
+- Repairs: none.
+- Handoff evidence: the brief reused the T1/S1 matrix format and also asked the reviewer to check the documentation and the independence of the interior count I. Both were answered. The reviewer cannot write files, and the brief said so only halfway through, so the handler saved the matrix itself.

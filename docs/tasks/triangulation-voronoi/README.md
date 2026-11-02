@@ -30,4 +30,17 @@ Source: [triangulation-voronoi-lessons.md](../../specs/triangulation-voronoi-les
 ## Later batches
 
 - **T1 (B1 ear clipping):** kernel [06 ear-clipping trace, 3-colouring and guards](06-ear-clipping-kernel.md) (F1, accepted 2026-10-31 after math review and test repairs) needs only `orient` and can run beside T0; graph F2a [07 ear-clipping graph](07-ear-clipping-graph.md) (accepted 2026-11-01); registration and lessons wait for `G-REG`.
-- **T2 (B2, B3), T3 (B4, B5):** graphs, registration, lessons, chapter, media and acceptance as in the spec's release batches. Task files are written when the kernels they use are accepted.
+- **T3 (B4, B5):** graphs, registration, lessons, chapter, media and acceptance as in the spec's release batches. Task files are written when T2 is released.
+
+## Batch T2 — B2 and B3 (task files written 2026-11-02, handler 25; T0 kernels accepted)
+
+| # | Task | Kind | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| 11 | [Point insertion and boundary counts](11-point-insertion-kernel.md) | F1 | 03, 04 | open |
+| 12 | [Point-set triangulation graph](12-point-set-triangulation-graph.md) (B2) | F2a | 11 | open |
+| 13 | [Delaunay graph with the Lawson trace](13-delaunay-graph.md) (B3) | F2a | 12, 04 | open |
+| 14 | [Registration of `point-set-triangulation` and `delaunay`](14-t2-registration.md) | F2b | 12, 13 | open |
+| 15 | [Triangulation lesson actions and lesson B2](15-point-set-triangulation-lesson.md) | F3 | 12, 14 | open |
+| 16 | [Delaunay lesson B3](16-delaunay-lesson.md) | F3 | 13, 14, 15 | open |
+| 17 | [Chapter sections for B2 and B3](17-t2-chapter.md) | F4 | 15, 16 | open |
+| F6 | T2 acceptance | F6 | 11–17 | open |
