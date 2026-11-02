@@ -66,6 +66,7 @@ const definitions = [
     {id: 'interp-lagrange', path: '/bezeg-2.0/interpolation/lagrange', family: '/bezeg-2.0/interpolation', title: 'interp_lagrange_title', prompts: ['prompt_interp_lagrange', 'prompt_compare']},
     {id: 'interp-hermite', path: '/bezeg-2.0/interpolation/hermite', family: '/bezeg-2.0/interpolation', title: 'interp_hermite_title', prompts: ['prompt_interp_hermite', 'prompt_compare']},
     {id: 'interp-runge', path: '/bezeg-2.0/interpolation/runge', family: '/bezeg-2.0/interpolation', title: 'interp_runge_title', prompts: ['prompt_interp_runge', 'prompt_compare']},
+    {id: 'interp-least-squares', path: '/bezeg-2.0/interpolation/least-squares', family: '/bezeg-2.0/interpolation', title: 'interp_lsq_title', prompts: ['prompt_interp_least_squares', 'prompt_compare'], lesson: false},
     {id: 'interp-subdivision', path: '/bezeg-2.0/interpolation/subdivision', family: '/bezeg-2.0/interpolation', title: 'interp_subdivision_title', prompts: ['prompt_interp_subdivision', 'prompt_compare']},
     {id: 'bspline-basis', path: '/bezeg-2.0/bspline/basis', family: '/bezeg-2.0/bspline', title: 'bspline_basis_title', prompts: ['prompt_bspline_basis', 'prompt_compare']},
     {id: 'bspline-deboor', path: '/bezeg-2.0/bspline/deboor', family: '/bezeg-2.0/bspline', title: 'bspline_deboor_title', prompts: ['prompt_bspline_deboor', 'prompt_compare']},

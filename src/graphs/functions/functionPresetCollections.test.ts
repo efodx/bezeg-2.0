@@ -961,3 +961,13 @@ test("fourier-series data of the wrong type keeps the generic function-data mess
     expect(attempt({...validFourier, n: 2000})).toContain("celo število med 1 in 1001");
     expect(attempt({...validFourier, epsilon: 2})).toContain("večkratnik števila 0.01 med 0.01 in 1");
 });
+
+test('interp-least-squares checks the points list in the scene state with the model rules', () => {
+    const collection = functionPresetCollections["interp-least-squares"];
+    const points = [[0, 1], [1, 2], [2, 2], [3, 4]];
+    expect(collection.checkGraphState?.({points, degree: 1, showSquares: true, initialized: true})).toBeUndefined();
+    expect(collection.checkGraphState?.({points: [[0, 1]], degree: 1})).toBeDefined();
+    expect(collection.checkGraphState?.({points: [[0, 1], [1, "x"]], degree: 1})).toBeDefined();
+    expect(collection.checkGraphState?.({points, showSquares: 1})).toBeDefined();
+    expect(collection.checkGraphState?.("nope")).toBeDefined();
+});

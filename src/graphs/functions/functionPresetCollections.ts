@@ -30,7 +30,7 @@ import {checkFourierSeriesModel, parseFourierSeriesModel} from "../../analysis/f
 import {fourierSeriesFileMessage} from "./fourierSeriesMessages";
 import {checkRungeModel, parseRungeModel} from "../../analysis/rungeInterpolationModel";
 import {rungeFileMessage} from "./rungeInterpolationMessages";
-import {checkLeastSquaresModel, parseLeastSquaresModel} from "../../analysis/leastSquaresModel";
+import {checkLeastSquaresModel, DEFAULT_LEAST_SQUARES_MODEL, LeastSquaresModel, parseLeastSquaresModel} from "../../analysis/leastSquaresModel";
 import {leastSquaresFileMessage} from "./leastSquaresMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
@@ -43,7 +43,7 @@ import {checkFunctionTransformationModel, parseFunctionTransformationModel} from
 import {functionTransformationFileMessage} from "./functionTransformationMessages";
 import {checkFunctionInverseModel, parseFunctionInverseModel} from "../../analysis/functionInverseModel";
 import {functionInverseFileMessage} from "./functionInverseMessages";
-import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
+import {checkSceneState, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 
 /**
  * Function-demonstration data that the collection's parser rejected: the most specific actionable message for the main failure
@@ -118,6 +118,26 @@ const diagnoseLeastSquares: Diagnosis = data => {
     const check = checkLeastSquaresModel(data);
     return check.ok || check.issue === undefined ? undefined : leastSquaresFileMessage(check.issue);
 };
+/**
+ * The function graph stores its model in the scene state too, and the least-squares model has a `points` list, which the shared
+ * flat scene-state rule rejects. The list is checked by the model's own point rules (any valid list, degree 1); the other
+ * fields go through `checkSceneState`. The model itself is still restored from the Preset data.
+ */
+const leastSquaresCollection = (): PresetCollection<LeastSquaresModel> => {
+    const base = functionCollection("interp-least-squares", parseLeastSquaresModel, diagnoseLeastSquares);
+    return Object.freeze({
+        ...base,
+        checkGraphState(graphState: unknown): Message | undefined {
+            if (!isRecord(graphState)) return message("invalid_state");
+            const {points, ...rest} = graphState;
+            if (points !== undefined) {
+                const check = checkLeastSquaresModel({...DEFAULT_LEAST_SQUARES_MODEL, degree: 1, points});
+                if (!check.ok) return check.issue === undefined ? message("invalid_state") : leastSquaresFileMessage(check.issue);
+            }
+            return checkSceneState(rest);
+        },
+    });
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -178,7 +198,7 @@ export const functionPresetCollections = {
     "uniform-convergence": functionCollection("uniform-convergence", parseUniformConvergenceModel, diagnoseUniformConvergence),
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
-    "interp-least-squares": functionCollection("interp-least-squares", parseLeastSquaresModel, diagnoseLeastSquares),
+    "interp-least-squares": leastSquaresCollection(),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),

@@ -37,7 +37,7 @@ const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "project
 /** Collections registered with the importer before their Demonstration exists; each registration slice (projective conics 07 F2b, numerical methods 06 F2b, curves interpolation I4) removes its key when it adds the route. */
 const PENDING_ROUTE_KEYS = ["projective-five-point", "quadrature", "interp-least-squares"];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
-const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-runge", "interp-subdivision", "patch-coons"];
+const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-runge", "interp-least-squares", "interp-subdivision", "patch-coons"];
 /** One collection serves both B-spline Demonstrations (ADR 0024), so it is the one collection allowed to be shared. */
 const SHARED_COLLECTION_IDS: readonly string[] = ["bspline-basis", "bspline-deboor"];
 

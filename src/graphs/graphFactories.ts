@@ -73,6 +73,7 @@ import RationalBezierCurveGraph from './curves/rational/RationalBezierCurveGraph
 import ParametricCurveGraph from './curves/parametric/ParametricCurveGraph';
 import CurvatureBezierCurveGraph from './curves/bezier/CurvatureBezierCurveGraph';
 import RungeInterpolationGraph from './functions/RungeInterpolationGraph';
+import LeastSquaresGraph from './functions/LeastSquaresGraph';
 import InterpolationGraph from './curves/interpolation/InterpolationGraph';
 import HermiteGraph from './curves/hermite/HermiteGraph';
 import SubdivisionCurveGraph from './curves/subdivisionCurves/SubdivisionCurveGraph';
@@ -124,6 +125,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'interp-lagrange': () => new InterpolationGraph(),
     'interp-hermite': () => new HermiteGraph(),
     'interp-runge': () => new RungeInterpolationGraph(),
+    'interp-least-squares': () => new LeastSquaresGraph(),
     'interp-subdivision': () => new SubdivisionCurveGraph(),
     'bspline-basis': () => new BSplineBasisGraph(),
     'bspline-deboor': () => new DeBoorGraph(),

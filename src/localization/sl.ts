@@ -2785,6 +2785,7 @@ export const sl = {
     "interp_runge_board_max": "Največja napaka na mreži: {value0} pri x = {value1}",
     "interp_runge_board_key": "Interpolacijske točke so označene s pikami na grafu f.",
     "interp_lsq_title": "Metoda najmanjših kvadratov",
+    "prompt_interp_least_squares": "Premikaj točke in opazuj, kako se prilegajoča premica spreminja. Kaj se zgodi z vsoto kvadratov odstopanj, ko eno točko odmakneš daleč stran?",
     "interp_lsq_note": "Ostanek je navpična razdalja med točko in krivuljo. Vsota kvadratov ostankov je modelska izbira, ne geometrijska razdalja točke do krivulje: velika odstopanja kaznuje močneje, zato točka daleč od ostalih (osamelec) krivuljo močno premakne.",
     "interp_lsq_board_title": "Prileganje: polinom stopnje {value0}",
     "interp_lsq_board_manual_title": "Ročna premica",

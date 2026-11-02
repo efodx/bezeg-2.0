@@ -37,6 +37,7 @@ const targets = {
     'curve-curvature': ['Default parabola with the osculating circle, its centre and the curvature readout at the opening parameter', []],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],
+    'interp-least-squares': ['Default four points with the best line and the squares of its residuals', [], [-1.2, 4.6, 5.7, 0.4]],
     'interp-hermite': ['Default points with the Catmull-Rom curve and its tangents', []],
     'interp-subdivision': ['Default control polygon with the first refinement of the subdivision curve (one Naslednji korak)', [button('Naslednji korak')]],
     'bspline-basis': ['Default clamped quadratic knot vector (0, 0, 0, 1, 2, 2, 2) with the basis functions, the knot editor and the slider at its opening parameter', [], [-0.35, 1.15, 2.35, -0.6]],

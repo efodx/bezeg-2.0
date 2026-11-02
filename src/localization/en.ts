@@ -2786,6 +2786,7 @@ export const en: Record<keyof typeof sl, string> = {
     "interp_runge_board_max": "Grid maximum of the error: {value0} at x = {value1}",
     "interp_runge_board_key": "Interpolation nodes are the dots on the graph of f.",
     "interp_lsq_title": "Least squares",
+    "prompt_interp_least_squares": "Drag the points and watch the fitted line change. What happens to the sum of squared residuals when you move one point far away?",
     "interp_lsq_note": "A residual is the vertical distance from a point to the curve. The sum of squared residuals is a modelling choice, not the geometric distance from a point to the curve: it penalizes large deviations more, so a point far from the others (an outlier) moves the curve a lot.",
     "interp_lsq_board_title": "Fit: polynomial of degree {value0}",
     "interp_lsq_board_manual_title": "Manual line",
