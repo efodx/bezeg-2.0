@@ -28,21 +28,30 @@ import preview_ph_quintic from './images/demonstrations/catalog/ph-quintic.png';
 import preview_spline_parameterization from './images/demonstrations/catalog/spline-parameterization.png';
 import preview_weighted_parameterization from './images/demonstrations/catalog/weighted-parameterization.png';
 import preview_uniform_parameterization from './images/demonstrations/catalog/uniform-parameterization.png';
+import preview_curve_parametric from './images/demonstrations/catalog/curve-parametric.png';
+import preview_curve_curvature from './images/demonstrations/catalog/curve-curvature.png';
+import preview_interp_lagrange from './images/demonstrations/catalog/interp-lagrange.png';
+import preview_interp_hermite from './images/demonstrations/catalog/interp-hermite.png';
+import preview_interp_subdivision from './images/demonstrations/catalog/interp-subdivision.png';
 import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.png';
 import preview_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.png';
 import preview_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.png';
 import preview_patch_subdivision from './images/demonstrations/catalog/patch-subdivision.png';
 import preview_patch_joins from './images/demonstrations/catalog/patch-joins.png';
 import preview_patch_triangular from './images/demonstrations/catalog/patch-triangular.png';
+import preview_patch_coons from './images/demonstrations/catalog/patch-coons.png';
 import preview_linear_function from './images/demonstrations/catalog/linear-function.png';
 import preview_exponential_function from './images/demonstrations/catalog/exponential-function.png';
 import preview_trigonometric_functions from './images/demonstrations/catalog/trigonometric-functions.png';
+import preview_function_transformation from './images/demonstrations/catalog/function-transformation.png';
+import preview_function_inverse from './images/demonstrations/catalog/function-inverse.png';
 import preview_continuity from './images/demonstrations/catalog/continuity.png';
 import preview_derivative from './images/demonstrations/catalog/derivative.png';
 import preview_definite_integral from './images/demonstrations/catalog/definite-integral.png';
 import preview_area_between_curves from './images/demonstrations/catalog/area-between-curves.png';
 import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_bisection from './images/demonstrations/catalog/bisection.png';
+import preview_root_finding from './images/demonstrations/catalog/root-finding.png';
 import preview_mean_value from './images/demonstrations/catalog/mean-value.png';
 import preview_accumulation from './images/demonstrations/catalog/accumulation.png';
 import preview_darboux from './images/demonstrations/catalog/darboux.png';
@@ -51,7 +60,22 @@ import preview_convexity from './images/demonstrations/catalog/convexity.png';
 import preview_taylor from './images/demonstrations/catalog/taylor.png';
 import preview_sequence from './images/demonstrations/catalog/sequence.png';
 import preview_uniform_convergence from './images/demonstrations/catalog/uniform-convergence.png';
+import preview_fourier_series from './images/demonstrations/catalog/fourier-series.png';
 import preview_fixed_point from './images/demonstrations/catalog/fixed-point.png';
+import preview_linear_map from './images/demonstrations/catalog/linear-map.png';
+import preview_complex_reciprocal from './images/demonstrations/catalog/complex-reciprocal.png';
+import preview_complex_roots from './images/demonstrations/catalog/complex-roots.png';
+import preview_triangle_centres from './images/demonstrations/catalog/triangle-centres.png';
+import preview_inscribed_angle from './images/demonstrations/catalog/inscribed-angle.png';
+import preview_orientation from './images/demonstrations/catalog/orientation.png';
+import preview_polygon_area from './images/demonstrations/catalog/polygon-area.png';
+import preview_convex_hull from './images/demonstrations/catalog/convex-hull.png';
+import preview_ear_clipping from './images/demonstrations/catalog/ear-clipping.png';
+import preview_interval_sweep from './images/demonstrations/catalog/interval-sweep.png';
+import preview_segment_intersections from './images/demonstrations/catalog/segment-intersections.png';
+import preview_projective_cross_ratio from './images/demonstrations/catalog/projective-cross-ratio.png';
+import preview_projective_pascal from './images/demonstrations/catalog/projective-pascal.png';
+import preview_projective_pole_polar from './images/demonstrations/catalog/projective-pole-polar.png';
 
 export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>> = {
     'bernstein': preview_bernstein,
@@ -81,21 +105,30 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'spline-parameterization': preview_spline_parameterization,
     'weighted-parameterization': preview_weighted_parameterization,
     'uniform-parameterization': preview_uniform_parameterization,
+    'curve-parametric': preview_curve_parametric,
+    'curve-curvature': preview_curve_curvature,
+    'interp-lagrange': preview_interp_lagrange,
+    'interp-hermite': preview_interp_hermite,
+    'interp-subdivision': preview_interp_subdivision,
     'patch-tensor': preview_patch_tensor,
     'patch-decasteljau': preview_patch_decasteljau,
     'patch-derivatives': preview_patch_derivatives,
     'patch-subdivision': preview_patch_subdivision,
     'patch-joins': preview_patch_joins,
     'patch-triangular': preview_patch_triangular,
+    'patch-coons': preview_patch_coons,
     'linear-function': preview_linear_function,
     'exponential-function': preview_exponential_function,
     'trigonometric-functions': preview_trigonometric_functions,
+    'function-transformation': preview_function_transformation,
+    'function-inverse': preview_function_inverse,
     'continuity': preview_continuity,
     'derivative': preview_derivative,
     'definite-integral': preview_definite_integral,
     'area-between-curves': preview_area_between_curves,
     'arc-length': preview_arc_length,
     'bisection': preview_bisection,
+    'root-finding': preview_root_finding,
     'mean-value': preview_mean_value,
     'accumulation': preview_accumulation,
     'darboux': preview_darboux,
@@ -104,5 +137,20 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'taylor': preview_taylor,
     'sequence': preview_sequence,
     'uniform-convergence': preview_uniform_convergence,
+    'fourier-series': preview_fourier_series,
     'fixed-point': preview_fixed_point,
+    'linear-map': preview_linear_map,
+    'complex-reciprocal': preview_complex_reciprocal,
+    'complex-roots': preview_complex_roots,
+    'triangle-centres': preview_triangle_centres,
+    'inscribed-angle': preview_inscribed_angle,
+    'orientation': preview_orientation,
+    'polygon-area': preview_polygon_area,
+    'convex-hull': preview_convex_hull,
+    'ear-clipping': preview_ear_clipping,
+    'interval-sweep': preview_interval_sweep,
+    'segment-intersections': preview_segment_intersections,
+    'projective-cross-ratio': preview_projective_cross_ratio,
+    'projective-pascal': preview_projective_pascal,
+    'projective-pole-polar': preview_projective_pole_polar,
 };

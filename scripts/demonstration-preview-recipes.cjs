@@ -261,7 +261,7 @@ async function outcome(page, id) {
 }
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
-const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle']);
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'projective-cross-ratio']);
 
 function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {

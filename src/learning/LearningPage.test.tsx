@@ -38,8 +38,8 @@ test('Learn contains every family chapter and keeps guided activities inside cha
     expect([...new Set(learningChapters.map(chapter => chapter.family))].sort()).toEqual(familiesWithChapters.sort());
     expect(container.querySelectorAll('.learning-family')).toHaveLength(15);
     expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(15);
-    // The linear maps, complex maps and triangle geometry chapters have no thumbnail until their posters are captured (media task).
-    expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(9);
+    // Every chapter has a thumbnail now that no poster is pending.
+    expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(15);
     expect(learningStrands.flatMap(strand => strand.chapters)).toEqual(learningChapters.map(chapter => chapter.id));
     expect(container.querySelectorAll('.learning-step')).toHaveLength(0);
     for (const chapter of learningChapters) {
