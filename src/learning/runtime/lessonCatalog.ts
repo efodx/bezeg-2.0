@@ -42,6 +42,10 @@ export function view3dFixture(view: LessonView3D): LessonView3D {
         ...(view.projection ? {projection: view.projection} : {})};
 }
 
+/** A guard for an array of exactly `length` integers that are 0 or more. */
+const isIndexList = (length: number) => (value: unknown): boolean =>
+    Array.isArray(value) && value.length === length && value.every(i => Number.isInteger(i) && i >= 0);
+
 /** Checks the shape and finiteness of a `point-set` action; the graph enforces the grid, range and limits. Other kinds pass through. */
 function checkAuthoredAction(action: LessonAction): LessonAction {
     if (action.kind !== 'point-set') return action;
@@ -60,8 +64,16 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
     } else if (operation === 'set-trace-step') {
         const step = (data as Record<string, unknown>).step;
         if (step !== 'end' && !(typeof step === 'number' && isFinite(step))) throw new Error('A point-set set-trace-step action needs a finite number or "end" as step.');
+    } else if (operation === 'set-triangulation') {
+        const triangles = (data as Record<string, unknown>).triangles;
+        if (!Array.isArray(triangles) || !triangles.every(isIndexList(3))) throw new Error('A point-set set-triangulation action needs a list of triangles, each a list of three integer point indices (0 or more).');
+    } else if (operation === 'flip-edge') {
+        if (!isIndexList(2)((data as Record<string, unknown>).edge)) throw new Error('A point-set flip-edge action needs an edge of two integer point indices (0 or more).');
+    } else if (operation === 'select-edge') {
+        const edge = (data as Record<string, unknown>).edge;
+        if (edge !== null && !isIndexList(2)(edge)) throw new Error('A point-set select-edge action needs an edge of two integer point indices (0 or more), or null.');
     } else {
-        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm or set-trace-step.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge or select-edge.');
     }
     return action;
 }

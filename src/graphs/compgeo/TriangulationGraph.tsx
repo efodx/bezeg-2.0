@@ -8,6 +8,7 @@ import {
     type TriangulationEdge, type Triangulation,
 } from "../../compgeo/triangulation";
 import {t} from "../../localization";
+import {LessonAction} from "../../learning/model";
 import {BaseGraphState} from "../base/BaseGraph";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -267,6 +268,42 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         }
         const built = incrementalTriangulation(points);
         return {triangles: built.ok ? built.value.triangles : [], event: old && !named && !this.loading ? {kind: "rebuilt"} : undefined};
+    }
+
+    // ---- Lesson actions ------------------------------------------------------------------------------------------
+
+    /**
+     * `point-set` lesson actions of the triangulation panel: `set-triangulation` replaces the triangle list (checked like a
+     * Preset's: `parseTriangleList` and `triangulationRejection`, never repaired), `select-edge` is the edge click and
+     * `flip-edge` the flip button after it. Anything invalid, a non-edge or a refused flip is a lesson-content error. The rest
+     * (`set-points`, `set-overlay`) is the base class's; other operations throw `UnsupportedLessonActionError` there.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation === "set-triangulation") {
+            const list = parseTriangleList(action.triangles);
+            const points = this.model.points;
+            if (list === undefined || triangulationRejection(points, list) !== undefined || (list.length === 0 && createTriangulation(points, []).ok)) {
+                throw new Error("point-set set-triangulation: the triangle list is not a valid counter-clockwise triangulation of the current points.");
+            }
+            this.setState(this.patch({triangles: list, previous: undefined}));
+            this.requestRender();
+            return;
+        }
+        if (action.operation === "select-edge" || action.operation === "flip-edge") {
+            const edge: unknown = action.edge;
+            if (action.operation === "select-edge" && edge === null) {
+                this.selectEdge(undefined);
+                return;
+            }
+            if (!Array.isArray(edge) || edge.length !== 2) throw new Error(`point-set ${action.operation}: edge must be a pair of point indices.`);
+            this.selectEdge(edge[0], edge[1]);
+            if (!this.selectedEdge()) throw new Error(`point-set ${action.operation}: [${String(edge[0])}, ${String(edge[1])}] is not an edge of the triangulation.`);
+            if (action.operation === "flip-edge" && !this.flipSelected()) {
+                throw new Error(`point-set flip-edge: the flip of [${String(edge[0])}, ${String(edge[1])}] is refused (${this.event?.kind === "flip-refused" ? this.event.reason : "no flip"}).`);
+            }
+            return;
+        }
+        super.applyPointSetAction(action);
     }
 
     // ---- Edge selection and flip ---------------------------------------------------------------------------------

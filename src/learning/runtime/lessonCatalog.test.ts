@@ -213,6 +213,25 @@ describe('typed scene actions', () => {
         ]);
     });
 
+    test('triangulation point-set actions pass with the right shape and are rejected otherwise', () => {
+        const run = (action: unknown) => sceneActions(scene([action as Parameters<typeof sceneActions>[0]['actions'][number]]));
+        const ps = (operation: string, fields: object) => ({kind: 'point-set', operation, ...fields});
+        expect(() => run(ps('set-triangulation', {triangles: [[0, 1, 2], [0, 2, 3]]}))).not.toThrow();
+        expect(() => run(ps('set-triangulation', {triangles: []}))).not.toThrow();
+        expect(() => run(ps('flip-edge', {edge: [0, 2]}))).not.toThrow();
+        expect(() => run(ps('select-edge', {edge: [0, 2]}))).not.toThrow();
+        expect(() => run(ps('select-edge', {edge: null}))).not.toThrow();
+        for (const triangles of [undefined, 'x', [[0, 1]], [[0, 1, 2, 3]], [[0, 1, 1.5]], [[0, 1, -1]], [[0, 1, Number.NaN]], [[0, 1, '2']], [0, 1, 2]]) {
+            expect(() => run(ps('set-triangulation', {triangles}))).toThrow('set-triangulation');
+        }
+        for (const edge of [undefined, null, 'ab', [0], [0, 1, 2], [0, 1.5], [-1, 2], [0, Number.POSITIVE_INFINITY], [0, '1']]) {
+            expect(() => run(ps('flip-edge', {edge}))).toThrow('flip-edge');
+        }
+        for (const edge of [undefined, 'ab', [0], [0, 1, 2], [0, 1.5], [-1, 2], [0, Number.NaN]]) {
+            expect(() => run(ps('select-edge', {edge}))).toThrow('select-edge');
+        }
+    });
+
     test('lesson ids distinguish pilot content from other guided content', () => {
         expect(getLessonForDemonstration('bezier')!.id).toBe('bezier-pilot');
         expect(getLessonForDemonstration('elevation')!.id).toBe('elevation-guided');
