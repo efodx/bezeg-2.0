@@ -12,6 +12,7 @@ import {
     RungeData, RungeEdit, RungeInterpolationModel, rungeData,
 } from "../../analysis/rungeInterpolationModel";
 import {rungeEditMessage, rungeFunctionName, rungeNumber} from "./rungeInterpolationMessages";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -88,6 +89,28 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
 
     protected setShowSemicircle(value: boolean): void {
         this.commitModel({...this.model, showSemicircle: value});
+    }
+
+    // ---- Lesson actions ------------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("runge", action => {
+            if (action.operation === "set-function") {
+                this.setFunction(action.function);
+            } else if (action.operation === "set-degree") {
+                this.setDegree(action.value);
+            } else if (action.operation === "set-rule") {
+                this.setNodeRule(action.rule);
+            } else if (action.operation === "set-overlay") {
+                if (typeof action.visible !== "boolean") throw new Error("A runge set-overlay action needs a boolean visible.");
+                if (action.overlay === "error") this.setShowError(action.visible);
+                else if (action.overlay === "semicircle") this.setShowSemicircle(action.visible);
+                else throw new Error('The overlay must be "error" or "semicircle".');
+            } else {
+                throw new Error("A runge action needs the operation set-function, set-degree, set-rule or set-overlay.");
+            }
+        });
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

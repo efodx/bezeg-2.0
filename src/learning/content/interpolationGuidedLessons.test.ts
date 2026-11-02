@@ -6,13 +6,15 @@ import type {GuidedLessonStep} from './guidedLessons';
 import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import type {InterpolationGraph} from '../../graphs/curves/interpolation/InterpolationGraph';
 import {DEFAULT_INTERPOLATION_PRESET, insideHull, readoutAt, readoutLines} from '../../graphs/curves/interpolation/interpolationModel';
-import {bezierCurvePoint, lagrangeCurvePoint} from '../../analysis/interpolation';
-import {formatNumber} from '../../analysis/format';
+import {bezierCurvePoint, INTERPOLATION_ERROR_GRID, interpolationNodes, lagrangeCurvePoint} from '../../analysis/interpolation';
+import {formatNumber, formatSignificant} from '../../analysis/format';
 import {setLanguage} from '../../localization';
 import type {HermiteGraph} from '../../graphs/curves/hermite/HermiteGraph';
 import {chainBezier, chainPoint, DEFAULT_HERMITE_PRESET, hermiteChain} from '../../graphs/curves/hermite/hermiteModel';
 import {statusLine} from '../../graphs/curves/hermite/HermiteScene';
 import {catmullRomSegments, catmullRomTangents, hermiteDerivative, hermitePoint} from '../../analysis/hermite';
+import type {RungeInterpolationGraph} from '../../graphs/functions/RungeInterpolationGraph';
+import {rungeData} from '../../analysis/rungeInterpolationModel';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -385,5 +387,187 @@ test('the I3 lesson has six steps with predictions, a free last step, the requir
         expect(handle).toMatch(language === 'sl' ? /največ štiri odseke, ne dveh/ : /at most four segments, not two/);
         expect(handle).toMatch(language === 'sl' ? /enostransk/ : /one-sided/);
         expect(handle).toMatch(language === 'sl' ? /preoblikuje lokalne tangente/ : /rescales the local tangents/);
+    }
+});
+
+// ---- I2: the Runge phenomenon and Chebyshev nodes (interp-runge) ---------------------------------------------------------
+
+const rungeLesson = interpolationGuidedLessons.find(entry => entry.demonstrationId === 'interp-runge')!;
+const rungeStepOf = (stepId: string): GuidedLessonStep => rungeLesson.steps.find(step => step.id === stepId)!;
+const rungeProse = (step: GuidedLessonStep, language: 'sl' | 'en') =>
+    [step.explanation[language], step.scene!.expectedState[language], ...step.expectedObservations.map(o => o[language])].join(' ');
+const rungeStepIds = ['runge-predict', 'runge-raise-degree', 'runge-error-curve', 'runge-chebyshev', 'runge-compare', 'runge-explore'];
+
+function mountRunge() {
+    const graph = createGraph('interp-runge');
+    const mounted = mountGraph(graph);
+    const capabilities = graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    return {
+        graph: graph as unknown as RungeInterpolationGraph, mounted, capabilities,
+        scene: (step: GuidedLessonStep) => act(() => {
+            capabilities.restoreState(checkpoint);
+            for (const action of actionsOf(step)) capabilities.apply(action);
+        }),
+        run: (step: GuidedLessonStep) => act(() => { for (const action of actionsOf(step)) capabilities.apply(action); }),
+    };
+}
+
+/** What the graph readout shows for the grid maximum and its place, as text with the minus sign replaced. */
+const readoutText = (id: string) => (document.querySelector(`[data-readout="${id}"] dd`)?.textContent ?? '').replace('−', '-');
+/** The kernel's grid maximum as the Slovenian readout prints it (four significant figures). */
+const gridMaxText = (functionId: 'runge' | 'abs' | 'sine', degree: number, rule: 'equispaced' | 'chebyshev') =>
+    formatSignificant(rungeData(functionId, degree, rule).gridMax, 'sl', 4);
+
+/** [step id, function, degree, rule, quoted grid maxima] for every number the lesson quotes. */
+const RUNGE_QUOTED: ReadonlyArray<readonly [string, 10 | 15 | 20, 'equispaced' | 'chebyshev', string]> = [
+    ['runge-error-curve', 10, 'equispaced', '1,916'],
+    ['runge-chebyshev', 10, 'chebyshev', '0,1092'],
+    ['runge-compare', 10, 'equispaced', '1,916'], ['runge-compare', 15, 'equispaced', '2,108'], ['runge-compare', 20, 'equispaced', '59,82'],
+    ['runge-compare', 10, 'chebyshev', '0,1092'], ['runge-compare', 15, 'chebyshev', '0,08311'], ['runge-compare', 20, 'chebyshev', '0,01533'],
+];
+
+test('every grid maximum the I2 lesson quotes is the kernel value and appears in the prose in both languages', () => {
+    for (const [stepId, degree, rule, quoted] of RUNGE_QUOTED) {
+        expect(gridMaxText('runge', degree, rule), `${stepId} kernel n=${degree} ${rule}`).toBe(quoted);
+        for (const language of ['sl', 'en'] as const) {
+            expect(rungeProse(rungeStepOf(stepId), language), `${stepId} ${language} quotes ${quoted}`).toContain(proseForm(quoted, language));
+        }
+    }
+    // The place of the n = 10 equispaced maximum: the readout prints 0,9402 and the prose quotes exactly that.
+    expect(formatNumber(rungeData('runge', 10, 'equispaced').gridMaxAt, 'sl', 4).replace('−', '-')).toBe('0,9402');
+    for (const language of ['sl', 'en'] as const) {
+        expect(rungeProse(rungeStepOf('runge-error-curve'), language)).toContain(proseForm('0,9402', language));
+    }
+});
+
+test('the claims of the I2 prose hold on the kernel: node polynomial maximum 2^-n, sine contrast, grid size', () => {
+    // The Chebyshev nodes of the first kind give max |prod (x - x_j)| = 2^-n on [-1, 1]; equally spaced nodes give a larger one.
+    const maxNodePolynomial = (nodes: readonly number[]) => {
+        let max = 0;
+        for (let i = 0; i <= 20000; i++) {
+            const x = -1 + (2 * i) / 20000;
+            max = Math.max(max, Math.abs(nodes.reduce((product, node) => product * (x - node), 1)));
+        }
+        return max;
+    };
+    for (const n of [10, 15, 20]) {
+        const chebyshev = maxNodePolynomial(interpolationNodes('chebyshev', n, -1, 1));
+        expect(chebyshev, `n=${n}`).toBeCloseTo(2 ** -n, 12);
+        expect(maxNodePolynomial(interpolationNodes('equispaced', n, -1, 1)), `n=${n}`).toBeGreaterThan(chebyshev);
+    }
+    // The sine contrast: already degree 6 equispaced is within 1e-3, and degree 10 is far better.
+    expect(rungeData('sine', 6, 'equispaced').gridMax).toBeLessThan(1e-3);
+    expect(rungeData('sine', 10, 'equispaced').gridMax).toBeLessThan(rungeData('sine', 6, 'equispaced').gridMax);
+    // The readout is a grid maximum on 20001 points.
+    expect(INTERPOLATION_ERROR_GRID).toBe(20001);
+    expect(rungeProse(rungeStepOf('runge-error-curve'), 'en')).toContain('20001');
+    expect(rungeProse(rungeStepOf('runge-error-curve'), 'sl')).toContain('20001');
+});
+
+test('each Runge scene sets the function, degree, rule and switches its text describes and shows the quoted readout, in one synchronous sequence', () => {
+    const h = mountRunge();
+    try {
+        const expected: ReadonlyArray<readonly [string, number, 'equispaced' | 'chebyshev', boolean, boolean, string, string]> = [
+            // [step, degree, rule, error curve, semicircle, grid maximum readout, place readout]
+            ['runge-predict', 6, 'equispaced', false, false, gridMaxText('runge', 6, 'equispaced'), ''],
+            ['runge-raise-degree', 10, 'equispaced', false, false, '1,916', ''],
+            ['runge-error-curve', 10, 'equispaced', true, false, '1,916', '0,9402'],
+            ['runge-chebyshev', 10, 'chebyshev', true, true, '0,1092', ''],
+            ['runge-compare', 20, 'equispaced', true, false, '59,82', ''],
+            ['runge-explore', 10, 'equispaced', true, false, '1,916', '0,9402'],
+        ];
+        for (const [stepId, degree, rule, error, semicircle, max, at] of expected) {
+            h.scene(rungeStepOf(stepId));
+            const state = h.graph.state;
+            expect([state.functionId, state.degree, state.nodeRule, state.showError, state.showSemicircle], stepId).toEqual(['runge', degree, rule, error, semicircle]);
+            expect(readoutText('degree'), stepId).toBe(String(degree));
+            expect(readoutText('grid-max'), stepId).toBe(max);
+            if (at) expect(readoutText('grid-max-at'), stepId).toBe(at);
+        }
+        // Reset after a modified step returns to the default, in one tick and without a restore.
+        h.run(rungeStepOf('runge-chebyshev'));
+        act(() => {
+            h.capabilities.apply({kind: 'runge', operation: 'set-degree', value: 15});
+            h.capabilities.apply({kind: 'runge', operation: 'set-function', function: 'sine'});
+        });
+        expect(h.graph.state.degree).toBe(15);
+        act(() => h.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
+        expect([h.graph.state.functionId, h.graph.state.degree, h.graph.state.nodeRule, h.graph.state.showError, h.graph.state.showSemicircle]).toEqual(['runge', 10, 'equispaced', true, false]);
+        expect(readoutText('grid-max')).toBe('1,916');
+        // Consecutive steps without a restore end in the last step's state.
+        h.run(rungeStepOf('runge-chebyshev'));
+        h.run(rungeStepOf('runge-compare'));
+        expect([h.graph.state.degree, h.graph.state.nodeRule, h.graph.state.showSemicircle]).toEqual([20, 'equispaced', false]);
+        // A lesson checkpoint taken in a modified state keeps it.
+        act(() => {
+            h.capabilities.apply({kind: 'runge', operation: 'set-rule', rule: 'chebyshev'});
+            h.capabilities.apply({kind: 'runge', operation: 'set-function', function: 'abs'});
+        });
+        const checkpoint = h.capabilities.captureState();
+        act(() => h.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
+        expect(h.graph.state.degree).toBe(10);
+        act(() => h.capabilities.restoreState(checkpoint));
+        expect([h.graph.state.functionId, h.graph.state.degree, h.graph.state.nodeRule]).toEqual(['abs', 20, 'chebyshev']);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the runge action rejects invalid inputs with a clear error and leaves the state alone', () => {
+    const h = mountRunge();
+    try {
+        const before = {...h.graph.state};
+        const bad: unknown[] = [
+            {kind: 'runge', operation: 'set-function', function: 'cosine'},
+            {kind: 'runge', operation: 'set-degree', value: 0},
+            {kind: 'runge', operation: 'set-degree', value: 41},
+            {kind: 'runge', operation: 'set-degree', value: 10.5},
+            {kind: 'runge', operation: 'set-degree', value: Number.NaN},
+            {kind: 'runge', operation: 'set-degree', value: '10'},
+            {kind: 'runge', operation: 'set-rule', rule: 'second-kind'},
+            {kind: 'runge', operation: 'set-overlay', overlay: 'nodes', visible: true},
+            {kind: 'runge', operation: 'set-overlay', overlay: 'error', visible: 'yes'},
+            {kind: 'runge', operation: 'remove-node'},
+        ];
+        for (const action of bad) expect(() => h.capabilities.apply(action as LessonAction), JSON.stringify(action)).toThrow(/./);
+        expect([h.graph.state.functionId, h.graph.state.degree, h.graph.state.nodeRule]).toEqual([before.functionId, before.degree, before.nodeRule]);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the I2 lesson has six steps with predictions, a free last step, the required caveats and the one-shot terms', () => {
+    expect(rungeLesson.steps.map(step => step.id)).toEqual(rungeStepIds);
+    for (const step of rungeLesson.steps.slice(0, 5)) {
+        expect(step.explanation.sl, step.id).toMatch(/[Nn]apovej/);
+        expect(step.explanation.en, step.id).toMatch(/[Pp]redict/);
+    }
+    const all = JSON.stringify(rungeLesson);
+    for (const term of ['Rungejev pojav', 'Čebiševe točke', 'interpolacijski polinom', 'vozliščni polinom', 'mreži']) expect(all, term).toContain(term);
+    for (const language of ['sl', 'en'] as const) {
+        const prose = rungeLesson.steps.map(step => rungeProse(step, language)).join(' ') + rungeLesson.formulaBlocks.map(block => block.explanation[language]).join(' ');
+        expect(prose, language).toMatch(language === 'sl' ? /ne za vsako funkcijo|ne dokazuje/ : /nor for every function|not a proof/);
+        expect(prose, language).toMatch(language === 'sl' ? /ne napake pri vsaki stopnji/ : /not the error at every degree/);
+        expect(prose, language).toMatch(language === 'sl' ? /ne prava zgornja meja/ : /not the true supremum/);
+        expect(prose, language).toMatch(language === 'sl' ? /pravokotne projekcije enakomerno razporejenih točk na polkrogu/ : /projections onto the .{0,40}axis of equally spaced points on a semicircle/);
+    }
+    // The prerequisites name the Taylor lesson and the Lagrange lesson (I1).
+    expect(rungeLesson.prerequisites.map(entry => entry.en).join(' ')).toMatch(/Taylor/);
+    expect(rungeLesson.prerequisites.map(entry => entry.en).join(' ')).toMatch(/Lagrange/);
+    // No degree-5 comparison: there Chebyshev nodes are worse in the maximum norm.
+    for (const step of rungeLesson.steps) {
+        for (const action of actionsOf(step)) if (action.kind === 'runge' && action.operation === 'set-degree') expect(action.value, step.id).not.toBe(5);
+    }
+});
+
+test('every decimal number with three or more fractional digits in the I2 prose is a quoted kernel value, in every place it appears', () => {
+    const allowed = [...RUNGE_QUOTED.map(row => row[3]), '0,9402'];
+    for (const language of ['sl', 'en'] as const) {
+        const allowedForms = new Set(allowed.map(value => proseForm(value, language)));
+        const text = rungeLesson.steps.map(step => rungeProse(step, language)).join(' ');
+        const found = text.match(/-?\d+(?:\{,\}|\.)\d{3,}/g) ?? [];
+        expect(found.length).toBeGreaterThan(20);
+        for (const value of found) expect(allowedForms.has(value.replace(/^-/, '')), `${language} ${value}`).toBe(true);
     }
 });

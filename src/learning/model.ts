@@ -310,6 +310,15 @@ export type LessonAction =
     | {readonly kind: 'hermite'; readonly operation: 'set-overlay'; readonly overlay: 'tangents' | 'bezier'; readonly visible: boolean}
     | {readonly kind: 'hermite'; readonly operation: 'add-point'}
     /**
+     * RungeInterpolationGraph only (Runge's phenomenon, lesson I2): `set-function` picks the function of the closed list, `set-degree`
+     * the degree n (a whole number from 1 to 40, so n + 1 nodes), `set-rule` the node rule, and `set-overlay` shows or hides the error
+     * curve or the semicircle (drawn only with Chebyshev nodes). Invalid values are refused with a message, never clamped.
+     */
+    | {readonly kind: 'runge'; readonly operation: 'set-function'; readonly function: 'runge' | 'abs' | 'sine'}
+    | {readonly kind: 'runge'; readonly operation: 'set-degree'; readonly value: number}
+    | {readonly kind: 'runge'; readonly operation: 'set-rule'; readonly rule: 'equispaced' | 'chebyshev'}
+    | {readonly kind: 'runge'; readonly operation: 'set-overlay'; readonly overlay: 'error' | 'semicircle'; readonly visible: boolean}
+    /**
      * CoonsPatchGraph only (Coons patch, lesson D4): `set-shown` picks the surface the mesh shows (`lc`, `ld`, `b` or the blend `s`),
      * `set-linked-corners` turns corner sharing on (the corner pairs snap to their average) or off, and `move-point` puts control
      * point `index` (0 to 3) of the boundary `name` (`c0`, `c1`, `d0`, `d1`) at `xyz`, like a drag; with linked corners the other end point

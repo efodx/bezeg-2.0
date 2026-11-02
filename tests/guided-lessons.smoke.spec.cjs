@@ -1821,6 +1821,23 @@ const interpolationHermite = {
     },
 };
 
+// Interpolation I2 (Runge): the readouts per lesson step 1..6 are [degree, grid maximum, place of the maximum or '' when not quoted]; the lesson quotes the grid maximum from step 3 on.
+const RUNGE_STEPS = [['6', '', ''], ['10', '', ''], ['10', '1.916', '0.9402'], ['10', '0.1092', ''], ['20', '59.82', ''], ['10', '1.916', '']];
+const rungeReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).innerText()).replace(/−/g, '-').replace(',', '.');
+const interpolationRunge = {
+    id: 'interp-runge',
+    path: `${BASE}/interpolation/runge`,
+    titles: {sl: 'Rungejev pojav in Čebiševe točke', en: 'The Runge phenomenon and Chebyshev nodes'},
+    steps: 6,
+    minFrames: 12, // 2 frames per step
+    stepProbe: async (page, ctx, step, label) => {
+        const [degree, max, at] = RUNGE_STEPS[step - 1];
+        await expect.poll(() => rungeReadout(page, 'degree'), {message: `runge degree at ${label}`}).toBe(degree);
+        if (max) await expect.poll(() => rungeReadout(page, 'grid-max'), {message: `runge grid maximum at ${label}`}).toBe(max);
+        if (at) await expect.poll(() => rungeReadout(page, 'grid-max-at'), {message: `runge place of the maximum at ${label}`}).toBe(at);
+    },
+};
+
 // Segment intersections: the trace step shown per lesson step 1..7 (start, start, step 12, step 10, step 17, done, the degenerate example's step 16); the number is language independent.
 const SEGMENT_STEPS = ['1', '1', '12', '10', '17', '47', '16'];
 const segmentIntersections = {
@@ -1954,7 +1971,7 @@ const bsplineDeBoor = {
     minFrames: 12, // at least 2 frames per step
 };
 
-const LESSONS = [bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

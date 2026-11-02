@@ -1,9 +1,10 @@
 /**
  * Guided lessons of the Interpolation and approximation family (docs/specs/interpolation-approximation-lessons.md): I1,
- * Lagrange interpolation versus Bézier approximation, I3, Hermite and Catmull-Rom curves, and I5, Chaikin and four-point subdivision. The text is a one-shot draft (docs/specs/new-lesson-families.md,
+ * Lagrange interpolation versus Bézier approximation, I2, the Runge phenomenon and Chebyshev nodes, I3, Hermite and Catmull-Rom curves, and I5, Chaikin and four-point subdivision. The text is a one-shot draft (docs/specs/new-lesson-families.md,
  * "One-shot lesson text"): every value it quotes is the readout of the scene it belongs to, and
  * `interpolationGuidedLessons.test.ts` checks that against the real graph and the kernel in `src/analysis/interpolation.ts`.
  * I1 scenes use the `interpolation` (`set-rule`, `set-overlay`, `add-point`) and `parameter` (`t`, the shared position s) actions;
+ * I2 scenes use the `runge` action (`set-function`, `set-degree`, `set-rule`, `set-overlay`);
  * I3 scenes use the `hermite` action (`set-mode`, `set-rule`, `set-tension`, `set-overlay`, `add-point`);
  * I5 scenes use the `subdivision` action (`set-rule`, `set-closed`, `set-overlay`) and the `animation` action `next-step` of `interp-subdivision-rounds`.
  */
@@ -588,4 +589,168 @@ const subdivisionLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const interpolationGuidedLessons: readonly GuidedLesson[] = [lagrangeLesson, hermiteLesson, subdivisionLesson];
+/**
+ * A scene of the Runge lesson from the default model (the Runge function, n = 10, equispaced nodes, error curve shown, no semicircle): the
+ * function, the degree, the node rule and the two display switches. Every action pauses nothing and runs synchronously.
+ */
+const rungeScene = (
+    id: string, degree: number, rule: 'equispaced' | 'chebyshev', error: boolean, semicircle: boolean, sl: string, en: string,
+    functionId: 'runge' | 'abs' | 'sine' = 'runge',
+): LessonScene => {
+    const actions: LessonAction[] = [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'runge', operation: 'set-function', function: functionId},
+        {kind: 'runge', operation: 'set-degree', value: degree},
+        {kind: 'runge', operation: 'set-rule', rule},
+        {kind: 'runge', operation: 'set-overlay', overlay: 'error', visible: error},
+        {kind: 'runge', operation: 'set-overlay', overlay: 'semicircle', visible: semicircle},
+    ];
+    return {id, basedOn: 'demonstration-default', actions, expectedState: text(sl, en)};
+};
+
+const rungeLesson: GuidedLesson = {
+    demonstrationId: 'interp-runge',
+    title: text('Rungejev pojav in Čebiševe točke', 'The Runge phenomenon and Chebyshev nodes'),
+    summary: text(
+        'Več enakomerno razporejenih interpolacijskih točk ne da vedno boljšega interpolacijskega polinoma: pri funkciji \\(f(x)=\\frac1{1+25x^2}\\) napaka ob krajiščih intervala z višanjem stopnje raste. Čebiševe točke so ob krajiščih gostejše in pri isti funkciji napako zmanjšajo. To pokažemo za to funkcijo, ne za vsako.',
+        'More equally spaced interpolation nodes do not always give a better interpolation polynomial: for \\(f(x)=\\frac1{1+25x^2}\\) the error near the ends of the interval grows as the degree is raised. Chebyshev nodes are denser near the ends and reduce the error for the same function. This is shown for this function, not for every function.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o Taylorjevem polinomu iz poglavja o analizi: večja stopnja polinoma ne pomeni nujno manjše napake.', 'Assumes the Taylor polynomial lesson from the analysis chapter: a higher degree does not necessarily mean a smaller error.'),
+        text('Potrebna je lekcija o Lagrangeevi interpolaciji (Skozi točke ali blizu njih): interpolacijski polinom gre skozi vse točke.', 'Assumes the Lagrange interpolation lesson (Through the points or near them): the interpolation polynomial passes through every point.'),
+    ],
+    learningGoals: [
+        text('Napoveš, kaj se zgodi z napako interpolacijskega polinoma, ko pri enakomerno razporejenih točkah višaš stopnjo, in ugotoviš, kje je napaka največja.', 'Predict what happens to the error of the interpolation polynomial when you raise the degree with equally spaced nodes, and find where the error is largest.'),
+        text('Razložiš, da Čebiševe točke najmanjšajo največjo vrednost vozliščnega polinoma, ne napake pri vsaki stopnji.', 'Explain that Chebyshev nodes minimise the maximum of the node polynomial, not the error at every degree.'),
+        text('Ločiš, kaj dokazujejo številke na mreži (en primer, končno število stopenj) in kaj ne (divergenco za vsako funkcijo, pravo največjo napako).', 'Tell what the numbers on the grid prove (one example, finitely many degrees) and what they do not (divergence for every function, the true maximum error).'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'node-polynomial',
+            latex: 'f(x)-p(x)=\\frac{f^{(n+1)}(\\xi)}{(n+1)!}\\,\\omega(x),\\qquad \\omega(x)=\\prod_{j=0}^{n}(x-x_j),\\qquad x_j=\\cos\\frac{(2j+1)\\pi}{2(n+1)}',
+            notation: text(
+                '\\(p\\) je interpolacijski polinom stopnje \\(n\\) skozi \\(n+1\\) točk \\(x_j\\), \\(\\omega\\) je vozliščni polinom, \\(\\xi\\) neka točka intervala. Zadnji izraz so Čebiševe točke prve vrste.',
+                '\\(p\\) is the interpolation polynomial of degree \\(n\\) through the \\(n+1\\) nodes \\(x_j\\), \\(\\omega\\) is the node polynomial and \\(\\xi\\) some point of the interval. The last expression gives the Chebyshev nodes of the first kind.',
+            ),
+            explanation: text(
+                'Napaka je produkt dveh delov: odvoda \\(f^{(n+1)}\\), ki ga točke ne spremenijo, in vozliščnega polinoma \\(\\omega\\), ki ga določajo točke. Čebiševe točke prve vrste najmanjšajo \\(\\max|\\omega|\\) na \\([-1,1]\\); ta največja vrednost je \\(2^{-n}\\). To ne pomeni, da je napaka pri vsaki stopnji najmanjša, saj je odvod \\(f^{(n+1)}\\) tudi del napake.',
+                'The error is a product of two parts: the derivative \\(f^{(n+1)}\\), which the nodes do not change, and the node polynomial \\(\\omega\\), which the nodes determine. The Chebyshev nodes of the first kind minimise \\(\\max|\\omega|\\) on \\([-1,1]\\); that maximum is \\(2^{-n}\\). This does not mean the error is smallest at every degree, since the derivative \\(f^{(n+1)}\\) is also part of the error.',
+            ),
+        },
+    ],
+    workedExamples: [],
+    steps: [
+        {
+            id: 'runge-predict', order: 1,
+            title: text('Več točk, boljši polinom?', 'More nodes, a better polynomial?'),
+            purpose: text('Pred razkritjem napovedati, kako se napaka spreminja z višanjem stopnje.', 'Predicting, before the reveal, how the error changes as the degree grows.'),
+            explanation: text(
+                'Graf kaže funkcijo \\(f(x)=\\frac1{1+25x^2}\\) (bleda krivulja) in njen interpolacijski polinom \\(p\\) stopnje \\(n=6\\) skozi \\(n+1=7\\) enakomerno razporejenih točk na \\([-1,1]\\). Krivulja napake je skrita. Napovej: ko stopnjo višamo, torej dodajamo točke, ali se bo polinom \\(p\\) vedno bolj prilegal funkciji \\(f\\) na vsem intervalu, ali bo kje slabši?',
+                'The graph shows the function \\(f(x)=\\frac1{1+25x^2}\\) (the faint curve) and its interpolation polynomial \\(p\\) of degree \\(n=6\\) through \\(n+1=7\\) equally spaced nodes on \\([-1,1]\\). The error curve is hidden. Predict: as the degree is raised, that is as nodes are added, will the polynomial \\(p\\) fit \\(f\\) better and better on the whole interval, or will it be worse somewhere?',
+            ),
+            formulaIds: ['node-polynomial'],
+            frames: [frame('runge-predict-explanation', 'explanation'), frame('runge-predict-observation', 'observation')],
+            observationPrompt: text('Pred razkritjem se odloči: ali napaka pada povsod, ali samo v sredini, ali narašča ob krajiščih?', 'Before the reveal decide: does the error fall everywhere, only in the middle, or grow near the ends?'),
+            expectedObservations: [text('Pri \\(n=6\\) polinom že nekoliko niha okoli funkcije; kaj se zgodi pri večji stopnji, napoveš ti.', 'At \\(n=6\\) the polynomial already wobbles a little around the function; what happens at a higher degree is your prediction.')],
+            scene: rungeScene('runge-predict-start', 6, 'equispaced', false, false,
+                'Rungejeva funkcija, stopnja \\(6\\), \\(7\\) enakomerno razporejenih točk; krivulja napake je skrita.',
+                'The Runge function, degree \\(6\\), \\(7\\) equally spaced nodes; the error curve is hidden.'),
+        },
+        {
+            id: 'runge-raise-degree', order: 2,
+            title: text('Višanje stopnje', 'Raising the degree'),
+            purpose: text('Pred razkritjem napovedati, kje polinom zaniha, in stopnjo višati korak za korakom.', 'Predicting, before the reveal, where the polynomial swings, and raising the degree step by step.'),
+            explanation: text(
+                'Prikazana je stopnja \\(n=10\\), \\(11\\) enakomerno razporejenih točk. Napovej: v sredini intervala ali ob krajiščih bo polinom \\(p\\) najbolj odstopal od \\(f\\)? Nato s tipko plus višaj stopnjo do \\(15\\) in \\(20\\) in opazuj krajišči \\(x=\\pm1\\). Zanihanja ob krajiščih rastejo, čeprav polinom vedno gre skozi vse točke.',
+                'Degree \\(n=10\\) is shown, \\(11\\) equally spaced nodes. Predict: will the polynomial \\(p\\) differ most from \\(f\\) in the middle of the interval or near the ends? Then raise the degree with the plus button to \\(15\\) and \\(20\\) and watch the ends \\(x=\\pm1\\). The swings near the ends grow, even though the polynomial always passes through every node.',
+            ),
+            formulaIds: ['node-polynomial'],
+            frames: [frame('runge-raise-degree-explanation', 'explanation'), frame('runge-raise-degree-observation', 'observation')],
+            observationPrompt: text('Višaj stopnjo za nekaj korakov in opazuj, kako se spreminja polinom ob krajiščih.', 'Raise the degree a few steps and watch how the polynomial changes near the ends.'),
+            expectedObservations: [text('V sredini se polinom z višanjem stopnje približuje funkciji, ob krajiščih pa zaniha vedno bolj.', 'In the middle the polynomial approaches the function as the degree rises, but near the ends it swings more and more.')],
+            scene: rungeScene('runge-raise-degree-n10', 10, 'equispaced', false, false,
+                'Rungejeva funkcija, stopnja \\(10\\), \\(11\\) enakomerno razporejenih točk; krivulja napake je skrita.',
+                'The Runge function, degree \\(10\\), \\(11\\) equally spaced nodes; the error curve is hidden.'),
+        },
+        {
+            id: 'runge-error-curve', order: 3,
+            title: text('Krivulja napake in njen maksimum', 'The error curve and its maximum'),
+            purpose: text('Pred razkritjem napovedati, kje je napaka največja, in odčitati največjo napako na mreži.', 'Predicting, before the reveal, where the error is largest, and reading the largest error on the grid.'),
+            explanation: text(
+                'Prikazana je krivulja napake \\(|f-p|\\) pri \\(n=10\\) in križec na njenem največjem mestu. Napovej: pri katerem \\(x\\) bo napaka največja? Odčitek je največja napaka na mreži \\(1{,}916\\) pri \\(x=0{,}9402\\) (napaka je soda funkcija, zato tudi pri \\(x=-0{,}9402\\)), torej tik ob krajišču. To je največja vrednost v \\(20001\\) točkah mreže, ne prava zgornja meja napake. Polinom je ob krajišču napačen skoraj za dve enoti, čeprav \\(f\\) nikjer ne preseže \\(1\\). Ali napaka z višanjem stopnje res raste, primerjaš v petem koraku; številka velja le za to funkcijo \\(f\\).',
+                'The error curve \\(|f-p|\\) at \\(n=10\\) is shown, with a cross at its largest point. Predict: at which \\(x\\) will the error be largest? The readout is the grid maximum error \\(1.916\\) at \\(x=0.9402\\) (the error is an even function, so also at \\(x=-0.9402\\)), right next to an end. It is the largest value over the \\(20001\\) points of the grid, not the true supremum of the error. The polynomial is off by almost two units near the end, although \\(f\\) never exceeds \\(1\\). Whether the error really grows with the degree you compare in step 5; the number holds only for this function \\(f\\).',
+            ),
+            formulaIds: ['node-polynomial'],
+            frames: [frame('runge-error-curve-explanation', 'explanation'), frame('runge-error-curve-observation', 'observation')],
+            observationPrompt: text('Preberi največjo napako na mreži in mesto, kjer nastopi, ter jo primerjaj z največjo vrednostjo \\(f\\).', 'Read the grid maximum error and the place where it occurs, and compare it with the largest value of \\(f\\).'),
+            expectedObservations: [text('Največja napaka na mreži je \\(1{,}916\\) pri \\(x=0{,}9402\\), ob krajišču intervala.', 'The grid maximum error is \\(1.916\\) at \\(x=0.9402\\), near an end of the interval.')],
+            scene: rungeScene('runge-error-curve-n10', 10, 'equispaced', true, false,
+                'Rungejeva funkcija, stopnja \\(10\\), enakomerno razporejene točke; največja napaka na mreži \\(1{,}916\\) pri \\(x=0{,}9402\\).',
+                'The Runge function, degree \\(10\\), equally spaced nodes; the grid maximum error is \\(1.916\\) at \\(x=0.9402\\).'),
+        },
+        {
+            id: 'runge-chebyshev', order: 4,
+            title: text('Čebiševe točke', 'Chebyshev nodes'),
+            purpose: text('Pred razkritjem napovedati, kakšna razporeditev točk pomaga, in razkriti Čebiševe točke.', 'Predicting, before the reveal, which placement of nodes helps, and revealing the Chebyshev nodes.'),
+            explanation: text(
+                'Napaka je ob krajiščih velika, zato napovej, kakšna razporeditev točk bi pomagala: gostejše točke v sredini ali ob krajiščih? Prikazane so Čebiševe točke prve vrste \\(x_j=\\cos\\frac{(2j+1)\\pi}{2(n+1)}\\) pri \\(n=10\\): to so pravokotne projekcije enakomerno razporejenih točk na polkrogu na os \\(x\\), zato so ob krajiščih gostejše. Največja napaka na mreži je zdaj \\(0{,}1092\\), ne več \\(1{,}916\\). Čebiševe točke najmanjšajo največjo vrednost vozliščnega polinoma \\(\\prod(x-x_j)\\) na \\([-1,1]\\), ne napake pri vsaki stopnji; pri tej funkciji in tej stopnji napako zares zmanjšajo.',
+                'The error is large near the ends, so predict which placement of nodes would help: denser in the middle or denser near the ends? The Chebyshev nodes of the first kind \\(x_j=\\cos\\frac{(2j+1)\\pi}{2(n+1)}\\) at \\(n=10\\) are shown: they are the projections onto the \\(x\\)-axis of equally spaced points on a semicircle, so they are denser near the ends. The grid maximum error is now \\(0.1092\\), no longer \\(1.916\\). Chebyshev nodes minimise the maximum of the node polynomial \\(\\prod(x-x_j)\\) on \\([-1,1]\\), not the error at every degree; for this function and this degree they do reduce the error.',
+            ),
+            formulaIds: ['node-polynomial'],
+            frames: [frame('runge-chebyshev-explanation', 'explanation'), frame('runge-chebyshev-observation', 'observation')],
+            observationPrompt: text('Primerjaj polinom in krivuljo napake z enakomerno razporeditvijo in preberi novo največjo napako na mreži.', 'Compare the polynomial and the error curve with the equally spaced placement and read the new grid maximum error.'),
+            expectedObservations: [text('Točke se ob krajiščih zgostijo, polinom ostane blizu \\(f\\) po vsem intervalu, največja napaka na mreži je \\(0{,}1092\\).', 'The nodes crowd together near the ends, the polynomial stays close to \\(f\\) on the whole interval and the grid maximum error is \\(0.1092\\).')],
+            scene: rungeScene('runge-chebyshev-n10', 10, 'chebyshev', true, true,
+                'Rungejeva funkcija, stopnja \\(10\\), Čebiševe točke prve vrste s polkrogom; največja napaka na mreži \\(0{,}1092\\).',
+                'The Runge function, degree \\(10\\), Chebyshev nodes of the first kind with the semicircle; the grid maximum error is \\(0.1092\\).'),
+        },
+        {
+            id: 'runge-compare', order: 5,
+            title: text('Primerjava maksimumov', 'Comparing the maxima'),
+            purpose: text('Pred razkritjem napovedati, kaj se zgodi pri stopnji \\(20\\), in primerjati obe razporeditvi.', 'Predicting, before the reveal, what happens at degree \\(20\\), and comparing the two placements.'),
+            explanation: text(
+                'Prikazana je stopnja \\(n=20\\) z enakomerno razporejenimi točkami. Napovej: ali bo največja napaka na mreži pri \\(n=20\\) manjša ali večja kot pri \\(n=10\\)? Odčitek je \\(59{,}82\\), krivulja napake pa je zunaj prikaza. Pri enakomernih točkah so največje napake \\(1{,}916\\), \\(2{,}108\\) in \\(59{,}82\\) pri \\(n=10\\), \\(15\\) in \\(20\\). Preklopi na Čebiševe točke in primerjaj: \\(0{,}1092\\), \\(0{,}08311\\) in \\(0{,}01533\\). To so številke za to funkcijo in te tri stopnje na mreži; ne dokazujejo, kaj se zgodi pri \\(n\\to\\infty\\), in ne za vsako funkcijo. Pri Čebiševih točkah druge vrste so številke drugačne, zato lekcija vedno navede vrsto.',
+                'Degree \\(n=20\\) is shown with equally spaced nodes. Predict: will the grid maximum error at \\(n=20\\) be smaller or larger than at \\(n=10\\)? The readout is \\(59.82\\) and the error curve lies outside the view. With equally spaced nodes the maximum errors are \\(1.916\\), \\(2.108\\) and \\(59.82\\) at \\(n=10\\), \\(15\\) and \\(20\\). Switch to Chebyshev nodes and compare: \\(0.1092\\), \\(0.08311\\) and \\(0.01533\\). These are numbers for this function and these three degrees on the grid; they do not prove what happens as \\(n\\to\\infty\\), nor for every function. For Chebyshev nodes of the second kind the numbers differ, so the lesson always names the kind.',
+            ),
+            formulaIds: ['node-polynomial'],
+            frames: [frame('runge-compare-explanation', 'explanation'), frame('runge-compare-observation', 'observation')],
+            observationPrompt: text('Preklopi med enakomernimi in Čebiševimi točkami ter pri stopnjah \\(10\\), \\(15\\) in \\(20\\) preberi največjo napako na mreži.', 'Switch between equally spaced and Chebyshev nodes and read the grid maximum error at degrees \\(10\\), \\(15\\) and \\(20\\).'),
+            expectedObservations: [text('Enakomerne točke: \\(1{,}916\\), \\(2{,}108\\), \\(59{,}82\\); Čebiševe točke: \\(0{,}1092\\), \\(0{,}08311\\), \\(0{,}01533\\).', 'Equally spaced nodes: \\(1.916\\), \\(2.108\\), \\(59.82\\); Chebyshev nodes: \\(0.1092\\), \\(0.08311\\), \\(0.01533\\).')],
+            scene: rungeScene('runge-compare-n20', 20, 'equispaced', true, false,
+                'Rungejeva funkcija, stopnja \\(20\\), enakomerno razporejene točke; največja napaka na mreži \\(59{,}82\\), križec je zunaj prikaza.',
+                'The Runge function, degree \\(20\\), equally spaced nodes; the grid maximum error is \\(59.82\\), the cross is outside the view.'),
+        },
+        {
+            id: 'runge-explore', order: 6,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno spreminjati funkcijo, stopnjo in razporeditev točk.', 'Changing the function, the degree and the node rule on your own.'),
+            explanation: text(
+                'Graf je spet na začetku: Rungejeva funkcija, stopnja \\(10\\), enakomerno razporejene točke. Zamenjaj funkcijo z \\(|x|\\) ali \\(\\sin x\\), višaj stopnjo do \\(40\\) in izberi razporeditev točk. Pri \\(\\sin x\\) je polinom že pri nizki stopnji skoraj enak funkciji; to je primerjava, ki kaže, da Rungejev pojav ni lastnost vsake funkcije. Največja napaka na mreži je vedno le največja vrednost na mreži.',
+                'The graph is back at the start: the Runge function, degree \\(10\\), equally spaced nodes. Change the function to \\(|x|\\) or \\(\\sin x\\), raise the degree up to \\(40\\) and choose the node rule. For \\(\\sin x\\) the polynomial is nearly equal to the function already at a low degree; this is a contrast that shows the Runge phenomenon is not a property of every function. The grid maximum error is always only the largest value on the grid.',
+            ),
+            formulaIds: ['node-polynomial'],
+            frames: [frame('runge-explore-explanation', 'explanation'), frame('runge-explore-observation', 'observation')],
+            observationPrompt: text('Zamenjaj funkcijo s \\(\\sin x\\), nato z \\(|x|\\), in primerjaj, kako se največja napaka na mreži spreminja s stopnjo pri obeh razporeditvah.', 'Change the function to \\(\\sin x\\), then to \\(|x|\\), and compare how the grid maximum error changes with the degree for both placements.'),
+            expectedObservations: [text('Pri \\(\\sin x\\) napaka z višanjem stopnje hitro pada pri obeh razporeditvah; Rungejev pojav je odvisen od funkcije.', 'For \\(\\sin x\\) the error falls quickly with the degree for both placements; the Runge phenomenon depends on the function.')],
+            scene: rungeScene('runge-explore-default', 10, 'equispaced', true, false,
+                'Rungejeva funkcija, stopnja \\(10\\), enakomerno razporejene točke; vse je prosto za raziskovanje.',
+                'The Runge function, degree \\(10\\), equally spaced nodes; everything is free to explore.'),
+        },
+    ],
+    sources: [
+        {id: 'runge-1901', citation: 'Runge, C. Über empirische Funktionen und die Interpolation zwischen äquidistanten Ordinaten. Zeitschrift für Mathematik und Physik 46 (1901) 224-243.'},
+        {id: 'berrut-trefethen-runge', citation: 'Berrut, J.-P. and Trefethen, L. N. Barycentric Lagrange interpolation. SIAM Review 46 (2004).'},
+        {
+            id: 'bezeg-runge-implementation',
+            citation: 'Bezeg source: src/analysis/interpolation.ts, src/analysis/rungeInterpolationModel.ts and src/graphs/functions/RungeInterpolationGraph.tsx.',
+            implementationCorrespondence: 'The polynomial is evaluated with the barycentric formula and the maximum error is taken over a grid of 20001 points; a lesson scene sets the function, the degree, the node rule and the two display switches with the runge action.',
+        },
+    ],
+    edgeCases: [
+        text('Stopnja je celo število od \\(1\\) do \\(40\\); drugačna vrednost je zavrnjena z izpisanim sporočilom in se ne zaokroži.', 'The degree is a whole number from \\(1\\) to \\(40\\); another value is refused with a message and not rounded.'),
+        text('Polkrog je viden le pri Čebiševih točkah; pri enakomernih točkah je stikalo onemogočeno.', 'The semicircle is visible only with Chebyshev nodes; with equally spaced nodes the switch is disabled.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const interpolationGuidedLessons: readonly GuidedLesson[] = [lagrangeLesson, rungeLesson, hermiteLesson, subdivisionLesson];
