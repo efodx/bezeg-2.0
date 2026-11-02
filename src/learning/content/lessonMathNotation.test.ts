@@ -14,6 +14,7 @@ import {curveGeometryGuidedLessons} from './curveGeometryGuidedLessons';
 import {interpolationGuidedLessons} from './interpolationGuidedLessons';
 import {numericalMethodsGuidedLessons} from './numericalMethodsGuidedLessons';
 import {schoolFunctionGraphsGuidedLessons} from './schoolFunctionGraphsGuidedLessons';
+import {coonsGuidedLessons} from './coonsGuidedLessons';
 import {pilotGuidedLessons} from './guidedLessons';
 import {familyChapters} from './familyChapters';
 import {patchGuidedExamplesBasics} from './patchGuidedExamplesBasics';
@@ -51,6 +52,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['interpolationGuidedLessons', interpolationGuidedLessons],
     ['numericalMethodsGuidedLessons', numericalMethodsGuidedLessons],
     ['schoolFunctionGraphsGuidedLessons', schoolFunctionGraphsGuidedLessons],
+    ['coonsGuidedLessons', coonsGuidedLessons],
     ['patchGuidedExamplesBasics', Object.values(patchGuidedExamplesBasics)],
     ['patchGuidedExamplesEvaluation', Object.values(patchGuidedExamplesEvaluation)],
     ['patchGuidedExamplesAdvanced', Object.values(patchGuidedExamplesAdvanced)],
@@ -163,7 +165,7 @@ test('scans every lesson module', () => {
     expect(lessonSets.flatMap(([, lessons]) => lessons.map(lesson => lesson.demonstrationId)).sort()).toEqual(
         ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'weighted-parameterization',
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
-            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'curve-parametric', 'curve-curvature', 'interval-sweep', 'segment-intersections', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'root-finding', 'function-transformation', 'function-inverse'].sort(),
+            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'curve-parametric', 'curve-curvature', 'interval-sweep', 'segment-intersections', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'root-finding', 'function-transformation', 'function-inverse', 'patch-coons'].sort(),
     );
 });
 

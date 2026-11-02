@@ -1845,7 +1845,22 @@ const functionInverse = {
     minFrames: 14, // at least 2 frames per step
 };
 
-const LESSONS = [segmentIntersections, rootFinding, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Coons patch: the shown-surface select and the corner status differ along the lesson. Per step 1..7: S, Lc, Ld, S, S, S (one corner moved, linked corners off), S.
+const COONS_SHOWN = ['s', 'lc', 'ld', 's', 's', 's', 's'];
+const COONS_CORNERS = ['met', 'met', 'met', 'met', 'met', 'mismatch', 'met'];
+const coonsPatch = {
+    id: 'patch-coons',
+    path: `${BASE}/patches/coons`,
+    titles: {sl: 'Coonsova ploskev iz štirih robnih krivulj', en: 'The Coons patch from four boundary curves'},
+    steps: 7,
+    minFrames: 16, // the SL and EN walks visit 16 frames (prediction and reveal per guided step, calculation frames on steps 4 and 5)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(() => page.getByLabel(/^(Ploskev|Surface)$/).inputValue(), {message: `Coons shown surface at ${label}`}).toBe(COONS_SHOWN[step - 1]);
+        await expect.poll(() => page.locator('[data-corner-status]').getAttribute('data-corner-status'), {message: `Coons corner status at ${label}`}).toBe(COONS_CORNERS[step - 1]);
+    },
+};
+
+const LESSONS = [segmentIntersections, rootFinding, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

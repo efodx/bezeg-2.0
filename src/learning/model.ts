@@ -265,6 +265,15 @@ export type LessonAction =
     | {readonly kind: 'hermite'; readonly operation: 'set-overlay'; readonly overlay: 'tangents' | 'bezier'; readonly visible: boolean}
     | {readonly kind: 'hermite'; readonly operation: 'add-point'}
     /**
+     * CoonsPatchGraph only (Coons patch, lesson D4): `set-shown` picks the surface the mesh shows (`lc`, `ld`, `b` or the blend `s`),
+     * `set-linked-corners` turns corner sharing on (the corner pairs snap to their average) or off, and `move-point` puts control
+     * point `index` (0 to 3) of the boundary `name` (`c0`, `c1`, `d0`, `d1`) at `xyz`, like a drag; with linked corners the other end point
+     * of a corner moves with it.
+     */
+    | {readonly kind: 'coons'; readonly operation: 'set-shown'; readonly shown: 'lc' | 'ld' | 'b' | 's'}
+    | {readonly kind: 'coons'; readonly operation: 'set-linked-corners'; readonly linked: boolean}
+    | {readonly kind: 'coons'; readonly operation: 'move-point'; readonly name: 'c0' | 'c1' | 'd0' | 'd1'; readonly index: number; readonly xyz: readonly [number, number, number]}
+    /**
      * SubdivisionCurveGraph only (Chaikin and four-point subdivision, lesson I5): `set-rule` picks the rule (it returns to round 0),
      * `set-closed` opens or closes the polygon (closing needs 3 points) and `set-overlay` shows or hides the Chaikin limit curve.
      * Each pauses playback; the rounds themselves are the `animation` actions of the id `interp-subdivision-rounds`.

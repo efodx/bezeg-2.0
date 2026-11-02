@@ -1,12 +1,13 @@
 import type React from "react";
 import type {PresetCollection} from "../base/presets/PresetCollection";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import BaseSurfaceGraph, {type SurfaceGraphOptions, type SurfaceGraphState} from "./BaseSurfaceGraph";
 import {
     type CoonsPanelActions, CoonsDisplayPanel, CoonsEditPanel, CoonsReadoutPanel, type CoonsSelection,
 } from "./CoonsPatchPanels";
 import {
-    buildCoonsScene, type CoonsBoundaryName, type CoonsBoundaryPoints, type CoonsShown, cloneCoonsBoundaries, coonsInteriorPoints, coonsMismatches,
-    coonsNet, coonsPointId, coonsSurfacePoint, defaultCoonsBoundaries, isCoonsCornerPoint, moveCoonsPoint, parseCoonsPointId, snapCoonsCorners,
+    buildCoonsScene, COONS_BOUNDARY_NAMES, type CoonsBoundaryName, type CoonsBoundaryPoints, type CoonsShown, cloneCoonsBoundaries, coonsInteriorPoints, coonsMismatches,
+    coonsNet, coonsPointId, coonsSurfacePoint, defaultCoonsBoundaries, isCoonsCornerPoint, isCoonsShown, moveCoonsPoint, parseCoonsPointId, snapCoonsCorners,
 } from "./coonsScene";
 import {coonsPresetCollection, type CoonsPatchDto, type CoonsPresetData} from "./coonsPresetCollection";
 import type {PatchCameraDto, Point3Dto} from "./patchDto";
@@ -169,6 +170,35 @@ export default class CoonsPatchGraph extends BaseSurfaceGraph<CoonsGraphState, C
     /** The authored az/el again, fitted to everything the view shows for the host's current shape. */
     resetView(): void {
         this.setSurfaceState({camera: fitCameraTo(this.framedPoints(), this.hostAspect(), toCamera(defaultDto().state?.camera ?? fromCamera(this.state.camera)))});
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------
+
+    /** A lesson scene starts from the default boundaries in a view fitted to the host's current shape, like the Reset view button. */
+    protected override prepareLessonDefaultScene(): void {
+        super.prepareLessonDefaultScene();
+        this.resetView();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("coons", action => {
+            if (action.operation === "set-shown") {
+                if (!isCoonsShown(action.shown)) throw new Error('The shown surface must be "lc", "ld", "b" or "s".');
+                this.setShown(action.shown);
+            } else if (action.operation === "set-linked-corners") {
+                if (typeof action.linked !== "boolean") throw new Error("A coons set-linked-corners action needs a boolean linked.");
+                this.setLinkedCorners(action.linked);
+            } else if (action.operation === "move-point") {
+                const name = COONS_BOUNDARY_NAMES.find(candidate => candidate === action.name);
+                if (name === undefined) throw new Error('The boundary must be "c0", "c1", "d0" or "d1".');
+                if (!Number.isInteger(action.index) || action.index < 0 || action.index > 3) throw new Error("The control point index must be 0, 1, 2 or 3.");
+                if (!Array.isArray(action.xyz) || action.xyz.length !== 3 || !action.xyz.every(Number.isFinite)) throw new Error("A coons move-point action needs xyz as three finite numbers.");
+                this.movePoint(coonsPointId(name, action.index), [action.xyz[0], action.xyz[1], action.xyz[2]]);
+            } else {
+                throw new Error("A coons action needs the operation set-shown, set-linked-corners or move-point.");
+            }
+        });
     }
 
     // ---- Panels ------------------------------------------------------------------------------------------------

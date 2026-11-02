@@ -52,3 +52,4 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-B-* | F2a–F6 | D2 Bézier clipping | Batch A, `G-CG`, AB-1d, convexity A6 (separating-axis test, pair-of-curves graph) | planned |
 | AB-C-* (rest) | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
 | AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | done ([evidence](../../reviews/advanced-bezier/ab-c-2a-graph.md)) |
+| AB-C-3 | F3 | D4 guided lesson (seven steps), `coons` lesson action kind, registration with interim owner `bezier-curves/geometric-properties`, smoke row | AB-C-2a | done ([evidence](../../reviews/advanced-bezier/ab-c-3-lesson.md)); chapter link stays with F4 |

@@ -93,6 +93,10 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'patch-subdivision': {chapterId: 'bezier-patches', sectionId: 'tensor-subdivision'},
     'patch-joins': {chapterId: 'bezier-patches', sectionId: 'tensor-joins'},
     'patch-triangular': {chapterId: 'bezier-patches', sectionId: 'triangular-patches'},
+    // Interim owner until the advanced-Bezier F4 slice links the Coons lesson into the Bezier patches chapter (patch-coons stays in
+    // CHAPTER_LINK_PENDING). bezier-patches is chapter-owned, so ?learn=1 resolves only lessons in its registry: owning patch-coons
+    // there before the link would open no lesson. The lesson builds on the Bezier curves' boundary control points.
+    'patch-coons': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {
