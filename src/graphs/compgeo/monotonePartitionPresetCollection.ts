@@ -25,12 +25,12 @@ export const MONOTONE_PARTITION_EXAMPLE_2: PointSetModel = polygonModel([[4, 0],
  * as the ear clipping graph does). `graphState` adds the step index `step` (any finite number; a stale index is clamped on
  * restore, not rejected) to the overlay switches. Playback status is never part of a Preset.
  */
-export function monotonePartitionPresetCollection(overlayIds: readonly string[]): PresetCollection<PointSetModel> {
-    const base = pointSetPresetCollection(MONOTONE_PARTITION_PRESET_KEY, overlayIds, {
+export function monotonePartitionPresetCollection(overlayIds: readonly string[], key: string = MONOTONE_PARTITION_PRESET_KEY): PresetCollection<PointSetModel> {
+    const base = pointSetPresetCollection(key, overlayIds, {
         pointLimit: SWEEP_MAX_POLYGON_VERTICES, coordinateLimit: SWEEP_COORD_LIMIT,
     });
     return Object.freeze({
-        key: MONOTONE_PARTITION_PRESET_KEY,
+        key,
         checkGraphState(graphState: unknown): Message | undefined {
             if (!isRecord(graphState)) return message("invalid_state");
             const {step, ...rest} = graphState;

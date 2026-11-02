@@ -100,8 +100,13 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
     /** The trace of the current polygon; recomputed only when the points change. */
     run(): PartitionRun {
         const points = this.model.points;
-        if (this.runMemo?.points !== points) this.runMemo = {points, run: runMonotonePartition(this.verticesForTrace())};
+        if (this.runMemo?.points !== points) this.runMemo = {points, run: this.buildRun(this.verticesForTrace())};
         return this.runMemo.run;
+    }
+
+    /** The run of a polygon; the triangulation graph (task 17) replaces it with its longer run. */
+    protected buildRun(vertices: readonly GridPoint[]): PartitionRun {
+        return runMonotonePartition(vertices);
     }
 
     override getInitialState(): MonotonePartitionGraphState {
@@ -276,7 +281,7 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
     override importPresetData(data: PointSetModel): void {
         const model = asClosedPolygon(serializePointSetModel(data));
         const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
-        const step = runMonotonePartition(model.points).clamp(stored ?? 0);
+        const step = this.buildRun(model.points).clamp(stored ?? 0);
         this.setState(this.patch({model, step}));
         this.controller.reset(step);
         this.requestRender();
@@ -286,7 +291,7 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         const merged = super.figurePresetGraphState(graphState);
         const model = asClosedPolygon(merged.model);
         const stored = "step" in merged ? parseHullStep(merged.step) : undefined;
-        const state: MonotonePartitionGraphState = {...merged, model, step: runMonotonePartition(model.points).clamp(stored ?? 0)};
+        const state: MonotonePartitionGraphState = {...merged, model, step: this.buildRun(model.points).clamp(stored ?? 0)};
         return state;
     }
 
@@ -409,11 +414,16 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         return <MonotonePartitionLists run={this.run()} step={this.step}/>;
     }
 
+    /** The playback controls, readouts and side lists; the triangulation graph (task 17) replaces them. */
+    protected sweepControls(): React.ReactNode {
+        return <MonotonePartitionControls run={this.run()} step={this.step} playing={this.controller.isPlaying()} actions={this.sweepActions}>
+            {this.sideLists()}
+        </MonotonePartitionControls>;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <MonotonePartitionControls run={this.run()} step={this.step} playing={this.controller.isPlaying()} actions={this.sweepActions}>
-                {this.sideLists()}
-            </MonotonePartitionControls>
+            {this.sweepControls()}
             {super.workspaceEdit()}
         </>;
     }

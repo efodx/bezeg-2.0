@@ -21,7 +21,7 @@ export interface MonotonePartitionControlsProps {
     children?: React.ReactNode;
 }
 
-type Translate = ReturnType<typeof useT>;
+export type Translate = ReturnType<typeof useT>;
 
 /** The adjective of a vertex type ("razcepno", for "oglišče"). */
 export function vertexTypeText(t: Translate, type: VertexType): string {
@@ -35,7 +35,7 @@ export function vertexTypeText(t: Translate, type: VertexType): string {
 }
 
 /** The reason of a type: where the two neighbours lie and how large the interior angle is. */
-function reasonText(t: Translate, type: VertexType): string {
+export function reasonText(t: Translate, type: VertexType): string {
     switch (type) {
         case "start": return t("monotonepartition_reason_start");
         case "end": return t("monotonepartition_reason_end");
@@ -45,7 +45,7 @@ function reasonText(t: Translate, type: VertexType): string {
     }
 }
 
-function refusalText(t: Translate, run: PartitionRun): string | undefined {
+export function refusalText(t: Translate, run: PartitionRun): string | undefined {
     const refusal = run.refusal;
     if (!refusal) return undefined;
     const vertex = refusal.index === undefined ? "" : vertexName(refusal.index);
@@ -63,7 +63,7 @@ function refusalText(t: Translate, run: PartitionRun): string | undefined {
     }
 }
 
-function noteText(t: Translate, event: PartitionEventInfo, run: PartitionRun, type: VertexType | null): string {
+export function noteText(t: Translate, event: PartitionEventInfo, run: PartitionRun, type: VertexType | null): string {
     switch (event.note) {
         case "phase": return t("monotonepartition_note_phase");
         case "pop": return t("monotonepartition_note_pop", {value0: vertexName(event.vertex ?? 0), value1: type ? vertexTypeText(t, type) : ""});

@@ -89,7 +89,11 @@ function eventInfo(result: MonotonePartition, index: number, statusSize: number)
 /** Builds the run of `vertices`. Never throws on input: a refused polygon gives an empty run that carries the refusal. */
 export function runMonotonePartition(vertices: readonly GridPoint[]): PartitionRun {
     const result = monotonePartitionTrace(vertices);
-    if (!result.ok) return emptyRun(vertices, result);
+    return result.ok ? partitionRunOf(vertices, result) : emptyRun(vertices, result);
+}
+
+/** The run of an accepted kernel result, so that a caller that already holds one (task 17) does not trace twice. */
+export function partitionRunOf(vertices: readonly GridPoint[], result: MonotonePartition): PartitionRun {
     const n = vertices.length;
     const length = result.trace.length;
     const typeCounts: Record<VertexType, number> = {start: 0, end: 0, split: 0, merge: 0, regular: 0};

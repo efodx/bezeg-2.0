@@ -45,7 +45,7 @@ S1 and triangulation T1 are released, so C4 makes the ear-clipping contrast. The
 | 14 | [Monotone partition kernel](14-monotone-partition-kernel.md) | F1 | 02 | accepted 2026-11-02 (handler 33): mathematical review |
 | 15 | [Monotone triangulation kernel](15-monotone-triangulation-kernel.md) | F1 | 14, triangulation 06 | accepted 2026-11-02 (handler 33): mathematical review |
 | 16 | [Monotone partition graph](16-monotone-partition-graph.md) | F2a | 14, 09, triangulation 07 | accepted 2026-11-02 |
-| 17 | [Monotone triangulation graph](17-monotone-triangulation-graph.md) | F2a | 15, 16 | planned |
+| 17 | [Monotone triangulation graph](17-monotone-triangulation-graph.md) | F2a | 15, 16 | accepted 2026-11-02 (handler 35, [record](../../reviews/sweep-algorithms/17-acceptance.md)) |
 | 18 | [S2 registration](18-s2-registration.md) | F2b | 16, 17 | planned |
 | 19 | [Monotone partition lesson C3](19-monotone-partition-lesson.md) | F3 | 16, 18 | planned |
 | 20 | [Monotone triangulation lesson C4](20-monotone-triangulation-lesson.md) | F3 | 17, 18, 19 | planned |

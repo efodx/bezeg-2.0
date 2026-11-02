@@ -1,6 +1,6 @@
 # 17 — Monotone triangulation graph (C4)
 
-Status: planned 2026-11-02 (geometry handler 26). Source: [spec C4](../../specs/sweep-algorithms-lessons.md#c4-triangulating-a-monotone-polygon) (steps, capabilities, acceptance 1, 3–5), common criteria C-1–C-7. Kind: F2a (no route, no registration), engineering, mathematical (counts) and UI/accessibility review. Depends on 15 (`partitionAndTriangulate`) and 16 (`MonotonePartitionGraph`, run module, side lists).
+Status: accepted 2026-11-02 (geometry handler 35, [record](../../reviews/sweep-algorithms/17-acceptance.md)); planned 2026-11-02 (geometry handler 26). Source: [spec C4](../../specs/sweep-algorithms-lessons.md#c4-triangulating-a-monotone-polygon) (steps, capabilities, acceptance 1, 3–5), common criteria C-1–C-7. Kind: F2a (no route, no registration), engineering, mathematical (counts) and UI/accessibility review. Depends on 15 (`partitionAndTriangulate`) and 16 (`MonotonePartitionGraph`, run module, side lists).
 
 `MonotoneTriangulationGraph extends MonotonePartitionGraph` in `src/graphs/compgeo/`. It steps through the combined trace of task 15: the partition events first (drawn as in task 16), then each piece's triangulation.
 
