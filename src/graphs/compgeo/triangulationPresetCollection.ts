@@ -72,10 +72,10 @@ export function triangulationRejection(points: readonly GridPoint[], triangles: 
  * coordinates in range, checked like any point set) plus `triangles`, which must be a valid counter-clockwise triangulation of
  * the stored points. `graphState` carries only the overlay switches: the triangle list is stored once, in `data`.
  */
-export function triangulationPresetCollection(overlayIds: readonly string[]): PresetCollection<PointSetModel> {
-    const base = pointSetPresetCollection(TRIANGULATION_PRESET_KEY, overlayIds, {pointLimit: TRIANGULATION_MAX_POINTS});
+export function triangulationPresetCollection(overlayIds: readonly string[], key: string = TRIANGULATION_PRESET_KEY): PresetCollection<PointSetModel> {
+    const base = pointSetPresetCollection(key, overlayIds, {pointLimit: TRIANGULATION_MAX_POINTS});
     return Object.freeze({
-        key: TRIANGULATION_PRESET_KEY,
+        key,
         checkGraphState(graphState: unknown): Message | undefined {
             return base.checkGraphState?.(graphState);
         },
