@@ -8,6 +8,7 @@ import {triangulationChapter} from './triangulationChapter';
 import {sweepChapter} from './sweepChapter';
 import {numericalChapter} from './numericalChapter';
 import {fourierChapter} from './fourierChapter';
+import {projectiveConicsChapter} from './projectiveConicsChapter';
 import {bsplineChapter} from './bsplineChapter';
 import {schoolFunctionGraphsChapter} from './schoolFunctionGraphsChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
@@ -309,6 +310,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     triangulationChapter, // Computational geometry batch T1: the ear clipping lesson of compgeoGuidedLessons.ts.
     sweepChapter, // Computational geometry batch S1: the interval sweep and segment intersection lessons of compgeoGuidedLessons.ts.
     triangleGeometryChapter, // Plane geometry batch A: activities live in triangleGeometryChapterLessons.ts.
+    projectiveConicsChapter, // Plane geometry, projective conics batch A: the cross-ratio, Pascal and pole-polar lessons (K1 to K3) of projectiveConicsGuidedLessons.ts.
     {
         id: 'functions-and-calculus', family: '/bezeg-2.0/functions',
         title: text('Funkcije in računanje', 'Functions and calculus'),

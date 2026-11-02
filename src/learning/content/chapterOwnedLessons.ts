@@ -6,6 +6,7 @@ import {TRIANGULATION_CHAPTER_ID} from './triangulationChapterId';
 import {SWEEP_CHAPTER_ID} from './sweepChapterId';
 import {NUMERICAL_CHAPTER_ID} from './numericalChapterId';
 import {FOURIER_CHAPTER_ID} from './fourierChapterId';
+import {PROJECTIVE_CONICS_CHAPTER_ID} from './projectiveConicsChapterId';
 import {BSPLINE_CHAPTER_ID} from './bsplineChapterId';
 import {SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID} from './schoolFunctionGraphsChapterId';
 import {convexityGuidedExampleRegistry, convexityGuidedExamplePath} from './convexityChapterRegistry';
@@ -13,6 +14,7 @@ import {triangulationGuidedExampleRegistry, triangulationGuidedExamplePath} from
 import {sweepGuidedExampleRegistry, sweepGuidedExamplePath} from './sweepChapterRegistry';
 import {numericalGuidedExampleRegistry, numericalGuidedExamplePath} from './numericalChapterRegistry';
 import {fourierGuidedExampleRegistry, fourierGuidedExamplePath} from './fourierChapterRegistry';
+import {projectiveConicsGuidedExampleRegistry, projectiveConicsGuidedExamplePath} from './projectiveConicsChapterRegistry';
 import {bsplineGuidedExampleRegistry, bsplineGuidedExamplePath} from './bsplineChapterRegistry';
 import {schoolFunctionGraphsGuidedExampleRegistry, schoolFunctionGraphsGuidedExamplePath} from './schoolFunctionGraphsChapterRegistry';
 import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAPS_CHAPTER_ID} from './linearMapsChapterRegistry';
@@ -52,6 +54,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID]: ownedLessons(() => schoolFunctionGraphsGuidedExampleRegistry, sectionId => schoolFunctionGraphsGuidedExamplePath(sectionId)),
     [COMPLEX_MAPS_CHAPTER_ID]: ownedLessons(complexMapsGuidedExampleRegistry, complexMapsGuidedExamplePath),
     [TRIANGLE_GEOMETRY_CHAPTER_ID]: ownedLessons(triangleGeometryGuidedExampleRegistry, triangleGeometryGuidedExamplePath),
+    [PROJECTIVE_CONICS_CHAPTER_ID]: ownedLessons(() => projectiveConicsGuidedExampleRegistry, sectionId => projectiveConicsGuidedExamplePath(sectionId)),
 };
 
 export function getChapterOwnedLessons(chapterId: string): ChapterOwnedLessons | undefined {
