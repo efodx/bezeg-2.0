@@ -9,7 +9,7 @@ Handler 22 wrote this on 2026-11-02. It replaces [handoff 21](handler-handoff-21
 
 ## Branch state: committed, pushed to the branch only, NOT on master
 
-Branch `worktree-stream-curves` on `origin` holds the two commits below and this note. They are **not on `master`**, because the system stopped the broad unit run and the build for low memory before they finished (no failure in the partial log). The successor reruns them first.
+Local branch `worktree-stream-curves` holds the two commits below and this note; they are pushed to `origin/curves-handler-22` (the remote `worktree-stream-curves` has diverged and was not force-pushed). They are **not on `master`**, because the system stopped the broad unit run and the build for low memory before they finished (no failure in the partial log). The successor reruns them first.
 
 | Commit | Slice | Checks run |
 | --- | --- | --- |
