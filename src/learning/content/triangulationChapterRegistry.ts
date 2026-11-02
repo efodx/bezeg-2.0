@@ -10,6 +10,7 @@ export {TRIANGULATION_CHAPTER_ID};
 /** Section id to the Demonstration whose reviewed lesson (compgeoGuidedLessons.ts) the section owns. The opening section owns none. */
 const sectionDemonstrations = {
     'ear-clipping': 'ear-clipping',
+    'point-set-triangulation': 'point-set-triangulation',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type TriangulationSectionId = keyof typeof sectionDemonstrations;

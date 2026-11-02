@@ -83,6 +83,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'convex-hull': {chapterId: 'convexity-hulls', sectionId: 'convex-hull'},
     // The Triangulations and Voronoi chapter owns the ear clipping lesson (batch T1).
     'ear-clipping': {chapterId: 'triangulations-voronoi', sectionId: 'ear-clipping'},
+    // The chapter's own section for counting the triangles of a point-set triangulation (lesson B2).
+    'point-set-triangulation': {chapterId: 'triangulations-voronoi', sectionId: 'point-set-triangulation'},
     // Interim owners until a Curve geometry chapter exists: trace versus parameter belongs with parametrization, curvature with the geometric properties of a curve.
     'curve-parametric': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
     'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},

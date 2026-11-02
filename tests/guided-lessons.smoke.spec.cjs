@@ -1743,6 +1743,19 @@ const earClipping = {
     },
 };
 
+// Point-set triangulation: the point count n of the readout per lesson step 1..7 (seven points; nine after the inside and outside points of step 5; seven for the Delaunay comparison; the nine hull-lesson points).
+const TRI_POINTS = ['7', '7', '7', '7', '9', '7', '9'];
+const pointSetTriangulation = {
+    id: 'point-set-triangulation',
+    path: `${BASE}/compgeo/point-set-triangulation`,
+    titles: {sl: 'Triangulacija množice točk', en: 'Triangulating a set of points'},
+    steps: 7,
+    minFrames: 16, // 2 frames per step, 3 on steps 3 and 7 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => ((await page.locator('[data-triangulation="readout"] [data-readout="n"]').textContent()) || '').match(/\d+/)?.[0], {message: `triangulation point count at ${label}`}).toBe(TRI_POINTS[step - 1]);
+    },
+};
+
 // Curve geometry L1/L2: a text of the board (the readout) that must show per lesson step 1..7; the patterns accept the Slovenian comma and the English point.
 const boardText = (page, pattern) => page.locator('.JXGtext').filter({hasText: pattern});
 const PARAMETRIC_READOUTS = [/\(ost\)|\(cusp\)/, /\(1, 1\).*1[.,]4142/s, /9[.,]4248/, /3[.,]1416/, /\([-−]1, [-−]1\)/, /\(ost\)|\(cusp\)/, /8\b.*9[.,]4248/s];
@@ -1941,7 +1954,7 @@ const bsplineDeBoor = {
     minFrames: 12, // at least 2 frames per step
 };
 
-const LESSONS = [bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
