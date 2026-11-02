@@ -20,3 +20,7 @@ Worktree: C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\agent-abea8347
 - `board.canvasWidth/Height` used in resetView; check typing worked (tsc clean) and behaviour in jsdom.
 - A Preset lacking cellSite/construction/query keeps stale values from the previous scene.
 - Query keyboard moves are panel buttons plus text inputs, not board arrow keys.
+
+## Fix round
+
+Review items 1-6 done in VoronoiGraph.tsx, VoronoiControls.tsx, DelaunayGraph.tsx, sl.ts/en.ts, VoronoiGraph.host.test.tsx (6 new tests, 9 mutations each caught). Checks: compgeo unit, localization unit, tsc, lint, build all passed.

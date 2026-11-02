@@ -38,6 +38,7 @@ beforeEach(() => {
 class Observed extends VoronoiGraph {
     liveBoard() { return this.board; }
     box() { return this['drawBox'](); }
+    queryTextOf() { return this['queryText']; }
 }
 
 type Shown = {elType: string; center?: {X(): number; Y(): number}; Radius?(): number; name?: string; plaintext?: string; X?: () => number; Y?: () => number; dataX?: number[]; dataY?: number[]; visProp?: Record<string, unknown>};
@@ -510,4 +511,98 @@ test('the starting view frames the example sites', () => {
         const at = gridToBoard(p, 0);
         expect(at.x >= left && at.x <= right && at.y >= bottom && at.y <= top).toBe(true);
     }
+});
+
+describe('review fixes', () => {
+    const field = (axis: 'x' | 'y') => document.querySelector(`[data-voronoi="query-${axis}"]`) as HTMLInputElement;
+
+    test('a bare importPresetData resets the site, count and query; the Preset route still carries them', () => {
+        const graph = new Observed();
+        mount(graph);
+        act(() => { graph.selectSite(2); });
+        click('construct-next');
+        click('query-right');
+        expect([graph.cellSite, graph.construction, graph.query.x.format()]).toEqual([2, 1, '9/2']);
+        act(() => { graph.importPresetData(serializePointSetModel(VORONOI_EXAMPLE)); });
+        expect(graph.cellSite).toBeNull();
+        expect(graph.construction).toBe(0);
+        expect(graph.queryTextOf()).toEqual(VORONOI_DEFAULT_QUERY);
+        // a second bare import must not reuse an earlier Preset's values either
+        act(() => { graph.importPreset({id: VORONOI_PRESET_KEY, graphState: {initialized: true, ...{cellSite: 3, construction: 2, query: {x: '1', y: '1'}}}, data: serializePointSetModel(VORONOI_EXAMPLE)}); });
+        expect([graph.cellSite, graph.construction, graph.queryTextOf()]).toEqual([3, 2, {x: '1', y: '1'}]);
+        act(() => { graph.importPresetData(serializePointSetModel(VORONOI_EXAMPLE)); });
+        expect([graph.cellSite, graph.construction, graph.queryTextOf()]).toEqual([null, 0, VORONOI_DEFAULT_QUERY]);
+    });
+
+    test('the typing error clears on another move of the query point and on editing; the inputs point at it', () => {
+        const graph = new Observed();
+        mount(graph);
+        act(() => { fireEvent.change(field('x'), {target: {value: 'zz'}}); });
+        click('query-set');
+        const message = document.querySelector('[data-voronoi="query-invalid"]')!;
+        expect(message.textContent).toContain('3,5');
+        expect(field('x').getAttribute('aria-describedby')).toBe(message.id);
+        expect(field('y').getAttribute('aria-describedby')).toBe(message.id);
+        click('query-right');
+        expect(document.querySelector('[data-voronoi="query-invalid"]')).toBeNull();
+        expect(field('x').getAttribute('aria-invalid')).toBe('false');
+        act(() => { fireEvent.change(field('x'), {target: {value: 'zz'}}); });
+        click('query-set');
+        expect(document.querySelector('[data-voronoi="query-invalid"]')).not.toBeNull();
+        act(() => { fireEvent.change(field('x'), {target: {value: '1'}}); });
+        expect(document.querySelector('[data-voronoi="query-invalid"]')).toBeNull();
+        act(() => { fireEvent.change(field('x'), {target: {value: 'zz'}}); });
+        click('query-set');
+        click('reset-example');
+        expect(document.querySelector('[data-voronoi="query-invalid"]')).toBeNull();
+        expect(field('x').getAttribute('aria-describedby')).toBeNull();
+    });
+
+    test('the query answer is announced, and a move refused at the limit shows and announces a message', () => {
+        const graph = new Observed();
+        mount(graph);
+        expect(live()).toContain('Točka poizvedbe: (4, 2).');
+        expect(live()).toContain(part('query-nearest')!);
+        click('query-right');
+        expect(live()).toContain('(9/2, 2)');
+        act(() => { graph.setQueryText(String(graph.coordinateLimit), '0'); });
+        click('query-right');
+        const limit = String(graph.coordinateLimit);
+        const shown = document.querySelector('[data-voronoi="query-invalid"]');
+        expect(shown?.textContent).toContain(limit);
+        expect(live()).toContain(shown!.textContent!);
+        click('query-left');
+        expect(document.querySelector('[data-voronoi="query-invalid"]')).toBeNull();
+    });
+
+    test('the chosen site carries a ring marker from count 0, removed with the choice', () => {
+        const graph = new Observed();
+        mount(graph);
+        expect(named(graph, 'voronoi-chosen-site')).toHaveLength(0);
+        act(() => { graph.selectSite(1); });
+        const ring = named(graph, 'voronoi-chosen-site');
+        expect(ring).toHaveLength(1);
+        expect([ring[0].X!(), ring[0].Y!()]).toEqual([graph.model.points[1].x, graph.model.points[1].y]);
+        click('construct-next');
+        expect(named(graph, 'voronoi-chosen-site')).toHaveLength(1);
+        act(() => { graph.selectSite(null); });
+        expect(named(graph, 'voronoi-chosen-site')).toHaveLength(0);
+    });
+
+    test('the triangle list follows the overlay switch in the DOM; the selected vertex differs from the degree-4 diamond', () => {
+        const graph = new Observed();
+        mount(graph);
+        act(() => { fireEvent.click(overlaySwitch()); });
+        const list = document.querySelector('[data-voronoi="triangles"]')!;
+        expect(overlaySwitch().compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        act(() => { fireEvent.click(triangleButton(0)); });
+        const face = (name: string) => named(graph, name)[0]?.visProp?.face;
+        expect(face('voronoi-selected-vertex')).not.toBe('diamond');
+    });
+
+    test('the query inputs are labelled with the point they belong to', () => {
+        mount(new Observed());
+        expect(field('x').closest('label')!.textContent).toContain('Točka poizvedbe, x');
+        expect(field('y').closest('label')!.textContent).toContain('Točka poizvedbe, y');
+    });
 });

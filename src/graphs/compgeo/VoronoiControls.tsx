@@ -29,6 +29,8 @@ export interface VoronoiStatus {
     construction?: {count: number; total: number; other?: number; done: boolean};
     query: {x: string; y: string; nearest: readonly number[]};
     coordinateLimit: number;
+    /** The last move of the query point (arrows or drag) was refused beyond the coordinate limit. */
+    queryRefused: boolean;
     overlayShown: boolean;
     triangles: readonly (readonly [number, number, number])[];
     selectedTriangle?: number;
@@ -49,23 +51,49 @@ const triple = (corners: readonly number[]) => {
 };
 
 /** Typed query coordinates; a valid pair commits when the button is pressed or Enter is typed. */
-function QueryFields(props: {x: string; y: string; limit: number; onSet: (x: string, y: string) => boolean}) {
+function QueryFields(props: {x: string; y: string; invalid: boolean; message: string; onInvalid: (invalid: boolean) => void; onSet: (x: string, y: string) => boolean}) {
     const t = useT();
     const [draft, setDraft] = useState<{x: string; y: string; from: string}>({x: props.x, y: props.y, from: `${props.x}|${props.y}`});
     const from = `${props.x}|${props.y}`;
     // A new position from the graph (drag, arrows, Reset) replaces the draft; adjusted during render, not in an effect.
     if (draft.from !== from) setDraft({x: props.x, y: props.y, from});
-    const [invalid, setInvalid] = useState(false);
-    const commit = () => setInvalid(!props.onSet(draft.x, draft.y));
+    const commit = () => props.onInvalid(!props.onSet(draft.x, draft.y));
     const key = (event: React.KeyboardEvent) => { if (event.key === "Enter") commit(); };
+    const edit = (next: {x: string; y: string}) => { setDraft({...draft, ...next}); props.onInvalid(false); };
+    const described = props.invalid ? "voronoi-query-invalid" : undefined;
     return <>
-        <label>{t("vor_query_x")} <input type="text" inputMode="text" data-voronoi="query-x" value={draft.x}
-                                       aria-invalid={invalid} onKeyDown={key} onChange={e => setDraft({...draft, x: e.target.value})}/></label>
-        <label>{t("vor_query_y")} <input type="text" inputMode="text" data-voronoi="query-y" value={draft.y}
-                                       aria-invalid={invalid} onKeyDown={key} onChange={e => setDraft({...draft, y: e.target.value})}/></label>
+        <label>{t("vor_query_x")} <input type="text" inputMode="text" data-voronoi="query-x" value={draft.x} aria-invalid={props.invalid} aria-describedby={described}
+                                       onKeyDown={key} onChange={e => edit({x: e.target.value, y: draft.y})}/></label>
+        <label>{t("vor_query_y")} <input type="text" inputMode="text" data-voronoi="query-y" value={draft.y} aria-invalid={props.invalid} aria-describedby={described}
+                                       onKeyDown={key} onChange={e => edit({x: draft.x, y: e.target.value})}/></label>
         <button type="button" data-action="query-set" onClick={commit}>{t("vor_query_set")}</button>
-        {invalid && <p className="inspector-help" role="alert" data-voronoi="query-invalid">{t("vor_query_invalid", {value0: props.limit})}</p>}
+        {props.message && <p id="voronoi-query-invalid" className="inspector-help" role="alert" data-voronoi="query-invalid">{props.message}</p>}
     </>;
+}
+
+const vertexTextOf = (t: ReturnType<typeof useT>, vertex: VoronoiStatus["selectedVertex"]) => vertex
+    ? t("vor_tri_vertex", {...triple(vertex.corners), value3: vertex.x, value4: vertex.y, value5: siteList(vertex.sites)})
+    : undefined;
+
+/** The triangles of the Delaunay overlay and the selected triangle's Voronoi vertex; placed after the overlay switch. */
+export function VoronoiTriangles(props: VoronoiControlsProps) {
+    const t = useT();
+    const {status, actions} = props;
+    const selectedVertex = status.selectedVertex;
+    const vertexText = vertexTextOf(t, selectedVertex);
+    if (!status.overlayShown || status.triangles.length === 0) return null;
+    return <div className="inspector-group">
+        <div className="inspector-playback" role="group" aria-label={t("vor_triangles_label")} data-voronoi="triangles">
+            {status.triangles.map((corners, index) => (
+                <button type="button" key={corners.join("-")} data-triangle={index} aria-pressed={status.selectedTriangle === index}
+                        onClick={() => actions.selectTriangle(status.selectedTriangle === index ? undefined : index)}>
+                    {t("del_tri_item", triple(corners))}</button>
+            ))}
+            <button type="button" data-action="clear-triangle" aria-disabled={selectedVertex === undefined}
+                    onClick={() => { if (selectedVertex) actions.selectTriangle(undefined); }}>{t("del_tri_clear")}</button>
+        </div>
+        {vertexText && <p className="inspector-help" data-voronoi="selected-vertex">{vertexText}</p>}
+    </div>;
 }
 
 /** The readouts, the cell construction, the query point and the duality triangle list of the Voronoi graph. */
@@ -73,6 +101,10 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     const t = useT();
     const {status, actions} = props;
     const {counts, construction} = status;
+    const [invalid, setInvalid] = useState(false);
+    const [seenAt, setSeenAt] = useState(`${status.query.x}|${status.query.y}`);
+    // Any committed move of the query point, by whatever route, retires an earlier typing error.
+    if (seenAt !== `${status.query.x}|${status.query.y}`) { setSeenAt(`${status.query.x}|${status.query.y}`); setInvalid(false); }
     const refusal = status.refusal;
     const refusalText = refusal
         ? refusal.kind === "few" ? t("vor_refused_few") : t("vor_refused_duplicate", {value0: refusal.sites[0] + 1, value1: refusal.sites[1] + 1})
@@ -82,9 +114,9 @@ export function VoronoiControls(props: VoronoiControlsProps) {
         ? t("vor_query_nearest", {value0: nearest[0] + 1})
         : t("vor_query_tie", {value0: siteList(nearest)});
     const selectedVertex = status.selectedVertex;
-    const vertexText = selectedVertex
-        ? t("vor_tri_vertex", {...triple(selectedVertex.corners), value3: selectedVertex.x, value4: selectedVertex.y, value5: siteList(selectedVertex.sites)})
-        : undefined;
+    const vertexText = vertexTextOf(t, selectedVertex);
+    const queryMessage = invalid || status.queryRefused ? t("vor_query_invalid", {value0: status.coordinateLimit}) : "";
+    const queryAnswer = refusal ? undefined : `${t("vor_query_at", {value0: status.query.x, value1: status.query.y})} ${queryText}`;
     const stepText = !construction || status.cellSite === null ? t("vor_construct_none")
         : construction.count === 0 ? t("vor_construct_start", {value0: status.cellSite + 1, value1: construction.total})
         : construction.done ? t("vor_construct_done", {value0: status.cellSite + 1, value1: construction.count})
@@ -135,7 +167,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             <p className="inspector-help" data-voronoi="construction">{stepText}</p>
         </div>}
         <div className="inspector-group" role="group" aria-label={t("vor_query_group")}>
-            <QueryFields x={status.query.x} y={status.query.y} limit={status.coordinateLimit} onSet={actions.setQuery}/>
+            <QueryFields x={status.query.x} y={status.query.y} invalid={invalid} message={queryMessage} onInvalid={setInvalid} onSet={actions.setQuery}/>
             <div className="inspector-playback" role="group" aria-label={t("vor_query_move_group")}>
                 <button type="button" data-action="query-left" onClick={() => actions.moveQuery(-1, 0)}>{t("vor_query_left")}</button>
                 <button type="button" data-action="query-right" onClick={() => actions.moveQuery(1, 0)}>{t("vor_query_right")}</button>
@@ -145,19 +177,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             <p className="inspector-help" data-voronoi="query-at">{t("vor_query_at", {value0: status.query.x, value1: status.query.y})}</p>
             {queryText && <p className="inspector-help" data-voronoi="query-nearest">{queryText}</p>}
         </div>
-        {status.overlayShown && status.triangles.length > 0 && <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("vor_triangles_label")} data-voronoi="triangles">
-                {status.triangles.map((corners, index) => (
-                    <button type="button" key={corners.join("-")} data-triangle={index} aria-pressed={status.selectedTriangle === index}
-                            onClick={() => actions.selectTriangle(status.selectedTriangle === index ? undefined : index)}>
-                        {t("del_tri_item", triple(corners))}</button>
-                ))}
-                <button type="button" data-action="clear-triangle" aria-disabled={selectedVertex === undefined}
-                        onClick={() => { if (selectedVertex) actions.selectTriangle(undefined); }}>{t("del_tri_clear")}</button>
-            </div>
-            {vertexText && <p className="inspector-help" data-voronoi="selected-vertex">{vertexText}</p>}
-        </div>}
         <p className="visually-hidden" role="status" aria-live="polite" data-voronoi-live="">
-            {[overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined].filter(Boolean).join(" ")}</p>
+            {[overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined, queryAnswer, queryMessage].filter(Boolean).join(" ")}</p>
     </>;
 }
