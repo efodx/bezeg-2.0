@@ -4,8 +4,8 @@ Written 2026-11-02 by handler 32 (Opus 5.5, auto). It continues [handoff 31](han
 
 ## Where things are
 
-- **Master:** this note's commit, on top of 16a (`956c3aef`) and its docs (`acf0a0d7`).
-- **WIP branch:** `origin/stream-geometry-wip-pc-switch` at `d206686b`. It is one commit on top of `acf0a0d7` and holds the 614 files that were untracked under `docs/reviews/`:
+- **Master:** this note's commit, on top of 16a (`0426be42`) and its docs (`55e498d3`); master `94adb1c1` is the note's commit.
+- **WIP branch:** `origin/stream-geometry-wip-pc-switch` at `173a00ed`. It is one commit on top of master `94adb1c1` and holds the 614 files that were untracked under `docs/reviews/`:
   - worker briefs: `triangulation-voronoi/16a-brief.md`, `16b-brief.md`;
   - the worker handoff `triangulation-voronoi/16b-handoff.md`;
   - logs, mutation evidence and perf captures.
@@ -22,12 +22,12 @@ Written 2026-11-02 by handler 32 (Opus 5.5, auto). It continues [handoff 31](han
 - **Posters checked (item 1 of handoff 31).**
   - Joint capture `bbcd8a34`: `point-set-triangulation` and `delaunay` have the 720:440 aspect, so units are equal.
   - The Delaunay circle is round, and "neustrezen rob" sits inside it, clear of it. No label change was needed.
-- **16a accepted** (`956c3aef`, Delaunay lesson actions):
+- **16a accepted** (`0426be42`, Delaunay lesson actions):
   - trace commands;
   - `set-trace-step`;
   - new `point-set` `select-triangle`.
   - Evidence and the reachability decision are in [task 16](../../../tasks/triangulation-voronoi/16-delaunay-lesson.md#evidence-handler-32-2026-11-02-16a-the-actions).
-  - Checks after the rebase onto `5ad01ae9`: tsc; focused unit tests (`Delaunay*`, `Triangulation*`, `EarClipping*`, `lessonCatalog`) passed. The worker also ran eslint and `just unit src/graphs/compgeo src/learning/runtime`.
+  - Checks after the rebase onto `56a9671e`: tsc; focused unit tests (`Delaunay*`, `Triangulation*`, `EarClipping*`, `lessonCatalog`) passed. The worker also ran eslint and `just unit src/graphs/compgeo src/learning/runtime`.
   - The full suite was not run after 16a. Run it once with 16b.
 
 ## Next step, exactly
