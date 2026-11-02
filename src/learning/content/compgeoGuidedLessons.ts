@@ -830,6 +830,216 @@ const earClipping: GuidedLesson = {
 };
 
 /**
+ * Point-set triangulation lesson (docs/specs/triangulation-voronoi-lessons.md, B2). The scenes use the `point-set` actions
+ * (`set-points`, `set-overlay`, `set-triangulation`, `flip-edge`, `select-edge`) of `TriangulationGraph`;
+ * `compgeoPointSetTriangulationLesson.test.ts` checks every quoted value against the real graph's readout. The points are labelled
+ * P1 to P7 on the graph (index + 1), so the prose says P1 to P7 where the spec says p0 to p6.
+ */
+export const TRI_EXAMPLE_POINTS: readonly LessonPoint[] = [[0, 0], [8, 0], [9, 6], [4, 8], [-1, 5], [3, 3], [6, 3]];
+/** The starting triangulation T0 of the example, by point index. */
+export const TRI_T0: readonly (readonly [number, number, number])[] = [[1, 2, 6], [1, 5, 4], [1, 6, 5], [2, 3, 4], [4, 0, 1], [4, 5, 6], [6, 2, 4]];
+/** The Delaunay triangulation of the example, by point index (taken from `delaunayTriangulation`; the test recomputes it). */
+export const TRI_DELAUNAY: readonly (readonly [number, number, number])[] = [[4, 0, 5], [5, 3, 4], [0, 1, 5], [5, 6, 3], [1, 6, 5], [1, 2, 6], [2, 3, 6]];
+/** The flipped edge of step 4 (P2-P5, legal) and the edge it shows refused (P2-P7, not a convex quadrilateral). */
+export const TRI_FLIP_EDGE: readonly [number, number] = [1, 4];
+export const TRI_REFUSED_EDGE: readonly [number, number] = [1, 6];
+/** Step 5: one point inside a triangle (P8) and one outside the hull (P9). */
+export const TRI_INSIDE_POINT: LessonPoint = [6, 2];
+export const TRI_OUTSIDE_POINT: LessonPoint = [10, 1];
+/** The nine points of the hull lesson (sample 1): k = 6 with one collinear boundary point. */
+export const TRI_NINE_POINTS: readonly LessonPoint[] = [[2, 2], [4, 0], [0, 0], [5, 3], [2, 5], [-1, 3], [3, 1], [2, 0], [1, 1]];
+
+type TriOverlay = 'triangulation' | 'edges' | 'angles';
+const TRI_OVERLAYS: readonly TriOverlay[] = ['triangulation', 'edges', 'angles'];
+const setTriangulation = (triangles: readonly (readonly [number, number, number])[]): LessonAction => ({kind: 'point-set', operation: 'set-triangulation', triangles});
+const flipEdge = (edge: readonly [number, number]): LessonAction => ({kind: 'point-set', operation: 'flip-edge', edge});
+const selectEdge = (edge: readonly [number, number]): LessonAction => ({kind: 'point-set', operation: 'select-edge', edge});
+/** A triangulation scene framed on its points: the points, exactly the listed overlays, then the step actions. */
+const triScene = (id: string, list: readonly LessonPoint[], shown: readonly TriOverlay[], steps: readonly LessonAction[], sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view: earView(list), actions: [points(list), ...TRI_OVERLAYS.map(name => overlay(name, shown.includes(name))), ...steps], expectedState: text(sl, en)});
+
+const pointSetTriangulation: GuidedLesson = {
+    demonstrationId: 'point-set-triangulation',
+    title: text('Triangulacija množice točk', 'Triangulating a set of points'),
+    summary: text(
+        'Vse triangulacije iste množice \\(n\\) točk, od katerih jih je \\(k\\) na robu konveksne ovojnice, imajo \\(2n-2-k\\) trikotnikov in \\(3n-3-k\\) robov; zamenjava roba spremeni trikotnike, ne pa teh števil.',
+        'All triangulations of the same set of \\(n\\) points, \\(k\\) of which lie on the boundary of the convex hull, have \\(2n-2-k\\) triangles and \\(3n-3-k\\) edges; flipping an edge changes the triangles but not these numbers.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o konveksni ovojnici: število \\(k\\) točk na robu ovojnice pove število trikotnikov.', 'The lesson on the convex hull is required: the number \\(k\\) of points on the hull boundary gives the number of triangles.'),
+        text('Priporočeno je znanje iz lekcije o rezanju ušes, kjer spoznamo, kaj je triangulacija.', 'Recommended is the lesson on ear clipping, which shows what a triangulation is.'),
+    ],
+    learningGoals: [
+        text('Prešteješ trikotnike in robove triangulacije množice točk s formulama \\(2n-2-k\\) in \\(3n-3-k\\).', 'Count the triangles and edges of a triangulation of a point set with the formulas \\(2n-2-k\\) and \\(3n-3-k\\).'),
+        text('Z zamenjavo roba spremeniš triangulacijo in ugotoviš, da se števila ne spremenijo; razložiš, zakaj nekaterih robov ni mogoče zamenjati.', 'Flip an edge to change the triangulation, find that the counts stay the same, and explain why some edges cannot be flipped.'),
+        text('Primerjaš najmanjši kot dveh triangulacij iste množice točk.', 'Compare the smallest angle of two triangulations of the same point set.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'tri-count-formula',
+            latex: 'T=2n-2-k,\\qquad E=3n-3-k',
+            notation: text(
+                '\\(n\\) je število točk, \\(k\\) število točk na robu konveksne ovojnice (štejejo tudi kolinearne), \\(T\\) število trikotnikov in \\(E\\) število robov.',
+                '\\(n\\) is the number of points, \\(k\\) the number of points on the boundary of the convex hull (collinear ones count too), \\(T\\) the number of triangles and \\(E\\) the number of edges.',
+            ),
+            explanation: text(
+                'Vsota notranjih kotov vseh trikotnikov je \\(180^\\circ\\,T\\). Vsaka od \\(n-k\\) točk v notranjosti prispeva \\(360^\\circ\\), vse točke na robu ovojnice skupaj pa \\(180^\\circ(k-2)\\), kolikor je vsota kotov konveksnega \\(k\\)-kotnika. Zato je \\(180^\\circ\\,T=360^\\circ(n-k)+180^\\circ(k-2)\\), torej \\(T=2n-2-k\\). Vsak trikotnik ima tri stranice, notranji rob jih deli z dvema trikotnikoma, rob ovojnice pa z enim; zato je \\(3T=2E-k\\) in \\(E=3n-3-k\\).',
+                'The sum of the interior angles of all triangles is \\(180^\\circ\\,T\\). Each of the \\(n-k\\) interior points contributes \\(360^\\circ\\), and all the points on the hull boundary together contribute \\(180^\\circ(k-2)\\), the angle sum of a convex \\(k\\)-gon. Hence \\(180^\\circ\\,T=360^\\circ(n-k)+180^\\circ(k-2)\\), so \\(T=2n-2-k\\). Each triangle has three sides; an interior edge is shared by two triangles and a hull edge by one, so \\(3T=2E-k\\) and \\(E=3n-3-k\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'tri-count-example',
+            title: text('Sedem točk, \\(k=5\\)', 'Seven points, \\(k=5\\)'),
+            calculationLatex: 'n=7,\\; k=5:\\; T=2\\cdot7-2-5,\\; E=3\\cdot7-3-5',
+            resultLatex: 'T=7,\\; E=13',
+            check: text(
+                'Izpis pod grafom pokaže \\(7\\) trikotnikov in \\(13\\) robov, od tega \\(8\\) notranjih in \\(5\\) na ovojnici.',
+                'The readout under the graph shows \\(7\\) triangles and \\(13\\) edges, of which \\(8\\) are interior and \\(5\\) on the hull.',
+            ),
+        },
+        {
+            id: 'tri-nine-example',
+            title: text('Devet točk, \\(k=6\\)', 'Nine points, \\(k=6\\)'),
+            calculationLatex: 'n=9,\\; k=6:\\; T=2\\cdot9-2-6,\\; E=3\\cdot9-3-6',
+            resultLatex: 'T=10,\\; E=18',
+            check: text(
+                'Na robu ovojnice je \\(6\\) točk, od tega ena kolinearna, in izpis pokaže \\(10\\) trikotnikov in \\(18\\) robov.',
+                'There are \\(6\\) points on the hull boundary, one of them collinear, and the readout shows \\(10\\) triangles and \\(18\\) edges.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'tri-points', order: 1,
+            title: text('Množica točk', 'The set of points'),
+            purpose: text('Spoznati množico točk, ki jo bomo triangulirali.', 'Meeting the set of points that we will triangulate.'),
+            explanation: text(
+                'Imamo \\(n=7\\) točk \\(P_1,\\dots,P_7\\) s celoštevilskimi koordinatami; nobene tri niso kolinearne. Triangulacija jih poveže z daljicami, ki se ne sekajo, tako da množico razreže na trikotnike, ki pokrijejo konveksno ovojnico. Zaenkrat je triangulacija skrita.',
+                'We have \\(n=7\\) points \\(P_1,\\dots,P_7\\) with integer coordinates; no three are collinear. A triangulation joins them by segments that do not cross, cutting the set into triangles that cover the convex hull. For now the triangulation is hidden.',
+            ),
+            formulaIds: ['tri-count-formula'],
+            frames: [frame('tri-points-explanation', 'explanation'), frame('tri-points-observation', 'observation')],
+            observationPrompt: text('Določi, katere točke ležijo na robu konveksne ovojnice.', 'Say which points lie on the boundary of the convex hull.'),
+            expectedObservations: [text('Na robu ovojnice je pet točk, \\(P_5,P_1,P_2,P_3,P_4\\); točki \\(P_6\\) in \\(P_7\\) sta v notranjosti.', 'Five points lie on the hull boundary, \\(P_5,P_1,P_2,P_3,P_4\\); the points \\(P_6\\) and \\(P_7\\) are inside.')],
+            scene: triScene('tri-points', TRI_EXAMPLE_POINTS, [], [],
+                'Na grafu je sedem točk; triangulacija je skrita.',
+                'The graph shows seven points; the triangulation is hidden.'),
+        },
+        {
+            id: 'tri-predict', order: 2,
+            title: text('Napovej število trikotnikov', 'Predict the number of triangles'),
+            purpose: text('Pred razkritjem napovedati število trikotnikov.', 'Predicting the number of triangles before the reveal.'),
+            explanation: text(
+                'Preden prikažeš triangulacijo, napovej: koliko trikotnikov ima? Namig: vsota notranjih kotov vseh trikotnikov je \\(180^\\circ\\) krat njihovo število; točke v notranjosti prispevajo po \\(360^\\circ\\), točke na robu ovojnice pa so pri vsaki triangulaciji enake.',
+                'Before you show the triangulation, predict: how many triangles does it have? Hint: the sum of all interior angles is \\(180^\\circ\\) times the number of triangles; interior points contribute \\(360^\\circ\\) each, and the points on the hull are the same in every triangulation.',
+            ),
+            formulaIds: ['tri-count-formula'],
+            frames: [frame('tri-predict-explanation', 'explanation'), frame('tri-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši število trikotnikov in utemelji.', 'Write down the number of triangles and give your reason.'),
+            expectedObservations: [text('Triangulacija je še skrita, zato napoved še ni preverjena; v naslednjem koraku jo primerjamo z izpisom.', 'The triangulation is still hidden, so the prediction is not yet checked; the next step compares it with the readout.')],
+            scene: triScene('tri-predict', TRI_EXAMPLE_POINTS, [], [],
+                'Triangulacija je še skrita; napoved se preveri v naslednjem koraku.',
+                'The triangulation is still hidden; the prediction is checked in the next step.'),
+        },
+        {
+            id: 'tri-t0', order: 3,
+            title: text('Začetna triangulacija T0', 'The starting triangulation T0'),
+            purpose: text('Prešteti trikotnike in robe in jih primerjati s formulo.', 'Counting the triangles and edges and comparing them with the formula.'),
+            explanation: text(
+                'Graf prikazuje triangulacijo T0. Na robu ovojnice je \\(k=5\\) točk, zato je trikotnikov \\(2n-2-k=2\\cdot7-2-5=7\\). Robov je \\(3n-3-k=13\\), od tega \\(8\\) notranjih in \\(5\\) na ovojnici. Najmanjši kot v T0 je \\(1{,}91^\\circ\\); to številko bomo primerjali v šestem koraku.',
+                'The graph shows the triangulation T0. There are \\(k=5\\) points on the hull boundary, so the number of triangles is \\(2n-2-k=2\\cdot7-2-5=7\\). There are \\(3n-3-k=13\\) edges, \\(8\\) interior and \\(5\\) on the hull. The smallest angle in T0 is \\(1.91^\\circ\\); we compare this number in step 6.',
+            ),
+            formulaIds: ['tri-count-formula'], workedExampleId: 'tri-count-example',
+            frames: [frame('tri-t0-explanation', 'explanation'), frame('tri-t0-calculation', 'calculation'), frame('tri-t0-observation', 'observation')],
+            observationPrompt: text('Preštej trikotnike na grafu in primerjaj s svojo napovedjo.', 'Count the triangles on the graph and compare them with your prediction.'),
+            expectedObservations: [text('Izpis pokaže \\(7\\) trikotnikov, \\(13\\) robov (\\(8\\) notranjih) in \\(k=5\\); najmanjši kot je \\(1{,}91^\\circ\\).', 'The readout shows \\(7\\) triangles, \\(13\\) edges (\\(8\\) interior) and \\(k=5\\); the smallest angle is \\(1.91^\\circ\\).')],
+            scene: triScene('tri-t0', TRI_EXAMPLE_POINTS, ['triangulation', 'angles'], [setTriangulation(TRI_T0)],
+                'T0 ima \\(7\\) trikotnikov in \\(13\\) robov, od tega \\(8\\) notranjih; najmanjši kot je \\(1{,}91^\\circ\\).',
+                'T0 has \\(7\\) triangles and \\(13\\) edges, \\(8\\) of them interior; the smallest angle is \\(1.91^\\circ\\).'),
+        },
+        {
+            id: 'tri-flip', order: 4,
+            title: text('Zamenjava roba', 'Flipping an edge'),
+            purpose: text('Videti, da zamenjava roba ne spremeni števil, in da nekaterih robov ni mogoče zamenjati.', 'Seeing that a flip leaves the counts unchanged, and that some edges cannot be flipped.'),
+            explanation: text(
+                'Rob \\(P_2P_5\\) je diagonala izbočenega štirikotnika, zato ga zamenjamo z drugo diagonalo \\(P_1P_6\\). Trikotniki so drugačni, števila pa ostanejo: še vedno \\(7\\) trikotnikov, \\(13\\) robov, od tega \\(8\\) notranjih. Zamenjava je mogoča le, če je štirikotnik izbočen. Rob \\(P_2P_7\\) je zdaj izbran: pritisni Zamenjaj rob in izpis pojasni, da trikotnika ob njem ne tvorita izbočenega štirikotnika, zato se nič ne spremeni.',
+                'The edge \\(P_2P_5\\) is a diagonal of a convex quadrilateral, so we replace it with the other diagonal \\(P_1P_6\\). The triangles differ but the counts stay: still \\(7\\) triangles and \\(13\\) edges, \\(8\\) of them interior. A flip is possible only when the quadrilateral is convex. The edge \\(P_2P_7\\) is now selected: press Flip edge and the readout explains that the two triangles beside it do not form a convex quadrilateral, so nothing changes.',
+            ),
+            formulaIds: ['tri-count-formula'],
+            frames: [frame('tri-flip-explanation', 'explanation'), frame('tri-flip-observation', 'observation')],
+            observationPrompt: text('Pritisni Zamenjaj rob in preberi, zakaj zamenjava ni mogoča; nato izberi drug rob in ga zamenjaj.', 'Press Flip edge and read why the flip is not possible; then select another edge and flip it.'),
+            expectedObservations: [text('Po zamenjavi so števila ista: \\(7\\) trikotnikov, \\(13\\) robov, \\(8\\) notranjih; rob \\(P_2P_7\\) zavrnejo, ker štirikotnik ni izbočen.', 'After the flip the counts are the same: \\(7\\) triangles, \\(13\\) edges, \\(8\\) interior; the edge \\(P_2P_7\\) is refused because the quadrilateral is not convex.')],
+            scene: triScene('tri-flip', TRI_EXAMPLE_POINTS, ['triangulation', 'edges', 'angles'], [setTriangulation(TRI_T0), flipEdge(TRI_FLIP_EDGE), selectEdge(TRI_REFUSED_EDGE)],
+                'Po zamenjavi \\(P_2P_5\\) je še vedno \\(7\\) trikotnikov in \\(13\\) robov; rob \\(P_2P_7\\) je izbran.',
+                'After flipping \\(P_2P_5\\) there are still \\(7\\) triangles and \\(13\\) edges; the edge \\(P_2P_7\\) is selected.'),
+        },
+        {
+            id: 'tri-add', order: 5,
+            title: text('Dodajanje točk', 'Adding points'),
+            purpose: text('Videti, kako dodana točka spremeni število trikotnikov.', 'Seeing how an added point changes the number of triangles.'),
+            explanation: text(
+                'Dodamo točko \\(P_8=(6,2)\\) v notranjost trikotnika: razdeli ga na tri, torej trikotnikov je \\(7+2=9\\). Nato dodamo še točko \\(P_9=(10,1)\\) zunaj ovojnice. Vidna je ena stranica ovojnice, zato se doda en trikotnik, \\(k\\) pa naraste na \\(6\\). Izpis pokaže \\(n=9\\), \\(k=6\\) in \\(2\\cdot9-2-6=10\\) trikotnikov.',
+                'We add the point \\(P_8=(6,2)\\) inside a triangle: it splits it into three, so the number of triangles is \\(7+2=9\\). Then we add the point \\(P_9=(10,1)\\) outside the hull. One hull side is visible, so one triangle is added and \\(k\\) grows to \\(6\\). The readout shows \\(n=9\\), \\(k=6\\) and \\(2\\cdot9-2-6=10\\) triangles.',
+            ),
+            formulaIds: ['tri-count-formula'],
+            frames: [frame('tri-add-explanation', 'explanation'), frame('tri-add-observation', 'observation')],
+            observationPrompt: text('Povleci ali dodaj točko in preveri, da število trikotnikov ostane enako \\(2n-2-k\\).', 'Drag or add a point and check that the number of triangles stays equal to \\(2n-2-k\\).'),
+            expectedObservations: [text('Točka znotraj doda \\(2\\) trikotnika, točka zunaj en trikotnik; skupaj \\(10\\) trikotnikov pri \\(n=9\\) in \\(k=6\\).', 'A point inside adds \\(2\\) triangles, a point outside one triangle; together \\(10\\) triangles with \\(n=9\\) and \\(k=6\\).')],
+            scene: triScene('tri-add', [...TRI_EXAMPLE_POINTS, TRI_INSIDE_POINT, TRI_OUTSIDE_POINT], ['triangulation'], [],
+                'Z dodanima točkama \\(P_8\\) in \\(P_9\\) je \\(n=9\\), \\(k=6\\) in \\(10\\) trikotnikov.',
+                'With the added points \\(P_8\\) and \\(P_9\\) there are \\(n=9\\), \\(k=6\\) and \\(10\\) triangles.'),
+        },
+        {
+            id: 'tri-delaunay', order: 6,
+            title: text('Dve triangulaciji: najmanjši kot', 'Two triangulations: the smallest angle'),
+            purpose: text('Primerjati najmanjši kot T0 in Delaunayeve triangulacije iste množice.', 'Comparing the smallest angle of T0 and the Delaunay triangulation of the same set.'),
+            explanation: text(
+                'Isto množico sedmih točk smo prej triangulirali s T0, kjer je najmanjši kot \\(1{,}91^\\circ\\). Zdaj graf kaže Delaunayevo triangulacijo: tudi ta ima \\(7\\) trikotnikov in \\(13\\) robov, najmanjši kot pa je \\(25{,}35^\\circ\\). Števila so ista, kakovost trikotnikov pa ne.',
+                'Earlier we triangulated the same seven points with T0, whose smallest angle is \\(1.91^\\circ\\). The graph now shows the Delaunay triangulation: it too has \\(7\\) triangles and \\(13\\) edges, but its smallest angle is \\(25.35^\\circ\\). The counts agree, the quality of the triangles does not.',
+            ),
+            formulaIds: ['tri-count-formula'],
+            frames: [frame('tri-delaunay-explanation', 'explanation'), frame('tri-delaunay-observation', 'observation')],
+            observationPrompt: text('Primerjaj najmanjši kot v izpisu s tistim iz tretjega koraka.', 'Compare the smallest angle in the readout with the one from step 3.'),
+            expectedObservations: [text('Izpis pokaže \\(7\\) trikotnikov, \\(13\\) robov in najmanjši kot \\(25{,}35^\\circ\\), v T0 pa je bil \\(1{,}91^\\circ\\).', 'The readout shows \\(7\\) triangles, \\(13\\) edges and a smallest angle of \\(25.35^\\circ\\), whereas in T0 it was \\(1.91^\\circ\\).')],
+            scene: triScene('tri-delaunay', TRI_EXAMPLE_POINTS, ['triangulation', 'angles'], [setTriangulation(TRI_DELAUNAY)],
+                'Delaunayeva triangulacija ima \\(7\\) trikotnikov, \\(13\\) robov in najmanjši kot \\(25{,}35^\\circ\\).',
+                'The Delaunay triangulation has \\(7\\) triangles, \\(13\\) edges and a smallest angle of \\(25.35^\\circ\\).'),
+        },
+        {
+            id: 'tri-nine', order: 7,
+            title: text('Devet točk in prosto raziskovanje', 'Nine points and free exploration'),
+            purpose: text('Videti, da kolinearne točke na robu štejejo v \\(k\\), nato samostojno raziskovati.', 'Seeing that collinear boundary points count in \\(k\\), then exploring on your own.'),
+            explanation: text(
+                'Devet točk iz lekcije o konveksni ovojnici ima na robu ovojnice \\(k=6\\) točk: pet oglišč in eno kolinearno točko na stranici. Kolinearna točka šteje v \\(k\\), zato je trikotnikov \\(2\\cdot9-2-6=10\\) in robov \\(3\\cdot9-3-6=18\\). Zdaj lahko premikaš in dodajaš točke ter zamenjuješ robove.',
+                'The nine points of the convex hull lesson have \\(k=6\\) points on the hull boundary: five corners and one collinear point on a side. The collinear point counts in \\(k\\), so there are \\(2\\cdot9-2-6=10\\) triangles and \\(3\\cdot9-3-6=18\\) edges. Now you can move and add points and flip edges.',
+            ),
+            formulaIds: ['tri-count-formula'], workedExampleId: 'tri-nine-example',
+            frames: [frame('tri-nine-explanation', 'explanation'), frame('tri-nine-calculation', 'calculation'), frame('tri-nine-observation', 'observation')],
+            observationPrompt: text('Premakni kolinearno točko s stranice ovojnice v notranjost in preveri, kaj se zgodi s \\(k\\) in številom trikotnikov.', 'Move the collinear point from the hull side into the interior and check what happens to \\(k\\) and the number of triangles.'),
+            expectedObservations: [text('Izpis pokaže \\(k=6\\), \\(10\\) trikotnikov in \\(18\\) robov, od tega \\(12\\) notranjih.', 'The readout shows \\(k=6\\), \\(10\\) triangles and \\(18\\) edges, \\(12\\) of them interior.')],
+            scene: triScene('tri-nine', TRI_NINE_POINTS, ['triangulation', 'angles'], [],
+                'Devet točk: \\(k=6\\), \\(10\\) trikotnikov in \\(18\\) robov.',
+                'Nine points: \\(k=6\\), \\(10\\) triangles and \\(18\\) edges.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-triangulation-points', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Chapter 9 (triangulations of point sets and the edge flip).'},
+        {
+            id: 'bezeg-triangulation-implementation',
+            citation: 'Bezeg source: src/compgeo/triangulation.ts, src/compgeo/pointInsertion.ts and src/graphs/compgeo/TriangulationGraph.tsx.',
+            implementationCorrespondence: 'The counts come from the triangle list of the scene; a flip is refused for a hull edge or a non-convex quadrilateral by the exact integer orientation, and a lesson scene sets the triangulation with set-triangulation, flip-edge and select-edge.',
+        },
+    ],
+    edgeCases: [
+        text('Kolinearne točke na robu ovojnice štejejo v \\(k\\), izpis pa jih navede posebej; skrajni primer so vse točke na isti premici, kjer triangulacije ni.', 'Collinear points on the hull boundary count in \\(k\\) and the readout lists them separately; the extreme case is all points on one line, where there is no triangulation.'),
+        text('Zamenjava roba spremeni najmanjši kot, ne pa števila trikotnikov in robov; ta lekcija ne trdi, da je kateri koli rob najboljša izbira.', 'A flip changes the smallest angle but not the numbers of triangles and edges; this lesson does not claim that any particular edge is the best choice.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+/**
  * Interval sweep lesson (docs/specs/sweep-algorithms-lessons.md, C1). The scenes use the `point-set` actions (`set-points` in
  * intervals mode, `set-trace-step`) and the `algorithm-trace` animation of `IntervalSweepGraph`; `compgeoIntervalSweepLesson.test.ts`
  * checks every quoted value against the real graph's readout. The trace of the spec example has 26 steps ("Korak k od 26" is the
@@ -1262,4 +1472,4 @@ const segmentIntersections: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, intervalSweep, segmentIntersections];
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, intervalSweep, segmentIntersections];
