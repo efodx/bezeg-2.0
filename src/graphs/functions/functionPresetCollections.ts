@@ -33,6 +33,8 @@ import {rungeFileMessage} from "./rungeInterpolationMessages";
 import {checkLeastSquaresModel, DEFAULT_LEAST_SQUARES_MODEL, LeastSquaresModel, parseLeastSquaresModel} from "../../analysis/leastSquaresModel";
 import {leastSquaresFileMessage} from "./leastSquaresMessages";
 import {checkDensityAreaModel, parseDensityAreaModel} from "../../analysis/densityAreaModel";
+import {checkBinomialNormalModel, parseBinomialNormalModel} from "../../analysis/binomialNormalModel";
+import {binomialNormalFileMessage} from "./binomialNormalMessages";
 import {densityAreaFileMessage} from "./densityAreaMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
@@ -145,6 +147,11 @@ const diagnoseDensityArea: Diagnosis = data => {
     const check = checkDensityAreaModel(data);
     return check.ok || check.issue === undefined ? undefined : densityAreaFileMessage(check.issue);
 };
+/** The model module names the rule a rejected binomial-normal model broke; this only localizes it. */
+const diagnoseBinomialNormal: Diagnosis = data => {
+    const check = checkBinomialNormalModel(data);
+    return check.ok || check.issue === undefined ? undefined : binomialNormalFileMessage(check.issue);
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -207,6 +214,7 @@ export const functionPresetCollections = {
     "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
     "interp-least-squares": leastSquaresCollection(),
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
+    "prob-binomial-normal": functionCollection("prob-binomial-normal", parseBinomialNormalModel, diagnoseBinomialNormal),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
