@@ -9,7 +9,8 @@
  *
  * Ownership: `createVoronoiDrawing` returns a handle that owns every board object it creates (cell fills, one batched
  * edge curve, vertex markers, "continues" markers). `update` reuses them and trims the surplus; `dispose` removes all.
- * The drawing registers no event listeners, so nothing besides the objects has to be released.
+ * The drawing registers no event listeners, so nothing besides the objects has to be released. The handle must be
+ * disposed before the board is freed (`JXG.freeBoard`), because disposing removes its objects from that board.
  */
 import {clipCell, type RationalBox, type VoronoiDiagram, type VoronoiEdge} from '../../compgeo/voronoi';
 import {Rational, RationalPoint} from '../../compgeo/rational';
@@ -87,6 +88,8 @@ export function boxContains(box: RationalBox, p: RationalPoint): boolean {
 export function clipToBox(
     origin: RationalPoint, direction: RationalPoint, lo: Rational | undefined, hi: Rational | undefined, box: RationalBox,
 ): [RationalPoint, RationalPoint] | undefined {
+    // A zero direction (a segment between equal vertices) has no positive length, wherever it lies.
+    if (direction.x.sign() === 0 && direction.y.sign() === 0) return undefined;
     let from = lo;
     let to = hi;
     const axes: [Rational, Rational, Rational, Rational][] = [
@@ -125,7 +128,11 @@ export function edgeInBox(diagram: VoronoiDiagram, edge: VoronoiEdge, box: Ratio
     }
 }
 
-/** The arrow for an open side lying on a box side (exact comparison with the box coordinates). */
+/**
+ * The arrow for an open side lying on a box side (exact comparison with the box coordinates). Open sides of a clipped
+ * cell lie on the box boundary by construction (`clipCell` closes a cell with box sides), so the final `→` is the
+ * right side, the only one left after bottom, top and left.
+ */
 function continuesGlyph(a: RationalPoint, b: RationalPoint, box: RationalBox): string {
     if (a.y.equals(box.minY) && b.y.equals(box.minY)) return '↓';
     if (a.y.equals(box.maxY) && b.y.equals(box.maxY)) return '↑';

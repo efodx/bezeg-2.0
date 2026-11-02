@@ -88,6 +88,41 @@ describe('the B4 example (seven points of B2)', () => {
         expect(named('voronoi-edges')).toHaveLength(1);
     });
 
+    it('puts each "continues" marker on the box boundary at the midpoint of an open side, with the arrow of that side', () => {
+        const b = frame(diagram, B2);
+        handle.update(diagram, B2, b, ALL);
+        const [minX, minY, maxX, maxY] = [b.minX, b.minY, b.maxX, b.maxY].map(r => r.toNumber());
+        const expected: string[] = [];
+        for (const cell of diagram.cells) {
+            const clipped = clipCell(diagram, B2, cell.site, b);
+            clipped.open.forEach((isOpen, k) => {
+                if (!isOpen) return;
+                const p = clipped.polygon[k];
+                const q = clipped.polygon[(k + 1) % clipped.polygon.length];
+                const side = p.y.equals(b.minY) && q.y.equals(b.minY) ? '↓' : p.y.equals(b.maxY) && q.y.equals(b.maxY) ? '↑'
+                    : p.x.equals(b.minX) && q.x.equals(b.minX) ? '←' : p.x.equals(b.maxX) && q.x.equals(b.maxX) ? '→' : '?';
+                expect(side).not.toBe('?');
+                const mx = p.x.add(q.x).mul(Rational.of(1, 2)).toNumber();
+                const my = p.y.add(q.y).mul(Rational.of(1, 2)).toNumber();
+                expected.push(`${side}|${mx.toFixed(9)}|${my.toFixed(9)}`);
+            });
+        }
+        const actual = named('voronoi-continues').map(o => {
+            const x = o.X?.() as number;
+            const y = o.Y?.() as number;
+            const glyph = o.plaintext as string;
+            const bound = glyph === '↓' ? y === minY : glyph === '↑' ? y === maxY : glyph === '←' ? x === minX : glyph === '→' ? x === maxX : false;
+            expect(bound).toBe(true);
+            expect(x).toBeGreaterThanOrEqual(minX);
+            expect(x).toBeLessThanOrEqual(maxX);
+            expect(y).toBeGreaterThanOrEqual(minY);
+            expect(y).toBeLessThanOrEqual(maxY);
+            return `${glyph}|${x.toFixed(9)}|${y.toFixed(9)}`;
+        });
+        expect(expected.length).toBeGreaterThanOrEqual(5);
+        expect(actual.sort()).toEqual(expected.sort());
+    });
+
     it('extends every ray away from the remaining sites: the end point is equidistant from the pair and no site is nearer', () => {
         const b = frame(diagram, B2);
         let rays = 0;
@@ -184,11 +219,21 @@ describe('zooming and panning', () => {
 
     it('clips the same cell consistently: zooming out then back gives the same polygon and the same drawn data', () => {
         const near = box(-3, -2, 12, 10);
+        const drawn = () => [
+            named('voronoi-cell').map(o => [o.dataX, o.dataY]),
+            named('voronoi-edges').map(o => [o.dataX, o.dataY]),
+            named('voronoi-continues').map(o => [o.plaintext, o.X?.(), o.Y?.()]),
+            named('voronoi-vertex').map(o => [o.X?.(), o.Y?.()]),
+        ].map(part => JSON.stringify(part));
         handle.update(diagram, B2, near, ALL);
-        const first = JSON.stringify(named('voronoi-cell').map(o => o.dataX));
+        const first = drawn();
+        expect(named('voronoi-edges')[0].dataX?.length).toBeGreaterThan(0);
         handle.update(diagram, B2, box(-100, -100, 100, 100), ALL);
+        const far = drawn();
+        // Cells, edges and "continues" markers all change with the box (the vertex markers do not: all vertices are inside both).
+        [0, 1, 2].forEach(k => expect(far[k]).not.toBe(first[k]));
         handle.update(diagram, B2, near, ALL);
-        expect(JSON.stringify(named('voronoi-cell').map(o => o.dataX))).toBe(first);
+        expect(drawn()).toEqual(first);
     });
 
     it('draws no vertex marker outside the box, and no edge or cell for a box far from the diagram', () => {
@@ -251,6 +296,49 @@ describe('ownership and disposal', () => {
         expect(named('voronoi-vertex')).toHaveLength(1);
     });
 
+    it('grows and shrinks the pools across small, large, small, keeping the first pooled objects on growth', () => {
+        const small = pts([[0, 0], [4, 0], [0, 4]]);
+        const smallDiagram = build(small);
+        const largeDiagram = build(B2);
+        const names = ['voronoi-cell', 'voronoi-edges', 'voronoi-vertex', 'voronoi-continues'];
+        const count = (name: string) => named(name).length;
+        handle.update(smallDiagram, small, frame(smallDiagram, small), ALL);
+        const smallObjects = objects().slice();
+        const smallCounts = names.map(count);
+        const smallByName = names.map(named);
+        expect(smallCounts.slice(0, 3)).toEqual([3, 1, 1]);
+        handle.update(largeDiagram, B2, frame(largeDiagram, B2), ALL);
+        expect(count('voronoi-cell')).toBe(7);
+        expect(count('voronoi-vertex')).toBe(7);
+        expect(objects().length).toBeGreaterThan(smallObjects.length);
+        smallObjects.forEach((o, k) => expect(objects()[k]).toBe(o));
+        names.forEach((name, k) => smallByName[k].forEach((o, i) => expect(named(name)[i]).toBe(o)));
+        handle.update(smallDiagram, small, frame(smallDiagram, small), ALL);
+        expect(names.map(count)).toEqual(smallCounts);
+        expect(objects().length).toBe(smallObjects.length);
+        handle.dispose();
+        expect(objects().length).toBe(baseline);
+    });
+
+    it('returns to the baseline with every option off and rebuilds the same objects when switched on again', () => {
+        const diagram = build(B2);
+        const b = frame(diagram, B2);
+        const off = {cells: false, edges: false, vertices: false};
+        handle.update(diagram, B2, b, ALL);
+        const withAll = objects().length;
+        for (let i = 0; i < 2; i++) {
+            handle.update(diagram, B2, b, off);
+            expect(objects().filter(o => o.name?.startsWith('voronoi-') && o.name !== 'voronoi-continues')).toHaveLength(0);
+            handle.update(diagram, B2, b, ALL);
+            expect(objects().length).toBe(withAll);
+            expect(named('voronoi-cell')).toHaveLength(7);
+            expect(named('voronoi-vertex')).toHaveLength(7);
+            expect(named('voronoi-edges')).toHaveLength(1);
+        }
+        handle.dispose();
+        expect(objects().length).toBe(baseline);
+    });
+
     it('dispose leaves no board objects, and a second call is harmless', () => {
         const diagram = build(B2);
         handle.update(diagram, B2, frame(diagram, B2), ALL);
@@ -285,5 +373,48 @@ describe('box arithmetic', () => {
         expect(clipToBox(Q(10, 1, 5, 1), new RationalPoint(Rational.of(1), Rational.of(0)), Rational.ZERO, undefined, b)).toBeUndefined();
         const full = clipToBox(Q(5, 1, 5, 1), new RationalPoint(Rational.of(1), Rational.of(1)), undefined, undefined, b);
         expect(full?.map(p => `${p.x.format()},${p.y.format()}`)).toEqual(['0,0', '10,10']);
+    });
+
+    describe('clipToBox boundary and outside cases', () => {
+        const b = box(0, 0, 10, 10);
+        const D = (x: number, y: number) => new RationalPoint(Rational.of(x), Rational.of(y));
+        const show = (r: [RationalPoint, RationalPoint] | undefined) => r?.map(p => `${p.x.format()},${p.y.format()}`);
+
+        it('clips a ray starting outside the box that enters it (positive start parameter)', () => {
+            expect(show(clipToBox(Q(-5, 1, 5, 1), D(1, 0), Rational.ZERO, undefined, b))).toEqual(['0,5', '10,5']);
+            expect(show(clipToBox(Q(-5, 1, 5, 1), D(2, 1), Rational.ZERO, undefined, b))).toEqual(['0,15/2', '5,10']);
+        });
+
+        it('keeps a line and a segment lying exactly on a box side', () => {
+            expect(show(clipToBox(Q(0, 1, -7, 1), D(0, 1), undefined, undefined, b))).toEqual(['0,0', '0,10']);
+            expect(show(clipToBox(Q(2, 1, 10, 1), D(1, 0), undefined, undefined, b))).toEqual(['0,10', '10,10']);
+            expect(show(clipToBox(Q(0, 1, 2, 1), D(0, 3), Rational.ZERO, Rational.ONE, b))).toEqual(['0,2', '0,5']);
+            expect(show(clipToBox(Q(2, 1, 10, 1), D(4, 0), Rational.ZERO, Rational.ONE, b))).toEqual(['2,10', '6,10']);
+        });
+
+        it('drops a line or segment that touches the box only in a corner', () => {
+            expect(clipToBox(Q(10, 1, 10, 1), D(1, -1), undefined, undefined, b)).toBeUndefined();
+            expect(clipToBox(Q(-5, 1, 25, 1), D(1, -1), undefined, undefined, b)).toBeUndefined();
+            expect(clipToBox(Q(11, 1, 11, 1), D(-1, -1), Rational.ZERO, Rational.ONE, b)).toBeUndefined();
+            expect(clipToBox(Q(10, 1, 10, 1), D(1, 1), Rational.ZERO, Rational.ONE, b)).toBeUndefined();
+        });
+
+        it('drops a segment that misses the box, even when its supporting line crosses it', () => {
+            expect(clipToBox(Q(-5, 1, 5, 1), D(1, 0), Rational.ZERO, Rational.ONE, b)).toBeUndefined();
+            expect(clipToBox(Q(11, 1, 0, 1), D(0, 5), Rational.ZERO, Rational.ONE, b)).toBeUndefined();
+            expect(clipToBox(Q(-5, 1, 5, 1), D(1, 1), Rational.ZERO, Rational.ONE, b)).toBeUndefined();
+        });
+
+        it('has no positive length for a zero-length segment, inside the box or not', () => {
+            const zero = D(0, 0);
+            expect(clipToBox(Q(5, 1, 5, 1), zero, Rational.ZERO, Rational.ONE, b)).toBeUndefined();
+            expect(clipToBox(Q(50, 1, 5, 1), zero, Rational.ZERO, Rational.ONE, b)).toBeUndefined();
+            const degenerate: VoronoiDiagram = {
+                vertices: [{point: Q(5, 1, 5, 1), sites: [0, 1, 2]}, {point: Q(5, 1, 5, 1), sites: [0, 1, 2]}],
+                edges: [{kind: 'segment', sites: [0, 1], from: 0, to: 1}],
+                cells: [],
+            };
+            expect(edgeInBox(degenerate, degenerate.edges[0], b)).toBeUndefined();
+        });
     });
 });
