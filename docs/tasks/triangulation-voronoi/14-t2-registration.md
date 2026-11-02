@@ -21,9 +21,9 @@ Checks: `npx tsc --noEmit --pretty false`, `just lint` on touched files, full un
 ## Evidence (handler 29, 2026-11-02)
 
 - Commits:
-  - `9ac20825`: registration, items 1–4 and 6 (handler 28's worker; rebased onto master).
-  - `a175648b`: smoke repairs.
-  - `1882adf0`: the drag measurement.
+  - `0447e7a4`: registration, items 1–4 and 6 (handler 28's worker; rebased onto master).
+  - `831a1958`: smoke repairs.
+  - `d42fd99a`: the drag measurement.
 - Rebase conflict: `lessonCatalog.test.ts`. Master gave `projective-pascal` a lesson. The resolution keeps both new ids in the list of ids without lessons.
 - Handler decision: the Preset key stays `compgeo-triangulation`, as task 12 accepted it (the table row was corrected by handler 28). No route existed before, so no stored data changes.
 - Smoke (Sonnet `bezeg-smoke`, preview of `3296b119`, Chromium 156, 1440x900 and 390x844). Nine checks passed:
@@ -38,8 +38,8 @@ Checks: `npx tsc --noEmit --pretty false`, `just lint` on touched files, full un
   - a real board click inside a triangle.
 - The smoke found two problems:
   - **Page error.** A second board press on `delaunay` threw `Cannot read properties of undefined (reading 'hasPoint')`. The press handler rebuilt the overlays inside JSXGraph's pointer-down dispatch.
-    - Repair (`a175648b`): `PointSetGraph.afterBoardPress` runs the selection in a microtask. It is dropped if the board was torn down or locked meanwhile. Both the triangle press and the triangulation edge press use it; panel and keyboard selection stay synchronous.
-    - Browser A/B on the smoke worker's click sequences with the old view: the pre-fix handler errors in 2–3 of 5 sequences; the deferred handler errors in none. Both give the same selection results. The rebuilt `a175648b` preview shows no errors.
+    - Repair (`831a1958`): `PointSetGraph.afterBoardPress` runs the selection in a microtask. It is dropped if the board was torn down or locked meanwhile. Both the triangle press and the triangulation edge press use it; panel and keyboard selection stay synchronous.
+    - Browser A/B on the smoke worker's click sequences with the old view: the pre-fix handler errors in 2–3 of 5 sequences; the deferred handler errors in none. Both give the same selection results. The rebuilt `831a1958` preview shows no errors.
     - The new host test fails with the synchronous handler (mutation log `14-fix-mut.log`).
   - **Default view too small.** The inherited view showed the default quad at 22% × 23% of the board.
     - Repair: `DelaunayGraph.initialView()` is `[-2, 6, 7, -1.5]`, which keeps the circumcircle of `abc` (y up to about 5.4) in view.
@@ -50,11 +50,11 @@ Checks: `npx tsc --noEmit --pretty false`, `just lint` on touched files, full un
   - No curve batching for now.
 - Checks:
   - At `3296b119`: tsc, the full unit suite (1081 s, passed) and `just build`.
-  - At `a175648b`: tsc, lint on the touched files, `just unit src/graphs/compgeo --maxWorkers=2` and `just build`.
+  - At `831a1958`: tsc, lint on the touched files, `just unit src/graphs/compgeo --maxWorkers=2` and `just build`.
   - Logs are `docs/reviews/triangulation-voronoi/14-r-*.log` and `14-fix-*.log` (untracked).
 - Gaps:
   - Item 5: posters are pending, and both ids stay in `POSTER_PENDING`.
   - A real board click on an edge of `point-set-triangulation` was not completed in the smoke; it was checked only by the host test and the A/B run.
   - Pressing the same point twice near the shared diagonal of the quad left the triangle selected in both the pre-fix and the fixed build. That point is probably inside both triangles within tolerance. It is not a regression and was not investigated.
-  - The full unit suite was not rerun after `a175648b`; that change touches only `src/graphs/compgeo`, and those tests were rerun.
+  - The full unit suite was not rerun after `831a1958`; that change touches only `src/graphs/compgeo`, and those tests were rerun.
   - No touch device.

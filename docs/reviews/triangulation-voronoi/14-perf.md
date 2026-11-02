@@ -3,7 +3,7 @@
 Measurement per [performance-plan.md](../../performance-plan.md) "Measurement protocol". Raw output: `14-perf-raw.txt`.
 Script: `scripts/triangulation-browser-perf.cjs` (3 runs per case, 40 mouse moves per run, 50 ms apart).
 
-- Commit: a175648b (production preview of this checkout at `http://127.0.0.1:4313/bezeg-2.0`, started by the handler; build freshness not re-checked by the worker).
+- Commit: a175648b, now `831a1958` on master (production preview of this checkout at `http://127.0.0.1:4313/bezeg-2.0`, started by the handler; build freshness not re-checked by the worker).
 - Browser: headless Playwright Chromium 156.0.8078.4, Windows 11, viewport 1440x900, deviceScaleFactor 1.
 - Input: Playwright mouse, `mouse.down` on the interior point nearest the board centre, then 40 `mouse.move` calls on a sine path (about 40 px by 25 px amplitude, one full cycle), `mouse.up`.
 - Scene: `/compgeo/point-set-triangulation`, the 7-point default plus 33 integer points typed into the "new point" inputs (page verified to hold 40 draggable points before and after toggling overlays).

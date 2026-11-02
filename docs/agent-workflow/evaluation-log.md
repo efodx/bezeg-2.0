@@ -1624,7 +1624,7 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Workers in handler 29: 2.
   - Smoke `bezeg-smoke`, Sonnet medium: 56k tokens, 37 tools, 8.4 min, 10 checks (9 passed, 1 failed).
   - Measurement `bezeg-worker`, Sonnet medium: 37k tokens, 15 tools, 6.1 min. It wrote the browser perf script and the record.
-- Outcome: accepted at `1882adf0`; posters are still pending.
+- Outcome: accepted at `d42fd99a`; posters are still pending.
 - Smoke findings:
   - A page error on a second board press on `delaunay`. Its cause, an overlay rebuild inside JSXGraph's pointer-down dispatch, came from task 13 and was invisible to the jsdom host tests.
   - The inherited default view was too small.
