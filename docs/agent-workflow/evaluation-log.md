@@ -1549,3 +1549,17 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Outcome: accepted by the handler. `POSTER_PENDING` is now `[]` and existing posters are byte-identical. Checks: `node --test scripts/demonstration-preview-capture.test.cjs` 36/36, poster/Learn unit tests, build, and the `demonstrations`/`demonstration-motion`/`home` smoke specs.
 - Repairs: one stop on a recipe assertion, which the handler resolved. The worker's final hand-back was not delivered (handler 23 integrated the work from the tree). That is a tool/delivery issue, not a code defect.
 - Gaps: the record was written retroactively from handoff 23, so there are no dispatch or acceptance timestamps and no context telemetry. A per-id visual list is in `docs/reviews/feature-streams/geometry/posters-visual.md`. One caption mismatch was found and routed to Curves (`interp-subdivision`).
+
+## 2026-11-02 — Geometry: F6 acceptance of triangulation T1 and sweep S1 (geometry handler 24)
+
+- Role: acceptance (review and smoke), size L. Scope: map the B1, C1 and C2 acceptance lists and both batch gates to evidence, run `just check`, and run a bilingual browser smoke of three routes and two chapters. Record: `docs/reviews/feature-streams/geometry/f6-t1-s1-acceptance.md`. Handler: Opus 5.5, auto, effort medium.
+- Workers: 2, one after the other, each requested Sonnet with the agent's default effort.
+  - `bezeg-reviewer` evidence matrix: dispatched about 05:13Z, 86k tokens, 37 tools, 4.2 min (tool-reported). It ran in parallel with the handler's `just check`.
+  - `bezeg-smoke`: dispatched about 05:38Z, 82k tokens, 35 tools, 12.8 min (tool-reported). Its report says "about 30 minutes", which does not match the tool duration; the tool figure is recorded.
+- Outcome: accepted.
+  - The matrix found one real gate gap: the capabilities doc and glossary did not mention the family. The handler fixed it. The matrix marked six rows partial, and they were exactly the rows the smoke then covered.
+  - Smoke: 28 passed, 0 failed, 4 skipped by design. Its one observation (a generic message for a "collinear" input) was resolved by the handler from existing tests, with no code change.
+- Repairs: none for either worker.
+- Handoff evidence:
+  - The reviewer brief asked for a COVERED/PARTIAL/MANUAL/MISSING class per item, the matrix written to a file, and a 25-line reply. The reply came in about 30 lines and folded MANUAL into PARTIAL. That was usable.
+  - The smoke brief named the `data-action` ids and the refusal cases to try. The worker did not record the coordinates of the collinear attempt, so the handler had to infer the case. Future briefs should ask for the exact input of every refusal check.
