@@ -338,6 +338,9 @@ describe('edge cases are typed and finite', () => {
         if (both?.kind === 'angle') {
             expect(both.before.unsigned).toBeCloseTo(90, 9);
             expect(both.after.unsigned).toBeCloseTo(90, 9);
+            // ±90° is one undirected angle: the negation holds modulo 180, not as a sign flip
+            expect(Math.abs(both.before.signed)).toBeCloseTo(90, 9);
+            expect(Math.abs(both.after.signed)).toBeCloseTo(90, 9);
         }
     });
 

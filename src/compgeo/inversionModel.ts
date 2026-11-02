@@ -19,7 +19,9 @@
  * angles, and the intersection points of two circles. Never compare them with `===`.
  *
  * Angle convention: the signed angle between *undirected* tangent lines, from the first curve to the second, in degrees in
- * (-90, 90] (counter-clockwise positive); `unsigned = |signed|`. Inversion preserves the size and reverses the sign.
+ * (-90, 90] (counter-clockwise positive); `unsigned = |signed|`. Inversion preserves the size and reverses the sign,
+ * modulo 180: undirected lines at ±90° are one angle, reported as +90 before and after, so `after.signed === -before.signed`
+ * fails there and rounding near 90 can flip the sign. Display a right angle unsigned.
  */
 import {GridPoint} from './grid';
 import {Rational, RationalPoint} from './rational';
@@ -239,7 +241,7 @@ export function analyseSource(inversion: Inversion, source: InversionSource): So
 // Power of a point
 // ---------------------------------------------------------------------------------------------------------------------------
 
-/** Relative tolerance of the tangent decision for a secant at a double angle: a direction is never exactly tangent. */
+/** Tolerance, relative to r² (the discriminant has units of length squared), of the tangent decision for a secant at a double angle: a direction is never exactly tangent. */
 const SECANT_TANGENT_TOLERANCE = 1e-12;
 
 export type SecantResult =
