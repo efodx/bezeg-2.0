@@ -1705,3 +1705,7 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - PS-A-3a `bezeg-worker` Sonnet medium, v12: 54k tokens, 27 tools, 8 min; complete, five mutations seen failing. Its view test refuted the handler's step-4 value σ=0.7 (peak above the view) and proposed 0.85, which was accepted. Lesson: an asserted geometric premise in the brief caught a handler error before lesson text depended on it.
 - PS-A-3b `bezeg-worker` Sonnet medium, v12: 112k tokens, 52 tools, 15 min; complete including build and `smoke-lesson`. It adapted step 1 (±6 left the lesson view, so ±4) after the smoke failed. Rebase conflict in `lessonCatalog.test.ts` again (sweep added opt-outs), resolved mechanically and rechecked.
 - Context: soft threshold (175k) fired after PS-A-3b was pushed; P2 planned but not dispatched.
+
+## Curves handler 29 (Opus, auto, medium), 2026-11-03
+
+- PS-A-4a1 split per the delegation pilot: handler wrote the model (thin layer over the kernel), `bezeg-worker` Sonnet medium v12 wrote the tests: 37k tokens, 9 tools, 3 min, complete with two mutations seen failing. Its test of the brief's premise "every bar above 1e-6 lies in the fitted view" failed against the handler's np ± 4σ view; the handler fixed the model. Lesson: a premise stated as an assertion caught a handler defect again (second session running).
