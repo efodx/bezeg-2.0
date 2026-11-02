@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -81,6 +81,18 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
 
     protected setGhostVisible(visible: boolean): void {
         if (visible !== this.model.ghostVisible) this.commitModel({...this.model, ghostVisible: visible});
+    }
+
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                "transform-a": value => this.setParameter("a", value), "transform-b": value => this.setParameter("b", value),
+                "transform-c": value => this.setParameter("c", value), "transform-d": value => this.setParameter("d", value),
+                "transform-u": value => this.setU(value),
+            },
+            choices: {"transform-base": value => this.setBase(value)},
+            visibility: {reference: visible => this.setGhostVisible(visible)},
+        };
     }
 
     protected resetValues(): void {

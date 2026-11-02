@@ -5,6 +5,8 @@ import {FourierSeriesGraph} from './FourierSeriesGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
+import {DomainError} from './BaseFunctionGraph';
+import {LessonAction} from '../../learning/model';
 import {DEFAULT_FOURIER_SERIES_MODEL, fourierGibbsPeak, fourierSampleSpacing, fourierZoomWindow} from '../../analysis/fourierSeriesModel';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
@@ -15,6 +17,10 @@ beforeEach(() => setLanguage('sl'));
 
 /** A real graph through the real host and a real JSXGraph board (jsdom). */
 class ObservedFourierGraph extends FourierSeriesGraph {
+    lesson(action: LessonAction) {
+        this.applyLessonAction(action);
+    }
+
     modelNow() {
         return this.model;
     }
@@ -182,4 +188,21 @@ test('both languages: labels, readouts and board texts follow a live language sw
     expect(document.querySelector('[data-readout="terms"] dt')?.textContent).toBe('Členi vrste Sₙ');
     expect(screen.getByLabelText(/^Število harmonikov N$/)).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+});
+
+test('a multi-action lesson scene runs in one synchronous sequence; a rejected value is refused, not clamped', () => {
+    const graph = mount();
+    for (const action of [
+        {kind: 'function-choice', name: 'fourier-example', value: 'sawtooth'},
+        {kind: 'function-parameter', name: 'fourier-n', value: 25},
+        {kind: 'function-parameter', name: 'fourier-x', value: 1.5},
+        {kind: 'function-parameter', name: 'fourier-epsilon', value: 0.25},
+    ] as LessonAction[]) act(() => graph.lesson(action));
+    expect(graph.modelNow()).toEqual({example: 'sawtooth', n: 25, x: 1.5, epsilon: 0.25});
+    const before = graph.modelNow();
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'fourier-n', value: 2.5})).toThrow(DomainError);
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'fourier-x', value: 7})).toThrow(DomainError);
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'fourier-epsilon', value: 0.255})).toThrow(DomainError);
+    expect(() => graph.lesson({kind: 'function-choice', name: 'fourier-example', value: 'triangle'})).toThrow(DomainError);
+    expect(graph.modelNow()).toBe(before);
 });

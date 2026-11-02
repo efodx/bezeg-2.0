@@ -47,6 +47,8 @@ const expected = [
     ['functions/linear', '/bezeg-2.0/functions', 'linear_function', 'linear_function', 'prompt_linear_function'],
     ['functions/exponential', '/bezeg-2.0/functions', 'exponential_function', 'exponential_function', 'prompt_exponential_function'],
     ['functions/trigonometric', '/bezeg-2.0/functions', 'trigonometric_functions', 'trigonometric_functions', 'prompt_trigonometric_functions'],
+    ['functions/transformations', '/bezeg-2.0/functions', 'function_transformation_title', 'function_transformation_title', 'prompt_function_transformation'],
+    ['functions/inverse', '/bezeg-2.0/functions', 'function_inverse_title', 'function_inverse_title', 'prompt_function_inverse'],
     ['functions/continuity', '/bezeg-2.0/functions', 'continuity', 'continuity', 'prompt_continuity'],
     ['functions/derivative', '/bezeg-2.0/functions', 'derivative', 'derivative', 'prompt_derivative'],
     ['functions/integral', '/bezeg-2.0/functions', 'definite_integral', 'definite_integral', 'prompt_definite_integral'],
@@ -62,6 +64,7 @@ const expected = [
     ['analysis/taylor', 'analysis', 'taylor', 'taylor', 'prompt_taylor'],
     ['analysis/sequence', 'analysis', 'sequence', 'sequence', 'prompt_sequence'],
     ['analysis/uniform-convergence', 'analysis', 'uniform_convergence', 'uniform_convergence', 'prompt_uniform_convergence'],
+    ['analysis/fourier-series', 'analysis', 'fourier_series_title', 'fourier_series_title', 'prompt_fourier_series'],
     ['analysis/fixed-point', 'analysis', 'fixed_point', 'fixed_point', 'prompt_fixed_point'],
     ['linear-map', 'maps', 'linear_map_title', 'linear_map_title', 'linear_map_prompt'],
     ['complex-reciprocal', 'maps', 'complex_reciprocal_title', 'complex_reciprocal_title', 'complex_reciprocal_prompt'],
@@ -86,7 +89,7 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     const messages = language === 'sl' ? sl : en;
     const catalog = getDemonstrationCatalog();
     expect(catalog.demonstrations.map(entry => entry.path)).toEqual(expected.map(([path]) => `/bezeg-2.0/${path}`));
-    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(72);
+    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(75);
     for (const [path, family, title, heading, prompt] of expected) {
         const demonstration = findDemonstration(`/bezeg-2.0/${path}`)!;
         expect(demonstration.family).toBe(family);
@@ -102,7 +105,7 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     expect(catalog.families.map(family => family.title)).toEqual([
         messages.basics, messages.bezier_curves, messages.rational_bezier_curves, messages.splines, messages.ph_curves, messages.parametrizations, messages.curve_geometry, messages.interpolation_and_approximation, messages.bezier_patches, messages.functions_and_calculus, messages.analysis, messages.maps_of_the_plane, messages.plane_geometry, messages.computational_geometry, messages.projective_conics,
     ]);
-    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 8, 7, 5, 2, 3, 2, 3, 7, 8, 11, 3, 2, 6, 3]);
+    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 8, 7, 5, 2, 3, 2, 3, 7, 10, 12, 3, 2, 6, 3]);
     expect(catalog.families.flatMap(family => family.demonstrations)).toEqual(catalog.demonstrations);
     expect(catalog.starting.map(entry => [entry.demonstration.path, entry.title, entry.description, entry.caption])).toEqual([
         ['/bezeg-2.0/bezier/curve', messages.bezier_curve_209, messages.example_bezier, messages.points_to_shape],
@@ -133,7 +136,7 @@ test('queries resolve the current language and do not expose shared mutable meta
     expect(getDemonstrationCatalog().families[0].title).toBe(en.basics);
     expect(previous.families[0].title).toBe(sl.basics);
     previous.demonstrations.splice(0);
-    expect(getDemonstrationCatalog().demonstrations).toHaveLength(72);
+    expect(getDemonstrationCatalog().demonstrations).toHaveLength(75);
 });
 
 test('a surface definition has no pan or zoom actions and every catalog entry keeps the board view', () => {

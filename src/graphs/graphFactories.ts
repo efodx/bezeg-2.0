@@ -45,6 +45,9 @@ import { AreaBetweenCurvesGraph } from './functions/AreaBetweenCurvesGraph';
 import { ArcLengthGraph } from './functions/ArcLengthGraph';
 import { BisectionGraph } from './functions/BisectionGraph';
 import { RootFindingGraph } from './functions/RootFindingGraph';
+import { FunctionTransformationGraph } from './functions/FunctionTransformationGraph';
+import { FunctionInverseGraph } from './functions/FunctionInverseGraph';
+import { FourierSeriesGraph } from './functions/FourierSeriesGraph';
 import { MeanValueGraph } from './functions/MeanValueGraph';
 import { AccumulationGraph } from './functions/AccumulationGraph';
 import { DarbouxGraph } from './functions/DarbouxGraph';
@@ -118,6 +121,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'linear-function': () => new LinearFunctionGraph(),
     'exponential-function': () => new ExponentialFunctionGraph(),
     'trigonometric-functions': () => new TrigonometricFunctionsGraph(),
+    'function-transformation': () => new FunctionTransformationGraph(),
+    'function-inverse': () => new FunctionInverseGraph(),
     'continuity': () => new ContinuityGraph(),
     'derivative': () => new DerivativeGraph(),
     'definite-integral': () => new DefiniteIntegralGraph(),
@@ -133,6 +138,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'taylor': () => new TaylorGraph(),
     'sequence': () => new SequenceGraph(),
     'uniform-convergence': () => new UniformConvergenceGraph(),
+    'fourier-series': () => new FourierSeriesGraph(),
     'fixed-point': () => new FixedPointGraph(),
     'linear-map': () => new LinearMapGraph(),
     'complex-reciprocal': () => new ComplexReciprocalGraph(),

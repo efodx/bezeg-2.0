@@ -7,4 +7,4 @@ import type {DemonstrationId} from './demonstrations';
  */
 export const POSTER_PENDING: readonly DemonstrationId[] = ['linear-map', 'complex-reciprocal', 'complex-roots', 'triangle-centres', 'inscribed-angle', 'orientation', 'polygon-area', 'convex-hull',
     'ear-clipping', 'interval-sweep', 'segment-intersections', 'curve-parametric', 'curve-curvature', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'patch-coons',
-    'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'root-finding'];
+    'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'root-finding', 'function-transformation', 'function-inverse', 'fourier-series'];
