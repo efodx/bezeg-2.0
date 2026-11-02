@@ -1,3 +1,5 @@
+import {FIVE_POINT_PRESET_KEY, fivePointPresetCollection} from './projectivePresetCollection';
+import {FIVE_POINT_EXAMPLES, serializeFivePointModel} from './fivePointModel';
 import {CROSS_RATIO_PRESET_KEY, crossRatioPresetCollection, PASCAL_PRESET_KEY, pascalPresetCollection, POLE_POLAR_PRESET_KEY, polePolarPresetCollection} from './projectivePresetCollection';
 import {PASCAL_EXAMPLES, serializePascalModel} from './pascalModel';
 import {POLE_POLAR_EXAMPLES, serializePolePolarModel} from './polePolarModel';
@@ -61,4 +63,19 @@ test('the Pascal collection has its own frozen key, one parser and actionable re
     expect('rejection' in bad).toBe(true);
     if ('rejection' in bad) expect(renderMessage(bad.rejection)).toContain('vsako natanko enkrat');
     expect(pascalCollection.checkGraphState?.({model: {}})).toBeDefined();
+});
+
+test('the five-point collection has its own frozen key, one parser and actionable refusals', () => {
+    const fivePoint = fivePointPresetCollection();
+    expect(fivePoint.key).toBe('projective-five-point');
+    expect(FIVE_POINT_PRESET_KEY).toBe(fivePoint.key);
+    const data = serializeFivePointModel(FIVE_POINT_EXAMPLES.hyperbola);
+    const ok = fivePoint.check(JSON.parse(JSON.stringify(data)));
+    expect('data' in ok && ok.data).toEqual(data);
+    const bad = fivePoint.check({...data, b: data.a});
+    expect('rejection' in bad).toBe(true);
+    if ('rejection' in bad) expect(renderMessage(bad.rejection)).toContain('različna');
+    const wrongExample = fivePoint.check({...data, example: 'circle'});
+    expect('rejection' in wrongExample).toBe(true);
+    expect(fivePoint.checkGraphState?.({model: {}})).toBeDefined();
 });

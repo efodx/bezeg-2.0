@@ -1,6 +1,7 @@
 import {message, Message} from "../../localization";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 import {CrossRatioModel, parseCrossRatioModel} from "./crossRatioModel";
+import {FivePointModel, parseFivePointModel} from "./fivePointModel";
 import {parsePascalModel, PascalModel} from "./pascalModel";
 import {parsePolePolarModel, PolePolarModel} from "./polePolarModel";
 import {ProjectiveCheck} from "./projectiveValidation";
@@ -48,3 +49,9 @@ export const PASCAL_PRESET_KEY = "projective-pascal";
 const PASCAL_COLLECTION = projectivePresetCollection(PASCAL_PRESET_KEY, parsePascalModel);
 
 export const pascalPresetCollection = (): PresetCollection<PascalModel> => PASCAL_COLLECTION;
+
+export const FIVE_POINT_PRESET_KEY = "projective-five-point";
+
+const FIVE_POINT_COLLECTION = projectivePresetCollection(FIVE_POINT_PRESET_KEY, parseFivePointModel);
+
+export const fivePointPresetCollection = (): PresetCollection<FivePointModel> => FIVE_POINT_COLLECTION;
