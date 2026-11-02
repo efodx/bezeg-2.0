@@ -12,7 +12,7 @@ test('both published languages place every audited home exactly once in its owni
             {id: 'bezier-curves', sections: bezierChapter[language].sections},
             ...familyChapters,
         ];
-        expect(chapters).toHaveLength(14);
+        expect(chapters).toHaveLength(15);
         const allReferences: string[] = [];
         for (const chapter of chapters) {
             for (const section of chapter.sections) {
@@ -40,7 +40,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(77);
-        expect(new Set(allReferences).size).toBe(77);
+        expect(allReferences).toHaveLength(79);
+        expect(new Set(allReferences).size).toBe(79);
     }
 });
