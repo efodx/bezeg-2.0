@@ -1675,4 +1675,226 @@ const segmentIntersections: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, intervalSweep, segmentIntersections];
+/**
+ * Monotone-partition lesson (docs/specs/sweep-algorithms-lessons.md, C3). The scenes use the `point-set` actions (`set-points` in
+ * polygon mode, `set-trace-step`) of `MonotonePartitionGraph`; `MonotonePartitionLessonActions.host.test.tsx` checks every quoted value
+ * against the real graph's readout. The vertices are named like the board and the readout, v1..v6 (the spec's list order). The first
+ * example has 15 trace steps ("Korak k od 14" is the trace index k, the last index 14 is `done`): index 5 pops the merge vertex (8,5),
+ * index 6 makes it the helper of the left edge, index 8 adds the diagonal v2-v5, index 14 is the finished partition. The second example
+ * has 21 trace steps; index 20 is `done` with the diagonals v5-v7 and v3-v5 and three pieces of areas 10, 42 and 6.
+ */
+export const MONOTONE_TRACE_STEPS = {classified: 5, helper: 6, diagonal: 8, done: 14, secondDone: 20} as const;
+
+/** The first example of C3 (one split vertex whose helper is the merge vertex) and the second (two merge vertices, no split). */
+export const MONOTONE_EXAMPLE_1: readonly LessonPoint[] = [[0, 0], [4, 3], [8, 0], [12, 8], [8, 5], [4, 8]];
+export const MONOTONE_EXAMPLE_2: readonly LessonPoint[] = [[4, 0], [10, 2], [8, 5], [12, 9], [7, 7], [5, 12], [3, 7], [0, 9], [2, 4]];
+
+/** The polygon's bounding box with a margin of 1 (first example: x -1..13, y -1..9). */
+export const monotoneView = (list: readonly LessonPoint[]): LessonViewBox => {
+    const xs = list.map(([x]) => x);
+    const ys = list.map(([, y]) => y);
+    return [Math.min(...xs) - 1, Math.max(...ys) + 1, Math.max(...xs) + 1, Math.min(...ys) - 1];
+};
+/** A partition scene framed on its polygon: the polygon (which returns to step 0 and pauses), then the step actions. */
+const monotoneScene = (id: string, list: readonly LessonPoint[], steps: readonly LessonAction[], sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view: monotoneView(list), actions: [polygon(list), ...steps], expectedState: text(sl, en)});
+
+const monotonePartition: GuidedLesson = {
+    demonstrationId: 'monotone-partition',
+    title: text('Razdelitev na monotone večkotnike', 'Partitioning into monotone polygons'),
+    summary: text(
+        'Pometalna premica gre po večkotniku od zgoraj navzdol, razvrsti oglišča in z diagonalami od razcepnih in zlivnih oglišč razdeli večkotnik na dele, monotone glede na os \\(y\\).',
+        'A sweep line goes down the polygon, classifies the vertices and, with diagonals from the split and merge vertices, cuts the polygon into pieces that are monotone with respect to the \\(y\\)-axis.',
+    ),
+    prerequisites: [
+        text('Lekcija Pometanje intervalov (vrsta dogodkov in stanje) ter lekcija Orientacija treh točk.', 'The lesson Interval sweep (event queue and status) and the lesson Orientation of three points.'),
+    ],
+    learningGoals: [
+        text('Razvrstiš oglišča v začetna, končna, razcepna, zlivna in navadna in poveš, katera kvarijo monotonost.', 'Classify the vertices as start, end, split, merge or regular and say which ones break monotonicity.'),
+        text('Razložiš, zakaj ima razcepno oglišče diagonalo do pomočnika roba levo od njega in zakaj zlivno oglišče postane pomočnik.', 'Explain why a split vertex gets a diagonal to the helper of the edge to its left, and why a merge vertex becomes a helper.'),
+        text('Preveriš, da je kosov \\(1\\) več kot diagonal, in da je vsak kos monoton.', 'Check that the number of pieces is one more than the number of diagonals, and that every piece is monotone.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'monotone-piece-count',
+            latex: 'p=d+1',
+            notation: text(
+                '\\(d\\) je število dodanih diagonal, \\(p\\) je število kosov.',
+                '\\(d\\) is the number of diagonals added and \\(p\\) is the number of pieces.',
+            ),
+            explanation: text(
+                'Vsaka diagonala, ki seka notranjost enostavnega večkotnika od oglišča do oglišča, razdeli en kos na dva, zato kosov ni več kot diagonal plus ena. Pri prvem primeru je \\(d=1\\), torej \\(p=2\\).',
+                'Each diagonal that runs inside a simple polygon from vertex to vertex cuts one piece into two, so the number of pieces is the number of diagonals plus one. In the first example \\(d=1\\), so \\(p=2\\).',
+            ),
+        },
+        {
+            id: 'monotone-type-balance',
+            latex: 'n_{\\text{start}}+n_{\\text{split}}=n_{\\text{end}}+n_{\\text{merge}}',
+            notation: text(
+                '\\(n_{\\text{start}}\\), \\(n_{\\text{split}}\\), \\(n_{\\text{end}}\\) in \\(n_{\\text{merge}}\\) so števila začetnih, razcepnih, končnih in zlivnih oglišč.',
+                '\\(n_{\\text{start}}\\), \\(n_{\\text{split}}\\), \\(n_{\\text{end}}\\) and \\(n_{\\text{merge}}\\) are the numbers of start, split, end and merge vertices.',
+            ),
+            explanation: text(
+                'Pri pometanju navzdol se območje pod premico začne in konča enako mnogokrat: vsako začetno in razcepno oglišče odpre en nov odsek premice znotraj večkotnika, vsako končno in zlivno ga zapre. V prvem primeru je \\(2+1=2+1\\).',
+                'While the line moves down, the stretches of the line inside the polygon are opened and closed equally often: every start and split vertex opens a new stretch, every end and merge vertex closes one. In the first example \\(2+1=2+1\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'monotone-piece-area-example',
+            title: text('Ploščina prvega kosa', 'The area of the first piece'),
+            calculationLatex: '2A=(0\\cdot3-4\\cdot0)+(4\\cdot5-8\\cdot3)+(8\\cdot8-4\\cdot5)+(4\\cdot0-0\\cdot8)=0-4+44+0=40',
+            resultLatex: 'A=20',
+            check: text(
+                'Kos \\((0,0),(4,3),(8,5),(4,8)\\) ima po obrazcu za ploščino ploščino \\(20\\); drugi kos ima tudi \\(20\\), skupaj \\(40\\) kot cel večkotnik. Izpis pove „Kosov je 2 = število diagonal (1) + 1“.',
+                'The piece \\((0,0),(4,3),(8,5),(4,8)\\) has area \\(20\\) by the area formula; the second piece also has \\(20\\), together \\(40\\) like the whole polygon. The readout says "Pieces: 2 = number of diagonals (1) + 1".',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'monpart-polygon', order: 1,
+            title: text('Večkotnik', 'The polygon'),
+            purpose: text('Spoznati večkotnik in vprašanje, kaj pomeni biti monoton glede na os \\(y\\).', 'Meeting the polygon and the question of what it means to be monotone with respect to the \\(y\\)-axis.'),
+            explanation: text(
+                'Večkotnik ima oglišča \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\) in \\((4,8)\\) ter ploščino \\(40\\). Je monoton glede na os \\(y\\), če vsaka vodoravna premica seka večkotnik v eni sami daljici. Ta večkotnik ni monoton: vodoravna premica pri \\(y=2\\) ga seka v dveh ločenih daljicah, ker je oglišče \\((4,3)\\) vdrtina od spodaj. Pometalna premica je na vrhu in sled je na koraku \\(0\\) od \\(14\\).',
+                'The polygon has the vertices \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\) and \\((4,8)\\) and area \\(40\\). It is monotone with respect to the \\(y\\)-axis if every horizontal line meets it in a single segment. This polygon is not monotone: the horizontal line at \\(y=2\\) meets it in two separate segments, because the vertex \\((4,3)\\) is a dent from below. The sweep line is at the top and the trace is at step \\(0\\) of \\(14\\).',
+            ),
+            formulaIds: ['monotone-piece-count'],
+            frames: [frame('monpart-polygon-explanation', 'explanation'), frame('monpart-polygon-observation', 'observation')],
+            observationPrompt: text('Poglej večkotnik in poišči mesta, kjer bi vodoravna premica presekala večkotnik v več kot eni daljici.', 'Look at the polygon and find the places where a horizontal line would meet it in more than one segment.'),
+            expectedObservations: [text('Sled je na koraku \\(0\\) od \\(14\\), diagonal še ni in vrste oglišč še niso razkrite.', 'The trace is at step \\(0\\) of \\(14\\), there are no diagonals yet and the vertex types are not revealed.')],
+            scene: monotoneScene('monpart-polygon', MONOTONE_EXAMPLE_1, [],
+                'Večkotnik; sled je na koraku \\(0\\) od \\(14\\), diagonal še ni.',
+                'The polygon; the trace is at step \\(0\\) of \\(14\\), no diagonals yet.'),
+        },
+        {
+            id: 'monpart-predict', order: 2,
+            title: text('Napovej težavna oglišča', 'Predict the troublesome vertices'),
+            purpose: text('Pred razkritjem napovedati, katera oglišča kvarijo monotonost.', 'Predicting, before the reveal, which vertices break monotonicity.'),
+            explanation: text(
+                'Preden pritisneš Naslednji korak, napovej: pri katerih ogliščih pometalna premica „razcepi“ območje na dva dela ali ga „zlije“ v enega? Namig: iščeš oglišča, kjer sta obe sosednji oglišči na isti strani (obe zgoraj ali obe spodaj) in je notranji kot večji od \\(\\pi\\). Sled je še na koraku \\(0\\) od \\(14\\).',
+                'Before you press Next step, predict: at which vertices does the sweep line "split" the region into two or "merge" two into one? Hint: look for vertices whose two neighbours are on the same side (both above or both below) and whose interior angle is greater than \\(\\pi\\). The trace is still at step \\(0\\) of \\(14\\).',
+            ),
+            formulaIds: ['monotone-type-balance'],
+            frames: [frame('monpart-predict-explanation', 'explanation'), frame('monpart-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši oglišča, za katera meniš, da kvarijo monotonost.', 'Write down the vertices you think break monotonicity.'),
+            expectedObservations: [text('Napoved še ni preverjena; sled je na koraku \\(0\\) od \\(14\\) in jo primerjamo v naslednjih korakih.', 'The prediction is not checked yet; the trace is at step \\(0\\) of \\(14\\) and the next steps compare it.')],
+            scene: monotoneScene('monpart-predict', MONOTONE_EXAMPLE_1, [],
+                'Sled je na koraku \\(0\\) od \\(14\\); vrste oglišč še niso razkrite.',
+                'The trace is at step \\(0\\) of \\(14\\); the vertex types are not revealed yet.'),
+        },
+        {
+            id: 'monpart-classify', order: 3,
+            title: text('Vrste oglišč', 'Vertex types'),
+            purpose: text('Videti, kako pometanje razvrsti oglišča po sosedih in notranjem kotu.', 'Seeing how the sweep classifies the vertices by their neighbours and interior angle.'),
+            explanation: text(
+                'Oglišča obdelamo od zgoraj navzdol, pri enaki višini najprej tisto z manjšim \\(x\\). Tako sta prva \\((4,8)\\) in \\((12,8)\\), obe začetni: oba soseda sta pod njima in notranji kot je manjši od \\(\\pi\\). Tretje je \\((8,5)\\): oba soseda sta nad njim in notranji kot je večji od \\(\\pi\\), zato je zlivno. Sled je na koraku \\(5\\) od \\(14\\); v stanju sta robova \\(e_6\\) od \\((4,8)\\) in \\(e_4\\) od \\((12,8)\\), ki omejujeta notranjost z leve. Tri zaporedna kolinearna oglišča program zavrne, ker zanje vrsta ni določena.',
+                'The vertices are handled from top to bottom, at equal height the one with the smaller \\(x\\) first. So the first two are \\((4,8)\\) and \\((12,8)\\), both start vertices: both neighbours are below them and the interior angle is smaller than \\(\\pi\\). The third is \\((8,5)\\): both neighbours are above it and the interior angle is greater than \\(\\pi\\), so it is a merge vertex. The trace is at step \\(5\\) of \\(14\\); the status holds the edges \\(e_6\\) from \\((4,8)\\) and \\(e_4\\) from \\((12,8)\\), which bound the interior on the left. Three consecutive collinear vertices are refused, because their type is not defined.',
+            ),
+            formulaIds: ['monotone-type-balance'],
+            frames: [frame('monpart-classify-explanation', 'explanation'), frame('monpart-classify-observation', 'observation')],
+            observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem obdelanem oglišču preberi vrsto in razlog v izpisu.', 'Press Next step and, at each vertex handled, read its type and the reason in the readout.'),
+            expectedObservations: [text('Po treh obdelanih ogliščih je zadnje, \\(v_5=(8,5)\\), zlivno; stanje ima dva roba, \\(e_6\\) in \\(e_4\\), in diagonal še ni.', 'After three vertices handled, the last one, \\(v_5=(8,5)\\), is a merge vertex; the status has two edges, \\(e_6\\) and \\(e_4\\), and there are no diagonals yet.')],
+            scene: monotoneScene('monpart-classify', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRACE_STEPS.classified)],
+                'Sled je na koraku \\(5\\) od \\(14\\): oglišče \\(v_5=(8,5)\\) je zlivno, stanje \\(e_6, e_4\\), diagonal še ni.',
+                'The trace is at step \\(5\\) of \\(14\\): the vertex \\(v_5=(8,5)\\) is a merge vertex, status \\(e_6, e_4\\), no diagonals yet.'),
+        },
+        {
+            id: 'monpart-helper', order: 4,
+            title: text('Pomočnik roba', 'The helper of an edge'),
+            purpose: text('Razumeti, da zlivno oglišče postane pomočnik levega roba in da si stanje zapomni pomočnika vsakega roba.', 'Understanding that a merge vertex becomes the helper of the left edge and that the status remembers a helper for every edge.'),
+            explanation: text(
+                'Stanje hrani robe levo od notranjosti, vsakega s pomočnikom: najnižjim doslej obdelanim ogliščem, ki ga lahko povežemo z robom, ne da bi prečkali večkotnik. Ko je obdelano zlivno oglišče \\((8,5)\\), rob \\(e_4\\) izstopi iz stanja, levi rob \\(e_6\\) pa dobi za pomočnika \\((8,5)\\). Sled je na koraku \\(6\\) od \\(14\\); stanje ima en rob, \\(e_6\\), s pomočnikom \\(v_5\\).',
+                'The status holds the edges on the left of the interior, each with a helper: the lowest vertex handled so far that can be joined to the edge without crossing the polygon. When the merge vertex \\((8,5)\\) is handled, the edge \\(e_4\\) leaves the status and the left edge \\(e_6\\) gets \\((8,5)\\) as its helper. The trace is at step \\(6\\) of \\(14\\); the status has one edge, \\(e_6\\), with the helper \\(v_5\\).',
+            ),
+            formulaIds: ['monotone-type-balance'],
+            frames: [frame('monpart-helper-explanation', 'explanation'), frame('monpart-helper-observation', 'observation')],
+            observationPrompt: text('V seznamu stanja poišči rob \\(e_6\\) in njegovega pomočnika.', 'In the status list find the edge \\(e_6\\) and its helper.'),
+            expectedObservations: [text('Stanje je \\(e_6\\) s pomočnikom \\(v_5=(8,5)\\); diagonal še ni.', 'The status is \\(e_6\\) with the helper \\(v_5=(8,5)\\); there are no diagonals yet.')],
+            scene: monotoneScene('monpart-helper', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRACE_STEPS.helper)],
+                'Sled je na koraku \\(6\\) od \\(14\\): stanje \\(e_6\\) s pomočnikom \\(v_5=(8,5)\\), diagonal še ni.',
+                'The trace is at step \\(6\\) of \\(14\\): status \\(e_6\\) with the helper \\(v_5=(8,5)\\), no diagonals yet.'),
+        },
+        {
+            id: 'monpart-diagonal', order: 5,
+            title: text('Diagonala od razcepnega oglišča', 'The diagonal from the split vertex'),
+            purpose: text('Videti, da razcepno oglišče dobi diagonalo do pomočnika levega roba.', 'Seeing that a split vertex gets a diagonal to the helper of the left edge.'),
+            explanation: text(
+                'Naslednje je oglišče \\((4,3)\\): oba soseda sta pod njim in notranji kot je večji od \\(\\pi\\), zato je razcepno. Premica ga razcepi, zato ga povežemo s pomočnikom roba levo od njega, to je z zlivnim ogliščem \\((8,5)\\). Dodana je diagonala \\((4,3)(8,5)\\). Sled je na koraku \\(8\\) od \\(14\\) in izpis navaja eno diagonalo \\(v_2\\)–\\(v_5\\).',
+                'Next comes the vertex \\((4,3)\\): both neighbours are below it and the interior angle is greater than \\(\\pi\\), so it is a split vertex. The line splits there, so we join it to the helper of the edge on its left, the merge vertex \\((8,5)\\). The diagonal \\((4,3)(8,5)\\) is added. The trace is at step \\(8\\) of \\(14\\) and the readout lists one diagonal \\(v_2\\)–\\(v_5\\).',
+            ),
+            formulaIds: ['monotone-piece-count'],
+            frames: [frame('monpart-diagonal-explanation', 'explanation'), frame('monpart-diagonal-observation', 'observation')],
+            observationPrompt: text('Poglej, katero oglišče je pomočnik in kam leži diagonala glede na obe oglišči.', 'Look at which vertex is the helper and where the diagonal lies relative to both vertices.'),
+            expectedObservations: [text('Diagonal je \\(1\\): \\(v_2\\)–\\(v_5\\), torej \\((4,3)(8,5)\\); stanje je \\(e_6\\) s pomočnikom \\(v_2\\).', 'There is \\(1\\) diagonal: \\(v_2\\)–\\(v_5\\), that is \\((4,3)(8,5)\\); the status is \\(e_6\\) with the helper \\(v_2\\).')],
+            scene: monotoneScene('monpart-diagonal', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRACE_STEPS.diagonal)],
+                'Sled je na koraku \\(8\\) od \\(14\\): diagonala \\(v_2\\)–\\(v_5\\), to je \\((4,3)(8,5)\\).',
+                'The trace is at step \\(8\\) of \\(14\\): the diagonal \\(v_2\\)–\\(v_5\\), that is \\((4,3)(8,5)\\).'),
+        },
+        {
+            id: 'monpart-pieces', order: 6,
+            title: text('Dva monotona kosa', 'Two monotone pieces'),
+            purpose: text('Preveriti, da diagonala razdeli večkotnik na dva monotona kosa in da prešteti kosi ustrezajo diagonalam.', 'Checking that the diagonal cuts the polygon into two monotone pieces and that the number of pieces matches the diagonals.'),
+            explanation: text(
+                'Sled je izvedena do konca (korak \\(14\\) od \\(14\\)). Večkotnik je razdeljen na kosa \\((0,0),(4,3),(8,5),(4,8)\\) in \\((4,3),(8,0),(12,8),(8,5)\\), vsak s ploščino \\(20\\), skupaj \\(40\\). Vsak kos je monoton glede na os \\(y\\): vodoravna premica ga seka v eni daljici. Kosov je \\(2=1+1\\). Začetnih in razcepnih oglišč je \\(2+1=3\\), končnih in zlivnih prav tako \\(2+1=3\\).',
+                'The trace has run to the end (step \\(14\\) of \\(14\\)). The polygon is cut into the pieces \\((0,0),(4,3),(8,5),(4,8)\\) and \\((4,3),(8,0),(12,8),(8,5)\\), each of area \\(20\\), together \\(40\\). Each piece is monotone with respect to the \\(y\\)-axis: a horizontal line meets it in one segment. There are \\(2=1+1\\) pieces. There are \\(2+1=3\\) start and split vertices and also \\(2+1=3\\) end and merge vertices.',
+            ),
+            formulaIds: ['monotone-piece-count', 'monotone-type-balance'], workedExampleId: 'monotone-piece-area-example',
+            frames: [frame('monpart-pieces-explanation', 'explanation'), frame('monpart-pieces-calculation', 'calculation'), frame('monpart-pieces-observation', 'observation')],
+            observationPrompt: text('Preveri, da se ploščini kosov seštejeta v ploščino večkotnika, in primerjaj izpis z napovedjo.', 'Check that the areas of the pieces add up to the area of the polygon, and compare the readout with your prediction.'),
+            expectedObservations: [text('Kosov je \\(2\\) = število diagonal (\\(1\\)) + \\(1\\); oglišč je začetnih \\(2\\), končnih \\(2\\), razcepnih \\(1\\), zlivnih \\(1\\), navadnih \\(0\\).', 'There are \\(2\\) pieces = number of diagonals (\\(1\\)) + \\(1\\); the vertices are \\(2\\) start, \\(2\\) end, \\(1\\) split, \\(1\\) merge and \\(0\\) regular.')],
+            scene: monotoneScene('monpart-pieces', MONOTONE_EXAMPLE_1, [setTraceStep('end')],
+                'Sled je na koraku \\(14\\) od \\(14\\): \\(2\\) kosa, vsak ploščine \\(20\\), \\(1\\) diagonala.',
+                'The trace is at step \\(14\\) of \\(14\\): \\(2\\) pieces, each of area \\(20\\), \\(1\\) diagonal.'),
+        },
+        {
+            id: 'monpart-merge-only', order: 7,
+            title: text('Samo zlivni oglišči', 'Only merge vertices'),
+            purpose: text('Videti na drugem primeru, da tudi zlivno oglišče samo potrebuje diagonalo.', 'Seeing on the second example that a merge vertex alone also needs a diagonal.'),
+            explanation: text(
+                'Drugi večkotnik ima devet oglišč, tri začetna, eno končno, tri navadna in dve zlivni, razcepnih pa nobenega. Kljub temu ni monoton in zlivni oglišči \\((3,7)\\) in \\((7,7)\\) potrebujeta diagonali: \\((7,7)\\) se poveže z \\((3,7)\\), pomočnikom levega roba, nato pa se oglišče \\((8,5)\\) poveže z \\((7,7)\\). Oglišči \\((3,7)\\) in \\((7,7)\\) sta enako visoko, zato velja pravilo: najprej manjši \\(x\\). Sled je na koraku \\(20\\) od \\(20\\): \\(2\\) diagonali, \\(3\\) kosi s ploščinami \\(10\\), \\(42\\) in \\(6\\), skupaj \\(58\\).',
+                'The second polygon has nine vertices: three start, one end, three regular and two merge vertices, and no split vertex. It is still not monotone, and the merge vertices \\((3,7)\\) and \\((7,7)\\) need diagonals: \\((7,7)\\) is joined to \\((3,7)\\), the helper of the left edge, and then the vertex \\((8,5)\\) is joined to \\((7,7)\\). The vertices \\((3,7)\\) and \\((7,7)\\) are at equal height, so the tie rule applies: smaller \\(x\\) first. The trace is at step \\(20\\) of \\(20\\): \\(2\\) diagonals, \\(3\\) pieces of areas \\(10\\), \\(42\\) and \\(6\\), together \\(58\\).',
+            ),
+            formulaIds: ['monotone-piece-count', 'monotone-type-balance'],
+            frames: [frame('monpart-merge-only-explanation', 'explanation'), frame('monpart-merge-only-observation', 'observation')],
+            observationPrompt: text('Preštej zlivna oglišča in diagonale in preveri, da je kosov za ena več kot diagonal.', 'Count the merge vertices and the diagonals and check that the number of pieces is one more than the number of diagonals.'),
+            expectedObservations: [text('Začetnih je \\(3\\), končnih \\(1\\), razcepnih \\(0\\), zlivnih \\(2\\), navadnih \\(3\\); diagonali sta \\(v_5\\)–\\(v_7\\) in \\(v_3\\)–\\(v_5\\), kosov je \\(3=2+1\\).', 'There are \\(3\\) start, \\(1\\) end, \\(0\\) split, \\(2\\) merge and \\(3\\) regular vertices; the diagonals are \\(v_5\\)–\\(v_7\\) and \\(v_3\\)–\\(v_5\\), and there are \\(3=2+1\\) pieces.')],
+            scene: monotoneScene('monpart-merge-only', MONOTONE_EXAMPLE_2, [setTraceStep(MONOTONE_TRACE_STEPS.secondDone)],
+                'Drugi primer: sled je na koraku \\(20\\) od \\(20\\), diagonali \\(v_5\\)–\\(v_7\\) in \\(v_3\\)–\\(v_5\\), \\(3\\) kosi.',
+                'The second example: the trace is at step \\(20\\) of \\(20\\), diagonals \\(v_5\\)–\\(v_7\\) and \\(v_3\\)–\\(v_5\\), \\(3\\) pieces.'),
+        },
+        {
+            id: 'monpart-explore', order: 8,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno preizkusiti razdelitev na svojem večkotniku.', 'Trying the partition on a polygon of your own.'),
+            explanation: text(
+                'Premikaj oglišča večkotnika \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\), \\((4,8)\\) po mreži in pritiskaj Naslednji korak. Sled se ob vsaki spremembi vrne na začetek. Pri enaki višini oglišča obdelamo od leve proti desni. Če premakneš oglišče tako, da so tri zaporedna oglišča na isti premici, ali tako, da se robova sekata, razdelitev zavrne in izpis pove, kaj popraviti.',
+                'Move the vertices of the polygon \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\), \\((4,8)\\) on the grid and press Next step. The trace returns to the start after every change. Vertices at equal height are handled from left to right. If you move a vertex so that three consecutive vertices lie on one line, or so that two edges cross, the partition is refused and the readout says what to fix.',
+            ),
+            formulaIds: ['monotone-piece-count', 'monotone-type-balance'],
+            frames: [frame('monpart-explore-explanation', 'explanation'), frame('monpart-explore-observation', 'observation')],
+            observationPrompt: text('Premakni eno oglišče in pred pritiskom na Naslednji korak napovej, katera oglišča bodo razcepna ali zlivna.', 'Move one vertex and, before pressing Next step, predict which vertices will be split or merge vertices.'),
+            expectedObservations: [text('Pri začetnem večkotniku je sled na koraku \\(0\\) od \\(14\\); po končanem pometanju je diagonala \\(1\\) in kosa \\(2\\).', 'For the starting polygon the trace is at step \\(0\\) of \\(14\\); after the sweep is done there is \\(1\\) diagonal and \\(2\\) pieces.')],
+            scene: monotoneScene('monpart-explore', MONOTONE_EXAMPLE_1, [],
+                'Začetni večkotnik; sled je na koraku \\(0\\) od \\(14\\).',
+                'The starting polygon; the trace is at step \\(0\\) of \\(14\\).'),
+        },
+    ],
+    sources: [
+        {id: 'berg-monotone-partition', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Section 3.2 (partitioning a polygon into monotone pieces).'},
+        {
+            id: 'bezeg-monotone-partition-implementation',
+            citation: 'Bezeg source: src/compgeo/sweep/, src/graphs/compgeo/monotonePartitionRun.ts and src/graphs/compgeo/MonotonePartitionGraph.tsx.',
+            implementationCorrespondence: 'The trace pops the vertices from top to bottom (smaller x first at equal height), classifies each by its neighbours and interior angle, keeps the left edges with their helpers in the status and adds a diagonal at a split vertex and at a merge or regular vertex whose helper is a merge vertex; a polygon with three consecutive collinear vertices or crossing edges is refused with a message.',
+        },
+    ],
+    edgeCases: [
+        text('Oglišča na isti višini obdelamo od leve proti desni; tri zaporedna kolinearna oglišča in neenostavni večkotniki se zavrnejo s sporočilom.', 'Vertices at the same height are handled from left to right; three consecutive collinear vertices and non-simple polygons are refused with a message.'),
+        text('Večkotnik v smeri urnega kazalca se pred razdelitvijo obrne; shranjeni večkotnik se ne spremeni.', 'A clockwise polygon is reversed before the partition; the stored polygon does not change.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, intervalSweep, segmentIntersections, monotonePartition];

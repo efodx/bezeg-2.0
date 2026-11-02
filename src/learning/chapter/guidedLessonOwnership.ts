@@ -103,6 +103,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'interp-runge': {chapterId: 'interpolation', sectionId: 'runge'},
     'interp-least-squares': {chapterId: 'interpolation', sectionId: 'least-squares'},
     'segment-intersections': {chapterId: 'sweep-algorithms', sectionId: 'segment-intersections'},
+    // Interim owner (sweep task 19): the sweep chapter does not advertise the monotone partition lesson before task 21 moves it there.
+    'monotone-partition': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'interp-subdivision': {chapterId: 'interpolation', sectionId: 'subdivision'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},
