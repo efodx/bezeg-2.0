@@ -34,6 +34,7 @@ Before pushing the lesson, the handler did not rerun a full unit suite on the co
 
 ## Notes
 
+- Rebasing the lesson onto Geometry's point-set-triangulation lesson (`dccdf58a`) gave mechanical conflicts in three lesson lists, resolved by union. Both sides had raised the `guidedExamplePreviewCopy.test.ts` counts, so they were corrected to 81 and 88. Rechecked: tsc, the conflicted and lesson unit files, and `smoke-lesson interp-runge point-set-triangulation`.
 - The registration worker did not run `src/Routes.test.tsx`. Future registration briefs must list it.
 - Low memory killed both a background check and the context watcher once. Run heavy checks in the foreground, one at a time.
 
