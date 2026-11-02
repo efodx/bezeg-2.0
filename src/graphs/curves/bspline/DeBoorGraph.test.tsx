@@ -379,6 +379,23 @@ describe('Reset, scenes, language and disposal', () => {
         view.unmount();
     });
 
+    test('a lesson fixture with knots uses them as given and the collection check rejects an invalid vector with the scene unchanged', () => {
+        const points = [[0, 0], [1, 2], [3, 2], [4, 0]];
+        const fixtureAction = (knots: number[]) =>
+            ({kind: 'prepared-scene', sceneId: 's', source: 'lesson-fixture', curve: {points, degree: 2, knots}}) as unknown as LessonAction;
+        const {graph, view} = mount();
+        // Given knots are used as they are, not rebuilt as the clamped uniform vector (0,0,0,1,2,2,2 would be the default).
+        act(() => graph.getLessonCapabilities().apply(fixtureAction([0, 0, 0, 1, 3, 3, 3])));
+        expect([graph.state.degree, graph.state.knots, graph.state.points]).toEqual([2, [0, 0, 0, 1, 3, 3, 3], points]);
+        const unchanged = [graph.state.degree, graph.state.knots, graph.state.points];
+        // Non-monotone, wrong length and an empty domain are refused and leave the scene as it was.
+        for (const bad of [[0, 0, 0, 2, 1, 3, 3], [0, 0, 0, 1, 3, 3], [0, 0, 0, 1, 3, 3, 3, 3]]) {
+            expect(() => act(() => graph.getLessonCapabilities().apply(fixtureAction(bad)))).toThrow('The lesson geometry is invalid');
+            expect([graph.state.degree, graph.state.knots, graph.state.points]).toEqual(unchanged);
+        }
+        view.unmount();
+    });
+
     test('a figure Preset restores its points and a Preset without data gives the default scene', () => {
         const {graph, view} = mount();
         const data: BSplinePresetData = {degree: 3, knots: [0, 0, 0, 0, 1, 1, 1, 1], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};

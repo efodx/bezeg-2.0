@@ -26,7 +26,7 @@ The spec's kernel contract, lesson contracts and release conditions are the task
 | BS-A-2a3 | F2a | De Boor graph (`DecasteljauGraph` look), animation id `'deboor'`, active-point highlight, disposal test | BS-A-2a1, BS-A-2a2 (knot editor) | done (handler 17, [evidence](../../reviews/b-splines-nurbs/bs-a-2a3-graph.md)); Presets split out to 2a3b |
 | BS-A-2a3b | F2a | Wire the local B-spline Preset collection into `DeBoorGraph` (`presetCollection()` is undefined; fixture, default, checkpoint, figure and import paths) | BS-A-2a3 | done ([evidence](../../reviews/b-splines-nurbs/bs-a-2a3b-presets.md)) |
 | BS-A-2b | F2b | Register `bspline-basis` and `bspline-deboor` (family `/bezeg-2.0/bspline`, `lesson: false`), factories, shared `bspline-curve` collection, `'deboor'` lesson animation id, `lessonFixtureData`, poster-pending and preview recipes | `G-REG`, 2a1–2a3b | done ([evidence](../../reviews/b-splines-nurbs/bs-a-2b-registration.md)) |
-| BS-A-3a | F3 | `LessonCurveFixture.knots` (optional; both B-spline graphs use it, else clamped uniform); L1 guided lesson on `bspline-basis` | BS-A-2b | in progress (handler 19) |
+| BS-A-3a | F3 | `LessonCurveFixture.knots` (optional; both B-spline graphs use it, else clamped uniform); L1 guided lesson on `bspline-basis` | BS-A-2b | done ([evidence](../../reviews/b-splines-nurbs/bs-a-3a-l1-lesson.md)) |
 | BS-A-3b | F3 | L2 guided lesson on `bspline-deboor` (`'deboor'` next-step/reset, local control, pieces) | BS-A-3a | planned |
 | BS-A-4…6 | F4–F6 | Chapter `b-splines`, media, Batch A gate | BS-A-3b | planned |
 | BS-B-* | F2a–F6 | L3 insertion/multiplicity (comb from CG-1), L4 extraction | Batch A | planned |

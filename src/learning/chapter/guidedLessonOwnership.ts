@@ -103,6 +103,10 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // CHAPTER_LINK_PENDING). bezier-patches is chapter-owned, so ?learn=1 resolves only lessons in its registry: owning patch-coons
     // there before the link would open no lesson. The lesson builds on the Bezier curves' boundary control points.
     'patch-coons': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    // Interim owner until the B-spline chapter `b-splines` exists (BS-A-4). The B-spline basis is a family of local piecewise polynomial
+    // bumps, which is the subject of the `splines` chapter's first section (why piecewise curves are local); the lesson also builds
+    // on the Bernstein basis it reduces to for the knots (0,0,0,1,1,1).
+    'bspline-basis': {chapterId: 'splines', sectionId: 'piecewise'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {

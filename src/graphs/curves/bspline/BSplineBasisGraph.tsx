@@ -4,6 +4,7 @@ import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import type {LessonCurveFixture} from "../../../learning/model";
 import {Preset} from "../../base/presets/Presets";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
@@ -11,7 +12,7 @@ import {BSplineBasisScene} from "./BSplineBasisScene";
 import {KnotEditor} from "./KnotEditor";
 import {
     BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, basisPresetData, basisViewBox, clampToDomain, DEFAULT_BASIS_DEGREE, DEFAULT_BASIS_KNOTS,
-    DEFAULT_BASIS_T, domainNote, draggedKnots, editedKnots, isClamped, knotProblem, lastIndexOf, parameterView, readoutLines, rebuiltKnots,
+    DEFAULT_BASIS_T, domainNote, draggedKnots, editedKnots, isClamped, knotProblem, lastIndexOf, parameterView, placeholderPoints, readoutLines, rebuiltKnots,
 } from "./bsplineBasisModel";
 
 export interface BSplineBasisGraphState extends BaseGraphState {
@@ -53,9 +54,14 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         return basisPresetData(this.state.degree, this.state.knots);
     }
 
-    /** A lesson curve fixture: its point count and degree (the default degree if absent) give a clamped uniform knot vector; the points are not used. */
+    /**
+     * A lesson curve fixture: its degree (the default degree if absent) and, when given, its `knots` as they are, with placeholder points
+     * counted from the fixture points so the Preset collection check rejects a vector of the wrong length or order. Without `knots` the
+     * point count gives a clamped uniform vector. The fixture points are otherwise not used.
+     */
     protected override lessonFixtureData(curve: LessonCurveFixture): BSplinePresetData | undefined {
         const degree = curve.degree ?? DEFAULT_BASIS_DEGREE;
+        if (curve.knots) return {degree, knots: [...curve.knots], points: placeholderPoints(curve.points.length)};
         return basisPresetData(degree, rebuiltKnots(degree, curve.points.length - 1, true));
     }
 
@@ -181,6 +187,17 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         if (normalized === this.state.normalized) return;
         this.setState({normalized});
         this.fit();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        // The raw slider parameter t, held inside the current domain like the slider (the domain moves with the knots and the clamped toggle).
+        registry.onDiscriminated('parameter', 't', action => {
+            const {knots, degree} = this.state;
+            if (knotProblem(knots, degree)) throw new Error('The knot vector is invalid, so there is no parameter.');
+            if (!Number.isFinite(action.value)) throw new Error('The parameter t must be a finite number.');
+            this.setState({t: clampToDomain(knots, degree, action.value)});
+        });
     }
 
     /** Sets the slider by its displayed value (rescaled when the display toggle is on); it is held inside the domain. */

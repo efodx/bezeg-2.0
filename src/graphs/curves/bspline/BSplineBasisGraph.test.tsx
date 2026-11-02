@@ -307,6 +307,21 @@ describe('Presets, scenes and reset', () => {
         view.unmount();
     });
 
+    test('a lesson fixture with knots uses them as given and the collection check rejects an invalid vector with the scene unchanged', () => {
+        const {graph, view} = mount();
+        const fixture = (knots: number[], count: number) =>
+            ({kind: 'prepared-scene', sceneId: 's', source: 'lesson-fixture', curve: {points: Array.from({length: count}, (_, i) => [i, 0] as [number, number]), degree: 2, knots}}) as unknown as Parameters<ReturnType<typeof graph.getLessonCapabilities>['apply']>[0];
+        act(() => graph.getLessonCapabilities().apply(fixture([0, 0, 0, 1, 3, 3, 3], 4)));
+        expect([graph.state.degree, graph.state.knots]).toEqual([2, [0, 0, 0, 1, 3, 3, 3]]);
+        const unchanged = [graph.state.degree, graph.state.knots, graph.state.t];
+        // Non-monotone, and a length that does not match the point count, are refused with the scene unchanged.
+        for (const [knots, count] of [[[0, 0, 0, 2, 1, 3, 3], 4], [[0, 0, 0, 1, 3, 3, 3], 5], [[0, 0, 0, 1, 3, 3], 4]] as const) {
+            expect(() => act(() => graph.getLessonCapabilities().apply(fixture([...knots], count)))).toThrow('The lesson geometry is invalid');
+            expect([graph.state.degree, graph.state.knots, graph.state.t]).toEqual(unchanged);
+        }
+        view.unmount();
+    });
+
     test('every scene path carries the degree and knots', () => {
         const {graph, view} = mount();
         // Lesson fixture and lesson default scenes.

@@ -101,7 +101,9 @@ export type LessonViewBox = readonly [left: number, top: number, right: number, 
 /**
  * Lesson-specific geometry of a curve demonstration's single curve. The graph keeps its default scene's curve type and
  * display state and replaces only the given inputs: control points, rational weights, the PH generating point
- * (`points`, one point) with its hodograph points, generic spline degree/continuity, or G1 spline junction ratios.
+ * (`points`, one point) with its hodograph points, generic spline degree/continuity, G1 spline junction ratios, or B-spline `knots` (used as given by the B-spline basis and de Boor graphs; the
+ * graph's Preset check rejects a non-monotone vector or one that does not fit the point count and degree; the default is the clamped
+ * uniform vector; other curve graphs ignore the field).
  * Free-exploration defaults and stored Presets are unaffected; the graph rejects inputs its Preset collection rejects.
  */
 export interface LessonCurveFixture {
@@ -111,6 +113,7 @@ export interface LessonCurveFixture {
     readonly degree?: number;
     readonly continuity?: number;
     readonly splineRatios?: readonly number[];
+    readonly knots?: readonly number[];
 }
 
 /** A point in the 3D scene of a surface (patch) demonstration. */

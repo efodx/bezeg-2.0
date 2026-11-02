@@ -81,10 +81,10 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         return deBoorPresetData(this.state);
     }
 
-    /** A lesson curve fixture: its points and degree (the default degree if absent) on the clamped uniform knot vector for that count. */
+    /** A lesson curve fixture: its points and degree (the default degree if absent) on the given `knots` as they are (the Preset collection check rejects a non-monotone or wrong-length vector), else on the clamped uniform knot vector for that count. */
     protected override lessonFixtureData(curve: LessonCurveFixture): BSplinePresetData | undefined {
         const degree = curve.degree ?? this.defaultPreset().degree;
-        return {degree, knots: knotsForCount(degree, true, curve.points.length), points: curve.points.map(point => [point[0], point[1]] as const)};
+        return {degree, knots: curve.knots ? [...curve.knots] : knotsForCount(degree, true, curve.points.length), points: curve.points.map(point => [point[0], point[1]] as const)};
     }
 
     /** Runs right after `importPresetData` for a lesson fixture or default scene: the imported data survives, the rest is fresh. */
