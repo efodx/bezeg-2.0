@@ -26,6 +26,8 @@ import {checkUniformConvergenceModel, parseUniformConvergenceModel} from "../../
 import {uniformConvergenceFileMessage} from "./uniformConvergenceMessages";
 import {checkFourierSeriesModel, parseFourierSeriesModel} from "../../analysis/fourierSeriesModel";
 import {fourierSeriesFileMessage} from "./fourierSeriesMessages";
+import {checkRungeModel, parseRungeModel} from "../../analysis/rungeInterpolationModel";
+import {rungeFileMessage} from "./rungeInterpolationMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
 import {checkSequenceModel, parseSequenceModel} from "../../analysis/sequenceModel";
@@ -97,6 +99,11 @@ const diagnoseFourierSeries: Diagnosis = data => {
     const check = checkFourierSeriesModel(data);
     return check.ok || check.issue === undefined ? undefined : fourierSeriesFileMessage(check.issue);
 };
+/** The model module names the rule a rejected Runge interpolation model broke; this only localizes it. */
+const diagnoseRunge: Diagnosis = data => {
+    const check = checkRungeModel(data);
+    return check.ok || check.issue === undefined ? undefined : rungeFileMessage(check.issue);
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -155,6 +162,7 @@ export const functionPresetCollections = {
     sequence: functionCollection("sequence", parseSequenceModel, diagnoseSequence),
     "uniform-convergence": functionCollection("uniform-convergence", parseUniformConvergenceModel, diagnoseUniformConvergence),
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
+    "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
