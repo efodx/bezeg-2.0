@@ -259,6 +259,11 @@ export class ThreeViewsGraph extends BaseGraph<ThreeViewsGraphState, ThreeViewsM
         }
         text(() => SOURCE_CENTRE - PANEL_HALF_WIDTH + 0.2, () => PANEL_HALF_HEIGHT - 0.5, () => describeThreeViews(this.scene(), t, currentLanguage()).sourceTitle);
         text(() => IMAGE_CENTRE - PANEL_HALF_WIDTH + 0.2, () => PANEL_HALF_HEIGHT - 0.5, () => describeThreeViews(this.scene(), t, currentLanguage()).imageTitle);
+        // The note that part of the image conic or P' lies outside the panel (empty lines when everything is visible).
+        for (const index of [0, 1]) {
+            text(() => IMAGE_CENTRE - PANEL_HALF_WIDTH + 0.2, () => -PANEL_HALF_HEIGHT + 0.5 + 0.7 * (1 - index),
+                () => describeThreeViews(this.scene(), t, currentLanguage()).clippedLines[index] ?? "");
+        }
 
         // Source plane: the unit circle, the line L and its label.
         fixedCurve(() => {

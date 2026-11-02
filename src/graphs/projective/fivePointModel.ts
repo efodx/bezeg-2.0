@@ -66,6 +66,8 @@ export const serializeFivePointModel = (model: FivePointModel): FivePointModel =
     example: model.example, a: model.a, b: model.b, t: model.t, points: model.points.map(p => ({x: p.x, y: p.y})),
 });
 
+const FIVE_POINT_KEYS: readonly string[] = ["example", "a", "b", "t", "points"];
+
 const checkIndex = (value: unknown, field: string): ProjectiveCheck<number> => {
     if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value >= FIVE_POINT_COUNT) {
         return refuse(message("projective_k2_invalid_index_range", {value0: field, value1: FIVE_POINT_COUNT - 1}));
@@ -76,6 +78,8 @@ const checkIndex = (value: unknown, field: string): ProjectiveCheck<number> => {
 /** Checks imported data field by field; the refusal names the field and the repair. */
 export function parseFivePointModel(data: unknown): ProjectiveCheck<FivePointModel> {
     if (!isRecord(data)) return refuse(message("projective_invalid_not_an_object"));
+    const unknown = Object.keys(data).find(key => !FIVE_POINT_KEYS.includes(key));
+    if (unknown !== undefined) return refuse(message("projective_invalid_unknown_key", {value0: unknown, value1: FIVE_POINT_KEYS.join(", ")}));
     const example = FIVE_POINT_EXAMPLE_IDS.find(id => id === data.example);
     if (example === undefined) return refuse(message("projective_invalid_unknown_example", {value0: FIVE_POINT_EXAMPLE_IDS.join(", ")}));
     if (!Array.isArray(data.points) || data.points.length !== FIVE_POINT_COUNT) {

@@ -46,6 +46,7 @@ export function ThreeViewsControls(props: ThreeViewsControlsProps) {
             <p className="inspector-help" data-projective-line="discriminant">{text.discriminant}</p>
             <p className="inspector-help" data-projective-line="determinant">{text.determinant}</p>
             <p className="inspector-help" data-projective-line="infinity">{text.infinity}</p>
+            {text.clipped && <p className="inspector-help" data-projective-line="clipped">{text.clipped}</p>}
         </div>
         <div className="inspector-group">
             <label className="inspector-help">
@@ -53,7 +54,7 @@ export function ThreeViewsControls(props: ThreeViewsControlsProps) {
             </label>
             <label className="inspector-help">{t("projective_three_views_angle_label")}
                 <input type="range" min={0} max={THREE_VIEWS_ANGLE_STEPS - 1} step={1} value={model.angle} disabled={!model.pointOn}
-                       aria-valuetext={`${angleDegrees}°`} onChange={event => actions.setAngle(Number(event.target.value))}/>
+                       aria-valuetext={t("projective_three_views_angle_value", {value0: formatNumber(angleDegrees, language, 0)})} onChange={event => actions.setAngle(Number(event.target.value))}/>
             </label>
             {text.point && <p className="inspector-help" data-projective-line="point">{text.point}</p>}
         </div>

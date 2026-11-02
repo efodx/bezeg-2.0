@@ -211,3 +211,25 @@ test('unmount removes the listener, the attributes and every scene object; a Str
     expect(mine.filter(object => !removed.includes(object))).toEqual([]);
     expect(mine.filter(object => (board.objectsList as unknown[]).includes(object))).toEqual([]);
 });
+
+test('the off-window note shows for c = 0.9, disappears for c = 0.5 and follows the language', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.setCTenths(9); });
+    expect(line('clipped')).toContain('zunaj tega pogleda');
+    expect(boardTexts(graph).join(' ')).toContain('zunaj tega pogleda');
+    act(() => { setLanguage('en'); });
+    expect(line('clipped')).toContain('outside this view');
+    expect(boardTexts(graph).join(' ')).toContain('outside this view');
+    act(() => { graph.setCTenths(5); });
+    expect(line('clipped')).toBe('');
+    expect(boardTexts(graph).join(' ')).not.toContain('outside this view');
+});
+
+test('the angle slider has a localized aria-valuetext', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.togglePoint(true); graph.placePoint(4); });
+    const angle = screen.getByLabelText(/Kot točke P/) as HTMLInputElement;
+    expect(angle.getAttribute('aria-valuetext')).toBe('60°');
+});

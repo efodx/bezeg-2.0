@@ -31,12 +31,16 @@ export const DEFAULT_THREE_VIEWS_MODEL: ThreeViewsModel = {c: 20, pointOn: false
 
 export const serializeThreeViewsModel = (model: ThreeViewsModel): ThreeViewsModel => ({c: model.c, pointOn: model.pointOn, angle: model.angle});
 
+const THREE_VIEWS_KEYS: readonly string[] = ["c", "pointOn", "angle"];
+
 const checkBoolean = (value: unknown, field: string): ProjectiveCheck<boolean> =>
     typeof value === "boolean" ? accept(value) : refuse(message("projective_three_views_invalid_boolean", {value0: field}));
 
 /** Checks imported data field by field; the refusal names the field and the repair. */
 export function parseThreeViewsModel(data: unknown): ProjectiveCheck<ThreeViewsModel> {
     if (!isRecord(data)) return refuse(message("projective_invalid_not_an_object"));
+    const unknown = Object.keys(data).find(key => !THREE_VIEWS_KEYS.includes(key));
+    if (unknown !== undefined) return refuse(message("projective_invalid_unknown_key", {value0: unknown, value1: THREE_VIEWS_KEYS.join(", ")}));
     const c = checkInteger(data.c, "c", THREE_VIEWS_LIMIT);
     if (!c.ok) return c;
     const pointOn = checkBoolean(data.pointOn, "pointOn");
@@ -87,6 +91,22 @@ export interface ThreeViewsScene {
     readonly ideal: readonly ThreeViewsIdealPoint[];
     /** The optional point P on the circle and its image, when it is switched on. */
     readonly point?: {readonly x: number; readonly y: number; readonly image: ThreeViewsPointImage};
+    /**
+     * What the image panel (window `IMAGE_WINDOW`) cannot show. `conic`: a finite extreme of the image conic lies outside it (the far
+     * vertex 1 / (1 - |c|) of the hyperbola, the far extreme 1 / (|c| - 1) or the half-width 1 / sqrt(c^2 - 1) of the ellipse), so the
+     * drawn curve is cut. The hyperbola and parabola run to infinity by nature and are not flagged for that. `point`: P' is finite but
+     * outside the window. `any` is true when either holds.
+     */
+    readonly clipped: {readonly conic: boolean; readonly point: boolean; readonly any: boolean};
+}
+
+/** Whether a finite extreme of the image conic for c = k / 10 lies outside the image window (see `ThreeViewsScene.clipped`). */
+export function conicExtremeClipped(k: number): boolean {
+    const c = Math.abs(k) / THREE_VIEWS_TENTHS;
+    if (c === 1) return false; // the parabola Y = -(X^2 + 1) / 2 c has its vertex at |Y| = 1/2
+    const w = IMAGE_WINDOW;
+    if (c < 1) return 1 / (1 - c) > w.yMax; // the far vertex of the hyperbola; the near one, 1 / (1 + c), is always inside
+    return 1 / (c - 1) > w.yMax || 1 / Math.sqrt(c * c - 1) > w.xMax;
 }
 
 /** The unit-circle point at step `angle` of 15 degrees; the multiples of 90 degrees are exact. */
@@ -140,7 +160,10 @@ export function evaluateThreeViews(model: ThreeViewsModel): ThreeViewsScene {
             : {kind: "finite", ...imageOfPoint(c, p.x, p.y)};
         point = {x: p.x, y: p.y, image};
     }
+    const pointClipped = point?.image.kind === "finite" && (Math.abs(point.image.X) > IMAGE_WINDOW.xMax || Math.abs(point.image.Y) > IMAGE_WINDOW.yMax);
+    const conicClipped = conicExtremeClipped(k);
     return {
+        clipped: {conic: conicClipped, point: pointClipped, any: conicClipped || pointClipped},
         model, cValue: c, conic: reduced, type, contact, discriminant: discriminant(reduced), scale: A, fourDeterminant,
         determinantNormalised: Number(fourDeterminant) / Number(4n * A * A * A), ideal, point,
     };

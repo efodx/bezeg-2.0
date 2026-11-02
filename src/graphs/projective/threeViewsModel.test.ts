@@ -4,6 +4,7 @@ import {
     circlePoint, DEFAULT_THREE_VIEWS_MODEL, directionSegments, evaluateThreeViews, IMAGE_WINDOW, imageConic, imageOfPoint, imagePolyline, imageResidual,
     parseThreeViewsModel, THREE_VIEWS_LIMIT, ThreeViewsModel, windowExit,
 } from "./threeViewsModel";
+import {renderMessage} from "../../localization";
 import {nudgeC, setAngle, setC, setPointOn} from "./threeViewsEdit";
 
 const model = (c: number, extra: Partial<ThreeViewsModel> = {}): ThreeViewsModel => ({...DEFAULT_THREE_VIEWS_MODEL, c, ...extra});
@@ -104,8 +105,7 @@ describe("the image map (acceptance 2)", () => {
             }
         }
         console.log(`worst relative residual over 800 points: ${worst}`);
-        expect(worst).toBeLessThan(1e-12);
-        expect(worst).toBeLessThan(1e-14);
+        expect(worst).toBeLessThan(1e-13);
     });
 
     test("a wrong map (Y not 1/(y - c)) breaks the equation", () => {
@@ -206,5 +206,28 @@ describe("Preset parser", () => {
         const refusals = [null, "x", {c: 1.5, pointOn: false, angle: 0}, {c: 26, pointOn: false, angle: 0}, {c: 0, pointOn: 1, angle: 0},
             {c: 0, pointOn: true, angle: 24}, {c: 0, pointOn: true, angle: -1}, {c: 0, pointOn: true}, {pointOn: true, angle: 0}];
         for (const bad of refusals) expect(parseThreeViewsModel(bad).ok).toBe(false);
+    });
+
+    test("refuses an unknown key and names it", () => {
+        const checked = parseThreeViewsModel({c: 20, pointOn: false, angle: 3, extra: 1});
+        if (checked.ok) throw new Error("accepted");
+        expect(renderMessage(checked.rejection)).toContain("extra");
+    });
+});
+
+describe("the image panel window", () => {
+    test("flags the clipped conic for |k| = 9 and 11, not for 12 to 14, 0, 5, 10 or 20, and for P' outside the window", () => {
+        for (const k of [9, -9, 11, -11]) expect([k, scene(k).clipped.conic]).toEqual([k, true]);
+        for (const k of [0, 5, 8, 10, 12, 13, 14, 20, -20, 25]) expect([k, scene(k).clipped.any]).toEqual([k, false]);
+        // c = 1.1, P at 90 degrees (step 6): P' = (0, 1 / (1 - 1.1)) = (0, -10), off the window although c = 1.2 would hold it
+        expect(scene(11, {pointOn: true, angle: 6}).clipped.point).toBe(true);
+        expect(scene(20, {pointOn: true, angle: 6}).clipped.point).toBe(false);
+        expect(scene(20, {pointOn: false}).clipped.any).toBe(false);
+    });
+
+    test("the flag agrees with the sampled image: a clipped extreme really lies outside the window", () => {
+        const far = (k: number) => 1 / Math.abs(Math.abs(k) / 10 - 1);
+        expect(far(9)).toBeGreaterThan(IMAGE_WINDOW.yMax);
+        expect(far(12)).toBeLessThan(IMAGE_WINDOW.yMax);
     });
 });

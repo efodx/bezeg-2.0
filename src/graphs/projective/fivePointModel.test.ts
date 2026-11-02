@@ -123,6 +123,10 @@ describe('parsing', () => {
         return renderMessage(checked.rejection);
     };
 
+    test('an unknown key is refused and named', () => {
+        expect(refusal({...JSON.parse(JSON.stringify(good)), extra: 1})).toContain('extra');
+    });
+
     test('valid data round-trips as an independent copy', () => {
         const checked = parseFivePointModel(JSON.parse(JSON.stringify(good)));
         expect(checked.ok && checked.value).toEqual(good);

@@ -43,6 +43,10 @@ export interface ThreeViewsText {
     /** The board title of the image panel. */
     readonly imageTitle: string;
     readonly sourceTitle: string;
+    /** The note that part of the image lies outside the image panel; undefined when everything is visible. */
+    readonly clipped?: string;
+    /** The same note as separate sentences (conic, then point), for the two lines on the board. */
+    readonly clippedLines: readonly string[];
 }
 
 export function describeThreeViews(scene: ThreeViewsScene, t: Translate, language: NumberLanguage): ThreeViewsText {
@@ -67,6 +71,10 @@ export function describeThreeViews(scene: ThreeViewsScene, t: Translate, languag
             ? t("projective_three_views_point_finite", {value0: where, value1: pair(scene.point.image.X, scene.point.image.Y, language)})
             : t("projective_three_views_point_infinity", {value0: where, value1: pair(scene.point.image.direction.x, scene.point.image.direction.y, language)});
     }
+    const clippedLines = [
+        scene.clipped.conic ? t("projective_three_views_clipped_conic") : "",
+        scene.clipped.point ? t("projective_three_views_clipped_point") : "",
+    ].filter(Boolean);
     return {
         typeName, cText,
         status: t(statusKey, {value0: cText, value1: typeName}),
@@ -76,5 +84,6 @@ export function describeThreeViews(scene: ThreeViewsScene, t: Translate, languag
         infinity, point,
         imageTitle: t("projective_three_views_title_image", {value0: typeName}),
         sourceTitle: t("projective_three_views_title_source"),
+        clipped: clippedLines.length ? clippedLines.join(" ") : undefined, clippedLines,
     };
 }
