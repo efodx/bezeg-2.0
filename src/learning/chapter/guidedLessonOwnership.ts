@@ -31,6 +31,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'decasteljau-alternative': {chapterId: 'bezier-curves', sectionId: 'interpolation'},
     farin: {chapterId: 'rational-curves', sectionId: 'operations'},
     circle: {chapterId: 'rational-curves', sectionId: 'worked-conic'},
+    // Interim owner (07e): the projective-conics chapter forbids five-point words; 07g moves K4 into it.
+    'projective-five-point': {chapterId: 'rational-curves', sectionId: 'worked-conic'},
     // Projective conics K1 (cross-ratio), K2 (Pascal) and K3 (pole and polar): one section each of the Projective geometry of conics chapter (F4).
     'projective-cross-ratio': {chapterId: 'projective-conics', sectionId: 'projective-cross-ratio'},
     'projective-pascal': {chapterId: 'projective-conics', sectionId: 'projective-pascal'},

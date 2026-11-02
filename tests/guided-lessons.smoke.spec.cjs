@@ -2012,7 +2012,16 @@ const bsplineDeBoor = {
     minFrames: 12, // at least 2 frames per step
 };
 
-const LESSONS = [interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Projective conics K4 (five points, rational quadratic Bezier arc); projectiveFivePointLesson.test.ts checks every scene state on the real graph, so this row carries no hooks.
+const projectiveFivePoint = {
+    id: 'projective-five-point',
+    path: `${BASE}/projective/five-point`,
+    titles: {sl: 'Stožnica skozi pet točk', en: 'A conic through five points'},
+    steps: 9,
+    minFrames: 18, // at least 2 frames per step
+};
+
+const LESSONS = [interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

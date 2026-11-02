@@ -115,7 +115,7 @@ test('five-point-set-extrapolation reaches the state of the checkbox, on and bac
 test('five-point operations refuse out-of-range, non-integer, off-grid and unknown values and change nothing', () => {
     const graph = mount();
     const before = graph.model;
-    const bad: LessonAction[] = [
+    const bad: Extract<LessonAction, {kind: 'projective'}>[] = [
         {kind: 'projective', operation: 'five-point-load-example', exampleId: JSON.parse('"nope"')},
         {kind: 'projective', operation: 'five-point-set-end', which: JSON.parse('"c"'), index: 2},
         {kind: 'projective', operation: 'five-point-set-end', which: 'a', index: 5},
