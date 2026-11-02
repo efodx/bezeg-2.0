@@ -1,7 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {TRIANGULATION_EXAMPLE_POINTS, TRIANGULATION_T0, TriangulationGraph} from './TriangulationGraph';
+import {TRIANGULATION_EXAMPLE_POINTS, TRIANGULATION_T0, TriangulationGraph, TriangulationGraphState} from './TriangulationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
@@ -114,7 +114,7 @@ test('the board draws 13 edge curves, 5 of them heavier hull edges, and shades a
     expect(quads(graph)).toHaveLength(1);
     expect(edgeCurves(graph)).toHaveLength(13);
     const selectedWeights = edgeCurves(graph).map(weight);
-    expect(Math.max(...selectedWeights)).toBe(5);
+    expect(Math.max(...selectedWeights)).toBe(8);
     const hull = refusedEdge('hull-edge');
     choose(hull.a, hull.b);
     expect(quads(graph)).toHaveLength(0);
@@ -194,7 +194,7 @@ test('an added point outside the hull matches 2n - 2 - k, and a collinear bounda
     act(() => { graph.addPointAt({x: 10, y: 0}); });
     expect(part('event')).toContain('zunaj ovojnice');
     expect(readout('k')).toBe('Točk na robu ovojnice: k = 6');
-    expect(readout('collinear')).toContain('Med njimi 1');
+    expect(readout('collinear')).toContain('Točke na stranicah ovojnice, ki niso oglišča: 1;');
     expect(readout('triangles')).toBe('Trikotnikov: 8 = 2n − 2 − k = 2 · 8 − 2 − 6');
     expect(graph.triangles).toHaveLength(8);
 });
@@ -205,7 +205,7 @@ test('the nine points of the hull lesson give k = 6 with one collinear point and
     act(() => { graph.loadModel(pts([[2, 2], [4, 0], [0, 0], [5, 3], [2, 5], [-1, 3], [3, 1], [2, 0], [1, 1]])); });
     expect(readout('n')).toBe('Točk: n = 9');
     expect(readout('k')).toBe('Točk na robu ovojnice: k = 6');
-    expect(readout('collinear')).toContain('Med njimi 1');
+    expect(readout('collinear')).toContain('Točke na stranicah ovojnice, ki niso oglišča: 1;');
     expect(readout('triangles')).toBe('Trikotnikov: 10 = 2n − 2 − k = 2 · 9 − 2 − 6');
     expect(graph.triangles).toHaveLength(10);
 });
@@ -485,6 +485,66 @@ test('Reset returns to the default scene and clears the selection and the event'
     expect(readout('triangles')).toBe('Trikotnikov: 7 = 2n − 2 − k = 2 · 7 − 2 − 5');
 });
 
+test('a state write carrying a triangle list (a lesson action or checkpoint) clears the flip event and the selection', () => {
+    const graph = new Observed();
+    mount(graph);
+    const e = legalEdge();
+    choose(e.a, e.b);
+    flipIt();
+    expect(graph.event?.kind).toBe('flipped');
+    const write: Partial<TriangulationGraphState> = {triangles: TRIANGULATION_T0.map(tri => [...tri])};
+    act(() => { graph.setState(write); });
+    expect(graph.triangles).toEqual(TRIANGULATION_T0);
+    expect(graph.event).toBeUndefined();
+    expect(part('event')).toBeUndefined();
+    expect(graph.selectedEdge()).toBeUndefined();
+});
+
+test('only the user add path reports an insertion: loadModel with a one-point superset shows no event', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.addPointAt({x: 6, y: 2}); });
+    expect(graph.event?.kind).toBe('inserted');
+    const superset = pts([...graph.model.points.map((p): [number, number] => [p.x, p.y]), [7, 3]]);
+    act(() => { graph.loadModel(superset); });
+    expect(graph.model.points).toHaveLength(9);
+    expect(graph.event).toBeUndefined();
+    expect(part('event')).toBeUndefined();
+});
+
+test('a refusal is announced once: by its alert, not by the polite live region', () => {
+    const graph = new Observed();
+    mount(graph);
+    act(() => { graph.loadModel(pts([[0, 0], [1, 1], [0, 0]])); });
+    expect(document.querySelectorAll('[role="alert"]')).toHaveLength(1);
+    expect(part('refusal')).toContain('Dve točki sta enaki');
+    expect(part('live')).not.toContain('Dve točki sta enaki');
+});
+
+test('the edge select and the Flip button are described by the hint', () => {
+    mount(new Observed());
+    const hint = document.getElementById('triangulation-flip-hint');
+    expect(hint?.textContent).not.toBe('');
+    expect(list().getAttribute('aria-describedby')).toBe('triangulation-flip-hint');
+    expect(button().getAttribute('aria-describedby')).toBe('triangulation-flip-hint');
+});
+
+test('the selected edge is heavier and dashed, apart from colour, and the hull stays heavier than the interior', () => {
+    const graph = new Observed();
+    mount(graph);
+    const e = legalEdge();
+    choose(e.a, e.b);
+    const width = (o: Shown) => Number(o.visProp?.strokewidth);
+    const dashOf = (o: Shown) => Number(o.visProp?.dash);
+    const curves = edgeCurves(graph);
+    const heaviest = Math.max(...curves.map(width));
+    const dashed = curves.filter(o => dashOf(o) > 0);
+    expect(dashed).toHaveLength(1);
+    expect(width(dashed[0])).toBe(heaviest);
+    const plain = curves.filter(o => dashOf(o) === 0);
+    expect(Math.min(...hullCurves(graph).map(width))).toBeGreaterThan(Math.max(...plain.filter(o => o.name === 'triangulation-edge').map(width)));
+});
+
 test('a live language switch re-renders the panel text, the refusal and the readouts', () => {
     const graph = new Observed();
     mount(graph);
@@ -508,7 +568,11 @@ test('unmount leaves no board objects, language listeners or key listeners', () 
     const remove = vi.spyOn(box, 'removeEventListener');
     expect(languageListeners.live).toBeGreaterThan(0);
     expect((board.objectsList as unknown[]).length).toBeGreaterThan(0);
+    const owned = () => (graph['overlayObjects'] as unknown[]).length;
+    expect(owned()).toBeGreaterThan(0);
+    expect(edgeCurves(graph).length).toBeGreaterThan(0);
     view.unmount();
+    expect(owned()).toBe(0);
     expect(languageListeners.live).toBe(0);
     expect(remove.mock.calls.filter(([type, listener]) => type === 'keydown' && listener === graph['onKeyDown'])).toHaveLength(1);
     expect(box.childElementCount).toBe(0);

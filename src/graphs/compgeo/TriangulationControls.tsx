@@ -65,7 +65,7 @@ export function eventText(t: Translate, event: TriangulationEvent): string {
     }
 }
 
-/** The readouts, the edge list and the Flip button of the triangulation graph. The live region announces the last action. */
+/** The readouts, the edge list and the Flip button of the triangulation graph. The live region announces the last event; a refusal is announced by its own alert only. */
 export function TriangulationControls(props: TriangulationControlsProps) {
     const t = useT();
     const {readout, refusal, event, edges, selected, actions} = props;
@@ -76,26 +76,27 @@ export function TriangulationControls(props: TriangulationControlsProps) {
         <div className="inspector-group" data-triangulation="edge-flip">
             <div className="inspector-playback" role="group" aria-label={t("tri_flip_group")}>
                 <label htmlFor="triangulation-edge">{t("tri_edge_select")}</label>
-                <select id="triangulation-edge" data-triangulation="edge-list" value={selected ? key(selected[0], selected[1]) : ""}
+                <select id="triangulation-edge" aria-describedby="triangulation-flip-hint" data-triangulation="edge-list" value={selected ? key(selected[0], selected[1]) : ""}
                         disabled={edges.length === 0}
-                        onChange={event => {
-                            const [a, b] = event.target.value.split("-").map(Number);
-                            if (event.target.value === "") actions.selectEdge(undefined); else actions.selectEdge(a, b);
+                        onChange={change => {
+                            const value = change.target.value;
+                            const [a, b] = value.split("-").map(Number);
+                            if (value === "") actions.selectEdge(undefined); else actions.selectEdge(a, b);
                         }}>
                     <option value="">{t("tri_edge_none")}</option>
                     {edges.map(e => <option key={key(e.a, e.b)} value={key(e.a, e.b)}>
                         {t(e.interior ? "tri_edge_option_interior" : "tri_edge_option_hull", {value0: e.a + 1, value1: e.b + 1})}
                     </option>)}
                 </select>
-                <button type="button" data-action="flip-edge" aria-disabled={flipUnavailable || undefined}
+                <button type="button" data-action="flip-edge" aria-describedby="triangulation-flip-hint" aria-disabled={flipUnavailable || undefined}
                         onClick={() => actions.flip()}>{t("tri_flip")}</button>
             </div>
-            <p className="inspector-help">{t("tri_flip_hint")}</p>
+            <p className="inspector-help" id="triangulation-flip-hint">{t("tri_flip_hint")}</p>
         </div>
         <div className="inspector-group" data-triangulation="status">
             {refusal && <p className="inspector-help" role="alert" data-triangulation="refusal">{refusalText(t, refusal)}</p>}
             {eventSentence && <p className="inspector-help" data-triangulation="event">{eventSentence}</p>}
-            {readout && <ul role="group" aria-label={t("tri_readout_label")} data-triangulation="readout">
+            {readout && <ul aria-label={t("tri_readout_label")} data-triangulation="readout">
                 <li data-readout="n">{t("tri_readout_points", {value0: readout.n})}</li>
                 <li data-readout="k">{t("tri_readout_boundary", {value0: readout.boundary.k})}</li>
                 {readout.boundary.collinear > 0 &&
@@ -110,7 +111,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                     : t("tri_readout_angle_before", {value0: degrees(readout.minAngleBefore)})}</li>
             </ul>}
             <p className="visually-hidden" role="status" aria-live="polite" data-triangulation="live">
-                {[refusal ? refusalText(t, refusal) : "", eventSentence].filter(Boolean).join(" ")}</p>
+                {eventSentence}</p>
         </div>
     </>;
 }

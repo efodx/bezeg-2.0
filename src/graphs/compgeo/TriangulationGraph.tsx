@@ -1,5 +1,6 @@
 import React from "react";
 import {angleVector, incrementalTriangulation} from "../../compgeo/delaunay";
+import {GridPoint} from "../../compgeo/grid";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
 import {boundaryCount, type BoundaryCount, type InsertionCase, insertPoint} from "../../compgeo/pointInsertion";
 import {
@@ -102,6 +103,10 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
     private selectedEdgeValue?: readonly [number, number];
     /** Set by `importPresetData` for the one model write that carries its own triangle list. */
     private incoming?: readonly (readonly number[])[];
+    /** True only while `addPointAt` runs. */
+    private adding = false;
+    /** True while `loadModel` or a Preset import runs: a replacement, not a user edit, so no `rebuilt` event. */
+    private loading = false;
     private currentMemo?: {points: PointSetModel["points"]; triangles: unknown; tri: Triangulation | undefined};
     private inputsMemo?: {triangles: unknown; edge: string};
 
@@ -177,8 +182,15 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         return {...super.getInitialState(), overlays: {triangulation: true}, triangles: []};
     }
 
-    /** Every model write also decides the triangle list (`retriangulate`), unless the write names it itself. */
+    /**
+     * Every model write also decides the triangle list (`retriangulate`), unless the write names it itself. The updater is
+     * pure; the transient event and edge selection are decided here, after the (synchronous) scene write: any change of the
+     * model or the triangle list clears them, except the insertion event of the user's add path. `flipSelected` sets its own
+     * event and selection after its write. Lesson checkpoint restore drops selection and event too: they are transient UI state,
+     * not captured by `captureTransientState` in PointSetGraph.
+     */
     override setState(update: SceneStateUpdate<PointSetGraphState>, callback?: () => void): void {
+        let event: TriangulationEvent | undefined;
         const wrapped: SceneStateUpdate<PointSetGraphState> = state => {
             const raw = typeof update === "function" ? update(state) : update;
             if (!raw || raw.model === undefined) return raw;
@@ -186,11 +198,37 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
             if (raw.model === state.model && model === raw.model) return raw;
             if ("triangles" in raw) return {...raw, model};
             const next = this.retriangulate(state, model, this.incoming);
-            this.eventValue = next.event;
-            this.selectedEdgeValue = undefined;
+            event = next.event;
             return this.patch({...raw, model, triangles: next.triangles, previous: undefined});
         };
+        const before = this.state;
         super.setState(wrapped, callback);
+        const after = this.state;
+        const beforeTriangles = "triangles" in before ? before.triangles : undefined;
+        const afterTriangles = "triangles" in after ? after.triangles : undefined;
+        if (after.model !== before.model || afterTriangles !== beforeTriangles) {
+            this.eventValue = event;
+            this.selectedEdgeValue = undefined;
+        }
+    }
+
+    override loadModel(model: PointSetModel): void {
+        this.loading = true;
+        try {
+            super.loadModel(model);
+        } finally {
+            this.loading = false;
+        }
+    }
+
+    /** The user's add path: only this produces the `inserted` event. */
+    override addPointAt(point: GridPoint): boolean {
+        this.adding = true;
+        try {
+            return super.addPointAt(point);
+        } finally {
+            this.adding = false;
+        }
     }
 
     /**
@@ -214,7 +252,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         const oldResult = createTriangulation(oldPoints, oldList);
         const old = oldResult.ok ? oldResult.value : undefined;
         if (old && !named) {
-            const prefixKept = points.length === oldPoints.length + 1 && oldPoints.every((p, i) => p.x === points[i].x && p.y === points[i].y);
+            const prefixKept = this.adding && points.length === oldPoints.length + 1 && oldPoints.every((p, i) => p.x === points[i].x && p.y === points[i].y);
             if (prefixKept) {
                 const inserted = insertPoint(old, points[points.length - 1]);
                 if (inserted.ok) {
@@ -228,7 +266,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
             }
         }
         const built = incrementalTriangulation(points);
-        return {triangles: built.ok ? built.value.triangles : [], event: old && !named ? {kind: "rebuilt"} : undefined};
+        return {triangles: built.ok ? built.value.triangles : [], event: old && !named && !this.loading ? {kind: "rebuilt"} : undefined};
     }
 
     // ---- Edge selection and flip ---------------------------------------------------------------------------------
@@ -260,9 +298,9 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         }
         const created = edges(result.value).find(e => !edges(tri).some(old => old.a === e.a && old.b === e.b));
         const next: readonly [number, number] = created ? [created.a, created.b] : [edge.a, edge.b];
+        this.setState(this.patch({triangles: result.value.triangles, previous: tri.triangles}));
         this.selectedEdgeValue = next;
         this.eventValue = {kind: "flipped", edge: [edge.a, edge.b], created: next};
-        this.setState(this.patch({triangles: result.value.triangles, previous: tri.triangles}));
         this.requestRender();
         this.afterFlip(tri, result.value);
         return true;
@@ -300,9 +338,11 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
             throw new Error("Triangulation preset: the stored triangle list is not a valid triangulation of the stored points.");
         }
         this.incoming = stored && stored.length > 0 ? stored : undefined;
+        this.loading = true;
         try {
             super.importPresetData(asPoints({...rest, mode: "points", closed: false, points: rest.points}));
         } finally {
+            this.loading = false;
             this.incoming = undefined;
         }
         this.selectedEdgeValue = undefined;
@@ -367,7 +407,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
         return [...this.drawSelectedEdge(tri, selected, model), ...this.drawTriangulation(tri, selected, model)];
     }
 
-    /** One curve per edge: hull edges heavy, interior edges thin, so the difference does not rely on colour. */
+    /** One curve per edge: hull edges heavy, interior edges thin, the selected edge heaviest and dashed, so no difference relies on colour. */
     protected drawTriangulation(tri: Triangulation, selected: TriangulationEdge | undefined, model: PointSetModel): JXG.GeometryElement[] {
         return edges(tri).map(edge => {
             const from = gridToBoard(tri.points[edge.a], model.gridStepExponent);
@@ -377,7 +417,7 @@ export class TriangulationGraph extends PointSetGraph<TriangulationOverlayId> {
                 name: edge.interior ? "triangulation-edge" : "triangulation-hull-edge",
                 highlight: false, fixed: true, layer: isSelected ? 4 : 3,
                 strokeColor: isSelected ? GraphPalette.constructionAccent : GraphPalette.referenceCurve,
-                strokeWidth: isSelected ? 5 : edge.interior ? 1.5 : 3.5,
+                strokeWidth: isSelected ? 8 : edge.interior ? 1.5 : 3.5, dash: isSelected ? 2 : 0,
             }) as JXG.GeometryElement;
             curve.on("down", () => { if (!this.graphInteractionLocked) this.selectEdge(edge.a, edge.b); });
             return curve;

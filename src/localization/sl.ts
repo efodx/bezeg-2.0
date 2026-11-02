@@ -1945,7 +1945,7 @@ export const sl = {
     "tri_readout_label": "Števila triangulacije",
     "tri_readout_points": "Točk: n = {value0}",
     "tri_readout_boundary": "Točk na robu ovojnice: k = {value0}",
-    "tri_readout_collinear": "Med njimi {value0} ne tvori oglišča ovojnice, ker leži na stranici med dvema ogliščema; v k se vseeno šteje.",
+    "tri_readout_collinear": "Točke na stranicah ovojnice, ki niso oglišča: {value0}; štejejo tudi v k.",
     "tri_readout_triangles": "Trikotnikov: {value0} = 2n − 2 − k = 2 · {value1} − 2 − {value2}",
     "tri_readout_edges": "Robov: {value0} = 3n − 3 − k = 3 · {value1} − 3 − {value2}; notranjih {value3}, na ovojnici {value4}",
     "tri_readout_angle_now": "Najmanjši kot zdaj: {value0}°",

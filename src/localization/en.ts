@@ -1946,7 +1946,7 @@ export const en: Record<keyof typeof sl, string> = {
     "tri_readout_label": "Triangulation numbers",
     "tri_readout_points": "Points: n = {value0}",
     "tri_readout_boundary": "Points on the hull boundary: k = {value0}",
-    "tri_readout_collinear": "Of these, {value0} are not hull corners because they lie on a side between two corners; they still count in k.",
+    "tri_readout_collinear": "Points on hull sides that are not corners: {value0}; they also count in k.",
     "tri_readout_triangles": "Triangles: {value0} = 2n − 2 − k = 2 · {value1} − 2 − {value2}",
     "tri_readout_edges": "Edges: {value0} = 3n − 3 − k = 3 · {value1} − 3 − {value2}; {value3} interior, {value4} on the hull",
     "tri_readout_angle_now": "Smallest angle now: {value0}°",
