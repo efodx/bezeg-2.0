@@ -94,7 +94,7 @@ describe('family reading chapters', () => {
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps', 'triangle-geometry'].includes(chapter.id) ? 2 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' ? 3 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' || chapter.id === 'fourier-series' ? 2 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'triangle-geometry' ? 3 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' ? 3 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' || chapter.id === 'fourier-series' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);
