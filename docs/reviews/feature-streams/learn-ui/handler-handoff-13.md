@@ -23,3 +23,7 @@ Commit hashes after the final rebase onto `df67c48e`, as on `master`: `5664ca35`
 - Mathematical review finding 5 (`square-vs-triangular`) is unasserted, because the surface-check format cannot express it.
 - The Geometry chapters `convexity-hulls` and `triangulations-voronoi` have cards without images. Their F5 media slices are now unblocked by `G-HL`.
 - `do-log` records for handlers 3–13 are unwritten.
+
+## Hosted CI after the push
+
+The run on `777d694e` failed on two counts from this stream, both repaired in the next commit. Lint failed on the smoke worker's committed `acceptance-smoke/*.cjs` scripts, which are now untracked, as in the earlier smoke folders. `tests/unified-learning.smoke.spec.cjs` still expected two Bézier patches section figures; it now expects none and checks the guided-example card image, and it passed locally with `just smoke-built … --grep bezier-patches`. The third failure belongs to Maps: `GraphTransientState.part2.test.tsx` › inscribed-angle "a rollback within one tick…". It failed on `df67c48e` before this stream's push and passed in the local `just check`.
