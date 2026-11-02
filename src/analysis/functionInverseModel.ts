@@ -19,8 +19,25 @@ export const INVERSE_BASE_MIN = BASE_MIN;
 export const INVERSE_BASE_MAX = BASE_MAX;
 export const INVERSE_X0_STEP = 0.1;
 
-/** The abscissa x0 of the point P = (x0, f(x0)) lies in this range; x^2 is restricted to x >= 0, so its range starts at 0. */
-export const inverseX0Range = (restriction: InverseRestrictionId): readonly [number, number] => restriction === 'square' ? [0, 4] : [-3, 3];
+/** The largest value f(x0) may take, so that P = (x0, f(x0)) and its mirror P' = (f(x0), x0) stay inside the graph's default view. */
+export const INVERSE_VALUE_MAX = 8;
+
+/** The limit rounded inwards to the grid of INVERSE_X0_STEP (down for an upper end, up for a lower end). */
+const toGrid = (limit: number, round: (v: number) => number): number =>
+    Number((round(limit / INVERSE_X0_STEP + (round === Math.floor ? 1e-9 : -1e-9)) * INVERSE_X0_STEP).toFixed(6));
+
+/**
+ * The abscissa x0 of the point P = (x0, f(x0)) lies in this range: [0, 4] for x^2 (restricted to x >= 0) and [-3, 3] for the
+ * exponentials, cut where f(x0) would exceed INVERSE_VALUE_MAX (x0 <= sqrt 8, x0 <= ln 8, and x0 <= log_a 8 for a > 1 or
+ * x0 >= log_a 8 for a < 1), with the cut rounded inwards to the grid. Every base in [0.2, 5] keeps |log_a 8| >= 1.29, so the range always
+ * contains [0, 1.2].
+ */
+export const inverseX0Range = (restriction: InverseRestrictionId, base: number): readonly [number, number] => {
+    if (restriction === 'square') return [0, Math.min(4, toGrid(Math.sqrt(INVERSE_VALUE_MAX), Math.floor))];
+    const lnBase = restriction === 'natural' ? 1 : Math.log(base);
+    const cut = Math.log(INVERSE_VALUE_MAX) / lnBase;
+    return lnBase > 0 ? [-3, Math.min(3, toGrid(cut, Math.floor))] : [Math.max(-3, toGrid(cut, Math.ceil)), 3];
+};
 
 export interface FunctionInverseModel {
     readonly restriction: InverseRestrictionId;
@@ -63,14 +80,14 @@ function baseIssue(value: number): FunctionInverseIssue | undefined {
     return pair === 'base-one' ? {kind: 'base-one'} : {kind: 'range', field: 'base', min: INVERSE_BASE_MIN, max: INVERSE_BASE_MAX};
 }
 
-function x0Issue(restriction: InverseRestrictionId, value: number): FunctionInverseIssue | undefined {
-    const [min, max] = inverseX0Range(restriction);
+function x0Issue(restriction: InverseRestrictionId, base: number, value: number): FunctionInverseIssue | undefined {
+    const [min, max] = inverseX0Range(restriction, base);
     return Number.isFinite(value) && value >= min && value <= max ? undefined : {kind: 'range', field: 'x0', min, max};
 }
 
 /**
  * The single validity rule of a stored model: a known restriction, a base inside [0.2, 5] and different from 1, x0 inside the range
- * of the restriction, and boolean visibility flags. Unknown properties are dropped. Rules are checked in the order restriction, base,
+ * of the restriction and base (`inverseX0Range`), and boolean visibility flags. Unknown properties are dropped. Rules are checked in the order restriction, base,
  * x0, visibility; a field of the wrong type or a missing field gives `issue: undefined` (the generic message).
  */
 export function checkFunctionInverseModel(data: unknown): FunctionInverseCheck {
@@ -79,7 +96,7 @@ export function checkFunctionInverseModel(data: unknown): FunctionInverseCheck {
     const {restriction, base, x0, inverseVisible, tangentVisible} = data as Record<string, unknown>;
     if (!isInverseRestrictionId(restriction)) return reject(restrictionIssue());
     if (!isFiniteNumber(base) || !isFiniteNumber(x0)) return reject(undefined);
-    const issue = baseIssue(base) ?? x0Issue(restriction, x0);
+    const issue = baseIssue(base) ?? x0Issue(restriction, base, x0);
     if (issue) return reject(issue);
     if (typeof inverseVisible !== 'boolean') return reject(inverseVisible === undefined ? undefined : {kind: 'visibility', field: 'inverseVisible'});
     if (typeof tangentVisible !== 'boolean') return reject(tangentVisible === undefined ? undefined : {kind: 'visibility', field: 'tangentVisible'});
@@ -92,25 +109,30 @@ export function parseFunctionInverseModel(data: unknown): FunctionInverseModel |
     return check.ok ? check.model : undefined;
 }
 
-/** Sets the base a: rejected (never clamped) when not finite, outside [0.2, 5] or equal to 1. */
+/**
+ * Sets the base a: rejected (never clamped) when not finite, outside [0.2, 5] or equal to 1. The x0 range depends on the base, so an
+ * accepted base moves x0 to the nearer end of the new range when x0 has fallen outside it (a = 5 turns x0 = 3 into 1.2).
+ */
 export function setInverseBase(model: FunctionInverseModel, value: number): FunctionInverseEdit {
     const issue = baseIssue(value);
     if (issue) return {ok: false, issue};
-    return {ok: true, model: model.base === value ? model : {...model, base: value}};
+    if (model.base === value) return {ok: true, model};
+    const [min, max] = inverseX0Range(model.restriction, value);
+    return {ok: true, model: {...model, base: value, x0: Math.min(max, Math.max(min, model.x0))}};
 }
 
-/** Moves P: rejected (never clamped) when x0 is not finite or outside the range of the current restriction. */
+/** Moves P: rejected (never clamped) when x0 is not finite or outside the range of the current restriction and base. */
 export function moveInversePoint(model: FunctionInverseModel, value: number): FunctionInverseEdit {
-    const issue = x0Issue(model.restriction, value);
+    const issue = x0Issue(model.restriction, model.base, value);
     if (issue) return {ok: false, issue};
     return {ok: true, model: model.x0 === value ? model : {...model, x0: value}};
 }
 
-/** Changing the restriction keeps the base and keeps x0 when it is still in range (x0 < 0 is not on the x^2 restriction), else x0 becomes 2 (square) or 1. */
+/** Changing the restriction keeps the base and keeps x0 when it is still in range (x0 < 0 is not on the x^2 restriction), else x0 becomes 2 (square) or 1 (inside every range). */
 export function chooseInverseRestriction(model: FunctionInverseModel, restriction: unknown): FunctionInverseEdit {
     if (!isInverseRestrictionId(restriction)) return {ok: false, issue: restrictionIssue()};
     if (restriction === model.restriction) return {ok: true, model};
-    const x0 = x0Issue(restriction, model.x0) === undefined ? model.x0 : restriction === 'square' ? 2 : 1;
+    const x0 = x0Issue(restriction, model.base, model.x0) === undefined ? model.x0 : restriction === 'square' ? 2 : 1;
     return {ok: true, model: {...model, restriction, x0}};
 }
 

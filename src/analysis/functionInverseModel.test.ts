@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {
     checkFunctionInverseModel, chooseInverseRestriction, DEFAULT_FUNCTION_INVERSE_MODEL, FunctionInverseModel, hasAsymptotes, INVERSE_RESTRICTION_IDS,
-    inverseSlopesOf, inversePairOf, moveInversePoint, parseFunctionInverseModel, setInverseBase,
+    INVERSE_VALUE_MAX, INVERSE_X0_STEP, inverseSlopesOf, inversePairOf, inverseX0Range, moveInversePoint, parseFunctionInverseModel, setInverseBase,
 } from './functionInverseModel';
 
 const model = DEFAULT_FUNCTION_INVERSE_MODEL;
@@ -88,18 +88,54 @@ describe('validity, normalization and issues', () => {
         expect(setInverseBase(model, 2).ok && (setInverseBase(model, 2) as {model: unknown}).model).toBe(model);
     });
 
-    it('rejects x0 outside the range of the restriction (x^2: x0 >= 0)', () => {
-        expect(moveInversePoint(model, -0.1)).toEqual({ok: false, issue: {kind: 'range', field: 'x0', min: 0, max: 4}});
-        expect(moveInversePoint(model, 4.1)).toMatchObject({ok: false});
+    it('rejects x0 outside the range of the restriction and base (x^2: 0 <= x0 <= 2.8; 2^x: -3 <= x0 <= 3)', () => {
+        expect(moveInversePoint(model, -0.1)).toEqual({ok: false, issue: {kind: 'range', field: 'x0', min: 0, max: 2.8}});
+        expect(moveInversePoint(model, 2.8)).toMatchObject({ok: true});
+        expect(moveInversePoint(model, 2.9)).toMatchObject({ok: false});
         expect(moveInversePoint({...model, restriction: 'exp'}, -2)).toMatchObject({ok: true});
         expect(moveInversePoint({...model, restriction: 'exp'}, -3.1)).toEqual({ok: false, issue: {kind: 'range', field: 'x0', min: -3, max: 3}});
+        // the review's cases: a = 5, x0 = 3 gave P = (3, 125); a = 0.2, x0 = -3 gave P' = (125, -3)
+        expect(moveInversePoint({...model, restriction: 'exp', base: 5}, 3)).toEqual({ok: false, issue: {kind: 'range', field: 'x0', min: -3, max: 1.2}});
+        expect(moveInversePoint({...model, restriction: 'exp', base: 0.2}, -3)).toEqual({ok: false, issue: {kind: 'range', field: 'x0', min: -1.2, max: 3}});
+        expect(inverseX0Range('natural', 2)).toEqual([-3, 2]);
+    });
+
+    it('every range keeps f(x0) <= 8 and x0 >= -3, on the grid, and ends where the next grid step would leave the view', () => {
+        const bases = [0.2, 0.25, 0.5, 0.9, 0.99, 1.01, 1.1, 2, Math.E, 3, 4.9, 5];
+        const cases = [{restriction: 'square' as const, base: 2}, {restriction: 'natural' as const, base: 2}, ...bases.map(base => ({restriction: 'exp' as const, base}))];
+        for (const c of cases) {
+            const m: FunctionInverseModel = {...model, ...c};
+            const f = inversePairOf(m).forward.value;
+            const [min, max] = inverseX0Range(c.restriction, c.base);
+            expect(min).toBeLessThanOrEqual(0);
+            expect(max).toBeGreaterThanOrEqual(1.2);
+            for (const end of [min, max]) {
+                expect(Math.abs(end / INVERSE_X0_STEP - Math.round(end / INVERSE_X0_STEP))).toBeLessThan(1e-9);
+                expect(end).toBeGreaterThanOrEqual(-3);
+                expect(f(end)!).toBeLessThanOrEqual(INVERSE_VALUE_MAX);
+            }
+            if (max < (c.restriction === 'square' ? 4 : 3)) expect(f(max + INVERSE_X0_STEP)!).toBeGreaterThan(INVERSE_VALUE_MAX);
+            if (min > -3 && c.restriction !== 'square') expect(f(min - INVERSE_X0_STEP)!).toBeGreaterThan(INVERSE_VALUE_MAX);
+        }
+    });
+
+    it('a base edit keeps x0 when it is still in range, else moves it to the nearer end of the new range', () => {
+        const exp: FunctionInverseModel = {...model, restriction: 'exp', x0: 3};
+        expect(setInverseBase(exp, 1.5)).toEqual({ok: true, model: {...exp, base: 1.5}});
+        expect(setInverseBase(exp, 5)).toEqual({ok: true, model: {...exp, base: 5, x0: 1.2}});
+        expect(setInverseBase({...exp, x0: -3}, 0.2)).toEqual({ok: true, model: {...exp, base: 0.2, x0: -1.2}});
+        expect(setInverseBase({...exp, x0: -3}, 5)).toEqual({ok: true, model: {...exp, base: 5, x0: -3}});
     });
 
     it('changing the restriction keeps the base and x0 when valid, else moves x0 to the restriction default', () => {
-        expect(chooseInverseRestriction({...model, base: 3.5}, 'exp')).toEqual({ok: true, model: {...model, base: 3.5, restriction: 'exp'}});
+        expect(chooseInverseRestriction({...model, base: 1.5}, 'exp')).toEqual({ok: true, model: {...model, base: 1.5, restriction: 'exp'}});
+        expect(chooseInverseRestriction({...model, base: 3.5}, 'exp')).toEqual({ok: true, model: {...model, base: 3.5, restriction: 'exp', x0: 1}});
         expect(chooseInverseRestriction({...model, restriction: 'exp', x0: -2}, 'square')).toMatchObject({ok: true, model: {restriction: 'square', x0: 2}});
-        expect(chooseInverseRestriction({...model, x0: 2.5}, 'natural')).toMatchObject({ok: true, model: {restriction: 'natural', x0: 2.5}});
-        expect(chooseInverseRestriction({...model, x0: 4}, 'exp')).toMatchObject({ok: true, model: {x0: 1}});
+        expect(chooseInverseRestriction({...model, x0: 2}, 'natural')).toMatchObject({ok: true, model: {restriction: 'natural', x0: 2}});
+        // x0 = 2.5 is on x^2 (6.25) but outside the range of e^x (e^2.5 > 8)
+        expect(chooseInverseRestriction({...model, x0: 2.5}, 'natural')).toMatchObject({ok: true, model: {restriction: 'natural', x0: 1}});
+        expect(chooseInverseRestriction({...model, restriction: 'exp', base: 0.2, x0: 2.5}, 'square')).toMatchObject({ok: true, model: {restriction: 'square', x0: 2.5}});
+        expect(chooseInverseRestriction({...model, restriction: 'exp', base: 0.2, x0: 3}, 'square')).toMatchObject({ok: true, model: {restriction: 'square', x0: 2}});
         expect(chooseInverseRestriction(model, 'sin')).toEqual({ok: false, issue: {kind: 'restriction', allowed: INVERSE_RESTRICTION_IDS}});
     });
 
@@ -108,7 +144,8 @@ describe('validity, normalization and issues', () => {
         expect(issue({...model, restriction: 'log'})).toEqual({kind: 'restriction', allowed: INVERSE_RESTRICTION_IDS});
         expect(issue({...model, base: 1})).toEqual({kind: 'base-one'});
         expect(issue({...model, base: 6})).toMatchObject({kind: 'range', field: 'base'});
-        expect(issue({...model, x0: -1})).toMatchObject({kind: 'range', field: 'x0', min: 0, max: 4});
+        expect(issue({...model, x0: -1})).toMatchObject({kind: 'range', field: 'x0', min: 0, max: 2.8});
+        expect(issue({...model, restriction: 'exp', base: 5, x0: 3})).toEqual({kind: 'range', field: 'x0', min: -3, max: 1.2});
         expect(issue({...model, inverseVisible: 'yes'})).toEqual({kind: 'visibility', field: 'inverseVisible'});
         expect(issue({...model, tangentVisible: 1})).toEqual({kind: 'visibility', field: 'tangentVisible'});
         for (const bad of [null, [], {...model, base: '2'}, {...model, x0: NaN}, {restriction: 'square', base: 2, x0: 2, tangentVisible: true}]) expect(issue(bad)).toBeUndefined();

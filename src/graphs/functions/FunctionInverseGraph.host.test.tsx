@@ -5,14 +5,9 @@ import {FunctionInverseGraph} from './FunctionInverseGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
 import {DEFAULT_FUNCTION_INVERSE_MODEL} from '../../analysis/functionInverseModel';
+import {installBoardShims} from '../base/realGraphTestHarness';
 
-// jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
-beforeAll(() => {
-    const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
-    HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
-    window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
-        addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
-});
+beforeAll(installBoardShims);
 
 beforeEach(() => setLanguage('sl'));
 
@@ -50,6 +45,12 @@ class ObservedInverseGraph extends FunctionInverseGraph {
     segments() {
         const curves = (this.liveBoard().objectsList as unknown as JsxObject[]).filter(o => o.elType === 'curve' && o.dataX?.length === 2);
         return curves.map(c => (c as unknown as JsxObject).evalVisProp('visible') === false ? undefined : {x: c.dataX!, y: c.dataY!});
+    }
+
+    /** The drawn forward and inverse graphs: the board curves with more than a handful of points, in creation order. */
+    sampledCurves() {
+        const curves = (this.liveBoard().objectsList as unknown as JsxObject[]).filter(o => o.elType === 'curve' && (o.dataX?.length ?? 0) > 10);
+        return curves.map(c => ({x: c.dataX!, y: c.dataY!}));
     }
 
     /** Whether the inverse curve is drawn. */
@@ -117,9 +118,11 @@ test('restrictions: 2^x, e^x and the base a = 1 refusal with an actionable messa
     expect(graph.modelNow().base).toBe(2);
     expect(screen.getByText('Osnova a mora biti med 0,2 in 5 in ne sme biti 1.')).toBeInTheDocument();
     near(graph.markers().p, [3, 8]);
+    // a = 3 would put P at (3, 27), outside the view: x0 moves to the end of the new range, log_3 8 rounded down to 1.8
     act(() => { fireEvent.change(field('Osnova a'), {target: {value: '3'}}); });
-    expect(graph.modelNow().base).toBe(3);
-    expect(readout('point')).toBe('(3; 27)');
+    expect(graph.modelNow()).toMatchObject({base: 3, x0: 1.8});
+    expect(field('Točka P: abscisa x₀').value).toBe('1,8');
+    expect(readout('point')).toBe('(1,8; 7,2247)');
 
     act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value: 'natural'}}); });
     act(() => { fireEvent.change(field('Točka P: abscisa x₀'), {target: {value: '1'}}); });
@@ -149,17 +152,70 @@ test('an x0 outside the restriction is refused (x < 0 on x^2), and dragging P mo
     const graph = mount();
     act(() => { fireEvent.change(field('Točka P: abscisa x₀'), {target: {value: '-1'}}); });
     expect(graph.modelNow().x0).toBe(2);
-    expect(screen.getByText('Vnesi vrednost med 0 in 4.')).toBeInTheDocument();
+    expect(screen.getByText('Vnesi vrednost med 0 in 2,8.')).toBeInTheDocument();
 
     const p = graph['dotP']!;
-    act(() => {
-        p.moveTo([3.04, 0]);
+    const drag = (x: number) => act(() => {
+        p.moveTo([x, 0]);
         (p as unknown as JsxObject).triggerEventHandlers(['drag'], []);
     });
-    expect(graph.modelNow().x0).toBeCloseTo(3, 9);
-    near(graph.markers().p, [3, 9]);
-    near(graph.markers().mirror, [9, 3]);
-    expect(readout('mirror')).toBe('(9; 3)');
+    drag(2.54);
+    expect(graph.modelNow().x0).toBeCloseTo(2.5, 9);
+    near(graph.markers().p, [2.5, 6.25]);
+    near(graph.markers().mirror, [6.25, 2.5]);
+    expect(readout('mirror')).toBe('(6,25; 2,5)');
+    // past the end of the range, P stops at x0 = 2.8 (f = 7.84) instead of leaving the view
+    drag(3.6);
+    expect(graph.modelNow().x0).toBeCloseTo(2.8, 9);
+    near(graph.markers().p, [2.8, 7.84]);
+});
+
+test('the drawn graphs follow f and its inverse, and P and P\' stay inside the default view at the ends of every range', () => {
+    const graph = mount();
+    const [left, top, right, bottom] = graph.liveBoard().getBoundingBox();
+    // the board keeps the aspect ratio, so it may widen the default box [-4, 9, 11, -4] but never cuts it
+    expect(left).toBeLessThanOrEqual(-4);
+    expect(right).toBeGreaterThanOrEqual(11);
+    expect(top).toBeGreaterThanOrEqual(9 - 1e-9);
+    expect(bottom).toBeLessThanOrEqual(-4 + 1e-9);
+    const inView = ([x, y]: number[]) => x > left && x < right && y < top && y > bottom;
+    const checkCurves = (forward: (x: number) => number, inverse: (x: number) => number) => {
+        const curves = graph.sampledCurves();
+        expect(curves).toHaveLength(2);
+        for (const [curve, f] of [[curves[0], forward], [curves[1], inverse]] as const) {
+            const points = curve.x.map((x, i) => [x, curve.y[i]]).filter(([x]) => !Number.isNaN(x));
+            expect(points.length).toBeGreaterThan(100);
+            for (const [x, y] of points) expect(y).toBeCloseTo(f(x), 9);
+        }
+        // the inverse is only defined for x >= 0 (sqrt) or x > 0 (log): no sample left of the y axis
+        expect(Math.min(...curves[1].x.filter(x => !Number.isNaN(x)))).toBeGreaterThanOrEqual(0);
+    };
+    checkCurves(x => x * x, Math.sqrt);
+
+    const restriction = (value: string) => act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value}}); });
+    const set = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
+    const x0Field = 'Točka P: abscisa x₀';
+    set(x0Field, '2,8');
+    expect(inView(graph.markers().p) && inView(graph.markers().mirror)).toBe(true);
+
+    restriction('exp');
+    for (const [base, ends] of [['5', ['-3', '1,2']], ['0,2', ['-1,2', '3']], ['2', ['-3', '3']]] as const) {
+        set('Osnova a', base);
+        const a = Number(base.replace(',', '.'));
+        checkCurves(x => a ** x, x => Math.log(x) / Math.log(a));
+        for (const end of ends) {
+            set(x0Field, end);
+            expect(graph.modelNow().x0).toBe(Number(end.replace(',', '.')));
+            expect(inView(graph.markers().p) && inView(graph.markers().mirror)).toBe(true);
+        }
+    }
+    restriction('natural');
+    checkCurves(Math.exp, Math.log);
+    for (const end of ['-3', '2']) {
+        set(x0Field, end);
+        expect(graph.modelNow().x0).toBe(Number(end));
+        expect(inView(graph.markers().p) && inView(graph.markers().mirror)).toBe(true);
+    }
 });
 
 test('the inverse can be hidden (predict, then reveal) and so can the tangents', () => {
@@ -178,7 +234,7 @@ test('Reset, a restored Preset and the language switch restore every field, the 
     const baseline = boardObjects(graph);
     const stored = {restriction: 'exp', base: 3.5, x0: -1.5, inverseVisible: false, tangentVisible: true};
 
-    act(() => { graph.importPreset({id: 'stored', data: stored, boardState: {boundingBox: [-3, 9, 11, -3]}}); });
+    act(() => { graph.importPreset({id: 'stored', data: stored, boardState: {boundingBox: [-4, 9, 11, -4]}}); });
     expect(graph.modelNow()).toEqual(stored);
     expect((screen.getByLabelText('Zožitev z inverzno funkcijo') as HTMLSelectElement).value).toBe('exp');
     expect(field('Osnova a').value).toBe('3,5');

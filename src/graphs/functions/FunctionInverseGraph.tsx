@@ -61,8 +61,9 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         return {...DEFAULT_FUNCTION_INVERSE_MODEL};
     }
 
+    /** Holds P and P' for every valid model: f(x0) <= 8 (`INVERSE_VALUE_MAX`) and x0 >= -3, with a margin at x0 = -3. */
     protected defaultBoundingBox(): BoundingBox {
-        return [-3, 9, 11, -3];
+        return [-4, 9, 11, -4];
     }
 
     // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
@@ -156,7 +157,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         })) as JXG.Point;
         bindMovablePointCursor(point, this.board);
         point.on("drag", () => {
-            const [min, max] = inverseX0Range(this.model.restriction);
+            const [min, max] = inverseX0Range(this.model.restriction, this.model.base);
             const raw = cleanNumber(Math.round(point.X() / INVERSE_X0_STEP) * INVERSE_X0_STEP);
             if (Number.isFinite(raw)) this.ignoreOutOfDomain(() => this.setX0(Math.min(max, Math.max(min, raw)), {syncScene: false}));
             this.syncSceneToModel();
@@ -262,7 +263,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
     protected renderControls(): React.ReactNode {
         const state = this.stateModel();
         const language = currentLanguage();
-        const [x0Min, x0Max] = inverseX0Range(state.restriction);
+        const [x0Min, x0Max] = inverseX0Range(state.restriction, state.base);
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("function_inverse_restriction_label")} value={state.restriction} help={t("function_inverse_restriction_help")}

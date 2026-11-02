@@ -898,7 +898,7 @@ test.each([
     [{...validInverse, restriction: "sin"}, /square, exp, natural/],
     [{...validInverse, base: 1}, /field base must not be 1|polje base ne sme biti 1/],
     [{...validInverse, base: 6}, /field base must be a number between 0\.2 and 5|polje base mora biti število med 0[.,]2 in 5/],
-    [{...validInverse, restriction: "square", x0: -1}, /field x0 must be a number between 0 and 4|polje x0 mora biti število med 0 in 4/],
+    [{...validInverse, restriction: "square", x0: -1}, /field x0 must be a number between 0 and 2\.8|polje x0 mora biti število med 0 in 2\.8/],
     [{...validInverse, tangentVisible: "no"}, /tangentVisible/],
 ])("function-inverse errors name the field and rule to fix: %j", (data, expected) => {
     expect(() => preflightPresetImport(inversePreset(data))).toThrow(expected);
