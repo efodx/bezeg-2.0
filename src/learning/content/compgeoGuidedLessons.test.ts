@@ -41,8 +41,8 @@ function walk<T>(id: 'orientation' | 'polygon-area', stepIds: readonly string[],
 }
 
 test('the lessons are bounded, bilingual, and found by the catalog', () => {
-    expect(compgeoGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep']);
-    expect(compgeoGuidedLessons.map(lesson => lesson.steps.length)).toEqual([6, 7, 7, 7, 7]);
+    expect(compgeoGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections']);
+    expect(compgeoGuidedLessons.map(lesson => lesson.steps.length)).toEqual([6, 7, 7, 7, 7, 7]);
     for (const lesson of compgeoGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.map(step => step.order)).toEqual(lesson.steps.map((_, index) => index + 1));
@@ -69,6 +69,7 @@ test('the lessons are bounded, bilingual, and found by the catalog', () => {
     expect(lessonOf('convex-hull').id).toBe('convex-hull-guided');
     expect(lessonOf('ear-clipping').id).toBe('ear-clipping-guided');
     expect(lessonOf('interval-sweep').id).toBe('interval-sweep-guided');
+    expect(lessonOf('segment-intersections').id).toBe('segment-intersections-guided');
 });
 
 describe('A1 orientation: every quoted value is the scene readout', () => {
