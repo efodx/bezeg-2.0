@@ -113,6 +113,8 @@ Gate rows in the provider's stream file read exactly `open` or `closed`.
 
 ## Launch
 
+On a new computer, set up first with [the new-PC setup prompt](new-pc-setup.md). It recreates the stream worktrees and calibrates the test slots.
+
 Run the supervisor from the main checkout, after `git pull`, and leave its window open:
 
 ```powershell
