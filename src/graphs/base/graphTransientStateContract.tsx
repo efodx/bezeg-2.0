@@ -78,6 +78,8 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'euler-line': ['model'],
     'simson-line': ['model'],
     inversion: ['model'],
+    'projective-five-point': ['model', 'lastUnique'],
+    'projective-three-views': ['model'],
     'projective-cross-ratio': ['model'],
     'projective-pascal': ['model'],
     'projective-pole-polar': ['model'],
