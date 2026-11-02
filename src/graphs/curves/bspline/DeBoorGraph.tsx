@@ -5,7 +5,8 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {CountSetter} from "../../../inputs/CountSetter";
 import BaseGraph, {BaseGraphState, TransientState} from "../../base/BaseGraph";
 import {BSplineCurve, InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
-import type {LessonCurveFixture} from "../../../learning/model";
+import type {LessonAnimationCommand, LessonCurveFixture} from "../../../learning/model";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {AnimationScheduler} from "../../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../../learning/runtime/iterationController";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
@@ -14,11 +15,13 @@ import {DeBoorScene} from "./DeBoorScene";
 import {KnotEditor} from "./KnotEditor";
 import {BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, isClamped, KNOT_LIMIT, knotProblem, lastIndexOf} from "./bsplineBasisModel";
 import {
-    appendedPoint, ControlPoint, DEBOOR_DEFAULT_T, DEBOOR_MAX_LEVELS, DEBOOR_MAX_POINTS, DEBOOR_STEP_INTERVAL_MS, clampParameter,
+    appendedPoint, ControlPoint, DEBOOR_ANIMATION_ID, DEBOOR_DEFAULT_T, DEBOOR_MAX_LEVELS, DEBOOR_MAX_POINTS, DEBOOR_STEP_INTERVAL_MS, clampParameter,
     deBoorPresetData, defaultDeBoorData, knotsForCount,
 } from "./bsplineDeBoorModel";
 
 export {DEBOOR_ANIMATION_ID} from "./bsplineDeBoorModel";
+
+const LESSON_COMMANDS: readonly LessonAnimationCommand[] = ['play', 'pause', 'next-step', 'reset'];
 
 export interface DeBoorGraphState extends BaseGraphState {
     degree: number;
@@ -41,7 +44,7 @@ const initialData = (): Omit<DeBoorGraphState, 'initialized'> => {
  * level in the De Casteljau look, with a readout of the span, every level's points and every alpha. A level-by-level animation
  * (`DEBOOR_ANIMATION_ID`) is driven by an `IterationController`. The scene state (degree, knots, points, t, revealed level) is the
  * only copy of the data; the owned {@link DeBoorScene} reads it lazily. It extends `BaseGraph` directly, like the basis graph, and
- * is registered as the `bspline-deboor` Demonstration without a lesson yet. Its Preset collection is `bsplinePresetCollection`. The graph draws only
+ * is registered as the `bspline-deboor` Demonstration with the L2 lesson. Its Preset collection is `bsplinePresetCollection`. The graph draws only
  * the non-rational B-spline: optional NURBS `weights` pass the collection's check but are ignored by `importPresetData` and omitted
  * from `exportPresetData`.
  */
@@ -298,6 +301,29 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         }
         this.setState({knots: candidate});
         return undefined;
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        // The raw slider parameter t, held inside the current domain like the slider.
+        registry.onDiscriminated('parameter', 't', action => {
+            const {knots, degree} = this.state;
+            if (knotProblem(knots, degree)) throw new Error('The knot vector is invalid, so there is no parameter.');
+            if (!Number.isFinite(action.value)) throw new Error('The parameter t must be a finite number.');
+            this.setState({t: clampParameter(knots, degree, action.value)});
+        });
+        registry.onDiscriminated('animation', DEBOOR_ANIMATION_ID, action => this.lessonCommand(action.command), {
+            supports: action => LESSON_COMMANDS.includes(action.command),
+        });
+    }
+
+    private lessonCommand(command: LessonAnimationCommand): void {
+        if (command === 'next-step') this.nextStep();
+        else if (command === 'play') this.play();
+        else if (command === 'pause') this.pause();
+        else if (command === 'reset') this.resetLevels();
     }
 
     // ---- Controls ----------------------------------------------------------------------------------------------------

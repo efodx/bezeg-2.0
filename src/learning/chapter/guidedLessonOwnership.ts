@@ -109,6 +109,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // bumps, which is the subject of the `splines` chapter's first section (why piecewise curves are local); the lesson also builds
     // on the Bernstein basis it reduces to for the knots (0,0,0,1,1,1).
     'bspline-basis': {chapterId: 'splines', sectionId: 'piecewise'},
+    // Same interim owner: the de Boor lesson follows the basis lesson and shows the local control of piecewise curves.
+    'bspline-deboor': {chapterId: 'splines', sectionId: 'piecewise'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {
