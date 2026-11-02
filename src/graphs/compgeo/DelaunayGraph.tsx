@@ -11,7 +11,8 @@ import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
 import {DelaunayControlActions, DelaunayControls, DelaunaySelection, DelaunayStatus} from "./DelaunayControls";
 import {DELAUNAY_EXAMPLES, delaunayCollection} from "./delaunayPresetCollection";
-import {angleSummary, circumcircle, DelaunayRun, edgeQuad, runDelaunay, triangleNeighbours} from "./delaunayRun";
+import {drawCircumcircle, drawSelectableTriangles, sameTriple, sortedTriple, type TriangleSelectionNames} from "./circumcircleDrawing";
+import {angleSummary, DelaunayRun, edgeQuad, runDelaunay, triangleNeighbours} from "./delaunayRun";
 import {parseHullStep} from "./hullTraceRun";
 import {PointSetGraphState} from "./PointSetGraph";
 import {TriangulationGraph, type TriangulationGraphState} from "./TriangulationGraph";
@@ -30,7 +31,11 @@ export interface DelaunayGraphState extends PointSetGraphState {
     step: number;
 }
 
-const runFor = (points: PointSetModel["points"], triangles: unknown): DelaunayRun => {
+const DELAUNAY_NAMES: TriangleSelectionNames = {
+    triangle: "delaunay-triangle", selectedTriangle: "delaunay-selected-triangle", selectedCircle: "delaunay-selected-circle",
+};
+
+const runFor =(points: PointSetModel["points"], triangles: unknown): DelaunayRun => {
     const result = createTriangulation(points, parseTriangleList(triangles) ?? []);
     return runDelaunay(result.ok ? result.value : undefined);
 };
@@ -400,36 +405,13 @@ export class DelaunayGraph extends TriangulationGraph {
 
     /** One polygon per triangle (clickable inside); the selected one is filled and outlined, with its dashed circumcircle. */
     protected drawExtras(tri: Triangulation, model: PointSetModel): JXG.GeometryElement[] {
-        const selected = this.selectedTriangle();
-        const objects: JXG.GeometryElement[] = [];
-        tri.triangles.forEach((corners, index) => {
-            const isSelected = index === selected;
-            const polygon = this.board.create("polygon", corners.map(i => {
-                const p = gridToBoard(tri.points[i], model.gridStepExponent);
-                return [p.x, p.y];
-            }), {
-                name: isSelected ? "delaunay-selected-triangle" : "delaunay-triangle", vertices: {visible: false}, highlight: false, fixed: true,
-                hasInnerPoints: true, layer: isSelected ? 2 : 0, fillColor: GraphPalette.constructionAccent, fillOpacity: isSelected ? 0.2 : 0,
-                borders: {visible: false, highlight: false, fixed: true},
-            }) as JXG.GeometryElement;
-            polygon.on("down", () => this.afterBoardPress(() => this.selectTriangle(this.selectedTriangle() === index ? undefined : index)));
-            objects.push(polygon);
-        });
-        const chosen = selected === undefined ? undefined : tri.triangles[selected];
-        const circle = chosen && this.drawCircle(tri, chosen, model, "delaunay-selected-circle", 2);
-        if (circle) objects.push(circle);
-        return objects;
+        return drawSelectableTriangles(this.board, tri, model, this.selectedTriangle(), DELAUNAY_NAMES,
+            index => this.afterBoardPress(() => this.selectTriangle(this.selectedTriangle() === index ? undefined : index)));
     }
 
-    /** The circumcircle of the triangle `corners`: centre and radius from the exact rationals, converted to doubles here for drawing only. */
+    /** The circumcircle of the triangle `corners` (exact centre and radius, doubles for drawing only). */
     protected drawCircle(tri: Triangulation, corners: readonly [number, number, number], model: PointSetModel, name: string, dash = 0): JXG.GeometryElement | undefined {
-        const circle = circumcircle(tri.points[corners[0]], tri.points[corners[1]], tri.points[corners[2]]);
-        if (!circle) return undefined;
-        const scale = 2 ** model.gridStepExponent;
-        return this.board.create("circle", [[circle.x * scale, circle.y * scale], circle.r * scale], {
-            name, withLabel: false, fixed: true, highlight: false, layer: 3, fillOpacity: 0,
-            strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash,
-        }) as JXG.GeometryElement;
+        return drawCircumcircle(this.board, tri, corners, model, name, dash);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -476,9 +458,3 @@ export class DelaunayGraph extends TriangulationGraph {
         </>;
     }
 }
-
-const sortedTriple = (corners: readonly number[]): readonly [number, number, number] => {
-    const [a, b, c] = [...corners].sort((x, y) => x - y);
-    return [a, b, c];
-};
-const sameTriple = (x: readonly number[], y: readonly number[]) => x[0] === y[0] && x[1] === y[1] && x[2] === y[2];
