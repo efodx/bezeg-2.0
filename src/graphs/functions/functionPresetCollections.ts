@@ -28,6 +28,8 @@ import {checkFourierSeriesModel, parseFourierSeriesModel} from "../../analysis/f
 import {fourierSeriesFileMessage} from "./fourierSeriesMessages";
 import {checkRungeModel, parseRungeModel} from "../../analysis/rungeInterpolationModel";
 import {rungeFileMessage} from "./rungeInterpolationMessages";
+import {checkLeastSquaresModel, parseLeastSquaresModel} from "../../analysis/leastSquaresModel";
+import {leastSquaresFileMessage} from "./leastSquaresMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
 import {checkSequenceModel, parseSequenceModel} from "../../analysis/sequenceModel";
@@ -104,6 +106,11 @@ const diagnoseRunge: Diagnosis = data => {
     const check = checkRungeModel(data);
     return check.ok || check.issue === undefined ? undefined : rungeFileMessage(check.issue);
 };
+/** The model module names the rule a rejected least-squares model broke; this only localizes it. */
+const diagnoseLeastSquares: Diagnosis = data => {
+    const check = checkLeastSquaresModel(data);
+    return check.ok || check.issue === undefined ? undefined : leastSquaresFileMessage(check.issue);
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -163,6 +170,7 @@ export const functionPresetCollections = {
     "uniform-convergence": functionCollection("uniform-convergence", parseUniformConvergenceModel, diagnoseUniformConvergence),
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
+    "interp-least-squares": functionCollection("interp-least-squares", parseLeastSquaresModel, diagnoseLeastSquares),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
