@@ -37,6 +37,8 @@ The catalog publishes its reviewed poster set and 51 silent four-second WebM cli
 | Splines | `/spline/c2spline` | Symmetric C² spline (`C2SplineGraph`) |
 | Splines | `/spline/g1spline` | One-sided G¹ spline (`G1SplineGraph`) |
 | Splines | `/spline/g1-sym-spline` | Symmetric G¹ spline (`G1SymmetricSplineGraph`) |
+| B-splines | `/bspline/basis` | B-spline basis functions with an editable knot vector (`BSplineBasisGraph`); shares the `bspline-curve` Preset list with `/bspline/deboor` |
+| B-splines | `/bspline/deboor` | De Boor's algorithm level by level on a B-spline curve (`DeBoorGraph`); NURBS weights in Presets are ignored |
 | PH | `/ph/cubic` | Cubic PH curve (`CubicPhBezierCurveGraph`) |
 | PH | `/ph/quintic` | Quintic PH curve (`QuinticPhBezierCurve`) |
 | Parameterization | `/param/param/alphaparam2` | Spline α parameterization |
