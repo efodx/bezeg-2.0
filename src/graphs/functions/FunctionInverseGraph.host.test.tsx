@@ -4,6 +4,8 @@ import {MemoryRouter} from 'react-router-dom';
 import {FunctionInverseGraph} from './FunctionInverseGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {DomainError} from './BaseFunctionGraph';
+import {LessonAction} from '../../learning/model';
 import {DEFAULT_FUNCTION_INVERSE_MODEL} from '../../analysis/functionInverseModel';
 import {installBoardShims} from '../base/realGraphTestHarness';
 
@@ -22,6 +24,10 @@ interface JsxObject {
 
 /** A real graph through the real host and a real JSXGraph board (jsdom). */
 class ObservedInverseGraph extends FunctionInverseGraph {
+    lesson(action: LessonAction) {
+        this.applyLessonAction(action);
+    }
+
     modelNow() {
         return this.model;
     }
@@ -281,4 +287,22 @@ test('StrictMode mounts, unmounts and mounts again without duplicating board obj
     expect(boardObjects(graph)).toBe(baseline);
     view.unmount();
     expect(graph.ownedObjects()).toBe(0);
+});
+
+test('a multi-action lesson scene runs in one synchronous sequence; x0 range follows the base; a rejected value is refused, not clamped', () => {
+    const graph = mount();
+    for (const action of [
+        {kind: 'function-choice', name: 'inverse-restriction', value: 'exp'},
+        {kind: 'function-parameter', name: 'inverse-base', value: 5},
+        {kind: 'function-parameter', name: 'inverse-x0', value: 1},
+        {kind: 'function-visibility', target: 'inverse-curve', visible: false},
+        {kind: 'function-visibility', target: 'tangent', visible: false},
+    ] as LessonAction[]) act(() => graph.lesson(action));
+    expect(graph.modelNow()).toEqual({restriction: 'exp', base: 5, x0: 1, inverseVisible: false, tangentVisible: false});
+    expect(graph.state.inverseVisible).toBe(false);
+    const before = graph.modelNow();
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'inverse-base', value: 1})).toThrow(DomainError);
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'inverse-x0', value: 50})).toThrow(DomainError);
+    expect(() => graph.lesson({kind: 'function-choice', name: 'inverse-restriction', value: 'sin'})).toThrow(DomainError);
+    expect(graph.modelNow()).toBe(before);
 });

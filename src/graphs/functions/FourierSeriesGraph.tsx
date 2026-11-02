@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -158,6 +158,13 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
     protected setEpsilon(value: number): void {
         const next = this.accepted(changeFourierEpsilon(this.model, value));
         if (next !== this.model) this.commitModel(next);
+    }
+
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {"fourier-n": value => this.setN(value), "fourier-x": value => this.setX(value), "fourier-epsilon": value => this.setEpsilon(value)},
+            choices: {"fourier-example": value => this.setExample(value)},
+        };
     }
 
     protected zoomToPeak(): void {

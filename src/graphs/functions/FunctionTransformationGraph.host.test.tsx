@@ -4,6 +4,8 @@ import {MemoryRouter} from 'react-router-dom';
 import {FunctionTransformationGraph} from './FunctionTransformationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {DomainError} from './BaseFunctionGraph';
+import {LessonAction} from '../../learning/model';
 import {DEFAULT_FUNCTION_TRANSFORMATION_MODEL} from '../../analysis/functionTransformationModel';
 import {transformRuleText} from './functionTransformationMessages';
 
@@ -25,6 +27,10 @@ interface JsxPoint {
 
 /** A real graph through the real host and a real JSXGraph board (jsdom). */
 class ObservedTransformationGraph extends FunctionTransformationGraph {
+    lesson(action: LessonAction) {
+        this.applyLessonAction(action);
+    }
+
     modelNow() {
         return this.model;
     }
@@ -188,4 +194,24 @@ test('StrictMode mounts, unmounts and mounts again without duplicating board obj
     expect(boardObjects(graph)).toBe(baseline);
     view.unmount();
     expect(graph.ownedObjects()).toBe(0);
+});
+
+test('a multi-action lesson scene runs in one synchronous sequence; a rejected value is refused, not clamped', () => {
+    const graph = mount();
+    for (const action of [
+        {kind: 'function-choice', name: 'transform-base', value: 'cube'},
+        {kind: 'function-parameter', name: 'transform-a', value: 3},
+        {kind: 'function-parameter', name: 'transform-b', value: -1},
+        {kind: 'function-parameter', name: 'transform-c', value: -2},
+        {kind: 'function-parameter', name: 'transform-d', value: 0.5},
+        {kind: 'function-parameter', name: 'transform-u', value: 1},
+        {kind: 'function-visibility', target: 'reference', visible: false},
+    ] as LessonAction[]) act(() => graph.lesson(action));
+    expect(graph.modelNow()).toEqual({base: 'cube', a: 3, b: -1, c: -2, d: 0.5, ghostVisible: false, u: 1});
+    expect(graph.state.ghostVisible).toBe(false);
+    const before = graph.modelNow();
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'transform-b', value: 0})).toThrow(DomainError);
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'transform-a', value: 11})).toThrow(DomainError);
+    expect(() => graph.lesson({kind: 'function-choice', name: 'transform-base', value: 'tan'})).toThrow(DomainError);
+    expect(graph.modelNow()).toBe(before);
 });

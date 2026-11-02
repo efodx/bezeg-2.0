@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -88,6 +88,14 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
 
     protected setInverseVisible(visible: boolean): void {
         if (visible !== this.model.inverseVisible) this.commitModel({...this.model, inverseVisible: visible});
+    }
+
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {"inverse-base": value => this.setBase(value), "inverse-x0": value => this.setX0(value)},
+            choices: {"inverse-restriction": value => this.setRestriction(value)},
+            visibility: {tangent: visible => this.setTangentVisible(visible), "inverse-curve": visible => this.setInverseVisible(visible)},
+        };
     }
 
     protected setTangentVisible(visible: boolean): void {

@@ -41,6 +41,8 @@ const targets = {
     'linear-function': ['Unchanged line with its slope triangle', [], [-0.8, 6.5, 3, -1.5]],
     'exponential-function': ['Original growth region and reference points', [], [-1.5, 5, 2.5, -0.6]],
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],
+    'function-transformation': ['Default transformed graph with the faint base graph and the marked point mapped to its image', [], [-6, 7, 12, -9]],
+    'function-inverse': ['Default function and its inverse mirrored over y = x with the point P and its mirror', [], [-4, 9, 11, -4]],
     continuity: ['Actual jump and distinct open and closed endpoints', [], [-2.3, 4.3, 3.2, -1]],
     derivative: ['Distinct tangent and nearby secant on the original quadratic', [toggle('Prikaži tangento (natančna mejna premica)')], [-0.4, 5, 2.5, -1]],
     'definite-integral': ['Six coarse left rectangles distinguish approximation from integrand', [field('Število podintervalov n', 6)], [-0.3, 4.8, 2.4, -0.5]],
@@ -56,6 +58,7 @@ const targets = {
     taylor: ['Exponential and quadratic Taylor polynomial with visible error away from the fixed center', [field('Stopnja n', 2, 'number')], [-2.6, 5, 2.2, -1.4]],
     sequence: ['Certified reciprocal tail before tightening epsilon and moving its threshold', [button('Naslednji korak', 15), field('Širina pasu ε', 0.3, 'number'), field('Prag N', 5, 'number'), button('Pokaži certifikat')], [0, 1.2, 18, -0.2]],
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
+    'fourier-series': ['Default square wave with the partial sum, the target and the epsilon band', [], [-7.2, 3.6, 7.2, -2]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
     'linear-map': ['Example matrix A with the image grid, the unit square and its image, and a Bezier curve with its image', [field('Primer matrike', 'basis-default', 'select')], [-1.6, 6.6, 11.6, -1.47]],

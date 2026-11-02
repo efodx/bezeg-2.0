@@ -26,7 +26,7 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
     "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function",
     "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value",
-    "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point", "root-finding"];
+    "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point", "root-finding", "function-transformation", "function-inverse", "fourier-series"];
 /** Collections added after those files: the patch families . */
 const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-derivatives", "patch-subdivision", "patch-joins", "patch-triangular"];
 /** The computational-geometry Demonstrations, one collection each. */
@@ -34,8 +34,6 @@ const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hu
     "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle"];
 /** The projective-conics Demonstrations, one collection each. */
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar"];
-/** Graph collections whose Demonstration is registered in a later slice (school function graphs 05 and Fourier series F2b). */
-const PENDING_ROUTE_KEYS = ["function-transformation", "function-inverse", "fourier-series"];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
 const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-subdivision", "patch-coons"];
 
@@ -48,7 +46,7 @@ describe('Preset collection definitions', () => {
         const keys = presetCollections.map(collection => collection.key);
         expect(new Set(keys).size).toBe(keys.length);
         expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS,
-            ...CURVE_STREAM_KEYS, ...PROJECTIVE_KEYS, ...PENDING_ROUTE_KEYS].sort());
+            ...CURVE_STREAM_KEYS, ...PROJECTIVE_KEYS].sort());
     });
 
     test('every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys', () => {
@@ -63,7 +61,7 @@ describe('Preset collection definitions', () => {
             expect(used.has(collection), `${id} shares another Demonstration's collection`).toBe(false);
             used.add(collection);
         }
-        const unused = presetCollections.filter(collection => !used.has(collection) && !PENDING_ROUTE_KEYS.includes(collection.key));
+        const unused = presetCollections.filter(collection => !used.has(collection));
         expect(unused.filter(collection => !PATCH_KEYS.includes(collection.key))).toEqual([...legacyCurvePresetCollections]);
         expect(unused.map(collection => collection.key)).toEqual(['g1-spline']);
     });
