@@ -20,3 +20,7 @@ node scripts/projective-conic-benchmark/run.cjs [results.json] [summary.md]   # 
 ## Not covered
 
 Browser frames, SVG or JSXGraph work, React renders, MathJax, touch, and a classroom device. Sampling runs on mount and conic switch only (the graphs cache the polyline), so only the switch rows include it. The deviation estimate is first order and ignores view clipping artifacts. Wall-clock numbers depend on the machine.
+
+## D. K4 five-point drag (slice 07c)
+
+Section D of the output times the per-move chain of the five-point graph (`movePoint`, `evaluateFivePoint`, `shownConic`, `sampleConic` at density 360, the 81-sample arc curve, `extrapolatedPieces`) for 150 circle positions (or a line y = x) per dragged point on each K4 example, splits it into solver, `rationalArc`, `arcDeviation`, sampling, arc curve and extrapolation, counts vertices per move, and compares `DEVIATION_SAMPLES` 100/200/400 with density 180/360. Moves that leave the model unchanged are excluded. Math path only; K4 browser frames are for Batch B F2b.

@@ -13,6 +13,13 @@ import {
     type PolePolarConicId, type PolePolarModel,
 } from '../../src/graphs/projective/polePolarModel';
 import {moveP, setConic as setPolePolarConic} from '../../src/graphs/projective/polePolarEdit';
+import {
+    DEVIATION_SAMPLES, FIVE_POINT_EXAMPLES, FIVE_POINT_VIEW_BOX, arcDeviation, arcPoint, evaluateFivePoint, extrapolatedPieces, nextLastUnique, pointOf, shownConic,
+    type FivePointModel,
+} from '../../src/graphs/projective/fivePointModel';
+import {movePoint} from '../../src/graphs/projective/fivePointEdit';
+import {conicFromFivePoints} from '../../src/projective/conic';
+import {rationalArc} from '../../src/projective/rationalArc';
 
 export const DENSITIES = [180, 270, 360, 540, 720, 1080, 1440];
 export const BOUNDS = [8, 10, 12, 14, 16, 20, 24, 32];
@@ -21,11 +28,11 @@ const REACH_X = 11.8, REACH_Y = 10.3; // as pascalModel.ts
 const MOVES = 240;
 const now = (): number => performance.now();
 
-export interface Stat {median: number; p95: number; min: number; n: number}
+export interface Stat {median: number; p95: number; min: number; max: number; n: number}
 function stat(values: number[]): Stat {
     const s = [...values].sort((a, b) => a - b);
     const at = (p: number): number => s[Math.min(s.length - 1, Math.max(0, Math.ceil(p * s.length) - 1))];
-    return {median: at(0.5), p95: at(0.95), min: s[0], n: s.length};
+    return {median: at(0.5), p95: at(0.95), min: s[0], max: s[s.length - 1], n: s.length};
 }
 function time(fn: () => void, warm: number, repeats: number): Stat {
     for (let i = 0; i < warm; i++) fn();
@@ -252,9 +259,130 @@ function switches(): InteractionRow[] {
     return rows;
 }
 
+// ---- D. K4 five-point drag (slice 07c) --------------------------------------------------------------------------------
+// The per-move chain of FivePointGraph.dragPoint -> commit -> redraw: movePoint, evaluateFivePoint (once per model), nextLastUnique, shownConic,
+// the conic polyline (sampleConic, as conicPolyline), the 81-sample arc curve (ARC_SAMPLES = 80), and extrapolatedPieces when the toggle is on.
+export interface K4Row {
+    name: string; moves: number; changed: number; total: Stat; totalWithExtrap: Stat; edit: Stat; solver: Stat; rationalArc: Stat; deviation: Stat;
+    sampling: Stat; arcDraw: Stat; extrap: Stat; verticesConic: Stat; verticesArc: number; verticesExtrap: Stat; kinds: Record<string, number>;
+}
+const K4_VIEW = viewOf(FIVE_POINT_VIEW_BOX);
+const K4_ARC_SAMPLES = 80;
+const K4_STEPS = 150;
+type Pos = {x: number; y: number};
+
+/** Positions (board units) of one pass: 150 steps on a circle of radius 4 around `c` (about one 1/5 step each), or along y = x. */
+function k4Path(kind: 'circle' | 'line', c: Pos): Pos[] {
+    const out: Pos[] = [];
+    for (let k = 0; k < K4_STEPS; k++) {
+        if (kind === 'circle') { const a = 2 * Math.PI * k / K4_STEPS; out.push({x: c.x + 4 * Math.cos(a), y: c.y + 4 * Math.sin(a)}); }
+        else { const v = -7.5 + k * 0.1; out.push({x: v, y: v}); } // steps of 1/10, so about half the moves land on the same 1/5 grid point
+    }
+    return out;
+}
+const baseOf = (m: FivePointModel, i: number): Pos => ({x: m.points[i].x / 15, y: m.points[i].y / 15});
+
+function k4Case(name: string, start: FivePointModel, indices: number[], kind: 'circle' | 'line'): K4Row {
+    const T: Record<string, number[]> = {total: [], totalEx: [], edit: [], solver: [], arc: [], dev: [], sampling: [], arcDraw: [], extrap: [], vc: [], ve: []};
+    let moves = 0, changed = 0, vArc = 0;
+    const kinds: Record<string, number> = {};
+    for (const index of indices) {
+        const path = k4Path(kind, baseOf(start, index));
+        for (let pass = 0; pass < 11; pass++) { // pass 0 is a warm-up
+            let model: FivePointModel = start;
+            let last = nextLastUnique(undefined, model, evaluateFivePoint(model));
+            for (const to of path) {
+                const t0 = now();
+                const next = movePoint(model, index, to);
+                const t1 = now();
+                if (next === model) { if (pass > 0) moves++; continue; } // an unchanged move draws nothing
+                const scene = evaluateFivePoint(next);
+                const t2 = now();
+                last = nextLastUnique(last, next, scene);
+                const shown = shownConic(scene, last);
+                let vc = 0;
+                if (shown) for (const piece of sampleConic(shown.conic, K4_VIEW).pieces) vc += piece.points.length;
+                const t3 = now();
+                const arc = scene.arc && scene.arc.status === 'ok' ? scene.arc : undefined;
+                let va = 0;
+                if (arc) { const xs: number[] = [], ys: number[] = []; for (let i = 0; i <= K4_ARC_SAMPLES; i++) { const [x, y] = arcPoint(arc, i / K4_ARC_SAMPLES); xs.push(x); ys.push(y); } va = xs.length; }
+                const t4 = now();
+                let ve = 0;
+                if (arc) for (const piece of extrapolatedPieces(arc)) ve += piece.x.length;
+                const t5 = now();
+                // The parts of evaluateFivePoint, timed on their own (a second solve; the totals above do not include this).
+                const pts = next.points.map(pointOf);
+                const s0 = now(); conicFromFivePoints(pts as never); const s1 = now();
+                let ra = 0, dv = 0;
+                if (scene.status === 'unique' && scene.conic) {
+                    const r0 = now(); const ar = rationalArc(scene.conic, pts[next.a], pts[next.b], pts[next.t]); const r1 = now();
+                    ra = r1 - r0;
+                    if (ar.status === 'ok') { const d0 = now(); arcDeviation(scene.conic, ar); dv = now() - d0; }
+                }
+                if (pass > 0) {
+                    moves++; changed++;
+                    kinds[scene.kind] = (kinds[scene.kind] ?? 0) + 1;
+                    T.total.push(t4 - t1); T.totalEx.push(t5 - t1); T.edit.push(t1 - t0); T.solver.push(s1 - s0); T.arc.push(ra); T.dev.push(dv);
+                    T.sampling.push(t3 - t2); T.arcDraw.push(t4 - t3); T.extrap.push(t5 - t4); T.vc.push(vc); T.ve.push(ve); vArc = Math.max(vArc, va);
+                    T.total[T.total.length - 1] += t1 - t0;
+                    T.totalEx[T.totalEx.length - 1] += t1 - t0;
+                }
+                model = next;
+            }
+        }
+    }
+    return {
+        name, moves, changed, total: stat(T.total), totalWithExtrap: stat(T.totalEx), edit: stat(T.edit), solver: stat(T.solver), rationalArc: stat(T.arc), deviation: stat(T.dev),
+        sampling: stat(T.sampling), arcDraw: stat(T.arcDraw), extrap: stat(T.extrap), verticesConic: stat(T.vc), verticesArc: vArc, verticesExtrap: stat(T.ve), kinds,
+    };
+}
+
+function k4Drags(): K4Row[] {
+    const rows: K4Row[] = [];
+    for (const id of ['ellipse', 'hyperbola', 'parabola'] as const) {
+        for (let i = 0; i < 5; i++) rows.push(k4Case(`K4 ${id} point ${'ABCDE'[i]}`, FIVE_POINT_EXAMPLES[id], [i], 'circle'));
+        rows.push(k4Case(`K4 ${id} all five points`, FIVE_POINT_EXAMPLES[id], [0, 1, 2, 3, 4], 'circle'));
+    }
+    for (const id of ['three-collinear', 'four-collinear'] as const) {
+        rows.push(k4Case(`K4 ${id} all five points (circle)`, FIVE_POINT_EXAMPLES[id], [0, 1, 2, 3, 4], 'circle'));
+        rows.push(k4Case(`K4 ${id} point C along the line y = x`, FIVE_POINT_EXAMPLES[id], [2], 'line'));
+    }
+    return rows;
+}
+
+/** Per-move cost with DEVIATION_SAMPLES 100/200/400 and sampler density 180/360: evaluateFivePoint minus its 200-sample deviation, plus the variant parts. */
+export interface K4Variant {samples: number; density: number; medianMs: number; p95Ms: number}
+function k4Variants(): K4Variant[] {
+    const samplesList = [100, DEVIATION_SAMPLES, 400], densities = [180, DEFAULT_SAMPLE_DENSITY];
+    const acc = new Map<string, number[]>();
+    for (const id of ['ellipse', 'hyperbola', 'parabola'] as const) for (let index = 0; index < 5; index++) {
+        const path = k4Path('circle', baseOf(FIVE_POINT_EXAMPLES[id], index));
+        for (let pass = 0; pass < 6; pass++) {
+            let model: FivePointModel = FIVE_POINT_EXAMPLES[id];
+            for (const to of path) {
+                const next = movePoint(model, index, to);
+                if (next !== model) {
+                    const t0 = now(); const scene = evaluateFivePoint(next); const evalMs = now() - t0;
+                    const arc = scene.arc && scene.arc.status === 'ok' ? scene.arc : undefined;
+                    const dev: Record<number, number> = {}, smp: Record<number, number> = {};
+                    for (const n of samplesList) { const t = now(); if (arc && scene.conic) arcDeviation(scene.conic, arc, n); dev[n] = now() - t; }
+                    for (const d of densities) { const t = now(); if (scene.status === 'unique' && scene.conic) sampleConic(scene.conic, K4_VIEW, d); smp[d] = now() - t; }
+                    if (pass > 0) for (const n of samplesList) for (const d of densities) {
+                        const key = `${n}/${d}`;
+                        if (!acc.has(key)) acc.set(key, []);
+                        acc.get(key)!.push(evalMs - dev[DEVIATION_SAMPLES] + dev[n] + smp[d]);
+                    }
+                }
+                model = next;
+            }
+        }
+    }
+    return samplesList.flatMap(samples => densities.map(density => { const s = stat(acc.get(`${samples}/${density}`)!); return {samples, density, medianMs: s.median, p95Ms: s.p95}; }));
+}
+
 export interface Results {
     constants: {DEFAULT_SAMPLE_DENSITY: number; DIRECTION_BOUND: number; tableSize: number};
-    densitySweep: SweepRow[]; boundSweep: BoundRow[]; interactions: InteractionRow[];
+    densitySweep: SweepRow[]; boundSweep: BoundRow[]; interactions: InteractionRow[]; k4: K4Row[]; k4Variants: K4Variant[];
 }
 
 export function runBenchmark(log: (s: string) => void = () => undefined): Results {
@@ -263,9 +391,10 @@ export function runBenchmark(log: (s: string) => void = () => undefined): Result
     log('B bound sweep'); const boundRows = boundSweep();
     log('C interactions');
     const interactions = [...PASCAL_CONIC_IDS.map(k2Drag), ...POLE_POLAR_CONIC_IDS.map(k3Drag), ...switches()];
+    log('D K4 five-point drag'); const k4 = k4Drags(); const variants = k4Variants();
     return {
         constants: {DEFAULT_SAMPLE_DENSITY, DIRECTION_BOUND, tableSize: DIRECTION_TABLE.length},
-        densitySweep: densitySweepRows, boundSweep: boundRows, interactions,
+        densitySweep: densitySweepRows, boundSweep: boundRows, interactions, k4, k4Variants: variants,
     };
 }
 
@@ -293,5 +422,10 @@ export function renderMarkdown(r: Results, env: Record<string, string>): string 
     }
     L.push('', '## C. Interactions at current constants', '', 'Per move (drag) or per switch, ms median / p95.', '', '| case | median / p95 ms | moves | moves that changed the model |', '|---|---|---|---|');
     for (const x of r.interactions) L.push(`| ${x.name} | ${st(x.perMoveMs, 3)} | ${x.moves} | ${x.changedMoves ?? ''} |`);
+    L.push('', '## D. K4 five-point drag (slice 07c)', '', 'Per changed move, ms median / p95: edit = movePoint; solver = conicFromFivePoints; arc = rationalArc; dev = arcDeviation (200 samples); sampling = conic polyline (density 360) incl. shownConic; arc draw = 81 arc points; extrap = extrapolatedPieces (toggle on). Total = evaluateFivePoint + shownConic + sampling + arc draw (extrapolation off); +ex adds extrapolation. Vertices per move: conic median / arc / extrapolation median.', '',
+        '| case | moves (changed) | total (max) | total +ex | edit | solver | arc | dev | sampling | arc draw | extrap | vertices | scene kinds |', '|---|---|---|---|---|---|---|---|---|---|---|---|---|');
+    for (const x of r.k4) L.push(`| ${x.name} | ${x.moves} (${x.changed}) | ${st(x.total, 3)} (${f(x.total.max, 2)}) | ${st(x.totalWithExtrap, 3)} | ${st(x.edit, 3)} | ${st(x.solver, 3)} | ${st(x.rationalArc, 3)} | ${st(x.deviation, 3)} | ${st(x.sampling, 3)} | ${st(x.arcDraw, 3)} | ${st(x.extrap, 3)} | ${f(x.verticesConic.median, 0)}/${x.verticesArc}/${f(x.verticesExtrap.median, 0)} | ${Object.entries(x.kinds).map(([k, v]) => `${k}:${v}`).join(' ')} |`);
+    L.push('', '### D variants: movePoint + evaluateFivePoint + arcDeviation(samples) + sampleConic(density), five points of the three examples, ms median / p95', '', 'Each row is the measured evaluateFivePoint minus its own 200-sample deviation plus the timed variant parts (same move, so rows compare directly).','', '| deviation samples | density | median / p95 |', '|---|---|---|');
+    for (const v of r.k4Variants) L.push(`| ${v.samples} | ${v.density} | ${f(v.medianMs, 3)} / ${f(v.p95Ms, 3)} |`);
     return L.join('\n') + '\n';
 }
