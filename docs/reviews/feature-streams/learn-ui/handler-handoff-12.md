@@ -24,7 +24,7 @@ Commit these with explicit paths:
 - `docs/reviews/guided-example-highlights/05-math-review.md`, `05-reconciliation.md`.
 - This note.
 
-A background `just build` plus regeneration of both inventories (retained default, `--patches`) was running at handoff; logs `logs/05-build.log`, `05-gen-*.log`. Check them and the inventory diffs.
+`just build` at `9ff729e0` and regeneration of both inventories (retained default, `--patches`) finished with exit 0 (logs `logs/05-build.log`, `05-gen-*.log`). The regenerated `docs/reviews/illustrated-chapter-examples/capture-inventory.json` and `docs/reviews/bezier-patches/guided-example-inventory.json` are modified and **uncommitted**: commit them with the recapture. The `build/` output is current for `9ff729e0`, so step 1 can start at `just preview 4387`.
 
 ## Next, in order
 
