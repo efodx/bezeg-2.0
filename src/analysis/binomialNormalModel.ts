@@ -122,6 +122,14 @@ export function setBinomialFlag(model: BinomialNormalModel, field: 'correction' 
     return {ok: true, model: value === model[field] ? model : {...model, [field]: value}};
 }
 
+/** The lesson choice of the continuity correction: 'on' or 'off'. */
+export const BINOMIAL_CORRECTION_CHOICES = ['on', 'off'] as const;
+
+/** Sets the correction from a lesson choice; anything but 'on' or 'off' is refused like a non-boolean flag. */
+export function chooseBinomialCorrection(model: BinomialNormalModel, value: unknown): BinomialNormalEdit {
+    return setBinomialFlag(model, 'correction', value === 'on' ? true : value === 'off' ? false : value);
+}
+
 /** Chooses a named example: every field at once; anything that is not an example id is refused. */
 export function chooseBinomialNormalExample(model: BinomialNormalModel, id: unknown): BinomialNormalEdit {
     if (!isBinomialNormalExampleId(id)) return {ok: false, issue: {kind: 'example', allowed: BINOMIAL_NORMAL_EXAMPLE_IDS}};

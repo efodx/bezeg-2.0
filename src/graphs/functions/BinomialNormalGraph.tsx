@@ -1,6 +1,6 @@
 import React from "react";
 import {Button} from "react-bootstrap";
-import BaseFunctionGraph, {BoundingBox, DomainError} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -9,7 +9,7 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, t} from "../../localization";
 import {
     BINOMIAL_NORMAL_N_MAX, BinomialNormalEdit, BinomialNormalModel, BinomialNormalView, DEFAULT_BINOMIAL_NORMAL_MODEL,
-    binomialBars, binomialNormalDensity, binomialNormalExampleOf, binomialNormalView, binomialShadedBars, chooseBinomialNormalExample,
+    binomialBars, binomialNormalDensity, chooseBinomialCorrection, binomialNormalExampleOf, binomialNormalView, binomialShadedBars, chooseBinomialNormalExample,
     fitBinomialNormalView, isBinomialNormalExampleId, poissonBars, setBinomialFlag, setBinomialK, setBinomialN, setBinomialP,
 } from "../../analysis/binomialNormalModel";
 import {
@@ -104,6 +104,37 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
     protected setExample(id: unknown): void {
         this.commitModel(this.accepted(chooseBinomialNormalExample(this.model, id)));
         this.fitToBars();
+    }
+
+    /**
+     * Lesson steps. A step that sets n or p, or shows or hides the Poisson bars, also shows the bars fully, like choosing an
+     * example: the inspector keeps the reader's view on such edits, but a lesson that moves from n = 20 to n = 100 would
+     * otherwise leave most bars outside the view. k and the correction keep the view.
+     */
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                "binomial-n": value => {
+                    this.setN(value);
+                    this.fitToBars();
+                },
+                "binomial-p": value => {
+                    this.setP(value);
+                    this.fitToBars();
+                },
+                "binomial-k": value => this.setK(value),
+            },
+            visibility: {
+                "poisson-bars": visible => {
+                    this.setFlag("poisson", visible);
+                    this.fitToBars();
+                },
+            },
+            choices: {
+                "binomial-normal-example": value => this.setExample(value),
+                "binomial-correction": value => this.commitEdit(chooseBinomialCorrection(this.model, value)),
+            },
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

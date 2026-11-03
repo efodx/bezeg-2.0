@@ -6,7 +6,9 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
 import {LocalizedError, setLanguage} from '../../localization';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
-import {checkBinomialNormalModel, DEFAULT_BINOMIAL_NORMAL_MODEL} from '../../analysis/binomialNormalModel';
+import {BINOMIAL_NORMAL_N_MAX, checkBinomialNormalModel, DEFAULT_BINOMIAL_NORMAL_MODEL, fitBinomialNormalView} from '../../analysis/binomialNormalModel';
+import {DomainError} from './BaseFunctionGraph';
+import {LessonAction} from '../../learning/model';
 import {functionPresetCollections} from './functionPresetCollections';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
@@ -34,6 +36,7 @@ class ObservedBinomialNormalGraph extends BinomialNormalGraph {
         act(() => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); });
     }
     callSetP(value: unknown) { this.setP(value); }
+    lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
@@ -286,5 +289,123 @@ describe('live region', () => {
         toggle(poissonSwitch);
         expect(tailNote()).toBeNull();
         expect(region()).not.toBeNull();
+    });
+});
+
+describe('lesson actions (P2)', () => {
+    const param = (name: string, value: unknown) => ({kind: 'function-parameter', name, value}) as LessonAction;
+    const choice = (name: string, value: unknown) => ({kind: 'function-choice', name, value}) as LessonAction;
+    const poissonVisible = (visible: boolean) => ({kind: 'function-visibility', target: 'poisson-bars', visible}) as LessonAction;
+    const box = (graph: ObservedBinomialNormalGraph) => [...graph.liveBoard().getBoundingBox()];
+    const expectBox = (actual: number[], expected: number[]) => {
+        expect(actual).toHaveLength(4);
+        expected.forEach((value, index) => expect(actual[index]).toBeCloseTo(value, 6));
+    };
+    /** Binomial mass from an integer product, independent of the model code. */
+    const mass = (n: number, p: number, k: number) => {
+        let coefficient = 1;
+        for (let i = 1; i <= k; i++) coefficient = coefficient * (n - k + i) / i;
+        return coefficient * p ** k * (1 - p) ** (n - k);
+    };
+    const expectBarsInside = (graph: ObservedBinomialNormalGraph) => {
+        const {n, p} = graph.modelNow();
+        const mu = n * p, sigma = Math.sqrt(n * p * (1 - p));
+        const [left, top, right, bottom] = box(graph);
+        for (const x of [Math.round(mu - 4 * sigma), Math.round(mu + 4 * sigma)]) {
+            if (x < 0 || x > n) continue;
+            expect(x).toBeGreaterThanOrEqual(left); expect(x).toBeLessThanOrEqual(right);
+            expect(mass(n, p, x)).toBeLessThanOrEqual(top); expect(mass(n, p, x)).toBeGreaterThanOrEqual(bottom);
+        }
+    };
+
+    test('one synchronous sequence follows the planned lesson: readouts, correction, n and p refit the view, Poisson bars', async () => {
+        const {graph} = mount();
+        graph.lesson(choice('binomial-normal-example', 'fair20'));
+        graph.lesson(param('binomial-k', 8));
+        expect([readout('exact'), readout('corrected')]).toEqual(['0,25172', '0,25117']);
+        graph.lesson(choice('binomial-correction', 'off'));
+        expect(readout('uncorrected')).toBe('0,18555');
+        expect(graph.modelNow().correction).toBe(false);
+        graph.lesson(choice('binomial-correction', 'on'));
+        expect(graph.modelNow().correction).toBe(true);
+
+        graph.lesson(param('binomial-n', 50));
+        expect(graph.modelNow()).toMatchObject({n: 50, p: 0.5, k: 8, correction: true, poisson: false});
+        expectBox(box(graph), fitBinomialNormalView(graph.modelNow()));
+        expectBarsInside(graph);
+        graph.lesson(param('binomial-n', 100));
+        expect(graph.modelNow().n).toBe(100);
+        expectBox(box(graph), fitBinomialNormalView(graph.modelNow()));
+        expectBarsInside(graph);
+
+        graph.lesson(param('binomial-p', 0.02));
+        graph.lesson(poissonVisible(true));
+        expect(graph.modelNow()).toMatchObject({n: 100, p: 0.02, poisson: true});
+        expect(graph.poissonCurve().dataX!.length).toBeGreaterThan(0);
+        expect(graph.poissonCurve().dataY!.length).toBeGreaterThan(0);
+        expectBox(box(graph), fitBinomialNormalView(graph.modelNow()));
+        expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+
+        await settle(() => graph.reset());
+        expect(graph.modelNow()).toEqual(DEFAULT_BINOMIAL_NORMAL_MODEL);
+        expect([readout('exact'), readout('corrected'), readout('uncorrected')]).toEqual(['0,25172', '0,25117', '0,18555']);
+        expect(graph.poissonCurve().dataX).toHaveLength(0);
+    });
+
+    test('binomial-p alone refits the view to the bars of the new model', () => {
+        const {graph} = mount();
+        graph.lesson(param('binomial-p', 0.1));
+        expect(graph.modelNow().p).toBe(0.1);
+        expectBox(box(graph), fitBinomialNormalView(graph.modelNow()));
+        expectBarsInside(graph);
+    });
+
+    test('B(100; 1/2) with k = 45 reads 0,1841 exact and 0,18406 corrected', () => {
+        const {graph} = mount();
+        graph.lesson(param('binomial-n', 100));
+        graph.lesson(param('binomial-k', 45));
+        expect([readout('exact'), readout('corrected')]).toEqual(['0,1841', '0,18406']);
+    });
+
+    test('binomial-k and binomial-correction keep a custom view', () => {
+        const {graph} = mount();
+        act(() => { graph.liveBoard().setBoundingBox([-50, 5, 50, -5], false); });
+        const custom = box(graph);
+        graph.lesson(param('binomial-k', 12));
+        expect(box(graph)).toEqual(custom);
+        graph.lesson(choice('binomial-correction', 'off'));
+        expect(box(graph)).toEqual(custom);
+        expect(graph.modelNow()).toMatchObject({k: 12, correction: false});
+    });
+
+    test.each([
+        ['n = 0', param('binomial-n', 0)],
+        ['n above the maximum', param('binomial-n', BINOMIAL_NORMAL_N_MAX + 1)],
+        ['n = 2.5', param('binomial-n', 2.5)],
+        ['p = 0', param('binomial-p', 0)],
+        ['p = 1', param('binomial-p', 1)],
+        ['k above n', param('binomial-k', 21)],
+        ['k = -1', param('binomial-k', -1)],
+        ['correction maybe', choice('binomial-correction', 'maybe')],
+        ['example unknown', choice('binomial-normal-example', 'unknown')],
+    ])('refuses %s with a DomainError and leaves the model and the view alone', (_name, action) => {
+        const {graph} = mount();
+        const before = graph.modelNow();
+        const view = box(graph);
+        let error: unknown;
+        try { graph.lesson(action); } catch (caught) { error = caught; }
+        expect(error).toBeInstanceOf(DomainError);
+        expect(graph.modelNow()).toEqual(before);
+        expect(box(graph)).toEqual(view);
+        expect(readout('exact')).toBe('0,25172');
+    });
+
+    test('the lesson model accepts the new names', async () => {
+        const model = await import('../../learning/model');
+        expect(model.FUNCTION_PARAMETER_NAMES).toEqual(expect.arrayContaining(['binomial-n', 'binomial-p', 'binomial-k']));
+        expect(model.FUNCTION_VISIBILITY_TARGETS).toEqual(expect.arrayContaining(['poisson-bars']));
+        expect(model.FUNCTION_CHOICE_NAMES).toEqual(expect.arrayContaining(['binomial-normal-example', 'binomial-correction']));
+        expect(model.FUNCTION_CHOICE_VALUES['binomial-correction']).toEqual(['on', 'off']);
+        expect(model.FUNCTION_CHOICE_VALUES['binomial-normal-example']).toEqual(['fair20', 'fair100', 'rare']);
     });
 });

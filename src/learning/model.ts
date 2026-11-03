@@ -12,6 +12,7 @@ import {BISECTION_EXAMPLE_IDS} from '../analysis/bisection';
 import {ROOT_FINDING_EXAMPLE_IDS} from '../analysis/rootFinding';
 import {ROOT_FINDING_METHODS} from '../analysis/rootFindingModel';
 import {DENSITY_EXAMPLE_IDS} from '../analysis/densityAreaModel';
+import {BINOMIAL_CORRECTION_CHOICES, BINOMIAL_NORMAL_EXAMPLE_IDS} from '../analysis/binomialNormalModel';
 import {QUADRATURE_RULES} from '../analysis/quadratureModel';
 import {TRANSFORM_BASE_IDS} from '../analysis/functionTransformationModel';
 import {INVERSE_RESTRICTION_IDS} from '../analysis/functionInverseModel';
@@ -37,11 +38,11 @@ export type LessonLanguage = 'sl' | 'en';
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'root-x0', 'root-x1', 'quadrature-a', 'quadrature-b', 'quadrature-n', 'transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'inverse-base', 'inverse-x0', 'fourier-n', 'fourier-x', 'fourier-epsilon', 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon', 'complex-z-re', 'complex-z-im', 'complex-w-re', 'complex-w-im', 'complex-w-modulus', 'complex-w-argument', 'complex-centre-re', 'complex-centre-im', 'complex-radius', 'density-mu', 'density-sigma', 'density-a', 'density-b'] as const;
+export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'root-x0', 'root-x1', 'quadrature-a', 'quadrature-b', 'quadrature-n', 'transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'inverse-base', 'inverse-x0', 'fourier-n', 'fourier-x', 'fourier-epsilon', 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon', 'complex-z-re', 'complex-z-im', 'complex-w-re', 'complex-w-im', 'complex-w-modulus', 'complex-w-argument', 'complex-centre-re', 'complex-centre-im', 'complex-radius', 'density-mu', 'density-sigma', 'density-a', 'density-b', 'binomial-n', 'binomial-p', 'binomial-k'] as const;
 export type FunctionParameterName = typeof FUNCTION_PARAMETER_NAMES[number];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test', 'inverse-curve'] as const;
+export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test', 'inverse-curve', 'poisson-bars'] as const;
 export type FunctionVisibilityTarget = typeof FUNCTION_VISIBILITY_TARGETS[number];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
@@ -65,6 +66,8 @@ const functionChoiceValues = {
     'quadrature-function': FUNCTION_IDS,
     'quadrature-rule': QUADRATURE_RULES,
     'density-example': DENSITY_EXAMPLE_IDS,
+    'binomial-normal-example': BINOMIAL_NORMAL_EXAMPLE_IDS,
+    'binomial-correction': BINOMIAL_CORRECTION_CHOICES,
     'transform-base': TRANSFORM_BASE_IDS,
     'inverse-restriction': INVERSE_RESTRICTION_IDS,
     'fourier-example': FOURIER_SERIES_EXAMPLE_IDS,
