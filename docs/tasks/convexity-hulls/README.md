@@ -37,6 +37,21 @@ Kernels and graphs (F1, F2a) are not gated. Registration, lessons, chapter and m
 | 15 | [Convexity and hulls chapter, Batch 1](15-chapter.md) | F4 | 13, 14, Maps `chapterOwnedLessons` on `master` | accepted 2026-11-01 (handler 18) |
 | — | F5 media; F6 acceptance | F5–F6 | 15 | F6 accepted 2026-11-02 (handler 27, [record](../../reviews/feature-streams/geometry/f6-convexity-acceptance.md); repair `e9f07099`); F5 media files pending |
 
+## Batch 2 (A3, A5)
+
+Planned 2026-11-03 (geometry handler 48). The A5 "free double" board is a fixed view of Kettner's inputs, because [ADR 0021](../../adr/0021-exact-grid-predicates.md) rules out free double points feeding an algorithm (task 19). The Kettner counts kernel already exists from task 02.
+
+| # | Task | Kind | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| 16 | [Point-in-polygon kernel and pentagram approximation](16-point-in-polygon-kernel.md) | F1 | 02, 07 | planned |
+| 17 | [Monotone chain rule variants and the Kettner sign map](17-chain-variants-kettner-map.md) | F1 | 02, 03 | planned |
+| 18 | [Point-in-polygon graph](18-point-in-polygon-graph.md) | F2a | 16, 09 | planned |
+| 19 | [Hull robustness graph](19-hull-robustness-graph.md) | F2a | 17, 10 | planned |
+| 20 | [Batch 2 registration](20-batch2-registration.md): `point-in-polygon`, `hull-robustness` | F2b | 18, 19, `G-REG` | planned |
+| 21 | [Lesson A3 point in polygon](21-lesson-point-in-polygon.md) | F3 | 20 | planned |
+| 22 | [Lesson A5 degenerate cases and robustness](22-lesson-hull-robustness.md) | F3 | 20, 21 | planned |
+| 23 | [Chapter sections for A3 and A5](23-batch2-chapter.md) | F4 | 21, 22 | planned |
+| — | F5 posters; F6 acceptance | F5–F6 | 23 | planned |
+
 ## Later batches (task files written when the previous batch is accepted)
-- **Batch 2 (A3, A5):** kernels — point in polygon with half-open rule and winding number, pentagram lattice approximation (A3); the `<`/`<=` chain variants and duplicates (A5, the Kettner reference is in task 02); F2b, F3, F4 update, F5, F6.
 - **Batch 3 (A6):** kernel [11 conservative hull separation](11-hull-separation.md) (F1, accepted 2026-10-31 after math review; [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md); not gated, written early because the Curves D2 graph needs it); the pair-of-curves view (measure at depth 4); F2b, F3, F4, F5, F6.

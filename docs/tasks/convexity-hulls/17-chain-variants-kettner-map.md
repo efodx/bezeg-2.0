@@ -1,0 +1,13 @@
+# 17 — Monotone chain rule variants and the Kettner sign map (Batch 2, F1)
+
+Status: planned 2026-11-03 (geometry handler 48). Source: spec [A5](../../specs/convexity-hulls-lessons.md#a5-degenerate-cases-and-robustness) (examples, steps 3–6, acceptance 1–4), [ADR 0021](../../adr/0021-exact-grid-predicates.md) (inexact mode for teaching only). Kind: F1 (math review). Depends on 02 (`inexactOrientation.ts`) and 03 (`monotoneChain.ts`).
+
+1. **Chain options.** `monotoneChainTrace(points, options?)` takes `options = {pop: 'non-left' | 'right', duplicates: 'merge' | 'keep'}`. The default (`non-left`, `merge`) is today's behaviour, and existing traces and tests stay byte-identical. `pop: 'right'` pops only while `orient < 0`, so collinear points stay on the hull. `duplicates: 'keep'` skips deduplication after the sort. Trace payloads record the active options so a readout can name them. The module comment documents what each combination outputs on sample 1, on three collinear points, and on a set with a duplicate (for example, a repeated hull vertex in the output under `right` + `keep`). The other hull algorithms are unchanged.
+2. **Kettner map.** In `inexactOrientation.ts`, which stays the only home of inexact code, `kettnerSignMap()` returns the \(64\times64\) grid for \(q=(12,12)\), \(r=(24,24)\) and \(p=(0.5+i\,2^{-53},0.5+j\,2^{-53})\). Each cell is `{i, j, naive: -1|0|1, exact: -1|0|1}`, computed as `orient(p, q, r)` with pivot \(p\). The map also returns the counts `{wrongSign, falseZero, agree}`. Memoize it at module level, since it is a constant. A cell's naive value is also available as a double for display; consumers label it inexact.
+3. **Tests:**
+   - The map reproduces \(112\) wrong signs and \(2052\) false zeros. At \(i=41,j=48\) the exact sign is \(+\) and the naive sign is \(-\), with the double \(\approx -5.68\times10^{-14}\). If task 02's tests already cover the counts, assert that the map's counts equal theirs rather than duplicating the loop.
+   - Test the chain variants against independent references on random grid sets with duplicates and collinear points. `non-left` + `merge` equals `convexHull` from `geometry.ts`, as today. `right` + `merge` equals the hull plus exactly the input points that lie on hull edges, in boundary order. `right` + `keep` lists a repeated hull vertex twice. Also hand-check sample 1 under `right`: \((2,5)\) stays on the hull, because orientation value \(0\) no longer pops.
+   - Defaults stay byte-identical: a snapshot of today's sample 1 trace equals the new default trace.
+   - Observed failures under two mutations.
+
+Checks: as 16. Math review before acceptance.
