@@ -43,6 +43,15 @@ A triangulation in which every edge is legal, equivalently no triangle's circumc
 **Sweep line**:
 A line moved across the plane that stops only at events (interval or segment endpoints, intersections) held in the event queue; the status is the ordered list of objects the line currently crosses.
 
+**Monotone polygon** (*monotoni večkotnik*):
+A polygon is \(y\)-monotone when every horizontal line meets it in at most one segment, so its boundary splits into a left and a right chain from the top vertex to the bottom one. The monotone partition Demonstration cuts a simple polygon into such pieces; the monotone triangulation Demonstration then triangulates each piece with a stack.
+
+**Vertex type** (*vrsta oglišča*):
+The class a downward sweep gives each polygon vertex from its two neighbours and its interior angle: start, end, split, merge or regular (*začetno, končno, razcepno, zlivno, navadno oglišče*). Equal heights are ordered by smaller \(x\) first. Split and merge vertices are exactly where the polygon fails to be \(y\)-monotone.
+
+**Helper** (*pomočnik roba*):
+For an edge in the sweep status, the lowest vertex above the sweep line whose horizontal segment to that edge stays inside the polygon. A split vertex, or a later vertex meeting a merge helper, receives a diagonal to the helper.
+
 **Iteration**:
 One revealed step of an iterative Demonstration such as bisection. Next step and playback run the same transition, so k steps by either route give the same state; the iteration index is saved with a Preset, running playback is not.
 

@@ -1,0 +1,46 @@
+MUTATION 09-c4-piece-7: "the monotone method has \\\\(7\\\\) and ear clipping \\\\(3\\\\)" -> "the monotone method has \\\\(8\\\\) and ear clipping \\\\(3\\\\)"
+unit: failed (1) in 4.7s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-28-37-462Z-28796-506ba5e4.log
+
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoMonotoneLessons.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts (4 tests | 1 failed) 17ms
+   × C4 step text quotes the pieces, triangles, diagonals and predicate counts of the kernel (sl and en) 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoMonotoneLessons.test.ts > C4 step text quotes the pieces, triangles, diagonals and predicate counts of the kernel (sl and en)
+AssertionError: en: expected 'At step \(43\) of \(43\) the triangul…' to contain '\(7\)'
+
+- Expected
++ Received
+
+- \(7\)
++ At step \(43\) of \(43\) the triangulation is finished: \(4\) triangles, which is \(n-2\) for \(n=6\), and \(3\) diagonals \(v_2\)–\(v_5\), \(v_2\)–\(v_6\), \(v_3\)–\(v_5\). The readout compares predicate evaluations: the monotone method (partition and triangulation) needs \(11\), ear clipping on the same polygon (see the lesson Ear clipping) needs \(21\). Ear clipping grows like \(O(n^2)\); one monotone piece takes \(O(n)\) after the vertices are sorted, the whole method \(O(n\log n)\). Take care: a count on a small polygon illustrates this, it does not prove it. On the quadrilateral \((0,0),(4,3),(8,5),(4,8)\) alone the order is reversed: the monotone method has \(8\) and ear clipping \(3\). The advantage of the monotone method shows only for large \(n\).
++ Triangles: \(4=n-2\) with \(n=6\); \(3\) diagonals; the monotone method \(11\) predicate evaluations, ear clipping \(21\).
++ The trace is at step \(43\) of \(43\): \(4\) triangles, \(3\) diagonals, the monotone method \(11\) predicate evaluations, ear clipping \(21\).
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts:130:35
+    128|         expect(compare, language).toContain(`${num(whole.counts.monoto…
+    129|         expect(compare, language).toContain(`${num(whole.counts.earCli…
+    130|         expect(compare, language).toContain(`${num(piece1.counts.monot…
+       |                                   ^
+    131|         expect(compare, language).toContain(`${num(piece1.counts.earCl…
+    132|         for (const [a, b] of whole.diagonals) expect(compare, language…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  05:28:38
+   Duration  3.68s (transform 47%, environment 34%, setup 17%, import 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

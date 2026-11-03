@@ -1,0 +1,46 @@
+MUTATION 05-c3-second-types: "There are \\\\(3\\\\) start, \\\\(1\\\\) end, \\\\(0\\\\) split" -> "There are \\\\(4\\\\) start, \\\\(1\\\\) end, \\\\(0\\\\) split"
+unit: failed (1) in 4.6s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-28-27-508Z-30892-8ca59ed1.log
+
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoMonotoneLessons.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts (4 tests | 1 failed) 19ms
+   × C3 step text quotes the types, diagonals, pieces and areas of the kernel (sl and en) 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoMonotoneLessons.test.ts > C3 step text quotes the types, diagonals, pieces and areas of the kernel (sl and en)
+AssertionError: en: expected 'The second polygon has nine vertices:…' to contain 'There are \(3\) start, \(1\) end, \(0…'
+
+- Expected
++ Received
+
+- There are \(3\) start, \(1\) end, \(0\) split, \(2\) merge and \(3\) regular
++ The second polygon has nine vertices: three start, one end, three regular and two merge vertices, and no split vertex. It is still not monotone, and the merge vertices \((3,7)\) and \((7,7)\) need diagonals: \((7,7)\) is joined to \((3,7)\), the helper of the left edge, and then the vertex \((8,5)\) is joined to \((7,7)\). The vertices \((3,7)\) and \((7,7)\) are at equal height, so the tie rule applies: smaller \(x\) first. The trace is at step \(20\) of \(20\): \(2\) diagonals, \(3\) pieces of areas \(10\), \(42\) and \(6\), together \(58\).
++ There are \(4\) start, \(1\) end, \(0\) split, \(2\) merge and \(3\) regular vertices; the diagonals are \(v_5\)–\(v_7\) and \(v_3\)–\(v_5\), and there are \(3=2+1\) pieces.
++ The second example: the trace is at step \(20\) of \(20\), diagonals \(v_5\)–\(v_7\) and \(v_3\)–\(v_5\), \(3\) pieces.
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts:74:33
+     72|             ? `Začetnih je ${num(s2)}, končnih ${num(e2)}, razcepnih $…
+     73|             : `There are ${num(s2)} start, ${num(e2)} end, ${num(sp2)}…
+     74|         expect(merge, language).toContain(typeLine2);
+       |                                 ^
+     75|         expect(merge, language).toContain(`${num(d2)}`);
+     76|         expect(merge, language).toContain(`\\(${two.pieces.length}=${d…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  05:28:28
+   Duration  3.68s (transform 48%, environment 35%, setup 15%, import 1%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

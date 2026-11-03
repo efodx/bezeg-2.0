@@ -1,0 +1,41 @@
+MUTATION 10-c4-partition-first: "is partitioned into monotone pieces first" -> "is cut at once"
+unit: failed (1) in 4.5s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-26-52-932Z-30988-df40a86d.log
+
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoMonotoneLessons.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts (4 tests | 1 failed) 18ms
+   × C4 says non-monotone input is partitioned first, names the ear-clipping lesson, states the growth as illustration, and claims no saving the counts do not show 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoMonotoneLessons.test.ts > C4 says non-monotone input is partitioned first, names the ear-clipping lesson, states the growth as illustration, and claims no saving the counts do not show
+AssertionError: expected 'Move the vertices of the polygon \((0…' to contain 'A polygon that is not monotone is par…'
+
+Expected: "A polygon that is not monotone is partitioned into monotone pieces first"
+Received: "Move the vertices of the polygon \((0,0)\), \((4,3)\), \((8,0)\), \((12,8)\), \((8,5)\), \((4,8)\) on the grid and press Next step. A polygon that is not monotone is cut at once (the steps up to the end of the partition), and only then is every piece triangulated; a polygon that is already monotone has one piece and no diagonal from the partition. The trace returns to the start after every change. Three consecutive collinear vertices and non-simple polygons are refused with a message."
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts:145:24
+    143|     const explore = stepOf('monotone-triangulation', 'montri-explore')…
+    144|     expect(explore.sl).toContain('Večkotnik, ki ni monoton, se najprej…
+    145|     expect(explore.en).toContain('A polygon that is not monotone is pa…
+       |                        ^
+    146|     const first = stepOf('monotone-triangulation', 'montri-piece').exp…
+    147|     expect(first.sl).toContain('Razdelitev je že dodala diagonalo');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  05:26:53
+   Duration  3.59s (transform 47%, environment 34%, setup 17%, import 1%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

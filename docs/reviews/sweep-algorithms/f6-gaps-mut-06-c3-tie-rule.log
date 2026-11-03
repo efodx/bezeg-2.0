@@ -1,0 +1,48 @@
+MUTATION 06-c3-tie-rule: "pri enaki višini najprej tisto z manjšim" -> "pri enaki višini najprej tisto z večjim"
+unit: failed (1) in 4.3s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-26-43-580Z-17572-161278ce.log
+
+Waiting for unit (pid 29872) to finish starting before reading free memory.
+Memory available for unit after 25s.
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoMonotoneLessons.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts (4 tests | 1 failed) 18ms
+   × C3 states the equal-height tie rule (smaller x first) and the refusal of three consecutive collinear vertices (sl and en) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoMonotoneLessons.test.ts > C3 states the equal-height tie rule (smaller x first) and the refusal of three consecutive collinear vertices (sl and en)
+AssertionError: expected 'Oglišča obdelamo od zgoraj navzdol, p…' to contain 'pri enaki višini najprej tisto z manj…'
+
+- Expected
++ Received
+
+- pri enaki višini najprej tisto z manjšim \(x\)
++ Oglišča obdelamo od zgoraj navzdol, pri enaki višini najprej tisto z večjim \(x\). Tako sta prva \((4,8)\) in \((12,8)\), obe začetni: oba soseda sta pod njima in notranji kot je manjši od \(\pi\). Tretje je \((8,5)\): oba soseda sta nad njim in notranji kot je večji od \(\pi\), zato je zlivno. Sled je na koraku \(5\) od \(14\); v stanju sta robova \(e_6\) od \((4,8)\) in \(e_4\) od \((12,8)\), ki omejujeta notranjost z leve. Tri zaporedna kolinearna oglišča program zavrne, ker zanje vrsta ni določena.
++ Po treh obdelanih ogliščih je zadnje, \(v_5=(8,5)\), zlivno; stanje ima dva roba, \(e_6\) in \(e_4\), in diagonal še ni.
++ Sled je na koraku \(5\) od \(14\): oglišče \(v_5=(8,5)\) je zlivno, stanje \(e_6, e_4\), diagonal še ni.
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts:86:22
+     84| test('C3 states the equal-height tie rule (smaller x first) and the re…
+     85|     const classify = prose('monotone-partition', 'monpart-classify', '…
+     86|     expect(classify).toContain('pri enaki višini najprej tisto z manjš…
+       |                      ^
+     87|     expect(classify).toContain('Tri zaporedna kolinearna oglišča progr…
+     88|     const classifyEn = prose('monotone-partition', 'monpart-classify',…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  05:26:44
+   Duration  3.46s (transform 46%, environment 36%, setup 16%, import 1%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,74 @@
+MUTATION 17-c4-host-step-number: "diagonal: 23, pieceDone" -> "diagonal: 24, pieceDone"
+unit: failed (1) in 13.8s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-27-30-543Z-27484-1d8777df.log
+
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954
+
+ ❯ src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx (11 tests | 2 failed) 2130ms
+   × the seven scenes run in one synchronous sequence, show the readouts the text quotes, frame their polygon and never play 321ms
+   × the numbers quoted in each step text equal the panel readouts of its scene (sl and en) 227ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx > the seven scenes run in one synchronous sequence, show the readouts the text quotes, frame their polygon and never play
+AssertionError: montri-diagonal: expected [ 'Korak 24 od 43', …(7) ] to deeply equal [ 'Korak 23 od 43', …(7) ]
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  [
+-   "Korak 23 od 43",
++   "Korak 24 od 43",
+    "Kos 1 ima 4 oglišč in dobi 2 trikotnikov.",
+    "v2 — desna veriga",
+    undefined,
+    "Diagonale doslej (2): v2–v5, v2–v6",
+    "Trikotnikov doslej: 1.",
+
+ ❯ src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx:189:36
+    187|             for (const action of sceneActions(scene)) capabilities.app…
+    188|         });
+    189|         expect(readouts(), stepId).toEqual(EXPECTED[stepId].shown);
+       |                                    ^
+    190|         expect(stackIds(), stepId).toEqual(EXPECTED[stepId].stack);
+    191|         expect(chainList(), stepId).toEqual(EXPECTED[stepId].chains);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx > the numbers quoted in each step text equal the panel readouts of its scene (sl and en)
+AssertionError: montri-diagonal sl step readout: expected [ 24, 43 ] to deeply equal [ 23, 43 ]
+
+- Expected
++ Received
+
+  [
+-   23,
++   24,
+    43,
+  ]
+
+ ❯ src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx:275:84
+    273|             const text = [step.explanation[language], ...(step.expecte…
+    274|             const [shownStep, shownTotal] = (part('step') ?? '').match…
+    275|             expect([shownStep, shownTotal], `${step.id} ${language} st…
+       |                                                                                    ^
+    276|             expect(text, `${step.id} ${language}`).toContain(`\\(${sho…
+    277|             expect(text, `${step.id} ${language}`).toContain(`\\(${sho…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  05:27:31
+   Duration  12.74s (transform 55%, tests 17%, import 14%, environment 9%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

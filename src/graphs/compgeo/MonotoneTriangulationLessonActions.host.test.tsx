@@ -246,3 +246,66 @@ test('the finished triangulation has n - 2 triangles and n - 3 diagonals, and ev
     expect(run.allDiagonals.length).toBe(6 - 3);
     expect([0, 1].map(k => run.pieceSize(k) - 2)).toEqual([2, 2]);
 });
+
+/** Numbers the step text quotes (explanation, expected observations, scene description) next to the panel readout they come from. */
+const QUOTED: Record<string, {readonly step: number; readonly diagonals?: number; readonly triangles?: number; readonly counts?: readonly [number, number]}> = {
+    'montri-piece': {step: 15, triangles: 0},
+    'montri-predict': {step: 19, triangles: 0},
+    'montri-test': {step: 21},
+    'montri-diagonal': {step: 23, diagonals: 2, triangles: 1},
+    'montri-count': {step: 28, diagonals: 2, triangles: 2},
+    'montri-compare': {step: 43, diagonals: 3, triangles: 4, counts: [11, 21]},
+    'montri-explore': {step: 0},
+};
+
+test('the numbers quoted in each step text equal the panel readouts of its scene (sl and en)', () => {
+    for (const language of ['sl', 'en'] as const) {
+        setLanguage(language);
+        const {graph} = setup();
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        for (const step of lesson().steps) {
+            const quoted = QUOTED[step.id];
+            act(() => {
+                capabilities.restoreState(checkpoint);
+                for (const action of sceneActions(step.scene!)) capabilities.apply(action);
+            });
+            const text = [step.explanation[language], ...(step.expectedObservations ?? []).map(o => o[language]), step.scene!.expectedState[language]].join('\n');
+            const [shownStep, shownTotal] = (part('step') ?? '').match(/\d+/g)!.map(Number);
+            expect([shownStep, shownTotal], `${step.id} ${language} step readout`).toEqual([quoted.step, 43]);
+            expect(text, `${step.id} ${language}`).toContain(`\\(${shownStep}\\)`);
+            expect(text, `${step.id} ${language}`).toContain(`\\(${shownTotal}\\)`);
+            if (quoted.diagonals !== undefined) {
+                const listed = (part('diagonals') ?? '').match(/\((\d+)\)/)?.[1];
+                expect(Number(listed), `${step.id} ${language} diagonals readout`).toBe(quoted.diagonals);
+                expect(text, `${step.id} ${language}`).toContain(`\\(${listed}\\)`);
+            }
+            if (quoted.triangles !== undefined) {
+                expect(number(part('triangles')), `${step.id} ${language} triangles readout`).toBe(quoted.triangles);
+                expect(text, `${step.id} ${language}`).toContain(`\\(${quoted.triangles}\\)`);
+            }
+            if (quoted.counts) {
+                expect([number(part('comparison-monotone')), number(part('comparison-ear'))], `${step.id} ${language} counts readout`).toEqual([...quoted.counts]);
+                for (const count of quoted.counts) expect(text, `${step.id} ${language}`).toContain(`\\(${count}\\)`);
+            }
+        }
+    }
+});
+
+test('the comparison panel states the growth and the caveat in both languages, without a claim of saving', () => {
+    const expected = {
+        sl: {growth: 'Pri n ogliščih rezanje ušes potrebuje O(n²) izračunov predikatov, cela monotona metoda pa O(n log n); vsak kos zahteva po urejanju O(n).', note: 'Majhna števila to ponazarjajo, ne dokazujejo.'},
+        en: {growth: 'With n vertices, ear clipping needs O(n²) predicate evaluations and the whole monotone method O(n log n), each piece taking O(n) after sorting.', note: 'Small counts illustrate this; they do not prove it.'},
+    } as const;
+    for (const language of ['sl', 'en'] as const) {
+        setLanguage(language);
+        const {graph} = setup();
+        // Piece 1 alone: the monotone method has more evaluations (7) than ear clipping (3); the panel still only states the growth and the caveat.
+        apply(graph, setPolygon(PIECE_1));
+        apply(graph, traceStep('end'));
+        expect([number(part('comparison-monotone')), number(part('comparison-ear'))], language).toEqual([7, 3]);
+        expect(part('comparison-growth'), language).toBe(expected[language].growth);
+        expect(part('comparison-note'), language).toBe(expected[language].note);
+        expect(`${part('comparison-growth')} ${part('comparison-note')}`, language).not.toMatch(/hitrejša|prihran|faster|saves|saving/i);
+    }
+});

@@ -1,0 +1,46 @@
+MUTATION 12-c4-growth: "Ear clipping grows like \\\\(O(n^2)\\\\)" -> "Ear clipping grows like \\\\(O(n)\\\\)"
+unit: failed (1) in 4.9s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-28-42-523Z-4852-77ddbc33.log
+
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoMonotoneLessons.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts (4 tests | 1 failed) 25ms
+   × C4 says non-monotone input is partitioned first, names the ear-clipping lesson, states the growth as illustration, and claims no saving the counts do not show 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoMonotoneLessons.test.ts > C4 says non-monotone input is partitioned first, names the ear-clipping lesson, states the growth as illustration, and claims no saving the counts do not show
+AssertionError: expected 'At step \(43\) of \(43\) the triangul…' to contain 'Ear clipping grows like \(O(n^2)\); o…'
+
+- Expected
++ Received
+
+- Ear clipping grows like \(O(n^2)\); one monotone piece takes \(O(n)\) after the vertices are sorted
++ At step \(43\) of \(43\) the triangulation is finished: \(4\) triangles, which is \(n-2\) for \(n=6\), and \(3\) diagonals \(v_2\)–\(v_5\), \(v_2\)–\(v_6\), \(v_3\)–\(v_5\). The readout compares predicate evaluations: the monotone method (partition and triangulation) needs \(11\), ear clipping on the same polygon (see the lesson Ear clipping) needs \(21\). Ear clipping grows like \(O(n)\); one monotone piece takes \(O(n)\) after the vertices are sorted, the whole method \(O(n\log n)\). Take care: a count on a small polygon illustrates this, it does not prove it. On the quadrilateral \((0,0),(4,3),(8,5),(4,8)\) alone the order is reversed: the monotone method has \(7\) and ear clipping \(3\). The advantage of the monotone method shows only for large \(n\).
++ Triangles: \(4=n-2\) with \(n=6\); \(3\) diagonals; the monotone method \(11\) predicate evaluations, ear clipping \(21\).
++ The trace is at step \(43\) of \(43\): \(4\) triangles, \(3\) diagonals, the monotone method \(11\) predicate evaluations, ear clipping \(21\).
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts:159:24
+    157|     // Growth O(n^2) vs O(n) per piece, as illustration and not proof.
+    158|     expect(compare.sl).toContain('Pri rezanju ušes narašča število kot…
+    159|     expect(compare.en).toContain('Ear clipping grows like \\(O(n^2)\\)…
+       |                        ^
+    160|     expect(compare.sl).toContain('število na majhnem večkotniku to pon…
+    161|     expect(compare.en).toContain('a count on a small polygon illustrat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  05:28:43
+   Duration  3.97s (transform 49%, environment 34%, setup 15%, import 1%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

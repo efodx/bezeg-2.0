@@ -253,3 +253,51 @@ test('three collinear consecutive vertices are refused with a message and no tra
     expect(graph.run().length).toBe(0);
     expect(document.querySelector('[data-monotone-partition="refusal"]')).not.toBeNull();
 });
+
+const QUOTED: Record<string, {readonly step: number; readonly total: number; readonly diagonals?: number; readonly pieces?: number}> = {
+    'monpart-polygon': {step: 0, total: 14},
+    'monpart-predict': {step: 0, total: 14},
+    'monpart-classify': {step: 5, total: 14},
+    'monpart-helper': {step: 6, total: 14},
+    'monpart-diagonal': {step: 8, total: 14, diagonals: 1},
+    'monpart-pieces': {step: 14, total: 14, diagonals: 1, pieces: 2},
+    'monpart-merge-only': {step: 20, total: 20, diagonals: 2, pieces: 3},
+    'monpart-explore': {step: 0, total: 14},
+};
+
+test('the numbers quoted in each step text equal the panel readouts of its scene (sl and en)', () => {
+    for (const language of ['sl', 'en'] as const) {
+        setLanguage(language);
+        const {graph} = setup();
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        for (const step of lesson().steps) {
+            const quoted = QUOTED[step.id];
+            act(() => {
+                capabilities.restoreState(checkpoint);
+                for (const action of sceneActions(step.scene!)) capabilities.apply(action);
+            });
+            const text = [step.explanation[language], ...(step.expectedObservations ?? []).map(o => o[language]), step.scene!.expectedState[language]].join('\n');
+            const [shownStep, shownTotal] = (part('step') ?? '').match(/\d+/g)!.map(Number);
+            expect([shownStep, shownTotal], `${step.id} ${language} step readout`).toEqual([quoted.step, quoted.total]);
+            expect(text, `${step.id} ${language}`).toContain(`\\(${shownStep}\\)`);
+            expect(text, `${step.id} ${language}`).toContain(`\\(${shownTotal}\\)`);
+            const listed = Number((part('diagonals') ?? '').match(/\((\d+)\)/)?.[1] ?? 0);
+            if (quoted.diagonals !== undefined) {
+                expect(listed, `${step.id} ${language} diagonals readout`).toBe(quoted.diagonals);
+                expect(text, `${step.id} ${language}`).toContain(`\\(${listed}\\)`);
+            }
+            if (quoted.pieces !== undefined) {
+                expect(Number((part('summary') ?? '').match(/\d+/)?.[0]), `${step.id} ${language} pieces readout`).toBe(quoted.pieces);
+                expect(text, `${step.id} ${language}`).toContain(`\\(${quoted.pieces}\\)`);
+                expect(quoted.pieces, step.id).toBe(listed + 1);
+                const counts = (part('type-counts') ?? '').match(/\d+/g)!.map(Number);
+                for (const count of counts) expect(text, `${step.id} ${language} type count`).toContain(`\\(${count}\\)`);
+                // Only the first example's step states the balance sums.
+                const balance = (part('balance') ?? '').match(/\d+/g)!.map(Number);
+                expect(balance[0] + balance[1], `${step.id} balance`).toBe(balance[2]);
+                if (step.id === 'monpart-pieces') expect(text, `${step.id} ${language}`).toContain(`\\(${balance[0]}+${balance[1]}=${balance[2]}\\)`);
+            }
+        }
+    }
+});

@@ -82,6 +82,8 @@ The catalog publishes its reviewed poster set and 51 silent four-second WebM cli
 | Computational geometry | `/compgeo/voronoi-degenerate` | Degenerate sites: a four-point mode with the exact incircle readout, cocircular and collinear examples (`DegenerateSitesGraph`) |
 | Computational geometry | `/compgeo/interval-sweep` | Sweep over intervals: overlapping pairs and maximum depth (`IntervalSweepGraph`) |
 | Computational geometry | `/compgeo/segment-intersections` | Bentley–Ottmann segment intersections with event queue and status (`BentleyOttmannGraph`) |
+| Computational geometry | `/compgeo/monotone-partition` | Partitioning a simple polygon into y-monotone pieces by a downward sweep: vertex types, helpers in the status and diagonals at split and merge vertices (`MonotonePartitionGraph`) |
+| Computational geometry | `/compgeo/monotone-triangulation` | Triangulating the monotone pieces with a stack, with orientation-test counts compared against ear clipping (`MonotoneTriangulationGraph`) |
 
 The Analysis family ([ADR 0011](adr/0011-analysis-family.md), [spec](specs/analysis-guided-lessons.md)) holds Batches A (released 2026-10-15), B and C (released 2026-10-16) of that spec; the spec's eleventh topic, complex multiplication, shipped with Batch C in Foundations. Each batch only adds routes, preset collections (`bisection`, `mean-value`, `accumulation`, `extrema`, `convexity`, `darboux`, `taylor`, `sequence`, `uniform-convergence`, `fixed-point`, `complex-multiplication`) and lessons; no existing route, stored preset or lesson changed, so there is no breaking change.
 

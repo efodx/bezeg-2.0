@@ -1,0 +1,275 @@
+MUTATION 18-c4-en-panel-growth: "each piece taking O(n) after sorting" -> "each piece taking O(n²) after sorting"
+unit: failed (1) in 14.4s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-29-17-846Z-28312-9f22fc51.log; warnings present (see log)
+
+
+Recent output:
+ct-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to DemonstrationWorkspace inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to DemonstrationWorkspace inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to MonotoneTriangulationLists inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at MonotoneTriangulationLists (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/compgeo/MonotoneTriangulationControls.tsx:483:42)
+    at div
+    at div
+    at MonotoneTriangulationControls (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/compgeo/MonotoneTriangulationControls.tsx:72:42)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to MonotoneTriangulationControls inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at MonotoneTriangulationControls (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/compgeo/MonotoneTriangulationControls.tsx:72:42)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to Status inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at Status (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/compgeo/PointSetControls.tsx:48:19)
+    at div
+    at PointSetControls (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/compgeo/PointSetControls.tsx:395:42)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to PointSetControls inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at PointSetControls (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/compgeo/PointSetControls.tsx:395:42)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to PointSetControls inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at PointSetControls (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/compgeo/PointSetControls.tsx:395:42)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to AxisSelector inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at AxisSelector (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/AxisSelector.tsx:15:42)
+    at div
+    at div
+    at details
+    at InspectorDisclosure (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/inputs/InspectorDisclosure.tsx:15:43)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to NumberInput inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at NumberInput (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/inputs/NumberInput.tsx:32:42)
+    at div
+    at form
+    at C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-bootstrap\cjs\Form.js:40:3
+    at Slider (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/inputs/Slider.tsx:22:42)
+    at div
+    at SizeRange (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/SizeRange.tsx:13:42)
+    at div
+    at details
+    at InspectorDisclosure (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/inputs/InspectorDisclosure.tsx:15:43)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to Slider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at Slider (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/inputs/Slider.tsx:22:42)
+    at div
+    at SizeRange (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/SizeRange.tsx:13:42)
+    at div
+    at details
+    at InspectorDisclosure (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/inputs/InspectorDisclosure.tsx:15:43)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to SizeRange inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at SizeRange (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/SizeRange.tsx:13:42)
+    at div
+    at details
+    at InspectorDisclosure (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/inputs/InspectorDisclosure.tsx:15:43)
+    at section
+    at div
+    at aside
+    at main
+    at DemonstrationWorkspace (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/DemonstrationWorkspace.tsx:50:42)
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+
+ ❯ src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx (11 tests | 1 failed) 2679ms
+   × the comparison panel states the growth and the caveat in both languages, without a claim of saving 197ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx > the comparison panel states the growth and the caveat in both languages, without a claim of saving
+AssertionError: en: expected 'With n vertices, ear clipping needs O…' to be 'With n vertices, ear clipping needs O…' // Object.is equality
+
+Expected: "With n vertices, ear clipping needs O(n²) predicate evaluations and the whole monotone method O(n log n), each piece taking O(n) after sorting."
+Received: "With n vertices, ear clipping needs O(n²) predicate evaluations and the whole monotone method O(n log n), each piece taking O(n²) after sorting."
+
+ ❯ src/graphs/compgeo/MonotoneTriangulationLessonActions.host.test.tsx:307:53
+    305|         apply(graph, traceStep('end'));
+    306|         expect([number(part('comparison-monotone')), number(part('comp…
+    307|         expect(part('comparison-growth'), language).toBe(expected[lang…
+       |                                                     ^
+    308|         expect(part('comparison-note'), language).toBe(expected[langua…
+    309|         expect(`${part('comparison-growth')} ${part('comparison-note')…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  05:29:18
+   Duration  13.31s (transform 51%, tests 20%, import 15%, environment 9%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

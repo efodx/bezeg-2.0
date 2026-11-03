@@ -1,0 +1,46 @@
+MUTATION 07-c3-collinear: "Three consecutive collinear vertices are refused, because" -> "Three consecutive collinear vertices are accepted, because"
+unit: failed (1) in 4.4s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-26-48-205Z-27180-2022ed7a.log
+
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoMonotoneLessons.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts (4 tests | 1 failed) 18ms
+   × C3 states the equal-height tie rule (smaller x first) and the refusal of three consecutive collinear vertices (sl and en) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoMonotoneLessons.test.ts > C3 states the equal-height tie rule (smaller x first) and the refusal of three consecutive collinear vertices (sl and en)
+AssertionError: expected 'The vertices are handled from top to …' to contain 'Three consecutive collinear vertices …'
+
+- Expected
++ Received
+
+- Three consecutive collinear vertices are refused
++ The vertices are handled from top to bottom, at equal height the one with the smaller \(x\) first. So the first two are \((4,8)\) and \((12,8)\), both start vertices: both neighbours are below them and the interior angle is smaller than \(\pi\). The third is \((8,5)\): both neighbours are above it and the interior angle is greater than \(\pi\), so it is a merge vertex. The trace is at step \(5\) of \(14\); the status holds the edges \(e_6\) from \((4,8)\) and \(e_4\) from \((12,8)\), which bound the interior on the left. Three consecutive collinear vertices are accepted, because their type is not defined.
++ After three vertices handled, the last one, \(v_5=(8,5)\), is a merge vertex; the status has two edges, \(e_6\) and \(e_4\), and there are no diagonals yet.
++ The trace is at step \(5\) of \(14\): the vertex \(v_5=(8,5)\) is a merge vertex, status \(e_6, e_4\), no diagonals yet.
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts:90:24
+     88|     const classifyEn = prose('monotone-partition', 'monpart-classify',…
+     89|     expect(classifyEn).toContain('at equal height the one with the sma…
+     90|     expect(classifyEn).toContain('Three consecutive collinear vertices…
+       |                        ^
+     91|     expect(prose('monotone-partition', 'monpart-merge-only', 'sl')).to…
+     92|     expect(prose('monotone-partition', 'monpart-merge-only', 'en')).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  05:26:49
+   Duration  3.41s (transform 47%, environment 35%, setup 16%, import 1%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

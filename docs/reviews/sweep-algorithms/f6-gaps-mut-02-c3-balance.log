@@ -1,0 +1,46 @@
+MUTATION 02-c3-balance: "There are \\\\(2+1=3\\\\) start and split" -> "There are \\\\(3+1=4\\\\) start and split"
+unit: failed (1) in 4.9s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-29-06-455Z-24464-982d5019.log
+
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoMonotoneLessons.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-aa916253880c89954
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts (4 tests | 1 failed) 20ms
+   × C3 step text quotes the types, diagonals, pieces and areas of the kernel (sl and en) 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoMonotoneLessons.test.ts > C3 step text quotes the types, diagonals, pieces and areas of the kernel (sl and en)
+AssertionError: en: expected 'The trace has run to the end (step \(…' to contain 'There are \(2+1=3\) start and split v…'
+
+- Expected
++ Received
+
+- There are \(2+1=3\) start and split vertices and also \(2+1=3\) end and merge vertices
++ The trace has run to the end (step \(14\) of \(14\)). The polygon is cut into the pieces \((0,0),(4,3),(8,5),(4,8)\) and \((4,3),(8,0),(12,8),(8,5)\), each of area \(20\), together \(40\). Each piece is monotone with respect to the \(y\)-axis: a horizontal line meets it in one segment. There are \(2=1+1\) pieces. There are \(3+1=4\) start and split vertices and also \(2+1=3\) end and merge vertices.
++ There are \(2\) pieces = number of diagonals (\(1\)) + \(1\); the vertices are \(2\) start, \(2\) end, \(1\) split, \(1\) merge and \(0\) regular.
++ The trace is at step \(14\) of \(14\): \(2\) pieces, each of area \(20\), \(1\) diagonal.
+
+ ❯ src/learning/content/compgeoMonotoneLessons.test.ts:61:34
+     59|         const startSplit = `\\(${s1}+${sp1}=${s1 + sp1}\\)`;
+     60|         const endMerge = `\\(${e1}+${m1}=${e1 + m1}\\)`;
+     61|         expect(pieces, language).toContain(language === 'sl'
+       |                                  ^
+     62|             ? `Začetnih in razcepnih oglišč je ${startSplit}, končnih …
+     63|             : `There are ${startSplit} start and split vertices and al…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  05:29:07
+   Duration  3.96s (transform 46%, environment 37%, setup 15%, import 1%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
