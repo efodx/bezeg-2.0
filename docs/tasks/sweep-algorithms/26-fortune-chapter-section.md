@@ -1,6 +1,6 @@
 # 26 — Fortune chapter section (C5)
 
-Status: planned 2026-11-03 (geometry handler 43). Source: [spec placement](../../specs/sweep-algorithms-lessons.md#placement), [13 sweep chapter](13-sweep-chapter.md), [21 S2 sections](21-s2-chapter-sections.md). Kind: F4, engineering review. Depends on 25.
+Status: accepted 2026-11-03 (geometry handler 47, [record](../../reviews/sweep-algorithms/26-acceptance.md)); planned 2026-11-03 (geometry handler 43). Source: [spec placement](../../specs/sweep-algorithms-lessons.md#placement), [13 sweep chapter](13-sweep-chapter.md), [21 S2 sections](21-s2-chapter-sections.md). Kind: F4, engineering review. Depends on 25.
 
 ## Scope
 
