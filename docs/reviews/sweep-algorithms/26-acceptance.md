@@ -20,3 +20,7 @@ Accepted 2026-11-03 by geometry handler 47. Source: [task 26](../../tasks/sweep-
 - `just build`: passed ([log](26-build.log)).
 - `just unit src/learning`, Vitest cache cleared first: 107 files, 1783 tests passed ([log](26-unit-final.log)).
 - `just smoke-lesson fortune`: 2 passed ([log](26-smoke-fortune.log)).
+
+## Rebase onto `f395ecde`
+
+Before the push, master gained four commits (B-spline BS-B-6 audit, the unmounted functions S5 graph, docs). No file overlapped this branch, and no lesson, route or poster was added, so no count changed. On the rebased head `c56815b9`: tsc clean, `just build` passed, `just unit src/learning` (cache cleared) 107 files and 1783 tests passed.
