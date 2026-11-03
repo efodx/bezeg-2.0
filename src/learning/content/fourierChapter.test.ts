@@ -11,28 +11,32 @@ import {FOURIER_CHAPTER_ID, fourierGuidedExamplePath, fourierGuidedExampleRegist
 import {numericalChapter} from './numericalChapter';
 
 const ID = 'fourier-series';
+const CID = 'fourier-coefficients';
+const coefficientsProseOf = (language: 'sl' | 'en') => fourierChapter.sections[2].paragraphs.map(p => p[language]).join(' ') + fourierChapter.sections[2].formula;
 const proseOf = (language: 'sl' | 'en') => fourierChapter.sections[1].paragraphs.map(p => p[language]).join(' ') + fourierChapter.sections[1].formula;
 
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter is registered last in the Analysis family with an opening and one lesson section', () => {
+    test('the chapter is registered last in the Analysis family with an opening and two lesson sections', () => {
         expect(fourierChapter.id).toBe(FOURIER_CHAPTER_ID);
         expect(FOURIER_CHAPTER_ID).toBe('fourier-series');
         expect(fourierChapter.title).toEqual({sl: 'Fourierove vrste', en: 'Fourier series'});
         expect(fourierChapter.family).toBe('analysis');
-        expect(fourierChapter.sections.map(section => section.id)).toEqual(['fourier-idea', ID]);
-        expect(Object.keys(fourierGuidedExampleRegistry)).toEqual([ID]);
+        expect(fourierChapter.sections.map(section => section.id)).toEqual(['fourier-idea', ID, CID]);
+        expect(Object.keys(fourierGuidedExampleRegistry)).toEqual([ID, CID]);
         expect(familyChapters.findIndex(chapter => chapter.id === FOURIER_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === numericalChapter.id) + 1);
         expect(familyChapters.at(-2)!.id).toBe(FOURIER_CHAPTER_ID); // the probability chapter follows it at the end of the functions strand
         expect(learningChapters.some(chapter => chapter.id === FOURIER_CHAPTER_ID)).toBe(true);
         expect(fourierChapter.sections[1].demonstrationIds).toEqual([ID]);
+        expect(fourierChapter.sections[2].demonstrationIds).toEqual([CID]);
+        expect(Object.keys(fourierChapter.sections[2].investigationPrompts ?? {})).toEqual([CID]);
     });
 
-    test('coefficients, decay and epicycles are not advertised', () => {
+    test('epicycles and closed curves are not advertised', () => {
         const everything = JSON.stringify({...fourierChapter, title: undefined}).toLowerCase();
-        for (const word of ['epicikl', 'epicycle', 'parseval', 'koeficient', 'coefficient', 'razpad', 'decay', 'projekcij']) expect(everything).not.toContain(word);
+        for (const word of ['epicikl', 'epicycle', 'zaprt', 'closed curve']) expect(everything).not.toContain(word);
     });
 
     test('there are no figures, the text is bilingual and the example link closes the lesson section', () => {
@@ -48,6 +52,11 @@ describe('chapter structure and registration', () => {
         const lesson = registered.sections[1];
         expect(lesson.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: `${FOURIER_CHAPTER_ID}.${ID}.${ID}`});
         expect(lesson.orderedContent!.some(item => item.kind === 'formula')).toBe(true);
+        const coefficients = registered.sections[2];
+        expect(coefficients.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: `${FOURIER_CHAPTER_ID}.${CID}.${CID}`});
+        expect(coefficients.orderedContent!.filter(item => item.kind === 'formula').length).toBe(1);
+        expect(coefficients.paragraphs.length).toBeGreaterThanOrEqual(3);
+        expect(coefficients.paragraphs.length).toBeLessThanOrEqual(4);
     });
 
     test('hypotheses, sources and the illustration caveat are stated in both languages', () => {
@@ -99,6 +108,61 @@ describe('chapter structure and registration', () => {
         const sl = proseOf('sl'), en = proseOf('en');
         for (const quoted of ['0{,}84883', '0{,}94731', '1{,}00622', '1{,}18130', '1{,}17901', '1{,}17898', '9{,}07', '8{,}95', '0{,}2618', '0{,}99994', 'x=1{,}57']) expect(sl, quoted).toContain(quoted);
         for (const quoted of ['0.84883', '0.94731', '1.00622', '1.18130', '1.17901', '1.17898', '9.07', '8.95', '0.2618', '0.99994', 'x=1.57']) expect(en, quoted).toContain(quoted);
+    });
+
+    test('the coefficients section states its hypotheses, sources and the one-directional claims in both languages', () => {
+        const facts = {
+            sl: ['Cilj razdelka', 'predznačena ploščina', 'projekcija', 'Parseval', 'ne dokazano', 'Zygmund', 'Körner', 'samo v smeri gladkost', 'Obratne smeri ne trdimo', 'opažanje treh zgledov, ne zakon', 'Weierstrassov M-test', 'Obrata M-testa ne trdimo', 'ilustracije, ne dokazi', '\\sum|c_k|<\\infty'],
+            en: ['Learning outcome', 'signed area', 'projection', 'Parseval', 'not proved', 'Zygmund', 'Körner', 'the forward direction only', 'The converse is not claimed', 'an observation of three examples, not a law', 'Weierstrass M-test', 'The converse of the M-test is not claimed', 'illustrations, not proofs', '\\sum|c_k|<\\infty'],
+        };
+        for (const language of ['sl', 'en'] as const) {
+            const prose = coefficientsProseOf(language);
+            for (const fact of facts[language]) expect(prose, `${language}: ${fact}`).toContain(fact);
+        }
+        expect(fourierChapter.sections[2].formula).toBe(String.raw`a_k=\frac1\pi\int_{-\pi}^{\pi}f(x)\cos kx\,dx,\qquad b_k=\frac1\pi\int_{-\pi}^{\pi}f(x)\sin kx\,dx`);
+    });
+
+    test('the quoted coefficient numbers are recomputed by closed forms and quadrature, not by the app kernel', () => {
+        // |x|: a_k by Simpson quadrature of x cos kx / pi against the closed form -4/(pi k^2) for odd k.
+        const n = 20000, h = 2 * Math.PI / n;
+        const a = (k: number) => {
+            let sum = 0;
+            for (let i = 0; i <= n; i++) sum += Math.abs(-Math.PI + i * h) * Math.cos(k * (-Math.PI + i * h)) * (i === 0 || i === n ? 1 : i % 2 ? 4 : 2);
+            return sum * h / 3 / Math.PI;
+        };
+        for (const k of [1, 2, 3, 5]) expect(a(k)).toBeCloseTo(k % 2 ? -4 / (Math.PI * k * k) : 0, 8);
+        // Parseval for |x|: (1/pi) integral of x^2 = 2 pi^2 / 3 (closed form) against a_0^2/2 + sum of a_k^2 up to K = 16.
+        const integralOfSquare = 2 * Math.PI ** 2 / 3;
+        let parseval = Math.PI ** 2 / 2; // a_0 = pi
+        for (let k = 1; k <= 16; k += 2) parseval += (4 / (Math.PI * k * k)) ** 2;
+        expect(integralOfSquare.toFixed(5)).toBe('6.57974');
+        expect(parseval.toFixed(5)).toBe('6.57967');
+        // The smooth example: a_k of 1/(2 - cos x) by quadrature against (2/sqrt3) r^k, r = 2 - sqrt3.
+        const r = 2 - Math.sqrt(3);
+        expect(r.toFixed(5)).toBe('0.26795');
+        const g = (k: number) => {
+            let sum = 0;
+            for (let i = 0; i <= n; i++) { const x = -Math.PI + i * h; sum += Math.cos(k * x) / (2 - Math.cos(x)) * (i === 0 || i === n ? 1 : i % 2 ? 4 : 2); }
+            return sum * h / 3 / Math.PI;
+        };
+        for (const k of [1, 2, 5]) expect(g(k)).toBeCloseTo(2 / Math.sqrt(3) * r ** k, 9);
+        const sl = coefficientsProseOf('sl'), en = coefficientsProseOf('en');
+        for (const quoted of ['6{,}57974', '6{,}57967', '0{,}26795', 'K=16', '2\\pi^2/3']) expect(sl, quoted).toContain(quoted);
+        for (const quoted of ['6.57974', '6.57967', '0.26795', 'K=16', '2\\pi^2/3']) expect(en, quoted).toContain(quoted);
+    });
+
+    test('the coefficients lesson resolves from its own section and the old interim launch still opens it', () => {
+        expect(getGuidedLessonOwners(CID)).toEqual([{chapterId: FOURIER_CHAPTER_ID, sectionId: CID}]);
+        expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, CID)).toEqual([CID]);
+        expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, 'fourier-idea')).toEqual([]);
+        const lesson = fourierGuidedExampleRegistry[CID];
+        expect(lesson.demonstrationId).toBe(CID);
+        expect(lesson.steps.length).toBe(14);
+        expect(resolveGuidedExample(`?example=lesson.${FOURIER_CHAPTER_ID}.${CID}.${CID}`, CID)?.lesson).toBe(lesson);
+        expect(resolveGuidedExample(`?learn=1&learnChapter=${FOURIER_CHAPTER_ID}&learnSection=${CID}`, CID)?.lesson).toBe(lesson);
+        expect(resolveGuidedExample(`?learn=1&learnChapter=${FOURIER_CHAPTER_ID}&learnSection=fourier-idea`, CID)?.lesson).toBeUndefined();
+        expect(getChapterGuidedExamples(FOURIER_CHAPTER_ID, CID).map(link => link.path)).toEqual([fourierGuidedExamplePath(CID)]);
+        expect(guidedLessonReturnPath(getGuidedLessonOwner(CID)!)).toBe(`/bezeg-2.0/learn/${FOURIER_CHAPTER_ID}#${CID}`);
     });
 
     test('the lesson resolves, owns its section and keeps both languages complete', () => {

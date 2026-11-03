@@ -52,10 +52,10 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'function-inverse': {chapterId: 'school-function-graphs', sectionId: 'function-inverse'},
     'polynomial-zeros': {chapterId: 'school-function-graphs', sectionId: 'polynomial-zeros'},
     'rational-function': {chapterId: 'school-function-graphs', sectionId: 'rational-function'},
-    // Fourier series F1 and F3: pointwise versus uniform convergence belongs with the analysis convergence section; no chapter text yet (F4).
+    // Fourier series F1 and F3: its own section of the Fourier series chapter.
     'fourier-series': {chapterId: 'fourier-series', sectionId: 'fourier-series'},
-    // Fourier coefficients F2 and F4: no section of its own yet (no chapter text); it launches from the opening section of the same chapter.
-    'fourier-coefficients': {chapterId: 'fourier-series', sectionId: 'fourier-idea'},
+    // Fourier coefficients F2 and F4: its own section of the Fourier series chapter.
+    'fourier-coefficients': {chapterId: 'fourier-series', sectionId: 'fourier-coefficients'},
     continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},
     derivative: {chapterId: 'functions-and-calculus', sectionId: 'derivatives'},
     'definite-integral': {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
