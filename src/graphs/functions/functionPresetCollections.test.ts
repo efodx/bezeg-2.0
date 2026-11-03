@@ -5,6 +5,7 @@
 import {commitPresetImport, preflightPresetImport} from "../base/presets/PresetImport";
 import {LocalizedError, Message, setLanguage} from "../../localization";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {DEFAULT_FOURIER_COEFFICIENTS_MODEL} from "../../analysis/fourierCoefficientsModel";
 beforeEach(() => localStorage.clear());
 afterEach(() => setLanguage("sl"));
 
@@ -970,6 +971,34 @@ test('interp-least-squares checks the points list in the scene state with the mo
     expect(collection.checkGraphState?.({points: [[0, 1], [1, "x"]], degree: 1})).toBeDefined();
     expect(collection.checkGraphState?.({points, showSquares: 1})).toBeDefined();
     expect(collection.checkGraphState?.("nope")).toBeDefined();
+});
+
+test("fourier-coefficients checks every model field in the scene state with the model rules, also when only scalars are present", () => {
+    const collection = functionPresetCollections["fourier-coefficients"];
+    expect(collection.checkGraphState?.({initialized: true, ...DEFAULT_FOURIER_COEFFICIENTS_MODEL})).toBeUndefined();
+    expect(collection.checkGraphState?.({initialized: true})).toBeUndefined();
+    expect(collection.checkGraphState?.({view: "decay", n: 101, scale: "log"})).toBeUndefined();
+    for (const bad of [{view: "bogus"}, {scale: "x"}, {layout: "zz"}, {K: 99}, {n: 500}, {n: 0}, {overlay: "yes"},
+        {selections: ["square", "square", "abs"]}, {values: [1, "x"]}, {selected: {term: "c", k: 1}}]) {
+        expect(collection.checkGraphState?.(bad)).toBeDefined();
+    }
+    expect(collection.checkGraphState?.("nope")).toBeDefined();
+});
+
+const coefficientsPreset = (data: unknown, graphState: unknown = {initialized: true}) => JSON.stringify({"preset-fourier-coefficients": {data: [{id: "Osnova",
+    boardState: {boundingBox: [-4, 2, 4, -2]}, graphState, data}]}});
+
+test("fourier-coefficients collection imports the default model and rejects malformed data with the model's reason", () => {
+    commitPresetImport(preflightPresetImport(coefficientsPreset(DEFAULT_FOURIER_COEFFICIENTS_MODEL, {initialized: true, ...DEFAULT_FOURIER_COEFFICIENTS_MODEL})));
+    expect(JSON.parse(localStorage.getItem("preset-fourier-coefficients")!).data[0].data).toEqual(DEFAULT_FOURIER_COEFFICIENTS_MODEL);
+    localStorage.clear();
+    for (const data of [{...DEFAULT_FOURIER_COEFFICIENTS_MODEL, view: "bogus"}, {...DEFAULT_FOURIER_COEFFICIENTS_MODEL, n: 500},
+        {...DEFAULT_FOURIER_COEFFICIENTS_MODEL, selections: ["square", "square", "abs"]}]) {
+        expect(() => preflightPresetImport(coefficientsPreset(data))).toThrow(LocalizedError);
+        expect(() => preflightPresetImport(coefficientsPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    }
+    expect(() => preflightPresetImport(coefficientsPreset(DEFAULT_FOURIER_COEFFICIENTS_MODEL, {initialized: true, scale: "x"}))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
 });
 
 const polynomialPreset = (data: unknown, graphState: unknown = {initialized: true}) => JSON.stringify({"preset-polynomial-zeros": {data: [{id: "Polinom",

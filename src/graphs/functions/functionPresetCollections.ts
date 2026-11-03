@@ -133,19 +133,21 @@ const diagnoseFourierCoefficients: Diagnosis = data => {
 };
 /**
  * The Fourier coefficients scene state holds the model, whose `values`, `selected` and `selections` the shared flat scene-state
- * rule rejects. Those three are checked together with the scalar fields by the model's own rules (missing fields take the
- * defaults); the remaining fields go through `checkSceneState`. The model itself is still restored from the Preset data.
+ * rule rejects. Whenever any model field is present, the model fields are checked together by the model's own rules (missing
+ * fields take the defaults), so a scalar-only state such as `{scale: "x"}` is rejected too; the remaining fields go through
+ * `checkSceneState`. The model itself is still restored from the Preset data.
  */
+const FOURIER_COEFFICIENTS_FIELDS = Object.keys(DEFAULT_FOURIER_COEFFICIENTS_MODEL) as (keyof FourierCoefficientsModel)[];
 const fourierCoefficientsCollection = (): PresetCollection<FourierCoefficientsModel> => {
     const base = functionCollection("fourier-coefficients", parseFourierCoefficientsModel, diagnoseFourierCoefficients);
     return Object.freeze({
         ...base,
         checkGraphState(graphState: unknown): Message | undefined {
             if (!isRecord(graphState)) return message("invalid_state");
-            const {values, selected, selections, ...rest} = graphState;
-            if (values !== undefined || selected !== undefined || selections !== undefined) {
-                const {view, layout, K, overlay, n, scale} = rest;
-                const check = checkFourierCoefficientsModel({...DEFAULT_FOURIER_COEFFICIENTS_MODEL, ...Object.fromEntries(Object.entries({view, layout, K, overlay, n, scale, values, selected, selections}).filter(([, item]) => item !== undefined))});
+            const rest = Object.fromEntries(Object.entries(graphState).filter(([key]) => !["values", "selected", "selections"].includes(key)));
+            const present = Object.fromEntries(FOURIER_COEFFICIENTS_FIELDS.filter(field => graphState[field] !== undefined).map(field => [field, graphState[field]]));
+            if (Object.keys(present).length > 0) {
+                const check = checkFourierCoefficientsModel({...DEFAULT_FOURIER_COEFFICIENTS_MODEL, ...present});
                 if (!check.ok) return check.issue === undefined ? message("invalid_state") : fourierCoefficientsFileMessage(check.issue);
             }
             return checkSceneState(rest);
