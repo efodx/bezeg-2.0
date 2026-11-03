@@ -122,6 +122,12 @@ The static document initially declares Slovenian, and runtime selection updates 
 | neustrezen rob; ustrezen rob | illegal edge; legal edge (Delaunay flips: the edge fails the empty circumcircle test and is flipped; "neustrezen" is a transparent plain-language gloss, the English term is shown in the lesson) |
 | preizkus krožnice | incircle test (the sign of the incircle determinant: +, point inside the circle; −, outside; 0, on it) |
 | kocirkularne točke | cocircular points (four points on one circle: determinant 0, both diagonals legal, the Delaunay triangulation is not unique) |
+| števec; imenovalec | numerator; denominator (rational function graph, S4). The standard school words for the parts of a fraction, also used for the polynomials \(p\) and \(q\) of \(f=p/q\) |
+| okrajšani ulomek | reduced fraction (S4): the fraction after the common factors are cancelled ("krajšanje ulomkov" is the school term) |
+| ostanek (pri deljenju polinomov) | remainder \(r\) of the polynomial division \(p=s\,q+r\) (S4); the standard school word, the quotient is "količnik" |
+| pol (racionalne funkcije) | pole of a rational function: a zero of the reduced denominator (S4). Standard school term (F0 term table in `docs/tasks/school-function-graphs/README.md`); the unrelated "pol in polara" of the conics chapter always carries "polara" |
+| luknja (odpravljiva nezveznost) | hole (removable discontinuity) at a cancelled common zero (S4). "luknja" is the plain-language gloss, shown with the textbook term "odpravljiva nezveznost" |
+| navpična / vodoravna / poševna asimptota | vertical / horizontal / oblique asymptote (S4); the usual school adjectives ("poševna" as for "poševna asimptota" in gimnazija textbooks) |
 
 Playground terms: reasoning in the [drawing playground spec](specs/bezier-drawing-playground.md#terms).
 

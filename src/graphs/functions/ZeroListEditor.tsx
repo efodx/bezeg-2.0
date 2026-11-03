@@ -23,15 +23,15 @@ export type ZeroListNotice =
 export const noticeOfEvent = (event: ZeroListEvent): ZeroListNotice => ({kind: 'merged', z: event.z, m: event.m});
 
 /** The current notice of a graph, readable by React (the notice is transient: it is not part of the model or the scene state). */
-export class ZeroListNoticeStore {
-    private current: ZeroListNotice | undefined;
+export class ZeroListNoticeStore<N extends { readonly kind: string } = ZeroListNotice> {
+    private current: N | undefined;
     private readonly listeners = new Set<() => void>();
 
-    get(): ZeroListNotice | undefined {
+    get(): N | undefined {
         return this.current;
     }
 
-    set(notice: ZeroListNotice | undefined): void {
+    set(notice: N | undefined): void {
         if (notice === this.current) return;
         this.current = notice;
         this.listeners.forEach(listener => listener());
@@ -50,12 +50,14 @@ export function zeroListNoticeText(notice: ZeroListNotice, t: ReturnType<typeof 
     return notice.m >= MAX_MULTIPLICITY ? t("zero_list_notice_merged_triple", {value0: z}) : t("zero_list_notice_merged_double", {value0: z});
 }
 
-/** The polite live region: always present, so assistive technology announces the text when it changes. */
-export function ZeroListNoticeView(props: { store: ZeroListNoticeStore }) {
+/** The polite live region: always present, so assistive technology announces the text when it changes. `describe` words a notice (`zeroListNoticeText` for the zero list's own). */
+export function ZeroListNoticeView<N extends { readonly kind: string }>(props: {
+    store: ZeroListNoticeStore<N>; describe: (notice: N, t: ReturnType<typeof useT>) => string;
+}) {
     const t = useT();
     const notice = useSyncExternalStore(props.store.subscribe, () => props.store.get());
     return <div className="inspector-group zero-list-notice" role="status" aria-live="polite" data-zero-list-notice={notice?.kind ?? "none"}>
-        {notice && <p className="inspector-help">{zeroListNoticeText(notice, t)}</p>}
+        {notice && <p className="inspector-help">{props.describe(notice, t)}</p>}
     </div>;
 }
 

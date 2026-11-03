@@ -14,7 +14,7 @@ import {
 } from "../../analysis/polynomialZerosModel";
 import {isZeroListIssue, ZERO_GRID_DECIMALS} from "../../analysis/zeroListModel";
 import {polynomialProductText, polynomialRuleText, polynomialZerosEditMessage} from "./polynomialZerosMessages";
-import {noticeOfEvent, ZeroListEditor, ZeroListNoticeStore, ZeroListNoticeView} from "./ZeroListEditor";
+import {noticeOfEvent, ZeroListEditor, ZeroListNoticeStore, ZeroListNoticeView, zeroListNoticeText} from "./ZeroListEditor";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {TransientState} from "../base/BaseGraph";
@@ -294,7 +294,7 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
                             onMultiplicity={(index, next) => this.ignoreOutOfDomain(() => this.setMultiplicity(index, next))}
                             onAdd={() => this.ignoreOutOfDomain(() => this.addZero())}
                             onRemove={index => this.ignoreOutOfDomain(() => this.removeZero(index))}/>
-            <ZeroListNoticeView store={this.notices}/>
+            <ZeroListNoticeView store={this.notices} describe={zeroListNoticeText}/>
             <div className="convexity-actions" role="group" aria-label={t("polynomial_zeros_actions_label")}>
                 <button type="button" data-action="toggle-derivative" data-revealed={state.derivativeVisible}
                         onClick={() => this.setDerivativeVisible(!this.model.derivativeVisible)}>

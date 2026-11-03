@@ -68,3 +68,7 @@ linear-map-bench repeats="5" out="":
 # Build and run the projective conic constants benchmark (scripts/projective-conic-benchmark/README.md); Node only, no test slot.
 projective-conic-bench json="" md="":
     @for (const s of ["build", "run"]) require("child_process").execFileSync(process.execPath, ["scripts/projective-conic-benchmark/" + s + ".cjs", ...(s === "run" ? process.argv.slice(2, 4) : [])], {stdio: "inherit"});
+
+# Build and run the school function zero-drag benchmark (scripts/school-function-drag-benchmark/README.md); Node only, no test slot.
+school-function-drag-bench json="" md="":
+    @for (const s of ["build", "run"]) require("child_process").execFileSync(process.execPath, ["scripts/school-function-drag-benchmark/" + s + ".cjs", ...(s === "run" ? process.argv.slice(2, 4) : [])], {stdio: "inherit"});

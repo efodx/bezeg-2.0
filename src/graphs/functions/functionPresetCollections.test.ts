@@ -1005,3 +1005,38 @@ test("polynomial-zeros graph state with an invalid zero list is rejected without
     }
     expect(localStorage.length).toBe(0);
 });
+
+const rationalPreset = (data: unknown, graphState: unknown = {initialized: true}) => JSON.stringify({"preset-rational-function": {data: [{id: "Ulomek",
+    boardState: {boundingBox: [-11, 9, 11, -9]}, graphState, data}]}});
+const validRational = {k: 2, numerator: [{z: -1, m: 1}, {z: 1, m: 1}], denominator: [{z: -2, m: 1}, {z: 2, m: 1}], probe: 10};
+
+test("rational-function collection imports a model object, also with the lists in the scene state", () => {
+    localStorage.setItem("other-app", "keep");
+    const graphState = {initialized: true, ...validRational};
+    commitPresetImport(preflightPresetImport(rationalPreset(validRational, graphState)));
+    expect(JSON.parse(localStorage.getItem("preset-rational-function")!).data[0].data).toEqual(validRational);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], [{}], [{...validRational, k: 0}], [{...validRational, probe: 11}], [{...validRational, numerator: [{z: 1, m: 3}, {z: 2, m: 3}]}],
+    [{...validRational, denominator: [{z: 0.25, m: 1}]}], [{...validRational, denominator: "x"}], [{...validRational, numerator: [{z: 1, m: 2}, {z: 1, m: 2}]}]])
+("rational-function collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(rationalPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test("rational-function errors name the rule to fix; wrong shapes keep the generic message", () => {
+    const generic = /invalid function data|neveljavni podatki funkcije/;
+    expect(() => preflightPresetImport(rationalPreset({...validRational, k: 0}))).not.toThrow(generic);
+    expect(() => preflightPresetImport(rationalPreset({...validRational, probe: 11}))).not.toThrow(generic);
+    expect(() => preflightPresetImport(rationalPreset({...validRational, denominator: "x"}))).toThrow(generic);
+});
+
+test("rational-function graph state with an invalid list is rejected without writing", () => {
+    for (const list of [[{z: 1, m: 3}, {z: 2, m: 3}], "x", [{z: 0.25, m: 1}]]) {
+        for (const key of ["numerator", "denominator"]) {
+            expect(() => preflightPresetImport(rationalPreset(validRational, {initialized: true, [key]: list}))).toThrow(LocalizedError);
+        }
+    }
+    expect(localStorage.length).toBe(0);
+});

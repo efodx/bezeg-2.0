@@ -50,7 +50,9 @@ import {functionTransformationFileMessage} from "./functionTransformationMessage
 import {checkFunctionInverseModel, parseFunctionInverseModel} from "../../analysis/functionInverseModel";
 import {functionInverseFileMessage} from "./functionInverseMessages";
 import {checkPolynomialZerosModel, parsePolynomialZerosModel, PolynomialZerosModel} from "../../analysis/polynomialZerosModel";
+import {checkRationalFunctionModel, parseRationalFunctionModel, RationalFunctionModel} from "../../analysis/rationalFunctionModel";
 import {checkZeroList} from "../../analysis/zeroListModel";
+import {rationalFunctionFileMessage} from "./rationalFunctionMessages";
 import {polynomialZerosFileMessage} from "./polynomialZerosMessages";
 import {zeroListFileMessage} from "./zeroListMessages";
 import {checkSceneState, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
@@ -213,6 +215,29 @@ const polynomialZerosCollection = (): PresetCollection<PolynomialZerosModel> => 
     });
 };
 
+const diagnoseRationalFunction: Diagnosis = data => {
+    const check = checkRationalFunctionModel(data);
+    return check.ok || check.issue === undefined ? undefined : rationalFunctionFileMessage(check.issue);
+};
+
+/** Like the polynomial-zeros collection, with two zero lists (`numerator`, `denominator`) in the scene state. */
+const rationalFunctionCollection = (): PresetCollection<RationalFunctionModel> => {
+    const base = functionCollection("rational-function", parseRationalFunctionModel, diagnoseRationalFunction);
+    return Object.freeze({
+        ...base,
+        checkGraphState(graphState: unknown): Message | undefined {
+            if (!isRecord(graphState)) return message("invalid_state");
+            const {numerator, denominator, ...rest} = graphState;
+            for (const list of [numerator, denominator]) {
+                if (list === undefined) continue;
+                const check = checkZeroList(list);
+                if (!check.ok) return check.issue === undefined ? message("invalid_state") : zeroListFileMessage(check.issue);
+            }
+            return checkSceneState(rest);
+        },
+    });
+};
+
 /**
  * A function Demonstration stores its validated model object as Preset data. The model parser decides validity; the
  * diagnosis only explains a rejection the parser made.
@@ -259,5 +284,6 @@ export const functionPresetCollections = {
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
     "polynomial-zeros": polynomialZerosCollection(),
+    "rational-function": rationalFunctionCollection(),
     "function-inverse": functionCollection("function-inverse", parseFunctionInverseModel, diagnoseFunctionInverse),
 } as const;

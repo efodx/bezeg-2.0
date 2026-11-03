@@ -1,0 +1,11 @@
+# Brief handoff-v12: school function graphs 06 F2a measurement (S3/S4 zero drag, Node math path)
+
+- **Role:** measurement; edit permission only for a new bench under `scripts/` (and a `justfile` recipe if the precedent has one) and a new addendum section at the end of `docs/adr/0026-*.md`. Do not commit, push or delegate. Another worker concurrently edits `src/` and `docs/localization.md`: do not touch them; read `src/` only.
+- **Goal:** F2a's "before tuning, measure dragging of the adaptive plot" (`docs/tasks/school-function-graphs/06-batch-b.md`). The plan is in step 5 of `docs/reviews/feature-streams/functions/worker-school-06-f2a-rational-handoff.md`; the case list is the Measurement section of `docs/reviews/feature-streams/functions/briefs/school-06-f2a-rational.md`. Find the actual per-move call chain in `src/graphs/functions/RationalFunctionGraph.tsx` and `PolynomialZerosGraph.tsx` (zero drag → `moveZero` → model → `analyzeRational` → `plotPieces` at the graph's sample count and view) and bench exactly that chain in Node.
+- **Precedent:** ADR 0033's "Measurement addendum" sections and `scripts/projective-conic-benchmark/` (`just projective-conic-bench`; check `justfile`). Copy their structure and output format.
+- **Cases:** a numerator-zero drag of about 150 grid steps across the view on each S4 example (`oblique`, `hole`, `horizontal`, `double-pole`), including passing over a denominator zero (hole made and removed); one S3 zero drag on `default` and `degree-five`. Median, p95, max per move over ≥ 3 runs; split `analyzeRational` vs `plotPieces`; vertex and piece counts per move. If median > ~2 ms or p95 > ~4 ms, also measure `samples` 300 and 600 and recommend; otherwise state that the default stands. Name the browser cases F2b must measure on the routes.
+- **Checks:** the bench runs clean (full output to a log); `npx tsc --noEmit --pretty false` if the bench is TypeScript under the project's tsconfig; the addendum names the commit measured (HEAD plus "uncommitted S4 graph"), machine, `node -v`.
+
+## Return
+
+≤ 250 words: files, the numbers table (short), recommendation, log path. Logs to `C:/Users/1337Hacker/.claude/jobs/dae24822/tmp/s06/bench/`. Budget: ≤ 20 turns; on `HANDOFF` write state to `docs/reviews/feature-streams/functions/worker-school-06-f2a-measure-handoff.md` and return partial.
