@@ -13,6 +13,9 @@ import {BinomialNormalGraph} from '../../graphs/functions/BinomialNormalGraph';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {binomialNormalView} from '../../analysis/binomialNormalModel';
 import type {BinomialNormalModel} from '../../analysis/binomialNormalModel';
+import {CltGraph} from '../../graphs/functions/CltGraph';
+import {CLT_EXAMPLES, cltView, shapeMoments} from '../../analysis/cltModel';
+import {normalCdf} from '../../analysis/distributions';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -368,4 +371,186 @@ test('P2: the text states the limit statement, that the correction is not option
     expect(stepText('binomial-poisson', 'en')).toMatch(/rule of thumb \(a rule of thumb, not a theorem\)/);
     expect(all('sl')).toMatch(/np\\ge5/);
     expect(all('en')).toMatch(/np\\ge5/);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// P3: the central limit theorem without randomness (`prob-clt`)
+// ---------------------------------------------------------------------------------------------------------------------
+
+const cltLesson = probabilityGuidedLessons.find(entry => entry.demonstrationId === 'prob-clt')!;
+const cltStep = (stepId: string): GuidedLessonStep => cltLesson.steps.find(step => step.id === stepId)!;
+const CLT_STEP_IDS = ['clt-base', 'clt-two', 'clt-more', 'clt-skewed', 'clt-shape', 'clt-distance', 'clt-explore'];
+
+class ObservedCltGraph extends CltGraph {
+    modelNow() { return this.model; }
+}
+
+function mountClt() {
+    const graph = new ObservedCltGraph();
+    const view = render(React.createElement(MemoryRouter, null, React.createElement(GraphHost, {create: () => graph})));
+    expect(graph.state.initialized).toBe(true);
+    const capabilities = graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    return {
+        graph, view,
+        scene: (step: GuidedLessonStep) => act(() => {
+            capabilities.restoreState(checkpoint);
+            for (const action of actionsOf(step)) capabilities.apply(action);
+        }),
+        apply: (...actions: LessonAction[]) => act(() => { for (const action of actions) capabilities.apply(action); }),
+    };
+}
+const cltN = (n: number): LessonAction => ({kind: 'function-parameter', name: 'clt-n', value: n});
+
+/** Independent oracle: the Irwin-Hall distribution function (sum of n uniforms) by its closed form. */
+const irwinHallCdf = (n: number, x: number) => {
+    if (x <= 0) return 0;
+    if (x >= n) return 1;
+    let total = 0;
+    let coefficient = 1;
+    let factorial = 1;
+    for (let i = 2; i <= n; i++) factorial *= i;
+    for (let k = 0; k <= Math.floor(x); k++) {
+        if (k > 0) coefficient = coefficient * (n - k + 1) / k;
+        total += (k % 2 === 0 ? 1 : -1) * coefficient * (x - k) ** n;
+    }
+    return total / factorial;
+};
+/** Kolmogorov distance of the standardized Irwin-Hall sum from the standard normal, by a fine scan of z. */
+const uniformDistance = (n: number) => {
+    const sigma = Math.sqrt(n / 12);
+    let best = 0;
+    for (let z = -6; z <= 6; z += 0.0005) best = Math.max(best, Math.abs(irwinHallCdf(n, n / 2 + z * sigma) - normalCdf(z)));
+    return best;
+};
+
+test('P3: the lesson has seven steps with two frames each, math-delimited prose in both languages and only CLT actions', () => {
+    expect(cltLesson.steps.map(step => step.id)).toEqual(CLT_STEP_IDS);
+    for (const step of cltLesson.steps) {
+        expect(step.frames).toHaveLength(2);
+        expect(prose(step, 'sl').length).toBeGreaterThan(0);
+        expect(prose(step, 'en').length).toBeGreaterThan(0);
+        for (const action of actionsOf(step)) {
+            expect(['prepared-scene', 'function-parameter', 'function-choice', 'function-visibility', 'animation']).toContain(action.kind);
+            if (action.kind === 'function-parameter') expect(action.name).toBe('clt-n');
+            if (action.kind === 'function-choice') expect(action.name).toBe('clt-example');
+            if (action.kind === 'function-visibility') expect(action.target).toBe('clt-cdf');
+            if (action.kind === 'animation') expect(action).toMatchObject({animationId: 'clt-sum', command: 'next-step'});
+        }
+    }
+});
+
+test('P3: each CLT scene sets the shape and n its text describes and shows the quoted readout, in one synchronous sequence', () => {
+    const h = mountClt();
+    try {
+        const model = () => h.graph.modelNow();
+        const read = (...ids: string[]) => ids.map(readout);
+
+        // Step 1: uniform, n = 1.
+        h.scene(cltStep('clt-base'));
+        expect(model()).toMatchObject({n: 1, cdf: false, heights: [1, 1, 1, 1, 1]});
+        expect(read('n', 'mean', 'variance', 'kolmogorov')).toEqual(['1', '0,5', '0,0833', '0,05718']);
+
+        // Step 2: one added copy, n = 2.
+        h.scene(cltStep('clt-two'));
+        expect(model()).toMatchObject({n: 2, cdf: false});
+        expect(read('n', 'sum-mean', 'kolmogorov')).toEqual(['2', '1', '0,01644']);
+
+        // Step 3: n = 5, then the n = 3 and n = 10 values the text asks the reader to visit.
+        h.scene(cltStep('clt-more'));
+        expect(model()).toMatchObject({n: 5});
+        expect(read('kolmogorov')).toEqual(['0,00572']);
+        h.apply(cltN(3));
+        expect(read('kolmogorov')).toEqual(['0,00986']);
+        h.apply(cltN(10));
+        expect(read('kolmogorov')).toEqual(['0,00281']);
+
+        // Step 4: skewed, n = 3 (the uniform value at n = 3 it compares with is the one above); n = 10 is quoted too.
+        h.scene(cltStep('clt-skewed'));
+        expect(model()).toMatchObject({n: 3, cdf: false, heights: CLT_EXAMPLES.skewed.heights});
+        expect(read('mean', 'variance', 'kolmogorov')).toEqual(['0,3333', '0,0556', '0,02492']);
+        h.apply(cltN(10));
+        expect(read('kolmogorov')).toEqual(['0,01248']);
+
+        // Step 5: the uniform shape at n = 5, heights free to drag.
+        h.scene(cltStep('clt-shape'));
+        expect(model()).toMatchObject({n: 5, heights: [1, 1, 1, 1, 1]});
+        expect(read('kolmogorov')).toEqual(['0,00572']);
+
+        // Step 6: skewed, n = 10, distribution function shown.
+        h.scene(cltStep('clt-distance'));
+        expect(model()).toMatchObject({n: 10, cdf: true, heights: CLT_EXAMPLES.skewed.heights});
+        expect(read('kolmogorov')).toEqual(['0,01248']);
+
+        // Step 7: back at the default (uniform, n = 1, no distribution function).
+        h.scene(cltStep('clt-explore'));
+        expect(model()).toMatchObject({n: 1, cdf: false, heights: [1, 1, 1, 1, 1]});
+    } finally {
+        h.view.unmount();
+    }
+});
+
+test('P3: the uniform distances the text quotes equal an independent Irwin-Hall oracle; the skewed ones match the exact law within 4e-5', () => {
+    for (const [n, shown] of [[1, 0.05718], [2, 0.01644], [3, 0.00986], [5, 0.00572], [10, 0.00281]] as const) {
+        expect(Math.abs(uniformDistance(n) - shown), `uniform n=${n}`).toBeLessThan(4e-5);
+    }
+    // Spec P3 exact rational-law values for f(x) = 2(1-x): the grid readout is within 4e-5 of them.
+    for (const [n, exact] of [[1, 0.07865], [3, 0.02492], [10, 0.01248]] as const) {
+        const result = cltView({...CLT_EXAMPLES.skewed, n});
+        expect(result.ok).toBe(true);
+        if (result.ok) expect(Math.abs(result.view.kolmogorov - exact), `skewed n=${n}`).toBeLessThan(4e-5);
+    }
+    // Moments and skewness the text quotes: mean 1/3, variance 1/18, skewness 2*sqrt(2)/5 = 0,56569.
+    expect(2 * Math.sqrt(2) / 5).toBeCloseTo(0.56569, 5);
+    const moments = shapeMoments(CLT_EXAMPLES.skewed.heights)!;
+    expect(moments.mean).toBeCloseTo(1 / 3, 3);
+    expect(moments.variance).toBeCloseTo(1 / 18, 3);
+});
+
+test('P3: every number in the text is an allowed readout or spec value, both languages agree, and no rate constant is claimed', () => {
+    const ALLOWED = new Set(['0.5', '0.0833', '0.05718', '0.01644', '0.00572', '0.00986', '0.00281', '0.0556', '0.56569', '0.02492', '0.01248']);
+    const numbersIn = (language: 'sl' | 'en') => {
+        const body = [cltLesson.summary[language], ...cltLesson.learningGoals.map(g => g[language]), ...cltLesson.formulaBlocks.map(b => b.explanation[language]), ...cltLesson.steps.map(step => prose(step, language))].join(' ');
+        return (body.match(language === 'sl' ? /\d+\{,\}\d+/g : /\d+\.\d+/g) ?? []).map(value => value.replace('{,}', '.'));
+    };
+    for (const language of ['sl', 'en'] as const) {
+        const found = numbersIn(language);
+        expect(found.length).toBeGreaterThan(20);
+        for (const value of found) expect(ALLOWED.has(value), `${language} ${value}`).toBe(true);
+        for (const constant of ['0.028', '0.04']) expect(found).not.toContain(constant);
+    }
+    expect(new Set(numbersIn('sl'))).toEqual(new Set(numbersIn('en')));
+    const quoted: ReadonlyArray<readonly [string, readonly string[]]> = [
+        ['clt-base', ['0,0833', '0,05718']],
+        ['clt-two', ['0,01644', '0,05718']],
+        ['clt-more', ['0,00572', '0,00986', '0,00281']],
+        ['clt-skewed', ['0,0556', '0,56569', '0,02492', '0,00986', '0,01248']],
+        ['clt-shape', ['0,00572']],
+        ['clt-distance', ['0,01248', '0,00281']],
+    ];
+    for (const [stepId, values] of quoted) {
+        for (const value of values) {
+            for (const language of ['sl', 'en'] as const) {
+                const text = prose(cltStep(stepId), language);
+                expect(text.includes(language === 'sl' ? value.replace(',', '{,}') : value.replace(',', '.')), `${stepId} ${language} ${value}`).toBe(true);
+            }
+        }
+    }
+});
+
+test('P3: the text names the theorem, its hypotheses and sources, says convergence is in distribution and that skew slows the approach, in both languages', () => {
+    const all = (language: 'sl' | 'en') => [cltLesson.summary[language], ...cltLesson.formulaBlocks.map(b => b.explanation[language]), ...cltLesson.steps.map(step => prose(step, language)), ...cltLesson.sources.map(source => source.citation)].join(' ');
+    expect(all('sl')).toMatch(/centralni limitni izrek/i);
+    expect(all('en')).toMatch(/central limit theorem/i);
+    expect(all('sl')).toMatch(/neodvisne, enako porazdeljene spremenljivke s končno varianco/);
+    expect(all('en')).toMatch(/independent, identically distributed variables with finite variance/);
+    expect(all('sl')).toMatch(/konvergenca v porazdelitvi/);
+    expect(all('en')).toMatch(/convergence in distribution/);
+    expect(all('sl')).toMatch(/FMF, Verjetnost in Statistika/);
+    expect(all('en')).toMatch(/FMF, Verjetnost and Statistika/);
+    expect(all('en')).toMatch(/Cited, not opened/);
+    expect(prose(cltStep('clt-skewed'), 'sl')).toMatch(/Poševnost približevanje upočasni/);
+    expect(prose(cltStep('clt-skewed'), 'en')).toMatch(/Skewness slows the approach/);
+    expect(prose(cltStep('clt-distance'), 'sl')).toMatch(/ni hitrost/);
+    expect(prose(cltStep('clt-distance'), 'en')).toMatch(/is not a rate/);
 });

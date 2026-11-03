@@ -12,8 +12,9 @@ import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {probabilityChapter} from './probabilityChapter';
 import {PROBABILITY_CHAPTER_ID, probabilityGuidedExamplePath, probabilityGuidedExampleRegistry} from './probabilityChapterRegistry';
 import {familyChapters} from './familyChapters';
+import {CLT_EXAMPLES, cltView, shapeMoments} from '../../analysis/cltModel';
 
-const SECTIONS = [['density', 'prob-density'], ['binomial-normal', 'prob-binomial-normal']] as const;
+const SECTIONS = [['density', 'prob-density'], ['binomial-normal', 'prob-binomial-normal'], ['clt', 'prob-clt']] as const;
 const everything = (language: 'sl' | 'en') => [
     probabilityChapter.purpose, probabilityChapter.prerequisites,
     ...probabilityChapter.sections.flatMap(section => [section.title, ...section.paragraphs]),
@@ -22,7 +23,7 @@ const everything = (language: 'sl' | 'en') => [
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter ends the functions strand with an opening and two lesson sections', () => {
+    test('the chapter ends the functions strand with an opening and three lesson sections', () => {
         expect(probabilityChapter.id).toBe(PROBABILITY_CHAPTER_ID);
         expect(probabilityChapter.title).toEqual({sl: 'Verjetnost in statistika na grafu', en: 'Distributions, CLT and correlation'});
         expect(probabilityChapter.family).toBe('/bezeg-2.0/probability');
@@ -112,6 +113,29 @@ describe('quoted numbers equal the analysis kernels', () => {
         expect(digits(binomialCdf(100, 0.02, 2), 5)).toBe('0.67669');
         expect(digits(poissonCdf(2, 2), 5)).toBe('0.67668');
         for (const language of ['sl', 'en'] as const) quoted(language, ['0.25172', '0.25117', '0.18555', '0.67669', '0.67668']);
+    });
+
+    test('P3: the quoted Kolmogorov distances equal the CLT kernel and the moments equal the shapes', () => {
+        const distance = (example: 'uniform' | 'skewed', n: number) => {
+            const result = cltView({...CLT_EXAMPLES[example], n});
+            if (!result.ok) throw new Error('the CLT view must exist for a catalogued example');
+            return result.view.kolmogorov.toFixed(5);
+        };
+        expect(distance('uniform', 10)).toBe('0.00281');
+        expect(distance('skewed', 10)).toBe('0.01248');
+        expect(shapeMoments(CLT_EXAMPLES.uniform.heights)!.variance).toBeCloseTo(1 / 12, 3);
+        expect(shapeMoments(CLT_EXAMPLES.skewed.heights)!.mean).toBeCloseTo(1 / 3, 3);
+        expect(shapeMoments(CLT_EXAMPLES.skewed.heights)!.variance).toBeCloseTo(1 / 18, 3);
+        for (const language of ['sl', 'en'] as const) quoted(language, ['0.00281', '0.01248']);
+    });
+
+    test('the chapter names the theorem, its hypotheses and sources, and says convergence is in distribution without a rate', () => {
+        for (const needle of ['neodvisne, enako porazdeljene', 'končno varianco', 'FMF, Verjetnost in Statistika', 'Berry–Esseen', 'v porazdelitvi', 'ni hitrost']) {
+            expect(everything('sl'), needle).toContain(needle);
+        }
+        for (const needle of ['independent, identically distributed', 'finite variance', 'FMF, Verjetnost and Statistika', 'Berry–Esseen', 'in distribution', 'is not a rate']) {
+            expect(everything('en'), needle).toContain(needle);
+        }
     });
 
     test('the chapter states de Moivre-Laplace as a limit without a rate, in both languages', () => {

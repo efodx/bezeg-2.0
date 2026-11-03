@@ -20,8 +20,8 @@ function withExample(sectionId: ProbabilitySectionId, section: FamilyChapterSect
 }
 
 /**
- * Probability and statistics on the graph (spec P1 and P2 of probability-statistics-lessons.md): an opening section, then one section per
- * lesson, each ending with its example. The sections for P3 to P5 are appended when those lessons are built.
+ * Probability and statistics on the graph (spec P1 to P3 of probability-statistics-lessons.md): an opening section, then one section per
+ * lesson, each ending with its example. The sections for P4 and P5 are appended when those lessons are built.
  */
 export const probabilityChapter: FamilyChapter = {
     id: PROBABILITY_CHAPTER_ID,
@@ -78,6 +78,21 @@ export const probabilityChapter: FamilyChapter = {
                      'For \\(B(20;\\tfrac12)\\) the exact value is \\(P(X\\le 8)=0.25172\\). The normal approximation with the correction, \\(\\Phi\\!\\big(\\tfrac{8.5-10}{\\sqrt5}\\big)=0.25117\\), is very close, while without it, \\(\\Phi\\!\\big(\\tfrac{8-10}{\\sqrt5}\\big)=0.18555\\), it is well off. The bar at \\(8\\) covers the interval \\([7.5;\\,8.5]\\), so the bound moves by \\(\\tfrac12\\). At classroom values of \\(n\\) the correction is not optional.'),
                 text('Za majhen \\(p\\) in velik \\(n\\) z zmernim \\(np\\) je boljša limita Poissonova porazdelitev z \\(\\lambda=np\\): za \\(B(100;0{,}02)\\) je natančno \\(P(X\\le 2)=0{,}67669\\), za Poissonovo porazdelitev z \\(\\lambda=2\\) pa \\(0{,}67668\\). Prikazane napake veljajo samo za izbrane \\(n\\), \\(p\\) in \\(k\\).',
                      'For small \\(p\\) and large \\(n\\) with moderate \\(np\\) the better limit is the Poisson distribution with \\(\\lambda=np\\): for \\(B(100;0.02)\\) the exact value is \\(P(X\\le 2)=0.67669\\), and for the Poisson distribution with \\(\\lambda=2\\) it is \\(0.67668\\). The errors shown hold only for the chosen \\(n\\), \\(p\\) and \\(k\\).'),
+            ],
+        }),
+        withExample('clt', {
+            id: 'clt',
+            demonstrationIds: ['prob-clt'],
+            investigationPrompts: {'prob-clt': text('Napovej obliko vsote dveh enakomernih spremenljivk, nato dodajaj kopije in primerjaj razdaljo \\(K_n\\) za enakomerno in poševno osnovno gostoto.', 'Predict the shape of the sum of two uniform variables, then add copies and compare the distance \\(K_n\\) for the uniform and the skewed base density.')},
+            title: text('Centralni limitni izrek', 'The central limit theorem'),
+            formula: String.raw`Z_n=\frac{S_n-n\mu}{\sigma\sqrt n},\qquad K_n=\sup_x\left|F_{Z_n}(x)-\Phi(x)\right|\to0`,
+            paragraphs: [
+                text('Cilj razdelka: znaš povedati centralni limitni izrek in opisati, kaj graf kaže. Če so \\(X_1,X_2,\\dots\\) neodvisne, enako porazdeljene in imajo končno varianco \\(\\sigma^2\\), se vsota \\(S_n=X_1+\\dots+X_n\\), standardizirana kot \\(Z_n=\\dfrac{S_n-n\\mu}{\\sigma\\sqrt n}\\), v porazdelitvi približuje standardni normalni porazdelitvi. Gostota vsote je \\(n\\)-kratna konvolucija osnovne gostote. Viri: FMF, Verjetnost in Statistika.',
+                     'Goal of the section: you can state the central limit theorem and describe what the graph shows. If \\(X_1,X_2,\\dots\\) are independent, identically distributed and have finite variance \\(\\sigma^2\\), the sum \\(S_n=X_1+\\dots+X_n\\), standardized as \\(Z_n=\\dfrac{S_n-n\\mu}{\\sigma\\sqrt n}\\), approaches the standard normal distribution in distribution. The density of the sum is the \\(n\\)-fold convolution of the base density. Sources: FMF, Verjetnost and Statistika.'),
+                text('Enakomerna gostota na \\([0,1]\\) ima \\(\\mu=\\tfrac12\\) in \\(\\sigma^2=\\tfrac1{12}\\); vsota dveh kopij je trikotna, pri \\(n=10\\) pa je Kolmogorova razdalja \\(K_{10}=0{,}00281\\). Poševna gostota \\(2(1-x)\\) ima \\(\\mu=\\tfrac13\\), \\(\\sigma^2=\\tfrac1{18}\\) in pri \\(n=10\\) še \\(K_{10}=0{,}01248\\): poševnost približevanje upočasni.',
+                     'The uniform density on \\([0,1]\\) has \\(\\mu=\\tfrac12\\) and \\(\\sigma^2=\\tfrac1{12}\\); the sum of two copies is triangular, and at \\(n=10\\) the Kolmogorov distance is \\(K_{10}=0.00281\\). The skewed density \\(2(1-x)\\) has \\(\\mu=\\tfrac13\\), \\(\\sigma^2=\\tfrac1{18}\\) and at \\(n=10\\) still \\(K_{10}=0.01248\\): skewness slows the approach.'),
+                text('Konvergenca je v porazdelitvi: izrek ne pove hitrosti, hitrost ocenjuje Berry–Esseenov izrek, ki ga tu samo navajamo. Ujemanje pri enem \\(n\\) ni hitrost, razdalja \\(K_n\\) na grafu pa velja le za izbrano obliko in izbrani \\(n\\). Slika ponazarja izrek, ne dokazuje ga.',
+                     'The convergence is in distribution: the theorem gives no rate, a rate is estimated by the Berry–Esseen theorem, which is only cited here. A match at one \\(n\\) is not a rate, and the distance \\(K_n\\) on the graph holds only for the chosen shape and the chosen \\(n\\). The picture illustrates the theorem, it does not prove it.'),
             ],
         }),
     ],

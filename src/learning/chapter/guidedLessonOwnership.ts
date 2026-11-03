@@ -58,6 +58,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // The probability chapter owns the density and binomial-to-normal lessons (spec P1 and P2); it links back to the definite integral.
     'prob-density': {chapterId: 'probability', sectionId: 'density'},
     'prob-binomial-normal': {chapterId: 'probability', sectionId: 'binomial-normal'},
+    'prob-clt': {chapterId: 'probability', sectionId: 'clt'},
     'area-between-curves': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     'arc-length': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     bisection: {chapterId: 'analysis', sectionId: 'existence'},

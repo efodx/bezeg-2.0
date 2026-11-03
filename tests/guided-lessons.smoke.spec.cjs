@@ -2094,7 +2094,21 @@ const probabilityBinomialNormal = {
     },
 };
 
-const LESSONS = [monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Probability P3 (central limit theorem): the Kolmogorov distance readout per lesson step 1..7 (uniform n = 1, 2, 5; skewed n = 3;
+// uniform n = 5; skewed n = 10 with the distribution function; the default).
+const CLT_DISTANCE = ['0.05718', '0.01644', '0.00572', '0.02492', '0.00572', '0.01248', '0.05718'];
+const probabilityClt = {
+    id: 'prob-clt',
+    path: `${BASE}/probability/clt`,
+    titles: {sl: 'Centralni limitni izrek brez naključja', en: 'The central limit theorem without randomness'},
+    steps: 7,
+    minFrames: 14, // 2 frames per step
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(() => densityReadout(page, 'kolmogorov'), {message: `CLT distance readout at ${label}`}).toBe(CLT_DISTANCE[step - 1]);
+    },
+};
+
+const LESSONS = [monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
