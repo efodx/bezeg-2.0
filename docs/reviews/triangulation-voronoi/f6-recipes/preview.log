@@ -1,0 +1,7 @@
+Starting production preview from C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\agent-a39e6a7a29d983362 at http://127.0.0.1:4321/bezeg-2.0; checkout revision 284bdf5d6b87981478caa875d0b4990e2911f691 (dirty); build revision 284bdf5d6b87981478caa875d0b4990e2911f691 (dirty at build time); log .command-logs\2026-11-03T06-52-36-777Z-31552-46a6af7f.log
+preview: failed (1) in 205.6s; revision 284bdf5d6b87981478caa875d0b4990e2911f691; dirty; reusing build from revision 284bdf5d6b87981478caa875d0b4990e2911f691 (dirty at build time); log .command-logs\2026-11-03T06-52-36-777Z-31552-46a6af7f.log
+
+Recent output:
+Production smoke preview: http://127.0.0.1:4321/bezeg-2.0
+
+error: recipe `preview` failed on line 54 with exit code 1
