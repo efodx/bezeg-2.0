@@ -89,13 +89,16 @@ interface Derived {
  * Ownership: the drawing handle, the construction objects and the query point are disposed with the figure scene and before
  * the board is freed.
  */
+/** Distance in pixels the follow box keeps from every view edge, so a 16 px "continues" glyph is fully visible. */
+const CONTINUES_INSET_PX = 16;
+
 export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     private derivedMemo?: Derived;
     private selectedTriangleValue?: readonly [number, number, number];
     private overlayMemo?: {base: unknown; triangle: string};
     private drawing?: {handle: VoronoiDrawingHandle; scale: number};
     private drawnFor?: {points: readonly GridPoint[]; highlight: number | undefined; box: RationalBox};
-    /** The visible area of the board as an exact box (rounded outward to integers) once the view has changed; undefined = `frame`. */
+    /** The visible area of the board as an exact box (rounded inward to integers and inset for the markers) once the view has changed; undefined = `frame`. */
     private followBox?: RationalBox;
     /** The board's view when it was created (board coordinates, so independent of the grid step); a view that returns to it draws the exact `frame` again, as the first draw does. */
     private startView?: readonly number[];
@@ -428,15 +431,25 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         this.syncScene();
     }
 
-    /** The board's visible area as a box of integer grid units, rounded outward. */
+    /**
+     * The box the drawing follows: the board's visible area as integer grid units, rounded INWARD and inset by `CONTINUES_INSET_PX`
+     * so a whole "continues" marker (a 16 px glyph at the middle of an open side) is visible. Rounded outward the markers would sit
+     * on or beyond the view edge. Fallbacks: if the inset box is empty (tiny board or huge zoom) the inward box without the inset is
+     * used; if that is empty too, undefined (the caller then draws `frame`).
+     */
     private visibleBox(): RationalBox | undefined {
         const [left, top, right, bottom] = this.board.getBoundingBox();
         const scale = 2 ** this.model.gridStepExponent;
         const edges = [left, right, bottom, top].map(v => v / scale);
         if (!edges.every(Number.isFinite)) return undefined;
-        const [minX, maxX, minY, maxY] = [Math.floor(edges[0]), Math.ceil(edges[1]), Math.floor(edges[2]), Math.ceil(edges[3])];
-        if (maxX <= minX || maxY <= minY) return undefined;
-        return {minX: Rational.fromInt(minX), maxX: Rational.fromInt(maxX), minY: Rational.fromInt(minY), maxY: Rational.fromInt(maxY)};
+        const [wx, wy] = [this.board.canvasWidth / (edges[1] - edges[0]), this.board.canvasHeight / (edges[3] - edges[2])];
+        // pixels per grid unit on each axis; an unmeasured canvas gives no inset
+        const [insetX, insetY] = [wx, wy].map(w => Number.isFinite(w) && w > 0 ? CONTINUES_INSET_PX / w : 0);
+        const make = (ix: number, iy: number) => {
+            const [minX, maxX, minY, maxY] = [Math.ceil(edges[0] + ix), Math.floor(edges[1] - ix), Math.ceil(edges[2] + iy), Math.floor(edges[3] - iy)];
+            return maxX <= minX || maxY <= minY ? undefined : {minX: Rational.fromInt(minX), maxX: Rational.fromInt(maxX), minY: Rational.fromInt(minY), maxY: Rational.fromInt(maxY)};
+        };
+        return make(insetX, insetY) ?? make(0, 0);
     }
 
     /** The visible box the drawing follows, or undefined while the board shows its starting view: loading a Preset re-applies that view, which is not a change of view. */

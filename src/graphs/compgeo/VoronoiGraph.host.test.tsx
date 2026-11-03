@@ -394,9 +394,12 @@ test('the view follows the board: after a zoom out the rays reach the new box ed
     act(() => { board.setBoundingBox([-40, 50, 60, -50], false); });
     const zoomed = graph.box()!;
     expect(zoomed).not.toBe(frameBox);
-    expect(zoomed.minX.toNumber()).toBeLessThanOrEqual(-40);
-    expect(zoomed.maxX.toNumber()).toBeGreaterThanOrEqual(60);
-    expect(zoomed.maxY.toNumber()).toBeGreaterThanOrEqual(50);
+    // rounded inward and inset: inside the view, near its edges
+    expect(zoomed.minX.toNumber()).toBeGreaterThanOrEqual(-40);
+    expect(zoomed.minX.toNumber()).toBeLessThan(-30);
+    expect(zoomed.maxX.toNumber()).toBeLessThanOrEqual(60);
+    expect(zoomed.maxY.toNumber()).toBeLessThanOrEqual(50);
+    expect(zoomed.maxY.toNumber()).toBeGreaterThan(40);
     onBox(zoomed);
     // a construction made now ends at clipCell of the new box
     act(() => { fireEvent.click(siteButton(0)); });
@@ -406,6 +409,43 @@ test('the view follows the board: after a zoom out the rays reach the new box ed
     const restored = graph.box()!;
     for (const key of ['minX', 'maxX', 'minY', 'maxY'] as const) expect(restored[key].equals(frameBox[key])).toBe(true);
     onBox(restored);
+});
+
+test('the follow box lies inside the view: after a zoom out, a zoom in and a lesson-like tighter view every "continues" marker is at least the pixel inset inside the board, on exact integers', () => {
+    const graph = new Observed();
+    mount(graph);
+    const board = graph.liveBoard();
+    const insetPx = 16;
+    const check = (view: [number, number, number, number]) => {
+        act(() => { board.setBoundingBox(view, false); });
+        const [left, top, right, bottom] = board.getBoundingBox();
+        const box = graph.box()!;
+        const [minX, maxX, minY, maxY] = [box.minX, box.maxX, box.minY, box.maxY].map(v => v.toNumber());
+        for (const v of [minX, maxX, minY, maxY]) expect(Number.isInteger(v)).toBe(true);
+        const insetX = insetPx * (right - left) / board.canvasWidth, insetY = insetPx * (top - bottom) / board.canvasHeight;
+        expect(minX).toBeGreaterThanOrEqual(left + insetX - 1e-9);
+        expect(maxX).toBeLessThanOrEqual(right - insetX + 1e-9);
+        expect(minY).toBeGreaterThanOrEqual(bottom + insetY - 1e-9);
+        expect(maxY).toBeLessThanOrEqual(top - insetY + 1e-9);
+        const markers = named(graph, 'voronoi-continues');
+        expect(markers.length).toBe(graph.drawingStats()!.continuesMarkers);
+        expect(markers.length).toBeGreaterThan(0);
+        for (const m of markers) {
+            const mx = m.X!(), my = m.Y!();
+            expect(mx).toBeGreaterThanOrEqual(left + insetX - 1e-9);
+            expect(mx).toBeLessThanOrEqual(right - insetX + 1e-9);
+            expect(my).toBeGreaterThanOrEqual(bottom + insetY - 1e-9);
+            expect(my).toBeLessThanOrEqual(top - insetY + 1e-9);
+        }
+        const drawn = named(graph, 'voronoi-edges')[0];
+        const touching = drawn.dataX!.map((px, i) => [px, drawn.dataY![i]]).filter(([px, py]) =>
+            Number.isFinite(px) && (Math.abs(px - minX) < 1e-9 || Math.abs(px - maxX) < 1e-9 || Math.abs(py - minY) < 1e-9 || Math.abs(py - maxY) < 1e-9));
+        expect(touching.length).toBeGreaterThan(0);
+    };
+    expect(board.canvasWidth).toBeGreaterThan(0);
+    check([-40, 50, 60, -50]);
+    check([-3, 8, 12, -2]);
+    check([1.3, 6.2, 9.7, 0.4]);
 });
 
 test('a Preset stored before the diagram overlay existed (no diagram key) still imports and shows the diagram; an explicit false hides it and round trips', () => {

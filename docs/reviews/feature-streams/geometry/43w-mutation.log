@@ -1,0 +1,38 @@
+Waiting for unit (pid 33564) to finish starting before reading free memory.
+Memory available for unit after 5s.
+unit: failed (1) in 9.4s (2 workers, no slot); revision e1f9391aea575f9e90946c9e58780bdbc5d64a5f; dirty; log .command-logs\2026-11-03T09-09-36-104Z-10368-19dac853.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/VoronoiGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2cb92ec239e0a795
+
+ ❯ src/graphs/compgeo/VoronoiGraph.host.test.tsx (26 tests | 1 failed) 4162ms
+   × the follow box lies inside the view: after a zoom out, a zoom in and a lesson-like tighter view every "continues" marker is at least the pixel inset inside the board, on exact integers 62ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/VoronoiGraph.host.test.tsx > the follow box lies inside the view: after a zoom out, a zoom in and a lesson-like tighter view every "continues" marker is at least the pixel inset inside the board, on exact integers
+AssertionError: expected -40 to be greater than or equal to -37.33333333433333
+ ❯ check src/graphs/compgeo/VoronoiGraph.host.test.tsx:426:22
+    424|         for (const v of [minX, maxX, minY, maxY]) expect(Number.isInte…
+    425|         const insetX = insetPx * (right - left) / board.canvasWidth, i…
+    426|         expect(minX).toBeGreaterThanOrEqual(left + insetX - 1e-9);
+       |                      ^
+    427|         expect(maxX).toBeLessThanOrEqual(right - insetX + 1e-9);
+    428|         expect(minY).toBeGreaterThanOrEqual(bottom + insetY - 1e-9);
+ ❯ src/graphs/compgeo/VoronoiGraph.host.test.tsx:446:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 25 passed (26)
+   Start at  10:09:36
+   Duration  8.77s (tests 48%, transform 21%, import 16%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
