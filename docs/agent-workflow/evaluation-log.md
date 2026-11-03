@@ -1777,3 +1777,13 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Smoke `bezeg-smoke` Sonnet: 43k tokens, 16 tools, 10 min; all checks passed in SL/EN at 1440 and 390. It misread the lesson walk (six Next clicks are three steps, at two frames per step); `just smoke-lesson` covers the per-step values.
 - Two rebases over Functions and Geometry needed mechanical resolutions (opt-out lists, the LESSONS row) and two count merges (coverage 112, preview copy 98/105); the focused learning tests caught the counts before the push.
 - Context: the soft threshold fired after the PS-C-F6 record; handed off before the joint poster capture.
+
+## Curves handler 37 (Opus, auto, medium), 2026-11-03
+
+- Joint poster capture: the handler captured all 11 ids locally while Geometry handler 42 was doing the same; Geometry pushed first and messaged. The local capture was discarded unpushed. Lesson: before a shared capture, fetch and check `POSTER_PENDING` on `origin/master`, or claim the capture in the stream file first.
+- `prob-clt` recapture handler-made: the default n = 1 scene was the uniform density only; recipe moved to the skewed example at n = 3. The capture hides text over 65 characters, so P3's caption is absent.
+- BS-B-2a1 L3 graph `bezeg-worker` Sonnet: 113k tokens, 39 tools, 10 min, complete; two mutations seen failing. It flagged a spec contradiction (L3 step 4) that the mathematical review then settled with a computation.
+- Reviews `bezeg-reviewer` Sonnet, parallel: engineering 28k / 8 tools (two lows, one fixed); mathematics 33k / 10 tools (one medium: a vacuous jump assertion, fixed; independent recomputation of κ values).
+- BS-B-2a2 registration `bezeg-worker` Sonnet: 64k tokens, 46 tools, 28 min, complete; it widened the shared `checkGraphState` for the new state keys (handler traced the restore path: stored values are discarded). It reported a stale-Vitest-cache failure as unrelated; clearing `node_modules/.vite/vitest` fixed it (Functions' diagnosis).
+- Smoke `bezeg-smoke` Sonnet: 33k tokens, 13 tools, 2.4 min; 7/7 steps passed and it found a real visual defect (in-board κ readout over the curve at 390), confirmed by the handler from its screenshot. The unit tests could not see it.
+- Context: the soft threshold fired after the registration smoke; handed off with the readout fix next, registration committed but held off `master`.
