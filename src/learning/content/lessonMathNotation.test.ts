@@ -15,6 +15,7 @@ import {interpolationGuidedLessons} from './interpolationGuidedLessons';
 import {numericalMethodsGuidedLessons} from './numericalMethodsGuidedLessons';
 import {projectiveConicsGuidedLessons} from './projectiveConicsGuidedLessons';
 import {schoolFunctionGraphsGuidedLessons} from './schoolFunctionGraphsGuidedLessons';
+import {schoolFunctionGraphsBatchBGuidedLessons} from './schoolFunctionGraphsBatchBGuidedLessons';
 import {coonsGuidedLessons} from './coonsGuidedLessons';
 import {bsplineBasisGuidedLessons} from './bsplineBasisGuidedLessons';
 import {bsplineDeBoorGuidedLessons} from './bsplineDeBoorGuidedLessons';
@@ -57,6 +58,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['interpolationGuidedLessons', interpolationGuidedLessons],
     ['numericalMethodsGuidedLessons', numericalMethodsGuidedLessons],
     ['schoolFunctionGraphsGuidedLessons', schoolFunctionGraphsGuidedLessons],
+    ['schoolFunctionGraphsBatchBGuidedLessons', schoolFunctionGraphsBatchBGuidedLessons],
     ['projectiveConicsGuidedLessons', projectiveConicsGuidedLessons],
     ['coonsGuidedLessons', coonsGuidedLessons],
     ['bsplineBasisGuidedLessons', bsplineBasisGuidedLessons],
@@ -175,7 +177,7 @@ test('scans every lesson module', () => {
     expect(lessonSets.flatMap(([, lessons]) => lessons.map(lesson => lesson.demonstrationId)).sort()).toEqual(
         ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'voronoi', 'weighted-parameterization',
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
-            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'curve-parametric', 'curve-curvature', 'interval-sweep', 'segment-intersections', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'root-finding', 'function-transformation', 'function-inverse', 'patch-coons', 'fourier-series', 'projective-cross-ratio', 'bspline-basis', 'projective-pascal', 'bspline-deboor', 'projective-pole-polar', 'projective-five-point', 'projective-three-views', 'interp-runge', 'interp-least-squares', 'quadrature', 'prob-density', 'monotone-partition', 'monotone-triangulation', 'prob-binomial-normal', 'prob-clt'].sort(),
+            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'curve-parametric', 'curve-curvature', 'interval-sweep', 'segment-intersections', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'root-finding', 'function-transformation', 'function-inverse', 'polynomial-zeros', 'patch-coons', 'fourier-series', 'projective-cross-ratio', 'bspline-basis', 'projective-pascal', 'bspline-deboor', 'projective-pole-polar', 'projective-five-point', 'projective-three-views', 'interp-runge', 'interp-least-squares', 'quadrature', 'prob-density', 'monotone-partition', 'monotone-triangulation', 'prob-binomial-normal', 'prob-clt'].sort(),
     );
 });
 

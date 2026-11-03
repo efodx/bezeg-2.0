@@ -380,10 +380,35 @@ function inverseExpectedFor(id, actions) {
     return {types: {curve: 2, line: 1, point: 2}, curveCount: 2, points: [[x0, x0 * x0], [x0 * x0, x0]]};
 }
 
+// Authored from src/analysis/polynomialZerosModel.ts (the example zeros), not from a capture.
+const polynomialExampleZeros = {default: [-2, 1], triple: [1], 'degree-five': [-3, -1, 2]};
+
+/**
+ * First-frame expectation of the Polynomial zeros lesson: the polynomial curve (and the derivative curve when it is shown) and one glider
+ * point (z, 0) per zero, after the scene's `poly-zero-n` moves. The multiplicity labels are texts; a scene that merges two zeros is not authored.
+ */
+function polynomialExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^polynomial-example$/], ['function-parameter', /^(k|poly-zero-[1-5])$/], ['function-visibility', /^polynomial-derivative$/]], 'schoolFunctionGraphsExpectedFor');
+    const example = sceneValue(id, actions, 'function-choice', 'polynomial-example');
+    assert.ok(Object.hasOwn(polynomialExampleZeros, example), `${id}: no authored polynomial example ${JSON.stringify(example)}`);
+    const zeros = [...polynomialExampleZeros[example]];
+    for (const item of actions.filter(entry => entry.kind === 'function-parameter' && entry.name !== 'k')) {
+        const index = Number(item.name.slice('poly-zero-'.length)) - 1;
+        assert.ok(index < zeros.length && Number.isFinite(item.value), `${id}: ${item.name} moves a zero that the example does not have`);
+        zeros[index] = item.value;
+    }
+    assert.equal(new Set(zeros).size, zeros.length, `${id}: the authored expectation assumes no two zeros merge`);
+    const visibility = actions.filter(item => item.kind === 'function-visibility');
+    assert.ok(visibility.length === 1 && typeof visibility[0].visible === 'boolean', `${id}: the opening scene must set polynomial-derivative once`);
+    const curves = visibility[0].visible ? 2 : 1;
+    return {types: {curve: curves, point: zeros.length}, curveCount: curves, points: zeros.map(z => [z, 0])};
+}
+
 /** First-frame expectation of a School function graphs lesson, chosen by the Demonstration the id ends with. */
 function schoolFunctionGraphsExpectedFor(id, step) {
     if (id.endsWith('.function-transformation')) return transformationExpectedFor(id, step.scene.actions);
     if (id.endsWith('.function-inverse')) return inverseExpectedFor(id, step.scene.actions);
+    if (id.endsWith('.polynomial-zeros')) return polynomialExpectedFor(id, step.scene.actions);
     assert.fail(`${id}: no authored School function graphs first frame`);
 }
 

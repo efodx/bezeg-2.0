@@ -5,7 +5,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
     caption: {sl: captionSl, en: captionEn},
 });
 
-/** Describes each prepared opening scene of the School function graphs chapter, keyed by example id (S1 and S2). */
+/** Describes each prepared opening scene of the School function graphs chapter, keyed by example id (S1, S2 and S3). */
 export const schoolFunctionGraphsPreviewCopy = {
     'school-function-graphs.function-transformation.function-transformation': copy(
         'Parabola \\(y=x^2\\) in njen duh, ki se z njo sklada, ter sledena točka \\((2,4)\\) na grafu.',
@@ -18,5 +18,11 @@ export const schoolFunctionGraphsPreviewCopy = {
         'The graph of \\(y=x^2\\) on \\(x\\ge0\\), the line \\(y=x\\), the point \\(P=(2,4)\\) and its mirror point \\(P\'=(4,2)\\), joined by a dashed segment.',
         'Zrcalna točka \\(P\'=(4,2)\\) ima zamenjani koordinati točke \\(P=(2,4)\\); zrcalne krivulje v tem začetnem prizoru še ni.',
         'The mirror point \\(P\'=(4,2)\\) has the coordinates of \\(P=(2,4)\\) swapped; the mirrored curve is not shown in this opening scene.',
+    ),
+    'school-function-graphs.polynomial-zeros.polynomial-zeros': copy(
+        'Graf polinoma \\((x+2)(x-1)^2\\) z enojno ničlo \\(-2\\), kjer graf seka os \\(x\\), in dvojno ničlo \\(1\\), kjer se je dotakne; odvod je skrit.',
+        'The graph of the polynomial \\((x+2)(x-1)^2\\) with the simple zero \\(-2\\), where it crosses the \\(x\\)-axis, and the double zero \\(1\\), where it touches it; the derivative is hidden.',
+        'Ničli sta \\(-2\\) z večkratnostjo \\(1\\) in \\(1\\) z večkratnostjo \\(2\\); presečišče z osjo \\(y\\) je \\(p(0)=2\\).',
+        'The zeros are \\(-2\\) with multiplicity \\(1\\) and \\(1\\) with multiplicity \\(2\\); the \\(y\\)-intercept is \\(p(0)=2\\).',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;
