@@ -33,6 +33,41 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "numerical-methods.quadrature.quadrature",
+      "demonstrationId": "quadrature",
+      "path": "/bezeg-2.0/analysis/quadrature?example=lesson.numerical-methods.quadrature.quadrature",
+      "sceneFingerprint": "e96a70003f4081b44d2573d8bd58a170092b53eecf550f4c58458552e3b59010",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"quadrature-trapezoid-two\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"quadrature-trapezoid-two\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"quadrature-function\",\"value\":\"sin\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"quadrature-a\",\"value\":0}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"quadrature-b\",\"value\":3.141592653589793}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"quadrature-n\",\"value\":2}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"quadrature-rule\",\"value\":\"trapezoid\"}"
+      ],
+      "expected": {
+        "types": {
+          "point": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            3.141592653589793,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "98d667e658ef3944caed78a43911871e43362862",
+  "sourceRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "98d667e658ef3944caed78a43911871e43362862",
+    "revision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
     "dirty": true,
-    "inputs": "17aede000fb5c84af8a736c756434be951eb9ab1a62b3d6475cfebd0cead2879",
-    "output": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600"
+    "inputs": "23633945294abfa6b47b70d4096afac0b16f801c386e52d2d40d397656f97d56",
+    "output": "1f1f0bcc0b3b3d639f44a95cd566b4f9c16f482fe8b23f35ddff4a7189bbbc52"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
-    "stampRevision": "98d667e658ef3944caed78a43911871e43362862",
+    "stampRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
     "stampDirty": true,
-    "localOutputHash": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600",
+    "localOutputHash": "1f1f0bcc0b3b3d639f44a95cd566b4f9c16f482fe8b23f35ddff4a7189bbbc52",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DwNxeaFN.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-DwNxeaFN.js",
-        "sha256": "9c710e1c860ba6f3baef243bdad521490d21e98465f5a61fc399be39795a4915",
+        "name": "index-BLBMCK4u.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BLBMCK4u.js",
+        "sha256": "06496a1fc9ef9c75fccd89a3b52bf9e66e07c2b5833795d4f72e5ea213c07628",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DeI_2rhE.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-DeI_2rhE.js",
-        "sha256": "f172c865d3678086d6af61a4627198203e27541702b000bc3ff4a46b66f6bb56",
+        "name": "jsx-runtime-NrDr4YPO.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-NrDr4YPO.js",
+        "sha256": "3b522338e8ca2f10b10cae0ad2b349819b5e03787610a6e35a7708808cf925fd",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-p4AlnUVy.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-p4AlnUVy.js",
-        "sha256": "38303c72cac94e4f430e6e0d963f7ed5ad25bc88f9d6bd23dde4a02154aceb71",
+        "name": "react-dom-D0byiDW2.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-D0byiDW2.js",
+        "sha256": "3f91a73ce8989d182ff82252c5a6d5431faf3dfb528b99e1b8b38b16b727f1ab",
         "matchesLocalBuild": true
       },
       {
@@ -55,13 +55,14 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "91d7f910180528473960f369af9ff50497b3cb97c7c483373e88beb5eea6983d",
+    "inventory": "7d0de8c374213351409cbab4abd8a5287ee380288648b68088d7f5ff7d1e2abf",
     "entries": {
-      "numerical-methods.root-finding.root-finding": "b3e5f9c0e4ea4662394a5ca262c87a2b0131ea03b59cc1135ab951510e368cc0"
+      "numerical-methods.root-finding.root-finding": "b3e5f9c0e4ea4662394a5ca262c87a2b0131ea03b59cc1135ab951510e368cc0",
+      "numerical-methods.quadrature.quadrature": "ef0d31e9ed4dcd6d2063239e9d189beddf955a4c6ad3722e27c479d0fa39b569"
     },
-    "presentation": "650935b10ac4daab1998c971642ee0bb14fcbfc61a289f6ee3c987c7f5d20ac3",
-    "buildOutput": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600",
-    "buildInputs": "17aede000fb5c84af8a736c756434be951eb9ab1a62b3d6475cfebd0cead2879"
+    "presentation": "5991ae0e40f6bc830dab23986ea37e617e925774c403ea29edadc59d28244be9",
+    "buildOutput": "1f1f0bcc0b3b3d639f44a95cd566b4f9c16f482fe8b23f35ddff4a7189bbbc52",
+    "buildInputs": "23633945294abfa6b47b70d4096afac0b16f801c386e52d2d40d397656f97d56"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -90,6 +91,19 @@
             6,
             4.5,
             -3
+          ]
+        }
+      },
+      {
+        "id": "numerical-methods.quadrature.quadrature",
+        "demonstrationId": "quadrature",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1,
+            2.6,
+            4.8,
+            -1.8
           ]
         }
       }
@@ -215,8 +229,155 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "98d667e658ef3944caed78a43911871e43362862",
-        "sourceRevision": "98d667e658ef3944caed78a43911871e43362862",
+        "buildRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
+        "sourceRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "numerical-methods.quadrature.quadrature",
+      "demonstrationId": "quadrature",
+      "path": "/bezeg-2.0/analysis/quadrature?example=lesson.numerical-methods.quadrature.quadrature",
+      "sceneFingerprint": "e96a70003f4081b44d2573d8bd58a170092b53eecf550f4c58458552e3b59010",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"quadrature-trapezoid-two\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"quadrature-trapezoid-two\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"quadrature-function\",\"value\":\"sin\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"quadrature-a\",\"value\":0}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"quadrature-b\",\"value\":3.141592653589793}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"quadrature-n\",\"value\":2}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"quadrature-rule\",\"value\":\"trapezoid\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "numerical-methods.quadrature.quadrature.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "c1bde7bb9e00967731b3e79703639c062194f4a72783ea6a0a9263d567bf795b",
+      "scene": {
+        "visibleElementCount": 16,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 8,
+          "curve": 2,
+          "point": 2
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0.479426
+            ],
+            [
+              1,
+              0.841471
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:3.141592653589793,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 25,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 2,
+            "point": 2,
+            "text": 1
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                0.479426
+              ],
+              [
+                1,
+                0.841471
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:3.141592653589793,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 8,
+          "curve": 2,
+          "point": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
+        "sourceRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
         "pageErrors": []
       }
     }

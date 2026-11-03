@@ -204,7 +204,7 @@ const quadratureLesson: GuidedLesson = {
                 'A parabola is determined by three points, so it covers two neighbouring subintervals. At \\(n=2\\) there is one parabola through \\((0,0)\\), \\((\\tfrac\\pi2,1)\\) and \\((\\pi,0)\\), the approximation is \\(S_2=\\tfrac{2\\pi}3=2.0944\\) and the error \\(0.0944\\). With an odd \\(n\\) one subinterval would be left without a partner, so for the Simpson rule \\(n\\) is even: the slider moves by \\(2\\), an odd \\(n\\) cannot be entered, and when the rule is switched from the trapezoid rule with an odd \\(n\\) the graph raises \\(n\\) by \\(1\\) and says so.',
             ),
             formulaIds: ['simpson-rule'],
-            observationPrompt: text('Poskusi vnesti liho \\(n\\) pri Simpsonovem pravilu in preberi sporočilo.', 'Try to enter an odd \\(n\\) for the Simpson rule and read the message.'),
+            observationPrompt: text('V številsko polje ob drsniku poskusi vpisati liho \\(n\\) pri Simpsonovem pravilu in preberi sporočilo.', 'Try to type an odd \\(n\\) for the Simpson rule into the number field next to the slider and read the message.'),
             expectedObservations: [text('Pri \\(n=2\\) je ena parabola, približek \\(2{,}0944\\) in napaka \\(0{,}0944\\); lihega \\(n\\) graf zavrne.', 'At \\(n=2\\) there is one parabola, the approximation is \\(2.0944\\) and the error \\(0.0944\\); the graph rejects an odd \\(n\\).')],
             scene: quadratureScene('quadrature-simpson-even', 'simpson', 'sin', 0, Math.PI, 2,
                 'Simpsonovo pravilo, \\(\\sin x\\) na \\([0,\\pi]\\), \\(n=2\\): ena parabola, približek \\(2{,}0944\\), napaka \\(0{,}0944\\).',

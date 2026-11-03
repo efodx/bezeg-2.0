@@ -208,7 +208,7 @@ it('publishes the Complex maps example cards with their own checked images and p
 });
 
 const functionsCards = [
-    {chapterId: 'numerical-methods', copy: numericalPreviewCopy, ids: ['numerical-methods.root-finding.root-finding'], counts: [[1, 3]]},
+    {chapterId: 'numerical-methods', copy: numericalPreviewCopy, ids: ['numerical-methods.quadrature.quadrature', 'numerical-methods.root-finding.root-finding'], counts: [[2, 2], [1, 3]]},
     {chapterId: 'school-function-graphs', copy: schoolFunctionGraphsPreviewCopy,
         ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation'], counts: [[2, 2], [2, 2]]},
     {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-series.fourier-series'], counts: [[6, 7]]},
