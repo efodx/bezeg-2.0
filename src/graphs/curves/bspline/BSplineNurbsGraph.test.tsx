@@ -68,6 +68,25 @@ describe('L5 acceptance 1: the radial error', () => {
         view.unmount();
     });
 
+    test('the readout is the maximum over 1001 uniform samples of the domain, both ends included (BS-C-6 audit)', () => {
+        const {graph, view} = mount();
+        act(() => graph.setWeight(1, 0.37));
+        const data = {...nurbsExample('circle'), weights: [1, 0.37, 1, S, 1, S, 1, S, 1]};
+        const maxOver = (count: number) => {
+            let max = 0;
+            for (let i = 0; i < count; i++) {
+                const [x, y] = nurbsPointAt(data, i / (count - 1));
+                max = Math.max(max, Math.abs(Math.hypot(x, y) - 1));
+            }
+            return max;
+        };
+        expect(graph.state.weights[1]).toBe(0.37);
+        expect(graph.radialError()).toBeCloseTo(maxOver(1001), 14);
+        // Non-vacuous: a coarser sampling gives a visibly different maximum for this state.
+        expect(Math.abs(maxOver(101) - maxOver(1001))).toBeGreaterThan(1e-6);
+        view.unmount();
+    });
+
     test('the inspector shows the readout, and it follows the example', () => {
         const {graph, view} = mount();
         const readout = () => document.querySelector('[data-nurbs-readout="radial-error"]')!.textContent!;
