@@ -1,0 +1,46 @@
+unit: failed (1) in 8.3s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-22-13-002Z-34200-eb4b043a.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneLessonActions
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx (11 tests | 1 failed) 1994ms
+   × the seven scenes in English, after a live language switch, show the English beach line, notes, readouts and queue and never play 154ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneLessonActions.host.test.tsx > the seven scenes in English, after a live language switch, show the English beach line, notes, readouts and queue and never play
+AssertionError: fortune-false-alarm: expected [ …(3) ] to deeply equal [ …(3) ]
+
+- Expected
++ Received
+
+  [
+    "▸ circle event (B, A, D)next event",
+    "circle event (D, A, C)",
+-   "circle event (B, A, C) (cancelled, false alarm)",
++   "circle event (B, A, C) (cancelled)",
+  ]
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx:446:37
+    444|                 stepId).toBe('False alarm: circle event (B, A, C) is c…
+    445|         }
+    446|         expect(queueText(), stepId).toEqual(EXPECTED_EN[stepId].queue);
+       |                                     ^
+    447|         expect([graph.isPlaying, frames.callbacks.size], stepId).toEqu…
+    448|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  16:22:13
+   Duration  7.55s (transform 31%, tests 27%, import 22%, environment 13%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

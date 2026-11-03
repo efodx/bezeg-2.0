@@ -1,0 +1,66 @@
+Waiting for unit (pid 32488) to finish starting before reading free memory.
+Memory available for unit after 5s.
+unit: failed (1) in 3.2s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-16-13-462Z-29804-43fc2f1d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/fortuneGeometry
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts (10 tests | 3 failed) 127ms
+   ❯ Fortune steps of the default example (3)
+     × every drawn arc point lies on the lower envelope of all processed parabolas 5ms
+   ❯ the drawn beach line is continuous (acceptance 5) (2)
+     × at every step the arcs meet at their breakpoints, cover the box width and have no x gap above the sampling step 6ms
+     × a breakpoint marker lies on both neighbouring parabolas 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > Fortune steps of the default example > every drawn arc point lies on the lower envelope of all processed parabolas
+AssertionError: expected 1.01671530257147 to be less than or equal to 1.0160707845137686
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts:36:39
+     34|                     if (run.sites[arc.site].y - level <= 1e-9) return;
+     35|                     const envelope = Math.min(...processed.filter(p =>…
+     36|                     expect(arc.ys[i]).toBeLessThanOrEqual(envelope + 1…
+       |                                       ^
+     37|                 });
+     38|             }
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts:33:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > the drawn beach line is continuous (acceptance 5) > at every step the arcs meet at their breakpoints, cover the box width and have no x gap above the sampling step
+AssertionError: default example step 4: arcs 1 and 0 meet in y: expected 0.0006455180577011888 to be less than or equal to 0.0000020167153025714698
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts:206:30
+    204|                     if (!pointed(a) && !pointed(b)) {
+    205|                         expect(Math.abs(a.ys[end] - b.ys[start]), `${a…
+    206|                             .toBeLessThanOrEqual(JOIN_TOLERANCE * (1 +…
+       |                              ^
+    207|                         junctions++;
+    208|                     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > the drawn beach line is continuous (acceptance 5) > a breakpoint marker lies on both neighbouring parabolas
+AssertionError: default example step 4: expected 0.00064547639102841 to be less than or equal to 0.0000639792848640952
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts:230:76
+    228|                         if (site.y - view.level <= 1e-9) continue;
+    229|                         const y = parabolaY(site, view.level, bp.at.x);
+    230|                         expect(Math.abs(y - bp.at.y), `${name} step ${…
+       |                                                                            ^
+    231|                     }
+    232|                 }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 7 passed (10)
+   Start at  16:16:14
+   Duration  2.42s (environment 49%, setup 21%, transform 21%, tests 6%, import 3%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

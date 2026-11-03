@@ -1,0 +1,42 @@
+unit: failed (1) in 9.6s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-21-34-409Z-33972-1ba9d698.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (29 tests | 1 failed) 3926ms
+   × the collinear example button: step 0 after the click, then Next to the end shows the finished drawing 129ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the collinear example button: step 0 after the click, then Next to the end shows the finished drawing
+AssertionError: expected [ { …(2) }, { …(2) } ] to have a length of +0 but got 2
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:469:34
+    467|     const diagram = graph.run().result!.diagram;
+    468|     if (vertices !== undefined) {
+    469|         expect(diagram.vertices).toHaveLength(vertices);
+       |                                  ^
+    470|         expect(part('vertices')).toBe(readout);
+    471|     } else {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 28 passed (29)
+   Start at  16:21:35
+   Duration  8.85s (tests 45%, transform 22%, import 17%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

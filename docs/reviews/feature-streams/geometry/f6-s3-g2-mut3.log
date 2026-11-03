@@ -1,0 +1,36 @@
+unit: failed (1) in 3.6s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-16-17-565Z-34196-d98d1421.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/fortuneGeometry
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts (10 tests | 1 failed) 134ms
+   ❯ the drawn beach line is continuous (acceptance 5) (2)
+     × at every step the arcs meet at their breakpoints, cover the box width and have no x gap above the sampling step 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > the drawn beach line is continuous (acceptance 5) > at every step the arcs meet at their breakpoints, cover the box width and have no x gap above the sampling step
+AssertionError: default example step 5: an empty polyline: expected 0 to be greater than 0
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts:171:66
+    169|                 // every arc with a polyline inside the box is sampled…
+    170|                 const drawn = view.arcs.filter(arc => arc.xs.length > …
+    171|                 expect(drawn.length, `${at}: an empty polyline`).toBeG…
+       |                                                                  ^
+    172|                 const pointed = (arc: ArcDraw) => arc.xs.length === 2 …
+    173|                 for (const arc of drawn) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  16:16:18
+   Duration  2.71s (environment 46%, transform 24%, setup 21%, tests 5%, import 3%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

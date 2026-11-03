@@ -1,0 +1,44 @@
+Waiting for unit (pid 33568) to finish starting before reading free memory.
+Memory available for unit after 10s.
+unit: failed (1) in 10.8s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-21-22-371Z-29180-f5c50ccc.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (29 tests | 1 failed) 4896ms
+   × the cocircular example button: step 0 after the click, then Next to the end shows the finished drawing 107ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the cocircular example button: step 0 after the click, then Next to the end shows the finished drawing
+AssertionError: expected [ { …(2) }, { …(2) } ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:469:34
+    467|     const diagram = graph.run().result!.diagram;
+    468|     if (vertices !== undefined) {
+    469|         expect(diagram.vertices).toHaveLength(vertices);
+       |                                  ^
+    470|         expect(part('vertices')).toBe(readout);
+    471|     } else {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 28 passed (29)
+   Start at  16:21:23
+   Duration  10.06s (tests 49%, transform 20%, import 16%, environment 10%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

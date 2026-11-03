@@ -1,0 +1,39 @@
+unit: failed (1) in 12.3s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-16-41-480Z-34168-02b98bb7.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (28 tests | 1 failed) 5040ms
+   × the playback note says the beach line is drawn approximately, in Slovenian and English 61ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the playback note says the beach line is drawn approximately, in Slovenian and English
+AssertionError: expected 'Playback takes one step at a time and…' to contain 'the beach line is drawn approximately…'
+
+Expected: "the beach line is drawn approximately (parabola arcs)"
+Received: "Playback takes one step at a time and stops at the end; it is stopped when opened. A step is one event: the sweep line moves down, the beach line is drawn exactly (parabola arcs), dots on it are the breakpoints of the arcs, and lines from the vertices to them are the parts of edges traced so far. A scheduled circle is solid with a diamond at its lowest point; a cancelled circle (a false alarm) is dashed with a cross at its lowest point."
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:496:20
+    494|     expect(note()).toContain('lažni alarm');
+    495|     act(() => { setLanguage('en'); });
+    496|     expect(note()).toContain('the beach line is drawn approximately (p…
+       |                    ^
+    497|     expect(note()).toContain('a false alarm');
+    498| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 passed (28)
+   Start at  16:16:42
+   Duration  11.30s (tests 45%, transform 22%, import 16%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,82 @@
+unit: failed (1) in 9.2s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-21-45-122Z-9868-4a1bef40.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (29 tests | 3 failed) 3377ms
+   × Reset view returns to the run box after a zoom; an example button restores the example sites at step 0 92ms
+   × the random example button: step 0 after the click, then Next to the end shows the finished drawing 77ms
+   × C-5: Add at twelve sites is refused with a visible notice in both languages and adds nothing 58ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > Reset view returns to the run box after a zoom; an example button restores the example sites at step 0
+AssertionError: expected [ { x: 2, y: -9 }, …(10) ] to have a length of 12 but got 11
+
+- Expected
++ Received
+
+- 12
++ 11
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:302:32
+    300|     expect(top).toBeGreaterThanOrEqual(runBox.maxY.toNumber() - 1e-9);
+    301|     act(() => { fireEvent.click(document.querySelector('button[data-ex…
+    302|     expect(graph.model.points).toHaveLength(12);
+       |                                ^
+    303|     act(() => graph.goTo(4));
+    304|     act(() => { fireEvent.click(document.querySelector('button[data-ex…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the random example button: step 0 after the click, then Next to the end shows the finished drawing
+AssertionError: expected [ { x: 2, y: -9 }, …(10) ] to have a length of 12 but got 11
+
+- Expected
++ Received
+
+- 12
++ 11
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:459:32
+    457|     example(id);
+    458|     expect([graph.step, graph.isPlaying]).toEqual([0, false]);
+    459|     expect(graph.model.points).toHaveLength(sites);
+       |                                ^
+    460|     expect(sitePoints(graph)).toHaveLength(sites);
+    461|     expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-5: Add at twelve sites is refused with a visible notice in both languages and adds nothing
+AssertionError: expected [ { x: 2, y: -9 }, …(10) ] to have a length of 12 but got 11
+
+- Expected
++ Received
+
+- 12
++ 11
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:598:32
+    596|     mount(graph);
+    597|     example('random');
+    598|     expect(graph.model.points).toHaveLength(12);
+       |                                ^
+    599|     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dod…
+    600|     expect(graph.model.points).toHaveLength(12);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 26 passed (29)
+   Start at  16:21:45
+   Duration  8.43s (tests 41%, transform 25%, import 18%, environment 12%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

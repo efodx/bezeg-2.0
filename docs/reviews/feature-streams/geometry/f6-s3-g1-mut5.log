@@ -1,0 +1,134 @@
+Waiting for unit (pid 32048) to finish starting before reading free memory.
+Memory available for unit after 5s.
+unit: failed (1) in 10.7s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-20-24-549Z-22048-ed1fce8a.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (29 tests | 8 failed) 3822ms
+   × a smaller trace clamps the kept step; an example returns to step 0 123ms
+   × Reset view returns to the run box after a zoom; an example button restores the example sites at step 0 123ms
+   × the example-1 example button: step 0 after the click, then Next to the end shows the finished drawing 63ms
+   × the example-2 example button: step 0 after the click, then Next to the end shows the finished drawing 72ms
+   × the collinear example button: step 0 after the click, then Next to the end shows the finished drawing 83ms
+   × the cocircular example button: step 0 after the click, then Next to the end shows the finished drawing 77ms
+   × the random example button: step 0 after the click, then Next to the end shows the finished drawing 78ms
+   × C-2: Reset after stepping to step 5 returns to step 0, stopped, with the example sites 132ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > a smaller trace clamps the kept step; an example returns to step 0
+AssertionError: expected [ { mode: 'points', …(3) }, 2 ] to deeply equal [ { mode: 'points', …(3) }, +0 ]
+
+- Expected
++ Received
+
+@@ -20,7 +20,7 @@
+          "x": 0,
+          "y": -3,
+        },
+      ],
+    },
+-   0,
++   2,
+  ]
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:147:39
+    145|     act(() => graph.goTo(2));
+    146|     act(() => { fireEvent.click(document.querySelector('button[data-ex…
+    147|     expect([graph.model, graph.step]).toEqual([FORTUNE_EXAMPLE_1, 0]);
+       |                                       ^
+    148| });
+    149|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > Reset view returns to the run box after a zoom; an example button restores the example sites at step 0
+AssertionError: expected [ { mode: 'points', …(3) }, 4 ] to deeply equal [ { mode: 'points', …(3) }, +0 ]
+
+- Expected
++ Received
+
+@@ -20,7 +20,7 @@
+          "x": 0,
+          "y": -3,
+        },
+      ],
+    },
+-   0,
++   4,
+  ]
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:305:39
+    303|     act(() => graph.goTo(4));
+    304|     act(() => { fireEvent.click(document.querySelector('button[data-ex…
+    305|     expect([graph.model, graph.step]).toEqual([FORTUNE_EXAMPLE_1, 0]);
+       |                                       ^
+    306| });
+    307|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the example-1 example button: step 0 after the click, then Next to the end shows the finished drawing
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the example-2 example button: step 0 after the click, then Next to the end shows the finished drawing
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the collinear example button: step 0 after the click, then Next to the end shows the finished drawing
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the cocircular example button: step 0 after the click, then Next to the end shows the finished drawing
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the random example button: step 0 after the click, then Next to the end shows the finished drawing
+AssertionError: expected [ 2, false ] to deeply equal [ +0, false ]
+
+- Expected
++ Received
+
+  [
+-   0,
++   2,
+    false,
+  ]
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:458:43
+    456|     click('next-step'); click('next-step');
+    457|     example(id);
+    458|     expect([graph.step, graph.isPlaying]).toEqual([0, false]);
+       |                                           ^
+    459|     expect(graph.model.points).toHaveLength(sites);
+    460|     expect(sitePoints(graph)).toHaveLength(sites);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-2: Reset after stepping to step 5 returns to step 0, stopped, with the example sites
+AssertionError: expected [ 5, false, 5 ] to deeply equal [ +0, false, +0 ]
+
+- Expected
++ Received
+
+  [
+-   0,
++   5,
+    false,
+-   0,
++   5,
+  ]
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:532:63
+    530|     expect(graph.step).toBe(5);
+    531|     click('reset');
+    532|     expect([graph.step, graph.isPlaying, graph.storedStep()]).toEqual(…
+       |                                                               ^
+    533|     expect(graph.model).toEqual(FORTUNE_EXAMPLE_1);
+    534|     expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 21 passed (29)
+   Start at  16:20:25
+   Duration  9.81s (tests 40%, transform 24%, import 19%, environment 12%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

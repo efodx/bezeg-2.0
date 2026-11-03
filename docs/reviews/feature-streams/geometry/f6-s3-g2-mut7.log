@@ -1,0 +1,42 @@
+unit: failed (1) in 9.1s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-18-57-512Z-10280-e6083e3e.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneLessonActions
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx (10 tests | 1 failed) 1841ms
+   × Play from step 0 to done passes through exactly the states of the Next step sequence, step by step, then stops 295ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneLessonActions.host.test.tsx > Play from step 0 to done passes through exactly the states of the Next step sequence, step by step, then stops
+AssertionError: playing before tick 7: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx:383:65
+    381|     byPlay.push(snapshot());
+    382|     for (let k = 0; k < last; k++) {
+    383|         expect(graph.isPlaying, `playing before tick ${k + 1}`).toBe(t…
+       |                                                                 ^
+    384|         act(() => { frames.frame(FORTUNE_STEP_INTERVAL_MS); });
+    385|         byPlay.push(snapshot());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  16:18:58
+   Duration  8.19s (transform 33%, import 24%, tests 23%, environment 14%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

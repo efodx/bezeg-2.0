@@ -1,0 +1,42 @@
+unit: failed (1) in 10.0s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-21-01-495Z-25876-7420f526.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (29 tests | 1 failed) 4088ms
+   × C-5: Add at twelve sites is refused with a visible notice in both languages and adds nothing 184ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-5: Add at twelve sites is refused with a visible notice in both languages and adds nothing
+AssertionError: expected [ { x: 2, y: -9 }, …(12) ] to have a length of 12 but got 13
+
+- Expected
++ Received
+
+- 12
++ 13
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:600:32
+    598|     expect(graph.model.points).toHaveLength(12);
+    599|     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dod…
+    600|     expect(graph.model.points).toHaveLength(12);
+       |                                ^
+    601|     expect(sitePoints(graph)).toHaveLength(12);
+    602|     expect(document.querySelector('[data-pointset-notice]')!.textConte…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 28 passed (29)
+   Start at  16:21:02
+   Duration  9.12s (tests 46%, transform 22%, import 16%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

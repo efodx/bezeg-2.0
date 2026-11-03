@@ -1,0 +1,43 @@
+unit: failed (1) in 11.6s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-17-39-059Z-32716-fe17920d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoGuidedLessons
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts (28 tests | 1 failed) 3599ms
+   ❯ the Fortune lesson states the equal-height tie rule (sweep acceptance 4) (2)
+     × sl: exactly one edge case says sites at the same height go left to right, then the circle-event tie by x 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > the Fortune lesson states the equal-height tie rule (sweep acceptance 4) > sl: exactly one edge case says sites at the same height go left to right, then the circle-event tie by x
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:308:23
+    306|     ] as const)('%s: exactly one edge case says sites at the same heig…
+    307|         const found = tieRule(language);
+    308|         expect(found).toHaveLength(1);
+       |                       ^
+    309|         expect(found[0]).toMatch(sentence);
+    310|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 passed (28)
+   Start at  16:17:40
+   Duration  10.04s (tests 36%, transform 24%, import 18%, environment 17%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

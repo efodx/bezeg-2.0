@@ -1,0 +1,43 @@
+unit: failed (1) in 3.7s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-13-55-234Z-33176-38676ef9.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/sweep/fortune
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/compgeo/sweep/fortune.test.ts (27 tests | 1 failed) 778ms
+   ❯ the root of the breakpoint test (4)
+     × decides a rational x about 1e-12 from an irrational breakpoint, on both sides of the root, as exact BigInt algebra does 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/compgeo/sweep/fortune.test.ts > the root of the breakpoint test > decides a rational x about 1e-12 from an irrational breakpoint, on both sides of the root, as exact BigInt algebra does
+AssertionError: [{"x":10,"y":-4},{"x":2,"y":-6},-11,-42392621835304]: expected 1 to be -1 // Object.is equality
+
+- Expected
++ Received
+
+- -1
++ 1
+
+ ❯ src/compgeo/sweep/fortune.test.ts:443:87
+    441|                     expect(expected, 'an irrational root is never hit …
+    442|                     const got = compareToBreakpoint(R(numerator, DEN),…
+    443|                     expect(got, `${JSON.stringify([left, right, level,…
+       |                                                                                       ^
+    444|                     if (expected < 0) leftSamples++; else rightSamples…
+    445|                 }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 26 passed (27)
+   Start at  16:13:55
+   Duration  2.92s (environment 38%, tests 28%, setup 17%, transform 16%, import 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

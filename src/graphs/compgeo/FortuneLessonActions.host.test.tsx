@@ -354,3 +354,99 @@ test('every scene view on a 1280x720 board keeps every "continues" marker inside
         }
     }
 });
+
+// ---- C-3: Next step and Play yield identical states ---------------------------------------------------------------------
+
+test('Play from step 0 to done passes through exactly the states of the Next step sequence, step by step, then stops', () => {
+    const {graph, frames} = setup();
+    const last = graph.run().length - 1;
+    const snapshot = () => ({step: graph.step, state: graph.state, readouts: readouts(), queue: queueText()});
+
+    const byNext = [snapshot()];
+    for (let k = 0; k < last; k++) {
+        apply(graph, trace('next-step'));
+        byNext.push(snapshot());
+    }
+    expect(byNext.map(entry => entry.step)).toEqual(Array.from({length: last + 1}, (_, k) => k));
+    expect(new Set(byNext.map(entry => entry.readouts.join('|'))).size, 'the readouts differ between steps').toBeGreaterThan(last - 1);
+
+    apply(graph, trace('reset'));
+    expect([graph.step, graph.isPlaying]).toEqual([0, false]);
+    expect(snapshot()).toEqual(byNext[0]);
+
+    const byPlay = [] as typeof byNext;
+    apply(graph, trace('play'));
+    expect([graph.isPlaying, frames.callbacks.size]).toEqual([true, 1]);
+    act(() => { frames.frame(0); });
+    byPlay.push(snapshot());
+    for (let k = 0; k < last; k++) {
+        expect(graph.isPlaying, `playing before tick ${k + 1}`).toBe(true);
+        act(() => { frames.frame(FORTUNE_STEP_INTERVAL_MS); });
+        byPlay.push(snapshot());
+    }
+    expect(byPlay).toEqual(byNext);
+    expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqual([last, false, 0]);
+    expect(frames.frame(FORTUNE_STEP_INTERVAL_MS)).toBe(false);
+    expect(graph.step).toBe(last);
+});
+
+// ---- C-4: the seven scenes in English after a live language switch ---------------------------------------------------------
+
+const HEIGHT_SURD_EN = '\\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx -3.031\\)';
+const BEACH_EN = (letters: string) => `Beach line (left to right): ${letters}`;
+const NO_HEIGHT_EN = 'The sweep line is above all the sites.';
+const QUEUED_EN = 'The sites are in the event queue; the sweep line is above all of them.';
+const EXPECTED_EN: typeof EXPECTED = {
+    'fortune-sites': {
+        shown: ['Step 1 of 8', QUEUED_EN, NO_HEIGHT_EN, 'The beach line is still empty.', 'Vertices: 0 of 2'],
+        queue: ['▸ site Anext event', 'site B', 'site C', 'site D'],
+    },
+    'fortune-predict': {
+        shown: ['Step 1 of 8', QUEUED_EN, NO_HEIGHT_EN, 'The beach line is still empty.', 'Vertices: 0 of 2'],
+        queue: ['▸ site Anext event', 'site B', 'site C', 'site D'],
+    },
+    'fortune-site-events': {
+        shown: ['Step 3 of 8', 'Site event B: a new arc of the beach line.', 'Sweep line height: \\(y=3\\)', BEACH_EN('A, B, A'), 'Vertices: 0 of 2'],
+        queue: ['▸ site Cnext event', 'site D'],
+    },
+    'fortune-circle-scheduled': {
+        shown: ['Step 4 of 8', 'Site event C: a new arc of the beach line.', 'Sweep line height: \\(y=3\\)', BEACH_EN('A, B, A, C, A'), 'Vertices: 0 of 2'],
+        queue: ['▸ site Dnext event', 'circle event (B, A, C)'],
+    },
+    'fortune-false-alarm': {
+        shown: ['Step 5 of 8', 'Site event D: a new arc of the beach line.', 'Sweep line height: \\(y=-3\\)', BEACH_EN('A, B, A, D, A, C, A'), 'Vertices: 0 of 2'],
+        queue: ['▸ circle event (B, A, D)next event', 'circle event (D, A, C)', 'circle event (B, A, C) (cancelled, false alarm)'],
+    },
+    'fortune-true-events': {
+        shown: ['Step 7 of 8', 'Circle event (D, A, C): the middle arc vanishes and a vertex appears.', `Sweep line height: ${HEIGHT_SURD_EN}`, BEACH_EN('A, B, D, C, A'), 'Vertices: 2 of 2'],
+        queue: ['circle event (B, A, C) (cancelled, false alarm)'],
+    },
+    'fortune-diagram': {
+        shown: ['Step 8 of 8', 'All events are processed; the finished Voronoi diagram is shown.', `Sweep line height: ${HEIGHT_SURD_EN}`, undefined, 'Vertices: 2 of 2'],
+        queue: [],
+    },
+};
+
+test('the seven scenes in English, after a live language switch, show the English beach line, notes, readouts and queue and never play', () => {
+    const {graph, frames} = setup();
+    const capabilities = graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    act(() => { setLanguage('en'); });
+    for (const stepId of STEPS) {
+        act(() => {
+            capabilities.restoreState(checkpoint);
+            for (const action of sceneActions(sceneOf(stepId))) capabilities.apply(action);
+        });
+        expect(sitesOf(graph), stepId).toEqual(FORTUNE_SITES);
+        expect(readouts(), stepId).toEqual(EXPECTED_EN[stepId].shown);
+        if (stepId === 'fortune-false-alarm') {
+            expect([...document.querySelectorAll('[data-fortune="note"]')].map(note => note.textContent)[1],
+                stepId).toBe('False alarm: circle event (B, A, C) is cancelled because the circle is no longer empty.');
+        }
+        expect(queueText(), stepId).toEqual(EXPECTED_EN[stepId].queue);
+        expect([graph.isPlaying, frames.callbacks.size], stepId).toEqual([false, 0]);
+    }
+    // switching back keeps the same state and gives the Slovenian text of the last scene
+    act(() => { setLanguage('sl'); });
+    expect(readouts()).toEqual(EXPECTED['fortune-diagram'].shown);
+});

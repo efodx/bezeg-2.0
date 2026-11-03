@@ -1,0 +1,36 @@
+unit: failed (1) in 5.2s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-16-22-288Z-15400-9ee484d8.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/fortuneGeometry
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts (10 tests | 1 failed) 158ms
+   ❯ the drawn beach line is continuous (acceptance 5) (2)
+     × at every step the arcs meet at their breakpoints, cover the box width and have no x gap above the sampling step 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > the drawn beach line is continuous (acceptance 5) > at every step the arcs meet at their breakpoints, cover the box width and have no x gap above the sampling step
+AssertionError: default example step 2: arcs 0 and 1 meet in x: expected 0.20000000000000018 to be less than or equal to 1e-9
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts:203:112
+    201|                     const end = pointed(a) ? 1 : a.xs.length - 1;
+    202|                     const start = pointed(b) ? 1 : 0;
+    203|                     expect(Math.abs(a.xs[end] - b.xs[start]), `${at}: …
+       |                                                                                                                ^
+    204|                     if (!pointed(a) && !pointed(b)) {
+    205|                         expect(Math.abs(a.ys[end] - b.ys[start]), `${a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  16:16:23
+   Duration  3.82s (environment 52%, setup 21%, transform 21%, tests 4%, import 2%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

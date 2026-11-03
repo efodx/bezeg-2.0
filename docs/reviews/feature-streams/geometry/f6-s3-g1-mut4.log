@@ -1,0 +1,42 @@
+unit: failed (1) in 11.9s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-17-03-032Z-14040-4e40e87c.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (28 tests | 1 failed) 5158ms
+   × C-1: dragging a site while Play runs stops playback, recomputes the trace and keeps the step 94ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-1: dragging a site while Play runs stops playback, recomputes the trace and keeps the step
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:511:29
+    509|     expect(graph.model.points[3]).toEqual({x: 1, y: -3});
+    510|     expect(graph.run()).not.toBe(before);
+    511|     expect(graph.isPlaying).toBe(false);
+       |                             ^
+    512|     expect(button('play-pause').textContent).toBe('Predvajaj');
+    513|     expect(frames.callbacks.size).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 passed (28)
+   Start at  16:17:03
+   Duration  11.02s (tests 47%, transform 21%, import 16%, environment 10%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

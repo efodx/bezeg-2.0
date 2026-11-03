@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest';
-import {FORTUNE_EXAMPLE_1, randomGeneralSites} from './fortunePresetCollection';
-import {parabolaY} from './fortuneGeometry';
+import {FORTUNE_EXAMPLE_1, FORTUNE_EXAMPLE_2, randomGeneralSites} from './fortunePresetCollection';
+import {type ArcDraw, ARC_SAMPLES, parabolaY} from './fortuneGeometry';
 import {heightText, runFortune, siteNames} from './fortuneRun';
 import {Rational} from '../../compgeo/rational';
 import type {GridPoint} from '../../compgeo/grid';
@@ -133,6 +133,104 @@ describe('Fortune box contents', () => {
                 checked++;
             }
             expect(checked).toBeGreaterThan(0);
+        }
+    });
+});
+
+describe('the drawn beach line is continuous (acceptance 5)', () => {
+    const JOIN_TOLERANCE = 1e-6; // arc ends meet at their shared breakpoint within this, in graph units (doubles, not exact)
+    const X_TOLERANCE = 1e-9;
+    const sets: readonly {name: string; sites: readonly GridPoint[]}[] = [
+        {name: 'default example', sites: FORTUNE_EXAMPLE_1.points},
+        {name: 'example without D', sites: FORTUNE_EXAMPLE_2.points},
+        {name: 'two sites at the same height', sites: [{x: -3, y: 4}, {x: 3, y: 4}, {x: 0, y: -2}]},
+        ...[1, 2, 3, 4, 5, 6].map(seed => ({name: `random seed ${seed}`, sites: randomGeneralSites(seed).points})),
+    ];
+
+    test('at every step the arcs meet at their breakpoints, cover the box width and have no x gap above the sampling step', () => {
+        let steps = 0;
+        let junctions = 0;
+        let pointedArcs = 0;
+        let covered = 0;
+        for (const {name, sites} of sets) {
+            const r = runFortune(sites);
+            const [minX, maxX] = [r.box!.minX.toNumber(), r.box!.maxX.toNumber()];
+            const sampling = (maxX - minX) / (ARC_SAMPLES - 1);
+            for (let k = 0; k < r.length; k++) {
+                const view = r.view(k)!;
+                if (view.level === null || view.done) {
+                    expect(view.arcs, `${name} step ${k}: no beach line before the first event and after the last`).toEqual([]);
+                    continue;
+                }
+                const at = `${name} step ${k}`;
+                steps++;
+                expect(view.arcs.length, at).toBe(view.state.beach.length);
+                expect(view.arcs.length, at).toBeGreaterThan(0);
+                // every arc with a polyline inside the box is sampled at ARC_SAMPLES points, or is a pointed vertical segment
+                const drawn = view.arcs.filter(arc => arc.xs.length > 0);
+                expect(drawn.length, `${at}: an empty polyline`).toBeGreaterThan(0);
+                const pointed = (arc: ArcDraw) => arc.xs.length === 2 && arc.xs[0] === arc.xs[1];
+                for (const arc of drawn) {
+                    expect(arc.ys.length, at).toBe(arc.xs.length);
+                    for (const v of [...arc.xs, ...arc.ys]) expect(Number.isFinite(v), at).toBe(true);
+                    if (pointed(arc)) { pointedArcs++; continue; }
+                    expect(arc.xs.length, at).toBe(ARC_SAMPLES);
+                    for (let i = 1; i < arc.xs.length; i++) {
+                        expect(arc.xs[i] - arc.xs[i - 1], at).toBeGreaterThan(0);
+                        expect(arc.xs[i] - arc.xs[i - 1], `${at}: gap above the sampling step`).toBeLessThanOrEqual(sampling + X_TOLERANCE);
+                    }
+                }
+                // the arcs together cover [minX, maxX]: sort the x intervals and require no gap. While a site lies on the sweep
+                // line its pointed arc is a vertical segment and the sweep line itself closes the picture, so the cover is
+                // required only when every arc is a parabola arc.
+                const spans = drawn.map(arc => [Math.min(...arc.xs), Math.max(...arc.xs)] as const).sort((a, b) => a[0] - b[0]);
+                if (!drawn.some(pointed)) {
+                    covered++;
+                    expect(spans[0][0], `${at}: starts at the left edge`).toBeCloseTo(minX, 9);
+                    let reach = spans[0][1];
+                    for (const [from, to] of spans.slice(1)) {
+                        expect(from - reach, `${at}: a gap in the beach line`).toBeLessThanOrEqual(X_TOLERANCE);
+                        reach = Math.max(reach, to);
+                    }
+                    expect(reach, `${at}: reaches the right edge`).toBeCloseTo(maxX, 9);
+                }
+                // consecutive drawn arcs meet at the shared breakpoint
+                for (let m = 0; m + 1 < drawn.length; m++) {
+                    const [a, b] = [drawn[m], drawn[m + 1]];
+                    if (pointed(a) && pointed(b)) continue; // two sites on the sweep line: the line itself joins them
+                    const end = pointed(a) ? 1 : a.xs.length - 1;
+                    const start = pointed(b) ? 1 : 0;
+                    expect(Math.abs(a.xs[end] - b.xs[start]), `${at}: arcs ${a.site} and ${b.site} meet in x`).toBeLessThanOrEqual(X_TOLERANCE);
+                    if (!pointed(a) && !pointed(b)) {
+                        expect(Math.abs(a.ys[end] - b.ys[start]), `${at}: arcs ${a.site} and ${b.site} meet in y`)
+                            .toBeLessThanOrEqual(JOIN_TOLERANCE * (1 + Math.abs(a.ys[end])));
+                        junctions++;
+                    }
+                }
+            }
+        }
+        // not vacuous: many steps, many joined non-pointed arcs, and pointed arcs from the equal-height set
+        expect(steps).toBeGreaterThan(30);
+        expect(junctions).toBeGreaterThan(40);
+        expect(pointedArcs).toBeGreaterThan(0);
+        expect(covered).toBeGreaterThan(20);
+    });
+
+    test('a breakpoint marker lies on both neighbouring parabolas', () => {
+        for (const {name, sites} of sets) {
+            const r = runFortune(sites);
+            for (let k = 0; k < r.length; k++) {
+                const view = r.view(k)!;
+                if (view.level === null || view.done) continue;
+                for (const bp of view.breakpoints) {
+                    for (const s of [view.state.beach[view.breakpoints.indexOf(bp)], view.state.beach[view.breakpoints.indexOf(bp) + 1]]) {
+                        const site = r.sites[s];
+                        if (site.y - view.level <= 1e-9) continue;
+                        const y = parabolaY(site, view.level, bp.at.x);
+                        expect(Math.abs(y - bp.at.y), `${name} step ${k}`).toBeLessThanOrEqual(JOIN_TOLERANCE * (1 + Math.abs(y)));
+                    }
+                }
+            }
         }
     });
 });

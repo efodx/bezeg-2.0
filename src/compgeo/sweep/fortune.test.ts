@@ -395,6 +395,62 @@ describe('the root of the breakpoint test', () => {
             expect(compareToBreakpoint(R(2 * root + 1, 2), left, right, level)).toBe(1);
         }
     });
+
+    // Near-ties: the breakpoint of unequal-height arcs is generally irrational, and the sites arrive at rational x. The
+    // oracle is BigInt only: the two roots of  a x^2 + b x + c = 0  (the quadratic of the first test, all integers at an
+    // integer level) are told apart by squaring, with no square root taken.
+    it('decides a rational x about 1e-12 from an irrational breakpoint, on both sides of the root, as exact BigInt algebra does', () => {
+        const DEN = 10 ** 12;
+        // sign of (x - root), x = p/q, root = (-b + s sqrt(disc)) / (2a), s = +1 or -1; disc > 0 and not a square
+        const signVersusRoot = (p: bigint, q: bigint, a: bigint, b: bigint, disc: bigint, s: 1n | -1n): -1 | 0 | 1 => {
+            const t = 2n * a * p + b * q; // 2a x + b = t / q, q > 0
+            const sigma = s; // x - root = (t/q - s sqrt(disc)) / (2a)
+            let inner: -1 | 0 | 1;
+            if (sigma === 1n) inner = t < 0n ? -1 : (t * t > disc * q * q ? 1 : t * t < disc * q * q ? -1 : 0);
+            else inner = t > 0n ? 1 : (t * t > disc * q * q ? -1 : t * t < disc * q * q ? 1 : 0);
+            return (a < 0n ? -inner : inner) as -1 | 0 | 1;
+        };
+        const isSquare = (n: bigint): boolean => {
+            let r = BigInt(Math.floor(Math.sqrt(Number(n))));
+            while (r * r > n) r--;
+            while ((r + 1n) * (r + 1n) <= n) r++;
+            return r * r === n;
+        };
+        const rnd = lcg(5);
+        let cases = 0;
+        let leftSamples = 0;
+        let rightSamples = 0;
+        for (let t = 0; t < 120; t++) {
+            const [p, q] = distinctSites(rnd, 2, 12);
+            if (p.y === q.y) continue;
+            const [high, low] = p.y > q.y ? [p, q] : [q, p];
+            const level = low.y - 1 - Math.floor(rnd() * 5);
+            const [uH, uL] = [high.y - level, low.y - level];
+            const a = uL - uH;
+            const b = -2 * uL * high.x + 2 * uH * low.x;
+            const c = uL * high.x ** 2 - uH * low.x ** 2 + uH * uL * (uH - uL);
+            const disc = b * b - 4 * a * c;
+            if (disc <= 0 || isSquare(BigInt(disc))) continue; // an irrational root only
+            const roots = [(-b - Math.sqrt(disc)) / (2 * a), (-b + Math.sqrt(disc)) / (2 * a)].sort((m, n) => m - n);
+            // a < 0 (the lower site has the smaller u): the smaller root is (-b + sqrt) / 2a, the larger one (-b - sqrt) / 2a
+            for (const [left, right, root, s] of [[high, low, roots[0], 1n], [low, high, roots[1], -1n]] as const) {
+                const centre = Math.round(root * DEN);
+                for (let k = -3; k <= 3; k++) {
+                    const numerator = centre + k;
+                    const expected = signVersusRoot(BigInt(numerator), BigInt(DEN), BigInt(a), BigInt(b), BigInt(disc), s);
+                    expect(expected, 'an irrational root is never hit by a rational').not.toBe(0);
+                    const got = compareToBreakpoint(R(numerator, DEN), left, right, R(level));
+                    expect(got, `${JSON.stringify([left, right, level, numerator])}`).toBe(expected);
+                    if (expected < 0) leftSamples++; else rightSamples++;
+                }
+            }
+            cases++;
+        }
+        expect(cases).toBeGreaterThan(40);
+        // the samples straddle the roots: both sides are checked about equally often, all within 3e-12 of the root
+        expect(leftSamples).toBeGreaterThan(cases * 3);
+        expect(rightSamples).toBeGreaterThan(cases * 3);
+    });
 });
 
 describe('random general-position site sets', () => {

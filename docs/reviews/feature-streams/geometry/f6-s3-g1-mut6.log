@@ -1,0 +1,46 @@
+unit: failed (1) in 12.4s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-18-06-037Z-22148-c170954c.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (28 tests | 1 failed) 5395ms
+   × C-2: a Preset with a stored step beyond the trace, or beyond a shorter trace, is clamped to the last step on import 138ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-2: a Preset with a stored step beyond the trace, or beyond a shorter trace, is clamped to the last step on import
+AssertionError: expected [ 7, 999, false ] to deeply equal [ 7, 7, false ]
+
+- Expected
++ Received
+
+  [
+    7,
+-   7,
++   999,
+    false,
+  ]
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:560:63
+    558|     await settle(() => graph.selectPreset('late'));
+    559|     expect(graph.model.points).toHaveLength(4);
+    560|     expect([graph.step, graph.storedStep(), graph.isPlaying]).toEqual(…
+       |                                                               ^
+    561|     expect(part('step')).toBe(`Korak ${longRun.length} od ${longRun.le…
+    562|     expect(graph.drawingStats()).toBeDefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 passed (28)
+   Start at  16:18:06
+   Duration  11.39s (tests 48%, transform 21%, import 16%, environment 10%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

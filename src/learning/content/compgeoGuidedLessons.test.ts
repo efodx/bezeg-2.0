@@ -292,3 +292,20 @@ describe('worked examples quote the scene readouts', () => {
         expect(pick.resultLatex).toBe(`A=\\tfrac{${notched.doubledArea}}{2}=${Number(notched.doubledArea) / 2}`);
     });
 });
+
+describe('the Fortune lesson states the equal-height tie rule (sweep acceptance 4)', () => {
+    const fortune = () => compgeoGuidedLessons.find(l => l.demonstrationId === 'fortune')!;
+    // The sentence is an edge case of the lesson; the circle-event tie (the abscissa of the centre) is stated with it.
+    const tieRule = (language: 'sl' | 'en') => fortune().edgeCases.map(edge => edge[language]).filter(edge => language === 'sl'
+        ? /enaki višini obdelamo od leve proti desni/.test(edge)
+        : /same height are handled from left to right/.test(edge));
+
+    test.each([
+        ['sl', /Mesti na enaki višini obdelamo od leve proti desni; pri enakih višinah krožnih dogodkov odloči abscisa središča\./],
+        ['en', /Sites at the same height are handled from left to right; for equal heights of circle events the abscissa of the centre decides\./],
+    ] as const)('%s: exactly one edge case says sites at the same height go left to right, then the circle-event tie by x', (language, sentence) => {
+        const found = tieRule(language);
+        expect(found).toHaveLength(1);
+        expect(found[0]).toMatch(sentence);
+    });
+});

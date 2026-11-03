@@ -1,0 +1,42 @@
+Waiting for unit (pid 34196) to finish starting before reading free memory.
+Waiting for unit (pid 15400) to finish starting before reading free memory.
+Memory available for unit after 10s.
+unit: failed (1) in 11.5s (2 workers, no slot); revision 7a6e650e28c714caaba98ddd60c0c8934435301c; dirty; log .command-logs\2026-11-03T15-16-28-877Z-18356-6fc5ca78.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (28 tests | 1 failed) 4952ms
+   × the playback note says the beach line is drawn approximately, in Slovenian and English 47ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the playback note says the beach line is drawn approximately, in Slovenian and English
+AssertionError: expected 'Predvajanje naredi en korak naenkrat …' to contain 'obalna črta je narisana približno (lo…'
+
+Expected: "obalna črta je narisana približno (loki parabol)"
+Received: "Predvajanje naredi en korak naenkrat in se ustavi ob koncu; ob odprtju je ustavljeno. Korak je en dogodek: pometalna premica se premakne navzdol, obalna črta je narisana natančno (loki parabol), pike na njej so presečišča lokov, črte od oglišč do njih so že zarisani deli robov. Načrtovani krog je poln, njegova najnižja točka je romb; preklicani krog (lažni alarm) je črtkan, njegova najnižja točka je križec."
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:493:20
+    491|     const note = () => [...document.querySelectorAll('p.inspector-help…
+    492|         .find(text => text.includes('Predvajanje') || text.includes('P…
+    493|     expect(note()).toContain('obalna črta je narisana približno (loki …
+       |                    ^
+    494|     expect(note()).toContain('lažni alarm');
+    495|     act(() => { setLanguage('en'); });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 passed (28)
+   Start at  16:16:29
+   Duration  10.70s (tests 47%, transform 22%, import 16%, environment 11%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
