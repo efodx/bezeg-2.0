@@ -93,7 +93,7 @@ describe('Open as Bezier from the extraction graph', () => {
                 <Route path={BEZIER_ROUTE_PATH} element={<BezRoute/>}/>
             </Routes></MemoryRouter>);
         await waitFor(() => expect(extraction?.state.initialized).toBe(true));
-        const buttons = await screen.findAllByRole('button', {name: /Odpri odsek \d+ kot Bézierjevo krivuljo/});
+        const buttons = await screen.findAllByRole('button', {name: /^Odpri kot Bézierjevo krivuljo: odsek \d+$/});
         expect(buttons[1]).toHaveTextContent('Odpri kot Bézierjevo krivuljo');
         expect(extraction!.pieceControlPoints(1)).toEqual(pieceTwo);
         fireEvent.click(buttons[1]);
