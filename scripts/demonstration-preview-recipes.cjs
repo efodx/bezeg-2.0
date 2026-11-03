@@ -308,7 +308,7 @@ async function outcome(page, id) {
 }
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
-const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay', 'monotone-partition', 'monotone-triangulation']);
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay', 'monotone-partition', 'monotone-triangulation', 'geometric-series']);
 // Demonstrations whose defining objects are JSXGraph circles.
 const CIRCLE_DEFINED_IDS = new Set(['inversion']);
 
@@ -322,6 +322,13 @@ function assertOutcomeEvidence(id, evidence) {
     }
     assert.ok(evidence && Array.isArray(evidence.points) && evidence.readouts && evidence.reveals && Array.isArray(evidence.controls), `${id} missing semantic evidence`);
     assert.ok(evidence.curves > 0 || LINE_DEFINED_IDS.has(id) && evidence.lines > 0 || CIRCLE_DEFINED_IDS.has(id) && evidence.circles?.length > 0, `${id} has no visible defining curve/line`);
+    if (id === 'geometric-series') {
+        const terms = readLocalizedNumber(evidence.readouts.terms);
+        assert.equal(terms, 1, 'Default geometric series must show its first term');
+        assert.ok(evidence.lines >= terms * 2 + 1, 'Default geometric series must show the term bar, partial-sum bar and limit segment');
+        assert.equal(readLocalizedNumber(evidence.readouts.sum), 1, 'Default geometric series must show partial sum 1');
+        assert.equal(readLocalizedNumber(evidence.readouts.limit), 2, 'Default geometric series must show limit 2');
+    }
     if (id === 'bernstein') {
         assert.equal(evidence.curves, 4, 'Cubic Bernstein must show four functions');
     }

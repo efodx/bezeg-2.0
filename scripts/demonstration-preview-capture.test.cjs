@@ -106,6 +106,14 @@ test('semantic assertions reject empty, wrong-degree, missing-Farin and unreveal
     assert.throws(()=>assertOutcomeEvidence('complex-roots',{...roots,controls:[{label:'Primer korenov',value:'one-plus-i'}]}),/2i example/);
     assert.throws(()=>assertOutcomeEvidence('bisection',evidence),/First/);
 });
+test('geometric-series capture requires its visible bars, limit segment and matching default readouts',()=>{
+    const evidence={curves:0,lines:3,points:[],readouts:{terms:'1',sum:'1',limit:'2'},reveals:{},controls:[]};
+    assert.doesNotThrow(()=>assertOutcomeEvidence('geometric-series',evidence));
+    assert.throws(()=>assertOutcomeEvidence('geometric-series',{...evidence,lines:2}),/term bar, partial-sum bar and limit segment/);
+    assert.throws(()=>assertOutcomeEvidence('geometric-series',{...evidence,readouts:{...evidence.readouts,limit:'3'}}),/limit 2/);
+    assert.throws(()=>assertOutcomeEvidence('geometric-series',{...evidence,lines:0}),/no visible defining curve\/line/);
+    assert.throws(()=>assertOutcomeEvidence('geometric-series',{...evidence,readouts:{}}),/Invalid localized number/);
+});
 test('step provenance requires exact consecutive states and the common camera',()=>{
     const camera=[-1,2,3,-2];
     const spec=motionSpecs['repeated-subdivision'];

@@ -40,6 +40,7 @@ import preview_bspline_deboor from './images/demonstrations/catalog/bspline-debo
 import preview_bspline_insertion from './images/demonstrations/catalog/bspline-insertion.png';
 import preview_bspline_extraction from './images/demonstrations/catalog/bspline-extraction.png';
 import preview_bspline_nurbs from './images/demonstrations/catalog/bspline-nurbs.png';
+import preview_bspline_blossom from './images/demonstrations/catalog/bspline-blossom.png';
 import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.png';
 import preview_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.png';
 import preview_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.png';
@@ -54,6 +55,8 @@ import preview_function_transformation from './images/demonstrations/catalog/fun
 import preview_function_inverse from './images/demonstrations/catalog/function-inverse.png';
 import preview_polynomial_zeros from './images/demonstrations/catalog/polynomial-zeros.png';
 import preview_rational_function from './images/demonstrations/catalog/rational-function.png';
+import preview_geometric_series from './images/demonstrations/catalog/geometric-series.png';
+import preview_conic_focal from './images/demonstrations/catalog/conic-focal.png';
 import preview_continuity from './images/demonstrations/catalog/continuity.png';
 import preview_derivative from './images/demonstrations/catalog/derivative.png';
 import preview_definite_integral from './images/demonstrations/catalog/definite-integral.png';
@@ -146,6 +149,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'bspline-insertion': preview_bspline_insertion,
     'bspline-extraction': preview_bspline_extraction,
     'bspline-nurbs': preview_bspline_nurbs,
+    'bspline-blossom': preview_bspline_blossom,
     'patch-tensor': preview_patch_tensor,
     'patch-decasteljau': preview_patch_decasteljau,
     'patch-derivatives': preview_patch_derivatives,
@@ -160,6 +164,8 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'function-inverse': preview_function_inverse,
     'polynomial-zeros': preview_polynomial_zeros,
     'rational-function': preview_rational_function,
+    'geometric-series': preview_geometric_series,
+    'conic-focal': preview_conic_focal,
     'continuity': preview_continuity,
     'derivative': preview_derivative,
     'definite-integral': preview_definite_integral,
