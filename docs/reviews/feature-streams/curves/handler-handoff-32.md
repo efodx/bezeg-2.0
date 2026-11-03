@@ -15,8 +15,8 @@ Handler 32 (Opus, `--permission-mode auto`, `--effort medium`) wrote this on 202
 | `c86f2b9b` | Fix: the `prob-clt` Preset collection checks graph state (`heights` by `checkCltModel`, the rest by `checkSceneState`, like least squares); before it, every saved CLT Preset failed import. The host test no longer passes vacuously | PS-B-2b row in `docs/tasks/probability-statistics/README.md` |
 | `7fd8f1a5`, `f159ad47` | PS-B-2b: `prob-clt` registered at `/bezeg-2.0/probability/clt` (handler-made); browser smoke (Sonnet) passed; shape-edit hint reworded (a shape edit keeps n) | PS-B-2b row |
 | `3a441122` | PS-B-3a lesson hooks: `clt-sum`, `clt-n`, `clt-example`, `clt-cdf` (Sonnet worker) | PS-B-3a/3b row |
-| `8c52b550` | PS-B-3b seven-step P3 lesson and chapter section `clt` (Sonnet worker); `smoke-lesson prob-clt` and unified-learning smoke passed | PS-B-3a/3b row |
-| `3fca4ff0` | Evidence rows, stream row in `curves.md`, evaluation record (curves handler 32) | `docs/agent-workflow/evaluation-log.md` |
+| `38d5de63` | PS-B-3b seven-step P3 lesson and chapter section `clt` (Sonnet worker); `smoke-lesson prob-clt` and unified-learning smoke passed | PS-B-3a/3b row |
+| `f2c5640b` | Evidence rows, stream row in `curves.md`, evaluation record (curves handler 32) | `docs/agent-workflow/evaluation-log.md` |
 
 Checks on the final rebased tree: tsc; `just unit` over learning, demonstrations, DemonstrationsPage, Routes, presets, CltGraph (`--no-fsModuleCache`); build; `smoke-lesson prob-clt`; `tests/unified-learning.smoke.spec.cjs`. The results are in the commit that adds this note. Earlier on this session's tree: 4685 tests over the affected suites. Not run: `just check`, the full unit suite. The Node recipe test `scripts/demonstration-preview-capture.test.cjs` failed only on the missing `monotone-*` recipes (Geometry) and a local VP9 metadata case. It was run before master's sweep chapter landed; recheck whether the monotone recipes now exist.
 
