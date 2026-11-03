@@ -1,0 +1,111 @@
+Waiting for unit (pid 28436) to finish starting before reading free memory.
+Memory available for check after 35s.
+check: failed (1) in 984.9s (test slot 1/3, 3 workers); revision 1b97297af69056c6bb5bf99075d8d2b0953ca88d; dirty; log .command-logs\2026-11-03T07-10-48-978Z-29384-e3f37585.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx (200 tests | 2 failed) 20467ms
+   ❯ Preset collection definitions (3)
+     × the accepted collection keys are the file contract, each defined once 9ms
+     × every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys 16ms
+ ❯ src/graphs/base/GraphTransientState.part1.test.tsx (200 tests | 1 failed) 90605ms
+   ❯ prob-correlation (8)
+     × a rollback within one tick leaves the board drawn for the restored scene before the host commits 84ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part1.test.tsx > prob-correlation > a rollback within one tick leaves the board drawn for the restored scene before the host commits
+AssertionError: expected { …(7) } to not deeply equal { …(7) }
+
+Compared values have no visual difference.
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:256:50
+    254|             });
+    255|             if (NO_SYNCHRONOUS_SCENE_CHANGE.has(id)) expect(mainScene(…
+    256|             else expect(mainScene(changed!)).not.toEqual(mainScene(cap…
+       |                                                  ^
+    257|             // A child board (the PH hodograph) is recreated by the in…
+    258|             // waits in the declared transient state, which is compare…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > Preset collection definitions > the accepted collection keys are the file contract, each defined once
+AssertionError: expected [ 'accumulation', …(97) ] to deeply equal [ 'accumulation', …(96) ]
+
+- Expected
++ Received
+
+@@ -45,10 +45,11 @@
+    "derivative",
+    "elevation-graph",
+    "exponential-function",
+    "extrema",
+    "fixed-point",
++   "fourier-coefficients",
+    "fourier-series",
+    "function-inverse",
+    "function-transformation",
+    "g1-spline",
+    "g1-spline-graph",
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:52:34
+     50|         const keys = presetCollections.map(collection => collection.ke…
+     51|         expect(new Set(keys).size).toBe(keys.length);
+     52|         expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PA…
+       |                                  ^
+     53|             ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS,…
+     54|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > Preset collection definitions > every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys
+AssertionError: expected [ Array(2) ] to deeply equal [ { key: 'g1-spline', …(1) } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "check": [Function check],
+      "key": "g1-spline",
+    },
++   {
++     "check": [Function check],
++     "key": "fourier-coefficients",
++   },
+  ]
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:69:83
+     67|         }
+     68|         const unused = presetCollections.filter(collection => !used.ha…
+     69|         expect(unused.filter(collection => !PATCH_KEYS.includes(collec…
+       |                                                                                   ^
+     70|         expect(unused.map(collection => collection.key)).toEqual(['g1-…
+     71|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 524 passed | 2 skipped (528)
+      Tests  3 failed | 10234 passed | 3 skipped (10240)
+   Start at  08:11:48
+   Duration  925.07s (tests 55%, environment 22%, import 13%, setup 9%, transform 1%)
+
+    Isolate  528 workers spawned · ~1.23s startup each (spawn + environment, per file)
+             at least ~216.07s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `check` failed on line 10 with exit code 1
