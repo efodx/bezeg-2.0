@@ -213,7 +213,7 @@ const functionsCards = [
         ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation',
             'school-function-graphs.polynomial-zeros.polynomial-zeros', 'school-function-graphs.rational-function.rational-function'],
         counts: [[2, 2], [2, 2], [1, 2], [1, 4]]},
-    {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-series.fourier-series'], counts: [[6, 7]]},
+    {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-coefficients.fourier-coefficients', 'fourier-series.fourier-series.fourier-series'], counts: [[5, 7], [6, 7]]},
     {chapterId: 'projective-conics', copy: projectiveConicsPreviewCopy,
         ids: ['projective-conics.projective-cross-ratio.projective-cross-ratio', 'projective-conics.projective-five-point.projective-five-point',
             'projective-conics.projective-pascal.projective-pascal', 'projective-conics.projective-pole-polar.projective-pole-polar',

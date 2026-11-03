@@ -233,7 +233,7 @@ const chapterInventories = {
         module: '/src/learning/content/fourierChapterRegistry.ts',
         registryExport: 'fourierGuidedExampleRegistry',
         pathExport: 'fourierGuidedExamplePath',
-        expectedFor: fourierExpectedFor,
+        expectedFor: (id, step) => (id.endsWith('.fourier-coefficients') ? fourierCoefficientsExpectedFor : fourierExpectedFor)(id, step),
     },
     'projective-conics': {
         module: '/src/learning/content/projectiveConicsChapterRegistry.ts',
@@ -489,6 +489,29 @@ function fourierExpectedFor(id, step) {
         points: [[0, -1], [0, 1], [0, 0], [peakX, partialSum(peakX)], [x, sum], [x, target], [x, 0]]};
 }
 
+/**
+ * First-frame expectation of the Fourier coefficients lesson (projection view, jump layout sgn(x - 1), term b, k = 1, K = 16, partial sum on).
+ * The layout breaks at -pi, 1 and pi with the handles -1, -1, 1, 1 in slot order: right of -pi, left of 1, right of 1, left of pi. Curves: the
+ * two product fills, the product edge, the dashed harmonic and S_K. Segments: the two pieces of f. Points: the four handles and the
+ * Dirichlet midpoints (the seam jump -1 -> 1 shows one at -pi and one at pi, both at 0; the interior jump at 1 shows (1, 0)).
+ */
+function fourierCoefficientsExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    assertOnlyActions(id, actions, [['function-choice', /^fourier-(view|layout|term|selection-[123]|scale)$/],
+        ['function-parameter', /^fourier-(handle-[0-3]|order|harmonic|n)$/], ['function-visibility', /^fourier-partial-sum$/]], 'fourierCoefficientsExpectedFor');
+    assert.equal(sceneValue(id, actions, 'function-choice', 'fourier-view'), 'projection', `${id}: only the projection view is authored`);
+    assert.equal(sceneValue(id, actions, 'function-choice', 'fourier-layout'), 'jump', `${id}: only the jump layout is authored`);
+    assert.equal(sceneValue(id, actions, 'function-choice', 'fourier-term'), 'b', `${id}: only the sine term is authored`);
+    assert.equal(sceneValue(id, actions, 'function-parameter', 'fourier-harmonic'), 1, `${id}: only k = 1 is authored`);
+    assert.equal(sceneValue(id, actions, 'function-parameter', 'fourier-order'), 16, `${id}: only K = 16 is authored`);
+    const handles = [0, 1, 2, 3].map(index => sceneValue(id, actions, 'function-parameter', `fourier-handle-${index}`));
+    assert.deepEqual(handles, [-1, -1, 1, 1], `${id}: only the handles -1, -1, 1, 1 are authored`);
+    const overlay = actions.filter(item => item.kind === 'function-visibility');
+    assert.ok(overlay.length === 1 && overlay[0].visible === true, `${id}: the partial-sum overlay must be on`);
+    return {types: {curve: 5, segment: 2, point: 7}, curveCount: 5,
+        points: [[-Math.PI, -1], [1, -1], [1, 1], [Math.PI, 1], [-Math.PI, 0], [Math.PI, 0], [1, 0]]};
+}
+
 /** Fails unless the opening scene is the prepared scene plus exactly one projective load-example action for the named example. */
 function projectiveOpening(id, actions, operation, exampleId) {
     const loads = actions.filter(item => item.kind === 'projective');
@@ -679,4 +702,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, projectiveConicsExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, projectiveConicsExpectedFor, assertExpectation};

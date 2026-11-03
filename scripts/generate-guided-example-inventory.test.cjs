@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, projectiveConicsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, projectiveConicsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -186,6 +186,28 @@ test('fourier series expectations are authored from the closed-form partial sum'
     assert.throws(() => fourierExpectedFor('f', fnStep([fnChoice('fourier-example', 'square'), fnParam('fourier-n', 1), fnParam('fourier-x', 1.57), fnParam('fourier-epsilon', 0.1),
         {kind: 'function-visibility', target: 'band', visible: true}])), /only sets/);
     assert.ok(chapterInventories['fourier-series']);
+});
+
+test('fourier coefficients expectation is authored from the jump layout breakpoints', () => {
+    const scene = (extra = {}) => {
+        const values = {'fourier-view': extra['fourier-view'] ?? 'projection', 'fourier-layout': extra['fourier-layout'] ?? 'jump', 'fourier-term': extra['fourier-term'] ?? 'b'};
+        return fnStep([...Object.entries(values).map(([name, value]) => fnChoice(name, value)),
+            ...[-1, -1, 1, 1].map((value, index) => fnParam(`fourier-handle-${index}`, extra[`h${index}`] ?? value)),
+            fnParam('fourier-order', extra.K ?? 16), fnParam('fourier-harmonic', extra.k ?? 1),
+            {kind: 'function-visibility', target: 'fourier-partial-sum', visible: extra.overlay ?? true}]);
+    };
+    const expected = fourierCoefficientsExpectedFor('f', scene());
+    assert.deepEqual(expected.types, {curve: 5, segment: 2, point: 7});
+    assert.equal(expected.curveCount, 5);
+    assert.deepEqual(expected.points, [[-Math.PI, -1], [1, -1], [1, 1], [Math.PI, 1], [-Math.PI, 0], [Math.PI, 0], [1, 0]]);
+    assert.throws(() => fourierCoefficientsExpectedFor('f', scene({'fourier-view': 'decay'})), /only the projection view/);
+    assert.throws(() => fourierCoefficientsExpectedFor('f', scene({'fourier-layout': 'abs'})), /only the jump layout/);
+    assert.throws(() => fourierCoefficientsExpectedFor('f', scene({'fourier-term': 'a'})), /sine term/);
+    assert.throws(() => fourierCoefficientsExpectedFor('f', scene({k: 2})), /only k = 1/);
+    assert.throws(() => fourierCoefficientsExpectedFor('f', scene({K: 8})), /only K = 16/);
+    assert.throws(() => fourierCoefficientsExpectedFor('f', scene({h0: 0})), /only the handles/);
+    assert.throws(() => fourierCoefficientsExpectedFor('f', scene({overlay: false})), /overlay must be on/);
+    assert.throws(() => fourierCoefficientsExpectedFor('f', fnStep([{kind: 'function-visibility', target: 'band', visible: true}])), /only sets/);
 });
 
 const pcStep = (operation, exampleId, extra = []) => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'},

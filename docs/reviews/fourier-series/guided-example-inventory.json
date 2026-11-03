@@ -55,6 +55,73 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "fourier-series.fourier-coefficients.fourier-coefficients",
+      "demonstrationId": "fourier-coefficients",
+      "path": "/bezeg-2.0/analysis/fourier-coefficients?example=lesson.fourier-series.fourier-coefficients.fourier-coefficients",
+      "sceneFingerprint": "3b22af2834a01b6990aab697535de17c9c2007a931f5e6c298eab7621f625f77",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"coef-overlap-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"coef-overlap-scene\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-view\",\"value\":\"projection\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-layout\",\"value\":\"jump\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-handle-0\",\"value\":-1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-handle-1\",\"value\":-1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-handle-2\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-handle-3\",\"value\":1}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-term\",\"value\":\"b\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-order\",\"value\":16}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-harmonic\",\"value\":1}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"fourier-partial-sum\",\"visible\":true}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-selection-1\",\"value\":\"square\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-selection-2\",\"value\":\"abs\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-selection-3\",\"value\":\"smooth\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-n\",\"value\":11}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-scale\",\"value\":\"linear\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 5,
+          "segment": 2,
+          "point": 7
+        },
+        "curveCount": 5,
+        "points": [
+          [
+            -3.141592653589793,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3.141592653589793,
+            1
+          ],
+          [
+            -3.141592653589793,
+            0
+          ],
+          [
+            3.141592653589793,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

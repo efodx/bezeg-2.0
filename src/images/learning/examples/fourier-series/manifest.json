@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "98d667e658ef3944caed78a43911871e43362862",
+  "sourceRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "98d667e658ef3944caed78a43911871e43362862",
+    "revision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
     "dirty": true,
-    "inputs": "17aede000fb5c84af8a736c756434be951eb9ab1a62b3d6475cfebd0cead2879",
-    "output": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600"
+    "inputs": "e06c570dffcb81b6343be2044e55ab75b76453c92915190a0f61352631052f01",
+    "output": "7e7e52ec7958e7f9bc84896e54e318b05b446a4c380ab497d69b9ff724cdb62b"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
-    "stampRevision": "98d667e658ef3944caed78a43911871e43362862",
+    "stampRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
     "stampDirty": true,
-    "localOutputHash": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600",
+    "localOutputHash": "7e7e52ec7958e7f9bc84896e54e318b05b446a4c380ab497d69b9ff724cdb62b",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DwNxeaFN.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-DwNxeaFN.js",
-        "sha256": "9c710e1c860ba6f3baef243bdad521490d21e98465f5a61fc399be39795a4915",
+        "name": "index-Cqzziq_E.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-Cqzziq_E.js",
+        "sha256": "0c9734081427b1904e5bf63bf441e1663fead61e6f8819b13ba1f6fe3580ea30",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DeI_2rhE.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-DeI_2rhE.js",
-        "sha256": "f172c865d3678086d6af61a4627198203e27541702b000bc3ff4a46b66f6bb56",
+        "name": "jsx-runtime-CpAt6tlg.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-CpAt6tlg.js",
+        "sha256": "d7494d455de722de9533553e397ba7803cb641b4faac50e2a3eedc9d05084601",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-p4AlnUVy.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-p4AlnUVy.js",
-        "sha256": "38303c72cac94e4f430e6e0d963f7ed5ad25bc88f9d6bd23dde4a02154aceb71",
+        "name": "react-dom-MaYMC5mJ.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-MaYMC5mJ.js",
+        "sha256": "9451964250693bfa45f2c080b29ac15b63f9a2e88ac5575a3e5b28ed02be3d9b",
         "matchesLocalBuild": true
       },
       {
@@ -55,13 +55,14 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "82b1fc9c22484fd71b3f9e5d4d7f90eee6f12ca88dd6273214c43ca846b3f13b",
+    "inventory": "fb2efd416d8f46496273ae823ee6ca3e6168b540a9c9fc106149ee26ef3e9048",
     "entries": {
-      "fourier-series.fourier-series.fourier-series": "5110b6d8a5e2135526cd238ba707e6afca621e30b0122da160a8e17fb524e020"
+      "fourier-series.fourier-series.fourier-series": "5110b6d8a5e2135526cd238ba707e6afca621e30b0122da160a8e17fb524e020",
+      "fourier-series.fourier-coefficients.fourier-coefficients": "a01b7bdadf703c1ef93063da050820489b7a2b0cb12f68c17a2f5377fdac89ab"
     },
-    "presentation": "debf010f2ee5ee5a0030ce582a70c92cd843eb0c9845e153238c52242ae4ed6b",
-    "buildOutput": "0f1d71e7467f5c3303cc49ed8ecc4eb4534fa1b96aa652ec4c23d2f7a948c600",
-    "buildInputs": "17aede000fb5c84af8a736c756434be951eb9ab1a62b3d6475cfebd0cead2879"
+    "presentation": "837458cfc79026dc9ec60d5abbcdefcfa5b3d96baded63fac6e6288fb5750f5e",
+    "buildOutput": "7e7e52ec7958e7f9bc84896e54e318b05b446a4c380ab497d69b9ff724cdb62b",
+    "buildInputs": "e06c570dffcb81b6343be2044e55ab75b76453c92915190a0f61352631052f01"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -83,6 +84,19 @@
       {
         "id": "fourier-series.fourier-series.fourier-series",
         "demonstrationId": "fourier-series",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -7.2,
+            3.6,
+            7.2,
+            -2
+          ]
+        }
+      },
+      {
+        "id": "fourier-series.fourier-coefficients.fourier-coefficients",
+        "demonstrationId": "fourier-coefficients",
         "framing": {
           "kind": "coordinate-window",
           "window": [
@@ -366,8 +380,266 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "98d667e658ef3944caed78a43911871e43362862",
-        "sourceRevision": "98d667e658ef3944caed78a43911871e43362862",
+        "buildRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
+        "sourceRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "fourier-series.fourier-coefficients.fourier-coefficients",
+      "demonstrationId": "fourier-coefficients",
+      "path": "/bezeg-2.0/analysis/fourier-coefficients?example=lesson.fourier-series.fourier-coefficients.fourier-coefficients",
+      "sceneFingerprint": "3b22af2834a01b6990aab697535de17c9c2007a931f5e6c298eab7621f625f77",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"coef-overlap-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"coef-overlap-scene\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-view\",\"value\":\"projection\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-layout\",\"value\":\"jump\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-handle-0\",\"value\":-1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-handle-1\",\"value\":-1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-handle-2\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-handle-3\",\"value\":1}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-term\",\"value\":\"b\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-order\",\"value\":16}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-harmonic\",\"value\":1}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"fourier-partial-sum\",\"visible\":true}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-selection-1\",\"value\":\"square\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-selection-2\",\"value\":\"abs\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-selection-3\",\"value\":\"smooth\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"fourier-n\",\"value\":11}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"fourier-scale\",\"value\":\"linear\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "fourier-series.fourier-coefficients.fourier-coefficients.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "3bcdbf3e5f25ef61e2a757f388d12179217d3f79add4da077b1fb82e3e898cb9",
+      "scene": {
+        "visibleElementCount": 30,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 12,
+          "curve": 5,
+          "segment": 2,
+          "point": 7
+        },
+        "visiblePointCount": 7,
+        "sampledVisibleCurves": [
+          [
+            [
+              -3.141593,
+              0.015878
+            ],
+            [
+              -3.129369,
+              -0.115018
+            ],
+            [
+              -3.117144,
+              -0.245915
+            ]
+          ],
+          [
+            [
+              -3.141593,
+              0
+            ],
+            [
+              -2.953338,
+              0.183838
+            ],
+            [
+              -2.765084,
+              0.367676
+            ]
+          ],
+          [
+            [
+              -3.141593,
+              0
+            ],
+            [
+              -2.953338,
+              0.183838
+            ],
+            [
+              -2.765084,
+              0.367676
+            ]
+          ],
+          [
+            [
+              -3.141593,
+              0
+            ],
+            [
+              -2.953338,
+              0
+            ],
+            [
+              -2.765084,
+              0
+            ]
+          ],
+          [
+            [
+              -3.141593,
+              0
+            ],
+            [
+              -3.092505,
+              -0.049009
+            ],
+            [
+              -3.043418,
+              -0.098017
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:segment",
+          "type:point",
+          "curve-count",
+          "point:-3.141592653589793,-1",
+          "point:1,-1",
+          "point:1,1",
+          "point:3.141592653589793,1",
+          "point:-3.141592653589793,0",
+          "point:3.141592653589793,0",
+          "point:1,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "curve": 5,
+            "segment": 2,
+            "point": 7,
+            "text": 1
+          },
+          "visiblePointCount": 7,
+          "sampledVisibleCurves": [
+            [
+              [
+                -3.141593,
+                0.015878
+              ],
+              [
+                -3.129369,
+                -0.115018
+              ],
+              [
+                -3.117144,
+                -0.245915
+              ]
+            ],
+            [
+              [
+                -3.141593,
+                0
+              ],
+              [
+                -2.953338,
+                0.183838
+              ],
+              [
+                -2.765084,
+                0.367676
+              ]
+            ],
+            [
+              [
+                -3.141593,
+                0
+              ],
+              [
+                -2.953338,
+                0.183838
+              ],
+              [
+                -2.765084,
+                0.367676
+              ]
+            ],
+            [
+              [
+                -3.141593,
+                0
+              ],
+              [
+                -2.953338,
+                0
+              ],
+              [
+                -2.765084,
+                0
+              ]
+            ],
+            [
+              [
+                -3.141593,
+                0
+              ],
+              [
+                -3.092505,
+                -0.049009
+              ],
+              [
+                -3.043418,
+                -0.098017
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:segment",
+            "type:point",
+            "curve-count",
+            "point:-3.141592653589793,-1",
+            "point:1,-1",
+            "point:1,1",
+            "point:3.141592653589793,1",
+            "point:-3.141592653589793,0",
+            "point:3.141592653589793,0",
+            "point:1,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 12,
+          "curve": 5,
+          "segment": 2,
+          "point": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
+        "sourceRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
         "pageErrors": []
       }
     }
