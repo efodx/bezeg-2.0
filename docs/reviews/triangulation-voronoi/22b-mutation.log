@@ -1,0 +1,34 @@
+## M1 lesson numbers (finite edges 8 -> 9)
+failed tests: 2
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > the lesson data equals the kernel: seven steps, 7 vertices, 8 finite edges, 5 rays, 2 bounded cells and the vertex (4,-1) of P1P2P6
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > step 3 chooses P6 and builds its cell with set-construction; step 4 reads 7, 8, 5, 2 and 5
+
+## M2 spoiler hiding (readout shown without diagram)
+failed tests: 3
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > steps 1 and 2 show the sites and no diagram, count, vertex list or cell (no spoiler)
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > step 3 chooses P6 and builds its cell with set-construction; step 4 reads 7, 8, 5, 2 and 5
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > Back and a scene change restore: the next scene keeps neither the chosen site, the construction nor the selected triangle
+
+## M3 action rejection (site < sites -> <=)
+failed tests: 1
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > invalid values throw and change nothing; DegenerateSitesGraph inherits the actions
+
+## M4 ownership move (voronoi owned by delaunay section)
+failed tests: 1
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > lesson B4 opens from its own section, owns it, and keeps both languages complete
+
+## M5 overlay compatibility (diagram default off)
+failed tests: 11
+ FAIL  src/graphs/compgeo/DegenerateSitesGraph.host.test.tsx > the graph starts in four-point mode on the unit square: D = 0, one degree-4 vertex, both diagonals legal, the not-unique note
+ FAIL  src/graphs/compgeo/DegenerateSitesGraph.host.test.tsx > five collinear sites: four parallel lines, no vertices, no Delaunay triangles, and a visible, announced explanation in both languages
+ FAIL  src/graphs/compgeo/DegenerateSitesGraph.host.test.tsx > Presets > degenerate-sites Presets without a diagram key still import and show the diagram
+ FAIL  src/graphs/compgeo/DegenerateSitesGraph.host.test.tsx > unmount leaves no objects or listeners
+
+## M6 B3 forward link removed
+failed tests: 1
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > the Delaunay section ends with a forward link naming the Voronoi section
+
+## M7 set-construction off by one
+failed tests: 1
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > set-construction x k equals the construct-next control x k (Voronoi has no next-step animation)
+

@@ -11,7 +11,7 @@ import {parseRationalText} from "./voronoiConstruction";
  * that registration belongs to the route that first uses the graph (task 19 is F2a, no route).
  */
 export const VORONOI_PRESET_KEY = "compgeo-voronoi";
-export const VORONOI_OVERLAY_IDS = ["grid", "delaunay"] as const;
+export const VORONOI_OVERLAY_IDS = ["grid", "diagram", "delaunay"] as const;
 /** The modes of the scene field `mode`: any number of sites (the default), or exactly four (the incircle readout of B5). */
 export const VORONOI_MODES = ["sites", "four-point"] as const;
 export type VoronoiMode = typeof VORONOI_MODES[number];

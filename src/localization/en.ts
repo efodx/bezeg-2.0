@@ -2250,6 +2250,7 @@ export const en: Record<keyof typeof sl, string> = {
     "vor_view_group": "Example and view",
     "vor_example_reset": "Reset example",
     "vor_view_reset": "Reset view",
+    "vor_overlay_diagram": "Voronoi diagram",
     "vor_overlay_delaunay": "Duality: Delaunay triangulation",
     "vor_overlay_on": "Duality is on: the Delaunay triangulation is shown.",
     "vor_overlay_off": "Duality is off.",

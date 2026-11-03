@@ -41,8 +41,8 @@ function walk<T>(id: 'orientation' | 'polygon-area', stepIds: readonly string[],
 }
 
 test('the lessons are bounded, bilingual, and found by the catalog', () => {
-    expect(compgeoGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'interval-sweep', 'segment-intersections', 'monotone-partition', 'monotone-triangulation']);
-    expect(compgeoGuidedLessons.map(lesson => lesson.steps.length)).toEqual([6, 7, 7, 7, 7, 7, 7, 7, 8, 7]);
+    expect(compgeoGuidedLessons.map(lesson => lesson.demonstrationId)).toEqual(['orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'voronoi', 'interval-sweep', 'segment-intersections', 'monotone-partition', 'monotone-triangulation']);
+    expect(compgeoGuidedLessons.map(lesson => lesson.steps.length)).toEqual([6, 7, 7, 7, 7, 7, 7, 7, 7, 8, 7]);
     for (const lesson of compgeoGuidedLessons) {
         expect(getGuidedLesson(lesson.demonstrationId)).toBe(lesson);
         expect(lesson.steps.map(step => step.order)).toEqual(lesson.steps.map((_, index) => index + 1));

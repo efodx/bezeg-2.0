@@ -8,6 +8,7 @@ import type {Triangulation} from "../../compgeo/triangulation";
 import {edges as triangulationEdges} from "../../compgeo/triangulation";
 import {delaunayTriangulation} from "../../compgeo/delaunay";
 import {dualEdges, nearestSites, type RationalBox, voronoiFromDelaunay, type VoronoiDiagram, type VoronoiOutcome} from "../../compgeo/voronoi";
+import type {LessonAction} from "../../learning/model";
 import {BaseGraphState} from "../base/BaseGraph";
 import type {GraphSession} from "../base/GraphSession";
 import {fitBoundingBox} from "../base/fitBoundingBox";
@@ -88,7 +89,7 @@ interface Derived {
  * Ownership: the drawing handle, the construction objects and the query point are disposed with the figure scene and before
  * the board is freed.
  */
-export class VoronoiGraph extends PointSetGraph<"delaunay"> {
+export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     private derivedMemo?: Derived;
     private selectedTriangleValue?: readonly [number, number, number];
     private overlayMemo?: {base: unknown; triangle: string};
@@ -208,7 +209,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     // ---- State ---------------------------------------------------------------------------------------------------
 
     override getInitialState(): VoronoiGraphState {
-        return {...super.getInitialState(), cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: this.defaultMode()};
+        return {...super.getInitialState(), overlays: {diagram: true}, cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: this.defaultMode()};
     }
 
     /** The mode a fresh scene starts in; a subclass fixes it. */
@@ -331,6 +332,66 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         this.syncScene();
     }
 
+    /**
+     * Lesson actions of this graph (any other point-set graph, including `DelaunayGraph`, throws `UnsupportedLessonActionError`
+     * for the first three): `select-site` is the site button (`null` clears), `set-construction` sets how many bisectors of the
+     * chosen site are shown (`'end'` is all of them), `set-query-point` places the query point on a quarter of a grid unit (`null`
+     * returns it to its default) and `select-triangle` is the click on a triangle of the Delaunay overlay (`null` clears; the
+     * overlay must be shown). An out-of-range index or count, a position beyond the coordinate limit or off the quarter grid,
+     * and a missing site or overlay are lesson-content errors that change nothing.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation === "select-site") {
+            const site: unknown = action.site;
+            const sites = this.model.points.length;
+            if (site !== null && !(typeof site === "number" && Number.isInteger(site) && site >= 0 && site < sites)) {
+                throw new Error(`point-set select-site: site must be null or an integer from 0 to ${String(sites - 1)}, got ${String(site)}.`);
+            }
+            this.selectSite(site);
+            return;
+        }
+        if (action.operation === "set-construction") {
+            const count: unknown = action.count;
+            const site = this.cellSite;
+            if (site === null) throw new Error("point-set set-construction: choose a site first (select-site).");
+            const total = this.model.points.length - 1;
+            if (count !== "end" && !(typeof count === "number" && Number.isInteger(count) && count >= 0 && count <= total)) {
+                throw new Error(`point-set set-construction: count must be "end" or an integer from 0 to ${String(total)} (the half-planes of this cell), got ${String(count)}.`);
+            }
+            this.setConstruction(count === "end" ? total : count);
+            return;
+        }
+        if (action.operation === "set-query-point") {
+            const point: unknown = action.point;
+            if (point === null) {
+                this.setQueryText(VORONOI_DEFAULT_QUERY.x, VORONOI_DEFAULT_QUERY.y);
+                return;
+            }
+            const limit = this.coordinateLimit;
+            const quarter = (v: unknown): v is number => typeof v === "number" && isFinite(v) && Math.abs(v) <= limit && Number.isInteger(v * QUERY_SNAP);
+            if (!Array.isArray(point) || point.length !== 2 || !quarter(point[0]) || !quarter(point[1])) {
+                throw new Error(`point-set set-query-point: point must be null or [x, y], each a multiple of 1/4 within ${String(limit)}, got ${JSON.stringify(point)}.`);
+            }
+            this.setQueryPoint(new RationalPoint(Rational.of(point[0] * QUERY_SNAP, QUERY_SNAP), Rational.of(point[1] * QUERY_SNAP, QUERY_SNAP)));
+            return;
+        }
+        if (action.operation === "select-triangle") {
+            const index: unknown = action.triangle;
+            if (index === null) {
+                this.selectTriangle(undefined);
+                return;
+            }
+            const count = this.delaunay()?.triangles.length ?? 0;
+            if (!this.overlayShown("delaunay")) throw new Error("point-set select-triangle: show the delaunay overlay first (set-overlay).");
+            if (typeof index !== "number" || !Number.isInteger(index) || index < 0 || index >= count) {
+                throw new Error(`point-set select-triangle: triangle must be null or an integer from 0 to ${String(count - 1)} (the Delaunay triangles), got ${String(index)}.`);
+            }
+            this.selectTriangle(index);
+            return;
+        }
+        super.applyPointSetAction(action);
+    }
+
     /** The sites Reset example restores. */
     protected exampleModel(): PointSetModel {
         return VORONOI_EXAMPLE;
@@ -424,15 +485,15 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
 
-    protected override overlayIds(): readonly ("delaunay" | "grid")[] {
+    protected override overlayIds(): readonly ("delaunay" | "diagram" | "grid")[] {
         return VORONOI_OVERLAY_IDS;
     }
 
-    protected override overlayLabel(id: "delaunay" | "grid"): string {
-        return id === "delaunay" ? t("vor_overlay_delaunay") : super.overlayLabel(id);
+    protected override overlayLabel(id: "delaunay" | "diagram" | "grid"): string {
+        return id === "delaunay" ? t("vor_overlay_delaunay") : id === "diagram" ? t("vor_overlay_diagram") : super.overlayLabel(id);
     }
 
-    override setOverlay(id: "delaunay" | "grid", shown: boolean): void {
+    override setOverlay(id: "delaunay" | "diagram" | "grid", shown: boolean): void {
         super.setOverlay(id, shown);
         if (id === "delaunay" && !shown && this.selectedTriangleValue) {
             this.selectedTriangleValue = undefined;
@@ -451,7 +512,8 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         return this.overlayMemo;
     }
 
-    protected override drawOverlay(id: "delaunay" | "grid", model: PointSetModel): JXG.GeometryElement[] {
+    protected override drawOverlay(id: "delaunay" | "diagram" | "grid", model: PointSetModel): JXG.GeometryElement[] {
+        if (id === "diagram") return []; // the diagram is drawn by its own handle (`syncDiagram`), the switch only gates it
         if (id !== "delaunay") return super.drawOverlay(id, model);
         const tri = this.delaunay();
         if (!tri) return [];
@@ -504,7 +566,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         const diagram = this.diagram();
         const box = this.drawBox();
         const scale = 2 ** this.model.gridStepExponent;
-        if (!diagram || !box) return this.disposeDiagram();
+        if (!diagram || !box || !this.overlayShown("diagram")) return this.disposeDiagram();
         if (this.drawing && this.drawing.scale !== scale) this.disposeDiagram();
         const highlight = this.queryNearest()[0];
         const drawn = this.drawnFor;
@@ -742,7 +804,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
             counts: {sites: points.length, vertices: 0, finite: 0, rays: 0, lines: 0, bounded: 0, unbounded: 0},
             vertices: [], cellSite: null,
             query: {x: query.x, y: query.y, nearest: this.queryNearest()},
-            coordinateLimit: this.coordinateLimit, queryRefused: this.queryRefused, overlayShown: this.overlayShown("delaunay"), triangles: [],
+            coordinateLimit: this.coordinateLimit, queryRefused: this.queryRefused, overlayShown: this.overlayShown("delaunay"), diagramShown: this.overlayShown("diagram"), triangles: [],
             mode: this.mode, modeSwitch: this.showsModeSwitch(), modeRefused: this.modeRefused, examples: this.exampleIds(),
         } satisfies VoronoiStatus;
         if (!diagram) {

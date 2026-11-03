@@ -1215,8 +1215,8 @@ const delaunay: GuidedLesson = {
             title: text('Enotski kvadrat in prosto raziskovanje', 'The unit square and free exploration'),
             purpose: text('Videti, da pri štirih točkah na isti krožnici triangulacija ni enolična, nato samostojno raziskovati.', 'Seeing that with four points on one circle the triangulation is not unique, then exploring on your own.'),
             explanation: text(
-                'Enotski kvadrat \\((0,0),(1,0),(1,1),(0,1)\\) ima vse štiri točke na isti krožnici. Preizkus roba \\(P_1P_3\\) da \\(D=0\\): točka je na krožnici, rob je ustrezen in se ne zamenja. Tudi druga diagonala \\(P_2P_4\\) je ustrezna, zato imata obe triangulaciji lastnost Delaunayeve: triangulacija ni enolična, graf pa to na koncu izpiše. Zdaj raziskuj sam: povleci točke ali naloži primer; sled se ob vsaki spremembi preračuna, zamenjan rob pa lahko spet postane neustrezen.',
-                'The unit square \\((0,0),(1,0),(1,1),(0,1)\\) has all four points on one circle. The test of the edge \\(P_1P_3\\) gives \\(D=0\\): the point is on the circle, the edge is legal and is not flipped. The other diagonal \\(P_2P_4\\) is legal too, so both triangulations are Delaunay: the triangulation is not unique, and the graph says so at the end. Now explore on your own: drag the points or load an example; the trace is recomputed after every change, and a flipped edge may become illegal again.',
+                'Enotski kvadrat \\((0,0),(1,0),(1,1),(0,1)\\) ima vse štiri točke na isti krožnici. Preizkus roba \\(P_1P_3\\) da \\(D=0\\): točka je na krožnici, rob je ustrezen in se ne zamenja. Tudi druga diagonala \\(P_2P_4\\) je ustrezna, zato imata obe triangulaciji lastnost Delaunayeve: triangulacija ni enolična, graf pa to na koncu izpiše. Zdaj raziskuj sam: povleci točke ali naloži primer; sled se ob vsaki spremembi preračuna, zamenjan rob pa lahko spet postane neustrezen. Kako Delaunayeva triangulacija določa Voronojev diagram, pokaže lekcija o Voronojevem diagramu.',
+                'The unit square \\((0,0),(1,0),(1,1),(0,1)\\) has all four points on one circle. The test of the edge \\(P_1P_3\\) gives \\(D=0\\): the point is on the circle, the edge is legal and is not flipped. The other diagonal \\(P_2P_4\\) is legal too, so both triangulations are Delaunay: the triangulation is not unique, and the graph says so at the end. Now explore on your own: drag the points or load an example; the trace is recomputed after every change, and a flipped edge may become illegal again. The lesson on the Voronoi diagram shows how the Delaunay triangulation determines it.',
             ),
             formulaIds: ['del-incircle-formula'], workedExampleId: 'del-square-example',
             frames: [frame('del-square-explanation', 'explanation'), frame('del-square-calculation', 'calculation'), frame('del-square-observation', 'observation')],
@@ -1238,6 +1238,205 @@ const delaunay: GuidedLesson = {
     edgeCases: [
         text('Pri štirih točkah na isti krožnici je determinanta \\(0\\), oba roba sta ustrezna in Delaunayeva triangulacija ni enolična; algoritem teh robov ne zamenja.', 'For four points on one circle the determinant is \\(0\\), both edges are legal and the Delaunay triangulation is not unique; the algorithm does not flip these edges.'),
         text('Lekcija ne trdi, da je vsaka triangulacija z največjim najmanjšim kotom Delaunayeva; trdi le, da zamenjave povečajo seznam kotov in se ustavijo.', 'The lesson does not claim that every triangulation with the largest smallest angle is Delaunay; it only claims that the flips raise the angle list and stop.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+/**
+ * Voronoi lesson (docs/specs/triangulation-voronoi-lessons.md, B4). The scenes use the `point-set` actions (`set-points`,
+ * `set-overlay` with the `diagram` and `delaunay` switches, `select-site`, `set-construction`, `set-query-point`,
+ * `select-triangle`) of `VoronoiGraph`; `compgeoVoronoiLesson.test.ts` checks every quoted value against the real graph's readout
+ * or the kernel (`voronoiFromDelaunay`). The panel names the sites 1-based, so the spec's p5 and p6 are P6 and P7 here and its
+ * triangle (0,1,5) is P1P2P6.
+ */
+/** The site whose cell is predicted and built (the spec's p5, 0-based index 5, named P6) and the spec's triangle (0,1,5) as an index into the graph's Delaunay triangles. */
+export const VORONOI_CELL_SITE = 5;
+export const VORONOI_TRIANGLE_INDEX = 2;
+/** What step 4 quotes: the readout of the whole diagram of the seven points. */
+export const VORONOI_COUNTS = {vertices: 7, finite: 8, rays: 5, bounded: 2, unbounded: 5} as const;
+/** The vertex step 5 quotes: the circumcentre of the triangle P1P2P6. */
+export const VORONOI_QUOTED_VERTEX: readonly [number, number] = [4, -1];
+/** The query point of steps 1 to 6 (nearest site P1, so it gives nothing away about P6) and the default of step 7 (inside the cell of P6). */
+export const VORONOI_QUERY_AWAY: readonly [number, number] = [-2, 1];
+export const VORONOI_QUERY_FREE: readonly [number, number] = [4, 2];
+/** Room for the vertices (the lowest is y = -1) and the start of the rays. */
+const VORONOI_VIEW: LessonViewBox = [-3, 10, 12, -3];
+const selectSite = (site: number | null): LessonAction => ({kind: 'point-set', operation: 'select-site', site});
+const setConstruction = (count: number | 'end'): LessonAction => ({kind: 'point-set', operation: 'set-construction', count});
+const setQueryPoint = (point: readonly [number, number]): LessonAction => ({kind: 'point-set', operation: 'set-query-point', point});
+/** A Voronoi scene framed on the seven points: the points, exactly the listed overlays, no chosen site, the query point, then the step actions. */
+const voronoiScene = (id: string, shown: readonly ('diagram' | 'delaunay')[], query: readonly [number, number], steps: readonly LessonAction[], sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view: VORONOI_VIEW, expectedState: text(sl, en),
+        actions: [points(TRI_EXAMPLE_POINTS), overlay('grid', false), overlay('diagram', shown.includes('diagram')), overlay('delaunay', shown.includes('delaunay')),
+            selectSite(null), setQueryPoint(query), ...steps]});
+
+const voronoi: GuidedLesson = {
+    demonstrationId: 'voronoi',
+    title: text('Voronojev diagram in dualnost', 'The Voronoi diagram and duality'),
+    summary: text(
+        'Celica mesta je množica točk, ki so temu mestu bliže kot vsakemu drugemu; njena oglišča so središča očrtanih krožnic Delaunayevih trikotnikov, Delaunayeva triangulacija pa je dual diagrama.',
+        'The cell of a site is the set of points nearer to it than to any other site; its vertices are the circumcentres of the Delaunay triangles, and the Delaunay triangulation is the dual of the diagram.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o Delaunayevi triangulaciji: očrtana krožnica trikotnika in prazna krožnica.', 'The lesson on the Delaunay triangulation is required: the circumcircle of a triangle and the empty circle.'),
+        text('Priporočena je lekcija o triangulaciji množice točk, ker uporabimo isti primer sedmih točk.', 'Recommended is the lesson on triangulating a set of points, because it uses the same example of seven points.'),
+    ],
+    learningGoals: [
+        text('Celico mesta razložiš kot množico točk, ki so temu mestu bliže kot vsakemu drugemu, in jo sestaviš s presekom polravnin.', 'Explain the cell of a site as the set of points nearer to that site than to any other, and build it as an intersection of half-planes.'),
+        text('Prebereš oglišča, končne robove in poltrake diagrama ter ločiš omejene in neomejene celice.', 'Read the vertices, finite edges and rays of the diagram and tell bounded cells from unbounded ones.'),
+        text('Razložiš dualnost: oglišče diagrama je središče očrtane krožnice Delaunayevega trikotnika, notranji rob triangulacije ustreza končnemu robu, rob ovojnice pa poltraku.', 'Explain duality: a vertex of the diagram is the circumcentre of a Delaunay triangle, an interior edge of the triangulation matches a finite edge and a hull edge matches a ray.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'vor-cell-formula',
+            latex: 'C_i=\\{X\\;:\\;|XP_i|\\le|XP_j|\\ \\forall j\\}',
+            notation: text(
+                '\\(C_i\\) je celica mesta \\(P_i\\), \\(|XP_i|\\) razdalja od točke \\(X\\) do mesta \\(P_i\\). Meja med celicama \\(C_i\\) in \\(C_j\\) leži na simetrali daljice \\(P_iP_j\\); Voronojevo oglišče je točka, ki je enako oddaljena od vsaj treh mest.',
+                '\\(C_i\\) is the cell of the site \\(P_i\\) and \\(|XP_i|\\) is the distance from the point \\(X\\) to \\(P_i\\). The border between \\(C_i\\) and \\(C_j\\) lies on the perpendicular bisector of the segment \\(P_iP_j\\); a Voronoi vertex is a point equally far from at least three sites.',
+            ),
+            explanation: text(
+                'Celica je presek polravnin: za vsak drugi \\(P_j\\) polravnina točk, ki so bližje \\(P_i\\) kot \\(P_j\\). Zato je vsaka celica konveksna, graf pa jo gradi simetralo za simetralo. Središče očrtane krožnice trikotnika \\(P_iP_jP_k\\) je enako oddaljeno od vseh treh oglišč; če krožnica ne vsebuje drugega mesta, nobeno mesto ni bližje in točka je Voronojevo oglišče.',
+                'A cell is an intersection of half-planes: for every other \\(P_j\\), the half-plane of points nearer to \\(P_i\\) than to \\(P_j\\). So every cell is convex, and the graph builds it bisector by bisector. The circumcentre of the triangle \\(P_iP_jP_k\\) is equally far from all three corners; if its circle contains no other site, no site is nearer and the point is a Voronoi vertex.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'vor-vertex-example',
+            title: text('Oglišče trikotnika \\(P_1P_2P_6\\)', 'The vertex of the triangle \\(P_1P_2P_6\\)'),
+            calculationLatex: '|VP_1|^2=4^2+(-1)^2,\\ |VP_2|^2=(4-8)^2+(-1)^2,\\ |VP_6|^2=(4-3)^2+(-1-3)^2',
+            resultLatex: '|VP_1|^2=|VP_2|^2=|VP_6|^2=17',
+            check: text(
+                'Izpis pod grafom pri izbranem trikotniku \\(P_1P_2P_6\\) pokaže središče očrtane krožnice \\((4,-1)\\) kot Voronojevo oglišče, enako oddaljeno od mest \\(P_1\\), \\(P_2\\) in \\(P_6\\).',
+                'With the triangle \\(P_1P_2P_6\\) selected, the readout under the graph shows the circumcentre \\((4,-1)\\) as a Voronoi vertex equally far from the sites \\(P_1\\), \\(P_2\\) and \\(P_6\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'vor-sites', order: 1,
+            title: text('Sedem mest', 'Seven sites'),
+            purpose: text('Spoznati mesta in vprašanje, na katero odgovarja diagram.', 'Meeting the sites and the question the diagram answers.'),
+            explanation: text(
+                'Isti primer sedmih točk kot v prejšnjih lekcijah zdaj imenujemo mesta: \\(P_1=(0,0)\\), \\(P_2=(8,0)\\), \\(P_3=(9,6)\\), \\(P_4=(4,8)\\), \\(P_5=(-1,5)\\), \\(P_6=(3,3)\\) in \\(P_7=(6,3)\\). Voronojev diagram vsakemu mestu dodeli celico: točke ravnine, ki so temu mestu bliže kot vsakemu drugemu. Diagrama zaenkrat ni na grafu in izpis ga ne našteva.',
+                'The same seven points as in the earlier lessons are now called sites: \\(P_1=(0,0)\\), \\(P_2=(8,0)\\), \\(P_3=(9,6)\\), \\(P_4=(4,8)\\), \\(P_5=(-1,5)\\), \\(P_6=(3,3)\\) and \\(P_7=(6,3)\\). The Voronoi diagram gives every site a cell: the points of the plane nearer to that site than to any other. The diagram is not on the graph yet and the readout does not list it.',
+            ),
+            formulaIds: ['vor-cell-formula'],
+            frames: [frame('vor-sites-explanation', 'explanation'), frame('vor-sites-observation', 'observation')],
+            observationPrompt: text('Preberi imena mest na grafu in ugotovi, katera ležijo na robu množice in katera znotraj.', 'Read the names of the sites on the graph and find which lie on the edge of the set and which inside.'),
+            expectedObservations: [text('Na grafu je sedem mest brez diagrama; \\(P_6\\) in \\(P_7\\) ležita znotraj ostalih.', 'The graph shows seven sites and no diagram; \\(P_6\\) and \\(P_7\\) lie inside the others.')],
+            scene: voronoiScene('vor-sites', [], VORONOI_QUERY_AWAY, [],
+                'Sedem mest \\(P_1\\), ..., \\(P_7\\); diagram je skrit.',
+                'The seven sites \\(P_1\\), ..., \\(P_7\\); the diagram is hidden.'),
+        },
+        {
+            id: 'vor-predict', order: 2,
+            title: text('Napovej: območje mesta \\(P_6\\)', 'Predict: the region of \\(P_6\\)'),
+            purpose: text('Pred gradnjo napovedati, kje so točke, ki so bližje \\(P_6\\) kot vsakemu drugemu mestu.', 'Predicting before the construction where the points nearer to \\(P_6\\) than to any other site lie.'),
+            explanation: text(
+                'Skiciraj območje točk, ki so bližje mestu \\(P_6\\) kot vsakemu drugemu mestu. Ali je omejeno ali sega v neskončnost? Kje bi potekale njegove meje? Namig: točka na meji med \\(P_6\\) in sosedom je enako oddaljena od obeh. Graf še ne kaže nobene celice in izpis nobenega števila oglišč, robov ali celic; odgovor poišči sam.',
+                'Sketch the region of points nearer to the site \\(P_6\\) than to any other site. Is it bounded or does it reach infinity? Where would its borders run? Hint: a point on the border between \\(P_6\\) and a neighbour is equally far from both. The graph shows no cell yet and the readout no number of vertices, edges or cells; find the answer yourself.',
+            ),
+            formulaIds: ['vor-cell-formula'],
+            frames: [frame('vor-predict-explanation', 'explanation'), frame('vor-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši napoved in utemelji.', 'Write down your prediction and give your reason.'),
+            expectedObservations: [text('Napoved še ni preverjena; v naslednjem koraku jo primerjamo z gradnjo celice.', 'The prediction is not yet checked; the next step compares it with the construction of the cell.')],
+            scene: voronoiScene('vor-predict', [], VORONOI_QUERY_AWAY, [],
+                'Celica še ni prikazana; napoved se preveri v naslednjem koraku.',
+                'The cell is not shown yet; the prediction is checked in the next step.'),
+        },
+        {
+            id: 'vor-cell', order: 3,
+            title: text('Celica mesta \\(P_6\\) s simetralami', 'The cell of \\(P_6\\) by bisectors'),
+            purpose: text('Celico sestaviti kot presek polravnin in jo primerjati z napovedjo.', 'Building the cell as an intersection of half-planes and comparing it with the prediction.'),
+            explanation: text(
+                'Mesto \\(P_6\\) je izbrano. Pritiskaj Pokaži simetralo: vsaka simetrala daljice med \\(P_6\\) in drugim mestom razdeli ravnino na polravnino, ki je bližje \\(P_6\\), in polravnino, ki je bližje drugemu mestu. Graf obdrži polravnino mesta \\(P_6\\) in prikaže, kaj ostane. Ko so uporabljene vse simetrale, je ostanek celica mesta \\(P_6\\). Primerjaj jo z napovedjo; diagram drugih celic je še skrit.',
+                'The site \\(P_6\\) is selected. Press Show bisector: each perpendicular bisector of the segment between \\(P_6\\) and another site splits the plane into the half-plane nearer to \\(P_6\\) and the half-plane nearer to the other site. The graph keeps the half-plane of \\(P_6\\) and shows what remains. When all bisectors are applied, what remains is the cell of \\(P_6\\). Compare it with your prediction; the diagram of the other cells is still hidden.',
+            ),
+            formulaIds: ['vor-cell-formula'],
+            frames: [frame('vor-cell-explanation', 'explanation'), frame('vor-cell-observation', 'observation')],
+            observationPrompt: text('Pritisni Pokaži simetralo, dokler izpis ne pove, da so uporabljene vse simetrale, in primerjaj ostanek z napovedjo.', 'Press Show bisector until the readout says all bisectors are applied and compare what remains with your prediction.'),
+            expectedObservations: [text('Po zadnji simetrali ostane omejen večkotnik, celica mesta \\(P_6\\); izpis pove, da je presek polravnin celica.', 'After the last bisector a bounded polygon remains, the cell of \\(P_6\\); the readout says the intersection of the half-planes is the cell.')],
+            scene: voronoiScene('vor-cell', [], VORONOI_QUERY_AWAY, [selectSite(VORONOI_CELL_SITE), setConstruction(0)],
+                'Celica mesta \\(P_6\\): začetek gradnje, še brez simetral; diagram je skrit.',
+                'The cell of \\(P_6\\): the start of the construction, no bisectors yet; the diagram is hidden.'),
+        },
+        {
+            id: 'vor-diagram', order: 4,
+            title: text('Vse celice', 'All cells'),
+            purpose: text('Prebrati število oglišč, robov in poltrakov ter ločiti omejene in neomejene celice.', 'Reading the number of vertices, edges and rays and telling bounded cells from unbounded ones.'),
+            explanation: text(
+                'Zdaj graf kaže celoten diagram. Izpis našteje \\(7\\) Voronojevih oglišč, \\(8\\) končnih robov in \\(5\\) poltrakov. Celice petih mest na robu množice, \\(P_1\\), \\(P_2\\), \\(P_3\\), \\(P_4\\) in \\(P_5\\), so neomejene: poltraki nadaljujejo njihove meje do neskončnosti. Celici mest \\(P_6\\) in \\(P_7\\), ki ležita znotraj, sta omejeni (izpis: omejenih celic \\(2\\), neomejenih \\(5\\)).',
+                'The graph now shows the whole diagram. The readout counts \\(7\\) Voronoi vertices, \\(8\\) finite edges and \\(5\\) rays. The cells of the five sites on the edge of the set, \\(P_1\\), \\(P_2\\), \\(P_3\\), \\(P_4\\) and \\(P_5\\), are unbounded: rays continue their borders to infinity. The cells of \\(P_6\\) and \\(P_7\\), which lie inside, are bounded (readout: bounded cells \\(2\\), unbounded cells \\(5\\)).',
+            ),
+            formulaIds: ['vor-cell-formula'],
+            frames: [frame('vor-diagram-explanation', 'explanation'), frame('vor-diagram-observation', 'observation')],
+            observationPrompt: text('Preberi števila v izpisu in poišči na grafu poltrake, ki kažejo, da celica sega v neskončnost.', 'Read the numbers in the readout and find on the graph the rays that show a cell reaching infinity.'),
+            expectedObservations: [text('Izpis pokaže \\(7\\) oglišč, \\(8\\) končnih robov, \\(5\\) poltrakov, \\(2\\) omejeni in \\(5\\) neomejenih celic; celica mesta \\(P_6\\) je enaka tisti iz prejšnjega koraka.', 'The readout shows \\(7\\) vertices, \\(8\\) finite edges, \\(5\\) rays, \\(2\\) bounded and \\(5\\) unbounded cells; the cell of \\(P_6\\) equals the one from the previous step.')],
+            scene: voronoiScene('vor-diagram', ['diagram'], VORONOI_QUERY_AWAY, [],
+                'Diagram ima \\(7\\) oglišč, \\(8\\) končnih robov in \\(5\\) poltrakov; \\(2\\) celici sta omejeni, \\(5\\) neomejenih.',
+                'The diagram has \\(7\\) vertices, \\(8\\) finite edges and \\(5\\) rays; \\(2\\) cells are bounded, \\(5\\) unbounded.'),
+        },
+        {
+            id: 'vor-dual', order: 5,
+            title: text('Dualnost: trikotnik in njegovo oglišče', 'Duality: a triangle and its vertex'),
+            purpose: text('Videti, da je oglišče diagrama središče očrtane krožnice Delaunayevega trikotnika.', 'Seeing that a vertex of the diagram is the circumcentre of a Delaunay triangle.'),
+            explanation: text(
+                'Vklopili smo Delaunayevo triangulacijo istih mest. Izbran je trikotnik \\(P_1P_2P_6\\): središče njegove očrtane krožnice je \\((4,-1)\\), graf ga označi kot Voronojevo oglišče. Računsko: kvadrat razdalje od \\((4,-1)\\) do vsakega od \\(P_1\\), \\(P_2\\) in \\(P_6\\) je \\(17\\). Notranji robovi triangulacije (\\(8\\)) ustrezajo končnim robom diagrama, robovi ovojnice (\\(5\\)) poltrakom. To je dualnost. Slika nekaj mest dualnost ilustrira, ne dokazuje; dokaz sloni na lastnosti prazne krožnice Delaunayeve triangulacije.',
+                'The Delaunay triangulation of the same sites is switched on. The triangle \\(P_1P_2P_6\\) is selected: the centre of its circumcircle is \\((4,-1)\\), and the graph marks it as a Voronoi vertex. By calculation: the squared distance from \\((4,-1)\\) to each of \\(P_1\\), \\(P_2\\) and \\(P_6\\) is \\(17\\). The interior edges of the triangulation (\\(8\\)) match the finite edges of the diagram, the hull edges (\\(5\\)) match the rays. This is duality. A picture of a few sites illustrates duality and does not prove it; the proof rests on the empty-circle property of the Delaunay triangulation.',
+            ),
+            formulaIds: ['vor-cell-formula'], workedExampleId: 'vor-vertex-example',
+            frames: [frame('vor-dual-explanation', 'explanation'), frame('vor-dual-calculation', 'calculation'), frame('vor-dual-observation', 'observation')],
+            observationPrompt: text('Izberi še en trikotnik na seznamu in preveri, da je njegovo središče očrtane krožnice oglišče diagrama.', 'Select another triangle in the list and check that the centre of its circumcircle is a vertex of the diagram.'),
+            expectedObservations: [text('Izpis pri trikotniku \\(P_1P_2P_6\\) pokaže središče \\((4,-1)\\) kot Voronojevo oglišče, enako oddaljeno od mest \\(P_1\\), \\(P_2\\) in \\(P_6\\).', 'For the triangle \\(P_1P_2P_6\\) the readout shows the centre \\((4,-1)\\) as a Voronoi vertex equally far from the sites \\(P_1\\), \\(P_2\\) and \\(P_6\\).')],
+            scene: voronoiScene('vor-dual', ['diagram', 'delaunay'], VORONOI_QUERY_AWAY, [{kind: 'point-set', operation: 'select-triangle', triangle: VORONOI_TRIANGLE_INDEX}],
+                'Trikotnik \\(P_1P_2P_6\\) ima središče očrtane krožnice \\((4,-1)\\), to je Voronojevo oglišče.',
+                'The triangle \\(P_1P_2P_6\\) has circumcentre \\((4,-1)\\), which is a Voronoi vertex.'),
+        },
+        {
+            id: 'vor-drag', order: 6,
+            title: text('Povleci mesto', 'Drag a site'),
+            purpose: text('Opazovati, kako se oba diagrama spreminjata skupaj.', 'Watching both diagrams change together.'),
+            explanation: text(
+                'Povleci eno mesto, na primer \\(P_7\\), in opazuj oba diagrama hkrati. Ko se premaknejo mesta trikotnika, se premakne tudi središče njegove očrtane krožnice, torej Voronojevo oglišče; ko se rob triangulacije zamenja, se spremeni tudi, katere celice se stikajo. Pri vsakem položaju velja isto: oglišča diagrama so središča očrtanih krožnic Delaunayevih trikotnikov.',
+                'Drag one site, for example \\(P_7\\), and watch both diagrams at once. When the sites of a triangle move, the centre of its circumcircle moves too, which is a Voronoi vertex; when an edge of the triangulation flips, which cells touch changes as well. At every position the same holds: the vertices of the diagram are the circumcentres of the Delaunay triangles.',
+            ),
+            formulaIds: ['vor-cell-formula'],
+            frames: [frame('vor-drag-explanation', 'explanation'), frame('vor-drag-observation', 'observation')],
+            observationPrompt: text('Povleci mesto in poišči položaj, pri katerem se zamenja rob triangulacije; kaj se zgodi z diagramom?', 'Drag a site and find a position where an edge of the triangulation flips; what happens to the diagram?'),
+            expectedObservations: [text('Oglišča diagrama in trikotniki se premikajo skupaj; ob zamenjavi roba se spremeni stik celic.', 'The vertices of the diagram and the triangles move together; when an edge flips, which cells touch changes.')],
+            scene: voronoiScene('vor-drag', ['diagram', 'delaunay'], VORONOI_QUERY_AWAY, [],
+                'Diagram in Delaunayeva triangulacija sta prikazana; povleci mesto.',
+                'The diagram and the Delaunay triangulation are shown; drag a site.'),
+        },
+        {
+            id: 'vor-explore', order: 7,
+            title: text('Prosto raziskovanje: točka poizvedbe', 'Free exploration: the query point'),
+            purpose: text('Samostojno raziskati, katero mesto je najbližje točki.', 'Exploring on your own which site is nearest to a point.'),
+            explanation: text(
+                'Točka poizvedbe je zdaj v celici mesta \\(P_6\\). Povleci jo, vtipkaj koordinate ali uporabi gumbe s puščicami: izpis imenuje najbližje mesto in poudari njegovo celico. Na meji dveh celic sta najbližji dve mesti, v Voronojevem oglišču pa vsaj tri. Premikaj tudi mesta in išči, kdaj je celica omejena in kdaj ne.',
+                'The query point is now in the cell of \\(P_6\\). Drag it, type its coordinates or use the arrow buttons: the readout names the nearest site and highlights its cell. On the border of two cells two sites are nearest, at a Voronoi vertex at least three. Move the sites too and look for when a cell is bounded and when not.',
+            ),
+            formulaIds: ['vor-cell-formula'],
+            frames: [frame('vor-explore-explanation', 'explanation'), frame('vor-explore-observation', 'observation')],
+            observationPrompt: text('Postavi točko poizvedbe na mejo dveh celic in preberi, katera mesta izpis imenuje.', 'Put the query point on the border of two cells and read which sites the readout names.'),
+            expectedObservations: [text('Na meji izpis imenuje dve enako oddaljeni mesti; v celici mesta \\(P_6\\) imenuje \\(P_6\\).', 'On a border the readout names two equally near sites; inside the cell of \\(P_6\\) it names \\(P_6\\).')],
+            scene: voronoiScene('vor-explore', ['diagram', 'delaunay'], VORONOI_QUERY_FREE, [],
+                'Točka poizvedbe \\((4,2)\\) je v celici mesta \\(P_6\\); izpis imenuje \\(P_6\\).',
+                'The query point \\((4,2)\\) is in the cell of \\(P_6\\); the readout names \\(P_6\\).'),
+        },
+    ],
+    sources: [
+        {id: 'berg-voronoi', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Chapter 7 (Voronoi diagrams) and Chapter 9 (the Delaunay graph as the dual of the Voronoi diagram).'},
+        {
+            id: 'bezeg-voronoi-implementation',
+            citation: 'Bezeg source: src/compgeo/voronoi.ts, src/compgeo/delaunay.ts and src/graphs/compgeo/VoronoiGraph.tsx.',
+            implementationCorrespondence: 'The diagram is derived from the Delaunay triangulation (`voronoiFromDelaunay`): each vertex is the exact circumcentre of a triangle, each interior edge gives a finite edge and each hull edge a ray; a lesson scene sets the sites, the overlay switches, the chosen site, the number of bisectors and the query point, and the readouts are computed from the same exact values.',
+        },
+    ],
+    edgeCases: [
+        text('Slika sedmih mest dualnost ilustrira in je ne dokazuje; lekcija ne trdi, da velja za vsako množico mest, in ne obravnava izrojenih primerov (štiri mesta na isti krožnici, vsa mesta na premici).', 'A picture of seven sites illustrates duality and does not prove it; the lesson does not claim it for every set of sites and does not treat degenerate cases (four sites on one circle, all sites on a line).'),
+        text('Diagram je neomejen, graf pa ga prikaže le v vidnem delu: poltraki se ob spremembi pogleda znova obrežejo.', 'The diagram is unbounded and the graph draws only the visible part: the rays are clipped again when the view changes.'),
     ],
     unresolvedQuestions: [],
 };
@@ -2089,4 +2288,4 @@ const monotoneTriangulation: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation];
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation];

@@ -65,7 +65,7 @@ export type PointSetBaseOverlayId = "grid";
 
 export interface PointSetGraphState extends BaseGraphState {
     model: PointSetModel;
-    /** Shown overlays by id; an absent id is hidden. */
+    /** Shown overlays by id; an absent id takes the graph's initial state (hidden unless `getInitialState` turns it on, as the Voronoi `diagram`). */
     overlays: Readonly<Record<string, boolean | undefined>>;
 }
 

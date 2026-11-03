@@ -2249,6 +2249,7 @@ export const sl = {
     "vor_view_group": "Primer in pogled",
     "vor_example_reset": "Ponastavi primer",
     "vor_view_reset": "Ponastavi pogled",
+    "vor_overlay_diagram": "Voronojev diagram",
     "vor_overlay_delaunay": "Dualnost: Delaunayeva triangulacija",
     "vor_overlay_on": "Dualnost je vklopljena: prikazana je Delaunayeva triangulacija.",
     "vor_overlay_off": "Dualnost je izklopljena.",

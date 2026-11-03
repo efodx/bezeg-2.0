@@ -12,6 +12,7 @@ const sectionDemonstrations = {
     'ear-clipping': 'ear-clipping',
     'point-set-triangulation': 'point-set-triangulation',
     'delaunay': 'delaunay',
+    'voronoi': 'voronoi',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type TriangulationSectionId = keyof typeof sectionDemonstrations;

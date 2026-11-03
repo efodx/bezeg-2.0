@@ -1,0 +1,52 @@
+Waiting for unit (pid 27468) to finish starting before reading free memory.
+Memory available for unit after 20s.
+unit: failed (1) in 234.7s (2 workers, no slot); revision 773999498392bf567c70d000667d9897be143ae2; dirty; log .command-logs\2026-11-03T02-40-58-408Z-192-3e0f125c.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/LearningPage.test.tsx src/learning/chapter src/learning/runtime/lessonRestoration.part3.test.tsx src/learning/runtime/lessonSmokeCoverage.test.ts src/learning/content --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ab6e252dd83a77fd9
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts (11 tests | 1 failed) 2162ms
+   × the lesson data equals the kernel: seven steps, 7 vertices, 8 finite edges, 5 rays, 2 bounded cells and the vertex (4,-1) of P1P2P6 10ms
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > the lesson data equals the kernel: seven steps, 7 vertices, 8 finite edges, 5 rays, 2 bounded cells and the vertex (4,-1) of P1P2P6
+AssertionError: expected [ +0, 5, 6 ] to deeply equal [ +0, 1, 5 ]
+
+- Expected
++ Received
+
+  [
+    0,
+-   1,
+    5,
++   6,
+  ]
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts:69:69
+     67|     const tri = incrementalTriangulation(pts);
+     68|     if (!tri.ok) throw new Error('refused');
+     69|     expect([...tri.value.triangles[VORONOI_TRIANGLE_INDEX]].sort()).to…
+       |                                                                     ^
+     70|     const vertex = diagram.vertices.find(v => [0, 1, 5].every(s => v.s…
+     71|     expect([vertex.point.x.toNumber(), vertex.point.y.toNumber()]).toE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 85 passed (86)
+      Tests  1 failed | 1365 passed (1366)
+   Start at  03:40:59
+   Duration  233.94s (tests 57%, environment 19%, import 11%, setup 9%, transform 3%)
+
+    Isolate  86 workers spawned · ~1.13s startup each (spawn + environment, per file)
+             at least ~47.56s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

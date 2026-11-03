@@ -408,6 +408,23 @@ test('the view follows the board: after a zoom out the rays reach the new box ed
     onBox(restored);
 });
 
+test('a Preset stored before the diagram overlay existed (no diagram key) still imports and shows the diagram; an explicit false hides it and round trips', () => {
+    const graph = new Observed();
+    mount(graph);
+    const data = serializePointSetModel(VORONOI_EXAMPLE);
+    const oldGraphState = {initialized: true, cellSite: 2, construction: 1, query: {x: '1', y: '1'}, overlays: {delaunay: true}};
+    expect(voronoiCollection.checkGraphState?.(oldGraphState)).toBeUndefined();
+    act(() => { graph.importPreset({id: VORONOI_PRESET_KEY, graphState: oldGraphState, data}); });
+    expect([graph.overlayShown('diagram'), graph.overlayShown('delaunay'), graph.cellSite, graph.construction]).toEqual([true, true, 2, 1]);
+    expect(readout('vertices')).toBeDefined();
+    act(() => { graph.importPreset({id: VORONOI_PRESET_KEY, graphState: {initialized: true}, data}); });
+    expect(graph.overlayShown('diagram')).toBe(true);
+    act(() => { graph.importPreset({id: VORONOI_PRESET_KEY, graphState: {initialized: true, ...{overlays: {diagram: false}}}, data}); });
+    expect(graph.overlayShown('diagram')).toBe(false);
+    expect(document.querySelector('[data-voronoi="readout"]')).toBeNull();
+    expect(graph.exportPreset().graphState).toMatchObject({overlays: {diagram: false}});
+});
+
 test('the Preset round trip keeps points, overlay, site, count and query; stale values are clamped; the collection validates', async () => {
     const graph = new Observed();
     mount(graph);

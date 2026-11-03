@@ -1,0 +1,65 @@
+{
+	"preset-compgeo-voronoi": {
+		"data": [
+			{
+				"id": "smokeold",
+				"boardState": {
+					"boundingBox": [
+						-9.630263157894738,
+						11.947064777327935,
+						17.730263157894736,
+						-4.9470647773279355
+					]
+				},
+				"graphState": {
+					"initialized": true,
+					"overlays": {
+						"diagram": true
+					},
+					"cellSite": null,
+					"construction": 0,
+					"query": {
+						"x": "4",
+						"y": "2"
+					},
+					"mode": "sites"
+				},
+				"data": {
+					"mode": "points",
+					"closed": false,
+					"gridStepExponent": 0,
+					"points": [
+						{
+							"x": 0,
+							"y": 0
+						},
+						{
+							"x": 8,
+							"y": 0
+						},
+						{
+							"x": 9,
+							"y": 6
+						},
+						{
+							"x": 4,
+							"y": 8
+						},
+						{
+							"x": -1,
+							"y": 5
+						},
+						{
+							"x": 3,
+							"y": 3
+						},
+						{
+							"x": 6,
+							"y": 3
+						}
+					]
+				}
+			}
+		]
+	}
+}

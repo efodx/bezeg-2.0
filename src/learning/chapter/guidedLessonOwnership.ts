@@ -96,6 +96,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'point-set-triangulation': {chapterId: 'triangulations-voronoi', sectionId: 'point-set-triangulation'},
     // The chapter's own section for the Delaunay triangulation and Lawson flips (lesson B3).
     'delaunay': {chapterId: 'triangulations-voronoi', sectionId: 'delaunay'},
+    // The chapter's own section for the Voronoi diagram and its duality with the Delaunay triangulation (lesson B4).
+    'voronoi': {chapterId: 'triangulations-voronoi', sectionId: 'voronoi'},
     // Interim owners until a Curve geometry chapter exists: trace versus parameter belongs with parametrization, curvature with the geometric properties of a curve.
     'curve-parametric': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
     'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},

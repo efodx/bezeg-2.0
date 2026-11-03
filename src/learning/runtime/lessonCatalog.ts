@@ -75,8 +75,17 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
     } else if (operation === 'select-triangle') {
         const triangle = (data as Record<string, unknown>).triangle;
         if (triangle !== null && !(typeof triangle === 'number' && Number.isInteger(triangle) && triangle >= 0)) throw new Error('A point-set select-triangle action needs a triangle index (an integer, 0 or more), or null.');
+    } else if (operation === 'select-site') {
+        const site = (data as Record<string, unknown>).site;
+        if (site !== null && !(typeof site === 'number' && Number.isInteger(site) && site >= 0)) throw new Error('A point-set select-site action needs a site index (an integer, 0 or more), or null.');
+    } else if (operation === 'set-construction') {
+        const count = (data as Record<string, unknown>).count;
+        if (count !== 'end' && !(typeof count === 'number' && Number.isInteger(count) && count >= 0)) throw new Error('A point-set set-construction action needs a count (an integer, 0 or more) or "end".');
+    } else if (operation === 'set-query-point') {
+        const point = (data as Record<string, unknown>).point;
+        if (point !== null && !(Array.isArray(point) && point.length === 2 && isFinite(point[0]) && isFinite(point[1]))) throw new Error('A point-set set-query-point action needs an [x, y] pair of finite numbers, or null.');
     } else {
-        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge or select-triangle.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction or set-query-point.');
     }
     return action;
 }

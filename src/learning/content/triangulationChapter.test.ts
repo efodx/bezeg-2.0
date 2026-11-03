@@ -13,15 +13,16 @@ import {TRIANGULATION_CHAPTER_ID, triangulationGuidedExamplePath, triangulationG
 const ID = 'ear-clipping';
 const B2 = 'point-set-triangulation';
 const B3 = 'delaunay';
+const B4 = 'voronoi';
 
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter is registered under computational geometry after the convexity chapter with an opening and three lesson sections', () => {
+    test('the chapter is registered under computational geometry after the convexity chapter with an opening and four lesson sections', () => {
         expect(triangulationChapter.id).toBe(TRIANGULATION_CHAPTER_ID);
         expect(triangulationChapter.title).toEqual({sl: 'Triangulacije in Voronojevi diagrami', en: 'Triangulations and Voronoi diagrams'});
-        expect(triangulationChapter.sections.map(section => section.id)).toEqual(['why-triangulate', ID, B2, B3]);
-        expect(Object.keys(triangulationGuidedExampleRegistry)).toEqual([ID, B2, B3]);
+        expect(triangulationChapter.sections.map(section => section.id)).toEqual(['why-triangulate', ID, B2, B3, B4]);
+        expect(Object.keys(triangulationGuidedExampleRegistry)).toEqual([ID, B2, B3, B4]);
         expect(familyChapters.find(chapter => chapter.id === TRIANGULATION_CHAPTER_ID)?.family).toBe('computational-geometry');
         expect(familyChapters.findIndex(chapter => chapter.id === TRIANGULATION_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'convexity-hulls') + 1);
@@ -29,14 +30,26 @@ describe('chapter structure and registration', () => {
         expect(triangulationChapter.sections[1].demonstrationIds).toEqual([ID]);
         expect(triangulationChapter.sections[2].demonstrationIds).toEqual([B2]);
         expect(triangulationChapter.sections[3].demonstrationIds).toEqual([B3]);
+        expect(triangulationChapter.sections[4].demonstrationIds).toEqual([B4]);
     });
 
     test('unreleased lessons are not advertised', () => {
-        // B4 and B5 (Voronoi) are not released: the chapter prose and the three released lessons stay free of Voronoi vocabulary. B3 ships, so Delaunay vocabulary is allowed everywhere except in the opening and ear clipping sections.
-        const everything = JSON.stringify([{...triangulationChapter, id: undefined, title: undefined}, triangulationGuidedExampleRegistry[ID], triangulationGuidedExampleRegistry[B2], triangulationGuidedExampleRegistry[B3]]).toLowerCase().split(TRIANGULATION_CHAPTER_ID).join('');
+        // B5 (degenerate Voronoi sites) is not released and nothing names it. The scan of Voronoi vocabulary now covers the released prose only up to B3: the opening, ear clipping, B2 and B3 sections (B3's closing forward-link paragraph excepted) and the ear clipping and B2 lessons. The B3 lesson links to B4 and the B4 section is the released Voronoi text.
+        const b3 = triangulationChapter.sections[3];
+        const scanned = [{...triangulationChapter, sections: undefined, id: undefined, title: undefined}, ...triangulationChapter.sections.slice(0, 3), {...b3, paragraphs: b3.paragraphs.slice(0, -1), orderedContent: undefined}, triangulationGuidedExampleRegistry[ID], triangulationGuidedExampleRegistry[B2]];
+        const everything = JSON.stringify(scanned).toLowerCase().split(TRIANGULATION_CHAPTER_ID).join('');
         for (const word of ['voronoi', 'voronoj', 'dual graph', 'dualni graf']) expect(everything).not.toContain(word);
         const early = JSON.stringify([triangulationChapter.sections[0], triangulationChapter.sections[1], triangulationGuidedExampleRegistry[ID]]).toLowerCase();
         for (const word of ['delaunay', 'lawson', 'incircle', 'empty circle', 'prazna krožnica', 'cocircular']) expect(early).not.toContain(word);
+        const all = JSON.stringify([triangulationChapter, triangulationGuidedExampleRegistry[B4]]).toLowerCase();
+        for (const word of ['voronoi-degenerate', 'degenerate sites', 'lesson b5']) expect(all).not.toContain(word);
+    });
+
+    test('the Delaunay section ends with a forward link naming the Voronoi section', () => {
+        const b3 = triangulationChapter.sections[3];
+        const last = b3.paragraphs.at(-1)!;
+        expect(last.sl).toContain(triangulationChapter.sections[4].title.sl);
+        expect(last.en).toContain(triangulationChapter.sections[4].title.en);
     });
 
     test('the opening links to the orientation section and the chapter is bilingual', () => {
@@ -155,6 +168,38 @@ describe('chapter structure and registration', () => {
         expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, B3)).toEqual([B3]);
         expect(guidedLessonReturnPath(getGuidedLessonOwner(B3)!)).toBe(`/bezeg-2.0/learn/${TRIANGULATION_CHAPTER_ID}#${B3}`);
         expect(guidedLessonLaunchPath(B3)).toContain(`learnChapter=${TRIANGULATION_CHAPTER_ID}&learnSection=${B3}`);
+        for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
+            expect(field.sl.length).toBeGreaterThan(5);
+            expect(field.en.length).toBeGreaterThan(5);
+        }
+    });
+
+    test('the Voronoi section states the example numbers, the vertex and the duality caveat in both languages and links its activity at the end', () => {
+        const section = familyChapters.find(chapter => chapter.id === TRIANGULATION_CHAPTER_ID)!.sections[4];
+        expect(section.id).toBe(B4);
+        expect(section.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: `${TRIANGULATION_CHAPTER_ID}.${B4}.${B4}`});
+        expect(section.orderedContent!.some(item => item.kind === 'formula')).toBe(true);
+        for (const language of ['sl', 'en'] as const) {
+            const prose = section.paragraphs.map(p => p[language]).join(' ');
+            for (const fact of ['\\(7\\)', '\\(8\\)', '\\(5\\)', '(4,-1)', 'P_1P_2P_6']) expect(prose, `${language}: ${fact}`).toContain(fact);
+            expect(prose, `${language}: illustrates, does not prove`).toContain(language === 'sl' ? 'dokazuje' : 'does not prove');
+            expect(section.investigationPrompts![B4]![language].length).toBeGreaterThan(20);
+        }
+        expect(getChapterGuidedExamples(TRIANGULATION_CHAPTER_ID, B4).map(link => link.path)).toEqual([triangulationGuidedExamplePath(B4)]);
+        expect(triangulationGuidedExamplePath(B4)).toContain(`?example=lesson.${TRIANGULATION_CHAPTER_ID}.${B4}.${B4}`);
+    });
+
+    test('lesson B4 opens from its own section, owns it, and keeps both languages complete', () => {
+        const launch = '?learn=1&learnChapter=triangulations-voronoi&learnSection=voronoi';
+        const lesson = getLessonForDemonstration(B4)!;
+        expect(resolveGuidedExample(launch, B4)?.lesson).toBe(lesson);
+        expect(lesson).toBe(triangulationGuidedExampleRegistry[B4]);
+        expect(lesson.steps).toHaveLength(7);
+        expect(resolveGuidedExample('?learn=1&learnChapter=triangulations-voronoi&learnSection=delaunay', B4)?.lesson).toBeUndefined();
+        expect(getGuidedLessonOwner(B4)).toEqual({chapterId: TRIANGULATION_CHAPTER_ID, sectionId: B4});
+        expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, B4)).toEqual([B4]);
+        expect(guidedLessonReturnPath(getGuidedLessonOwner(B4)!)).toBe(`/bezeg-2.0/learn/${TRIANGULATION_CHAPTER_ID}#${B4}`);
+        expect(guidedLessonLaunchPath(B4)).toContain(`learnChapter=${TRIANGULATION_CHAPTER_ID}&learnSection=${B4}`);
         for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
             expect(field.sl.length).toBeGreaterThan(5);
             expect(field.en.length).toBeGreaterThan(5);

@@ -1782,6 +1782,20 @@ const delaunay = {
     },
 };
 
+// Voronoi: steps 1..3 hide the diagram readout (no spoiler), steps 4..7 show it with 7 vertices on the seven-point scenes.
+const voronoi = {
+    id: 'voronoi',
+    path: `${BASE}/compgeo/voronoi`,
+    titles: {sl: 'Voronojev diagram in dualnost', en: 'The Voronoi diagram and duality'},
+    steps: 7,
+    minFrames: 15, // 2 frames per step, 3 on step 5 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        const readout = page.locator('[data-voronoi="readout"] [data-readout="vertices"]');
+        if (step <= 3) await expect(readout, `voronoi readout hidden at ${label}`).toHaveCount(0);
+        else await expect(readout.first(), `voronoi vertex readout at ${label}`).toContainText(/\b7\b/);
+    },
+};
+
 // Curve geometry L1/L2: a text of the board (the readout) that must show per lesson step 1..7; the patterns accept the Slovenian comma and the English point.
 const boardText = (page, pattern) => page.locator('.JXGtext').filter({hasText: pattern});
 const PARAMETRIC_READOUTS = [/\(ost\)|\(cusp\)/, /\(1, 1\).*1[.,]4142/s, /9[.,]4248/, /3[.,]1416/, /\([-−]1, [-−]1\)/, /\(ost\)|\(cusp\)/, /8\b.*9[.,]4248/s];
@@ -2108,7 +2122,7 @@ const probabilityClt = {
     },
 };
 
-const LESSONS = [monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [voronoi, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

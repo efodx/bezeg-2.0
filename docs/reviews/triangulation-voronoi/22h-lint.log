@@ -1,0 +1,14 @@
+lint: failed (1) in 19.7s; revision 65fbad83c06c502e1a3bafc52fbf07f443455431; dirty; log .command-logs\2026-11-03T03-24-14-024Z-31556-634830dc.log
+
+Recent output:
+
+C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\docs\reviews\sweep-algorithms\21h-chapter\smoke.cjs
+  7:241  error  Unnecessary escape character: \(  no-useless-escape
+
+C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\tests\guided-lessons.smoke.spec.cjs
+  1795:96  error  Unexpected control character(s) in regular expression: \x08, \x08  no-control-regex
+
+✖ 2 problems (2 errors, 0 warnings)
+
+
+error: recipe `lint` failed on line 18 with exit code 1

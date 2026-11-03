@@ -44,6 +44,8 @@ export interface VoronoiStatus {
     /** The last move of the query point (arrows or drag) was refused beyond the coordinate limit. */
     queryRefused: boolean;
     overlayShown: boolean;
+    /** The Voronoi diagram is drawn; while it is hidden (a lesson step that asks for a prediction) the panel prints no diagram count and no vertex. */
+    diagramShown: boolean;
     triangles: readonly (readonly [number, number, number])[];
     selectedTriangle?: number;
     selectedVertex?: {corners: readonly [number, number, number]; x: string; y: string; sites: readonly number[]};
@@ -215,7 +217,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 </ul>}
                 {four.verdict && <p className="inspector-help" data-fourpoint="verdict">{four.verdict}</p>}
             </div>}
-            {!refusal && <ul aria-label={t("vor_readout_label")} data-voronoi="readout">
+            {!refusal && status.diagramShown && <ul aria-label={t("vor_readout_label")} data-voronoi="readout">
                 <li data-readout="sites">{t("vor_count_sites", {value0: counts.sites})}</li>
                 <li data-readout="vertices">{t("vor_count_vertices", {value0: counts.vertices})}</li>
                 <li data-readout="edges">{t("vor_count_edges", {value0: counts.finite})}</li>
@@ -224,7 +226,7 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                 <li data-readout="bounded">{t("vor_count_bounded", {value0: counts.bounded})}</li>
                 <li data-readout="unbounded">{t("vor_count_unbounded", {value0: counts.unbounded})}</li>
             </ul>}
-            {!refusal && status.vertices.length > 0 && <ul aria-label={t("vor_vertices_label")} data-voronoi="vertices">
+            {!refusal && status.diagramShown && status.vertices.length > 0 && <ul aria-label={t("vor_vertices_label")} data-voronoi="vertices">
                 {status.vertices.map((vertex, index) => (
                     <li key={index} data-vertex={index}>{t("vor_vertex_item", {value0: index + 1, value1: vertex.x, value2: vertex.y, value3: siteList(vertex.sites)})}</li>
                 ))}

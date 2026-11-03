@@ -243,6 +243,12 @@ export type LessonAction =
     | {readonly kind: 'point-set'; readonly operation: 'select-edge'; readonly edge: readonly [number, number] | null}
     /** DelaunayGraph only (any other point-set graph throws `UnsupportedLessonActionError`): selects the triangle at `triangle`, an index into the triangulation shown at the current trace step (the board click or panel list entry); `null` clears the selection. A non-integer or out-of-range index is a lesson-content error. Any later change of the trace step clears the selection. */
     | {readonly kind: 'point-set'; readonly operation: 'select-triangle'; readonly triangle: number | null}
+    /** VoronoiGraph only (any other point-set graph, including DelaunayGraph, throws `UnsupportedLessonActionError`; `select-triangle` there picks a triangle of its Delaunay overlay, which must be shown): chooses the site whose cell is constructed (the site button); `null` clears. An index outside the sites is a lesson-content error. */
+    | {readonly kind: 'point-set'; readonly operation: 'select-site'; readonly site: number | null}
+    /** VoronoiGraph only: sets how many bisectors of the chosen site are shown, `'end'` being all of them (the Next/Back/Reset buttons). No chosen site, or a count outside 0 to sites - 1, is a lesson-content error. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-construction'; readonly count: number | 'end'}
+    /** VoronoiGraph only: places the query point at `[x, y]`, each a multiple of 1/4 within the coordinate limit (the grid a drag snaps to); `null` returns it to its default. Anything else is a lesson-content error and never snapped. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-query-point'; readonly point: readonly [number, number] | null}
     /**
      * Projective graphs' scene actions; the union stays open for the other projective graphs. CrossRatioGraph (K1): `load-example`
      * is the example button; `move-handle` is a drag to the grid point (`handle` 0-3 are A-D on the line y = 0 and take only `x`,

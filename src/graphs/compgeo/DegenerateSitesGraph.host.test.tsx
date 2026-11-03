@@ -319,6 +319,17 @@ describe('Presets', () => {
         expect(graph.model.points).toEqual(DEGENERATE_EXAMPLES.collinear.points);
     });
 
+    test('degenerate-sites Presets without a diagram key still import and show the diagram', () => {
+        const graph = new Observed();
+        mount(graph);
+        const data = degenerateExampleModel('square');
+        const oldGraphState = {initialized: true, mode: 'four-point', overlays: {delaunay: true}};
+        expect(degenerateCollection.checkGraphState?.(oldGraphState)).toBeUndefined();
+        act(() => { graph.importPreset({id: DEGENERATE_PRESET_KEY, graphState: oldGraphState, data}); });
+        expect([graph.mode, graph.overlayShown('diagram'), graph.overlayShown('delaunay')]).toEqual(['four-point', true, true]);
+        expect(graph.exportPreset().id).toBe(DEGENERATE_PRESET_KEY);
+    });
+
     test('Presets saved by the Voronoi graph before modes existed still load', () => {
         const stored = (fields: object) => ({initialized: true, ...fields});
         const graph = new ObservedVoronoi();

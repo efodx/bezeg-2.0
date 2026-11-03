@@ -1,0 +1,214 @@
+Waiting for unit (pid 31304) to finish starting before reading free memory.
+Waiting for unit (pid 3500) to finish starting before reading free memory.
+Memory available for unit after 15s.
+unit: failed (1) in 693.1s (2 workers, no slot); revision 773999498392bf567c70d000667d9897be143ae2; dirty; log .command-logs\2026-11-03T02-28-16-999Z-16156-575ba1a6.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo src/learning src/compgeo --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ab6e252dd83a77fd9
+
+ ❯ src/learning/LearningPage.test.tsx (49 tests | 1 failed) 5377ms
+   × the Learn count line is derived from content with Slovenian chapter plurals 78ms
+ ❯ src/learning/content/lessonMathNotation.test.ts (3 tests | 2 failed) 216ms
+   × scans every lesson module 7ms
+   × lesson sources double the backslash of every MathJax delimiter 21ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/chapter/authoredChapterCoverage.test.ts (1 test | 1 failed) 27ms
+   × both published languages place every audited home exactly once in its owning section 26ms
+ ❯ src/learning/content/sceneContentAgainstGraphs.test.tsx (110 tests | 1 failed) 85323ms
+   ❯ Guided example scenes are accepted by their Demonstration graph (92)
+     × voronoi 459ms
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts (2 tests | 1 failed) 10ms
+   × every available demonstration has exactly one default smoke row and patch sections add only their explicit extras 8ms
+stderr | src/learning/runtime/lessonRestoration.part3.test.tsx > voronoi > closing the lesson restores the edited graph and its resources, twice; it stays interactive; finishing keeps the final scene
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/learning/runtime/lessonRestoration.part3.test.tsx (46 tests | 2 failed) 136785ms
+   ❯ voronoi (2)
+     × closing the lesson restores the edited graph and its resources, twice; it stays interactive; finishing keeps the final scene 456ms
+     × closing the lesson after its graph is disposed leaves the graph alone 169ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/LearningPage.test.tsx > the Learn count line is derived from content with Slovenian chapter plurals
+Error: [2mexpect([22m[31melement[39m[2m).toHaveTextContent()[22m
+
+Expected element to have text content:
+[32m  22 poglavij · 101 razdelkov · 104 vodeni primeri[39m
+Received:
+[31m  22 poglavij · 101 razdelek · 104 vodeni primeri[39m
+ ❯ src/learning/LearningPage.test.tsx:75:57
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/learning/chapter/authoredChapterCoverage.test.ts > both published languages place every audited home exactly once in its owning section
+AssertionError: expected [ …(104) ] to have a length of 103 but got 104
+
+- Expected
++ Received
+
+- 103
++ 104
+
+ ❯ src/learning/chapter/authoredChapterCoverage.test.ts:56:31
+     54|             }
+     55|         }
+     56|         expect(allReferences).toHaveLength(103);
+       |                               ^
+     57|         expect(new Set(allReferences).size).toBe(103);
+     58|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/learning/runtime/lessonRestoration.part3.test.tsx > voronoi > closing the lesson restores the edited graph and its resources, twice; it stays interactive; finishing keeps the final scene
+ FAIL  src/learning/runtime/lessonRestoration.part3.test.tsx > voronoi > closing the lesson after its graph is disposed leaves the graph alone
+UnsupportedLessonActionError: This demonstration does not support lesson action “point-set”.
+ ❯ VoronoiGraph.applyPointSetAction src/graphs/compgeo/PointSetGraph.tsx:316:31
+    314|             if (typeof payload.visible !== "boolean") throw new Error(…
+    315|             const owned = (POINT_SET_OVERLAY_NAMES as readonly unknown…
+    316|             if (!owned) throw new UnsupportedLessonActionError(action);
+       |                               ^
+    317|             this.setOverlay(id as Overlay | PointSetBaseOverlayId, act…
+    318|             return;
+ ❯ VoronoiGraph.applyPointSetAction src/graphs/compgeo/VoronoiGraph.tsx:392:15
+ ❯ src/graphs/compgeo/PointSetGraph.tsx:325:49
+ ❯ LessonActionRegistry.apply src/graphs/base/lesson/LessonActionRegistry.ts:77:9
+ ❯ VoronoiGraph.applyLessonAction src/graphs/base/BaseGraph.tsx:531:32
+ ❯ Object.apply src/graphs/base/BaseGraph.tsx:143:31
+ ❯ src/learning/runtime/LessonSession.ts:208:57
+ ❯ LessonSession.applyActions src/learning/runtime/LessonSession.ts:208:21
+ ❯ LessonSession.start src/learning/runtime/LessonSession.ts:63:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/learning/runtime/lessonSmokeCoverage.test.ts > every available demonstration has exactly one default smoke row and patch sections add only their explicit extras
+AssertionError: expected [ 'accumulation', 'affine', …(89) ] to deeply equal [ 'accumulation', 'affine', …(90) ]
+
+- Expected
++ Received
+
+@@ -87,8 +87,7 @@
+    "taylor",
+    "triangle-centres",
+    "trigonometric-functions",
+    "uniform-convergence",
+    "uniform-parameterization",
+-   "voronoi",
+    "weighted-parameterization",
+  ]
+
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts:20:34
+     18|     expect(new Set(rowIds).size).toBe(rowIds.length);
+     19|     const defaults = rowIds.filter(id => !sectionRows.includes(id));
+     20|     expect([...defaults].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_I…
+       |                                  ^
+     21|     expect([...patchRowIds].filter(id => sectionRows.includes(id)).sor…
+     22| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > scans every lesson module
+AssertionError: expected [ 'accumulation', 'affine', …(87) ] to deeply equal [ 'accumulation', 'affine', …(86) ]
+
+- Expected
++ Received
+
+@@ -84,7 +84,8 @@
+    "subdivision",
+    "taylor",
+    "trigonometric-functions",
+    "uniform-convergence",
+    "uniform-parameterization",
++   "voronoi",
+    "weighted-parameterization",
+  ]
+
+ ❯ src/learning/content/lessonMathNotation.test.ts:175:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > lesson sources double the backslash of every MathJax delimiter
+AssertionError: expected [ 'guidedExamplePreviewCopy.ts:76' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "guidedExamplePreviewCopy.ts:76",
++ ]
+
+ ❯ src/learning/content/lessonMathNotation.test.ts:192:19
+    190|         .flatMap(name => readFileSync(join(directory, name), 'utf-8').…
+    191|             .flatMap((line, index) => /(?<!\\)\\[()[\]]/.test(line) ? …
+    192|     expect(found).toEqual([]);
+       |                   ^
+    193| });
+    194|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/learning/content/sceneContentAgainstGraphs.test.tsx > Guided example scenes are accepted by their Demonstration graph > voronoi
+AssertionError: expected [ …(8) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "voronoi vor-sites: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":false} -> This demonstration does not support lesson action “point-set”.",
++   "voronoi vor-predict: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":false} -> This demonstration does not support lesson action “point-set”.",
++   "voronoi vor-cell: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":false} -> This demonstration does not support lesson action “point-set”.",
++   "voronoi vor-diagram: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":false} -> This demonstration does not support lesson action “point-set”.",
++   "voronoi vor-dual: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":true} -> This demonstration does not support lesson action “point-set”.",
++   "voronoi vor-dual: {\"kind\":\"point-set\",\"operation\":\"select-triangle\",\"triangle\":2} -> point-set select-triangle: show the delaunay overlay first (set-overlay).",
++   "voronoi vor-drag: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":true} -> This demonstration does not support lesson action “point-set”.",
++   "voronoi vor-explore: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":true} -> This demonstration does not support lesson action “point-set”.",
++ ]
+
+ ❯ src/learning/content/sceneContentAgainstGraphs.test.tsx:60:44
+     58|         const scenes = lesson.steps.filter(step => step.scene).map(ste…
+     59|         expect(scenes.length).toBeGreaterThan(0);
+     60|         expect(rejections(id, id, scenes)).toEqual([]);
+       |                                            ^
+     61|     });
+     62| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+
+ Test Files  6 failed | 174 passed | 2 skipped (182)
+      Tests  8 failed | 2865 passed | 3 skipped (2876)
+   Start at  03:28:17
+   Duration  692.31s (tests 66%, environment 16%, import 9%, setup 7%, transform 1%)
+
+    Isolate  182 workers spawned · ~1.33s startup each (spawn + environment, per file)
+             at least ~119.67s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1
