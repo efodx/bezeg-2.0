@@ -14,6 +14,77 @@ const cases = [
     {name: 'S3 zero drag, degree-five', route: P, kind: 'drag', example: 'degree-five'},
     {name: 'S3 zero drag, degree-five, 1920 px', route: P, kind: 'drag', example: 'degree-five', width: 1920, height: 1080},
 ];
+// School function graphs 07 F2b: the geometric-series playback at n = 50 (S5), the conic epsilon sweep (S6) and screenshots.
+// PERF_SET=07 runs only these; PERF_SHOT_DIR (default ./function-perf-shots) receives the screenshots.
+const G = 'functions/geometric-series', C = 'functions/conics';
+const shotDir = process.env.PERF_SHOT_DIR || 'function-perf-shots';
+const cases07 = [
+    {name: 'S5 playback n=50 (a=5, q=1), 1280x720', route: G, kind: 'series', width: 1280, height: 720},
+    {name: 'S6 epsilon sweep, hyperbola', route: C, kind: 'epsilon', example: 'hyperbola'},
+    {name: 'S6 epsilon sweep, ellipse', route: C, kind: 'epsilon', example: 'ellipse'},
+];
+const shots07 = [
+    {file: 's5-1280x720-a5-q1-n50-v2.png', route: G, width: 1280, height: 720, series: true},
+    {file: 's5-390-a5-q1-n50-v2.png', route: G, width: 390, height: 844, series: true},
+    {file: 's6-hyperbola-v2.png', route: C, width: 1280, height: 720, example: 'hyperbola'},
+    {file: 's6-bridge-v2.png', route: C, width: 1280, height: 720, example: 'bridge'},
+];
+const setRange = (page, label, value) => page.getByLabel(label).first().evaluate((el, v) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, String(v));
+    el.dispatchEvent(new Event('input', {bubbles: true})); el.dispatchEvent(new Event('change', {bubbles: true}));
+}, value);
+const setSeries = async page => {
+    await setRange(page, /Prvi člen a/, 5); await page.waitForTimeout(200);
+    await setRange(page, /Količnik q/, 1); await page.waitForTimeout(200);
+    const n = page.getByLabel(/Prikazani členi n/).first(); await n.fill('50'); await n.blur(); await page.waitForTimeout(300);
+};
+async function open07(page, c) {
+    await page.goto(`${baseUrl}/${c.route}`, {waitUntil: 'load'});
+    await page.waitForFunction(() => window.JXG && Object.values(window.JXG.boards).length > 0, null, {timeout: 20000});
+    await page.waitForTimeout(1500);
+    if (c.example) await page.getByRole('combobox', {name: /Primer stožnice/}).first().selectOption(c.example);
+    if (c.series) await setSeries(page);
+    await page.waitForTimeout(500);
+}
+async function runOnce07(browser, c) {
+    const context = await browser.newContext({viewport: {width: c.width || 1440, height: c.height || 900}, deviceScaleFactor: 1});
+    try {
+        const page = await context.newPage();
+        const errors = [];
+        page.on('pageerror', e => errors.push(String(e)));
+        await open07(page, c);
+        let t0, t1;
+        if (c.kind === 'series') {
+            await setSeries(page);
+            await page.locator('[data-action="reset"]').click(); await page.waitForTimeout(300);
+            await startSampling(page);
+            t0 = await page.evaluate(() => performance.now());
+            await page.locator('[data-action="play-pause"]').click();
+            await page.waitForFunction(() => /Predvajaj/.test(document.querySelector('[data-action="play-pause"]').textContent), null, {timeout: 60000});
+            t1 = await page.evaluate(() => performance.now());
+        } else {
+            const eps = page.getByLabel(/Numerična izsrednost/).first();
+            const lo = Number(await eps.getAttribute('min')), hi = Number(await eps.getAttribute('max'));
+            await startSampling(page);
+            t0 = await page.evaluate(() => performance.now());
+            for (let k = 0; k <= 100; k++) { await setRange(page, /Numerična izsrednost/, lo + (hi - lo) * (k <= 50 ? k / 50 : (100 - k) / 50)); await page.waitForTimeout(20); }
+            t1 = await page.evaluate(() => performance.now());
+        }
+        const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
+        const samples = intervals(stamps, t0, t1).slice(WARMUP > 0 && c.kind === 'epsilon' ? WARMUP : 0);
+        if (errors.length) throw new Error(`page errors: ${errors.join('; ')}`);
+        const sorted = [...samples].sort((a, b) => a - b);
+        return {samples: samples.length, median: median(samples), p95: pct(sorted, 0.95), max: sorted[sorted.length - 1], dropped: samples.filter(x => x > 25).length, wall: t1 - t0};
+    } finally { await context.close(); }
+}
+async function shoot07(browser) {
+    require('fs').mkdirSync(shotDir, {recursive: true});
+    for (const c of shots07) {
+        const context = await browser.newContext({viewport: {width: c.width, height: c.height}, deviceScaleFactor: 1});
+        try { const page = await context.newPage(); await open07(page, c); await page.evaluate(() => Object.values(window.JXG.boards)[0].containerObj.scrollIntoView({block: 'start'})); await page.evaluate(() => window.scrollBy(0, -120)); await page.waitForTimeout(300); await page.screenshot({path: `${shotDir}/${c.file}`}); console.log(`screenshot ${shotDir}/${c.file}`); }
+        finally { await context.close(); }
+    }
+}
 const pct = (s, q) => s[Math.min(s.length - 1, Math.floor(q * s.length))];
 const median = xs => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const readBoard = () => {
@@ -81,6 +152,17 @@ async function runOnce(browser, c) {
 
 (async () => {
     const browser = await chromium.launch();
+    if (process.env.PERF_SET === '07') {
+        try {
+            for (const c of cases07) {
+                const rs = [];
+                for (let r = 0; r < runs; r++) rs.push(await runOnce07(browser, c).catch(err => { throw new Error(`${c.name} run ${r + 1}: ${err.message}`, {cause: err}); }));
+                console.log(`${c.name} | median ${median(rs.map(x => x.median)).toFixed(1)} | p95 ${median(rs.map(x => x.p95)).toFixed(1)} | max ${Math.max(...rs.map(x => x.max)).toFixed(1)} | >25 ms ${rs.map(x => x.dropped).join('/')} | samples ${rs.map(x => x.samples).join('/')} | wall ms ${rs.map(x => Math.round(x.wall)).join('/')}`);
+            }
+            await shoot07(browser);
+        } finally { await browser.close(); }
+        return;
+    }
     const summary = [];
     try {
         for (const c of cases) {

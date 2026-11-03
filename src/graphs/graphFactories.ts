@@ -58,6 +58,8 @@ import { FunctionTransformationGraph } from './functions/FunctionTransformationG
 import { FunctionInverseGraph } from './functions/FunctionInverseGraph';
 import { PolynomialZerosGraph } from './functions/PolynomialZerosGraph';
 import { RationalFunctionGraph } from './functions/RationalFunctionGraph';
+import { GeometricSeriesGraph } from './functions/GeometricSeriesGraph';
+import { ConicFocalGraph } from './functions/ConicFocalGraph';
 import { FourierSeriesGraph } from './functions/FourierSeriesGraph';
 import { FourierCoefficientsGraph } from './functions/FourierCoefficientsGraph';
 import { MeanValueGraph } from './functions/MeanValueGraph';
@@ -161,6 +163,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'function-inverse': () => new FunctionInverseGraph(),
     'polynomial-zeros': () => new PolynomialZerosGraph(),
     'rational-function': () => new RationalFunctionGraph(),
+    'geometric-series': () => new GeometricSeriesGraph(),
+    'conic-focal': () => new ConicFocalGraph(),
     'continuity': () => new ContinuityGraph(),
     'derivative': () => new DerivativeGraph(),
     'definite-integral': () => new DefiniteIntegralGraph(),

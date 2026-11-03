@@ -63,7 +63,7 @@ import {checkZeroList} from "../../analysis/zeroListModel";
 import {rationalFunctionFileMessage} from "./rationalFunctionMessages";
 import {checkGeometricSeriesModel, parseGeometricSeriesModel} from "../../analysis/geometricSeriesModel";
 import {geometricSeriesFileMessage} from "./geometricSeriesMessages";
-import {checkConicFocalModel, parseConicFocalModel} from "../../analysis/conicFocalModel";
+import {checkConicFocalModel, parseConicFocalModel, type ConicFocalModel} from "../../analysis/conicFocalModel";
 import {conicFocalFileMessage} from "./conicFocalMessages";
 import {polynomialZerosFileMessage} from "./polynomialZerosMessages";
 import {zeroListFileMessage} from "./zeroListMessages";
@@ -353,6 +353,24 @@ function functionCollection<M>(key: string, parse: (data: unknown) => M | undefi
 }
 
 /**
+ * The conic collection: the stored scene state mirrors the model, whose `weight` is null while the matched weight is used. The
+ * general scene check accepts only numbers, booleans and strings, so a null weight is allowed here and the rest is checked as
+ * usual; the Preset data stays authoritative.
+ */
+function conicFocalCollection(): PresetCollection<ConicFocalModel> {
+    const base = functionCollection("conic-focal", parseConicFocalModel, undefined, diagnoseConicFocal);
+    return Object.freeze({
+        ...base,
+        checkGraphState(graphState: unknown): Message | undefined {
+            if (!isRecord(graphState)) return message("invalid_state");
+            const {weight, ...rest} = graphState;
+            if (weight !== undefined && weight !== null && typeof weight !== "number") return message("invalid_value", {value0: "weight"});
+            return checkSceneState(rest);
+        },
+    });
+}
+
+/**
  * The Euler collection: the stored scene state mirrors the model, whose `revealed` is null while all steps show. The general scene
  * check accepts only numbers, booleans and strings, so null is allowed here and the rest is checked as usual; the Preset data
  * stays authoritative (`figurePresetGraphState`).
@@ -408,5 +426,5 @@ export const functionPresetCollections = {
     "rational-function": rationalFunctionCollection(),
     "function-inverse": functionCollection("function-inverse", parseFunctionInverseModel, diagnoseFunctionInverse),
     "geometric-series": functionCollection("geometric-series", parseGeometricSeriesModel, undefined, diagnoseGeometricSeries),
-    "conic-focal": functionCollection("conic-focal", parseConicFocalModel, undefined, diagnoseConicFocal),
+    "conic-focal": conicFocalCollection(),
 } as const;

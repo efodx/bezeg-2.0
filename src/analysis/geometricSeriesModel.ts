@@ -178,6 +178,9 @@ export function seriesView(model: GeometricSeriesModel): SeriesView {
  * A divergent series is fitted to its first terms only, so its quick growth does not flatten the picture; later bars run off the board.
  * A tolerance band (tolerance > 0, only drawn for |q| < 1) adds limit ± tolerance, so its edges stay on the board.
  */
+/** The share of the data span left empty above the highest bar or marker: the opaque top-right caption (five lines) sits there. */
+export const SERIES_TOP_HEADROOM = 0.8;
+
 export function seriesYRange(a: number, q: number, tolerance = 0): {bottom: number; top: number} {
     const count = Math.abs(q) <= 1 ? SERIES_TERMS_MAX : 8;
     let low = 0;
@@ -199,5 +202,5 @@ export function seriesYRange(a: number, q: number, tolerance = 0): {bottom: numb
         include(geometricPartialSum(a, q, k));
     }
     const span = high - low || 1;
-    return {bottom: low - 0.12 * span, top: high + 0.45 * span};
+    return {bottom: low - 0.12 * span, top: high + SERIES_TOP_HEADROOM * span};
 }

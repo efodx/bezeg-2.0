@@ -1,11 +1,11 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {ConicFocalGraph} from './ConicFocalGraph';
+import {CONIC_VIEW_BOX, ConicFocalGraph} from './ConicFocalGraph';
 import {GraphHost} from '../base/GraphHost';
 import {renderMessage, setLanguage} from '../../localization';
 import {functionPresetCollections} from './functionPresetCollections';
-import {CONIC_EXAMPLE_MODELS} from '../../analysis/conicFocalModel';
+import {CONIC_EXAMPLE_MODELS, conicFocalView} from '../../analysis/conicFocalModel';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -127,6 +127,15 @@ test('the epsilon slider steps land on exactly 1 and exactly 0, with the kind an
     expect(() => graph.editEpsilon(2.6)).toThrow();
     expect(() => graph.editEpsilon(-0.1)).toThrow();
     expect(graph.modelNow().epsilon).toBe(0);
+});
+
+test('the default view leaves at least 30 percent of its height above P, the second focus and the bridge arc for the caption', () => {
+    const [, top, , bottom] = CONIC_VIEW_BOX;
+    for (const model of Object.values(CONIC_EXAMPLE_MODELS)) {
+        const view = conicFocalView(model);
+        const ys = [view.p.y, view.secondFocus?.y ?? 0, ...(view.bridge?.points.map(point => point.y) ?? [])];
+        expect((top - Math.max(...ys)) / (top - bottom)).toBeGreaterThanOrEqual(0.3);
+    }
 });
 
 test('the circle example has no directrix, no sum and no second focus readout', () => {

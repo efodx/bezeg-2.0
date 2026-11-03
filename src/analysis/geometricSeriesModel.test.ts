@@ -141,6 +141,15 @@ describe('geometric series model', () => {
         expect(seriesYRange(1, -0.5).bottom).toBeLessThan(0);
     });
 
+    it('leaves at least 40 percent of the board empty above the data for the caption, also for negative and small series', () => {
+        for (const [a, q, tol] of [[5, 1, 0], [5, 0.5, 0.5], [1, -0.5, 0], [0.1, 0.1, 0], [5, -1, 0], [1, 2, 0], [0.1, -2, 0]] as const) {
+            const {bottom, top} = seriesYRange(a, q, tol);
+            let high = 0;
+            for (let k = 1; k <= (Math.abs(q) <= 1 ? 50 : 8); k++) high = Math.max(high, a * q ** (k - 1), a * (q === 1 ? k : (1 - q ** k) / (1 - q)));
+            expect((top - high) / (top - bottom)).toBeGreaterThanOrEqual(0.4);
+        }
+    });
+
     it('the y range holds limit +- tolerance when a band is shown', () => {
         const without = seriesYRange(1, 0.5);
         const wide = seriesYRange(1, 0.5, 1);

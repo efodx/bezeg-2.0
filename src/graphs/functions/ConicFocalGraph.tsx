@@ -18,7 +18,8 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
 /** The picture holds the focus, both foci of the examples and the conic around them; the units are equal on both axes. */
-const VIEW_BOX: BoundingBox = [-14, 10, 14, -10];
+/** The top 10 units stay free for the opaque top-right caption, so P, the foci and the directrix of the examples lie below it. */
+export const CONIC_VIEW_BOX: BoundingBox = [-14, 20, 14, -10];
 const DIRECTRIX_DASH = 3;
 const BRIDGE_DASH = 4;
 
@@ -63,7 +64,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
     }
 
     protected defaultBoundingBox(): BoundingBox {
-        return [...VIEW_BOX];
+        return [...CONIC_VIEW_BOX];
     }
 
     // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------

@@ -88,6 +88,8 @@ const definitions = [
     {id: 'function-inverse', path: '/bezeg-2.0/functions/inverse', family: '/bezeg-2.0/functions', title: 'function_inverse_title', prompts: ['prompt_function_inverse', 'prompt_compare']},
     {id: 'polynomial-zeros', path: '/bezeg-2.0/functions/polynomial-zeros', family: '/bezeg-2.0/functions', title: 'polynomial_zeros_title', prompts: ['prompt_polynomial_zeros', 'prompt_compare']},
     {id: 'rational-function', path: '/bezeg-2.0/functions/rational-functions', family: '/bezeg-2.0/functions', title: 'rational_function_title', prompts: ['prompt_rational_function', 'prompt_compare']},
+    {id: 'geometric-series', path: '/bezeg-2.0/functions/geometric-series', family: '/bezeg-2.0/functions', title: 'geometric_series_title', prompts: ['prompt_geometric_series', 'prompt_compare'], lesson: false},
+    {id: 'conic-focal', path: '/bezeg-2.0/functions/conics', family: '/bezeg-2.0/functions', title: 'conic_focal_title', prompts: ['prompt_conic_focal', 'prompt_compare'], lesson: false},
     {id: 'continuity', path: '/bezeg-2.0/functions/continuity', family: '/bezeg-2.0/functions', title: 'continuity', prompts: ['prompt_continuity', 'prompt_compare']},
     {id: 'derivative', path: '/bezeg-2.0/functions/derivative', family: '/bezeg-2.0/functions', title: 'derivative', prompts: ['prompt_derivative', 'prompt_compare']},
     {id: 'definite-integral', path: '/bezeg-2.0/functions/integral', family: '/bezeg-2.0/functions', title: 'definite_integral', prompts: ['prompt_definite_integral', 'prompt_compare']},
