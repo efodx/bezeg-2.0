@@ -39,3 +39,20 @@ Accepted 2026-11-03 by geometry handler 46. Source: [task 25](../../tasks/sweep-
 ## Review
 
 The graph change is 22 lines and follows the shared trace-command pattern (`traceLessonActions`). The lesson and the host test were reviewed by handler 45. No optional `bezeg-reviewer` was run.
+
+## Rebase onto `55ced5ec`
+
+Master had gained the curves L3 lesson on `bspline-insertion`. The conflicts were resolved as unions:
+
+- `lessonMathNotation.test.ts` lists both ids.
+- The no-lesson list in `lessonCatalog.test.ts` is now `['bspline-extraction', 'euler-method']`.
+- The smoke `LESSONS` list starts with `fortune, bsplineInsertion`.
+
+The auto-merge had silently collapsed both sides' increments in `guidedExamplePreviewCopy.test.ts`. They were recounted to 101 available lessons and 108 preview copies.
+
+Afterwards, at `aea4eeba`:
+
+- tsc was clean ([25-rebase-tsc.log](25-rebase-tsc.log));
+- the focused unit run passed, 112 files and 1840 tests ([25-rebase-unit.log](25-rebase-unit.log));
+- the build passed ([25-rebase-build.log](25-rebase-build.log));
+- `just smoke-lesson fortune bspline-insertion` passed ([25-rebase-smoke.log](25-rebase-smoke.log)).
