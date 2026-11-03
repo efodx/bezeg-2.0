@@ -55,7 +55,7 @@ const chapterFamilies = {
     'linear-maps': {label: 'linear-maps', idPrefix: 'linear-maps.', route: /^\/bezeg-2\.0\/linear-map(?:\/|$)/, routeText: '/bezeg-2.0/linear-map'},
     'complex-maps': {label: 'complex-maps', idPrefix: 'complex-maps.', route: /^\/bezeg-2\.0\/complex-(?:reciprocal|roots)(?:\/|$)/, routeText: '/bezeg-2.0/complex-reciprocal or /bezeg-2.0/complex-roots'},
     'numerical-methods': {label: 'numerical-methods', idPrefix: 'numerical-methods.', route: /^\/bezeg-2\.0\/analysis\/(?:root-finding|quadrature)(?:\/|$)/, routeText: '/bezeg-2.0/analysis/root-finding or /bezeg-2.0/analysis/quadrature'},
-    'school-function-graphs': {label: 'school-function-graphs', idPrefix: 'school-function-graphs.', route: /^\/bezeg-2\.0\/functions\/(?:transformations|inverse|polynomial-zeros)(?:\/|$)/, routeText: '/bezeg-2.0/functions/transformations, /inverse or /polynomial-zeros'},
+    'school-function-graphs': {label: 'school-function-graphs', idPrefix: 'school-function-graphs.', route: /^\/bezeg-2\.0\/functions\/(?:transformations|inverse|polynomial-zeros|rational-functions)(?:\/|$)/, routeText: '/bezeg-2.0/functions/transformations, /inverse, /polynomial-zeros or /rational-functions'},
     'fourier-series': {label: 'fourier-series', idPrefix: 'fourier-series.', route: /^\/bezeg-2\.0\/analysis\/fourier-series(?:\/|$)/, routeText: '/bezeg-2.0/analysis/fourier-series'},
     'projective-conics': {label: 'projective-conics', idPrefix: 'projective-conics.', route: /^\/bezeg-2\.0\/projective\/(?:cross-ratio|pascal|pole-polar|five-point|three-views)(?:\/|$)/, routeText: '/bezeg-2.0/projective/cross-ratio, /pascal, /pole-polar, /five-point or /three-views'},
 };

@@ -20,12 +20,12 @@ describe('guided example preview copy', () => {
         const activityIds = activities.map(activity => activity.id);
         const missingActivityCopy = activityIds.filter(id => !Object.hasOwn(guidedActivityPreviewCopyById, id));
 
-        expect(GUIDED_LESSON_AVAILABLE_IDS).toHaveLength(94);
+        expect(GUIDED_LESSON_AVAILABLE_IDS).toHaveLength(95);
         expect(lessonIds).toHaveLength(GUIDED_LESSON_AVAILABLE_IDS.length);
         expect(missingLessonCopy).toEqual([]);
         expect(Object.keys(guidedActivityPreviewCopyById)).toHaveLength(6);
         expect(missingActivityCopy).toEqual([]);
-        expect(allCopy).toHaveLength(101);
+        expect(allCopy).toHaveLength(102);
 
         for (const item of allCopy) {
             for (const language of ['sl', 'en'] as const) {
