@@ -15,22 +15,22 @@ const proseOf = (language: 'sl' | 'en') => numericalChapter.sections[1].paragrap
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter is registered last in the Analysis family with an opening and two lesson sections', () => {
+    test('the chapter is registered last in the Analysis family with an opening and three lesson sections', () => {
         expect(numericalChapter.id).toBe(NUMERICAL_CHAPTER_ID);
         expect(NUMERICAL_CHAPTER_ID).toBe('numerical-methods');
         expect(numericalChapter.title).toEqual({sl: 'Numerične metode na grafu', en: 'Numerical methods on the graph'});
         expect(numericalChapter.family).toBe('analysis');
-        expect(numericalChapter.sections.map(section => section.id)).toEqual(['numerical-idea', ID, 'quadrature']);
-        expect(Object.keys(numericalGuidedExampleRegistry)).toEqual([ID, 'quadrature']);
+        expect(numericalChapter.sections.map(section => section.id)).toEqual(['numerical-idea', ID, 'quadrature', 'euler-method']);
+        expect(Object.keys(numericalGuidedExampleRegistry)).toEqual([ID, 'quadrature', 'euler-method']);
         expect(familyChapters.findIndex(chapter => chapter.id === NUMERICAL_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'analysis') + 1);
         expect(learningChapters.some(chapter => chapter.id === NUMERICAL_CHAPTER_ID)).toBe(true);
         expect(numericalChapter.sections[1].demonstrationIds).toEqual([ID]);
     });
 
-    test('Euler and the later lessons are not advertised', () => {
+    test('the later lessons are not advertised', () => {
         const everything = JSON.stringify([{...numericalChapter, title: undefined}, ...Object.values(numericalGuidedExampleRegistry)]).toLowerCase();
-        for (const word of ['euler', 'eulerjev', 'polje smeri', 'direction field', 'diferencialn']) expect(everything).not.toContain(word);
+        for (const word of ['runge', 'kutta', 'stiff']) expect(everything).not.toContain(word);
     });
 
     test('there are no figures, the text is bilingual and the example link closes the lesson section', () => {
@@ -195,5 +195,63 @@ describe('the quadrature section (N4)', () => {
         for (const quoted of ['0{,}4292', '0{,}1039', '0{,}0258', '4{,}13', '4{,}03', '0{,}0944', '0{,}00456', '0{,}000269', '20{,}7', '16{,}9', '1{,}66\\cdot10^{-5}', '16{,}2', '0{,}00643', '1{,}125']) expect(sl, quoted).toContain(quoted);
         const en = prose('en');
         for (const quoted of ['0.4292', '0.1039', '0.0258', '4.13', '4.03', '0.0944', '0.00456', '0.000269', '20.7', '16.9', '1.66\\cdot10^{-5}', '16.2', '0.00643', '1.125']) expect(en, quoted).toContain(quoted);
+    });
+});
+
+describe('the Euler section (N5)', () => {
+    const EULER = 'euler-method';
+    const section = numericalChapter.sections[3];
+    const prose = (language: 'sl' | 'en') => section.paragraphs.map(p => p[language]).join(' ') + section.formula;
+
+    test('it follows quadrature, owns the Euler lesson and closes with its example link', () => {
+        expect(section.id).toBe(EULER);
+        expect(section.demonstrationIds).toEqual([EULER]);
+        expect(section.investigationPrompts?.[EULER]?.sl.length).toBeGreaterThan(20);
+        expect(section.investigationPrompts?.[EULER]?.en.length).toBeGreaterThan(20);
+        const registered = familyChapters.find(chapter => chapter.id === NUMERICAL_CHAPTER_ID)!.sections[3];
+        expect(registered.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: `${NUMERICAL_CHAPTER_ID}.${EULER}.${EULER}`});
+        expect(getGuidedLessonOwners(EULER)).toEqual([{chapterId: NUMERICAL_CHAPTER_ID, sectionId: EULER}]);
+        expect(getGuidedLessonOwner(EULER)).toEqual({chapterId: NUMERICAL_CHAPTER_ID, sectionId: EULER});
+        expect(authoredGuidedLessonIds(NUMERICAL_CHAPTER_ID, EULER)).toEqual([EULER]);
+        expect(getLessonForDemonstration(EULER)).toBe(numericalGuidedExampleRegistry[EULER]);
+        expect(numericalGuidedExamplePath(EULER)).toContain(`?example=lesson.${NUMERICAL_CHAPTER_ID}.${EULER}.${EULER}`);
+        expect(getChapterGuidedExamples(NUMERICAL_CHAPTER_ID, EULER).map(link => link.path)).toEqual([numericalGuidedExamplePath(EULER)]);
+        expect(guidedLessonReturnPath(getGuidedLessonOwner(EULER)!)).toBe(`/bezeg-2.0/learn/${NUMERICAL_CHAPTER_ID}#${EULER}`);
+    });
+
+    test('hypotheses, the first order and the polyline caveat are stated in both languages', () => {
+        const facts = {
+            sl: ['Izrek', 'Lipschitzova', 'dvakrat zvezno odvedljiva', 'prvega reda', 'ni pa rešitev', 'obstoj in enoličnost', 'opažanji', 'ne dokaz'],
+            en: ['Theorem', 'Lipschitz', 'twice continuously differentiable', 'first order', 'not a solution', 'existence and uniqueness', 'observations', 'not a proof'],
+        };
+        for (const language of ['sl', 'en'] as const) for (const fact of facts[language]) expect(prose(language), `${language}: ${fact}`).toContain(fact);
+        expect(section.formula).toBe(String.raw`y_{k+1}=y_k+h\,F(x_k,y_k),\qquad x_{k+1}=x_k+h`);
+    });
+
+    test('every quoted number is recomputed with an independent Euler loop and equals the lesson numbers', () => {
+        const euler = (F: (x: number, y: number) => number, h: number) => {
+            let x = 0, y = 1;
+            for (let k = 0; k < 1 / h; k++) { y += h * F(x, y); x += h; }
+            return y;
+        };
+        const sig = (value: number, digits: number) => Number(value.toPrecision(digits));
+        const run = (F: (x: number, y: number) => number, exact: number) => {
+            const approximations = [0.5, 0.25, 0.125].map(h => euler(F, h));
+            const errors = [1, 0.5, 0.25, 0.125].map(h => sig(Math.abs(exact - euler(F, h)), 4));
+            return {approximations, errors, ratios: [1, 2, 3].map(k => sig(errors[k - 1] / errors[k], 3))};
+        };
+        const growth = run((_x, y) => y, Math.E);
+        expect(growth.approximations.map(v => sig(v, 5))).toEqual([2.25, 2.4414, 2.5658]);
+        expect(growth.errors.slice(1)).toEqual([0.4683, 0.2769, 0.1525]);
+        expect(growth.ratios.slice(1)).toEqual([1.69, 1.82]);
+        const relaxation = run((x, y) => x - y, 2 / Math.E);
+        expect(relaxation.approximations.map(v => sig(v, 4))).toEqual([0.5, 0.6328, 0.6872]);
+        expect(relaxation.errors.slice(1)).toEqual([0.2358, 0.1029, 0.04854]);
+        expect(relaxation.ratios.slice(1)).toEqual([2.29, 2.12]);
+        expect(sig(2 / Math.E, 4)).toBe(0.7358);
+        const sl = prose('sl');
+        for (const quoted of ['2{,}25', '2{,}4414', '2{,}5658', '0{,}4683', '0{,}2769', '0{,}1525', '1{,}69', '1{,}82', '0{,}7358', '0{,}6328', '0{,}6872', '0{,}2358', '0{,}1029', '0{,}04854', '2{,}29', '2{,}12']) expect(sl, quoted).toContain(quoted);
+        const en = prose('en');
+        for (const quoted of ['2.25', '2.4414', '2.5658', '0.4683', '0.2769', '0.1525', '1.69', '1.82', '0.7358', '0.6328', '0.6872', '0.2358', '0.1029', '0.04854', '2.29', '2.12']) expect(en, quoted).toContain(quoted);
     });
 });

@@ -35,6 +35,17 @@ describe('the numbers of lesson N5 (end x = 1 from (0, 1))', () => {
         expect(view.ratio).toBeCloseTo(view.doubleError! / view.error!, 12);
     });
 
+    test('there is no ratio when 2h is longer than the interval [x0, end x]', () => {
+        // h = 0.5 to end 0.5: the 2h = 1 run would be the same single step, ratio 1
+        const oneStep = eulerView(model({step: 0.5, xEnd: 0.5}));
+        expect(oneStep.error).toBe(0.1487);
+        expect([oneStep.doubleStep, oneStep.doubleError, oneStep.ratio]).toEqual([undefined, undefined, undefined]);
+        expect(eulerView(model({step: 0.5, xEnd: 0.75})).ratio).toBeUndefined();
+        // 2h equal to the interval, also off zero and with decimal noise in x0 and end x
+        expect(eulerView(model({step: 0.5, xEnd: 1})).ratio).toBeDefined();
+        expect(eulerView(model({step: 0.5, x0: 0.3, xEnd: 1.3})).ratio).toBeDefined();
+    });
+
     test('the first Euler step equals y0 + h F(x0, y0) exactly for h = 0.5', () => {
         const start = model({example: 'linear-relaxation', x0: 0.5, y0: 0.75, step: 0.5, xEnd: 2});
         expect(eulerView(start).path.nodes[1]).toEqual({x: 1, y: 0.75 + 0.5 * (0.5 - 0.75)});

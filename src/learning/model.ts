@@ -50,7 +50,7 @@ export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 
 export type FunctionParameterName = typeof FUNCTION_PARAMETER_NAMES[number];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test', 'inverse-curve', 'polynomial-derivative', 'poisson-bars', 'clt-cdf', 'summary-box-plot', 'summary-sigma-band', 'correlation-residuals', 'correlation-x-on-y', 'fourier-partial-sum'] as const;
+export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test', 'inverse-curve', 'polynomial-derivative', 'poisson-bars', 'clt-cdf', 'summary-box-plot', 'summary-sigma-band', 'correlation-residuals', 'correlation-x-on-y', 'fourier-partial-sum', 'euler-exact'] as const;
 export type FunctionVisibilityTarget = typeof FUNCTION_VISIBILITY_TARGETS[number];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */

@@ -115,6 +115,23 @@ test('quadrature expectations are authored from the bounds: two points on the ax
     assert.throws(() => numericalExpectedFor('q', fnStep([fnChoice('quadrature-function', 'sin'), fnParam('quadrature-b', 3), fnParam('quadrature-n', 2), fnChoice('quadrature-rule', 'trapezoid')])), /exactly once/);
 });
 
+test('euler expectations are authored from the initial point and the exact-curve visibility', () => {
+    const scene = (visible = true, extra = [], step = '0.5', y0 = 1, end = 1) => fnStep([{kind: 'function-visibility', target: 'euler-exact', visible}, fnChoice('euler-example', 'exponential'), fnChoice('euler-step', step),
+        fnParam('euler-x0', 0), fnParam('euler-y0', y0), fnParam('euler-end', end), ...extra]);
+    assert.deepEqual(numericalExpectedFor('e', scene()), {types: {curve: 4, point: 1}, curveCount: 4, points: [[0, 1]]});
+    assert.deepEqual(numericalExpectedFor('e', scene(false, [], '0.25', 2, 1)), {types: {curve: 3, point: 1}, curveCount: 3, points: [[0, 2]]});
+    // end x = x0: no polyline, so the field and the node crosses (and the exact curve when shown)
+    assert.deepEqual(numericalExpectedFor('e', scene(false, [], '0.5', 1, 0)), {types: {curve: 2, point: 1}, curveCount: 2, points: [[0, 1]]});
+    assert.deepEqual(numericalExpectedFor('e', scene(true, [], '0.5', 1, 0)).curveCount, 3);
+    assert.throws(() => numericalExpectedFor('e', scene(true, [{kind: 'animation', animationId: 'x', command: 'next-step'}])), /only sets/);
+    assert.throws(() => numericalExpectedFor('e', scene(true, [], '0.3')), /no authored Euler step/);
+    assert.throws(() => numericalExpectedFor('e', scene(true, [fnChoice('euler-example', 'blow-up')])), /exactly once/);
+    assert.throws(() => numericalExpectedFor('e', fnStep([fnChoice('euler-example', 'cosine'), fnChoice('euler-step', '1'), fnParam('euler-x0', 0), fnParam('euler-y0', 1), fnParam('euler-end', 1),
+        {kind: 'function-visibility', target: 'euler-exact', visible: true}])), /no authored Euler example/);
+    assert.throws(() => numericalExpectedFor('e', scene(true, [], '0.5', 1, -1)), /not below euler-x0/);
+    assert.throws(() => numericalExpectedFor('e', fnStep([fnChoice('euler-example', 'exponential'), fnChoice('euler-step', '1'), fnParam('euler-x0', 0), fnParam('euler-y0', 1), fnParam('euler-end', 1)])), /euler-exact exactly once/);
+});
+
 test('school function graphs expectations are authored from the transformation rule and the mirror point', () => {
     const transform = (a, b, c, d, u, visible = true) => fnStep([fnChoice('transform-base', 'square'), fnParam('transform-a', a), fnParam('transform-b', b), fnParam('transform-c', c),
         fnParam('transform-d', d), fnParam('transform-u', u), {kind: 'function-visibility', target: 'reference', visible}]);

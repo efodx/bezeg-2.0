@@ -186,7 +186,7 @@ test('every active demonstration route has an available lesson unless it opts ou
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
     // Every Demonstration ships with a lesson (the last opt-out, fourier-coefficients, gained lesson F2/F4 in Fourier 05 F3); the correlation lesson P5 (curves PS-C-5d1), the Voronoi degenerate-case lesson B5 (T3 task 23), the quadrature lesson N4, the monotone-partition lesson C3 (sweep task 19), the monotone-triangulation lesson C4 (sweep task 20), the density lesson P1, the binomial-normal lesson P2, the CLT lesson P3, the summary-statistics lesson P4, the Delaunay lesson B3, the Voronoi lesson B4, the least-squares lesson I4, the inversion lesson T5 and the projective lessons K4 and K5 ended their opt-outs.
     // bspline-extraction ships without a lesson until L4 (BS-B-3b); fortune until the Fortune lesson (sweep task 25).
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['bspline-extraction', 'euler-method', 'fortune']);
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['bspline-extraction', 'fortune']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

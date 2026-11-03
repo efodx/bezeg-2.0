@@ -31,6 +31,11 @@ class ObservedEulerGraph extends EulerGraph {
         return this.generatedObjectCount;
     }
 
+    /** Sets the end x through the lesson action, the same path a guided scene takes. */
+    lessonEnd(value: number) {
+        this.applyLessonAction({kind: 'function-parameter', name: 'euler-end', value});
+    }
+
     builds() {
         return this.fieldBuilds;
     }
@@ -198,6 +203,16 @@ test('the exact curve toggle hides and shows the dashed curve', () => {
     act(() => { fireEvent.click(screen.getByLabelText('Natančna rešitev (črtkano)')); });
     expect(graph.modelNow().showExact).toBe(true);
     expect(exact().evalVisProp('visible')).toBe(true);
+});
+
+test('with end x = x0 the single-node polyline is hidden and returns with the first step', () => {
+    const {graph} = mount();
+    expect(graph.polyline().evalVisProp('visible')).toBe(true);
+    act(() => { graph.lessonEnd(0); });
+    expect(graph.polyline().dataX).toEqual([0]);
+    expect(graph.polyline().evalVisProp('visible')).toBe(false);
+    act(() => { graph.lessonEnd(1); });
+    expect(graph.polyline().evalVisProp('visible')).toBe(true);
 });
 
 test('Next step reveals the polyline one step at a time and Show all restores it', () => {

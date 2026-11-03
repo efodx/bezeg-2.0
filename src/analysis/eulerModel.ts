@@ -190,7 +190,9 @@ export function eulerView(model: EulerModel): EulerView {
     const exact = Number.isFinite(exactValue) ? exactValue : undefined;
     const error = endValue !== undefined && exact !== undefined ? displayedError(Math.abs(exact - endValue)) : undefined;
     const doubled = model.step * 2;
-    const doubleStep = isEulerStep(doubled) ? doubled : undefined;
+    // No ratio when 2h is longer than [x0, xEnd]: the 2h run would be one step shortened to the interval, the same run as the h run
+    // when h equals the interval (ratio 1), so the quotient would not compare two step sizes. The tolerance absorbs decimal noise in x.
+    const doubleStep = isEulerStep(doubled) && model.xEnd - model.x0 >= doubled - 1e-9 ? doubled : undefined;
     let doubleError: number | undefined;
     if (doubleStep !== undefined && exact !== undefined) {
         const doubleEnd = endOf(eulerPath(example, model.x0, model.y0, doubleStep, model.xEnd));
