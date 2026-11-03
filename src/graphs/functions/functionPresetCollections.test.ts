@@ -971,3 +971,37 @@ test('interp-least-squares checks the points list in the scene state with the mo
     expect(collection.checkGraphState?.({points, showSquares: 1})).toBeDefined();
     expect(collection.checkGraphState?.("nope")).toBeDefined();
 });
+
+const polynomialPreset = (data: unknown, graphState: unknown = {initialized: true}) => JSON.stringify({"preset-polynomial-zeros": {data: [{id: "Polinom",
+    boardState: {boundingBox: [-6, 8, 6, -8]}, graphState, data}]}});
+const validPolynomial = {k: 0.2, zeros: [{z: -3, m: 1}, {z: -1, m: 2}, {z: 2, m: 2}], derivativeVisible: true};
+
+test("polynomial-zeros collection imports a model object, also with the zero list in the scene state", () => {
+    localStorage.setItem("other-app", "keep");
+    const graphState = {initialized: true, k: 0.2, zeros: validPolynomial.zeros, derivativeVisible: true};
+    commitPresetImport(preflightPresetImport(polynomialPreset(validPolynomial, graphState)));
+    expect(JSON.parse(localStorage.getItem("preset-polynomial-zeros")!).data[0].data).toEqual(validPolynomial);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], [{}], [{...validPolynomial, k: 0}], [{...validPolynomial, k: 1e6}], [{...validPolynomial, zeros: [{z: 1, m: 3}, {z: 2, m: 3}]}],
+    [{...validPolynomial, zeros: [{z: 0.25, m: 1}]}], [{...validPolynomial, zeros: [{z: 1, m: 4}]}], [{...validPolynomial, zeros: [{z: 99, m: 1}]}],
+    [{...validPolynomial, zeros: [{z: 1, m: 2}, {z: 1, m: 2}]}], [{...validPolynomial, derivativeVisible: "no"}]])
+("polynomial-zeros collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(polynomialPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test("polynomial-zeros errors name the rule to fix; wrong shapes keep the generic message", () => {
+    const generic = /invalid function data|neveljavni podatki funkcije/;
+    expect(() => preflightPresetImport(polynomialPreset({...validPolynomial, k: 0}))).not.toThrow(generic);
+    expect(() => preflightPresetImport(polynomialPreset({...validPolynomial, zeros: [{z: 1, m: 3}, {z: 2, m: 3}]}))).not.toThrow(generic);
+    expect(() => preflightPresetImport(polynomialPreset({...validPolynomial, zeros: "x"}))).toThrow(generic);
+});
+
+test("polynomial-zeros graph state with an invalid zero list is rejected without writing", () => {
+    for (const zeros of [[{z: 1, m: 3}, {z: 2, m: 3}], "x", [{z: 0.25, m: 1}]]) {
+        expect(() => preflightPresetImport(polynomialPreset(validPolynomial, {initialized: true, zeros}))).toThrow(LocalizedError);
+    }
+    expect(localStorage.length).toBe(0);
+});

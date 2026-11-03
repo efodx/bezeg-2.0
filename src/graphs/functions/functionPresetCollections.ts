@@ -49,6 +49,10 @@ import {checkFunctionTransformationModel, parseFunctionTransformationModel} from
 import {functionTransformationFileMessage} from "./functionTransformationMessages";
 import {checkFunctionInverseModel, parseFunctionInverseModel} from "../../analysis/functionInverseModel";
 import {functionInverseFileMessage} from "./functionInverseMessages";
+import {checkPolynomialZerosModel, parsePolynomialZerosModel, PolynomialZerosModel} from "../../analysis/polynomialZerosModel";
+import {checkZeroList} from "../../analysis/zeroListModel";
+import {polynomialZerosFileMessage} from "./polynomialZerosMessages";
+import {zeroListFileMessage} from "./zeroListMessages";
 import {checkSceneState, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 
 /**
@@ -182,6 +186,33 @@ const diagnoseFunctionInverse: Diagnosis = data => {
     return check.ok || check.issue === undefined ? undefined : functionInverseFileMessage(check.issue);
 };
 
+/** The model module names the rule a rejected polynomial-zeros model broke; this only localizes it. */
+const diagnosePolynomialZeros: Diagnosis = data => {
+    const check = checkPolynomialZerosModel(data);
+    return check.ok || check.issue === undefined ? undefined : polynomialZerosFileMessage(check.issue);
+};
+
+/**
+ * The polynomial-zeros graph stores its model in the scene state too, and the model has a `zeros` list, which the shared flat
+ * scene-state rule rejects. The list is checked by the zero list rules; the other fields go through `checkSceneState`. The model
+ * itself is still restored from the Preset data.
+ */
+const polynomialZerosCollection = (): PresetCollection<PolynomialZerosModel> => {
+    const base = functionCollection("polynomial-zeros", parsePolynomialZerosModel, diagnosePolynomialZeros);
+    return Object.freeze({
+        ...base,
+        checkGraphState(graphState: unknown): Message | undefined {
+            if (!isRecord(graphState)) return message("invalid_state");
+            const {zeros, ...rest} = graphState;
+            if (zeros !== undefined) {
+                const check = checkZeroList(zeros);
+                if (!check.ok) return check.issue === undefined ? message("invalid_state") : zeroListFileMessage(check.issue);
+            }
+            return checkSceneState(rest);
+        },
+    });
+};
+
 /**
  * A function Demonstration stores its validated model object as Preset data. The model parser decides validity; the
  * diagnosis only explains a rejection the parser made.
@@ -227,5 +258,6 @@ export const functionPresetCollections = {
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
+    "polynomial-zeros": polynomialZerosCollection(),
     "function-inverse": functionCollection("function-inverse", parseFunctionInverseModel, diagnoseFunctionInverse),
 } as const;
