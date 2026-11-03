@@ -7,10 +7,11 @@ import {NUMERICAL_CHAPTER_ID} from './numericalChapterId';
 
 export {NUMERICAL_CHAPTER_ID};
 
-/** Section id to the Demonstration whose reviewed lesson (numericalMethodsGuidedLessons.ts) the section owns. The opening section owns none. One Demonstration has one lesson, so the root-finding section owns N1, N2 and N3 together and the quadrature section owns N4. */
+/** Section id to the Demonstration whose reviewed lesson (numericalMethodsGuidedLessons.ts) the section owns. The opening section owns none. One Demonstration has one lesson, so the root-finding section owns N1, N2 and N3 together, the quadrature section N4 and the Euler section N5. */
 const sectionDemonstrations = {
     'root-finding': 'root-finding',
     quadrature: 'quadrature',
+    'euler-method': 'euler-method',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type NumericalSectionId = keyof typeof sectionDemonstrations;

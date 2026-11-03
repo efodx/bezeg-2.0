@@ -8,6 +8,7 @@
  * N3, the secant method (steps 14 to 20), appends its own steps and uses the `root-finding-method` value `secant` and the action `root-x1`.
  */
 import type {LessonAction} from '../model';
+import {eulerGuidedLessons} from './numericalEulerGuidedLesson';
 import {quadratureGuidedLessons} from './numericalQuadratureGuidedLesson';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
@@ -479,4 +480,4 @@ const rootFindingLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const numericalMethodsGuidedLessons: readonly GuidedLesson[] = [rootFindingLesson, ...quadratureGuidedLessons];
+export const numericalMethodsGuidedLessons: readonly GuidedLesson[] = [rootFindingLesson, ...quadratureGuidedLessons, ...eulerGuidedLessons];

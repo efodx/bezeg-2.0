@@ -78,9 +78,10 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'uniform-convergence': {chapterId: 'analysis', sectionId: 'convergence'},
     'complex-multiplication': {chapterId: 'foundations', sectionId: 'complex-plane'},
     'fixed-point': {chapterId: 'analysis', sectionId: 'convergence'},
-    // The Numerical methods chapter owns the root-finding lesson (N1 Newton, N2 when Newton fails, N3 secant) and the quadrature lesson (N4) in one section each.
+    // The Numerical methods chapter owns the root-finding lesson (N1 Newton, N2 when Newton fails, N3 secant) the quadrature lesson (N4) and the Euler lesson (N5) in one section each.
     'root-finding': {chapterId: 'numerical-methods', sectionId: 'root-finding'},
     'quadrature': {chapterId: 'numerical-methods', sectionId: 'quadrature'},
+    'euler-method': {chapterId: 'numerical-methods', sectionId: 'euler-method'},
     // The first activity of the linear maps chapter (the determinant activity is the second owner, derived from the chapter).
     'linear-map': {chapterId: 'linear-maps', sectionId: 'matrix-and-image'},
     // Chapter-owned lessons of the Kompleksne preslikave chapter, one section each (complex maps F3+F4).

@@ -107,6 +107,9 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
     protected override lessonFunctionActions(): FunctionLessonActions {
         return {
+            visibility: {
+                "euler-exact": visible => this.setShowExact(visible),
+            },
             parameters: {
                 "euler-x0": value => this.setInitial(value, this.model.y0),
                 "euler-y0": value => this.setInitial(this.model.x0, value),
