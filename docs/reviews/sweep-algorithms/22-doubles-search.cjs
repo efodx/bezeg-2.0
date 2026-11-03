@@ -1,6 +1,5 @@
 // Exhaustive search: circumcircle lowest points over all grid triples in [-L,L]^2 vs each other and vs site heights.
 const L = Number(process.argv[2] || 10);
-const W = 2 * L + 1;
 const pts = [];
 for (let y = -L; y <= L; y++) for (let x = -L; x <= L; x++) pts.push([x, y]);
 const N = pts.length;

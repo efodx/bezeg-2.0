@@ -2,7 +2,6 @@ import {describe, expect, it} from 'vitest';
 import type {GridPoint} from '../grid';
 import {incircle, orient} from '../predicates';
 import {Rational, RationalPoint} from '../rational';
-import {circumcentre} from '../triangle';
 import {type VoronoiDiagram, voronoiFromDelaunay} from '../voronoi';
 import {compareSurdHeights} from './eventOrder';
 import {
