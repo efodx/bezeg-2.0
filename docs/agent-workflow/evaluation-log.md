@@ -1739,3 +1739,14 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - PS-B-3b lesson + chapter section `bezeg-worker` Sonnet: 135k tokens (reached the watcher threshold as it returned), 62 tools, 24 min, complete with build and `smoke-lesson`; three mutations; two necessary out-of-brief test fixes. A lesson-plus-chapter slice is near the top of one Sonnet budget; split chapter and lesson next time.
 - Handler slips: a stray `git checkout -p` in a chained command blocked on its prompt (no changes discarded; the mutation-restore step after it never ran and was redone); a push chained with `;` after a conflicting rebase pushed the partially rebased HEAD (one verified commit, a fast-forward), rechecked afterwards. Chain push only with `&&` after the rebase.
 - Context: soft threshold fired after PS-B-3b was committed and smoked; handed off before P4.
+
+
+## Curves handler 33 (Opus, auto, medium), 2026-11-03
+
+- Poster capture still blocked: `POSTER_PENDING` now holds eight ids, and four (`monotone-*`, `voronoi*`) have no recipes from their streams.
+- PS-B-4a1 model `bezeg-worker` Sonnet: 48k tokens, 11 tools, 3 min, complete; 29 tests, eight mutations seen failing. The handler set every design decision in the brief (bounds, count, examples, import refusals), so the worker only chose the add placement and view extent. One inaccurate comment fixed by the handler.
+- PS-B-4a2 graph `bezeg-worker` Sonnet: 134k tokens (at the watcher threshold as it returned), 51 tools, 13 min, complete; 23 host tests, nine mutations. A full graph with a new input component and 64 keys is at the top of one Sonnet budget.
+- PS-B-4a2 review `bezeg-reviewer` Sonnet: 31k tokens, 8 tools, 1 min; no blocking, one real should-fix (the legend gave the markers' colour only).
+- PS-B-4b registration handler-made from the `54ee467f` template; one mechanical rebase conflict (the Voronoi lesson ended its opt-out on master), resolved and rechecked (1942 tests).
+- PS-B-4b smoke `bezeg-smoke` Sonnet: 53k tokens, 29 tools, 10 min, 11/11 with exact readouts. Its pass hid a projection problem that only the handler's look at the screenshots caught: 6 px uncaptioned mean and median markers. Ask smoke workers for an explicit size judgement per marker, or view the screenshots before accepting.
+- Context: soft threshold fired after PS-B-4b; handed off before the hooks PS-B-4c.
