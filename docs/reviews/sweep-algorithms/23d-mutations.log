@@ -1,0 +1,13 @@
+## E1 unmount without disposeOwned()
+   × unmounting disposes the owned drawing handles and the fortune objects; a remount draws again
+
+## E2 swap site names in duplicate refusal
+   × two coinciding sites are refused with a message naming both, in Slovenian and English; the drawing is removed and the step clamped
+
+## E3 recreate sweep handle per sync
+   × board object count is unchanged after 20 step changes
+   × dragging a site recomputes the trace, keeps the step index and the object count
+
+## U3 announce on every render (no drag guard)
+   × the live region exists while empty, and does not change during the frames of a drag
+

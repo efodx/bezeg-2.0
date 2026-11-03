@@ -1,0 +1,102 @@
+unit: failed (1) in 7.4s (2 workers, no slot); revision 752b54e60d2f71f0913b0a2f4bbdd02d1f32e943; dirty; log .command-logs\2026-11-03T10-09-38-212Z-28832-9a1d2b85.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ad42460681997836f
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (6 tests | 4 failed) 1197ms
+   × stepping around D: the beach line reads A, B, A, C, A before D and the cancelled circle is dashed after it 138ms
+   × board object count is unchanged after 20 step changes 554ms
+   × dragging a site recomputes the trace, keeps the step index and the object count 170ms
+   × the polyline drawing draws one beach curve; unmount removes the owned objects before the board is freed 44ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > stepping around D: the beach line reads A, B, A, C, A before D and the cancelled circle is dashed after it
+AssertionError: expected [ <Anonymous Class>{ …(56) }, …(8) ] to have a length of 5 but got 9
+
+- Expected
++ Received
+
+- 5
++ 9
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:66:49
+     64|             expect(part('beach')).toBe('Obalna črta (od leve proti des…
+     65|             // The beach line is drawn as one curve per arc, and the c…
+     66|             expect(named(graph, 'fortune-arc')).toHaveLength(5);
+       |                                                 ^
+     67|             expect(named(graph, 'fortune-circle')).toHaveLength(1);
+     68|             expect(named(graph, 'fortune-circle-cancelled')).toHaveLen…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > board object count is unchanged after 20 step changes
+AssertionError: expected 185 to be 53 // Object.is equality
+
+- Expected
++ Received
+
+- 53
++ 185
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:92:38
+     90|     act(() => graph.goTo(3));
+     91|     expect(graph.step).toBe(3);
+     92|     expect(everything(graph).length).toBe(before);
+       |                                      ^
+     93|     expect(graph.owned().sweep).toBeDefined();
+     94| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > dragging a site recomputes the trace, keeps the step index and the object count
+AssertionError: expected 163 to be 63 // Object.is equality
+
+- Expected
++ Received
+
+- 63
++ 163
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:116:38
+    114|     expect(graph.model).toEqual(FORTUNE_EXAMPLE_1);
+    115|     expect(graph.step).toBe(step);
+    116|     expect(everything(graph).length).toBe(before);
+       |                                      ^
+    117| });
+    118|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the polyline drawing draws one beach curve; unmount removes the owned objects before the board is freed
+AssertionError: expected [ <Anonymous Class>{ …(56) }, …(1) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:138:46
+    136|     const step = stepOfSite(polyline, 3) - 1;
+    137|     act(() => polyline.goTo(step));
+    138|     expect(named(polyline, 'fortune-beach')).toHaveLength(1);
+       |                                              ^
+    139|     expect(named(polyline, 'fortune-arc')).toHaveLength(0);
+    140|     const board = polyline.liveBoard();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+   Start at  11:09:38
+   Duration  6.68s (transform 36%, import 24%, tests 18%, environment 15%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

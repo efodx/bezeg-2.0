@@ -1,0 +1,38 @@
+unit: failed (1) in 9.0s (2 workers, no slot); revision 4fdcd4dab8722f9a4e58eb6dc9c39d7c2ec944c5; dirty; log .command-logs\2026-11-03T10-38-05-204Z-6940-6d092f26.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ad42460681997836f
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (13 tests | 1 failed) 1933ms
+   × Reset view returns to the run box after a zoom; an example button restores the example sites at step 0 64ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > Reset view returns to the run box after a zoom; an example button restores the example sites at step 0
+AssertionError: expected [ -40, 50, 60, -50 ] to not deeply equal [ -40, 50, 60, -50 ]
+
+Compared values have no visual difference.
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:288:44
+    286|     // The board view itself returns: it contains the run box again an…
+    287|     const [left, top, right, bottom] = board.getBoundingBox();
+    288|     expect([left, top, right, bottom]).not.toEqual([-40, 50, 60, -50]);
+       |                                            ^
+    289|     expect(left).toBeLessThanOrEqual(runBox.minX.toNumber() + 1e-9);
+    290|     expect(right).toBeGreaterThanOrEqual(runBox.maxX.toNumber() - 1e-9…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  11:38:05
+   Duration  8.37s (transform 36%, tests 23%, import 23%, environment 13%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

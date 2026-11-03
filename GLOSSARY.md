@@ -13,6 +13,15 @@ A Demonstration of a real function graph `y = f(x)` in the *Functions and calcul
 **Trace**:
 The recorded sequence of steps of an algorithm Demonstration in the *Računska geometrija* family (convex hull, ear clipping, sweeps, Lawson flips). Next step and playback walk the same trace; editing the input recomputes it and returns to step 0.
 
+**Beach line (obalna črta)**:
+In Fortune's algorithm the lower envelope of the parabolas of the sites already passed by the sweep line; its arcs, read left to right, are named by their sites and its breakpoints trace the Voronoi edges.
+
+**Circle event (krožni dogodek)**:
+An event of Fortune's algorithm at the lowest point of the circle through three sites on consecutive arcs; the middle arc disappears and a Voronoi vertex is reported.
+
+**False alarm (lažni alarm)**:
+A scheduled circle event that is cancelled before it is reached because the circle is no longer empty (a site event split an arc or changed a neighbour).
+
 **Orientation**:
 The sign of the cross product \((q-p)\times(r-p)\) of three grid points, computed exactly (`orient`): positive is a left (counter-clockwise) turn, negative a right turn, zero collinear. Every decision of the *Računska geometrija* family reduces to orientation or another exact sign test, never to a floating-point comparison.
 

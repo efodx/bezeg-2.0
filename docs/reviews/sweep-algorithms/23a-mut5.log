@@ -1,0 +1,40 @@
+unit: failed (1) in 2.8s (2 workers, no slot); revision 2b90f2a89a3958a4a541d01cf152770dec35eb59; dirty; log .command-logs\2026-11-03T10-15-27-855Z-26056-6c4378be.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/fortuneGeometry --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ad42460681997836f
+
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts (4 tests | 1 failed) 17ms
+   ❯ Fortune box (1)
+     × the 12-site random examples have a box that contains their sites (frame margins need not be integers) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > Fortune box > the 12-site random examples have a box that contains their sites (frame margins need not be integers)
+RangeError: value must be a safe integer
+ ❯ integerNumber src/compgeo/rational.ts:33:15
+     31| function integerNumber(value: number, name: string): bigint {
+     32|     if (typeof value !== 'number' || !Number.isSafeInteger(value)) {
+     33|         throw new RangeError(`${name} must be a safe integer`);
+       |               ^
+     34|     }
+     35|     return BigInt(value);
+ ❯ Rational.fromInt src/compgeo/rational.ts:55:36
+ ❯ fortuneBox src/graphs/compgeo/fortuneGeometry.ts:288:25
+ ❯ runFortune src/graphs/compgeo/fortuneRun.ts:44:17
+ ❯ src/graphs/compgeo/fortuneGeometry.test.ts:45:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  11:15:28
+   Duration  2.06s (environment 51%, setup 23%, transform 22%, import 3%, tests 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

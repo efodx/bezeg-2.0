@@ -350,6 +350,11 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
 
+    /** The label of point `index`; a subclass renames its points (the Fortune graph calls its sites A, B, C, ...). */
+    protected pointName(index: number): string {
+        return `P${index + 1}`;
+    }
+
     /** The overlay ids this graph offers, in switch order. A subclass spreads `super.overlayIds()` and adds its own. */
     protected overlayIds(): readonly (Overlay | PointSetBaseOverlayId)[] {
         return ["grid"];
@@ -624,7 +629,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         const points = model.points.map((gridPoint, i) => {
             const at = gridToBoard(gridPoint, scale);
             const point = board.create("point", [at.x, at.y], {
-                name: `P${i + 1}`, withLabel: true, size: () => this.selected === i ? 7 : 5, face: "o", showInfobox: false,
+                name: this.pointName(i), withLabel: true, size: () => this.selected === i ? 7 : 5, face: "o", showInfobox: false,
                 fillColor: () => this.selected === i ? GraphPalette.selectedControlPoint : GraphPalette.controlPoint,
                 strokeColor: () => this.selected === i ? GraphPalette.selectedControlPointOutline : GraphPalette.pointOutline,
                 strokeWidth: () => this.selected === i ? 3 : 1, highlightFillColor: GraphPalette.selectedControlPoint,

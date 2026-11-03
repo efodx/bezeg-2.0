@@ -1,0 +1,39 @@
+unit: failed (1) in 7.2s (2 workers, no slot); revision 752b54e60d2f71f0913b0a2f4bbdd02d1f32e943; dirty; log .command-logs\2026-11-03T10-10-25-034Z-33180-f8a02a67.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ad42460681997836f
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (6 tests | 1 failed) 923ms
+   × stepping around D: the beach line reads A, B, A, C, A before D and the cancelled circle is dashed after it 128ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > stepping around D: the beach line reads A, B, A, C, A before D and the cancelled circle is dashed after it
+AssertionError: expected 'Obalna črta (od leve proti desni): A,…' to be 'Obalna črta (od leve proti desni): A,…' // Object.is equality
+
+Expected: "Obalna črta (od leve proti desni): A, B, A, C, A"
+Received: "Obalna črta (od leve proti desni): A, C, A, B, A"
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:64:35
+     62|         beaches.push(part('beach') ?? '(done)');
+     63|         if (step === dStep - 1) {
+     64|             expect(part('beach')).toBe('Obalna črta (od leve proti des…
+       |                                   ^
+     65|             // The beach line is drawn as one curve per arc, and the c…
+     66|             expect(named(graph, 'fortune-arc')).toHaveLength(5);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  11:10:25
+   Duration  6.44s (transform 37%, import 25%, environment 17%, tests 15%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

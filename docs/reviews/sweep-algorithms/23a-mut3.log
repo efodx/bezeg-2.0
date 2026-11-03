@@ -1,0 +1,42 @@
+unit: failed (1) in 6.8s (2 workers, no slot); revision 752b54e60d2f71f0913b0a2f4bbdd02d1f32e943; dirty; log .command-logs\2026-11-03T10-10-09-602Z-28420-bf001285.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ad42460681997836f
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (6 tests | 1 failed) 895ms
+   × stepping around D: the beach line reads A, B, A, C, A before D and the cancelled circle is dashed after it 153ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > stepping around D: the beach line reads A, B, A, C, A before D and the cancelled circle is dashed after it
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:72:62
+     70|         if (step === dStep) {
+     71|             expect(part('beach')).toContain('D');
+     72|             expect(named(graph, 'fortune-circle-cancelled')).toHaveLen…
+       |                                                              ^
+     73|             expect(named(graph, 'fortune-circle-cancelled-mark')).toHa…
+     74|             expect(document.querySelector('[data-fortune="note"]')?.te…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  11:10:10
+   Duration  6.07s (transform 36%, import 24%, environment 17%, tests 15%, setup 8%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

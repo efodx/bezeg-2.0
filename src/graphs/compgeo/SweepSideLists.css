@@ -12,3 +12,6 @@
     .sweep-side-list { gap: 3px 4px; }
     .sweep-side-list > li { padding: 2px 4px; }
 }
+
+/* The Fortune height readout holds a long LaTeX formula: it scrolls inside its own paragraph instead of widening the inspector. */
+.fortune-readout { overflow-x: auto; }

@@ -1,0 +1,61 @@
+# 23b mutations (each: mutation -> failing test)
+## origins: split point replaced by the site itself
+      Tests  1 failed | 7 passed (8)
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > Fortune trace origins > every open trace begins at a point equidistant from the two sites it separates, and every finished trace lies on one bisector
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## heightText: perfect-square collapse dropped
+      Tests  2 failed | 6 passed (8)
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > Fortune sweep height text > a circle whose lowest point is at an integer height collapses to a rational, a surd keeps q - sqrt r
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > Fortune sweep height text > in the default example the circle through A, B, C has its lowest point at the integer height -5 (a rational), the executed circle shows a surd
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+## fortuneBox: circles never united into the box
+      Tests  1 failed | 7 passed (8)
+ FAIL  src/graphs/compgeo/fortuneGeometry.test.ts > Fortune box contents > the box contains every vertex and the lowest point of every circle (circles of radius above 3 spans are skipped by design)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## drawing: last arc of the beach line omitted
+      Tests  2 failed | 11 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > every step of the default example: beach text, one beach curve with the arcs sampled, circles and queue match the run
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > stepping around D: the beach line reads A, B, A, C, A before D and the cancelled circle is dashed after it
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+## drawing: cancelled circles not drawn
+      Tests  7 failed | 6 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > board object count is unchanged after 20 step changes
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > dragging a site recomputes the trace, keeps the step index and the object count
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > every step of the default example: beach text, one beach curve with the arcs sampled, circles and queue match the run
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > ownership: scene replacement, an example, Reset and 20 step changes with a drag keep the board object count
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > stepping around D: the beach line reads A, B, A, C, A before D and the cancelled circle is dashed after it
+## queue: cancelled entry not struck through
+      Tests  1 failed | 12 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the queue shows a cancelled circle event struck through and named so in text, in both languages
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## queue: cancelled text dropped
+      Tests  1 failed | 12 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the queue shows a cancelled circle event struck through and named so in text, in both languages
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## live region without the beach line
+      Tests  1 failed | 12 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the live region announces the step, the event and the beach line in Slovenian and English, and is silent while playing
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## keyboard: Next step button really disabled at the end
+      Tests  1 failed | 12 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > keyboard: Enter on the focused Next step button advances, and at the end the button stays focusable but aria-disabled
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## final drawing without vertices
+      Tests  1 failed | 12 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the finished drawing equals the Voronoi graph drawing of the same sites (same drawingStats)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## follow view: drawing ignores the visible box
+      Tests  2 failed | 11 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > Reset view returns to the run box after a zoom; an example button restores the example sites at step 0
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the view is followed: the sweep line spans the visible box and, at the end, every continues marker is inside the view by the pixel inset
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+## follow view: no pixel inset for markers
+      Tests  1 failed | 12 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > the view is followed: the sweep line spans the visible box and, at the end, every continues marker is inside the view by the pixel inset
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## ownership: scene disposal does not release the drawing handles
+      Tests  1 failed | 12 passed (13)
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > ownership: scene replacement, an example, Reset and 20 step changes with a drag keep the board object count
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+## Reset view keeps the follow box
+(no failure: the mutation SURVIVED; the Reset view test does not pin the follow-box reset)

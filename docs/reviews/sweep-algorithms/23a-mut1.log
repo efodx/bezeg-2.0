@@ -1,0 +1,62 @@
+unit: failed (1) in 7.0s (2 workers, no slot); revision 752b54e60d2f71f0913b0a2f4bbdd02d1f32e943; dirty; log .command-logs\2026-11-03T10-09-30-734Z-33248-bedbe76a.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ad42460681997836f
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (6 tests | 2 failed) 1001ms
+   × dragging a site recomputes the trace, keeps the step index and the object count 96ms
+   × a smaller trace clamps the kept step; an example returns to step 0 90ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > dragging a site recomputes the trace, keeps the step index and the object count
+AssertionError: expected +0 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 0
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:106:24
+    104|     expect(graph.model.points[3]).toEqual({x: 1, y: -3});
+    105|     expect(graph.run()).not.toBe(runBefore);
+    106|     expect(graph.step).toBe(step);
+       |                        ^
+    107|     expect((graph.state as {step: number}).step).toBe(step);
+    108|     expect(part('step')).toBe(`Korak ${step + 1} od ${graph.run().leng…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > a smaller trace clamps the kept step; an example returns to step 0
+AssertionError: expected +0 to be 5 // Object.is equality
+
+- Expected
++ Received
+
+- 5
++ 0
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:126:24
+    124|     act(() => graph.loadModel(FORTUNE_EXAMPLE_2));
+    125|     expect(graph.run().length).toBeLessThan(last + 1);
+    126|     expect(graph.step).toBe(graph.run().length - 1);
+       |                        ^
+    127|     expect((graph.state as {step: number}).step).toBe(graph.run().leng…
+    128|     act(() => graph.goTo(2));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  11:09:31
+   Duration  6.27s (transform 36%, import 24%, environment 17%, tests 16%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
