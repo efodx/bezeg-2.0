@@ -121,6 +121,9 @@ test('step 5 shows four lines, no vertices and the collinear message (no triangu
             for (const fragment of expected[language]) expect(message, `${language} ${fragment}`).toContain(fragment);
         });
         const text = stepText(gstep('deg-collinear'), language);
+        // The two end cells are half-planes; uniqueness needs an empty circle (math review, task 23).
+        expect(text).toContain(language === 'sl' ? 'polravnini' : 'half-planes');
+        expect(stepText(gstep('deg-convention'), language)).toContain(language === 'sl' ? 'prazni krožnici' : 'empty circle');
         expect(text).toContain('\\(0\\)');
         expect(text).toContain('\\(4\\)');
     }
@@ -134,7 +137,7 @@ test('step 6 states the convention incircle <= 0 with both diagonals legal when 
         expect(text).toContain('\\(D=0\\)');
         expect(text).toMatch(language === 'sl' ? /celoštevilsk/ : /integer grid/);
         expect(text).toMatch(language === 'sl' ? /stopnjo \\\(4\\\)/ : /degree \\\(4\\\)/);
-        expect(text).toMatch(language === 'sl' ? /enolična le, kadar nobene štiri točke niso kocirkularne/ : /unique only when no four points are cocircular/);
+        expect(text).toMatch(language === 'sl' ? /enolična, če nobene štiri točke ne ležijo na prazni krožnici/ : /unique if no four points lie on an empty circle/);
         expect(guided().formulaBlocks![0].explanation[language]).toContain('D\\le0');
         const notes = guided().edgeCases.map(e => e[language]).join('\n');
         expect(notes).toMatch(language === 'sl' ? /celoštevilski mreži/ : /integer grid/);
