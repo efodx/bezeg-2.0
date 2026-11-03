@@ -11,6 +11,7 @@ import {fourierChapter} from './fourierChapter';
 import {projectiveConicsChapter} from './projectiveConicsChapter';
 import {bsplineChapter} from './bsplineChapter';
 import {interpolationChapter} from './interpolationChapter';
+import {probabilityChapter} from './probabilityChapter';
 import {schoolFunctionGraphsChapter} from './schoolFunctionGraphsChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
@@ -378,6 +379,7 @@ const chapterDrafts: readonly FamilyChapter[] = [
     },
     numericalChapter, // Numerical methods batch A: the root-finding lesson (N1 to N3) of numericalMethodsGuidedLessons.ts.
     fourierChapter, // Fourier series batch A: the partial-sum and Gibbs lesson (F1, F3) of fourierSeriesGuidedLessons.ts.
+    probabilityChapter, // Probability and statistics batch A: the density and binomial-to-normal lessons (P1, P2) of probabilityGuidedLessons.ts; ends the functions strand.
 ];
 
 

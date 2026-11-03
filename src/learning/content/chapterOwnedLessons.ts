@@ -9,6 +9,7 @@ import {FOURIER_CHAPTER_ID} from './fourierChapterId';
 import {PROJECTIVE_CONICS_CHAPTER_ID} from './projectiveConicsChapterId';
 import {BSPLINE_CHAPTER_ID} from './bsplineChapterId';
 import {INTERPOLATION_CHAPTER_ID} from './interpolationChapterId';
+import {PROBABILITY_CHAPTER_ID} from './probabilityChapterId';
 import {SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID} from './schoolFunctionGraphsChapterId';
 import {convexityGuidedExampleRegistry, convexityGuidedExamplePath} from './convexityChapterRegistry';
 import {triangulationGuidedExampleRegistry, triangulationGuidedExamplePath} from './triangulationChapterRegistry';
@@ -18,6 +19,7 @@ import {fourierGuidedExampleRegistry, fourierGuidedExamplePath} from './fourierC
 import {projectiveConicsGuidedExampleRegistry, projectiveConicsGuidedExamplePath} from './projectiveConicsChapterRegistry';
 import {bsplineGuidedExampleRegistry, bsplineGuidedExamplePath} from './bsplineChapterRegistry';
 import {interpolationGuidedExampleRegistry, interpolationGuidedExamplePath} from './interpolationChapterRegistry';
+import {probabilityGuidedExampleRegistry, probabilityGuidedExamplePath} from './probabilityChapterRegistry';
 import {schoolFunctionGraphsGuidedExampleRegistry, schoolFunctionGraphsGuidedExamplePath} from './schoolFunctionGraphsChapterRegistry';
 import {linearMapsGuidedExamplePath, linearMapsGuidedExampleRegistry, LINEAR_MAPS_CHAPTER_ID} from './linearMapsChapterRegistry';
 import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry, TRIANGLE_GEOMETRY_CHAPTER_ID} from './triangleGeometryChapterRegistry';
@@ -54,6 +56,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [FOURIER_CHAPTER_ID]: ownedLessons(() => fourierGuidedExampleRegistry, sectionId => fourierGuidedExamplePath(sectionId)),
     [BSPLINE_CHAPTER_ID]: ownedLessons(() => bsplineGuidedExampleRegistry, sectionId => bsplineGuidedExamplePath(sectionId)),
     [INTERPOLATION_CHAPTER_ID]: ownedLessons(() => interpolationGuidedExampleRegistry, sectionId => interpolationGuidedExamplePath(sectionId)),
+    [PROBABILITY_CHAPTER_ID]: ownedLessons(() => probabilityGuidedExampleRegistry, sectionId => probabilityGuidedExamplePath(sectionId)),
     [SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID]: ownedLessons(() => schoolFunctionGraphsGuidedExampleRegistry, sectionId => schoolFunctionGraphsGuidedExamplePath(sectionId)),
     [COMPLEX_MAPS_CHAPTER_ID]: ownedLessons(complexMapsGuidedExampleRegistry, complexMapsGuidedExamplePath),
     [TRIANGLE_GEOMETRY_CHAPTER_ID]: ownedLessons(triangleGeometryGuidedExampleRegistry, triangleGeometryGuidedExamplePath),
