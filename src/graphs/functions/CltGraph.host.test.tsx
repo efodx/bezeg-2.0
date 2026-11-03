@@ -292,7 +292,9 @@ describe('Presets', () => {
         const saved = graph.modelNow();
         expect(saved).toEqual({heights: [1, 1, 2.5, 1, 1], n: 5, cdf: true});
         const exported = graph.exportPreset();
-        expect(functionPresetCollections['prob-clt'].checkGraphState?.(exported.graphState)).toBeUndefined();
+        const checkGraphState = functionPresetCollections['prob-clt'].checkGraphState!;
+        expect(checkGraphState(exported.graphState)).toBeUndefined();
+        expect(checkGraphState({...exported.graphState, heights: [0, 0, 0, 0, 0]})).toBeDefined();
         const shown = ['n', 'mean', 'variance', 'sum-mean', 'sum-variance', 'kolmogorov', 'mass-residual'].map(readout);
         choose('skewed');
         click('Predvajaj');

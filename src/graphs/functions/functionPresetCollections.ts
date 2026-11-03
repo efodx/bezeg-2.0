@@ -35,7 +35,7 @@ import {leastSquaresFileMessage} from "./leastSquaresMessages";
 import {checkDensityAreaModel, parseDensityAreaModel} from "../../analysis/densityAreaModel";
 import {checkBinomialNormalModel, parseBinomialNormalModel} from "../../analysis/binomialNormalModel";
 import {binomialNormalFileMessage} from "./binomialNormalMessages";
-import {checkCltModel, parseCltModel} from "../../analysis/cltModel";
+import {checkCltModel, DEFAULT_CLT_MODEL, parseCltModel} from "../../analysis/cltModel";
 import {cltFileMessage} from "./cltMessages";
 import {densityAreaFileMessage} from "./densityAreaMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
@@ -166,6 +166,17 @@ const diagnoseClt: Diagnosis = data => {
     const check = checkCltModel(data);
     return check.ok || check.issue === undefined ? undefined : cltFileMessage(check.issue);
 };
+
+/** As for least squares: the CLT model's `heights` list is checked by the model's own rules, the other fields by `checkSceneState`. */
+const checkCltGraphState = (graphState: unknown): Message | undefined => {
+    if (!isRecord(graphState)) return message("invalid_state");
+    const {heights, ...rest} = graphState;
+    if (heights !== undefined) {
+        const check = checkCltModel({...DEFAULT_CLT_MODEL, heights});
+        if (!check.ok) return check.issue === undefined ? message("invalid_state") : cltFileMessage(check.issue);
+    }
+    return checkSceneState(rest);
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -279,7 +290,7 @@ export const functionPresetCollections = {
     "interp-least-squares": leastSquaresCollection(),
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
     "prob-binomial-normal": functionCollection("prob-binomial-normal", parseBinomialNormalModel, diagnoseBinomialNormal),
-    "prob-clt": functionCollection("prob-clt", parseCltModel, diagnoseClt),
+    "prob-clt": Object.freeze({...functionCollection("prob-clt", parseCltModel, diagnoseClt), checkGraphState: checkCltGraphState}),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
