@@ -1,0 +1,42 @@
+unit: failed (1) in 3.9s (2 workers, no slot); revision 8595dfb753a3beb9b07fbc5549db689264f21431; dirty; log .command-logs\2026-11-03T09-30-33-970Z-32780-b84454bd.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/chapter/guidedExamplePreviews.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts (8 tests | 1 failed) 72ms
+   × publishes the fourier-series example cards with their own checked images and copy 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExamplePreviews.test.ts > publishes the fourier-series example cards with their own checked images and copy
+AssertionError: fourier-series.fourier-coefficients.fourier-coefficients/sl: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts:261:64
+    259|             for (const language of ['sl', 'en'] as const) {
+    260|                 const preview = resolveGuidedExamplePreview(home.id, h…
+    261|                 expect(preview?.src, `${home.id}/${language}`).toBeTru…
+       |                                                                ^
+    262|                 expect(preview?.alt.trim()).toBeTruthy();
+    263|                 expect(preview?.caption.trim()).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  10:30:34
+   Duration  2.96s (environment 41%, transform 28%, setup 18%, import 10%, tests 3%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

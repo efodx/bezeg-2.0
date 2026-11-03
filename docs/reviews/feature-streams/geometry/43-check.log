@@ -1,0 +1,53 @@
+check: failed (1) in 949.9s (test slot 1/3, 3 workers); revision 8595dfb753a3beb9b07fbc5549db689264f21431; dirty; log .command-logs\2026-11-03T09-14-20-795Z-33172-72a854af.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts (8 tests | 1 failed) 118ms
+   × publishes the fourier-series example cards with their own checked images and copy 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExamplePreviews.test.ts > publishes the fourier-series example cards with their own checked images and copy
+AssertionError: fourier-series.fourier-coefficients.fourier-coefficients/sl: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts:261:64
+    259|             for (const language of ['sl', 'en'] as const) {
+    260|                 const preview = resolveGuidedExamplePreview(home.id, h…
+    261|                 expect(preview?.src, `${home.id}/${language}`).toBeTru…
+       |                                                                ^
+    262|                 expect(preview?.alt.trim()).toBeTruthy();
+    263|                 expect(preview?.caption.trim()).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 528 passed | 2 skipped (531)
+      Tests  1 failed | 9671 passed | 7 skipped (9679)
+   Start at  10:15:17
+   Duration  892.91s (tests 45%, environment 27%, import 14%, setup 12%, transform 2%)
+
+Environment  jsdom was created 531 times · 707.06s total, 27% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+error: recipe `check` failed on line 10 with exit code 1
