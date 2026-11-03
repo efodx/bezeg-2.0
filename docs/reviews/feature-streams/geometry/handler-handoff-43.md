@@ -27,13 +27,17 @@ Written 2026-11-03 by handler 43 (Opus 5.5, auto, effort medium). Continues [han
 
 ## Branch state
 
-Branch `stream-geometry`, rebased on `origin/master` `c2a6018b`. Commits not yet on master: `c7ce4822`, `36c4071e`, `2bd25087`, `8595dfb7`, plus this note's commit. The branch is pushed to `origin/stream-geometry`, **not to master**.
+Branch `stream-geometry`. All of this run's commits are on `origin/master` (`4e7892a9..0238913e`, pushed as a fast-forward; this correction follows).
 
-The full `just check` at `8595dfb7` (`43-check.log`) failed one test, which is not geometry's: `src/learning/chapter/guidedExamplePreviews.test.ts:261`, `fourier-series.fourier-coefficients.fourier-coefficients/sl` has no preview image. That comes from functions' `64fc22be`. It reproduces alone (`43-previews.log`), and hosted CI does not run it. Functions handler 31 was messaged and asked to ping geometry handler 44. All other 9671 tests, tsc, lint and the build passed.
+The full `just check` at `8595dfb7` (`43-check.log`) failed only `guidedExamplePreviews.test.ts:261` (fourier-series card), and that was a stale Vitest transform cache. Functions handler 31 diagnosed it.
+- After deleting `node_modules/.vite/vitest` and `node_modules/.vitest-cache`, the test passes 8/8 (`43-previews2.log`).
+- The rebase onto `4e7892a9` brought in two docs files only.
+
+`origin/stream-geometry` is stale, from before the rebase; it was not force-pushed. Master is the reference.
 
 ## Next steps, exactly
 
-1. **Push.** Fetch, and check whether master fixed the fourier preview test (ask functions handler 31 if unsure). Rebase onto `origin/master` as a separate step, never chained with tests. Then run `just check`. If it passes, `git push origin HEAD:master`. If only the functions test still fails, ask the owner before pushing; their earlier exception covered only `PresetCatalog`. After the push, update the stream row with the CI run.
+1. Check that hosted CI for the latest master run containing `0238913e` is green; if it is red, read the failure first. Then add the run to the stream row. If a unit test fails only on an import.meta.glob result, clear the Vitest caches above and rerun it before calling it a regression.
 2. **Finish task 22** from `geometry-fortune-kernel-wip`.
    - Run the four mutations, lint, `22-random.log`, the double search (or record that none exists within the limits), and the cancel assertion for cocircular sets.
    - Then a mathematical review (`bezeg-reviewer`), focused on the root-selection proof, the tie rule, and merging cocircular events.
