@@ -34,8 +34,8 @@ const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hu
     "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle", "compgeo-euler-line", "compgeo-simson-line", "compgeo-inversion", "compgeo-triangulation", "compgeo-delaunay", "compgeo-voronoi", "compgeo-voronoi-degenerate", "compgeo-monotone-partition", "compgeo-monotone-triangulation"];
 /** The projective-conics Demonstrations, one collection each. */
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar", "projective-five-point", "projective-three-views"];
-/** Collections registered with the importer before their Demonstration exists; the registration slice removes its key when it adds the route. */
-const PENDING_ROUTE_KEYS: string[] = [];
+/** Collections registered with the importer before their Demonstration exists; the registration slice removes its key when it adds the route (numerical methods 07 F2b for "euler"). */
+const PENDING_ROUTE_KEYS: string[] = ["euler"];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
 const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-runge", "interp-least-squares", "interp-subdivision", "patch-coons"];
 /** One collection serves both B-spline Demonstrations (ADR 0024), so it is the one collection allowed to be shared. */

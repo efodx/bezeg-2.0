@@ -12,6 +12,8 @@ import {bisectionFileMessage} from "./bisectionMessages";
 import {checkRootFindingModel, parseRootFindingModel} from "../../analysis/rootFindingModel";
 import {rootFindingFileMessage} from "./rootFindingMessages";
 import {checkQuadratureModel, parseQuadratureModel} from "../../analysis/quadratureModel";
+import {checkEulerModel, parseEulerModel} from "../../analysis/eulerModel";
+import {eulerFileMessage} from "./eulerMessages";
 import {quadratureFileMessage} from "./quadratureMessages";
 import {checkMeanValueModel, parseMeanValueModel} from "../../analysis/meanValueModel";
 import {meanValueFileMessage} from "./meanValueMessages";
@@ -82,6 +84,11 @@ const diagnoseRootFinding: Diagnosis = data => {
 const diagnoseQuadrature: Diagnosis = data => {
     const check = checkQuadratureModel(data);
     return check.ok || check.issue === undefined ? undefined : quadratureFileMessage(check.issue);
+};
+/** The model module names the rule a rejected Euler model broke; this only localizes it. */
+const diagnoseEuler: Diagnosis = data => {
+    const check = checkEulerModel(data);
+    return check.ok || check.issue === undefined ? undefined : eulerFileMessage(check.issue);
 };
 const diagnoseMeanValue: Diagnosis = data => {
     const check = checkMeanValueModel(data);
@@ -341,6 +348,7 @@ export const functionPresetCollections = {
     bisection: functionCollection("bisection", parseBisectionModel, diagnoseBisection),
     "root-finding": functionCollection("root-finding", parseRootFindingModel, diagnoseRootFinding),
     quadrature: functionCollection("quadrature", parseQuadratureModel, diagnoseQuadrature),
+    euler: functionCollection("euler", parseEulerModel, diagnoseEuler),
     "mean-value": functionCollection("mean-value", parseMeanValueModel, diagnoseMeanValue),
     accumulation: functionCollection("accumulation", parseAccumulationModel, diagnoseAccumulation),
     darboux: functionCollection("darboux", parseDarbouxModel, diagnoseDarboux),
