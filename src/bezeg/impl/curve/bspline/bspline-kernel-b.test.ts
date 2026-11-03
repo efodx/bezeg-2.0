@@ -164,6 +164,40 @@ describe('knot insertion (Boehm)', () => {
         expect(checked).toBeGreaterThan(300);
     }, 60000);
 
+    it('spec L3 acceptance 3: at multiplicity m the one-sided derivatives below order k - m + 1 agree and order k - m + 1 differs', () => {
+        // Generic cubic data with the interior knot u = 2 of multiplicity m = 1..k + 1. One-sided derivatives at u = 2
+        // come from the extracted Bezier pieces' forward differences, independent of derivativeSource:
+        // C^(r)(end) = k!/(k-r)! / h^r * Δ^r P_(k-r), C^(r)(start) = k!/(k-r)! / h^r * Δ^r P_0.
+        const k = 3;
+        const generic = [[0, 0], [1, 2.3], [2.1, -0.7], [3.4, 3.1], [4.2, -0.4], [5.5, 2.6], [6.3, 0.9], [7.6, 3.7], [8.4, 1.2]];
+        const binomial = (r: number, i: number) => {
+            let value = 1;
+            for (let j = 1; j <= i; j++) value = value * (r - i + j) / j;
+            return value;
+        };
+        const derivative = (points: number[][], first: number, r: number, h: number) => {
+            let factor = 1;
+            for (let j = 0; j < r; j++) factor *= (k - j) / h;
+            return [0, 1].map(axis => {
+                let sum = 0;
+                for (let i = 0; i <= r; i++) sum += (r - i) % 2 === 0 ? binomial(r, i) * points[first + i][axis] : -binomial(r, i) * points[first + i][axis];
+                return factor * sum;
+            });
+        };
+        for (let m = 1; m <= k + 1; m++) {
+            const knots = [0, 0, 0, 0, 1, ...Array<number>(m).fill(2), 3, 3, 3, 3];
+            const P = generic.slice(0, knots.length - k - 1);
+            const {pieces} = bezierPieces(knots, k, P);
+            const left = pieces.find(piece => piece.end === 2)!;
+            const right = pieces.find(piece => piece.start === 2)!;
+            for (let r = 0; r <= k - m + 1; r++) {
+                const gap = maxDiff(derivative(left.points, k - r, r, left.end - left.start), derivative(right.points, 0, r, right.end - right.start));
+                if (r < k - m + 1) expect(gap, `m=${m} order ${r}`).toBeLessThan(1e-9);
+                else expect(gap, `m=${m} order ${r}`).toBeGreaterThan(1e-3);
+            }
+        }
+    });
+
     it('matches the spec L3 golden points: insert 1 then 0.5 into the L2 example', () => {
         const atOne = insertKnot(L2_U, 2, L2_P, 1);
         expect(atOne.knots).toEqual([0, 0, 0, 1, 1, 2, 2, 2]);
