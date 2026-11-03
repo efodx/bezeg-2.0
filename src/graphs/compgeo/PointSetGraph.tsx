@@ -685,7 +685,19 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         if (!this.hasBoard) return;
         const list = this.board.objectsList as unknown[];
         const present = objects.filter(object => list.includes(object)).reverse();
-        if (present.length) this.board.removeObject(present);
+        if (!present.length) return;
+        // JSXGraph runs a full board update for every removed line (`Line.remove` calls `removeAllTicks`, which updates the
+        // board) and for some nested removals. With the Delaunay overlay at 40 sites that was hundreds of full updates per
+        // redraw, each re-measuring every label: 16 s on a press. Suspend them; the board is updated once afterwards. An outer
+        // suspension (a scene replacement) is left in place.
+        const board = this.board as JXG.Board & {isSuspendedUpdate?: boolean};
+        const outerSuspension = board.isSuspendedUpdate === true;
+        if (!outerSuspension) board.suspendUpdate();
+        try {
+            board.removeObject(present);
+        } finally {
+            if (!outerSuspension) board.unsuspendUpdate();
+        }
     }
 
     private removeDrawn(): void {

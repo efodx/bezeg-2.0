@@ -56,7 +56,11 @@ export function drawSelectableTriangles(
             hasInnerPoints: true, layer: isSelected ? 2 : 0, fillColor: GraphPalette.constructionAccent, fillOpacity: isSelected ? 0.2 : 0,
             borders: {visible: false, highlight: false, fixed: true},
         }) as JXG.GeometryElement;
-        polygon.on("down", () => onPress(index));
+        // A press on a site (or another visible point) on top of the triangle drags that point and selects no triangle.
+        polygon.on("down", (event?: unknown) => {
+            if (event !== undefined && board.getAllObjectsUnderMouse(event).some(object => (object as {elType?: string}).elType === "point")) return;
+            onPress(index);
+        });
         objects.push(polygon);
     });
     const chosen = selected === undefined ? undefined : tri.triangles[selected];

@@ -466,6 +466,51 @@ test('pressing a board triangle selects it, pressing the selected one deselects,
     expect(graph.selectedTriangle()).toBe(0);
 });
 
+test('an overlay redraw removes its objects with a bounded number of board updates, not one per removed line', async () => {
+    const graph = new Observed();
+    mount(graph);
+    click('example-square');
+    // The replaced scene's session is disposed after the click; let that finish so only the redraw is counted.
+    await act(async () => {});
+    const board = graph.liveBoard();
+    // Count the board updates JSXGraph runs while the redraw removes the old overlay objects.
+    let removing = 0;
+    let rendersWhileRemoving = 0;
+    const update = board.update.bind(board);
+    const updates = vi.spyOn(board, 'update').mockImplementation(((...args: Parameters<typeof board.update>) => {
+        if (removing > 0 && !(board as JXG.Board & {isSuspendedUpdate?: boolean}).isSuspendedUpdate) rendersWhileRemoving++;
+        return update(...args);
+    }) as typeof board.update);
+    const removeObject = board.removeObject.bind(board);
+    const removals = vi.spyOn(board, 'removeObject').mockImplementation(((...args: Parameters<typeof board.removeObject>) => {
+        removing++;
+        try { return removeObject(...args); } finally { removing--; }
+    }) as typeof board.removeObject);
+    act(() => { graph.selectTriangle(1); });
+    expect(graph.selectedTriangle()).toBe(1);
+    expect(removals).toHaveBeenCalled();
+    // JSXGraph's Line.remove updates the whole board; unsuspended, this redraw rendered once per removed line and border.
+    expect(rendersWhileRemoving).toBe(0);
+    removals.mockRestore();
+    updates.mockRestore();
+});
+
+test('a press on a point lying over a triangle selects no triangle, and a press beside it does', async () => {
+    const graph = new Observed();
+    mount(graph);
+    const board = graph.liveBoard();
+    const point = objects(graph).find(o => o.elType === 'point');
+    const event = {};
+    const underMouse = vi.spyOn(board, 'getAllObjectsUnderMouse').mockReturnValue([point, triangleShapes(graph)[0]] as never);
+    await act(async () => { triangleShapes(graph)[0].triggerEventHandlers(['down'], [event]); });
+    expect(underMouse).toHaveBeenCalledWith(event);
+    expect(graph.selectedTriangle()).toBeUndefined();
+    underMouse.mockReturnValue([triangleShapes(graph)[0]] as never);
+    await act(async () => { triangleShapes(graph)[0].triggerEventHandlers(['down'], [event]); });
+    expect(graph.selectedTriangle()).toBe(0);
+    underMouse.mockRestore();
+});
+
 test('a board press leaves the board objects in place until the pointer dispatch has returned', async () => {
     const graph = new Observed();
     mount(graph);
