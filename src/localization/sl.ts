@@ -337,6 +337,8 @@ export const sl = {
     "prompt_bspline_deboor": "Premikaj parameter t in kontrolne točke ter korak za korakom izvedi de Boorov postopek. Katere kontrolne točke vplivajo na točko krivulje in kaj je enako kot pri De Casteljaujevem postopku?",
     "bspline_extraction_title": "Izvlek Bézierjevih odsekov",
     "prompt_bspline_extraction": "Premikaj kontrolne točke in opazuj, iz katerih Bézierjevih odsekov je sestavljena krivulja. Kateri odseki se ob premiku spremenijo in zakaj drugi ostanejo enaki?",
+    "bspline_nurbs_title": "NURBS in krog",
+    "prompt_bspline_nurbs": "Primerjaj krivuljo z enotskimi utežmi in krivuljo z utežmi √2/2 v vogalih. Kdaj je B-zlepek natanko krožnica in zakaj točka pri t = 1/16 ne leži pri kotu 22,5°?",
     "prompt_bspline_insertion": "Vstavi vozel in opazuj kontrolni poligon in krivuljo. Kaj se spremeni in kaj ostane enako? Kako večkratnost vozla določa gladkost krivulje v njem?",
     "cannot_save_presets_free_browser_storage_space_and_try_again": "Prednastavitev ni bilo mogoče shraniti. Sprosti prostor v brskalniku in poskusi znova.",
     "confirm_replacement_of_existing_preset_collections_first": "Najprej potrdi zamenjavo obstoječih zbirk prednastavitev.",
