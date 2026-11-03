@@ -1,0 +1,4 @@
+Waiting for unit (pid 30024) to finish starting before reading free memory.
+Waiting for check-localization (pid 13264) to finish starting before reading free memory.
+Memory available for lint after 45s.
+lint: passed in 18.4s; revision 19c4e62595d69ff5e4fb526aca8810798db6c918; dirty; log .command-logs\2026-11-03T04-04-50-320Z-5860-942b701f.log
