@@ -90,7 +90,8 @@ describe('the scenes set the curve, insert knots and show the spec numbers on th
             near(m.state().knots, [0, 0, 0, 0.5, 1, 2, 2, 2]);
             near(m.state().points.flat(), [0, 0, 0.5, 1, 1.5, 2, 3, 2, 4, 0]);
             samples.forEach((t, i) => near(m.curve(t), original[i]));
-            near(m.curve(1), [1, 1.5]);
+            // The new points are the de Boor level-1 points at u = 0.5, so the curve point there is (1, 1.5).
+            near(m.curve(0.5), [1, 1.5]);
 
             // Step 4: the cubic, comb hidden.
             m.run(stepOf('bspline-insertion-double'));

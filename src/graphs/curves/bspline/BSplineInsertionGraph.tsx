@@ -49,7 +49,8 @@ const initialData = (): Omit<BSplineInsertionState, 'initialized'> => {
  * button (Boehm, the kernel's `insertKnot`), the previous control polygon as a faded ghost after an insertion, a multiplicity
  * readout per distinct interior knot and a curvature comb drawn per knot span with the kappa jump reported at each interior knot.
  * The scene state is the only copy of the data; the owned {@link BSplineInsertionScene} reads it lazily. Its Preset collection is
- * `bsplinePresetCollection`; optional NURBS `weights` are ignored on import and omitted on export. Not registered as a route yet.
+ * `bsplinePresetCollection`; optional NURBS `weights` are ignored on import and omitted on export. Route `bspline-insertion`; lesson
+ * L3 drives it through `knot-insertion` scene actions.
  */
 export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSplinePresetData> {
     private scene?: BSplineInsertionScene;
@@ -76,6 +77,12 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
     protected override lessonFixtureData(curve: LessonCurveFixture): BSplinePresetData | undefined {
         const degree = curve.degree ?? this.defaultPreset().degree;
         return {degree, knots: curve.knots ? [...curve.knots] : knotsForCount(degree, true, curve.points.length), points: curve.points.map(point => [point[0], point[1]] as const)};
+    }
+
+    /** Runs right after `importPresetData` for a lesson fixture or default scene: the imported curve and its Reset target survive, the rest is fresh. */
+    protected override lessonDefaultState(): BSplineInsertionState {
+        const {degree, knots, points, origin, example} = this.state;
+        return {initialized: true, ...initialData(), ...copyData({degree, knots, points}), origin, example};
     }
 
     /** The imported curve becomes the state and the Reset target; the ghost is cleared. */
