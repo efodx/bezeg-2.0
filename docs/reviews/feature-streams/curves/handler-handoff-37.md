@@ -4,7 +4,7 @@ Handler 37 (Opus, `--permission-mode auto`, `--effort medium`) wrote this on 202
 
 ## State
 
-- Branch `worktree-stream-curves`. `origin/master` has everything through the PS-C-F6 release (`4e7892a9`). The commits **after** it (BS-B-2a2 registration of `bspline-insertion` and this note) are pushed to `origin/worktree-stream-curves` only, **not to `master`**: the new route has a visual defect (below), and a push to `master` deploys GitHub Pages.
+- Branch `worktree-stream-curves`. `origin/master` has everything through the PS-C-F6 release (`4e7892a9`). The commits **after** it (BS-B-2a2 registration of `bspline-insertion` and this note) are pushed to `origin/curves-handler-37` only (the remote `worktree-stream-curves` holds older pre-rebase history; do not force it), **not to `master`**: the new route has a visual defect (below), and a push to `master` deploys GitHub Pages.
 - Nothing in flight: no workers. The preview on port 3012 may still be running from this session; restart your own if needed.
 - Hosted CI on `master` green at `c2a6018b` (contains the posters and BS-B-2a1).
 - Settings: Opus handler, `--permission-mode auto`, `--effort medium`; self-watch soft 175k, handoff 215k. Workers `bezeg-worker` Sonnet medium, reviews `bezeg-reviewer` Sonnet, smoke `bezeg-smoke` (Haiku narrow, Sonnet new UI).
