@@ -1,0 +1,10 @@
+mutation 6: src/learning/content/compgeoGuidedLessons.ts: 'unique only when no four points are cocircular' -> 'unique always'
+unit: failed (1) in 10.2s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-45-42-861Z-8404-78eb952f.log
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1202ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > step 6 states the convention incircle <= 0 with both diagonals legal when cocircular, and the correctness notes are present
+AssertionError: expected 'The convention: a diagonal is legal w…' to match /unique only when no four points are c…/
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored

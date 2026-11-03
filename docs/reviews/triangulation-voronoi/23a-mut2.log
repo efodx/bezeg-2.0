@@ -1,0 +1,47 @@
+unit: failed (1) in 13.3s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-38-48-833Z-27136-0d0c524f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoVoronoiLesson.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts (14 tests | 1 failed) 3293ms
+   × lesson B5 validates and runs in one synchronous sequence: every scene sets its mode and points; the quoted determinants are the readouts 197ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > lesson B5 validates and runs in one synchronous sequence: every scene sets its mode and points; the quoted determinants are the readouts
+AssertionError: expected [ 'four-point', false, …(1) ] to deeply equal [ 'four-point', true, …(1) ]
+
+- Expected
++ Received
+
+  [
+    "four-point",
+-   true,
+-   "Voronojeva oglišča: 1; stopnje: 4.",
++   false,
++   "Voronojeva oglišča: 2; stopnje: 3, 3.",
+  ]
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts:292:84
+    290|         }
+    291|         run('deg-on');
+    292|         expect([graph.mode, four('incircle').includes('D = 0'), four('…
+       |                                                                                    ^
+    293|         run('deg-off');
+    294|         expect([four('incircle').includes('D = -30'), four('vertices')…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  05:38:49
+   Duration  12.44s (transform 48%, tests 27%, import 13%, environment 8%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,49 @@
+unit: failed (1) in 18.0s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-37-33-884Z-25040-2a99649b.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoVoronoiLesson.test.ts src/learning/runtime/lessonSmokeCoverage.test.ts src/learning/content/compgeoGuidedLessons.test.ts src/learning/content/lessonMathNotation.test.ts src/learning/content/guidedExamplePreviewCopy.test.ts src/learning/runtime/lessonCatalog.test.ts src/learning/content/triangulationChapter.test.ts src/learning/content/familyChapters.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts (26 tests | 1 failed) 3503ms
+   × the lessons are bounded, bilingual, and found by the catalog 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > the lessons are bounded, bilingual, and found by the catalog
+AssertionError: expected [ 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 7 ] to deeply equal [ 6, 7, 7, 7, 7, 7, 7, 7, 7, 8, 7 ]
+
+- Expected
++ Received
+
+@@ -6,8 +6,9 @@
+    7,
+    7,
+    7,
+    7,
+    7,
++   7,
+    8,
+    7,
+  ]
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:45:69
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  1 failed | 90 passed (91)
+   Start at  05:37:34
+   Duration  17.20s (environment 27%, transform 26%, tests 22%, import 13%, setup 13%)
+
+Environment  jsdom was created 8 times · 8.86s total, 27% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+error: recipe `unit` failed on line 22 with exit code 1

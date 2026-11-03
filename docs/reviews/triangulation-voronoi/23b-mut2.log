@@ -1,0 +1,10 @@
+mutation 2: src/learning/content/compgeoGuidedLessons.ts: 'degenerateScene('deg-predict', 'sites', DEGENERATE_NEAR_OFF, false' -> 'degenerateScene('deg-predict', 'sites', DEGENERATE_NEAR_OFF, true'
+unit: failed (1) in 10.1s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-45-14-147Z-25108-4369af1e.log
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1223ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > step 2 shows no vertex count before the prediction: no readout, no four-point panel and no number or determinant in the text
+AssertionError: deg-predict: expected <ul …(2)><li …(1)></li>
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored

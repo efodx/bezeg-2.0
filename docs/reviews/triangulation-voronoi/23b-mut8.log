@@ -1,0 +1,10 @@
+mutation 8: src/learning/content/compgeoGuidedLessons.ts: 'The lesson on the Voronoi diagram is required: cells, vertices and duality.' -> 'The lesson on diagrams is required: cells, vertices and duality.'
+unit: failed (1) in 10.4s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-46-43-679Z-31556-daeb7b4f.log
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1215ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > prerequisites name the Delaunay and Voronoi lessons in both languages, and both lessons exist
+AssertionError: expected 'The lesson on diagrams is required: c…' to contain 'Voronoi'
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored

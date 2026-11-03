@@ -1,0 +1,10 @@
+mutation 4: src/localization/en.ts: 'between parallel bisectors; there is no triangulation' -> 'between bisectors; there is no triangulation'
+unit: failed (1) in 10.0s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-45-32-174Z-2800-84c4c14b.log
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1227ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > step 5 shows four lines, no vertices and the collinear message (no triangulation, parallel strips) in both languages
+AssertionError: en parallel bisectors: expected 'All sites lie on one line, so the cel…' to contain 'parallel bisectors'
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored

@@ -1,0 +1,10 @@
+mutation 5: src/learning/content/compgeoGuidedLessons.ts: 'kadar je @B@@B@(D@B@@B@le0@B@@B@); pri kocirkularnih' -> 'kadar je @B@@B@(D<0@B@@B@); pri kocirkularnih'
+unit: failed (1) in 11.0s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-47-18-355Z-3000-93a14c9b.log
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1171ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > step 6 states the convention incircle <= 0 with both diagonals legal when cocircular, and the correctness notes are present
+AssertionError: expected 'Dogovor: diagonala je dovoljena, kada…' to contain 'D\le0'
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored

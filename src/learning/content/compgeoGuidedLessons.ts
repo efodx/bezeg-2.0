@@ -1442,6 +1442,203 @@ const voronoi: GuidedLesson = {
 };
 
 /**
+ * Degenerate sites lesson (docs/specs/triangulation-voronoi-lessons.md, B5). The scenes use the `point-set` actions `set-mode`,
+ * `set-points` and `set-overlay` of `DegenerateSitesGraph`; the quoted values are the readouts of the real graph (the
+ * four-point readout and the diagram counts) and are checked in `compgeoVoronoiDegenerateLesson.test.ts`. The examples are those
+ * of `degenerateSitesPresets.ts`: `near` (P4 moves from (1,-5) to (0,-5)), `collinear`, the unit square and the trapezoid.
+ */
+/** The near-circle quadruple of step 1 to 4: P1, P2, P3 lie on the circle of radius 5 about the origin; P4 is one grid step off it (D = -30) or on it (D = 0). */
+export const DEGENERATE_NEAR_OFF: readonly LessonPoint[] = [[5, 0], [3, 4], [-4, 3], [1, -5]];
+export const DEGENERATE_NEAR_ON: readonly LessonPoint[] = [[5, 0], [3, 4], [-4, 3], [0, -5]];
+/** Five sites on the line y = x / 2 (step 5). */
+export const DEGENERATE_COLLINEAR: readonly LessonPoint[] = [[-4, -2], [-2, -1], [0, 0], [2, 1], [4, 2]];
+/** The cocircular examples of step 7: the unit square, and the symmetric trapezoid (D = 0 for both). */
+export const DEGENERATE_SQUARE: readonly LessonPoint[] = [[0, 0], [1, 0], [1, 1], [0, 1]];
+export const DEGENERATE_TRAPEZOID: readonly LessonPoint[] = [[0, 0], [8, 0], [9, 5], [-1, 5]];
+const DEGENERATE_NEAR_VIEW: LessonViewBox = [-8, 8, 8, -8];
+const DEGENERATE_COLLINEAR_VIEW: LessonViewBox = [-7, 5, 7, -5];
+const DEGENERATE_TRAPEZOID_VIEW: LessonViewBox = [-4, 9, 12, -4];
+const setMode = (mode: 'sites' | 'four-point'): LessonAction => ({kind: 'point-set', operation: 'set-mode', mode});
+/**
+ * A degenerate-sites scene: the mode first (a scene is a function of its actions, so the mode is always named; `four-point` needs
+ * exactly four sites and the lesson default has four), then the points, the diagram switched as listed and the Delaunay overlay off.
+ */
+const degenerateScene = (id: string, mode: 'sites' | 'four-point', list: readonly LessonPoint[], diagram: boolean, view: LessonViewBox, sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view, expectedState: text(sl, en),
+        actions: [setMode(mode), points(list), overlay('grid', false), overlay('diagram', diagram), overlay('delaunay', false)]});
+
+const voronoiDegenerate: GuidedLesson = {
+    demonstrationId: 'voronoi-degenerate',
+    title: text('Izrojena mesta: kocirkularne in kolinearne točke', 'Degenerate sites: cocircular and collinear points'),
+    summary: text(
+        'Štiri kocirkularne točke dajo Voronojevo oglišče stopnje \\(4\\) in Delaunayevo triangulacijo, ki ni enolična; mesta na premici dajo vzporedne pasove brez oglišč in brez triangulacije.',
+        'Four cocircular points give a Voronoi vertex of degree \\(4\\) and a Delaunay triangulation that is not unique; sites on a line give parallel strips with no vertices and no triangulation.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o Delaunayevi triangulaciji: prazna krožnica in zamenjava roba.', 'The lesson on the Delaunay triangulation is required: the empty circle and the edge flip.'),
+        text('Potrebna je lekcija o Voronojevem diagramu: celice, oglišča in dualnost.', 'The lesson on the Voronoi diagram is required: cells, vertices and duality.'),
+    ],
+    learningGoals: [
+        text('Napoveš število Voronojevih oglišč štirih točk in jo preveriš z izpisom.', 'Predict the number of Voronoi vertices of four points and check it against the readout.'),
+        text('Pojasniš, kaj se zgodi z Voronojevim ogliščem in Delaunayevo triangulacijo, ko točka leži natanko na krožnici skozi tri druge.', 'Explain what happens to the Voronoi vertex and the Delaunay triangulation when a point lies exactly on the circle through three others.'),
+        text('Razložiš, zakaj ležijo celice kolinearnih mest v vzporednih pasovih brez oglišč in zakaj tedaj ni triangulacije.', 'Explain why the cells of collinear sites are parallel strips with no vertices and why there is then no triangulation.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'deg-incircle-formula',
+            latex: 'D=\\det\\begin{pmatrix}a_x-d_x&a_y-d_y&(a_x-d_x)^2+(a_y-d_y)^2\\\\b_x-d_x&b_y-d_y&(b_x-d_x)^2+(b_y-d_y)^2\\\\c_x-d_x&c_y-d_y&(c_x-d_x)^2+(c_y-d_y)^2\\end{pmatrix}',
+            notation: text(
+                '\\(a\\), \\(b\\), \\(c\\) so točke v nasprotni smeri urnega kazalca, \\(d\\) je četrta točka. \\(D>0\\): \\(d\\) leži znotraj krožnice skozi \\(a\\), \\(b\\), \\(c\\); \\(D<0\\): zunaj; \\(D=0\\): natanko na njej, točke so kocirkularne.',
+                '\\(a\\), \\(b\\), \\(c\\) are points in counter-clockwise order and \\(d\\) is the fourth point. \\(D>0\\): \\(d\\) lies inside the circle through \\(a\\), \\(b\\), \\(c\\); \\(D<0\\): outside; \\(D=0\\): exactly on it, so the points are cocircular.',
+            ),
+            explanation: text(
+                'Diagonala štirikotnika je dovoljena, kadar nasprotna točka ne leži strogo znotraj očrtane krožnice trikotnika, torej kadar je \\(D\\le0\\). Pri \\(D=0\\) sta dovoljeni obe diagonali. Vse koordinate so cela števila, zato je \\(D\\) celo število in vrednost \\(0\\) je dosegljiva natančno.',
+                'A diagonal of the quadrilateral is legal when the opposite point does not lie strictly inside the circumcircle of the triangle, that is when \\(D\\le0\\). At \\(D=0\\) both diagonals are legal. All coordinates are integers, so \\(D\\) is an integer and the value \\(0\\) is reachable exactly.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'deg-incircle-example',
+            title: text('Določilka za \\(P_1,P_2,P_3\\) in \\(P_4=(1,-5)\\)', 'The determinant for \\(P_1,P_2,P_3\\) and \\(P_4=(1,-5)\\)'),
+            calculationLatex: '\\begin{vmatrix}4&5&41\\\\2&9&85\\\\-5&8&89\\end{vmatrix}=4(801-680)-5(178+425)+41(16+45)=484-3015+2501',
+            resultLatex: 'D=-30',
+            check: text(
+                'Izpis pod grafom pove \\(D=-30\\): točka \\(P_4\\) leži zunaj krožnice skozi \\(P_1\\), \\(P_2\\), \\(P_3\\). Pri \\(P_4=(0,-5)\\) je ista določilka \\(0\\).',
+                'The readout under the graph says \\(D=-30\\): the point \\(P_4\\) lies outside the circle through \\(P_1\\), \\(P_2\\), \\(P_3\\). For \\(P_4=(0,-5)\\) the same determinant is \\(0\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'deg-near', order: 1,
+            title: text('Štiri točke blizu krožnice', 'Four points near a circle'),
+            purpose: text('Spoznati štiri točke, ki so skoraj, a ne povsem kocirkularne.', 'Meeting four points that are almost, but not quite, cocircular.'),
+            explanation: text(
+                'Štiri mesta: \\(P_1=(5,0)\\), \\(P_2=(3,4)\\), \\(P_3=(-4,3)\\) in \\(P_4=(1,-5)\\). Prva tri ležijo na krožnici s polmerom \\(5\\) okoli izhodišča, \\(P_4\\) je od te krožnice oddaljena za korak mreže. Graf je v načinu Mesta, diagram je skrit in izpis ne našteva ničesar o njem.',
+                'Four sites: \\(P_1=(5,0)\\), \\(P_2=(3,4)\\), \\(P_3=(-4,3)\\) and \\(P_4=(1,-5)\\). The first three lie on the circle of radius \\(5\\) about the origin; \\(P_4\\) is one grid step away from that circle. The graph is in the Sites mode, the diagram is hidden and the readout lists nothing about it.',
+            ),
+            formulaIds: ['deg-incircle-formula'],
+            frames: [frame('deg-near-explanation', 'explanation'), frame('deg-near-observation', 'observation')],
+            observationPrompt: text('Preberi koordinate štirih mest in oceni, ali \\(P_4\\) leži znotraj ali zunaj krožnice skozi ostala tri.', 'Read the coordinates of the four sites and judge whether \\(P_4\\) lies inside or outside the circle through the other three.'),
+            expectedObservations: [text('Na grafu so štiri mesta brez diagrama; \\(P_4\\) je blizu krožnice, a ni na njej.', 'The graph shows four sites and no diagram; \\(P_4\\) is near the circle but not on it.')],
+            scene: degenerateScene('deg-near', 'sites', DEGENERATE_NEAR_OFF, false, DEGENERATE_NEAR_VIEW,
+                'Štiri mesta \\(P_1\\), ..., \\(P_4\\) v načinu Mesta; diagram je skrit.',
+                'The four sites \\(P_1\\), ..., \\(P_4\\) in the Sites mode; the diagram is hidden.'),
+        },
+        {
+            id: 'deg-predict', order: 2,
+            title: text('Napovej: koliko Voronojevih oglišč?', 'Predict: how many Voronoi vertices?'),
+            purpose: text('Pred prikazom napovedati število oglišč diagrama štirih točk.', 'Predicting before the display the number of vertices of the diagram of four points.'),
+            explanation: text(
+                'Vsako Voronojevo oglišče je središče krožnice skozi tri mesta, ki ne vsebuje četrtega. Koliko takih krožnic imajo te štiri točke? Ali je odgovor odvisen od tega, da \\(P_4\\) ne leži na krožnici skozi ostala tri? Graf še ne kaže diagrama in izpis nobenega števila oglišč; odgovor zapiši sam.',
+                'Every Voronoi vertex is the centre of a circle through three sites that contains no fourth site. How many such circles do these four points have? Does the answer depend on \\(P_4\\) not lying on the circle through the other three? The graph does not show the diagram yet and the readout no number of vertices; write down your answer.',
+            ),
+            formulaIds: ['deg-incircle-formula'],
+            frames: [frame('deg-predict-explanation', 'explanation'), frame('deg-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši napoved števila oglišč in utemelji.', 'Write down your prediction of the number of vertices and give your reason.'),
+            expectedObservations: [text('Napoved še ni preverjena; v naslednjih korakih jo primerjamo z izpisom.', 'The prediction is not yet checked; the next steps compare it with the readout.')],
+            scene: degenerateScene('deg-predict', 'sites', DEGENERATE_NEAR_OFF, false, DEGENERATE_NEAR_VIEW,
+                'Diagram še ni prikazan; napoved se preveri pozneje.',
+                'The diagram is not shown yet; the prediction is checked later.'),
+        },
+        {
+            id: 'deg-on', order: 3,
+            title: text('Točka na krožnici', 'A point on the circle'),
+            purpose: text('Videti, da kocirkularne točke dajo eno oglišče stopnje \\(4\\) in dve dovoljeni diagonali.', 'Seeing that cocircular points give one vertex of degree \\(4\\) and two legal diagonals.'),
+            explanation: text(
+                'Graf je zdaj v načinu Štiri točke, diagram je viden, \\(P_4\\) pa je premaknjena z \\((1,-5)\\) na \\((0,-5)\\), natanko na krožnico. Izpis pove \\(D=0\\), eno Voronojevo oglišče s stopnjo \\(4\\) in da sta obe diagonali, \\(P_1\\)–\\(P_3\\) in \\(P_2\\)–\\(P_4\\), dovoljeni. Delaunayeva triangulacija zato ni enolična.',
+                'The graph is now in the Four points mode, the diagram is visible and \\(P_4\\) has moved from \\((1,-5)\\) to \\((0,-5)\\), exactly onto the circle. The readout says \\(D=0\\), one Voronoi vertex of degree \\(4\\), and that both diagonals, \\(P_1\\)–\\(P_3\\) and \\(P_2\\)–\\(P_4\\), are legal. The Delaunay triangulation is therefore not unique.',
+            ),
+            formulaIds: ['deg-incircle-formula'], workedExampleId: 'deg-incircle-example',
+            frames: [frame('deg-on-explanation', 'explanation'), frame('deg-on-calculation', 'calculation'), frame('deg-on-observation', 'observation')],
+            observationPrompt: text('Primerjaj število oglišč z napovedjo in preberi stopnjo oglišča in obe diagonali.', 'Compare the number of vertices with your prediction and read the degree of the vertex and both diagonals.'),
+            expectedObservations: [text('Izpis pokaže \\(D=0\\), \\(1\\) oglišče s stopnjo \\(4\\) in obe diagonali dovoljeni.', 'The readout shows \\(D=0\\), \\(1\\) vertex of degree \\(4\\) and both diagonals legal.')],
+            scene: degenerateScene('deg-on', 'four-point', DEGENERATE_NEAR_ON, true, DEGENERATE_NEAR_VIEW,
+                'Točka \\(P_4=(0,-5)\\) leži na krožnici: \\(D=0\\), \\(1\\) oglišče stopnje \\(4\\), obe diagonali sta dovoljeni.',
+                'The point \\(P_4=(0,-5)\\) lies on the circle: \\(D=0\\), \\(1\\) vertex of degree \\(4\\), both diagonals legal.'),
+        },
+        {
+            id: 'deg-off', order: 4,
+            title: text('Točka za korak stran od krožnice', 'A point one step off the circle'),
+            purpose: text('Videti, da se oglišče stopnje \\(4\\) razcepi na dve oglišči in ena diagonala postane edina dovoljena.', 'Seeing the vertex of degree \\(4\\) split into two vertices and one diagonal become the only legal one.'),
+            explanation: text(
+                '\\(P_4\\) je spet na \\((1,-5)\\), korak stran od krožnice. Izpis pove \\(D=-30\\): \\(P_4\\) leži zunaj krožnice skozi \\(P_1\\), \\(P_2\\), \\(P_3\\). Voronojevi oglišči sta zdaj \\(2\\), obe stopnje \\(3\\), in dovoljena je samo diagonala \\(P_1\\)–\\(P_3\\), zato je triangulacija enolična. Že en korak mreže loči eno oglišče stopnje \\(4\\) od dveh oglišč stopnje \\(3\\).',
+                '\\(P_4\\) is back at \\((1,-5)\\), one step off the circle. The readout says \\(D=-30\\): \\(P_4\\) lies outside the circle through \\(P_1\\), \\(P_2\\), \\(P_3\\). There are now \\(2\\) Voronoi vertices, both of degree \\(3\\), and only the diagonal \\(P_1\\)–\\(P_3\\) is legal, so the triangulation is unique. A single grid step separates one vertex of degree \\(4\\) from two vertices of degree \\(3\\).',
+            ),
+            formulaIds: ['deg-incircle-formula'], workedExampleId: 'deg-incircle-example',
+            frames: [frame('deg-off-explanation', 'explanation'), frame('deg-off-calculation', 'calculation'), frame('deg-off-observation', 'observation')],
+            observationPrompt: text('Primerjaj zgradnjo prejšnjega koraka: kaj se je zgodilo z oglišči in diagonalama?', 'Compare with the previous step: what happened to the vertices and the diagonals?'),
+            expectedObservations: [text('Izpis pokaže \\(D=-30\\), \\(2\\) oglišči s stopnjama \\(3\\) in \\(3\\) in samo diagonalo \\(P_1\\)–\\(P_3\\) kot dovoljeno.', 'The readout shows \\(D=-30\\), \\(2\\) vertices of degrees \\(3\\) and \\(3\\), and only the diagonal \\(P_1\\)–\\(P_3\\) as legal.')],
+            scene: degenerateScene('deg-off', 'four-point', DEGENERATE_NEAR_OFF, true, DEGENERATE_NEAR_VIEW,
+                'Točka \\(P_4=(1,-5)\\) je zunaj krožnice: \\(D=-30\\), \\(2\\) oglišči stopnje \\(3\\), samo diagonala \\(P_1\\)–\\(P_3\\) je dovoljena.',
+                'The point \\(P_4=(1,-5)\\) is outside the circle: \\(D=-30\\), \\(2\\) vertices of degree \\(3\\), only the diagonal \\(P_1\\)–\\(P_3\\) is legal.'),
+        },
+        {
+            id: 'deg-collinear', order: 5,
+            title: text('Mesta na premici', 'Collinear sites'),
+            purpose: text('Videti, da imajo kolinearna mesta pasove brez oglišč in nimajo triangulacije.', 'Seeing that collinear sites have strips with no vertices and no triangulation.'),
+            explanation: text(
+                'Pet mest leži na premici \\(y=x/2\\): \\((-4,-2)\\), \\((-2,-1)\\), \\((0,0)\\), \\((2,1)\\) in \\((4,2)\\). Simetrale sosednjih mest so vzporedne, zato celice niso večkotniki, ampak pasovi. Izpis našteje \\(0\\) oglišč in \\(4\\) premice, graf pa pove, da triangulacije ni: tri točke na premici ne tvorijo trikotnika. Pet mest ni v načinu Štiri točke, zato je graf v načinu Mesta.',
+                'Five sites lie on the line \\(y=x/2\\): \\((-4,-2)\\), \\((-2,-1)\\), \\((0,0)\\), \\((2,1)\\) and \\((4,2)\\). The bisectors of neighbouring sites are parallel, so the cells are strips, not polygons. The readout counts \\(0\\) vertices and \\(4\\) lines, and the graph says there is no triangulation: three points on a line do not form a triangle. Five sites do not fit the Four points mode, so the graph is in the Sites mode.',
+            ),
+            formulaIds: [],
+            frames: [frame('deg-collinear-explanation', 'explanation'), frame('deg-collinear-observation', 'observation')],
+            observationPrompt: text('Preštej premice na grafu in preberi sporočilo pod njim.', 'Count the lines on the graph and read the message under it.'),
+            expectedObservations: [text('Izpis pokaže \\(0\\) oglišč in \\(4\\) premice, sporočilo pa pove, da triangulacije ni.', 'The readout shows \\(0\\) vertices and \\(4\\) lines, and the message says there is no triangulation.')],
+            scene: degenerateScene('deg-collinear', 'sites', DEGENERATE_COLLINEAR, true, DEGENERATE_COLLINEAR_VIEW,
+                'Pet kolinearnih mest: \\(0\\) oglišč, \\(4\\) premice, triangulacije ni.',
+                'Five collinear sites: \\(0\\) vertices, \\(4\\) lines, no triangulation.'),
+        },
+        {
+            id: 'deg-convention', order: 6,
+            title: text('Dogovor in mreža', 'The convention and the grid'),
+            purpose: text('Razumeti dogovor, ki ga lekcija uporablja, in zakaj je natančna ničla dosegljiva.', 'Understanding the convention the lesson uses and why an exact zero is reachable.'),
+            explanation: text(
+                'Dogovor: diagonala je dovoljena, kadar je \\(D\\le0\\); pri kocirkularnih mestih sta zato dovoljeni obe. Mesta ležijo na celoštevilski mreži, zato je \\(D\\) celo število in natančna ničla je dosegljiva: pri \\(P_4=(0,-5)\\) je \\(D=0\\), pri \\((1,-5)\\) pa \\(D=-30\\). Pri poljubno natančnem premiku točke bi bila ničla skoraj nikoli dosežena. Pri štirih kocirkularnih mestih ima Voronojevo oglišče stopnjo \\(4\\) in dual ni triangulacija, ampak ima štirikotno lice; Delaunayeva triangulacija je enolična le, kadar nobene štiri točke niso kocirkularne.',
+                'The convention: a diagonal is legal when \\(D\\le0\\); for cocircular sites both are therefore legal. The sites lie on an integer grid, so \\(D\\) is an integer and an exact zero is reachable: at \\(P_4=(0,-5)\\) we get \\(D=0\\), at \\((1,-5)\\) we get \\(D=-30\\). For a point moving with unlimited precision a zero would almost never be hit. With four cocircular sites the Voronoi vertex has degree \\(4\\) and the dual is not a triangulation but has a quadrilateral face; the Delaunay triangulation is unique only when no four points are cocircular.',
+            ),
+            formulaIds: ['deg-incircle-formula'],
+            frames: [frame('deg-convention-explanation', 'explanation'), frame('deg-convention-observation', 'observation')],
+            observationPrompt: text('Povleci \\(P_4\\) po mreži in poišči položaj, pri katerem izpis pove \\(D=0\\).', 'Drag \\(P_4\\) along the grid and find a position where the readout says \\(D=0\\).'),
+            expectedObservations: [text('Pri \\(P_4=(0,-5)\\) izpis pove \\(D=0\\) in obe diagonali sta dovoljeni; pri sosednjih točkah mreže je \\(D\\) različen od \\(0\\).', 'At \\(P_4=(0,-5)\\) the readout says \\(D=0\\) and both diagonals are legal; at the neighbouring grid points \\(D\\) differs from \\(0\\).')],
+            scene: degenerateScene('deg-convention', 'four-point', DEGENERATE_NEAR_ON, true, DEGENERATE_NEAR_VIEW,
+                'Točka \\(P_4=(0,-5)\\): \\(D=0\\), obe diagonali sta dovoljeni po dogovoru \\(D\\le0\\).',
+                'The point \\(P_4=(0,-5)\\): \\(D=0\\), both diagonals are legal by the convention \\(D\\le0\\).'),
+        },
+        {
+            id: 'deg-explore', order: 7,
+            title: text('Prosto raziskovanje: kvadrat in trapez', 'Free exploration: the square and the trapezoid'),
+            purpose: text('Samostojno raziskati kocirkularne primere in jih pokvariti.', 'Exploring cocircular examples on your own and breaking them.'),
+            explanation: text(
+                'Graf kaže trapez \\((0,0)\\), \\((8,0)\\), \\((9,5)\\), \\((-1,5)\\), ki je kocirkularen: \\(D=0\\). Pritisni primer Kvadrat za enotski kvadrat \\((0,0)\\), \\((1,0)\\), \\((1,1)\\), \\((0,1)\\), kjer je prav tako \\(D=0\\). Povleci točko za korak mreže in opazuj, kako se eno oglišče stopnje \\(4\\) razcepi; ali znaš sam najti še kakšno kocirkularno četverico?',
+                'The graph shows the trapezoid \\((0,0)\\), \\((8,0)\\), \\((9,5)\\), \\((-1,5)\\), which is cocircular: \\(D=0\\). Press the Square example for the unit square \\((0,0)\\), \\((1,0)\\), \\((1,1)\\), \\((0,1)\\), where \\(D=0\\) as well. Drag a point one grid step and watch the one vertex of degree \\(4\\) split; can you find another cocircular quadruple yourself?',
+            ),
+            formulaIds: ['deg-incircle-formula'],
+            frames: [frame('deg-explore-explanation', 'explanation'), frame('deg-explore-observation', 'observation')],
+            observationPrompt: text('Premakni eno točko trapeza za korak mreže in preberi, kaj izpis pove o določilki in diagonalah.', 'Move one point of the trapezoid by one grid step and read what the readout says about the determinant and the diagonals.'),
+            expectedObservations: [text('Trapez in kvadrat imata \\(D=0\\), eno oglišče stopnje \\(4\\) in obe diagonali dovoljeni; po premiku za korak je \\(D\\ne0\\) in dovoljena je ena diagonala.', 'The trapezoid and the square have \\(D=0\\), one vertex of degree \\(4\\) and both diagonals legal; after a one-step move \\(D\\ne0\\) and one diagonal is legal.')],
+            scene: degenerateScene('deg-explore', 'four-point', DEGENERATE_TRAPEZOID, true, DEGENERATE_TRAPEZOID_VIEW,
+                'Trapez \\((0,0)\\), \\((8,0)\\), \\((9,5)\\), \\((-1,5)\\): \\(D=0\\), \\(1\\) oglišče stopnje \\(4\\), obe diagonali sta dovoljeni.',
+                'The trapezoid \\((0,0)\\), \\((8,0)\\), \\((9,5)\\), \\((-1,5)\\): \\(D=0\\), \\(1\\) vertex of degree \\(4\\), both diagonals legal.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-degenerate', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Chapter 9 (Delaunay triangulations: degenerate cases and uniqueness).'},
+        {
+            id: 'bezeg-degenerate-implementation',
+            citation: 'Bezeg source: src/compgeo/predicates.ts (`incircleValue`), src/graphs/compgeo/degenerateSites.ts and src/graphs/compgeo/DegenerateSitesGraph.tsx.',
+            implementationCorrespondence: 'The determinant is the exact `incircleValue` of three counter-clockwise sites and the fourth; the diagram counts come from `voronoiFromDelaunay`; a lesson scene sets the mode with the `set-mode` action, the sites with `set-points` and the diagram with `set-overlay`.',
+        },
+    ],
+    edgeCases: [
+        text('Lekcija obravnava štiri točke in pet kolinearnih mest; ne trdi, da se vsaka množica mest obnaša tako, in ne uči Fortunovega algoritma.', 'The lesson treats four points and five collinear sites; it does not claim that every set of sites behaves this way and does not teach Fortune\'s algorithm.'),
+        text('Natančna ničla je dosegljiva le zato, ker so koordinate na celoštevilski mreži; z zaokroženimi decimalnimi števili bi bili kocirkularni primeri redko natančno kocirkularni.', 'An exact zero is reachable only because the coordinates are on an integer grid; with rounded decimal numbers cocircular examples would rarely be exactly cocircular.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+/**
  * Interval sweep lesson (docs/specs/sweep-algorithms-lessons.md, C1). The scenes use the `point-set` actions (`set-points` in
  * intervals mode, `set-trace-step`) and the `algorithm-trace` animation of `IntervalSweepGraph`; `compgeoIntervalSweepLesson.test.ts`
  * checks every quoted value against the real graph's readout. The trace of the spec example has 26 steps ("Korak k od 26" is the
@@ -2288,4 +2485,4 @@ const monotoneTriangulation: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation];
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation];
