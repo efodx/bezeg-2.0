@@ -232,6 +232,15 @@ export type LessonAction =
     /** BernsteinGraph's graph-owned stacked-area view. */
     | {readonly kind: 'bernstein-stacked-area'; readonly visible: boolean}
     /**
+     * BSplineInsertionGraph's scene actions: `insert` adds the knot `value` (Boehm; the previous polygon becomes the ghost) and a
+     * value the graph refuses (outside the domain, above multiplicity k + 1, not finite) is a lesson-content error, `set-example`
+     * loads the quadratic or the cubic as the Reset target, `set-comb` shows or hides the curvature comb, `reset` returns to the origin.
+     */
+    | {readonly kind: 'knot-insertion'; readonly operation: 'insert'; readonly value: number}
+    | {readonly kind: 'knot-insertion'; readonly operation: 'set-example'; readonly exampleId: 'quadratic' | 'cubic'}
+    | {readonly kind: 'knot-insertion'; readonly operation: 'set-comb'; readonly visible: boolean}
+    | {readonly kind: 'knot-insertion'; readonly operation: 'reset'}
+    /**
      * LinearMapGraph's scene actions (validated by `validateSet*` in `src/linear/linearMapModel.ts`). Kinds are typed; the graph still
      * enforces the domain (grid, ranges): scene data is strict, so an off-grid entry is a lesson-content error, never snapped.
      */

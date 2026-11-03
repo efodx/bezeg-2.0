@@ -133,6 +133,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'patch-coons': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'bspline-basis': {chapterId: 'b-splines', sectionId: 'bspline-basis'},
     'bspline-deboor': {chapterId: 'b-splines', sectionId: 'bspline-deboor'},
+    'bspline-insertion': {chapterId: 'b-splines', sectionId: 'bspline-insertion'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {
