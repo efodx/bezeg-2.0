@@ -1,0 +1,10 @@
+mutation 3: src/learning/content/compgeoGuidedLessons.ts: 'The readout says @B@@B@(D=-30@B@@B@): @B@@B@(P_4' -> 'The readout says @B@@B@(D=-3@B@@B@): @B@@B@(P_4'
+unit: failed (1) in 12.2s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-51-41-058Z-31676-2aab1f0c.log; warnings present (see log)
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1358ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > the quoted determinants and vertex counts equal the kernel and the panel readout at their steps, in both languages
+AssertionError: deg-off explanation en D=-30: expected '\(P_4\) is back at \((1,-5)\), one st…' to contain 'D=-30'
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored

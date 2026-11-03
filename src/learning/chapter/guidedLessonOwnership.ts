@@ -101,6 +101,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'delaunay': {chapterId: 'triangulations-voronoi', sectionId: 'delaunay'},
     // The chapter's own section for the Voronoi diagram and its duality with the Delaunay triangulation (lesson B4).
     'voronoi': {chapterId: 'triangulations-voronoi', sectionId: 'voronoi'},
+    // The chapter's own section for degenerate sites: cocircular and collinear points (lesson B5).
+    'voronoi-degenerate': {chapterId: 'triangulations-voronoi', sectionId: 'voronoi-degenerate'},
     // Interim owners until a Curve geometry chapter exists: trace versus parameter belongs with parametrization, curvature with the geometric properties of a curve.
     'curve-parametric': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
     'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},

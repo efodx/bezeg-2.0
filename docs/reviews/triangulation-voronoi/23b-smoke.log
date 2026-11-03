@@ -1,0 +1,94 @@
+smoke-lesson: failed (1) in 13.0s (test slot 1/3, 3 workers); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; reusing build from revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4 (dirty at build time); log .command-logs\2026-11-03T05-03-23-873Z-29400-46cfa80a.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test:smoke:built
+> playwright test tests/guided-lessons.smoke.spec.cjs --grep (Lesson|on) (voronoi-degenerate) 
+
+[WebServer] Production smoke preview: http://127.0.0.1:4173/bezeg-2.0
+
+Running 2 tests using 2 workers
+
+  x  2 [chromium] › tests\guided-lessons.smoke.spec.cjs:2238:9 › Lesson voronoi-degenerate › en 390x844: every frame in order keeps points in view, math blocks inside the viewport and Next pointer-clickable (11.0s)
+  x  1 [chromium] › tests\guided-lessons.smoke.spec.cjs:2227:9 › Lesson voronoi-degenerate › sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes (11.0s)
+
+
+  1) [chromium] › tests\guided-lessons.smoke.spec.cjs:2227:9 › Lesson voronoi-degenerate › sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('section.guided-lesson').getByRole('heading', { level: 2 })
+    Expected: "Izrojena mesta: kocirkularne in kolinearne točke"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('section.guided-lesson').getByRole('heading', { level: 2 }) with timeout 10000ms
+      - waiting for locator('section.guided-lesson').getByRole('heading', { level: 2 })
+
+
+      2227 |         test('sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes', async ({page}) => {
+      2228 |             await openLesson(page, row, 'sl');
+    > 2229 |             await expect(lessonHeading(page)).toHaveText(row.titles.sl);
+           |                                               ^
+      2230 |             await expect(backButton(page)).toBeDisabled();
+      2231 |             const ctx = row.setup ? await row.setup(page) : undefined;
+      2232 |             const walk = await walkFrames(page, row, async label => {
+        at C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\agent-a2db2ea2615a0587f\tests\guided-lessons.smoke.spec.cjs:2229:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\guided-lessons.smoke-Lesso-f3c46-licks-on-Next-and-completes-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\guided-lessons.smoke-Lesso-f3c46-licks-on-Next-and-completes-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\guided-lessons.smoke-Lesso-f3c46-licks-on-Next-and-completes-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\guided-lessons.smoke-Lesso-f3c46-licks-on-Next-and-completes-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\guided-lessons.smoke.spec.cjs:2238:9 › Lesson voronoi-degenerate › en 390x844: every frame in order keeps points in view, math blocks inside the viewport and Next pointer-clickable 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('section.guided-lesson').getByRole('heading', { level: 2 })
+    Expected: "Degenerate sites: cocircular and collinear points"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('section.guided-lesson').getByRole('heading', { level: 2 }) with timeout 10000ms
+      - waiting for locator('section.guided-lesson').getByRole('heading', { level: 2 })
+
+
+      2239 |             await page.setViewportSize({width: 390, height: 844});
+      2240 |             await openLesson(page, row, 'en');
+    > 2241 |             await expect(lessonHeading(page)).toHaveText(row.titles.en);
+           |                                               ^
+      2242 |             await expect(backButton(page)).toBeDisabled();
+      2243 |             const lesson = lessonPanel(page);
+      2244 |             for (const control of [nextButton(page), exitButton(page)]) {
+        at C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\agent-a2db2ea2615a0587f\tests\guided-lessons.smoke.spec.cjs:2241:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\guided-lessons.smoke-Lesso-d283e--and-Next-pointer-clickable-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\guided-lessons.smoke-Lesso-d283e--and-Next-pointer-clickable-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\guided-lessons.smoke-Lesso-d283e--and-Next-pointer-clickable-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\guided-lessons.smoke-Lesso-d283e--and-Next-pointer-clickable-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\guided-lessons.smoke.spec.cjs:2227:9 › Lesson voronoi-degenerate › sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes 
+    [chromium] › tests\guided-lessons.smoke.spec.cjs:2238:9 › Lesson voronoi-degenerate › en 390x844: every frame in order keeps points in view, math blocks inside the viewport and Next pointer-clickable 
+
+error: recipe `smoke-lesson` failed on line 42 with exit code 1

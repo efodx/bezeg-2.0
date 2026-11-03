@@ -1,0 +1,10 @@
+mutation 7: src/graphs/compgeo/VoronoiGraph.tsx: 'query: this.queryText, mode: this.mode};' -> 'query: this.queryText, mode: "sites"};'
+unit: failed (1) in 11.2s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-45-53-583Z-26896-3aec6eb6.log
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1300ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > Back and a scene change restore the scene: restoreState undoes set-mode and set-points, a later set-mode switches back
+AssertionError: expected [ 'sites', 4 ] to deeply equal [ 'four-point', 4 ]
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored

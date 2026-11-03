@@ -1,0 +1,53 @@
+unit: failed (1) in 592.1s (2 workers, no slot); revision 397685241adeb1d12e8d0e72ab0c139a7bff82a7; dirty; log .command-logs\2026-11-03T05-28-42-667Z-30100-9cad0a8d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning src/graphs/compgeo --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts (8 tests | 1 failed) 62ms
+   × publishes the school-function-graphs example cards with their own checked images and copy 7ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExamplePreviews.test.ts > publishes the school-function-graphs example cards with their own checked images and copy
+AssertionError: expected [ …(4) ] to deeply equal [ …(4) ]
+
+- Expected
++ Received
+
+  [
+    "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rat-pole-oblique\",\"source\":\"demonstration-default\"}",
+-   "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rat-pole-oblique\",\"source\":\"demonstration-default\",\"view\":[-8,14,12,-6]}",
++   "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rat-pole-oblique\",\"source\":\"demonstration-default\"}",
+    "function-choice: {\"kind\":\"function-choice\",\"name\":\"rational-example\",\"value\":\"oblique\"}",
+    "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"rational-probe\",\"value\":10}",
+  ]
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts:250:35
+    248|             if (!step) throw new Error(`${home.id}: missing prepared e…
+    249|             expect(entry).toMatchObject({id: home.id, path: home.path,…
+    250|             expect(entry.actions).toEqual(step.scene?.actions.map(acti…
+       |                                   ^
+    251|             expect(entry.expected.curveCount).toBeGreaterThanOrEqual(0…
+    252|             // A first frame with no visible point (K5 at c = 2) is ch…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 150 passed | 2 skipped (153)
+      Tests  1 failed | 2397 passed | 3 skipped (2401)
+   Start at  06:28:43
+   Duration  591.35s (tests 65%, environment 15%, import 11%, setup 7%, transform 2%)
+
+    Isolate  153 workers spawned · ~1.31s startup each (spawn + environment, per file)
+             at least ~98.82s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

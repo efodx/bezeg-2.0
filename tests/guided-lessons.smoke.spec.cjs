@@ -1796,6 +1796,33 @@ const voronoi = {
     },
 };
 
+// Voronoi degenerate sites (B5): steps 1..2 show no diagram readout and no four-point readout (no spoiler); 3, 4, 6, 7 read the incircle determinant; step 5 reads four lines.
+const DEGENERATE_INCIRCLE = [null, null, /D = 0/, /D = -30/, null, /D = 0/, /D = 0/];
+// The vertex readout under the four-point panel (both languages): count, then the degrees.
+const DEGENERATE_VERTICES = [null, null, /: 1; \D+: 4\./, /: 2; \D+: 3, 3\./, null, /: 1; \D+: 4\./, /: 1; \D+: 4\./];
+const voronoiDegenerate = {
+    id: 'voronoi-degenerate',
+    path: `${BASE}/compgeo/voronoi-degenerate`,
+    titles: {sl: 'Izrojena mesta: kocirkularne in kolinearne točke', en: 'Degenerate sites: cocircular and collinear points'},
+    steps: 7,
+    minFrames: 16, // 2 frames per step, 3 on steps 3 and 4 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        const fourPoint = page.locator('[data-fourpoint="incircle"]');
+        if (step <= 2) {
+            await expect(page.locator('[data-voronoi="readout"]'), `degenerate diagram readout hidden at ${label}`).toHaveCount(0);
+            await expect(fourPoint, `degenerate four-point readout hidden at ${label}`).toHaveCount(0);
+        } else if (step === 5) {
+            await expect(page.locator('[data-voronoi="readout"] [data-readout="lines"]'), `degenerate lines readout at ${label}`).toContainText(/4/);
+            await expect(page.locator('[data-voronoi="readout"] [data-readout="vertices"]'), `degenerate no vertices at ${label}`).toContainText(/0/);
+            await expect(page.locator('[data-voronoi="collinear"]'), `degenerate collinear message at ${label}`).toBeVisible();
+            await expect(fourPoint, `degenerate four-point readout hidden for collinear sites at ${label}`).toHaveCount(0);
+        } else {
+            await expect(fourPoint.first(), `degenerate incircle readout at ${label}`).toContainText(DEGENERATE_INCIRCLE[step - 1]);
+            await expect(page.locator('[data-fourpoint="vertices"]').first(), `degenerate vertex readout at ${label}`).toContainText(DEGENERATE_VERTICES[step - 1]);
+        }
+    },
+};
+
 // Curve geometry L1/L2: a text of the board (the readout) that must show per lesson step 1..7; the patterns accept the Slovenian comma and the English point.
 const boardText = (page, pattern) => page.locator('.JXGtext').filter({hasText: pattern});
 const PARAMETRIC_READOUTS = [/\(ost\)|\(cusp\)/, /\(1, 1\).*1[.,]4142/s, /9[.,]4248/, /3[.,]1416/, /\([-−]1, [-−]1\)/, /\(ost\)|\(cusp\)/, /8\b.*9[.,]4248/s];
@@ -2152,7 +2179,7 @@ const probabilitySummary = {
     },
 };
 
-const LESSONS = [voronoi, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, polynomialZeros, rationalFunction, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, polynomialZeros, rationalFunction, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

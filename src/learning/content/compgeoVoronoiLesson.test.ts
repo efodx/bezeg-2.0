@@ -222,3 +222,83 @@ test('invalid values throw and change nothing; DegenerateSitesGraph inherits the
         expect(graph.cellSite).toBe(0);
     } finally { mounted.view.unmount(); }
 });
+
+test('set-mode: sites and four-point on VoronoiGraph and DegenerateSitesGraph; every other point-set graph, a refused count and an unknown mode throw and change nothing', () => {
+    const mode = (value: unknown) => ps('set-mode', {mode: value});
+    for (const make of [() => new DelaunayGraph(), () => new PointSetGraph()]) {
+        const graph = make();
+        const mounted = mountGraph(graph);
+        try {
+            const capabilities = graph.getLessonCapabilities();
+            for (const value of ['sites', 'four-point']) expect(() => capabilities.apply(mode(value))).toThrow(UnsupportedLessonActionError);
+        } finally { mounted.view.unmount(); }
+    }
+    for (const make of [() => new VoronoiGraph(), () => new DegenerateSitesGraph()]) {
+        const graph = make();
+        const mounted = mountGraph(graph);
+        try {
+            const capabilities = graph.getLessonCapabilities();
+            act(() => { capabilities.apply(ps('set-points', {mode: 'points', points: [[0, 0], [1, 0], [1, 1], [0, 1]]})); });
+            act(() => { capabilities.apply(mode('four-point')); });
+            expect(graph.mode).toBe('four-point');
+            act(() => { capabilities.apply(mode('sites')); });
+            expect(graph.mode).toBe('sites');
+            for (const bad of ['circle', undefined, 4, null]) expect(() => capabilities.apply(mode(bad)), String(bad)).toThrow();
+            expect(graph.mode).toBe('sites');
+            act(() => { capabilities.apply(ps('set-points', {mode: 'points', points: [[0, 0], [1, 0], [2, 3]]})); });
+            expect(() => capabilities.apply(mode('four-point'))).toThrow(/exactly 4 sites/);
+            expect(graph.mode).toBe('sites');
+            expect(document.querySelector('[data-voronoi="mode-refused"]')).toBeNull();
+        } finally { mounted.view.unmount(); }
+    }
+});
+
+test('set-mode does what the mode control does: sites, points and chosen site stay; the refusal message of the control is cleared', () => {
+    const graph = new DegenerateSitesGraph();
+    const mounted = mountGraph(graph);
+    try {
+        const capabilities = graph.getLessonCapabilities();
+        act(() => { capabilities.apply(ps('set-mode', {mode: 'sites'})); });
+        act(() => { capabilities.apply(ps('set-points', {mode: 'points', points: [[0, 0], [1, 0], [2, 3]]})); });
+        act(() => { capabilities.apply(ps('select-site', {site: 1})); });
+        act(() => { (document.querySelector('button[data-action="mode-four-point"]') as HTMLElement).click(); });
+        expect(document.querySelector('[data-voronoi="mode-refused"]')).not.toBeNull();
+        act(() => { capabilities.apply(ps('set-mode', {mode: 'sites'})); });
+        expect(document.querySelector('[data-voronoi="mode-refused"]')).toBeNull();
+        expect([graph.model.points.length, graph.cellSite, graph.mode]).toEqual([3, 1, 'sites']);
+    } finally { mounted.view.unmount(); }
+});
+
+test('lesson B5 validates and runs in one synchronous sequence: every scene sets its mode and points; the quoted determinants are the readouts', () => {
+    const l = getLessonForDemonstration('voronoi-degenerate')!;
+    expect(l.steps.map(step => step.id)).toEqual(['deg-near', 'deg-predict', 'deg-on', 'deg-off', 'deg-collinear', 'deg-convention', 'deg-explore']);
+    const graph = new DegenerateSitesGraph();
+    const mounted = mountGraph(graph);
+    try {
+        const capabilities = graph.getLessonCapabilities();
+        const checkpoint = capabilities.captureState();
+        const run = (id: string) => act(() => {
+            capabilities.restoreState(checkpoint);
+            for (const action of l.steps.find(step => step.id === id)!.scene!.actions) capabilities.apply(action);
+        });
+        const four = (name: string) => document.querySelector(`[data-fourpoint="${name}"]`)?.textContent ?? '';
+        for (const id of ['deg-near', 'deg-predict']) {
+            run(id);
+            expect(graph.mode, id).toBe('sites');
+            expect(document.querySelector('[data-voronoi="readout"]'), id).toBeNull();
+            expect(document.querySelector('[data-voronoi="four-point"]'), id).toBeNull();
+        }
+        run('deg-on');
+        expect([graph.mode, four('incircle').includes('D = 0'), four('vertices')]).toEqual(['four-point', true, 'Voronojeva oglišča: 1; stopnje: 4.']);
+        run('deg-off');
+        expect([four('incircle').includes('D = -30'), four('vertices')]).toEqual([true, 'Voronojeva oglišča: 2; stopnje: 3, 3.']);
+        run('deg-collinear');
+        expect(graph.mode).toBe('sites');
+        expect(document.querySelector('[data-readout="lines"]')?.textContent).toBe('Premic: 4');
+        expect(document.querySelector('[data-voronoi="collinear"]')?.textContent).toContain('triangulacije ni');
+        run('deg-convention');
+        expect(four('incircle')).toContain('D = 0');
+        run('deg-explore');
+        expect([graph.mode, four('incircle').includes('D = 0'), four('vertices')]).toEqual(['four-point', true, 'Voronojeva oglišča: 1; stopnje: 4.']);
+    } finally { mounted.view.unmount(); }
+});
