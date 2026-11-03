@@ -1,0 +1,42 @@
+unit: failed (1) in 7.9s (2 workers, no slot); revision 1910d6f22fc008be7483d2c8b3675c8749905ac1; dirty; log .command-logs\2026-11-03T07-08-57-823Z-29120-08d3d0db.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoVoronoiLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts (15 tests | 1 failed) 2428ms
+   × the Delaunay lesson is the required prerequisite, and the dual step and an edge case say the picture illustrates duality without proving it 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > the Delaunay lesson is the required prerequisite, and the dual step and an edge case say the picture illustrates duality without proving it
+AssertionError: en: expected 'The Delaunay triangulation of the sam…' to match /illustrates duality and does not pro…/u
+
+- Expected:
+/illustrates duality and does not prove it/u
+
++ Received:
+"The Delaunay triangulation of the same sites is switched on. The triangle \\(P_1P_2P_6\\) is selected: the centre of its circumcircle is \\((4,-1)\\), and the graph marks it as a Voronoi vertex. By calculation: the squared distance from \\((4,-1)\\) to each of \\(P_1\\), \\(P_2\\) and \\(P_6\\) is \\(17\\). The interior edges of the triangulation (\\(8\\)) match the finite edges of the diagram, the hull edges (\\(5\\)) match the rays. This is duality. The proof rests on the empty-circle property of the Delaunay triangulation."
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts:199:89
+    197|     const caveat = {sl: /ilustrira,? (in je )?ne dokazuje/u, en: /illu…
+    198|     for (const language of ['sl', 'en'] as const) {
+    199|         expect(l.steps.find(s => s.id === 'vor-dual')!.explanation[lan…
+       |                                                                                         ^
+    200|         expect(l.edgeCases.some(edge => caveat[language].test(edge[lan…
+    201|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  08:08:58
+   Duration  7.27s (tests 34%, transform 25%, import 21%, environment 14%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

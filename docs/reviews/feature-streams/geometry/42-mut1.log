@@ -1,0 +1,39 @@
+unit: failed (1) in 7.6s (2 workers, no slot); revision 1910d6f22fc008be7483d2c8b3675c8749905ac1; dirty; log .command-logs\2026-11-03T07-09-19-069Z-27856-5d4a65ab.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoVoronoiLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts (15 tests | 1 failed) 2374ms
+   × the Delaunay lesson is the required prerequisite, and the dual step and an edge case say the picture illustrates duality without proving it 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > the Delaunay lesson is the required prerequisite, and the dual step and an edge case say the picture illustrates duality without proving it
+AssertionError: expected 'The lesson on point-set triangulation…' to contain 'The lesson on the Delaunay triangulat…'
+
+Expected: "The lesson on the Delaunay triangulation is required"
+Received: "The lesson on point-set triangulation is required: the circumcircle of a triangle and the empty circle."
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts:195:35
+    193|     const l = guided();
+    194|     expect(l.prerequisites[0].sl).toContain('Potrebna je lekcija o Del…
+    195|     expect(l.prerequisites[0].en).toContain('The lesson on the Delauna…
+       |                                   ^
+    196|     expect(getLessonForDemonstration('delaunay')).toBeDefined();
+    197|     const caveat = {sl: /ilustrira,? (in je )?ne dokazuje/u, en: /illu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  08:09:19
+   Duration  6.88s (tests 35%, transform 24%, import 20%, environment 14%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

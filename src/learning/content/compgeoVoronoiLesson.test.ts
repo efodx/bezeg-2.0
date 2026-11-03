@@ -189,6 +189,18 @@ test('the quoted numbers are present in both languages and nothing names the deg
     for (const word of ['voronoi-degenerate', 'lesson b5']) expect(all).not.toContain(word);
 });
 
+test('the Delaunay lesson is the required prerequisite, and the dual step and an edge case say the picture illustrates duality without proving it', () => {
+    const l = guided();
+    expect(l.prerequisites[0].sl).toContain('Potrebna je lekcija o Delaunayevi triangulaciji');
+    expect(l.prerequisites[0].en).toContain('The lesson on the Delaunay triangulation is required');
+    expect(getLessonForDemonstration('delaunay')).toBeDefined();
+    const caveat = {sl: /ilustrira,? (in je )?ne dokazuje/u, en: /illustrates duality and does not prove it/u};
+    for (const language of ['sl', 'en'] as const) {
+        expect(l.steps.find(s => s.id === 'vor-dual')!.explanation[language], language).toMatch(caveat[language]);
+        expect(l.edgeCases.some(edge => caveat[language].test(edge[language])), language).toBe(true);
+    }
+});
+
 test('the new actions are rejected by every other point-set graph', () => {
     const actions = [ps('select-site', {site: 0}), ps('set-construction', {count: 1}), ps('set-query-point', {point: [1, 1]})];
     for (const make of [() => new DelaunayGraph(), () => new PointSetGraph()]) {
