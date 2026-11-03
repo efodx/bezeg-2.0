@@ -50,7 +50,7 @@ S1 and triangulation T1 are released, so C4 makes the ear-clipping contrast. The
 | 19 | [Monotone partition lesson C3](19-monotone-partition-lesson.md) | F3 | 16, 18 | accepted 2026-11-03 (handler 37, [record](../../reviews/sweep-algorithms/19-acceptance.md)): interim owner `bezier-curves/geometric-properties` until task 21; lesson smoke 2/2 passed |
 | 20 | [Monotone triangulation lesson C4](20-monotone-triangulation-lesson.md) | F3 | 17, 18, 19 | accepted 2026-11-03 (handler 37, [record](../../reviews/sweep-algorithms/20-acceptance.md)): interim owner as C3 until task 21; lesson smoke passed |
 | 21 | [Chapter sections for S2](21-s2-chapter-sections.md) | F4 | 19, 20 | accepted 2026-11-03 (handler 39, [record](../../reviews/sweep-algorithms/21-acceptance.md)) |
-| F6 | S2 acceptance (C3, C4) | F6 | 14–21 | — |
+| F6 | [S2 acceptance (C3, C4)](../../reviews/feature-streams/geometry/f6-s2-acceptance.md) | F6 | 14–21 | accepted 2026-11-03 (handler 40); S2 released |
 
 ## Later batches
 

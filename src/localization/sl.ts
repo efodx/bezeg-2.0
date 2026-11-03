@@ -2071,7 +2071,7 @@ export const sl = {
     "monotonetri_phase_partition": "Faza: razdelitev",
     "monotonetri_phase_triangulation": "Faza: triangulacija kosa {value0} od {value1}",
     "monotonetri_already_monotone": "Večkotnik je že monoton glede na os y: razdelitev ne doda nobene diagonale in ostane en kos.",
-    "monotonetri_piece_info": "Kos {value0} ima {value1} oglišč in dobi {value2} trikotnikov.",
+    "monotonetri_piece_info": "Kos {value0}: število oglišč {value1}, število trikotnikov {value2}.",
     "monotonetri_chain_top": "zgornje oglišče",
     "monotonetri_chain_left": "leva veriga",
     "monotonetri_chain_right": "desna veriga",

@@ -225,7 +225,7 @@ test('the monotone example shows the partition phase with no diagonal and says i
     click('next-step');
     expect(part('phase')).toBe('Faza: triangulacija kosa 1 od 1');
     expect(part('already-monotone')).toContain('že monoton');
-    expect(part('piece')).toBe('Kos 1 ima 8 oglišč in dobi 6 trikotnikov.');
+    expect(part('piece')).toBe('Kos 1: število oglišč 8, število trikotnikov 6.');
     goTo(graph, graph.run().length - 1);
     expect(part('triangles')).toBe('Trikotnikov: 6 = n − 2 pri n = 8.');
     expect(objectsNamed(graph, 'monotonetri-triangle')).toHaveLength(6);

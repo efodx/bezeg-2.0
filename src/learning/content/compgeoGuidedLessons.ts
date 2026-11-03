@@ -2229,7 +2229,7 @@ const monotoneTriangulation: GuidedLesson = {
             title: text('Končan kos: n − 2 trikotnikov', 'A finished piece: n − 2 triangles'),
             purpose: text('Preveriti, da ima triangulirani kos \\(n-2\\) trikotnikov.', 'Checking that the triangulated piece has \\(n-2\\) triangles.'),
             explanation: text(
-                'Pri koraku \\(28\\) od \\(43\\) je prvi kos končan: sklad je prazen, trikotnikov doslej je \\(2\\), kar je \\(n-2\\) pri \\(n=4\\). Drugi kos \\((4,3),(8,0),(12,8),(8,5)\\) ima prav tako \\(4\\) oglišča; ko pritisneš Naslednji korak, izpis pove „Kos 2 ima 4 oglišč in dobi 2 trikotnikov“. Vsak kos z \\(n\\) oglišči da \\(n-2\\) trikotnikov, ne glede na to, koliko preizkusov je uspelo ali ne.',
+                'Pri koraku \\(28\\) od \\(43\\) je prvi kos končan: sklad je prazen, trikotnikov doslej je \\(2\\), kar je \\(n-2\\) pri \\(n=4\\). Drugi kos \\((4,3),(8,0),(12,8),(8,5)\\) ima prav tako \\(4\\) oglišča; ko pritisneš Naslednji korak, izpis pove „Kos 2: število oglišč 4, število trikotnikov 2“. Vsak kos z \\(n\\) oglišči da \\(n-2\\) trikotnikov, ne glede na to, koliko preizkusov je uspelo ali ne.',
                 'At step \\(28\\) of \\(43\\) the first piece is finished: the stack is empty and the triangles so far are \\(2\\), which is \\(n-2\\) for \\(n=4\\). The second piece \\((4,3),(8,0),(12,8),(8,5)\\) also has \\(4\\) vertices; after you press Next step the readout says "Piece 2 has 4 vertices and gets 2 triangles". Every piece with \\(n\\) vertices gives \\(n-2\\) triangles, however many tests succeed or fail.',
             ),
             formulaIds: ['monotone-triangle-count'],

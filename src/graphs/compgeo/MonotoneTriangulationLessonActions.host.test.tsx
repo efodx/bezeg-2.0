@@ -155,7 +155,7 @@ test('a scene change after a running playback pauses it and leaves no pending ca
 const STEPS = ['montri-piece', 'montri-predict', 'montri-test', 'montri-diagonal', 'montri-count', 'montri-compare', 'montri-explore'];
 const DIAGONALS_1 = 'Diagonale doslej (1): v2–v5';
 const DIAGONALS_2 = 'Diagonale doslej (2): v2–v5, v2–v6';
-const PIECE_LINE = 'Kos 1 ima 4 oglišč in dobi 2 trikotnikov.';
+const PIECE_LINE = 'Kos 1: število oglišč 4, število trikotnikov 2.';
 /** Readouts per scene: step, piece, vertex, test, diagonals, triangles, the two comparison counts; then the stack and the chain list. */
 const CHAINS_1 = ['v6 — zgornje oglišče', 'v5 — desna veriga', 'v2 — desna veriga', 'v1 — spodnje oglišče'];
 const EXPECTED: Record<string, {readonly shown: readonly (string | undefined)[]; readonly stack: readonly string[]; readonly chains: readonly (string | null)[]}> = {
@@ -168,7 +168,7 @@ const EXPECTED: Record<string, {readonly shown: readonly (string | undefined)[];
     'montri-diagonal': {shown: ['Korak 23 od 43', PIECE_LINE, 'v2 — desna veriga', undefined, DIAGONALS_2, 'Trikotnikov doslej: 1.', undefined, undefined], stack: [], chains: CHAINS_1},
     'montri-count': {shown: ['Korak 28 od 43', PIECE_LINE, 'v1 — spodnje oglišče', undefined, DIAGONALS_2, 'Trikotnikov doslej: 2.', undefined, undefined], stack: [], chains: CHAINS_1},
     'montri-compare': {
-        shown: ['Korak 43 od 43', 'Kos 2 ima 4 oglišč in dobi 2 trikotnikov.', 'v3 — spodnje oglišče', undefined, 'Diagonale doslej (3): v2–v5, v2–v6, v3–v5', 'Trikotnikov: 4 = n − 2 pri n = 6.',
+        shown: ['Korak 43 od 43', 'Kos 2: število oglišč 4, število trikotnikov 2.', 'v3 — spodnje oglišče', undefined, 'Diagonale doslej (3): v2–v5, v2–v6, v3–v5', 'Trikotnikov: 4 = n − 2 pri n = 6.',
             'Monotona metoda (razdelitev in triangulacija): 11 izračunov predikatov.', 'Rezanje ušes na istem večkotniku: 21 izračunov predikatov.'],
         stack: [], chains: ['v4 — zgornje oglišče', 'v5 — leva veriga', 'v2 — leva veriga', 'v3 — spodnje oglišče'],
     },
@@ -213,7 +213,7 @@ test('the quoted trace positions are the partition boundary and the readouts the
     expect(scene.basedOn === 'demonstration-default' ? scene.view : undefined).toEqual([-1, 9, 13, -1]);
     // The text says piece 2 also gets two triangles once Next step has started it, and that the first triangulation step is the pop of v6.
     apply(graph, traceStep(29));
-    expect(part('piece')).toBe('Kos 2 ima 4 oglišč in dobi 2 trikotnikov.');
+    expect(part('piece')).toBe('Kos 2: število oglišč 4, število trikotnikov 2.');
     apply(graph, traceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.partitionDone));
     expect(part('phase')).toBe('Faza: razdelitev');
     apply(graph, trace('next-step'));
