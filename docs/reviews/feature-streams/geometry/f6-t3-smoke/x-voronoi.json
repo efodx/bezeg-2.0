@@ -1,0 +1,15 @@
+{
+ "before": {
+  "label": "Korak 4 od 7 · Okvir 1 od 2",
+  "title": "Voronojev diagram"
+ },
+ "afterSwitch": {
+  "label": "Step 4 of 7 · Frame 1 of 2",
+  "korakLeft": 0,
+  "title": "Voronoi diagram",
+  "nextEn": 1
+ },
+ "afterNext": "Step 4 of 7 · Frame 2 of 2",
+ "backSl": "Korak 4 od 7 · Okvir 2 od 2",
+ "errs": []
+}

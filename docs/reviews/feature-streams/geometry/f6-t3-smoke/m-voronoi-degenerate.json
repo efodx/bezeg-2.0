@@ -1,0 +1,103 @@
+{
+ "plainScroll": {
+  "sw": 390,
+  "cw": 390,
+  "bsw": 390
+ },
+ "smallTargetsPlain": 21,
+ "smallSample": [
+  {
+   "t": "Demon tracije",
+   "w": 81,
+   "h": 17
+  },
+  {
+   "t": "Račun ka geometrija",
+   "w": 117,
+   "h": 17
+  },
+  {
+   "t": "",
+   "w": 189,
+   "h": 30
+  },
+  {
+   "t": "",
+   "w": 189,
+   "h": 30
+  },
+  {
+   "t": "",
+   "w": 13,
+   "h": 13
+  },
+  {
+   "t": "",
+   "w": 13,
+   "h": 13
+  }
+ ],
+ "lessonScroll": {
+  "sw": 390,
+  "cw": 390,
+  "bsw": 390
+ },
+ "labelBefore": "Korak 1 od 7 · Okvir 1 od 2",
+ "nextBox": {
+  "x": 198,
+  "y": 702.953125,
+  "width": 158,
+  "height": 44
+ },
+ "afterTap1": "Korak 1 od 7 · Okvir 2 od 2",
+ "afterTap2": "Korak 2 od 7 · Okvir 1 od 2",
+ "lessonSmallTargets": 23,
+ "lessonSmallSample": [
+  {
+   "t": "Demon tracije",
+   "w": 81,
+   "h": 17
+  },
+  {
+   "t": "Račun ka geometrija",
+   "w": 117,
+   "h": 17
+  },
+  {
+   "t": "Premakni navodila",
+   "w": 28,
+   "h": 44
+  },
+  {
+   "t": "Nazaj v poglavje",
+   "w": 101,
+   "h": 18
+  },
+  {
+   "t": "",
+   "w": 189,
+   "h": 30
+  },
+  {
+   "t": "",
+   "w": 189,
+   "h": 30
+  },
+  {
+   "t": "",
+   "w": 13,
+   "h": 13
+  },
+  {
+   "t": "",
+   "w": 13,
+   "h": 13
+  }
+ ],
+ "lessonScrollAfter": {
+  "sw": 390,
+  "cw": 390,
+  "bsw": 390
+ },
+ "errs": []
+}

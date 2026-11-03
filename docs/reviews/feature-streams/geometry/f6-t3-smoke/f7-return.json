@@ -1,0 +1,23 @@
+{
+ "exampleLinks": [
+  "/bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+  "/bezeg-2.0/compgeo/point-set-triangulation?example=lesson.triangulations-voronoi.point-set-triangulation.point-set-trian",
+  "/bezeg-2.0/compgeo/delaunay?example=lesson.triangulations-voronoi.delaunay.delaunay",
+  "/bezeg-2.0/compgeo/voronoi?example=lesson.triangulations-voronoi.voronoi.voronoi",
+  "/bezeg-2.0/compgeo/voronoi-degenerate?example=lesson.triangulations-voronoi.voronoi-degenerate.voronoi-degenerate"
+ ],
+ "linkText": "Vodeni primer\n→",
+ "lessonLabel": "Korak 1 od 7 · Okvir 1 od 2",
+ "urlAfterOpen": "/compgeo/voronoi?example=lesson.triangulations-voronoi.voronoi.voronoi",
+ "afterReturn": {
+  "lesson": null,
+  "url": "/learn/triangulations-voronoi#voronoi",
+  "active": {
+   "tag": "A",
+   "text": "Vodeni primer\n→",
+   "href": "/bezeg-2.0/compgeo/voronoi?example=lesson.triangulations-voronoi.voronoi.voronoi",
+   "label": ""
+  }
+ },
+ "errs": []
+}

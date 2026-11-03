@@ -1,0 +1,24 @@
+import {run,BASE,lab,enter,NEXT} from './lib.mjs';
+const small=`[...document.querySelectorAll('button,a,select,input')].filter(e=>e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0).map(e=>({t:((e.innerText||e.getAttribute('aria-label')||e.placeholder||'')+'').replace(/\s+/g,' ').slice(0,24),w:Math.round(e.getBoundingClientRect().width),h:Math.round(e.getBoundingClientRect().height)})).filter(o=>o.w<44||o.h<44)`;
+const sw=`({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth,bsw:document.body.scrollWidth})`;
+for(const rt of ['voronoi','voronoi-degenerate']) await run('m-'+rt,async(page,r)=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto(BASE+'/compgeo/'+rt); await page.waitForTimeout(1500);
+ r.plainScroll=await page.evaluate(sw); r.smallTargetsPlain=(await page.evaluate(small)).length; r.smallSample=(await page.evaluate(small)).slice(0,6);
+ await enter(page,'sl'); r.lessonScroll=await page.evaluate(sw);
+ r.labelBefore=await lab(page);
+ const nx=page.getByRole('button',{name:NEXT}); r.nextBox=await nx.boundingBox();
+ await nx.scrollIntoViewIfNeeded(); await nx.click(); await page.waitForTimeout(500); r.afterTap1=await lab(page);
+ await page.getByRole('button',{name:NEXT}).click(); await page.waitForTimeout(500); r.afterTap2=await lab(page);
+ r.lessonSmallTargets=(await page.evaluate(small)).length; r.lessonSmallSample=(await page.evaluate(small)).slice(0,8);
+ r.lessonScrollAfter=await page.evaluate(sw);
+ await page.screenshot({path:'C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/docs/reviews/feature-streams/geometry/f6-t3-smoke/m390-'+rt+'-lesson.png'});
+});
+const shot=async(page,target,name)=>{for(let i=0;i<40;i++){const l=await lab(page);if(l&&new RegExp(target).test(l))break;await page.getByRole('button',{name:NEXT}).click();await page.waitForTimeout(350);} await page.screenshot({path:'C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/docs/reviews/feature-streams/geometry/f6-t3-smoke/'+name}); return await lab(page);};
+await run('s6-v',async(page,r)=>{ await page.setViewportSize({width:1280,height:720}); await page.goto(BASE+'/compgeo/voronoi'); await page.waitForTimeout(1500); await enter(page,'sl');
+ r.step4=await shot(page,'(Korak|Step) 4 (od|of) 7 · (Okvir|Frame) 1 ','s6-v-step4.png');
+ r.step5=await shot(page,'(Korak|Step) 5 (od|of) 7 · (Okvir|Frame) 1 ','s6-v-step5.png');
+});
+await run('s6-d',async(page,r)=>{ await page.setViewportSize({width:1280,height:720}); await page.goto(BASE+'/compgeo/voronoi-degenerate'); await page.waitForTimeout(1500); await enter(page,'sl');
+ r.step3=await shot(page,'(Korak|Step) 3 (od|of) 7 · (Okvir|Frame) 1 ','s6-d-step3.png');
+});

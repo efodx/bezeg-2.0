@@ -1,0 +1,5 @@
+Waiting for unit (pid 1872) to finish starting before reading free memory.
+Waiting for check (pid 3108) to finish starting before reading free memory.
+Memory available for check after 65s.
+check: passed in 1012.1s (test slot 2/3, 3 workers); revision 22295a429621f985f557ed02c21be2a4cb83a121; dirty; log .command-logs\2026-11-03T08-23-32-857Z-30212-9d91f7b9.log
+check build: passed in 4.9s (test slot 2/3, 3 workers); revision 22295a429621f985f557ed02c21be2a4cb83a121; dirty; log .command-logs\2026-11-03T08-40-25-238Z-30212-8c892e17.log; warnings present (see log)

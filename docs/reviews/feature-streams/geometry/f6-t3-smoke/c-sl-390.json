@@ -1,0 +1,51 @@
+{
+ "headings": [
+  {
+   "t": "Voronojev diagram in dualnost",
+   "tag": "H2",
+   "w": 332,
+   "vis": true,
+   "top": 5517
+  },
+  {
+   "t": "Voronojev diagram in dualnost",
+   "tag": "H3",
+   "w": 328,
+   "vis": true,
+   "top": 6533
+  },
+  {
+   "t": "Izrojena mesta: kocirkularne in kolinearne točke",
+   "tag": "H2",
+   "w": 332,
+   "vis": true,
+   "top": 6759
+  },
+  {
+   "t": "Izrojena mesta: kocirkularne in kolinearne točke",
+   "tag": "H3",
+   "w": 328,
+   "vis": true,
+   "top": 7730
+  }
+ ],
+ "exampleLinks": [
+  {
+   "href": "/compgeo/voronoi",
+   "t": "Vodeni primer →",
+   "vis": true,
+   "inViewport": false
+  },
+  {
+   "href": "/compgeo/voronoi-degenerate",
+   "t": "Vodeni primer →",
+   "vis": true,
+   "inViewport": false
+  }
+ ],
+ "scrollW": [
+  390,
+  390
+ ],
+ "errs": []
+}

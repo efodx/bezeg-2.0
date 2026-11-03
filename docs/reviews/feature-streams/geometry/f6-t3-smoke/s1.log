@@ -1,0 +1,4 @@
+s1-voronoi-plain {"first":{"jxg":1,"svg":3,"spoznaj":1,"learnBtn":1,"lesson":null},"afterReload":{"jxg":1,"svg":3,"spoznaj":1,"learnBtn":1,"lesson":null},"errs":[]}
+s1-voronoi-learn {"first":{"jxg":1,"svg":4,"spoznaj":0,"learnBtn":0,"lesson":"Korak 1 od 7 · Okvir 1 od 2"},"afterReload":{"jxg":1,"svg":4,"spoznaj":0,"learnBtn":0,"lesson":"Korak 1 od 7 · Okvir 1 od 2"},"errs":[]}
+s1-voronoi-degenerate-plain {"first":{"jxg":1,"svg":3,"spoznaj":1,"learnBtn":1,"lesson":null},"afterReload":{"jxg":1,"svg":3,"spoznaj":1,"learnBtn":1,"lesson":null},"errs":[]}
+s1-voronoi-degenerate-learn {"first":{"jxg":1,"svg":4,"spoznaj":0,"learnBtn":0,"lesson":"Korak 1 od 7 · Okvir 1 od 2"},"afterReload":{"jxg":1,"svg":4,"spoznaj":0,"learnBtn":0,"lesson":"Korak 1 od 7 · Okvir 1 od 2"},"errs":[]}

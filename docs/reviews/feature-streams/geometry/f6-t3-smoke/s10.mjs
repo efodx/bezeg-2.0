@@ -1,0 +1,2 @@
+import {run,BASE} from './lib.mjs';
+await run('shy-voronoi',async(page,r)=>{ await page.goto(BASE+'/compgeo/voronoi'); await page.waitForTimeout(1500); r.shy=await page.evaluate(()=>(document.body.innerText.match(/­/g)||[]).length); r.shyOnBtn=await page.evaluate(()=>[...document.querySelectorAll('button')].filter(b=>/­/.test(b.innerText)).length); r.hyph=await page.evaluate(()=>getComputedStyle(document.querySelector('button')).hyphens); });

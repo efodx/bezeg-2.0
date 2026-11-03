@@ -1,0 +1,51 @@
+{
+ "headings": [
+  {
+   "t": "The Voronoi diagram and duality",
+   "tag": "H2",
+   "w": 545,
+   "vis": true,
+   "top": 3922
+  },
+  {
+   "t": "The Voronoi diagram and duality",
+   "tag": "H3",
+   "w": 750,
+   "vis": true,
+   "top": 4635
+  },
+  {
+   "t": "Degenerate sites: cocircular and collinear points",
+   "tag": "H2",
+   "w": 750,
+   "vis": true,
+   "top": 4835
+  },
+  {
+   "t": "Degenerate sites: cocircular and collinear points",
+   "tag": "H3",
+   "w": 750,
+   "vis": true,
+   "top": 5486
+  }
+ ],
+ "exampleLinks": [
+  {
+   "href": "/compgeo/voronoi",
+   "t": "Guided example →",
+   "vis": true,
+   "inViewport": false
+  },
+  {
+   "href": "/compgeo/voronoi-degenerate",
+   "t": "Guided example →",
+   "vis": true,
+   "inViewport": false
+  }
+ ],
+ "scrollW": [
+  1440,
+  1440
+ ],
+ "errs": []
+}

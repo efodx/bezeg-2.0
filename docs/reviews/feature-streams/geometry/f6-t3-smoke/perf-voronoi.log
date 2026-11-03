@@ -1,0 +1,8 @@
+browser Chromium 156.0.8078.4 viewport 1440x900 dsf 1 base http://127.0.0.1:4313/bezeg-2.0
+{"case":"voronoi default page state (Voronoi and dual overlays as loaded)","run":1,"points":40,"frames":205,"moves":41,"median":16.69999999999891,"p95":16.80000000000109,"max":66.59999999999854,"latMedian":8.800000001490844,"latMax":32.399999999999636,"movedPx":50}
+{"case":"voronoi default page state (Voronoi and dual overlays as loaded)","run":2,"points":40,"frames":199,"moves":41,"median":16.700000000000728,"p95":16.80000000000291,"max":50.099999999998545,"latMedian":9.049999999253487,"latMax":49.5,"movedPx":50}
+{"case":"voronoi default page state (Voronoi and dual overlays as loaded)","run":3,"points":40,"frames":201,"moves":41,"median":16.69999999999891,"p95":16.80000000000109,"max":66.60000000000218,"latMedian":6.400000002235174,"latMax":16.500000004471076,"movedPx":50}
+
+case | frames/run | median ms | p95 ms | max ms | move->frame median | move->frame max
+voronoi default page state (Voronoi and dual overlays as loaded) | 205/199/201 | 16.7 | 16.8 | 66.6 | 8.8 | 49.5
+exit 0

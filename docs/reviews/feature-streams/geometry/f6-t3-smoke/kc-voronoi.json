@@ -1,0 +1,61 @@
+{
+ "btns": [
+  {
+   "tag": "A",
+   "t": "Nazaj v poglavje",
+   "disabled": null,
+   "tabindex": null,
+   "vis": true,
+   "y": 331
+  },
+  {
+   "tag": "BUTTON",
+   "t": "Prejšnji okvir",
+   "disabled": true,
+   "tabindex": null,
+   "vis": true,
+   "y": 716
+  },
+  {
+   "tag": "BUTTON",
+   "t": "Naslednji okvir",
+   "disabled": null,
+   "tabindex": null,
+   "vis": true,
+   "y": 716
+  },
+  {
+   "tag": "BUTTON",
+   "t": "Naslednji namig",
+   "disabled": null,
+   "tabindex": null,
+   "vis": true,
+   "y": 893
+  },
+  {
+   "tag": "BUTTON",
+   "t": "Nazaj",
+   "disabled": "true",
+   "tabindex": null,
+   "vis": true,
+   "y": 715
+  }
+ ],
+ "nextByRole": 1,
+ "tabbables": 94,
+ "lessonNext": [
+  [
+   "Prejšnji okvir",
+   0,
+   true,
+   117.171875
+  ],
+  [
+   "Naslednji okvir",
+   0,
+   false,
+   140.90625
+  ]
+ ],
+ "errs": []
+}

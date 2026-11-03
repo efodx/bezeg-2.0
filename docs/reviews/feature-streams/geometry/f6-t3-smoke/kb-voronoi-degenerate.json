@@ -1,0 +1,12 @@
+{
+ "labelAtLoad": "Korak 1 od 7 · Okvir 1 od 2",
+ "nextFocus": {
+  "tag": "BUTTON",
+  "label": "Na lednji okvir",
+  "outline": "solid 3px rgb(69, 109, 176)"
+ },
+ "nextIndex": 25,
+ "afterEnter": "Korak 1 od 7 · Okvir 2 od 2",
+ "afterEnter2": "Korak 1 od 7 · Okvir 2 od 2",
+ "errs": []
+}

@@ -1,0 +1,26 @@
+{
+ "labels": [
+  "Step 1 of 7 · Frame 1 of 2",
+  "Step 1 of 7 · Frame 2 of 2",
+  "Step 2 of 7 · Frame 1 of 2",
+  "Step 2 of 7 · Frame 2 of 2",
+  "Step 3 of 7 · Frame 1 of 3",
+  "Step 3 of 7 · Frame 2 of 3",
+  "Step 3 of 7 · Frame 3 of 3",
+  "Step 4 of 7 · Frame 1 of 3",
+  "Step 4 of 7 · Frame 2 of 3",
+  "Step 4 of 7 · Frame 3 of 3",
+  "Step 5 of 7 · Frame 1 of 2",
+  "Step 5 of 7 · Frame 2 of 2",
+  "Step 6 of 7 · Frame 1 of 2",
+  "Step 6 of 7 · Frame 2 of 2",
+  "Step 7 of 7 · Frame 1 of 2",
+  "Step 7 of 7 · Frame 2 of 2"
+ ],
+ "frames": 16,
+ "finalLabel": "Step 7 of 7 · Frame 2 of 2",
+ "nextLeft": 0,
+ "finalText": null,
+ "exitBtn": 1,
+ "errs": []
+}
