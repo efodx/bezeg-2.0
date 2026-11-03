@@ -2136,7 +2136,23 @@ const probabilityClt = {
     },
 };
 
-const LESSONS = [voronoi, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, polynomialZeros, rationalFunction, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Probability P4 (summary statistics): the interquartile range readout per lesson step 1..6 (school data; 8 to 30; box plot;
+// plus a far dot; the exclusive quartile rule; the default) and the mean readout.
+const SUMMARY_MEAN = ['5.857143', '9', '9', '10.375', '5.857143', '5.857143'];
+const SUMMARY_Q3 = ['6.5', '6.5', '6.5', '13.5', '7', '6.5'];
+const probabilitySummary = {
+    id: 'prob-summary',
+    path: `${BASE}/probability/summary`,
+    titles: {sl: 'Aritmetična sredina, mediana in standardni odklon', en: 'Mean, median and standard deviation'},
+    steps: 6,
+    minFrames: 12, // 2 frames per step
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(() => densityReadout(page, 'mean'), {message: `summary mean readout at ${label}`}).toBe(SUMMARY_MEAN[step - 1]);
+        await expect.poll(() => densityReadout(page, 'q3'), {message: `summary Q3 readout at ${label}`}).toBe(SUMMARY_Q3[step - 1]);
+    },
+};
+
+const LESSONS = [voronoi, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, polynomialZeros, rationalFunction, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

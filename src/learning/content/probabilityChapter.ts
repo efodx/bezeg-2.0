@@ -20,8 +20,8 @@ function withExample(sectionId: ProbabilitySectionId, section: FamilyChapterSect
 }
 
 /**
- * Probability and statistics on the graph (spec P1 to P3 of probability-statistics-lessons.md): an opening section, then one section per
- * lesson, each ending with its example. The sections for P4 and P5 are appended when those lessons are built.
+ * Probability and statistics on the graph (spec P1 to P4 of probability-statistics-lessons.md): an opening section, then one section per
+ * lesson, each ending with its example. The section for P5 is appended when that lesson is built.
  */
 export const probabilityChapter: FamilyChapter = {
     id: PROBABILITY_CHAPTER_ID,
@@ -93,6 +93,21 @@ export const probabilityChapter: FamilyChapter = {
                      'The uniform density on \\([0,1]\\) has \\(\\mu=\\tfrac12\\) and \\(\\sigma^2=\\tfrac1{12}\\); the sum of two copies is triangular, and at \\(n=10\\) the Kolmogorov distance is \\(K_{10}=0.00281\\). The skewed density \\(2(1-x)\\) has \\(\\mu=\\tfrac13\\), \\(\\sigma^2=\\tfrac1{18}\\) and at \\(n=10\\) still \\(K_{10}=0.01248\\): skewness slows the approach.'),
                 text('Konvergenca je v porazdelitvi: izrek ne pove hitrosti, hitrost ocenjuje Berry–Esseenov izrek, ki ga tu samo navajamo. Ujemanje pri enem \\(n\\) ni hitrost, razdalja \\(K_n\\) na grafu pa velja le za izbrano obliko in izbrani \\(n\\). Slika ponazarja izrek, ne dokazuje ga.',
                      'The convergence is in distribution: the theorem gives no rate, a rate is estimated by the Berry–Esseen theorem, which is only cited here. A match at one \\(n\\) is not a rate, and the distance \\(K_n\\) on the graph holds only for the chosen shape and the chosen \\(n\\). The picture illustrates the theorem, it does not prove it.'),
+            ],
+        }),
+        withExample('summary', {
+            id: 'summary',
+            demonstrationIds: ['prob-summary'],
+            investigationPrompts: {'prob-summary': text('Napovej, kaj se zgodi s povprečjem in z mediano, ko največjo vrednost premakneš daleč v desno, nato preveri na grafu in primerjaj obe pravili za kvartile.', 'Predict what happens to the mean and the median when the largest value moves far to the right, then check on the graph and compare the two quartile rules.')},
+            title: text('Aritmetična sredina, mediana in standardni odklon', 'Mean, median and standard deviation'),
+            formula: String.raw`\bar x=\frac1n\sum_{i=1}^n x_i,\qquad \sigma=\sqrt{\frac1n\sum_{i=1}^n(x_i-\bar x)^2},\qquad x>Q_3+\tfrac32\,\mathrm{IQR}`,
+            paragraphs: [
+                text('Cilj razdelka: znaš izračunati aritmetično sredino, mediano in standardni odklon in prebrati škatlo z brki. Za podatke \\(\\{4,5,5,6,6,7,8\\}\\) je \\(\\bar x=5{,}857143\\), mediana \\(6\\) in populacijski \\(\\sigma=1{,}2454\\) (vzorčni \\(s=1{,}3452\\)). Sredina je najmanjša vsota kvadratov odmikov: \\(\\sum(x_i-c)^2\\) je \\(10{,}857\\) pri sredini in \\(11\\) pri mediani; mediana je najmanjša vsota absolutnih odmikov: \\(7\\) pri mediani in \\(7{,}143\\) pri sredini.',
+                     'Goal of the section: you can compute the mean, the median and the standard deviation and read a box plot. For the data \\(\\{4,5,5,6,6,7,8\\}\\) the mean is \\(\\bar x=5.857143\\), the median \\(6\\) and the population \\(\\sigma=1.2454\\) (sample \\(s=1.3452\\)). The mean minimizes the sum of squared deviations: \\(\\sum(x_i-c)^2\\) is \\(10.857\\) at the mean and \\(11\\) at the median; the median minimizes the sum of absolute deviations: \\(7\\) at the median and \\(7.143\\) at the mean.'),
+                text('Če vrednost \\(8\\) premakneš na \\(30\\), se sredina premakne na \\(9\\), mediana ostane \\(6\\), \\(\\sigma\\) pa zraste na \\(8{,}6189\\). Kvartila po šolskem pravilu (polovici z mediano) sta \\(Q_1=5\\) in \\(Q_3=6{,}5\\), \\(\\mathrm{IQR}=1{,}5\\), meji pa \\(2{,}75\\) in \\(8{,}75\\), zato je \\(30\\) označena kot osamelec.',
+                     'If you move the value \\(8\\) to \\(30\\), the mean moves to \\(9\\), the median stays \\(6\\) and \\(\\sigma\\) grows to \\(8.6189\\). The quartiles by the school rule (halves including the median) are \\(Q_1=5\\) and \\(Q_3=6.5\\), \\(\\mathrm{IQR}=1.5\\), and the fences \\(2.75\\) and \\(8.75\\), so \\(30\\) is flagged as an outlier.'),
+                text('Graf privzeto uporablja šolsko pravilo za kvartile in populacijski \\(\\sigma\\). Kalkulatorji in programi se razlikujejo: pravilo brez mediane v polovicah da za iste podatke \\(Q_1=5\\) in \\(Q_3=7\\), torej drugo škatlo. Tudi osamelec je dogovor: vrednost zunaj mej \\(1{,}5\\,\\mathrm{IQR}\\) od kvartilov, ne matematična lastnost podatkov.',
+                     'The graph uses the school quartile rule and the population \\(\\sigma\\) by default. Calculators and software differ: the rule that leaves the median out of the halves gives \\(Q_1=5\\) and \\(Q_3=7\\) for the same data, a different box. An outlier is a convention too: a value beyond the \\(1.5\\,\\mathrm{IQR}\\) fences from the quartiles, not a mathematical property of the data.'),
             ],
         }),
     ],

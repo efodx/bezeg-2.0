@@ -538,4 +538,164 @@ const centralLimit: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const probabilityGuidedLessons: readonly GuidedLesson[] = [densityArea, binomialNormal, centralLimit];
+
+const summaryChoice = (name: 'summary-example' | 'summary-rule' | 'summary-sigma', value: string): LessonAction => ({kind: 'function-choice', name, value});
+const summaryShow = (target: 'summary-box-plot' | 'summary-sigma-band', visible: boolean): LessonAction => ({kind: 'function-visibility', target, visible});
+const summarySet = (index: number, value: number): LessonAction => ({kind: 'summary', operation: 'set-value', index, value});
+const summaryAdd = (value: number): LessonAction => ({kind: 'summary', operation: 'add-value', value});
+
+/** Every summary scene starts from the demonstration default (school data, school rule, population sigma, box plot on, band off). */
+const summaryScene = (id: string, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
+    id,
+    basedOn: 'demonstration-default',
+    actions: [{kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'}, ...actions],
+    expectedState: text(sl, en),
+});
+
+const summaryStatistics: GuidedLesson = {
+    demonstrationId: 'prob-summary',
+    title: text('Aritmetična sredina, mediana in standardni odklon', 'Mean, median and standard deviation'),
+    summary: text(
+        'Aritmetična sredina se odzove na vsako vrednost, tudi na osamelca; mediana ostane pri sredini vrstnega reda. Standardni odklon meri raztros okoli sredine. Škatla z brki prikaže petštevilski povzetek in označi vrednosti zunaj mej \\(Q_1-1{,}5\\,\\mathrm{IQR}\\) in \\(Q_3+1{,}5\\,\\mathrm{IQR}\\). Lekcija uporablja šolsko pravilo za kvartile (mediana pripada obema polovicama) in populacijski \\(\\sigma\\); kalkulatorji in programi se lahko razlikujejo.',
+        'The mean reacts to every value, an outlier included; the median stays at the middle of the order. The standard deviation measures the spread about the mean. The box plot shows the five-number summary and flags values beyond the limits \\(Q_1-1.5\\,\\mathrm{IQR}\\) and \\(Q_3+1.5\\,\\mathrm{IQR}\\). The lesson uses the school quartile rule (the median belongs to both halves) and the population \\(\\sigma\\); calculators and software may differ.',
+    ),
+    prerequisites: [
+        text('Potrebna je le aritmetika; pojme iz mature (aritmetična sredina, mediana, kvartili) lekcija ponovi.', 'Only arithmetic is needed; the lesson recalls the matura vocabulary (mean, median, quartiles).'),
+    ],
+    learningGoals: [
+        text('Razložiš, da se aritmetična sredina premakne z vsako vrednostjo, mediana pa ostane, dokler vrednost ne prečka mesta v vrstnem redu.', 'Explain that the mean moves with every value while the median stays until a value crosses its rank.'),
+        text('Poveš, da standardni odklon meri raztros okoli sredine in da populacijska in vzorčna različica delita z različnim imenovalcem.', 'State that the standard deviation measures spread about the mean and that the population and sample versions divide by different denominators.'),
+        text('Prebereš škatlo z brki in poveš, da je »osamelec« tu dogovor (zunaj mej \\(1{,}5\\) medčetrtinskega razmika), ne matematična lastnost.', 'Read a box plot and state that "outlier" here is a convention (beyond the \\(1.5\\) IQR fences), not a mathematical property.'),
+        text('Poveš, da je izbira pravila za kvartile del odgovora.', 'State that the choice of quartile rule is part of the answer.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'summary-definitions',
+            latex: '\\bar x=\\frac1n\\sum_{i=1}^n x_i,\\qquad \\sigma=\\sqrt{\\frac1n\\sum_{i=1}^n(x_i-\\bar x)^2},\\qquad s=\\sqrt{\\frac1{n-1}\\sum_{i=1}^n(x_i-\\bar x)^2},\\qquad \\mathrm{IQR}=Q_3-Q_1',
+            notation: text(
+                '\\(\\bar x\\) je aritmetična sredina, \\(\\sigma\\) populacijski in \\(s\\) vzorčni standardni odklon, \\(Q_1\\) in \\(Q_3\\) prvi in tretji kvartil, \\(\\mathrm{IQR}\\) medčetrtinski razmik.',
+                '\\(\\bar x\\) is the mean, \\(\\sigma\\) the population and \\(s\\) the sample standard deviation, \\(Q_1\\) and \\(Q_3\\) the first and third quartile, \\(\\mathrm{IQR}\\) the interquartile range.',
+            ),
+            explanation: text(
+                'Mediana in kvartili sledijo vrstnemu redu, zato se ne spremenijo, če vrednost spremenimo, ne da bi prečkala svoj rang. Pri šolskem pravilu pri lihem \\(n\\) mediana pripada obema polovicama, pri drugem pravilu je iz obeh izpuščena. Vrednost je osamelec, če je \\(x>Q_3+1{,}5\\,\\mathrm{IQR}\\) ali \\(x<Q_1-1{,}5\\,\\mathrm{IQR}\\); to je dogovor.',
+                'The median and the quartiles follow the order, so they do not change when a value changes without crossing its rank. In the school rule the median belongs to both halves for odd \\(n\\); in the other rule it is left out of both. A value is an outlier if \\(x>Q_3+1.5\\,\\mathrm{IQR}\\) or \\(x<Q_1-1.5\\,\\mathrm{IQR}\\); this is a convention.',
+            ),
+        },
+    ],
+    workedExamples: [],
+    steps: [
+        {
+            id: 'summary-markers', order: 1,
+            title: text('Vrednosti, sredina in mediana', 'Values, mean and median'),
+            purpose: text('Prebrati aritmetično sredino in mediano šolskega primera ter napovedati, kaj se zgodi, če največjo vrednost premaknemo v desno.', 'Reading the mean and median of the school data and predicting what happens if the largest value moves right.'),
+            explanation: text(
+                'Sedem vrednosti \\(4,5,5,6,6,7,8\\) je narisanih kot pike na osi. Aritmetična sredina (trikotnik) je \\(5{,}857143\\), mediana (kvadrat) je \\(6\\). Napovej: kaj se zgodi z vsako od njiju, če največjo vrednost \\(8\\) premakneš daleč v desno?',
+                'Seven values \\(4,5,5,6,6,7,8\\) are drawn as dots on an axis. The mean (triangle) is \\(5.857143\\), the median (square) is \\(6\\). Predict: what happens to each of them if you move the largest value \\(8\\) far to the right?',
+            ),
+            formulaIds: ['summary-definitions'],
+            frames: [frame('summary-markers-explanation', 'explanation'), frame('summary-markers-observation', 'observation')],
+            observationPrompt: text('Kje na osi sta trikotnik in kvadrat in zakaj nista na istem mestu?', 'Where on the axis are the triangle and the square, and why are they not at the same place?'),
+            expectedObservations: [text('Sredina je \\(5{,}857143\\), mediana \\(6\\); mediana je sredina vrstnega reda, aritmetična sredina je ravnotežje vseh vrednosti.', 'The mean is \\(5.857143\\), the median \\(6\\); the median is the middle of the order, the mean balances all the values.')],
+            scene: summaryScene('summary-markers-start', [summaryShow('summary-box-plot', false), summaryShow('summary-sigma-band', false)],
+                'Šolski primer brez škatle z brki; sredina \\(5{,}857143\\), mediana \\(6\\).',
+                'The school data without the box plot; mean \\(5.857143\\), median \\(6\\).'),
+        },
+        {
+            id: 'summary-move', order: 2,
+            title: text('Največja vrednost se premakne', 'The largest value moves'),
+            purpose: text('Videti, da aritmetična sredina sledi vrednosti, mediana pa ostane.', 'Seeing that the mean follows the value while the median stays.'),
+            explanation: text(
+                'Vrednost \\(8\\) je zdaj \\(30\\); pogled se je prilagodil. Aritmetična sredina se je premaknila na \\(9\\), mediana je ostala \\(6\\), ker se vrstni red ni spremenil. Populacijski standardni odklon je zrasel na \\(8{,}6189\\). Povleci to piko sam in opazuj trikotnik in kvadrat.',
+                'The value \\(8\\) is now \\(30\\); the view has refitted. The mean has moved to \\(9\\), the median stayed \\(6\\) because the order did not change. The population standard deviation grew to \\(8.6189\\). Drag that dot yourself and watch the triangle and the square.',
+            ),
+            formulaIds: ['summary-definitions'],
+            frames: [frame('summary-move-explanation', 'explanation'), frame('summary-move-observation', 'observation')],
+            observationPrompt: text('Kaj se zgodi z mediano, če to piko vlečeš naprej v desno? Kaj, če jo vlečeš pod \\(6\\)?', 'What happens to the median if you keep dragging this dot right? What if you drag it below \\(6\\)?'),
+            expectedObservations: [text('Sredina je \\(9\\), mediana \\(6\\). Mediana se spremeni šele, ko pika prečka mesto v vrstnem redu.', 'The mean is \\(9\\), the median \\(6\\). The median changes only once the dot crosses its rank.')],
+            scene: summaryScene('summary-move-start', [summaryShow('summary-box-plot', false), summarySet(6, 30)],
+                'Največja vrednost je \\(30\\); sredina \\(9\\), mediana \\(6\\), \\(\\sigma=8{,}6189\\).',
+                'The largest value is \\(30\\); mean \\(9\\), median \\(6\\), \\(\\sigma=8.6189\\).'),
+        },
+        {
+            id: 'summary-box', order: 3,
+            title: text('Škatla z brki in osamelec', 'The box plot and the outlier'),
+            purpose: text('Prebrati kvartile, medčetrtinski razmik in meji ter videti označenega osamelca.', 'Reading the quartiles, the interquartile range and the fences, and seeing a flagged outlier.'),
+            explanation: text(
+                'Škatla z brki je vklopljena. Po šolskem pravilu je \\(Q_1=5\\), \\(Q_3=6{,}5\\) in \\(\\mathrm{IQR}=1{,}5\\); kvartili se zaradi premika vrednosti \\(8\\) na \\(30\\) niso spremenili. Meji osamelcev sta \\(2{,}75\\) in \\(8{,}75\\). Vrednost \\(30\\) leži zunaj zgornje meje in je označena z rombom. Osamelec tu pomeni le zunaj mej \\(1{,}5\\) medčetrtinskega razmika: to je dogovor, ne matematična lastnost.',
+                'The box plot is on. By the school rule \\(Q_1=5\\), \\(Q_3=6.5\\) and \\(\\mathrm{IQR}=1.5\\); moving \\(8\\) to \\(30\\) did not change the quartiles. The fences are \\(2.75\\) and \\(8.75\\). The value \\(30\\) lies beyond the upper fence and is marked with a diamond. Here "outlier" only means beyond the \\(1.5\\) IQR fences: it is a convention, not a mathematical property.',
+            ),
+            formulaIds: ['summary-definitions'],
+            frames: [frame('summary-box-explanation', 'explanation'), frame('summary-box-observation', 'observation')],
+            observationPrompt: text('Kje se konča desni brk in zakaj ne pri \\(30\\)? Premakni piko \\(30\\) nazaj proti \\(8\\) in poglej, kdaj izgine oznaka.', 'Where does the right whisker end and why not at \\(30\\)? Move the dot \\(30\\) back towards \\(8\\) and see when the flag disappears.'),
+            expectedObservations: [text('Brk se konča pri največji vrednosti znotraj meje; \\(30\\) je večja od \\(8{,}75\\) in je označena posebej.', 'The whisker ends at the largest value inside the fence; \\(30\\) is greater than \\(8.75\\) and is marked separately.')],
+            scene: summaryScene('summary-box-start', [summaryShow('summary-box-plot', true), summarySet(6, 30)],
+                'Škatla z brki; \\(Q_1=5\\), \\(Q_3=6{,}5\\), meji \\(2{,}75\\) in \\(8{,}75\\), osamelec \\(30\\).',
+                'The box plot; \\(Q_1=5\\), \\(Q_3=6.5\\), fences \\(2.75\\) and \\(8.75\\), outlier \\(30\\).'),
+        },
+        {
+            id: 'summary-spread', order: 4,
+            title: text('Raztros okoli sredine', 'The spread about the mean'),
+            purpose: text('Videti standardni odklon kot pas okoli sredine in kako ga poveča oddaljena vrednost.', 'Seeing the standard deviation as a band about the mean and how a far value enlarges it.'),
+            explanation: text(
+                'Pas okoli sredine je vklopljen in je širok \\(\\pm\\sigma\\). Pred dodatkom je bil \\(\\sigma=8{,}6189\\) pri \\(n=7\\). Dodana je še vrednost \\(20\\), daleč od sredine: zdaj je \\(n=8\\), sredina \\(10{,}375\\), mediana še vedno \\(6\\) in \\(\\sigma=8{,}845\\). Odklon je tako kot sredina občutljiv na oddaljene vrednosti, mediana pa ne.',
+                'The band about the mean is on and is \\(\\pm\\sigma\\) wide. Before the addition \\(\\sigma=8.6189\\) at \\(n=7\\). A value \\(20\\), far from the mean, has been added: now \\(n=8\\), the mean is \\(10.375\\), the median is still \\(6\\) and \\(\\sigma=8.845\\). Like the mean, the deviation is sensitive to far values; the median is not.',
+            ),
+            formulaIds: ['summary-definitions'],
+            frames: [frame('summary-spread-explanation', 'explanation'), frame('summary-spread-observation', 'observation')],
+            observationPrompt: text('Dodaj še eno vrednost blizu sredine. Se pas razširi ali zoži?', 'Add one more value near the mean. Does the band widen or narrow?'),
+            expectedObservations: [text('Vrednost blizu sredine pas zoži, oddaljena ga razširi; sredina je zdaj \\(10{,}375\\).', 'A value near the mean narrows the band, a far one widens it; the mean is now \\(10.375\\).')],
+            scene: summaryScene('summary-spread-start', [summarySet(6, 30), summaryShow('summary-sigma-band', true), summaryAdd(20)],
+                'Pas \\(\\pm\\sigma\\) okoli sredine; \\(n=8\\), sredina \\(10{,}375\\), mediana \\(6\\), \\(\\sigma=8{,}845\\).',
+                'The band \\(\\pm\\sigma\\) about the mean; \\(n=8\\), mean \\(10.375\\), median \\(6\\), \\(\\sigma=8.845\\).'),
+        },
+        {
+            id: 'summary-convention', order: 5,
+            title: text('Dogovor: isti podatki, dve pravili', 'Convention: the same data, two rules'),
+            purpose: text('Videti, da pravilo za kvartile spremeni škatlo, in poimenovati dogovore lekcije.', 'Seeing that the quartile rule changes the box, and naming the lesson\'s conventions.'),
+            explanation: text(
+                'Šolski podatki so spet \\(4,5,5,6,6,7,8\\). Lekcija uporablja šolsko pravilo (mediana pripada obema polovicama): \\(Q_1=5\\), \\(Q_3=6{,}5\\), \\(\\mathrm{IQR}=1{,}5\\), in populacijski \\(\\sigma=1{,}2454\\) (vzorčni \\(s=1{,}3452\\)). Zdaj je izbrano pravilo brez mediane: \\(Q_1=5\\), \\(Q_3=7\\), \\(\\mathrm{IQR}=2\\). Isti podatki, drugačna škatla. Kalkulatorji in programi uporabljajo različna pravila, zato je ime pravila del odgovora; osamelec je tu vrednost zunaj mej \\(1{,}5\\) medčetrtinskega razmika, kar je dogovor.',
+                'The school data are \\(4,5,5,6,6,7,8\\) again. The lesson uses the school rule (the median belongs to both halves): \\(Q_1=5\\), \\(Q_3=6.5\\), \\(\\mathrm{IQR}=1.5\\), and the population \\(\\sigma=1.2454\\) (sample \\(s=1.3452\\)). Now the rule without the median is chosen: \\(Q_1=5\\), \\(Q_3=7\\), \\(\\mathrm{IQR}=2\\). The same data, a different box. Calculators and software use different rules, so the rule\'s name is part of the answer; here an outlier is a value beyond the \\(1.5\\) IQR fences, which is a convention.',
+            ),
+            formulaIds: ['summary-definitions'],
+            frames: [frame('summary-convention-explanation', 'explanation'), frame('summary-convention-observation', 'observation')],
+            observationPrompt: text('Preklopi med pravili in primerjaj \\(Q_3\\). Kaj se zgodi s \\(Q_1\\)?', 'Switch between the rules and compare \\(Q_3\\). What happens to \\(Q_1\\)?'),
+            expectedObservations: [text('Pri obeh pravilih je \\(Q_1=5\\); \\(Q_3\\) je \\(6{,}5\\) ali \\(7\\), razmik \\(1{,}5\\) ali \\(2\\).', 'Under both rules \\(Q_1=5\\); \\(Q_3\\) is \\(6.5\\) or \\(7\\), the range \\(1.5\\) or \\(2\\).')],
+            scene: summaryScene('summary-convention-start', [summaryChoice('summary-example', 'school'), summaryChoice('summary-rule', 'exclusive')],
+                'Šolski podatki, pravilo brez mediane: \\(Q_1=5\\), \\(Q_3=7\\), \\(\\mathrm{IQR}=2\\).',
+                'The school data under the rule without the median: \\(Q_1=5\\), \\(Q_3=7\\), \\(\\mathrm{IQR}=2\\).'),
+        },
+        {
+            id: 'summary-explore', order: 6,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno dodajati, odstranjevati in premikati vrednosti.', 'Adding, removing and moving values on your own.'),
+            explanation: text(
+                'Graf je spet pri šolskem primeru: \\(n=7\\), sredina \\(5{,}857143\\), mediana \\(6\\). Dodaj in odstrani vrednosti (od \\(1\\) do \\(15\\)), vleci pike ali jih vpiši, preklopi pravilo, vrsto odklona in prikaz. Pri sodem številu vrednosti je mediana povprečje srednjih dveh; poskusi primer »Sodo število vrednosti«. Poišči podatke, pri katerih se sredina in mediana čim bolj razlikujeta.',
+                'The graph is back at the school data: \\(n=7\\), mean \\(5.857143\\), median \\(6\\). Add and remove values (from \\(1\\) to \\(15\\)), drag the dots or type them, switch the rule, the kind of deviation and the display. For an even number of values the median is the mean of the middle two; try the example "Even number of values". Look for data where the mean and the median differ the most.',
+            ),
+            formulaIds: ['summary-definitions'],
+            frames: [frame('summary-explore-explanation', 'explanation'), frame('summary-explore-observation', 'observation')],
+            observationPrompt: text('Kdaj sta sredina in mediana enaki in kdaj zelo različni?', 'When are the mean and the median equal and when are they very different?'),
+            expectedObservations: [text('Pri simetričnih podatkih sta enaki; osamelec ju razmakne, ker premakne le sredino.', 'For symmetric data they are equal; an outlier separates them because it moves only the mean.')],
+            scene: summaryScene('summary-explore-default', [],
+                'Šolski primer: \\(n=7\\), sredina \\(5{,}857143\\), mediana \\(6\\); vse je prosto za raziskovanje.',
+                'The school data: \\(n=7\\), mean \\(5.857143\\), median \\(6\\); everything is free to explore.'),
+        },
+    ],
+    sources: [
+        {id: 'matura-statistics', citation: 'Matura catalogue, mathematics, section 4.17 (descriptive statistics: mean, median, quartiles).'},
+        {id: 'tukey-eda', citation: 'Tukey, J. W. Exploratory Data Analysis (1977): the box plot and the 1.5 IQR fences. Cited, not opened.'},
+        {
+            id: 'bezeg-summary-implementation',
+            citation: 'Bezeg source: src/analysis/summaryStatisticsModel.ts and src/graphs/functions/SummaryStatisticsGraph.tsx; ADR 0027 decision 4.',
+            implementationCorrespondence: 'The values are integer tenths; the quartiles, the fences and the outlier test are computed on integer tenths so ties and comparisons are exact; the mean and the standard deviation are floating point and shown to the stated digits. A lesson scene sets or adds a value (a value outside the view refits it), chooses the example, the quartile rule and the kind of deviation, and shows or hides the box plot and the deviation band.',
+        },
+    ],
+    edgeCases: [
+        text('Vrednosti je od \\(1\\) do \\(15\\), vsaka od \\(0\\) do \\(40\\) na desetinko natančno; škatla z brki potrebuje vsaj \\(3\\) vrednosti.', 'There are \\(1\\) to \\(15\\) values, each from \\(0\\) to \\(40\\) to the nearest tenth; the box plot needs at least \\(3\\) values.'),
+        text('Standardni odklon ene vrednosti je \\(0\\), vzorčni pa ni definiran in se izpiše kot pomišljaj.', 'The standard deviation of one value is \\(0\\) and the sample version is undefined, shown as a dash.'),
+        text('Osamelec je dogovor: drugačno pravilo ali drug faktor mej bi označil druge vrednosti.', 'An outlier is a convention: a different rule or a different fence factor would flag different values.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const probabilityGuidedLessons: readonly GuidedLesson[] = [densityArea, binomialNormal, centralLimit, summaryStatistics];

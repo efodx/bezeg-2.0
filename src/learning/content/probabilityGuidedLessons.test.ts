@@ -16,6 +16,7 @@ import type {BinomialNormalModel} from '../../analysis/binomialNormalModel';
 import {CltGraph} from '../../graphs/functions/CltGraph';
 import {CLT_EXAMPLES, cltView, shapeMoments} from '../../analysis/cltModel';
 import {normalCdf} from '../../analysis/distributions';
+import {SummaryStatisticsGraph} from '../../graphs/functions/SummaryStatisticsGraph';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -553,4 +554,124 @@ test('P3: the text names the theorem, its hypotheses and sources, says convergen
     expect(prose(cltStep('clt-skewed'), 'en')).toMatch(/Skewness slows the approach/);
     expect(prose(cltStep('clt-distance'), 'sl')).toMatch(/ni hitrost/);
     expect(prose(cltStep('clt-distance'), 'en')).toMatch(/is not a rate/);
+});
+
+const summaryLesson = probabilityGuidedLessons.find(entry => entry.demonstrationId === 'prob-summary')!;
+const summaryStep = (stepId: string): GuidedLessonStep => summaryLesson.steps.find(step => step.id === stepId)!;
+const SUMMARY_STEP_IDS = ['summary-markers', 'summary-move', 'summary-box', 'summary-spread', 'summary-convention', 'summary-explore'];
+
+class ObservedSummaryGraph extends SummaryStatisticsGraph {
+    modelNow() { return this.model; }
+}
+
+function mountSummary() {
+    const graph = new ObservedSummaryGraph();
+    const view = render(React.createElement(MemoryRouter, null, React.createElement(GraphHost, {create: () => graph})));
+    expect(graph.state.initialized).toBe(true);
+    const capabilities = graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    return {
+        graph, view,
+        scene: (step: GuidedLessonStep) => act(() => {
+            capabilities.restoreState(checkpoint);
+            for (const action of actionsOf(step)) capabilities.apply(action);
+        }),
+        apply: (...actions: LessonAction[]) => act(() => { for (const action of actions) capabilities.apply(action); }),
+    };
+}
+const summaryChoice = (name: string, value: string): LessonAction => ({kind: 'function-choice', name, value}) as LessonAction;
+
+test('P4: the lesson has six steps with two frames each, prose in both languages and only summary actions', () => {
+    expect(summaryLesson.steps.map(step => step.id)).toEqual(SUMMARY_STEP_IDS);
+    for (const step of summaryLesson.steps) {
+        expect(step.frames).toHaveLength(2);
+        expect(prose(step, 'sl').length).toBeGreaterThan(0);
+        expect(prose(step, 'en').length).toBeGreaterThan(0);
+        for (const action of actionsOf(step)) {
+            expect(['prepared-scene', 'function-choice', 'function-visibility', 'summary']).toContain(action.kind);
+            if (action.kind === 'function-choice') expect(['summary-example', 'summary-rule']).toContain(action.name);
+            if (action.kind === 'function-visibility') expect(['summary-box-plot', 'summary-sigma-band']).toContain(action.target);
+        }
+    }
+});
+
+test('P4: each summary scene sets the data and display its text describes and shows the quoted readouts, in one synchronous sequence', () => {
+    const h = mountSummary();
+    try {
+        const model = () => h.graph.modelNow();
+        const read = (...ids: string[]) => ids.map(readout);
+
+        h.scene(summaryStep('summary-markers'));
+        expect(model()).toMatchObject({values: [4, 5, 5, 6, 6, 7, 8], boxPlot: false, sigmaBand: false, rule: 'inclusive', sigma: 'population'});
+        expect(read('mean', 'median')).toEqual(['5,857143', '6']);
+
+        h.scene(summaryStep('summary-move'));
+        expect(model()).toMatchObject({values: [4, 5, 5, 6, 6, 7, 30], boxPlot: false});
+        expect(read('mean', 'median', 'sigma')).toEqual(['9', '6', '8,6189']);
+
+        h.scene(summaryStep('summary-box'));
+        expect(model()).toMatchObject({values: [4, 5, 5, 6, 6, 7, 30], boxPlot: true});
+        expect(read('q1', 'q3', 'iqr', 'fences', 'outliers')).toEqual(['5', '6,5', '1,5', '2,75 in 8,75', '30']);
+
+        h.scene(summaryStep('summary-spread'));
+        expect(model()).toMatchObject({values: [4, 5, 5, 6, 6, 7, 30, 20], sigmaBand: true});
+        expect(read('n', 'mean', 'median', 'sigma')).toEqual(['8', '10,375', '6', '8,845']);
+
+        h.scene(summaryStep('summary-convention'));
+        expect(model()).toMatchObject({values: [4, 5, 5, 6, 6, 7, 8], rule: 'exclusive', sigma: 'population'});
+        expect(read('q1', 'q3', 'iqr')).toEqual(['5', '7', '2']);
+        expect(read('sigma')).toEqual(['1,2454']);
+        h.apply(summaryChoice('summary-rule', 'inclusive'));
+        expect(read('q1', 'q3', 'iqr')).toEqual(['5', '6,5', '1,5']);
+        h.apply(summaryChoice('summary-sigma', 'sample'));
+        expect(read('sigma')).toEqual(['1,3452']);
+
+        h.scene(summaryStep('summary-explore'));
+        expect(model()).toMatchObject({values: [4, 5, 5, 6, 6, 7, 8], boxPlot: true, sigmaBand: false, rule: 'inclusive', sigma: 'population'});
+        expect(read('n', 'mean', 'median')).toEqual(['7', '5,857143', '6']);
+        h.apply(summaryChoice('summary-example', 'even'));
+        expect(read('median')).toEqual(['4']);
+    } finally {
+        h.view.unmount();
+    }
+});
+
+test('P4: every number in the text is an allowed readout or spec value, both languages agree, and the conventions are named', () => {
+    const ALLOWED = new Set(['5.857143', '6.5', '1.5', '2.75', '8.75', '10.375', '8.6189', '8.845', '1.2454', '1.3452']);
+    const numbersIn = (language: 'sl' | 'en') => {
+        const body = [summaryLesson.summary[language], ...summaryLesson.learningGoals.map(g => g[language]), ...summaryLesson.formulaBlocks.map(b => b.explanation[language]), ...summaryLesson.steps.map(step => prose(step, language))].join(' ');
+        return (body.match(language === 'sl' ? /\d+\{,\}\d+/g : /\d+\.\d+/g) ?? []).map(value => value.replace('{,}', '.'));
+    };
+    for (const language of ['sl', 'en'] as const) {
+        const found = numbersIn(language);
+        expect(found.length).toBeGreaterThan(20);
+        for (const value of found) expect(ALLOWED.has(value), `${language} ${value}`).toBe(true);
+        expect(found).not.toContain('9.3095');
+    }
+    expect(new Set(numbersIn('sl'))).toEqual(new Set(numbersIn('en')));
+    const quoted: ReadonlyArray<readonly [string, readonly string[]]> = [
+        ['summary-markers', ['5,857143']],
+        ['summary-move', ['8,6189']],
+        ['summary-box', ['6,5', '1,5', '2,75', '8,75']],
+        ['summary-spread', ['8,6189', '10,375', '8,845']],
+        ['summary-convention', ['1,2454', '1,3452', '6,5', '1,5']],
+    ];
+    for (const [stepId, values] of quoted) {
+        for (const value of values) {
+            for (const language of ['sl', 'en'] as const) {
+                const body = prose(summaryStep(stepId), language);
+                expect(body.includes(language === 'sl' ? value.replace(',', '{,}') : value.replace(',', '.')), `${stepId} ${language} ${value}`).toBe(true);
+            }
+        }
+    }
+    const conventionSl = prose(summaryStep('summary-convention'), 'sl');
+    const conventionEn = prose(summaryStep('summary-convention'), 'en');
+    expect(conventionSl).toMatch(/šolsko pravilo/);
+    expect(conventionSl).toMatch(/populacijski/);
+    expect(conventionSl).toMatch(/Kalkulatorji in programi/);
+    expect(conventionSl).toMatch(/dogovor/);
+    expect(conventionEn).toMatch(/school rule/);
+    expect(conventionEn).toMatch(/population/);
+    expect(conventionEn).toMatch(/Calculators and software/);
+    expect(conventionEn).toMatch(/convention/);
 });

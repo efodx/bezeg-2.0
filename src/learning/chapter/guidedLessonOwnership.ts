@@ -61,6 +61,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'prob-density': {chapterId: 'probability', sectionId: 'density'},
     'prob-binomial-normal': {chapterId: 'probability', sectionId: 'binomial-normal'},
     'prob-clt': {chapterId: 'probability', sectionId: 'clt'},
+    'prob-summary': {chapterId: 'probability', sectionId: 'summary'},
     'area-between-curves': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     'arc-length': {chapterId: 'functions-and-calculus', sectionId: 'applications'},
     bisection: {chapterId: 'analysis', sectionId: 'existence'},

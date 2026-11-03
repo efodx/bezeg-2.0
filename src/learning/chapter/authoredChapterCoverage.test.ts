@@ -9,7 +9,7 @@ const interpolationDemonstrations: Record<string, string> = {
     lagrange: 'interp-lagrange', runge: 'interp-runge', hermite: 'interp-hermite', 'least-squares': 'interp-least-squares', subdivision: 'interp-subdivision',
 };
 
-const probabilityDemonstrations: Record<string, string> = {density: 'prob-density', 'binomial-normal': 'prob-binomial-normal', clt: 'prob-clt'};
+const probabilityDemonstrations: Record<string, string> = {density: 'prob-density', 'binomial-normal': 'prob-binomial-normal', clt: 'prob-clt', summary: 'prob-summary'};
 
 test('both published languages place every audited home exactly once in its owning section', () => {
     expect(baseline.retainedHomes).toHaveLength(56);
@@ -53,7 +53,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(109);
-        expect(new Set(allReferences).size).toBe(109);
+        expect(allReferences).toHaveLength(110);
+        expect(new Set(allReferences).size).toBe(110);
     }
 });

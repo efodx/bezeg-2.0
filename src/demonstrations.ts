@@ -106,7 +106,7 @@ const definitions = [
     {id: 'prob-density', path: '/bezeg-2.0/probability/density', family: '/bezeg-2.0/probability', title: 'prob_density_title', prompts: ['prompt_prob_density', 'prompt_compare']},
     {id: 'prob-binomial-normal', path: '/bezeg-2.0/probability/binomial-normal', family: '/bezeg-2.0/probability', title: 'prob_binomial_title', prompts: ['prompt_prob_binomial_normal', 'prompt_compare']},
     {id: 'prob-clt', path: '/bezeg-2.0/probability/clt', family: '/bezeg-2.0/probability', title: 'prob_clt_title', prompts: ['prompt_prob_clt', 'prompt_compare']},
-    {id: 'prob-summary', path: '/bezeg-2.0/probability/summary', family: '/bezeg-2.0/probability', title: 'prob_summary_title', prompts: ['prompt_prob_summary', 'prompt_compare'], lesson: false},
+    {id: 'prob-summary', path: '/bezeg-2.0/probability/summary', family: '/bezeg-2.0/probability', title: 'prob_summary_title', prompts: ['prompt_prob_summary', 'prompt_compare']},
     {id: 'linear-map', path: '/bezeg-2.0/linear-map', family: 'maps', title: 'linear_map_title', prompts: ['linear_map_prompt', 'prompt_compare']},
     {id: 'complex-reciprocal', path: '/bezeg-2.0/complex-reciprocal', family: 'maps', title: 'complex_reciprocal_title', prompts: ['complex_reciprocal_prompt', 'prompt_compare']},
     {id: 'complex-roots', path: '/bezeg-2.0/complex-roots', family: 'maps', title: 'complex_roots_title', prompts: ['complex_roots_prompt', 'prompt_compare']},

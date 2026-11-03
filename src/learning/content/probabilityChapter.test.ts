@@ -13,8 +13,9 @@ import {probabilityChapter} from './probabilityChapter';
 import {PROBABILITY_CHAPTER_ID, probabilityGuidedExamplePath, probabilityGuidedExampleRegistry} from './probabilityChapterRegistry';
 import {familyChapters} from './familyChapters';
 import {CLT_EXAMPLES, cltView, shapeMoments} from '../../analysis/cltModel';
+import {DEFAULT_SUMMARY_MODEL, SUMMARY_EXAMPLES, summaryStatisticsView} from '../../analysis/summaryStatisticsModel';
 
-const SECTIONS = [['density', 'prob-density'], ['binomial-normal', 'prob-binomial-normal'], ['clt', 'prob-clt']] as const;
+const SECTIONS = [['density', 'prob-density'], ['binomial-normal', 'prob-binomial-normal'], ['clt', 'prob-clt'], ['summary', 'prob-summary']] as const;
 const everything = (language: 'sl' | 'en') => [
     probabilityChapter.purpose, probabilityChapter.prerequisites,
     ...probabilityChapter.sections.flatMap(section => [section.title, ...section.paragraphs]),
@@ -23,7 +24,7 @@ const everything = (language: 'sl' | 'en') => [
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter ends the functions strand with an opening and three lesson sections', () => {
+    test('the chapter ends the functions strand with an opening and four lesson sections', () => {
         expect(probabilityChapter.id).toBe(PROBABILITY_CHAPTER_ID);
         expect(probabilityChapter.title).toEqual({sl: 'Verjetnost in statistika na grafu', en: 'Distributions, CLT and correlation'});
         expect(probabilityChapter.family).toBe('/bezeg-2.0/probability');
@@ -127,6 +128,37 @@ describe('quoted numbers equal the analysis kernels', () => {
         expect(shapeMoments(CLT_EXAMPLES.skewed.heights)!.mean).toBeCloseTo(1 / 3, 3);
         expect(shapeMoments(CLT_EXAMPLES.skewed.heights)!.variance).toBeCloseTo(1 / 18, 3);
         for (const language of ['sl', 'en'] as const) quoted(language, ['0.00281', '0.01248']);
+    });
+
+    test('P4: the quoted mean, median, sigma, quartiles, fences and deviation sums equal the summary model', () => {
+        const school = summaryStatisticsView(DEFAULT_SUMMARY_MODEL);
+        const outlier = summaryStatisticsView({...DEFAULT_SUMMARY_MODEL, values: SUMMARY_EXAMPLES.outlier});
+        const exclusive = summaryStatisticsView({...DEFAULT_SUMMARY_MODEL, rule: 'exclusive'});
+        if (school.summary.status !== 'ok' || outlier.summary.status !== 'ok' || exclusive.summary.status !== 'ok') throw new Error('seven values give a box plot');
+        expect(school.mean.toFixed(6)).toBe('5.857143');
+        expect(school.median).toBe(6);
+        expect(school.sigmaPopulation.toFixed(4)).toBe('1.2454');
+        expect(school.sigmaSample!.toFixed(4)).toBe('1.3452');
+        expect(school.atMean.squared.toFixed(3)).toBe('10.857');
+        expect(school.atMedian.squared).toBeCloseTo(11, 9);
+        expect(school.atMedian.absolute).toBeCloseTo(7, 9);
+        expect(school.atMean.absolute.toFixed(3)).toBe('7.143');
+        expect(SUMMARY_EXAMPLES.outlier).toEqual([4, 5, 5, 6, 6, 7, 30]);
+        expect(outlier.mean).toBeCloseTo(9, 9);
+        expect(outlier.median).toBe(6);
+        expect(outlier.sigmaPopulation.toFixed(4)).toBe('8.6189');
+        expect([outlier.summary.q1, outlier.summary.q3, outlier.summary.lowerFenceQuarter / 40, outlier.summary.upperFenceQuarter / 40]).toEqual([5, 6.5, 2.75, 8.75]);
+        expect([exclusive.summary.q1, exclusive.summary.q3]).toEqual([5, 7]);
+        for (const language of ['sl', 'en'] as const) quoted(language, ['5.857143', '1.2454', '1.3452', '10.857', '7.143', '8.6189', '6.5', '2.75', '8.75']);
+    });
+
+    test('P4: the chapter names the quartile rule and sigma, says calculators differ and that an outlier is a convention', () => {
+        for (const needle of ['šolsko pravilo', 'populacijski \\(\\sigma\\)', 'Kalkulatorji in programi se razlikujejo', 'osamelec je dogovor', 'ne matematična lastnost']) {
+            expect(everything('sl'), needle).toContain(needle);
+        }
+        for (const needle of ['school quartile rule', 'population \\(\\sigma\\)', 'Calculators and software differ', 'An outlier is a convention', 'not a mathematical property']) {
+            expect(everything('en'), needle).toContain(needle);
+        }
     });
 
     test('the chapter names the theorem, its hypotheses and sources, and says convergence is in distribution without a rate', () => {
