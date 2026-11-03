@@ -46,7 +46,9 @@ export const nurbsPointAt = (data: NurbsData, t: number): ControlPoint => {
 /** Polar angle of a point in degrees, in [0, 360). */
 export const angleDegrees = (point: ControlPoint): number => {
     const angle = Math.atan2(point[1], point[0]) * 180 / Math.PI;
-    return angle < 0 ? angle + 360 : angle;
+    const wrapped = angle < 0 ? angle + 360 : angle;
+    // A rounding residue just below the positive x-axis (the closed curve's end point) reads 0, not 360.
+    return wrapped > 360 - 1e-9 ? 0 : wrapped;
 };
 
 /** max |‖C(t)‖ − 1| over {@link NURBS_ERROR_SAMPLES} uniform samples of the domain. */

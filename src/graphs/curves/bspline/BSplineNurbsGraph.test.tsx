@@ -82,8 +82,10 @@ describe('L5 acceptance 2: the point and the angle', () => {
         const {graph, view} = mount();
         const data = nurbsExample('circle');
         const [x, y] = nurbsPointAt(data, 1 / 16);
-        expect(Math.abs(x - 0.92979)).toBeLessThan(1e-5);
-        expect(Math.abs(y - 0.36809)).toBeLessThan(1e-5);
+        // Exact rational quadratic value on the first quarter, local s = 1/4, middle weight sqrt2/2 (spec rounds to 5 digits).
+        expect(Math.abs(x - 0.9297883010624303)).toBeLessThan(1e-12);
+        expect(Math.abs(y - 0.3680947095618728)).toBeLessThan(1e-12);
+        expect(angleDegrees([1, -1e-17])).toBe(0);
         expect(Math.abs(angleDegrees([x, y]) - 21.598161)).toBeLessThan(1e-4);
         const [x2, y2] = nurbsPointAt(data, 1 / 8);
         expect(Math.abs(x2 - S)).toBeLessThan(1e-12);
@@ -144,10 +146,15 @@ describe('L5 acceptance 3: weights are positive', () => {
 describe('L5 acceptance 4: scaling the weights', () => {
     test('all weights times 3.7 leave the sampled points unchanged to 1e-12', () => {
         const {graph, view} = mount();
+        const circle = graph.sample();
+        // Make the weights non-trivial first, so the check would fail if weights were ignored.
+        act(() => { graph.setWeight(1, 2); });
         const before = graph.sample();
+        expect(Math.max(...before.map((p, i) => Math.hypot(p[0] - circle[i][0], p[1] - circle[i][1])))).toBeGreaterThan(1e-2);
         const original = [...graph.state.weights];
         act(() => { original.forEach((w, i) => graph.setWeight(i, w * 3.7)); });
         expect(graph.state.weights[0]).toBeCloseTo(3.7, 12);
+        expect(graph.state.weights[1]).toBeCloseTo(7.4, 12);
         const after = graph.sample();
         before.forEach((p, i) => {
             expect(Math.abs(p[0] - after[i][0])).toBeLessThan(1e-12);
