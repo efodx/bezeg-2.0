@@ -1,0 +1,8 @@
+== mutation 1: monotone-partition owner reverted to bezier-curves/geometric-properties
+ FAIL  src/learning/content/sweepChapter.test.ts > chapter structure and registration > the lessons resolve, own their sections and keep both languages complete
+ FAIL  src/learning/content/sweepChapter.test.ts > chapter structure and registration > learn launches, example links and old routes land on the owning section
+      Tests  2 failed | 149 passed (151)
+== mutation 2: monotone-triangulation owner reverted to bezier-curves/geometric-properties
+ FAIL  src/learning/content/sweepChapter.test.ts > chapter structure and registration > the lessons resolve, own their sections and keep both languages complete
+ FAIL  src/learning/content/sweepChapter.test.ts > chapter structure and registration > learn launches, example links and old routes land on the owning section
+      Tests  2 failed | 149 passed (151)

@@ -31,7 +31,7 @@ function withoutMath(source: string) {
 // sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
 // patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
 // prob-clt: the probability chapter gains its P3 section with the lesson (PS-B-3b).
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'monotone-partition', 'monotone-triangulation', 'voronoi', 'voronoi-degenerate',
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'voronoi', 'voronoi-degenerate',
     'polynomial-zeros', 'rational-function', 'prob-clt'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;

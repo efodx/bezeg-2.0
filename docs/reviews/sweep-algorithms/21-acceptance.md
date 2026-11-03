@@ -1,0 +1,11 @@
+# Sweep task 21 acceptance (S2 chapter sections)
+
+Accepted 2026-11-03 by geometry handler 39. Task: [21](../../tasks/sweep-algorithms/21-s2-chapter-sections.md). Worker: `bezeg-worker` (Sonnet), worktree `agent-af2dc5620c0302f21`; integrated by the handler onto `336d1f0d`.
+
+- **Integration:** one mechanical conflict in `familyChapters.test.ts` (`CHAPTER_LINK_PENDING`): kept master's `polynomial-zeros` and `rational-function` and this task's removals.
+- **Mathematics:** content moved from the accepted C3/C4 lessons with no new mathematics. The handler checked the quoted example against the lessons (`compgeoGuidedLessons.ts`): one diagonal \(v_2\)–\(v_5\), pieces of area 20, \(p=d+1=2\), \(t=6-2=4\), \(d=3\). No separate mathematical review (review routing: regrouped content).
+- **Engineering review** (Sonnet `bezeg-reviewer`): no blocking findings. Its minor note was that the "unreleased lessons are not advertised" test blanked all of `prerequisiteLinks`. Fixed: only the link paths are blanked (the ear-clipping path contains `voronoi`), so the titles stay checked.
+- **Mutation:** reverting either ownership entry fails two `sweepChapter.test.ts` tests ([log](21-mutation.log)).
+- **Checks (handler, `336d1f0d` + diff):** `just typecheck`, full `just unit` (passed, 739 s), `just build` ([logs](21h-unit.log)); `just unit sweepChapter.test.ts` after the test fix; `just smoke-lesson monotone-partition monotone-triangulation` 4/4 ([log](21h-smoke.log)).
+- **Chapter page** (Sonnet `bezeg-smoke`, preview 4313, [scripts](21h-chapter/)): four lesson sections in order in sl and en after a live language switch, math rendered, no console errors; the ear-clipping prerequisite link resolves; activity link → lesson → return link lands on `#monotone-partition` (sl) and `#monotone-triangulation` (en) with focus on the section's example link (section in view, not top-aligned, as for the existing sections); Learn landing lists the chapter. Gaps: mobile viewport and the other two language/section pairs.
+- **Breaking change:** recorded in the task file (interim example ids `lesson.bezier-curves.geometric-properties.monotone-*` → `lesson.sweep-algorithms.monotone-*.monotone-*`). Stored Presets and plain lesson routes are unaffected.

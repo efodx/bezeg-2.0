@@ -9,12 +9,12 @@ import {familyChapters} from './familyChapters';
 import {sweepChapter} from './sweepChapter';
 import {SWEEP_CHAPTER_ID, sweepGuidedExamplePath, sweepGuidedExampleRegistry} from './sweepChapterRegistry';
 
-const IDS = ['interval-sweep', 'segment-intersections'] as const;
+const IDS = ['interval-sweep', 'segment-intersections', 'monotone-partition', 'monotone-triangulation'] as const;
 
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter is registered under computational geometry after the triangulation chapter with an opening and two lesson sections', () => {
+    test('the chapter is registered under computational geometry after the triangulation chapter with an opening and four lesson sections', () => {
         expect(sweepChapter.id).toBe(SWEEP_CHAPTER_ID);
         expect(SWEEP_CHAPTER_ID).toBe('sweep-algorithms');
         expect(sweepChapter.title).toEqual({sl: 'Algoritmi pometanja', en: 'Sweep-line algorithms'});
@@ -24,16 +24,16 @@ describe('chapter structure and registration', () => {
         expect(familyChapters.findIndex(chapter => chapter.id === SWEEP_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'triangulations-voronoi') + 1);
         expect(learningChapters.some(chapter => chapter.id === SWEEP_CHAPTER_ID)).toBe(true);
-        expect(sweepChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['interval-sweep'], ['segment-intersections']]);
+        expect(sweepChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['interval-sweep'], ['segment-intersections'], ['monotone-partition'], ['monotone-triangulation']]);
     });
 
     test('unreleased lessons are not advertised', () => {
-        const everything = JSON.stringify([{...sweepChapter, title: undefined}, ...Object.values(sweepGuidedExampleRegistry)]).toLowerCase();
-        for (const word of ['monoton', 'fortune', 'beach line', 'obalna črta', 'voronoi', 'closest pair', 'najbližji par', 'overlay', 'prekrivanje dveh razdelitev']) expect(everything).not.toContain(word);
+        const everything = JSON.stringify([{...sweepChapter, title: undefined, prerequisiteLinks: sweepChapter.prerequisiteLinks?.map(link => ({...link, path: undefined}))}, ...Object.values(sweepGuidedExampleRegistry)]).toLowerCase();
+        for (const word of ['fortune', 'beach line', 'obalna črta', 'voronoi', 'closest pair', 'najbližji par', 'overlay', 'prekrivanje dveh razdelitev']) expect(everything).not.toContain(word);
     });
 
-    test('the chapter links to the orientation section, is bilingual and names the first section from the second', () => {
-        expect(sweepChapter.prerequisiteLinks?.map(link => link.path)).toEqual(['/bezeg-2.0/learn/convexity-hulls#orientation']);
+    test('the chapter links to the orientation and ear-clipping sections, is bilingual and names the first section from the second', () => {
+        expect(sweepChapter.prerequisiteLinks?.map(link => link.path)).toEqual(['/bezeg-2.0/learn/convexity-hulls#orientation', '/bezeg-2.0/learn/triangulations-voronoi#ear-clipping']);
         const fields = [sweepChapter.purpose, sweepChapter.prerequisites];
         for (const section of sweepChapter.sections) fields.push(...section.paragraphs);
         for (const field of fields) { expect(field.sl.length).toBeGreaterThan(20); expect(field.en.length).toBeGreaterThan(20); }
@@ -42,6 +42,8 @@ describe('chapter structure and registration', () => {
         expect(sweepChapter.sections[0].orderedContent).toBeUndefined();
         expect(sweepChapter.sections[2].paragraphs.map(p => p.sl).join(' ')).toContain('Pometanje intervalov');
         expect(sweepChapter.sections[2].paragraphs.map(p => p.en).join(' ')).toContain('Interval sweep');
+        expect(sweepChapter.sections[4].paragraphs.map(p => p.sl).join(' ')).toContain('Razdelitev na monotone večkotnike');
+        expect(sweepChapter.sections[4].paragraphs.map(p => p.en).join(' ')).toContain('Partitioning into monotone polygons');
     });
 
     test('the key facts are stated and each example link sits at its section end', () => {
@@ -55,6 +57,8 @@ describe('chapter structure and registration', () => {
         const facts: Record<(typeof IDS)[number], string[]> = {
             'interval-sweep': ['\\binom n2', '1,2,3,2,1,2,1,2,1,0', '\\(3\\)', 'ab, ac, bc, bd, de', '\\(10\\)'],
             'segment-intersections': ['O((n+k)\\log n)', '\\(k\\)', '(3,2)', '\\(13\\)', '\\binom42=6'],
+            'monotone-partition': ['p=d+1', '\\(y\\)', '\\(d=1\\)', '\\(p=2\\)', '\\((12,8)\\)'],
+            'monotone-triangulation': ['t=n-2', '\\(n-2\\)', '\\(O(n)\\)', '\\(O(n^2)\\)', '\\(t=6-2=4\\)'],
         };
         IDS.forEach((id, index) => {
             const section = registered.sections[index + 1];
@@ -70,6 +74,10 @@ describe('chapter structure and registration', () => {
         expect(en('interval-sweep')).toContain('entering events are processed before leaving');
         expect(en('segment-intersections')).toContain('only the new neighbouring pairs');
         expect(en('segment-intersections')).toContain('swap');
+        expect(en('monotone-partition')).toContain('Only split and merge vertices break monotonicity');
+        expect(en('monotone-partition')).toContain('five types');
+        expect(en('monotone-triangulation')).toContain('two chains');
+        expect(en('monotone-triangulation')).toContain('one stack');
     });
 
     test('the lessons resolve, own their sections and keep both languages complete', () => {
