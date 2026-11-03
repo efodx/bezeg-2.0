@@ -26,7 +26,7 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
     "quintic-ph-graph", "c1-spline-graph", "c2-spline", "cn-spline", "g1-spline-graph",
     "g1-symmetric-spline-graph", "g1-spline", "alpha-param", "uniform-graph", "alfaparametrizacije", "linear-function", "exponential-function",
     "trigonometric-function", "piecewise-continuity", "derivative", "definite-integral", "area-between-curves", "arc-length", "bisection", "mean-value",
-    "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point", "root-finding", "quadrature", "function-transformation", "polynomial-zeros", "rational-function", "function-inverse", "fourier-series", "prob-density", "prob-binomial-normal", "prob-clt", "prob-summary", "prob-correlation"];
+    "accumulation", "darboux", "extrema", "convexity", "taylor", "sequence", "uniform-convergence", "complex-multiplication", "fixed-point", "root-finding", "quadrature", "function-transformation", "polynomial-zeros", "rational-function", "function-inverse", "fourier-series", "fourier-coefficients", "prob-density", "prob-binomial-normal", "prob-clt", "prob-summary", "prob-correlation"];
 /** Collections added after those files: the patch families . */
 const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-derivatives", "patch-subdivision", "patch-joins", "patch-triangular"];
 /** The computational-geometry Demonstrations, one collection each. */

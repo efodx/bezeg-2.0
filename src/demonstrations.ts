@@ -102,6 +102,7 @@ const definitions = [
     {id: 'sequence', path: '/bezeg-2.0/analysis/sequence', family: 'analysis', title: 'sequence', prompts: ['prompt_sequence', 'prompt_compare']},
     {id: 'uniform-convergence', path: '/bezeg-2.0/analysis/uniform-convergence', family: 'analysis', title: 'uniform_convergence', prompts: ['prompt_uniform_convergence', 'prompt_compare']},
     {id: 'fourier-series', path: '/bezeg-2.0/analysis/fourier-series', family: 'analysis', title: 'fourier_series_title', prompts: ['prompt_fourier_series', 'prompt_compare']},
+    {id: 'fourier-coefficients', path: '/bezeg-2.0/analysis/fourier-coefficients', family: 'analysis', title: 'fourier_coefficients_title', prompts: ['prompt_fourier_coefficients', 'prompt_compare'], lesson: false},
     {id: 'fixed-point', path: '/bezeg-2.0/analysis/fixed-point', family: 'analysis', title: 'fixed_point', prompts: ['prompt_fixed_point', 'prompt_compare']},
     {id: 'prob-density', path: '/bezeg-2.0/probability/density', family: '/bezeg-2.0/probability', title: 'prob_density_title', prompts: ['prompt_prob_density', 'prompt_compare']},
     {id: 'prob-binomial-normal', path: '/bezeg-2.0/probability/binomial-normal', family: '/bezeg-2.0/probability', title: 'prob_binomial_title', prompts: ['prompt_prob_binomial_normal', 'prompt_compare']},
