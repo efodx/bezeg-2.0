@@ -9,7 +9,7 @@ Accepted 2026-11-03 by geometry handler 45. Source: [task 24](../../tasks/sweep-
    - The factory is in `graphFactories.ts`. `fortuneCollection` joins `compgeoPresetCollections`, the accepted keys in `PresetCatalog.test.tsx`, and `PRESET_DATA_STATE_KEYS`.
    - Title *Fortunov algoritem* / *Fortune's algorithm*, and two prompts (false alarm, Delaunay dual) in SL/EN.
    - `fortune` is in `POSTER_PENDING`, with a recipe in `scripts/demonstration-preview-recipes.cjs` (4 × Naslednji korak, the false-alarm frame). It is also in `CHAPTER_LINK_PENDING` and in the no-lesson list.
-   - Totals: 101 Demonstrations, 13 in the family.
+   - Totals: 101 Demonstrations at `165448ba`; 103 after the rebase onto `1837597f` (Euler and B-spline extraction routes landed first), 13 in the family. Conflicts in the enumerating tests, `POSTER_PENDING` and `CHAPTER_LINK_PENDING` were resolved as unions.
    - New `fortunePresetCollection.test.ts`, run through the registered importer: 12 sites accepted and 13 refused with a message, coordinate 1024 accepted and 1025 refused, polygon mode refused.
 2. **Default view.** `FortuneGraph.initialView()` already framed the example. `compgeoDefaultView.host.test.tsx` gains the `fortune` row (margin) and a test that the units are equal and the step-0 sweep line lies above the highest site and inside the view.
 3. **Smoke.** [24-smoke.md](24-smoke.md), with the handler follow-up: route direct and after reload at 1280×720 and 390×844, language switch SL→EN→SL keeping the step, Preset save/reload/restore, Reset and Reset preset, and the catalog card. `just smoke-built` passed (486.8 s, `24-h-smoke-built.log`).
@@ -38,6 +38,7 @@ The diff follows the task 18 file list. The prompts are mathematically sound: D 
 | full `just unit` (worker) | 538 files passed, 2 skipped; 10520 tests passed, 3 skipped |
 | `just build` (worker, then handler) | passed |
 | `just smoke-built` (handler) | passed |
+| After the rebase onto `1837597f` (handler): tsc, full `just unit`, `just build` | 0 errors; passed (`24-h-rebase-unit.log`); passed |
 | Mutations (worker): `initialView` changed; step-0 line at `minY`; collection unregistered; site limit 13; coordinate limit doubled | 2 / 1 / 4 / 1 / 1 failures, each reverted |
 
 Not done: poster capture (F5, `POSTER_PENDING`); `LINE_DEFINED_IDS` in the recipes script is to be decided at capture.
