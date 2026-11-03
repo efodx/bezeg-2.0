@@ -96,8 +96,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     private drawnFor?: {points: readonly GridPoint[]; highlight: number | undefined; box: RationalBox};
     /** The visible area of the board as an exact box (rounded outward to integers) once the view has changed; undefined = `frame`. */
     private followBox?: RationalBox;
-    /** The visible area when the board was created; a view that returns to it draws the exact `frame` again, as the first draw does. */
-    private startBox?: RationalBox;
+    /** The board's view when it was created (board coordinates, so independent of the grid step); a view that returns to it draws the exact `frame` again, as the first draw does. */
+    private startView?: readonly number[];
+    /** The grid step the `followBox` was measured at; a box in grid units is stale once the step changes. */
+    private followScale?: number;
     private statsValue?: VoronoiDrawingStats;
     private constructionObjects: JXG.GeometryElement[] = [];
     private constructionDrawnFor?: {points: readonly GridPoint[]; site: number | null; count: number; scale: number; box?: RationalBox};
@@ -136,6 +138,12 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
 
     /** The box the diagram and the construction are clipped to: the board's visible area once it changed, else `frame`. */
     private drawBox(): RationalBox | undefined {
+        const scale = 2 ** this.model.gridStepExponent;
+        // A box measured at another grid step is stale (a scene replacement changes the step before the board is told): measure again.
+        if (this.followBox && this.followScale !== scale && this.hasBoard) {
+            this.followBox = this.measureFollow();
+            this.followScale = scale;
+        }
         return this.followBox ?? this.derive().box;
     }
 
@@ -361,13 +369,20 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         return {minX: Rational.fromInt(minX), maxX: Rational.fromInt(maxX), minY: Rational.fromInt(minY), maxY: Rational.fromInt(maxY)};
     }
 
+    /** The visible box the drawing follows, or undefined while the board shows its starting view: loading a Preset re-applies that view, which is not a change of view. */
+    private measureFollow(): RationalBox | undefined {
+        const view = this.board.getBoundingBox();
+        const start = this.startView;
+        if (start && view.every((v, i) => Math.abs(v - start[i]) <= 1e-9 * Math.max(1, Math.abs(v)))) return undefined;
+        const box = this.visibleBox();
+        return box;
+    }
+
     /** The drawing follows the view: a changed visible area re-clips the diagram and the construction through the same handles. */
     private followView(): void {
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
         const measured = this.visibleBox();
-        const same = (a: RationalBox, b: RationalBox) => ["minX", "maxX", "minY", "maxY"].every(k => a[k as keyof RationalBox].equals(b[k as keyof RationalBox]));
-        // Loading a Preset re-applies the view it recorded: the box the board started with is not a change of view.
-        const next = measured && this.startBox && same(measured, this.startBox) ? undefined : measured;
+        const next = this.measureFollow();
         if (!next) {
             if (measured && this.followBox) {
                 this.followBox = undefined;
@@ -376,8 +391,9 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
             return;
         }
         const current = this.followBox;
-        if (!next || (current && ["minX", "maxX", "minY", "maxY"].every(k => current[k as keyof RationalBox].equals(next[k as keyof RationalBox])))) return;
+        if (!next || (current && this.followScale === 2 ** this.model.gridStepExponent && ["minX", "maxX", "minY", "maxY"].every(k => current[k as keyof RationalBox].equals(next[k as keyof RationalBox])))) return;
         this.followBox = next;
+        this.followScale = 2 ** this.model.gridStepExponent;
         const changed = [this.syncDiagram(), this.syncConstruction()];
         if (changed.some(Boolean)) this.boardUpdate();
     }
@@ -385,7 +401,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
         super.createMainView(session, container);
         this.followBox = undefined;
-        this.startBox = this.visibleBox();
+        this.startView = [...this.board.getBoundingBox()];
         session.on("boundingbox", () => this.followView());
     }
 
@@ -397,8 +413,13 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
         return [box.minX.toNumber() * scale, box.maxY.toNumber() * scale, box.maxX.toNumber() * scale, box.minY.toNumber() * scale];
     }
 
+    /** A new board and a reload start on the example's `frame`, never on the sites of the scene being replaced. */
     protected override initialView(): [number, number, number, number] {
-        return this.viewBox();
+        const example = this.exampleModel();
+        const outcome = voronoiFromDelaunay(example.points);
+        const box = outcome.ok && example.points.length >= 2 ? frame(outcome.value, example.points) : frame(voronoiExample().diagram, VORONOI_EXAMPLE.points);
+        const scale = 2 ** example.gridStepExponent;
+        return [box.minX.toNumber() * scale, box.maxY.toNumber() * scale, box.maxX.toNumber() * scale, box.minY.toNumber() * scale];
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------

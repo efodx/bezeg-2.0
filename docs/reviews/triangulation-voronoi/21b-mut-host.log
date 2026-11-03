@@ -1,0 +1,50 @@
+unit: failed (1) in 16.5s (2 workers, no slot); revision bac74e4be22ce4b28f768ada172cac05bdbc8172; dirty; log .command-logs\2026-11-03T01-21-54-013Z-29804-4e548217.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run --no-fsModuleCache src/graphs/compgeo/VoronoiGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ac09fc8fac554e676
+
+ ❯ src/graphs/compgeo/VoronoiGraph.host.test.tsx (24 tests | 1 failed) 6397ms
+   × a reset after a grid step change draws the exact frame again, as a newly mounted graph does 172ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/VoronoiGraph.host.test.tsx > a reset after a grid step change draws the exact frame again, as a newly mounted graph does
+AssertionError: expected [ -5, 9, -3, 7 ] to deeply equal [ -3.525, 11.625, -3.525, 10.525 ]
+
+- Expected
++ Received
+
+  [
+-   -3.525,
+-   11.625,
+-   -3.525,
+-   10.525,
++   -5,
++   9,
++   -3,
++   7,
+  ]
+
+ ❯ src/graphs/compgeo/VoronoiGraph.host.test.tsx:622:35
+    620|     act(() => { board.setBoundingBox(start, true); });
+    621|     act(() => { graph.importPresetData(serializePointSetModel(VORONOI_…
+    622|     expect(frameOf(graph.box()!)).toEqual(frameOf(fresh));
+       |                                   ^
+    623| });
+    624|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 passed (24)
+   Start at  02:21:54
+   Duration  15.70s (tests 41%, transform 40%, import 10%, environment 6%, setup 3%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -606,3 +606,18 @@ describe('review fixes', () => {
         expect(field('y').closest('label')!.textContent).toContain('Točka poizvedbe, y');
     });
 });
+
+test('a reset after a grid step change draws the exact frame again, as a newly mounted graph does', () => {
+    const graph = new Observed();
+    mount(graph);
+    const board = graph.liveBoard();
+    const start = board.getBoundingBox() as [number, number, number, number];
+    const fresh = graph.box()!;
+    const frameOf = (box: {minX: Rational; maxX: Rational; minY: Rational; maxY: Rational}) => [box.minX, box.maxX, box.minY, box.maxY].map(v => v.toNumber());
+    // The sites move to a coarser grid, and the board is told of a view that is the starting one in board coordinates.
+    act(() => { graph.importPresetData({...serializePointSetModel(VORONOI_EXAMPLE), gridStepExponent: 1}); });
+    act(() => { board.setBoundingBox([-40, 50, 60, -50], false); });
+    act(() => { board.setBoundingBox(start, true); });
+    act(() => { graph.importPresetData(serializePointSetModel(VORONOI_EXAMPLE)); });
+    expect(frameOf(graph.box()!)).toEqual(frameOf(fresh));
+});
