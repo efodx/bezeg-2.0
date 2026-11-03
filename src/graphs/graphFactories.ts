@@ -101,6 +101,7 @@ import DeBoorGraph from './curves/bspline/DeBoorGraph';
 import BSplineInsertionGraph from './curves/bspline/BSplineInsertionGraph';
 import BSplineExtractionGraph from './curves/bspline/BSplineExtractionGraph';
 import {BSplineNurbsGraph} from './curves/bspline/BSplineNurbsGraph';
+import {BSplineBlossomGraph} from './curves/bspline/BSplineBlossomGraph';
 import {CrossRatioGraph} from './projective/CrossRatioGraph';
 import {PascalGraph} from './projective/PascalGraph';
 import {PolePolarGraph} from './projective/PolePolarGraph';
@@ -155,6 +156,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'bspline-insertion': () => new BSplineInsertionGraph(),
     'bspline-extraction': () => new BSplineExtractionGraph(),
     'bspline-nurbs': () => new BSplineNurbsGraph(),
+    'bspline-blossom': () => new BSplineBlossomGraph(),
     'patch-coons': () => new CoonsPatchGraph(),
     'linear-function': () => new LinearFunctionGraph(),
     'exponential-function': () => new ExponentialFunctionGraph(),

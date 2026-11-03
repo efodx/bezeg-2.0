@@ -201,6 +201,7 @@ const FIGURE_FAMILIES: Array<[string, () => GraphLike]> = [
     ['B-spline insertion', () => graphFactories['bspline-insertion']()],
     ['B-spline extraction', () => graphFactories['bspline-extraction']()],
     ['NURBS circle', () => graphFactories['bspline-nurbs']()],
+    ['Blossom', () => graphFactories['bspline-blossom']()],
     ['linear map', () => graphFactories['linear-map']()],
     ['complex function', () => graphFactories['complex-reciprocal']()],
 ];

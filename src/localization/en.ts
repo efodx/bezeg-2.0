@@ -355,6 +355,8 @@ export const en: Record<keyof typeof sl, string> = {
     "bspline_extraction_title": "Bézier extraction",
     "prompt_bspline_extraction": "Move the control points and watch which Bézier pieces make up the curve. Which pieces change when you move a point, and why do the others stay the same?",
     "bspline_nurbs_title": "NURBS and the circle",
+    "bspline_blossom_title": "Blossoming (polar form)",
+    "prompt_bspline_blossom": "Choose the arguments a and b. How do two interpolations give f(a, b), what does f(a, a) have to do with the curve, and why is f(a, b) = f(b, a)?",
     "prompt_bspline_nurbs": "Compare the curve with unit weights and the curve with weights √2/2 at the corners. When is a B-spline exactly a circle, and why is the point at t = 1/16 not at the angle 22.5°?",
     "prompt_bspline_insertion": "Insert a knot and watch the control polygon and the curve. What changes and what stays the same? How does the multiplicity of a knot determine the smoothness of the curve there?",
     "cannot_save_presets_free_browser_storage_space_and_try_again": "Cannot save presets. Free browser storage space and try again.",

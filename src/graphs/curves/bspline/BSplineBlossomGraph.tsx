@@ -86,11 +86,14 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         this.ensureScene();
     }
 
-    /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
+    /**
+     * The just-imported curve wins over the mount-time defaults and over a stale stored curve; the stored segment, arguments
+     * and Bezier switch stay, as loading the Preset keeps them.
+     */
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): BSplineBlossomState {
         const merged = super.figurePresetGraphState(graphState);
-        const {degree, knots, points, segment, args, showBezier} = this.state;
-        return {...merged, degree, knots: [...knots], points: points.map(point => [point[0], point[1]] as const), segment, args: [...args], showBezier};
+        const {degree, knots, points} = this.state;
+        return {...merged, degree, knots: [...knots], points: points.map(point => [point[0], point[1]] as const)};
     }
 
     protected override initialView(): [number, number, number, number] {

@@ -55,7 +55,7 @@ export const bsplinePresetCollection: PresetCollection<BSplinePresetData> = Obje
      */
     checkGraphState(graphState: unknown): Message | undefined {
         if (!isRecord(graphState)) return message("invalid_state");
-        const {knots, points, weights, origin, ghost, refusal, moved, ...rest} = graphState;
+        const {knots, points, weights, origin, ghost, refusal, moved, args, ...rest} = graphState;
         if (knots !== undefined && !(Array.isArray(knots) && knots.every(isFiniteNumber))) return message("invalid_value", {value0: "knots"});
         if (weights !== undefined && !(Array.isArray(weights) && weights.every(isFiniteNumber))) return message("invalid_value", {value0: "weights"});
         if (points !== undefined && !(Array.isArray(points) && points.every(isPoint))) return message("invalid_value", {value0: "points"});
@@ -66,6 +66,8 @@ export const bsplinePresetCollection: PresetCollection<BSplinePresetData> = Obje
         if (refusal !== undefined && refusal !== null && !isRecord(refusal)) return message("invalid_value", {value0: "refusal"});
         // The extraction graph keeps the indices of the last drag (`moved`); a restore resets them to none.
         if (moved !== undefined && !(Array.isArray(moved) && moved.every(isFiniteNumber))) return message("invalid_value", {value0: "moved"});
+        // The blossom graph keeps its arguments a, b (, c); a restore takes them from the imported curve's defaults.
+        if (args !== undefined && !(Array.isArray(args) && args.every(isFiniteNumber))) return message("invalid_value", {value0: "args"});
         return checkSceneState(rest);
     },
     check(data: unknown): PresetDataCheck<BSplinePresetData> {
