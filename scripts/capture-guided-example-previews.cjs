@@ -194,11 +194,19 @@ function isSameGraphOnOverlap(before, after, boxes) {
     }
     const low = Math.max(...boxes.map(box => box[3])), high = Math.min(...boxes.map(box => box[1]));
     const onScreen = y => Number.isFinite(y) && y >= low && y <= high;
-    const compared = Array.from({length: 41}, (_, index) => left + (right - left) * index / 40).map(x => [interpolate(before.points, x), interpolate(after.points, x)])
+    const compared = Array.from({length: 41}, (_, index) => left + (right - left) * index / 40).map(x => [interpolate(before.points, x), interpolate(after.points, x), x])
         .filter(([beforeY, afterY]) => onScreen(beforeY) && onScreen(afterY));
     // The two views sample the function on different abscissas, so linear interpolation differs by far less than a pixel; 1e-3 of the shared height is about 0.6 px at capture scale.
     const tolerance = 1e-3 * (high - low);
-    return compared.length >= 5 && compared.every(([beforeY, afterY]) => agree(beforeY, afterY) || Math.abs(beforeY - afterY) <= tolerance);
+    // Beside a pole the curve is so steep that linear interpolation on two sampling grids differs by more than the height tolerance while the
+    // curves are under a pixel apart horizontally: also accept a before value that the other view reaches within the same horizontal distance.
+    const xTolerance = 1e-3 * (right - left);
+    const nearby = (x, beforeY) => {
+        const values = [x - xTolerance, x, x + xTolerance].map(sample => interpolate(after.points, sample)).filter(Number.isFinite);
+        return values.length > 0 && beforeY >= Math.min(...values) - tolerance && beforeY <= Math.max(...values) + tolerance;
+    };
+    return compared.length >= 5 && compared.every(([beforeY, afterY, x]) => agree(beforeY, afterY) || Math.abs(beforeY - afterY) <= tolerance
+        || nearby(x, beforeY));
 }
 
 function isViewportSpanningHorizontalCurve(samples, box) {

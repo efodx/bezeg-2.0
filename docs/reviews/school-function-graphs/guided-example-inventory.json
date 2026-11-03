@@ -112,10 +112,10 @@
       "id": "school-function-graphs.rational-function.rational-function",
       "demonstrationId": "rational-function",
       "path": "/bezeg-2.0/functions/rational-functions?example=lesson.school-function-graphs.rational-function.rational-function",
-      "sceneFingerprint": "213f01db8c6d315e4a9fd2b00b3cbf27cb576f5c46d7b294c99d11cbc624ec1b",
+      "sceneFingerprint": "f2172f9dd282a2a5e6cef144021e270d476895c814cb11c29d479a6947cc9235",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rat-pole-oblique\",\"source\":\"demonstration-default\"}",
-        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rat-pole-oblique\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rat-pole-oblique\",\"source\":\"demonstration-default\",\"view\":[-8,14,12,-6]}",
         "function-choice: {\"kind\":\"function-choice\",\"name\":\"rational-example\",\"value\":\"oblique\"}",
         "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"rational-probe\",\"value\":10}"
       ],
