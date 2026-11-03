@@ -14,7 +14,7 @@ Status: planned 2026-11-03 (geometry handler 48). Source: spec [A5](../../specs/
 2. **`kettner` mode.** A \(64\times64\) cell board for \(i,j\), shown as two panels or with a toggle: "inexact (double)" and "exact". Cell shading encodes the sign, and a marker shape or pattern distinguishes \(+\), \(-\) and \(0\), so colour is never the only signal. A selected cell (default \(i=41,j=48\), selectable by keyboard) shows \(i\), \(j\), the exact sign and the double value. The readout gives the counts \(112\) and \(2052\). Every label of a double result carries the word "inexact" in both languages (acceptance 2). No point in this mode is draggable.
 3. Locale keys go in one block after task 18's. The readout states what the picture shows for these inputs, not that doubles always fail (acceptance 4).
 4. Tests:
-   - sample 1 under both pop rules: \((2,5)\) is dropped under one and kept under the other; a duplicate is kept under `keep`;
+   - sample 1 under both pop rules: \((2,0)\) on the hull edge is dropped under `<=` and kept under `<` (task 17's corrected outputs); three collinear points under `<` list the middle point twice; a duplicate appears on both chains under `<` + `keep`;
    - a mode switch disposes the other mode's board objects (exact counts) and restores them on return;
    - the selected cell's readout equals `kettnerSignMap()` at \((41,48)\) and at a few other cells;
    - every rendered string for a naive value contains the inexact label;

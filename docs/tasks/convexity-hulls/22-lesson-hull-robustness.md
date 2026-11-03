@@ -6,7 +6,7 @@ Status: planned 2026-11-03 (geometry handler 48). Source: spec [A5](../../specs/
 2. **Lesson.** Add lesson A5 on `hull-robustness` and remove `lesson: false`. Its steps:
    1. three collinear points;
    2. predict the rule;
-   3. the chain with `<=` and then `<` on sample 1: \((2,5)\) is dropped, then kept;
+   3. the chain with `<=` and then `<` on sample 1: \((2,0)\) on the hull edge is dropped, then kept (task 17's corrected outputs; with `<`, three collinear points put the middle one on both chains, which step 1 can show);
    4. a duplicate point;
    5. the Kettner map in inexact mode at \(i=41,j=48\), labelled inexact;
    6. the same cell computed exactly, and why grid points avoid the failure (ADR 0021's bound in one sentence);

@@ -1,4 +1,4 @@
-import {orientExactDyadic, orientNaiveDouble} from './inexactOrientation';
+import {kettnerSignMap, orientExactDyadic, orientNaiveDouble} from './inexactOrientation';
 
 /** Independent reference for inputs that are multiples of 2^-53: scale to integers and use BigInt. */
 const SCALE = 2 ** 53;
@@ -50,6 +50,52 @@ describe('Kettner robustness example (pivot p, q=(12,12), r=(24,24))', () => {
         expect(naive).toBeLessThan(0);
         expect(naive / -5.6843e-14).toBeCloseTo(1, 4);
         expect(orientExactDyadic(px, py, 12, 12, 24, 24)).toBe(1);
+    });
+});
+
+describe('kettnerSignMap', () => {
+    const U = 2 ** -53;
+    const map = kettnerSignMap();
+    const cellAt = (i: number, j: number) => map.cells[j * 64 + i];
+
+    it('has 4096 cells in (j, i) order with counts equal to the reference loop above', () => {
+        // The reference loop in the Kettner describe above counts independently (BigInt reference).
+        expect(map.cells).toHaveLength(4096);
+        map.cells.forEach((cell, index) => {
+            expect(cell.i).toBe(index % 64);
+            expect(cell.j).toBe(Math.floor(index / 64));
+        });
+        expect(map.wrongSign).toBe(112);
+        expect(map.falseZero).toBe(2052);
+        expect(map.agree).toBe(4096 - 112 - 2052);
+    });
+
+    it('every cell agrees with the BigInt reference and the counts follow from the cells', () => {
+        let wrong = 0;
+        let zero = 0;
+        for (const cell of map.cells) {
+            const px = 0.5 + cell.i * U;
+            const py = 0.5 + cell.j * U;
+            expect(cell.exact).toBe(sign(refExact(px, py, 12, 12, 24, 24)));
+            expect(cell.naiveValue).toBe(orientNaiveDouble(px, py, 12, 12, 24, 24));
+            expect(cell.naive).toBe(sign(cell.naiveValue));
+            if (cell.naive === 0 && cell.exact !== 0) zero++;
+            else if (cell.naive !== 0 && cell.naive !== cell.exact) wrong++;
+        }
+        expect(wrong).toBe(map.wrongSign);
+        expect(zero).toBe(map.falseZero);
+    });
+
+    it('i=41, j=48: exact +, naive -, double about -5.68e-14', () => {
+        const cell = cellAt(41, 48);
+        expect(cell.exact).toBe(1);
+        expect(cell.naive).toBe(-1);
+        expect(cell.naiveValue / -5.6843e-14).toBeCloseTo(1, 4);
+    });
+
+    it('is memoized and frozen', () => {
+        expect(kettnerSignMap()).toBe(map);
+        expect(Object.isFrozen(map) && Object.isFrozen(map.cells) && Object.isFrozen(map.cells[0])).toBe(true);
     });
 });
 
