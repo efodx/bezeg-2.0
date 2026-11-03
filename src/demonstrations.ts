@@ -95,6 +95,7 @@ const definitions = [
     {id: 'bisection', path: '/bezeg-2.0/analysis/bisection', family: 'analysis', title: 'bisection', prompts: ['prompt_bisection', 'prompt_compare']},
     {id: 'root-finding', path: '/bezeg-2.0/analysis/root-finding', family: 'analysis', title: 'root_finding_title', prompts: ['prompt_root_finding', 'prompt_compare']},
     {id: 'quadrature', path: '/bezeg-2.0/analysis/quadrature', family: 'analysis', title: 'quadrature_title', prompts: ['prompt_quadrature', 'prompt_compare']},
+    {id: 'euler-method', path: '/bezeg-2.0/analysis/euler-method', family: 'analysis', title: 'euler_ode_title', prompts: ['prompt_euler_ode', 'prompt_compare'], lesson: false},
     {id: 'mean-value', path: '/bezeg-2.0/analysis/mean-value', family: 'analysis', title: 'mean_value', prompts: ['prompt_mean_value', 'prompt_compare']},
     {id: 'accumulation', path: '/bezeg-2.0/analysis/accumulation', family: 'analysis', title: 'accumulation', prompts: ['prompt_accumulation', 'prompt_compare']},
     {id: 'darboux', path: '/bezeg-2.0/analysis/darboux', family: 'analysis', title: 'darboux', prompts: ['prompt_darboux', 'prompt_compare']},

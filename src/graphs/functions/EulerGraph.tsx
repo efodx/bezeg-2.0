@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -103,6 +103,20 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
     protected showAllSteps(): void {
         this.commitModel(setEulerRevealed(this.model, null));
+    }
+
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                "euler-x0": value => this.setInitial(value, this.model.y0),
+                "euler-y0": value => this.setInitial(this.model.x0, value),
+                "euler-end": value => this.setEnd(value),
+            },
+            choices: {
+                "euler-example": value => this.setExample(value),
+                "euler-step": value => this.setStep(Number(value)),
+            },
+        };
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------

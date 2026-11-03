@@ -12,7 +12,7 @@ import {bisectionFileMessage} from "./bisectionMessages";
 import {checkRootFindingModel, parseRootFindingModel} from "../../analysis/rootFindingModel";
 import {rootFindingFileMessage} from "./rootFindingMessages";
 import {checkQuadratureModel, parseQuadratureModel} from "../../analysis/quadratureModel";
-import {checkEulerModel, parseEulerModel} from "../../analysis/eulerModel";
+import {checkEulerModel, EulerModel, parseEulerModel} from "../../analysis/eulerModel";
 import {eulerFileMessage} from "./eulerMessages";
 import {quadratureFileMessage} from "./quadratureMessages";
 import {checkMeanValueModel, parseMeanValueModel} from "../../analysis/meanValueModel";
@@ -335,6 +335,24 @@ function functionCollection<M>(key: string, parse: (data: unknown) => M | undefi
     });
 }
 
+/**
+ * The Euler collection: the stored scene state mirrors the model, whose `revealed` is null while all steps show. The general scene
+ * check accepts only numbers, booleans and strings, so null is allowed here and the rest is checked as usual; the Preset data
+ * stays authoritative (`figurePresetGraphState`).
+ */
+function eulerCollection(): PresetCollection<EulerModel> {
+    const base = functionCollection("euler", parseEulerModel, diagnoseEuler);
+    return Object.freeze({
+        ...base,
+        checkGraphState(graphState: unknown): Message | undefined {
+            if (!isRecord(graphState)) return message("invalid_state");
+            const {revealed, ...rest} = graphState;
+            if (revealed !== undefined && revealed !== null && typeof revealed !== "number") return message("invalid_value", {value0: "revealed"});
+            return checkSceneState(rest);
+        },
+    });
+}
+
 /** The Preset collections of the function, Analysis and complex Demonstrations (`BaseFunctionGraph`), by Demonstration id. */
 export const functionPresetCollections = {
     "linear-function": functionCollection("linear-function", parseLinearModel),
@@ -348,7 +366,7 @@ export const functionPresetCollections = {
     bisection: functionCollection("bisection", parseBisectionModel, diagnoseBisection),
     "root-finding": functionCollection("root-finding", parseRootFindingModel, diagnoseRootFinding),
     quadrature: functionCollection("quadrature", parseQuadratureModel, diagnoseQuadrature),
-    euler: functionCollection("euler", parseEulerModel, diagnoseEuler),
+    euler: eulerCollection(),
     "mean-value": functionCollection("mean-value", parseMeanValueModel, diagnoseMeanValue),
     accumulation: functionCollection("accumulation", parseAccumulationModel, diagnoseAccumulation),
     darboux: functionCollection("darboux", parseDarbouxModel, diagnoseDarboux),

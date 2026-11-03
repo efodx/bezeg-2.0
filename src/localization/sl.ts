@@ -733,6 +733,8 @@ export const sl = {
     "invalid_quadrature_order": "meja a mora biti manjša od b; popravi vrednosti v datoteki",
     "invalid_quadrature_count": "polje n mora biti celo število od {value0} do {value1}; popravi vrednost v datoteki",
     "invalid_quadrature_count_even": "pri Simpsonovem pravilu mora biti polje n sodo število od {value0} do {value1}; popravi vrednost v datoteki",
+    "euler_ode_title": "Polje smeri in Eulerjeva metoda",
+    "prompt_euler_ode": "Izberi enačbo in korak h ter napovej, kako lomljenka sledi polju smeri. Kaj se zgodi z napako pri končnem x, ko h razpoloviš?",
     "euler_ode_example_label": "Enačba",
     "euler_ode_example_help": "Pri zamenjavi enačbe ostanejo začetna točka, korak in končni x, pogled pa se prilagodi novemu polju smeri.",
     "euler_ode_x0_label": "Začetni x₀",

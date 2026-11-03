@@ -734,6 +734,8 @@ export const en: Record<keyof typeof sl, string> = {
     "invalid_quadrature_order": "the bound a must be smaller than b; correct the values in the file",
     "invalid_quadrature_count": "the field n must be a whole number from {value0} to {value1}; correct the value in the file",
     "invalid_quadrature_count_even": "for Simpson's rule the field n must be an even number from {value0} to {value1}; correct the value in the file",
+    "euler_ode_title": "Direction field and Euler's method",
+    "prompt_euler_ode": "Choose an equation and a step h, and predict how the polyline follows the direction field. What happens to the error at the end x when h is halved?",
     "euler_ode_example_label": "Equation",
     "euler_ode_example_help": "Changing the equation keeps the starting point, the step and the end x and fits the view to the new field.",
     "euler_ode_x0_label": "Starting x₀",

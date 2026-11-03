@@ -1,0 +1,19 @@
+# Brief handoff-v12: numerical methods 07 F2b (register the Euler Demonstration)
+
+- **Role:** implementation; edit permission in `.claude/worktrees/stream-functions`. Do not commit, push or delegate. Edit `sl.ts`, `en.ts` and the count tests only with targeted Edit calls (if an Edit fails because the text moved, re-read that region). Heredocs halve backslashes: edit TS strings with Edit, not shell.
+- **Goal:** the route, the Analysis-family catalog entry and the Demonstration registration for `EulerGraph` (`src/graphs/functions/EulerGraph.tsx`, accepted in `8ab99787` and `6db7371e`), under ADR 0023 §4 (Analysis family) and `docs/tasks/numerical-methods/07-batch-c.md` (F2b). Existing routes, Demonstrations and stored Presets stay valid; the new route is an addition.
+- **Id and route:** Demonstration id `euler-method`, route `/analysis/euler-method` (next to `/analysis/root-finding` and `/analysis/quadrature`). The Preset collection is `euler`; keep it unless the code requires the collection key to equal the Demonstration id, in which case rename it to `euler-method` everywhere (no stored Presets use it yet) and say so in your report.
+- **Pattern to copy exactly:** the quadrature registration commit `3d5fcf5b`. Run `git show --stat 3d5fcf5b`, then read its diff file by file. It touches `src/demonstrations.ts`, `src/graphs/graphFactories.ts`, `src/demonstrationPosterPending.ts`, `scripts/demonstration-preview-recipes.cjs`, `src/learning/model.ts`, the count/route tests (`Routes.test.tsx`, `demonstrations.test.ts`, `DemonstrationsPage.test.tsx`, `familyChapters.test.ts`, `lessonCatalog.test.ts`), the catalog title/description keys, and a graph-side change to `QuadratureGraph.tsx` (lesson parameters and choices); mirror that in `EulerGraph.tsx` with lesson parameters for x0, y0 and end x and choices for the example and the step (names prefixed `euler-`), plus the "show exact" toggle if quadrature's pattern has an equivalent. Counts have changed since, so read the current values. Also read `d84e4a8c` (quadrature lesson actions run in one synchronous sequence) and add the same kind of test for Euler (AGENTS.md: multi-action scenes in one synchronous sequence).
+- Remove `"euler"` from `PENDING_ROUTE_KEYS` in `src/graphs/base/presets/PresetCatalog.test.tsx` and move it the way `3d5fcf5b` did for quadrature.
+- **Poster recipe:** add a recipe line in `scripts/demonstration-preview-recipes.cjs` like quadrature's: default model (y' = y from (0, 1), h = 0.5, end x = 1, exact curve shown), a window that shows the field, the polyline, the exact curve and the initial point label without clipping (start from `EXAMPLE_VIEWS.exponential` in `EulerGraph.tsx`). Keep the poster pending (`demonstrationPosterPending.ts`); the handler captures it.
+- Catalog title/description in Slovenian and English: SL title "Polje smeri in Eulerjeva metoda", EN "Direction field and Euler's method"; one-sentence descriptions in the style of the neighbouring Analysis entries.
+
+## Checks
+
+- `npx tsc --noEmit --pretty false` (report errors outside your files), eslint on touched files.
+- `just unit src/demonstrations.test.ts src/Routes.test.tsx src/DemonstrationsPage.test.tsx src/learning src/graphs/functions src/graphs/base/presets src/localization` (logs to files), then `just build`.
+- An observed pre-change failure for the new route/registration assertions (the counts and the route test fail without the registration).
+
+## Return
+
+≤ 250 words: files changed, the route, lesson parameter and choice names, checks with log paths, observed failures, open questions. Logs to `C:/Users/1337Hacker/.claude/jobs/36f6fc67/tmp/n07b/`. Budget: grep before reading, ≤150 lines per read. On `HANDOFF` or after about 25 turns, write a handoff note to `docs/reviews/feature-streams/functions/worker-numerical-07-f2b-handoff.md` and return partial.

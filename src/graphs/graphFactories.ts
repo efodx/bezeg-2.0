@@ -52,6 +52,7 @@ import { ArcLengthGraph } from './functions/ArcLengthGraph';
 import { BisectionGraph } from './functions/BisectionGraph';
 import { RootFindingGraph } from './functions/RootFindingGraph';
 import { QuadratureGraph } from './functions/QuadratureGraph';
+import { EulerGraph } from './functions/EulerGraph';
 import { FunctionTransformationGraph } from './functions/FunctionTransformationGraph';
 import { FunctionInverseGraph } from './functions/FunctionInverseGraph';
 import { PolynomialZerosGraph } from './functions/PolynomialZerosGraph';
@@ -165,6 +166,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'bisection': () => new BisectionGraph(),
     'root-finding': () => new RootFindingGraph(),
     'quadrature': () => new QuadratureGraph(),
+    'euler-method': () => new EulerGraph(),
     'mean-value': () => new MeanValueGraph(),
     'accumulation': () => new AccumulationGraph(),
     'darboux': () => new DarbouxGraph(),
