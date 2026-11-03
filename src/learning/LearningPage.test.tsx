@@ -63,6 +63,12 @@ const examplesSl = (count: number) => {
     return last === 1 ? 'vodeni primer' : last === 2 ? 'vodena primera' : last === 3 || last === 4 ? 'vodeni primeri' : 'vodenih primerov';
 };
 
+/** The Slovenian section plural the page uses (one, two, few, other; 101 takes the form of one). */
+const sectionsSl = (count: number) => {
+    const last = count % 100;
+    return last === 1 ? 'razdelek' : last === 2 ? 'razdelka' : last === 3 || last === 4 ? 'razdelki' : 'razdelkov';
+};
+
 test('the Learn count line is derived from content with Slovenian chapter plurals', () => {
     expect([1, 2, 3, 4, 5, 11, 101].map(count => chapterCount(count, 'sl')))
         .toEqual(['1 poglavje', '2 poglavji', '3 poglavja', '4 poglavja', '5 poglavij', '11 poglavij', '101 poglavje']);
@@ -72,7 +78,7 @@ test('the Learn count line is derived from content with Slovenian chapter plural
     const sectionTotal = container.querySelectorAll('.learning-outline li').length;
     const exampleTotal = rows.reduce((total, row) => total + Number(/(\d+) vodeni|(\d+) vodena|(\d+) vodenih/.exec(row.querySelector('.learning-outline-meta')!.textContent!)!.slice(1).find(Boolean)), 0);
     expect(rows).toHaveLength(learningChapters.length);
-    expect(container.querySelector('.learning-counts')).toHaveTextContent(`${chapterCount(learningChapters.length, 'sl')} · ${sectionTotal} razdelkov · ${exampleTotal} ${examplesSl(exampleTotal)}`);
+    expect(container.querySelector('.learning-counts')).toHaveTextContent(`${chapterCount(learningChapters.length, 'sl')} · ${sectionTotal} ${sectionsSl(sectionTotal)} · ${exampleTotal} ${examplesSl(exampleTotal)}`);
     unmount();
     act(() => setLanguage('en'));
     const english = render(<MemoryRouter><LearningPage/></MemoryRouter>);

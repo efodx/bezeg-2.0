@@ -132,6 +132,15 @@ test('school function graphs expectations are authored from the transformation r
     assert.throws(() => expectFor('function-inverse', inverse(2, true)), /inverse curve and tangents are hidden/);
     assert.throws(() => expectFor('function-inverse', fnStep([fnChoice('inverse-restriction', 'natural'), fnParam('inverse-x0', 1),
         {kind: 'function-visibility', target: 'inverse-curve', visible: false}, {kind: 'function-visibility', target: 'tangent', visible: false}])), /only the square restriction/);
+    // Polynomial zeros: the example's zeros are gliders on the x-axis; the derivative adds a second curve; a move onto another zero is not authored.
+    const polynomial = (example, derivative, moves = []) => fnStep([fnChoice('polynomial-example', example), ...moves.map(([slot, z]) => fnParam(`poly-zero-${slot}`, z)),
+        {kind: 'function-visibility', target: 'polynomial-derivative', visible: derivative}]);
+    assert.deepEqual(expectFor('polynomial-zeros', polynomial('default', false)), {types: {curve: 1, point: 2}, curveCount: 1, points: [[-2, 0], [1, 0]]});
+    assert.deepEqual(expectFor('polynomial-zeros', polynomial('triple', true)), {types: {curve: 2, point: 1}, curveCount: 2, points: [[1, 0]]});
+    assert.deepEqual(expectFor('polynomial-zeros', polynomial('degree-five', false)).points, [[-3, 0], [-1, 0], [2, 0]]);
+    assert.deepEqual(expectFor('polynomial-zeros', polynomial('default', false, [[1, -3]])).points, [[-3, 0], [1, 0]]);
+    assert.throws(() => expectFor('polynomial-zeros', polynomial('default', false, [[1, 1]])), /no two zeros merge/);
+    assert.throws(() => expectFor('polynomial-zeros', polynomial('default', false, [[3, 1]])), /does not have/);
     assert.throws(() => expectFor('function-other', transform(1, 1, 0, 0, 2)), /no authored School function graphs first frame/);
     assert.ok(chapterInventories['school-function-graphs']);
 });

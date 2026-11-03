@@ -50,6 +50,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // School function graphs batch A: the Function graphs for the matura chapter owns S1 (graph transformations) and S2 (inverse functions), one section each.
     'function-transformation': {chapterId: 'school-function-graphs', sectionId: 'function-transformation'},
     'function-inverse': {chapterId: 'school-function-graphs', sectionId: 'function-inverse'},
+    'polynomial-zeros': {chapterId: 'school-function-graphs', sectionId: 'polynomial-zeros'},
     // Fourier series F1 and F3: pointwise versus uniform convergence belongs with the analysis convergence section; no chapter text yet (F4).
     'fourier-series': {chapterId: 'fourier-series', sectionId: 'fourier-series'},
     continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},

@@ -83,7 +83,7 @@ const definitions = [
     {id: 'trigonometric-functions', path: '/bezeg-2.0/functions/trigonometric', family: '/bezeg-2.0/functions', title: 'trigonometric_functions', prompts: ['prompt_trigonometric_functions', 'prompt_compare']},
     {id: 'function-transformation', path: '/bezeg-2.0/functions/transformations', family: '/bezeg-2.0/functions', title: 'function_transformation_title', prompts: ['prompt_function_transformation', 'prompt_compare']},
     {id: 'function-inverse', path: '/bezeg-2.0/functions/inverse', family: '/bezeg-2.0/functions', title: 'function_inverse_title', prompts: ['prompt_function_inverse', 'prompt_compare']},
-    {id: 'polynomial-zeros', path: '/bezeg-2.0/functions/polynomial-zeros', family: '/bezeg-2.0/functions', title: 'polynomial_zeros_title', prompts: ['prompt_polynomial_zeros', 'prompt_compare'], lesson: false},
+    {id: 'polynomial-zeros', path: '/bezeg-2.0/functions/polynomial-zeros', family: '/bezeg-2.0/functions', title: 'polynomial_zeros_title', prompts: ['prompt_polynomial_zeros', 'prompt_compare']},
     {id: 'rational-function', path: '/bezeg-2.0/functions/rational-functions', family: '/bezeg-2.0/functions', title: 'rational_function_title', prompts: ['prompt_rational_function', 'prompt_compare'], lesson: false},
     {id: 'continuity', path: '/bezeg-2.0/functions/continuity', family: '/bezeg-2.0/functions', title: 'continuity', prompts: ['prompt_continuity', 'prompt_compare']},
     {id: 'derivative', path: '/bezeg-2.0/functions/derivative', family: '/bezeg-2.0/functions', title: 'derivative', prompts: ['prompt_derivative', 'prompt_compare']},

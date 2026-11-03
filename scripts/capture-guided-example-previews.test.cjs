@@ -233,7 +233,8 @@ test('numerical, school, fourier and projective capture families accept exactly 
             {id: 'numerical-methods.quadrature.quadrature', path: '/bezeg-2.0/analysis/quadrature?example=lesson.numerical-methods.quadrature.quadrature'}],
         'school-function-graphs': [
             {id: 'school-function-graphs.function-transformation.function-transformation', path: '/bezeg-2.0/functions/transformations?example=lesson.school-function-graphs.function-transformation.function-transformation'},
-            {id: 'school-function-graphs.function-inverse.function-inverse', path: '/bezeg-2.0/functions/inverse?example=lesson.school-function-graphs.function-inverse.function-inverse'}],
+            {id: 'school-function-graphs.function-inverse.function-inverse', path: '/bezeg-2.0/functions/inverse?example=lesson.school-function-graphs.function-inverse.function-inverse'},
+            {id: 'school-function-graphs.polynomial-zeros.polynomial-zeros', path: '/bezeg-2.0/functions/polynomial-zeros?example=lesson.school-function-graphs.polynomial-zeros.polynomial-zeros'}],
         'fourier-series': [{id: 'fourier-series.fourier-series.fourier-series', path: '/bezeg-2.0/analysis/fourier-series?example=lesson.fourier-series.fourier-series.fourier-series'}],
         'projective-conics': [
             {id: 'projective-conics.projective-cross-ratio.projective-cross-ratio', path: '/bezeg-2.0/projective/cross-ratio?example=lesson.projective-conics.projective-cross-ratio.projective-cross-ratio'},
