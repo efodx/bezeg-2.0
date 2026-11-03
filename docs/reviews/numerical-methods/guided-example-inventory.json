@@ -68,6 +68,39 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "numerical-methods.euler-method.euler-method",
+      "demonstrationId": "euler-method",
+      "path": "/bezeg-2.0/analysis/euler-method?example=lesson.numerical-methods.euler-method.euler-method",
+      "sceneFingerprint": "7336560bb86008a302cef1fda2d0bbce1339b1d9eb982098b2c54f74ad205897",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"euler-field-predict\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"euler-field-predict\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"euler-exact\",\"visible\":false}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"euler-example\",\"value\":\"exponential\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"euler-step\",\"value\":\"0.5\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"euler-x0\",\"value\":0}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"euler-y0\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"euler-end\",\"value\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 1
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }
