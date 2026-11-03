@@ -68,6 +68,7 @@ const targets = {
     'fourier-series': ['Default square wave with the partial sum, the target and the epsilon band', [], [-7.2, 3.6, 7.2, -2]],
     'prob-binomial-normal': ['Default B(20; 1/2) bars with the matching normal curve and the shaded P(X <= 8)', [], [-1.5, 0.2, 21.5, -0.03]],
     'prob-clt': ['Default uniform base density at n = 1, standardized, over the standard normal curve', [], [-6, 0.6, 6, -0.06]],
+    'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with mean and median markers and the box plot (school rule)', [], [1, 4, 11, -2]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).

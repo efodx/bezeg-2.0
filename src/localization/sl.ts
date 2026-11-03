@@ -3178,6 +3178,8 @@ export const sl = {
     "prompt_prob_density": "Premikaj krajišči a in b ter spreminjaj μ in σ. Kolikšen delež ploščine pod krivuljo leži med μ − σ in μ + σ in zakaj se ta delež ne spremeni, ko krivulja zdrsne ali se splošči?",
     "prob_binomial_title": "Od binomske k normalni porazdelitvi",
     "prob_clt_title": "Centralni limitni izrek brez naključja",
+    "prob_summary_title": "Aritmetična sredina, mediana, standardni odklon in škatla z brki",
+    "prompt_prob_summary": "Povleci največjo vrednost daleč v desno. Zakaj se aritmetična sredina premakne, mediana pa ostane, in kdaj škatla z brki označi osamelca?",
     "prompt_prob_clt": "Dodajaj kopije in opazuj, kako se standardizirana vsota približuje normalni krivulji. Zakaj poševna osnovna gostota potrebuje več seštevancev in kaj Kolmogorova razdalja pri enem n pove ter česa ne pove?",
     "prob_binomial_example_label": "Primer",
     "prob_binomial_example_fair20": "B(20; 1/2), P(X ≤ 8)",

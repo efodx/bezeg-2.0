@@ -3179,6 +3179,8 @@ export const en: Record<keyof typeof sl, string> = {
     "prompt_prob_density": "Drag the ends a and b and change μ and σ. What share of the area under the curve lies between μ − σ and μ + σ, and why does it not change when the curve slides or flattens?",
     "prob_binomial_title": "From binomial to normal",
     "prob_clt_title": "The central limit theorem without randomness",
+    "prob_summary_title": "Mean, median, standard deviation and the box plot",
+    "prompt_prob_summary": "Drag the largest value far to the right. Why does the mean move while the median stays, and when does the box plot flag an outlier?",
     "prompt_prob_clt": "Add copies and watch the standardized sum approach the normal curve. Why does a skewed base density need more terms, and what does the Kolmogorov distance at one n tell you and not tell you?",
     "prob_binomial_example_label": "Example",
     "prob_binomial_example_fair20": "B(20, 1/2), P(X ≤ 8)",

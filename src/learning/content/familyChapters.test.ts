@@ -31,7 +31,9 @@ function withoutMath(source: string) {
 // sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
 // patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
 const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'voronoi-degenerate',
-    'polynomial-zeros', 'rational-function'];
+    'polynomial-zeros', 'rational-function',
+    // prob-summary: the probability chapter gains its P4 section with the lesson (PS-B-4d2).
+    'prob-summary'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
