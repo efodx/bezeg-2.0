@@ -1,0 +1,16 @@
+.fourier-decay { container-type: inline-size; margin: 0; }
+.fourier-decay > figcaption { color: var(--workspace-ink); font-size: .9rem; font-weight: 700; }
+.fourier-decay-panels { display: grid; grid-template-columns: 1fr; gap: .6rem; margin-top: .3rem; }
+@container (min-width: 600px) { .fourier-decay-panels { grid-template-columns: repeat(3, 1fr); } }
+.fourier-decay-panel { margin: 0; min-width: 0; }
+.fourier-decay-panel figcaption { color: var(--workspace-ink); font-size: .85rem; font-weight: 700; }
+.fourier-decay-swatch { display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem; border-radius: 2px; vertical-align: baseline; }
+.fourier-decay-svg { width: 100%; height: auto; background: var(--workspace-panel); border: 1px solid var(--workspace-rule); border-radius: 4px; }
+.fourier-decay-axis { stroke: var(--workspace-ink-soft); stroke-width: 1; }
+.fourier-decay-grid { stroke: var(--workspace-rule); stroke-width: 1; }
+.fourier-decay-label { fill: var(--workspace-ink-soft); }
+.fourier-decay-reference { fill: none; stroke: var(--workspace-ink-soft); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.fourier-decay-zero { fill: var(--workspace-panel); stroke: var(--workspace-ink); stroke-width: 1.2; }
+.fourier-decay-key, .fourier-decay-note { margin: .15rem 0 0; color: var(--workspace-ink-soft); font-size: .8rem; font-weight: 400; }
+.fourier-decay-table { width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.fourier-decay-table th, .fourier-decay-table td { padding: 0 .4rem; text-align: right; }
