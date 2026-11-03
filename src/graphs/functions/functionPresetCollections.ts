@@ -41,6 +41,8 @@ import {checkCltModel, DEFAULT_CLT_MODEL, parseCltModel} from "../../analysis/cl
 import {cltFileMessage} from "./cltMessages";
 import {checkSummaryModel, DEFAULT_SUMMARY_MODEL, parseSummaryModel} from "../../analysis/summaryStatisticsModel";
 import {summaryFileMessage} from "./summaryStatisticsMessages";
+import {checkCorrelationModel, DEFAULT_CORRELATION_MODEL, parseCorrelationModel} from "../../analysis/correlationModel";
+import {correlationFileMessage} from "./correlationMessages";
 import {densityAreaFileMessage} from "./densityAreaMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
@@ -201,6 +203,21 @@ const checkSummaryGraphState = (graphState: unknown): Message | undefined => {
     }
     return checkSceneState(rest);
 };
+const diagnoseCorrelation: Diagnosis = data => {
+    const check = checkCorrelationModel(data);
+    return check.ok || check.issue === undefined ? undefined : correlationFileMessage(check.issue);
+};
+
+/** As for the summary: the correlation model's `points` list is checked by the model's own rules, the other fields by `checkSceneState`. */
+const checkCorrelationGraphState = (graphState: unknown): Message | undefined => {
+    if (!isRecord(graphState)) return message("invalid_state");
+    const {points, ...rest} = graphState;
+    if (points !== undefined) {
+        const check = checkCorrelationModel({...DEFAULT_CORRELATION_MODEL, points});
+        if (!check.ok) return check.issue === undefined ? message("invalid_state") : correlationFileMessage(check.issue);
+    }
+    return checkSceneState(rest);
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -317,6 +334,7 @@ export const functionPresetCollections = {
     "prob-binomial-normal": functionCollection("prob-binomial-normal", parseBinomialNormalModel, diagnoseBinomialNormal),
     "prob-clt": Object.freeze({...functionCollection("prob-clt", parseCltModel, diagnoseClt), checkGraphState: checkCltGraphState}),
     "prob-summary": Object.freeze({...functionCollection("prob-summary", parseSummaryModel, diagnoseSummary), checkGraphState: checkSummaryGraphState}),
+    "prob-correlation": Object.freeze({...functionCollection("prob-correlation", parseCorrelationModel, diagnoseCorrelation), checkGraphState: checkCorrelationGraphState}),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),
