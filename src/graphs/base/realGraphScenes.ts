@@ -6,6 +6,7 @@
 import {CROSS_RATIO_EXAMPLES} from '../projective/crossRatioModel';
 import {PASCAL_EXAMPLES} from '../projective/pascalModel';
 import {SUMMARY_EXAMPLES} from '../../analysis/summaryStatisticsModel';
+import {CORRELATION_EXAMPLES} from '../../analysis/correlationModel';
 import {POLE_POLAR_EXAMPLES} from '../projective/polePolarModel';
 import {act, fireEvent} from '@testing-library/react';
 import type BaseGraph from './BaseGraph';
@@ -97,6 +98,8 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
         case 'projective-pole-polar': g.importPresetData(POLE_POLAR_EXAMPLES[pick('inside', 'infinity')]); return;
         // Summary statistics: the data are a list (no numeric field to nudge), so switch to another example's values.
         case 'prob-summary': g.importPresetData({...exported as object, values: SUMMARY_EXAMPLES[pick('even', 'outlier')]}); return;
+        // Correlation: the points are a list (no numeric field to nudge), so switch to another example's points.
+        case 'prob-correlation': g.importPresetData({...exported as object, points: CORRELATION_EXAMPLES[pick('parabola', 'ring')]}); return;
         case 'bspline-curve': {
             // B-spline graphs: move the first interior knot within its neighbours and lift the first control point.
             const {degree, knots, points} = exported as {degree: number, knots: number[], points: [number, number][]};
