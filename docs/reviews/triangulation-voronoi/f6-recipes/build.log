@@ -1,0 +1,3 @@
+Waiting for build (pid 23560) to finish starting before reading free memory.
+Memory available for build after 5s.
+build: passed in 5.2s (test slot 1/3, 3 workers); revision 284bdf5d6b87981478caa875d0b4990e2911f691; dirty; log .command-logs\2026-11-03T06-52-24-467Z-24548-d1ffb3a3.log; warnings present (see log)
