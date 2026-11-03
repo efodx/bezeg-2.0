@@ -1,0 +1,112 @@
+✖ registry exhaustively matches the live catalog and rejects missing/unknown recipes (2.1659ms)
+✔ darboux reference sums: x² on [0, 2] gives the recipe readouts and agrees with closed forms at every checkpoint (0.7229ms)
+✔ spline-g1 sweep snaps to the offset grid 0.01 + k·0.0299 and reaches the recipe value exactly (0.4156ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 644.0295
+
+✖ failing tests:
+
+test at scripts\demonstration-preview-capture.test.cjs:66:1
+✖ registry exhaustively matches the live catalog and rejects missing/unknown recipes (2.1659ms)
+  AssertionError [ERR_ASSERTION]: Recipes must exhaustively match shipped IDs
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      'accumulation',
+      'affine',
+      'arc-length',
+      'area-between-curves',
+  ...
+      'uniform-parameterization',
+  -   'voronoi',
+      'voronoi-degenerate',
+      'weighted-parameterization'
+    ]
+  
+      at validateRecipes (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\agent-a39e6a7a29d983362\scripts\demonstration-preview-recipes.cjs:167:12)
+      at TestContext.<anonymous> (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\agent-a39e6a7a29d983362\scripts\demonstration-preview-capture.test.cjs:67:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [
+      'accumulation',             'affine',                  'arc-length',
+      'area-between-curves',      'bernstein',               'bezier',
+      'bisection',                'bspline-basis',           'bspline-deboor',
+      'circle',                   'complex-multiplication',  'complex-reciprocal',
+      'complex-roots',            'continuity',              'convex-hull',
+      'convexity',                'curve-curvature',         'curve-parametric',
+      'darboux',                  'decasteljau',             'decasteljau-alternative',
+      'definite-integral',        'delaunay',                'derivative',
+      'ear-clipping',             'elevation',               'euler-line',
+      'exponential-function',     'extrapolation',           'extrema',
+      'farin',                    'fixed-point',             'fourier-series',
+      'function-inverse',         'function-transformation', 'inscribed-angle',
+      'interp-hermite',           'interp-lagrange',         'interp-least-squares',
+      'interp-runge',             'interp-subdivision',      'interval-sweep',
+      'inversion',                'linear-function',         'linear-map',
+      'mean-value',               'monotone-partition',      'monotone-triangulation',
+      'orientation',              'patch-coons',             'patch-decasteljau',
+      'patch-derivatives',        'patch-joins',             'patch-subdivision',
+      'patch-tensor',             'patch-triangular',        'ph-cubic',
+      'ph-quintic',               'point-set-triangulation', 'polygon-area',
+      'polynomial-zeros',         'prob-binomial-normal',    'prob-clt',
+      'prob-density',             'prob-summary',            'projective-cross-ratio',
+      'projective-five-point',    'projective-pascal',       'projective-pole-polar',
+      'projective-three-views',   'quadrature',              'rational',
+      'rational-decasteljau',     'rational-elevation',      'rational-extrapolation',
+      'rational-function',        'rational-subdivision',    'repeated-subdivision',
+      'root-finding',             'segment-intersections',   'sequence',
+      'simson-line',              'spline-c1',               'spline-c2',
+      'spline-cn',                'spline-g1',               'spline-g1-symmetric',
+      'spline-parameterization',  'subdivision',             'taylor',
+      'triangle-centres',         'trigonometric-functions', 'uniform-convergence',
+      'uniform-parameterization', 'voronoi-degenerate',      'weighted-parameterization'
+    ],
+    expected: [
+      'accumulation',              'affine',                  'arc-length',
+      'area-between-curves',       'bernstein',               'bezier',
+      'bisection',                 'bspline-basis',           'bspline-deboor',
+      'circle',                    'complex-multiplication',  'complex-reciprocal',
+      'complex-roots',             'continuity',              'convex-hull',
+      'convexity',                 'curve-curvature',         'curve-parametric',
+      'darboux',                   'decasteljau',             'decasteljau-alternative',
+      'definite-integral',         'delaunay',                'derivative',
+      'ear-clipping',              'elevation',               'euler-line',
+      'exponential-function',      'extrapolation',           'extrema',
+      'farin',                     'fixed-point',             'fourier-series',
+      'function-inverse',          'function-transformation', 'inscribed-angle',
+      'interp-hermite',            'interp-lagrange',         'interp-least-squares',
+      'interp-runge',              'interp-subdivision',      'interval-sweep',
+      'inversion',                 'linear-function',         'linear-map',
+      'mean-value',                'monotone-partition',      'monotone-triangulation',
+      'orientation',               'patch-coons',             'patch-decasteljau',
+      'patch-derivatives',         'patch-joins',             'patch-subdivision',
+      'patch-tensor',              'patch-triangular',        'ph-cubic',
+      'ph-quintic',                'point-set-triangulation', 'polygon-area',
+      'polynomial-zeros',          'prob-binomial-normal',    'prob-clt',
+      'prob-density',              'prob-summary',            'projective-cross-ratio',
+      'projective-five-point',     'projective-pascal',       'projective-pole-polar',
+      'projective-three-views',    'quadrature',              'rational',
+      'rational-decasteljau',      'rational-elevation',      'rational-extrapolation',
+      'rational-function',         'rational-subdivision',    'repeated-subdivision',
+      'root-finding',              'segment-intersections',   'sequence',
+      'simson-line',               'spline-c1',               'spline-c2',
+      'spline-cn',                 'spline-g1',               'spline-g1-symmetric',
+      'spline-parameterization',   'subdivision',             'taylor',
+      'triangle-centres',          'trigonometric-functions', 'uniform-convergence',
+      'uniform-parameterization',  'voronoi',                 'voronoi-degenerate',
+      'weighted-parameterization'
+    ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
