@@ -13,8 +13,9 @@ import {
 } from "../../analysis/cltModel";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {cltDistance, cltEditMessage, cltNumber} from "./cltMessages";
-import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+
+const CLT_COLORS = {sum: "#2468a2", normal: "#bd6047"} as const;
 
 /** Time between two playback steps: one copy added per interval, never more than one per frame (ADR 0012). */
 export const CLT_STEP_INTERVAL_MS = 700;
@@ -192,9 +193,9 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
-        const polyline = (color: string, data: () => { x: number[]; y: number[] }) => {
+        const polyline = (color: string, dash: number, data: () => { x: number[]; y: number[] }) => {
             const curve = this.own(board.create("curve", [[], []], {
-                strokeColor: color, fillOpacity: 0, highlight: false, fixed: true, strokeWidth,
+                strokeColor: color, dash, fillOpacity: 0, highlight: false, fixed: true, strokeWidth,
             })) as unknown as { updateDataArray: () => void; dataX: number[]; dataY: number[] };
             curve.updateDataArray = () => {
                 const {x, y} = data();
@@ -203,11 +204,11 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
             };
         };
         const empty = {x: [] as number[], y: [] as number[]};
-        polyline(GraphPalette.primaryCurve, () => {
+        polyline(CLT_COLORS.normal, 2, () => {
             const result = this.viewOf(this.model);
             return result.ok ? result.view.normal : empty;
         });
-        polyline(GraphPalette.additionalCurves[0], () => {
+        polyline(CLT_COLORS.sum, 0, () => {
             const result = this.viewOf(this.model);
             return result.ok ? result.view.curve : empty;
         });
@@ -299,8 +300,8 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
 
     protected override renderLegend(): React.ReactNode {
         return <FunctionLegend items={[
-            {id: "sum", color: GraphPalette.additionalCurves[0], label: t("prob_clt_legend_sum"), kind: "line"},
-            {id: "normal", color: GraphPalette.primaryCurve, label: t("prob_clt_legend_normal"), kind: "line"},
+            {id: "sum", color: CLT_COLORS.sum, label: t("prob_clt_legend_sum"), kind: "line"},
+            {id: "normal", color: CLT_COLORS.normal, label: t("prob_clt_legend_normal"), kind: "dashed-line"},
         ]}/>;
     }
 }

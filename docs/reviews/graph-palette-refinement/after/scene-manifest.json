@@ -1,0 +1,1458 @@
+{
+  "phase": "after",
+  "port": "4327",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "overlayMaskedForBoardOnly": true,
+  "rows": [
+    {
+      "id": "voronoi",
+      "state": {
+        "step": 4,
+        "steps": 7,
+        "frame": 2,
+        "frames": 2,
+        "text": "Korak 4 od 7 · Okvir 2 od 2"
+      },
+      "snapshot": {
+        "texts": [
+          "2",
+          "4",
+          "6",
+          "8",
+          "10",
+          "12",
+          "14",
+          "−2",
+          "−4",
+          "−6",
+          "−6",
+          "−8",
+          "2",
+          "4",
+          "6",
+          "8",
+          "10",
+          "−2",
+          "−4",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5",
+          "P6",
+          "P7",
+          "↓",
+          "←",
+          "↓",
+          "→",
+          "→",
+          "↑",
+          "↑",
+          "↑",
+          "←"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            "Točka poizvedbe, x ",
+            "text",
+            "-2",
+            false
+          ],
+          [
+            "Točka poizvedbe, y ",
+            "text",
+            "1",
+            false
+          ],
+          [
+            " Mreža",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            " Voronojev diagram",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            " Dualnost: Delaunayeva triangulacija",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            "Točka 1: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 1: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 2: x",
+            "number",
+            "8",
+            false
+          ],
+          [
+            "Točka 2: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 3: x",
+            "number",
+            "9",
+            false
+          ],
+          [
+            "Točka 3: y",
+            "number",
+            "6",
+            false
+          ],
+          [
+            "Točka 4: x",
+            "number",
+            "4",
+            false
+          ],
+          [
+            "Točka 4: y",
+            "number",
+            "8",
+            false
+          ],
+          [
+            "Točka 5: x",
+            "number",
+            "-1",
+            false
+          ],
+          [
+            "Točka 5: y",
+            "number",
+            "5",
+            false
+          ],
+          [
+            "Točka 6: x",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Točka 6: y",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Točka 7: x",
+            "number",
+            "6",
+            false
+          ],
+          [
+            "Točka 7: y",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Nova točka: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Nova točka: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "prob-clt",
+      "state": {
+        "step": 4,
+        "steps": 7,
+        "frame": 2,
+        "frames": 2,
+        "text": "Korak 4 od 7 · Okvir 2 od 2"
+      },
+      "snapshot": {
+        "texts": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "−1",
+          "0.1",
+          "0.2",
+          "0.3",
+          "0.4",
+          "0.5",
+          "−2",
+          "−3",
+          "−4",
+          "Standardizirana vsota n = 3 neodvisnih kopijKolmogorova razdalja K_n = 0,02492 (le za to obliko in ta n)",
+          "−2",
+          "−3",
+          "−4",
+          "−5"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            "Primer",
+            "select-one",
+            "skewed",
+            null
+          ],
+          [
+            "Število seštevancev n, vrednost",
+            "text",
+            "3",
+            false
+          ],
+          [
+            "Število seštevancev n",
+            "range",
+            "3",
+            false
+          ],
+          [
+            "Višina 1 (pri x = 0), vrednost",
+            "text",
+            "2",
+            false
+          ],
+          [
+            "Višina 1 (pri x = 0)",
+            "range",
+            "2",
+            false
+          ],
+          [
+            "Višina 2 (pri x = 0,25), vrednost",
+            "text",
+            "1,5",
+            false
+          ],
+          [
+            "Višina 2 (pri x = 0,25)",
+            "range",
+            "1.5",
+            false
+          ],
+          [
+            "Višina 3 (pri x = 0,5), vrednost",
+            "text",
+            "1",
+            false
+          ],
+          [
+            "Višina 3 (pri x = 0,5)",
+            "range",
+            "1",
+            false
+          ],
+          [
+            "Višina 4 (pri x = 0,75), vrednost",
+            "text",
+            "0,5",
+            false
+          ],
+          [
+            "Višina 4 (pri x = 0,75)",
+            "range",
+            "0.5",
+            false
+          ],
+          [
+            "Višina 5 (pri x = 1), vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Višina 5 (pri x = 1)",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Porazdelitvena funkcija namesto gostote",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "bspline-insertion",
+      "state": {
+        "step": 3,
+        "steps": 6,
+        "frame": 2,
+        "frames": 3,
+        "text": "Korak 3 od 6 · Okvir 2 od 3"
+      },
+      "snapshot": {
+        "texts": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "−1",
+          "0.5",
+          "1",
+          "1.5",
+          "2",
+          "2.5",
+          "3",
+          "3.5",
+          "−0.5",
+          "−1",
+          "−1.5",
+          "p0",
+          "p1",
+          "p2",
+          "p3",
+          "p4",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            "Primer",
+            "select-one",
+            "quadratic",
+            null
+          ],
+          [
+            "Vozel za vstavitev",
+            "text",
+            "1",
+            false
+          ],
+          [
+            "Glavnik ukrivljenosti",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            "Vozel u0",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Vozel u1",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Vozel u2",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Vozel u3",
+            "text",
+            "0,5",
+            false
+          ],
+          [
+            "Vozel u4",
+            "text",
+            "1",
+            false
+          ],
+          [
+            "Vozel u5",
+            "text",
+            "2",
+            false
+          ],
+          [
+            "Vozel u6",
+            "text",
+            "2",
+            false
+          ],
+          [
+            "Vozel u7",
+            "text",
+            "2",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "delaunay",
+      "state": null,
+      "snapshot": {
+        "texts": [
+          "2",
+          "4",
+          "6",
+          "8",
+          "−2",
+          "−4",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "−1",
+          "−2",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "neustrezen rob"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            "Izbrani rob",
+            "select-one",
+            "",
+            null
+          ],
+          [
+            " Mreža",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            " Triangulacija množice točk",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            " Številke robov",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            " Najmanjši kot",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            "Točka 1: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 1: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 2: x",
+            "number",
+            "4",
+            false
+          ],
+          [
+            "Točka 2: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 3: x",
+            "number",
+            "5",
+            false
+          ],
+          [
+            "Točka 3: y",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Točka 4: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 4: y",
+            "number",
+            "2",
+            false
+          ],
+          [
+            "Nova točka: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Nova točka: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "orientation",
+      "state": null,
+      "snapshot": {
+        "texts": [
+          "2",
+          "4",
+          "6",
+          "−2",
+          "−4",
+          "−6",
+          "1",
+          "2",
+          "3",
+          "4",
+          "−1",
+          "−2",
+          "−3",
+          "−4",
+          "P1",
+          "P2",
+          "P3",
+          "+8: levi zavoj"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            " Mreža",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            " Zavoj",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            " Številske vrednosti",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            "Točka 1: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 1: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 2: x",
+            "number",
+            "4",
+            false
+          ],
+          [
+            "Točka 2: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 3: x",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Točka 3: y",
+            "number",
+            "2",
+            false
+          ],
+          [
+            "Nova točka: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Nova točka: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "polygon-area",
+      "state": null,
+      "snapshot": {
+        "texts": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "−1",
+          "−2",
+          "−3",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "P5",
+          "+12",
+          "+18",
+          "+12"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            " Sklenjen večkotnik",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            " Mreža",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            " Trikotniki iz prvega oglišča",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            " Mrežne točke",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            " Številske vrednosti",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            "Točka 1: x",
+            "number",
+            "-1",
+            false
+          ],
+          [
+            "Točka 1: y",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Točka 2: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 2: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 3: x",
+            "number",
+            "4",
+            false
+          ],
+          [
+            "Točka 3: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 4: x",
+            "number",
+            "5",
+            false
+          ],
+          [
+            "Točka 4: y",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Točka 5: x",
+            "number",
+            "2",
+            false
+          ],
+          [
+            "Točka 5: y",
+            "number",
+            "5",
+            false
+          ],
+          [
+            "Nova točka: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Nova točka: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "voronoi-degenerate",
+      "state": null,
+      "snapshot": {
+        "texts": [
+          "0.5",
+          "1",
+          "1.5",
+          "2",
+          "2.5",
+          "3",
+          "−0.5",
+          "−1",
+          "−1.5",
+          "−2",
+          "0.5",
+          "1",
+          "1.5",
+          "2",
+          "−0.5",
+          "−1",
+          "P1",
+          "P2",
+          "P3",
+          "P4",
+          "↓",
+          "←",
+          "↓",
+          "→",
+          "→",
+          "↑",
+          "↑",
+          "←"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            "Točka poizvedbe, x ",
+            "text",
+            "4",
+            false
+          ],
+          [
+            "Točka poizvedbe, y ",
+            "text",
+            "2",
+            false
+          ],
+          [
+            " Mreža",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            " Voronojev diagram",
+            "checkbox",
+            "on",
+            true
+          ],
+          [
+            " Dualnost: Delaunayeva triangulacija",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            "Točka 1: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 1: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 2: x",
+            "number",
+            "1",
+            false
+          ],
+          [
+            "Točka 2: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 3: x",
+            "number",
+            "1",
+            false
+          ],
+          [
+            "Točka 3: y",
+            "number",
+            "1",
+            false
+          ],
+          [
+            "Točka 4: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 4: y",
+            "number",
+            "1",
+            false
+          ],
+          [
+            "Nova točka: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Nova točka: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "fortune",
+      "state": null,
+      "snapshot": {
+        "texts": [
+          "2",
+          "4",
+          "6",
+          "8",
+          "10",
+          "−2",
+          "−4",
+          "−6",
+          "−8",
+          "−10",
+          "2",
+          "4",
+          "6",
+          "−2",
+          "−4",
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            " Mreža",
+            "checkbox",
+            "on",
+            false
+          ],
+          [
+            "Točka 1: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 1: y",
+            "number",
+            "5",
+            false
+          ],
+          [
+            "Točka 2: x",
+            "number",
+            "-4",
+            false
+          ],
+          [
+            "Točka 2: y",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Točka 3: x",
+            "number",
+            "4",
+            false
+          ],
+          [
+            "Točka 3: y",
+            "number",
+            "3",
+            false
+          ],
+          [
+            "Točka 4: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Točka 4: y",
+            "number",
+            "-3",
+            false
+          ],
+          [
+            "Nova točka: x",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Nova točka: y",
+            "number",
+            "0",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "fourier-coefficients",
+      "state": {
+        "step": 14,
+        "steps": 14,
+        "frame": 2,
+        "frames": 2,
+        "text": "Korak 14 od 14 · Okvir 2 od 2"
+      },
+      "snapshot": {
+        "texts": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "−1",
+          "−2",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "−1",
+          "−2",
+          "Funkcije in delne vsote Sₙ za N = 21polna črta: f; črtkana: Sₙ; barva ustreza spektru",
+          "−3",
+          "−4",
+          "−3",
+          "−4"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            "Pogled",
+            "select-one",
+            "decay",
+            null
+          ],
+          [
+            "Funkcija 1",
+            "select-one",
+            "sawtooth",
+            null
+          ],
+          [
+            "Funkcija 2",
+            "select-one",
+            "abs",
+            null
+          ],
+          [
+            "Funkcija 3",
+            "select-one",
+            "smooth",
+            null
+          ],
+          [
+            "Število členov N",
+            "text",
+            "21",
+            false
+          ],
+          [
+            "Merilo navpične osi",
+            "select-one",
+            "log",
+            null
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    },
+    {
+      "id": "complex-reciprocal",
+      "state": {
+        "step": 7,
+        "steps": 7,
+        "frame": 1,
+        "frames": 1,
+        "text": "Korak 7 od 7 · Okvir 1 od 1"
+      },
+      "snapshot": {
+        "texts": [
+          "2",
+          "4",
+          "6",
+          "−2",
+          "−4",
+          "−6",
+          "1",
+          "2",
+          "3",
+          "4",
+          "−1",
+          "−2",
+          "−3",
+          "−4",
+          "Re",
+          "Im",
+          "z = 1 + i, w = 2 + iz̄ = 1 − i1/z = 0,5 − 0,5iw/z = 1,5 − 0,5iz' = 0,9 + 0,8ikrog: z; kvadrat: w; plus: z̄; romb: 1/z; trikotnik: w/z; križec: z'"
+        ],
+        "points": [],
+        "controls": [
+          [
+            "Jezik",
+            "select-one",
+            "sl",
+            null
+          ],
+          [
+            "Primer obratne vrednosti",
+            "select-one",
+            "outside",
+            null
+          ],
+          [
+            "Re z",
+            "text",
+            "1",
+            false
+          ],
+          [
+            "Im z",
+            "text",
+            "1",
+            false
+          ],
+          [
+            "Re w",
+            "text",
+            "2",
+            false
+          ],
+          [
+            "Im w",
+            "text",
+            "1",
+            false
+          ],
+          [
+            "Re c",
+            "text",
+            "0,5",
+            false
+          ],
+          [
+            "Im c",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Polmer r",
+            "text",
+            "1",
+            false
+          ],
+          [
+            "Koordinatni sistem",
+            "select-one",
+            "all",
+            null
+          ],
+          [
+            "Velikost elementov grafa, vrednost",
+            "text",
+            "0",
+            false
+          ],
+          [
+            "Velikost elementov grafa",
+            "range",
+            "0",
+            false
+          ],
+          [
+            "Prednastavitve",
+            "select-one",
+            "",
+            null
+          ]
+        ]
+      },
+      "errors": []
+    }
+  ]
+}

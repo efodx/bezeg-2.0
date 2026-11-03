@@ -19,8 +19,8 @@ import {
     fourierProjection, FourierProjection, fourierSlots, FourierSlot, selectFourierCoefficient, setFourierOverlay, setFourierValue, snapFourierValue,
 } from "../../analysis/fourierCoefficientsModel";
 import {fourierCoefficientsIssueMessage} from "./fourierCoefficientsMessages";
-import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {GraphPalette} from "../styles/GraphPalette";
 
 /** The most handle values of any layout (the free layout), and the most linear pieces of f. */
 const MAX_SLOTS = 5;
@@ -28,13 +28,17 @@ const MAX_PIECES = 4;
 const BOARD_VIEW: BoundingBox = [-4.4, 6.4, 4.4, -4.6];
 const HARMONIC_DASH = 1;
 const SUM_DASH = 3;
+const FOURIER_COLORS = {
+    function: "#2468a2", harmonic: "#596a78", positive: "#4c9a8a", negative: "#c67978", sum: "#bd6047",
+    decay: ["#2468a2", "#438d7d", "#875b91"] as const,
+};
 
 /** The names of x at the breakpoints, language-neutral. */
 const X_TEXT: ReadonlyArray<readonly [number, string]> = [[-Math.PI, "−π"], [-Math.PI / 2, "−π/2"], [0, "0"], [1, "1"], [Math.PI / 2, "π/2"], [Math.PI, "π"]];
 const xText = (x: number) => X_TEXT.find(([value]) => Math.abs(value - x) < 1e-9)?.[1] ?? String(x);
 
 /** The board colours of the three decay functions, shared with their spectra. Read when drawn, so the palette stays the single source. */
-const decayColors = (): readonly string[] => [GraphPalette.primaryCurve, GraphPalette.additionalCurves[1], GraphPalette.comparisonCurve];
+const decayColors = (): readonly string[] => FOURIER_COLORS.decay;
 
 /** f over [-pi, pi] as one run per smooth piece (a NaN between them breaks the line at a jump), 160 samples per piece. */
 function decayFunctionSamples(id: FourierExampleId): { x: number[]; y: number[] } {
@@ -253,7 +257,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
         const fill = (color: string, data: () => { x: number[]; y: number[] }) => {
             const curve = this.own(board.create("curve", [[], []], {
-                fillColor: color, fillOpacity: 0.4, strokeOpacity: 0, strokeWidth: 0, highlight: false, fixed: true, visible: projection,
+                fillColor: color, fillOpacity: 0.28, strokeOpacity: 0, strokeWidth: 0, highlight: false, fixed: true, visible: projection,
             })) as unknown as FillCurve;
             curve.updateDataArray = () => {
                 const polygon = data();
@@ -273,17 +277,17 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         };
 
         // Layers, lowest first: the signed product (fills, then its edge), the harmonic, S_K, f, the markers, the handles.
-        fill(GraphPalette.additionalCurves[0], () => view().product.positive);
-        fill(GraphPalette.additionalCurves[2], () => view().product.negative);
-        line(GraphPalette.label, thin, 0, () => view().product.line);
-        line(GraphPalette.label, thin, HARMONIC_DASH, () => {
+        fill(FOURIER_COLORS.positive, () => view().product.positive);
+        fill(FOURIER_COLORS.negative, () => view().product.negative);
+        line(FOURIER_COLORS.harmonic, thin, 0, () => view().product.line);
+        line(FOURIER_COLORS.harmonic, thin, HARMONIC_DASH, () => {
             const {term, k} = model().selected;
             const count = Math.max(64, 16 * k + 1);
             const x = Array.from({length: count + 1}, (_, i) => -Math.PI + (2 * Math.PI * i) / count);
             return {x, y: x.map(xi => fourierHarmonic(term, k, xi))};
         });
-        line(GraphPalette.comparisonCurve, strokeWidth, SUM_DASH, () => view().sum, () => projection() && model().overlay);
-        // The decay view: f (solid) and S_N (dashed) of the three selected examples, in the colours of their spectra.
+        line(FOURIER_COLORS.sum, strokeWidth, SUM_DASH, () => view().sum, () => projection() && model().overlay);
+        // Each decay function and its dashed partial sum share their spectrum colour.
         for (let slot = 0; slot < 3; slot++) {
             const colour = () => decayColors()[slot];
             const draw = (dash: number, data: () => { x: number[]; y: number[] } | undefined) => {
@@ -304,14 +308,14 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 x0: view().shape.breakpoints[i], y0: view().shape.right[i], x1: view().shape.breakpoints[i + 1], y1: view().shape.left[i + 1],
             } : undefined;
             this.own(board.create("segment", [[() => piece()?.x0 ?? 0, () => piece()?.y0 ?? 0], [() => piece()?.x1 ?? 0, () => piece()?.y1 ?? 0]], {
-                strokeColor: GraphPalette.primaryCurve, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: () => projection() && piece() !== undefined,
+                strokeColor: FOURIER_COLORS.function, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: () => projection() && piece() !== undefined,
             }));
         }
 
         // The Dirichlet midpoint at the seam and at every interior jump: the value the series converges to there.
         const midpoint = (x: () => number, y: () => number, visible: () => boolean) => this.own(board.create("point", [x, y], {
             ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: () => Math.max(3, this.displaySettings.pointSize * 0.7),
-            fillColor: GraphPalette.comparisonCurve, strokeColor: GraphPalette.comparisonCurve, visible,
+            fillColor: FOURIER_COLORS.sum, strokeColor: FOURIER_COLORS.sum, visible,
         }));
         const jumpAt = (i: number) => () => {
             const shape = view().shape;
@@ -332,8 +336,8 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
             };
             const start = slotNow();
             const point = this.own(board.create("point", [start?.x ?? 0, start === undefined ? 0 : this.model.values[start.index]], {
-                ...this.styles.point.default, name: "", withLabel: false, size: markerSize, fillColor: GraphPalette.warningText,
-                highlightFillColor: GraphPalette.warningText, visible: () => slotNow() !== undefined,
+                ...this.styles.point.default, name: "", withLabel: false, size: markerSize, fillColor: FOURIER_COLORS.function,
+                highlightFillColor: FOURIER_COLORS.function, visible: () => slotNow() !== undefined,
             })) as JXG.Point;
             point.on("drag", () => {
                 const slot = slotNow();
@@ -351,7 +355,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
 
         this.caption("top-left", [
             {text: () => t("fourier_coef_board_title", {value0: this.harmonicName(model())}), scale: 1.1, visible: projection},
-            {text: () => t("fourier_coef_board_coefficient", {value0: this.coefficientName(model()), value1: this.number(view().selectedValue, 5)}), color: GraphPalette.warningText, visible: projection},
+            {text: () => t("fourier_coef_board_coefficient", {value0: this.coefficientName(model()), value1: this.number(view().selectedValue, 5)}), color: GraphPalette.label, visible: projection},
             {text: () => t("fourier_coef_board_sums", {value0: this.number(view().squareIntegral, 5), value1: this.number(view().parseval, 5)}), visible: projection},
             {text: () => t("fourier_coef_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH, visible: projection},
             {text: () => t("fourier_decay_board_title", {value0: model().n}), scale: 1.1, visible: decay},
@@ -457,19 +461,19 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         if (this.stateSnapshot().view === "decay") {
             const colors = decayColors();
             return <FunctionLegend items={[
-                ...this.stateSnapshot().selections.map((id, slot) => ({
-                    id: `f-${slot}`, color: colors[slot], label: t("fourier_decay_legend_f", {value0: this.exampleName(id)}), kind: "line" as const,
-                })),
-                {id: "sums", color: GraphPalette.label, label: t("fourier_decay_legend_sum"), kind: "dashed-line"},
+                ...this.stateSnapshot().selections.flatMap((id, slot) => [
+                    {id: `f-${slot}`, color: colors[slot], label: t("fourier_decay_legend_f", {value0: this.exampleName(id)}), kind: "line" as const},
+                    {id: `sum-${slot}`, color: colors[slot], label: `${t("fourier_decay_legend_sum")} · ${this.exampleName(id)}`, kind: "dashed-line" as const},
+                ]),
             ]}/>;
         }
         return <FunctionLegend items={[
-            {id: "f", color: GraphPalette.primaryCurve, label: t("fourier_coef_legend_f"), kind: "line"},
-            {id: "harmonic", color: GraphPalette.label, label: t("fourier_coef_legend_harmonic"), kind: "dotted-line"},
-            {id: "positive", color: GraphPalette.additionalCurves[0], label: t("fourier_coef_legend_positive"), kind: "area"},
-            {id: "negative", color: GraphPalette.additionalCurves[2], label: t("fourier_coef_legend_negative"), kind: "area"},
-            {id: "sum", color: GraphPalette.comparisonCurve, label: t("fourier_coef_legend_sum"), kind: "dashed-line"},
-            {id: "midpoint", color: GraphPalette.comparisonCurve, label: t("fourier_coef_legend_midpoint"), kind: "ring"},
+            {id: "f", color: FOURIER_COLORS.function, label: t("fourier_coef_legend_f"), kind: "line"},
+            {id: "harmonic", color: FOURIER_COLORS.harmonic, label: t("fourier_coef_legend_harmonic"), kind: "dotted-line"},
+            {id: "positive", color: FOURIER_COLORS.positive, label: t("fourier_coef_legend_positive"), kind: "area"},
+            {id: "negative", color: FOURIER_COLORS.negative, label: t("fourier_coef_legend_negative"), kind: "area"},
+            {id: "sum", color: FOURIER_COLORS.sum, label: t("fourier_coef_legend_sum"), kind: "dashed-line"},
+            {id: "midpoint", color: FOURIER_COLORS.sum, label: t("fourier_coef_legend_midpoint"), kind: "ring"},
         ]}/>;
     }
 

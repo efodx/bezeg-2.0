@@ -8,7 +8,7 @@ import {BaseGraphState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
-import {GraphPalette} from "../styles/GraphPalette";
+import {CompgeoRegionPalette} from "./CompgeoRegionPalette";
 import {DelaunayControlActions, DelaunayControls, DelaunaySelection, DelaunayStatus} from "./DelaunayControls";
 import {DELAUNAY_EXAMPLES, delaunayCollection} from "./delaunayPresetCollection";
 import {drawCircumcircle, drawSelectableTriangles, sameTriple, sortedTriple, type TriangleSelectionNames} from "./circumcircleDrawing";
@@ -375,11 +375,11 @@ export class DelaunayGraph extends TriangulationGraph {
             const to = at(b);
             objects.push(this.board.create("curve", [[from.x, to.x], [from.y, to.y]], {
                 name: "delaunay-illegal-edge", highlight: false, fixed: true, layer: 4,
-                strokeColor: GraphPalette.warningText, strokeWidth: 3.5, dash: 3,
+                strokeColor: CompgeoRegionPalette.illegalEdge, strokeWidth: 2.8, dash: 3,
             }) as JXG.GeometryElement);
             objects.push(this.board.create("text", [(from.x + to.x) / 2, (from.y + to.y) / 2, () => t("del_illegal_label")], {
                 name: "delaunay-illegal-label", fixed: true, highlight: false, anchorX: "left", anchorY: "bottom", layer: 5,
-                fontSize: 12, strokeColor: GraphPalette.warningText,
+                fontSize: 12, strokeColor: CompgeoRegionPalette.illegalEdge,
             }) as JXG.GeometryElement);
         }
         const edge = run.state(step).testing?.edge;
@@ -388,14 +388,14 @@ export class DelaunayGraph extends TriangulationGraph {
             // The two triangles of the edge under test, the edge itself, and the circle of the triangle (a, b, c); d is tested.
             const triangle = (corners: readonly number[]) => this.board.create("polygon", corners.map(i => [at(i).x, at(i).y]), {
                 name: "delaunay-test-triangle", vertices: {visible: false}, highlight: false, fixed: true, layer: 1,
-                fillColor: GraphPalette.constructionAccent, fillOpacity: 0.15, borders: {visible: false, highlight: false, fixed: true},
+                fillColor: CompgeoRegionPalette.illegalWash, fillOpacity: 0.8, borders: {visible: false, highlight: false, fixed: true},
             }) as JXG.GeometryElement;
             objects.push(triangle([quad.a, quad.b, quad.c]), triangle([quad.b, quad.a, quad.d]));
             const from = at(quad.a);
             const to = at(quad.b);
             objects.push(this.board.create("curve", [[from.x, to.x], [from.y, to.y]], {
                 name: "delaunay-test-edge", highlight: false, fixed: true, layer: 5,
-                strokeColor: GraphPalette.constructionAccent, strokeWidth: 6,
+                strokeColor: CompgeoRegionPalette.illegalEdge, strokeWidth: 2.8,
             }) as JXG.GeometryElement);
             const circle = this.drawCircle(tri, [quad.a, quad.b, quad.c], model, "delaunay-circumcircle");
             if (circle) objects.push(circle);

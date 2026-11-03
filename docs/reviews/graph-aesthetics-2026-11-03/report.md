@@ -1,5 +1,7 @@
 # Graph palette and visual appeal — 2026-11-03
 
+Implementation follow-up: the owner accepted the Voronoi, CLT, B-spline insertion, complex reciprocal and Fourier coefficient refinements. Their implementation and verification are tracked in the [palette refinement release record](../graph-palette-refinement/phase1.md). The observations below preserve the audited pre-fix state.
+
 Three fresh GPT-6 Luna Max reviewers inspected the same **45 finalized lessons** across opening, middle and terminal scenes. Their brief explicitly allowed criticism of fully working graphs. This pass found several concrete candidates for a palette and visual-hierarchy refinement that the earlier defect-oriented audit did not surface.
 
 These are **aesthetic judgments**, with confidence stated below. The strongest findings concern the visual weight of background constructions; the more specific color preferences deserve side-by-side palette experiments before implementation. No app fix was requested or made.

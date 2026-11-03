@@ -27,6 +27,10 @@ const BOARD_VIEW: BoundingBox = [-VIEW_HALF_WIDTH, VIEW_HALF_WIDTH, VIEW_HALF_WI
 const W_DASH = 2;
 const INVERSION_DASH = 3;
 const LABEL_CROWDING = 0.45;
+const RECIPROCAL_COLORS = {
+    z: "#2468a2", w: "#5591b5",
+    conjugate: "#bd6047", reciprocal: "#cf7958", quotient: "#a94c40", inversion: "#815c85",
+} as const;
 
 type OperandName = "z" | "w";
 type StatusKind = "predict" | "z-zero" | "inside" | "outside" | "on-circle" | "centre-pole" | "off-view";
@@ -274,10 +278,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
         const view = () => this.viewOf(this.model);
         const strokeWidth = this.displayStrokeWidth;
         const thin = this.displayThinWidth(0.7);
-        const colors = {
-            z: GraphPalette.primaryCurve, w: GraphPalette.comparisonCurve, conjugate: GraphPalette.additionalCurves[0],
-            reciprocal: GraphPalette.additionalCurves[1], quotient: GraphPalette.additionalCurves[2], inversion: GraphPalette.additionalCurves[3],
-        };
+        const colors = RECIPROCAL_COLORS;
         const origin: Complex = {re: 0, im: 0};
 
         // Layers, lowest first: the circles, the arrows, the derived markers, the handles, the draggable z and w, the axis names.
@@ -463,13 +464,13 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
 
     protected override renderLegend(): React.ReactNode {
         return <FunctionLegend items={[
-            {id: "z", color: GraphPalette.primaryCurve, label: t("complex_legend_z"), kind: "line"},
-            {id: "w", color: GraphPalette.comparisonCurve, label: t("complex_legend_w"), kind: "dashed-line"},
+            {id: "z", color: RECIPROCAL_COLORS.z, label: t("complex_legend_z"), kind: "line"},
+            {id: "w", color: RECIPROCAL_COLORS.w, label: t("complex_legend_w"), kind: "dashed-line"},
             {id: "unit-circle", color: GraphPalette.label, label: t("complex_recip_legend_unit_circle"), kind: "line"},
-            {id: "conjugate", color: GraphPalette.additionalCurves[0], label: t("complex_recip_legend_conjugate"), kind: "cross"},
-            {id: "reciprocal", color: GraphPalette.additionalCurves[1], label: t("complex_recip_legend_reciprocal"), kind: "ring"},
-            {id: "quotient", color: GraphPalette.additionalCurves[2], label: t("complex_recip_legend_quotient"), kind: "dot"},
-            {id: "inversion", color: GraphPalette.additionalCurves[3], label: t("complex_recip_legend_inversion"), kind: "dashed"},
+            {id: "conjugate", color: RECIPROCAL_COLORS.conjugate, label: t("complex_recip_legend_conjugate"), kind: "plus"},
+            {id: "reciprocal", color: RECIPROCAL_COLORS.reciprocal, label: t("complex_recip_legend_reciprocal"), kind: "diamond"},
+            {id: "quotient", color: RECIPROCAL_COLORS.quotient, label: t("complex_recip_legend_quotient"), kind: "triangle"},
+            {id: "inversion", color: RECIPROCAL_COLORS.inversion, label: t("complex_recip_legend_inversion"), kind: "dashed"},
         ]}/>;
     }
 

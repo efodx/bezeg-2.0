@@ -6,6 +6,7 @@ import {doubledFanAreas} from "../../compgeo/polygonMeasures";
 import {POLYGON_AREA_OVERLAY_IDS, polygonAreaPresetCollection} from "./compgeoPresetCollections";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
+import {CompgeoRegionPalette} from "./CompgeoRegionPalette";
 import {AreaReadout, areaReadout, latticeMarkers} from "./areaReadout";
 import {formatHalf, formatSigned, triangleFitsLabel} from "./orientationReadout";
 
@@ -135,7 +136,7 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
                 objects.push(this.board.create("polygon", corners.map(c => [c.x, c.y]), {
                     vertices: {visible: false, fixed: true, withLabel: false, name: "fan-vertex"},
                     borders: {visible: false, fixed: true, highlight: false},
-                    fillColor: doubled > 0n ? GraphPalette.primaryCurve : GraphPalette.comparisonCurve, fillOpacity: 0.22,
+                    fillColor: doubled > 0n ? CompgeoRegionPalette.positiveFill : CompgeoRegionPalette.negativeFill, fillOpacity: 0.82,
                     highlight: false, fixed: true, layer: 2, name: "fan-triangle", withLabel: false,
                 }) as JXG.GeometryElement);
             }
@@ -163,8 +164,8 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
             }) as JXG.GeometryElement;
         };
         return [
-            ...markers.interior.map(point => mark(point, "x", 4, GraphPalette.comparisonCurve)),
-            ...markers.boundary.map(point => mark(point, "[]", 5, GraphPalette.constructionAccent)),
+            ...markers.interior.map(point => mark(point, "x", 3.5, CompgeoRegionPalette.latticeInterior)),
+            ...markers.boundary.map(point => mark(point, "[]", 4, CompgeoRegionPalette.latticeBoundary)),
         ];
     }
 

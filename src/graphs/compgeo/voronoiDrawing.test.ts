@@ -261,9 +261,9 @@ describe('options and degree four', () => {
         handle.update(diagram, B2, b, {...off, cells: true, highlightCell: 5});
         const opacities = named('voronoi-cell').map(o => o.visProp?.fillopacity as number);
         expect(opacities).toHaveLength(7);
-        expect(opacities.filter(o => o > 0.3)).toHaveLength(1);
+        expect(opacities.filter(o => o > 0.9)).toHaveLength(1);
         handle.update(diagram, B2, b, {...off, cells: true});
-        expect(named('voronoi-cell').filter(o => (o.visProp?.fillopacity as number) > 0.3)).toHaveLength(0);
+        expect(named('voronoi-cell').filter(o => (o.visProp?.fillopacity as number) > 0.9)).toHaveLength(0);
     });
 
     it('marks a vertex of degree four with a different shape, not only a colour', () => {

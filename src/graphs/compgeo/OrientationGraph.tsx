@@ -6,6 +6,7 @@ import {PointSetModel, gridToBoard} from "../../compgeo/pointSetModel";
 import {ORIENTATION_OVERLAY_IDS, ORIENTATION_POINT_LIMIT, orientationPresetCollection} from "./compgeoPresetCollections";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
+import {CompgeoRegionPalette} from "./CompgeoRegionPalette";
 import {formatSigned, OrientationReadout, orientationReadout, OrientationTurn, triangleFitsLabel} from "./orientationReadout";
 
 /**
@@ -98,13 +99,20 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
         }) as JXG.GeometryElement);
         if (readout.kind !== "turn") return objects;
         if (readout.turn !== "collinear") {
-            const fill = readout.turn === "left" ? GraphPalette.primaryCurve : GraphPalette.comparisonCurve;
+            const fill = readout.turn === "left" ? CompgeoRegionPalette.positiveFill : CompgeoRegionPalette.negativeFill;
+            const boundary = readout.turn === "left" ? CompgeoRegionPalette.positiveBoundary : CompgeoRegionPalette.negativeBoundary;
             objects.push(this.board.create("polygon", [[p.x, p.y], [q.x, q.y], [r.x, r.y]], {
                 // The vertices and borders are the graph's own points and segments; the shaded face is all this adds.
                 vertices: {visible: false, fixed: true, withLabel: false, name: "turn-vertex"},
                 borders: {visible: false, fixed: true, highlight: false},
-                fillColor: fill, fillOpacity: 0.28, highlight: false, fixed: true, layer: 2, name: "turn-triangle", withLabel: false,
+                fillColor: fill, fillOpacity: 0.9, highlight: false, fixed: true, layer: 2, name: "turn-triangle", withLabel: false,
             }) as JXG.GeometryElement);
+            // The p-q base is already the dashed turn line; draw only the other two sides as the region boundary.
+            for (const [from, to] of [[p, r], [r, q]] as const) {
+                objects.push(this.board.create("curve", [[from.x, to.x], [from.y, to.y]], {
+                    name: "turn-side", highlight: false, fixed: true, layer: 4, strokeColor: boundary, strokeWidth: 1.25,
+                }) as JXG.GeometryElement);
+            }
         }
         // A label would cover the vertices of a thin or tiny triangle (under one grid step tall), so none is drawn then.
         if (!this.overlayShown("values")) return objects;

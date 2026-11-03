@@ -186,7 +186,7 @@ test('the query point inside the p6 cell names P6 and highlights it; on seeded r
     const next = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
     const points = graph.model.points;
     const highlightedSites = () => {
-        const cells = named(graph, 'voronoi-cell').filter(o => (o.visProp?.fillopacity as number) > 0.3);
+        const cells = named(graph, 'voronoi-cell').filter(o => (o.visProp?.fillopacity as number) > 0.9);
         expect(cells).toHaveLength(1);
         return points.map((p, i) => ({p, i})).filter(({p}) => insideOrOn(cells[0].dataX!, cells[0].dataY!, p.x, p.y)).map(({i}) => i);
     };

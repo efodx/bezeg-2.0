@@ -15,7 +15,8 @@
 import {clipCell, type RationalBox, type VoronoiDiagram, type VoronoiEdge} from '../../compgeo/voronoi';
 import {Rational, RationalPoint} from '../../compgeo/rational';
 import type {GridPoint} from '../../compgeo/grid';
-import {constructionLevelColor, GraphPalette} from '../styles/GraphPalette';
+import {GraphPalette} from '../styles/GraphPalette';
+import {CompgeoRegionPalette, voronoiCellFill} from './CompgeoRegionPalette';
 
 export interface VoronoiDrawOptions {
     readonly cells: boolean;
@@ -274,8 +275,8 @@ export function createVoronoiDrawing(board: JXG.Board, scale = 1): VoronoiDrawin
                 if (styles.get(curves[k]) !== style) {
                     styles.set(curves[k], style);
                     curves[k].setAttribute({
-                        fillColor: constructionLevelColor(site), fillOpacity: highlighted ? 0.45 : 0.14,
-                        strokeColor: highlighted ? GraphPalette.selectedControlPointOutline : 'none', strokeWidth: highlighted ? 3 : 0,
+                        fillColor: voronoiCellFill(site), fillOpacity: highlighted ? 0.96 : 0.82,
+                        strokeColor: highlighted ? CompgeoRegionPalette.highlightedCellBoundary : 'none', strokeWidth: highlighted ? 2.5 : 0,
                     });
                 }
                 setCurve(curves[k], xs, ys);

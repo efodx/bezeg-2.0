@@ -16,6 +16,7 @@ import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset} from "../base/presets/Presets";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
+import {CompgeoRegionPalette, voronoiCellFill} from "./CompgeoRegionPalette";
 import {drawSelectableTriangles, sameTriple, sortedTriple, type TriangleSelectionNames} from "./circumcircleDrawing";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {VoronoiControlActions, VoronoiControls, VoronoiExampleId, VoronoiStatus, VoronoiTriangles} from "./VoronoiControls";
@@ -633,7 +634,8 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
             const ys = region.map(p => p.y.toNumber() * scale);
             this.constructionObjects.push(this.board.create("curve", [[...xs, xs[0]], [...ys, ys[0]]], {
                 name: "voronoi-construction-region", highlight: false, fixed: true, layer: 1,
-                fillColor: GraphPalette.warningText, fillOpacity: 0.18, strokeColor: GraphPalette.warningText, strokeWidth: 3,
+                fillColor: voronoiCellFill(site), fillOpacity: 0.5,
+                strokeColor: CompgeoRegionPalette.highlightedCellBoundary, strokeWidth: 2.5,
             }) as JXG.GeometryElement);
         }
         return true;

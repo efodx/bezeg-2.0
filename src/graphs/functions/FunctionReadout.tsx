@@ -37,8 +37,8 @@ export interface LegendItem {
     label: string;
     /** `line` for a curve, `area` (default) for a shaded region, `dashed` for a lightly shaded region with a dashed outline,
      * `dashed-line` and `dotted-line` for a dashed or short-dashed line, `ring` for an open circular marker, `dot` for a filled
-     * circular marker and `cross` for an x-shaped marker. */
-    kind?: "area" | "line" | "dashed" | "dashed-line" | "dotted-line" | "ring" | "dot" | "cross";
+     * circular marker, `diamond` and `triangle` for filled markers, `plus` for + and `cross` for an x-shaped marker. */
+    kind?: "area" | "line" | "dashed" | "dashed-line" | "dotted-line" | "ring" | "dot" | "cross" | "plus" | "diamond" | "triangle";
 }
 
 /** The kinds drawn with a coloured border instead of a filled background. */
@@ -48,7 +48,7 @@ const LINE_BORDER_KINDS: readonly string[] = ["dashed", "dashed-line", "dotted-l
 function swatchStyle(item: LegendItem): React.CSSProperties {
     const kind = item.kind ?? "area";
     if (LINE_BORDER_KINDS.includes(kind)) return {borderColor: item.color};
-    return kind === "cross" ? {color: item.color} : {backgroundColor: item.color};
+    return kind === "cross" || kind === "plus" ? {color: item.color} : {backgroundColor: item.color};
 }
 
 /** A key of colour swatches with words, for shaded regions and curves that the board distinguishes only by colour. */

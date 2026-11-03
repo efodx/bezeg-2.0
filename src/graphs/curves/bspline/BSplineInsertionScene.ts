@@ -5,6 +5,8 @@ import {GraphPalette} from "../../styles/GraphPalette";
 import type {ControlPoint} from "./bsplineDeBoorModel";
 import {combBySpan, combPolylines} from "./bsplineInsertionModel";
 
+const INSERTION_COMB_COLORS = {teeth: "#6f9db9", envelope: "#39799e"} as const;
+
 interface SceneSettings {
     board: Board;
     /** Read lazily: the scene state is the only copy of the data; the model curve is rebuilt from it by {@link BSplineInsertionScene.sync}. */
@@ -114,8 +116,8 @@ export class BSplineInsertionScene {
             };
             return curve;
         };
-        this.teethCurve = comb('teeth', 1, GraphPalette.constructionAccent, 0.6);
-        this.envelopeCurve = comb('envelope', 1.5, GraphPalette.constructionAccent, 1);
+        this.teethCurve = comb('teeth', 1, INSERTION_COMB_COLORS.teeth, 0.55);
+        this.envelopeCurve = comb('envelope', 1.5, INSERTION_COMB_COLORS.envelope, 1);
 
         this.curve.getJxgPoints().forEach(point => point.on('drag', () => this.settings.onPointsDrag(
             this.curve.getJxgPoints().map(p => [p.X(), p.Y()] as ControlPoint))));
