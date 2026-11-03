@@ -1,1 +1,1 @@
-smoke-lesson: passed in 10.8s (test slot 1/3, 3 workers); revision 12d9f6ff118d9b1aaa52a844870f539903c5e215; dirty; reusing build from revision 12d9f6ff118d9b1aaa52a844870f539903c5e215 (dirty at build time); log .command-logs\2026-11-03T13-43-57-192Z-15592-204d95c9.log
+smoke-lesson: passed in 16.4s (test slot 1/3, 3 workers); revision 999aff913c5a12b40a5cebdabeb69be945066709; dirty; reusing build from revision 999aff913c5a12b40a5cebdabeb69be945066709 (dirty at build time); log .command-logs\2026-11-03T13-53-05-850Z-32448-7703a739.log

@@ -1,1 +1,3 @@
-build: passed in 4.2s (test slot 1/3, 3 workers); revision 12d9f6ff118d9b1aaa52a844870f539903c5e215; dirty; log .command-logs\2026-11-03T13-43-46-992Z-26876-a8aceb2d.log; warnings present (see log)
+Waiting for unit (pid 29832) to finish starting before reading free memory.
+Memory available for build after 30s.
+build: passed in 5.7s (test slot 1/3, 3 workers); revision 999aff913c5a12b40a5cebdabeb69be945066709; dirty; log .command-logs\2026-11-03T13-52-57-995Z-12900-24d4645d.log; warnings present (see log)
