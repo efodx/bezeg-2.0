@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
+  "sourceRevision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
+    "revision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
     "dirty": true,
-    "inputs": "23633945294abfa6b47b70d4096afac0b16f801c386e52d2d40d397656f97d56",
-    "output": "1f1f0bcc0b3b3d639f44a95cd566b4f9c16f482fe8b23f35ddff4a7189bbbc52"
+    "inputs": "61c25cfbed6a03d7a2204a256da9ad31f0a184a236626a2c3187b95add67ff46",
+    "output": "3e68c439dc327522e4976654b8f6fe0b93c9972d216b2108573670a4a945d090"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
-    "stampRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
+    "stampRevision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
     "stampDirty": true,
-    "localOutputHash": "1f1f0bcc0b3b3d639f44a95cd566b4f9c16f482fe8b23f35ddff4a7189bbbc52",
+    "localOutputHash": "3e68c439dc327522e4976654b8f6fe0b93c9972d216b2108573670a4a945d090",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BLBMCK4u.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BLBMCK4u.js",
-        "sha256": "06496a1fc9ef9c75fccd89a3b52bf9e66e07c2b5833795d4f72e5ea213c07628",
+        "name": "index-DSZc6Mgc.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-DSZc6Mgc.js",
+        "sha256": "9f9a9add1d51d4e0a90536aaff2a9ceba34bce2f071e2ea1798764feb8d40fd2",
         "matchesLocalBuild": true
       },
       {
@@ -31,21 +31,21 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-NrDr4YPO.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-NrDr4YPO.js",
-        "sha256": "3b522338e8ca2f10b10cae0ad2b349819b5e03787610a6e35a7708808cf925fd",
+        "name": "jsx-runtime-Bx6RAaub.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-Bx6RAaub.js",
+        "sha256": "a431973695b335a4fa44552c415f15b9db4e3d8d2900724a3fd0987f3a6c1691",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-D0byiDW2.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-D0byiDW2.js",
-        "sha256": "3f91a73ce8989d182ff82252c5a6d5431faf3dfb528b99e1b8b38b16b727f1ab",
+        "name": "react-dom-DvhUeKas.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-DvhUeKas.js",
+        "sha256": "b61ed82c52b4e960b310dd14c591c53ab8df65f32401623a5ddc3280443b8dbf",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-BaMZB5Fy.css",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BaMZB5Fy.css",
-        "sha256": "bae643a297d5885e35dc68f252ac298fc5cd08ac7952ed15ca8f6fb80d6272fc",
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
         "matchesLocalBuild": true
       }
     ]
@@ -55,14 +55,15 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "7d0de8c374213351409cbab4abd8a5287ee380288648b68088d7f5ff7d1e2abf",
+    "inventory": "261821abb1ae4377f8cd379756da1c56cfc214c167adaba1f60b39509e2a085d",
     "entries": {
       "numerical-methods.root-finding.root-finding": "b3e5f9c0e4ea4662394a5ca262c87a2b0131ea03b59cc1135ab951510e368cc0",
-      "numerical-methods.quadrature.quadrature": "ef0d31e9ed4dcd6d2063239e9d189beddf955a4c6ad3722e27c479d0fa39b569"
+      "numerical-methods.quadrature.quadrature": "ef0d31e9ed4dcd6d2063239e9d189beddf955a4c6ad3722e27c479d0fa39b569",
+      "numerical-methods.euler-method.euler-method": "9fe3d8bf605fb5fbce0685ba42b2bb06543401ec563e9f30fe683ebb5e4482cc"
     },
-    "presentation": "5991ae0e40f6bc830dab23986ea37e617e925774c403ea29edadc59d28244be9",
-    "buildOutput": "1f1f0bcc0b3b3d639f44a95cd566b4f9c16f482fe8b23f35ddff4a7189bbbc52",
-    "buildInputs": "23633945294abfa6b47b70d4096afac0b16f801c386e52d2d40d397656f97d56"
+    "presentation": "fdf81c5eeab9fa1cc009af50cd930f5a3d42ac0d9a07bfd38e071f4537a35667",
+    "buildOutput": "3e68c439dc327522e4976654b8f6fe0b93c9972d216b2108573670a4a945d090",
+    "buildInputs": "61c25cfbed6a03d7a2204a256da9ad31f0a184a236626a2c3187b95add67ff46"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -104,6 +105,19 @@
             2.6,
             4.8,
             -1.8
+          ]
+        }
+      },
+      {
+        "id": "numerical-methods.euler-method.euler-method",
+        "demonstrationId": "euler-method",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.2,
+            3,
+            2.6,
+            0.7
           ]
         }
       }
@@ -229,8 +243,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
-        "sourceRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
+        "buildRevision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
+        "sourceRevision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
         "pageErrors": []
       }
     },
@@ -376,8 +390,158 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
-        "sourceRevision": "858c6b70bcf1df453b64d6bb5ba2be7eb03823c3",
+        "buildRevision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
+        "sourceRevision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "numerical-methods.euler-method.euler-method",
+      "demonstrationId": "euler-method",
+      "path": "/bezeg-2.0/analysis/euler-method?example=lesson.numerical-methods.euler-method.euler-method",
+      "sceneFingerprint": "7336560bb86008a302cef1fda2d0bbce1339b1d9eb982098b2c54f74ad205897",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"euler-field-predict\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"euler-field-predict\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"euler-exact\",\"visible\":false}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"euler-example\",\"value\":\"exponential\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"euler-step\",\"value\":\"0.5\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"euler-x0\",\"value\":0}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"euler-y0\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"euler-end\",\"value\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "numerical-methods.euler-method.euler-method.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "f4b5aba65c1c763ff98d2cdfc1dae50525e79a38b1473c70bf418fb7bbbed022",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 4,
+          "curve": 2,
+          "point": 1,
+          "text": 1
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.040533,
+              0.960369
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0.040533,
+              1.039631
+            ]
+          ],
+          [
+            [
+              -1.628565,
+              0.529909
+            ],
+            [
+              -1.529333,
+              0.588286
+            ],
+            [
+              -1.430101,
+              0.646663
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 26,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "curve": 2,
+            "point": 1,
+            "text": 1
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.031713,
+                0.968287
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0.031713,
+                1.031713
+              ]
+            ],
+            [
+              [
+                -3.702137,
+                -0.788651
+              ],
+              [
+                -3.633003,
+                -0.847222
+              ],
+              [
+                -3.563869,
+                -0.905794
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 4,
+          "curve": 2,
+          "point": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
+        "sourceRevision": "25d3c102f943c66435dcf57a39bad9ac1d40c299",
         "pageErrors": []
       }
     }
