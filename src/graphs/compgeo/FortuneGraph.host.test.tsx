@@ -1,14 +1,18 @@
 import React from 'react';
-import {act, fireEvent, render} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {MemoryRouter} from 'react-router-dom';
-import {FortuneGraph} from './FortuneGraph';
+import {FORTUNE_STEP_INTERVAL_MS, FortuneGraph} from './FortuneGraph';
 import {FORTUNE_EXAMPLE_1, FORTUNE_EXAMPLE_2} from './fortunePresetCollection';
 import {VoronoiGraph} from './VoronoiGraph';
 import {serializePointSetModel} from '../../compgeo/pointSetModel';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
+import {runFortune} from './fortuneRun';
+import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
+import {AnimationScheduler} from '../../learning/runtime/animation';
+import {appStorage} from '../../storage/appStorage';
 
 vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve()}));
 
@@ -404,4 +408,330 @@ test('the live region exists while empty, and does not change during the frames 
     }
     act(() => graph.goTo(2));
     expect(live()).not.toBe(heard);
+});
+
+
+// ---- Sweep S3 F6 gaps (Acc 4, Acc 5, C-1, C-2, C-5): the real controls on the Fortune graph ---------------------------------
+
+/** A scheduler that runs a frame only when told to; `frame(ms)` advances the clock by `ms` and runs the oldest request. */
+function manualScheduler() {
+    let nextHandle = 0;
+    let time = 0;
+    const callbacks = new Map<number, FrameRequestCallback>();
+    const scheduler: AnimationScheduler = {
+        request: callback => {const handle = nextHandle++; callbacks.set(handle, callback); return handle;},
+        cancel: handle => {callbacks.delete(handle);},
+    };
+    const frame = (elapsed: number) => {
+        const entry = callbacks.entries().next().value as [number, FrameRequestCallback] | undefined;
+        if (!entry) return false;
+        callbacks.delete(entry[0]);
+        time += elapsed;
+        entry[1](time);
+        return true;
+    };
+    return {scheduler, callbacks, frame};
+}
+/** Runs the first frame after Play (it starts the clock) and `ticks` timed frames. */
+function playTicks(frames: ReturnType<typeof manualScheduler>, ticks: number) {
+    act(() => { frames.frame(0); });
+    for (let i = 0; i < ticks; i++) act(() => { frames.frame(FORTUNE_STEP_INTERVAL_MS); });
+}
+const toEnd = (graph: Observed) => {
+    while (button('next-step').getAttribute('aria-disabled') !== 'true') click('next-step');
+    expect(graph.step).toBe(graph.run().length - 1);
+};
+const example = (id: string) => act(() => { fireEvent.click(document.querySelector(`button[data-example="${id}"]`) as HTMLButtonElement); });
+
+test.each([
+    ['example-1', 4, 2, 'Oglišča: 2 od 2'],
+    ['example-2', 3, 1, 'Oglišča: 1 od 1'],
+    ['collinear', 4, 0, 'Oglišča: 0 od 0'],
+    ['cocircular', 4, 1, 'Oglišča: 1 od 1'],
+    ['random', 12, undefined, undefined],
+] as const)('the %s example button: step 0 after the click, then Next to the end shows the finished drawing', (id, sites, vertices, readout) => {
+    const graph = new Observed();
+    mount(graph);
+    // Leave a later step behind: the example must return to step 0.
+    click('next-step'); click('next-step');
+    example(id);
+    expect([graph.step, graph.isPlaying]).toEqual([0, false]);
+    expect(graph.model.points).toHaveLength(sites);
+    expect(sitePoints(graph)).toHaveLength(sites);
+    expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
+    expect(graph.drawingStats()).toBeUndefined();
+    expect(graph.run().length).toBeGreaterThan(2);
+    toEnd(graph);
+    expect(graph.drawingStats()).toBeDefined();
+    expect(named(graph, 'fortune-circle', 'fortune-circle-cancelled', 'fortune-breakpoint')).toHaveLength(0);
+    const diagram = graph.run().result!.diagram;
+    if (vertices !== undefined) {
+        expect(diagram.vertices).toHaveLength(vertices);
+        expect(part('vertices')).toBe(readout);
+    } else {
+        expect(diagram.vertices.length).toBeGreaterThan(0);
+        expect(part('vertices')).toBe(`Oglišča: ${diagram.vertices.length} od ${diagram.vertices.length}`);
+    }
+    const stats = graph.drawingStats()!;
+    if (id === 'collinear') {
+        // Parallel lines, no vertex: three lines between four sites on one line, no segment and no ray.
+        expect([stats.lines, stats.segments, stats.rays, stats.vertexMarkers]).toEqual([3, 0, 0, 0]);
+    }
+    if (id === 'cocircular') {
+        // One Voronoi vertex of degree 4 (the centre), marked as a high-degree vertex; four rays.
+        expect([stats.vertexMarkers, stats.highDegreeMarkers, stats.rays]).toEqual([1, 1, 4]);
+        expect(diagram.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`)).toEqual(['0,0']);
+    }
+    if (id === 'example-1') expect([stats.vertexMarkers, stats.highDegreeMarkers]).toEqual([2, 0]);
+});
+
+test('the playback note says the beach line is drawn approximately, in Slovenian and English', () => {
+    const graph = new Observed();
+    mount(graph);
+    const note = () => [...document.querySelectorAll('p.inspector-help')].map(p => p.textContent ?? '')
+        .find(text => text.includes('Predvajanje') || text.includes('Playback takes'));
+    expect(note()).toContain('obalna črta je narisana približno (loki parabol)');
+    expect(note()).toContain('lažni alarm');
+    act(() => { setLanguage('en'); });
+    expect(note()).toContain('the beach line is drawn approximately (parabola arcs)');
+    expect(note()).toContain('a false alarm');
+});
+
+test('C-1: dragging a site while Play runs stops playback, recomputes the trace and keeps the step', () => {
+    const frames = manualScheduler();
+    const graph = new Observed({}, frames.scheduler);
+    mount(graph);
+    click('play-pause');
+    playTicks(frames, 2);
+    expect([graph.isPlaying, graph.step]).toEqual([true, 2]);
+    const before = graph.run();
+    dragSite(graph, 3, 1, -3);
+    expect(graph.model.points[3]).toEqual({x: 1, y: -3});
+    expect(graph.run()).not.toBe(before);
+    expect(graph.isPlaying).toBe(false);
+    expect(button('play-pause').textContent).toBe('Predvajaj');
+    expect(frames.callbacks.size).toBe(0);
+    expect(graph.step).toBe(2);
+    // No further tick arrives, however long the scheduler runs.
+    act(() => { frames.frame(FORTUNE_STEP_INTERVAL_MS * 3); });
+    act(() => { frames.frame(FORTUNE_STEP_INTERVAL_MS * 3); });
+    expect([graph.step, graph.isPlaying]).toEqual([2, false]);
+    // A smaller trace clamps the kept step: an edit at the last step to a three-site set.
+    toEnd(graph);
+    act(() => { graph.loadModel(FORTUNE_EXAMPLE_2); });
+    expect([graph.isPlaying, graph.step]).toEqual([false, graph.run().length - 1]);
+});
+
+test('C-2: Reset after stepping to step 5 returns to step 0, stopped, with the example sites', () => {
+    const frames = manualScheduler();
+    const graph = new Observed({}, frames.scheduler);
+    mount(graph);
+    for (let i = 0; i < 5; i++) click('next-step');
+    expect(graph.step).toBe(5);
+    click('reset');
+    expect([graph.step, graph.isPlaying, graph.storedStep()]).toEqual([0, false, 0]);
+    expect(graph.model).toEqual(FORTUNE_EXAMPLE_1);
+    expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
+    expect(button('reset').getAttribute('aria-disabled')).toBe('true');
+    // Reset while Play runs stops it as well and no tick follows.
+    click('play-pause');
+    playTicks(frames, 3);
+    expect([graph.isPlaying, graph.step]).toEqual([true, 3]);
+    click('reset');
+    expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqual([0, false, 0]);
+    act(() => { frames.frame(FORTUNE_STEP_INTERVAL_MS); });
+    expect(graph.step).toBe(0);
+});
+
+test('C-2: a Preset with a stored step beyond the trace, or beyond a shorter trace, is clamped to the last step on import', async () => {
+    const graph = new Observed();
+    mount(graph);
+    const entry = (id: string, model: typeof FORTUNE_EXAMPLE_1, step: number) => ({id, data: serializePointSetModel(model), graphState: {step}});
+    const longRun = runFortune(FORTUNE_EXAMPLE_1.points);
+    const shortRun = runFortune(FORTUNE_EXAMPLE_2.points);
+    expect(shortRun.length).toBeLessThan(longRun.length);
+    const file = JSON.stringify({'preset-compgeo-fortune': {data: [
+        entry('late', FORTUNE_EXAMPLE_1, 999),
+        entry('shorter', FORTUNE_EXAMPLE_2, longRun.length - 1),
+    ]}});
+    commitPresetImport(preflightPresetImport(file, appStorage), appStorage);
+    await settle(() => graph.selectPreset('late'));
+    expect(graph.model.points).toHaveLength(4);
+    expect([graph.step, graph.storedStep(), graph.isPlaying]).toEqual([longRun.length - 1, longRun.length - 1, false]);
+    expect(part('step')).toBe(`Korak ${longRun.length} od ${longRun.length}`);
+    expect(graph.drawingStats()).toBeDefined();
+    await settle(() => graph.selectPreset('shorter'));
+    expect(graph.model.points).toHaveLength(3);
+    expect([graph.step, graph.storedStep()]).toEqual([shortRun.length - 1, shortRun.length - 1]);
+    expect(part('step')).toBe(`Korak ${shortRun.length} od ${shortRun.length}`);
+    expect(graph.isPlaying).toBe(false);
+});
+
+test('C-5: an arrow key moves the selected site by one grid step and recomputes the trace; without a selection nothing moves', () => {
+    const graph = new Observed();
+    mount(graph);
+    const box = graph.liveBoard().containerObj as HTMLElement;
+    const key = (name: string) => act(() => { fireEvent.keyDown(box, {key: name}); });
+    key('ArrowRight');
+    expect(graph.model).toEqual(FORTUNE_EXAMPLE_1);
+    act(() => graph.select(3));
+    act(() => graph.goTo(stepOfSite(graph, 3)));
+    const before = graph.run();
+    key('ArrowRight');
+    expect(graph.model.points[3]).toEqual({x: 1, y: -3});
+    expect(graph.run()).not.toBe(before);
+    key('ArrowUp');
+    key('ArrowUp');
+    expect(graph.model.points[3]).toEqual({x: 1, y: -1});
+    const fresh = runFortune(graph.model.points);
+    expect(graph.run().length).toBe(fresh.length);
+    expect(graph.run().result!.diagram.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`)).toEqual(fresh.result!.diagram.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`));
+    expect(graph.run().result!.diagram.vertices.length).toBeGreaterThan(0);
+    expect(sitePoints(graph)[3].X!()).toBe(1);
+    expect(sitePoints(graph)[3].Y!()).toBe(-1);
+});
+
+test('C-5: Add at twelve sites is refused with a visible notice in both languages and adds nothing', () => {
+    const graph = new Observed();
+    mount(graph);
+    example('random');
+    expect(graph.model.points).toHaveLength(12);
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj točko'})); });
+    expect(graph.model.points).toHaveLength(12);
+    expect(sitePoints(graph)).toHaveLength(12);
+    expect(document.querySelector('[data-pointset-notice]')!.textContent).toContain('Doseženo je največje število točk (12)');
+    act(() => { setLanguage('en'); });
+    expect(document.querySelector('[data-pointset-notice]')!.textContent).toContain('maximum number of points (12)');
+});
+
+test('C-2: importPresetData of a shorter set with a stale step 999 clamps the stored step to the new last step', () => {
+    const graph = new Observed();
+    mount(graph);
+    const shortRun = runFortune(FORTUNE_EXAMPLE_2.points);
+    act(() => { graph.goTo(999); });
+    act(() => { graph.importPresetData(serializePointSetModel(FORTUNE_EXAMPLE_2)); });
+    expect(graph.model.points).toHaveLength(3);
+    expect([graph.step, graph.storedStep(), graph.isPlaying]).toEqual([shortRun.length - 1, shortRun.length - 1, false]);
+    expect(part('step')).toBe(`Korak ${shortRun.length} od ${shortRun.length}`);
+});
+
+describe('C-7: the event processed at a step is highlighted on the board and in the side list', () => {
+    const CURRENT = ['fortune-current-site', 'fortune-current-circle', 'fortune-current-vertex'];
+    const current = (graph: Observed) => named(graph, ...CURRENT);
+    const circleSteps = (graph: Observed) =>
+        Array.from({length: graph.run().length}, (_, k) => k).filter(k => graph.run().view(k)?.current?.kind === 'circle');
+    const currentMarks = () => [...document.querySelectorAll('[data-fortune="current-event"] li[data-current]')] as HTMLElement[];
+    const width = (o: Shown) => Number((o as unknown as JXG.GeometryElement).visProp.strokewidth ?? 0);
+    const centreOf = (curve: Shown, scale: number) => {
+        const [xs, ys] = [curve.dataX ?? [], curve.dataY ?? []];
+        return {x: (Math.min(...xs) + Math.max(...xs)) / 2 / scale, y: (Math.min(...ys) + Math.max(...ys)) / 2 / scale};
+    };
+
+    test('step 0 and the done step highlight nothing', () => {
+        const graph = new Observed();
+        mount(graph);
+        expect(current(graph)).toHaveLength(0);
+        expect(currentMarks()).toHaveLength(0);
+        act(() => graph.goTo(graph.run().length - 1));
+        expect(current(graph)).toHaveLength(0);
+        expect(currentMarks()).toHaveLength(0);
+    });
+
+    test('the first site-event step rings site A, and the next one rings site B', () => {
+        const graph = new Observed();
+        mount(graph);
+        click('next-step');
+        expect(graph.run().view(1)?.current).toMatchObject({kind: 'site', site: 0});
+        const rings = named(graph, 'fortune-current-site');
+        expect(rings).toHaveLength(1);
+        expect(named(graph, 'fortune-current-circle', 'fortune-current-vertex')).toHaveLength(0);
+        const a = sitePoints(graph)[0];
+        expect([rings[0].X!(), rings[0].Y!()]).toEqual([a.X!(), a.Y!()]);
+        click('next-step');
+        const b = sitePoints(graph)[1];
+        const second = named(graph, 'fortune-current-site');
+        expect(second).toHaveLength(1);
+        expect([second[0].X!(), second[0].Y!()]).toEqual([b.X!(), b.Y!()]);
+    });
+
+    test('the two true circle events highlight their circle and vertex, centres (-1/2, 1) then (1/2, 1)', () => {
+        const graph = new Observed();
+        mount(graph);
+        const steps = circleSteps(graph);
+        expect(steps).toHaveLength(2);
+        const scale = graph.owned().sweep!.scale;
+        const found: {x: number; y: number}[] = [];
+        steps.forEach(step => {
+            act(() => graph.goTo(step));
+            const circles = named(graph, 'fortune-current-circle');
+            const vertices = named(graph, 'fortune-current-vertex');
+            expect([circles.length, vertices.length, named(graph, 'fortune-current-site').length]).toEqual([1, 1, 0]);
+            const vertex = {x: vertices[0].X!() / scale, y: vertices[0].Y!() / scale};
+            const centre = centreOf(circles[0], scale);
+            expect(centre.x).toBeCloseTo(vertex.x, 9);
+            expect(centre.y).toBeCloseTo(vertex.y, 9);
+            found.push(vertex);
+            // The highlighted circle is the thickest object of the drawing; the vertex is one of the vertices found so far.
+            expect(width(circles[0])).toBe(Math.max(...everything(graph).map(width).filter(Number.isFinite)));
+            expect(named(graph, 'fortune-vertex').some(v => v.X!() === vertices[0].X!() && v.Y!() === vertices[0].Y!())).toBe(true);
+        });
+        expect(found).toEqual([{x: -0.5, y: 1}, {x: 0.5, y: 1}]);
+    });
+
+    test('a cancelled circle keeps its dashed style while a site is ringed', () => {
+        const graph = new Observed();
+        mount(graph);
+        act(() => graph.goTo(stepOfSite(graph, 3)));
+        const dashed = named(graph, 'fortune-circle-cancelled')[0];
+        expect((dashed as unknown as JXG.GeometryElement).visProp.dash).toBe(3);
+        const ring = named(graph, 'fortune-current-site');
+        expect(ring).toHaveLength(1);
+        expect(width(ring[0])).toBeGreaterThan(width(dashed));
+    });
+
+    test('dragging a site at the circle step and back adds no board object, and dispose removes the highlight', () => {
+        const graph = new Observed();
+        mount(graph);
+        const [step] = circleSteps(graph);
+        act(() => graph.goTo(step));
+        const before = everything(graph).length;
+        const moves = [[1, -3], [0, -3], [1, -3], [0, -3]];
+        for (const [x, y] of moves) {
+            dragSite(graph, 3, x, y);
+            expect(named(graph, 'fortune-current-circle').length).toBeLessThanOrEqual(1);
+            expect(named(graph, 'fortune-current-vertex').length).toBeLessThanOrEqual(1);
+        }
+        expect(graph.model).toEqual(FORTUNE_EXAMPLE_1);
+        expect(everything(graph).length).toBe(before);
+        expect(current(graph)).toHaveLength(2);
+        const board = graph.liveBoard();
+        graph.owned().sweep!.handle.dispose();
+        expect(board.objectsList.filter(o => CURRENT.includes((o as Shown).name ?? ''))).toHaveLength(0);
+    });
+
+    test('the side list marks the current event in text and aria, in Slovenian and English, besides the next one', () => {
+        const graph = new Observed();
+        mount(graph);
+        click('next-step');
+        expect(currentMarks()).toHaveLength(1);
+        expect(currentMarks()[0].getAttribute('aria-current')).toBe('true');
+        expect(document.querySelector('[data-fortune="current-event"] p')?.textContent).toBe('Trenutni dogodek (pravkar obdelan)');
+        expect(currentMarks()[0].textContent).toContain('mesto A');
+        expect(currentMarks()[0].textContent).toContain('trenutni dogodek');
+        expect(queueEntries()[0].hasAttribute('data-next')).toBe(true);
+        expect(queueEntries().some(li => li.hasAttribute('data-current'))).toBe(false);
+        act(() => { setLanguage('en'); });
+        expect(document.querySelector('[data-fortune="current-event"] p')?.textContent).toBe('Current event (just processed)');
+        expect(currentMarks()[0].textContent).toContain('site A');
+        expect(currentMarks()[0].textContent).toContain('current event');
+        const [step] = circleSteps(graph);
+        act(() => graph.goTo(step));
+        expect(currentMarks()[0].textContent).toMatch(/^● circle event \(/);
+        act(() => { setLanguage('sl'); });
+        expect(currentMarks()[0].textContent).toMatch(/krožni dogodek \(/);
+        act(() => graph.goTo(0));
+        expect(currentMarks()).toHaveLength(0);
+        act(() => graph.goTo(graph.run().length - 1));
+        expect(currentMarks()).toHaveLength(0);
+    });
 });

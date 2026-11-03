@@ -1,0 +1,37 @@
+unit: failed (1) in 10.9s (2 workers, no slot); revision b4311e6ee18cb3a2f1b12f0933dd531878649ad9; dirty; log .command-logs\2026-11-03T15-29-32-890Z-33000-467a2624.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (35 tests | 1 failed) 5039ms
+   ❯ C-7: the event processed at a step is highlighted on the board and in the side list (6)
+     × the two true circle events highlight their circle and vertex, centres (-1/2, 1) then (1/2, 1) 78ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-7: the event processed at a step is highlighted on the board and in the side list > the two true circle events highlight their circle and vertex, centres (-1/2, 1) then (1/2, 1)
+AssertionError: expected 1 to be close to -3.0311288741492746, received difference is 4.031128874149275, but expected 5e-10
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:672:30
+    670|             const centre = centreOf(circles[0], scale);
+    671|             expect(centre.x).toBeCloseTo(vertex.x, 9);
+    672|             expect(centre.y).toBeCloseTo(vertex.y, 9);
+       |                              ^
+    673|             found.push(vertex);
+    674|             // The highlighted circle is the thickest object of the dr…
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:664:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 34 passed (35)
+   Start at  16:29:33
+   Duration  10.10s (tests 51%, transform 20%, import 15%, environment 10%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,63 @@
+unit: failed (1) in 13.2s (2 workers, no slot); revision b4311e6ee18cb3a2f1b12f0933dd531878649ad9; dirty; log .command-logs\2026-11-03T15-32-24-574Z-30828-8ec8dc00.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (35 tests | 2 failed) 6572ms
+   ❯ C-7: the event processed at a step is highlighted on the board and in the side list (6)
+     × step 0 and the done step highlight nothing 57ms
+     × the side list marks the current event in text and aria, in Slovenian and English, besides the next one 94ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-7: the event processed at a step is highlighted on the board and in the side list > step 0 and the done step highlight nothing
+AssertionError: expected [ <Anonymous Class>{ …(58) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:633:32
+    631|         const graph = new Observed();
+    632|         mount(graph);
+    633|         expect(current(graph)).toHaveLength(0);
+       |                                ^
+    634|         expect(currentMarks()).toHaveLength(0);
+    635|         act(() => graph.goTo(graph.run().length - 1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-7: the event processed at a step is highlighted on the board and in the side list > the side list marks the current event in text and aria, in Slovenian and English, besides the next one
+AssertionError: expected [ <li data-current …(1)>…(2)</li> ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:733:32
+    731|         expect(currentMarks()[0].textContent).toMatch(/krožni dogodek …
+    732|         act(() => graph.goTo(0));
+    733|         expect(currentMarks()).toHaveLength(0);
+       |                                ^
+    734|         act(() => graph.goTo(graph.run().length - 1));
+    735|         expect(currentMarks()).toHaveLength(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 33 passed (35)
+   Start at  16:32:25
+   Duration  12.34s (tests 54%, transform 19%, import 14%, environment 9%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

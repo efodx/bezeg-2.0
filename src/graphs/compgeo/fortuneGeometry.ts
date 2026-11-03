@@ -107,6 +107,14 @@ export interface CircleDraw {
     readonly low: Pt;
 }
 
+/**
+ * The event processed at a step (spec C-7): a site event (the site's position) or an executed circle event (the circle and the
+ * Voronoi vertex it created, which is its centre). Null at step 0 and at `done`.
+ */
+export type CurrentEvent =
+    | {readonly kind: 'site'; readonly site: number; readonly at: Pt}
+    | {readonly kind: 'circle'; readonly circle: CircleDraw; readonly sites: readonly number[]; readonly vertex: Pt};
+
 export interface FortuneView {
     readonly step: number;
     readonly index: number;
@@ -122,6 +130,7 @@ export interface FortuneView {
     readonly scheduled: readonly CircleDraw[];
     readonly cancelled: readonly CircleDraw[];
     readonly vertices: readonly Pt[];
+    readonly current: CurrentEvent | null;
 }
 
 interface Origins {
@@ -268,11 +277,23 @@ export function fortuneView(
         .map((c, k) => ({c, k}))
         .filter(({c}) => c.fate.kind === 'cancelled' && c.fate.event >= 0 && c.fate.event <= index && c.scheduled <= index)
         .map(({k}) => circleDraw(result, k));
+    let current: CurrentEvent | null = null;
+    if (at > 0 && !done) {
+        const pop = steps[at - 1] + 1;
+        const siteEvent = result.siteEvents.find(e => e.event === pop);
+        if (siteEvent) {
+            current = {kind: 'site', site: siteEvent.site, at: {x: sites[siteEvent.site].x, y: sites[siteEvent.site].y}};
+        } else {
+            const k = result.circles.findIndex(c => c.fate.kind === 'executed' && c.fate.event === pop);
+            if (k >= 0) current = {kind: 'circle', circle: circleDraw(result, k), sites: [...result.circles[k].sites], vertex: toPt(result.circles[k].centre)};
+        }
+    }
     return {
         step: at, index, state, done, level, lineY: level ?? maxY, arcs, breakpoints,
         finished: done ? [] : origins[at].finished,
         scheduled, cancelled,
         vertices: done ? [] : state.vertices.map(v => toPt(result.diagram.vertices[v].point)),
+        current,
     };
 }
 

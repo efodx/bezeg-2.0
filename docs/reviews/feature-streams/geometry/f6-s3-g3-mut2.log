@@ -1,0 +1,57 @@
+unit: failed (1) in 11.0s (2 workers, no slot); revision b4311e6ee18cb3a2f1b12f0933dd531878649ad9; dirty; log .command-logs\2026-11-03T15-29-08-899Z-28080-4a10aa1b.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (35 tests | 2 failed) 4895ms
+   ❯ C-7: the event processed at a step is highlighted on the board and in the side list (6)
+     × the two true circle events highlight their circle and vertex, centres (-1/2, 1) then (1/2, 1) 76ms
+     × a cancelled circle keeps its dashed style while a site is ringed 78ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-7: the event processed at a step is highlighted on the board and in the side list > the two true circle events highlight their circle and vertex, centres (-1/2, 1) then (1/2, 1)
+AssertionError: expected 2 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 2
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:675:39
+    673|             found.push(vertex);
+    674|             // The highlighted circle is the thickest object of the dr…
+    675|             expect(width(circles[0])).toBe(Math.max(...everything(grap…
+       |                                       ^
+    676|             expect(named(graph, 'fortune-vertex').some(v => v.X!() ===…
+    677|         });
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:664:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-7: the event processed at a step is highlighted on the board and in the side list > a cancelled circle keeps its dashed style while a site is ringed
+AssertionError: expected 2 to be greater than 2
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:689:32
+    687|         const ring = named(graph, 'fortune-current-site');
+    688|         expect(ring).toHaveLength(1);
+    689|         expect(width(ring[0])).toBeGreaterThan(width(dashed));
+       |                                ^
+    690|     });
+    691|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 33 passed (35)
+   Start at  16:29:09
+   Duration  10.25s (tests 48%, transform 21%, import 16%, environment 10%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

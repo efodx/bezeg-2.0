@@ -1,0 +1,49 @@
+Waiting for typecheck (pid 9956) to finish starting before reading free memory.
+Waiting for unit (pid 8216) to finish starting before reading free memory.
+Memory available for unit after 90s.
+unit: failed (1) in 12.0s (2 workers, no slot); revision b4311e6ee18cb3a2f1b12f0933dd531878649ad9; dirty; log .command-logs\2026-11-03T15-32-11-427Z-26012-700b67bd.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (35 tests | 1 failed) 5428ms
+   ❯ C-7: the event processed at a step is highlighted on the board and in the side list (6)
+     × the first site-event step rings site A, and the next one rings site B 77ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-7: the event processed at a step is highlighted on the board and in the side list > the first site-event step rings site A, and the next one rings site B
+AssertionError: expected [ +0, 3 ] to deeply equal [ -4, 3 ]
+
+- Expected
++ Received
+
+  [
+-   -4,
++   0,
+    3,
+  ]
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:654:50
+    652|         const second = named(graph, 'fortune-current-site');
+    653|         expect(second).toHaveLength(1);
+    654|         expect([second[0].X!(), second[0].Y!()]).toEqual([b.X!(), b.Y!…
+       |                                                  ^
+    655|     });
+    656|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 34 passed (35)
+   Start at  16:32:12
+   Duration  11.24s (tests 49%, transform 21%, import 16%, environment 10%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

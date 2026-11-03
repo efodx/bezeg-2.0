@@ -92,6 +92,26 @@ export function queueItems(t: Translate, run: FortuneRun, view: FortuneView): Qu
     return [...live, ...dropped];
 }
 
+/** The event processed at this step, marked in text and by a bar (spec C-7); none at step 0 and at the end. */
+export function currentEventLabel(t: Translate, view: FortuneView): string | undefined {
+    const now = view.current;
+    if (!now) return undefined;
+    return now.kind === "site"
+        ? t("fortune_queue_site", {value0: siteName(now.site)})
+        : t("fortune_queue_circle", {value0: siteNames(now.sites)});
+}
+
+function CurrentEvent({label}: {label: string}) {
+    const t = useT();
+    const labelId = React.useId();
+    return <div data-fortune="current-event">
+        <p className="inspector-help" id={labelId}>{t("fortune_current_label")}</p>
+        <ol aria-labelledby={labelId} className="sweep-side-list">
+            <li data-current="" aria-current="true"><span aria-hidden="true">● </span>{label}<span className="visually-hidden">{t("fortune_queue_current")}</span></li>
+        </ol>
+    </div>;
+}
+
 function QueueList({items}: {items: readonly QueueItem[]}) {
     const t = useT();
     const labelId = React.useId();
@@ -145,6 +165,7 @@ export function FortuneControls(props: FortuneControlsProps) {
     const result = run.result;
     const found = view ? view.state.vertices.length : 0;
     const expected = result ? result.diagram.vertices.length : 0;
+    const currentLabel = view ? currentEventLabel(t, view) : undefined;
     const stepText = t("fortune_step_counter", {value0: step + 1, value1: run.length});
     const beachText = beach.length ? t("fortune_beach", {value0: siteNames(beach)}) : t("fortune_beach_empty");
     const verticesText = t("fortune_vertices", {value0: view?.done ? expected : found, value1: expected});
@@ -183,6 +204,7 @@ export function FortuneControls(props: FortuneControlsProps) {
                 <MathParagraph text={heightMessage(t, view, language)} name="height"/>
                 {!view.done && <p className="inspector-help" data-fortune="beach">{beachText}</p>}
                 <p className="inspector-help" data-fortune="vertices">{verticesText}</p>
+                {currentLabel !== undefined && <CurrentEvent label={currentLabel}/>}
                 {!view.done && <QueueList items={queueItems(t, run, view)}/>}
             </>}
             {/* Always rendered so assistive technology registers the region before its first announcement. Silent while Play runs

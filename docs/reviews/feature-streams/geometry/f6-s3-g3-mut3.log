@@ -1,0 +1,43 @@
+unit: failed (1) in 10.7s (2 workers, no slot); revision b4311e6ee18cb3a2f1b12f0933dd531878649ad9; dirty; log .command-logs\2026-11-03T15-29-21-110Z-10148-5bce8d55.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx (35 tests | 1 failed) 4777ms
+   ❯ C-7: the event processed at a step is highlighted on the board and in the side list (6)
+     × the side list marks the current event in text and aria, in Slovenian and English, besides the next one 61ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneGraph.host.test.tsx > C-7: the event processed at a step is highlighted on the board and in the side list > the side list marks the current event in text and aria, in Slovenian and English, besides the next one
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/graphs/compgeo/FortuneGraph.host.test.tsx:716:32
+    714|         mount(graph);
+    715|         click('next-step');
+    716|         expect(currentMarks()).toHaveLength(1);
+       |                                ^
+    717|         expect(currentMarks()[0].getAttribute('aria-current')).toBe('t…
+    718|         expect(document.querySelector('[data-fortune="current-event"] …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 34 passed (35)
+   Start at  16:29:21
+   Duration  9.93s (tests 49%, transform 21%, import 16%, environment 10%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -24,6 +24,9 @@ interface Position {
     y: number;
 }
 
+/** Stroke width of the current event's objects: thicker than the sweep line (2), the beach line and the traces (3). */
+const CURRENT_WIDTH = 5;
+
 type DataCurve = JXG.Curve & {updateDataArray: () => void; dataX: number[]; dataY: number[]};
 
 function refresh(element: JXG.GeometryElement): void {
@@ -103,6 +106,11 @@ export function createFortuneSweepDrawing(board: JXG.Board, scale: number): Fort
     const falseCircles = new Pool<JXG.Curve>(board);
     const falseMarks = new Pool<JXG.Point>(board);
     const vertices = new Pool<JXG.Point>(board);
+    // The event processed at this step (spec C-7), thickest as in Bentley-Ottmann: a ring on the site, or the executed circle
+    // (no longer queued, so not drawn above) with a ring on the vertex it created. Each pool holds zero or one object.
+    const currentSites = new Pool<JXG.Point>(board);
+    const currentCircles = new Pool<JXG.Curve>(board);
+    const currentVertices = new Pool<JXG.Point>(board);
 
     const circleOutline = (c: CircleDraw): {xs: number[]; ys: number[]} => {
         const xs: number[] = [];
@@ -167,6 +175,22 @@ export function createFortuneSweepDrawing(board: JXG.Board, scale: number): Fort
             name: 'fortune-vertex', layer: 7, face: 'square', size: 5, strokeColor: GraphPalette.selectedControlPointOutline, fillColor: GraphPalette.warningText,
         }));
         view.vertices.forEach((v, k) => place(found[k], v));
+
+        const now = view.current;
+        const ring = (name: string) => makePoint({
+            name, layer: 8, face: 'o', size: 9, strokeColor: GraphPalette.constructionAccent, strokeWidth: CURRENT_WIDTH, fillOpacity: 0, highlightFillOpacity: 0,
+        });
+        const ringedSite = currentSites.use(now?.kind === 'site' ? 1 : 0, () => ring('fortune-current-site'));
+        if (now?.kind === 'site') place(ringedSite[0], now.at);
+        const ringedCircle = currentCircles.use(now?.kind === 'circle' ? 1 : 0, () => makeCurve({
+            name: 'fortune-current-circle', layer: 2, strokeColor: GraphPalette.constructionAccent, strokeWidth: CURRENT_WIDTH,
+        }));
+        const ringedVertex = currentVertices.use(now?.kind === 'circle' ? 1 : 0, () => ring('fortune-current-vertex'));
+        if (now?.kind === 'circle') {
+            const o = circleOutline(now.circle);
+            setCurve(ringedCircle[0], o.xs, o.ys);
+            place(ringedVertex[0], now.vertex);
+        }
     }
 
     function clear(): void {
@@ -177,6 +201,9 @@ export function createFortuneSweepDrawing(board: JXG.Board, scale: number): Fort
         falseCircles.clear();
         falseMarks.clear();
         vertices.clear();
+        currentSites.clear();
+        currentCircles.clear();
+        currentVertices.clear();
         setCurve(beachLine, [], []);
         setCurve(sweepLine, [], []);
     }
