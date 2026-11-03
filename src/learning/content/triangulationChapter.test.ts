@@ -7,6 +7,7 @@ import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
 import {getGuidedLesson} from './guidedLessons';
+import {sweepChapter} from './sweepChapter';
 import {triangulationChapter} from './triangulationChapter';
 import {TRIANGULATION_CHAPTER_ID, triangulationGuidedExamplePath, triangulationGuidedExampleRegistry} from './triangulationChapterRegistry';
 
@@ -40,7 +41,7 @@ describe('chapter structure and registration', () => {
         const b3 = triangulationChapter.sections[3];
         const scanned = [{...triangulationChapter, sections: undefined, id: undefined, title: undefined}, ...triangulationChapter.sections.slice(0, 3), {...b3, paragraphs: b3.paragraphs.slice(0, -1), orderedContent: undefined}, triangulationGuidedExampleRegistry[ID], triangulationGuidedExampleRegistry[B2]];
         const everything = JSON.stringify(scanned).toLowerCase().split(TRIANGULATION_CHAPTER_ID).join('');
-        for (const word of ['voronoi', 'voronoj', 'dual graph', 'dualni graf']) expect(everything).not.toContain(word);
+        for (const word of ['voronoi', 'voronoj', 'dual graph', 'dualni graf', 'fortun', 'beach line', 'obalna črta']) expect(everything).not.toContain(word);
         const early = JSON.stringify([triangulationChapter.sections[0], triangulationChapter.sections[1], triangulationGuidedExampleRegistry[ID]]).toLowerCase();
         for (const word of ['delaunay', 'lawson', 'incircle', 'empty circle', 'prazna krožnica', 'cocircular']) expect(early).not.toContain(word);
         // B5 is released with its own section, so the chapter may name it; the B4 lesson text still must not.
@@ -207,6 +208,23 @@ describe('chapter structure and registration', () => {
             expect(field.sl.length).toBeGreaterThan(5);
             expect(field.en.length).toBeGreaterThan(5);
         }
+    });
+
+    test('the Voronoi section links to the Fortune section as another way to the same diagram, and no other section does', () => {
+        const fortune = sweepChapter.sections.find(section => section.id === 'fortune')!;
+        const linked = triangulationChapter.sections.flatMap(section => (section.orderedContent ?? []).flatMap(item => item.kind === 'paragraph' && item.links?.length ? [{section: section.id, item}] : []));
+        expect(linked.map(entry => entry.section)).toEqual([B4]);
+        const {item} = linked[0];
+        expect(item.links).toHaveLength(1);
+        expect(item.links![0].href).toBe(`/bezeg-2.0/learn/${sweepChapter.id}#${fortune.id}`);
+        for (const language of ['sl', 'en'] as const) {
+            expect(item.links![0].label[language]).toBe(fortune.title[language]);
+            expect(item.text[language]).toContain(item.links![0].label[language]);
+        }
+        expect(item.text.sl).toContain('Do istega diagrama vodi');
+        expect(item.text.en).toContain('Another way to the same diagram');
+        // The forward link to the degenerate-sites section stays the last paragraph.
+        expect(triangulationChapter.sections[4].paragraphs.at(-1)!.en).toContain('Degenerate sites');
     });
 
     test('the Voronoi section ends its prose with a forward link naming the degenerate-sites section', () => {

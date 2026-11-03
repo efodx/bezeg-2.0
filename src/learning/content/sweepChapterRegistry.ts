@@ -13,12 +13,13 @@ const sectionDemonstrations = {
     'segment-intersections': 'segment-intersections',
     'monotone-partition': 'monotone-partition',
     'monotone-triangulation': 'monotone-triangulation',
+    'fortune': 'fortune',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type SweepSectionId = keyof typeof sectionDemonstrations;
 
 /**
- * Section-owned activities (spec C1 to C4). The lesson text stays in compgeoGuidedLessons.ts; the getters read it lazily because
+ * Section-owned activities (spec C1 to C5). The lesson text stays in compgeoGuidedLessons.ts; the getters read it lazily because
  * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
  */
 export const sweepGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(

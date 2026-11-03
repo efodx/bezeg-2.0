@@ -1,0 +1,158 @@
+
+$ ["C:\\Program Files\\nodejs\\node.EXE","C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js","test","--","--run","src/learning/content/triangulationChapter.test.ts","src/learning/OrderedChapterRendering.test.tsx","--no-fsModuleCache"]
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/triangulationChapter.test.ts src/learning/OrderedChapterRendering.test.tsx --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/triangulationChapter.test.ts (18 tests | 1 failed) 31ms
+   ❯ chapter structure and registration (18)
+     × the Voronoi section links to the Fortune section as another way to the same diagram, and no other section does 7ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+stderr | src/learning/OrderedChapterRendering.test.tsx > family renderer turns a paragraph link into a router link in both languages
+Warning: An update to SidebarNeighbors inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at SidebarNeighbors (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/ChapterNavigation.tsx:49:29)
+    at aside
+    at ChapterContents (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/ChapterNavigation.tsx:80:28)
+    at div
+    at main
+    at ChapterReading (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:41:27)
+    at FamilyChapterPage (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:296:59)
+    at RenderedRoute (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:539:7)
+    at Routes (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1229:7)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to ChapterContents inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ChapterContents (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/ChapterNavigation.tsx:80:28)
+    at div
+    at main
+    at ChapterReading (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:41:27)
+    at FamilyChapterPage (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:296:59)
+    at RenderedRoute (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:539:7)
+    at Routes (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1229:7)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to ChapterTrail inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ChapterTrail (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/ChapterNavigation.tsx:15:25)
+    at header
+    at article
+    at div
+    at main
+    at ChapterReading (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:41:27)
+    at FamilyChapterPage (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:296:59)
+    at RenderedRoute (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:539:7)
+    at Routes (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1229:7)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to ChapterNeighbors inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ChapterNeighbors (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/ChapterNavigation.tsx:215:29)
+    at footer
+    at article
+    at div
+    at main
+    at ChapterReading (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:41:27)
+    at FamilyChapterPage (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:296:59)
+    at RenderedRoute (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:539:7)
+    at Routes (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1229:7)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to ChapterReading inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at ChapterReading (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:41:27)
+    at FamilyChapterPage (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/src/learning/FamilyChapterPage.tsx:296:59)
+    at RenderedRoute (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:539:7)
+    at Routes (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1229:7)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+
+ ❯ src/learning/OrderedChapterRendering.test.tsx (4 tests | 1 failed) 251ms
+   × family renderer turns a paragraph link into a router link in both languages 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/OrderedChapterRendering.test.tsx > family renderer turns a paragraph link into a router link in both languages
+Error: [2mexpect([22m[31mreceived[39m[2m).toHaveAttribute()[22m
+
+[31mreceived[39m value must be an HTMLElement or an SVGElement.
+Received has type:  Null
+Received has value: [31mnull[39m
+ ❯ src/learning/OrderedChapterRendering.test.tsx:98:20
+     96|     </MemoryRouter>);
+     97|     const link = () => container.querySelector('#voronoi .chapter-para…
+     98|     expect(link()).toHaveAttribute('href', '/bezeg-2.0/learn/sweep-alg…
+       |                    ^
+     99|     expect(link()).toHaveTextContent('Fortunov algoritem');
+    100|     expect(link()!.closest('.chapter-paragraph')!.textContent).toConta…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > the Voronoi section links to the Fortune section as another way to the same diagram, and no other section does
+AssertionError: expected [] to deeply equal [ 'voronoi' ]
+
+- Expected
++ Received
+
+- [
+-   "voronoi",
+- ]
++ []
+
+ ❯ src/learning/content/triangulationChapter.test.ts:216:52
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 20 passed (22)
+   Start at  15:20:18
+   Duration  4.89s (transform 47%, environment 27%, setup 13%, import 10%, tests 3%)
+

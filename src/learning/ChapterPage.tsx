@@ -9,6 +9,7 @@ import {bezierChapter, type BezierOrderedContent} from './content/bezierChapter'
 import {findActivity} from './chapter/activities';
 import {typesetMath} from '../mathjax/loadMathJax';
 import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
+import {linkedParagraph} from './chapter/linkedParagraph';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -16,22 +17,6 @@ type SectionScrollAnchor = {sectionId: string; top: number};
 function restoreSectionAnchor(anchor: SectionScrollAnchor) {
     const section = document.getElementById(anchor.sectionId);
     if (section) window.scrollTo(0, Math.max(0, window.scrollY + section.getBoundingClientRect().top - anchor.top));
-}
-
-function renderParagraph(text: string, links?: readonly {label: string; href: string}[]) {
-    if (!links?.length) return text;
-    const result: React.ReactNode[] = [];
-    let cursor = 0;
-    const matches = links.map(link => ({...link, at: text.indexOf(link.label)})).filter(link => link.at >= 0).sort((a, b) => a.at - b.at);
-    for (const match of matches) {
-        if (match.at < cursor) continue;
-        if (match.at > cursor) result.push(text.slice(cursor, match.at));
-        result.push(<Link key={`${match.href}-${match.at}`} to={match.href}>{match.label}</Link>);
-        cursor = match.at + match.label.length;
-    }
-    const remainder = text.slice(cursor);
-    if (remainder) result.push(remainder);
-    return result;
 }
 
 const DrawingPlayground = React.lazy(() => import('./playground/DrawingPlayground'));
@@ -48,7 +33,7 @@ function ChapterContentView({block, chapterId, sectionId, language}: {
     </React.Suspense>;
     if (block.kind === 'example') return <ChapterGuidedLessons chapterId={chapterId} sectionId={sectionId} language={language} exampleId={block.exampleId}/>;
     if (block.kind === 'formula') return <div className="chapter-formula" role="region" aria-label={block.label ?? ''} tabIndex={0}>{block.label && <span className="chapter-formula-label">{block.label}</span>}<div className="chapter-math">\[{block.latex}\]</div></div>;
-    return <p className="chapter-paragraph">{renderParagraph(block.text, block.links)}</p>;
+    return <p className="chapter-paragraph">{linkedParagraph(block.text, block.links)}</p>;
 }
 
 export function ChapterPage() {

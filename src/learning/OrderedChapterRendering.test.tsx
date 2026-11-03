@@ -89,3 +89,18 @@ test('family renderer puts its single authored card between the section paragrap
         section.orderedContent = previous;
     }
 });
+
+test('family renderer turns a paragraph link into a router link in both languages', async () => {
+    const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/triangulations-voronoi']}>
+        <Routes><Route path="/bezeg-2.0/learn/:chapterId" element={<FamilyChapterPage/>}/></Routes>
+    </MemoryRouter>);
+    const link = () => container.querySelector('#voronoi .chapter-paragraph a');
+    expect(link()).toHaveAttribute('href', '/bezeg-2.0/learn/sweep-algorithms#fortune');
+    expect(link()).toHaveTextContent('Fortunov algoritem');
+    expect(link()!.closest('.chapter-paragraph')!.textContent).toContain('Do istega diagrama vodi');
+    await act(async () => setLanguage('en'));
+    expect(link()).toHaveAttribute('href', '/bezeg-2.0/learn/sweep-algorithms#fortune');
+    expect(link()).toHaveTextContent('Fortune\'s algorithm');
+    expect(link()!.closest('.chapter-paragraph')!.textContent).toContain('Another way to the same diagram');
+    expect(container.querySelectorAll('#voronoi .chapter-paragraph a')).toHaveLength(1);
+});

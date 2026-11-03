@@ -31,7 +31,7 @@ function withoutMath(source: string) {
 // sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
 // patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
 // bspline-extraction joined the b-splines chapter with its L4 lesson and section (BS-B-3b).
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'fortune'];
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 

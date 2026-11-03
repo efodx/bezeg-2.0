@@ -11,6 +11,7 @@ import {type OrderedChapterContent} from './chapter/orderedContent';
 import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
+import {linkedParagraph} from './chapter/linkedParagraph';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -81,7 +82,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                     <div className="chapter-section-body">
                         {sectionContent(section).map((block, blockIndex) => {
                             if (block.kind === 'example') return <ChapterGuidedLessons key={`${section.id}-example-${block.exampleId}`} chapterId={chapter.id} sectionId={section.id} language={language} exampleId={block.exampleId}/>;
-                            if (block.kind === 'paragraph') return <p className="chapter-paragraph" key={`${section.id}-paragraph-${blockIndex}`}>{block.text[language]}</p>;
+                            if (block.kind === 'paragraph') return <p className="chapter-paragraph" key={`${section.id}-paragraph-${blockIndex}`}>{linkedParagraph(block.text[language], block.links?.map(link => ({label: link.label[language], href: link.href})))}</p>;
                             return <div className="chapter-formula" role="region" aria-label={block.label?.[language] ?? section.title[language]} tabIndex={0} key={`${section.id}-formula-${blockIndex}`}>{block.label && <span className="chapter-formula-label">{block.label[language]}</span>}<div className="chapter-math">\[{block.latex}\]</div></div>;
                         })}
                     </div>

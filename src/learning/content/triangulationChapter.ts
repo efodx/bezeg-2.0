@@ -8,11 +8,11 @@ import {
 // Local helper: familyChapters.ts imports this chapter, so it must not import values from familyChapters.ts.
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 
-/** Reading material first, then the prepared activity at the section end. */
-function withExample(sectionId: TriangulationSectionId, section: FamilyChapterSection): FamilyChapterSection {
+/** Reading material first, then the prepared activity at the section end. `links` maps a paragraph index to in-text links (the label must occur in the paragraph). */
+function withExample(sectionId: TriangulationSectionId, section: FamilyChapterSection, links: Readonly<Record<number, readonly {label: LocalizedText; href: string}[]>> = {}): FamilyChapterSection {
     const demonstrationId = triangulationGuidedExampleDemonstration(sectionId);
     const content: OrderedChapterContent<LocalizedText>[] = [
-        ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
+        ...section.paragraphs.map((paragraph, index) => ({kind: 'paragraph' as const, text: paragraph, ...(links[index] ? {links: links[index]} : {})})),
         ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
         {kind: 'example', exampleId: `${TRIANGULATION_CHAPTER_ID}.${sectionId}.${demonstrationId}`},
     ];
@@ -85,9 +85,10 @@ export const triangulationChapter: FamilyChapter = {
                 text('Cilj razdelka: celico mesta razložiš kot množico točk, ki so temu mestu bliže kot vsakemu drugemu, in oglišča diagrama kot središča očrtanih krožnic Delaunayevih trikotnikov. Celica \\(C_i\\) mesta \\(P_i\\) je presek polravnin, po ena za vsako drugo mesto \\(P_j\\), zato je konveksna; njene meje ležijo na simetralah daljic \\(P_iP_j\\).', 'Learning outcome: you explain the cell of a site as the set of points nearer to that site than to any other, and the vertices of the diagram as the circumcentres of the Delaunay triangles. The cell \\(C_i\\) of the site \\(P_i\\) is an intersection of half-planes, one for every other site \\(P_j\\), so it is convex; its borders lie on the perpendicular bisectors of the segments \\(P_iP_j\\).'),
                 text('Zgled: sedem točk iz prejšnjih razdelkov ima \\(7\\) Voronojevih oglišč, \\(8\\) končnih robov in \\(5\\) poltrakov. Celice petih mest na ovojnici so neomejene, celici mest \\(P_6\\) in \\(P_7\\) znotraj ovojnice pa sta omejeni. Trikotnik \\(P_1P_2P_6\\) ima središče očrtane krožnice \\((4,-1)\\), in to je eno od oglišč diagrama.', 'Example: the seven points of the previous sections have \\(7\\) Voronoi vertices, \\(8\\) finite edges and \\(5\\) rays. The cells of the five sites on the hull are unbounded, and the cells of \\(P_6\\) and \\(P_7\\) inside the hull are bounded. The triangle \\(P_1P_2P_6\\) has circumcentre \\((4,-1)\\), and this is one of the vertices of the diagram.'),
                 text('Zakaj deluje in kako uporabiš: središče očrtane krožnice trikotnika je enako oddaljeno od njegovih treh oglišč; če krožnica ne vsebuje drugega mesta, nobeno mesto ni bližje in točka je Voronojevo oglišče. Delaunayeva triangulacija je zato dual diagrama: vsak notranji rob triangulacije ustreza enemu končnemu robu diagrama, vsak rob ovojnice pa enemu poltraku. Slika nekaj mest dualnost ilustrira in je ne dokazuje.', 'Why it works and how to use it: the circumcentre of a triangle is equally far from its three corners; if its circle contains no other site, no site is nearer and the point is a Voronoi vertex. The Delaunay triangulation is therefore the dual of the diagram: each interior edge of the triangulation matches one finite edge of the diagram and each hull edge matches one ray. A picture of a few sites illustrates duality and does not prove it.'),
+                text('Do istega diagrama vodi še ena pot: pometalna premica ga zariše sproti, brez Delaunayeve triangulacije. Pokaže jo razdelek Fortunov algoritem v poglavju o algoritmih pometanja.', 'Another way to the same diagram: a sweep line draws it as it moves, without a Delaunay triangulation first. The section Fortune\'s algorithm in the chapter on sweep-line algorithms shows it.'),
                 text('Naslednji razdelek, Izrojena mesta: kocirkularne in kolinearne točke, pokaže, kaj se zgodi, kadar dualnost ni triangulacija.', 'The next section, Degenerate sites: cocircular and collinear points, shows what happens when the dual is not a triangulation.'),
             ],
-        }),
+        }, {3: [{label: text('Fortunov algoritem', 'Fortune\'s algorithm'), href: '/bezeg-2.0/learn/sweep-algorithms#fortune'}]}),
         withExample('voronoi-degenerate', {
             id: 'voronoi-degenerate',
             demonstrationIds: ['voronoi-degenerate'],

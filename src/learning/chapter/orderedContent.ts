@@ -2,7 +2,7 @@ import type {LocalizedText} from '../model';
 
 /** One reader-visible item in a chapter section. Example IDs are registry IDs, never array positions. */
 export type OrderedChapterContent<TText = LocalizedText> =
-    | {kind: 'paragraph'; text: TText; links?: readonly {label: string; href: string}[]}
+    | {kind: 'paragraph'; text: TText; links?: readonly {label: TText; href: string}[]}
     | {kind: 'formula'; latex: string; label?: TText}
     | {kind: 'example'; exampleId: string};
 

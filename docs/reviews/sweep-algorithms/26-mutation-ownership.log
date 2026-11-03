@@ -1,0 +1,65 @@
+
+$ ["C:\\Program Files\\nodejs\\node.EXE","C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js","test","--","--run","src/learning/content/sweepChapter.test.ts","--no-fsModuleCache"]
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/sweepChapter.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/sweepChapter.test.ts (7 tests | 2 failed) 40ms
+   ❯ chapter structure and registration (7)
+     × the lessons resolve, own their sections and keep both languages complete 17ms
+     × learn launches, example links and old routes land on the owning section 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/sweepChapter.test.ts > chapter structure and registration > the lessons resolve, own their sections and keep both languages complete
+AssertionError: expected [ { …(2) }, { …(2) } ] to deeply equal [ { …(2) } ]
+
+- Expected
++ Received
+
+  [
+    {
++     "chapterId": "bezier-curves",
++     "sectionId": "geometric-properties",
++   },
++   {
+      "chapterId": "sweep-algorithms",
+      "sectionId": "fortune",
+    },
+  ]
+
+ ❯ src/learning/content/sweepChapter.test.ts:98:47
+     96|     test('the lessons resolve, own their sections and keep both langua…
+     97|         for (const id of IDS) {
+     98|             expect(getGuidedLessonOwners(id)).toEqual([{chapterId: SWE…
+       |                                               ^
+     99|             expect(getGuidedLessonOwner(id)).toEqual({chapterId: SWEEP…
+    100|             expect(authoredGuidedLessonIds(SWEEP_CHAPTER_ID, id)).toEq…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/content/sweepChapter.test.ts > chapter structure and registration > learn launches, example links and old routes land on the owning section
+AssertionError: expected '/bezeg-2.0/compgeo/fortune?learn=1&le…' to contain 'learnChapter=sweep-algorithms&learnSe…'
+
+Expected: "learnChapter=sweep-algorithms&learnSection=fortune"
+Received: "/bezeg-2.0/compgeo/fortune?learn=1&learnChapter=bezier-curves&learnSection=geometric-properties"
+
+ ❯ src/learning/content/sweepChapter.test.ts:119:28
+    117|         for (const id of IDS) {
+    118|             const launch = guidedLessonLaunchPath(id);
+    119|             expect(launch).toContain(`learnChapter=${SWEEP_CHAPTER_ID}…
+       |                            ^
+    120|             expect(guidedLessonReturnPath(getGuidedLessonOwner(id)!)).…
+    121|             const search = launch.slice(launch.indexOf('?'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  15:19:58
+   Duration  4.59s (transform 53%, environment 26%, setup 15%, import 5%, tests 1%)
+
