@@ -2067,7 +2067,21 @@ const probabilityDensity = {
     },
 };
 
-const LESSONS = [monotonePartition, probabilityDensity, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+// Probability P2 (binomial to normal): the exact P(X <= k) readout per lesson step 1..6 (B(20; 1/2) k = 10, k = 8, k = 8 without the
+// correction, B(50; 1/2) k = 22, B(100; 0.02) k = 2, the default); trailing zeros are dropped (0,5881).
+const BINOMIAL_EXACT = ['0.5881', '0.25172', '0.25172', '0.23994', '0.67669', '0.25172'];
+const probabilityBinomialNormal = {
+    id: 'prob-binomial-normal',
+    path: `${BASE}/probability/binomial-normal`,
+    titles: {sl: 'Od binomske k normalni porazdelitvi', en: 'From binomial to normal'},
+    steps: 6,
+    minFrames: 12, // 2 frames per step
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(() => densityReadout(page, 'exact'), {message: `binomial exact readout at ${label}`}).toBe(BINOMIAL_EXACT[step - 1]);
+    },
+};
+
+const LESSONS = [monotonePartition, probabilityDensity, probabilityBinomialNormal, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
