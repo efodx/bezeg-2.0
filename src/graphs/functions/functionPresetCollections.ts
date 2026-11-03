@@ -61,6 +61,8 @@ import {checkPolynomialZerosModel, parsePolynomialZerosModel, PolynomialZerosMod
 import {checkRationalFunctionModel, parseRationalFunctionModel, RationalFunctionModel} from "../../analysis/rationalFunctionModel";
 import {checkZeroList} from "../../analysis/zeroListModel";
 import {rationalFunctionFileMessage} from "./rationalFunctionMessages";
+import {checkGeometricSeriesModel, parseGeometricSeriesModel} from "../../analysis/geometricSeriesModel";
+import {geometricSeriesFileMessage} from "./geometricSeriesMessages";
 import {polynomialZerosFileMessage} from "./polynomialZerosMessages";
 import {zeroListFileMessage} from "./zeroListMessages";
 import {checkSceneState, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
@@ -297,6 +299,12 @@ const polynomialZerosCollection = (): PresetCollection<PolynomialZerosModel> => 
     });
 };
 
+/** The model module names the rule a rejected geometric-series model broke; this only localizes it. */
+const diagnoseGeometricSeries = (data: unknown): Message | undefined => {
+    const check = checkGeometricSeriesModel(data);
+    return check.ok ? undefined : geometricSeriesFileMessage(check.issue);
+};
+
 const diagnoseRationalFunction: Diagnosis = data => {
     const check = checkRationalFunctionModel(data);
     return check.ok || check.issue === undefined ? undefined : rationalFunctionFileMessage(check.issue);
@@ -324,13 +332,14 @@ const rationalFunctionCollection = (): PresetCollection<RationalFunctionModel> =
  * A function Demonstration stores its validated model object as Preset data. The model parser decides validity; the
  * diagnosis only explains a rejection the parser made.
  */
-function functionCollection<M>(key: string, parse: (data: unknown) => M | undefined, diagnose?: Diagnosis): PresetCollection<M> {
+function functionCollection<M>(key: string, parse: (data: unknown) => M | undefined, diagnose?: Diagnosis,
+                                diagnoseAny?: (data: unknown) => Message | undefined): PresetCollection<M> {
     return Object.freeze({
         key,
         check(data: unknown): PresetDataCheck<M> {
             const model = parse(data);
             if (model !== undefined) return {data: model};
-            return {rejection: (isRecord(data) ? diagnose?.(data) : undefined) ?? message("invalid_function_data")};
+            return {rejection: (diagnoseAny?.(data) ?? (isRecord(data) ? diagnose?.(data) : undefined)) ?? message("invalid_function_data")};
         },
     });
 }
@@ -390,4 +399,5 @@ export const functionPresetCollections = {
     "polynomial-zeros": polynomialZerosCollection(),
     "rational-function": rationalFunctionCollection(),
     "function-inverse": functionCollection("function-inverse", parseFunctionInverseModel, diagnoseFunctionInverse),
+    "geometric-series": functionCollection("geometric-series", parseGeometricSeriesModel, undefined, diagnoseGeometricSeries),
 } as const;

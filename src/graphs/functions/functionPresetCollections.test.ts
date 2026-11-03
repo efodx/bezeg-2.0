@@ -1069,3 +1069,37 @@ test("rational-function graph state with an invalid list is rejected without wri
     }
     expect(localStorage.length).toBe(0);
 });
+
+const geometricSeriesPreset = (data: unknown) => JSON.stringify({"preset-geometric-series": {data: [{id: "Osnova", boardState: {boundingBox: [-6, 4, 53, -1]},
+    graphState: {initialized: true}, data}]}});
+const validGeometricSeries = {a: 1, q: -1, terms: 3, tolerance: 0.05};
+
+test("geometric-series collection imports a model object including q = -1 and keeps other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(geometricSeriesPreset(validGeometricSeries)));
+    expect(JSON.parse(localStorage.getItem("preset-geometric-series")!).data[0].data).toEqual(validGeometricSeries);
+    expect(localStorage.getItem("other-app")).toBe("keep");
+});
+
+test.each([[[]], [null], ["nonsense"], [{}], [{a: 1}], [{...validGeometricSeries, a: 0}], [{...validGeometricSeries, a: "1"}],
+    [{...validGeometricSeries, q: 2.5}], [{...validGeometricSeries, q: "0.5"}], [{...validGeometricSeries, q: NaN}],
+    [{...validGeometricSeries, terms: 0}], [{...validGeometricSeries, terms: 1.5}], [{...validGeometricSeries, terms: "3"}],
+    [{...validGeometricSeries, tolerance: -0.1}], [{...validGeometricSeries, tolerance: 2}]])
+("geometric-series collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(geometricSeriesPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validGeometricSeries, a: 9}, /field a|polje a/],
+    [{...validGeometricSeries, q: 2.5}, /field q|polje q/],
+    [{...validGeometricSeries, q: "0.5"}, /field q|polje q/],
+    [{a: 1}, /field q|polje q/],
+    [{...validGeometricSeries, terms: 1.5}, /field terms|polje terms/],
+    [{...validGeometricSeries, tolerance: 2}, /field tolerance|polje tolerance/],
+    ["nonsense", /fields a, q, terms and tolerance|polji a, q, terms in tolerance/],
+])("geometric-series errors name the field to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(geometricSeriesPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(geometricSeriesPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});

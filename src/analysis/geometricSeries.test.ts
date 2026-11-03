@@ -54,4 +54,14 @@ describe('geometric series', () => {
         expect(GEOMETRIC_SERIES_MAX_TERMS).toBeGreaterThan(8);
         expect(geometricPartialSums(1, 0.5, 10000)).toHaveLength(GEOMETRIC_SERIES_MAX_TERMS);
     });
+
+    it('alternating q = -0.5: the error at n-1 is just above the tolerance, at n just below; equality does not count', () => {
+        const error = (n: number) => Math.abs(geometricSeriesLimit(1, -0.5)! - geometricPartialSum(1, -0.5, n));
+        for (let n = 2; n <= 12; n++) {
+            expect(error(n)).toBeLessThan(error(n - 1));
+            expect(firstTermWithinTolerance(1, -0.5, error(n - 1) + 1e-9)).toBe(n - 1);
+            expect(firstTermWithinTolerance(1, -0.5, error(n - 1) - 1e-9)).toBe(n);
+            expect(firstTermWithinTolerance(1, -0.5, error(n))).toBe(n + 1);
+        }
+    });
 });

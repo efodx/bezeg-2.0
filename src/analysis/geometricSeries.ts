@@ -37,7 +37,11 @@ export function geometricPartialSums(a: number, q: number, n: number): number[] 
     return out;
 }
 
-/** First n (1..cap) with |limit - S_n| < tolerance, or null if none or no limit. */
+/**
+ * First n (1..cap) with |limit - S_n| < tolerance, or null if none or no limit. The error is |a q^n/(1-q)|, which decreases
+ * monotonically for |q| < 1, so the error stays below the tolerance from this n on. The comparison is strict: an error equal
+ * to the tolerance does not count.
+ */
 export function firstTermWithinTolerance(a: number, q: number, tolerance: number): number | null {
     const limit = geometricSeriesLimit(a, q);
     if (limit === null) return null;
