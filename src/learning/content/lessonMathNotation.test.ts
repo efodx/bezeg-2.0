@@ -146,6 +146,11 @@ function findings(): string[] {
             const localized: {path: string; lang: string; text: string}[] = [];
             collectLocalized(lesson, '', localized);
             for (const {path, lang, text} of localized) {
+                // A TeX command written with one backslash in a TS string (`'\ne'`, `'\times'`, `'\frac'`, `'\beta'`,
+                // `'\rho'`, `'\vec'`) becomes a control character, which no localized text contains on purpose.
+                if (/[\u0000-\u001f]/u.test(text)) {
+                    result.push(`${where} ${path} [${lang}] control character (a TeX command with one backslash?): ${JSON.stringify(text)}`);
+                }
                 const stripped = stripMath(text);
                 const mathSegments = [...text.matchAll(/\\\((.*?)\\\)|\\\[(.*?)\\\]/g)].map(match => match[1] ?? match[2] ?? '');
                 if (lang === 'sl' && mathSegments.some(segment => /\d\.\d/.test(segment))) {

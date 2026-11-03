@@ -1471,8 +1471,8 @@ const voronoiDegenerate: GuidedLesson = {
     demonstrationId: 'voronoi-degenerate',
     title: text('Izrojena mesta: kocirkularne in kolinearne točke', 'Degenerate sites: cocircular and collinear points'),
     summary: text(
-        'Štiri kocirkularne točke dajo Voronojevo oglišče stopnje \\(4\\) in Delaunayevo triangulacijo, ki ni enolična; mesta na premici dajo vzporedne pasove brez oglišč in brez triangulacije.',
-        'Four cocircular points give a Voronoi vertex of degree \\(4\\) and a Delaunay triangulation that is not unique; sites on a line give parallel strips with no vertices and no triangulation.',
+        'Štiri kocirkularne točke dajo Voronojevo oglišče stopnje \\(4\\) in Delaunayevo triangulacijo, ki ni enolična; mesta na premici dajo celice med vzporednimi premicami brez oglišč in brez triangulacije.',
+        'Four cocircular points give a Voronoi vertex of degree \\(4\\) and a Delaunay triangulation that is not unique; sites on a line give cells between parallel lines with no vertices and no triangulation.',
     ),
     prerequisites: [
         text('Potrebna je lekcija o Delaunayevi triangulaciji: prazna krožnica in zamenjava roba.', 'The lesson on the Delaunay triangulation is required: the empty circle and the edge flip.'),
@@ -1481,7 +1481,7 @@ const voronoiDegenerate: GuidedLesson = {
     learningGoals: [
         text('Napoveš število Voronojevih oglišč štirih točk in jo preveriš z izpisom.', 'Predict the number of Voronoi vertices of four points and check it against the readout.'),
         text('Pojasniš, kaj se zgodi z Voronojevim ogliščem in Delaunayevo triangulacijo, ko točka leži natanko na krožnici skozi tri druge.', 'Explain what happens to the Voronoi vertex and the Delaunay triangulation when a point lies exactly on the circle through three others.'),
-        text('Razložiš, zakaj ležijo celice kolinearnih mest v vzporednih pasovih brez oglišč in zakaj tedaj ni triangulacije.', 'Explain why the cells of collinear sites are parallel strips with no vertices and why there is then no triangulation.'),
+        text('Razložiš, zakaj so celice kolinearnih mest omejene z vzporednimi premicami brez oglišč in zakaj tedaj ni triangulacije.', 'Explain why the cells of collinear sites are bounded by parallel lines with no vertices and why there is then no triangulation.'),
     ],
     formulaBlocks: [
         {
@@ -1568,7 +1568,7 @@ const voronoiDegenerate: GuidedLesson = {
             ),
             formulaIds: ['deg-incircle-formula'], workedExampleId: 'deg-incircle-example',
             frames: [frame('deg-off-explanation', 'explanation'), frame('deg-off-calculation', 'calculation'), frame('deg-off-observation', 'observation')],
-            observationPrompt: text('Primerjaj zgradnjo prejšnjega koraka: kaj se je zgodilo z oglišči in diagonalama?', 'Compare with the previous step: what happened to the vertices and the diagonals?'),
+            observationPrompt: text('Primerjaj s prejšnjim korakom: kaj se je zgodilo z oglišči in diagonalama?', 'Compare with the previous step: what happened to the vertices and the diagonals?'),
             expectedObservations: [text('Izpis pokaže \\(D=-30\\), \\(2\\) oglišči s stopnjama \\(3\\) in \\(3\\) in samo diagonalo \\(P_1\\)–\\(P_3\\) kot dovoljeno.', 'The readout shows \\(D=-30\\), \\(2\\) vertices of degrees \\(3\\) and \\(3\\), and only the diagonal \\(P_1\\)–\\(P_3\\) as legal.')],
             scene: degenerateScene('deg-off', 'four-point', DEGENERATE_NEAR_OFF, true, DEGENERATE_NEAR_VIEW,
                 'Točka \\(P_4=(1,-5)\\) je zunaj krožnice: \\(D=-30\\), \\(2\\) oglišči stopnje \\(3\\), samo diagonala \\(P_1\\)–\\(P_3\\) je dovoljena.',
@@ -1577,10 +1577,10 @@ const voronoiDegenerate: GuidedLesson = {
         {
             id: 'deg-collinear', order: 5,
             title: text('Mesta na premici', 'Collinear sites'),
-            purpose: text('Videti, da imajo kolinearna mesta pasove brez oglišč in nimajo triangulacije.', 'Seeing that collinear sites have strips with no vertices and no triangulation.'),
+            purpose: text('Videti, da imajo kolinearna mesta celice med vzporednimi premicami brez oglišč in nimajo triangulacije.', 'Seeing that collinear sites have cells between parallel lines with no vertices and no triangulation.'),
             explanation: text(
-                'Pet mest leži na premici \\(y=x/2\\): \\((-4,-2)\\), \\((-2,-1)\\), \\((0,0)\\), \\((2,1)\\) in \\((4,2)\\). Simetrale sosednjih mest so vzporedne, zato celice niso večkotniki, ampak pasovi. Izpis našteje \\(0\\) oglišč in \\(4\\) premice, graf pa pove, da triangulacije ni: tri točke na premici ne tvorijo trikotnika. Pet mest ni v načinu Štiri točke, zato je graf v načinu Mesta.',
-                'Five sites lie on the line \\(y=x/2\\): \\((-4,-2)\\), \\((-2,-1)\\), \\((0,0)\\), \\((2,1)\\) and \\((4,2)\\). The bisectors of neighbouring sites are parallel, so the cells are strips, not polygons. The readout counts \\(0\\) vertices and \\(4\\) lines, and the graph says there is no triangulation: three points on a line do not form a triangle. Five sites do not fit the Four points mode, so the graph is in the Sites mode.',
+                'Pet mest leži na premici \\(y=x/2\\): \\((-4,-2)\\), \\((-2,-1)\\), \\((0,0)\\), \\((2,1)\\) in \\((4,2)\\). Simetrale sosednjih mest so vzporedne, zato celice niso večkotniki: vmesne so pasovi, krajni dve pa polravnini. Izpis našteje \\(0\\) oglišč in \\(4\\) premice, graf pa pove, da triangulacije ni: tri točke na premici ne tvorijo trikotnika. Pet mest ni v načinu Štiri točke, zato je graf v načinu Mesta.',
+                'Five sites lie on the line \\(y=x/2\\): \\((-4,-2)\\), \\((-2,-1)\\), \\((0,0)\\), \\((2,1)\\) and \\((4,2)\\). The bisectors of neighbouring sites are parallel, so the cells are not polygons: the middle ones are strips and the two end ones half-planes. The readout counts \\(0\\) vertices and \\(4\\) lines, and the graph says there is no triangulation: three points on a line do not form a triangle. Five sites do not fit the Four points mode, so the graph is in the Sites mode.',
             ),
             formulaIds: [],
             frames: [frame('deg-collinear-explanation', 'explanation'), frame('deg-collinear-observation', 'observation')],
@@ -1595,8 +1595,8 @@ const voronoiDegenerate: GuidedLesson = {
             title: text('Dogovor in mreža', 'The convention and the grid'),
             purpose: text('Razumeti dogovor, ki ga lekcija uporablja, in zakaj je natančna ničla dosegljiva.', 'Understanding the convention the lesson uses and why an exact zero is reachable.'),
             explanation: text(
-                'Dogovor: diagonala je dovoljena, kadar je \\(D\\le0\\); pri kocirkularnih mestih sta zato dovoljeni obe. Mesta ležijo na celoštevilski mreži, zato je \\(D\\) celo število in natančna ničla je dosegljiva: pri \\(P_4=(0,-5)\\) je \\(D=0\\), pri \\((1,-5)\\) pa \\(D=-30\\). Pri poljubno natančnem premiku točke bi bila ničla skoraj nikoli dosežena. Pri štirih kocirkularnih mestih ima Voronojevo oglišče stopnjo \\(4\\) in dual ni triangulacija, ampak ima štirikotno lice; Delaunayeva triangulacija je enolična le, kadar nobene štiri točke niso kocirkularne.',
-                'The convention: a diagonal is legal when \\(D\\le0\\); for cocircular sites both are therefore legal. The sites lie on an integer grid, so \\(D\\) is an integer and an exact zero is reachable: at \\(P_4=(0,-5)\\) we get \\(D=0\\), at \\((1,-5)\\) we get \\(D=-30\\). For a point moving with unlimited precision a zero would almost never be hit. With four cocircular sites the Voronoi vertex has degree \\(4\\) and the dual is not a triangulation but has a quadrilateral face; the Delaunay triangulation is unique only when no four points are cocircular.',
+                'Dogovor: diagonala je dovoljena, kadar je \\(D\\le0\\); pri kocirkularnih mestih sta zato dovoljeni obe. Mesta ležijo na celoštevilski mreži, zato je \\(D\\) celo število in natančna ničla je dosegljiva: pri \\(P_4=(0,-5)\\) je \\(D=0\\), pri \\((1,-5)\\) pa \\(D=-30\\). Pri poljubno natančnem premiku točke bi bila ničla skoraj nikoli dosežena. Pri štirih kocirkularnih mestih ima Voronojevo oglišče stopnjo \\(4\\) in dual ni triangulacija, ampak ima štirikotno lice; Delaunayeva triangulacija je enolična, če nobene štiri točke ne ležijo na prazni krožnici.',
+                'The convention: a diagonal is legal when \\(D\\le0\\); for cocircular sites both are therefore legal. The sites lie on an integer grid, so \\(D\\) is an integer and an exact zero is reachable: at \\(P_4=(0,-5)\\) we get \\(D=0\\), at \\((1,-5)\\) we get \\(D=-30\\). For a point moving with unlimited precision a zero would almost never be hit. With four cocircular sites the Voronoi vertex has degree \\(4\\) and the dual is not a triangulation but has a quadrilateral face; the Delaunay triangulation is unique if no four points lie on an empty circle.',
             ),
             formulaIds: ['deg-incircle-formula'],
             frames: [frame('deg-convention-explanation', 'explanation'), frame('deg-convention-observation', 'observation')],

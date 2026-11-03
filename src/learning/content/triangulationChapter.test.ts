@@ -225,6 +225,9 @@ describe('chapter structure and registration', () => {
             const prose = section.paragraphs.map(p => p[language]).join(' ');
             for (const fact of ['\\(D=0\\)', '\\(4\\)', '(0,0)', '(8,0)', '(9,5)', '(-1,5)']) expect(prose, `${language}: ${fact}`).toContain(fact);
             expect(prose, `${language}: illustrates, does not prove`).toContain(language === 'sl' ? 'ne dokazuje' : 'does not prove');
+            // The two end cells of collinear sites are half-planes, and uniqueness needs an empty circle (math review, task 23).
+            expect(prose, `${language}: half-planes`).toContain(language === 'sl' ? 'polravnini' : 'half-planes');
+            expect(prose, `${language}: empty circle`).toContain(language === 'sl' ? 'prazni krožnici' : 'empty circle');
             expect(section.investigationPrompts![B5]![language].length).toBeGreaterThan(20);
         }
         expect(getChapterGuidedExamples(TRIANGULATION_CHAPTER_ID, B5).map(link => link.path)).toEqual([triangulationGuidedExamplePath(B5)]);
