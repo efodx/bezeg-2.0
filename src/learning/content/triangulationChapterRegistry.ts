@@ -13,6 +13,7 @@ const sectionDemonstrations = {
     'point-set-triangulation': 'point-set-triangulation',
     'delaunay': 'delaunay',
     'voronoi': 'voronoi',
+    'voronoi-degenerate': 'voronoi-degenerate',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type TriangulationSectionId = keyof typeof sectionDemonstrations;

@@ -337,7 +337,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
      * for the first three): `select-site` is the site button (`null` clears), `set-construction` sets how many bisectors of the
      * chosen site are shown (`'end'` is all of them), `set-query-point` places the query point on a quarter of a grid unit (`null`
      * returns it to its default) and `select-triangle` is the click on a triangle of the Delaunay overlay (`null` clears; the
-     * overlay must be shown). An out-of-range index or count, a position beyond the coordinate limit or off the quarter grid,
+     * overlay must be shown) and `set-mode` is the mode control (four-point needs exactly four sites). An out-of-range index or count, a position beyond the coordinate limit or off the quarter grid,
      * and a missing site or overlay are lesson-content errors that change nothing.
      */
     override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
@@ -373,6 +373,15 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
                 throw new Error(`point-set set-query-point: point must be null or [x, y], each a multiple of 1/4 within ${String(limit)}, got ${JSON.stringify(point)}.`);
             }
             this.setQueryPoint(new RationalPoint(Rational.of(point[0] * QUERY_SNAP, QUERY_SNAP), Rational.of(point[1] * QUERY_SNAP, QUERY_SNAP)));
+            return;
+        }
+        if (action.operation === "set-mode") {
+            const mode: unknown = action.mode;
+            if (!isVoronoiMode(mode)) throw new Error(`point-set set-mode: mode must be "sites" or "four-point", got ${String(mode)}.`);
+            if (mode === "four-point" && this.model.points.length !== FOUR_POINT_SITES) {
+                throw new Error(`point-set set-mode: four-point mode needs exactly ${String(FOUR_POINT_SITES)} sites, there are ${String(this.model.points.length)}.`);
+            }
+            this.setMode(mode);
             return;
         }
         if (action.operation === "select-triangle") {

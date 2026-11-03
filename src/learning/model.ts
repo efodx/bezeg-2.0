@@ -264,6 +264,8 @@ export type LessonAction =
     | {readonly kind: 'point-set'; readonly operation: 'set-construction'; readonly count: number | 'end'}
     /** VoronoiGraph only: places the query point at `[x, y]`, each a multiple of 1/4 within the coordinate limit (the grid a drag snaps to); `null` returns it to its default. Anything else is a lesson-content error and never snapped. */
     | {readonly kind: 'point-set'; readonly operation: 'set-query-point'; readonly point: readonly [number, number] | null}
+    /** VoronoiGraph and DegenerateSitesGraph only: switches the mode as the mode control does (`sites` or `four-point`; the four-point mode needs exactly four sites, else it is a lesson-content error). Sites, overlays, the chosen site and the query point are untouched. Any other mode value is a lesson-content error. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-mode'; readonly mode: 'sites' | 'four-point'}
     /**
      * Projective graphs' scene actions; the union stays open for the other projective graphs. CrossRatioGraph (K1): `load-example`
      * is the example button; `move-handle` is a drag to the grid point (`handle` 0-3 are A-D on the line y = 0 and take only `x`,

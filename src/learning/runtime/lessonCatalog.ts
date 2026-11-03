@@ -84,8 +84,11 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
     } else if (operation === 'set-query-point') {
         const point = (data as Record<string, unknown>).point;
         if (point !== null && !(Array.isArray(point) && point.length === 2 && isFinite(point[0]) && isFinite(point[1]))) throw new Error('A point-set set-query-point action needs an [x, y] pair of finite numbers, or null.');
+    } else if (operation === 'set-mode') {
+        const mode = (data as Record<string, unknown>).mode;
+        if (mode !== 'sites' && mode !== 'four-point') throw new Error('A point-set set-mode action needs the mode "sites" or "four-point".');
     } else {
-        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction or set-query-point.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction, set-query-point or set-mode.');
     }
     return action;
 }

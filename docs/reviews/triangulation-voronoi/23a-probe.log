@@ -1,0 +1,52 @@
+unit: failed (1) in 12.4s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-20-34-405Z-31020-6c7855a9.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/tmpProbe.host.test.tsx --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f
+
+stderr | src/graphs/compgeo/tmpProbe.host.test.tsx > probe
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ❯ src/graphs/compgeo/tmpProbe.host.test.tsx (1 test | 1 failed) 551ms
+   × probe 548ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/tmpProbe.host.test.tsx > probe
+AssertionError: expected [ …(6) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "near | Preizkus krožnice za P1, P2, P3 (v nasprotni smeri urnega kazalca) in P4: D = -30; točka P4 leži zunaj krožnice skozi P1, P2, P3. || Voronojeva oglišča: 2; stopnje: 3, 3. || Diagonala P1–P3 je dovoljena. || Dovoljena je samo diagonala P1–P3, zato je Delaunayeva triangulacija enolična. || Mest: 4Voronojevih oglišč: 2Končnih robov: 1Poltrakov: 4Omejenih celic: 0Neomejenih celic: 4 || ",
++   "on | Preizkus krožnice za P1, P2, P3 (v nasprotni smeri urnega kazalca) in P4: D = 0; točka P4 leži na krožnici skozi P1, P2, P3, točke so kocirkularne. || Voronojeva oglišča: 1; stopnje: 4. || Diagonala P1–P3 je dovoljena. / Diagonala P2–P4 je dovoljena. || Točke so kocirkularne: obe diagonali sta dovoljeni, zato Delaunayeva triangulacija ni enolična. || Mest: 4Voronojevih oglišč: 1Končnih robov: 0Poltrakov: 4Omejenih celic: 0Neomejenih celic: 4 || ",
++   "off | Preizkus krožnice za P1, P2, P3 (v nasprotni smeri urnega kazalca) in P4: D = -30; točka P4 leži zunaj krožnice skozi P1, P2, P3. || Voronojeva oglišča: 2; stopnje: 3, 3. || Diagonala P1–P3 je dovoljena. || Dovoljena je samo diagonala P1–P3, zato je Delaunayeva triangulacija enolična. || Mest: 4Voronojevih oglišč: 2Končnih robov: 1Poltrakov: 4Omejenih celic: 0Neomejenih celic: 4 || ",
++   "collinear |  ||  ||  ||  || Mest: 5Voronojevih oglišč: 0Končnih robov: 0Poltrakov: 0Premic: 4Omejenih celic: 0Neomejenih celic: 5 || Vsa mesta ležijo na isti premici, zato so celice pasovi med vzporednimi simetralami; triangulacije ni.",
++   "square | Preizkus krožnice za P1, P2, P3 (v nasprotni smeri urnega kazalca) in P4: D = 0; točka P4 leži na krožnici skozi P1, P2, P3, točke so kocirkularne. || Voronojeva oglišča: 1; stopnje: 4. || Diagonala P1–P3 je dovoljena. / Diagonala P2–P4 je dovoljena. || Točke so kocirkularne: obe diagonali sta dovoljeni, zato Delaunayeva triangulacija ni enolična. || Mest: 4Voronojevih oglišč: 1Končnih robov: 0Poltrakov: 4Omejenih celic: 0Neomejenih celic: 4 || ",
++   "trap | Preizkus krožnice za P1, P2, P3 (v nasprotni smeri urnega kazalca) in P4: D = 0; točka P4 leži na krožnici skozi P1, P2, P3, točke so kocirkularne. || Voronojeva oglišča: 1; stopnje: 4. || Diagonala P1–P3 je dovoljena. / Diagonala P2–P4 je dovoljena. || Točke so kocirkularne: obe diagonali sta dovoljeni, zato Delaunayeva triangulacija ni enolična. || Mest: 4Voronojevih oglišč: 1Končnih robov: 0Poltrakov: 4Omejenih celic: 0Neomejenih celic: 4 || ",
++ ]
+
+ ❯ src/graphs/compgeo/tmpProbe.host.test.tsx:81:17
+     79|     clickButton(exampleButton('square')); snap('square');
+     80|     clickButton(exampleButton('trapezoid')); snap('trap');
+     81|     expect(out).toEqual([]);
+       |                 ^
+     82| });
+     83|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  05:20:35
+   Duration  11.43s (transform 61%, import 17%, environment 12%, setup 5%, tests 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

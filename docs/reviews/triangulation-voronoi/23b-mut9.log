@@ -1,0 +1,10 @@
+mutation 9: src/localization/sl.ts: 'zato so celice pasovi med vzporednimi simetralami; triangulacije ni' -> 'zato so celice pasovi med vzporednimi simetralami'
+unit: failed (1) in 10.4s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-46-16-312Z-30456-39d499d9.log
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1137ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > step 5 shows four lines, no vertices and the collinear message (no triangulation, parallel strips) in both languages
+AssertionError: sl triangulacije ni: expected 'Vsa mesta ležijo na isti premici, zat…' to contain 'triangulacije ni'
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored
