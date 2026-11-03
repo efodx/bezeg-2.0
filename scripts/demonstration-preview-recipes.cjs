@@ -42,6 +42,7 @@ const targets = {
     'interp-subdivision': ['Default control polygon with the first refinement of the subdivision curve (one Naslednji korak)', [button('Naslednji korak')]],
     'bspline-basis': ['Default clamped quadratic knot vector (0, 0, 0, 1, 2, 2, 2) with the basis functions, the knot editor and the slider at its opening parameter', [], [-0.35, 1.15, 2.35, -0.6]],
     'bspline-deboor': ['Default B-spline with its control polygon and the full de Boor triangle (two Naslednja raven) at the opening parameter', [button('Naslednja raven', 2)], [-0.45, 2.6, 4.45, -0.4]],
+    'bspline-insertion': ['Cubic B-spline with the double knot u = 2, its control polygon and the curvature comb with the jump at the double knot', [field('Primer', 'cubic', 'select')], [-0.9, 3.4, 6.9, -1.4]],
     'linear-function': ['Unchanged line with its slope triangle', [], [-0.8, 6.5, 3, -1.5]],
     'exponential-function': ['Original growth region and reference points', [], [-1.5, 5, 2.5, -0.6]],
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],

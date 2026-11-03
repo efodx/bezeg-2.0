@@ -198,6 +198,7 @@ const FIGURE_FAMILIES: Array<[string, () => GraphLike]> = [
     ['coons patch', () => createGraph('patch-coons')],
     ['b-spline basis', () => graphFactories['bspline-basis']()],
     ['de Boor', () => graphFactories['bspline-deboor']()],
+    ['B-spline insertion', () => graphFactories['bspline-insertion']()],
     ['linear map', () => graphFactories['linear-map']()],
     ['complex function', () => graphFactories['complex-reciprocal']()],
 ];
