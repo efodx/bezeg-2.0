@@ -120,6 +120,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // The Sweep-line algorithms chapter owns the monotone partition and monotone triangulation lessons (batch S2).
     'monotone-partition': {chapterId: 'sweep-algorithms', sectionId: 'monotone-partition'},
     'monotone-triangulation': {chapterId: 'sweep-algorithms', sectionId: 'monotone-triangulation'},
+    // Interim owner (sweep task 25): the same, until task 26 moves the Fortune lesson into the sweep chapter.
+    'fortune': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'interp-subdivision': {chapterId: 'interpolation', sectionId: 'subdivision'},
     // Each patch demonstration opens its canonical chapter-owned example by default.
     'patch-tensor': {chapterId: 'bezier-patches', sectionId: 'curve-to-patch'},

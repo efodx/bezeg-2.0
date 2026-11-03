@@ -1,0 +1,42 @@
+unit: failed (1) in 7.3s (2 workers, no slot); revision b6eb9dfff8790548651e192710e10b5675ba5f7a; dirty; log .command-logs\2026-11-03T12-58-07-155Z-31532-107d0fb4.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneLessonActions.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx (9 tests | 1 failed) 1438ms
+   × the finished diagram has 2 vertices, 1 finite edge and 4 rays, equals the Delaunay dual, and the counts are 2n-2-h and 3n-3-h 55ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneLessonActions.host.test.tsx > the finished diagram has 2 vertices, 1 finite edge and 4 rays, equals the Delaunay dual, and the counts are 2n-2-h and 3n-3-h
+AssertionError: expected 'ray 0,1: direction differs' to be null
+
+- Expected:
+null
+
++ Received:
+"ray 0,1: direction differs"
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx:295:53
+    293|     const dual = voronoiFromDelaunay(FORTUNE_SITES.map(([x, y]) => ({x…
+    294|     if (!dual.ok) throw new Error('the Delaunay dual refused the sites…
+    295|     expect(sameVoronoiDiagram(diagram, dual.value)).toBeNull();
+       |                                                     ^
+    296|     // The comparison is not vacuous: the dual of three of the sites d…
+    297|     const three = voronoiFromDelaunay(FORTUNE_SITES.slice(0, 3).map(([…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  13:58:07
+   Duration  6.45s (transform 32%, import 23%, tests 23%, environment 15%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

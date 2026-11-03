@@ -1,0 +1,35 @@
+unit: failed (1) in 7.6s (2 workers, no slot); revision b6eb9dfff8790548651e192710e10b5675ba5f7a; dirty; log .command-logs\2026-11-03T12-57-46-044Z-5104-24cc96e6.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneLessonActions.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx (9 tests | 1 failed) 1359ms
+   × every scene view on a 1280x720 board keeps every "continues" marker inside the board by the pixel inset, with a follow box on exact integers 93ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneLessonActions.host.test.tsx > every scene view on a 1280x720 board keeps every "continues" marker inside the board by the pixel inset, with a follow box on exact integers
+AssertionError: fortune-sites: expected -8 to be greater than or equal to -7.87741935583871
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx:344:30
+    342|         expect(minX, stepId).toBeGreaterThanOrEqual(left + insetX - 1e…
+    343|         expect(maxX, stepId).toBeLessThanOrEqual(right - insetX + 1e-9…
+    344|         expect(minY, stepId).toBeGreaterThanOrEqual(bottom + insetY - …
+       |                              ^
+    345|         expect(maxY, stepId).toBeLessThanOrEqual(top - insetY + 1e-9);
+    346|         const markers = (board.objectsList as Shown[]).filter(o => o.n…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  13:57:46
+   Duration  6.78s (transform 33%, import 24%, tests 21%, environment 15%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

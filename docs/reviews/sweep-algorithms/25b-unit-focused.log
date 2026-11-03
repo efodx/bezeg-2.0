@@ -1,0 +1,45 @@
+unit: failed (1) in 713.9s (2 workers, no slot); revision b6eb9dfff8790548651e192710e10b5675ba5f7a; dirty; log .command-logs\2026-11-03T12-44-13-621Z-20968-72c81d34.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning src/graphs/compgeo src/localization src/demonstrations.test.ts src/Routes.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/lessonMathNotation.test.ts (3 tests | 1 failed) 231ms
+   × lesson prose wraps math in MathJax delimiters and latex fields stay bare 163ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > lesson prose wraps math in MathJax delimiters and latex fields stay bare
+Error: 4 notation problem(s):
+compgeoGuidedLessons/fortune workedExamples[1].check [en] decimal comma inside math (use a point): The readout gives the sweep-line height \(y=1-\sqrt{\tfrac{65}{4}}\approx -3{,}031\), the same value; the centre \((-\tfrac12,1)\) is \(\sqrt{\tfrac14+16}\) away from the site \(A=(0,5)\).
+compgeoGuidedLessons/fortune steps[5].explanation [en] decimal comma inside math (use a point): The remaining two circle events are genuine. The circle through \(B\), \(A\), \(D\) has centre \((-\tfrac12,1)\) and \(R^2=\tfrac{65}{4}\), the circle through \(D\), \(A\), \(C\) has centre \((\tfrac12,1)\) and the same \(R^2\); neither contains another site. Both lowest points are at height \(y=1-\sqrt{\tfrac{65}{4}}\approx-3{,}031\), the sweep-line readout. The heights are equal, so the abscissa of the centre decides: \((B,A,D)\), with centre at \(x=-\tfrac12\), is first. At each event the middle arc of \(A\) vanishes, the beach line is then (step 7 of 8) \(A\), \(B\), \(D\), \(C\), \(A\), and the Voronoi vertices \((-\tfrac12,1)\) and \((\tfrac12,1)\) appear (readout: vertices \(2\) of \(2\)). Each press of Next step handles one event: step 6 of 8 shows only the first vertex.
+compgeoGuidedLessons/fortune steps[5].expectedObservations[0] [en] decimal comma inside math (use a point): The height \(y=1-\sqrt{\tfrac{65}{4}}\approx-3{,}031\), the beach line \(A\), \(B\), \(D\), \(C\), \(A\), vertices \(2\) of \(2\); in the queue only the cancelled \((B,A,C)\) remains.
+compgeoGuidedLessons/fortune steps[5].scene.expectedState [en] decimal comma inside math (use a point): Step \(7\) of \(8\): both true circle events are handled at \(y\approx-3{,}031\), the beach line is \(A\), \(B\), \(D\), \(C\), \(A\), vertices \(2\) of \(2\).
+ ❯ src/learning/content/lessonMathNotation.test.ts:206:29
+    204| test('lesson prose wraps math in MathJax delimiters and latex fields s…
+    205|     const found = findings();
+    206|     if (found.length) throw new Error(`${found.length} notation proble…
+       |                             ^
+    207| });
+    208|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 159 passed | 2 skipped (162)
+      Tests  1 failed | 2503 passed | 3 skipped (2507)
+   Start at  13:44:14
+   Duration  713.00s (tests 63%, environment 16%, import 12%, setup 7%, transform 2%)
+
+    Isolate  162 workers spawned · ~1.56s startup each (spawn + environment, per file)
+             at least ~124.76s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

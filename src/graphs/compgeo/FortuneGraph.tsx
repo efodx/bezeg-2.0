@@ -1,6 +1,8 @@
 import React from "react";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
+import type {LessonAction} from "../../learning/model";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import type {GridPoint} from "../../compgeo/grid";
 import {PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_SITES} from "../../compgeo/sweep/limits";
@@ -21,6 +23,7 @@ import {createFortuneSweepDrawing, type FortuneSweepHandle} from "./fortuneDrawi
 import {followedGridBox, visibleGridBox} from "./followBox";
 import {createVoronoiDrawing, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
 import {parseHullStep} from "./hullTraceRun";
+import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 
 /** Time between two playback steps (one step per pop group, never more). */
 export const FORTUNE_STEP_INTERVAL_MS = 400;
@@ -190,6 +193,25 @@ export class FortuneGraph extends PointSetGraph<never> {
         this.controller.reset(0);
         this.setState(this.patch({step: 0}));
         this.requestRender();
+    }
+
+    /**
+     * Lesson actions: the `algorithm-trace` animation runs the very transitions of the buttons, and `point-set`
+     * `set-trace-step` is handled here only (task sweep-algorithms/25). It pauses playback and sets the step (clamped to the
+     * trace; `'end'` is the last step). A change of the sites keeps the step like an edit does, so a scene sets its step after its sites.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation !== "set-trace-step") {
+            super.applyPointSetAction(action);
+            return;
+        }
+        this.setState(this.patch({step: this.run().clamp(requestedTraceStep(action, this.run().length))}));
+        this.requestRender();
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registerTraceCommands(registry, this);
     }
 
     /** Loads a named example at step 0; `random` draws a new set of 12 sites each time (a counting seed). */

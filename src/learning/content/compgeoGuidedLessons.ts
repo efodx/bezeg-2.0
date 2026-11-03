@@ -2485,4 +2485,221 @@ const monotoneTriangulation: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation];
+/** The sites of the lesson C5 (sweep task 25): A, B, C, D, the default example of the Fortune graph. */
+export const FORTUNE_SITES: readonly LessonPoint[] = [[0, 5], [-4, 3], [4, 3], [0, -3]];
+/** The view of every Fortune scene: the sites, the circle through A, B, C (to y = -5) and the circles of the true events (x -4.53..4.53). */
+export const FORTUNE_VIEW: LessonViewBox = [-9, 9, 9, -7];
+/**
+ * Trace steps (indices; the readout shows the index plus one of 8) that the Fortune scenes and texts quote; the lesson test derives each
+ * from the real run. 0: the queue filled; 2: the sites A and B are in (beach line A, B, A); 3: C is in and the circle (B, A, C) is scheduled;
+ * 4: D is in and the circle is cancelled; 6: both true circle events are done (both vertices); 7: the finished diagram.
+ */
+export const FORTUNE_TRACE_STEPS = {queued: 0, twoSites: 2, scheduled: 3, falseAlarm: 4, vertices: 6, done: 7} as const;
+/** A Fortune scene framed on the four sites: the sites, then the step (pauses playback). */
+const fortuneScene = (id: string, step: number | 'end', sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view: FORTUNE_VIEW, actions: [points(FORTUNE_SITES), setTraceStep(step)], expectedState: text(sl, en)});
+
+const fortune: GuidedLesson = {
+    demonstrationId: 'fortune',
+    title: text('Fortunov algoritem', 'Fortune\'s algorithm'),
+    summary: text(
+        'Pometalna premica gre od zgoraj navzdol in za seboj pušča obalno črto iz lokov parabol; ob dogodkih mest nastajajo novi loki, ob krožnih dogodkih loki izginjajo in nastajajo Voronojeva oglišča, lažni alarmi pa se prekličejo.',
+        'A sweep line goes from top to bottom and leaves behind a beach line of parabola arcs; at site events new arcs appear, at circle events arcs vanish and Voronoi vertices appear, and false alarms are cancelled.',
+    ),
+    prerequisites: [
+        text('Lekcija Voronojev diagram in dualnost (celice, oglišča, robovi) in lekcija Delaunayeva triangulacija (prazna krožnica).', 'The lesson The Voronoi diagram and duality (cells, vertices, edges) and the lesson The Delaunay triangulation (the empty circle).'),
+        text('Lekcija Pometanje intervalov (dogodki in stanje pometalne premice).', 'The lesson Sweeping intervals (events and the status of the sweep line).'),
+    ],
+    learningGoals: [
+        text('Razlikuješ pometalno premico, obalno črto, dogodek mesta in krožni dogodek ter napoveš, kje se bo ob prvem dogodku pojavil nov lok.', 'Tell the sweep line, the beach line, a site event and a circle event apart, and predict where a new arc will appear at the first event.'),
+        text('Razložiš, zakaj je krožni dogodek lahko lažni alarm: v krogu je mesto, zato srednji lok ne izgine in oglišča ni.', 'Explain why a circle event can be a false alarm: a site lies in the circle, so the middle arc does not vanish and there is no vertex.'),
+        text('Prebereš končni diagram (oglišča, končni rob, poltraki), ga povežeš z Delaunayevo triangulacijo in preveriš števili \\(2n-2-h\\) in \\(3n-3-h\\).', 'Read the finished diagram (vertices, finite edge, rays), relate it to the Delaunay triangulation, and check the numbers \\(2n-2-h\\) and \\(3n-3-h\\).'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'fortune-circle-event',
+            latex: 'y_{\\text{event}}=c_y-\\sqrt{R^2}',
+            notation: text(
+                '\\(c_y\\) je ordinata središča kroga skozi tri zaporedna mesta obalne črte, \\(R^2\\) kvadrat njegovega polmera in \\(y_{\\text{event}}\\) višina pometalne premice ob krožnem dogodku.',
+                '\\(c_y\\) is the ordinate of the centre of the circle through three consecutive sites of the beach line, \\(R^2\\) the square of its radius and \\(y_{\\text{event}}\\) the height of the sweep line at the circle event.',
+            ),
+            explanation: text(
+                'Ko se pometalna premica dotakne najnižje točke kroga \\((c_x,c_y-R)\\), se srednji lok skrči v točko; ta točka je središče kroga \\((c_x,c_y)\\), enako oddaljeno od vseh treh mest, torej Voronojevo oglišče. Dogodek je pravi samo, če v krogu ni nobenega drugega mesta; če je mesto v krogu, razdalja od njega do središča pa je manjša od \\(R\\), je dogodek lažni alarm. Središča so racionalna števila, višina \\(c_y-\\sqrt{R^2}\\) pa je v splošnem iracionalna, zato program višine primerja natančno (s kvadriranjem), ne z decimalkami. Narisana obalna črta je le približek, ki na izračun ne vpliva.',
+                'When the sweep line touches the lowest point \\((c_x,c_y-R)\\) of the circle, the middle arc shrinks to a point; that point is the centre \\((c_x,c_y)\\), equally far from all three sites, so a Voronoi vertex. The event is genuine only if no other site lies in the circle; if a site is in the circle, its distance from the centre being less than \\(R\\), the event is a false alarm. The centres are rational numbers, but the height \\(c_y-\\sqrt{R^2}\\) is in general irrational, so the program compares heights exactly (by squaring), not with decimals. The drawn beach line is only an approximation and does not affect the computation.',
+            ),
+        },
+        {
+            id: 'fortune-counts',
+            latex: 'v=2n-2-h,\\quad e=3n-3-h',
+            notation: text(
+                '\\(n\\) je število mest, \\(h\\) število mest na konveksni ovojnici, \\(v\\) število Voronojevih oglišč in \\(e\\) število robov diagrama (končnih robov in poltrakov skupaj).',
+                '\\(n\\) is the number of sites, \\(h\\) the number of sites on the convex hull, \\(v\\) the number of Voronoi vertices and \\(e\\) the number of edges of the diagram (finite edges and rays together).',
+            ),
+            explanation: text(
+                'Voronojev diagram je dual Delaunayeve triangulacije: oglišče ustreza trikotniku, rob pa robu triangulacije (končni rob notranjemu, poltrak robu ovojnice). Triangulacija \\(n\\) mest s \\(h\\) mesti na ovojnici ima po Eulerjevi formuli \\(2n-2-h\\) trikotnikov in \\(3n-3-h\\) robov, če nobeni štirje deli niso na isti krožnici. Pri \\(n=h=4\\) sta to \\(2\\) oglišči in \\(5\\) robov.',
+                'The Voronoi diagram is the dual of the Delaunay triangulation: a vertex corresponds to a triangle, an edge to an edge of the triangulation (a finite edge to an interior one, a ray to a hull edge). By Euler\'s formula a triangulation of \\(n\\) sites with \\(h\\) sites on the hull has \\(2n-2-h\\) triangles and \\(3n-3-h\\) edges, provided no four sites lie on one circle. For \\(n=h=4\\) these are \\(2\\) vertices and \\(5\\) edges.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'fortune-false-alarm-example',
+            title: text('Mesto \\(D\\) v krogu', 'The site \\(D\\) in the circle'),
+            calculationLatex: '|OD|=\\sqrt{0^2+(-3)^2}=3<5=R',
+            resultLatex: '3<5',
+            check: text(
+                'Izpis pove, da je krožni dogodek \\((B,A,C)\\) preklican kot lažni alarm: mesto \\(D\\) je od središča \\(O=(0,0)\\) oddaljeno \\(3\\), polmer kroga pa je \\(5\\).',
+                'The readout says the circle event \\((B,A,C)\\) is cancelled as a false alarm: the site \\(D\\) is \\(3\\) from the centre \\(O=(0,0)\\), and the radius of the circle is \\(5\\).',
+            ),
+        },
+        {
+            id: 'fortune-height-example',
+            title: text('Višina pravega krožnega dogodka', 'The height of a true circle event'),
+            calculationLatex: 'R^2=\\left(\\tfrac12\\right)^2+4^2=\\tfrac{65}{4},\\quad y=1-\\sqrt{\\tfrac{65}{4}}=1-\\tfrac{\\sqrt{65}}{2}\\approx-3{,}031',
+            resultLatex: 'y=1-\\tfrac{\\sqrt{65}}{2}\\approx-3{,}031',
+            check: text(
+                'Izpis navaja višino pometalne premice \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx -3{,}031\\), kar je ista vrednost; središče \\((-\\tfrac12,1)\\) je od mesta \\(A=(0,5)\\) oddaljeno za \\(\\sqrt{\\tfrac14+16}\\).',
+                'The readout gives the sweep-line height \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx -3.031\\), the same value; the centre \\((-\\tfrac12,1)\\) is \\(\\sqrt{\\tfrac14+16}\\) away from the site \\(A=(0,5)\\).',
+            ),
+        },
+        {
+            id: 'fortune-count-example',
+            title: text('Števili oglišč in robov', 'The numbers of vertices and edges'),
+            calculationLatex: 'v=2\\cdot 4-2-4=2,\\quad e=3\\cdot 4-3-4=5',
+            resultLatex: 'v=2,\\ e=5',
+            check: text(
+                'Končni diagram ima \\(2\\) oglišči in \\(5\\) robov: en končni rob in štiri poltrake; vsa štiri mesta so na ovojnici, \\(h=4\\).',
+                'The finished diagram has \\(2\\) vertices and \\(5\\) edges: one finite edge and four rays; all four sites are on the hull, \\(h=4\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'fortune-sites', order: 1,
+            title: text('Mesta in pometalna premica', 'The sites and the sweep line'),
+            purpose: text('Spoznati štiri mesta, pometalno premico nad njimi in vrsto dogodkov.', 'Meeting the four sites, the sweep line above them and the event queue.'),
+            explanation: text(
+                'Mesta so \\(A=(0,5)\\), \\(B=(-4,3)\\), \\(C=(4,3)\\) in \\(D=(0,-3)\\). Vodoravna pometalna premica je nad vsemi mesti (izpis: „Korak 1 od 8“) in se bo spuščala. Za njo ostaja obalna črta: spodnja ovojnica parabol z žarišči v že obdelanih mestih in z vodnico na pometalni premici. Pike na njej so presečišča sosednjih lokov in zarisujejo robove Voronojevega diagrama. Vrsta dogodkov ima za zdaj samo dogodke mest po višini: \\(A\\), \\(B\\), \\(C\\), \\(D\\); mesti na enaki višini obdelamo od leve proti desni, zato je \\(B\\) pred \\(C\\). Krožni dogodki se v vrsti pojavijo šele med delom.',
+                'The sites are \\(A=(0,5)\\), \\(B=(-4,3)\\), \\(C=(4,3)\\) and \\(D=(0,-3)\\). The horizontal sweep line is above all the sites (readout: "Step 1 of 8") and will move down. Behind it a beach line remains: the lower envelope of parabolas whose foci are the sites already handled and whose directrix is the sweep line. The dots on it are the breakpoints of neighbouring arcs, and they trace the edges of the Voronoi diagram. For now the event queue holds only site events in order of height: \\(A\\), \\(B\\), \\(C\\), \\(D\\); sites at the same height are handled from left to right, so \\(B\\) comes before \\(C\\). Circle events appear in the queue only during the run.',
+            ),
+            formulaIds: ['fortune-circle-event'],
+            frames: [frame('fortune-sites-explanation', 'explanation'), frame('fortune-sites-observation', 'observation')],
+            observationPrompt: text('V vrsti dogodkov preberi vrstni red mest in preveri, da je obalna črta še prazna.', 'In the event queue read the order of the sites and check that the beach line is still empty.'),
+            expectedObservations: [text('Vrsta je \\(A\\), \\(B\\), \\(C\\), \\(D\\); obalna črta je prazna, oglišč je \\(0\\) od \\(2\\).', 'The queue is \\(A\\), \\(B\\), \\(C\\), \\(D\\); the beach line is empty, vertices \\(0\\) of \\(2\\).')],
+            scene: fortuneScene('fortune-sites', FORTUNE_TRACE_STEPS.queued,
+                'Korak \\(1\\) od \\(8\\): pometalna premica je nad vsemi mesti, obalna črta je prazna, vrsta je \\(A\\), \\(B\\), \\(C\\), \\(D\\).',
+                'Step \\(1\\) of \\(8\\): the sweep line is above all the sites, the beach line is empty, the queue is \\(A\\), \\(B\\), \\(C\\), \\(D\\).'),
+        },
+        {
+            id: 'fortune-predict', order: 2,
+            title: text('Napovej prvi lok', 'Predict the first arc'),
+            purpose: text('Pred prvim korakom napovedati, kje bo pometalna premica ustvarila prvi lok.', 'Predicting, before the first step, where the sweep line will create the first arc.'),
+            explanation: text(
+                'Premica se ustavlja samo pri dogodkih. Preden pritisneš Naslednji korak, napovej: pri katerem mestu in na kateri višini \\(y\\) bo nastal prvi lok in kakšna bo potem obalna črta? Namig: premica se spušča in zato najprej zadene najvišje mesto. Še nič ni prikazano, izpis je enak kot pri prejšnjem koraku.',
+                'The line stops only at events. Before you press Next step, predict: at which site and at which height \\(y\\) will the first arc appear, and what will the beach line look like then? Hint: the line moves down, so it meets the highest site first. Nothing new is shown yet; the readout is the same as in the previous step.',
+            ),
+            formulaIds: ['fortune-circle-event'],
+            frames: [frame('fortune-predict-explanation', 'explanation'), frame('fortune-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši napoved: pri katerem mestu nastane prvi lok in kakšna je obalna črta po tem dogodku?', 'Write down your prediction: at which site does the first arc appear and what is the beach line after that event?'),
+            expectedObservations: [text('Prikazano je še začetno stanje: korak \\(1\\) od \\(8\\), obalna črta prazna; po prvem koraku bo obalna črta samo lok mesta \\(A\\) pri \\(y=5\\).', 'The starting state is still shown: step \\(1\\) of \\(8\\), the beach line empty; after the first step the beach line will be only the arc of \\(A\\) at \\(y=5\\).')],
+            scene: fortuneScene('fortune-predict', FORTUNE_TRACE_STEPS.queued,
+                'Korak \\(1\\) od \\(8\\): obalna črta je prazna, prvi lok še ni prikazan.',
+                'Step \\(1\\) of \\(8\\): the beach line is empty, the first arc is not shown yet.'),
+        },
+        {
+            id: 'fortune-site-events', order: 3,
+            title: text('Dogodki mest: novi loki', 'Site events: new arcs'),
+            purpose: text('Videti, da dogodek mesta doda lok in da obalna črta nastaja iz lokov parabol.', 'Seeing that a site event adds an arc and that the beach line is made of parabola arcs.'),
+            explanation: text(
+                'Po prvem koraku je obalna črta samo lok mesta \\(A\\) pri \\(y=5\\). Izpis „Korak 3 od 8“ pokaže stanje po dogodku mesta \\(B\\): pri \\(y=3\\) leži \\(B\\) pod lokom mesta \\(A\\) in ga razcepi, zato je obalna črta (od leve proti desni) \\(A\\), \\(B\\), \\(A\\). Lok mesta \\(B\\) se začne kot točka; od nje se razmikata dve presečišči lokov, obe na simetrali \\(AB\\), in zarisujeta začetek tega roba. Obalna črta je na grafu narisana približno (vzorčeni loki parabol), vsa števila v izpisu in končni diagram pa so natančni.',
+                'After the first step the beach line is only the arc of \\(A\\) at \\(y=5\\). The readout "Step 3 of 8" shows the state after the site event of \\(B\\): at \\(y=3\\) the site \\(B\\) lies below the arc of \\(A\\) and splits it, so the beach line (from left to right) is \\(A\\), \\(B\\), \\(A\\). The arc of \\(B\\) starts as a point; two breakpoints, both on the bisector of \\(AB\\), move apart from it and trace the start of this edge. The beach line is drawn approximately on the graph (sampled parabola arcs), while all the numbers in the readout and the finished diagram are exact.',
+            ),
+            formulaIds: ['fortune-circle-event'],
+            frames: [frame('fortune-site-events-explanation', 'explanation'), frame('fortune-site-events-observation', 'observation')],
+            observationPrompt: text('Preberi obalno črto in višino pometalne premice ter preštej loke.', 'Read the beach line and the height of the sweep line, and count the arcs.'),
+            expectedObservations: [text('Obalna črta je \\(A\\), \\(B\\), \\(A\\), višina \\(y=3\\), oglišč še ni (\\(0\\) od \\(2\\)).', 'The beach line is \\(A\\), \\(B\\), \\(A\\), the height is \\(y=3\\), there are no vertices yet (\\(0\\) of \\(2\\)).')],
+            scene: fortuneScene('fortune-site-events', FORTUNE_TRACE_STEPS.twoSites,
+                'Korak \\(3\\) od \\(8\\): obdelana sta \\(A\\) in \\(B\\), \\(y=3\\), obalna črta je \\(A\\), \\(B\\), \\(A\\).',
+                'Step \\(3\\) of \\(8\\): \\(A\\) and \\(B\\) are handled, \\(y=3\\), the beach line is \\(A\\), \\(B\\), \\(A\\).'),
+        },
+        {
+            id: 'fortune-circle-scheduled', order: 4,
+            title: text('Načrtovan krožni dogodek', 'A scheduled circle event'),
+            purpose: text('Videti, da trije zaporedni loki določijo krog in da se krožni dogodek zgodi v njegovi najnižji točki.', 'Seeing that three consecutive arcs determine a circle and that the circle event happens at its lowest point.'),
+            explanation: text(
+                'Dogodek mesta \\(C\\) (korak 4 od 8) doda lok in obalna črta je \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\). Zdaj so zaporedni loki \\(B\\), \\(A\\), \\(C\\): njihova mesta ležijo na krogu s središčem \\((0,0)\\) in polmerom \\(R=5\\), saj je \\(|OA|=|OB|=|OC|=5\\). Če se srednji lok \\(A\\) skrči v točko, bo ta točka središče \\((0,0)\\), pometalna premica pa takrat v najnižji točki kroga, na višini \\(y=-5\\). Zato je v vrsti načrtovan krožni dogodek \\((B,A,C)\\). Vrsta ima dogodek mesta \\(D\\) pred njim, ker premica pride do \\(y=-3\\) prej kot do \\(y=-5\\). Na grafu je načrtovani krog narisan s polno črto in z rombom v najnižji točki.',
+                'The site event of \\(C\\) (step 4 of 8) adds an arc and the beach line is \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\). Now the arcs \\(B\\), \\(A\\), \\(C\\) are consecutive: their sites lie on the circle with centre \\((0,0)\\) and radius \\(R=5\\), since \\(|OA|=|OB|=|OC|=5\\). If the middle arc \\(A\\) shrinks to a point, that point will be the centre \\((0,0)\\), and the sweep line will then be at the lowest point of the circle, at height \\(y=-5\\). So the circle event \\((B,A,C)\\) is scheduled in the queue. The queue has the site event of \\(D\\) before it, because the line reaches \\(y=-3\\) before \\(y=-5\\). On the graph the scheduled circle is drawn solid, with a diamond at its lowest point.',
+            ),
+            formulaIds: ['fortune-circle-event'],
+            frames: [frame('fortune-circle-scheduled-explanation', 'explanation'), frame('fortune-circle-scheduled-observation', 'observation')],
+            observationPrompt: text('Preberi obalno črto in vrsto dogodkov in poišči krog skozi \\(B\\), \\(A\\), \\(C\\).', 'Read the beach line and the event queue and find the circle through \\(B\\), \\(A\\), \\(C\\).'),
+            expectedObservations: [text('Obalna črta je \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\); vrsta je mesto \\(D\\), nato krožni dogodek \\((B,A,C)\\); krog ima središče \\((0,0)\\), \\(R=5\\), najnižja točka je pri \\(y=-5\\).', 'The beach line is \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\); the queue is the site \\(D\\), then the circle event \\((B,A,C)\\); the circle has centre \\((0,0)\\), \\(R=5\\), its lowest point is at \\(y=-5\\).')],
+            scene: fortuneScene('fortune-circle-scheduled', FORTUNE_TRACE_STEPS.scheduled,
+                'Korak \\(4\\) od \\(8\\): obalna črta je \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\); v vrsti sta mesto \\(D\\) in krožni dogodek \\((B,A,C)\\).',
+                'Step \\(4\\) of \\(8\\): the beach line is \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\); the queue has the site \\(D\\) and the circle event \\((B,A,C)\\).'),
+        },
+        {
+            id: 'fortune-false-alarm', order: 5,
+            title: text('Lažni alarm', 'A false alarm'),
+            purpose: text('Razumeti, zakaj mesto v krogu prekliče krožni dogodek.', 'Understanding why a site in the circle cancels the circle event.'),
+            explanation: text(
+                'Premica pride do \\(y=-3\\) in obdela mesto \\(D=(0,-3)\\) (korak 5 od 8). Mesto \\(D\\) leži v krogu s središčem \\((0,0)\\) in polmerom \\(5\\), ker je od središča oddaljeno \\(3<5\\). Lok mesta \\(D\\) razcepi lok mesta \\(A\\), ki naj bi izginil, zato \\(B\\), \\(A\\), \\(C\\) niso več zaporedni loki (obalna črta je \\(A\\), \\(B\\), \\(A\\), \\(D\\), \\(A\\), \\(C\\), \\(A\\)). Krožni dogodek \\((B,A,C)\\) je lažni alarm: preklican je, ker krog ni več prazen, in v \\((0,0)\\) ne nastane oglišče, saj je mesto \\(D\\) središču bliže kot \\(5\\). Na grafu je preklicani krog črtkan, v vrsti je prečrtan. Namesto njega sta načrtovana nova kroga \\((B,A,D)\\) in \\((D,A,C)\\).',
+                'The line reaches \\(y=-3\\) and handles the site \\(D=(0,-3)\\) (step 5 of 8). The site \\(D\\) lies in the circle with centre \\((0,0)\\) and radius \\(5\\), because its distance from the centre is \\(3<5\\). The arc of \\(D\\) splits the arc of \\(A\\) that was supposed to vanish, so \\(B\\), \\(A\\), \\(C\\) are no longer consecutive arcs (the beach line is \\(A\\), \\(B\\), \\(A\\), \\(D\\), \\(A\\), \\(C\\), \\(A\\)). The circle event \\((B,A,C)\\) is a false alarm: it is cancelled because the circle is no longer empty, and no vertex appears at \\((0,0)\\), since the site \\(D\\) is nearer to that point than \\(5\\). On the graph the cancelled circle is dashed, and in the queue it is struck through. Two new circles \\((B,A,D)\\) and \\((D,A,C)\\) are scheduled instead.',
+            ),
+            formulaIds: ['fortune-circle-event'], workedExampleId: 'fortune-false-alarm-example',
+            frames: [frame('fortune-false-alarm-explanation', 'explanation'), frame('fortune-false-alarm-calculation', 'calculation'), frame('fortune-false-alarm-observation', 'observation')],
+            observationPrompt: text('Poišči preklicani krog in preberi opombo o lažnem alarmu; preveri, katero mesto je v krogu.', 'Find the cancelled circle and read the note about the false alarm; check which site is in the circle.'),
+            expectedObservations: [text('Opomba pravi, da je krožni dogodek \\((B,A,C)\\) preklican; obalna črta je \\(A\\), \\(B\\), \\(A\\), \\(D\\), \\(A\\), \\(C\\), \\(A\\), \\(y=-3\\); v vrsti sta \\((B,A,D)\\) in \\((D,A,C)\\) ter preklicani \\((B,A,C)\\).', 'The note says the circle event \\((B,A,C)\\) is cancelled; the beach line is \\(A\\), \\(B\\), \\(A\\), \\(D\\), \\(A\\), \\(C\\), \\(A\\), \\(y=-3\\); the queue has \\((B,A,D)\\) and \\((D,A,C)\\), and the cancelled \\((B,A,C)\\).')],
+            scene: fortuneScene('fortune-false-alarm', FORTUNE_TRACE_STEPS.falseAlarm,
+                'Korak \\(5\\) od \\(8\\): obdelano je \\(D\\), \\(y=-3\\), krožni dogodek \\((B,A,C)\\) je preklican kot lažni alarm, oglišč še ni (\\(0\\) od \\(2\\)).',
+                'Step \\(5\\) of \\(8\\): \\(D\\) is handled, \\(y=-3\\), the circle event \\((B,A,C)\\) is cancelled as a false alarm, there are no vertices yet (\\(0\\) of \\(2\\)).'),
+        },
+        {
+            id: 'fortune-true-events', order: 6,
+            title: text('Pravi krožni dogodki', 'The true circle events'),
+            purpose: text('Videti, da srednji lok izgine in da pri tem nastane Voronojevo oglišče.', 'Seeing that the middle arc vanishes and that a Voronoi vertex appears.'),
+            explanation: text(
+                'Preostala krožna dogodka sta pravi. Krog skozi \\(B\\), \\(A\\), \\(D\\) ima središče \\((-\\tfrac12,1)\\) in \\(R^2=\\tfrac{65}{4}\\), krog skozi \\(D\\), \\(A\\), \\(C\\) pa središče \\((\\tfrac12,1)\\) in enak \\(R^2\\); v nobenem ni drugega mesta. Najnižji točki obeh sta na višini \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx-3{,}031\\), kar je izpis pometalne premice. Višini sta enaki, zato odloči abscisa središča: prvi je \\((B,A,D)\\) s središčem pri \\(x=-\\tfrac12\\). Pri vsakem dogodku srednji lok \\(A\\) izgine, obalna črta je potem (korak 7 od 8) \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), in nastaneta Voronojevi oglišči \\((-\\tfrac12,1)\\) in \\((\\tfrac12,1)\\) (izpis: oglišč \\(2\\) od \\(2\\)). Vsak pritisk Naslednji korak obdela en dogodek: korak 6 od 8 pokaže samo prvo oglišče.',
+                'The remaining two circle events are genuine. The circle through \\(B\\), \\(A\\), \\(D\\) has centre \\((-\\tfrac12,1)\\) and \\(R^2=\\tfrac{65}{4}\\), the circle through \\(D\\), \\(A\\), \\(C\\) has centre \\((\\tfrac12,1)\\) and the same \\(R^2\\); neither contains another site. Both lowest points are at height \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx-3.031\\), the sweep-line readout. The heights are equal, so the abscissa of the centre decides: \\((B,A,D)\\), with centre at \\(x=-\\tfrac12\\), is first. At each event the middle arc of \\(A\\) vanishes, the beach line is then (step 7 of 8) \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), and the Voronoi vertices \\((-\\tfrac12,1)\\) and \\((\\tfrac12,1)\\) appear (readout: vertices \\(2\\) of \\(2\\)). Each press of Next step handles one event: step 6 of 8 shows only the first vertex.',
+            ),
+            formulaIds: ['fortune-circle-event'], workedExampleId: 'fortune-height-example',
+            frames: [frame('fortune-true-events-explanation', 'explanation'), frame('fortune-true-events-calculation', 'calculation'), frame('fortune-true-events-observation', 'observation')],
+            observationPrompt: text('Preberi višino pometalne premice, obalno črto in število oglišč; primerjaj z vrednostmi, ki jih pove besedilo.', 'Read the height of the sweep line, the beach line and the number of vertices; compare them with the values given in the text.'),
+            expectedObservations: [text('Višina \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx-3{,}031\\), obalna črta \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), oglišč \\(2\\) od \\(2\\); v vrsti je samo še preklicani \\((B,A,C)\\).', 'The height \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx-3.031\\), the beach line \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), vertices \\(2\\) of \\(2\\); in the queue only the cancelled \\((B,A,C)\\) remains.')],
+            scene: fortuneScene('fortune-true-events', FORTUNE_TRACE_STEPS.vertices,
+                'Korak \\(7\\) od \\(8\\): oba prava krožna dogodka sta obdelana pri \\(y\\approx-3{,}031\\), obalna črta je \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), oglišči sta \\(2\\) od \\(2\\).',
+                'Step \\(7\\) of \\(8\\): both true circle events are handled at \\(y\\approx-3.031\\), the beach line is \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), vertices \\(2\\) of \\(2\\).'),
+        },
+        {
+            id: 'fortune-diagram', order: 7,
+            title: text('Končni diagram in prosto raziskovanje', 'The finished diagram and free exploration'),
+            purpose: text('Prebrati končni diagram, ga povezati z Delaunayevo triangulacijo in preizkusiti algoritem na svojih mestih.', 'Reading the finished diagram, relating it to the Delaunay triangulation and trying the algorithm on sites of your own.'),
+            explanation: text(
+                'Ob koncu (korak 8 od 8) se obalna črta umakne in prikaže se končni Voronojev diagram: \\(2\\) oglišči \\((-\\tfrac12,1)\\) in \\((\\tfrac12,1)\\), en končni rob (del premice \\(y=1\\) med njima, simetrala daljice \\(AD\\)) in \\(4\\) poltraki, skupaj \\(5\\) robov: \\(2n-2-h=2\\) in \\(3n-3-h=5\\) pri \\(n=h=4\\). Diagram je natanko dual Delaunayeve triangulacije istih mest: oglišči ustrezata trikotnikoma \\(ABD\\) in \\(ACD\\), katerih očrtana kroga sta prazna, ostali trojici \\(ABC\\) in \\(BCD\\) pa imata v krogu mesto. Izračun je natančen (celoštevilska mesta, racionalna središča, natančno primerjanje višin); le obalna črta med korakoma je narisana približno. Premikaj mesta (do \\(12\\)) in pritiskaj Naslednji korak: sled se izračuna znova, korak se ohrani, če ga nova sled še ima. Enaka mesta se zavrnejo s sporočilom.',
+                'At the end (step 8 of 8) the beach line is withdrawn and the finished Voronoi diagram appears: \\(2\\) vertices \\((-\\tfrac12,1)\\) and \\((\\tfrac12,1)\\), one finite edge (the part of the line \\(y=1\\) between them, the bisector of the segment \\(AD\\)) and \\(4\\) rays, \\(5\\) edges in all: \\(2n-2-h=2\\) and \\(3n-3-h=5\\) for \\(n=h=4\\). The diagram is exactly the dual of the Delaunay triangulation of the same sites: the vertices correspond to the triangles \\(ABD\\) and \\(ACD\\), whose circumcircles are empty, while the other triples \\(ABC\\) and \\(BCD\\) have a site in their circle. The computation is exact (integer sites, rational centres, exact comparison of heights); only the beach line between the steps is drawn approximately. Move the sites (up to \\(12\\)) and press Next step: the trace is computed again, and the step is kept if the new trace still has it. Coinciding sites are refused with a message.',
+            ),
+            formulaIds: ['fortune-counts'], workedExampleId: 'fortune-count-example',
+            frames: [frame('fortune-diagram-explanation', 'explanation'), frame('fortune-diagram-calculation', 'calculation'), frame('fortune-diagram-observation', 'observation')],
+            observationPrompt: text('Preštej oglišča, končne robove in poltrake in jih primerjaj z \\(2n-2-h\\) in \\(3n-3-h\\); nato premakni eno mesto in napovej, ali se bo število oglišč spremenilo.', 'Count the vertices, finite edges and rays and compare them with \\(2n-2-h\\) and \\(3n-3-h\\); then move one site and predict whether the number of vertices will change.'),
+            expectedObservations: [text('Končni diagram: \\(2\\) oglišči, \\(1\\) končni rob, \\(4\\) poltraki, torej \\(5\\) robov; korak \\(8\\) od \\(8\\).', 'The finished diagram: \\(2\\) vertices, \\(1\\) finite edge, \\(4\\) rays, so \\(5\\) edges; step \\(8\\) of \\(8\\).')],
+            scene: fortuneScene('fortune-diagram', 'end',
+                'Korak \\(8\\) od \\(8\\): končni diagram z \\(2\\) ogliščema, \\(1\\) končnim robom in \\(4\\) poltraki.',
+                'Step \\(8\\) of \\(8\\): the finished diagram with \\(2\\) vertices, \\(1\\) finite edge and \\(4\\) rays.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-fortune', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Section 7.2 (Fortune\'s algorithm).'},
+        {
+            id: 'bezeg-fortune-implementation',
+            citation: 'Bezeg source: src/compgeo/sweep/fortune.ts, src/graphs/compgeo/fortuneRun.ts and src/graphs/compgeo/FortuneGraph.tsx.',
+            implementationCorrespondence: 'The kernel keeps the beach line as an ordered list of arcs given by site indices and decides which arc lies above a new site by exact comparison of the site with the breakpoints. A circle event is queued for three consecutive arcs, keyed by the exact height centre minus root of the squared radius, ties broken by the abscissa of the centre; a site that splits an arc cancels the circle events of that arc. The vertices are the circle centres, equal to those of the Delaunay dual. The drawn beach line is a double-precision polyline for display only and never feeds back.',
+        },
+    ],
+    edgeCases: [
+        text('Mesti na enaki višini obdelamo od leve proti desni; pri enakih višinah krožnih dogodkov odloči abscisa središča. Enaki mesti se zavrnejo s sporočilom.', 'Sites at the same height are handled from left to right; for equal heights of circle events the abscissa of the centre decides. Coinciding sites are refused with a message.'),
+        text('Kolinearna mesta dajo vzporedne premice namesto oglišč; štiri mesta na isti krožnici dajo eno oglišče stopnje \\(4\\) (primera sta na gumbih Primeri mest).', 'Collinear sites give parallel lines instead of vertices; four sites on one circle give one vertex of degree \\(4\\) (both are among the example buttons).'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation, fortune];

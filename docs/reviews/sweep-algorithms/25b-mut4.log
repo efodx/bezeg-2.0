@@ -1,0 +1,45 @@
+unit: failed (1) in 7.2s (2 workers, no slot); revision b6eb9dfff8790548651e192710e10b5675ba5f7a; dirty; log .command-logs\2026-11-03T12-58-37-321Z-28588-febf8e42.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/FortuneLessonActions.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx (9 tests | 1 failed) 1420ms
+   × set-trace-step clamps a number like a stored Preset step, and end is the last step 168ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/FortuneLessonActions.host.test.tsx > set-trace-step clamps a number like a stored Preset step, and end is the last step
+AssertionError: expected { initialized: true, …(3) } to match object { step: 7 }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "step": 7,
++   "step": 99,
+  }
+
+ ❯ src/graphs/compgeo/FortuneLessonActions.host.test.tsx:104:25
+    102|     expect([stepAfter(5), stepAfter(999), stepAfter(-3), stepAfter(2.9…
+    103|     expect(last).toBe(FORTUNE_TRACE_STEPS.done);
+    104|     expect(graph.state).toMatchObject({step: last});
+       |                         ^
+    105|     expect(stepAfter('end')).toBe(7);
+    106|     expect(() => graph.run1(traceStep(Number.NaN))).toThrow('set-trace…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  13:58:37
+   Duration  6.49s (transform 32%, import 23%, tests 22%, environment 15%, setup 7%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
