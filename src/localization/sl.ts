@@ -3061,6 +3061,7 @@ export const sl = {
     "prob_density_invalid_bound": "polje {value0} mora biti število med −{value1} in {value1}; popravi vrednost v datoteki",
     "probability_and_statistics": "Verjetnost in statistika",
     "prob_density_title": "Gostota in verjetnost kot ploščina",
+    "prompt_prob_binomial_normal": "Spreminjaj n in p ter opazuj, kako se stolpci binomske porazdelitve približujejo normalni krivulji. Kdaj je približek dober in zakaj pri meji k pomaga popravek za zveznost?",
     "prompt_prob_density": "Premikaj krajišči a in b ter spreminjaj μ in σ. Kolikšen delež ploščine pod krivuljo leži med μ − σ in μ + σ in zakaj se ta delež ne spremeni, ko krivulja zdrsne ali se splošči?",
     "prob_binomial_title": "Od binomske k normalni porazdelitvi",
     "prob_binomial_example_label": "Primer",

@@ -185,7 +185,7 @@ test('every active demonstration route has an available lesson unless it opts ou
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
     // The quadrature, monotone-partition and monotone-triangulation (lessons in sweep tasks 19 and 20) ids ship without a lesson; the density lesson P1, the Delaunay lesson B3, the least-squares lesson I4, the inversion lesson T5 and the projective lessons K4 and K5 ended their opt-outs.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['quadrature', 'monotone-partition', 'monotone-triangulation']);
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['quadrature', 'prob-binomial-normal', 'monotone-partition', 'monotone-triangulation']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

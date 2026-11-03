@@ -3062,6 +3062,7 @@ export const en: Record<keyof typeof sl, string> = {
     "prob_density_invalid_bound": "the {value0} field must be a number between −{value1} and {value1}; correct the value in the file",
     "probability_and_statistics": "Probability and statistics",
     "prob_density_title": "Density and probability as area",
+    "prompt_prob_binomial_normal": "Change n and p and watch the binomial bars approach the normal curve. When is the approximation good, and why does the continuity correction help at the threshold k?",
     "prompt_prob_density": "Drag the ends a and b and change μ and σ. What share of the area under the curve lies between μ − σ and μ + σ, and why does it not change when the curve slides or flattens?",
     "prob_binomial_title": "From binomial to normal",
     "prob_binomial_example_label": "Example",
