@@ -1,0 +1,17 @@
+# Functions/projective aesthetic review
+
+Handler synthesis of the fresh reviewer's [completed evidence and handoff](functions-handoff.md). All 14 lessons were inspected at opening, midpoint and terminal scenes at 1440×1000. The worker captured 252 frames during navigation; those were not all individually reviewed. Three contact sheets cover the 42 sampled scenes: [1](evidence/functions/functions-contact-1.png), [2](evidence/functions/functions-contact-2.png), [3](evidence/functions/functions-contact-3.png). Exact route/progress coverage is in the handoff.
+
+## Ranked candidates
+
+1. **Euler method — stronger candidate, medium-high confidence.** In the middle scene (step 4/7, frame 1/2), repeated sage slope glyphs cover almost the entire board. Their color is related to the solid green solution trace, so a background construction becomes the main visual texture. The blue dashed trace is distinguishable, but the small central comparison lacks emphasis. Try a paler field and a clearer stroke hierarchy for the two solution traces. [Middle graph](evidence/functions/euler-method-middle.png), [opening](evidence/functions/euler-method-opening.png), [terminal](evidence/functions/euler-method-terminal.png), [workspace](evidence/functions/euler-method-workspace.png). The handler directly inspected the middle capture; color alone does not establish which mathematical solution a trace represents.
+
+2. **Pascal — medium-high confidence.** Across the sampled scenes, orange secants, ochre points and the small green conic compete with the blue Pascal line. Secondary construction receives too much warm emphasis. Soften supporting lines and keep the defining points and Pascal line clear. This expands the earlier mobile-clutter finding into a desktop color/hierarchy observation. [Middle graph](evidence/functions/projective-pascal-middle.png), [opening](evidence/functions/projective-pascal-opening.png), [terminal](evidence/functions/projective-pascal-terminal.png), [workspace](evidence/functions/projective-pascal-workspace.png).
+
+3. **Fourier coefficients — mild preference, medium confidence.** The terminal scene (step 14/14, frame 2/2) layers nearby blue, green and ochre curves. The legend provides meaning and the scene remains understandable; this is a weaker opportunity for luminance/stroke separation rather than a strong claim that the palette is unattractive. Preserve sign and spectral mappings. [Terminal graph](evidence/functions/fourier-coefficients-terminal.png), [opening](evidence/functions/fourier-coefficients-opening.png), [middle](evidence/functions/fourier-coefficients-middle.png), [workspace](evidence/functions/fourier-coefficients-workspace.png).
+
+## Stronger comparisons and limits
+
+[Function transformation](evidence/functions/strong-function-transformation-opening.png) uses one forest curve and an ochre point with an obvious focal object. [Pole-polar, middle](evidence/functions/strong-projective-pole-polar-middle.png) separates a green conic, blue polar and quieter tangents; [opening](evidence/functions/strong-projective-pole-polar-opening.png) is another reference.
+
+These are qualitative aesthetic judgments. No mobile, projector, accessibility or new interaction pass was performed. The worker hid only `.guided-lesson-layer` while capturing, restored it before navigation, and closed Chromium. It returned a handoff at its turn boundary before writing this report. The handler normalized its mistakenly named artifact folder, reviewed the evidence and wrote this synthesis. No app styling or scene was changed.

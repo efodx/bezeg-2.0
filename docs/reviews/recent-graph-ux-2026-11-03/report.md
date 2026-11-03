@@ -4,6 +4,8 @@ Method: independent A/B browser review (A: three family reviewers and two focuse
 
 The desktop graphs generally look coherent and usable: large boards, restrained colors and useful mathematical readouts. The clearest problems are mobile projective composition and visual separation inside busy constructions. No persistent functional control failure was confirmed in the exercised flows.
 
+For qualitative color choices across opening, middle and final lesson scenes, see the subsequent [palette and visual-appeal critique](../graph-aesthetics-2026-11-03/report.md). Its fresh reviewers identify weaker-looking examples that this defect-oriented pass did not surface.
+
 Six reviewers were requested as GPT-6 Luna at maximum effort. All **45 included finalized lessons** reached their final frames: 18 geometry, 14 functions/projective and 13 curves/probability/maps. This establishes walkthrough coverage; control coverage is limited to the recorded actions. The frozen production target was `d2a3b6465f541c687811692f4ae1b3f720483141`, selected from the rolling window **30 October, 20:05 CET–3 November, 20:05 CET**. Ongoing batches were excluded. See [scope and dispatch evidence](scope.md).
 
 ## Prioritized graph findings
