@@ -38,8 +38,8 @@ Written 2026-11-03 by handler 38 (Opus 5.5, auto, effort medium). Continues [han
 
 ## Risks and lessons
 
-- **Measure compgeo overlays in the browser at the point limit.** jsdom hid this 16 s stall, because no layout means no `offsetWidth` cost. The probe scripts are in `C:\Users\1337Hacker\.claude\jobs\32081cc6\tmp\probe\`: `probe.cjs` times press and moves; `probe2.cjs`, `top.cjs` and `stacks.cjs` take a CPU profile and print its top frames and stacks. This job folder disappears with the job, so copy them if they are needed.
-- The perf script from 21c is `C:\Users\1337Hacker\.claude\jobs\32081cc6\tmp\smoke21c\perf.cjs`, which may also vanish. Its method is in [21c-smoke.md](../../triangulation-voronoi/21c-smoke.md).
+- **Measure compgeo overlays in the browser at the point limit.** jsdom hid this 16 s stall, because no layout means no `offsetWidth` cost. The probe scripts are in [`21d-probe/`](../../triangulation-voronoi/21d-probe/): `probe.cjs` times press and moves; `probe2.cjs`, `top.cjs` and `stacks.cjs` take a CPU profile and print its top frames and stacks.
+- The 21c perf script is there as `perf.cjs` (method in [21c-smoke.md](../../triangulation-voronoi/21c-smoke.md)). The scripts take `node_modules/playwright` from the stream worktree and a preview on port 4313.
 - Lesson workers ran out at 135k with about half the slice done (22). For a lesson plus actions plus a chapter section, split the brief in two from the start: actions and lesson, then section and tests.
 - Workers in agent worktrees have no `node_modules` for `just build` (the CSS import path). Have the handler build after copying the diff, or give the worker a junction (`node -e "fs.symlinkSync(target,'node_modules','junction')"`).
 - The preview from `just preview 4313` was started by this handler. Stop it at handoff (the successor starts its own).
