@@ -7,7 +7,7 @@ import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/Prese
 import {parseHullStep} from "./hullTraceRun";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 
-/** The file contract key of the Fortune graph's Preset collection. Not registered in `presetCollections`: the route that first uses the graph (task 24) does that. */
+/** The file contract key of the Fortune graph's Preset collection. Registered in `compgeoPresetCollections` (sweep task 24). */
 export const FORTUNE_PRESET_KEY = "compgeo-fortune";
 export const FORTUNE_OVERLAY_IDS = ["grid"] as const;
 

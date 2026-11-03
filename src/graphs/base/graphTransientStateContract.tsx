@@ -77,6 +77,7 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'segment-intersections': ['model'],
     'monotone-partition': ['model'],
     'monotone-triangulation': ['model'],
+    'fortune': ['model'],
     'triangle-centres': ['model'],
     'inscribed-angle': ['model'],
     'euler-line': ['model'],

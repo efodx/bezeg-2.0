@@ -10,6 +10,7 @@ import {IntervalSweepGraph} from './compgeo/IntervalSweepGraph';
 import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './compgeo/MonotoneTriangulationGraph';
+import {FortuneGraph} from './compgeo/FortuneGraph';
 import { BernsteinGraph } from './bernstein/BernsteinGraph';
 import { ComplexMultiplicationGraph } from './complex/ComplexMultiplicationGraph';
 import BezierCurveGraph from './curves/bezier/BezierCurveGraph';
@@ -203,6 +204,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'segment-intersections': () => new BentleyOttmannGraph(),
     'monotone-partition': () => new MonotonePartitionGraph(),
     'monotone-triangulation': () => new MonotoneTriangulationGraph(),
+    'fortune': () => new FortuneGraph(),
     'projective-cross-ratio': () => new CrossRatioGraph(),
     'projective-pascal': () => new PascalGraph(),
     'projective-pole-polar': () => new PolePolarGraph(),

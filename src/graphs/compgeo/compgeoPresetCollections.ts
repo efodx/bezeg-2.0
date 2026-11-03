@@ -4,6 +4,7 @@ import {bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
 import {degenerateCollection} from "./degenerateSitesPresets";
 import {delaunayCollection} from "./delaunayPresetCollection";
 import {earClippingCollection} from "./earClippingPresetCollection";
+import {fortuneCollection} from "./fortunePresetCollection";
 import {hullTracePresetCollection} from "./hullTracePresetCollection";
 import {intervalSweepCollection} from "./intervalSweepPresetCollection";
 import {monotonePartitionCollection} from "./monotonePartitionPresetCollection";
@@ -34,4 +35,4 @@ export const hullTraceCollection: PresetCollection<PointSetModel> = hullTracePre
 
 export const compgeoPresetCollections = [orientationPresetCollection, polygonAreaPresetCollection, hullTraceCollection,
     earClippingCollection, intervalSweepCollection, bentleyOttmannCollection, triangulationCollection, delaunayCollection,
-    monotonePartitionCollection, monotoneTriangulationCollection, voronoiCollection, degenerateCollection] as const;
+    monotonePartitionCollection, monotoneTriangulationCollection, voronoiCollection, degenerateCollection, fortuneCollection] as const;

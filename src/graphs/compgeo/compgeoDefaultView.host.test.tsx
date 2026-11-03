@@ -15,6 +15,8 @@ import {MonotonePartitionGraph} from './MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './MonotoneTriangulationGraph';
 import {MONOTONE_PARTITION_EXAMPLE_1} from './monotonePartitionPresetCollection';
 import {MONOTONE_TRIANGULATION_EXAMPLE_1} from './monotoneTriangulationPresetCollection';
+import {FortuneGraph} from './FortuneGraph';
+import {FORTUNE_EXAMPLE_1} from './fortunePresetCollection';
 import {NotablePointsGraph} from './NotablePointsGraph';
 import {InscribedAngleGraph} from './InscribedAngleGraph';
 import {EAR_CLIPPING_EXAMPLE_1} from './earClippingPresetCollection';
@@ -30,16 +32,18 @@ class ObservedInterval extends IntervalSweepGraph { liveBoard(): Board { return 
 class ObservedSweep extends BentleyOttmannGraph { liveBoard(): Board { return this.board; } }
 class ObservedPartition extends MonotonePartitionGraph { liveBoard(): Board { return this.board; } }
 class ObservedMonotoneTriangulation extends MonotoneTriangulationGraph { liveBoard(): Board { return this.board; } }
+class ObservedFortune extends FortuneGraph { liveBoard(): Board { return this.board; } }
 class ObservedHull extends HullTraceGraph { liveBoard(): Board { return this.board; } }
 class ObservedArea extends PolygonAreaGraph { liveBoard(): Board { return this.board; } }
 
-type Observed = (ObservedPartition | ObservedMonotoneTriangulation | ObservedEar | ObservedInterval | ObservedSweep | ObservedHull | ObservedArea);
+type Observed = (ObservedFortune | ObservedPartition | ObservedMonotoneTriangulation | ObservedEar | ObservedInterval | ObservedSweep | ObservedHull | ObservedArea);
 const cases: [string, () => Observed, PointSetModel][] = [
     ['ear clipping', () => new ObservedEar(), EAR_CLIPPING_EXAMPLE_1],
     ['interval sweep', () => new ObservedInterval(), INTERVAL_SWEEP_EXAMPLE_1],
     ['segment intersections', () => new ObservedSweep(), BENTLEY_OTTMANN_EXAMPLE_1],
     ['monotone partition', () => new ObservedPartition(), MONOTONE_PARTITION_EXAMPLE_1],
     ['monotone triangulation', () => new ObservedMonotoneTriangulation(), MONOTONE_TRIANGULATION_EXAMPLE_1],
+    ['fortune', () => new ObservedFortune(), FORTUNE_EXAMPLE_1],
     ['convex hull', () => new ObservedHull(), HULL_TRACE_SAMPLE_1],
     ['polygon area', () => new ObservedArea(), HULL_PENTAGON_MODEL],
 ];
@@ -88,6 +92,23 @@ describe.each([
             expect(right - x).toBeGreaterThanOrEqual(0.5);
             expect(top - y).toBeGreaterThanOrEqual(0.5);
             expect(y - bottom).toBeGreaterThanOrEqual(0.5);
+        }
+        view.unmount();
+    });
+});
+
+describe('fortune default view', () => {
+    test('the units are equal and the sweep line starts above the highest site and inside the view', () => {
+        const graph = new ObservedFortune();
+        const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        const board = graph.liveBoard();
+        expect(board.unitX).toBeCloseTo(board.unitY, 6);
+        const line = (board.objectsList as Array<{name?: string; dataY?: number[]}>).find(object => object.name === 'fortune-sweep-line');
+        const highest = Math.max(...FORTUNE_EXAMPLE_1.points.map(point => point.y));
+        expect(line?.dataY?.length).toBe(2);
+        for (const y of line?.dataY ?? []) {
+            expect(y).toBeGreaterThan(highest);
+            expect(board.getBoundingBox()[1] - y).toBeGreaterThan(0);
         }
         view.unmount();
     });
