@@ -404,11 +404,61 @@ function polynomialExpectedFor(id, actions) {
     return {types: {curve: curves, point: zeros.length}, curveCount: curves, points: zeros.map(z => [z, 0])};
 }
 
+// Authored from src/analysis/rationalFunctionModel.ts (the example zeros), not from a capture.
+const rationalExamples = {
+    oblique: {k: 1, numerator: [[-1, 1], [1, 1]], denominator: [[2, 1]]},
+    hole: {k: 1, numerator: [[-1, 1], [1, 1]], denominator: [[1, 1]]},
+    horizontal: {k: 2, numerator: [[-1, 1], [1, 1]], denominator: [[-2, 1], [2, 1]]},
+    'double-pole': {k: 4, numerator: [[0, 1]], denominator: [[-2, 1], [1, 2]]},
+};
+
+/**
+ * First-frame expectation of the Rational functions lesson, after the scene's `rational-*` moves and probe: the curve; one glider point
+ * (z, 0) per zero of the numerator and of the denominator; an open-circle point per hole (a zero common to both lists, at the limit of the
+ * reduced fraction); a dashed vertical line per pole of the reduced fraction and one for the horizontal or oblique asymptote (present when
+ * the reduced numerator's degree is at most the reduced denominator's plus one); and, when the probe is neither a pole nor a hole and an
+ * asymptote exists, the probe point on the curve and its segment to the asymptote. A scene that merges two zeros of one list is not authored.
+ */
+function rationalExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^rational-example$/], ['function-parameter', /^(k|rational-(numerator|denominator)-[12]|rational-probe)$/]],
+        'rationalExpectedFor');
+    const example = sceneValue(id, actions, 'function-choice', 'rational-example');
+    assert.ok(Object.hasOwn(rationalExamples, example), `${id}: no authored rational example ${JSON.stringify(example)}`);
+    const {k, numerator, denominator} = rationalExamples[example];
+    const lists = {numerator: numerator.map(entry => [...entry]), denominator: denominator.map(entry => [...entry])};
+    for (const item of actions.filter(entry => entry.kind === 'function-parameter' && /^rational-(numerator|denominator)-/.test(entry.name))) {
+        const [, part, slot] = /^rational-(numerator|denominator)-([12])$/.exec(item.name);
+        assert.ok(Number(slot) <= lists[part].length && Number.isFinite(item.value), `${id}: ${item.name} moves a zero that the example does not have`);
+        lists[part][Number(slot) - 1][0] = item.value;
+    }
+    for (const part of ['numerator', 'denominator']) {
+        assert.equal(new Set(lists[part].map(([z]) => z)).size, lists[part].length, `${id}: the authored expectation assumes no two zeros of one list merge`);
+    }
+    assert.ok(!actions.some(item => item.name === 'k'), `${id}: the authored expectation assumes the example's k`);
+    const probe = sceneValue(id, actions, 'function-parameter', 'rational-probe');
+    const multiplicity = (list, z) => list.find(([at]) => at === z)?.[1] ?? 0;
+    const reduced = {
+        numerator: lists.numerator.map(([z, m]) => [z, m - Math.min(m, multiplicity(lists.denominator, z))]).filter(([, m]) => m > 0),
+        denominator: lists.denominator.map(([z, n]) => [z, n - Math.min(n, multiplicity(lists.numerator, z))]).filter(([, n]) => n > 0),
+    };
+    const value = (x, parts) => k * parts.numerator.reduce((v, [z, m]) => v * (x - z) ** m, 1) / parts.denominator.reduce((v, [z, n]) => v * (x - z) ** n, 1);
+    const holes = lists.numerator.filter(([z, m]) => multiplicity(lists.denominator, z) > 0 && multiplicity(lists.denominator, z) <= m).map(([z]) => z);
+    const degree = parts => parts.reduce((sum, [, m]) => sum + m, 0);
+    const asymptote = degree(reduced.numerator) <= degree(reduced.denominator) + 1;
+    const gliders = [...lists.numerator, ...lists.denominator].map(([z]) => [z, 0]);
+    const holePoints = holes.map(z => [z, value(z, reduced)]);
+    const probeShown = asymptote && !holes.includes(probe) && !reduced.denominator.some(([z]) => z === probe);
+    const points = [...gliders, ...holePoints, ...(probeShown ? [[probe, value(probe, reduced)]] : [])];
+    const lines = reduced.denominator.length + (asymptote ? 1 : 0);
+    return {types: {curve: 1, ...(lines ? {line: lines} : {}), point: points.length, ...(probeShown ? {segment: 1} : {})}, curveCount: 1, points};
+}
+
 /** First-frame expectation of a School function graphs lesson, chosen by the Demonstration the id ends with. */
 function schoolFunctionGraphsExpectedFor(id, step) {
     if (id.endsWith('.function-transformation')) return transformationExpectedFor(id, step.scene.actions);
     if (id.endsWith('.function-inverse')) return inverseExpectedFor(id, step.scene.actions);
     if (id.endsWith('.polynomial-zeros')) return polynomialExpectedFor(id, step.scene.actions);
+    if (id.endsWith('.rational-function')) return rationalExpectedFor(id, step.scene.actions);
     assert.fail(`${id}: no authored School function graphs first frame`);
 }
 

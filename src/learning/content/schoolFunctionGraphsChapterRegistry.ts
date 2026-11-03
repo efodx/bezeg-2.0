@@ -12,6 +12,7 @@ const sectionDemonstrations = {
     'function-transformation': 'function-transformation',
     'function-inverse': 'function-inverse',
     'polynomial-zeros': 'polynomial-zeros',
+    'rational-function': 'rational-function',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type SchoolFunctionGraphsSectionId = keyof typeof sectionDemonstrations;

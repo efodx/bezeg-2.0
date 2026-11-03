@@ -1,6 +1,6 @@
 /**
  * Guided lessons of the School function graphs family (docs/specs/school-function-graphs-lessons.md), batch B: S3, polynomial zeros and
- * multiplicity, on `polynomial-zeros`. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every number
+ * multiplicity, on `polynomial-zeros`, and S4, rational functions, on `rational-function`. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every number
  * it quotes is a value of the scene it belongs to, and `schoolFunctionGraphsBatchBGuidedLessons.test.ts` checks that against the real graph
  * and against values recomputed without the kernel. Scenes use only the `function-choice`, `function-parameter` and `function-visibility`
  * actions the graph registers (`polynomial-example`, `poly-zero-1..5`, `k`, `polynomial-derivative`). Every scene sets the example first
@@ -244,4 +244,217 @@ const polynomialLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const schoolFunctionGraphsBatchBGuidedLessons: readonly GuidedLesson[] = [polynomialLesson];
+// ---------------------------------------------------------------------------------------------------------------- S4
+
+export type RationalExample = 'oblique' | 'hole' | 'horizontal' | 'double-pole';
+
+/** One zero moved by a scene: the `rational-<part>-<slot>` parameter and its new position (on the 0.1 grid). */
+export interface RationalMove {
+    readonly name: 'rational-numerator-1' | 'rational-numerator-2' | 'rational-denominator-1' | 'rational-denominator-2';
+    readonly z: number;
+}
+
+/**
+ * An S4 scene from the default scene: the example (its k and zeros), then the zero moves in the order given (a numerator zero landing on a
+ * denominator zero makes a hole; two zeros of one list that meet merge), then the probe x of the remainder term.
+ */
+const rationalScene = (
+    id: string, example: RationalExample, moves: readonly RationalMove[], probe: number, sl: string, en: string,
+): LessonScene => {
+    const actions: LessonAction[] = [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'function-choice', name: 'rational-example', value: example},
+        ...moves.map((move): LessonAction => ({kind: 'function-parameter', name: move.name, value: move.z})),
+        {kind: 'function-parameter', name: 'rational-probe', value: probe},
+    ];
+    return {id, basedOn: 'demonstration-default', actions, expectedState: text(sl, en)};
+};
+
+const rationalLesson: GuidedLesson = {
+    demonstrationId: 'rational-function',
+    title: text('Racionalne funkcije: ničle, poli, luknje in asimptote', 'Rational functions: zeros, poles, holes, asymptotes'),
+    summary: text(
+        'Racionalno funkcijo \\(f(x)=\\frac{p(x)}{q(x)}\\) preberemo iz okrajšanega ulomka. Ničle okrajšanega števca so ničle funkcije, ničle okrajšanega imenovalca so poli in navpične asimptote, skupni faktor pa da luknjo, ne pola. Pol lihe večkratnosti spremeni predznak, pol sode ne. Primerjava stopenj določi vodoravno ali poševno asimptoto: iz \\(p=q\\,s+r\\) sledi \\(f(x)=s(x)+\\frac{r(x)}{q(x)}\\), člen \\(\\frac{r(x)}{q(x)}\\) pa se z naraščanjem \\(|x|\\) manjša. Graf lahko vodoravno ali poševno asimptoto pri končnem \\(x\\) seka.',
+        'A rational function \\(f(x)=\\frac{p(x)}{q(x)}\\) is read from the reduced fraction. The zeros of the reduced numerator are the zeros of the function, the zeros of the reduced denominator are poles and vertical asymptotes, and a common factor gives a hole, not a pole. A pole of odd multiplicity changes the sign, one of even multiplicity does not. Comparing the degrees decides the horizontal or oblique asymptote: from \\(p=q\\,s+r\\) we get \\(f(x)=s(x)+\\frac{r(x)}{q(x)}\\), and the term \\(\\frac{r(x)}{q(x)}\\) shrinks as \\(|x|\\) grows. The graph may cross a horizontal or oblique asymptote at a finite \\(x\\).',
+    ),
+    prerequisites: [
+        text('Potrebno je znanje iz lekcije o ničlah polinoma in večkratnosti: ničla in njena večkratnost ter predznak ob njej.', 'Assumes the lesson on polynomial zeros and multiplicity: a zero, its multiplicity and the sign beside it.'),
+    ],
+    learningGoals: [
+        text('Iz ulomka \\(\\frac{p}{q}\\) določiš ničle, pole, luknje in navpične asimptote ter ločiš luknjo od pola.', 'From the fraction \\(\\frac{p}{q}\\) find the zeros, poles, holes and vertical asymptotes, and tell a hole from a pole.'),
+        text('S primerjavo stopenj ugotoviš, ali ima funkcija vodoravno, poševno ali nobene od teh asimptot, in jo izračunaš z deljenjem polinomov.', 'By comparing the degrees decide whether the function has a horizontal, an oblique or neither asymptote, and compute it by polynomial division.'),
+        text('Razložiš, zakaj pol lihe večkratnosti spremeni predznak, sode pa ne, in zakaj graf lahko seka vodoravno asimptoto.', 'Explain why a pole of odd multiplicity changes the sign and one of even multiplicity does not, and why the graph can cross a horizontal asymptote.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'rat-fraction',
+            latex: 'f(x)=\\frac{k\\,(x-a_1)^{m_1}\\cdots}{(x-b_1)^{n_1}\\cdots}',
+            notation: text(
+                '\\(a_i\\) so ničle števca z večkratnostmi \\(m_i\\), \\(b_j\\) ničle imenovalca z večkratnostmi \\(n_j\\); imenovalec ima vodilni koeficient \\(1\\), \\(k\\ne0\\) je koeficient števca.',
+                'The \\(a_i\\) are the zeros of the numerator with multiplicities \\(m_i\\), the \\(b_j\\) the zeros of the denominator with multiplicities \\(n_j\\); the denominator has leading coefficient \\(1\\), and \\(k\\ne0\\) is the coefficient of the numerator.',
+            ),
+            explanation: text(
+                'Skupne faktorje \\((x-c)\\) najprej okrajšamo. Če je \\(c\\) ničla števca večkratnosti \\(m\\) in imenovalca večkratnosti \\(n\\), po okrajšanju ostane \\(|m-n|\\) faktorjev. Pri \\(m\\ge n\\) funkcija v \\(c\\) ni definirana, a ima limito: luknja (pri \\(m>n\\) je limita \\(0\\)). Pri \\(m<n\\) ostane pol večkratnosti \\(n-m\\). Pol lihe večkratnosti spremeni predznak, ker faktor \\((x-c)^{n-m}\\) v imenovalcu zamenja predznak; pri sodi večkratnosti ga ohrani.',
+                'Common factors \\((x-c)\\) are cancelled first. If \\(c\\) is a zero of the numerator of multiplicity \\(m\\) and of the denominator of multiplicity \\(n\\), then \\(|m-n|\\) factors remain after cancelling. For \\(m\\ge n\\) the function is not defined at \\(c\\) but has a limit there: a hole (for \\(m>n\\) the limit is \\(0\\)). For \\(m<n\\) a pole of multiplicity \\(n-m\\) remains. A pole of odd multiplicity changes the sign because the factor \\((x-c)^{n-m}\\) in the denominator changes sign; with an even multiplicity it keeps it.',
+            ),
+        },
+        {
+            id: 'rat-division',
+            latex: 'p(x)=q(x)\\,s(x)+r(x),\\quad f(x)=s(x)+\\frac{r(x)}{q(x)}',
+            notation: text(
+                '\\(s\\) je kvocient in \\(r\\) ostanek pri deljenju polinomov, \\(\\deg r<\\deg q\\); \\(p\\) in \\(q\\) sta okrajšana števec in imenovalec.',
+                '\\(s\\) is the quotient and \\(r\\) the remainder of the polynomial division, \\(\\deg r<\\deg q\\); \\(p\\) and \\(q\\) are the reduced numerator and denominator.',
+            ),
+            explanation: text(
+                'Člen \\(\\frac{r(x)}{q(x)}\\) gre proti \\(0\\), ko \\(|x|\\) narašča, ker ima števec manjšo stopnjo od imenovalca. Pri \\(\\deg p<\\deg q\\) je \\(s=0\\) in asimptota \\(y=0\\); pri \\(\\deg p=\\deg q\\) je \\(s\\) konstanta, kvocient vodilnih koeficientov (vodoravna asimptota); pri \\(\\deg p=\\deg q+1\\) je \\(s\\) linearen (poševna asimptota \\(y=s(x)\\)). Pri večji razliki stopenj \\(s\\) ni premica in vodoravne ali poševne asimptote ni.',
+                'The term \\(\\frac{r(x)}{q(x)}\\) tends to \\(0\\) as \\(|x|\\) grows, because the numerator has a smaller degree than the denominator. For \\(\\deg p<\\deg q\\) we have \\(s=0\\) and the asymptote \\(y=0\\); for \\(\\deg p=\\deg q\\) the quotient \\(s\\) is a constant, the quotient of the leading coefficients (a horizontal asymptote); for \\(\\deg p=\\deg q+1\\) it is linear (the oblique asymptote \\(y=s(x)\\)). For a larger difference of degrees \\(s\\) is not a line and there is no horizontal or oblique asymptote.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'rat-hole-value',
+            title: text('Luknja funkcije \\(\\frac{x^2-1}{x-1}\\)', 'The hole of \\(\\frac{x^2-1}{x-1}\\)'),
+            calculationLatex: '\\frac{x^2-1}{x-1}=\\frac{(x-1)(x+1)}{x-1}=x+1',
+            resultLatex: '(1,2)',
+            check: text(
+                'Za \\(x\\ne1\\) se faktor \\(x-1\\) okrajša in ostane \\(x+1\\). V \\(x=1\\) funkcija ni definirana, limita pa je \\(1+1=2\\): luknja je v točki \\((1;2)\\), pola ni.',
+                'For \\(x\\ne1\\) the factor \\(x-1\\) cancels and \\(x+1\\) remains. At \\(x=1\\) the function is not defined, but the limit is \\(1+1=2\\): the hole is at the point \\((1,2)\\) and there is no pole.',
+            ),
+        },
+        {
+            id: 'rat-division-value',
+            title: text('Deljenje \\((x^2-1):(x-2)\\)', 'The division \\((x^2-1):(x-2)\\)'),
+            calculationLatex: 'x^2-1=(x-2)(x+2)+3',
+            resultLatex: 'x+2+\\frac{3}{x-2}',
+            check: text(
+                'Preverimo z množenjem: \\((x-2)(x+2)+3=x^2-4+3=x^2-1\\). Kvocient je \\(s(x)=x+2\\), ostanek \\(r=3\\). Pri \\(x=10\\) je \\(\\frac{r(x)}{q(x)}=\\frac38=0{,}375\\) in \\(f(10)=\\frac{99}{8}=12{,}375=12+0{,}375\\).',
+                'Check by multiplying: \\((x-2)(x+2)+3=x^2-4+3=x^2-1\\). The quotient is \\(s(x)=x+2\\), the remainder \\(r=3\\). At \\(x=10\\) we have \\(\\frac{r(x)}{q(x)}=\\frac38=0.375\\) and \\(f(10)=\\frac{99}{8}=12.375=12+0.375\\).',
+            ),
+        },
+    ],
+    steps: [
+        step({
+            id: 'rat-pole', order: 1,
+            title: text('Pol in obnašanje ob njem', 'A pole and the behaviour beside it'),
+            purpose: text('Napovedati, kako se funkcija obnaša levo in desno od pola, še preden pogledaš graf.', 'Predicting how the function behaves to the left and to the right of a pole before looking at the graph.'),
+            explanation: text(
+                'Funkcija je \\(f(x)=\\frac{x^2-1}{x-2}=\\frac{(x-1)(x+1)}{x-2}\\): števec ima ničli \\(-1\\) in \\(1\\), imenovalec ničlo \\(2\\). V \\(x=2\\) je imenovalec \\(0\\), števec pa \\(3\\ne0\\), zato je \\(2\\) pol in funkcija tam ni definirana. Blizu \\(2\\) je števec blizu \\(3\\), imenovalec pa majhen: levo od \\(2\\) je negativen, zato \\(f\\to-\\infty\\), desno pozitiven, zato \\(f\\to+\\infty\\). Napovej to, preden pogledaš graf.',
+                'The function is \\(f(x)=\\frac{x^2-1}{x-2}=\\frac{(x-1)(x+1)}{x-2}\\): the numerator has the zeros \\(-1\\) and \\(1\\), the denominator the zero \\(2\\). At \\(x=2\\) the denominator is \\(0\\) and the numerator is \\(3\\ne0\\), so \\(2\\) is a pole and the function is not defined there. Near \\(2\\) the numerator is close to \\(3\\) and the denominator is small: to the left of \\(2\\) it is negative, so \\(f\\to-\\infty\\), to the right it is positive, so \\(f\\to+\\infty\\). Predict this before you look at the graph.',
+            ),
+            formulaIds: ['rat-fraction'],
+            observationPrompt: text('Napovej, kam gre graf levo in kam desno od \\(x=2\\), nato preveri in poglej, ali se pri \\(2\\) graf poveže.', 'Predict where the graph goes to the left and to the right of \\(x=2\\), then check and see whether the graph is joined at \\(2\\).'),
+            expectedObservations: [text('Levo od \\(2\\) graf pada proti \\(-\\infty\\), desno od \\(2\\) pa pada z \\(+\\infty\\); pri \\(x=2\\) je navpična asimptota in graf je ne prečka.', 'To the left of \\(2\\) the graph falls towards \\(-\\infty\\), to the right of \\(2\\) it comes down from \\(+\\infty\\); at \\(x=2\\) there is a vertical asymptote and the graph does not cross it.')],
+            scene: rationalScene('rat-pole-oblique', 'oblique', [], 10,
+                'Funkcija \\(\\frac{x^2-1}{x-2}\\): ničli \\(-1\\) in \\(1\\), pol \\(2\\) (enojen, predznak se spremeni); poševna asimptota \\(y=x+2\\).',
+                'The function \\(\\frac{x^2-1}{x-2}\\): zeros \\(-1\\) and \\(1\\), a pole \\(2\\) (simple, the sign changes); the oblique asymptote \\(y=x+2\\).'),
+        }),
+        step({
+            id: 'rat-hole', order: 2,
+            title: text('Luknja namesto pola', 'A hole instead of a pole'),
+            purpose: text('Videti, da skupni faktor števca in imenovalca da luknjo, ne pola.', 'Seeing that a factor common to the numerator and the denominator gives a hole, not a pole.'),
+            explanation: text(
+                'Pol smo povlekli z \\(2\\) na \\(1\\), kjer ima števec ničlo. Zdaj je \\(f(x)=\\frac{(x-1)(x+1)}{x-1}\\): faktor \\(x-1\\) se okrajša in za \\(x\\ne1\\) je \\(f(x)=x+1\\). V \\(x=1\\) funkcija ni definirana, limita pa je \\(2\\): luknja v \\((1;2)\\), ne pol, in navpične asimptote ni. Luknjo dobiš tudi, če ničlo števca povlečeš na pol. Če imenovalec skupni faktor vsebuje večkrat kot števec, po okrajšanju ostane pol: \\(\\frac{x-1}{(x-1)^2}=\\frac{1}{x-1}\\) ima pol v \\(1\\).',
+                'The pole has been dragged from \\(2\\) to \\(1\\), where the numerator has a zero. Now \\(f(x)=\\frac{(x-1)(x+1)}{x-1}\\): the factor \\(x-1\\) cancels and for \\(x\\ne1\\) we have \\(f(x)=x+1\\). At \\(x=1\\) the function is not defined, but the limit is \\(2\\): a hole at \\((1,2)\\), not a pole, and there is no vertical asymptote. You also get a hole by dragging a numerator zero onto a pole. If the denominator contains the common factor more times than the numerator, a pole remains after cancelling: \\(\\frac{x-1}{(x-1)^2}=\\frac{1}{x-1}\\) has a pole at \\(1\\).',
+            ),
+            formulaIds: ['rat-fraction'],
+            workedExampleId: 'rat-hole-value',
+            observationPrompt: text('Poišči prazen krožec na grafu in preberi njegovi koordinati; nato pol povleci nazaj na \\(2\\) in poglej, kaj se zgodi z luknjo.', 'Find the open circle on the graph and read its coordinates; then drag the pole back to \\(2\\) and see what happens to the hole.'),
+            expectedObservations: [text('Graf je premica \\(y=x+1\\) z manjkajočo točko \\((1;2)\\), ki je označena kot luknja; ko pol odmakneš z \\(1\\), je luknja spet pol.', 'The graph is the line \\(y=x+1\\) with the point \\((1,2)\\) missing, marked as a hole; when you move the pole away from \\(1\\), the hole is a pole again.')],
+            scene: rationalScene('rat-hole-cancel', 'oblique', [{name: 'rational-denominator-1', z: 1}], 10,
+                'Funkcija \\(\\frac{x^2-1}{x-1}=x+1\\) za \\(x\\ne1\\): luknja v \\((1;2)\\), pola ni; edina ničla je \\(-1\\).',
+                'The function \\(\\frac{x^2-1}{x-1}=x+1\\) for \\(x\\ne1\\): a hole at \\((1,2)\\), no pole; the only zero is \\(-1\\).'),
+        }),
+        step({
+            id: 'rat-vertical', order: 3,
+            title: text('Navpična asimptota je pol okrajšanega ulomka', 'A vertical asymptote is a pole of the reduced fraction'),
+            purpose: text('Navpične asimptote brati iz okrajšanega ulomka: od dveh ničel imenovalca je ena lahko luknja.', 'Reading vertical asymptotes from the reduced fraction: of two zeros of the denominator one can be a hole.'),
+            explanation: text(
+                'Imenovalec \\((x+2)(x-2)\\) ima ničli \\(-2\\) in \\(2\\), števec \\(2(x+1)(x-2)\\) pa ničli \\(-1\\) in \\(2\\). Faktor \\(x-2\\) se okrajša in za \\(x\\ne2\\) ostane \\(f(x)=\\frac{2(x+1)}{x+2}\\). Navpična asimptota je zato le \\(x=-2\\), pol okrajšanega ulomka; v \\(x=2\\) je luknja v \\((2;1{,}5)\\), ker je \\(\\frac{2\\cdot3}{4}=1{,}5\\). Ničla imenovalca torej še ni pol: to preveriš šele v okrajšanem ulomku.',
+                'The denominator \\((x+2)(x-2)\\) has the zeros \\(-2\\) and \\(2\\), the numerator \\(2(x+1)(x-2)\\) the zeros \\(-1\\) and \\(2\\). The factor \\(x-2\\) cancels and for \\(x\\ne2\\) we are left with \\(f(x)=\\frac{2(x+1)}{x+2}\\). The only vertical asymptote is therefore \\(x=-2\\), the pole of the reduced fraction; at \\(x=2\\) there is a hole at \\((2,1.5)\\), because \\(\\frac{2\\cdot3}{4}=1.5\\). So a zero of the denominator is not yet a pole: you decide that only in the reduced fraction.',
+            ),
+            formulaIds: ['rat-fraction'],
+            observationPrompt: text('Poišči vse navpične asimptote in luknje in jih primerjaj z ničlama imenovalca \\(-2\\) in \\(2\\).', 'Find all the vertical asymptotes and holes and compare them with the zeros \\(-2\\) and \\(2\\) of the denominator.'),
+            expectedObservations: [text('Navpična asimptota je samo pri \\(-2\\); pri \\(2\\) je luknja v \\((2;1{,}5)\\), graf pa se tam nadaljuje brez skoka v neskončnost.', 'The vertical asymptote is only at \\(-2\\); at \\(2\\) there is a hole at \\((2,1.5)\\) and the graph goes on there without running off to infinity.')],
+            scene: rationalScene('rat-vertical-reduced', 'horizontal', [{name: 'rational-numerator-2', z: 2}], 10,
+                'Funkcija \\(\\frac{2(x+1)(x-2)}{(x+2)(x-2)}\\): pol \\(-2\\), luknja v \\((2;1{,}5)\\), ničla \\(-1\\); vodoravna asimptota \\(y=2\\).',
+                'The function \\(\\frac{2(x+1)(x-2)}{(x+2)(x-2)}\\): a pole \\(-2\\), a hole at \\((2,1.5)\\), a zero \\(-1\\); the horizontal asymptote \\(y=2\\).'),
+        }),
+        step({
+            id: 'rat-degrees', order: 4,
+            title: text('Stopnji določita asimptoto', 'The degrees decide the asymptote'),
+            purpose: text('S primerjavo stopenj števca in imenovalca ugotoviti, ali je asimptota vodoravna ali poševna.', 'Using the degrees of the numerator and the denominator to decide whether the asymptote is horizontal or oblique.'),
+            explanation: text(
+                'Funkcija je \\(f(x)=\\frac{2x^2-2}{x^2-4}=\\frac{2(x-1)(x+1)}{(x-2)(x+2)}\\) z ničlama \\(-1\\), \\(1\\) in pola \\(-2\\), \\(2\\). Števec in imenovalec imata isto stopnjo \\(2\\), zato je asimptota vodoravna: iz \\(2x^2-2=2(x^2-4)+6\\) sledi \\(f(x)=2+\\frac{6}{x^2-4}\\) in \\(y=2\\) je kvocient vodilnih koeficientov. Pri \\(x=10\\) je \\(f(10)=\\frac{198}{96}=2{,}0625=2+\\frac{6}{96}\\), člen \\(\\frac{r(x)}{q(x)}=0{,}0625\\). Pravilo: manjša stopnja števca da \\(y=0\\) (korak 6), enaka vodoravno asimptoto, za \\(1\\) večja poševno (korak 1: \\(y=x+2\\)), za več kot \\(1\\) večja nobene od teh dveh.',
+                'The function is \\(f(x)=\\frac{2x^2-2}{x^2-4}=\\frac{2(x-1)(x+1)}{(x-2)(x+2)}\\) with the zeros \\(-1\\), \\(1\\) and the poles \\(-2\\), \\(2\\). The numerator and the denominator have the same degree \\(2\\), so the asymptote is horizontal: from \\(2x^2-2=2(x^2-4)+6\\) we get \\(f(x)=2+\\frac{6}{x^2-4}\\), and \\(y=2\\) is the quotient of the leading coefficients. At \\(x=10\\) we have \\(f(10)=\\frac{198}{96}=2.0625=2+\\frac{6}{96}\\), the term \\(\\frac{r(x)}{q(x)}=0.0625\\). The rule: a smaller degree of the numerator gives \\(y=0\\) (step 6), an equal one a horizontal asymptote, one larger by \\(1\\) an oblique one (step 1: \\(y=x+2\\)), one larger by more than \\(1\\) neither of the two.',
+            ),
+            formulaIds: ['rat-division'],
+            observationPrompt: text('Preberi vodoravno asimptoto s črtkane črte in jo primerjaj s kvocientom vodilnih koeficientov.', 'Read the horizontal asymptote off the dashed line and compare it with the quotient of the leading coefficients.'),
+            expectedObservations: [text('Črtkana črta je pri \\(y=2\\), kar je \\(\\frac21\\); na grafu pri \\(x=10\\) je vrednost nad asimptoto za \\(0{,}0625\\).', 'The dashed line is at \\(y=2\\), which is \\(\\frac21\\); on the graph at \\(x=10\\) the value is above the asymptote by \\(0.0625\\).')],
+            scene: rationalScene('rat-degrees-horizontal', 'horizontal', [], 10,
+                'Funkcija \\(\\frac{2x^2-2}{x^2-4}\\): ničli \\(-1\\), \\(1\\), pola \\(-2\\), \\(2\\); vodoravna asimptota \\(y=2\\), pri \\(x=10\\) je \\(f(10)=2{,}0625\\).',
+                'The function \\(\\frac{2x^2-2}{x^2-4}\\): zeros \\(-1\\), \\(1\\), poles \\(-2\\), \\(2\\); the horizontal asymptote \\(y=2\\), at \\(x=10\\) we have \\(f(10)=2.0625\\).'),
+        }),
+        step({
+            id: 'rat-remainder', order: 5,
+            title: text('Ostanek se manjša', 'The remainder term shrinks'),
+            purpose: text('Videti, da se graf asimptoti približuje, ker se člen z ostankom manjša.', 'Seeing that the graph approaches the asymptote because the remainder term shrinks.'),
+            explanation: text(
+                'Iz \\(x^2-1=(x-2)(x+2)+3\\) sledi \\(f(x)=x+2+\\frac{3}{x-2}\\). Poševna asimptota je \\(y=x+2\\), razlika med grafom in njo pa je člen \\(\\frac{r(x)}{q(x)}=\\frac{3}{x-2}\\). Pri \\(x=10\\) je ta člen \\(\\frac38=0{,}375\\) in \\(f(10)=12{,}375=12+0{,}375\\). Drsnik za \\(x\\) je na \\(10\\) in ga lahko premakneš le proti manjšim vrednostim. Povleci ga proti polu \\(2\\): člen \\(\\frac{3}{x-2}\\) narašča. Ko ga vrneš proti \\(10\\), se člen manjša in graf se asimptoti približuje. Pri \\(x=2\\), v polu, člena ni.',
+                'From \\(x^2-1=(x-2)(x+2)+3\\) we get \\(f(x)=x+2+\\frac{3}{x-2}\\). The oblique asymptote is \\(y=x+2\\), and the difference between the graph and it is the term \\(\\frac{r(x)}{q(x)}=\\frac{3}{x-2}\\). At \\(x=10\\) this term is \\(\\frac38=0.375\\) and \\(f(10)=12.375=12+0.375\\). The slider for \\(x\\) is at \\(10\\) and can only move towards smaller values. Drag it towards the pole \\(2\\): the term \\(\\frac{3}{x-2}\\) grows. Moving it back towards \\(10\\), the term shrinks and the graph approaches the asymptote. At \\(x=2\\), at the pole, there is no term.',
+            ),
+            formulaIds: ['rat-division'],
+            workedExampleId: 'rat-division-value',
+            observationPrompt: text('Premakni drsnik za \\(x\\) z \\(10\\) proti polu \\(2\\) in nazaj proti \\(10\\) ter opazuj, kako se spreminja razdalja do asimptote.', 'Move the slider for \\(x\\) from \\(10\\) towards the pole \\(2\\) and back towards \\(10\\), and watch how the distance to the asymptote changes.'),
+            expectedObservations: [text('Pri \\(x=10\\) je razlika do asimptote \\(0{,}375\\); bolj ko se \\(x\\) oddaljuje od pola \\(2\\), manjši je člen \\(\\frac{3}{x-2}\\) po absolutni vrednosti.', 'At \\(x=10\\) the difference from the asymptote is \\(0.375\\); the farther \\(x\\) is from the pole \\(2\\), the smaller the term \\(\\frac{3}{x-2}\\) is in absolute value.')],
+            scene: rationalScene('rat-remainder-probe', 'oblique', [], 10,
+                'Funkcija \\(x+2+\\frac{3}{x-2}\\): asimptota \\(y=x+2\\), pri \\(x=10\\) je člen z ostankom \\(0{,}375\\) in \\(f(10)=12{,}375\\).',
+                'The function \\(x+2+\\frac{3}{x-2}\\): the asymptote \\(y=x+2\\), at \\(x=10\\) the remainder term is \\(0.375\\) and \\(f(10)=12.375\\).'),
+        }),
+        step({
+            id: 'rat-double-pole', order: 6,
+            title: text('Pol lihe in pol sode večkratnosti', 'A pole of odd and of even multiplicity'),
+            purpose: text('Primerjati pol, ki spremeni predznak, s polom, ki ga ne; in videti, da graf lahko seka vodoravno asimptoto.', 'Comparing a pole that changes the sign with one that does not; and seeing that the graph can cross a horizontal asymptote.'),
+            explanation: text(
+                'Funkcija je \\(f(x)=\\frac{4x}{(x+2)(x-1)^2}\\): ničla \\(0\\), pol \\(-2\\) večkratnosti \\(1\\) in pol \\(1\\) večkratnosti \\(2\\). Pri \\(-2\\) se predznak spremeni: levo od \\(-2\\) gre \\(f\\to+\\infty\\), desno \\(f\\to-\\infty\\). Pri \\(1\\) se predznak ne spremeni: na obeh straneh gre \\(f\\to+\\infty\\). Stopnja števca \\(1\\) je manjša od stopnje imenovalca \\(3\\), zato je vodoravna asimptota \\(y=0\\). Graf jo vseeno seka pri končnem \\(x\\): \\(f(0)=0\\). Asimptota pove le, kam se graf približuje, ko \\(|x|\\) narašča.',
+                'The function is \\(f(x)=\\frac{4x}{(x+2)(x-1)^2}\\): a zero \\(0\\), a pole \\(-2\\) of multiplicity \\(1\\) and a pole \\(1\\) of multiplicity \\(2\\). At \\(-2\\) the sign changes: to the left of \\(-2\\) we have \\(f\\to+\\infty\\), to the right \\(f\\to-\\infty\\). At \\(1\\) the sign does not change: on both sides \\(f\\to+\\infty\\). The degree \\(1\\) of the numerator is smaller than the degree \\(3\\) of the denominator, so the horizontal asymptote is \\(y=0\\). The graph still crosses it at a finite \\(x\\): \\(f(0)=0\\). An asymptote only says where the graph is heading as \\(|x|\\) grows.',
+            ),
+            formulaIds: ['rat-fraction'],
+            observationPrompt: text('Primerjaj graf levo in desno od polov \\(-2\\) in \\(1\\) ter poišči, kje graf seka asimptoto \\(y=0\\).', 'Compare the graph to the left and to the right of the poles \\(-2\\) and \\(1\\), and find where the graph crosses the asymptote \\(y=0\\).'),
+            expectedObservations: [text('Pri \\(-2\\) graf preide z zgornje na spodnjo stran, pri \\(1\\) ostane nad osjo na obeh straneh; asimptoto \\(y=0\\) graf seka v \\(x=0\\).', 'At \\(-2\\) the graph passes from the upper to the lower side, at \\(1\\) it stays above the axis on both sides; the graph crosses the asymptote \\(y=0\\) at \\(x=0\\).')],
+            scene: rationalScene('rat-double-pole-signs', 'double-pole', [], 10,
+                'Funkcija \\(\\frac{4x}{(x+2)(x-1)^2}\\): ničla \\(0\\), pol \\(-2\\) (enojen, predznak se spremeni), pol \\(1\\) (dvojen, predznak se ne spremeni); vodoravna asimptota \\(y=0\\).',
+                'The function \\(\\frac{4x}{(x+2)(x-1)^2}\\): a zero \\(0\\), a pole \\(-2\\) (simple, the sign changes), a pole \\(1\\) (double, the sign does not change); the horizontal asymptote \\(y=0\\).'),
+        }),
+        step({
+            id: 'rat-explore', order: 7,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno premikati ničle in pole ter poskusiti luknjo, pol in asimptoto.', 'Moving zeros and poles on your own and trying a hole, a pole and the asymptote.'),
+            explanation: text(
+                'Prikazana je funkcija \\(\\frac{x^2-1}{x-2}\\) in vse je prosto. Povleci ničle števca in imenovalca, jih vpiši kot števila in vsakič preveri: ničla okrajšanega števca je ničla funkcije, ničla okrajšanega imenovalca je pol, skupna ničla je luknja, stopnji pa določita asimptoto. Na primer, ničlo \\(-1\\) števca povleci na pol \\(2\\): ostane \\(f(x)=\\frac{(x-2)(x-1)}{x-2}=x-1\\) z luknjo v \\((2;1)\\).',
+                'The function \\(\\frac{x^2-1}{x-2}\\) is shown and everything is free. Drag the zeros of the numerator and the denominator, type them as numbers and check each time: a zero of the reduced numerator is a zero of the function, a zero of the reduced denominator is a pole, a common zero is a hole, and the degrees decide the asymptote. For example, drag the zero \\(-1\\) of the numerator onto the pole \\(2\\): what remains is \\(f(x)=\\frac{(x-2)(x-1)}{x-2}=x-1\\) with a hole at \\((2,1)\\).',
+            ),
+            formulaIds: ['rat-fraction', 'rat-division'],
+            observationPrompt: text('Povleci ničlo \\(-1\\) števca na pol \\(2\\), nato jo odmakni in primerjaj luknjo s polom.', 'Drag the zero \\(-1\\) of the numerator onto the pole \\(2\\), then move it away and compare the hole with the pole.'),
+            expectedObservations: [text('Na polu \\(2\\) nastane luknja v \\((2;1)\\) in navpične asimptote ni; ko ničlo odmakneš, je pol spet navpična asimptota.', 'On the pole \\(2\\) a hole appears at \\((2,1)\\) and there is no vertical asymptote; when you move the zero away, the pole is a vertical asymptote again.')],
+            scene: rationalScene('rat-explore-free', 'oblique', [], 10,
+                'Funkcija \\(\\frac{x^2-1}{x-2}\\) s polom \\(2\\) in poševno asimptoto \\(y=x+2\\); vse je prosto za raziskovanje.',
+                'The function \\(\\frac{x^2-1}{x-2}\\) with the pole \\(2\\) and the oblique asymptote \\(y=x+2\\); everything is free to explore.'),
+        }),
+    ],
+    sources: [
+        {
+            id: 'bezeg-rational-function-implementation',
+            citation: 'Bezeg source: src/analysis/rationalFunctionModel.ts, src/analysis/rational.ts, src/analysis/zeroListModel.ts and src/graphs/functions/RationalFunctionGraph.tsx.',
+            implementationCorrespondence: 'A scene chooses the example (k and the zeros), moves zeros by rational-numerator-1..2 and rational-denominator-1..2 (a numerator zero moved onto a denominator zero makes a hole) and sets the probe x; the lesson text quotes only values of those scenes and values recomputed in the test.',
+        },
+    ],
+    edgeCases: [
+        text('Ničle ležijo na mreži s korakom \\(0{,}1\\) med \\(-20\\) in \\(20\\), točka \\(x\\) za člen z ostankom med \\(-10\\) in \\(10\\); vrednost zunaj območja je zavrnjena in je ne zaokrožimo. Vsak seznam ničel ima skupno stopnjo največ \\(5\\).', 'Zeros lie on a grid with spacing \\(0.1\\) between \\(-20\\) and \\(20\\), the point \\(x\\) of the remainder term between \\(-10\\) and \\(10\\); a value outside the range is refused and never rounded. Each list of zeros has total degree at most \\(5\\).'),
+        text('V polu in v luknji funkcija ni definirana in člena z ostankom tam ni; graf ni nikoli narisan čez pol.', 'At a pole and at a hole the function is not defined and there is no remainder term there; the graph is never drawn across a pole.'),
+        text('Vodoravno ali poševno asimptoto lahko graf pri končnem \\(x\\) seka; navpične asimptote ne seka.', 'The graph can cross a horizontal or oblique asymptote at a finite \\(x\\); it never crosses a vertical asymptote.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const schoolFunctionGraphsBatchBGuidedLessons: readonly GuidedLesson[] = [polynomialLesson, rationalLesson];

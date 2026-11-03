@@ -141,6 +141,26 @@ test('school function graphs expectations are authored from the transformation r
     assert.deepEqual(expectFor('polynomial-zeros', polynomial('default', false, [[1, -3]])).points, [[-3, 0], [1, 0]]);
     assert.throws(() => expectFor('polynomial-zeros', polynomial('default', false, [[1, 1]])), /no two zeros merge/);
     assert.throws(() => expectFor('polynomial-zeros', polynomial('default', false, [[3, 1]])), /does not have/);
+    // Rational functions: the zeros of both lists are gliders on the x-axis, a hole adds its point, the probe adds a point and a segment, and the
+    // asymptote and each pole add a line; a move onto a zero of the other list makes a hole, onto one of the same list is not authored.
+    const rational = (example, moves = [], probe = 10) => fnStep([fnChoice('rational-example', example), ...moves.map(([name, z]) => fnParam(name, z)), fnParam('rational-probe', probe)]);
+    assert.deepEqual(expectFor('rational-function', rational('oblique')), {types: {curve: 1, line: 2, point: 4, segment: 1}, curveCount: 1, points: [[-1, 0], [1, 0], [2, 0], [10, 12.375]]});
+    assert.deepEqual(expectFor('rational-function', rational('oblique', [['rational-denominator-1', 1]])),
+        {types: {curve: 1, line: 1, point: 5, segment: 1}, curveCount: 1, points: [[-1, 0], [1, 0], [1, 0], [1, 2], [10, 11]]});
+    assert.deepEqual(expectFor('rational-function', rational('horizontal')).points, [[-1, 0], [1, 0], [-2, 0], [2, 0], [10, 2.0625]]);
+    const vertical = expectFor('rational-function', rational('horizontal', [['rational-numerator-2', 2]]));
+    assert.deepEqual(vertical.points.slice(0, 5), [[-1, 0], [2, 0], [-2, 0], [2, 0], [2, 1.5]]);
+    assert.deepEqual(vertical.types, {curve: 1, line: 2, point: 6, segment: 1});
+    const doublePole = expectFor('rational-function', rational('double-pole'));
+    assert.deepEqual(doublePole.types, {curve: 1, line: 3, point: 4, segment: 1});
+    assert.deepEqual(doublePole.points.slice(0, 3), [[0, 0], [-2, 0], [1, 0]]);
+    assert.ok(Math.abs(doublePole.points[3][1] - 40 / (12 * 81)) < 1e-12);
+    // At a pole the probe is not shown.
+    assert.deepEqual(expectFor('rational-function', rational('oblique', [], 2)).types, {curve: 1, line: 2, point: 3});
+    assert.throws(() => expectFor('rational-function', rational('oblique', [['rational-numerator-1', 1]])), /no two zeros of one list merge/);
+    assert.throws(() => expectFor('rational-function', rational('oblique', [['rational-denominator-2', 1]])), /does not have/);
+    assert.throws(() => expectFor('rational-function', fnStep([fnChoice('rational-example', 'oblique'), fnParam('k', 3), fnParam('rational-probe', 10)])), /assumes the example's k/);
+    assert.throws(() => expectFor('rational-function', fnStep([fnChoice('rational-example', 'cubic'), fnParam('rational-probe', 10)])), /no authored rational example/);
     assert.throws(() => expectFor('function-other', transform(1, 1, 0, 0, 2)), /no authored School function graphs first frame/);
     assert.ok(chapterInventories['school-function-graphs']);
 });

@@ -5,7 +5,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
     caption: {sl: captionSl, en: captionEn},
 });
 
-/** Describes each prepared opening scene of the School function graphs chapter, keyed by example id (S1, S2 and S3). */
+/** Describes each prepared opening scene of the School function graphs chapter, keyed by example id (S1, S2, S3 and S4). */
 export const schoolFunctionGraphsPreviewCopy = {
     'school-function-graphs.function-transformation.function-transformation': copy(
         'Parabola \\(y=x^2\\) in njen duh, ki se z njo sklada, ter sledena točka \\((2,4)\\) na grafu.',
@@ -24,5 +24,11 @@ export const schoolFunctionGraphsPreviewCopy = {
         'The graph of the polynomial \\((x+2)(x-1)^2\\) with the simple zero \\(-2\\), where it crosses the \\(x\\)-axis, and the double zero \\(1\\), where it touches it; the derivative is hidden.',
         'Ničli sta \\(-2\\) z večkratnostjo \\(1\\) in \\(1\\) z večkratnostjo \\(2\\); presečišče z osjo \\(y\\) je \\(p(0)=2\\).',
         'The zeros are \\(-2\\) with multiplicity \\(1\\) and \\(1\\) with multiplicity \\(2\\); the \\(y\\)-intercept is \\(p(0)=2\\).',
+    ),
+    'school-function-graphs.rational-function.rational-function': copy(
+        'Graf funkcije \\(\\frac{x^2-1}{x-2}\\) z ničlama \\(-1\\) in \\(1\\), polom \\(2\\) in črtkano poševno asimptoto \\(y=x+2\\).',
+        'The graph of \\(\\frac{x^2-1}{x-2}\\) with the zeros \\(-1\\) and \\(1\\), the pole \\(2\\) and the dashed oblique asymptote \\(y=x+2\\).',
+        'Pri \\(x=10\\) je člen z ostankom \\(\\frac38=0{,}375\\) in \\(f(10)=12{,}375\\).',
+        'At \\(x=10\\) the remainder term is \\(\\frac38=0.375\\) and \\(f(10)=12.375\\).',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;
