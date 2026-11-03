@@ -218,6 +218,26 @@ test('every scene also works straight after any other scene, without restoring t
     }
 }, REAL_GRAPH_TEST_TIMEOUT);
 
+test('a scene with K below the current harmonic still applies, because the prepared default scene resets the harmonic to 1', () => {
+    const m = mount();
+    try {
+        act(() => m.capabilities.apply({kind: 'function-parameter', name: 'fourier-harmonic', value: 16}));
+        expect(m.model().selected.k).toBe(16);
+        // Every scene uses K = 16, so lower K and the final harmonic in a real scene's action list to reach the case.
+        let seenOrder = false;
+        const lowered = actionsOf(stepOf('coef-jump')).map((action): LessonAction => {
+            if (action.kind !== 'function-parameter') return action;
+            if (action.name === 'fourier-order') { seenOrder = true; return {...action, value: 3}; }
+            if (action.name === 'fourier-harmonic' && seenOrder) return {...action, value: 2};
+            return action;
+        });
+        act(() => { for (const action of lowered) m.capabilities.apply(action); });
+        expect({K: m.model().K, k: m.model().selected.k}).toEqual({K: 3, k: 2});
+    } finally {
+        m.mounted.view.unmount();
+    }
+}, REAL_GRAPH_TEST_TIMEOUT);
+
 test('F2: the checked coefficients, the integral of the square and the breakpoint pitfall', () => {
     // The spec's checked values.
     expect(coefficient(abs0, 'a', 0) / 2).toBeCloseTo(PI / 2, 10);
