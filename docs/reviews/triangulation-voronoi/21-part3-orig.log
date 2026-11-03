@@ -1,0 +1,277 @@
+unit: failed (1) in 19.0s (2 workers, no slot); revision 5941a20266adf987f8d034cd6c6bf937e6552fb9; dirty; log .command-logs\2026-11-03T01-08-20-816Z-26744-87d00af8.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run --no-fsModuleCache src/graphs/base/GraphTransientState.part3.test.tsx -t voronoi
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ac09fc8fac554e676
+
+stderr | src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > the lesson default scene drops every earlier change
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+stderr | src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > Preset replacement (reset to the default scene) matches a newly mounted graph
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+stderr | src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > a figure batch shows each Preset as loading it would, and restores the entry scene
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+stderr | src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > a figure batch shows each Preset as loading it would, and restores the entry scene
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+stderr | src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > a figure batch shows each Preset as loading it would, and restores the entry scene
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+stderr | src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > a figure batch shows each Preset as loading it would, and restores the entry scene
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part3.test.tsx (184 tests | 3 failed | 176 skipped) 4894ms
+   ❯ voronoi (8)
+     × the lesson default scene drops every earlier change 540ms
+     × Preset replacement (reset to the default scene) matches a newly mounted graph 494ms
+     × a figure batch shows each Preset as loading it would, and restores the entry scene 1141ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > the lesson default scene drops every earlier change
+AssertionError: expected { Object (data, state, ...) } to deeply equal { Object (data, state, ...) }
+
+- Expected
++ Received
+
+@@ -1,17 +1,17 @@
+  {
+    "board": [
+      "axis",
+      "axis",
+-     "curve n=38 4,-1 9.1,2.9 7.91,10.525 4.5,5.3 4.5,-0.166667",
+-     "curve n=5 9.1,2.9 6.071429,5.928571 4.5,5.3 4.5,-0.166667 9.1,2.9",
+-     "curve n=6 -0.915,10.525 -3.525,10.525 0.333333,2.666667 1.909091,5.818182 -0.915,10.525",
+-     "curve n=6 -3.525,-3.525 4,-3.525 0.333333,2.666667 -3.525,1.895 -3.525,-3.525",
+-     "curve n=6 11.625,2.479167 11.625,10.525 6.071429,5.928571 9.1,2.9 11.625,2.479167",
++     "curve n=35 4,-1 4,-1 NaN,NaN NaN,NaN 4.5,-0.166667",
++     "curve n=5 9,3 9,7 6.5,7 6.071429,5.928571 9,3",
++     "curve n=6 -5,-3 4,-3 0.333333,2.666667 -5,1.6 -5,-3",
++     "curve n=6 1.2,7 -5,7 0.333333,2.666667 1.909091,5.818182 1.2,7",
++     "curve n=6 4,-3 9,-3 4.5,-0.166667 4,-1 4,-3",
+      "curve n=6 4.5,-0.166667 4.5,5.3 0.333333,2.666667 4,-1 4.5,-0.166667",
+-     "curve n=6 7.91,10.525 -0.915,10.525 4.5,5.3 6.071429,5.928571 7.91,10.525",
+-     "curve n=7 4,-3.525 11.625,2.479167 9.1,2.9 4,-1 4,-3.525",
++     "curve n=6 6.5,7 1.2,7 4.5,5.3 6.071429,5.928571 6.5,7",
++     "curve n=6 9,2.833333 9,3 4.5,5.3 4.5,-0.166667 9,2.833333",
+      "label label",
+      "label label",
+      "label label",
+      "label label",
+      "label label",
+@@ -49,16 +49,16 @@
+      "point 4.5,5.3",
+      "point 6,3",
+      "point 6.071429,5.928571",
+      "point 8,0",
+      "point 9,6",
+-     "point 9.1,2.9",
+      "text ←",
+      "text ←",
+      "text ↑",
+      "text ↑",
+      "text ↑",
++     "text →",
+      "text →",
+      "text →",
+      "text ↓",
+      "text ↓",
+      "ticks",
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:280:28
+    278|             });
+    279|             const {controls: _controls, ...expectedScene} = expected;
+    280|             expect(inTick).toEqual(expectedScene);
+       |                            ^
+    281|             expect(full(mounted)).toEqual(expected);
+    282|             reference.view.unmount();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > Preset replacement (reset to the default scene) matches a newly mounted graph
+AssertionError: expected { Object (data, state, ...) } to deeply equal { Object (data, state, ...) }
+
+- Expected
++ Received
+
+@@ -1,22 +1,17 @@
+  {
+    "board": [
+      "axis",
+      "axis",
+-     "curve n=38 4,-1 9.1,2.9 7.91,10.525 4.5,5.3 4.5,-0.166667",
++     "curve n=38 4,-1 9.1,2.9 8.9,13 4.5,5.3 4.5,-0.166667",
+      "curve n=5 9.1,2.9 6.071429,5.928571 4.5,5.3 4.5,-0.166667 9.1,2.9",
+-     "curve n=6 -0.915,10.525 -3.525,10.525 0.333333,2.666667 1.909091,5.818182 -0.915,10.525",
+-     "curve n=6 -3.525,-3.525 4,-3.525 0.333333,2.666667 -3.525,1.895 -3.525,-3.525",
+-     "curve n=6 11.625,2.479167 11.625,10.525 6.071429,5.928571 9.1,2.9 11.625,2.479167",
++     "curve n=6 -10,-6 4,-6 0.333333,2.666667 -10,0.6 -10,-6",
++     "curve n=6 -2.4,13 -10,13 0.333333,2.666667 1.909091,5.818182 -2.4,13",
++     "curve n=6 18,1.416667 18,13 6.071429,5.928571 9.1,2.9 18,1.416667",
+      "curve n=6 4.5,-0.166667 4.5,5.3 0.333333,2.666667 4,-1 4.5,-0.166667",
+-     "curve n=6 7.91,10.525 -0.915,10.525 4.5,5.3 6.071429,5.928571 7.91,10.525",
+-     "curve n=7 4,-3.525 11.625,2.479167 9.1,2.9 4,-1 4,-3.525",
+-     "label label",
+-     "label label",
+-     "label label",
+-     "label label",
+-     "label label",
++     "curve n=6 8.9,13 -2.4,13 4.5,5.3 6.071429,5.928571 8.9,13",
++     "curve n=7 4,-6 18,1.416667 9.1,2.9 4,-1 4,-6",
+      "label label",
+      "label label",
+      "label label",
+      "label label",
+      "label label",
+@@ -196,11 +191,11 @@
+        "pointSetAddMode": false,
+      },
+      "fields": {},
+    },
+    "view": [
+-     -9.121875,
+-     12.28125,
+-     17.221875,
+-     -5.28125,
++     -18.24375,
++     24.5625,
++     34.44375,
++     -10.5625,
+    ],
+  }
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:295:35
+    293|             expect(full(mounted)).not.toEqual(expected);
+    294|             await settle(() => mounted.graph.reset());
+    295|             expect(full(mounted)).toEqual(expected);
+       |                                   ^
+    296|             reference.view.unmount();
+    297|             mounted.view.unmount();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part3.test.tsx > voronoi > a figure batch shows each Preset as loading it would, and restores the entry scene
+AssertionError: expected { Object (data, state, ...) } to deeply equal { Object (data, state, ...) }
+
+- Expected
++ Received
+
+@@ -1,17 +1,17 @@
+  {
+    "board": [
+      "axis",
+      "axis",
+-     "curve n=38 4,-1 9.1,2.9 7.91,10.525 4.5,5.3 4.5,-0.166667",
++     "curve n=38 4,-1 9.1,2.9 8.9,13 4.5,5.3 4.5,-0.166667",
+      "curve n=5 9.1,2.9 6.071429,5.928571 4.5,5.3 4.5,-0.166667 9.1,2.9",
+-     "curve n=6 -0.915,10.525 -3.525,10.525 0.333333,2.666667 1.909091,5.818182 -0.915,10.525",
+-     "curve n=6 -3.525,-3.525 4,-3.525 0.333333,2.666667 -3.525,1.895 -3.525,-3.525",
+-     "curve n=6 11.625,2.479167 11.625,10.525 6.071429,5.928571 9.1,2.9 11.625,2.479167",
++     "curve n=6 -10,-6 4,-6 0.333333,2.666667 -10,0.6 -10,-6",
++     "curve n=6 -2.4,13 -10,13 0.333333,2.666667 1.909091,5.818182 -2.4,13",
++     "curve n=6 18,1.416667 18,13 6.071429,5.928571 9.1,2.9 18,1.416667",
+      "curve n=6 4.5,-0.166667 4.5,5.3 0.333333,2.666667 4,-1 4.5,-0.166667",
+-     "curve n=6 7.91,10.525 -0.915,10.525 4.5,5.3 6.071429,5.928571 7.91,10.525",
+-     "curve n=7 4,-3.525 11.625,2.479167 9.1,2.9 4,-1 4,-3.525",
++     "curve n=6 8.9,13 -2.4,13 4.5,5.3 6.071429,5.928571 8.9,13",
++     "curve n=7 4,-6 18,1.416667 9.1,2.9 4,-1 4,-6",
+      "label label",
+      "label label",
+      "label label",
+      "label label",
+      "label label",
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:323:30
+    321|             await settle(() => internals(graph).exportPresetFigures(st…
+    322|             expect(shown).toHaveLength(stored ? 2 : 1);
+    323|             expect(shown[0]).toEqual(freshScene);
+       |                              ^
+    324|             if (storedScene) {
+    325|                 expect(mainScene(storedScene)).not.toEqual(mainScene(f…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed | 176 skipped (184)
+   Start at  02:08:21
+   Duration  17.88s (transform 48%, tests 28%, import 13%, environment 7%, setup 3%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

@@ -1,0 +1,83 @@
+Waiting for unit (pid 26064) to finish starting before reading free memory.
+Memory available for unit after 55s.
+unit: failed (1) in 49.2s (2 workers, no slot); revision 5941a20266adf987f8d034cd6c6bf937e6552fb9; dirty; log .command-logs\2026-11-03T00-42-55-067Z-3464-7c913054.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run --no-fsModuleCache src/graphs/base/presets/PresetCatalog.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ac09fc8fac554e676
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx (190 tests | 3 failed) 31982ms
+   ❯ Preset collection definitions (3)
+     × the accepted collection keys are the file contract, each defined once 12ms
+     × every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys 22ms
+   × voronoi: the default Preset exports, preflights, imports and loads 139ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > Preset collection definitions > the accepted collection keys are the file contract, each defined once
+AssertionError: expected [ 'accumulation', …(90) ] to deeply equal [ 'accumulation', …(91) ]
+
+- Expected
++ Received
+
+@@ -27,11 +27,10 @@
+    "compgeo-notable-points",
+    "compgeo-orientation",
+    "compgeo-polygon-area",
+    "compgeo-simson-line",
+    "compgeo-triangulation",
+-   "compgeo-voronoi",
+    "compgeo-voronoi-degenerate",
+    "complex-multiplication",
+    "complex-reciprocal",
+    "complex-roots",
+    "convexity",
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:52:34
+     50|         const keys = presetCollections.map(collection => collection.ke…
+     51|         expect(new Set(keys).size).toBe(keys.length);
+     52|         expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PA…
+       |                                  ^
+     53|             ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS,…
+     54|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > Preset collection definitions > every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys
+AssertionError: voronoi: expected [ …(91) ] to include { key: 'compgeo-voronoi', …(2) }
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:64:43
+     62|                 continue;
+     63|             }
+     64|             expect(presetCollections, id).toContain(collection);
+       |                                           ^
+     65|             if (!SHARED_COLLECTION_IDS.includes(id)) expect(used.has(c…
+     66|             used.add(collection);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > voronoi: the default Preset exports, preflights, imports and loads
+Error: Datoteka ni podprta: neznana zbirka preset-compgeo-voronoi. Izvozi prednastavitve iz Bezega in preveri podatke.
+ ❯ fail src/graphs/base/presets/PresetImport.ts:37:11
+     35|
+     36| function fail(detail: Message): never {
+     37|     throw new LocalizedError(message("unsupported_file_export_presets_…
+       |           ^
+     38| }
+     39|
+ ❯ preflightPresetImport src/graphs/base/presets/PresetImport.ts:65:64
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:127:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 187 passed (190)
+   Start at  01:42:56
+   Duration  47.86s (tests 67%, transform 22%, import 5%, environment 4%, setup 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

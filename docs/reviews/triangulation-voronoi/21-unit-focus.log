@@ -1,0 +1,103 @@
+unit: failed (1) in 41.4s (2 workers, no slot); revision 5941a20266adf987f8d034cd6c6bf937e6552fb9; dirty; log .command-logs\2026-11-03T00-38-54-529Z-4452-e2c73bfb.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run --no-fsModuleCache src/demonstrations.test.ts src/Routes.test.tsx src/DemonstrationsPage.test.tsx src/learning/runtime/lessonCatalog.test.ts src/learning/content/familyChapters.test.ts src/graphs/base/presets/PresetCatalog.test.tsx src/demonstrationPreviewAssets.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ac09fc8fac554e676
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx (190 tests | 2 failed) 28341ms
+   × voronoi: the default Preset exports, preflights, imports and loads 260ms
+   × voronoi-degenerate: the default Preset exports, preflights, imports and loads 201ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > voronoi: the default Preset exports, preflights, imports and loads
+AssertionError: expected [ 'axis', 'axis', …(61) ] to deeply equal [ 'axis', 'axis', …(61) ]
+
+- Expected
++ Received
+
+@@ -1,16 +1,16 @@
+  [
+    "axis",
+    "axis",
+-   "curve n=38 4,-1 9.1,2.9 7.91,10.525 4.5,5.3 4.5,-0.166667",
++   "curve n=38 4,-1 9.1,2.9 8.9,13 4.5,5.3 4.5,-0.166667",
+    "curve n=5 9.1,2.9 6.071429,5.928571 4.5,5.3 4.5,-0.166667 9.1,2.9",
+-   "curve n=6 -0.915,10.525 -3.525,10.525 0.333333,2.666667 1.909091,5.818182 -0.915,10.525",
+-   "curve n=6 -3.525,-3.525 4,-3.525 0.333333,2.666667 -3.525,1.895 -3.525,-3.525",
+-   "curve n=6 11.625,2.479167 11.625,10.525 6.071429,5.928571 9.1,2.9 11.625,2.479167",
++   "curve n=6 -10,-6 4,-6 0.333333,2.666667 -10,0.6 -10,-6",
++   "curve n=6 -2.4,13 -10,13 0.333333,2.666667 1.909091,5.818182 -2.4,13",
++   "curve n=6 18,1.416667 18,13 6.071429,5.928571 9.1,2.9 18,1.416667",
+    "curve n=6 4.5,-0.166667 4.5,5.3 0.333333,2.666667 4,-1 4.5,-0.166667",
+-   "curve n=6 7.91,10.525 -0.915,10.525 4.5,5.3 6.071429,5.928571 7.91,10.525",
+-   "curve n=7 4,-3.525 11.625,2.479167 9.1,2.9 4,-1 4,-3.525",
++   "curve n=6 8.9,13 -2.4,13 4.5,5.3 6.071429,5.928571 8.9,13",
++   "curve n=7 4,-6 18,1.416667 9.1,2.9 4,-1 4,-6",
+    "label label",
+    "label label",
+    "label label",
+    "label label",
+    "label label",
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:135:25
+    133|     const after = observeScene(graph);
+    134|     expect(after.data).toEqual(before.data);
+    135|     expect(after.board).toEqual(before.board);
+       |                         ^
+    136|     expect(rounded({...graph.exportPreset(), id: 'catalog'})).toEqual(…
+    137|     expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('Ign…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > voronoi-degenerate: the default Preset exports, preflights, imports and loads
+AssertionError: expected [ 'axis', 'axis', …(45) ] to deeply equal [ 'axis', 'axis', …(45) ]
+
+- Expected
++ Received
+
+@@ -1,13 +1,13 @@
+  [
+    "axis",
+    "axis",
+-   "curve n=11 0.5,0.5 0.5,0.5 NaN,NaN NaN,NaN 0.5,2",
+-   "curve n=5 -1,-1 0.5,-1 0.5,0.5 -1,0.5 -1,-1",
+-   "curve n=5 0.5,-1 2,-1 2,0.5 0.5,0.5 0.5,-1",
+-   "curve n=5 0.5,2 -1,2 -1,0.5 0.5,0.5 0.5,2",
+-   "curve n=5 2,0.5 2,2 0.5,2 0.5,0.5 2,0.5",
++   "curve n=11 0.5,0.5 0.5,0.5 NaN,NaN NaN,NaN 0.5,13",
++   "curve n=5 -10,-6 0.5,-6 0.5,0.5 -10,0.5 -10,-6",
++   "curve n=5 0.5,-6 18,-6 18,0.5 0.5,0.5 0.5,-6",
++   "curve n=5 0.5,13 -10,13 -10,0.5 0.5,0.5 0.5,13",
++   "curve n=5 18,0.5 18,13 0.5,13 0.5,0.5 18,0.5",
+    "label label",
+    "label label",
+    "label label",
+    "label label",
+    "label label",
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:135:25
+    133|     const after = observeScene(graph);
+    134|     expect(after.data).toEqual(before.data);
+    135|     expect(after.board).toEqual(before.board);
+       |                         ^
+    136|     expect(rounded({...graph.exportPreset(), id: 'catalog'})).toEqual(…
+    137|     expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('Ign…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  2 failed | 235 passed (237)
+   Start at  01:38:55
+   Duration  40.12s (tests 49%, environment 18%, transform 17%, import 8%, setup 8%)
+
+    Isolate  7 workers spawned · ~1.86s startup each (spawn + environment, per file)
+             at least ~4.65s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

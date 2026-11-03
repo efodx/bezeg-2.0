@@ -76,6 +76,8 @@ The catalog publishes its reviewed poster set and 51 silent four-second WebM cli
 | Computational geometry | `/compgeo/ear-clipping` | Ear clipping, three-colouring and the art gallery bound (`EarClippingGraph`) |
 | Computational geometry | `/compgeo/point-set-triangulation` | Triangulating a point set: triangle list, edge flips and angle readout (`TriangulationGraph`) |
 | Computational geometry | `/compgeo/delaunay` | Delaunay triangulation by Lawson flips with the incircle test and circumcircle overlay (`DelaunayGraph`) |
+| Computational geometry | `/compgeo/voronoi` | Voronoi diagram of sites: exact vertices, step-by-step cell construction by bisectors, query point and the Delaunay duality overlay (`VoronoiGraph`) |
+| Computational geometry | `/compgeo/voronoi-degenerate` | Degenerate sites: a four-point mode with the exact incircle readout, cocircular and collinear examples (`DegenerateSitesGraph`) |
 | Computational geometry | `/compgeo/interval-sweep` | Sweep over intervals: overlapping pairs and maximum depth (`IntervalSweepGraph`) |
 | Computational geometry | `/compgeo/segment-intersections` | Bentley–Ottmann segment intersections with event queue and status (`BentleyOttmannGraph`) |
 

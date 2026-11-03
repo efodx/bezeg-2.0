@@ -96,6 +96,8 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     private drawnFor?: {points: readonly GridPoint[]; highlight: number | undefined; box: RationalBox};
     /** The visible area of the board as an exact box (rounded outward to integers) once the view has changed; undefined = `frame`. */
     private followBox?: RationalBox;
+    /** The visible area when the board was created; a view that returns to it draws the exact `frame` again, as the first draw does. */
+    private startBox?: RationalBox;
     private statsValue?: VoronoiDrawingStats;
     private constructionObjects: JXG.GeometryElement[] = [];
     private constructionDrawnFor?: {points: readonly GridPoint[]; site: number | null; count: number; scale: number; box?: RationalBox};
@@ -362,7 +364,17 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     /** The drawing follows the view: a changed visible area re-clips the diagram and the construction through the same handles. */
     private followView(): void {
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
-        const next = this.visibleBox();
+        const measured = this.visibleBox();
+        const same = (a: RationalBox, b: RationalBox) => ["minX", "maxX", "minY", "maxY"].every(k => a[k as keyof RationalBox].equals(b[k as keyof RationalBox]));
+        // Loading a Preset re-applies the view it recorded: the box the board started with is not a change of view.
+        const next = measured && this.startBox && same(measured, this.startBox) ? undefined : measured;
+        if (!next) {
+            if (measured && this.followBox) {
+                this.followBox = undefined;
+                if ([this.syncDiagram(), this.syncConstruction()].some(Boolean)) this.boardUpdate();
+            }
+            return;
+        }
         const current = this.followBox;
         if (!next || (current && ["minX", "maxX", "minY", "maxY"].every(k => current[k as keyof RationalBox].equals(next[k as keyof RationalBox])))) return;
         this.followBox = next;
@@ -373,6 +385,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay"> {
     protected override createMainView(session: GraphSession, container: HTMLElement): void {
         super.createMainView(session, container);
         this.followBox = undefined;
+        this.startBox = this.visibleBox();
         session.on("boundingbox", () => this.followView());
     }
 

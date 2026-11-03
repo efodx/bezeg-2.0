@@ -1,6 +1,7 @@
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
+import {degenerateCollection} from "./degenerateSitesPresets";
 import {delaunayCollection} from "./delaunayPresetCollection";
 import {earClippingCollection} from "./earClippingPresetCollection";
 import {hullTracePresetCollection} from "./hullTracePresetCollection";
@@ -9,6 +10,7 @@ import {monotonePartitionCollection} from "./monotonePartitionPresetCollection";
 import {monotoneTriangulationCollection} from "./monotoneTriangulationPresetCollection";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 import {triangulationCollection} from "./triangulationPresetCollection";
+import {voronoiCollection} from "./voronoiPresetCollection";
 
 /**
  * The computational-geometry Demonstrations' Preset collections: module-level singletons (the Preset catalog test compares
@@ -32,4 +34,4 @@ export const hullTraceCollection: PresetCollection<PointSetModel> = hullTracePre
 
 export const compgeoPresetCollections = [orientationPresetCollection, polygonAreaPresetCollection, hullTraceCollection,
     earClippingCollection, intervalSweepCollection, bentleyOttmannCollection, triangulationCollection, delaunayCollection,
-    monotonePartitionCollection, monotoneTriangulationCollection] as const;
+    monotonePartitionCollection, monotoneTriangulationCollection, voronoiCollection, degenerateCollection] as const;

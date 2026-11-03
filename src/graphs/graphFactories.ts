@@ -4,6 +4,8 @@ import {HullTraceGraph} from './compgeo/HullTraceGraph';
 import {EarClippingGraph} from './compgeo/EarClippingGraph';
 import {TriangulationGraph} from './compgeo/TriangulationGraph';
 import {DelaunayGraph} from './compgeo/DelaunayGraph';
+import {VoronoiGraph} from './compgeo/VoronoiGraph';
+import {DegenerateSitesGraph} from './compgeo/DegenerateSitesGraph';
 import {IntervalSweepGraph} from './compgeo/IntervalSweepGraph';
 import {BentleyOttmannGraph} from './compgeo/BentleyOttmannGraph';
 import {MonotonePartitionGraph} from './compgeo/MonotonePartitionGraph';
@@ -177,6 +179,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'ear-clipping': () => new EarClippingGraph(),
     'point-set-triangulation': () => new TriangulationGraph(),
     'delaunay': () => new DelaunayGraph(),
+    'voronoi': () => new VoronoiGraph(),
+    'voronoi-degenerate': () => new DegenerateSitesGraph(),
     'interval-sweep': () => new IntervalSweepGraph(),
     'segment-intersections': () => new BentleyOttmannGraph(),
     'monotone-partition': () => new MonotonePartitionGraph(),
