@@ -78,6 +78,7 @@ import DensityAreaGraph from './functions/DensityAreaGraph';
 import BinomialNormalGraph from './functions/BinomialNormalGraph';
 import CltGraph from './functions/CltGraph';
 import SummaryStatisticsGraph from './functions/SummaryStatisticsGraph';
+import CorrelationGraph from './functions/CorrelationGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
 import RationalSubdivisionGraph2 from './curves/rational/RationalSubdivisionGraph2';
@@ -173,6 +174,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'prob-binomial-normal': () => new BinomialNormalGraph(),
     'prob-clt': () => new CltGraph(),
     'prob-summary': () => new SummaryStatisticsGraph(),
+    'prob-correlation': () => new CorrelationGraph(),
     'linear-map': () => new LinearMapGraph(),
     'complex-reciprocal': () => new ComplexReciprocalGraph(),
     'complex-roots': () => new ComplexRootsGraph(),
