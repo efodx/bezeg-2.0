@@ -57,6 +57,7 @@ import { FunctionInverseGraph } from './functions/FunctionInverseGraph';
 import { PolynomialZerosGraph } from './functions/PolynomialZerosGraph';
 import { RationalFunctionGraph } from './functions/RationalFunctionGraph';
 import { FourierSeriesGraph } from './functions/FourierSeriesGraph';
+import { FourierCoefficientsGraph } from './functions/FourierCoefficientsGraph';
 import { MeanValueGraph } from './functions/MeanValueGraph';
 import { AccumulationGraph } from './functions/AccumulationGraph';
 import { DarbouxGraph } from './functions/DarbouxGraph';
@@ -168,6 +169,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'sequence': () => new SequenceGraph(),
     'uniform-convergence': () => new UniformConvergenceGraph(),
     'fourier-series': () => new FourierSeriesGraph(),
+    'fourier-coefficients': () => new FourierCoefficientsGraph(),
     'fixed-point': () => new FixedPointGraph(),
     'prob-density': () => new DensityAreaGraph(),
     'prob-binomial-normal': () => new BinomialNormalGraph(),

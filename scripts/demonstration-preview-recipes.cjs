@@ -70,6 +70,7 @@ const targets = {
     'prob-clt': ['Default uniform base density at n = 1, standardized, over the standard normal curve', [], [-6, 0.6, 6, -0.06]],
     'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with mean and median markers and the box plot (school rule)', [], [1, 4, 11, -2]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
+    'fourier-coefficients': ['Default shape with the first coefficient bars and the partial sum', [], [-7.2, 3.6, 7.2, -2]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
     'linear-map': ['Example matrix A with the image grid, the unit square and its image, and a Bezier curve with its image', [field('Primer matrike', 'basis-default', 'select')], [-1.6, 6.6, 11.6, -1.47]],

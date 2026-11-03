@@ -28,7 +28,7 @@ import {checkUniformConvergenceModel, parseUniformConvergenceModel} from "../../
 import {uniformConvergenceFileMessage} from "./uniformConvergenceMessages";
 import {checkFourierSeriesModel, parseFourierSeriesModel} from "../../analysis/fourierSeriesModel";
 import {fourierSeriesFileMessage} from "./fourierSeriesMessages";
-import {checkFourierCoefficientsModel, parseFourierCoefficientsModel} from "../../analysis/fourierCoefficientsModel";
+import {checkFourierCoefficientsModel, DEFAULT_FOURIER_COEFFICIENTS_MODEL, type FourierCoefficientsModel, parseFourierCoefficientsModel} from "../../analysis/fourierCoefficientsModel";
 import {fourierCoefficientsFileMessage} from "./fourierCoefficientsMessages";
 import {checkRungeModel, parseRungeModel} from "../../analysis/rungeInterpolationModel";
 import {rungeFileMessage} from "./rungeInterpolationMessages";
@@ -128,6 +128,27 @@ const diagnoseFourierSeries: Diagnosis = data => {
 const diagnoseFourierCoefficients: Diagnosis = data => {
     const check = checkFourierCoefficientsModel(data);
     return check.ok || check.issue === undefined ? undefined : fourierCoefficientsFileMessage(check.issue);
+};
+/**
+ * The Fourier coefficients scene state holds the model, whose `values`, `selected` and `selections` the shared flat scene-state
+ * rule rejects. Those three are checked together with the scalar fields by the model's own rules (missing fields take the
+ * defaults); the remaining fields go through `checkSceneState`. The model itself is still restored from the Preset data.
+ */
+const fourierCoefficientsCollection = (): PresetCollection<FourierCoefficientsModel> => {
+    const base = functionCollection("fourier-coefficients", parseFourierCoefficientsModel, diagnoseFourierCoefficients);
+    return Object.freeze({
+        ...base,
+        checkGraphState(graphState: unknown): Message | undefined {
+            if (!isRecord(graphState)) return message("invalid_state");
+            const {values, selected, selections, ...rest} = graphState;
+            if (values !== undefined || selected !== undefined || selections !== undefined) {
+                const {view, layout, K, overlay, n, scale} = rest;
+                const check = checkFourierCoefficientsModel({...DEFAULT_FOURIER_COEFFICIENTS_MODEL, ...Object.fromEntries(Object.entries({view, layout, K, overlay, n, scale, values, selected, selections}).filter(([, item]) => item !== undefined))});
+                if (!check.ok) return check.issue === undefined ? message("invalid_state") : fourierCoefficientsFileMessage(check.issue);
+            }
+            return checkSceneState(rest);
+        },
+    });
 };
 /** The model module names the rule a rejected Runge interpolation model broke; this only localizes it. */
 const diagnoseRunge: Diagnosis = data => {
@@ -310,7 +331,7 @@ export const functionPresetCollections = {
     sequence: functionCollection("sequence", parseSequenceModel, diagnoseSequence),
     "uniform-convergence": functionCollection("uniform-convergence", parseUniformConvergenceModel, diagnoseUniformConvergence),
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
-    "fourier-coefficients": functionCollection("fourier-coefficients", parseFourierCoefficientsModel, diagnoseFourierCoefficients),
+    "fourier-coefficients": fourierCoefficientsCollection(),
     "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
     "interp-least-squares": leastSquaresCollection(),
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
