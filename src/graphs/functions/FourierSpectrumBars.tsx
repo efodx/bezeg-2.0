@@ -62,7 +62,7 @@ export function FourierSpectrumBars(props: FourierSpectrumProps) {
         }
     }
     return <figure className="fourier-spectrum" data-testid="fourier-spectrum">
-        <figcaption>{t("fourier_coef_spectrum_title")}</figcaption>
+        <figcaption>{t("fourier_coef_spectrum_title")}<span className="fourier-spectrum-key">{t("fourier_coef_spectrum_key")}</span></figcaption>
         <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby={`${id}-title ${id}-desc`} className="fourier-spectrum-svg">
             <title id={`${id}-title`}>{t("fourier_coef_spectrum_title")}</title>
             <desc id={`${id}-desc`}>{t("fourier_coef_spectrum_desc", {value0: K})}</desc>

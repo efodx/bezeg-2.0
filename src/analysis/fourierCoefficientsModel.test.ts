@@ -144,7 +144,7 @@ describe('snapFourierValue', () => {
 
 describe('exact coefficients of the default shapes', () => {
     test('abs: a_0/2 = pi/2, a_1 = -4/pi, a_2 = 0, a_3, a_5, all b_k = 0', () => {
-        const {coefficients: c, selectedValue, meanSquare} = fourierProjection(valid);
+        const {coefficients: c, selectedValue, squareIntegral} = fourierProjection(valid);
         expect(c.a[0] / 2).toBeCloseTo(PI / 2, 9);
         expect(c.a[1]).toBeCloseTo(-4 / PI, 9);
         expect(c.a[1]).toBeCloseTo(-1.27324, 5);
@@ -155,7 +155,7 @@ describe('exact coefficients of the default shapes', () => {
         expect(c.a[5]).toBeCloseTo(-0.05093, 5);
         for (let k = 0; k <= 16; k++) expect(c.b[k]).toBeCloseTo(0, 9);
         expect(selectedValue).toBe(c.a[1]);
-        expect(meanSquare).toBeCloseTo((2 * PI * PI) / 3, 9);
+        expect(squareIntegral).toBeCloseTo((2 * PI * PI) / 3, 9);
     });
 
     test('jump: b_1, b_2, b_5 of sign(x - 1)', () => {

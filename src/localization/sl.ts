@@ -1542,6 +1542,7 @@ export const sl = {
     "fourier_coef_spectrum_title": "Spekter koeficientov aₖ in bₖ",
     "fourier_coef_spectrum_desc": "Stolpci koeficientov aₖ (levo) in bₖ (desno) za k od 0 do {value0}; za k = 0 je narisan konstantni člen a₀/2; izbrani koeficient je obrobljen. Vrednosti so tudi v tabeli.",
     "fourier_coef_table_summary": "Vrednosti koeficientov (tabela)",
+    "fourier_coef_spectrum_key": "Levi stolpec: aₖ, desni stolpec: bₖ, obrobljen stolpec: izbrani koeficient.",
     "fourier_coef_table_constant": "0 (a₀/2)",
     "complex_multiplication": "Kompleksno množenje",
     "prompt_complex_multiplication": "Premakni z in w ali vnesi njuni koordinati, napovej, kje leži zmnožek zw, in šele nato pritisni Pokaži zmnožek.",

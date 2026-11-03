@@ -1543,6 +1543,7 @@ export const en: Record<keyof typeof sl, string> = {
     "fourier_coef_spectrum_title": "Spectrum of the coefficients aₖ and bₖ",
     "fourier_coef_spectrum_desc": "Bars of the coefficients aₖ (left) and bₖ (right) for k from 0 to {value0}; for k = 0 the bar is the constant term a₀/2; the selected coefficient is outlined. The values are also in the table.",
     "fourier_coef_table_summary": "Coefficient values (table)",
+    "fourier_coef_spectrum_key": "Left bar: aₖ, right bar: bₖ, outlined bar: the selected coefficient.",
     "fourier_coef_table_constant": "0 (a₀/2)",
     "complex_multiplication": "Complex multiplication",
     "prompt_complex_multiplication": "Move z and w or type their coordinates, predict where the product zw lies, and only then press Show product.",

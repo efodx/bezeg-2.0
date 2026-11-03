@@ -217,7 +217,7 @@ export function chooseFourierView(model: FourierCoefficientsModel, view: unknown
 /** Choosing a layout replaces the handle values by that layout's defaults (the values of one layout mean nothing in another). The same layout returns the same model. */
 export function chooseFourierLayout(model: FourierCoefficientsModel, layout: unknown): FourierCoefficientsEdit {
     if (!isFourierLayout(layout)) return {ok: false, issue: {kind: 'layout', allowed: FOURIER_COEFFICIENTS_LAYOUTS}};
-    return accept(model, layout === model.layout ? model : {...model, layout, values: LAYOUTS[layout].defaults});
+    return accept(model, layout === model.layout ? model : {...model, layout, values: [...LAYOUTS[layout].defaults]});
 }
 
 /** One handle value, by slot index; any finite value in [-4, 4] (the drag snaps to the grid before it calls this). */
@@ -342,7 +342,8 @@ export interface FourierProjection {
     /** The selected coefficient a_k or b_k. */
     readonly selectedValue: number;
     /** (1/pi) int f^2 over [-pi, pi], exact for the shape. */
-    readonly meanSquare: number;
+    /** (1/pi) int f^2 over [-pi, pi], the left side of Parseval's identity (twice the mean of f^2, so not called the mean square). */
+    readonly squareIntegral: number;
     /** a_0^2/2 + sum_{k <= K} (a_k^2 + b_k^2). */
     readonly parseval: number;
     readonly seamMidpoint: number;
@@ -356,7 +357,7 @@ export function fourierProjection(model: FourierCoefficientsModel): FourierProje
         shape,
         coefficients,
         selectedValue: term === 'a' ? coefficients.a[k] : coefficients.b[k],
-        meanSquare: meanSquare(shape),
+        squareIntegral: meanSquare(shape),
         parseval: parsevalSum(coefficients, model.K),
         seamMidpoint: fourierSeamMidpoint(shape),
     };

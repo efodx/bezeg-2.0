@@ -124,12 +124,12 @@ test('a keyboard step on a handle (0.05, Shift 0.5) changes the model, the table
     act(() => { fireEvent.keyDown(handleFields()[1], {key: 'ArrowDown', shiftKey: true}); });
     act(() => { fireEvent.keyDown(handleFields()[1], {key: 'ArrowDown', shiftKey: true}); });
     expect(graph.modelNow().values[1]).toBeCloseTo(-0.45, 12);
-    const {coefficients, meanSquare} = fourierProjection(graph.modelNow());
+    const {coefficients, squareIntegral} = fourierProjection(graph.modelNow());
     expect(tableCell(0, 'a')).not.toBe(beforeConstant);
     expect(tableCell(0, 'a')).toBe(sl(coefficients.a[0] / 2, 4));
     expect(tableCell(1, 'a')).toBe(sl(coefficients.a[1], 4));
     expect(readout('square-integral')).not.toBe(beforeMeanSquare);
-    expect(readout('square-integral')).toBe(sl(meanSquare, 5));
+    expect(readout('square-integral')).toBe(sl(squareIntegral, 5));
 });
 
 test('the overlay switch shows and hides the partial sum on the board and in the model', () => {

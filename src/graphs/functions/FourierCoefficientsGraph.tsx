@@ -252,7 +252,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         this.caption("top-left", [
             {text: () => t("fourier_coef_board_title", {value0: this.harmonicName(model())}), scale: 1.1},
             {text: () => t("fourier_coef_board_coefficient", {value0: this.coefficientName(model()), value1: this.number(view().selectedValue, 5)}), color: GraphPalette.warningText},
-            {text: () => t("fourier_coef_board_sums", {value0: this.number(view().meanSquare, 5), value1: this.number(view().parseval, 5)})},
+            {text: () => t("fourier_coef_board_sums", {value0: this.number(view().squareIntegral, 5), value1: this.number(view().parseval, 5)})},
             {text: () => t("fourier_coef_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
         ]);
     }
@@ -341,7 +341,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
             constant
                 ? {id: "selected", label: t("fourier_coef_readout_constant"), value: this.number(view.selectedValue / 2, 5)}
                 : {id: "selected", label: t("fourier_coef_readout_selected", {value0: this.coefficientName(model)}), value: this.number(view.selectedValue, 5)},
-            {id: "square-integral", label: t("fourier_coef_readout_square_integral"), value: this.number(view.meanSquare, 5)},
+            {id: "square-integral", label: t("fourier_coef_readout_square_integral"), value: this.number(view.squareIntegral, 5)},
             {id: "parseval", label: t("fourier_coef_readout_parseval"), value: this.number(view.parseval, 5)},
             {id: "seam", label: t("fourier_coef_readout_seam"), value: this.number(view.seamMidpoint, 5)},
         ];

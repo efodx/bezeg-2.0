@@ -6,3 +6,4 @@
 .fourier-spectrum-selected { stroke: var(--workspace-ink); stroke-width: 2; }
 .fourier-spectrum-table { width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
 .fourier-spectrum-table th, .fourier-spectrum-table td { padding: 0 .4rem; text-align: right; }
+.fourier-spectrum-key { display: block; color: var(--workspace-ink-soft); font-size: .8rem; font-weight: 400; }
