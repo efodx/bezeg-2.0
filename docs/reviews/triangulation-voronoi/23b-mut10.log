@@ -1,0 +1,10 @@
+mutation 10: src/learning/content/compgeoGuidedLessons.ts: 'The lesson on the Delaunay triangulation is required: the empty circle and the edge flip' -> 'The lesson on triangulation is required: the empty circle and the edge flip'
+unit: failed (1) in 11.8s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-52-55-021Z-30644-1a4a051b.log
+ ❯ src/learning/content/compgeoVoronoiDegenerateLesson.test.ts (6 tests | 1 failed) 1124ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/learning/content/compgeoVoronoiDegenerateLesson.test.ts > prerequisites name the Delaunay and Voronoi lessons in both languages, and both lessons exist
+AssertionError: expected 'The lesson on triangulation is requir…' to contain 'Delaunay'
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+error: recipe `unit` failed on line 22 with exit code 1
+restored

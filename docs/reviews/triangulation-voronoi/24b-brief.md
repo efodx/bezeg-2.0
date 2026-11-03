@@ -1,0 +1,16 @@
+# Brief (handoff-v12): T3 task 24b, `voronoi-degenerate` chapter section
+
+Written 2026-11-03 by geometry handler 40. Runs after 23b, in the same worktree.
+
+- **Role:** implementation in `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f` (branch `worktree-agent-a2db2ea2615a0587f`, uncommitted 23a/23b work). Keep their changes. Do not commit, push or delegate. Pass `--no-fsModuleCache` to every Vitest run; a missing image `src` in a preview test means a stale Vitest cache (`docs/commands.md`).
+- **Goal:** the B5 half of [task 24](../../tasks/triangulation-voronoi/24-t3-chapter.md) (items 1–3 for `voronoi-degenerate`). Template: how 24a added the `voronoi` section, read in `src/learning/content/triangulationChapter.ts` (grep `voronoi`) and its test `triangulationChapter.test.ts`. Spec B5 at `docs/specs/triangulation-voronoi-lessons.md:128-136`, correctness notes `:172-181`.
+- **Acceptance:**
+  1. Section `voronoi-degenerate` after `voronoi`, opening its own route, with a learning outcome, key facts and a chapter-owned activity link. Key facts: cocircular sites give a Voronoi vertex of degree four and a Delaunay triangulation that is not unique; collinear sites give parallel strips and no vertices. Use only spec values. Bilingual one-shot text; `\(...\)` around every symbol; `lessonMathNotation.test.ts` unchanged.
+  2. **Registry and smoke (found by 23b):** `?learn=1` on `/compgeo/voronoi-degenerate` opens no lesson panel today, because `resolveGuidedExample` (`src/learning/.../guidedExamples.ts:254-258`) resolves chapter-owned lessons through `triangulationChapterRegistry.ts`, which has no `voronoi-degenerate` section, and 23a's interim owner entry points at `voronoi`. Add the section to the registry and replace the interim entry, then run `just smoke-lesson voronoi voronoi-degenerate` (both must pass, sl and en; 23b's extended row has never run). Fix the smoke row if it is wrong rather than the lesson, and report.
+  3. Ownership: `voronoi-degenerate` moves to the section through `chapterOwnedLessons` and leaves `CHAPTER_LINK_PENDING` in `familyChapters.test.ts`. The return link lands on the owning section and restores focus.
+  4. The `voronoi` section and B4's last step may gain a forward link to B5, each with a test. The narrowed unreleased-lessons scan stays as it is unless it now has nothing left to guard; report rather than weaken it.
+  5. Recount from the failure messages, not by guessing: `familyChapters`, `authoredChapterCoverage`, `guidedLessonOwnership`, `lessonCatalog` and the preview-copy counts.
+  6. One observed mutation failure per new assertion, including the ownership move; restore byte-identical.
+- **Checks:** `npx tsc --noEmit --pretty false`, `npx eslint` on touched files, `just unit src/learning --no-fsModuleCache`, `just build`, then the smoke above. Logs `docs/reviews/triangulation-voronoi/24b-*.log` in the worktree. The handler runs the full suite, the chapter page in both languages and `just smoke-lesson voronoi voronoi-degenerate`.
+- **Return (≤250 words):** files changed, counts before → after, mutation evidence, unverified cases.
+- **Budget:** grep first; ≤150 lines per read; output to logs. On `HANDOFF` or past about 30 turns, write `docs/reviews/triangulation-voronoi/24b-handoff.md` and return partial.

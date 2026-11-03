@@ -1,0 +1,117 @@
+unit: failed (1) in 33.2s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T05-25-35-753Z-31748-c3b5f465.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/triangulationChapter.test.ts src/learning/content/familyChapters.test.ts src/learning/chapter --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f
+
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/content/familyChapters.test.ts (11 tests | 1 failed) 92ms
+   ❯ family reading chapters (11)
+     × links every existing demonstration from its matching family chapters 14ms
+ ❯ src/learning/content/triangulationChapter.test.ts (17 tests | 3 failed) 40ms
+   ❯ chapter structure and registration (17)
+     × the Voronoi section ends its prose with a forward link naming the degenerate-sites section 11ms
+     × the degenerate-sites section states the degree-four vertex, non-uniqueness and parallel strips, and links its activity at the end 3ms
+     × lesson B5 opens from its own section, owns it, and returns to it 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/familyChapters.test.ts > family reading chapters > links every existing demonstration from its matching family chapters
+AssertionError: expected [ 'convex-hull', 'delaunay', …(10) ] to deeply equal [ 'convex-hull', 'delaunay', …(9) ]
+
+- Expected
++ Received
+
+@@ -8,6 +8,7 @@
+    "orientation",
+    "point-set-triangulation",
+    "polygon-area",
+    "segment-intersections",
+    "voronoi",
++   "voronoi-degenerate",
+  ]
+
+ ❯ src/learning/content/familyChapters.test.ts:132:46
+    130|                 .flatMap(chapter => chapter.sections.flatMap(section =…
+    131|             const expected = demonstrations.filter(demo => demo.family…
+    132|             expect([...new Set(ids)].sort()).toEqual(expected);
+       |                                              ^
+    133|         }
+    134|         for (const chapter of familyChapters) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > the Voronoi section ends its prose with a forward link naming the degenerate-sites section
+AssertionError: expected 'Naslednji razdelek, Drugo: kocirkular…' to contain 'Izrojena mesta: kocirkularne in kolin…'
+
+Expected: "Izrojena mesta: kocirkularne in kolinearne točke"
+Received: "Naslednji razdelek, Drugo: kocirkularne in kolinearne točke, pokaže, kaj se zgodi, kadar dualnost ni triangulacija."
+
+ ❯ src/learning/content/triangulationChapter.test.ts:215:25
+    213|         const b4 = triangulationChapter.sections[4];
+    214|         const last = b4.paragraphs.at(-1)!;
+    215|         expect(last.sl).toContain(triangulationChapter.sections[5].tit…
+       |                         ^
+    216|         expect(last.en).toContain(triangulationChapter.sections[5].tit…
+    217|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > the degenerate-sites section states the degree-four vertex, non-uniqueness and parallel strips, and links its activity at the end
+AssertionError: sl: (8,0): expected 'Cilj razdelka: ugotoviš, kaj naredijo…' to contain '(8,0)'
+
+- Expected
++ Received
+
+- (8,0)
++ Cilj razdelka: ugotoviš, kaj naredijo kocirkularne in kolinearne točke z diagramom in triangulacijo. Če so štiri točke kocirkularne, je vrednost preizkusa \(D=0\): diagram ima eno oglišče stopnje \(4\), Delaunayeva triangulacija pa ni enolična, ker sta obe diagonali štirikotnika dovoljeni. Če so mesta kolinearna, so celice vzporedni pasovi, diagram nima oglišč in triangulacije ni. Zgledi: kvadrat z enotsko stranico je kocirkularen in ima \(D=0\); enakokraki trapez \((0,0)\), \((8,1)\), \((9,5)\), \((-1,5)\) je prav tako kocirkularen. Pet mest na premici da štiri vzporedne simetrale, brez oglišč in brez Delaunayevih trikotnikov. Ker so koordinate cela števila, je \(D\) celo število, zato je vrednost \(0\) dosegljiva natančno; že en korak mreže stran od krožnice pa je \(D
++ e0\) in sta oglišči dve, vsako stopnje \(3\). Zakaj je tako in kako uporabiš: Delaunayeva triangulacija je enolična le, če nobeni štirje točki nista kocirkularni. Pri \(D=0\) lahko izbereš katerokoli od obeh diagonal; slika več mest ponazarja ta primer in ga ne dokazuje.
+
+ ❯ src/learning/content/triangulationChapter.test.ts:226:133
+    224|         for (const language of ['sl', 'en'] as const) {
+    225|             const prose = section.paragraphs.map(p => p[language]).joi…
+    226|             for (const fact of ['\\(D=0\\)', '\\(4\\)', '(0,0)', '(8,0…
+       |                                                                                                                                     ^
+    227|             expect(prose, `${language}: illustrates, does not prove`).…
+    228|             expect(section.investigationPrompts![B5]![language].length…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/learning/content/triangulationChapter.test.ts > chapter structure and registration > lesson B5 opens from its own section, owns it, and returns to it
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "chapterId": "triangulations-voronoi",
+-   "sectionId": "voronoi-degenerate",
++   "sectionId": "voronoi",
+  }
+
+ ❯ src/learning/content/triangulationChapter.test.ts:240:42
+    238|         expect(lesson).toBe(triangulationGuidedExampleRegistry[B5]);
+    239|         expect(resolveGuidedExample('?learn=1&learnChapter=triangulati…
+    240|         expect(getGuidedLessonOwner(B5)).toEqual({chapterId: TRIANGULA…
+       |                                          ^
+    241|         expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, B5)).…
+    242|         expect(guidedLessonReturnPath(getGuidedLessonOwner(B5)!)).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed | 17 passed (19)
+      Tests  4 failed | 168 passed (172)
+   Start at  06:25:36
+   Duration  32.24s (environment 50%, setup 22%, transform 15%, import 9%, tests 3%, worker 1%)
+
+Environment  jsdom was created 19 times · 30.02s total, 50% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+error: recipe `unit` failed on line 22 with exit code 1

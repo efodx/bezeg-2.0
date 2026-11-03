@@ -1,0 +1,104 @@
+unit: failed (1) in 662.8s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-25-42-557Z-29872-e9b43f70.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning src/graphs/compgeo src/compgeo --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts (26 tests | 1 failed) 4040ms
+   × the lessons are bounded, bilingual, and found by the catalog 8ms
+ ❯ src/learning/content/lessonMathNotation.test.ts (3 tests | 1 failed) 224ms
+   × scans every lesson module 8ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts (2 tests | 1 failed) 11ms
+   × every available demonstration has exactly one default smoke row and patch sections add only their explicit extras 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/runtime/lessonSmokeCoverage.test.ts > every available demonstration has exactly one default smoke row and patch sections add only their explicit extras
+AssertionError: expected [ 'accumulation', 'affine', …(91) ] to deeply equal [ 'accumulation', 'affine', …(92) ]
+
+- Expected
++ Received
+
+@@ -89,8 +89,7 @@
+    "triangle-centres",
+    "trigonometric-functions",
+    "uniform-convergence",
+    "uniform-parameterization",
+    "voronoi",
+-   "voronoi-degenerate",
+    "weighted-parameterization",
+  ]
+
+ ❯ src/learning/runtime/lessonSmokeCoverage.test.ts:20:34
+     18|     expect(new Set(rowIds).size).toBe(rowIds.length);
+     19|     const defaults = rowIds.filter(id => !sectionRows.includes(id));
+     20|     expect([...defaults].sort()).toEqual([...GUIDED_LESSON_AVAILABLE_I…
+       |                                  ^
+     21|     expect([...patchRowIds].filter(id => sectionRows.includes(id)).sor…
+     22| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/learning/content/compgeoGuidedLessons.test.ts > the lessons are bounded, bilingual, and found by the catalog
+AssertionError: expected [ Array(12) ] to deeply equal [ 'orientation', 'polygon-area', …(9) ]
+
+- Expected
++ Received
+
+@@ -4,10 +4,11 @@
+    "convex-hull",
+    "ear-clipping",
+    "point-set-triangulation",
+    "delaunay",
+    "voronoi",
++   "voronoi-degenerate",
+    "interval-sweep",
+    "segment-intersections",
+    "monotone-partition",
+    "monotone-triangulation",
+  ]
+
+ ❯ src/learning/content/compgeoGuidedLessons.test.ts:44:72
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/learning/content/lessonMathNotation.test.ts > scans every lesson module
+AssertionError: expected [ 'accumulation', 'affine', …(89) ] to deeply equal [ 'accumulation', 'affine', …(88) ]
+
+- Expected
++ Received
+
+@@ -86,7 +86,8 @@
+    "taylor",
+    "trigonometric-functions",
+    "uniform-convergence",
+    "uniform-parameterization",
+    "voronoi",
++   "voronoi-degenerate",
+    "weighted-parameterization",
+  ]
+
+ ❯ src/learning/content/lessonMathNotation.test.ts:175:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 178 passed | 2 skipped (183)
+      Tests  3 failed | 2901 passed | 3 skipped (2907)
+   Start at  05:25:43
+   Duration  661.81s (tests 60%, environment 18%, import 11%, setup 8%, transform 2%)
+
+    Isolate  183 workers spawned · ~1.43s startup each (spawn + environment, per file)
+             at least ~129.59s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1

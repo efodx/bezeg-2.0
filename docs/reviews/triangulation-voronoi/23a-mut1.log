@@ -1,0 +1,174 @@
+unit: failed (1) in 13.1s (2 workers, no slot); revision 3b5c93c13902847671d6fa255d1a1ce0952e50a4; dirty; log .command-logs\2026-11-03T04-38-27-932Z-26488-cdea03e8.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoVoronoiLesson.test.ts --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f
+
+stderr | src/learning/content/compgeoVoronoiLesson.test.ts > set-mode: sites and four-point on VoronoiGraph and DegenerateSitesGraph; every other point-set graph, a refused count and an unknown mode throw and change nothing
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+Warning: An update to GraphHost inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GraphHost (C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a2db2ea2615a0587f/src/graphs/base/GraphHost.tsx:18:22)
+    at Router (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1163:17)
+    at MemoryRouter (C:\Users\1337Hacker\Desktop\bezeg-2.0\node_modules\react-router\dist\umd\react-router.development.js:1058:7)
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts (14 tests | 1 failed) 3028ms
+   × set-mode: sites and four-point on VoronoiGraph and DegenerateSitesGraph; every other point-set graph, a refused count and an unknown mode throw and change nothing 176ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoVoronoiLesson.test.ts > set-mode: sites and four-point on VoronoiGraph and DegenerateSitesGraph; every other point-set graph, a refused count and an unknown mode throw and change nothing
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ src/learning/content/compgeoVoronoiLesson.test.ts:249:66
+    247|             expect(graph.mode).toBe('sites');
+    248|             act(() => { capabilities.apply(ps('set-points', {mode: 'po…
+    249|             expect(() => capabilities.apply(mode('four-point'))).toThr…
+       |                                                                  ^
+    250|             expect(graph.mode).toBe('sites');
+    251|             expect(document.querySelector('[data-voronoi="mode-refused…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  05:38:28
+   Duration  12.28s (transform 49%, tests 25%, import 14%, environment 9%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
