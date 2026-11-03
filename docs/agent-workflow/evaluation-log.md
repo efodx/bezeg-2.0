@@ -1719,3 +1719,14 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - PS-A-5b: handler wrote the one-shot lesson text and registration; `bezeg-worker` Sonnet lesson tests: 57k tokens, 19 tools, 9 min, complete, four mutations seen failing, no wrong number. A mid-run handler message (text changed to the readout's trailing-zero-free 0,5881 and 0,1841) arrived in time. The first host-test worker's assertions exposed the trailing-zero mismatch between lesson text and readout. Lesson: write lesson numbers in the readout's own format from the start.
 - Environment: in the stream worktree `guidedExamplePreviews.test.ts` fails on projective-five-point (module glob misses an image on disk); the same diff passes on a clean `origin/master` worktree with a junctioned `node_modules`. That clean worktree was also used for the full unit run (1417 s). The diagnosis cost about six handler turns.
 - Context: soft threshold (175k) fired while the lesson-test worker ran; integrated, committed, and handed off before the lesson browser smoke.
+
+## Curves handler 31 (Opus, auto, medium), 2026-11-03
+
+- P2 lesson browser check: handler ran `smoke-lesson` and a throwaway Playwright full-page screenshot script itself instead of a Haiku smoke worker (about six turns); viewport-only screenshots first cut off the board, full-page shots were needed.
+- PS-A-F4 chapter: `bezeg-worker` Sonnet v12, 102k tokens, 55 tools, 17 min, complete; eight mutations seen failing; one handler prose fix (a claim that the static numbers are computed by the graph's function).
+- PS-B-2a1 CLT model: `bezeg-worker` Sonnet, 68k tokens, 29 tools, 11 min, complete; nine mutations seen failing; one runaway vitest from a looping mutation, killed by the worker.
+- PS-B-2a2 CLT graph: `bezeg-worker` Sonnet, 112k tokens, 44 tools, 10 min, complete; nine mutations. The worker reported the grid variance 0,0834 for U(0,1) as acceptable within tolerance; the handler replaced the readout with exact shape moments. `bezeg-reviewer` Sonnet: 29k tokens, 10 tools, one real should-fix (stale notice after Reset).
+- Rebase with a dirty stream tree: cherry-picked onto `origin/master` in a temporary worktree with a junctioned `node_modules`, ran the affected suites there (1346 tests, `--no-fsModuleCache`), pushed from it.
+- Handler slip: a Python edit wrote LF lines into a CRLF working copy, committing mixed endings; fixed by a follow-up commit.
+- Context: soft threshold fired after the graph review; committed, pushed and handed off before registration PS-B-2b.
+
