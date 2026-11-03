@@ -39,6 +39,7 @@ import preview_bspline_basis from './images/demonstrations/catalog/bspline-basis
 import preview_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.png';
 import preview_bspline_insertion from './images/demonstrations/catalog/bspline-insertion.png';
 import preview_bspline_extraction from './images/demonstrations/catalog/bspline-extraction.png';
+import preview_bspline_nurbs from './images/demonstrations/catalog/bspline-nurbs.png';
 import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.png';
 import preview_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.png';
 import preview_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.png';
@@ -144,6 +145,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'bspline-deboor': preview_bspline_deboor,
     'bspline-insertion': preview_bspline_insertion,
     'bspline-extraction': preview_bspline_extraction,
+    'bspline-nurbs': preview_bspline_nurbs,
     'patch-tensor': preview_patch_tensor,
     'patch-decasteljau': preview_patch_decasteljau,
     'patch-derivatives': preview_patch_derivatives,
