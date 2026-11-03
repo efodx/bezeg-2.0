@@ -1,0 +1,42 @@
+unit: failed (1) in 7.6s (2 workers, no slot); revision 165448bab38067f2c728c765e5fadaa6d921e575; dirty; log .command-logs\2026-11-03T11-30-38-152Z-33188-db9d9b0f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/compgeoDefaultView.host.test.tsx src/graphs/compgeo/fortunePresetCollection.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts (4 tests | 1 failed) 8ms
+   × a coordinate at the sweep limit is accepted and one beyond it refused 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/fortunePresetCollection.test.ts > a coordinate at the sweep limit is accepted and one beyond it refused
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts:26:79
+     24| test('a coordinate at the sweep limit is accepted and one beyond it re…
+     25|     expect('data' in registered!.check(sites(3, SWEEP_COORD_LIMIT - 4)…
+     26|     expect('rejection' in registered!.check(sites(3, SWEEP_COORD_LIMIT…
+       |                                                                               ^
+     27|     expect('rejection' in registered!.check({...sites(3), points: [{x:…
+     28| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 22 passed (23)
+   Start at  12:30:38
+   Duration  6.79s (transform 30%, environment 22%, import 21%, tests 16%, setup 11%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

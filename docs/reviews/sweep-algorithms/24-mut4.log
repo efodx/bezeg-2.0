@@ -1,0 +1,42 @@
+unit: failed (1) in 7.1s (2 workers, no slot); revision 165448bab38067f2c728c765e5fadaa6d921e575; dirty; log .command-logs\2026-11-03T11-30-30-266Z-16176-ceb6a5fd.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/compgeoDefaultView.host.test.tsx src/graphs/compgeo/fortunePresetCollection.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts (4 tests | 1 failed) 7ms
+   × twelve sites are accepted and thirteen refused with a message 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/fortunePresetCollection.test.ts > twelve sites are accepted and thirteen refused with a message
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts:21:36
+     19|     expect('data' in registered!.check(sites(SWEEP_MAX_SITES))).toBe(t…
+     20|     const checked = registered!.check(sites(SWEEP_MAX_SITES + 1));
+     21|     expect('rejection' in checked).toBe(true);
+       |                                    ^
+     22| });
+     23|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 22 passed (23)
+   Start at  12:30:30
+   Duration  6.29s (transform 29%, environment 22%, import 21%, tests 15%, setup 12%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

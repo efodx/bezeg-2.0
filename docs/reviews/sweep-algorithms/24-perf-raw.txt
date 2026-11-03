@@ -1,0 +1,7 @@
+browser Chromium 156.0.8078.4 viewport 1440x900 dsf 1 base http://127.0.0.1:4323/bezeg-2.0 approach registered
+{"approach":"registered","run":1,"step":12,"beachArcs":11,"beachObjects":1,"beachObjectsAfter":1,"frames":270,"moves":61,"median":16.69999999999891,"p95":16.800000000000182,"max":16.80000000000109,"latMedian":7.299999995529561,"latMax":16.500000002980414,"movedPx":92}
+{"approach":"registered","run":2,"step":12,"beachArcs":11,"beachObjects":1,"beachObjectsAfter":1,"frames":273,"moves":61,"median":16.699999999999818,"p95":16.799999999999272,"max":16.80000000000109,"latMedian":8.749999997019586,"latMax":16.49999999403917,"movedPx":92}
+{"approach":"registered","run":3,"step":12,"beachArcs":11,"beachObjects":1,"beachObjectsAfter":1,"frames":267,"moves":61,"median":16.699999999999818,"p95":16.700000000000728,"max":16.80000000000109,"latMedian":8.54999999552956,"latMax":16.600000005960283,"movedPx":92}
+
+approach | frames/run | median ms | p95 ms | max ms | move->frame median | move->frame max
+registered | 270/273/267 | 16.7 | 16.8 | 16.8 | 8.5 | 16.6

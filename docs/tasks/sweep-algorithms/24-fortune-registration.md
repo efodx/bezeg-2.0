@@ -1,6 +1,6 @@
 # 24 — Fortune registration (C5)
 
-Status: planned 2026-11-03 (geometry handler 43). Source: [spec C5](../../specs/sweep-algorithms-lessons.md#c5-fortunes-algorithm-showpiece), [placement](../../specs/sweep-algorithms-lessons.md#placement). Kind: F2b, engineering review and browser smoke. Depends on 23. Pattern: [18 S2 registration](18-s2-registration.md).
+Status: accepted 2026-11-03 (geometry handler 45, [record](../../reviews/sweep-algorithms/24-acceptance.md)); planned by handler 43. Source: [spec C5](../../specs/sweep-algorithms-lessons.md#c5-fortunes-algorithm-showpiece), [placement](../../specs/sweep-algorithms-lessons.md#placement). Kind: F2b, engineering review and browser smoke. Depends on 23. Pattern: [18 S2 registration](18-s2-registration.md).
 
 ## Scope
 

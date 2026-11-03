@@ -25,3 +25,13 @@ Keep `polyline` as the default beach-line drawing: equal median, no dropped fram
 
 Limits of this evidence: headless Chromium on one machine; mouse input only; frame times are quantised to the vsync, so a difference under one frame is invisible; no CPU-throttled run (a classroom laptop could separate the two); a single site count and seed. The default in `FortuneGraph` is still `arcs`; switching it to `polyline` is the recommended one-line follow-up for task 24.
 - Chosen: polyline (handler 44); arcs path removed in 23b.
+
+## Rerun on the registered route (task 24, handler 45)
+
+`node scripts/fortune-browser-perf.cjs registered` against `just preview 4323`: the production build of `165448ba` plus the uncommitted task 24 registration (the route is now real; polyline beach line). Same machine, same browser, same method. Raw output: [24-perf-raw.txt](24-perf-raw.txt).
+
+| build | frames/run | median ms | p95 ms | max ms | move-to-frame median ms | move-to-frame max ms | board objects for the beach line |
+|---|---|---|---|---|---|---|---|
+| registered (polyline) | 270 / 273 / 267 | 16.7 | 16.8 | 16.8 | 8.5 | 16.6 | 1 (1 after the drag) |
+
+Matches the task 23 polyline row: at the 60 Hz cap, no dropped frame, beach line still one board object after the drag.

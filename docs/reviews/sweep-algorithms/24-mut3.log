@@ -1,0 +1,85 @@
+unit: failed (1) in 7.0s (2 workers, no slot); revision 165448bab38067f2c728c765e5fadaa6d921e575; dirty; log .command-logs\2026-11-03T11-30-22-133Z-29984-9f747e7b.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/compgeoDefaultView.host.test.tsx src/graphs/compgeo/fortunePresetCollection.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts (4 tests | 4 failed) 7ms
+   × the importer knows the Fortune collection, once 5ms
+   × twelve sites are accepted and thirteen refused with a message 1ms
+   × a coordinate at the sweep limit is accepted and one beyond it refused 0ms
+   × a polygon-mode set is refused 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/fortunePresetCollection.test.ts > the importer knows the Fortune collection, once
+AssertionError: expected undefined to be { key: 'compgeo-fortune', …(2) } // Object.is equality
+
+- Expected:
+{
+  "check": [Function check],
+  "checkGraphState": [Function checkGraphState],
+  "key": "compgeo-fortune",
+}
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts:14:24
+     12|
+     13| test('the importer knows the Fortune collection, once', () => {
+     14|     expect(registered).toBe(fortuneCollection);
+       |                        ^
+     15|     expect(presetCollections.filter(collection => collection.key === F…
+     16| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/graphs/compgeo/fortunePresetCollection.test.ts > twelve sites are accepted and thirteen refused with a message
+TypeError: Cannot read properties of undefined (reading 'check')
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts:19:34
+     17|
+     18| test('twelve sites are accepted and thirteen refused with a message', …
+     19|     expect('data' in registered!.check(sites(SWEEP_MAX_SITES))).toBe(t…
+       |                                  ^
+     20|     const checked = registered!.check(sites(SWEEP_MAX_SITES + 1));
+     21|     expect('rejection' in checked).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/graphs/compgeo/fortunePresetCollection.test.ts > a coordinate at the sweep limit is accepted and one beyond it refused
+TypeError: Cannot read properties of undefined (reading 'check')
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts:25:34
+     23|
+     24| test('a coordinate at the sweep limit is accepted and one beyond it re…
+     25|     expect('data' in registered!.check(sites(3, SWEEP_COORD_LIMIT - 4)…
+       |                                  ^
+     26|     expect('rejection' in registered!.check(sites(3, SWEEP_COORD_LIMIT…
+     27|     expect('rejection' in registered!.check({...sites(3), points: [{x:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/graphs/compgeo/fortunePresetCollection.test.ts > a polygon-mode set is refused
+TypeError: Cannot read properties of undefined (reading 'check')
+ ❯ src/graphs/compgeo/fortunePresetCollection.test.ts:31:39
+     29|
+     30| test('a polygon-mode set is refused', () => {
+     31|     expect('rejection' in registered!.check({...sites(4), mode: 'polyg…
+       |                                       ^
+     32| });
+     33|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 19 passed (23)
+   Start at  12:30:22
+   Duration  6.09s (transform 29%, environment 24%, import 21%, tests 15%, setup 12%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

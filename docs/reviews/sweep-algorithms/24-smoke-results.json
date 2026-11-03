@@ -1,0 +1,632 @@
+[
+  {
+    "item": "1 fortune-desktop direct load: graph visible, step 0",
+    "pass": false,
+    "detail": {
+      "svgBox": {
+        "x": 604.8125,
+        "y": 107.1875,
+        "width": 180,
+        "height": 154.28125
+      },
+      "step": {
+        "n": 1,
+        "of": 8
+      }
+    }
+  },
+  {
+    "item": "1 fortune-desktop equal axis units",
+    "pass": true,
+    "detail": {
+      "unitX": 31.666666666666668,
+      "unitY": 31.666666666666668,
+      "bbox": [
+        -13.389473684210525,
+        8.5,
+        13.389473684210525,
+        -6.499999999999999
+      ]
+    }
+  },
+  {
+    "item": "1 fortune-desktop step-0 readout: sweep line above all sites",
+    "pass": true,
+    "detail": "Example A–DExample without DCollinear sitesFour sites on a circle12 random sites | Step 1 of 8 | The sites are in the event queue; the sweep line is above all of them. | The sweep line is above all the sites. | The beach line is still empty. | Vertices: 0 of 2 | Event queue (remaining and cancelled "
+  },
+  {
+    "item": "1 fortune-desktop reload: graph visible, step 0",
+    "pass": false,
+    "detail": {
+      "svgR": {
+        "x": 604.8125,
+        "y": 107.1875,
+        "width": 180,
+        "height": 154.28125
+      },
+      "step": {
+        "n": 1,
+        "of": 8
+      }
+    }
+  },
+  {
+    "item": "2 fortune-desktop Next step runs to end",
+    "pass": true,
+    "detail": {
+      "end": {
+        "n": 8,
+        "of": 8
+      },
+      "steps": 7
+    }
+  },
+  {
+    "item": "2 fortune-desktop readouts update on each step",
+    "pass": true,
+    "detail": {
+      "noteChanges": 7,
+      "steps": 7
+    }
+  },
+  {
+    "item": "2 fortune-desktop false alarm: cancelled queue entry",
+    "pass": true,
+    "detail": {
+      "step": 5,
+      "cancelled": 1,
+      "queue": [
+        "▸ circle event (B, A, D)\nnext event",
+        "circle event (D, A, C)",
+        "circle event (B, A, C) (cancelled, false alarm)"
+      ]
+    }
+  },
+  {
+    "item": "2 fortune-desktop sweep-height LaTeX typeset, no raw TeX",
+    "pass": false,
+    "detail": {
+      "latexOk": false,
+      "rawTexSamples": []
+    }
+  },
+  {
+    "item": "2 fortune-desktop live region: aria-live, visually hidden, announces steps",
+    "pass": true,
+    "detail": {
+      "liveBox": {
+        "x": 932.8125,
+        "y": 1098.9375,
+        "width": 1,
+        "height": 1
+      },
+      "liveAttr": "polite",
+      "liveCls": "visually-hidden",
+      "sample": [
+        "Step 2 of 8. Site event A: a new arc of the beach ",
+        "Step 3 of 8. Site event B: a new arc of the beach ",
+        "Step 4 of 8. Site event C: a new arc of the beach "
+      ]
+    }
+  },
+  {
+    "item": "2 fortune-desktop no horizontal overflow / text beyond viewport",
+    "pass": true,
+    "detail": {
+      "docScrollWidth": 1280,
+      "innerWidth": 1280,
+      "offRight": [],
+      "offCount": 0
+    }
+  },
+  {
+    "item": "2 fortune-desktop playback Reset returns to step 0",
+    "pass": false,
+    "detail": {
+      "n": 1,
+      "of": 8
+    }
+  },
+  {
+    "item": "2 fortune-desktop console errors",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "item": "1 fortune-phone direct load: graph visible, step 0",
+    "pass": false,
+    "detail": {
+      "svgBox": null,
+      "step": {
+        "n": 1,
+        "of": 8
+      }
+    }
+  },
+  {
+    "item": "1 fortune-phone equal axis units",
+    "pass": true,
+    "detail": {
+      "unitX": 19.666666666666668,
+      "unitY": 19.666666666666668,
+      "bbox": [
+        -9.254237288135597,
+        8.5,
+        9.254237288135588,
+        -6.499999999999998
+      ]
+    }
+  },
+  {
+    "item": "1 fortune-phone step-0 readout: sweep line above all sites",
+    "pass": true,
+    "detail": "Example A–DExample without DCollinear sitesFour sites on a circle12 random sites | Step 1 of 8 | The sites are in the event queue; the sweep line is above all of them. | The sweep line is above all the sites. | The beach line is still empty. | Vertices: 0 of 2 | Event queue (remaining and cancelled "
+  },
+  {
+    "item": "1 fortune-phone reload: graph visible, step 0",
+    "pass": false,
+    "detail": {
+      "svgR": null,
+      "step": {
+        "n": 1,
+        "of": 8
+      }
+    }
+  },
+  {
+    "item": "2 fortune-phone Next step runs to end",
+    "pass": true,
+    "detail": {
+      "end": {
+        "n": 8,
+        "of": 8
+      },
+      "steps": 7
+    }
+  },
+  {
+    "item": "2 fortune-phone readouts update on each step",
+    "pass": true,
+    "detail": {
+      "noteChanges": 7,
+      "steps": 7
+    }
+  },
+  {
+    "item": "2 fortune-phone false alarm: cancelled queue entry",
+    "pass": true,
+    "detail": {
+      "step": 5,
+      "cancelled": 1,
+      "queue": [
+        "▸ circle event (B, A, D)\nnext event",
+        "circle event (D, A, C)",
+        "circle event (B, A, C) (cancelled, false alarm)"
+      ]
+    }
+  },
+  {
+    "item": "2 fortune-phone sweep-height LaTeX typeset, no raw TeX",
+    "pass": false,
+    "detail": {
+      "latexOk": false,
+      "rawTexSamples": []
+    }
+  },
+  {
+    "item": "2 fortune-phone live region: aria-live, visually hidden, announces steps",
+    "pass": true,
+    "detail": {
+      "liveBox": {
+        "x": 26,
+        "y": 1029.78125,
+        "width": 1,
+        "height": 1
+      },
+      "liveAttr": "polite",
+      "liveCls": "visually-hidden",
+      "sample": [
+        "Step 2 of 8. Site event A: a new arc of the beach ",
+        "Step 3 of 8. Site event B: a new arc of the beach ",
+        "Step 4 of 8. Site event C: a new arc of the beach "
+      ]
+    }
+  },
+  {
+    "item": "2 fortune-phone no horizontal overflow / text beyond viewport",
+    "pass": true,
+    "detail": {
+      "docScrollWidth": 390,
+      "innerWidth": 390,
+      "offRight": [],
+      "offCount": 0
+    }
+  },
+  {
+    "item": "2 fortune-phone playback Reset returns to step 0",
+    "pass": false,
+    "detail": {
+      "n": 1,
+      "of": 8
+    }
+  },
+  {
+    "item": "2 fortune-phone console errors",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "item": "3 language SL->EN->SL: title, controls, readouts switch; graph state kept",
+    "pass": false,
+    "detail": {
+      "slBefore": {
+        "h1": "Fortunov algoritem",
+        "step": {
+          "n": 3,
+          "of": 8
+        },
+        "ro": "Primer A–DPrimer brez DKolinearna mestaŠtiri mesta na krožnici12 naključnih mest | Korak 3 od 8 | Dogodek mesta B: nov lok obalne črte. | Višina pometalne premice: y=3 | Obalna črta (od leve proti des"
+      },
+      "enAfter": {
+        "h1": "Fortune's algorithm",
+        "step": {
+          "n": 3,
+          "of": 8
+        },
+        "ro": "Example A–DExample without DCollinear sitesFour sites on a circle12 random sites | Step 3 of 8 | Site event B: a new arc of the beach line. | Sweep line height: y=3 | Beach line (left to right): A, B,"
+      },
+      "slAfter": {
+        "h1": "Fortunov algoritem",
+        "step": {
+          "n": 3,
+          "of": 8
+        },
+        "ro": "Primer A–DPrimer brez DKolinearna mestaŠtiri mesta na krožnici12 naključnih mest | Korak 3 od 8 | Dogodek mesta B: nov lok obalne črte. | Višina pometalne premice: y=3 | Obalna črta (od leve proti des"
+      }
+    }
+  },
+  {
+    "item": "3 language console errors",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "item": "4 preset saved and listed in Presets select",
+    "pass": true,
+    "detail": {
+      "opts": [
+        "Default",
+        "smoke-24-mw0n4a2i"
+      ]
+    }
+  },
+  {
+    "item": "4 preset round trip: restore returns step 3 and point 1 x",
+    "pass": false,
+    "detail": {
+      "origX": "0",
+      "changed": {
+        "step": {
+          "n": 3,
+          "of": 8
+        },
+        "x": "0"
+      },
+      "afterReload": {
+        "step": {
+          "n": 1,
+          "of": 8
+        },
+        "x": "0"
+      },
+      "restored": {
+        "step": {
+          "n": 4,
+          "of": 8
+        },
+        "x": "0"
+      }
+    }
+  },
+  {
+    "item": "4 Reset preset returns to the default state (step 0, point 1 x default)",
+    "pass": false,
+    "detail": {
+      "rp": {
+        "step": {
+          "n": 4,
+          "of": 8
+        },
+        "x": "0"
+      },
+      "restoredX": "0"
+    }
+  },
+  {
+    "item": "4 Reset view clickable without error",
+    "pass": true,
+    "detail": {
+      "note": "click completed"
+    }
+  },
+  {
+    "item": "4 cleanup: temp preset deleted",
+    "pass": false,
+    "detail": {
+      "opts2": [
+        "Default",
+        "smoke-24-mw0n4a2i"
+      ]
+    }
+  },
+  {
+    "item": "4 console errors",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "item": "5 Fortune card on demonstrations page",
+    "pass": true,
+    "detail": {
+      "cnt": 3,
+      "href": "/bezeg-2.0/compgeo/fortune",
+      "info": {
+        "familyHeading": "Fortunov algoritem",
+        "tag": "LI"
+      }
+    }
+  },
+  {
+    "item": "5 Računska geometrija family heading present",
+    "pass": false,
+    "detail": {
+      "famOk": 0
+    }
+  },
+  {
+    "item": "5 card link opens /compgeo/fortune",
+    "pass": true,
+    "detail": {
+      "url": "http://127.0.0.1:4323/bezeg-2.0/compgeo/fortune"
+    }
+  },
+  {
+    "item": "5 console errors",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "item": "6 compgeo/monotone-partition .visually-hidden elements clipped to 1px box",
+    "pass": true,
+    "detail": {
+      "count": 13,
+      "boxes": [
+        {
+          "tag": "LABEL",
+          "role": null,
+          "text": "Language",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "text": "curve",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "text": "view",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "text": "example",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "P",
+          "role": "status",
+          "text": "Step 0 of 14. The polygon with the sweep line abov",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "text": "next event",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        }
+      ]
+    }
+  },
+  {
+    "item": "6 compgeo/monotone-partition .visually-hidden text still in accessibility tree",
+    "pass": false,
+    "detail": {
+      "inTree": [
+        {
+          "text": "Language",
+          "inAria": true
+        },
+        {
+          "text": "curve",
+          "inAria": true
+        },
+        {
+          "text": "view",
+          "inAria": true
+        },
+        {
+          "text": "example",
+          "inAria": true
+        },
+        {
+          "text": "Step 0 of 14. The polygon with",
+          "inAria": true
+        },
+        {
+          "text": "next event",
+          "inAria": true
+        },
+        {
+          "text": "Select point 1",
+          "inAria": true
+        },
+        {
+          "text": "Select point 2",
+          "inAria": true
+        }
+      ]
+    }
+  },
+  {
+    "item": "6 compgeo/monotone-partition visible readouts/controls still rendered",
+    "pass": true,
+    "detail": {
+      "len": 1628,
+      "sample": "Demonstrations / Computational geometry / Monotone partition Monotone partition Change the settings and observe their effect on the graph. Switch demonstration Learn this demonstration Presentation mode GRAPH 2 4 6 8 10 12 14 16 18 −2 −4 −6 2 4 6 8 10 −2 P1 P2 P3 P4 P5 P6 ← ↑ ↓ → + − Fit to points P",
+      "stepCounter": "Step 0 of 14"
+    }
+  },
+  {
+    "item": "6 compgeo/monotone-partition console errors",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "item": "6 compgeo/segment-intersections .visually-hidden elements clipped to 1px box",
+    "pass": true,
+    "detail": {
+      "count": 15,
+      "boxes": [
+        {
+          "tag": "LABEL",
+          "role": null,
+          "text": "Language",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "text": "curve",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "text": "view",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "text": "example",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "P",
+          "role": "status",
+          "text": "Step 1 of 47. The event queue holds all segment en",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        },
+        {
+          "tag": "SPAN",
+          "role": null,
+          "text": "next event",
+          "w": 1,
+          "h": 1,
+          "ariaHiddenAncestor": false,
+          "display": "block"
+        }
+      ]
+    }
+  },
+  {
+    "item": "6 compgeo/segment-intersections .visually-hidden text still in accessibility tree",
+    "pass": false,
+    "detail": {
+      "inTree": [
+        {
+          "text": "Language",
+          "inAria": true
+        },
+        {
+          "text": "curve",
+          "inAria": true
+        },
+        {
+          "text": "view",
+          "inAria": true
+        },
+        {
+          "text": "example",
+          "inAria": true
+        },
+        {
+          "text": "Step 1 of 47. The event queue ",
+          "inAria": true
+        },
+        {
+          "text": "next event",
+          "inAria": true
+        },
+        {
+          "text": "Select segment s1",
+          "inAria": true
+        },
+        {
+          "text": "Remove segment s1",
+          "inAria": true
+        }
+      ]
+    }
+  },
+  {
+    "item": "6 compgeo/segment-intersections visible readouts/controls still rendered",
+    "pass": true,
+    "detail": {
+      "len": 2253,
+      "sample": "Demonstrations / Computational geometry / Segment intersections Segment intersections Change the settings and observe their effect on the graph. Switch demonstration Learn this demonstration Presentation mode GRAPH s1 s2 s3 s4 2 4 6 8 10 −2 −4 1 2 3 4 5 6 −1 −2 P1 P2 P3 P4 P5 P6 P7 P8 ← ↑ ↓ → + − Fi",
+      "stepCounter": "Step 1 of 47"
+    }
+  },
+  {
+    "item": "6 compgeo/segment-intersections console errors",
+    "pass": true,
+    "detail": []
+  }
+]

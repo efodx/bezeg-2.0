@@ -1,0 +1,116 @@
+Demonstrations / Computational geometry / Monotone partition
+Monotone partition
+
+Change the settings and observe their effect on the graph.
+
+Switch demonstration
+Learn this demonstration
+Presentation mode
+GRAPH
+2
+4
+6
+8
+10
+12
+14
+16
+18
+−2
+−4
+−6
+2
+4
+6
+8
+10
+−2
+P1
+P2
+P3
+P4
+P5
+P6
+←
+↑
+↓
+→
++
+−
+Fit to points
+
+Pan: Shift + drag · Zoom: Shift + mouse wheel
+
+TRY AND OBSERVE
+
+Press Next step and watch the vertex types. Which vertices are split and merge vertices, and why must each be joined by a diagonal?
+
+Next prompt
+TOOLS FOR THIS GRAPH
+Tools
+Collapse
+Edit
+Display
+Save
+curve
+view
+example
+Next step
+Play
+Reset
+
+Playback takes one step at a time and stops at the end. Changing the polygon returns to the start and stops playback.
+
+Vertices are processed from top to bottom, from left to right at equal height. The status is ordered from left to right along the sweep line.
+
+Example 1: a split vertex
+Example 2: merge vertices
+
+Step 0 of 14
+
+The polygon with the sweep line above it. The vertices are processed from top to bottom.
+
+No diagonals so far.
+
+Step 0 of 14. The polygon with the sweep line above it. The vertices are processed from top to bottom.
+
+Event queue (vertices still to process)
+
+▸ v6
+next event
+v4
+v5
+v2
+v1
+v3
+
+Status (edges from left to right, each with its helper)
+
+The status is empty.
+
+ Grid Sweep line and vertex types
+
+Grid step: 1. Coordinates are whole numbers of steps.
+
+Add by tapping or clickingRemoveClear
+
+Points: 6 of at most 20
+
+No point is selected.
+
+The polygon is simple.
+
+Points
+P1
+Select point 1
+P2
+Select point 2
+P3
+Select point 3
+P4
+Select point 4
+P5
+Select point 5
+P6
+Select point 6
+Add point

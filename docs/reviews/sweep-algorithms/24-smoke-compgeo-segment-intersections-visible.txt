@@ -1,0 +1,124 @@
+Demonstrations / Computational geometry / Segment intersections
+Segment intersections
+
+Change the settings and observe their effect on the graph.
+
+Switch demonstration
+Learn this demonstration
+Presentation mode
+GRAPH
+s1
+s2
+s3
+s4
+2
+4
+6
+8
+10
+−2
+−4
+1
+2
+3
+4
+5
+6
+−1
+−2
+P1
+P2
+P3
+P4
+P5
+P6
+P7
+P8
+←
+↑
+↓
+→
++
+−
+Fit to points
+
+Pan: Shift + drag · Zoom: Shift + mouse wheel
+
+TRY AND OBSERVE
+
+Press Next step and watch the status of the sweep line. Which neighbouring segments must be tested when a segment enters or leaves?
+
+Next prompt
+TOOLS FOR THIS GRAPH
+Tools
+Collapse
+Edit
+Display
+Save
+curve
+view
+example
+Next step
+Play
+Reset
+
+Playback takes one step at a time and stops at the end. Changing the segments returns to the start and stops playback. The sweep line is horizontal and moves downward; segments in the status are thickened, the segments of the current event are thickest (dashed while not yet in the status), the pair of neighbouring segments being tested is joined by a dashed line, and the intersection points found are marked with dots.
+
+Events follow from top to bottom, from left to right at equal height. The status is ordered from left to right along the sweep line.
+
+Step 1 of 47
+
+The event queue holds all segment endpoints. The sweep line still rests above them.
+
+Segments in the status: 0
+
+Neighbour tests so far: 0; testing all pairs would take 6.
+
+No intersection points yet.
+
+Step 1 of 47. The event queue holds all segment endpoints. The sweep line still rests above them.
+
+Event queue (remaining events)
+
+▸ Upper endpoint at the point (2; 5)
+next event
+Upper endpoint at the point (4; 5)
+Upper endpoint at the point (0; 4)
+Upper endpoint at the point (6; 4)
+Lower endpoint at the point (0; 0)
+Lower endpoint at the point (6; 0)
+Lower endpoint at the point (1; −1)
+Lower endpoint at the point (5; −1)
+
+Status (segments from left to right)
+
+No segment is in the status.
+
+ Grid Sweep line
+
+Grid step: 1. Coordinates are whole numbers of steps.
+
+Add by tapping or clickingRemove selected segmentClear
+
+Segments: 4 of at most 12
+
+No point is selected.
+
+Segment list
+s1
+Select segment s1
+×
+Remove segment s1
+s2
+Select segment s2
+×
+Remove segment s2
+s3
+Select segment s3
+×
+Remove segment s3
+s4
+Select segment s4
+×
+Remove segment s4
+Add segment

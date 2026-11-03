@@ -1,0 +1,25 @@
+
+$ ["C:\\Program Files\\nodejs\\node.EXE","C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js","test","--","--run"]
+
+> bezeg-2.0@2.0.0 test
+> vitest --run
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+
+ Test Files  538 passed | 2 skipped (540)
+      Tests  10520 passed | 3 skipped (10523)
+   Start at  12:31:28
+   Duration  1056.40s (tests 56%, environment 21%, import 13%, setup 9%, transform 1%)
+
+    Isolate  540 workers spawned · ~1.33s startup each (spawn + environment, per file)
+             at least ~237.91s faster with isolate: false — reuses workers across files instead of one per file
+

@@ -1,0 +1,36 @@
+unit: failed (1) in 7.2s (2 workers, no slot); revision 165448bab38067f2c728c765e5fadaa6d921e575; dirty; log .command-logs\2026-11-03T11-30-07-891Z-29616-5d47fa01.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/compgeoDefaultView.host.test.tsx src/graphs/compgeo/fortunePresetCollection.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/compgeoDefaultView.host.test.tsx (19 tests | 1 failed) 1288ms
+   ❯ fortune default view (1)
+     × the units are equal and the sweep line starts above the highest site and inside the view 44ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/compgeoDefaultView.host.test.tsx > fortune default view > the units are equal and the sweep line starts above the highest site and inside the view
+AssertionError: expected -5 to be greater than 5
+ ❯ src/graphs/compgeo/compgeoDefaultView.host.test.tsx:110:23
+    108|         expect(line?.dataY?.length).toBe(2);
+    109|         for (const y of line?.dataY ?? []) {
+    110|             expect(y).toBeGreaterThan(highest);
+       |                       ^
+    111|             expect(board.getBoundingBox()[1] - y).toBeGreaterThan(0);
+    112|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 22 passed (23)
+   Start at  12:30:08
+   Duration  6.34s (transform 29%, environment 23%, import 21%, tests 15%, setup 12%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
