@@ -299,6 +299,7 @@ export const en: Record<keyof typeof sl, string> = {
     "bsi_no_interior": "There are no interior knots.",
     "bsi_comb": "Curvature comb",
     "bsi_comb_help": "The comb is drawn span by span and never across a knot; the readout gives the one-sided curvature κ on both sides of each interior knot.",
+    "bsi_join_title": "Curvature jumps at the knots",
     "bsi_join_row_same": "u = {value0}: κ {value1} → {value2}, jump {value3}, tangent continuous",
     "bsi_join_row_differs": "u = {value0}: κ {value1} → {value2}, jump {value3}, tangent differs",
     "bsi_join_singular": "u = {value0}: curvature is undefined on one side (zero speed)",

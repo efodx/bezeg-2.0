@@ -238,15 +238,23 @@ describe('L3 acceptance 3 and 5: the cubic continuity demo and the comb', () => 
         view.unmount();
     });
 
-    test('the jump readout on the board shows the same numbers, in both languages', () => {
+    test('the jump readout in the inspector shows the same numbers, in both languages, and leaves the board', () => {
         const {graph, view} = cubic();
-        const text = graph.sceneOf().readoutText();
-        expect(text).toContain('u = 1: κ −1,4311 → −1,4311, skok 0, tangenta zvezna');
-        expect(text).toContain('u = 2: κ 2,6667 → 5,3333, skok 2,6667, tangenta zvezna');
-        const element = graph.sceneOf().readout()! as unknown as { plaintext: string };
-        expect(element.plaintext).toContain('<br>');
+        const items = () => [...document.querySelectorAll('[data-insertion-readout="jumps"] li')].map(li => li.textContent);
+        expect(items()).toEqual([
+            'u = 1: κ −1,4311 → −1,4311, skok 0, tangenta zvezna',
+            'u = 2: κ 2,6667 → 5,3333, skok 2,6667, tangenta zvezna',
+        ]);
+        expect(graph.sceneOf().ownedElements().some(element => element.elType === 'text')).toBe(false);
         act(() => setLanguage('en'));
-        expect(element.plaintext).toContain('u = 2: κ 2.6667 → 5.3333, jump 2.6667, tangent continuous');
+        expect(items()[1]).toBe('u = 2: κ 2.6667 → 5.3333, jump 2.6667, tangent continuous');
+        act(() => setLanguage('sl'));
+        // A moved control point updates the lines.
+        act(() => graph.setState({points: graph.state.points.map((p, i) => i === 3 ? [p[0], p[1] + 1] as const : p)}));
+        expect(items()).not.toEqual([
+            'u = 1: κ −1,4311 → −1,4311, skok 0, tangenta zvezna',
+            'u = 2: κ 2,6667 → 5,3333, skok 2,6667, tangenta zvezna',
+        ]);
         view.unmount();
     });
 
@@ -273,11 +281,14 @@ describe('L3 acceptance 3 and 5: the cubic continuity demo and the comb', () => 
 
     test('the comb and its readout follow the switch', () => {
         const {graph, view} = cubic();
-        const elements = [...graph.sceneOf().combElements(), graph.sceneOf().readout()!];
-        expect(elements.map(shown)).toEqual([true, true, true]);
+        const elements = graph.sceneOf().combElements();
+        const list = () => document.querySelector('[data-insertion-readout="jumps"]');
+        expect(elements.map(shown)).toEqual([true, true]);
+        expect(list()).not.toBeNull();
         fireEvent.click(screen.getByLabelText('Glavnik ukrivljenosti'));
         expect(graph.state.showComb).toBe(false);
-        expect(elements.map(shown)).toEqual([false, false, false]);
+        expect(elements.map(shown)).toEqual([false, false]);
+        expect(list()).toBeNull();
         view.unmount();
     });
 
@@ -346,7 +357,7 @@ describe('L3 acceptance 6: Reset, examples and import', () => {
 });
 
 describe('disposal', () => {
-    test('scene rebuilds and unmount leave no board objects and no language subscription', () => {
+    test('scene rebuilds and unmount leave no board objects and the scene holds no language subscription (its readout is inspector text)', () => {
         const before = liveSubscriptions.count;
         const {graph, view, board} = mount();
         const owned = () => [...graph.sceneOf().ownedElements(), ...graph.sceneOf().curve.getJxgPoints(), graph.sceneOf().curve.getJxgCurve()];
@@ -357,7 +368,7 @@ describe('disposal', () => {
         expect(first.some(element => board.objectsList.includes(element))).toBe(false);
         const second = owned();
         expect(second.every(element => board.objectsList.includes(element))).toBe(true);
-        expect(liveSubscriptions.count).toBe(before + 1);
+        expect(liveSubscriptions.count).toBe(before);
         view.unmount();
         expect(second.some(element => board.objectsList.includes(element))).toBe(false);
         expect(liveSubscriptions.count).toBe(before);

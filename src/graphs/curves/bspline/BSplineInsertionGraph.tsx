@@ -15,7 +15,7 @@ import {KNOT_LIMIT, lastIndexOf} from "./bsplineBasisModel";
 import {assertDrawableCurve, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
 import {
     INSERTION_DEFAULT_VALUE, INSERTION_EXAMPLE_IDS, INSERTION_MAX_POINTS, InsertionData, InsertionExampleId, InsertionRefusal,
-    insertionExample, insertionRefusalText, multiplicityRows, planInsertion,
+    insertionExample, insertionRefusalText, joinReports, jumpReadoutLines, multiplicityRows, planInsertion,
 } from "./bsplineInsertionModel";
 
 export interface BSplineInsertionState extends BaseGraphState {
@@ -112,7 +112,6 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
             points: () => this.state.points,
             ghost: () => this.state.ghost,
             showComb: () => this.state.showComb,
-            fontSize: () => this.displaySettings.fontSize,
             onPointsDrag: points => this.setState({points}),
         });
     }
@@ -204,12 +203,23 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
         return undefined;
     }
 
+    /** The kappa jump lines, one per interior knot, in the current language (none when the curve cannot be evaluated). */
+    jumpLines(): string[] {
+        const {knots, degree, points} = this.state;
+        try {
+            return jumpReadoutLines(joinReports(knots, degree, points), currentLanguage());
+        } catch {
+            return [];
+        }
+    }
+
     // ---- Controls ----------------------------------------------------------------------------------------------------
 
     override getGraphCommands(): JSX.Element[] {
         if (!this.state.initialized) return [];
         const {degree, knots, points, example, ghost, showComb, insertValue, refusal} = this.state;
         const rows = multiplicityRows(knots, degree);
+        const jumps = this.jumpLines();
         const options: { value: string, text: string }[] = INSERTION_EXAMPLE_IDS.map(id => ({value: id, text: t(id === 'quadratic' ? "bsi_example_quadratic" : "bsi_example_cubic")}));
         if (example === 'custom') options.push({value: 'custom', text: t("bsi_example_custom")});
         return super.getGraphCommands().concat(
@@ -236,8 +246,12 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
                         })}</li>)}</ul>
                     : <p className="inspector-help">{t("bsi_no_interior")}</p>}
             </div>,
-            <div key="comb"><OnOffSwitch checked={showComb} label={t("bsi_comb")} onChange={show => this.setShowComb(show)}/>
-                <p className="inspector-help">{t("bsi_comb_help")}</p></div>,
+            <div key="comb" className="inspector-group"><OnOffSwitch checked={showComb} label={t("bsi_comb")} onChange={show => this.setShowComb(show)}/>
+                <p className="inspector-help">{t("bsi_comb_help")}</p>
+                {showComb && jumps.length ? <div role="group" aria-labelledby="bsi-jumps-title">
+                    <h3 id="bsi-jumps-title">{t("bsi_join_title")}</h3>
+                    <ul data-insertion-readout="jumps">{jumps.map(line => <li key={line}>{line}</li>)}</ul>
+                </div> : null}</div>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );
     }

@@ -1,10 +1,9 @@
-import type {Board, GeometryElement, Point, Text} from "jsxgraph";
-import {currentLanguage, onLanguageChange} from "../../../localization";
+import type {Board, GeometryElement, Point} from "jsxgraph";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {JXGBSplineCurve} from "../object/JXGBSplineCurve";
 import {GraphPalette} from "../../styles/GraphPalette";
 import type {ControlPoint} from "./bsplineDeBoorModel";
-import {combBySpan, combPolylines, jumpReadoutLines, joinReports} from "./bsplineInsertionModel";
+import {combBySpan, combPolylines} from "./bsplineInsertionModel";
 
 interface SceneSettings {
     board: Board;
@@ -15,7 +14,6 @@ interface SceneSettings {
     /** The previous control polygon after an insertion; empty when there is none. Its length is fixed per scene. */
     ghost: () => readonly ControlPoint[];
     showComb: () => boolean;
-    fontSize: () => number;
     /** A drag of a control point reports every point's coordinates, so the owner writes them to the state. */
     onPointsDrag: (points: ControlPoint[]) => void;
 }
@@ -25,7 +23,7 @@ type DataCurve = GeometryElement & { dataX: number[]; dataY: number[]; updateDat
 /**
  * The owned board objects of the insertion graph for one degree, control-point count and ghost length: the B-spline curve layer
  * ({@link JXGBSplineCurve}), the faded ghost of the previous control polygon, the curvature comb (teeth and tip envelope, computed
- * per knot span and broken between spans) and the jump readout. A change of any of the three counts builds a new scene.
+ * per knot span and broken between spans). The kappa jump readout is the graph's inspector text, not a board object. A change of any of the three counts builds a new scene.
  */
 export class BSplineInsertionScene {
     private readonly board: Board;
@@ -38,8 +36,6 @@ export class BSplineInsertionScene {
     private ghostSegments: GeometryElement[] = [];
     private teethCurve?: DataCurve;
     private envelopeCurve?: DataCurve;
-    private readoutElement?: Text;
-    private stopLanguageUpdates?: () => void;
     private disposed = false;
 
     constructor(private readonly settings: SceneSettings) {
@@ -60,7 +56,6 @@ export class BSplineInsertionScene {
     ghostElements(): readonly Point[] { return this.ghostPoints; }
     ghostSegmentElements(): readonly GeometryElement[] { return this.ghostSegments; }
     combElements(): readonly DataCurve[] { return this.teethCurve && this.envelopeCurve ? [this.teethCurve, this.envelopeCurve] : []; }
-    readout(): Text | undefined { return this.readoutElement; }
 
     fits(degree: number, pointCount: number, ghostCount: number): boolean {
         return degree === this.degree && pointCount === this.pointCount && ghostCount === this.ghostCount;
@@ -122,31 +117,8 @@ export class BSplineInsertionScene {
         this.teethCurve = comb('teeth', 1, GraphPalette.constructionAccent, 0.6);
         this.envelopeCurve = comb('envelope', 1.5, GraphPalette.constructionAccent, 1);
 
-        const box = () => this.board.getBoundingBox();
-        this.readoutElement = this.create<Text>('text', [
-            () => box()[0] + 0.02 * (box()[2] - box()[0]),
-            () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => this.readoutText().split("\n").join("<br>"),
-        ], {anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
-            strokeColor: GraphPalette.label, visible: () => this.settings.showComb()});
-
         this.curve.getJxgPoints().forEach(point => point.on('drag', () => this.settings.onPointsDrag(
             this.curve.getJxgPoints().map(p => [p.X(), p.Y()] as ControlPoint))));
-
-        // Board text is recomputed only on board update, which a language change does not trigger.
-        this.stopLanguageUpdates = onLanguageChange(() => {
-            if (!this.disposed && this.board.renderer) this.board.update();
-        });
-    }
-
-    /** The jump readout lines as one text (empty without interior knots or when the curve cannot be evaluated). */
-    readoutText(): string {
-        try {
-            const {knots, points} = this.current();
-            return jumpReadoutLines(joinReports(knots, this.degree, points), currentLanguage()).join("\n");
-        } catch {
-            return '';
-        }
     }
 
     /** Brings the model curve in line with the state (a typed knot, a Preset that kept the shape). */
@@ -167,8 +139,6 @@ export class BSplineInsertionScene {
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
-        this.stopLanguageUpdates?.();
-        this.stopLanguageUpdates = undefined;
         const present = this.elements.filter(element => this.board.objectsList.includes(element)).reverse();
         this.elements = [];
         this.ghostPoints = [];

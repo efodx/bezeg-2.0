@@ -298,6 +298,7 @@ export const sl = {
     "bsi_no_interior": "Notranjih vozlov ni.",
     "bsi_comb": "Glavnik ukrivljenosti",
     "bsi_comb_help": "Glavnik je narisan po odsekih in nikoli čez vozel; odčitek podaja enostransko ukrivljenost κ na obeh straneh vsakega notranjega vozla.",
+    "bsi_join_title": "Skoki ukrivljenosti v vozlih",
     "bsi_join_row_same": "u = {value0}: κ {value1} → {value2}, skok {value3}, tangenta zvezna",
     "bsi_join_row_differs": "u = {value0}: κ {value1} → {value2}, skok {value3}, tangenta se razlikuje",
     "bsi_join_singular": "u = {value0}: ukrivljenost na eni strani ni določena (ničelna hitrost)",
