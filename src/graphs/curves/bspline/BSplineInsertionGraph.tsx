@@ -5,13 +5,14 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
+import type {LessonCurveFixture} from "../../../learning/model";
 import {InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {knotRejectionMessage} from "./bsplineKnotMessages";
 import {BSplineInsertionScene} from "./BSplineInsertionScene";
 import {KnotEditor} from "./KnotEditor";
 import {KNOT_LIMIT, lastIndexOf} from "./bsplineBasisModel";
-import {assertDrawableCurve, ControlPoint, deBoorPresetData} from "./bsplineDeBoorModel";
+import {assertDrawableCurve, ControlPoint, deBoorPresetData, knotsForCount} from "./bsplineDeBoorModel";
 import {
     INSERTION_DEFAULT_VALUE, INSERTION_EXAMPLE_IDS, INSERTION_MAX_POINTS, InsertionData, InsertionExampleId, InsertionRefusal,
     insertionExample, insertionRefusalText, multiplicityRows, planInsertion,
@@ -68,6 +69,12 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
 
     override exportPresetData(): BSplinePresetData {
         return deBoorPresetData(this.state);
+    }
+
+    /** A lesson curve fixture: its points and degree (the default degree if absent) on the given `knots` as they are, else on the clamped uniform knot vector for that count. */
+    protected override lessonFixtureData(curve: LessonCurveFixture): BSplinePresetData | undefined {
+        const degree = curve.degree ?? this.defaultPreset().degree;
+        return {degree, knots: curve.knots ? [...curve.knots] : knotsForCount(degree, true, curve.points.length), points: curve.points.map(point => [point[0], point[1]] as const)};
     }
 
     /** The imported curve becomes the state and the Reset target; the ghost is cleared. */

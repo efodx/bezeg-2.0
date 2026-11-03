@@ -94,6 +94,7 @@ import SubdivisionCurveGraph from './curves/subdivisionCurves/SubdivisionCurveGr
 import CoonsPatchGraph from './patches/CoonsPatchGraph';
 import BSplineBasisGraph from './curves/bspline/BSplineBasisGraph';
 import DeBoorGraph from './curves/bspline/DeBoorGraph';
+import BSplineInsertionGraph from './curves/bspline/BSplineInsertionGraph';
 import {CrossRatioGraph} from './projective/CrossRatioGraph';
 import {PascalGraph} from './projective/PascalGraph';
 import {PolePolarGraph} from './projective/PolePolarGraph';
@@ -145,6 +146,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'interp-subdivision': () => new SubdivisionCurveGraph(),
     'bspline-basis': () => new BSplineBasisGraph(),
     'bspline-deboor': () => new DeBoorGraph(),
+    'bspline-insertion': () => new BSplineInsertionGraph(),
     'patch-coons': () => new CoonsPatchGraph(),
     'linear-function': () => new LinearFunctionGraph(),
     'exponential-function': () => new ExponentialFunctionGraph(),

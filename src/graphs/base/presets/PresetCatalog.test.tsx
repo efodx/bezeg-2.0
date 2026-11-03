@@ -39,7 +39,7 @@ const PENDING_ROUTE_KEYS: string[] = [];
 /** Collections of the curve-geometry and interpolation Demonstrations and the Coons patch. */
 const CURVE_STREAM_KEYS = ["curve-parametric", "curve-curvature", "interp-lagrange", "interp-hermite", "interp-runge", "interp-least-squares", "interp-subdivision", "patch-coons"];
 /** One collection serves both B-spline Demonstrations (ADR 0024), so it is the one collection allowed to be shared. */
-const SHARED_COLLECTION_IDS: readonly string[] = ["bspline-basis", "bspline-deboor"];
+const SHARED_COLLECTION_IDS: readonly string[] = ["bspline-basis", "bspline-deboor", "bspline-insertion"];
 
 /** Rounds away floating-point noise from view arithmetic (a bounding box computed from the container size). */
 const rounded = (value: unknown) => JSON.parse(JSON.stringify(value, (_key, item) =>
