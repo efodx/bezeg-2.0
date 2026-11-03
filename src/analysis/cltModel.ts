@@ -220,7 +220,7 @@ export interface CltCurve {
 }
 
 export interface CltView {
-    /** Mean and variance of the base density (from the normalized base). */
+    /** Exact mean and variance of the base shape ({@link shapeMoments}). */
     readonly mean: number;
     readonly variance: number;
     /** n times the base mean and variance: the law of the sum. */
@@ -257,10 +257,36 @@ function normalCurve(showCdf: boolean): CltCurve {
     return {x, y: x.map(t => (showCdf ? normalCdf(t) : normalPdf(t)))};
 }
 
+/**
+ * Exact mean and variance of the normalized piecewise-linear shape through `heights` (at x = j/(k-1) on [0, 1], negatives
+ * clamped as in the kernel). On a segment [a, b] with end values ga, gb: the integral of g is (ga + gb)(b - a)/2, of x g is
+ * (b - a)(ga(2a + b) + gb(a + 2b))/6 and of x^2 g is (b - a)(ga(3a^2 + 2ab + b^2) + gb(a^2 + 2ab + 3b^2))/12. The readouts use
+ * these rather than the grid moments, whose trapezoid error at a jump (the uniform shape's ends) shows in the fourth decimal.
+ */
+export function shapeMoments(heights: readonly number[]): { readonly mean: number; readonly variance: number } | undefined {
+    const k = heights.length;
+    if (k < 2) return undefined;
+    const g = heights.map(y => Math.max(0, y));
+    let m0 = 0;
+    let m1 = 0;
+    let m2 = 0;
+    for (let j = 0; j + 1 < k; j++) {
+        const a = j / (k - 1);
+        const b = (j + 1) / (k - 1);
+        const d = b - a;
+        m0 += d * (g[j] + g[j + 1]) / 2;
+        m1 += d * (g[j] * (2 * a + b) + g[j + 1] * (a + 2 * b)) / 6;
+        m2 += d * (g[j] * (3 * a * a + 2 * a * b + b * b) + g[j + 1] * (a * a + 2 * a * b + 3 * b * b)) / 12;
+    }
+    if (!(m0 > 0)) return undefined;
+    const mean = m1 / m0;
+    return {mean, variance: m2 / m0 - mean * mean};
+}
+
 export function cltView(model: CltModel): CltViewResult {
     const fold = cltFold(model.heights, model.n);
     if (!fold.ok) return statusIssue(fold.status);
-    const baseMoments = moments(fold.base);
+    const baseMoments = shapeMoments(model.heights) ?? moments(fold.base);
     const foldMoments = moments(fold.density);
     const standardized = standardize(fold.density);
     if (!standardized.ok) return statusIssue(standardized.status);

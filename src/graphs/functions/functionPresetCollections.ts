@@ -35,6 +35,8 @@ import {leastSquaresFileMessage} from "./leastSquaresMessages";
 import {checkDensityAreaModel, parseDensityAreaModel} from "../../analysis/densityAreaModel";
 import {checkBinomialNormalModel, parseBinomialNormalModel} from "../../analysis/binomialNormalModel";
 import {binomialNormalFileMessage} from "./binomialNormalMessages";
+import {checkCltModel, parseCltModel} from "../../analysis/cltModel";
+import {cltFileMessage} from "./cltMessages";
 import {densityAreaFileMessage} from "./densityAreaMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
@@ -152,6 +154,12 @@ const diagnoseBinomialNormal: Diagnosis = data => {
     const check = checkBinomialNormalModel(data);
     return check.ok || check.issue === undefined ? undefined : binomialNormalFileMessage(check.issue);
 };
+
+/** The model module names the rule a rejected central-limit-theorem model broke; this only localizes it. */
+const diagnoseClt: Diagnosis = data => {
+    const check = checkCltModel(data);
+    return check.ok || check.issue === undefined ? undefined : cltFileMessage(check.issue);
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -215,6 +223,7 @@ export const functionPresetCollections = {
     "interp-least-squares": leastSquaresCollection(),
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
     "prob-binomial-normal": functionCollection("prob-binomial-normal", parseBinomialNormalModel, diagnoseBinomialNormal),
+    "prob-clt": functionCollection("prob-clt", parseCltModel, diagnoseClt),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),

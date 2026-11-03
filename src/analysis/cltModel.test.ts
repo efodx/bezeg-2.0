@@ -1,8 +1,9 @@
 import {beforeEach, describe, expect, it} from 'vitest';
-import {nFold, piecewiseLinearBase, N_MAX} from './convolution';
+import {moments, nFold, piecewiseLinearBase, N_MAX} from './convolution';
 import {
     checkCltModel, chooseCltExample, CLT_EXAMPLES, CLT_HEIGHT_MAX, CLT_WINDOW, cltConvolutionCount, cltExampleOf, cltFold, cltView,
     DEFAULT_CLT_MODEL, fitCltView, parseCltModel, resetCltCache, setCltCdf, setCltHeight, setCltN,
+    shapeMoments,
 } from './cltModel';
 import type {CltModel} from './cltModel';
 
@@ -40,7 +41,7 @@ describe('moments', () => {
     it('base and sum moments of the examples', () => {
         const u = viewOf(withN('uniform', 4));
         expect(u.mean).toBeCloseTo(0.5, 6);
-        expect(u.variance).toBeCloseTo(1 / 12, 4);
+        expect(u.variance).toBeCloseTo(1 / 12, 12);
         expect(u.sumMean).toBeCloseTo(2, 6);
         const s = viewOf(withN('skewed', 10));
         expect(s.mean).toBeCloseTo(1 / 3, 3);
@@ -208,5 +209,30 @@ describe('fit window', () => {
             expect(first[2]).toBe(6);
         }
         expect(fitCltView({...DEFAULT_CLT_MODEL, cdf: true})[1]).toBeGreaterThan(1);
+    });
+});
+
+describe('shapeMoments (exact)', () => {
+    it('uniform 1/2 and 1/12, skewed 1/3 and 1/18, a tent on [0, 0.5] 0.25 and 0.25^2/6', () => {
+        const u = shapeMoments([1, 1, 1, 1, 1])!;
+        expect(u.mean).toBeCloseTo(1 / 2, 12);
+        expect(u.variance).toBeCloseTo(1 / 12, 12);
+        const s = shapeMoments([2, 1.5, 1, 0.5, 0])!;
+        expect(s.mean).toBeCloseTo(1 / 3, 12);
+        expect(s.variance).toBeCloseTo(1 / 18, 12);
+        const tent = shapeMoments([0, 3, 0, 0, 0])!;
+        expect(tent.mean).toBeCloseTo(0.25, 12);
+        expect(tent.variance).toBeCloseTo(0.0625 / 6, 12);
+        expect(shapeMoments([0, 0, 0, 0, 0])).toBeUndefined();
+    });
+    it('agrees with the grid moments of a generic continuous shape to grid accuracy', () => {
+        const heights = [0.5, 2, 0.3, 1.7, 0.9];
+        const exact = shapeMoments(heights)!;
+        const grid = piecewiseLinearBase(heights);
+        if (!grid.ok) throw new Error('base failed');
+        const m = moments(grid.density);
+        expect(Math.abs(m.mean - exact.mean)).toBeLessThan(1e-4);
+        expect(Math.abs(m.variance - exact.variance)).toBeLessThan(1e-4);
+        expect(exact.variance).toBeGreaterThan(0.05);
     });
 });
