@@ -1,0 +1,155 @@
+Bezeg
+Learning
+Demonstrations
+Language
+SL
+EN
+Demonstrations / Computational geometry / Fortune's algorithm
+Fortune's algorithm
+
+Change the settings and observe their effect on the graph.
+
+Switch demonstration
+Learn this demonstration
+Presentation mode
+GRAPH
+2
+4
+6
+8
+10
+12
+−2
+−4
+−6
+−8
+−10
+−12
+2
+4
+6
+8
+−2
+−4
+−6
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+K
+L
+←
+↑
+↓
+→
++
+−
+Fit to points
+
+Pan: Shift + drag · Zoom: Shift + mouse wheel
+
+TRY AND OBSERVE
+
+Press Next step and find the dashed, cancelled circle. Which site lies inside it, and why does the arc on the beach line then not disappear?
+
+Next prompt
+TOOLS FOR THIS GRAPH
+Tools
+Collapse
+Edit
+Display
+Save
+curve
+view
+example
+Next step
+Play
+Reset
+Reset view
+
+Playback takes one step at a time and stops at the end; it is stopped when opened. A step is one event: the sweep line moves down, the beach line is drawn approximately (parabola arcs), dots on it are the breakpoints of the arcs, and lines from the vertices to them are the parts of edges traced so far. A scheduled circle is solid with a diamond at its lowest point; a cancelled circle (a false alarm) is dashed with a cross at its lowest point. The event of the step is thickest and marked in the list too: a ring on its site, or its circle with a ring on the new vertex.
+
+Example A–D
+Example without D
+Collinear sites
+Four sites on a circle
+12 random sites
+
+Step 25 of 29
+
+Site event J: a new arc of the beach line.
+
+False alarm: circle event (L, D, G) is cancelled because the circle is no longer empty.
+
+Sweep line height: 
+𝑦
+=
+−
+7
+
+Beach line (left to right): K, F, I, E, L, D, J, D, G, H, K
+
+Vertices: 12 of 15
+
+Current event (just processed)
+
+● site J
+current event
+
+Event queue (remaining and cancelled circle events)
+
+▸ circle event (J, D, G)
+next event
+circle event (L, D, J)
+circle event (F, A, C) (cancelled, false alarm)
+circle event (B, A, C) (cancelled, false alarm)
+circle event (D, C, H) (cancelled, false alarm)
+circle event (I, B, D) (cancelled, false alarm)
+circle event (L, D, G) (cancelled, false alarm)
+
+Step 25 of 29. Site event J: a new arc of the beach line.. False alarm: circle event (L, D, G) is cancelled because the circle is no longer empty.. Beach line (left to right): K, F, I, E, L, D, J, D, G, H, K
+
+ Grid
+
+Grid step: 1. Coordinates are whole numbers of steps.
+
+Add by tapping or clickingRemoveClear
+
+Points: 12 of at most 12
+
+Selected point: 12
+
+The maximum number of points (12) is reached. Remove a point before adding another.
+
+Points
+P1
+Select point 1
+P2
+Select point 2
+P3
+Select point 3
+P4
+Select point 4
+P5
+Select point 5
+P6
+Select point 6
+P7
+Select point 7
+P8
+Select point 8
+P9
+Select point 9
+P10
+Select point 10
+P11
+Select point 11
+P12
+Select point 12
+Add point

@@ -1,0 +1,40 @@
+{
+ "sl": {
+  "label": "Točke na mreži. Izbrano točko premakneš s puščičnimi tipkami, odstraniš pa s tipko Delete.",
+  "sel": "Izbrana točka: 4",
+  "kbMove": [
+   "3",
+   "-2"
+  ],
+  "expSVG": {
+   "name": "izvoz.svg",
+   "size": 19157,
+   "head": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"847.625\" height=\"475.1875\" style="
+  },
+  "expPNG": {
+   "name": "izvoz.png",
+   "size": 21583,
+   "head": "89504e470d0a1a0a"
+  },
+  "errs": []
+ },
+ "en": {
+  "label": "Points on a grid. Move the selected point with the arrow keys and remove it with Delete.",
+  "sel": "Selected point: 4",
+  "kbMove": [
+   "3",
+   "-2"
+  ],
+  "expSVG": {
+   "name": "export.svg",
+   "size": 19157,
+   "head": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"847.625\" height=\"475.1875\" style="
+  },
+  "expPNG": {
+   "name": "export.png",
+   "size": 21583,
+   "head": "89504e470d0a1a0a"
+  },
+  "errs": []
+ }
+}

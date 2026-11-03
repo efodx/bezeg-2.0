@@ -1,0 +1,62 @@
+{
+ "sl": {
+  "colNote": [],
+  "cocNote": [
+   "Štiri mesta na krožnici"
+  ],
+  "live": [
+   "Pritiskaj Naslednji korak in poišči črtkani, preklicani krog. Katero mesto leži ",
+   "Korak 1 od 8. Mesta so v vrsti dogodkov; pometalna premica je nad vsemi.. Obalna",
+   "",
+   ""
+  ],
+  "kbBefore": [
+   "0",
+   "-3"
+  ],
+  "focus": "BODY|",
+  "kbAfter": [
+   "0",
+   "-3"
+  ],
+  "ontoDrag": {
+   "d": [
+    "0",
+    "-3"
+   ],
+   "msgs": [
+    "Dodajanje z dotikom ali klikomOdstraniPočisti"
+   ]
+  },
+  "errs": []
+ },
+ "en": {
+  "colNote": [],
+  "cocNote": [
+   "Four sites on a circle"
+  ],
+  "live": [
+   "Press Next step and find the dashed, cancelled circle. Which site lies inside it",
+   "Step 1 of 8. The sites are in the event queue; the sweep line is above all of th",
+   "",
+   ""
+  ],
+  "kbBefore": [
+   "0",
+   "-3"
+  ],
+  "focus": "BODY|",
+  "kbAfter": [
+   "0",
+   "-3"
+  ],
+  "ontoDrag": {
+   "d": [
+    "0",
+    "-3"
+   ],
+   "msgs": []
+  },
+  "errs": []
+ }
+}

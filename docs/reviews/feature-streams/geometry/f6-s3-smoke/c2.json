@@ -1,0 +1,210 @@
+{
+ "sl": {
+  "steps": [
+   {
+    "s": [
+     1,
+     8
+    ],
+    "cur": null,
+    "curCount": 0
+   },
+   {
+    "s": [
+     2,
+     8
+    ],
+    "cur": "d 2 |  | Trenutni dogodek (pravkar obdelan) |  | ● mesto A | trenutni dogodek |  | Vrsta dogodkov (preostali in preklicani krožni",
+    "curCount": 1
+   },
+   {
+    "s": [
+     3,
+     8
+    ],
+    "cur": "d 2 |  | Trenutni dogodek (pravkar obdelan) |  | ● mesto B | trenutni dogodek |  | Vrsta dogodkov (preostali in preklicani krožni",
+    "curCount": 1
+   },
+   {
+    "s": [
+     4,
+     8
+    ],
+    "cur": "d 2 |  | Trenutni dogodek (pravkar obdelan) |  | ● mesto C | trenutni dogodek |  | Vrsta dogodkov (preostali in preklicani krožni",
+    "curCount": 1
+   },
+   {
+    "s": [
+     5,
+     8
+    ],
+    "cur": "d 2 |  | Trenutni dogodek (pravkar obdelan) |  | ● mesto D | trenutni dogodek |  | Vrsta dogodkov (preostali in preklicani krožni",
+    "curCount": 1
+   },
+   {
+    "s": [
+     6,
+     8
+    ],
+    "cur": "d 2 |  | Trenutni dogodek (pravkar obdelan) |  | ● krožni dogodek (B, A, D) | trenutni dogodek |  | Vrsta dogodkov (preostali in ",
+    "curCount": 1
+   },
+   {
+    "s": [
+     7,
+     8
+    ],
+    "cur": "d 2 |  | Trenutni dogodek (pravkar obdelan) |  | ● krožni dogodek (D, A, C) | trenutni dogodek |  | Vrsta dogodkov (preostali in ",
+    "curCount": 1
+   },
+   {
+    "s": [
+     8,
+     8
+    ],
+    "cur": null,
+    "curCount": 0
+   },
+   {
+    "s": [
+     8,
+     8
+    ],
+    "cur": null,
+    "curCount": 0
+   }
+  ],
+  "afterReset": {
+   "s": [
+    1,
+    8
+   ],
+   "cur": null,
+   "curCount": 0
+  },
+  "circleStepIdx": null,
+  "playLabel": [
+   "Premor"
+  ],
+  "afterPlay": {
+   "s": [
+    8,
+    8
+   ],
+   "cur": null,
+   "curCount": 0
+  },
+  "afterPlayLabel": [
+   "Predvajaj"
+  ],
+  "afterPlay2": [
+   8,
+   8
+  ],
+  "midPlay": [
+   2,
+   8
+  ],
+  "errs": []
+ },
+ "en": {
+  "steps": [
+   {
+    "s": [
+     1,
+     8
+    ],
+    "cur": null,
+    "curCount": 0
+   },
+   {
+    "s": [
+     2,
+     8
+    ],
+    "cur": "f 2 |  | Current event (just processed) |  | ● site A | current event |  | Event queue (remaining and cancelled circle events) |  | ▸",
+    "curCount": 1
+   },
+   {
+    "s": [
+     3,
+     8
+    ],
+    "cur": "f 2 |  | Current event (just processed) |  | ● site B | current event |  | Event queue (remaining and cancelled circle events) |  | ▸",
+    "curCount": 1
+   },
+   {
+    "s": [
+     4,
+     8
+    ],
+    "cur": "f 2 |  | Current event (just processed) |  | ● site C | current event |  | Event queue (remaining and cancelled circle events) |  | ▸",
+    "curCount": 1
+   },
+   {
+    "s": [
+     5,
+     8
+    ],
+    "cur": "f 2 |  | Current event (just processed) |  | ● site D | current event |  | Event queue (remaining and cancelled circle events) |  | ▸",
+    "curCount": 1
+   },
+   {
+    "s": [
+     6,
+     8
+    ],
+    "cur": "f 2 |  | Current event (just processed) |  | ● circle event (B, A, D) | current event |  | Event queue (remaining and cancelled c",
+    "curCount": 1
+   },
+   {
+    "s": [
+     7,
+     8
+    ],
+    "cur": "f 2 |  | Current event (just processed) |  | ● circle event (D, A, C) | current event |  | Event queue (remaining and cancelled c",
+    "curCount": 1
+   },
+   {
+    "s": [
+     8,
+     8
+    ],
+    "cur": null,
+    "curCount": 0
+   },
+   {
+    "s": [
+     8,
+     8
+    ],
+    "cur": null,
+    "curCount": 0
+   }
+  ],
+  "afterReset": {
+   "s": [
+    1,
+    8
+   ],
+   "cur": null,
+   "curCount": 0
+  },
+  "circleText": "Current event (just processed) |  | ● site B | current event |  | Event queue (remaining and cancelled circle events) |  | ▸ site C | next event | site D |  | Step 3 of 8. Site event",
+  "circleStepIdx": 2,
+  "playLabel": [
+   "Play"
+  ],
+  "afterPlay": {
+   "s": null,
+   "cur": null,
+   "curCount": 0
+  },
+  "afterPlayLabel": [
+   "Play"
+  ],
+  "afterPlay2": null,
+  "midPlay": null,
+  "errs": []
+ }
+}

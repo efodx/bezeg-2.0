@@ -1,0 +1,359 @@
+{
+ "sl": {
+  "frames": [
+   {
+    "step": [
+     1,
+     8
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Pometalna premica gre od zgoraj navzdol in za seboj pušča obalno črto iz lokov parabol; ob dogodkih mest nastajajo novi loki, ob krožnih dogodkih loki izginjajo in nastajajo Voronojeva oglišča, lažni alarmi pa se prekličejo.|Mesta in pometalna premica|Mesta so |𝐴|=|(|0|,|5|)|, |𝐵|=|(|−|4|,|3|)|, |𝐶|=|(|4|,",
+    "ctr": "Okvir 1 od 2"
+   },
+   {
+    "step": [
+     1,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Mesta in pometalna premica|V vrsti dogodkov preberi vrstni red mest in preveri, da je obalna črta še prazna.|Opazovanje|Korak 1 od 7 · Okvir 2 od 2|Prejšnji okvir|Naslednji okvir|Opazuj na grafu|GRAF|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Prilagodi točkam|Premik: Shift + povlek · Poveča",
+    "ctr": "Okvir 2 od 2"
+   },
+   {
+    "step": [
+     2,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Napovej prvi lok|Premica se ustavlja samo pri dogodkih. Preden pritisneš Naslednji korak, napovej: pri katerem mestu in na kateri višini |𝑦| bo nastal prvi lok in kakšna bo potem obalna črta? Namig: premica se spušča in zato najprej zadene najvišje mesto. Še nič ni prikazano, izpis je enak kot pri prejšnjem ko",
+    "ctr": "Okvir 1 od 2"
+   },
+   {
+    "step": [
+     2,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Napovej prvi lok|Zapiši napoved: pri katerem mestu nastane prvi lok in kakšna je obalna črta po tem dogodku?|Opazovanje|Korak 2 od 7 · Okvir 2 od 2|Prejšnji okvir|Naslednji okvir|Opazuj na grafu|GRAF|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Prilagodi točkam|Premik: Shift + povlek · Poveča",
+    "ctr": "Okvir 2 od 2"
+   },
+   {
+    "step": [
+     3,
+     8
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Dogodki mest: novi loki|Po prvem koraku je obalna črta samo lok mesta |𝐴| pri |𝑦|=|5|. Izpis „Korak 3 od 8“ pokaže stanje po dogodku mesta |𝐵|: pri |𝑦|=|3| leži |𝐵| pod lokom mesta |𝐴| in ga razcepi, zato je obalna črta (od leve proti desni) |𝐴|, |𝐵|, |𝐴|. Lok mesta |𝐵| se začne kot točka; od nje se r",
+    "ctr": "Okvir 1 od 2"
+   },
+   {
+    "step": [
+     3,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Dogodki mest: novi loki|Preberi obalno črto in višino pometalne premice ter preštej loke.|Opazovanje|Korak 3 od 7 · Okvir 2 od 2|Prejšnji okvir|Naslednji okvir|Opazuj na grafu|GRAF|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Prilagodi točkam|Premik: Shift + povlek · Povečava: Shift + kolešče",
+    "ctr": "Okvir 2 od 2"
+   },
+   {
+    "step": [
+     4,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Načrtovan krožni dogodek|Dogodek mesta |𝐶| (korak 4 od 8) doda lok in obalna črta je |𝐴|, |𝐵|, |𝐴|, |𝐶|, |𝐴|. Zdaj so zaporedni loki |𝐵|, |𝐴|, |𝐶|: njihova mesta ležijo na krogu s središčem |(|0|,|0|)| in polmerom |𝑅|=|5|, saj je |||𝑂|𝐴|||=|||𝑂|𝐵|||=|||𝑂|𝐶|||=|5|. Če se srednji lok |𝐴| skrči v ",
+    "ctr": "Okvir 1 od 2"
+   },
+   {
+    "step": [
+     4,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Načrtovan krožni dogodek|Preberi obalno črto in vrsto dogodkov in poišči krog skozi |𝐵|, |𝐴|, |𝐶|.|Opazovanje|Korak 4 od 7 · Okvir 2 od 2|Prejšnji okvir|Naslednji okvir|Opazuj na grafu|GRAF|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Prilagodi točkam|Premik: Shift + povlek · Povečava: Shi",
+    "ctr": "Okvir 2 od 2"
+   },
+   {
+    "step": [
+     5,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Lažni alarm|Premica pride do |𝑦|=|−|3| in obdela mesto |𝐷|=|(|0|,|−|3|)| (korak 5 od 8). Mesto |𝐷| leži v krogu s središčem |(|0|,|0|)| in polmerom |5|, ker je od središča oddaljeno |3|<|5|. Lok mesta |𝐷| razcepi lok mesta |𝐴|, ki naj bi izginil, zato |𝐵|, |𝐴|, |𝐶| niso več zaporedni loki (obalna črta j",
+    "ctr": "Okvir 1 od 3"
+   },
+   {
+    "step": [
+     5,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Lažni alarm|Mesto |𝐷| v krogu|||𝑂|𝐷|||=|0|2|+|(|−|3|)|2|=|3|<|5|=|𝑅|3|<|5|Izpis pove, da je krožni dogodek |(|𝐵|,|𝐴|,|𝐶|)| preklican kot lažni alarm: mesto |𝐷| je od središča |𝑂|=|(|0|,|0|)| oddaljeno |3|, polmer kroga pa je |5|.|Izračun|Korak 5 od 7 · Okvir 2 od 3|Prejšnji okvir|Naslednji okvir|GRAF|",
+    "ctr": "Okvir 2 od 3"
+   },
+   {
+    "step": [
+     5,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Lažni alarm|Poišči preklicani krog in preberi opombo o lažnem alarmu; preveri, katero mesto je v krogu.|Opazovanje|Korak 5 od 7 · Okvir 3 od 3|Prejšnji okvir|Naslednji okvir|Opazuj na grafu|GRAF|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Prilagodi točkam|Premik: Shift + povlek · Povečava: S",
+    "ctr": "Okvir 3 od 3"
+   },
+   {
+    "step": [
+     6,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Pravi krožni dogodki|Preostala krožna dogodka sta pravi. Krog skozi |𝐵|, |𝐴|, |𝐷| ima središče |(|−|1|2|,|1|)| in |𝑅|2|=|65|4|, krog skozi |𝐷|, |𝐴|, |𝐶| pa središče |(|1|2|,|1|)| in enak |𝑅|2|; v nobenem ni drugega mesta. Najnižji točki obeh sta na višini |𝑦|=|1|−|65|4|≈|−|3,031|, kar je izpis pometaln",
+    "ctr": "Okvir 1 od 3"
+   },
+   {
+    "step": [
+     6,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Pravi krožni dogodki|Višina pravega krožnega dogodka|𝑅|2|=|(|1|2|)|2|+|4|2|=|65|4|,|𝑦|=|1|−|65|4|=|1|−|65|2|≈|−|3,031|𝑦|=|1|−|65|2|≈|−|3,031|Izpis navaja višino pometalne premice |𝑦|=|1|−|65|4|≈|−|3,031|, kar je ista vrednost; središče |(|−|1|2|,|1|)| je od mesta |𝐴|=|(|0|,|5|)| oddaljeno za |1|4|+|16|.|I",
+    "ctr": "Okvir 2 od 3"
+   },
+   {
+    "step": [
+     6,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Pravi krožni dogodki|Preberi višino pometalne premice, obalno črto in število oglišč; primerjaj z vrednostmi, ki jih pove besedilo.|Opazovanje|Korak 6 od 7 · Okvir 3 od 3|Prejšnji okvir|Naslednji okvir|Opazuj na grafu|GRAF|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Prilagodi točkam|Premik: ",
+    "ctr": "Okvir 3 od 3"
+   },
+   {
+    "step": [
+     7,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Končni diagram in prosto raziskovanje|Ob koncu (korak 8 od 8) se obalna črta umakne in prikaže se končni Voronojev diagram: |2| oglišči |(|−|1|2|,|1|)| in |(|1|2|,|1|)|, en končni rob (del premice |𝑦|=|1| med njima, simetrala daljice |𝐴|𝐷|) in |4| poltraki, skupaj |5| robov: |2|𝑛|−|2|−|ℎ|=|2| in |3|𝑛|−|3|−",
+    "ctr": "Okvir 1 od 3"
+   },
+   {
+    "step": [
+     7,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Končni diagram in prosto raziskovanje|Števili oglišč in robov|𝑣|=|2|⋅|4|−|2|−|4|=|2|,|𝑒|=|3|⋅|4|−|3|−|4|=|5|𝑣|=|2|,| |𝑒|=|5|Končni diagram ima |2| oglišči in |5| robov: en končni rob in štiri poltrake; vsa štiri mesta so na ovojnici, |ℎ|=|4|.|Izračun|Korak 7 od 7 · Okvir 2 od 3|Prejšnji okvir|Naslednji okv",
+    "ctr": "Okvir 2 od 3"
+   },
+   {
+    "step": [
+     7,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Nazaj v poglavje|Končni diagram in prosto raziskovanje|Preštej oglišča, končne robove in poltrake in jih primerjaj z |2|𝑛|−|2|−|ℎ| in |3|𝑛|−|3|−|ℎ|; nato premakni eno mesto in napovej, ali se bo število oglišč spremenilo.|Opazovanje|Korak 7 od 7 · Okvir 3 od 3|Prejšnji okvir|Zaključi vodeni primer|Opazuj na grafu|GRAF|5|10|1",
+    "ctr": "Okvir 3 od 3"
+   }
+  ],
+  "n": 16,
+  "endStep": [
+   7,
+   7
+  ],
+  "nextCount": 0,
+  "afterBack": "http://127.0.0.1:4323/bezeg-2.0/learn/sweep-algorithms#fortune",
+  "errs": []
+ },
+ "en": {
+  "frames": [
+   {
+    "step": [
+     1,
+     8
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|A sweep line goes from top to bottom and leaves behind a beach line of parabola arcs; at site events new arcs appear, at circle events arcs vanish and Voronoi vertices appear, and false alarms are cancelled.|The sites and the sweep line|The sites are |𝐴|=|(|0|,|5|)|, |𝐵|=|(|−|4|,|3|)|, |𝐶|=|(|4|,|3|)| and",
+    "ctr": "Frame 1 of 2"
+   },
+   {
+    "step": [
+     1,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|The sites and the sweep line|In the event queue read the order of the sites and check that the beach line is still empty.|Observation|Step 1 of 7 · Frame 2 of 2|Previous frame|Next frame|Observe on the graph|GRAPH|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Fit to points|Pan: Shift + drag ·",
+    "ctr": "Frame 2 of 2"
+   },
+   {
+    "step": [
+     2,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|Predict the first arc|The line stops only at events. Before you press Next step, predict: at which site and at which height |𝑦| will the first arc appear, and what will the beach line look like then? Hint: the line moves down, so it meets the highest site first. Nothing new is shown yet; the readout is the sa",
+    "ctr": "Frame 1 of 2"
+   },
+   {
+    "step": [
+     2,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|Predict the first arc|Write down your prediction: at which site does the first arc appear and what is the beach line after that event?|Observation|Step 2 of 7 · Frame 2 of 2|Previous frame|Next frame|Observe on the graph|GRAPH|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Fit to points|Pan: S",
+    "ctr": "Frame 2 of 2"
+   },
+   {
+    "step": [
+     3,
+     8
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|Site events: new arcs|After the first step the beach line is only the arc of |𝐴| at |𝑦|=|5|. The readout \"Step 3 of 8\" shows the state after the site event of |𝐵|: at |𝑦|=|3| the site |𝐵| lies below the arc of |𝐴| and splits it, so the beach line (from left to right) is |𝐴|, |𝐵|, |𝐴|. The arc of |𝐵| ",
+    "ctr": "Frame 1 of 2"
+   },
+   {
+    "step": [
+     3,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|Site events: new arcs|Read the beach line and the height of the sweep line, and count the arcs.|Observation|Step 3 of 7 · Frame 2 of 2|Previous frame|Next frame|Observe on the graph|GRAPH|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Fit to points|Pan: Shift + drag · Zoom: Shift + mouse wheel",
+    "ctr": "Frame 2 of 2"
+   },
+   {
+    "step": [
+     4,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|A scheduled circle event|The site event of |𝐶| (step 4 of 8) adds an arc and the beach line is |𝐴|, |𝐵|, |𝐴|, |𝐶|, |𝐴|. Now the arcs |𝐵|, |𝐴|, |𝐶| are consecutive: their sites lie on the circle with centre |(|0|,|0|)| and radius |𝑅|=|5|, since |||𝑂|𝐴|||=|||𝑂|𝐵|||=|||𝑂|𝐶|||=|5|. If the middle ar",
+    "ctr": "Frame 1 of 2"
+   },
+   {
+    "step": [
+     4,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|A scheduled circle event|Read the beach line and the event queue and find the circle through |𝐵|, |𝐴|, |𝐶|.|Observation|Step 4 of 7 · Frame 2 of 2|Previous frame|Next frame|Observe on the graph|GRAPH|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Fit to points|Pan: Shift + drag · Zoom: Shif",
+    "ctr": "Frame 2 of 2"
+   },
+   {
+    "step": [
+     5,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|A false alarm|The line reaches |𝑦|=|−|3| and handles the site |𝐷|=|(|0|,|−|3|)| (step 5 of 8). The site |𝐷| lies in the circle with centre |(|0|,|0|)| and radius |5|, because its distance from the centre is |3|<|5|. The arc of |𝐷| splits the arc of |𝐴| that was supposed to vanish, so |𝐵|, |𝐴|, |𝐶| are ",
+    "ctr": "Frame 1 of 3"
+   },
+   {
+    "step": [
+     5,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|A false alarm|The site |𝐷| in the circle|||𝑂|𝐷|||=|0|2|+|(|−|3|)|2|=|3|<|5|=|𝑅|3|<|5|The readout says the circle event |(|𝐵|,|𝐴|,|𝐶|)| is cancelled as a false alarm: the site |𝐷| is |3| from the centre |𝑂|=|(|0|,|0|)|, and the radius of the circle is |5|.|Calculation|Step 5 of 7 · Frame 2 of 3|Previo",
+    "ctr": "Frame 2 of 3"
+   },
+   {
+    "step": [
+     5,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|A false alarm|Find the cancelled circle and read the note about the false alarm; check which site is in the circle.|Observation|Step 5 of 7 · Frame 3 of 3|Previous frame|Next frame|Observe on the graph|GRAPH|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Fit to points|Pan: Shift + drag · Zoom:",
+    "ctr": "Frame 3 of 3"
+   },
+   {
+    "step": [
+     6,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|The true circle events|The remaining two circle events are genuine. The circle through |𝐵|, |𝐴|, |𝐷| has centre |(|−|1|2|,|1|)| and |𝑅|2|=|65|4|, the circle through |𝐷|, |𝐴|, |𝐶| has centre |(|1|2|,|1|)| and the same |𝑅|2|; neither contains another site. Both lowest points are at height |𝑦|=|1|−|65|4|",
+    "ctr": "Frame 1 of 3"
+   },
+   {
+    "step": [
+     6,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|The true circle events|The height of a true circle event|𝑅|2|=|(|1|2|)|2|+|4|2|=|65|4|,|𝑦|=|1|−|65|4|=|1|−|65|2|≈|−|3,031|𝑦|=|1|−|65|2|≈|−|3,031|The readout gives the sweep-line height |𝑦|=|1|−|65|4|≈|−|3.031|, the same value; the centre |(|−|1|2|,|1|)| is |1|4|+|16| away from the site |𝐴|=|(|0|,|5|)|.|C",
+    "ctr": "Frame 2 of 3"
+   },
+   {
+    "step": [
+     6,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|The true circle events|Read the height of the sweep line, the beach line and the number of vertices; compare them with the values given in the text.|Observation|Step 6 of 7 · Frame 3 of 3|Previous frame|Next frame|Observe on the graph|GRAPH|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Fit to ",
+    "ctr": "Frame 3 of 3"
+   },
+   {
+    "step": [
+     7,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|The finished diagram and free exploration|At the end (step 8 of 8) the beach line is withdrawn and the finished Voronoi diagram appears: |2| vertices |(|−|1|2|,|1|)| and |(|1|2|,|1|)|, one finite edge (the part of the line |𝑦|=|1| between them, the bisector of the segment |𝐴|𝐷|) and |4| rays, |5| edges in a",
+    "ctr": "Frame 1 of 3"
+   },
+   {
+    "step": [
+     7,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|The finished diagram and free exploration|The numbers of vertices and edges|𝑣|=|2|⋅|4|−|2|−|4|=|2|,|𝑒|=|3|⋅|4|−|3|−|4|=|5|𝑣|=|2|,| |𝑒|=|5|The finished diagram has |2| vertices and |5| edges: one finite edge and four rays; all four sites are on the hull, |ℎ|=|4|.|Calculation|Step 7 of 7 · Frame 2 of 3|Prev",
+    "ctr": "Frame 2 of 3"
+   },
+   {
+    "step": [
+     7,
+     7
+    ],
+    "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+    "txt": "Return to chapter|The finished diagram and free exploration|Count the vertices, finite edges and rays and compare them with |2|𝑛|−|2|−|ℎ| and |3|𝑛|−|3|−|ℎ|; then move one site and predict whether the number of vertices will change.|Observation|Step 7 of 7 · Frame 3 of 3|Previous frame|Complete example|Observe on the graph|GR",
+    "ctr": "Frame 3 of 3"
+   }
+  ],
+  "preSwitch": {
+   "step": [
+    2,
+    7
+   ],
+   "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+   "txt": "Return to chapter|Predict the first arc|Write down your prediction: at which site does the first arc appear and what is the beach line after that event?|Observation|Step 2 of 7 · Frame 2 of 2|Previous frame|Next frame|Observe on the graph|GRAPH|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Fit to points|Pan: S",
+   "ctr": "Frame 2 of 2"
+  },
+  "postSwitch": {
+   "step": [
+    2,
+    7
+   ],
+   "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+   "txt": "",
+   "ctr": "Okvir 2 od 2"
+  },
+  "back2en": {
+   "step": [
+    2,
+    7
+   ],
+   "url": "learn=1&learnChapter=sweep-algorithms&learnSection=fortune",
+   "txt": "Return to chapter|Predict the first arc|Write down your prediction: at which site does the first arc appear and what is the beach line after that event?|Observation|Step 2 of 7 · Frame 2 of 2|Previous frame|Next frame|Observe on the graph|GRAPH|5|10|15|−5|−10|−15|2|4|6|8|10|−2|−4|A|B|C|D|−6|−8|←|↑|↓|→|+|−|Fit to points|Pan: S",
+   "ctr": "Frame 2 of 2"
+  },
+  "n": 16,
+  "endStep": [
+   7,
+   7
+  ],
+  "nextCount": 0,
+  "afterBack": "http://127.0.0.1:4323/bezeg-2.0/learn/sweep-algorithms#fortune",
+  "errs": []
+ }
+}

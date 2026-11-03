@@ -1,0 +1,76 @@
+{
+ "steps": [
+  {
+   "s": [
+    1,
+    8
+   ],
+   "cur": null,
+   "curCount": 0
+  },
+  {
+   "s": [
+    2,
+    8
+   ],
+   "cur": "f 2 |  | Current event (just processed) |  | ● site A | current event |  | Event queue (remaining and cancelled circle events) |  | ▸",
+   "curCount": 1
+  },
+  {
+   "s": [
+    3,
+    8
+   ],
+   "cur": "f 2 |  | Current event (just processed) |  | ● site B | current event |  | Event queue (remaining and cancelled circle events) |  | ▸",
+   "curCount": 1
+  },
+  {
+   "s": [
+    4,
+    8
+   ],
+   "cur": "f 2 |  | Current event (just processed) |  | ● site C | current event |  | Event queue (remaining and cancelled circle events) |  | ▸",
+   "curCount": 1
+  },
+  {
+   "s": [
+    5,
+    8
+   ],
+   "cur": "f 2 |  | Current event (just processed) |  | ● site D | current event |  | Event queue (remaining and cancelled circle events) |  | ▸",
+   "curCount": 1
+  },
+  {
+   "s": [
+    6,
+    8
+   ],
+   "cur": "f 2 |  | Current event (just processed) |  | ● circle event (B, A, D) | current event |  | Event queue (remaining and cancelled c",
+   "curCount": 1
+  },
+  {
+   "s": [
+    7,
+    8
+   ],
+   "cur": "f 2 |  | Current event (just processed) |  | ● circle event (D, A, C) | current event |  | Event queue (remaining and cancelled c",
+   "curCount": 1
+  },
+  {
+   "s": [
+    8,
+    8
+   ],
+   "cur": null,
+   "curCount": 0
+  },
+  {
+   "s": [
+    8,
+    8
+   ],
+   "cur": null,
+   "curCount": 0
+  }
+ ]
+}

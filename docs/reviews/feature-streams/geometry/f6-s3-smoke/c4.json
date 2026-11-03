@@ -1,0 +1,202 @@
+{
+ "sl": {
+  "before": {
+   "s": [
+    5,
+    8
+   ],
+   "pts": "Točk: 4 od največ 12",
+   "head": "Korak 5 od 8. Dogodek mesta D: nov lok obalne črte.. Lažni alarm: krožni dogodek (B, A, C) je preklican, ker krog ni več prazen.. Obalna črta (od leve proti desni): A, B, A, D, A, C, A"
+  },
+  "afterDrag": {
+   "s": [
+    5,
+    8
+   ],
+   "pts": "Točk: 4 od največ 12",
+   "head": "Korak 5 od 8. Dogodek mesta D: nov lok obalne črte.. Lažni alarm: krožni dogodek (B, A, C) je preklican, ker krog ni več prazen.. Obalna črta (od leve proti desni): A, B, A, D, A, C, A"
+  },
+  "dInputs": [
+   "1",
+   "-2"
+  ],
+  "after12": {
+   "s": [
+    5,
+    29
+   ],
+   "pts": "Točk: 12 od največ 12",
+   "head": "Korak 5 od 8. Dogodek mesta D: nov lok obalne črte.. Lažni alarm: krožni dogodek (B, A, C) je preklican, ker krog ni več prazen.. Obalna črta (od leve proti desni): A, B, A, D, A, C, A"
+  },
+  "after13": {
+   "s": [
+    5,
+    29
+   ],
+   "pts": "Točk: 12 od največ 12",
+   "head": "Korak 5 od 8. Dogodek mesta D: nov lok obalne črte.. Lažni alarm: krožni dogodek (B, A, C) je preklican, ker krog ni več prazen.. Obalna črta (od leve proti desni): A, B, A, D, A, C, A"
+  },
+  "msgDiff13": [
+   "E",
+   "F",
+   "G",
+   "H",
+   "I",
+   "J",
+   "K",
+   "L",
+   "Korak 5 od 29",
+   "Krožni dogodek (F, K, A): srednji lok izgine in nastane oglišče.",
+   "≈",
+   "4,965"
+  ],
+  "end": {
+   "s": [
+    25,
+    29
+   ],
+   "pts": "Točk: 12 od največ 12",
+   "head": "Korak 25 od 29. Dogodek mesta J: nov lok obalne črte.. Lažni alarm: krožni dogodek (L, D, G) je preklican, ker krog ni več prazen.. Obalna črta (od leve proti desni): K, F, I, E, L, D, J, D, G, H, K"
+  },
+  "reset": {
+   "s": [
+    1,
+    29
+   ],
+   "pts": "Točk: 12 od največ 12",
+   "head": "Korak 1 od 29. Mesta so v vrsti dogodkov; pometalna premica je nad vsemi.. Obalna črta je še prazna."
+  },
+  "collinear": {
+   "snap": {
+    "s": [
+     6,
+     6
+    ],
+    "pts": "Točk: 4 od največ 12",
+    "head": "Korak 6 od 6. Vsi dogodki so obdelani; prikazan je končni Voronojev diagram."
+   },
+   "text": "Korak 6 od 6 | Vsi dogodki so obdelani; prikazan je končni Voronojev diagram. | Višina pometalne premice:  | 𝑦 | = | − | 3 | Oglišča: 0 od 0 | Korak 6 od 6. Vsi dogodki so obdelani; prikazan je končni Voronojev diagram. |  Mreža | Korak mreže: 1. Koordinate so cela števila korakov. | Dodajanje z dotikom ali klikomOdstraniPočisti | Točk: 4 od največ 12 | Nobena točka ni izbrana. | Točke | P1 | Izberi točko 1 | P2 | Izberi točko 2 | P3 | Izberi to"
+  },
+  "cocircular": {
+   "snap": {
+    "s": [
+     7,
+     7
+    ],
+    "pts": "Točk: 4 od največ 12",
+    "head": "Korak 7 od 7. Vsi dogodki so obdelani; prikazan je končni Voronojev diagram."
+   },
+   "text": "Korak 7 od 7 | Vsi dogodki so obdelani; prikazan je končni Voronojev diagram. | Višina pometalne premice:  | 𝑦 | = | − | 5 | Oglišča: 1 od 1 | Korak 7 od 7. Vsi dogodki so obdelani; prikazan je končni Voronojev diagram. |  Mreža | Korak mreže: 1. Koordinate so cela števila korakov. | Dodajanje z dotikom ali klikomOdstraniPočisti | Točk: 4 od največ 12 | Nobena točka ni izbrana. | Točke | P1 | Izberi točko 1 | P2 | Izberi točko 2 | P3 | Izberi to"
+  },
+  "onto": {
+   "d": [
+    "-4",
+    "3"
+   ],
+   "diff": [
+    "Mesti B in D sta enaki; premakni eno od njiju."
+   ]
+  },
+  "errs": []
+ },
+ "en": {
+  "before": {
+   "s": [
+    5,
+    8
+   ],
+   "pts": "Points: 4 of at most 12",
+   "head": "Step 5 of 8. Site event D: a new arc of the beach line.. False alarm: circle event (B, A, C) is cancelled because the circle is no longer empty.. Beach line (left to right): A, B, A, D, A, C, A"
+  },
+  "afterDrag": {
+   "s": [
+    5,
+    8
+   ],
+   "pts": "Points: 4 of at most 12",
+   "head": "Step 5 of 8. Site event D: a new arc of the beach line.. False alarm: circle event (B, A, C) is cancelled because the circle is no longer empty.. Beach line (left to right): A, B, A, D, A, C, A"
+  },
+  "dInputs": [
+   "1",
+   "-2"
+  ],
+  "after12": {
+   "s": [
+    5,
+    29
+   ],
+   "pts": "Points: 12 of at most 12",
+   "head": "Step 5 of 8. Site event D: a new arc of the beach line.. False alarm: circle event (B, A, C) is cancelled because the circle is no longer empty.. Beach line (left to right): A, B, A, D, A, C, A"
+  },
+  "after13": {
+   "s": [
+    5,
+    29
+   ],
+   "pts": "Points: 12 of at most 12",
+   "head": "Step 5 of 8. Site event D: a new arc of the beach line.. False alarm: circle event (B, A, C) is cancelled because the circle is no longer empty.. Beach line (left to right): A, B, A, D, A, C, A"
+  },
+  "msgDiff13": [
+   "E",
+   "F",
+   "G",
+   "H",
+   "I",
+   "J",
+   "K",
+   "L",
+   "Step 5 of 29",
+   "Circle event (F, K, A): the middle arc vanishes and a vertex appears.",
+   "≈",
+   "Beach line (left to right): K, F, A, K"
+  ],
+  "end": {
+   "s": [
+    25,
+    29
+   ],
+   "pts": "Points: 12 of at most 12",
+   "head": "Step 25 of 29. Site event J: a new arc of the beach line.. False alarm: circle event (L, D, G) is cancelled because the circle is no longer empty.. Beach line (left to right): K, F, I, E, L, D, J, D, "
+  },
+  "reset": {
+   "s": [
+    1,
+    29
+   ],
+   "pts": "Points: 12 of at most 12",
+   "head": "Step 1 of 29. The sites are in the event queue; the sweep line is above all of them.. The beach line is still empty."
+  },
+  "collinear": {
+   "snap": {
+    "s": [
+     6,
+     6
+    ],
+    "pts": "Points: 4 of at most 12",
+    "head": "Step 6 of 6. All events are processed; the finished Voronoi diagram is shown."
+   },
+   "text": "Step 6 of 6 | All events are processed; the finished Voronoi diagram is shown. | Sweep line height:  | 𝑦 | = | − | 3 | Vertices: 0 of 0 | Step 6 of 6. All events are processed; the finished Voronoi diagram is shown. |  Grid | Grid step: 1. Coordinates are whole numbers of steps. | Add by tapping or clickingRemoveClear | Points: 4 of at most 12 | No point is selected. | Points | P1 | Select point 1 | P2 | Select point 2 | P3 | Select point 3 | P4 | S"
+  },
+  "cocircular": {
+   "snap": {
+    "s": [
+     7,
+     7
+    ],
+    "pts": "Points: 4 of at most 12",
+    "head": "Step 7 of 7. All events are processed; the finished Voronoi diagram is shown."
+   },
+   "text": "Step 7 of 7 | All events are processed; the finished Voronoi diagram is shown. | Sweep line height:  | 𝑦 | = | − | 5 | Vertices: 1 of 1 | Step 7 of 7. All events are processed; the finished Voronoi diagram is shown. |  Grid | Grid step: 1. Coordinates are whole numbers of steps. | Add by tapping or clickingRemoveClear | Points: 4 of at most 12 | No point is selected. | Points | P1 | Select point 1 | P2 | Select point 2 | P3 | Select point 3 | P4 | S"
+  },
+  "onto": {
+   "d": [
+    "-4",
+    "3"
+   ],
+   "diff": [
+    "Sites B and D coincide; move one of them."
+   ]
+  },
+  "errs": []
+ }
+}

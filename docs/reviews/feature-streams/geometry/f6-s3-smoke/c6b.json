@@ -1,0 +1,59 @@
+{
+ "sl": {
+  "svgText": [],
+  "status": [
+   "Pritiskaj Naslednji korak in poišči črtkani, preklicani krog. Katero mesto leži v njem in zakaj se lok na obalni črti tedaj ne izniči?",
+   "Korak 6 od 6. Vsi dogodki so obdelani; prikazan je končni Voronojev diagram.",
+   "",
+   ""
+  ],
+  "kbBefore": [
+   "0",
+   "-3"
+  ],
+  "focus": "BUTTON|",
+  "kbAfter": [
+   "0",
+   "-3"
+  ],
+  "ontoDrag": {
+   "d": [
+    "-4",
+    "3"
+   ],
+   "msgs": [
+    "Mesti B in D sta enaki; premakni eno od njiju.",
+    "Dodajanje z dotikom ali klikomOdstraniPočisti"
+   ]
+  },
+  "errs": []
+ },
+ "en": {
+  "svgText": [],
+  "status": [
+   "Press Next step and find the dashed, cancelled circle. Which site lies inside it, and why does the arc on the beach line then not disappear?",
+   "Step 6 of 6. All events are processed; the finished Voronoi diagram is shown.",
+   "",
+   ""
+  ],
+  "kbBefore": [
+   "0",
+   "-3"
+  ],
+  "focus": "BUTTON|",
+  "kbAfter": [
+   "0",
+   "-3"
+  ],
+  "ontoDrag": {
+   "d": [
+    "-4",
+    "3"
+   ],
+   "msgs": [
+    "Sites B and D coincide; move one of them."
+   ]
+  },
+  "errs": []
+ }
+}

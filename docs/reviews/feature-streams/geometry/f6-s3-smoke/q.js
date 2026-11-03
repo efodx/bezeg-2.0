@@ -1,0 +1,1 @@
+const L=require('./lib');(async()=>{const {b,p}=await L.open('sl');console.log(await p.$$eval('[data-action]',e=>e.map(x=>x.dataset.action+':'+x.innerText.trim())).then(a=>a.join(' ; ')));await b.close()})();

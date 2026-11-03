@@ -1,0 +1,130 @@
+{
+ "sl": {
+  "tabs": [
+   "A|Bezeg · začetna stran|ol=solid 3px|bs=n",
+   "A|Učenje|ol=solid 3px|bs=n",
+   "A|Demonstracije|ol=solid 3px|bs=n",
+   "SELECT|SL EN|ol=solid 3px|bs=n",
+   "A|Demonstracije|ol=solid 3px|bs=n",
+   "A|Računska geometrija|ol=solid 3px|bs=n",
+   "BUTTON|Zamenjaj demonstracijo|ol=solid 3px|bs=n",
+   "BUTTON|Spoznaj to demonstracijo|ol=solid 3px|bs=n",
+   "BUTTON|Predstavitveni način|ol=solid 3px|bs=n",
+   "DIV|Točke na mreži. Izbrano točk|ol=solid 3px|bs=n",
+   "BUTTON|Premakni pogled levo|ol=solid 3px|bs=n",
+   "BUTTON|Premakni pogled gor|ol=solid 3px|bs=n",
+   "BUTTON|Premakni pogled dol|ol=solid 3px|bs=n",
+   "BUTTON|Premakni pogled desno|ol=solid 3px|bs=n",
+   "BUTTON|Približaj graf|ol=solid 3px|bs=n",
+   "BUTTON|Oddalji graf|ol=solid 3px|bs=n",
+   "BUTTON|Prilagodi točkam|ol=solid 3px|bs=n",
+   "BUTTON|Naslednji namig|ol=solid 3px|bs=n",
+   "BUTTON|Strni|ol=solid 3px|bs=n",
+   "BUTTON|Uredi|ol=solid 3px|bs=n",
+   "BUTTON|Prikaz|ol=solid 3px|bs=n",
+   "BUTTON|Shrani|ol=solid 3px|bs=n",
+   "BUTTON|next-step|ol=solid 3px|bs=n"
+  ],
+  "s0": [
+   1,
+   8
+  ],
+  "afterEnter": [
+   2,
+   8
+  ],
+  "afterSpace": [
+   3,
+   8
+  ],
+  "more": [
+   "BUTTON|play-pause|ol=solid 3px|bs=n",
+   "BUTTON|reset|ol=solid 3px|bs=n",
+   "BUTTON|reset-view|ol=solid 3px|bs=n",
+   "BUTTON|Primer A–D|ol=solid 3px|bs=n"
+  ],
+  "boardFocusable": [
+   "DIV.=0",
+   "line.[object SVGAnimatedString]=-1",
+   "line.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=null"
+  ],
+  "exp": {
+   "SVG": "ERR page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"download\"\n=====================",
+   "PNG": "ERR page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"download\"\n====================="
+  },
+  "expStep": [
+   3,
+   8
+  ],
+  "errs": []
+ },
+ "en": {
+  "tabs": [
+   "A|Bezeg · home|ol=solid 3px|bs=n",
+   "A|Learning|ol=solid 3px|bs=n",
+   "A|Demonstrations|ol=solid 3px|bs=n",
+   "SELECT|SL EN|ol=solid 3px|bs=n",
+   "A|Demonstrations|ol=solid 3px|bs=n",
+   "A|Computational geometry|ol=solid 3px|bs=n",
+   "BUTTON|Switch demonstration|ol=solid 3px|bs=n",
+   "BUTTON|Learn this demonstration|ol=solid 3px|bs=n",
+   "BUTTON|Presentation mode|ol=solid 3px|bs=n",
+   "DIV|Points on a grid. Move the s|ol=solid 3px|bs=n",
+   "BUTTON|Pan left|ol=solid 3px|bs=n",
+   "BUTTON|Pan up|ol=solid 3px|bs=n",
+   "BUTTON|Pan down|ol=solid 3px|bs=n",
+   "BUTTON|Pan right|ol=solid 3px|bs=n",
+   "BUTTON|Zoom in|ol=solid 3px|bs=n",
+   "BUTTON|Zoom out|ol=solid 3px|bs=n",
+   "BUTTON|Fit to points|ol=solid 3px|bs=n",
+   "BUTTON|Next prompt|ol=solid 3px|bs=n",
+   "BUTTON|Collapse|ol=solid 3px|bs=n",
+   "BUTTON|Edit|ol=solid 3px|bs=n",
+   "BUTTON|Display|ol=solid 3px|bs=n",
+   "BUTTON|Save|ol=solid 3px|bs=n",
+   "BUTTON|next-step|ol=solid 3px|bs=n"
+  ],
+  "s0": [
+   1,
+   8
+  ],
+  "afterEnter": [
+   2,
+   8
+  ],
+  "afterSpace": [
+   3,
+   8
+  ],
+  "more": [
+   "BUTTON|play-pause|ol=solid 3px|bs=n",
+   "BUTTON|reset|ol=solid 3px|bs=n",
+   "BUTTON|reset-view|ol=solid 3px|bs=n",
+   "BUTTON|Example A–D|ol=solid 3px|bs=n"
+  ],
+  "boardFocusable": [
+   "DIV.=0",
+   "line.[object SVGAnimatedString]=-1",
+   "line.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=-1",
+   "path.[object SVGAnimatedString]=null"
+  ],
+  "exp": {
+   "SVG": "ERR page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"download\"\n=====================",
+   "PNG": "ERR page.waitForEvent: Timeout 15000ms exceeded while waiting for event \"download\"\n====================="
+  },
+  "expStep": [
+   3,
+   8
+  ],
+  "errs": []
+ }
+}
