@@ -1,9 +1,11 @@
-import {Language, t} from "../../../localization";
+import {Language, LocalizedError, message, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {domain, projectHomogeneous} from "../../../bezeg/impl/curve/bspline";
 import type {DeBoorEntry, DeBoorTriangle} from "../../../bezeg/impl/curve/bspline";
 import type {BSplinePresetData} from "./bsplinePresetCollection";
-import {DEFAULT_BASIS_DEGREE, DEFAULT_BASIS_KNOTS, rebuiltKnots} from "./bsplineBasisModel";
+import {
+    BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, DEFAULT_BASIS_DEGREE, DEFAULT_BASIS_KNOTS, knotProblem, lastIndexOf, rebuiltKnots,
+} from "./bsplineBasisModel";
 
 /** The animation id of the de Boor level-by-level reveal (registered for lessons by the registration slice, not here). */
 export const DEBOOR_ANIMATION_ID = 'deboor';
@@ -89,4 +91,22 @@ export function deBoorReadoutLines(triangle: DeBoorTriangle, knots: readonly num
         lines.push(t("bsd_readout_result", {value0: pointText(entryPoint(levels[degree][0], weighted), language)}));
     }
     return lines;
+}
+
+/**
+ * Rejects curve data a point-controlled B-spline graph cannot draw (degree range, point count up to `maxPoints`, knot vector and its
+ * length against the points) with a localized error. Shared by the de Boor and insertion graphs' `importPresetData`.
+ */
+export function assertDrawableCurve(data: BSplinePresetData, maxPoints: number): void {
+    if (data.degree < BASIS_MIN_DEGREE || data.degree > BASIS_MAX_DEGREE) {
+        throw new LocalizedError(message("bsb_degree_out_of_range", {value0: BASIS_MAX_DEGREE}));
+    }
+    if (data.points.length < data.degree + 1 || data.points.length > maxPoints) {
+        throw new LocalizedError(message("bspline_too_few_points", {value0: data.degree, value1: data.degree + 1, value2: data.points.length}));
+    }
+    const problem = knotProblem(data.knots, data.degree);
+    if (problem) throw new LocalizedError(problem);
+    if (lastIndexOf(data.knots, data.degree) + 1 !== data.points.length) {
+        throw new LocalizedError(message("bspline_knots_wrong_length", {value0: data.points.length + data.degree + 1, value1: data.knots.length}));
+    }
 }

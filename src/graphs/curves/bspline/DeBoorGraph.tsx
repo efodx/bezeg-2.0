@@ -1,5 +1,5 @@
 import React from "react";
-import {LocalizedError, message, renderMessage, t} from "../../../localization";
+import {renderMessage, t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {CountSetter} from "../../../inputs/CountSetter";
@@ -16,7 +16,7 @@ import {KnotEditor} from "./KnotEditor";
 import {BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, isClamped, KNOT_LIMIT, knotProblem, lastIndexOf} from "./bsplineBasisModel";
 import {
     appendedPoint, ControlPoint, DEBOOR_ANIMATION_ID, DEBOOR_DEFAULT_T, DEBOOR_MAX_LEVELS, DEBOOR_MAX_POINTS, DEBOOR_STEP_INTERVAL_MS, clampParameter,
-    deBoorPresetData, defaultDeBoorData, knotsForCount,
+    assertDrawableCurve, deBoorPresetData, defaultDeBoorData, knotsForCount,
 } from "./bsplineDeBoorModel";
 
 export {DEBOOR_ANIMATION_ID} from "./bsplineDeBoorModel";
@@ -98,17 +98,7 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
 
     /** Rejects data the graph cannot draw before touching the state, then rebuilds the scene and returns the iteration to level 0. */
     override importPresetData(data: BSplinePresetData) {
-        if (data.degree < BASIS_MIN_DEGREE || data.degree > BASIS_MAX_DEGREE) {
-            throw new LocalizedError(message("bsb_degree_out_of_range", {value0: BASIS_MAX_DEGREE}));
-        }
-        if (data.points.length < data.degree + 1 || data.points.length > DEBOOR_MAX_POINTS) {
-            throw new LocalizedError(message("bspline_too_few_points", {value0: data.degree, value1: data.degree + 1, value2: data.points.length}));
-        }
-        const problem = knotProblem(data.knots, data.degree);
-        if (problem) throw new LocalizedError(problem);
-        if (lastIndexOf(data.knots, data.degree) + 1 !== data.points.length) {
-            throw new LocalizedError(message("bspline_knots_wrong_length", {value0: data.points.length + data.degree + 1, value1: data.knots.length}));
-        }
+        assertDrawableCurve(data, DEBOOR_MAX_POINTS);
         this.setState({
             degree: data.degree, knots: [...data.knots], points: data.points.map(point => [point[0], point[1]] as const),
             level: Math.min(this.state.level, data.degree),
