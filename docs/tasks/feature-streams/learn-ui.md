@@ -51,6 +51,17 @@ Spec: [guided-example-highlights.md](../../specs/guided-example-highlights.md); 
 | 06 Bézier patches | **pushed** 2026-11-02 (handler 10): 12 figures removed, no prose rewrite needed (`d2d79977`, Sonnet worker 06b); surface-route highlight recipes in the generator and capture runner, with checks against fixture-computed step surfaces and `expectChange` enforced on published evidence (`4a5de72f`, Sonnet worker 06a; handler repair: recipes keyed by full example id so card copy resolves; highlight copy reuses the section copy). All 11 are first-frame highlights (no patch frame has a learner action). Full patch capture passed; PNGs byte-identical, manifest gains highlight evidence (`5a4f48c6`). Smoke 1280/390 SL/EN with launch/return passed. Evidence and gaps: [batch patches note](../../reviews/guided-example-highlights/batch-patches-note.md). Task 06 done |
 | 05 figure-kind removal and acceptance | **accepted** 2026-11-02 (handlers 12–13): `figure` kind, `FamilyChapterFigure`, section `figures` and renderer branches deleted with a content-kinds gate (`5664ca35`, `d1a40ea6`); math-review repairs `797676d2`; triangulation chapter type fix after rebase (`12d5aadb`); full recapture of 67 previews, PNGs byte-identical (`9fb9862d`); `just check` passed at `12d5aadb`; full nine-chapter smoke in SL/EN at 1440, 1920, 390 and 200% text with launch, return, keyboard and history passed. Record: [acceptance.md](../../reviews/guided-example-highlights/acceptance.md). Open owner items: D10, D4/D6/D12 |
 
+## Notes from other streams
+
+- **From Geometry (handler 43, 2026-11-03): shared lesson-runtime findings from the T3 F6 smoke.** They occur in every guided lesson, not only in Voronoi. Evidence: [f6-t3-smoke.md](../../reviews/feature-streams/geometry/f6-t3-smoke.md) (checks 4, 6 and 7) and `f6-t3-smoke/g3-*.png`.
+  1. **Next loses focus.** On every step or frame change, `GuidedLesson.tsx:323` (`lessonRef.current?.focus(...)`) moves focus to the lesson `section`. After Enter on "Naslednji okvir", a second Enter does nothing, so a keyboard user must Tab back to Next on every frame. Expected: focus stays on Next while Next is enabled, or moves to the first control of the new frame. Screen-reader users still need the frame change announced.
+  2. **Exit focus from a chapter-launched lesson.** "Končaj vodeni primer" → "Zapusti in povrni graf" lands on `/compgeo/voronoi`, with focus on "Spoznaj to demonstracijo". The chapter's activity link that launched the lesson is not restored. The return-link path passes. Evidence: `f7-exit.json`.
+  3. **The card covers the board at 1280×720.** The card (about 544×420–490 px) sits over the centre of the 848 px board.
+     - "Predstavitveni način" widens the board to 1158 px, but the card stays centred over it.
+     - Dragging the grip 900 px right and 420 px down still left the card at x 351–895, which is inside the board (52–900).
+     - Only "Skrij" clears the board, and then the student reopens the card from the collapsed chip on every step.
+     - Suggested: in presentation mode, and on wide screens generally, dock the card beside the board or let the drag move it off the board.
+
 ## Gate provided
 
 | Gate | Status |
