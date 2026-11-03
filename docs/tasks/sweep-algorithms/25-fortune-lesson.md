@@ -1,6 +1,6 @@
 # 25 — Fortune lesson C5
 
-Status: planned 2026-11-03 (geometry handler 43). Source: [spec C5](../../specs/sweep-algorithms-lessons.md#c5-fortunes-algorithm-showpiece) (steps 1–7, acceptance 1–6), [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31), lesson notation rules in `AGENTS.md`. Kind: F3; mathematical review of the prose and the scene values. Depends on 23 and 24. Pattern: [19](19-monotone-partition-lesson.md) and [20](20-monotone-triangulation-lesson.md).
+Status: accepted 2026-11-03 (geometry handler 46, [record](../../reviews/sweep-algorithms/25-acceptance.md)); planned 2026-11-03 (geometry handler 43). Source: [spec C5](../../specs/sweep-algorithms-lessons.md#c5-fortunes-algorithm-showpiece) (steps 1–7, acceptance 1–6), [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31), lesson notation rules in `AGENTS.md`. Kind: F3; mathematical review of the prose and the scene values. Depends on 23 and 24. Pattern: [19](19-monotone-partition-lesson.md) and [20](20-monotone-triangulation-lesson.md).
 
 ## Scope
 

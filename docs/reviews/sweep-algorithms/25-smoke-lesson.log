@@ -1,0 +1,106 @@
+smoke-lesson: failed (1) in 8.4s (test slot 3/3, 3 workers); revision b7d8b470b8f7abd1967a9e8e1c5e6182f6ead554; dirty; reusing build from revision b7d8b470b8f7abd1967a9e8e1c5e6182f6ead554 (dirty at build time); log .command-logs\2026-11-03T13-17-18-927Z-34452-693f1541.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test:smoke:built
+> playwright test tests/guided-lessons.smoke.spec.cjs --grep (Lesson|on) (fortune) 
+
+[WebServer] Production smoke preview: http://127.0.0.1:4173/bezeg-2.0
+
+Running 2 tests using 2 workers
+
+  x  2 [chromium] › tests\guided-lessons.smoke.spec.cjs:2293:9 › Lesson fortune › sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes (5.6s)
+  x  1 [chromium] › tests\guided-lessons.smoke.spec.cjs:2304:9 › Lesson fortune › en 390x844: every frame in order keeps points in view, math blocks inside the viewport and Next pointer-clickable (5.7s)
+
+
+  1) [chromium] › tests\guided-lessons.smoke.spec.cjs:2293:9 › Lesson fortune › sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes 
+
+    Error: visible board points outside the lesson view at desktop
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 8
+
+    - Array []
+    + Array [
+    +   "Korak 5 od 7 · Okvir 1 od 3: (-31.49, 62.98) (31.49, 62.98)",
+    +   "Korak 5 od 7 · Okvir 2 od 3: (-31.49, 62.98) (31.49, 62.98)",
+    +   "Korak 5 od 7 · Okvir 3 od 3: (-31.49, 62.98) (31.49, 62.98)",
+    +   "Korak 6 od 7 · Okvir 1 od 3: (-31.62, 63.25) (31.62, 63.25)",
+    +   "Korak 6 od 7 · Okvir 2 od 3: (-31.62, 63.25) (31.62, 63.25)",
+    +   "Korak 6 od 7 · Okvir 3 od 3: (-31.62, 63.25) (31.62, 63.25)",
+    + ]
+
+      2263 |     await expect(lessonPanel(page)).toContainText(/Example complete|Vodeni primer je končan/);
+      2264 |     expect(blocked, `Next not pointer-clickable at ${width} (an intercepting element, or the click failed as reported)`).toEqual([]);
+    > 2265 |     expect(offscreen, `visible board points outside the lesson view at ${width}`).toEqual([]);
+           |                                                                                   ^
+      2266 |     // Exact in-order sequence: step 1 frames 1..n1, step 2 frames 1..n2, ... up to row.steps. A step never reached
+      2267 |     // contributes a placeholder frame, so skipping a whole step fails too.
+      2268 |     const expected = [];
+        at expectCompleteWalk (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\tests\guided-lessons.smoke.spec.cjs:2265:83)
+        at C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\tests\guided-lessons.smoke.spec.cjs:2301:13
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\guided-lessons.smoke-Lesso-cd370-licks-on-Next-and-completes-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\guided-lessons.smoke-Lesso-cd370-licks-on-Next-and-completes-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\guided-lessons.smoke-Lesso-cd370-licks-on-Next-and-completes-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\guided-lessons.smoke-Lesso-cd370-licks-on-Next-and-completes-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\guided-lessons.smoke.spec.cjs:2304:9 › Lesson fortune › en 390x844: every frame in order keeps points in view, math blocks inside the viewport and Next pointer-clickable 
+
+    Error: visible board points outside the lesson view at 390 px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 8
+
+    - Array []
+    + Array [
+    +   "Step 5 of 7 · Frame 1 of 3: (-31.49, 62.98) (31.49, 62.98)",
+    +   "Step 5 of 7 · Frame 2 of 3: (-31.49, 62.98) (31.49, 62.98)",
+    +   "Step 5 of 7 · Frame 3 of 3: (-31.49, 62.98) (31.49, 62.98)",
+    +   "Step 6 of 7 · Frame 1 of 3: (-31.62, 63.25) (31.62, 63.25)",
+    +   "Step 6 of 7 · Frame 2 of 3: (-31.62, 63.25) (31.62, 63.25)",
+    +   "Step 6 of 7 · Frame 3 of 3: (-31.62, 63.25) (31.62, 63.25)",
+    + ]
+
+      2263 |     await expect(lessonPanel(page)).toContainText(/Example complete|Vodeni primer je končan/);
+      2264 |     expect(blocked, `Next not pointer-clickable at ${width} (an intercepting element, or the click failed as reported)`).toEqual([]);
+    > 2265 |     expect(offscreen, `visible board points outside the lesson view at ${width}`).toEqual([]);
+           |                                                                                   ^
+      2266 |     // Exact in-order sequence: step 1 frames 1..n1, step 2 frames 1..n2, ... up to row.steps. A step never reached
+      2267 |     // contributes a placeholder frame, so skipping a whole step fails too.
+      2268 |     const expected = [];
+        at expectCompleteWalk (C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\tests\guided-lessons.smoke.spec.cjs:2265:83)
+        at C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\tests\guided-lessons.smoke.spec.cjs:2329:13
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\guided-lessons.smoke-Lesso-4042c--and-Next-pointer-clickable-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\guided-lessons.smoke-Lesso-4042c--and-Next-pointer-clickable-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\guided-lessons.smoke-Lesso-4042c--and-Next-pointer-clickable-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\guided-lessons.smoke-Lesso-4042c--and-Next-pointer-clickable-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\guided-lessons.smoke.spec.cjs:2293:9 › Lesson fortune › sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes 
+    [chromium] › tests\guided-lessons.smoke.spec.cjs:2304:9 › Lesson fortune › en 390x844: every frame in order keeps points in view, math blocks inside the viewport and Next pointer-clickable 
+
+error: recipe `smoke-lesson` failed on line 42 with exit code 1
