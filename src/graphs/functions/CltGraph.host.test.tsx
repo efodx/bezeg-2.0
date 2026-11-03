@@ -9,6 +9,7 @@ import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetI
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {CLT_EXAMPLES, CLT_N_MAX, CltModel, cltView, DEFAULT_CLT_MODEL, fitCltView} from '../../analysis/cltModel';
 import {formatNumber} from '../../analysis/format';
+import {LessonAction, LessonAnimationCommand} from '../../learning/model';
 import {DomainError} from './BaseFunctionGraph';
 import {functionPresetCollections} from './functionPresetCollections';
 
@@ -47,6 +48,7 @@ class ObservedCltGraph extends CltGraph {
     curves() { return (this.board.objectsList as unknown as BoardObject[]).filter(object => object.elType === 'curve'); }
     normalCurve() { return this.curves()[0]; }
     sumCurve() { return this.curves()[1]; }
+    lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
     callNext() { this.nextStep(); }
     callSetN(value: unknown) { this.setN(value); }
     callSetHeight(index: unknown, value: unknown) { this.setHeight(index, value); }
@@ -94,7 +96,7 @@ const expectReadouts = (model: CltModel) => {
     expect(readout('kolmogorov')).toBe(shown.kolmogorov);
 };
 
-test('defaults: the uniform density at n = 1 reads mean 0,5, variance 1/12 (0,0833) and K_1 as cltView and the spec value 0,05721', () => {
+test('defaults: the uniform density at n = 1 reads mean 0,5, variance 1/12 (0,0833) and K_1 as cltView and the spec value 0,05718', () => {
     const {graph} = mount();
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     expect(graph.modelNow()).toEqual(DEFAULT_CLT_MODEL);
@@ -343,4 +345,77 @@ test('switching the language keeps the model and re-renders labels and numbers w
     expect(screen.getByRole('button', {name: 'Add one more copy'})).toBeInTheDocument();
     expect(graph.captionPlainLines().join('\n')).toMatch(/K_n = 0\.\d+ \(for this shape and this n only\)/);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+});
+
+describe('lesson actions (P3)', () => {
+    const param = (name: string, value: unknown) => ({kind: 'function-parameter', name, value}) as LessonAction;
+    const choice = (name: string, value: unknown) => ({kind: 'function-choice', name, value}) as LessonAction;
+    const cdf = (visible: boolean) => ({kind: 'function-visibility', target: 'clt-cdf', visible}) as LessonAction;
+    const animation = (command: LessonAnimationCommand): LessonAction => ({kind: 'animation', animationId: 'clt-sum', command});
+    const box = (graph: ObservedCltGraph) => graph.liveBoard().getBoundingBox();
+
+    test('one synchronous sequence follows the planned lesson: n, next-step, example, CDF, reset', () => {
+        const {graph} = mount();
+        const k = (n: number, digits: string) => {
+            expect(graph.modelNow().n).toBe(n);
+            expect(readout('n')).toBe(String(n));
+            expect(readout('kolmogorov')).toBe(digits);
+        };
+        k(1, '0,05718');
+        graph.lesson(animation('next-step'));
+        k(2, '0,01644');
+        graph.lesson(param('clt-n', 3)); k(3, '0,00986');
+        graph.lesson(param('clt-n', 5)); k(5, '0,00572');
+        graph.lesson(param('clt-n', 10)); k(10, '0,00281');
+        expect(graph.modelNow().heights).toEqual(CLT_EXAMPLES.uniform.heights);
+        graph.lesson(animation('play'));
+        expect(graph.playing()).toBe(true);
+        graph.lesson(choice('clt-example', 'skewed'));
+        expect(graph.playing()).toBe(false);
+        expect(graph.modelNow()).toEqual(CLT_EXAMPLES.skewed);
+        k(1, '0,07868');
+        graph.lesson(param('clt-n', 3)); k(3, '0,02492');
+        graph.lesson(cdf(true));
+        expect(graph.modelNow().cdf).toBe(true);
+        expect(readout('kolmogorov')).toBe('0,02492');
+        graph.lesson(cdf(false));
+        expect(graph.modelNow().cdf).toBe(false);
+        graph.lesson(animation('reset'));
+        expect(graph.modelNow()).toEqual({...CLT_EXAMPLES.skewed, n: 1});
+        k(1, '0,07868');
+        expectReadouts(graph.modelNow());
+    });
+
+    test('an example step pauses, restarts the history at n = 1 and shows the new shape fully', () => {
+        const {graph} = mount();
+        graph.lesson(param('clt-n', 7));
+        graph.lesson(animation('play'));
+        graph.lesson(choice('clt-example', 'skewed'));
+        expect(graph.modelNow().n).toBe(1);
+        const view = fitCltView(graph.modelNow());
+        box(graph).forEach((value, index) => expect(value).toBeCloseTo(view[index], 9));
+    });
+
+    test.each([
+        ['n = 0', param('clt-n', 0)],
+        ['n = 31', param('clt-n', 31)],
+        ['n = 2.5', param('clt-n', 2.5)],
+        ['example unknown', choice('clt-example', 'unknown')],
+    ])('refuses %s with a DomainError and leaves the model alone', (_name, action) => {
+        const {graph} = mount();
+        const before = graph.modelNow();
+        let error: unknown;
+        try { graph.lesson(action); } catch (caught) { error = caught; }
+        expect(error).toBeInstanceOf(DomainError);
+        expect(graph.modelNow()).toEqual(before);
+        expect(readout('kolmogorov')).toBe('0,05718');
+    });
+
+    test('the lesson model accepts the new names', async () => {
+        const model = await import('../../learning/model');
+        expect(model.FUNCTION_PARAMETER_NAMES).toContain('clt-n');
+        expect(model.FUNCTION_VISIBILITY_TARGETS).toContain('clt-cdf');
+        expect(model.LESSON_ANIMATION_IDS).toContain('clt-sum');
+        expect(model.FUNCTION_CHOICE_VALUES['clt-example']).toEqual(['uniform', 'skewed']);
+    });
 });

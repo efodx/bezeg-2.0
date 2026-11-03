@@ -1,5 +1,5 @@
 import React from "react";
-import {BoundingBox, DomainError} from "./BaseFunctionGraph";
+import {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
@@ -165,6 +165,19 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         const next = this.accepted(chooseCltExample(this.model, id));
         if (next !== this.model) this.replaceAndRefit(next);
         else this.pauseIteration();
+    }
+
+    /**
+     * Lesson steps go through the same validated setters as the inspector, so a refused value throws a DomainError. An
+     * example step restarts the history at n = 1, pauses playback and refits like the UI; n keeps the view, and the CDF
+     * step refits only when the plot height changes.
+     */
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {"clt-n": value => this.setN(value)},
+            visibility: {"clt-cdf": visible => this.setCdf(visible)},
+            choices: {"clt-example": value => this.setExample(value)},
+        };
     }
 
     override importPresetData(data: CltModel): void {

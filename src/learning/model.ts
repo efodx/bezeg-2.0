@@ -13,6 +13,7 @@ import {ROOT_FINDING_EXAMPLE_IDS} from '../analysis/rootFinding';
 import {ROOT_FINDING_METHODS} from '../analysis/rootFindingModel';
 import {DENSITY_EXAMPLE_IDS} from '../analysis/densityAreaModel';
 import {BINOMIAL_CORRECTION_CHOICES, BINOMIAL_NORMAL_EXAMPLE_IDS} from '../analysis/binomialNormalModel';
+import {CLT_EXAMPLE_IDS} from '../analysis/cltModel';
 import {QUADRATURE_RULES} from '../analysis/quadratureModel';
 import {TRANSFORM_BASE_IDS} from '../analysis/functionTransformationModel';
 import {INVERSE_RESTRICTION_IDS} from '../analysis/functionInverseModel';
@@ -40,11 +41,11 @@ export type LessonLanguage = 'sl' | 'en';
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'root-x0', 'root-x1', 'quadrature-a', 'quadrature-b', 'quadrature-n', 'transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'poly-zero-1', 'poly-zero-2', 'poly-zero-3', 'poly-zero-4', 'poly-zero-5', 'rational-numerator-1', 'rational-numerator-2', 'rational-denominator-1', 'rational-denominator-2', 'rational-probe', 'inverse-base', 'inverse-x0', 'fourier-n', 'fourier-x', 'fourier-epsilon', 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon', 'complex-z-re', 'complex-z-im', 'complex-w-re', 'complex-w-im', 'complex-w-modulus', 'complex-w-argument', 'complex-centre-re', 'complex-centre-im', 'complex-radius', 'density-mu', 'density-sigma', 'density-a', 'density-b', 'binomial-n', 'binomial-p', 'binomial-k'] as const;
+export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'root-x0', 'root-x1', 'quadrature-a', 'quadrature-b', 'quadrature-n', 'transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'poly-zero-1', 'poly-zero-2', 'poly-zero-3', 'poly-zero-4', 'poly-zero-5', 'rational-numerator-1', 'rational-numerator-2', 'rational-denominator-1', 'rational-denominator-2', 'rational-probe', 'inverse-base', 'inverse-x0', 'fourier-n', 'fourier-x', 'fourier-epsilon', 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon', 'complex-z-re', 'complex-z-im', 'complex-w-re', 'complex-w-im', 'complex-w-modulus', 'complex-w-argument', 'complex-centre-re', 'complex-centre-im', 'complex-radius', 'density-mu', 'density-sigma', 'density-a', 'density-b', 'binomial-n', 'binomial-p', 'binomial-k', 'clt-n'] as const;
 export type FunctionParameterName = typeof FUNCTION_PARAMETER_NAMES[number];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test', 'inverse-curve', 'polynomial-derivative', 'poisson-bars'] as const;
+export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test', 'inverse-curve', 'polynomial-derivative', 'poisson-bars', 'clt-cdf'] as const;
 export type FunctionVisibilityTarget = typeof FUNCTION_VISIBILITY_TARGETS[number];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
@@ -70,6 +71,7 @@ const functionChoiceValues = {
     'density-example': DENSITY_EXAMPLE_IDS,
     'binomial-normal-example': BINOMIAL_NORMAL_EXAMPLE_IDS,
     'binomial-correction': BINOMIAL_CORRECTION_CHOICES,
+    'clt-example': CLT_EXAMPLE_IDS,
     'transform-base': TRANSFORM_BASE_IDS,
     'polynomial-example': POLYNOMIAL_EXAMPLE_IDS,
     'rational-example': RATIONAL_EXAMPLE_IDS,
@@ -101,7 +103,7 @@ export type CameraPresetName = typeof CAMERA_PRESET_NAMES[number];
  * `bisection` is the first iterative playback and `sequence` reveals the terms of a sequence one by one and `fixed-point` the iterates of a fixed-point iteration and `algorithm-trace` the steps of a convex hull algorithm trace. A graph registers only the ids it owns and the commands each supports;
  * the registry rejects the rest with `UnsupportedLessonActionError`.
  */
-export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'root-finding', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace', 'parametric-roll', 'interp-subdivision-rounds', 'deboor'] as const;
+export const LESSON_ANIMATION_IDS = ['decasteljau', 'bisection', 'sequence', 'fixed-point', 'root-finding', 'patch-u-sweep', 'patch-v-sweep', 'algorithm-trace', 'parametric-roll', 'interp-subdivision-rounds', 'deboor', 'clt-sum'] as const;
 export type LessonAnimationId = typeof LESSON_ANIMATION_IDS[number];
 
 /**
