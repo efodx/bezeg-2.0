@@ -2,7 +2,7 @@
 
 Handler: geometry handler 42 (Opus 5.5), 2026-11-03. Spec: [triangulations and Voronoi](../../../specs/triangulation-voronoi-lessons.md) B4, B5 and its acceptance gates. Tasks: [triangulation-voronoi 18–24b](../../../tasks/triangulation-voronoi/README.md).
 
-**State: partially accepted 2026-11-03.** Every T3-specific row is covered. One gate row stays open: projection readability at 1280×720 (see Gaps). T3 tasks 23 and 24b reached `master` on 2026-11-03 (`37a4922f..ed7f816d`). The owner had approved a push that failed only on the functions `PresetCatalog` test (confirmed in this session), but master was green by then, so the exception was not used.
+**State: accepted 2026-11-03 (geometry handler 43).** Handler 42 recorded a partial acceptance. Handler 43 closed the last gate row, projection readability at 1280×720 (see Gaps), with the marker fix `5721f6f0`. T3 tasks 23 and 24b reached `master` on 2026-11-03 (`37a4922f..ed7f816d`). The owner had approved a push that failed only on the functions `PresetCatalog` test (confirmed in this session), but master was green by then, so the exception was not used.
 
 ## Evidence
 
@@ -31,7 +31,15 @@ Handler: geometry handler 42 (Opus 5.5), 2026-11-03. Spec: [triangulations and V
 
 ## Gaps and notes
 
-- **Open: Gate 3 projection readability, B4.4 marker legibility.** At 1280×720 the floating lesson card covers the centre of the board on V steps 4 and 5 and D step 3. The diagram, circumcircle and labels are hidden in the captures (`f6-t3-smoke/s6-*.png`). The card is shared lesson-runtime layout, the same in every lesson. Its mitigations are the card's "Skrij" (hide), its drag grip and "Predstavitveni način" (presentation mode). None was exercised. To close the row, capture those three steps with the card hidden or moved, or in presentation mode, and view them. If the board is still not legible, route the layout to learn-ui.
+- **Closed (handler 43): Gate 3 projection readability, B4.4 marker legibility.** Captures at 1280×720 of V steps 4 and 5 and D step 3, in three modes, all viewed (`f6-t3-smoke/g3-*.png`, script `g3.mjs`):
+  - **Card hidden ("Skrij"):** legible. The diagram, P labels, vertices, the V5 circumcircle and the D3 degree-4 diamond are all visible. The V5 circle's lowest part runs past the 720 px fold (the page scrolls).
+  - **Card dragged:** the grip keeps the card inside the 848 px board (x 351–895), so it still covers the centre.
+  - **Presentation mode ("Predstavitveni način"):** the board widens to 1158 px, but the card stays centred over it.
+  - The drag and presentation layouts are shared lesson runtime and were routed to learn-ui ([learn-ui notes](../../../tasks/feature-streams/learn-ui.md#notes-from-other-streams)). The "Skrij" path meets the gate.
+  - **Defect found and fixed (T3, not learn-ui):** on every diagram frame of both lessons, all "continues" markers were outside the visible board (V: 0 of 9, D: 0 of 8 or 12).
+    - Cause: lesson scenes change the view, and `VoronoiGraph.visibleBox()` rounded the view outward to whole grid units. The clip box and the markers on its open sides therefore lay beyond the view edge. A user's zoom or pan did the same.
+    - Fix `5721f6f0`: round inward after a 16 px inset, with fallbacks to the un-inset box and then to `frame`. The new host test failed under the old rounding (`43w-mutation.log`).
+    - Production recheck: every diagram frame shows all of its markers (V 9/9, D 8/8 and 12/12; `f6-t3-smoke/g3w-after.log`). After Reset view, the 16 px arrow glyphs are readable.
 - **Shared runtime, not T3 (for learn-ui):**
   - `GuidedLesson.tsx:323` moves focus to the lesson section on every step or frame change, so keyboard users must Tab back to "Naslednji okvir" (about 22 stops) for each frame. Focus outlines are solid 3 px on every stop.
   - "Zapusti in povrni graf" returns focus to its invoker "Spoznaj to demonstracijo" by design (`GuidedLesson.tsx:192`).

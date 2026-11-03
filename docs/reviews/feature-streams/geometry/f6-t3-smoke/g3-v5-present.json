@@ -1,0 +1,21 @@
+{
+ "label": "Korak 5 od 7 · Okvir 1 od 3",
+ "labelAfter": "Korak 5 od 7 · Okvir 1 od 3",
+ "card": {
+  "x": 359,
+  "y": 251,
+  "w": 544,
+  "h": 488
+ },
+ "board": {
+  "x": 52,
+  "y": 285,
+  "w": 1158,
+  "h": 460
+ },
+ "scrollY": 40,
+ "restore": [
+  "Premakni navodila"
+ ],
+ "errs": []
+}

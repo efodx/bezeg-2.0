@@ -1,0 +1,390 @@
+{
+ "label": "Korak 4 od 7 · Okvir 1 od 2",
+ "buttons": [
+  {
+   "t": "Zamenjaj demonstracijo",
+   "cls": "",
+   "x": 809,
+   "y": 179,
+   "w": 169,
+   "h": 34
+  },
+  {
+   "t": "Predstavitveni način",
+   "cls": "",
+   "x": 985,
+   "y": 179,
+   "w": 144,
+   "h": 34
+  },
+  {
+   "t": "Premakni navodila",
+   "cls": "guided-lesson-grip",
+   "x": 210,
+   "y": 247,
+   "w": 28,
+   "h": 44
+  },
+  {
+   "t": "Skrij",
+   "cls": "guided-lesson-hide",
+   "x": 635,
+   "y": 247,
+   "w": 44,
+   "h": 44
+  },
+  {
+   "t": "Končaj",
+   "cls": "guided-lesson-exit",
+   "x": 681,
+   "y": 247,
+   "w": 59,
+   "h": 44
+  },
+  {
+   "t": "Prejšnji okvir",
+   "cls": "guided-lesson-nav guided-lesson-nav-back",
+   "x": 468,
+   "y": 605,
+   "w": 117,
+   "h": 44
+  },
+  {
+   "t": "Naslednji okvir",
+   "cls": "guided-lesson-nav guided-lesson-nav-next",
+   "x": 591,
+   "y": 605,
+   "w": 141,
+   "h": 44
+  },
+  {
+   "t": "←",
+   "cls": "",
+   "x": 66,
+   "y": 763,
+   "w": 34,
+   "h": 34
+  },
+  {
+   "t": "↑",
+   "cls": "",
+   "x": 106,
+   "y": 763,
+   "w": 34,
+   "h": 34
+  },
+  {
+   "t": "↓",
+   "cls": "",
+   "x": 146,
+   "y": 763,
+   "w": 34,
+   "h": 34
+  },
+  {
+   "t": "→",
+   "cls": "",
+   "x": 186,
+   "y": 763,
+   "w": 34,
+   "h": 34
+  },
+  {
+   "t": "+",
+   "cls": "",
+   "x": 226,
+   "y": 763,
+   "w": 34,
+   "h": 34
+  },
+  {
+   "t": "−",
+   "cls": "",
+   "x": 266,
+   "y": 763,
+   "w": 34,
+   "h": 34
+  },
+  {
+   "t": "Prilagodi točkam",
+   "cls": "",
+   "x": 306,
+   "y": 763,
+   "w": 125,
+   "h": 34
+  },
+  {
+   "t": "Naslednji namig",
+   "cls": "",
+   "x": 1113,
+   "y": 853,
+   "w": 116,
+   "h": 34
+  },
+  {
+   "t": "Strni",
+   "cls": "",
+   "x": 1152,
+   "y": 247,
+   "w": 66,
+   "h": 34
+  },
+  {
+   "t": "Uredi",
+   "cls": "",
+   "x": 920,
+   "y": 324,
+   "w": 103,
+   "h": 52
+  },
+  {
+   "t": "Prikaz",
+   "cls": "",
+   "x": 1022,
+   "y": 324,
+   "w": 103,
+   "h": 52
+  },
+  {
+   "t": "Shrani",
+   "cls": "",
+   "x": 1125,
+   "y": 324,
+   "w": 103,
+   "h": 52
+  },
+  {
+   "t": "Ponastavi primer",
+   "cls": "",
+   "x": 934,
+   "y": 390,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Ponastavi pogled",
+   "cls": "",
+   "x": 1076,
+   "y": 390,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "P1",
+   "cls": "",
+   "x": 934,
+   "y": 996,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "P2",
+   "cls": "",
+   "x": 1076,
+   "y": 996,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "P3",
+   "cls": "",
+   "x": 934,
+   "y": 1045,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "P4",
+   "cls": "",
+   "x": 1076,
+   "y": 1045,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "P5",
+   "cls": "",
+   "x": 934,
+   "y": 1094,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "P6",
+   "cls": "",
+   "x": 1076,
+   "y": 1094,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "P7",
+   "cls": "",
+   "x": 934,
+   "y": 1143,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Pokaži simetralo",
+   "cls": "",
+   "x": 934,
+   "y": 1187,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Nazaj",
+   "cls": "",
+   "x": 1076,
+   "y": 1187,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Ponastavi gradnjo",
+   "cls": "",
+   "x": 934,
+   "y": 1236,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Postavi točko",
+   "cls": "",
+   "x": 934,
+   "y": 1448,
+   "w": 103,
+   "h": 34
+  },
+  {
+   "t": "Levo",
+   "cls": "",
+   "x": 934,
+   "y": 1482,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Desno",
+   "cls": "",
+   "x": 1076,
+   "y": 1482,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Gor",
+   "cls": "",
+   "x": 934,
+   "y": 1531,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Dol",
+   "cls": "",
+   "x": 1076,
+   "y": 1531,
+   "w": 138,
+   "h": 44
+  },
+  {
+   "t": "Dodajanje z dotikom ali klikom",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 934,
+   "y": 1820,
+   "w": 211,
+   "h": 34
+  },
+  {
+   "t": "Odstrani",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 934,
+   "y": 1854,
+   "w": 74,
+   "h": 34
+  },
+  {
+   "t": "Počisti",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 1008,
+   "y": 1854,
+   "w": 61,
+   "h": 34
+  },
+  {
+   "t": "P1\nIzberi točko 1",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 966,
+   "y": 2016,
+   "w": 35,
+   "h": 34
+  },
+  {
+   "t": "P2\nIzberi točko 2",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 966,
+   "y": 2080,
+   "w": 37,
+   "h": 34
+  },
+  {
+   "t": "P3\nIzberi točko 3",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 966,
+   "y": 2144,
+   "w": 37,
+   "h": 34
+  },
+  {
+   "t": "P4\nIzberi točko 4",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 966,
+   "y": 2208,
+   "w": 38,
+   "h": 34
+  },
+  {
+   "t": "P5\nIzberi točko 5",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 966,
+   "y": 2272,
+   "w": 37,
+   "h": 34
+  },
+  {
+   "t": "P6\nIzberi točko 6",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 966,
+   "y": 2336,
+   "w": 37,
+   "h": 34
+  },
+  {
+   "t": "P7\nIzberi točko 7",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 966,
+   "y": 2400,
+   "w": 37,
+   "h": 34
+  },
+  {
+   "t": "Dodaj točko",
+   "cls": "btn btn-outline-secondary btn-sm",
+   "x": 934,
+   "y": 2540,
+   "w": 96,
+   "h": 34
+  }
+ ],
+ "card": {
+  "cls": "guided-lesson guided-lesson-content guided-lesson-frame-explanation guided-lesson-handoff-visible",
+  "x": 204,
+  "y": 242.65625,
+  "w": 544,
+  "h": 418.625
+ },
+ "FATAL": "Error: page.evaluate: TypeError: Cannot read properties of null (reading 'getBoundingClientRect')\n    at eval (eval at evaluate (:370:30), <anonymous>:1:58)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+ "errs": []
+}

@@ -1,0 +1,21 @@
+{
+ "label": "Korak 3 od 7 · Okvir 1 od 3",
+ "card": {
+  "x": 351,
+  "y": 242,
+  "w": 544,
+  "h": 472
+ },
+ "board": {
+  "x": 52,
+  "y": 277,
+  "w": 848,
+  "h": 475
+ },
+ "scrollY": 40,
+ "restore": [
+  "Premakni navodila",
+  "Pokaži simetralo"
+ ],
+ "errs": []
+}

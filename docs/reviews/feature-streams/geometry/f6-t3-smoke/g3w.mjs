@@ -1,0 +1,4 @@
+import {run,BASE,lab,enter,NEXT} from './lib.mjs';
+const M=()=>{const box=[...document.querySelectorAll('svg')].sort((a,b)=>b.clientWidth*b.clientHeight-a.clientWidth*a.clientHeight)[0].getBoundingClientRect();const all=[...document.querySelectorAll('div.JXGtext')].filter(e=>/^[↑↓←→]$/.test((e.textContent||'').trim())&&getComputedStyle(e).display!=='none');const inb=all.filter(e=>{const b=e.getBoundingClientRect();return b.x>=box.x&&b.right<=box.right&&b.y>=box.y&&b.bottom<=box.bottom});return all.length+'/'+inb.length};
+for(const rt of ['voronoi','voronoi-degenerate']) await run('g3-walk-'+rt,async(page,r)=>{await page.goto(BASE+'/compgeo/'+rt);await page.waitForTimeout(1500);await enter(page,'sl');r.steps=[];
+ for(let i=0;i<40;i++){r.steps.push((await lab(page))+' markers(all/in)='+await page.evaluate(M));const nx=page.getByRole('button',{name:NEXT});if(!(await nx.count())||await nx.isDisabled())break;await nx.click();await page.waitForTimeout(450);}});

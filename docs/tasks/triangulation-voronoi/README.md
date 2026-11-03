@@ -69,4 +69,4 @@ Release condition (spec): T2 released; Voronoi drawing reviewed for reuse by For
 | 22 | [Voronoi lesson actions and lesson B4](22-voronoi-lesson.md) | F3 | 19, 21 | accepted 2026-11-03 (handler 39, [record](../../reviews/triangulation-voronoi/22-acceptance.md)), with 24a |
 | 23 | [Degenerate sites lesson B5](23-degenerate-lesson.md) | F3 | 20, 21, 22 | planned |
 | 24 | [Chapter sections for B4 and B5](24-t3-chapter.md) | F4 | 22, 23 | 24a (`voronoi` section) accepted 2026-11-03 with 22; 24b (`voronoi-degenerate`) planned |
-| F6 | T3 acceptance | F6 | 18–24 | planned |
+| F6 | [T3 acceptance (B4, B5)](../../reviews/feature-streams/geometry/f6-t3-acceptance.md) | F6 | 18–24 | accepted 2026-11-03 (handler 43; partial by handler 42), with the marker follow-view fix `5721f6f0`; T3 released |

@@ -1,0 +1,21 @@
+{
+ "steps": [
+  "Korak 1 od 7 · Okvir 1 od 2 markers(all/in)=0/0",
+  "Korak 1 od 7 · Okvir 2 od 2 markers(all/in)=0/0",
+  "Korak 2 od 7 · Okvir 1 od 2 markers(all/in)=0/0",
+  "Korak 2 od 7 · Okvir 2 od 2 markers(all/in)=0/0",
+  "Korak 3 od 7 · Okvir 1 od 3 markers(all/in)=8/8",
+  "Korak 3 od 7 · Okvir 2 od 3 markers(all/in)=8/8",
+  "Korak 3 od 7 · Okvir 3 od 3 markers(all/in)=8/8",
+  "Korak 4 od 7 · Okvir 1 od 3 markers(all/in)=8/8",
+  "Korak 4 od 7 · Okvir 2 od 3 markers(all/in)=8/8",
+  "Korak 4 od 7 · Okvir 3 od 3 markers(all/in)=8/8",
+  "Korak 5 od 7 · Okvir 1 od 2 markers(all/in)=12/12",
+  "Korak 5 od 7 · Okvir 2 od 2 markers(all/in)=12/12",
+  "Korak 6 od 7 · Okvir 1 od 2 markers(all/in)=8/8",
+  "Korak 6 od 7 · Okvir 2 od 2 markers(all/in)=8/8",
+  "Korak 7 od 7 · Okvir 1 od 2 markers(all/in)=8/8",
+  "Korak 7 od 7 · Okvir 2 od 2 markers(all/in)=8/8"
+ ],
+ "errs": []
+}
