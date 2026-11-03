@@ -759,7 +759,7 @@ export const en: Record<keyof typeof sl, string> = {
     "euler_ode_readout_double_error": "Absolute error at step 2h = {value0}",
     "euler_ode_readout_ratio": "Error ratio: error at 2h divided by error at h",
     "euler_ode_none": "none",
-    "euler_ode_note": "The direction field draws at every point a short segment with the slope F(x, y) given by the equation. Euler's polyline follows these slopes in steps of h; it approximates a solution but is not one. The error at the end x shrinks roughly in proportion to h (first order), so the ratio approaches 2 on smooth examples without reaching it. Existence and uniqueness of solutions need assumptions that are not checked here.",
+    "euler_ode_note": "The direction field draws at every point a short segment with the slope F(x, y) given by the equation. Euler's polyline follows these slopes in steps of h; it approximates a solution but is not one. The error at the end x shrinks roughly in proportion to h (first order), so on smooth examples the ratio approaches 2 as h shrinks. Existence and uniqueness of solutions need assumptions that are not checked here.",
     "euler_ode_board_values": "h = {value0}, y({value1}) ≈ {value2}, error {value3}",
     "euler_ode_board_ratio": "error(2h) / error(h) = {value0}",
     "euler_ode_board_stopped": "the run stops at x = {value0}",

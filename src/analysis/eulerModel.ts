@@ -95,12 +95,12 @@ export function parseEulerModel(data: unknown): EulerModel | undefined {
 
 export function chooseEulerExample(model: EulerModel, example: unknown): EulerEdit {
     if (!isEulerExampleId(example)) return {ok: false, issue: exampleIssue};
-    return {ok: true, model: example === model.example ? model : {...model, example}};
+    return {ok: true, model: example === model.example ? model : {...model, example, revealed: null}};
 }
 
 export function chooseEulerStep(model: EulerModel, step: unknown): EulerEdit {
     if (!isEulerStep(step)) return {ok: false, issue: stepIssue};
-    return {ok: true, model: step === model.step ? model : {...model, step}};
+    return {ok: true, model: step === model.step ? model : {...model, step, revealed: null}};
 }
 
 /** Moves the initial point: rejected unless both coordinates are in range and x0 stays at most xEnd. */
@@ -110,7 +110,7 @@ export function moveEulerInitial(model: EulerModel, x0: number, y0: number): Eul
     const nextX = cleanNoise(x0);
     const nextY = cleanNoise(y0);
     if (nextX > model.xEnd) return {ok: false, issue: {kind: 'order', moving: 'x0'}};
-    return {ok: true, model: nextX === model.x0 && nextY === model.y0 ? model : {...model, x0: nextX, y0: nextY}};
+    return {ok: true, model: nextX === model.x0 && nextY === model.y0 ? model : {...model, x0: nextX, y0: nextY, revealed: null}};
 }
 
 export const setEulerX0 = (model: EulerModel, x0: number): EulerEdit => moveEulerInitial(model, x0, model.y0);
@@ -121,7 +121,7 @@ export function setEulerEnd(model: EulerModel, xEnd: number): EulerEdit {
     if (!isInX(xEnd)) return {ok: false, issue: xIssue(['xEnd'])};
     const next = cleanNoise(xEnd);
     if (next < model.x0) return {ok: false, issue: {kind: 'order', moving: 'xEnd'}};
-    return {ok: true, model: next === model.xEnd ? model : {...model, xEnd: next}};
+    return {ok: true, model: next === model.xEnd ? model : {...model, xEnd: next, revealed: null}};
 }
 
 export const setEulerShowExact = (model: EulerModel, showExact: boolean): EulerModel => showExact === model.showExact ? model : {...model, showExact};
@@ -185,7 +185,8 @@ export function eulerView(model: EulerModel): EulerView {
     const stepsTaken = path.nodes.length - 1;
     const visibleNodes = model.revealed === null ? path.nodes : path.nodes.slice(0, Math.min(model.revealed, stepsTaken) + 1);
     const endValue = endOf(path);
-    const exactValue = exactReaches(model) ? example.exact(model.x0, model.y0)(model.xEnd) : NaN;
+    // The same pole check and |y| bound as the drawn exact curve.
+    const exactValue = exactAt(model, model.xEnd);
     const exact = Number.isFinite(exactValue) ? exactValue : undefined;
     const error = endValue !== undefined && exact !== undefined ? displayedError(Math.abs(exact - endValue)) : undefined;
     const doubled = model.step * 2;

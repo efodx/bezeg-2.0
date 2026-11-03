@@ -160,6 +160,15 @@ test('a view change regenerates the field, a drag or a step change does not', ()
     expect(graph.builds()).toBe(builds + 1);
     expect(graph.fieldCurves()[0].dataX).not.toEqual(before);
     expect(graph.fieldCurves()).toHaveLength(1);
+
+    // the same view on a resized board is a new key too (the marks keep their size in pixels)
+    const board = graph.liveBoard() as any;
+    board.canvasWidth = 900;
+    board.canvasHeight = 600;
+    act(() => { graph.liveBoard().update(); });
+    expect(graph.builds()).toBe(builds + 2);
+    act(() => { graph.liveBoard().update(); });
+    expect(graph.builds()).toBe(builds + 2);
 });
 
 test('the example switch keeps the other fields, changes the equation and the numbers, and keeps one field curve', () => {
@@ -206,6 +215,14 @@ test('Next step reveals the polyline one step at a time and Show all restores it
     expect(graph.modelNow().revealed).toBeNull();
     expect(graph.polyline().dataX).toHaveLength(9);
     expect(statusIds()).toEqual([]);
+
+    // a new example (or step, start or end) draws a new polyline, shown in full
+    click('Naslednji korak');
+    expect(graph.modelNow().revealed).toBe(1);
+    act(() => { fireEvent.change(screen.getByLabelText('Enačba'), {target: {value: 'linear-relaxation'}}); });
+    expect(graph.modelNow().revealed).toBeNull();
+    expect(graph.polyline().dataX).toHaveLength(9);
+    expect(statusIds()).toEqual([]);
 });
 
 test('a blow-up run stops the polyline at the last finite point, says so, and hides the exact value', () => {
@@ -223,6 +240,8 @@ test('a blow-up run stops the polyline at the last finite point, says so, and hi
         expect(Math.abs(polyline.dataY[i])).toBeLessThanOrEqual(1000);
     }
     expect(polyline.dataX[polyline.dataX.length - 1]).toBeLessThan(3);
+    // the readout counts the steps taken, not the planned ones
+    expect(readout('steps')).toBe(String(polyline.dataX.length - 1));
     expect(texts(graph)).toContain('izračun se ustavi pri x =');
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
@@ -265,10 +284,13 @@ test('Preset import and Reset restore the controls and the board objects; unmoun
     const board = graph.liveBoard();
     const curveIds = graph.curves().map(curve => curve.id);
     expect(curveIds).toHaveLength(4);
+    const pointAndTextIds = board.objectsList.filter((object: any) => object.elType === 'point' || object.elType === 'text').map((object: any) => object.id);
+    expect(pointAndTextIds).toContain(graph.initialPoint().id);
+    expect(board.objectsList.some((object: any) => object.elType === 'text')).toBe(true);
     view.unmount();
     expect(graph.ownedObjects()).toBe(0);
-    // every created curve (the field included) is gone from the board's registry
-    curveIds.forEach(id => expect(board.objects[id]).toBeUndefined());
+    // every created curve (the field included), the initial point and the captions are gone from the board's registry
+    [...curveIds, ...pointAndTextIds].forEach(id => expect(board.objects[id]).toBeUndefined());
 });
 
 test('StrictMode does not duplicate board objects or the field curve', () => {

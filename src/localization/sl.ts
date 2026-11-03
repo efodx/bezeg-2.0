@@ -758,7 +758,7 @@ export const sl = {
     "euler_ode_readout_double_error": "Absolutna napaka pri koraku 2h = {value0}",
     "euler_ode_readout_ratio": "Razmerje napak: napaka pri 2h deljena z napako pri h",
     "euler_ode_none": "ni",
-    "euler_ode_note": "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; rešitev približa, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, a ga ne doseže. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo.",
+    "euler_ode_note": "Polje smeri v vsaki točki nariše kratko daljico z naklonom F(x, y), ki ga določa enačba. Eulerjeva lomljenka sledi tem naklonom s koraki h; je približek rešitve, ni pa rešitev. Napaka pri končnem x pada približno sorazmerno s h (prvi red), zato se razmerje na gladkih primerih približuje 2, ko se h manjša. Obstoj in enoličnost rešitev zahtevata predpostavke, ki jih tu ne preverjamo.",
     "euler_ode_board_values": "h = {value0}, y({value1}) ≈ {value2}, napaka {value3}",
     "euler_ode_board_ratio": "napaka(2h) / napaka(h) = {value0}",
     "euler_ode_board_stopped": "izračun se ustavi pri x = {value0}",

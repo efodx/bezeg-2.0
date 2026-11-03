@@ -76,6 +76,29 @@ describe('the reveal', () => {
         expect(nextRevealed(model({...base, revealed: 3}), 4)).toBeNull();
         expect(plannedSteps(base)).toBe(4);
     });
+
+    test('an edit that changes the polyline shows all steps again; an unchanged value keeps the reveal', () => {
+        const revealed = model({step: 0.25, xEnd: 2, revealed: 2});
+        const after = (edit: ReturnType<typeof chooseEulerStep>) => edit.ok ? edit.model.revealed : 'rejected';
+        expect(after(chooseEulerExample(revealed, 'linear-relaxation'))).toBeNull();
+        expect(after(chooseEulerStep(revealed, 0.5))).toBeNull();
+        expect(after(moveEulerInitial(revealed, 0, 2))).toBeNull();
+        expect(after(setEulerEnd(revealed, 3))).toBeNull();
+        expect(after(chooseEulerStep(revealed, 0.25))).toBe(2);
+        expect(after(moveEulerInitial(revealed, 0, 1))).toBe(2);
+    });
+});
+
+describe('the exact end value', () => {
+    test('above the |y| bound is not shown, like the drawn exact curve, while the Euler run still reaches the end', () => {
+        // y' = y from (0, 10): Euler with h = 0.5 gives 10 · 1.5^10 ≈ 576.7, the exact 10 · e^5 ≈ 1484 is past the bound.
+        const view = eulerView(model({y0: 10, xEnd: 5}));
+        expect(view.endValue).toBeCloseTo(10 * 1.5 ** 10, 9);
+        expect(view.exact).toBeUndefined();
+        expect(view.error).toBeUndefined();
+        expect(view.ratio).toBeUndefined();
+        expect(eulerView(model({y0: 10, xEnd: 4})).exact).toBeCloseTo(10 * Math.exp(4), 9);
+    });
 });
 
 describe('edits', () => {

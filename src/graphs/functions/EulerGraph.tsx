@@ -10,7 +10,7 @@ import {formatNumber, formatSignificant} from "../../analysis/format";
 import {EULER_EXAMPLE_IDS, EULER_X_MAX, EULER_X_MIN, eulerExample, EulerExampleId, STEP_SIZES} from "../../analysis/odeEuler";
 import {
     chooseEulerExample, chooseEulerStep, DEFAULT_EULER_MODEL, EULER_DRAG_STEP, EULER_Y0_BOUND, EulerEdit, EulerModel, eulerView, EulerView, exactAt,
-    exactReaches, moveEulerInitial, nextRevealed, plannedSteps, setEulerEnd, setEulerRevealed, setEulerShowExact, setEulerX0, setEulerY0,
+    exactReaches, moveEulerInitial, nextRevealed, setEulerEnd, setEulerRevealed, setEulerShowExact, setEulerX0, setEulerY0,
 } from "../../analysis/eulerModel";
 import {fieldMarks, FieldMarks, FieldSize} from "../../analysis/eulerField";
 import {ERROR_DISPLAY_DIGITS} from "../../analysis/quadratureModel";
@@ -146,6 +146,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
                 const usable = [left, top, right, bottom].every(Number.isFinite) && left < right && bottom < top;
                 cache = {key, marks: usable ? fieldMarks(eulerExample(model().example), {xMin: left, xMax: right, yMin: bottom, yMax: top}, size) : {x: [], y: [], cols: 0, rows: 0}};
             }
+            // Shared with the cache, not copied each frame: JSXGraph only reads a curve's data arrays and nothing else writes them.
             field.dataX = cache.marks.x;
             field.dataY = cache.marks.y;
         };
@@ -308,7 +309,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         const error = (value: number | undefined) => value === undefined ? t("euler_ode_none") : formatSignificant(value, language, ERROR_DISPLAY_DIGITS);
         const rows = [
             {id: "h", label: t("euler_ode_readout_h"), value: formatNumber(model.step, language, PRECISE)},
-            {id: "steps", label: t("euler_ode_readout_steps"), value: String(plannedSteps(model))},
+            {id: "steps", label: t("euler_ode_readout_steps"), value: String(view.stepsTaken)},
             {id: "end", label: t("euler_ode_readout_end"), value: formatNumber(model.xEnd, language, PRECISE)},
             {id: "value", label: t("euler_ode_readout_value"), value: number(view.endValue)},
             {id: "exact", label: t("euler_ode_readout_exact"), value: number(view.exact)},
