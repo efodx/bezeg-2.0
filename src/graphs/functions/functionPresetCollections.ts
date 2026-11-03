@@ -37,6 +37,8 @@ import {checkBinomialNormalModel, parseBinomialNormalModel} from "../../analysis
 import {binomialNormalFileMessage} from "./binomialNormalMessages";
 import {checkCltModel, DEFAULT_CLT_MODEL, parseCltModel} from "../../analysis/cltModel";
 import {cltFileMessage} from "./cltMessages";
+import {checkSummaryModel, DEFAULT_SUMMARY_MODEL, parseSummaryModel} from "../../analysis/summaryStatisticsModel";
+import {summaryFileMessage} from "./summaryStatisticsMessages";
 import {densityAreaFileMessage} from "./densityAreaMessages";
 import {checkComplexModel, parseComplexModel} from "../../analysis/complexModel";
 import {complexFileMessage} from "../complex/complexMessages";
@@ -177,6 +179,21 @@ const checkCltGraphState = (graphState: unknown): Message | undefined => {
     }
     return checkSceneState(rest);
 };
+const diagnoseSummary: Diagnosis = data => {
+    const check = checkSummaryModel(data);
+    return check.ok || check.issue === undefined ? undefined : summaryFileMessage(check.issue);
+};
+
+/** As for the CLT: the summary model's `values` list is checked by the model's own rules, the other fields by `checkSceneState`. */
+const checkSummaryGraphState = (graphState: unknown): Message | undefined => {
+    if (!isRecord(graphState)) return message("invalid_state");
+    const {values, ...rest} = graphState;
+    if (values !== undefined) {
+        const check = checkSummaryModel({...DEFAULT_SUMMARY_MODEL, values});
+        if (!check.ok) return check.issue === undefined ? message("invalid_state") : summaryFileMessage(check.issue);
+    }
+    return checkSceneState(rest);
+};
 const diagnoseComplex: Diagnosis = data => {
     const check = checkComplexModel(data);
     return check.ok || check.issue === undefined ? undefined : complexFileMessage(check.issue);
@@ -291,6 +308,7 @@ export const functionPresetCollections = {
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
     "prob-binomial-normal": functionCollection("prob-binomial-normal", parseBinomialNormalModel, diagnoseBinomialNormal),
     "prob-clt": Object.freeze({...functionCollection("prob-clt", parseCltModel, diagnoseClt), checkGraphState: checkCltGraphState}),
+    "prob-summary": Object.freeze({...functionCollection("prob-summary", parseSummaryModel, diagnoseSummary), checkGraphState: checkSummaryGraphState}),
     "complex-multiplication": functionCollection("complex-multiplication", parseComplexModel, diagnoseComplex),
     "fixed-point": functionCollection("fixed-point", parseFixedPointModel, diagnoseFixedPoint),
     "function-transformation": functionCollection("function-transformation", parseFunctionTransformationModel, diagnoseFunctionTransformation),

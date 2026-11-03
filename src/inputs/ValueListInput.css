@@ -1,0 +1,4 @@
+.value-list { display: grid; gap: .35rem; margin: 0; padding: 0; border: 0; }
+.value-list legend { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; padding: 0; margin-bottom: .2rem; }
+.value-list-row { display: grid; grid-template-columns: 4.5rem 1fr auto; gap: .4rem; align-items: start; }
+.value-list-index { color: var(--workspace-ink); font-weight: 700; padding-top: .35rem; }
