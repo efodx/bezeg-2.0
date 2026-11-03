@@ -5,6 +5,7 @@
  */
 import {CROSS_RATIO_EXAMPLES} from '../projective/crossRatioModel';
 import {PASCAL_EXAMPLES} from '../projective/pascalModel';
+import {SUMMARY_EXAMPLES} from '../../analysis/summaryStatisticsModel';
 import {POLE_POLAR_EXAMPLES} from '../projective/polePolarModel';
 import {act, fireEvent} from '@testing-library/react';
 import type BaseGraph from './BaseGraph';
@@ -94,6 +95,8 @@ export function perturbModel(graph: BaseGraph<BaseGraphState>, variant: 'a' | 'b
         case 'projective-cross-ratio': g.importPresetData(CROSS_RATIO_EXAMPLES[pick('harmonic', 'infinity')]); return;
         case 'projective-pascal': g.importPresetData(PASCAL_EXAMPLES[pick('pappus', 'infinity')]); return;
         case 'projective-pole-polar': g.importPresetData(POLE_POLAR_EXAMPLES[pick('inside', 'infinity')]); return;
+        // Summary statistics: the data are a list (no numeric field to nudge), so switch to another example's values.
+        case 'prob-summary': g.importPresetData({...exported as object, values: SUMMARY_EXAMPLES[pick('even', 'outlier')]}); return;
         case 'bspline-curve': {
             // B-spline graphs: move the first interior knot within its neighbours and lift the first control point.
             const {degree, knots, points} = exported as {degree: number, knots: number[], points: [number, number][]};
