@@ -1897,4 +1897,196 @@ const monotonePartition: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, intervalSweep, segmentIntersections, monotonePartition];
+/**
+ * Monotone-triangulation lesson (docs/specs/sweep-algorithms-lessons.md, C4). It runs the whole method on the C3 polygon: the trace of
+ * `MonotoneTriangulationGraph` has 44 steps; index 14 is the end of the partition (the diagonal v2-v5 and two pieces), indices 15 to 28 triangulate
+ * piece 1 (v6, v5, v2, v1 from top to bottom) and indices 29 to 43 piece 2. `MonotoneTriangulationLessonActions.host.test.tsx` checks every
+ * quoted value against the real graph's readout. Index 15 pops the top vertex v6 of piece 1; index 19 pops v2 with the stack v6, v5; index 21 is
+ * the visibility test of v2 against v6 (inside, orientation positive); index 23 adds the diagonal v2-v6; index 28 has finished piece 1 (two
+ * triangles); index 43 is the finished triangulation (four triangles, diagonals v2-v5, v2-v6, v3-v5) with the counters 11 and 21.
+ */
+export const MONOTONE_TRIANGULATION_TRACE_STEPS = {partitionDone: 14, topVertex: 15, predict: 19, test: 21, diagonal: 23, pieceDone: 28, done: 43} as const;
+
+const monotoneTriangulation: GuidedLesson = {
+    demonstrationId: 'monotone-triangulation',
+    title: text('Triangulacija monotonega večkotnika', 'Triangulating a monotone polygon'),
+    summary: text(
+        'Monoton večkotnik se s skladom in enim prehodom od zgoraj navzdol razreže na trikotnike; ob koncu primerjamo število izračunov predikatov z rezanjem ušes.',
+        'A monotone polygon is cut into triangles by one pass from top to bottom with a stack; at the end we compare the number of predicate evaluations with ear clipping.',
+    ),
+    prerequisites: [
+        text('Lekcija Razdelitev na monotone večkotnike (kosi, diagonale) in lekcija Rezanje ušes in izrek o galeriji (primerjava na koncu).', 'The lesson Partitioning into monotone polygons (pieces, diagonals) and the lesson Ear clipping and the art gallery theorem (the comparison at the end).'),
+    ],
+    learningGoals: [
+        text('Za vsako oglišče kosa poveš, ali je na levi ali desni verigi, in napoveš, ali ga lahko povežemo z vrhom sklada.', 'Say for every vertex of a piece whether it is on the left or the right chain, and predict whether it can be joined to the stack.'),
+        text('Slediš skladu in preizkusu orientacije in razložiš, kdaj se doda diagonala.', 'Follow the stack and the orientation test and explain when a diagonal is added.'),
+        text('Preveriš, da kos z \\(n\\) oglišči dobi \\(n-2\\) trikotnikov, in ločiš, kaj primerjava majhnih števil pokaže in česa ne dokaže.', 'Check that a piece with \\(n\\) vertices gets \\(n-2\\) triangles, and tell what a comparison of small counts shows and what it does not prove.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'monotone-triangle-count',
+            latex: 't=n-2,\\quad d=n-3',
+            notation: text(
+                '\\(n\\) je število oglišč, \\(t\\) število trikotnikov in \\(d\\) število diagonal triangulacije.',
+                '\\(n\\) is the number of vertices, \\(t\\) the number of triangles and \\(d\\) the number of diagonals of the triangulation.',
+            ),
+            explanation: text(
+                'Vsota notranjih kotov večkotnika z \\(n\\) oglišči je \\((n-2)\\pi\\), kot trikotnika pa \\(\\pi\\), zato je trikotnikov \\(n-2\\). Vsak trikotnik ima tri stranice, rob večkotnika pripada enemu trikotniku, diagonala dvema, zato je \\(3t=n+2d\\) in \\(d=n-3\\). Pri kosu s \\(4\\) oglišči je \\(t=2\\), pri celem večkotniku s \\(6\\) oglišči \\(t=4\\) in \\(d=3\\).',
+                'The interior angles of a polygon with \\(n\\) vertices add up to \\((n-2)\\pi\\) and a triangle has angle sum \\(\\pi\\), so there are \\(n-2\\) triangles. Every triangle has three sides, a polygon edge belongs to one triangle and a diagonal to two, so \\(3t=n+2d\\) and \\(d=n-3\\). A piece with \\(4\\) vertices has \\(t=2\\); the whole polygon with \\(6\\) vertices has \\(t=4\\) and \\(d=3\\).',
+            ),
+        },
+        {
+            id: 'monotone-growth',
+            latex: 'T_{\\text{ear}}=O(n^2),\\quad T_{\\text{monotone}}=O(n\\log n)',
+            notation: text(
+                '\\(T\\) je število izračunov predikatov pri \\(n\\) ogliščih; \\(O(\\cdot)\\) opisuje rast pri velikem \\(n\\).',
+                '\\(T\\) is the number of predicate evaluations for \\(n\\) vertices; \\(O(\\cdot)\\) describes the growth for large \\(n\\).',
+            ),
+            explanation: text(
+                'Rezanje ušes mora za vsako oglišče preveriti ušesa, zato je skupaj \\(O(n^2)\\). Pri enem monotonem kosu je po razvrstitvi oglišč po višini dovolj en prehod s skladom, to je \\(O(n)\\); cela metoda z razdelitvijo je \\(O(n\\log n)\\). Število na majhnem večkotniku to ponazori, ne dokaže.',
+                'Ear clipping has to test the ears again and again, so it needs \\(O(n^2)\\) in all. For one monotone piece, after the vertices are sorted by height, a single pass with the stack is enough, which is \\(O(n)\\); the whole method with the partition is \\(O(n\\log n)\\). A count on a small polygon illustrates this, it does not prove it.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'monotone-triangle-count-example',
+            title: text('Trikotniki cele triangulacije', 'The triangles of the whole triangulation'),
+            calculationLatex: 't=n-2=6-2=4,\\quad d=n-3=6-3=3',
+            resultLatex: 't=4,\\ d=3',
+            check: text(
+                'Izpis pove, da je trikotnikov \\(4=n-2\\) pri \\(n=6\\), in našteje tri diagonale \\(v_2\\)–\\(v_5\\), \\(v_2\\)–\\(v_6\\) in \\(v_3\\)–\\(v_5\\): ena je iz razdelitve, po ena pa iz vsakega kosa.',
+                'The readout says there are \\(4=n-2\\) triangles with \\(n=6\\), and lists three diagonals \\(v_2\\)–\\(v_5\\), \\(v_2\\)–\\(v_6\\) and \\(v_3\\)–\\(v_5\\): one from the partition and one from each piece.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'montri-piece', order: 1,
+            title: text('Monoton kos in njegovi verigi', 'A monotone piece and its chains'),
+            purpose: text('Spoznati kos, ki ga bomo triangulirali, njegova oglišča od zgoraj navzdol in verigi.', 'Meeting the piece we will triangulate, its vertices from top to bottom and its two chains.'),
+            explanation: text(
+                'Večkotnik iz prejšnje lekcije ima oglišča \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\) in \\((4,8)\\). Razdelitev je že dodala diagonalo \\(v_2\\)–\\(v_5\\) in ga razdelila na dva monotona kosa; sled je pri koraku \\(15\\) od \\(43\\), ko se začne triangulacija prvega kosa. Prvi kos je \\((0,0),(4,3),(8,5),(4,8)\\) in ima \\(4\\) oglišča, zato dobi \\(2\\) trikotnika. Oglišča kosa od zgoraj navzdol so \\(v_6\\) (zgornje oglišče), \\(v_5\\) in \\(v_2\\) (desna veriga) ter \\(v_1\\) (spodnje oglišče); levo verigo tvori samo rob od \\(v_6\\) do \\(v_1\\). Sklad je še prazen.',
+                'The polygon of the previous lesson has the vertices \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\) and \\((4,8)\\). The partition has already added the diagonal \\(v_2\\)–\\(v_5\\) and cut it into two monotone pieces; the trace is at step \\(15\\) of \\(43\\), where the triangulation of the first piece begins. The first piece is \\((0,0),(4,3),(8,5),(4,8)\\) and has \\(4\\) vertices, so it gets \\(2\\) triangles. The vertices of the piece from top to bottom are \\(v_6\\) (top vertex), \\(v_5\\) and \\(v_2\\) (right chain) and \\(v_1\\) (bottom vertex); the left chain is just the edge from \\(v_6\\) to \\(v_1\\). The stack is still empty.',
+            ),
+            formulaIds: ['monotone-triangle-count'],
+            frames: [frame('montri-piece-explanation', 'explanation'), frame('montri-piece-observation', 'observation')],
+            observationPrompt: text('V seznamu oglišč kosa preberi oznako verige pri vsakem oglišču in preveri, da je vsako oglišče nižje od prejšnjega.', 'In the list of the piece\'s vertices read the chain label of each vertex and check that every vertex is lower than the one before.'),
+            expectedObservations: [text('Seznam je \\(v_6\\) zgornje oglišče, \\(v_5\\) desna veriga, \\(v_2\\) desna veriga, \\(v_1\\) spodnje oglišče; sklad je prazen, trikotnikov doslej \\(0\\).', 'The list is \\(v_6\\) top vertex, \\(v_5\\) right chain, \\(v_2\\) right chain, \\(v_1\\) bottom vertex; the stack is empty, triangles so far \\(0\\).')],
+            scene: monotoneScene('montri-piece', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.topVertex)],
+                'Sled je na koraku \\(15\\) od \\(43\\): kos \\(1\\) ima \\(4\\) oglišča, obdelano je zgornje oglišče \\(v_6\\), sklad je prazen.',
+                'The trace is at step \\(15\\) of \\(43\\): piece \\(1\\) has \\(4\\) vertices, the top vertex \\(v_6\\) is handled, the stack is empty.'),
+        },
+        {
+            id: 'montri-predict', order: 2,
+            title: text('Napovej povezavo', 'Predict the connection'),
+            purpose: text('Pred razkritjem preizkusa napovedati, ali lahko naslednje oglišče povežemo z oglišči na skladu.', 'Predicting, before the test is revealed, whether the next vertex can be joined to the vertices on the stack.'),
+            explanation: text(
+                'Sled je pri koraku \\(19\\) od \\(43\\): obdelano je oglišče \\(v_2\\) na desni verigi, na skladu pa sta \\(v_6\\) in \\(v_5\\) (od spodaj navzgor). Preden pritisneš Naslednji korak, napovej: ali lahko \\(v_2\\) povežemo z \\(v_6\\), ne da bi diagonala zapustila kos? Namig: poglej, ali \\(v_5\\) leži na desni ali na levi strani premice od \\(v_2\\) do \\(v_6\\); preizkus orientacije to pove z znakom. Preizkus še ni prikazan.',
+                'The trace is at step \\(19\\) of \\(43\\): the vertex \\(v_2\\) on the right chain is handled and the stack holds \\(v_6\\) and \\(v_5\\) (bottom to top). Before you press Next step, predict: can \\(v_2\\) be joined to \\(v_6\\) without the diagonal leaving the piece? Hint: look at whether \\(v_5\\) lies to the right or to the left of the line from \\(v_2\\) to \\(v_6\\); the orientation test tells it by its sign. The test is not shown yet.',
+            ),
+            formulaIds: ['monotone-triangle-count'],
+            frames: [frame('montri-predict-explanation', 'explanation'), frame('montri-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši napoved: ali bo diagonala \\(v_2\\)–\\(v_6\\) znotraj kosa?', 'Write down your prediction: will the diagonal \\(v_2\\)–\\(v_6\\) be inside the piece?'),
+            expectedObservations: [text('Sklad je \\(v_6\\), \\(v_5\\); preizkus še ni prikazan, trikotnikov doslej \\(0\\).', 'The stack is \\(v_6\\), \\(v_5\\); the test is not shown yet, triangles so far \\(0\\).')],
+            scene: monotoneScene('montri-predict', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.predict)],
+                'Sled je na koraku \\(19\\) od \\(43\\): obdelano je oglišče \\(v_2\\) (desna veriga), sklad je \\(v_6\\), \\(v_5\\); preizkus še ni prikazan.',
+                'The trace is at step \\(19\\) of \\(43\\): the vertex \\(v_2\\) (right chain) is handled, the stack is \\(v_6\\), \\(v_5\\); the test is not shown yet.'),
+        },
+        {
+            id: 'montri-test', order: 3,
+            title: text('Preizkus orientacije', 'The orientation test'),
+            purpose: text('Videti, kako sklad in preizkus orientacije odločita, ali diagonala leži znotraj kosa.', 'Seeing how the stack and the orientation test decide whether a diagonal lies inside the piece.'),
+            explanation: text(
+                'Oglišče \\(v_2\\) je na isti verigi kot vrh sklada \\(v_5\\), zato \\(v_5\\) zapusti sklad (korak \\(20\\)) in preizkusimo, ali lahko \\(v_2\\) povežemo z naslednjim na skladu, to je z \\(v_6\\). Korak \\(21\\) od \\(43\\) prikaže preizkus: diagonala \\(v_2\\)–\\(v_6\\) leži znotraj kosa, ker je orientacija pozitivna. Če bi bila orientacija nič ali negativna, bi diagonala zapustila kos, sklad pa se ne bi več krajšal. Na skladu je zdaj samo \\(v_6\\).',
+                'The vertex \\(v_2\\) is on the same chain as the top of the stack \\(v_5\\), so \\(v_5\\) leaves the stack (step \\(20\\)) and we test whether \\(v_2\\) can be joined to the next vertex on the stack, \\(v_6\\). Step \\(21\\) of \\(43\\) shows the test: the diagonal \\(v_2\\)–\\(v_6\\) lies inside the piece, because the orientation is positive. If the orientation were zero or negative, the diagonal would leave the piece and the stack would not be reduced further. Now only \\(v_6\\) is on the stack.',
+            ),
+            formulaIds: ['monotone-triangle-count'],
+            frames: [frame('montri-test-explanation', 'explanation'), frame('montri-test-observation', 'observation')],
+            observationPrompt: text('Primerjaj napoved s preizkusom in poglej, katero oglišče je zdaj na skladu.', 'Compare your prediction with the test and look at which vertex is on the stack now.'),
+            expectedObservations: [text('Preizkus: oglišči \\(v_2\\) in \\(v_6\\), diagonala je znotraj; sklad je \\(v_6\\).', 'The test: vertices \\(v_2\\) and \\(v_6\\), the diagonal is inside; the stack is \\(v_6\\).')],
+            scene: monotoneScene('montri-test', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.test)],
+                'Sled je na koraku \\(21\\) od \\(43\\): preizkus oglišč \\(v_2\\) in \\(v_6\\), diagonala je znotraj, sklad je \\(v_6\\).',
+                'The trace is at step \\(21\\) of \\(43\\): the test of the vertices \\(v_2\\) and \\(v_6\\), the diagonal is inside, the stack is \\(v_6\\).'),
+        },
+        {
+            id: 'montri-diagonal', order: 4,
+            title: text('Diagonala in prvi trikotnik', 'The diagonal and the first triangle'),
+            purpose: text('Videti, da uspešen preizkus doda diagonalo in zaključi trikotnik.', 'Seeing that a successful test adds a diagonal and finishes a triangle.'),
+            explanation: text(
+                'Ker je preizkus uspel, \\(v_6\\) zapusti sklad in doda se diagonala \\(v_2\\)–\\(v_6\\) (korak \\(23\\) od \\(43\\)). Skupaj z ogliščema \\(v_5\\) in \\(v_6\\) iz prejšnjih korakov je s tem zaključen prvi trikotnik, trikotnikov doslej je \\(1\\). Diagonali sta zdaj dve: \\(v_2\\)–\\(v_5\\) iz razdelitve in nova \\(v_2\\)–\\(v_6\\). Sklad je prazen; naslednja koraka ponovno dasta na sklad \\(v_6\\) in \\(v_2\\).',
+                'Because the test succeeded, \\(v_6\\) leaves the stack and the diagonal \\(v_2\\)–\\(v_6\\) is added (step \\(23\\) of \\(43\\)). Together with the vertices \\(v_5\\) and \\(v_6\\) from the earlier steps, this finishes the first triangle, so the triangles so far are \\(1\\). There are now two diagonals: \\(v_2\\)–\\(v_5\\) from the partition and the new \\(v_2\\)–\\(v_6\\). The stack is empty; the next two steps push \\(v_6\\) and \\(v_2\\) again.',
+            ),
+            formulaIds: ['monotone-triangle-count'],
+            frames: [frame('montri-diagonal-explanation', 'explanation'), frame('montri-diagonal-observation', 'observation')],
+            observationPrompt: text('Preštej diagonale na grafu in v izpisu in preveri, koliko trikotnikov je zaključenih.', 'Count the diagonals on the graph and in the readout and check how many triangles are finished.'),
+            expectedObservations: [text('Diagonali sta \\(2\\): \\(v_2\\)–\\(v_5\\) in \\(v_2\\)–\\(v_6\\); trikotnikov doslej \\(1\\); sklad je prazen.', 'There are \\(2\\) diagonals: \\(v_2\\)–\\(v_5\\) and \\(v_2\\)–\\(v_6\\); triangles so far \\(1\\); the stack is empty.')],
+            scene: monotoneScene('montri-diagonal', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.diagonal)],
+                'Sled je na koraku \\(23\\) od \\(43\\): dodana je diagonala \\(v_2\\)–\\(v_6\\), diagonali sta \\(2\\), trikotnikov doslej \\(1\\).',
+                'The trace is at step \\(23\\) of \\(43\\): the diagonal \\(v_2\\)–\\(v_6\\) is added, there are \\(2\\) diagonals, triangles so far \\(1\\).'),
+        },
+        {
+            id: 'montri-count', order: 5,
+            title: text('Končan kos: n − 2 trikotnikov', 'A finished piece: n − 2 triangles'),
+            purpose: text('Preveriti, da ima triangulirani kos \\(n-2\\) trikotnikov.', 'Checking that the triangulated piece has \\(n-2\\) triangles.'),
+            explanation: text(
+                'Pri koraku \\(28\\) od \\(43\\) je prvi kos končan: sklad je prazen, trikotnikov doslej je \\(2\\), kar je \\(n-2\\) pri \\(n=4\\). Drugi kos \\((4,3),(8,0),(12,8),(8,5)\\) ima prav tako \\(4\\) oglišča; ko pritisneš Naslednji korak, izpis pove „Kos 2 ima 4 oglišč in dobi 2 trikotnikov“. Vsak kos z \\(n\\) oglišči da \\(n-2\\) trikotnikov, ne glede na to, koliko preizkusov je uspelo ali ne.',
+                'At step \\(28\\) of \\(43\\) the first piece is finished: the stack is empty and the triangles so far are \\(2\\), which is \\(n-2\\) for \\(n=4\\). The second piece \\((4,3),(8,0),(12,8),(8,5)\\) also has \\(4\\) vertices; after you press Next step the readout says "Piece 2 has 4 vertices and gets 2 triangles". Every piece with \\(n\\) vertices gives \\(n-2\\) triangles, however many tests succeed or fail.',
+            ),
+            formulaIds: ['monotone-triangle-count'],
+            frames: [frame('montri-count-explanation', 'explanation'), frame('montri-count-observation', 'observation')],
+            observationPrompt: text('Preštej trikotnike prvega kosa na grafu in jih primerjaj z \\(n-2\\).', 'Count the triangles of the first piece on the graph and compare them with \\(n-2\\).'),
+            expectedObservations: [text('Trikotnikov doslej \\(2\\), diagonali sta \\(2\\), sklad je prazen; kos \\(1\\) ima \\(4\\) oglišča.', 'Triangles so far \\(2\\), there are \\(2\\) diagonals, the stack is empty; piece \\(1\\) has \\(4\\) vertices.')],
+            scene: monotoneScene('montri-count', MONOTONE_EXAMPLE_1, [setTraceStep(MONOTONE_TRIANGULATION_TRACE_STEPS.pieceDone)],
+                'Sled je na koraku \\(28\\) od \\(43\\): prvi kos je končan, trikotnikov doslej \\(2\\), sklad je prazen.',
+                'The trace is at step \\(28\\) of \\(43\\): the first piece is finished, triangles so far \\(2\\), the stack is empty.'),
+        },
+        {
+            id: 'montri-compare', order: 6,
+            title: text('Primerjava z rezanjem ušes', 'Comparison with ear clipping'),
+            purpose: text('Primerjati število izračunov predikatov obeh metod na istem večkotniku in razumeti, kaj število pove.', 'Comparing the number of predicate evaluations of the two methods on the same polygon and understanding what the count says.'),
+            explanation: text(
+                'Pri koraku \\(43\\) od \\(43\\) je triangulacija končana: \\(4\\) trikotniki, to je \\(n-2\\) pri \\(n=6\\), in \\(3\\) diagonale \\(v_2\\)–\\(v_5\\), \\(v_2\\)–\\(v_6\\), \\(v_3\\)–\\(v_5\\). Izpis primerja izračune predikatov: monotona metoda (razdelitev in triangulacija) jih potrebuje \\(11\\), rezanje ušes na istem večkotniku (lekcija Rezanje ušes) pa \\(21\\). Pri rezanju ušes narašča število kot \\(O(n^2)\\); pri enem monotonem kosu je po razvrstitvi oglišč \\(O(n)\\), pri celi metodi \\(O(n\\log n)\\). Pazi: število na majhnem večkotniku to ponazori, ne dokaže. Na štirikotniku \\((0,0),(4,3),(8,5),(4,8)\\) samem je razmerje obrnjeno: monotona metoda ima \\(7\\), rezanje ušes \\(3\\). Prednost monotone metode se pokaže šele pri velikem \\(n\\).',
+                'At step \\(43\\) of \\(43\\) the triangulation is finished: \\(4\\) triangles, which is \\(n-2\\) for \\(n=6\\), and \\(3\\) diagonals \\(v_2\\)–\\(v_5\\), \\(v_2\\)–\\(v_6\\), \\(v_3\\)–\\(v_5\\). The readout compares predicate evaluations: the monotone method (partition and triangulation) needs \\(11\\), ear clipping on the same polygon (see the lesson Ear clipping) needs \\(21\\). Ear clipping grows like \\(O(n^2)\\); one monotone piece takes \\(O(n)\\) after the vertices are sorted, the whole method \\(O(n\\log n)\\). Take care: a count on a small polygon illustrates this, it does not prove it. On the quadrilateral \\((0,0),(4,3),(8,5),(4,8)\\) alone the order is reversed: the monotone method has \\(7\\) and ear clipping \\(3\\). The advantage of the monotone method shows only for large \\(n\\).',
+            ),
+            formulaIds: ['monotone-triangle-count', 'monotone-growth'], workedExampleId: 'monotone-triangle-count-example',
+            frames: [frame('montri-compare-explanation', 'explanation'), frame('montri-compare-calculation', 'calculation'), frame('montri-compare-observation', 'observation')],
+            observationPrompt: text('Preberi obe števili v primerjalni plošči in ju primerjaj z izjavo o rasti.', 'Read both numbers in the comparison panel and compare them with the growth statement.'),
+            expectedObservations: [text('Trikotnikov: \\(4=n-2\\) pri \\(n=6\\); diagonale \\(3\\); monotona metoda \\(11\\) izračunov predikatov, rezanje ušes \\(21\\).', 'Triangles: \\(4=n-2\\) with \\(n=6\\); \\(3\\) diagonals; the monotone method \\(11\\) predicate evaluations, ear clipping \\(21\\).')],
+            scene: monotoneScene('montri-compare', MONOTONE_EXAMPLE_1, [setTraceStep('end')],
+                'Sled je na koraku \\(43\\) od \\(43\\): \\(4\\) trikotniki, \\(3\\) diagonale, monotona metoda \\(11\\) izračunov predikatov, rezanje ušes \\(21\\).',
+                'The trace is at step \\(43\\) of \\(43\\): \\(4\\) triangles, \\(3\\) diagonals, the monotone method \\(11\\) predicate evaluations, ear clipping \\(21\\).'),
+        },
+        {
+            id: 'montri-explore', order: 7,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno preizkusiti triangulacijo na svojem večkotniku.', 'Trying the triangulation on a polygon of your own.'),
+            explanation: text(
+                'Premikaj oglišča večkotnika \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\), \\((4,8)\\) po mreži in pritiskaj Naslednji korak. Večkotnik, ki ni monoton, se najprej razdeli na monotone kose (koraki do konca razdelitve), šele nato se vsak kos triangulira; večkotnik, ki je že monoton, ima en kos in nobene diagonale iz razdelitve. Sled se ob vsaki spremembi vrne na začetek. Tri zaporedna kolinearna oglišča in neenostavni večkotniki se zavrnejo s sporočilom.',
+                'Move the vertices of the polygon \\((0,0)\\), \\((4,3)\\), \\((8,0)\\), \\((12,8)\\), \\((8,5)\\), \\((4,8)\\) on the grid and press Next step. A polygon that is not monotone is partitioned into monotone pieces first (the steps up to the end of the partition), and only then is every piece triangulated; a polygon that is already monotone has one piece and no diagonal from the partition. The trace returns to the start after every change. Three consecutive collinear vertices and non-simple polygons are refused with a message.',
+            ),
+            formulaIds: ['monotone-triangle-count', 'monotone-growth'],
+            frames: [frame('montri-explore-explanation', 'explanation'), frame('montri-explore-observation', 'observation')],
+            observationPrompt: text('Premakni eno oglišče in pred koncem napovej, koliko trikotnikov in diagonal bo imela triangulacija.', 'Move one vertex and, before the end, predict how many triangles and diagonals the triangulation will have.'),
+            expectedObservations: [text('Pri začetnem večkotniku je sled na koraku \\(0\\) od \\(43\\); ob koncu je \\(4\\) trikotnikov in \\(3\\) diagonale.', 'For the starting polygon the trace is at step \\(0\\) of \\(43\\); at the end there are \\(4\\) triangles and \\(3\\) diagonals.')],
+            scene: monotoneScene('montri-explore', MONOTONE_EXAMPLE_1, [],
+                'Začetni večkotnik; sled je na koraku \\(0\\) od \\(43\\), razdelitev je prva.',
+                'The starting polygon; the trace is at step \\(0\\) of \\(43\\), the partition comes first.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-monotone-triangulation', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Section 3.3 (triangulating a monotone polygon).'},
+        {
+            id: 'bezeg-monotone-triangulation-implementation',
+            citation: 'Bezeg source: src/compgeo/sweep/monotoneTriangulation.ts, src/graphs/compgeo/monotoneTriangulationRun.ts and src/graphs/compgeo/MonotoneTriangulationGraph.tsx.',
+            implementationCorrespondence: 'The trace runs the partition of the monotone-partition lesson, then for every piece the stack algorithm: the vertices of a piece are handled from top to bottom, a vertex on the chain opposite to the top of the stack is joined to every stack vertex, a vertex on the same chain is joined to the stack vertices for which the orientation test is positive. Every test is one exact orientation evaluation, counted as a predicate; the ear-clipping count is the one of the ear-clipping kernel on the same polygon.',
+        },
+    ],
+    edgeCases: [
+        text('Večkotnik, ki je že monoton, ima en kos in razdelitev ne doda diagonale; kos z \\(n\\) oglišči da vedno \\(n-2\\) trikotnikov.', 'A polygon that is already monotone has one piece and the partition adds no diagonal; a piece with \\(n\\) vertices always gives \\(n-2\\) triangles.'),
+        text('Tri zaporedna kolinearna oglišča in neenostavni večkotniki se zavrnejo s sporočilom; večkotnik v smeri urnega kazalca se pred obdelavo obrne.', 'Three consecutive collinear vertices and non-simple polygons are refused with a message; a clockwise polygon is reversed before the processing.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation];

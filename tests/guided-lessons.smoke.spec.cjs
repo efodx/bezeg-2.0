@@ -1905,6 +1905,19 @@ const monotonePartition = {
     },
 };
 
+// Monotone triangulation (sweep task 20): the trace step shown per lesson step 1..7 (15, 19, 21, 23, 28, 43, 0); the number is language independent.
+const MONOTONE_TRIANGULATION_STEPS = ['15', '19', '21', '23', '28', '43', '0'];
+const monotoneTriangulation = {
+    id: 'monotone-triangulation',
+    path: `${BASE}/compgeo/monotone-triangulation`,
+    titles: {sl: 'Triangulacija monotonega večkotnika', en: 'Triangulating a monotone polygon'},
+    steps: 7,
+    minFrames: 15, // 2 frames per step, 3 on step 6 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => ((await page.locator('[data-monotone-triangulation="step"]').textContent()) || '').match(/\d+/)?.[0], {message: `monotone triangulation trace step at ${label}`}).toBe(MONOTONE_TRIANGULATION_STEPS[step - 1]);
+    },
+};
+
 // Interpolation I5: the board status line names the rule, the step and the vertex count, which differ on every step (rule, step, vertices): Chaikin 0/4, Chaikin 1/8, Chaikin 2/16, four-point 0/4, four-point 2/13, Chaikin 3/32.
 const SUBDIVISION_READOUTS = [
     /(Chaikinovo pravilo|Chaikin rule), (korak|step) 0 (od|of) 6, 4 (oglišč|vertices)/, /(Chaikinovo pravilo|Chaikin rule), (korak|step) 1 (od|of) 6, 8 (oglišč|vertices)/,
@@ -2081,7 +2094,7 @@ const probabilityBinomialNormal = {
     },
 };
 
-const LESSONS = [monotonePartition, probabilityDensity, probabilityBinomialNormal, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, functionTransformation, functionInverse, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
