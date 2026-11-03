@@ -211,8 +211,9 @@ const functionsCards = [
     {chapterId: 'numerical-methods', copy: numericalPreviewCopy, ids: ['numerical-methods.euler-method.euler-method', 'numerical-methods.quadrature.quadrature', 'numerical-methods.root-finding.root-finding'], counts: [[2, 1], [2, 2], [1, 3]]},
     {chapterId: 'school-function-graphs', copy: schoolFunctionGraphsPreviewCopy,
         ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation',
-            'school-function-graphs.polynomial-zeros.polynomial-zeros', 'school-function-graphs.rational-function.rational-function'],
-        counts: [[2, 2], [2, 2], [1, 2], [1, 4]]},
+            'school-function-graphs.geometric-series.geometric-series', 'school-function-graphs.polynomial-zeros.polynomial-zeros',
+            'school-function-graphs.rational-function.rational-function'],
+        counts: [[2, 2], [2, 2], [0, 0], [1, 2], [1, 4]]},
     {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-coefficients.fourier-coefficients', 'fourier-series.fourier-series.fourier-series'], counts: [[5, 7], [6, 7]]},
     {chapterId: 'projective-conics', copy: projectiveConicsPreviewCopy,
         ids: ['projective-conics.projective-cross-ratio.projective-cross-ratio', 'projective-conics.projective-five-point.projective-five-point',
@@ -249,8 +250,10 @@ for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {
             expect(entry).toMatchObject({id: home.id, path: home.path, recipe: {kind: 'start'}});
             expect(entry.actions).toEqual(step.scene?.actions.map(action => `${action.kind}: ${JSON.stringify(action)}`));
             expect(entry.expected.curveCount).toBeGreaterThanOrEqual(0);
-            // A first frame with no visible point (K5 at c = 2) is checked by its authored curve samples instead.
-            expect(entry.expected.points.length + (entry.expected.curves?.length ?? 0)).toBeGreaterThan(0);
+            // A first frame with no visible point (K5 at c = 2) is checked by its authored curve samples instead, and the S5 bars
+            // (segments only) by their authored segment count.
+            expect(entry.expected.points.length + (entry.expected.curves?.length ?? 0)
+                + Object.values(entry.expected.types as Record<string, number>).reduce((sum, count) => sum + count, 0)).toBeGreaterThan(0);
             expect(capture).toMatchObject({file: `${home.id}.png`, width: 840, height: 520, path: home.path,
                 initialFrame: {firstFrame: true, backNavigationDisabled: true},
                 framing: {boardOnly: true, guidedLessonOverlayHidden: true}, captureEvidence: {servedBuildVerified: true, pageErrors: []}});
@@ -266,7 +269,7 @@ for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {
         // Authored first-frame sizes: curves, then points of the distinct expected point list.
         expect(ids.map(id => {
             const expected = inventory.examples.find(entry => entry.id === id)?.expected;
-            return [expected?.curveCount, (expected?.types as Record<string, number>).point];
+            return [expected?.curveCount, (expected?.types as Record<string, number>).point ?? 0];
         })).toEqual(counts.map(([curves, points]) => [curves, points]));
     });
 }

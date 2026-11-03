@@ -2043,6 +2043,13 @@ const rationalFunction = {
     steps: 7,
     minFrames: 14, // at least 2 frames per step
 };
+const geometricSeries = {
+    id: 'geometric-series',
+    path: `${BASE}/functions/geometric-series`,
+    titles: {sl: 'Geometrijska vrsta in delne vsote', en: 'Geometric series and partial sums'},
+    steps: 8,
+    minFrames: 16, // at least 2 frames per step
+};
 
 // Coons patch: the shown-surface select and the corner status differ along the lesson. Per step 1..7: S, Lc, Ld, S, S, S (one corner moved, linked corners off), S.
 const COONS_SHOWN = ['s', 'lc', 'ld', 's', 's', 's', 's'];
@@ -2255,7 +2262,7 @@ const fortune = {
     },
 };
 
-const LESSONS = [bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, functionTransformation, functionInverse, polynomialZeros, rationalFunction, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

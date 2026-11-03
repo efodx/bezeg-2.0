@@ -1,5 +1,5 @@
 import React from "react";
-import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve} from "./BaseFunctionGraph";
+import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {NumberInput} from "../../inputs/NumberInput";
@@ -134,6 +134,17 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
     protected setTerms(value: number): void { this.applyEdit(setSeriesTerms(this.model, value)); }
 
     protected setTolerance(value: number): void { this.applyEdit(setSeriesTolerance(this.model, value)); }
+
+    /** Lesson scenes set a, q, n, the tolerance and the example; a scene is a state, so none of them starts playback. */
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {
+                "series-a": value => this.setA(value), "series-q": value => this.setQ(value),
+                "series-n": value => this.setTerms(value), "series-tolerance": value => this.setTolerance(value),
+            },
+            choices: {"series-example": value => this.setExample(value)},
+        };
+    }
 
     /** The model module decides; a refusal becomes a localized `DomainError`, no change commits nothing. A new a, q or tolerance refits the view (the band edges stay on the board). */
     private applyEdit(edit: SeriesEdit): void {

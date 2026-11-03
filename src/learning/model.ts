@@ -21,6 +21,7 @@ import {EULER_EXAMPLE_IDS, STEP_SIZES} from '../analysis/odeEuler';
 import {TRANSFORM_BASE_IDS} from '../analysis/functionTransformationModel';
 import {INVERSE_RESTRICTION_IDS} from '../analysis/functionInverseModel';
 import {POLYNOMIAL_EXAMPLE_IDS} from '../analysis/polynomialZerosModel';
+import {SERIES_EXAMPLE_IDS} from '../analysis/geometricSeriesModel';
 import {RATIONAL_EXAMPLE_IDS} from '../analysis/rationalFunctionModel';
 import {FOURIER_SERIES_EXAMPLE_IDS} from '../analysis/fourierSeriesModel';
 import {FOURIER_COEFFICIENT_TERMS, FOURIER_COEFFICIENTS_LAYOUTS, FOURIER_COEFFICIENTS_VIEWS, FOURIER_DECAY_SCALES} from '../analysis/fourierCoefficientsModel';
@@ -46,7 +47,7 @@ export type LessonLanguage = 'sl' | 'en';
 export type LocalizedText = Readonly<Record<LessonLanguage, string>>;
 
 /** Closed set of function-demonstration parameters; each concept extends it only with the names it owns. */
-export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'root-x0', 'root-x1', 'quadrature-a', 'quadrature-b', 'quadrature-n', 'euler-x0', 'euler-y0', 'euler-end', 'transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'poly-zero-1', 'poly-zero-2', 'poly-zero-3', 'poly-zero-4', 'poly-zero-5', 'rational-numerator-1', 'rational-numerator-2', 'rational-denominator-1', 'rational-denominator-2', 'rational-probe', 'inverse-base', 'inverse-x0', 'fourier-n', 'fourier-x', 'fourier-epsilon', 'fourier-handle-0', 'fourier-handle-1', 'fourier-handle-2', 'fourier-handle-3', 'fourier-handle-4', 'fourier-order', 'fourier-harmonic', /* fourier-order below the selected harmonic is rejected: a scene lowers fourier-harmonic first */ 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon', 'complex-z-re', 'complex-z-im', 'complex-w-re', 'complex-w-im', 'complex-w-modulus', 'complex-w-argument', 'complex-centre-re', 'complex-centre-im', 'complex-radius', 'density-mu', 'density-sigma', 'density-a', 'density-b', 'binomial-n', 'binomial-p', 'binomial-k', 'clt-n'] as const;
+export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 'A', 'omega', 'phi', 'B', 'x0', 'h', 'b', 'bisect-a', 'bisect-b', 'mvt-a', 'mvt-b', 'mvt-c', 'accum-a', 'accum-x', 'darboux-a', 'darboux-b', 'darboux-n', 'extrema-a', 'extrema-b', 'convexity-a', 'convexity-b', 'convexity-t', 'taylor-center', 'taylor-degree', 'taylor-x', 'sequence-epsilon', 'sequence-limit', 'sequence-threshold', 'fixed-point-x0', 'fixed-point-digits', 'root-x0', 'root-x1', 'quadrature-a', 'quadrature-b', 'quadrature-n', 'euler-x0', 'euler-y0', 'euler-end', 'transform-a', 'transform-b', 'transform-c', 'transform-d', 'transform-u', 'poly-zero-1', 'poly-zero-2', 'poly-zero-3', 'poly-zero-4', 'poly-zero-5', 'rational-numerator-1', 'rational-numerator-2', 'rational-denominator-1', 'rational-denominator-2', 'rational-probe', 'series-a', 'series-q', 'series-n', 'series-tolerance', 'inverse-base', 'inverse-x0', 'fourier-n', 'fourier-x', 'fourier-epsilon', 'fourier-handle-0', 'fourier-handle-1', 'fourier-handle-2', 'fourier-handle-3', 'fourier-handle-4', 'fourier-order', 'fourier-harmonic', /* fourier-order below the selected harmonic is rejected: a scene lowers fourier-harmonic first */ 'uniform-r', 'uniform-n', 'uniform-x', 'uniform-epsilon', 'complex-z-re', 'complex-z-im', 'complex-w-re', 'complex-w-im', 'complex-w-modulus', 'complex-w-argument', 'complex-centre-re', 'complex-centre-im', 'complex-radius', 'density-mu', 'density-sigma', 'density-a', 'density-b', 'binomial-n', 'binomial-p', 'binomial-k', 'clt-n'] as const;
 export type FunctionParameterName = typeof FUNCTION_PARAMETER_NAMES[number];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
@@ -87,6 +88,7 @@ const functionChoiceValues = {
     'transform-base': TRANSFORM_BASE_IDS,
     'polynomial-example': POLYNOMIAL_EXAMPLE_IDS,
     'rational-example': RATIONAL_EXAMPLE_IDS,
+    'series-example': SERIES_EXAMPLE_IDS,
     'inverse-restriction': INVERSE_RESTRICTION_IDS,
     'fourier-example': FOURIER_SERIES_EXAMPLE_IDS,
     'fourier-view': FOURIER_COEFFICIENTS_VIEWS,

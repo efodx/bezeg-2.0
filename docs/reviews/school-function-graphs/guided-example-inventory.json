@@ -150,6 +150,30 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "school-function-graphs.geometric-series.geometric-series",
+      "demonstrationId": "geometric-series",
+      "path": "/bezeg-2.0/functions/geometric-series?example=lesson.school-function-graphs.geometric-series.geometric-series",
+      "sceneFingerprint": "3a776b67c3c3dcca96a2b3ecdff89d9ca43b3f7dac382df80371cb40f5480dc8",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"series-bars-default\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"series-bars-default\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"series-example\",\"value\":\"default\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"series-n\",\"value\":3}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"series-tolerance\",\"value\":0}"
+      ],
+      "expected": {
+        "types": {
+          "segment": 7
+        },
+        "curveCount": 0,
+        "points": []
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

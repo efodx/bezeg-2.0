@@ -5,7 +5,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
     caption: {sl: captionSl, en: captionEn},
 });
 
-/** Describes each prepared opening scene of the School function graphs chapter, keyed by example id (S1, S2, S3 and S4). */
+/** Describes each prepared opening scene of the School function graphs chapter, keyed by example id (S1 to S5). */
 export const schoolFunctionGraphsPreviewCopy = {
     'school-function-graphs.function-transformation.function-transformation': copy(
         'Parabola \\(y=x^2\\) in njen duh, ki se z njo sklada, ter sledena točka \\((2,4)\\) na grafu.',
@@ -30,5 +30,11 @@ export const schoolFunctionGraphsPreviewCopy = {
         'The graph of \\(\\frac{x^2-1}{x-2}\\) with the zeros \\(-1\\) and \\(1\\), the pole \\(2\\), the dashed vertical asymptote \\(x=2\\) and the dashed oblique asymptote \\(y=x+2\\).',
         'Ker je \\(f(x)=x+2+\\frac{3}{x-2}\\), se graf pri velikih \\(|x|\\) približuje premici \\(y=x+2\\), ob polu pa navpični premici \\(x=2\\).',
         'Since \\(f(x)=x+2+\\frac{3}{x-2}\\), the graph approaches the line \\(y=x+2\\) for large \\(|x|\\) and the vertical line \\(x=2\\) near the pole.',
+    ),
+    'school-function-graphs.geometric-series.geometric-series': copy(
+        'Stolpci členov in delnih vsot geometrijske vrste \\(a=1\\), \\(q=\\tfrac12\\) s tremi prikazanimi členi in vodoravna črta limite \\(2\\).',
+        'The term and partial-sum bars of the geometric series \\(a=1\\), \\(q=\\tfrac12\\) with three shown terms and the horizontal line of the limit \\(2\\).',
+        'Delna vsota \\(S_3=1{,}75\\) je še pod limito \\(2\\); vsak naslednji člen je polovica prejšnjega.',
+        'The partial sum \\(S_3=1.75\\) is still below the limit \\(2\\); every next term is half of the previous one.',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

@@ -32,7 +32,7 @@ function withoutMath(source: string) {
 // patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
 // bspline-extraction joined the b-splines chapter with its L4 lesson and section (BS-B-3b).
 // bspline-nurbs joined the b-splines chapter with its L5 lesson and section (BS-C-3).
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'geometric-series', 'conic-focal'];
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'conic-focal'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 

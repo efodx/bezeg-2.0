@@ -477,12 +477,39 @@ function rationalExpectedFor(id, actions) {
     return {types: {curve: 1, ...(lines ? {line: lines} : {}), point: points.length, ...(probeShown ? {segment: 1} : {})}, curveCount: 1, points};
 }
 
+// Authored from src/analysis/geometricSeriesModel.ts (the example a and q), not from a capture.
+const seriesExamples = {
+    'default': {q: 0.5},
+    'alternating': {q: -0.5},
+    'repeating-three': {q: 0.1},
+    'repeating-nine': {q: 0.1},
+    'divergent': {q: -1},
+};
+
+/**
+ * First-frame expectation of the Geometric series lesson, after the scene's example, number of terms n and tolerance: a thin term bar and a
+ * thick partial-sum bar per shown term (2n segments), the limit line when |q| < 1 (a segment), and, when also the tolerance is positive, the
+ * band (a filled curve) with two dashed edges (segments). There is no point, so the expectation has no `points`.
+ */
+function seriesExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^series-example$/], ['function-parameter', /^series-(n|tolerance)$/]], 'seriesExpectedFor');
+    const example = sceneValue(id, actions, 'function-choice', 'series-example');
+    assert.ok(Object.hasOwn(seriesExamples, example), `${id}: no authored series example ${JSON.stringify(example)}`);
+    const terms = sceneValue(id, actions, 'function-parameter', 'series-n');
+    const tolerance = sceneValue(id, actions, 'function-parameter', 'series-tolerance');
+    assert.ok(Number.isInteger(terms) && terms >= 1 && terms <= 50 && Number.isFinite(tolerance) && tolerance >= 0, `${id}: series-n or series-tolerance is out of range`);
+    const limit = Math.abs(seriesExamples[example].q) < 1;
+    const band = limit && tolerance > 0;
+    return {types: {segment: 2 * terms + (limit ? 1 : 0) + (band ? 2 : 0), ...(band ? {curve: 1} : {})}, curveCount: band ? 1 : 0, points: []};
+}
+
 /** First-frame expectation of a School function graphs lesson, chosen by the Demonstration the id ends with. */
 function schoolFunctionGraphsExpectedFor(id, step) {
     if (id.endsWith('.function-transformation')) return transformationExpectedFor(id, step.scene.actions);
     if (id.endsWith('.function-inverse')) return inverseExpectedFor(id, step.scene.actions);
     if (id.endsWith('.polynomial-zeros')) return polynomialExpectedFor(id, step.scene.actions);
     if (id.endsWith('.rational-function')) return rationalExpectedFor(id, step.scene.actions);
+    if (id.endsWith('.geometric-series')) return seriesExpectedFor(id, step.scene.actions);
     assert.fail(`${id}: no authored School function graphs first frame`);
 }
 
@@ -670,7 +697,9 @@ function assertExpectation(id, expected) {
     assert.ok(expected && typeof expected === 'object', `${id}: chapter-owned example needs authored expected checks`);
     assert.ok(expected.types && Object.keys(expected.types).length > 0, `${id}: expected.types must be nonempty`);
     assert.ok(Number.isInteger(expected.curveCount) && expected.curveCount >= 0, `${id}: expected.curveCount must be a nonnegative integer (0 for a lesson that draws no curve)`);
-    assert.ok(Array.isArray(expected.points) && (expected.points.length > 0 || (Array.isArray(expected.curves) && expected.curves.length > 0)),
+    // A first frame of segments only (no point, no curve) is checked by its exact visible segment count.
+    const segmentsOnly = expected.curveCount === 0 && expected.types.segment > 0 && Array.isArray(expected.points) && expected.points.length === 0 && expected.curves === undefined;
+    assert.ok(segmentsOnly || (Array.isArray(expected.points) && (expected.points.length > 0 || (Array.isArray(expected.curves) && expected.curves.length > 0))),
         `${id}: expected.points must be nonempty (or, for a lesson whose first frame shows no point, expected.curves)`);
 }
 

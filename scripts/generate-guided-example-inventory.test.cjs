@@ -182,6 +182,24 @@ test('school function graphs expectations are authored from the transformation r
     assert.ok(chapterInventories['school-function-graphs']);
 });
 
+test('geometric series expectations are authored from the example, the shown terms and the tolerance', () => {
+    const series = (example, terms, tolerance) => fnStep([fnChoice('series-example', example), fnParam('series-n', terms), fnParam('series-tolerance', tolerance)]);
+    const expectFor = (example, terms, tolerance) => schoolFunctionGraphsExpectedFor('school-function-graphs.geometric-series.geometric-series', series(example, terms, tolerance));
+    // |q| < 1: 2n bars and the limit line; a positive tolerance adds the band (a curve) and its two edges.
+    assert.deepEqual(expectFor('default', 3, 0), {types: {segment: 7}, curveCount: 0, points: []});
+    assert.deepEqual(expectFor('default', 8, 0.01), {types: {segment: 19, curve: 1}, curveCount: 1, points: []});
+    assert.deepEqual(expectFor('alternating', 4, 0), {types: {segment: 9}, curveCount: 0, points: []});
+    // q = -1: no limit, so no limit line and no band, even with a tolerance.
+    assert.deepEqual(expectFor('divergent', 6, 0), {types: {segment: 12}, curveCount: 0, points: []});
+    assert.deepEqual(expectFor('divergent', 6, 0.5), {types: {segment: 12}, curveCount: 0, points: []});
+    assert.doesNotThrow(() => assertExpectation('x', expectFor('default', 3, 0)));
+    assert.throws(() => assertExpectation('x', {types: {segment: 0}, curveCount: 0, points: []}), /expected.points must be nonempty/);
+    assert.throws(() => assertExpectation('x', {types: {point: 1}, curveCount: 0, points: []}), /expected.points must be nonempty/);
+    assert.throws(() => expectFor('bogus', 3, 0), /no authored series example/);
+    assert.throws(() => expectFor('default', 51, 0), /out of range/);
+    assert.throws(() => schoolFunctionGraphsExpectedFor('school-function-graphs.geometric-series.geometric-series', fnStep([fnChoice('series-example', 'default'), fnParam('series-n', 3), fnParam('series-tolerance', 0), fnParam('series-q', 0.9)])), /extend seriesExpectedFor/);
+});
+
 test('fourier series expectations are authored from the closed-form partial sum', () => {
     const scene = (n, x, example = 'square') => fnStep([fnChoice('fourier-example', example), fnParam('fourier-n', n), fnParam('fourier-x', x), fnParam('fourier-epsilon', 0.1)]);
     const expected = fourierExpectedFor('f', scene(1, 1.57));

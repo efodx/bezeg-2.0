@@ -11,7 +11,7 @@ import {
     SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID as CHAPTER, schoolFunctionGraphsGuidedExamplePath, schoolFunctionGraphsGuidedExampleRegistry,
 } from './schoolFunctionGraphsChapterRegistry';
 
-const IDS = ['function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function'] as const;
+const IDS = ['function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series'] as const;
 const chapter = schoolFunctionGraphsChapter;
 const proseOf = (index: number, language: 'sl' | 'en') => chapter.sections[index].paragraphs.map(p => p[language]).join(' ') + chapter.sections[index].formula;
 
@@ -26,12 +26,12 @@ describe('chapter structure and registration', () => {
         expect(chapter.sections.map(section => section.id)).toEqual([...IDS]);
         expect(Object.keys(schoolFunctionGraphsGuidedExampleRegistry)).toEqual([...IDS]);
         expect(learningChapters.some(item => item.id === CHAPTER)).toBe(true);
-        expect(chapter.sections.map(section => section.demonstrationIds)).toEqual([['function-transformation'], ['function-inverse'], ['polynomial-zeros'], ['rational-function']]);
+        expect(chapter.sections.map(section => section.demonstrationIds)).toEqual([['function-transformation'], ['function-inverse'], ['polynomial-zeros'], ['rational-function'], ['geometric-series']]);
     });
 
-    test('only the released lessons are advertised (not the series or conics)', () => {
+    test('only the released lessons are advertised (not the conics)', () => {
         const everything = JSON.stringify({...chapter, title: undefined}).toLowerCase();
-        for (const word of ['geometrijska vrsta', 'geometric series', 'stožnic', 'conic']) {
+        for (const word of ['stožnic', 'conic']) {
             expect(everything, word).not.toContain(word);
         }
     });
@@ -61,6 +61,7 @@ describe('chapter structure and registration', () => {
             {sl: ['injektivna', 'x\\ge0', 'a\\ne1', 'f\'(x_0)\\ne0', 'ilustracija', 'ni dokaz', 'x>0'], en: ['one-to-one', 'x\\ge0', 'a\\ne1', 'f\'(x_0)\\ne0', 'illustrates', 'not a proof', 'x>0']},
             {sl: ['večkratnosti', 'seka', 'dotika', 'odvod', 'Stopnja je vsota večkratnosti', 'p(-1)=4', 'prevoj', 'zavrnjena'], en: ['multiplicity', 'crosses', 'touches', 'derivative', 'degree is the sum of the multiplicities', 'p(-1)=4', 'inflection', 'refused']},
             {sl: ['ol lihe večkratnosti', 'luknjo, ne pola', 'pri končnem \\(x\\) seka', 'ostank', '\\frac38=0{,}375', '2{,}0625', '(1;2)'], en: ['pole of odd multiplicity', 'a hole, not a pole', 'at a finite \\(x\\), because', 'remainder', '\\frac38=0.375', '2.0625', '(1,2)']},
+            {sl: ['le za \\(|q|<1\\)', 'q=-1', 'nihajo', 'ponazarja', 'ne eno od njih', '0{,}999\\dots=1', '\\dfrac{31}{16}=1{,}9375'], en: ['only for \\(|q|<1\\)', 'q=-1', 'oscillate', 'illustrates', 'not one of them', '0.999\\dots=1', '\\dfrac{31}{16}=1.9375']},
         ];
         for (const language of ['sl', 'en'] as const) {
             facts.forEach((set, index) => {
@@ -72,6 +73,7 @@ describe('chapter structure and registration', () => {
         expect(chapter.sections[1].formula).toBe("(f^{-1})'(y_0)=\\frac{1}{f'(x_0)}");
         expect(chapter.sections[2].formula).toBe('p(x)=k\\,(x-z_1)^{m_1}(x-z_2)^{m_2}\\cdots(x-z_r)^{m_r}');
         expect(chapter.sections[3].formula).toBe('f(x)=\\frac{p(x)}{q(x)}=s(x)+\\frac{r(x)}{q(x)}');
+        expect(chapter.sections[4].formula).toBe('S_n=a\\,\\frac{1-q^n}{1-q},\\qquad S_n\\to\\frac a{1-q}\\quad(|q|<1)');
     });
 
     test('every quoted number is recomputed', () => {
@@ -120,11 +122,24 @@ describe('chapter structure and registration', () => {
         // 4x/((x + 2)(x - 1)^2) crosses its asymptote y = 0 at x = 0
         const h = (x: number) => 4 * x / ((x + 2) * (x - 1) ** 2);
         expect(h(0)).toBe(0);
+        // S5: S_5 by adding terms (a = 1, q = 1/2), the limit 2, the error, the oscillating sums at q = -1/2 and the repeating decimals
+        const sum = (a: number, q: number, n: number) => Array.from({length: n}, (_, k) => a * q ** k).reduce((x, y) => x + y, 0);
+        expect(sum(1, 0.5, 5)).toBe(1.9375);
+        expect(sum(1, 0.5, 5)).toBe(31 / 16);
+        expect((1 - 0.5 ** 5) / (1 - 0.5)).toBe(1.9375);
+        expect(1 / (1 - 0.5)).toBe(2);
+        expect(2 - sum(1, 0.5, 5)).toBe(0.0625);
+        expect([1, 2, 3, 4].map(n => sum(1, -0.5, n))).toEqual([1, 0.5, 0.75, 0.625]);
+        expect(1 / (1 + 0.5)).toBeCloseTo(2 / 3, 15);
+        expect(0.3 / (1 - 0.1)).toBeCloseTo(1 / 3, 15);
+        expect(0.9 / (1 - 0.1)).toBeCloseTo(1, 15);
         // the prose quotes these values
         const sl = proseOf(0, 'sl') + proseOf(1, 'sl');
         const en = proseOf(0, 'en') + proseOf(1, 'en');
         for (const quoted of ['\\frac38=0{,}375', '2{,}0625', '(1;2)', 'y=0']) expect(proseOf(3, 'sl'), quoted).toContain(quoted);
         for (const quoted of ['\\frac38=0.375', '2.0625', '(1,2)', 'y=0']) expect(proseOf(3, 'en'), quoted).toContain(quoted);
+        for (const quoted of ['1{,}9375', '0{,}0625', '1,\\,0{,}5,\\,0{,}75,\\,0{,}625', '\\tfrac23', '\\dfrac13', '=1\\)']) expect(proseOf(4, 'sl'), quoted).toContain(quoted);
+        for (const quoted of ['1.9375', '0.0625', '1,\\,0.5,\\,0.75,\\,0.625', '\\tfrac23', '\\dfrac13', '=1\\)']) expect(proseOf(4, 'en'), quoted).toContain(quoted);
         for (const quoted of ['(3,1)', '(7,-7)', '(2,4)', '(4,2)', '5{,}5452', '0{,}18034', '0{,}36788', '\\log_28=3', 'y=-2\\cdot1+1=-1']) expect(sl, quoted).toContain(quoted);
         for (const quoted of ['(3,1)', '(7,-7)', '(2,4)', '(4,2)', '5.5452', '0.18034', '0.36788', '\\log_28=3', 'y=-2\\cdot1+1=-1']) expect(en, quoted).toContain(quoted);
     });
