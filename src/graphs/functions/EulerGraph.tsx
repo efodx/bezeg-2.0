@@ -23,6 +23,13 @@ import {functionPresetCollections} from "./functionPresetCollections";
 const RATIO_DIGITS = 3;
 /** End values and exact values: four decimals, as the quadrature readouts. */
 const PRECISE = 4;
+/** Keep the pervasive slope field behind the Euler path and its dashed exact reference. */
+const EULER_COLORS = {
+    field: "#91a9b3",
+    polyline: "#2468a2",
+    exact: "#bd6047",
+    initial: GraphPalette.constructionAccent,
+} as const;
 /** Half the side of a node cross in pixels. */
 const NODE_CROSS_PX = 3.5;
 /** The board size assumed before the board has a canvas (the field still needs a size to be generated). */
@@ -151,7 +158,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
         // Layers, lowest first: the field, the exact solution, the polyline with its nodes, then the initial point.
         const field = this.own(board.create("curve", [[], []], {
-            strokeColor: GraphPalette.referenceCurve, strokeWidth: thin, highlight: false, fixed: true,
+            strokeColor: EULER_COLORS.field, strokeOpacity: 0.65, strokeWidth: thin, highlight: false, fixed: true,
         })) as unknown as { dataX: number[]; dataY: number[]; updateDataArray: () => void; viewportGenerated?: boolean };
         // Rebuilt for every view: guided-example capture checks this curve against the presented window instead of the opening one.
         field.viewportGenerated = true;
@@ -171,12 +178,12 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         };
 
         this.own(board.create("functiongraph", [(x: number) => exactAt(model(), x)], {
-            strokeColor: GraphPalette.comparisonCurve, dash: 2, highlight: false, fixed: true, strokeWidth: this.displayStrokeWidth,
+            strokeColor: EULER_COLORS.exact, dash: 2, highlight: false, fixed: true, strokeWidth: this.displayStrokeWidth,
             visible: () => model().showExact,
         }));
 
         const polyline = this.own(board.create("curve", [[], []], {
-            strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth: this.displayStrokeWidth,
+            strokeColor: EULER_COLORS.polyline, highlight: false, fixed: true, strokeWidth: this.displayStrokeWidth,
             // A single node (end x = x0, or a reveal of zero steps) is no polyline: hidden rather than a degenerate one-sample curve.
             visible: () => this.viewOf(model()).visibleNodes.length > 1,
         })) as unknown as { dataX: number[]; dataY: number[]; updateDataArray: () => void };
@@ -187,7 +194,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         };
 
         const crosses = this.own(board.create("curve", [[], []], {
-            strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth: thin,
+            strokeColor: EULER_COLORS.polyline, highlight: false, fixed: true, strokeWidth: () => Math.max(1, thin()),
         })) as unknown as { dataX: number[]; dataY: number[]; updateDataArray: () => void };
         crosses.updateDataArray = () => {
             const {pxPerX, pxPerY} = this.pixelScale();
@@ -205,7 +212,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
         const point = this.own(board.create("point", [model().x0, model().y0], {
             ...this.styles.point.default, name: "$$P_0$$", label: this.pointLabel("above-right", 1.6),
-            fillColor: GraphPalette.constructionAccent, highlightFillColor: GraphPalette.constructionAccent,
+            fillColor: EULER_COLORS.initial, highlightFillColor: EULER_COLORS.initial,
         })) as JXG.Point;
         bindMovablePointCursor(point, board);
         point.on("drag", () => {
@@ -352,10 +359,10 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
     protected override renderLegend(): React.ReactNode {
         return <FunctionLegend items={[
-            {id: "field", color: GraphPalette.referenceCurve, label: t("euler_ode_legend_field"), kind: "line"},
-            {id: "polyline", color: GraphPalette.primaryCurve, label: t("euler_ode_legend_polyline"), kind: "line"},
-            {id: "exact", color: GraphPalette.comparisonCurve, label: t("euler_ode_legend_exact"), kind: "dashed-line"},
-            {id: "initial", color: GraphPalette.constructionAccent, label: t("euler_ode_legend_initial"), kind: "dot"},
+            {id: "field", color: EULER_COLORS.field, label: t("euler_ode_legend_field"), kind: "line"},
+            {id: "polyline", color: EULER_COLORS.polyline, label: t("euler_ode_legend_polyline"), kind: "line"},
+            {id: "exact", color: EULER_COLORS.exact, label: t("euler_ode_legend_exact"), kind: "dashed-line"},
+            {id: "initial", color: EULER_COLORS.initial, label: t("euler_ode_legend_initial"), kind: "dot"},
         ]}/>;
     }
 }

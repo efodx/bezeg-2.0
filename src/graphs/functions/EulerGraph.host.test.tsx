@@ -4,7 +4,6 @@ import {MemoryRouter} from 'react-router-dom';
 import {EulerGraph} from './EulerGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
-import {GraphPalette} from '../styles/GraphPalette';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -45,12 +44,12 @@ class ObservedEulerGraph extends EulerGraph {
     }
 
     fieldCurves() {
-        return this.curves().filter(curve => curve.visProp.strokecolor === GraphPalette.referenceCurve);
+        return this.curves().filter(curve => curve.viewportGenerated === true);
     }
 
-    /** The Euler polyline: the primary-colour curve without NaN separators (the node crosses have them). */
+    /** The Euler polyline has finite samples only; field and node-cross curves contain NaN breaks. */
     polyline() {
-        return this.curves().find(curve => curve.visProp.strokecolor === GraphPalette.primaryCurve && !curve.dataX.some(Number.isNaN))!;
+        return this.curves().find(curve => curve.viewportGenerated !== true && Array.isArray(curve.dataX) && !curve.dataX.some(Number.isNaN))!;
     }
 
     initialPoint() {
@@ -195,7 +194,7 @@ test('the example switch keeps the other fields, changes the equation and the nu
 
 test('the exact curve toggle hides and shows the dashed curve', () => {
     const {graph} = mount();
-    const exact = () => graph.curves().find(curve => curve.visProp.strokecolor === GraphPalette.comparisonCurve);
+    const exact = () => graph.curves().find(curve => curve.visProp.dash === 2);
     expect(exact().evalVisProp('visible')).toBe(true);
     act(() => { fireEvent.click(screen.getByLabelText('Natančna rešitev (črtkano)')); });
     expect(graph.modelNow().showExact).toBe(false);

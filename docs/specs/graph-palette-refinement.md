@@ -22,6 +22,18 @@ Second release, after the first commit and push: inspect current native-size pre
 
 Presentation changes only: current routes and saved presets remain valid. Sign, category and input/result meanings survive through labels, shapes, patterns and position; color descriptions must remain truthful. No renderer or performance optimization is proposed.
 
+## Second release selection
+
+The first release was pushed as `6c0c6a28` before this inspection began. Matched current scenes confirm two further cases: linear-map step 3/6 has a dark olive transformed grid competing with its mapped curve and unit square; Euler-method step 4/7 frame 1 has a pervasive sage field competing with the solid approximation and dashed exact solution. Native posters repeat both problems.
+
+- Linear map: use cool, quieter source/transformed grid roles with stronger mapped handles/curve and a clean light square fill. Separate background-grid styling from foreground point styling; retain every grid line, transformed coordinate, source/image relationship and square boundary. Preserve basis labels and all mode-specific constructions.
+- Euler: use a quiet cool slope field, a strong blue approximation and a warm dashed exact reference. Preserve every field mark, its slope and screen-size sampling, all Euler nodes and crosses, initial point and readouts. Match all legend entries and retain exact-solution visibility.
+- The handler screened twelve further native posters and inspected ear clipping at step 3/7 frame 2 and the completed triangulation at step 4/7 frame 1. Add ear clipping: its completed olive triangles repeat the owner's muddy orientation/polygon-area examples, and its active candidate uses a heavy ochre wash. Use clean mint clipped triangles, a pale warm candidate and a quiet cool triangulation underlay. Preserve every triangle/border/diagonal, invalid-candidate dash/cross, reflex marker, three-color letter/shape and guard cue; do not recolor the combinatorial coloring or change the algorithm/trace. No further candidates are included in this release. [Scan evidence](../reviews/graph-palette-refinement/phase2-scan.md).
+
+Use the first-release build frozen on port 4328 for matched baseline captures. Reuse the first release's full-unit checkpoint for unchanged infrastructure; run the affected graph/model/host suites, notation, TypeScript, lint and production build on the final second-release source. Refresh affected catalog media and check controls, narrow rendering, actual export and the mathematical readouts. Require independent engineering/drawing and rendered UI review before the second commit and push.
+
 ## Release record
 
 First release accepted locally on 2026-11-03 23:24:56 UTC: all eight owner-selected examples, two shared Voronoi consumers, matched captures, refreshed catalog media, engineering review, browser controls/exports and full unit checkpoint. [Implementation and evidence](../reviews/graph-palette-refinement/phase1.md); [browser coverage and limits](../reviews/graph-palette-refinement/browser-review.md). Published with this record. Second release selection begins after that commit and push.
+
+Second release accepted locally on 2026-11-03 23:51:27 UTC: linear map, Euler method and ear clipping, following the pushed first release `6c0c6a28`. [Selection, implementation and verification](../reviews/graph-palette-refinement/phase2.md), including native comparisons and the partial independent browser lane completed by direct handler checks. No further implementation remains in this bounded request.

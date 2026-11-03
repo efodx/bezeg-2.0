@@ -28,6 +28,18 @@ import {linearMapPresetCollection} from "./linearMapPresetCollection";
  */
 const BOARD_VIEW: BoundingBox = [-12, 9, 12, -9];
 
+/** Local roles for this construction: image-grid lines stay behind the transformed curves and handles. */
+const LINEAR_MAP_COLORS = {
+    sourceGrid: "#b5c3c9",
+    imageGrid: "#7ba6bc",
+    sourcePoint: "#6b7984",
+    imageHandle: "#2468a2",
+    sourceCurve: GraphPalette.primaryCurve,
+    imageCurve: "#bd6047",
+    square: "#bd7049",
+    squareFill: "#f1dfcd",
+} as const;
+
 type Column = 0 | 1;
 type Row = 0 | 1;
 type StatusKind = "positive" | "negative" | "zero" | "collapse-line" | "collapse-point";
@@ -259,10 +271,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const squareShown = () => model().squareVisible;
         const curveShown = () => model().curveVisible;
         const probeShown = () => model().probeVisible;
-        const colors = {
-            source: GraphPalette.tick, image: GraphPalette.primaryCurve, square: GraphPalette.additionalCurves[1],
-            curve: GraphPalette.referenceCurve, curveImage: GraphPalette.comparisonCurve, polygon: GraphPalette.controlPolygon,
-        };
+        const colors = {...LINEAR_MAP_COLORS, polygon: GraphPalette.controlPolygon};
 
         // A curve whose points come from a function; NaN entries break the polyline (grid), finite everywhere else.
         const polyline = (points: () => Polyline, attributes: object) => {
@@ -277,12 +286,12 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         };
 
         // Layers, lowest first: the source grid, the image grid (one curve), the square, the Bezier curves and polygons, the points.
-        polyline(() => SOURCE_GRID, {strokeColor: colors.source, strokeWidth: thin});
-        polyline(() => view().grid, {strokeColor: colors.image, strokeWidth: thin});
+        polyline(() => SOURCE_GRID, {strokeColor: colors.sourceGrid, strokeOpacity: 0.72, strokeWidth: thin});
+        polyline(() => view().grid, {strokeColor: colors.imageGrid, strokeOpacity: 0.68, strokeWidth: thin});
 
-        polyline(() => closedPolyline(unitSquareImage(IDENTITY)), {strokeColor: colors.source, strokeWidth: strokeWidth, visible: squareShown});
+        polyline(() => closedPolyline(unitSquareImage(IDENTITY)), {strokeColor: colors.sourcePoint, strokeWidth: strokeWidth, visible: squareShown});
         polyline(() => closedPolyline(view().square), {
-            strokeColor: colors.square, strokeWidth, fillColor: colors.square, fillOpacity: 0.18, visible: squareShown,
+            strokeColor: colors.square, strokeWidth, fillColor: colors.squareFill, fillOpacity: 0.72, visible: squareShown,
         });
 
         polyline(() => openPolyline(FIXTURE_CONTROL_POINTS), {strokeColor: colors.polygon, strokeWidth: thin, dash: 2, visible: curveShown});
@@ -291,8 +300,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             this.own(board.create("curve", [
                 (s: number) => bezierPoint(controls(), s)[0], (s: number) => bezierPoint(controls(), s)[1], 0, 1,
             ], {strokeColor: color, strokeWidth, highlight: false, fixed: true, withLabel: false, visible: curveShown}));
-        bezier(() => FIXTURE_CONTROL_POINTS, colors.curve);
-        bezier(() => view().imageControl, colors.curveImage);
+        bezier(() => FIXTURE_CONTROL_POINTS, colors.sourceCurve);
+        bezier(() => view().imageControl, colors.imageCurve);
 
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
         const fixedPoint = (x: () => number, y: () => number, name: string | (() => string), placement: LabelPlacement | (() => LabelPlacement),
@@ -308,14 +317,14 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const near = (u: Vec2, v: Vec2) => Math.max(Math.abs(u[0] - v[0]), Math.abs(u[1] - v[1])) < 1;
         const aside = (source: Vec2, image: () => Vec2, usual: LabelPlacement, crowded: LabelPlacement) =>
             () => near(source, image()) ? crowded : usual;
-        fixedPoint(() => 1, () => 0, "$$e_1$$", aside([1, 0], () => view().a1, "below-right", "below-left"), colors.source, squareShown);
-        fixedPoint(() => 0, () => 1, "$$e_2$$", aside([0, 1], () => view().a2, "above-left", "left"), colors.source, squareShown);
+        fixedPoint(() => 1, () => 0, "$$e_1$$", aside([1, 0], () => view().a1, "below-right", "below-left"), colors.sourcePoint, squareShown);
+        fixedPoint(() => 0, () => 1, "$$e_2$$", aside([0, 1], () => view().a2, "above-left", "left"), colors.sourcePoint, squareShown);
         fixedPoint(() => 0, () => 0, "$$O$$", "below-left", colors.square, squareShown);
         fixedPoint(() => view().square[2][0], () => view().square[2][1], "$$A(e_1+e_2)$$", "above-right", colors.square, squareShown,
             () => squareShown() && !probeShown());
-        fixedPoint(() => PROBE_POINT[0], () => PROBE_POINT[1], "$$p$$", aside(PROBE_POINT, () => view().probeImage, "below-right", "above-left"), colors.curve, probeShown);
+        fixedPoint(() => PROBE_POINT[0], () => PROBE_POINT[1], "$$p$$", aside(PROBE_POINT, () => view().probeImage, "below-right", "above-left"), colors.sourceCurve, probeShown);
         fixedPoint(() => view().probeImage[0], () => view().probeImage[1], () => squareShown() ? "$$Ap=A(e_1+e_2)$$" : "$$Ap$$", "above-right",
-            colors.image, probeShown);
+            colors.imageHandle, probeShown);
 
         // a1 and a2 are dragged on the 1/4 grid inside [-4, 4]^2; each drag event writes the model once with both coordinates.
         const handle = (column: Column, name: string, placement: LabelPlacement, color: string) => {
@@ -332,8 +341,8 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
             });
             return point;
         };
-        this.handle1 = handle(0, "$$a_1=Ae_1$$", "below-right", colors.image);
-        this.handle2 = handle(1, "$$a_2=Ae_2$$", "above-left", colors.curveImage);
+        this.handle1 = handle(0, "$$a_1=Ae_1$$", "below-right", colors.imageHandle);
+        this.handle2 = handle(1, "$$a_2=Ae_2$$", "above-left", colors.imageHandle);
 
         // The basis images and the determinant stay on the board; the narrow board drops the orientation line.
         this.caption("bottom-left", [
@@ -408,11 +417,11 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
 
     protected override renderLegend(): React.ReactNode {
         return <FunctionLegend items={[
-            {id: "source-grid", color: GraphPalette.tick, label: t("linear_map_legend_source_grid"), kind: "line"},
-            {id: "image-grid", color: GraphPalette.primaryCurve, label: t("linear_map_legend_image_grid"), kind: "line"},
-            {id: "square", color: GraphPalette.additionalCurves[1], label: t("linear_map_legend_square"), kind: "line"},
-            {id: "curve", color: GraphPalette.referenceCurve, label: t("linear_map_legend_curve"), kind: "line"},
-            {id: "curve-image", color: GraphPalette.comparisonCurve, label: t("linear_map_legend_curve_image"), kind: "line"},
+            {id: "source-grid", color: LINEAR_MAP_COLORS.sourceGrid, label: t("linear_map_legend_source_grid"), kind: "line"},
+            {id: "image-grid", color: LINEAR_MAP_COLORS.imageGrid, label: t("linear_map_legend_image_grid"), kind: "line"},
+            {id: "square", color: LINEAR_MAP_COLORS.square, label: t("linear_map_legend_square"), kind: "line"},
+            {id: "curve", color: LINEAR_MAP_COLORS.sourceCurve, label: t("linear_map_legend_curve"), kind: "line"},
+            {id: "curve-image", color: LINEAR_MAP_COLORS.imageCurve, label: t("linear_map_legend_curve_image"), kind: "line"},
         ]}/>;
     }
 

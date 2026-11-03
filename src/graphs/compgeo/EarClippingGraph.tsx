@@ -36,6 +36,16 @@ export interface EarClippingGraphState extends PointSetGraphState {
 const COLOUR_LETTERS = ["A", "B", "C"] as const;
 const COLOUR_FACES = ["o", "[]", "^"] as const;
 
+/** Quiet region washes leave the tested ear, rejection marks and finished diagonals distinct. */
+const EAR_REGION_COLORS = {
+    clippedFill: "#d9eee4",
+    clippedBoundary: "#54806e",
+    candidateFill: "#fae8c8",
+    candidateBoundary: "#b47b35",
+    triangulationFill: "#e8eff3",
+    triangulationBoundary: "#8aa0ab",
+} as const;
+
 /** The polygon the ear clipping graph works on: always a closed polygon, whatever mode a restored or imported model names. */
 export function asClosedPolygon(model: PointSetModel): PointSetModel {
     return model.mode === "polygon" && model.closed ? model : {...model, mode: "polygon", closed: true};
@@ -325,13 +335,13 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
         switch (id) {
             case "trace": {
                 const objects = state.triangles.map(tri => triangle(tri, {
-                    layer: 2, fillColor: GraphPalette.primaryCurve, fillOpacity: 0.25,
-                }, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 2}));
+                    layer: 2, fillColor: EAR_REGION_COLORS.clippedFill, fillOpacity: 0.82,
+                }, {strokeColor: EAR_REGION_COLORS.clippedBoundary, strokeWidth: 2}));
                 const candidate = state.candidate;
                 if (candidate && candidate.points.length === 3) {
                     objects.push(triangle(candidate.points, {
-                        layer: 4, fillColor: GraphPalette.constructionAccent, fillOpacity: candidate.ear ? 0.4 : 0.08,
-                    }, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 3, dash: candidate.ear ? 0 : 2}));
+                        layer: 4, fillColor: EAR_REGION_COLORS.candidateFill, fillOpacity: candidate.ear ? 0.86 : 0.24,
+                    }, {strokeColor: EAR_REGION_COLORS.candidateBoundary, strokeWidth: 3, dash: candidate.ear ? 0 : 2}));
                     if (typeof candidate.rejected === "number") {
                         objects.push(marker(candidate.rejected, {
                             layer: 6, face: "x", size: 7, strokeColor: GraphPalette.warningText, strokeWidth: 3,
@@ -347,8 +357,8 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
             case "triangulation": {
                 if (!state.done) return [];
                 const triangles = run.triangles.map(tri => triangle(tri, {
-                    layer: 1, fillColor: GraphPalette.controlPolygon, fillOpacity: 0.2,
-                }, {strokeColor: GraphPalette.referenceCurve, strokeWidth: 1}));
+                    layer: 1, fillColor: EAR_REGION_COLORS.triangulationFill, fillOpacity: 0.8,
+                }, {strokeColor: EAR_REGION_COLORS.triangulationBoundary, strokeWidth: 1}));
                 const diagonals = diagonalsOf(run.triangles, model.points.length).map(([a, b]) => {
                     const from = at(a);
                     const to = at(b);
