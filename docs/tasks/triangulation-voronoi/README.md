@@ -67,6 +67,6 @@ Release condition (spec): T2 released; Voronoi drawing reviewed for reuse by For
 | 20 | [Four-point and collinear modes and `DegenerateSitesGraph`](20-degenerate-sites-graph.md) (B5) | F2a | 19 | accepted 2026-11-03 (handler 36, [record](../../reviews/triangulation-voronoi/20-acceptance.md)) |
 | 21 | [Registration of `voronoi` and `voronoi-degenerate`](21-t3-registration.md) | F2b | 19, 20 | accepted 2026-11-03 (handler 38, [record](../../reviews/triangulation-voronoi/21-acceptance.md)): smoke 6 and 9 done; the 40-site drag found a 16 s press with the Delaunay overlay, fixed in the shared point-set graph (21d) |
 | 22 | [Voronoi lesson actions and lesson B4](22-voronoi-lesson.md) | F3 | 19, 21 | accepted 2026-11-03 (handler 39, [record](../../reviews/triangulation-voronoi/22-acceptance.md)), with 24a |
-| 23 | [Degenerate sites lesson B5](23-degenerate-lesson.md) | F3 | 20, 21, 22 | planned |
-| 24 | [Chapter sections for B4 and B5](24-t3-chapter.md) | F4 | 22, 23 | 24a (`voronoi` section) accepted 2026-11-03 with 22; 24b (`voronoi-degenerate`) planned |
+| 23 | [Degenerate sites lesson B5](23-degenerate-lesson.md) | F3 | 20, 21, 22 | accepted 2026-11-03 (handler 41, [record](../../reviews/triangulation-voronoi/23-acceptance.md)) |
+| 24 | [Chapter sections for B4 and B5](24-t3-chapter.md) | F4 | 22, 23 | 24a (`voronoi` section) accepted 2026-11-03 with 22; 24b (`voronoi-degenerate`) accepted 2026-11-03 with 23 (handler 41) |
 | F6 | [T3 acceptance (B4, B5)](../../reviews/feature-streams/geometry/f6-t3-acceptance.md) | F6 | 18–24 | accepted 2026-11-03 (handler 43; partial by handler 42), with the marker follow-view fix `5721f6f0`; T3 released |
