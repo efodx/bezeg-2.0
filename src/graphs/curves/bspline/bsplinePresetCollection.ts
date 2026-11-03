@@ -50,8 +50,9 @@ export const bsplinePresetCollection: PresetCollection<BSplinePresetData> = Obje
      */
     checkGraphState(graphState: unknown): Message | undefined {
         if (!isRecord(graphState)) return message("invalid_state");
-        const {knots, points, origin, ghost, refusal, moved, ...rest} = graphState;
+        const {knots, points, weights, origin, ghost, refusal, moved, ...rest} = graphState;
         if (knots !== undefined && !(Array.isArray(knots) && knots.every(isFiniteNumber))) return message("invalid_value", {value0: "knots"});
+        if (weights !== undefined && !(Array.isArray(weights) && weights.every(isFiniteNumber))) return message("invalid_value", {value0: "weights"});
         if (points !== undefined && !(Array.isArray(points) && points.every(isPoint))) return message("invalid_value", {value0: "points"});
         // The insertion graph also keeps its Reset target (`origin`), the pre-insertion polygon (`ghost`) and the latest refusal; a restored Preset
         // rebuilds all three from `data`, so they are only checked for shape.
