@@ -19,7 +19,7 @@ function withExample(sectionId: BSplineSectionId, section: FamilyChapterSection)
     return {...section, orderedContent: content};
 }
 
-/** Batch A of the B-spline spec: only the released lessons (L1 the basis functions, L2 the curve and de Boor's algorithm) are mentioned; later sections are not named. */
+/** B-spline spec batches A and B so far: only the released lessons (L1 the basis functions, L2 the curve and de Boor's algorithm, L3 knot insertion and multiplicity) are mentioned; later sections are not named. */
 export const bsplineChapter: FamilyChapter = {
     id: BSPLINE_CHAPTER_ID,
     family: '/bezeg-2.0/bspline',
@@ -45,8 +45,8 @@ export const bsplineChapter: FamilyChapter = {
                      'Goal of the section: you can say what a knot is, what the multiplicity of a knot is and why the degree is separate from the number of control points. In the splines chapter we joined Bézier pieces and checked continuity at every join. A B-spline of degree \\(k\\) leaves that work to the basis: the curve is \\(C(t)=\\sum_i N_{i,k}(t)\\,P_i\\), where the \\(P_i\\) are control points and the \\(N_{i,k}\\) are basis functions that are piecewise polynomial of degree \\(k\\).'),
                 text('Meje kosov podaja vozelni vektor \\(u_0\\le u_1\\le\\dots\\le u_m\\), nepadajoče zaporedje vozlov. Vozel, ki se ponovi, ima večkratnost, ki je število ponovitev. Baza je določena z vozelnim vektorjem in stopnjo, število kontrolnih točk pa je \\(m-k\\). Pritrjen vozelni vektor ima prvi in zadnji vozel \\(k+1\\)-krat, zato krivulja začne v prvi in konča v zadnji kontrolni točki, tako kot Bézierjeva krivulja. Primer v tem poglavju ima stopnjo \\(2\\) in vozelni vektor \\((0,0,0,1,2,2,2)\\): vozel \\(1\\) je enojen, krajna vozla \\(0\\) in \\(2\\) sta trikratna, kontrolne točke pa so štiri.',
                      'The pieces are bounded by the knot vector \\(u_0\\le u_1\\le\\dots\\le u_m\\), a non-decreasing sequence of knots. A knot that repeats has a multiplicity, the number of times it occurs. The basis is determined by the knot vector and the degree, and the number of control points is \\(m-k\\). A clamped knot vector repeats its first and last knot \\(k+1\\) times, so the curve starts at the first and ends at the last control point, just as a Bézier curve does. The example in this chapter has degree \\(2\\) and knot vector \\((0,0,0,1,2,2,2)\\): the knot \\(1\\) is simple, the end knots \\(0\\) and \\(2\\) have multiplicity three, and there are four control points.'),
-                text('Zaradi lokalnosti vsaka kontrolna točka vpliva le na del krivulje, in ne na celotno. Spodnja razdelka to pokažeta po vrsti: najprej bazne funkcije, nato krivulja in postopek, s katerim izračunamo njeno točko.',
-                     'Thanks to locality, each control point influences only part of the curve and not all of it. The two sections below show this in turn: first the basis functions, then the curve and the algorithm that computes its point.'),
+                text('Zaradi lokalnosti vsaka kontrolna točka vpliva le na del krivulje, in ne na celotno. Spodnji razdelki to pokažejo po vrsti: najprej bazne funkcije, nato krivulja in postopek, s katerim izračunamo njeno točko, nazadnje vstavljanje vozla.',
+                     'Thanks to locality, each control point influences only part of the curve and not all of it. The sections below show this in turn: first the basis functions, then the curve and the algorithm that computes its point, and finally knot insertion.'),
             ],
         },
         withExample('bspline-basis', {
@@ -72,6 +72,19 @@ export const bsplineChapter: FamilyChapter = {
                      'Goal of the section: you can compute a B-spline point with de Boor\'s algorithm and say which control points are active in it. The algorithm resembles de Casteljau\'s: from the \\(k+1\\) active points, \\(k\\) steps build a triangle of linear interpolations, except that the ratios in each step depend on the knots and are not always \\(t\\). The last point of the triangle is the curve point.'),
                 text('Za točke \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) in vozelni vektor \\((0,0,0,1,2,2,2)\\) so pri \\(t=\\tfrac12\\) aktivne prve tri točke. Prva stopnja da \\((0{,}5;\\,1)\\) in \\((1{,}5;\\,2)\\), druga pa točko \\((1;\\,1{,}5)\\); do enakega rezultata pride vsota baznih funkcij s prejšnjega razdelka. Ker so za \\(t<1\\) aktivne le tri točke, premik točke \\(P_3\\) tam ne spremeni krivulje; to je lokalni nadzor. Krivulja ima dva odseka, ker ima en notranji vozel.',
                      'For the points \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) and the knot vector \\((0,0,0,1,2,2,2)\\), the first three points are active at \\(t=\\tfrac12\\). The first level gives \\((0.5,\\,1)\\) and \\((1.5,\\,2)\\), and the second gives the point \\((1,\\,1.5)\\); the sum of the basis functions from the previous section arrives at the same result. Because only three points are active for \\(t<1\\), moving the point \\(P_3\\) does not change the curve there; this is local control. The curve has two pieces because it has one interior knot.'),
+            ],
+        }),
+        withExample('bspline-insertion', {
+            id: 'bspline-insertion',
+            demonstrationIds: ['bspline-insertion'],
+            investigationPrompts: {'bspline-insertion': text('Vstavi vozel in preveri, da se krivulja ne spremeni, poligon pa dobi eno točko več. Nato preklopi na kubični primer in primerjaj enojni vozel z dvojnim.', 'Insert a knot and check that the curve does not change while the polygon gains one point. Then switch to the cubic example and compare the simple knot with the double knot.')},
+            title: text('Vstavljanje vozla in večkratnost', 'Knot insertion and multiplicity'),
+            formula: String.raw`C^{\,k-m}`,
+            paragraphs: [
+                text('Cilj razdelka: znaš povedati, da vstavljanje vozla spremeni kontrolni poligon, krivulje pa ne, in da večkratnost vozla določa zveznost. Pri vstavljanju vozla \\(x\\) nastane ena kontrolna točka več: točke, ki so v bližini \\(x\\), nadomestijo nove točke na daljicah med starimi. Krivulja ostane ista, ker nova baza in nove točke dasta enako vsoto.',
+                     'Goal of the section: you can say that inserting a knot changes the control polygon but not the curve, and that the multiplicity of a knot determines the continuity. Inserting a knot \\(x\\) creates one more control point: the points near \\(x\\) are replaced by new points on the segments between the old ones. The curve stays the same because the new basis and the new points give the same sum.'),
+                text('Za točke \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) in vozle \\((0,0,0,1,2,2,2)\\) vstavitev \\(u=\\tfrac12\\) da točke \\((0,0)\\), \\((0{,}5;\\,1)\\), \\((1{,}5;\\,2)\\), \\((3,2)\\), \\((4,0)\\); novi točki sta točki prve ravni de Boorovega postopka. Vozel večkratnosti \\(m\\) pri stopnji \\(k\\) daje zveznost \\(C^{k-m}\\). Pri kubični krivulji z dvojnim vozlom se tangenta ujema, ukrivljenost \\(\\kappa\\) pa skoči z \\(\\tfrac83\\) na \\(\\tfrac{16}3\\); glavnik ukrivljenosti ta skok pokaže.',
+                     'For the points \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) and the knots \\((0,0,0,1,2,2,2)\\), inserting \\(u=\\tfrac12\\) gives the points \\((0,0)\\), \\((0.5,\\,1)\\), \\((1.5,\\,2)\\), \\((3,2)\\), \\((4,0)\\); the new points are the level-1 points of de Boor\'s algorithm. A knot of multiplicity \\(m\\) at degree \\(k\\) gives the continuity \\(C^{k-m}\\). For a cubic with a double knot the tangent agrees while the curvature \\(\\kappa\\) jumps from \\(\\tfrac83\\) to \\(\\tfrac{16}3\\); the curvature comb shows that jump.'),
             ],
         }),
     ],

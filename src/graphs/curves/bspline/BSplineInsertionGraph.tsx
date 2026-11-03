@@ -5,7 +5,8 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {NumberInput} from "../../../inputs/NumberInput";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
-import type {LessonCurveFixture} from "../../../learning/model";
+import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {knotRejectionMessage} from "./bsplineKnotMessages";
@@ -210,6 +211,28 @@ export class BSplineInsertionGraph extends BaseGraph<BSplineInsertionState, BSpl
             return jumpReadoutLines(joinReports(knots, degree, points), currentLanguage());
         } catch {
             return [];
+        }
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('knot-insertion', action => this.applyKnotInsertionAction(action));
+    }
+
+    /** Applies one `knot-insertion` scene action; an invalid value or a refused insertion throws (the lesson content is wrong). */
+    private applyKnotInsertionAction(action: Extract<LessonAction, {kind: 'knot-insertion'}>): void {
+        if (action.operation === 'insert') {
+            if (!Number.isFinite(action.value)) throw new Error('The knot to insert must be a finite number.');
+            if (!this.insert(action.value)) throw new Error(`The insertion of the knot ${action.value} was refused: ${this.state.refusal?.reason}.`);
+        } else if (action.operation === 'set-example') {
+            if (!INSERTION_EXAMPLE_IDS.includes(action.exampleId)) throw new Error(`Unknown insertion example “${String(action.exampleId)}”.`);
+            this.selectExample(action.exampleId);
+        } else if (action.operation === 'set-comb') {
+            this.setShowComb(action.visible);
+        } else {
+            this.resetToOrigin();
         }
     }
 
