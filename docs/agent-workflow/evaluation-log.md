@@ -1750,3 +1750,12 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - PS-B-4b registration handler-made from the `54ee467f` template; one mechanical rebase conflict (the Voronoi lesson ended its opt-out on master), resolved and rechecked (1942 tests).
 - PS-B-4b smoke `bezeg-smoke` Sonnet: 53k tokens, 29 tools, 10 min, 11/11 with exact readouts. Its pass hid a projection problem that only the handler's look at the screenshots caught: 6 px uncaptioned mean and median markers. Ask smoke workers for an explicit size judgement per marker, or view the screenshots before accepting.
 - Context: soft threshold fired after PS-B-4b; handed off before the hooks PS-B-4c.
+
+## Curves handler 34 (Opus, auto, medium), 2026-11-03
+
+- PS-B-4c hooks handler-made from the `3a441122` template (small and tightly coupled: three files plus host tests); nine mutations seen failing.
+- PS-B-4d1 lesson `bezeg-worker` Sonnet: 99k tokens, 41 tools, 14 min, complete; two mutations. One necessary out-of-brief fix (preview-copy entry, tsc TS1360). It stopped at the ownership test that needs the chapter section, as the brief asked, so lesson and section went into one commit. Its three other failures were the known Vitest cache artefact.
+- PS-B-4d2 chapter section handler-made: about 40 lines of text, a registry entry and tests computing every quoted value from the model.
+- F6 smoke `bezeg-smoke` Sonnet: 60k tokens, 26 tools, 6 min, all items passed with the marker sizes per item, as the handoff 33 lesson asked. The handler's look at the screenshots agreed.
+- Miss: the local `just check` samples the transient-state contract, so it passed. CI's full run (`BEZEG_TRANSIENT_STATE=all`) failed on `prob-summary` once `lesson: false` was dropped. The cause was `perturbModel`, which nudges only numeric fields. Fixed in `7601ea6a`. After any slice that drops `lesson: false`, or that adds a graph whose model has no numeric field, run `BEZEG_TRANSIENT_STATE=all npx vitest run src/graphs/base/GraphTransientState` before pushing.
+- Context: soft threshold fired while the CI failure was being fixed; handed off after the fix was pushed.
