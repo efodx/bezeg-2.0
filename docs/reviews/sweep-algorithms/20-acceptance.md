@@ -1,6 +1,6 @@
 # Sweep task 20 acceptance: monotone triangulation lesson C4
 
-Accepted 2026-11-03 by geometry handler 37. Task: [20](../../tasks/sweep-algorithms/20-monotone-triangulation-lesson.md). Brief: [20-brief.md](20-brief.md). The worker stopped at its 135k budget with commit `058f474c` (handoff note in its worktree); the handler finished the checks and committed it as `17987a57`, rebased onto `a6144128` as `5869b47c`. Master's quadrature lesson N4 and binomial-normal lesson P2 moved the same counts: git kept one of the two identical preview-count bumps, so the handler set them to 91 lessons and 98 copy entries (the lesson opt-out list is now empty) and merged the opt-out and notation lists by keeping both sides.
+Accepted 2026-11-03 by geometry handler 37. Task: [20](../../tasks/sweep-algorithms/20-monotone-triangulation-lesson.md). Brief: [20-brief.md](20-brief.md). The worker stopped at its 135k budget with commit `058f474c` (handoff note in its worktree); the handler finished the checks and committed it as `17987a57`, rebased onto `5672afd3` as `ae56ab51`. Master's quadrature lesson N4 and binomial-normal lesson P2 moved the same counts: git kept one of the two identical preview-count bumps, so the handler set them to 91 lessons and 98 copy entries (the lesson opt-out list is now empty) and merged the opt-out and notation lists by keeping both sides.
 
 ## Review (handler, main chat)
 
