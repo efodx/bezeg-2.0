@@ -22,6 +22,12 @@ An event of Fortune's algorithm at the lowest point of the circle through three 
 **False alarm (lažni alarm)**:
 A scheduled circle event that is cancelled before it is reached because the circle is no longer empty (a site event split an arc or changed a neighbour).
 
+**Fortune's algorithm (Fortunov algoritem)**:
+A sweep that builds the Voronoi diagram directly: a horizontal sweep line moves down, the beach line changes at site events and circle events, and every executed circle event reports one Voronoi vertex. Its result equals the dual of the Delaunay triangulation of the same sites, and it runs in \(O(n\log n)\).
+
+**Site event (dogodek mesta)**:
+An event of Fortune's algorithm where the sweep line reaches a site: a new arc appears on the beach line under the arc above the site, and two breakpoints start tracing a Voronoi edge.
+
 **Orientation**:
 The sign of the cross product \((q-p)\times(r-p)\) of three grid points, computed exactly (`orient`): positive is a left (counter-clockwise) turn, negative a right turn, zero collinear. Every decision of the *Računska geometrija* family reduces to orientation or another exact sign test, never to a floating-point comparison.
 
