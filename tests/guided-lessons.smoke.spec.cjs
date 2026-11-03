@@ -2238,6 +2238,9 @@ const fortune = {
     titles: {sl: 'Fortunov algoritem', en: "Fortune's algorithm"},
     steps: 7,
     minFrames: 17, // 2 frames per step, 3 on steps 5, 6 and 7 (calculation)
+    // Steps 5 and 6 (trace steps 5 and 7): the two beach-line breakpoints have run far up the unbounded Voronoi rays
+    // from (∓1/2, 1) in directions (∓1, 2), to about (±31.5, 63); the frame shows those rays' "continues" markers instead.
+    offscreenSteps: [5, 6],
     stepProbe: async (page, ctx, step, label) => {
         await expect.poll(async () => ((await page.locator('[data-fortune="step"]').textContent()) || '').match(/\d+/)?.[0], {message: `Fortune trace step at ${label}`}).toBe(FORTUNE_STEPS[step - 1]);
     },
