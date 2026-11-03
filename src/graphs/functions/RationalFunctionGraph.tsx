@@ -232,18 +232,27 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         }, present, "left", "bottom");
     }
 
-    /** Where the label of the horizontal or oblique asymptote sits: near the right edge, or the left one when the line leaves the view there. */
+    /**
+     * Where the label of the horizontal or oblique asymptote sits: at the rightmost x where the line is inside the view inset from its
+     * edges. A steep line leaves a wide view through the top or bottom edge, so the spot is found by clipping the line, not at the side edges.
+     */
     private asymptoteLabelSpot(): [number, number] | undefined {
         const line = this.asymptoteLine();
         if (!line) return undefined;
         const [left, top, right, bottom] = this.board.getBoundingBox();
         const inset = 0.04 * (right - left);
         const rise = 0.1 * (top - bottom);
-        for (const x of [right - inset, left + inset]) {
-            const y = line.slope * x + line.intercept;
-            if (y > bottom + rise && y < top - rise) return [x, y + 6 / this.board.unitY];
+        let low = left + inset;
+        let high = right - inset;
+        if (line.slope === 0) {
+            if (!(line.intercept > bottom + rise && line.intercept < top - rise)) return undefined;
+        } else {
+            const [a, b] = [(bottom + rise - line.intercept) / line.slope, (top - rise - line.intercept) / line.slope];
+            low = Math.max(low, Math.min(a, b));
+            high = Math.min(high, Math.max(a, b));
+            if (!(low < high)) return undefined;
         }
-        return undefined;
+        return [high, line.slope * high + line.intercept + 6 / this.board.unitY];
     }
 
     /** The probe: the gap between the curve and its asymptote at x (this is r(x)/q(x)), a point on the curve and its value. */

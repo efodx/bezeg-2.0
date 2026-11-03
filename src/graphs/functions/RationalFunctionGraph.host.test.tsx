@@ -161,3 +161,25 @@ test('a multi-action lesson scene runs in one synchronous sequence; a rejected v
     expect(() => graph.lesson({kind: 'function-choice', name: 'rational-example', value: 'quartic'} as LessonAction)).toThrow(DomainError);
     expect(graph.modelNow()).toBe(before);
 });
+
+test('the oblique asymptote label stays inside a wide view, where y = x + 2 leaves through the top and bottom edges', () => {
+    const graph = mount();
+    graph.liveBoard().unitY = 40; // jsdom has no canvas height; 40 px per unit as on a desktop board
+    const spot = () => (graph as unknown as {asymptoteLabelSpot(): [number, number] | undefined}).asymptoteLabelSpot();
+    for (const box of [[-16, 9, 16, -9], [-11, 9, 11, -9], [-8, 14, 12, -6]] as const) {
+        // jsdom gives the board no width, so the view is stubbed rather than set.
+        vi.spyOn(graph.liveBoard(), 'getBoundingBox').mockReturnValue([...box]);
+        const at = spot();
+        expect(at).toBeDefined();
+        const [x, y] = at!;
+        const [left, top, right, bottom] = box;
+        expect(x).toBeGreaterThan(left);
+        expect(x).toBeLessThan(right);
+        expect(y).toBeGreaterThan(bottom);
+        expect(y).toBeLessThan(top);
+        expect(Math.abs(y - (x + 2))).toBeLessThan(0.1 * (top - bottom));
+    }
+    // A view the line misses has no label.
+    vi.spyOn(graph.liveBoard(), 'getBoundingBox').mockReturnValue([20, 9, 30, -9]);
+    expect(spot()).toBeUndefined();
+});
