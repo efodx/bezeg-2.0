@@ -16,7 +16,7 @@ Written 2026-11-03 by handler 40 (Opus 5.5, auto, effort medium). Continues [han
 
 ## State of the T3 integration
 
-Commit `ef81f45c` on branch `stream-geometry`, also pushed to `origin/stream-geometry`. It is **not on master** and **not yet accepted**. Integration checks on that tree:
+Commit `ef81f45c` on branch `stream-geometry`, also pushed to `origin/geometry-t3-23-24b` (`origin/stream-geometry` is an older diverged branch; not force-pushed). It is **not on master** and **not yet accepted**. Integration checks on that tree:
 
 - tsc, `just lint` and `just build` pass.
 - `just smoke-lesson voronoi voronoi-degenerate` passes, sl and en.
