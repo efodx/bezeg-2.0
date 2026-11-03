@@ -19,7 +19,7 @@ function withExample(sectionId: BSplineSectionId, section: FamilyChapterSection)
     return {...section, orderedContent: content};
 }
 
-/** B-spline spec batches A and B so far: only the released lessons (L1 the basis functions, L2 the curve and de Boor's algorithm, L3 knot insertion and multiplicity, L4 Bézier extraction) are mentioned; later sections are not named. */
+/** B-spline spec batches A and B so far: only the released lessons (L1 the basis functions, L2 the curve and de Boor's algorithm, L3 knot insertion and multiplicity, L4 Bézier extraction, L5 NURBS and the circle) are mentioned; later sections are not named. */
 export const bsplineChapter: FamilyChapter = {
     id: BSPLINE_CHAPTER_ID,
     family: '/bezeg-2.0/bspline',
@@ -98,6 +98,19 @@ export const bsplineChapter: FamilyChapter = {
                      'Goal of the section: you can say that a B-spline can be split into ordinary Bézier pieces by inserting knots, and count them. A knot is inserted until its multiplicity is \\(k\\); then each piece is a Bézier curve of its \\(k+1\\) points. The number of pieces \\(m\\) is one more than the number \\(r\\) of distinct interior knots.'),
                 text('Za točke \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) in vozle \\((0,0,0,1,2,2,2)\\) sta odseka \\((0,0)\\), \\((1,2)\\), \\((2,2)\\) in \\((2,2)\\), \\((3,2)\\), \\((4,0)\\); stična točka \\((2,2)\\) je \\(\\tfrac12P_1+\\tfrac12P_2\\). Premik kontrolne točke spremeni le odseke v njenem nosilcu, ostali ostanejo isti; vsak odsek lahko odpreš kot navadno Bézierjevo krivuljo.',
                      'For the points \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) and the knots \\((0,0,0,1,2,2,2)\\) the pieces are \\((0,0)\\), \\((1,2)\\), \\((2,2)\\) and \\((2,2)\\), \\((3,2)\\), \\((4,0)\\); the junction \\((2,2)\\) is \\(\\tfrac12P_1+\\tfrac12P_2\\). Moving a control point changes only the pieces in its support while the others stay the same; each piece can be opened as an ordinary Bézier curve.'),
+            ],
+        }),
+        withExample('bspline-nurbs', {
+            id: 'bspline-nurbs',
+            demonstrationIds: ['bspline-nurbs'],
+            investigationPrompts: {'bspline-nurbs': text('Primerjaj krivuljo z enotskimi utežmi in krivuljo z utežmi \\(\\tfrac{\\sqrt2}2\\) v ogliščih ter preberi največji odmik od enotske krožnice. Poglej, kje je točka pri \\(t=\\tfrac1{16}\\).', 'Compare the curve with unit weights and the curve with weights \\(\\tfrac{\\sqrt2}2\\) at the corners, and read the maximum deviation from the unit circle. See where the point at \\(t=\\tfrac1{16}\\) is.')},
+            title: text('NURBS in krog', 'NURBS and the circle'),
+            formula: String.raw`C(t)=\frac{\sum_i w_i N_{i,2}(t)\,P_i}{\sum_i w_i N_{i,2}(t)}`,
+            paragraphs: [
+                text('Cilj razdelka: znaš povedati, da B-zlepek z utežmi \\(w_i>0\\) postane NURBS in da je kvadratni NURBS lahko natančna krožnica, česar noben polinomski B-zlepek ne zmore. Utež vsake točke pomnoži njeno bazno funkcijo, vsota se deli z vsoto uteženih baznih funkcij; pri enotskih utežeh ostane polinomski B-zlepek.',
+                     'Goal of the section: you can say that a B-spline with weights \\(w_i>0\\) becomes a NURBS, and that a quadratic NURBS can be an exact circle, which no polynomial B-spline can. The weight of each point multiplies its basis function and the sum is divided by the sum of the weighted basis functions; with unit weights the polynomial B-spline remains.'),
+                text('Devet točk \\((1,0)\\), \\((1,1)\\), \\((0,1)\\), \\((-1,1)\\), \\((-1,0)\\), \\((-1,-1)\\), \\((0,-1)\\), \\((1,-1)\\), \\((1,0)\\), vozelni vektor \\((0,0,0,\\tfrac14,\\tfrac14,\\tfrac12,\\tfrac12,\\tfrac34,\\tfrac34,1,1,1)\\) in uteži \\(\\tfrac{\\sqrt2}2\\) v ogliščih dajo enotsko krožnico. Pri enotskih utežeh je največji odmik od krožnice približno \\(6{,}07\\cdot10^{-2}\\), z utežmi \\(\\tfrac{\\sqrt2}2\\) pa le zaokrožitvena napaka. Parameter ni sorazmeren s kotom: točka pri \\(t=\\tfrac1{16}\\) je \\((0{,}92979;\\,0{,}36809)\\) pri kotu \\(21{,}598^\\circ\\), ne \\(22{,}5^\\circ\\). Slika kaže natančnost le v vzorčenih točkah; dokaz je racionalna identiteta iz poglavja o racionalnih Bézierjevih krivuljah.',
+                     'The nine points \\((1,0)\\), \\((1,1)\\), \\((0,1)\\), \\((-1,1)\\), \\((-1,0)\\), \\((-1,-1)\\), \\((0,-1)\\), \\((1,-1)\\), \\((1,0)\\), the knot vector \\((0,0,0,\\tfrac14,\\tfrac14,\\tfrac12,\\tfrac12,\\tfrac34,\\tfrac34,1,1,1)\\) and weights \\(\\tfrac{\\sqrt2}2\\) at the corners give the unit circle. With unit weights the maximum deviation from the circle is about \\(6.07\\cdot10^{-2}\\); with the weights \\(\\tfrac{\\sqrt2}2\\) it is only rounding error. The parameter is not proportional to the angle: the point at \\(t=\\tfrac1{16}\\) is \\((0.92979,\\,0.36809)\\) at the angle \\(21.598^\\circ\\), not \\(22.5^\\circ\\). The picture shows exactness only at the sampled points; the proof is the rational identity from the chapter on rational Bézier curves.'),
             ],
         }),
     ],

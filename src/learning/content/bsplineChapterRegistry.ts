@@ -7,18 +7,19 @@ import {BSPLINE_CHAPTER_ID} from './bsplineChapterId';
 
 export {BSPLINE_CHAPTER_ID};
 
-/** Section id to the Demonstration whose reviewed lesson the section owns (bsplineBasisGuidedLessons.ts, bsplineDeBoorGuidedLessons.ts, bsplineInsertionGuidedLessons.ts, bsplineExtractionGuidedLessons.ts). The opening section owns none. */
+/** Section id to the Demonstration whose reviewed lesson the section owns (bsplineBasisGuidedLessons.ts, bsplineDeBoorGuidedLessons.ts, bsplineInsertionGuidedLessons.ts, bsplineExtractionGuidedLessons.ts, bsplineNurbsGuidedLessons.ts). The opening section owns none. */
 const sectionDemonstrations = {
     'bspline-basis': 'bspline-basis',
     'bspline-deboor': 'bspline-deboor',
     'bspline-insertion': 'bspline-insertion',
     'bspline-extraction': 'bspline-extraction',
+    'bspline-nurbs': 'bspline-nurbs',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type BSplineSectionId = keyof typeof sectionDemonstrations;
 
 /**
- * Section-owned activity (spec L1 to L4). The lesson text stays in the guided-lesson files; the getters read it lazily because
+ * Section-owned activity (spec L1 to L5). The lesson text stays in the guided-lesson files; the getters read it lazily because
  * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
  */
 export const bsplineGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(

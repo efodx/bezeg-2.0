@@ -7,7 +7,8 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
 import {domain} from "../../../bezeg/impl/curve/bspline";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
-import type {LessonCurveFixture} from "../../../learning/model";
+import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BSplinePresetData, bsplinePresetCollection, weightsRejection} from "./bsplinePresetCollection";
 import {BSplineNurbsScene} from "./BSplineNurbsScene";
 import {assertDrawableCurve, ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
@@ -58,7 +59,7 @@ export const errorText = (value: number): string => {
 /**
  * NURBS circle graph (lesson L5): a quadratic B-spline on nine points with editable positive weights, a maximum radial error
  * readout over 1001 samples, an optional unit-circle overlay and a parameter slider t with the point C(t) and its angle in the
- * inspector. The scene state is the only copy of the data; the owned {@link BSplineNurbsScene} reads it lazily. Its Preset
+ * inspector. The scene state is the only copy of the data; the owned {@link BSplineNurbsScene} reads it lazily. Lesson L5 drives it through `nurbs-circle` scene actions. Its Preset
  * collection is `bsplinePresetCollection` (weights round-trip; a stored curve without weights loads with unit weights).
  */
 export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePresetData> {
@@ -227,6 +228,41 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         if (!NURBS_EXAMPLE_IDS.includes(id)) return;
         const origin = nurbsExample(id);
         this.setState({...copyNurbs(origin), origin, example: id, refusal: null});
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('nurbs-circle', action => this.applyNurbsAction(action));
+    }
+
+    /** Applies one `nurbs-circle` scene action through the setters the controls use; invalid input throws (the lesson content is wrong). */
+    private applyNurbsAction(action: Extract<LessonAction, {kind: 'nurbs-circle'}>): void {
+        switch (action.operation) {
+            case 'set-example':
+                if (!NURBS_EXAMPLE_IDS.includes(action.exampleId)) throw new Error(`Unknown NURBS example “${String(action.exampleId)}”.`);
+                this.selectExample(action.exampleId);
+                break;
+            case 'set-t': {
+                const [start, end] = domain(this.state.knots, this.state.degree, this.state.points.length - 1);
+                if (!Number.isFinite(action.value) || action.value < start || action.value > end) throw new Error(`The parameter must lie in [${start}, ${end}].`);
+                this.setT(action.value);
+                break;
+            }
+            case 'set-weight': {
+                if (!Number.isInteger(action.index) || action.index < 0 || action.index >= this.state.weights.length) throw new Error(`There is no weight ${String(action.index)}.`);
+                const refused = this.setWeight(action.index, action.value);
+                if (refused !== undefined) throw new Error(refused);
+                break;
+            }
+            case 'set-circle':
+                if (typeof action.visible !== 'boolean') throw new Error('The circle overlay must be shown or hidden with a boolean.');
+                this.setShowCircle(action.visible);
+                break;
+            default:
+                this.resetToOrigin();
+        }
     }
 
     // ---- Controls ----------------------------------------------------------------------------------------------------

@@ -21,6 +21,7 @@ import {bsplineBasisGuidedLessons} from './bsplineBasisGuidedLessons';
 import {bsplineDeBoorGuidedLessons} from './bsplineDeBoorGuidedLessons';
 import {bsplineInsertionGuidedLessons} from './bsplineInsertionGuidedLessons';
 import {bsplineExtractionGuidedLessons} from './bsplineExtractionGuidedLessons';
+import {bsplineNurbsGuidedLessons} from './bsplineNurbsGuidedLessons';
 import {fourierSeriesGuidedLessons} from './fourierSeriesGuidedLessons';
 import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLessons';
 import {probabilityGuidedLessons} from './probabilityGuidedLessons';
@@ -68,6 +69,7 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
     ['bsplineDeBoorGuidedLessons', bsplineDeBoorGuidedLessons],
     ['bsplineInsertionGuidedLessons', bsplineInsertionGuidedLessons],
     ['bsplineExtractionGuidedLessons', bsplineExtractionGuidedLessons],
+    ['bsplineNurbsGuidedLessons', bsplineNurbsGuidedLessons],
     ['fourierSeriesGuidedLessons', fourierSeriesGuidedLessons],
     ['fourierCoefficientsGuidedLessons', fourierCoefficientsGuidedLessons],
     ['probabilityGuidedLessons', probabilityGuidedLessons],
@@ -188,7 +190,7 @@ test('scans every lesson module', () => {
     expect(lessonSets.flatMap(([, lessons]) => lessons.map(lesson => lesson.demonstrationId)).sort()).toEqual(
         ['affine', 'bernstein', 'bezier', 'decasteljau', 'elevation', 'ph-cubic', 'ph-quintic', 'rational', 'rational-decasteljau', 'rational-elevation', 'uniform-parameterization', 'voronoi', 'voronoi-degenerate', 'weighted-parameterization',
             'subdivision', 'repeated-subdivision', 'rational-subdivision', 'extrapolation', 'rational-extrapolation',
-            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'curve-parametric', 'curve-curvature', 'interval-sweep', 'segment-intersections', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'root-finding', 'function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'patch-coons', 'fourier-series', 'fourier-coefficients', 'projective-cross-ratio', 'bspline-basis', 'projective-pascal', 'bspline-deboor', 'bspline-insertion', 'bspline-extraction', 'projective-pole-polar', 'projective-five-point', 'projective-three-views', 'interp-runge', 'interp-least-squares', 'quadrature', 'euler-method', 'prob-density', 'monotone-partition', 'monotone-triangulation', 'fortune', 'prob-binomial-normal', 'prob-clt', 'prob-summary', 'prob-correlation'].sort(),
+            'decasteljau-alternative', 'farin', 'circle', 'spline-cn', 'spline-c1', 'spline-c2', 'spline-g1', 'spline-g1-symmetric', 'spline-parameterization', 'linear-function', 'exponential-function', 'trigonometric-functions', 'continuity', 'derivative', 'definite-integral', 'area-between-curves', 'arc-length', 'bisection', 'mean-value', 'accumulation', 'darboux', 'extrema', 'convexity', 'taylor', 'sequence', 'uniform-convergence', 'complex-multiplication', 'fixed-point', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-tensor', 'patch-decasteljau', 'patch-tensor', 'patch-derivatives', 'patch-subdivision', 'patch-joins', 'patch-triangular', 'patch-triangular', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'point-set-triangulation', 'delaunay', 'curve-parametric', 'curve-curvature', 'interval-sweep', 'segment-intersections', 'interp-lagrange', 'interp-hermite', 'interp-subdivision', 'root-finding', 'function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'patch-coons', 'fourier-series', 'fourier-coefficients', 'projective-cross-ratio', 'bspline-basis', 'projective-pascal', 'bspline-deboor', 'bspline-insertion', 'bspline-extraction', 'bspline-nurbs', 'projective-pole-polar', 'projective-five-point', 'projective-three-views', 'interp-runge', 'interp-least-squares', 'quadrature', 'euler-method', 'prob-density', 'monotone-partition', 'monotone-triangulation', 'fortune', 'prob-binomial-normal', 'prob-clt', 'prob-summary', 'prob-correlation'].sort(),
     );
 });
 

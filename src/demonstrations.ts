@@ -73,7 +73,7 @@ const definitions = [
     {id: 'bspline-deboor', path: '/bezeg-2.0/bspline/deboor', family: '/bezeg-2.0/bspline', title: 'bspline_deboor_title', prompts: ['prompt_bspline_deboor', 'prompt_compare']},
     {id: 'bspline-insertion', path: '/bezeg-2.0/bspline/insertion', family: '/bezeg-2.0/bspline', title: 'bspline_insertion_title', prompts: ['prompt_bspline_insertion', 'prompt_compare']},
     {id: 'bspline-extraction', path: '/bezeg-2.0/bspline/extraction', family: '/bezeg-2.0/bspline', title: 'bspline_extraction_title', prompts: ['prompt_bspline_extraction', 'prompt_compare']},
-    {id: 'bspline-nurbs', path: '/bezeg-2.0/bspline/nurbs', family: '/bezeg-2.0/bspline', title: 'bspline_nurbs_title', prompts: ['prompt_bspline_nurbs', 'prompt_compare'], lesson: false},
+    {id: 'bspline-nurbs', path: '/bezeg-2.0/bspline/nurbs', family: '/bezeg-2.0/bspline', title: 'bspline_nurbs_title', prompts: ['prompt_bspline_nurbs', 'prompt_compare']},
     {id: 'patch-tensor', path: '/bezeg-2.0/patches/tensor', family: '/bezeg-2.0/patches', title: 'tensor_product_bezier_patch', prompts: ['prompt_patch_net', 'prompt_patch_degree'], view: 'surface'},
     {id: 'patch-decasteljau', path: '/bezeg-2.0/patches/decasteljau', family: '/bezeg-2.0/patches', title: 'patch_decasteljau_algorithm', prompts: ['prompt_patch_decasteljau_order', 'prompt_patch_decasteljau_levels'], view: 'surface'},
     {id: 'patch-derivatives', path: '/bezeg-2.0/patches/derivatives', family: '/bezeg-2.0/patches', title: 'patch_derivatives_title', prompts: ['prompt_patch_derivatives_tangents', 'prompt_patch_derivatives_normal'], view: 'surface'},

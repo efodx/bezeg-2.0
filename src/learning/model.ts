@@ -253,6 +253,17 @@ export type LessonAction =
     | {readonly kind: 'bezier-extraction'; readonly operation: 'set-example'; readonly exampleId: 'quadratic' | 'cubic'}
     | {readonly kind: 'bezier-extraction'; readonly operation: 'reset'}
     /**
+     * BSplineNurbsGraph's scene actions: `set-example` loads the nurbs circle (weights 1 and √2/2) or the same points with unit weights as the
+     * Reset target, `set-t` moves the parameter slider (the value must lie on the domain), `set-weight` types weight `index` (zero-based, a
+     * positive finite value), `set-circle` shows or hides the unit-circle overlay and `reset` returns to the example's weights. An index out
+     * of range, a nonpositive or non-finite weight, a value off the domain or an unknown example is a lesson-content error.
+     */
+    | {readonly kind: 'nurbs-circle'; readonly operation: 'set-example'; readonly exampleId: 'circle' | 'unit'}
+    | {readonly kind: 'nurbs-circle'; readonly operation: 'set-t'; readonly value: number}
+    | {readonly kind: 'nurbs-circle'; readonly operation: 'set-weight'; readonly index: number; readonly value: number}
+    | {readonly kind: 'nurbs-circle'; readonly operation: 'set-circle'; readonly visible: boolean}
+    | {readonly kind: 'nurbs-circle'; readonly operation: 'reset'}
+    /**
      * LinearMapGraph's scene actions (validated by `validateSet*` in `src/linear/linearMapModel.ts`). Kinds are typed; the graph still
      * enforces the domain (grid, ranges): scene data is strict, so an off-grid entry is a lesson-content error, never snapped.
      */
