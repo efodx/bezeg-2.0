@@ -14,8 +14,10 @@ import {PROBABILITY_CHAPTER_ID, probabilityGuidedExamplePath, probabilityGuidedE
 import {familyChapters} from './familyChapters';
 import {CLT_EXAMPLES, cltView, shapeMoments} from '../../analysis/cltModel';
 import {DEFAULT_SUMMARY_MODEL, SUMMARY_EXAMPLES, summaryStatisticsView} from '../../analysis/summaryStatisticsModel';
+import {correlation} from '../../analysis/correlation';
+import {CORRELATION_EXAMPLES} from '../../analysis/correlationModel';
 
-const SECTIONS = [['density', 'prob-density'], ['binomial-normal', 'prob-binomial-normal'], ['clt', 'prob-clt'], ['summary', 'prob-summary']] as const;
+const SECTIONS = [['density', 'prob-density'], ['binomial-normal', 'prob-binomial-normal'], ['clt', 'prob-clt'], ['summary', 'prob-summary'], ['correlation', 'prob-correlation']] as const;
 const everything = (language: 'sl' | 'en') => [
     probabilityChapter.purpose, probabilityChapter.prerequisites,
     ...probabilityChapter.sections.flatMap(section => [section.title, ...section.paragraphs]),
@@ -157,6 +159,34 @@ describe('quoted numbers equal the analysis kernels', () => {
             expect(everything('sl'), needle).toContain(needle);
         }
         for (const needle of ['school quartile rule', 'population \\(\\sigma\\)', 'Calculators and software differ', 'An outlier is a convention', 'not a mathematical property']) {
+            expect(everything('en'), needle).toContain(needle);
+        }
+    });
+
+    test('P5: the quoted sums, r, both regression lines and the outlier case equal the correlation kernel', () => {
+        const base = correlation(CORRELATION_EXAMPLES.default);
+        const outlier = correlation(CORRELATION_EXAMPLES.outlier);
+        const parabola = correlation(CORRELATION_EXAMPLES.parabola);
+        if (!base.yOnX || !base.xOnY || !outlier.yOnX || base.r === undefined || outlier.r === undefined) throw new Error('the default and outlier data give both lines and r');
+        expect([base.sxx, base.syy, base.sxy]).toEqual([5, 4.75, 4.5]);
+        expect(base.r.toFixed(5)).toBe('0.92338');
+        expect(base.rSquared).toBeCloseTo(81 / 95, 12);
+        expect([base.yOnX.slope, base.yOnX.intercept, base.residualSumOfSquares!].map(value => value.toFixed(9))).toEqual(['0.900000000', '0.900000000', '0.700000000']);
+        expect(base.residualSumOfSquares!).toBeCloseTo(base.syy * (1 - base.rSquared!), 12);
+        expect([base.xOnY.slope.toFixed(5), base.xOnY.intercept.toFixed(5)]).toEqual(['0.94737', '-0.63158']);
+        expect(base.yOnX.slope * base.xOnY.slope).toBeCloseTo(base.rSquared!, 12);
+        expect(outlier.r.toFixed(5)).toBe('0.84680');
+        expect([outlier.yOnX.slope.toFixed(9), outlier.yOnX.intercept.toFixed(9), outlier.residualSumOfSquares!.toFixed(9)]).toEqual(['2.100000000', '0.100000000', '8.700000000']);
+        expect([parabola.nSxy, parabola.r]).toEqual([0, 0]);
+        for (const language of ['sl', 'en'] as const) quoted(language, ['4.75', '4.5', '0.92338', '0.84680', '0.94737', '0.63158', '0.9x+0.9', '2.1x+0.1', '8.7', '0.7=']);
+        expect(everything('sl')).toContain('\\(r^2=\\tfrac{81}{95}\\)');
+    });
+
+    test('P5: the chapter says r is linear only, r = 0 is not independence, |r| is not causation, the residual is a choice, and the matura goal', () => {
+        for (const needle of ['meri samo linearno povezanost', '\\(r=0\\) ne pomeni neodvisnosti', 'ne pomeni vzročnosti', 'En osamelec lahko \\(r\\) močno spremeni', 'modelska izbira', 'preprostih povezavah', 'predznaka naklona', 'univerzitetna razširitev']) {
+            expect(everything('sl'), needle).toContain(needle);
+        }
+        for (const needle of ['measures linear association only', '\\(r=0\\) does not mean independence', 'does not mean causation', 'One outlier can change \\(r\\)', 'modelling choice', 'simple associations', 'sign of the regression line\'s slope', 'university-level extension']) {
             expect(everything('en'), needle).toContain(needle);
         }
     });

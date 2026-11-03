@@ -20,8 +20,8 @@ function withExample(sectionId: ProbabilitySectionId, section: FamilyChapterSect
 }
 
 /**
- * Probability and statistics on the graph (spec P1 to P4 of probability-statistics-lessons.md): an opening section, then one section per
- * lesson, each ending with its example. The section for P5 is appended when that lesson is built.
+ * Probability and statistics on the graph (spec P1 to P5 of probability-statistics-lessons.md): an opening section, then one section per
+ * lesson, each ending with its example.
  */
 export const probabilityChapter: FamilyChapter = {
     id: PROBABILITY_CHAPTER_ID,
@@ -108,6 +108,21 @@ export const probabilityChapter: FamilyChapter = {
                      'If you move the value \\(8\\) to \\(30\\), the mean moves to \\(9\\), the median stays \\(6\\) and \\(\\sigma\\) grows to \\(8.6189\\). The quartiles by the school rule (halves including the median) are \\(Q_1=5\\) and \\(Q_3=6.5\\), \\(\\mathrm{IQR}=1.5\\), and the fences \\(2.75\\) and \\(8.75\\), so \\(30\\) is flagged as an outlier.'),
                 text('Graf privzeto uporablja šolsko pravilo za kvartile in populacijski \\(\\sigma\\). Kalkulatorji in programi se razlikujejo: pravilo brez mediane v polovicah da za iste podatke \\(Q_1=5\\) in \\(Q_3=7\\), torej drugo škatlo. Tudi osamelec je dogovor: vrednost zunaj mej \\(1{,}5\\,\\mathrm{IQR}\\) od kvartilov, ne matematična lastnost podatkov.',
                      'The graph uses the school quartile rule and the population \\(\\sigma\\) by default. Calculators and software differ: the rule that leaves the median out of the halves gives \\(Q_1=5\\) and \\(Q_3=7\\) for the same data, a different box. An outlier is a convention too: a value beyond the \\(1.5\\,\\mathrm{IQR}\\) fences from the quartiles, not a mathematical property of the data.'),
+            ],
+        }),
+        withExample('correlation', {
+            id: 'correlation',
+            demonstrationIds: ['prob-correlation'],
+            investigationPrompts: {'prob-correlation': text('Napovej predznak in velikost korelacijskega koeficienta za privzete točke, nato eno točko odvleci daleč navzgor in poglej, kako se spremenita \\(r\\) in regresijska premica.', 'Predict the sign and size of the correlation coefficient for the default points, then drag one point far up and watch how \\(r\\) and the regression line change.')},
+            title: text('Korelacija in regresijska premica', 'Correlation and the regression line'),
+            formula: String.raw`r=\frac{S_{xy}}{\sqrt{S_{xx}\,S_{yy}}},\qquad y=a+bx,\quad b=\frac{S_{xy}}{S_{xx}}=r\,\frac{s_y}{s_x}`,
+            paragraphs: [
+                text('Cilj razdelka: na razsevnem diagramu znaš opisati preprosto povezavo med dvema spremenljivkama in jo iz predznaka naklona regresijske premice prebrati kot pozitivno ali negativno; tako izpolniš maturitetno zahtevo o preprostih povezavah. Korelacijski koeficient \\(r\\) je univerzitetna razširitev. Za točke \\((0,1),(1,2),(2,2),(3,4)\\) je \\(S_{xx}=5\\), \\(S_{yy}=4{,}75\\), \\(S_{xy}=4{,}5\\), zato \\(r=0{,}92338\\) in \\(r^2=\\tfrac{81}{95}\\). Regresijska premica \\(y=0{,}9x+0{,}9\\) je ista kot prileganje premice po metodi najmanjših kvadratov, vsota kvadratov ostankov pa je \\(0{,}7=S_{yy}(1-r^2)\\).',
+                     'Goal of the section: on a scatter plot you can describe a simple association between two variables and read it from the sign of the regression line\'s slope as positive or negative; this is the matura requirement on simple associations. The correlation coefficient \\(r\\) is a university-level extension. For the points \\((0,1),(1,2),(2,2),(3,4)\\) we have \\(S_{xx}=5\\), \\(S_{yy}=4.75\\), \\(S_{xy}=4.5\\), so \\(r=0.92338\\) and \\(r^2=\\tfrac{81}{95}\\). The regression line \\(y=0.9x+0.9\\) is the same as the least-squares line fit, and the residual sum of squares is \\(0.7=S_{yy}(1-r^2)\\).'),
+                text('Korelacijski koeficient meri samo linearno povezanost. Točke \\(y=x^2\\) pri \\(x=-3,\\dots,3\\) imajo \\(S_{xy}=0\\), torej \\(r=0\\), čeprav je \\(y\\) natanko določen z \\(x\\): \\(r=0\\) ne pomeni neodvisnosti. Velik \\(|r|\\) ne pomeni vzročnosti, saj lahko obe spremenljivki poganja kaj tretjega. En osamelec lahko \\(r\\) močno spremeni: če točko \\((3,4)\\) zamenjaš s \\((3,8)\\), pade \\(r\\) z \\(0{,}92338\\) na \\(0{,}84680\\), premica postane \\(y=2{,}1x+0{,}1\\), vsota kvadratov ostankov pa \\(8{,}7\\).',
+                     'The correlation coefficient measures linear association only. The points \\(y=x^2\\) at \\(x=-3,\\dots,3\\) have \\(S_{xy}=0\\), so \\(r=0\\), although \\(y\\) is determined exactly by \\(x\\): \\(r=0\\) does not mean independence. A large \\(|r|\\) does not mean causation, since a third quantity may drive both variables. One outlier can change \\(r\\) a lot: if you replace the point \\((3,4)\\) by \\((3,8)\\), \\(r\\) drops from \\(0.92338\\) to \\(0.84680\\), the line becomes \\(y=2.1x+0.1\\) and the residual sum of squares \\(8.7\\).'),
+                text('Regresijska premica za \\(y\\) minimizira vsoto kvadratov navpičnih ostankov; kvadrat navpičnega ostanka je modelska izbira, ne edina mogoča. Premica za \\(x\\) v odvisnosti od \\(y\\) minimizira vodoravne ostanke: za privzete točke je \\(x=0{,}94737y-0{,}63158\\). Produkt naklonov obeh premic je \\(r^2\\), zato se premici ujemata le pri \\(r=\\pm1\\).',
+                     'The regression line for \\(y\\) minimizes the sum of squared vertical residuals; the squared vertical residual is a modelling choice, not the only possible one. The line for \\(x\\) in terms of \\(y\\) minimizes the horizontal residuals: for the default points it is \\(x=0.94737y-0.63158\\). The product of the two slopes is \\(r^2\\), so the lines coincide only when \\(r=\\pm1\\).'),
             ],
         }),
     ],

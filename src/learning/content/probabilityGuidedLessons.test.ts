@@ -17,6 +17,9 @@ import {CltGraph} from '../../graphs/functions/CltGraph';
 import {CLT_EXAMPLES, cltView, shapeMoments} from '../../analysis/cltModel';
 import {normalCdf} from '../../analysis/distributions';
 import {SummaryStatisticsGraph} from '../../graphs/functions/SummaryStatisticsGraph';
+import {CorrelationGraph} from '../../graphs/functions/CorrelationGraph';
+import {correlation} from '../../analysis/correlation';
+import {CORRELATION_EXAMPLES} from '../../analysis/correlationModel';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -674,4 +677,120 @@ test('P4: every number in the text is an allowed readout or spec value, both lan
     expect(conventionEn).toMatch(/population/);
     expect(conventionEn).toMatch(/Calculators and software/);
     expect(conventionEn).toMatch(/convention/);
+});
+
+const correlationLesson = probabilityGuidedLessons.find(entry => entry.demonstrationId === 'prob-correlation')!;
+const correlationStep = (stepId: string): GuidedLessonStep => correlationLesson.steps.find(step => step.id === stepId)!;
+const CORRELATION_STEP_IDS = ['correlation-scatter', 'correlation-line', 'correlation-outlier', 'correlation-parabola', 'correlation-x-on-y', 'correlation-explore'];
+
+class ObservedCorrelationGraph extends CorrelationGraph {
+    modelNow() { return this.model; }
+}
+
+function mountCorrelation() {
+    const graph = new ObservedCorrelationGraph();
+    const view = render(React.createElement(MemoryRouter, null, React.createElement(GraphHost, {create: () => graph})));
+    expect(graph.state.initialized).toBe(true);
+    const capabilities = graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    return {
+        graph, view,
+        scene: (step: GuidedLessonStep) => act(() => {
+            capabilities.restoreState(checkpoint);
+            for (const action of actionsOf(step)) capabilities.apply(action);
+        }),
+    };
+}
+
+test('P5: the lesson has six steps with two frames each, prose in both languages and only correlation actions', () => {
+    expect(correlationLesson.steps.map(step => step.id)).toEqual(CORRELATION_STEP_IDS);
+    for (const step of correlationLesson.steps) {
+        expect(step.frames).toHaveLength(2);
+        expect(prose(step, 'sl').length).toBeGreaterThan(0);
+        expect(prose(step, 'en').length).toBeGreaterThan(0);
+        for (const action of actionsOf(step)) {
+            expect(['prepared-scene', 'function-choice', 'function-visibility', 'correlation']).toContain(action.kind);
+            if (action.kind === 'function-choice') expect(action.name).toBe('correlation-example');
+            if (action.kind === 'function-visibility') expect(['correlation-residuals', 'correlation-x-on-y']).toContain(action.target);
+        }
+    }
+});
+
+test('P5: each correlation scene sets the data and display its text describes, and its quoted values are those of the model, in one synchronous sequence', () => {
+    const h = mountCorrelation();
+    const fmt = (value: number | undefined, digits: number) => (value === undefined ? '' : String(Number(value.toFixed(digits)))).replace('.', ',');
+    try {
+        const model = () => h.graph.modelNow();
+        const read = (...ids: string[]) => ids.map(readout);
+
+        h.scene(correlationStep('correlation-scatter'));
+        expect(model()).toMatchObject({points: CORRELATION_EXAMPLES.default, residuals: false, xOnY: false});
+
+        h.scene(correlationStep('correlation-line'));
+        const line = correlation(CORRELATION_EXAMPLES.default);
+        expect(model()).toMatchObject({points: CORRELATION_EXAMPLES.default, residuals: true, xOnY: false});
+        expect(read('r', 'equation', 'ssres')).toEqual(['0,92338', 'y = 0,9x + 0,9', '0,7']);
+        expect(fmt(line.r, 5)).toBe('0,92338');
+        expect(fmt(line.yOnX?.residualSumOfSquares, 6)).toBe('0,7');
+
+        h.scene(correlationStep('correlation-outlier'));
+        const outlier = correlation([[0, 1], [1, 2], [2, 2], [3, 8]]);
+        expect(model().points).toEqual([[0, 1], [1, 2], [2, 2], [3, 8]]);
+        expect(read('r', 'slope', 'intercept', 'ssres')).toEqual(['0,8468', '2,1', '0,1', '8,7']);
+        expect(fmt(outlier.r, 5)).toBe('0,8468');
+        expect(fmt(outlier.yOnX?.residualSumOfSquares, 6)).toBe('8,7');
+
+        h.scene(correlationStep('correlation-parabola'));
+        expect(model().points).toEqual(CORRELATION_EXAMPLES.parabola);
+        expect(correlation(CORRELATION_EXAMPLES.parabola).nSxy).toBe(0);
+        expect(read('r', 'slope', 'intercept')).toEqual(['0', '0', '4']);
+
+        h.scene(correlationStep('correlation-x-on-y'));
+        expect(model()).toMatchObject({points: CORRELATION_EXAMPLES.default, xOnY: true});
+        expect(read('xony', 'r2')).toEqual(['x = 0,94737y - 0,63158', '0,852632']);
+        const xOnY = line.xOnY!;
+        expect(xOnY.slope).toBeCloseTo(0.94737, 5);
+        expect(xOnY.intercept).toBeCloseTo(-0.63158, 5);
+        expect(line.yOnX!.slope * xOnY.slope).toBeCloseTo(line.rSquared!, 12);
+
+        h.scene(correlationStep('correlation-explore'));
+        expect(model()).toMatchObject({points: CORRELATION_EXAMPLES.default, residuals: true, xOnY: false});
+        expect(read('r')).toEqual(['0,92338']);
+        expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+    } finally {
+        h.view.unmount();
+    }
+});
+
+test('P5: every number in the text is a model value, both languages agree, and the claims of acceptance 4 are made in both languages', () => {
+    const ALLOWED = new Set(['0.92338', '0.9', '0.7', '0.84680', '2.1', '0.1', '8.7', '0.94737', '0.63158', '0.852632']);
+    const numbersIn = (language: 'sl' | 'en') => {
+        const body = [correlationLesson.summary[language], ...correlationLesson.learningGoals.map(g => g[language]), ...correlationLesson.formulaBlocks.map(b => b.explanation[language]), ...correlationLesson.steps.map(step => prose(step, language))].join(' ');
+        return (body.match(language === 'sl' ? /\d+\{,\}\d+/g : /\d+\.\d+/g) ?? []).map(value => value.replace('{,}', '.'));
+    };
+    for (const language of ['sl', 'en'] as const) {
+        const found = numbersIn(language);
+        expect(found.length).toBeGreaterThan(20);
+        for (const value of found) expect(ALLOWED.has(value), `${language} ${value}`).toBe(true);
+    }
+    expect(new Set(numbersIn('sl'))).toEqual(new Set(numbersIn('en')));
+    const quoted: ReadonlyArray<readonly [string, readonly string[]]> = [
+        ['correlation-line', ['0,92338', '0,9', '0,7']],
+        ['correlation-outlier', ['0,92338', '0,84680', '2,1', '0,1', '8,7']],
+        ['correlation-x-on-y', ['0,94737', '0,63158', '0,852632']],
+    ];
+    for (const [stepId, values] of quoted) {
+        for (const value of values) {
+            for (const language of ['sl', 'en'] as const) {
+                const body = prose(correlationStep(stepId), language);
+                expect(body.includes(language === 'sl' ? value.replace(',', '{,}') : value.replace(',', '.')), `${stepId} ${language} ${value}`).toBe(true);
+            }
+        }
+    }
+    const whole = (language: 'sl' | 'en') => [correlationLesson.summary[language], ...correlationLesson.learningGoals.map(g => g[language]), ...correlationLesson.formulaBlocks.map(b => b.explanation[language]), ...correlationLesson.steps.map(step => prose(step, language))].join(' ');
+    const needles: Record<'sl' | 'en', readonly RegExp[]> = {
+        sl: [/samo linearno povezanost/, /ne pomeni neodvisnosti/, /ne pomeni vzročnosti/, /osamelec/, /modelska izbira/, /preprost\w* povezav/, /univerzitetna razširitev/, /korelacijski koeficient/, /regresijska premica/],
+        en: [/linear association only/, /does not mean independence/, /does not mean causation/, /outlier/, /modelling choice/, /simple relation/, /university-level extension/, /correlation coefficient/, /regression line/],
+    };
+    for (const language of ['sl', 'en'] as const) for (const needle of needles[language]) expect(whole(language), `${language} ${needle}`).toMatch(needle);
 });

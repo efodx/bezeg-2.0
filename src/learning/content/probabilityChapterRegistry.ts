@@ -13,12 +13,13 @@ const sectionDemonstrations = {
     'binomial-normal': 'prob-binomial-normal',
     clt: 'prob-clt',
     summary: 'prob-summary',
+    correlation: 'prob-correlation',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type ProbabilitySectionId = keyof typeof sectionDemonstrations;
 
 /**
- * Section-owned activity (spec P1 to P4). The lesson text stays in the two guided-lesson files; the getters read it lazily because
+ * Section-owned activity (spec P1 to P5). The lesson text stays in the two guided-lesson files; the getters read it lazily because
  * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
  */
 export const probabilityGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(

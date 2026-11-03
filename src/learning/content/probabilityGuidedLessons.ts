@@ -698,4 +698,160 @@ const summaryStatistics: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const probabilityGuidedLessons: readonly GuidedLesson[] = [densityArea, binomialNormal, centralLimit, summaryStatistics];
+const correlationChoice = (value: 'default' | 'outlier' | 'parabola' | 'parabola-right' | 'ring'): LessonAction => ({kind: 'function-choice', name: 'correlation-example', value});
+const correlationShow = (target: 'correlation-residuals' | 'correlation-x-on-y', visible: boolean): LessonAction => ({kind: 'function-visibility', target, visible});
+const correlationSetPoint = (index: number, x: number, y: number): LessonAction => ({kind: 'correlation', operation: 'set-point', index, x, y});
+
+/** Every correlation scene starts from the demonstration default (the data of I4, residuals shown, the line of x on y hidden). */
+const correlationScene = (id: string, actions: readonly LessonAction[], sl: string, en: string): LessonScene => ({
+    id,
+    basedOn: 'demonstration-default',
+    actions: [{kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'}, ...actions],
+    expectedState: text(sl, en),
+});
+
+const correlationLesson: GuidedLesson = {
+    demonstrationId: 'prob-correlation',
+    title: text('Korelacija in regresijska premica', 'Correlation and the regression line'),
+    summary: text(
+        'Razsevni diagram pokaže, ali se točke vrstijo ob premici. Korelacijski koeficient \\(r\\) to strne v eno število med \\(-1\\) in \\(1\\), a meri le linearno povezanost: \\(r=0\\) ne pomeni neodvisnosti, velik \\(|r|\\) ne pomeni vzročnosti in en sam osamelec lahko \\(r\\) bistveno spremeni. Regresijska premica je premica po metodi najmanjših kvadratov iz lekcije o prileganju; da so navpični ostanki kvadrirani, je modelska izbira.',
+        'A scatter plot shows whether the points line up along a line. The correlation coefficient \\(r\\) condenses this into one number between \\(-1\\) and \\(1\\), but it measures linear association only: \\(r=0\\) does not mean independence, a large \\(|r|\\) does not mean causation, and a single outlier can change \\(r\\) a lot. The regression line is the least-squares line of the fitting lesson; squaring the vertical residuals is a modelling choice.',
+    ),
+    prerequisites: [
+        text('Aritmetična sredina in standardni odklon iz lekcije o povzetkih podatkov; prileganje po metodi najmanjših kvadratov in ostanki iz lekcije o prileganju; linearna funkcija.', 'The mean and the standard deviation from the summary lesson; least squares and residuals from the fitting lesson; the linear function.'),
+    ],
+    learningGoals: [
+        text('Poveš, da korelacijski koeficient \\(r\\) meri samo linearno povezanost: \\(\\pm1\\) je le za točke na premici, za popolno krivuljo pa je lahko \\(0\\).', 'State that the correlation coefficient \\(r\\) measures linear association only: it is \\(\\pm1\\) only for points on a line, and it can be \\(0\\) for a perfect curve.'),
+        text('Razložiš, da en osamelec premakne \\(r\\) in regresijsko premico ter da velik \\(|r|\\) ne pomeni vzročnosti.', 'Explain that one outlier moves \\(r\\) and the regression line, and that a large \\(|r|\\) does not mean causation.'),
+        text('Poveš, da sta regresijski premici za \\(y\\) in za \\(x\\) različni, razen če je \\(r=\\pm1\\).', 'State that the regression lines of \\(y\\) on \\(x\\) and of \\(x\\) on \\(y\\) differ unless \\(r=\\pm1\\).'),
+        text('Prebereš smer povezave iz razsevnega diagrama in predznaka naklona; to zadošča za matursko »preprosto povezavo«, sam \\(r\\) pa je univerzitetna razširitev.', 'Read the direction of the association from the scatter plot and the sign of the slope; this is what the matura "simple relations" goal needs, while \\(r\\) itself is a university-level extension.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'correlation-definitions',
+            latex: 'r=\\frac{S_{xy}}{\\sqrt{S_{xx}\\,S_{yy}}},\\qquad y=a+bx,\\quad b=\\frac{S_{xy}}{S_{xx}}=r\\,\\frac{s_y}{s_x},\\qquad b_{y\\mid x}\\,b_{x\\mid y}=r^2',
+            notation: text(
+                '\\(S_{xx}\\), \\(S_{yy}\\) in \\(S_{xy}\\) so vsote kvadratov odklonov in produktov odklonov od sredin, \\(r\\) je korelacijski koeficient, \\(b\\) naklon in \\(a\\) začetna vrednost regresijske premice, \\(b_{x\\mid y}\\) naklon premice za \\(x\\) v odvisnosti od \\(y\\), \\(s_x\\) in \\(s_y\\) standardna odklona.',
+                '\\(S_{xx}\\), \\(S_{yy}\\) and \\(S_{xy}\\) are the sums of squared deviations and of products of deviations from the means, \\(r\\) is the correlation coefficient, \\(b\\) the slope and \\(a\\) the intercept of the regression line, \\(b_{x\\mid y}\\) the slope of the line of \\(x\\) on \\(y\\), \\(s_x\\) and \\(s_y\\) the standard deviations.',
+            ),
+            explanation: text(
+                'Če je \\(S_{xy}=0\\), je \\(r=0\\), tudi kadar je \\(y\\) funkcija od \\(x\\). Regresijska premica minimizira vsoto kvadratov navpičnih ostankov, premica za \\(x\\) pa vodoravnih; zmnožek obeh naklonov je \\(r^2\\), zato se premici ujemata le pri \\(r=\\pm1\\). Kvadriranje ostankov je modelska izbira, ne geometrijska razdalja.',
+                'If \\(S_{xy}=0\\) then \\(r=0\\), even when \\(y\\) is a function of \\(x\\). The regression line minimises the sum of squared vertical residuals and the line of \\(x\\) on \\(y\\) the horizontal ones; the product of the two slopes is \\(r^2\\), so the lines coincide only for \\(r=\\pm1\\). Squaring the residuals is a modelling choice, not a geometric distance.',
+            ),
+        },
+    ],
+    workedExamples: [],
+    steps: [
+        {
+            id: 'correlation-scatter', order: 1,
+            title: text('Razsevni diagram', 'The scatter plot'),
+            purpose: text('Pogledati točke in napovedati predznak in velikost korelacijskega koeficienta.', 'Looking at the points and predicting the sign and size of the correlation coefficient.'),
+            explanation: text(
+                'Štiri točke \\((0,1)\\), \\((1,2)\\), \\((2,2)\\), \\((3,4)\\) so narisane kot razsevni diagram, ostankov še ni. Točke se v povprečju dvigajo. Napovej: ali je korelacijski koeficient \\(r\\) pozitiven ali negativen in ali je blizu \\(0\\) ali blizu \\(1\\)? Za preprosto povezavo, kot jo zahteva matura, zadošča že pogled na diagram in predznak naklona; \\(r\\) je univerzitetna razširitev.',
+                'The four points \\((0,1)\\), \\((1,2)\\), \\((2,2)\\), \\((3,4)\\) are drawn as a scatter plot, with no residuals yet. The points rise on average. Predict: is the correlation coefficient \\(r\\) positive or negative, and is it near \\(0\\) or near \\(1\\)? For a simple relation, as the matura asks, looking at the plot and the sign of the slope is enough; \\(r\\) is a university-level extension.',
+            ),
+            formulaIds: ['correlation-definitions'],
+            frames: [frame('correlation-scatter-explanation', 'explanation'), frame('correlation-scatter-observation', 'observation')],
+            observationPrompt: text('Ali točke ležijo ob premici, ki se dviga ali pada? Kako tesno?', 'Do the points lie along a rising or a falling line? How tightly?'),
+            expectedObservations: [text('Točke se dvigajo in ležijo precej tesno ob premici, zato pričakujemo pozitiven \\(r\\) blizu \\(1\\).', 'The points rise and lie fairly close to a line, so we expect a positive \\(r\\) near \\(1\\).')],
+            scene: correlationScene('correlation-scatter-start', [correlationShow('correlation-residuals', false), correlationShow('correlation-x-on-y', false)],
+                'Razsevni diagram štirih točk, brez ostankov in druge premice.',
+                'A scatter plot of four points, without residuals and the second line.'),
+        },
+        {
+            id: 'correlation-line', order: 2,
+            title: text('Korelacijski koeficient in regresijska premica', 'The correlation coefficient and the regression line'),
+            purpose: text('Prebrati \\(r\\), regresijsko premico in ostanke ter primerjati z napovedjo.', 'Reading \\(r\\), the regression line and the residuals, and comparing with the prediction.'),
+            explanation: text(
+                'Ostanki so prikazani. Korelacijski koeficient je \\(r=0{,}92338\\), regresijska premica je \\(y=0{,}9x+0{,}9\\) in vsota kvadratov ostankov je \\(0{,}7\\). To je ista premica po metodi najmanjših kvadratov kot v lekciji o prileganju. Navpični ostanki so kvadrirani, ker smo se tako odločili (modelska izbira), ne zato, ker bi bila to edina razdalja do premice. Naklon je pozitiven, zato je tudi \\(r\\) pozitiven.',
+                'The residuals are shown. The correlation coefficient is \\(r=0.92338\\), the regression line is \\(y=0.9x+0.9\\) and the sum of squared residuals is \\(0.7\\). This is the same least-squares line as in the fitting lesson. The vertical residuals are squared because we chose so (a modelling choice), not because it is the only distance to a line. The slope is positive, so \\(r\\) is positive too.',
+            ),
+            formulaIds: ['correlation-definitions'],
+            frames: [frame('correlation-line-explanation', 'explanation'), frame('correlation-line-observation', 'observation')],
+            observationPrompt: text('Se je napoved ujemala? Kateri ostanek je največji?', 'Did the prediction match? Which residual is the largest?'),
+            expectedObservations: [text('Koeficient \\(r=0{,}92338\\) je blizu \\(1\\); premica \\(y=0{,}9x+0{,}9\\) ima vsoto kvadratov ostankov \\(0{,}7\\).', 'The coefficient \\(r=0.92338\\) is near \\(1\\); the line \\(y=0.9x+0.9\\) has a sum of squared residuals \\(0.7\\).')],
+            scene: correlationScene('correlation-line-start', [correlationShow('correlation-residuals', true)],
+                'Ostanki prikazani; \\(r=0{,}92338\\), \\(y=0{,}9x+0{,}9\\), vsota kvadratov ostankov \\(0{,}7\\).',
+                'Residuals shown; \\(r=0.92338\\), \\(y=0.9x+0.9\\), sum of squared residuals \\(0.7\\).'),
+        },
+        {
+            id: 'correlation-outlier', order: 3,
+            title: text('En osamelec', 'One outlier'),
+            purpose: text('Videti, da ena sama točka premakne korelacijski koeficient in regresijsko premico.', 'Seeing that a single point moves the correlation coefficient and the regression line.'),
+            explanation: text(
+                'Točka \\((3,4)\\) je zdaj \\((3,8)\\); pogled se je prilagodil. Korelacijski koeficient je padel z \\(0{,}92338\\) na \\(0{,}84680\\), premica je \\(y=2{,}1x+0{,}1\\) in vsota kvadratov ostankov je zrasla na \\(8{,}7\\). Ena sama točka torej bistveno spremeni \\(r\\) in premico. Povleci to točko sam in opazuj, kako se premakneta \\(r\\) in premica.',
+                'The point \\((3,4)\\) is now \\((3,8)\\); the view has refitted. The correlation coefficient dropped from \\(0.92338\\) to \\(0.84680\\), the line is \\(y=2.1x+0.1\\) and the sum of squared residuals grew to \\(8.7\\). A single point thus changes \\(r\\) and the line a lot. Drag this point yourself and watch how \\(r\\) and the line move.',
+            ),
+            formulaIds: ['correlation-definitions'],
+            frames: [frame('correlation-outlier-explanation', 'explanation'), frame('correlation-outlier-observation', 'observation')],
+            observationPrompt: text('Kam povlečeš točko, da se \\(r\\) spet poveča? Se spremeni naklon premice?', 'Where do you drag the point so that \\(r\\) grows again? Does the slope of the line change?'),
+            expectedObservations: [text('Z osamelcem je \\(r=0{,}84680\\) in \\(y=2{,}1x+0{,}1\\); vsota kvadratov ostankov \\(8{,}7\\) kaže, da se premica slabše prilega.', 'With the outlier \\(r=0.84680\\) and \\(y=2.1x+0.1\\); the sum of squared residuals \\(8.7\\) shows the line fits worse.')],
+            scene: correlationScene('correlation-outlier-start', [correlationSetPoint(3, 3, 8)],
+                'Točka \\((3,8)\\); \\(r=0{,}84680\\), \\(y=2{,}1x+0{,}1\\), vsota kvadratov ostankov \\(8{,}7\\).',
+                'The point \\((3,8)\\); \\(r=0.84680\\), \\(y=2.1x+0.1\\), sum of squared residuals \\(8.7\\).'),
+        },
+        {
+            id: 'correlation-parabola', order: 4,
+            title: text('Popolna krivulja, a \\(r=0\\)', 'A perfect curve, yet \\(r=0\\)'),
+            purpose: text('Videti, da korelacijski koeficient ne zazna nelinearne odvisnosti.', 'Seeing that the correlation coefficient does not detect a nonlinear dependence.'),
+            explanation: text(
+                'Točke ležijo na paraboli \\(y=x^2\\) pri \\(x=-3,\\dots,3\\). Vsaka vrednost \\(y\\) je natančno določena z \\(x\\), a je \\(r=0\\) in regresijska premica je vodoravna \\(y=4\\). Korelacijski koeficient meri samo linearno povezanost, zato \\(r=0\\) ne pomeni neodvisnosti. Obratno velja podobno: velik \\(|r|\\) ne pomeni vzročnosti, pove le, da se podatki vrstijo ob premici.',
+                'The points lie on the parabola \\(y=x^2\\) at \\(x=-3,\\dots,3\\). Every \\(y\\) is fully determined by \\(x\\), yet \\(r=0\\) and the regression line is the horizontal \\(y=4\\). The correlation coefficient measures linear association only, so \\(r=0\\) does not mean independence. The converse is similar: a large \\(|r|\\) does not mean causation, it only says the data line up along a line.',
+            ),
+            formulaIds: ['correlation-definitions'],
+            frames: [frame('correlation-parabola-explanation', 'explanation'), frame('correlation-parabola-observation', 'observation')],
+            observationPrompt: text('Zakaj je \\(r\\) natanko \\(0\\), čeprav je \\(y\\) funkcija od \\(x\\)? Kaj pokažeta levi in desni del parabole?', 'Why is \\(r\\) exactly \\(0\\) although \\(y\\) is a function of \\(x\\)? What do the left and the right half of the parabola show?'),
+            expectedObservations: [text('Levi in desni del se izravnata: \\(S_{xy}=0\\), zato \\(r=0\\), a odvisnost je popolna.', 'The left and right halves cancel: \\(S_{xy}=0\\), so \\(r=0\\), yet the dependence is perfect.')],
+            scene: correlationScene('correlation-parabola-start', [correlationChoice('parabola')],
+                'Parabola \\(y=x^2\\) pri \\(x=-3,\\dots,3\\); \\(r=0\\), \\(y=4\\).',
+                'The parabola \\(y=x^2\\) at \\(x=-3,\\dots,3\\); \\(r=0\\), \\(y=4\\).'),
+        },
+        {
+            id: 'correlation-x-on-y', order: 5,
+            title: text('Premica za \\(x\\) v odvisnosti od \\(y\\)', 'The line of \\(x\\) on \\(y\\)'),
+            purpose: text('Videti, da sta regresijski premici različni, in kako ju povezuje \\(r\\).', 'Seeing that the two regression lines differ, and how \\(r\\) links them.'),
+            explanation: text(
+                'Spet so prvotni podatki. Črtkana premica minimizira vodoravne ostanke: \\(x=0{,}94737y-0{,}63158\\). Naklon prve premice \\(0{,}9\\) in naklon druge \\(0{,}94737\\) (kot \\(x\\) na \\(y\\)) se zmnožita v \\(r^2=0{,}852632\\). Ker je zmnožek manjši od \\(1\\), premici nista ista; ujemata se le pri \\(r=\\pm1\\). Katera premica je prava, je odvisno od vprašanja, kaj napovedujemo.',
+                'The original data are back. The dashed line minimises the horizontal residuals: \\(x=0.94737y-0.63158\\). The slope \\(0.9\\) of the first line and the slope \\(0.94737\\) of the second (as \\(x\\) on \\(y\\)) multiply to \\(r^2=0.852632\\). Since the product is below \\(1\\), the lines differ; they coincide only for \\(r=\\pm1\\). Which line is right depends on what we want to predict.',
+            ),
+            formulaIds: ['correlation-definitions'],
+            frames: [frame('correlation-x-on-y-explanation', 'explanation'), frame('correlation-x-on-y-observation', 'observation')],
+            observationPrompt: text('Povleci točke bliže premici. Kaj se zgodi z obema premicama?', 'Drag the points closer to a line. What happens to the two lines?'),
+            expectedObservations: [text('Premici se približujeta, ko se \\(r\\) bliža \\(\\pm1\\); zmnožek naklonov je \\(r^2=0{,}852632\\).', 'The lines approach each other as \\(r\\) nears \\(\\pm1\\); the product of the slopes is \\(r^2=0.852632\\).')],
+            scene: correlationScene('correlation-x-on-y-start', [correlationShow('correlation-x-on-y', true)],
+                'Prvotni podatki, druga premica prikazana: \\(x=0{,}94737y-0{,}63158\\).',
+                'The original data with the second line shown: \\(x=0.94737y-0.63158\\).'),
+        },
+        {
+            id: 'correlation-explore', order: 6,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno raziskati druge primere in ugotoviti, kaj \\(r\\) pove in česa ne.', 'Exploring other examples on your own and finding what \\(r\\) tells and what it does not.'),
+            explanation: text(
+                'Graf je spet pri prvotnih podatkih. Preizkusi primere »parabola desno od ničle«, »krog osmih točk« in »primer z osamelcem«, vleci točke ali jih vpiši, dodaj in odstrani točke (od \\(2\\) do \\(20\\)). Če imajo vse točke isti \\(x\\) ali isti \\(y\\), korelacijski koeficient ni določen, pri manj kot \\(3\\) točkah pa ne pove ničesar. Poišči podatke, pri katerih je \\(r\\) velik, a ne bi smeli sklepati, da ena količina povzroča drugo.',
+                'The graph is back at the original data. Try the examples "parabola right of zero", "ring of eight points" and "example with an outlier", drag the points or type them, add and remove points (from \\(2\\) to \\(20\\)). When all points have the same \\(x\\) or the same \\(y\\) the correlation coefficient is undefined, and for fewer than \\(3\\) points it tells nothing. Look for data where \\(r\\) is large but you should not conclude that one quantity causes the other.',
+            ),
+            formulaIds: ['correlation-definitions'],
+            frames: [frame('correlation-explore-explanation', 'explanation'), frame('correlation-explore-observation', 'observation')],
+            observationPrompt: text('Kdaj je \\(r=0\\) in kdaj je velik, čeprav je odvisnost krivulja?', 'When is \\(r=0\\) and when is it large although the dependence is a curve?'),
+            expectedObservations: [text('Parabola na obeh straneh ničle in krog dasta \\(r=0\\); parabola samo desno od ničle ima velik \\(r\\), čeprav ni premica.', 'The two-sided parabola and the ring give \\(r=0\\); the parabola right of zero has a large \\(r\\) although it is not a line.')],
+            scene: correlationScene('correlation-explore-default', [],
+                'Prvotni podatki: \\(r=0{,}92338\\), \\(y=0{,}9x+0{,}9\\); vse je prosto za raziskovanje.',
+                'The original data: \\(r=0.92338\\), \\(y=0.9x+0.9\\); everything is free to explore.'),
+        },
+    ],
+    sources: [
+        {id: 'matura-statistics', citation: 'Matura catalogue, mathematics, section 4.17 (simple relations between data); the correlation coefficient itself is outside the matura.'},
+        {
+            id: 'bezeg-correlation-implementation',
+            citation: 'Bezeg source: src/analysis/correlationModel.ts and src/graphs/functions/CorrelationGraph.tsx; the least-squares kernel of lesson I4.',
+            implementationCorrespondence: 'The coordinates are integer tenths; the sums behind r are integers, so S_xy = 0 is detected exactly and r = 0 is exactly 0 for the parabola and the ring; r itself is floating point. A lesson scene sets a point (a point outside the view refits it), chooses the example and shows or hides the residuals and the line of x on y.',
+        },
+    ],
+    edgeCases: [
+        text('Točk je od \\(2\\) do \\(20\\), koordinate so na desetinko natančne; pri manj kot \\(3\\) točkah \\(r\\) ni prikazan, ker bi dve točki vedno dali \\(\\pm1\\).', 'There are \\(2\\) to \\(20\\) points with coordinates to the nearest tenth; for fewer than \\(3\\) points \\(r\\) is not shown because two points always give \\(\\pm1\\).'),
+        text('Če imajo vse točke isti \\(x\\) ali isti \\(y\\), \\(r\\) ni določen (v imenovalcu bi bila ničla) in lekcija to sporoči namesto deljenja z ničlo.', 'If all points share the same \\(x\\) or the same \\(y\\), \\(r\\) is undefined (the denominator would be zero) and the lesson says so instead of dividing by zero.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const probabilityGuidedLessons: readonly GuidedLesson[] = [densityArea, binomialNormal, centralLimit, summaryStatistics, correlationLesson];
