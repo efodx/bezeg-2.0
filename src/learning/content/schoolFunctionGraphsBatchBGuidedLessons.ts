@@ -7,7 +7,7 @@
  * (it fixes k and the zeros), then moves zeros, then the derivative switch, so it does not depend on the scene before it.
  * Kept apart from `schoolFunctionGraphsGuidedLessons.ts` (batch A) to keep both files short.
  */
-import type {LessonAction} from '../model';
+import type {LessonAction, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
@@ -255,6 +255,12 @@ export interface RationalMove {
 }
 
 /**
+ * The lesson view of the `oblique` scenes: the default box [-11, 9, 11, -9] cuts off the probe point at x = 10, where f(10) = 12.375
+ * (11 once the pole is dragged onto the zero 1), so the view rises above it and still frames the zeros ±1, the pole 2 and y = x + 2.
+ */
+const OBLIQUE_VIEW: LessonViewBox = [-8, 14, 12, -6];
+
+/**
  * An S4 scene from the default scene: the example (its k and zeros), then the zero moves in the order given (a numerator zero landing on a
  * denominator zero makes a hole; two zeros of one list that meet merge), then the probe x of the remainder term.
  */
@@ -262,7 +268,7 @@ const rationalScene = (
     id: string, example: RationalExample, moves: readonly RationalMove[], probe: number, sl: string, en: string,
 ): LessonScene => {
     const actions: LessonAction[] = [
-        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default', ...(example === 'oblique' ? {view: OBLIQUE_VIEW} : {})},
         {kind: 'function-choice', name: 'rational-example', value: example},
         ...moves.map((move): LessonAction => ({kind: 'function-parameter', name: move.name, value: move.z})),
         {kind: 'function-parameter', name: 'rational-probe', value: probe},
