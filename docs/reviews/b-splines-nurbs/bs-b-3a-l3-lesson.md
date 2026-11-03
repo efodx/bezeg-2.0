@@ -12,9 +12,14 @@ Source: [task plan](../../tasks/b-splines-nurbs/README.md), [spec L3](../../spec
 
 ## Checks
 
-- Worker: tests on a real graph (`bsplineInsertionGuidedLessons.test.tsx`), every scene run in one synchronous sequence. See the worker report for counts, mutation results, typecheck, lint, build and smoke results.
+- Handler (curves handler 39), at `a21a89d8` unless noted: `npx tsc --noEmit` passed; `eslint` on the changed files passed; focused unit run (`src/learning`, `src/graphs/curves/bspline`, `src/graphs/base`, `src/demonstrations`) 150 files / 3526 tests passed; full unit suite 540 files / 10551 tests passed (3 skipped), clean tree; `just build` passed; `just smoke-lesson bspline-insertion` 2/2 (sl walk; en 390×844 points in view, math inside the viewport).
+- Mutations, each run against `bsplineInsertionGuidedLessons.test.tsx`: `insert` as a no-op failed 4 tests, `set-example` 1, `set-comb` 2, `reset` 2; removing the `lessonDefaultState` override failed 3.
+- Engineering review (Sonnet): no blocking findings. A refused insertion throws and leaves its refusal reason in the state, which the test asserts; the curve is unchanged.
+- Mathematical review (Sonnet, independent scipy recomputation): every knot vector, inserted point, de Boor level-1 point, curve point (1, 1.5) at `u=0.5`, κ −1.4311 on both sides of `u=1`, 8/3 → 16/3 at `u=2` and the tangent (1.5, 0) agree with the prose and the spec; step order follows the spec. Its optional suggestion was adopted: step 2 now says the multiplicity list guarantees only C⁰ while the curve stays C¹.
+- Browser (Haiku, preview of `a21a89d8`, `?learn=1`): sl 1440×900 and en 390×844 walk all 13 frames; board visible; the jump readout is absent in step 4 and shown in step 5; the lesson completes and the graph remains after exit; no console errors. The handler viewed the step 5 screenshot: cubic p0…p6, comb, multiplicity list C2/C1.
 
 ## Gaps
 
 - The smoke row has no hooks; the scenes are covered by the unit test on the real graph.
-- Not checked in a browser by the worker beyond `just smoke-lesson` (see the report).
+- At 1440×900 the lesson card covers the upper middle of the board, including the jump at `u=2`; the card can be moved or hidden, and the view box matches the L2 lesson's convention. At 390×844 the steps 4 and 5 boards were not viewed behind the card.
+- The step 2 sentence added after review was checked by the unit and notation tests only.
