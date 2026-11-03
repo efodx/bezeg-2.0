@@ -12,8 +12,8 @@ Written 2026-11-03 by handler 37 (Opus 5.5, auto, effort medium). Continues [han
   - The worker stopped at its budget, and the handler finished the checks.
   - Two rebases landed on master's lessons N4 and P2. The preview counts are now 91 lessons and 98 copy entries.
 - **T3 21**, registration, is on master but **not accepted**.
-  - Commit `dc484e09` registers both routes (`voronoi`, `voronoi-degenerate`; B5 title *Izrojena mesta* / *Degenerate sites*).
-  - Commit `e9b36ce2` fixes the stale clipped diagram after a scene reset or a Preset replacement. Cause: the follow and start boxes were stored in grid units. The fix compares the board-coordinate `startView` and re-measures when the grid step changes. `initialView()` now uses `exampleModel()`'s frame.
+  - Commit `31dd48eb` registers both routes (`voronoi`, `voronoi-degenerate`; B5 title *Izrojena mesta* / *Degenerate sites*).
+  - Commit `b3300199` fixes the stale clipped diagram after a scene reset or a Preset replacement. Cause: the follow and start boxes were stored in grid units. The fix compares the board-coordinate `startView` and re-measures when the grid step changes. `initialView()` now uses `exampleModel()`'s frame.
   - The full unit run had 9766 passed and 1 failed, the stale-cache test above. That test passed after clearing the cache. Build and tsc passed.
   - Review (Sonnet): accept. Its one unchecked path: a reload with no stored Preset (`BaseGraph.tsx:343`, `applyFigurePreset({id:""})`). If that keeps the current sites, they may start outside the example frame.
   - Smoke ([21-smoke.md](../triangulation-voronoi/21-smoke.md), Haiku, stopped at its budget): 7 of 9 checks passed. Check 6, the Preset round trip, was not done because of a harness locator timeout, not a confirmed app defect. Check 9, the 40-site drag, was not run.
