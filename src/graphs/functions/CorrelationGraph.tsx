@@ -1,5 +1,6 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
@@ -105,8 +106,40 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         this.ensurePointsVisible();
     }
 
-    protected removePoint(): void {
-        this.commitModel(this.accepted(removeCorrelationPoint(this.model)));
+    protected removePoint(index?: number): void {
+        this.commitModel(this.accepted(removeCorrelationPoint(this.model, index)));
+    }
+
+    /** A lesson's point edit: refused values throw a DomainError; a point outside the view refits it, as a typed edit does. */
+    protected setPoint(index: number, x: number, y: number): void {
+        const next = this.accepted(moveCorrelationPoint(this.model, index, [x, y]));
+        if (next !== this.model) this.commitModel(next);
+        this.ensurePointsVisible();
+    }
+
+    // ---- Lesson actions ------------------------------------------------------------------------------------------------
+
+    /** Lesson steps go through the inspector's validated edits, so a refused value throws a DomainError. An example refits. */
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            visibility: {
+                "correlation-residuals": visible => this.setResiduals(visible),
+                "correlation-x-on-y": visible => this.setXOnY(visible),
+            },
+            choices: {
+                "correlation-example": value => this.setExample(value),
+            },
+        };
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("correlation", action => {
+            if (action.operation === "set-point") this.setPoint(action.index, action.x, action.y);
+            else if (action.operation === "add-point") this.addPoint();
+            else if (action.operation === "remove-point") this.removePoint(action.index);
+            else throw new Error("A correlation action needs the operation set-point, add-point or remove-point.");
+        });
     }
 
     protected setResiduals(value: unknown): void {

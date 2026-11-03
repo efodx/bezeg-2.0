@@ -12,6 +12,7 @@ import {
 import {functionPresetCollections} from './functionPresetCollections';
 import {DomainError} from './BaseFunctionGraph';
 import {GraphPalette} from '../styles/GraphPalette';
+import type {LessonAction} from '../../learning/model';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
 beforeAll(installBoardShims);
@@ -44,6 +45,7 @@ class ObservedCorrelationGraph extends CorrelationGraph {
     /** The dashed x-on-y line in the comparison colour. */
     xOnYCurves() { return this.shown(GraphPalette.comparisonCurve, 3); }
     addRaw() { this.addPoint(); }
+    lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
     drag(index: number, x: number, y: number) {
         const handle = this.handles()[index];
         act(() => { handle.moveTo([x, y]); handle.triggerEventHandlers(['drag'], []); });
@@ -381,4 +383,89 @@ test('switching the language keeps the model and re-renders labels, numbers with
     expect(status('too-few')).toMatch(/needs at least 3 points/);
     graph.drag(0, 99, 0);
     expect(status('refused')).toMatch(/from −20 to 20/);
+});
+
+describe('lesson actions (P5)', () => {
+    const choice = (name: string, value: unknown) => ({kind: 'function-choice', name, value}) as LessonAction;
+    const show = (target: string, visible: unknown) => ({kind: 'function-visibility', target, visible}) as LessonAction;
+    const setPoint = (index: unknown, x: unknown, y: unknown) => ({kind: 'correlation', operation: 'set-point', index, x, y}) as LessonAction;
+    const addPoint = () => ({kind: 'correlation', operation: 'add-point'}) as LessonAction;
+    const removePoint = (index: unknown) => ({kind: 'correlation', operation: 'remove-point', index}) as LessonAction;
+
+    test('one synchronous sequence follows the planned lesson: scatter, line and residuals, an outlier, the parabola, x on y, free edits', () => {
+        const {graph} = mount();
+        // (1) the scatter plot alone
+        graph.lesson(show('correlation-residuals', false));
+        expect(graph.residualCurves()).toHaveLength(0);
+        expect(handlePoints(graph)).toEqual([[0, 1], [1, 2], [2, 2], [3, 4]]);
+        // (2) r, the regression line and the residuals
+        graph.lesson(show('correlation-residuals', true));
+        expect(graph.residualCurves()).toHaveLength(1);
+        expect(graph.yOnXCurves()).toHaveLength(1);
+        expect(readout('r')).toBe('0,92338');
+        expect(readout('slope')).toBe('0,9');
+        expect(readout('ssres')).toBe('0,7');
+        // (3) one point far away: (3, 4) to (3, 8); the view refits to show it
+        expect(box(graph)[1]).toBeLessThan(8);
+        graph.lesson(setPoint(3, 3, 8));
+        expect(graph.modelNow().points).toEqual([[0, 1], [1, 2], [2, 2], [3, 8]]);
+        expect(readout('r')).toBe('0,8468');
+        expect(readout('slope')).toBe('2,1');
+        expect(readout('intercept')).toBe('0,1');
+        expect(readout('ssres')).toBe('8,7');
+        expect(box(graph)[1]).toBeGreaterThanOrEqual(8);
+        // (4) the parabola: a perfect curve with r exactly 0 and a horizontal line y = 4
+        graph.lesson(choice('correlation-example', 'parabola'));
+        expect(graph.modelNow().points).toEqual(CORRELATION_EXAMPLES.parabola);
+        expect(readout('r')).toBe('0');
+        expect(readout('slope')).toBe('0');
+        expect(readout('intercept')).toBe('4');
+        // (5) the line of x on y on the default data; the two lines differ
+        graph.lesson(choice('correlation-example', 'default'));
+        graph.lesson(show('correlation-x-on-y', true));
+        expect(graph.xOnYCurves()).toHaveLength(1);
+        expect(readout('xony')).toBe('x = 0,94737y − 0,63158');
+        // (6) free exploration: add a point, remove the first one, the ring
+        graph.lesson(addPoint());
+        expect(graph.modelNow().points).toHaveLength(5);
+        graph.lesson(removePoint(0));
+        expect(graph.modelNow().points[0]).toEqual([1, 2]);
+        expect(graph.modelNow().points).toHaveLength(4);
+        graph.lesson(choice('correlation-example', 'ring'));
+        expect(readout('r')).toBe('0');
+        expect(graph.modelNow().xOnY).toBe(true);
+        expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+    });
+
+    test('a point inside the view keeps the view; a point is snapped to tenths', () => {
+        const {graph} = mount();
+        const before = box(graph);
+        graph.lesson(setPoint(0, 0.04, 1.26));
+        expect(graph.modelNow().points[0]).toEqual([0, 1.3]);
+        expect(box(graph)).toEqual(before);
+    });
+
+    test.each([
+        ['an x beyond the limit', setPoint(0, 21, 1)],
+        ['a non-number y', setPoint(0, 1, 'a')],
+        ['index 4 of four points', setPoint(4, 1, 1)],
+        ['a fractional index', setPoint(1.5, 1, 1)],
+        ['an unknown example', choice('correlation-example', 'anscombe')],
+        ['a non-boolean visibility', show('correlation-x-on-y', 'yes')],
+    ])('%s is refused with a DomainError and changes nothing', (_name, action) => {
+        const {graph} = mount();
+        const before = graph.modelNow();
+        expect(() => graph.lesson(action)).toThrow(DomainError);
+        expect(graph.modelNow()).toBe(before);
+    });
+
+    test('removing below two points is refused; an unknown operation is a plain error', () => {
+        const {graph} = mount();
+        graph.lesson(removePoint(0));
+        graph.lesson(removePoint(0));
+        expect(graph.modelNow().points).toHaveLength(2);
+        expect(() => graph.lesson(removePoint(0))).toThrow(DomainError);
+        const unknown = {kind: 'correlation', operation: 'move'} as unknown as LessonAction;
+        expect(() => graph.lesson(unknown)).toThrow(Error);
+    });
 });
