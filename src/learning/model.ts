@@ -14,6 +14,7 @@ import {ROOT_FINDING_METHODS} from '../analysis/rootFindingModel';
 import {DENSITY_EXAMPLE_IDS} from '../analysis/densityAreaModel';
 import {BINOMIAL_CORRECTION_CHOICES, BINOMIAL_NORMAL_EXAMPLE_IDS} from '../analysis/binomialNormalModel';
 import {CLT_EXAMPLE_IDS} from '../analysis/cltModel';
+import {SUMMARY_EXAMPLE_IDS, SUMMARY_RULES, SUMMARY_SIGMAS} from '../analysis/summaryStatisticsModel';
 import {QUADRATURE_RULES} from '../analysis/quadratureModel';
 import {TRANSFORM_BASE_IDS} from '../analysis/functionTransformationModel';
 import {INVERSE_RESTRICTION_IDS} from '../analysis/functionInverseModel';
@@ -45,7 +46,7 @@ export const FUNCTION_PARAMETER_NAMES = ['x1', 'y1', 'x2', 'y2', 'k', 'n', 'a', 
 export type FunctionParameterName = typeof FUNCTION_PARAMETER_NAMES[number];
 
 /** Closed set of optional function-demonstration elements a lesson can show or hide. */
-export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test', 'inverse-curve', 'polynomial-derivative', 'poisson-bars', 'clt-cdf'] as const;
+export const FUNCTION_VISIBILITY_TARGETS = ['mirror', 'reference', 'tangent', 'matching-points', 'accumulation-curve', 'lower-sum', 'upper-sum', 'extrema-classification', 'second-derivative', 'taylor-bound', 'sequence-certificate', 'fixed-point-bound', 'uniform-supremum', 'complex-product', 'complex-arguments', 'complex-reciprocal', 'complex-quotient', 'complex-circle', 'complex-roots', 'complex-polygon', 'complex-test', 'inverse-curve', 'polynomial-derivative', 'poisson-bars', 'clt-cdf', 'summary-box-plot', 'summary-sigma-band'] as const;
 export type FunctionVisibilityTarget = typeof FUNCTION_VISIBILITY_TARGETS[number];
 
 /** Closed set of named function choices and, per name, the values a lesson may select (the graph decides what each value means). */
@@ -72,6 +73,9 @@ const functionChoiceValues = {
     'binomial-normal-example': BINOMIAL_NORMAL_EXAMPLE_IDS,
     'binomial-correction': BINOMIAL_CORRECTION_CHOICES,
     'clt-example': CLT_EXAMPLE_IDS,
+    'summary-example': SUMMARY_EXAMPLE_IDS,
+    'summary-rule': SUMMARY_RULES,
+    'summary-sigma': SUMMARY_SIGMAS,
     'transform-base': TRANSFORM_BASE_IDS,
     'polynomial-example': POLYNOMIAL_EXAMPLE_IDS,
     'rational-example': RATIONAL_EXAMPLE_IDS,
@@ -383,6 +387,17 @@ export type LessonAction =
     | {readonly kind: 'lsq'; readonly operation: 'set-mode'; readonly mode: 'best' | 'manual'}
     | {readonly kind: 'lsq'; readonly operation: 'set-line'; readonly slope: number; readonly intercept: number}
     | {readonly kind: 'lsq'; readonly operation: 'set-overlay'; readonly overlay: 'squares' | 'normal-equations'; readonly visible: boolean}
+    /**
+     * SummaryStatisticsGraph only (summary statistics, lesson P4): `set-value` moves value `index` (0-based, in the user's order) to
+     * `value`, `add-value` appends a value (at `value`, or at the median when it is left out) and `remove-value` removes value `index`.
+     * Values are snapped to tenths; a value outside 0..40, a bad index, a 16th value or removing the last value is refused with a
+     * message, never clamped. A value outside the visible range refits the view. The example, quartile rule and sigma kind are the
+     * function choices `summary-example`, `summary-rule` and `summary-sigma`; the box plot and the sigma band are the function
+     * visibility targets `summary-box-plot` and `summary-sigma-band`.
+     */
+    | {readonly kind: 'summary'; readonly operation: 'set-value'; readonly index: number; readonly value: number}
+    | {readonly kind: 'summary'; readonly operation: 'add-value'; readonly value?: number}
+    | {readonly kind: 'summary'; readonly operation: 'remove-value'; readonly index: number}
     /**
      * CoonsPatchGraph only (Coons patch, lesson D4): `set-shown` picks the surface the mesh shows (`lc`, `ld`, `b` or the blend `s`),
      * `set-linked-corners` turns corner sharing on (the corner pairs snap to their average) or off, and `move-point` puts control

@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FillCurve} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -17,6 +17,7 @@ import {summaryEditMessage, summaryNumber} from "./summaryStatisticsMessages";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /** Height step of the next equal value in a stack of tied dots, and the rows of the box plot and the markers (board units). */
 export const SUMMARY_STACK_STEP = 0.35;
@@ -124,8 +125,8 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
         this.ensureValuesVisible();
     }
 
-    protected addValue(): void {
-        this.commitModel(this.accepted(addSummaryValue(this.model)));
+    protected addValue(value?: unknown): void {
+        this.commitModel(this.accepted(addSummaryValue(this.model, value)));
         this.ensureValuesVisible();
     }
 
@@ -178,6 +179,36 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
             if (edit.model !== this.model) this.commitModel(edit.model, {syncScene: false});
         }
         this.syncSceneToModel();
+    }
+
+    // ---- Lesson actions ------------------------------------------------------------------------------------------------
+
+    /**
+     * Lesson steps go through the inspector's validated edits, so a refused value throws a DomainError. A value edit or an
+     * added value refits only when a value would lie outside the visible x range (step 2 moves 8 to 30); an example refits.
+     */
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            visibility: {
+                "summary-box-plot": visible => this.setBoxPlot(visible),
+                "summary-sigma-band": visible => this.setSigmaBand(visible),
+            },
+            choices: {
+                "summary-example": value => this.setExample(value),
+                "summary-rule": value => this.setRule(value),
+                "summary-sigma": value => this.setSigma(value),
+            },
+        };
+    }
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on("summary", action => {
+            if (action.operation === "set-value") this.moveValue(action.index, action.value);
+            else if (action.operation === "add-value") this.addValue(action.value);
+            else if (action.operation === "remove-value") this.removeValue(action.index);
+            else throw new Error("A summary action needs the operation set-value, add-value or remove-value.");
+        });
     }
 
     override importPresetData(data: SummaryModel): void {

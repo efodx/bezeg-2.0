@@ -7,6 +7,7 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGr
 import {LocalizedError, setLanguage} from '../../localization';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
 import {DEFAULT_SUMMARY_MODEL, fitSummaryView, SUMMARY_VALUES_MAX} from '../../analysis/summaryStatisticsModel';
+import {LessonAction} from '../../learning/model';
 import {DomainError} from './BaseFunctionGraph';
 import {functionPresetCollections} from './functionPresetCollections';
 import {GraphPalette} from '../styles/GraphPalette';
@@ -46,6 +47,7 @@ class ObservedSummaryGraph extends SummaryStatisticsGraph {
     }
     callMove(index: unknown, value: unknown) { this.moveValue(index, value); }
     callAdd() { this.addValue(); }
+    lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
@@ -381,4 +383,125 @@ test('switching the language keeps the model and re-renders labels, numbers with
     expect(graph.faces('diamond')).toHaveLength(1);
     expect(graph.box()).toHaveLength(1);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+});
+
+describe('lesson actions (P4)', () => {
+    const choice = (name: string, value: unknown) => ({kind: 'function-choice', name, value}) as LessonAction;
+    const show = (target: string, visible: unknown) => ({kind: 'function-visibility', target, visible}) as LessonAction;
+    const setValue = (index: unknown, value: unknown) => ({kind: 'summary', operation: 'set-value', index, value}) as LessonAction;
+    const addValue = (value?: unknown) => ({kind: 'summary', operation: 'add-value', value}) as LessonAction;
+    const removeValue = (index: unknown) => ({kind: 'summary', operation: 'remove-value', index}) as LessonAction;
+    const right = (graph: ObservedSummaryGraph) => graph.liveBoard().getBoundingBox()[2];
+
+    test('one synchronous sequence follows the planned lesson: 8 to 30, box and fences, the band, a far dot, the other rule, free edits', () => {
+        const {graph} = mount();
+        // (1) dots with the mean and median markers
+        expect(readout('mean')).toBe('5,857143');
+        expect(readout('median')).toBe('6');
+        expect(right(graph)).toBeLessThan(30);
+        graph.lesson(show('summary-box-plot', false));
+        expect(graph.box()).toHaveLength(0);
+        // (2) the largest value moves to 30: the mean follows, the median stays; the view refits to show it
+        graph.lesson(setValue(6, 30));
+        expect(graph.modelNow().values).toEqual([4, 5, 5, 6, 6, 7, 30]);
+        expect(readout('mean')).toBe('9');
+        expect(readout('median')).toBe('6');
+        expect(readout('sigma')).toBe('8,6189');
+        expect(right(graph)).toBeGreaterThanOrEqual(30);
+        expect(graph.liveBoard().getBoundingBox()[0]).toBeCloseTo(fitSummaryView([4, 5, 5, 6, 6, 7, 30])[0], 6);
+        // (3) the box plot and its fences: 30 is flagged
+        graph.lesson(show('summary-box-plot', true));
+        expect(graph.box()).toHaveLength(1);
+        expect(readout('q1')).toBe('5');
+        expect(readout('q3')).toBe('6,5');
+        expect(readout('fences')).toBe('2,75 in 8,75');
+        expect(readout('outliers')).toBe('30');
+        expect(graph.faces('diamond').map(p => p.X())).toEqual([30]);
+        // (4) the spread: the sigma band, the sample sigma, a dot far from the mean
+        graph.lesson(show('summary-sigma-band', true));
+        expect(graph.band()).toHaveLength(1);
+        graph.lesson(choice('summary-sigma', 'sample'));
+        expect(readout('sigma')).toBe('9,3095');
+        graph.lesson(choice('summary-sigma', 'population'));
+        graph.lesson(addValue(20));
+        expect(graph.modelNow().values).toEqual([4, 5, 5, 6, 6, 7, 30, 20]);
+        expect(readout('n')).toBe('8');
+        expect(readout('mean')).toBe('10,375');
+        expect(readout('median')).toBe('6');
+        // (5) the convention panel: the school data under both rules
+        graph.lesson(choice('summary-example', 'school'));
+        expect(graph.modelNow().values).toEqual(DEFAULT_SUMMARY_MODEL.values);
+        expect(right(graph)).toBeLessThan(30);
+        graph.lesson(choice('summary-rule', 'exclusive'));
+        expect(readout('q1')).toBe('5');
+        expect(readout('q3')).toBe('7');
+        expect(readout('iqr')).toBe('2');
+        graph.lesson(choice('summary-rule', 'inclusive'));
+        expect(readout('q3')).toBe('6,5');
+        // (6) free exploration: add (at the median) and remove dots; the even example
+        graph.lesson(addValue());
+        expect(graph.modelNow().values).toEqual([4, 5, 5, 6, 6, 7, 8, 6]);
+        graph.lesson(removeValue(0));
+        expect(graph.modelNow().values).toEqual([5, 5, 6, 6, 7, 8, 6]);
+        graph.lesson(choice('summary-example', 'even'));
+        expect(readout('median')).toBe('4');
+        expect(graph.modelNow().sigmaBand).toBe(true);
+        expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+    });
+
+    test('a value inside the view keeps the view', () => {
+        const {graph} = mount();
+        const before = graph.liveBoard().getBoundingBox();
+        graph.lesson(setValue(0, 3));
+        expect(graph.liveBoard().getBoundingBox()).toEqual(before);
+    });
+
+    test('a value is snapped to tenths like a typed edit', () => {
+        const {graph} = mount();
+        graph.lesson(setValue(0, 3.04));
+        expect(graph.modelNow().values[0]).toBe(3);
+    });
+
+    test.each([
+        ['a value above 40', setValue(0, 41)],
+        ['a negative value', setValue(0, -1)],
+        ['a non-number value', setValue(0, 'a')],
+        ['index 7 of seven values', setValue(7, 1)],
+        ['a fractional index', setValue(1.5, 1)],
+        ['an added value above 40', addValue(41)],
+        ['removing index 7', removeValue(7)],
+        ['an unknown example', choice('summary-example', 'unknown')],
+        ['an unknown rule', choice('summary-rule', 'linear')],
+        ['an unknown sigma', choice('summary-sigma', 'both')],
+        ['a non-boolean box plot', show('summary-box-plot', 'yes')],
+    ])('refuses %s with a DomainError and leaves the model alone', (_name, action) => {
+        const {graph} = mount();
+        const before = graph.modelNow();
+        let error: unknown;
+        try { graph.lesson(action); } catch (caught) { error = caught; }
+        expect(error).toBeInstanceOf(DomainError);
+        expect(graph.modelNow()).toEqual(before);
+        expect(readout('mean')).toBe('5,857143');
+    });
+
+    test('a 16th value and removing the last value are refused', () => {
+        const {graph} = mount();
+        for (let i = 7; i < SUMMARY_VALUES_MAX; i++) graph.lesson(addValue(1));
+        expect(graph.modelNow().values).toHaveLength(SUMMARY_VALUES_MAX);
+        expect(() => graph.lesson(addValue(1))).toThrow(DomainError);
+        graph.lesson(choice('summary-example', 'even'));
+        for (let i = 0; i < 3; i++) graph.lesson(removeValue(0));
+        expect(graph.modelNow().values).toEqual([9]);
+        expect(readout('sigma')).toBe('0');
+        expect(() => graph.lesson(removeValue(0))).toThrow(DomainError);
+        expect(graph.modelNow().values).toEqual([9]);
+    });
+
+    test('an unknown operation is a plain error, not a refusal', () => {
+        const {graph} = mount();
+        let error: unknown;
+        try { graph.lesson({kind: 'summary', operation: 'sort'} as unknown as LessonAction); } catch (caught) { error = caught; }
+        expect(error).toBeInstanceOf(Error);
+        expect(error).not.toBeInstanceOf(DomainError);
+    });
 });

@@ -82,8 +82,11 @@ export type SummaryEdit =
     | { readonly ok: true; readonly model: SummaryModel }
     | { readonly ok: false; readonly issue: SummaryIssue };
 
-const RULES: readonly QuartileRule[] = ['inclusive', 'exclusive'];
-const SIGMAS: readonly SigmaKind[] = ['population', 'sample'];
+/** The quartile rules and sigma kinds a user or lesson may pick (also the lesson choice values `summary-rule`, `summary-sigma`). */
+export const SUMMARY_RULES = ['inclusive', 'exclusive'] as const satisfies readonly QuartileRule[];
+export const SUMMARY_SIGMAS = ['population', 'sample'] as const satisfies readonly SigmaKind[];
+const RULES: readonly QuartileRule[] = SUMMARY_RULES;
+const SIGMAS: readonly SigmaKind[] = SUMMARY_SIGMAS;
 
 const isRule = (v: unknown): v is QuartileRule => typeof v === 'string' && (RULES as readonly string[]).includes(v);
 const isSigma = (v: unknown): v is SigmaKind => typeof v === 'string' && (SIGMAS as readonly string[]).includes(v);
