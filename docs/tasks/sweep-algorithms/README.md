@@ -63,7 +63,7 @@ Release condition (spec): S1 released (done), triangulation T0 and T3 accepted, 
 | 24 | [Fortune registration](24-fortune-registration.md) | F2b | 23 | accepted 2026-11-03 (handler 45, [record](../../reviews/sweep-algorithms/24-acceptance.md)) |
 | 25 | [Fortune lesson C5](25-fortune-lesson.md) | F3 | 23, 24 | accepted 2026-11-03 (handler 46, [record](../../reviews/sweep-algorithms/25-acceptance.md)) |
 | 26 | [Fortune chapter section](26-fortune-chapter-section.md) | F4 | 25 | accepted 2026-11-03 (handler 47, [record](../../reviews/sweep-algorithms/26-acceptance.md)) |
-| F6 | S3 acceptance | F6 | 22–26 | partial 2026-11-03 (handler 47, [record](../../reviews/feature-streams/geometry/f6-s3-acceptance.md)): matrix gaps closed, C-7 highlight added; the `fortune` poster needs a recapture |
+| F6 | S3 acceptance | F6 | 22–26 | accepted 2026-11-03 (handler 48, [record](../../reviews/feature-streams/geometry/f6-s3-acceptance.md)): matrix gaps closed, C-7 highlight added, `fortune` poster recaptured; S3 released |
 
 ## Later batches
 

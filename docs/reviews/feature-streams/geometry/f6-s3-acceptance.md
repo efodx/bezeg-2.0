@@ -2,7 +2,7 @@
 
 Handler: geometry handler 47 (Opus 5.5), 2026-11-03. Spec: [sweep-line algorithms](../../../specs/sweep-algorithms-lessons.md) C5 and the batch-wide gate. Tasks: [sweep-algorithms 22–26](../../../tasks/sweep-algorithms/README.md). Template: [f6-t3-acceptance.md](f6-t3-acceptance.md).
 
-**State: partial.** One item is open. The C-7 current-event highlight (below) changes the drawing at the `fortune` poster's frame: the recipe (`scripts/demonstration-preview-recipes.cjs:117`) clicks Next four times, onto D's site event, which now has a ring. The catalog poster is still mathematically correct but no longer matches the app. Recapture `fortune` selectively, view it, and then mark S3 F6 accepted.
+**State: accepted 2026-11-03 (geometry handler 48).** The one open item from handler 47, the `fortune` poster recapture after the C-7 current-event highlight, is done (see Poster below). S3 is released.
 
 ## Evidence
 
@@ -45,7 +45,7 @@ Handler: geometry handler 47 (Opus 5.5), 2026-11-03. Spec: [sweep-line algorithm
 - **Chapter and focus return:** [26-acceptance.md](../../sweep-algorithms/26-acceptance.md), at 1440×900 and 390×844 in SL and EN.
 - **Performance:** [23-perf.md](../../sweep-algorithms/23-perf.md) gives a median of 16.7 ms.
   - Rerun with the highlight on the `1a16beb2` build (`node scripts/fortune-browser-perf.cjs current-event`, 3 runs, [raw](f6-s3-perf-raw.txt)): median 16.7 ms, p95 16.7 ms, max 33.3 ms (one dropped frame in run 1), move-to-frame median 7.8 ms. The beach line is still one board object.
-- **Poster:** handler 46 viewed `fortune.png` (from `752a07ad`); it is correct but predates C-7, so see State above.
+- **Poster:** handler 48 recaptured `fortune` selectively against a production preview of `f124a3b3` (with `PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE=1` and `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1`, jointly with Curves' pending `bspline-nurbs`; [log](48-capture.log)). The recipe is unchanged, and the capture now frames 25 objects. Viewed by eye: the C-7 ring is on D's site on the sweep line, the dashed false-alarm circle is crossed, and the circles are round.
 - **Checks:** `just check` at `b070f202`, before the F6 changes: 546 files passed (2 skipped), 9951 tests passed (7 skipped), and the build passed ([log](f6-s3-check.log)). The post-rebase checks for the push are in the stream row.
 
 ## Notes
