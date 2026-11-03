@@ -1,0 +1,8 @@
+# Brief handoff-v12: school function graphs 06 F3 + F4 Part B (lesson S4 and its section)
+
+- **Start here:** Part B of `docs/reviews/feature-streams/functions/briefs/school-06-f3f4.md`; its Role, Goal, Lesson actions, Content constraints, Rules, Checks and Return are your acceptance. Spec `docs/specs/school-function-graphs-lessons.md` §S4 (from line 102).
+- **Precedent on this branch (copy it, do not re-derive):** Part A, lesson S3, commit `git show --stat HEAD` (or the newest commit whose subject names Part A): `schoolFunctionGraphsBatchBGuidedLessons.ts` and its test, registrations, chapter section `polynomial-zeros`, inventory/capture scripts, smoke row, count tests. Add S4 to the same Batch B file (`schoolFunctionGraphsBatchBGuidedLessons` array) and its test file; section `rational-functions` (or the id the spec implies) after `polynomial-zeros`; widen the chapter purpose by one sentence.
+- **Count tests the unit run will expose** (Part A updated them by one; add one more): `guidedExamplePreviewCopy.test.ts`, `authoredChapterCoverage.test.ts`, `lessonCatalog.test.ts`, `familyChapters.test.ts`, `schoolFunctionGraphsChapter.test.ts`, `LearningPage.test.tsx` (already plural-safe), smoke row in `tests/guided-lessons.smoke.spec.cjs`.
+- **Expected failure, leave it:** `src/learning/chapter/guidedExamplePreviews.test.ts` (cards for both lessons come in F5). Report its failure lines only; no exemption or placeholder.
+- **Edit lesson text only with the Edit tool** (Bash heredocs halve backslashes).
+- **Logs:** `C:/Users/1337Hacker/.claude/jobs/0afb8234/tmp/s06/` (prefix `b-`). Handoff note on `HANDOFF` or past ~30 turns: `docs/reviews/feature-streams/functions/worker-school-06-f3-b-handoff.md`.
