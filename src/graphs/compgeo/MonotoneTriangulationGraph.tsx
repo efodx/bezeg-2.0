@@ -5,6 +5,7 @@ import type {GridPoint} from "../../compgeo/grid";
 import type {Chain} from "../../compgeo/sweep/monotoneTriangulation";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
+import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
 import {MonotonePartitionGraph, MonotonePartitionOverlayId} from "./MonotonePartitionGraph";
 import {vertexName} from "./monotonePartitionRun";
 import {
@@ -92,16 +93,28 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
                 fillColor: fill, fillOpacity: 0.4, borders: {highlight: false, fixed: true, strokeColor: fill, strokeWidth: 1},
             }) as JXG.GeometryElement);
         });
-        // The current piece, outlined.
+        // Keep the polygon object for the current piece, but draw its outline per edge so a coincident
+        // construction diagonal can supply the one visible dashed stroke for that boundary.
         const corners = view.cycle.map(at);
         objects.push(this.board.create("polygon", corners.map(c => [c.x, c.y]), {
             name: "monotonetri-piece", vertices: {visible: false}, highlight: false, fixed: true, layer: 3, fillOpacity: 0, highlightFillOpacity: 0,
-            borders: {highlight: false, fixed: true, strokeColor: GraphPalette.primaryCurve, strokeWidth: 5},
+            borders: {highlight: false, fixed: true, strokeColor: GraphPalette.primaryCurve, strokeWidth: 1, strokeOpacity: 0},
         }) as JXG.GeometryElement);
-        // Diagonals so far: the partition's, the earlier pieces' and this piece's.
-        for (const [a, b] of [...view.earlierDiagonals, ...view.diagonals]) {
+        const diagonals = [...view.earlierDiagonals, ...view.diagonals];
+        const edgeKey = (a: number, b: number) => a < b ? `${a}:${b}` : `${b}:${a}`;
+        const diagonalEdges = new Set(diagonals.map(([a, b]) => edgeKey(a, b)));
+        for (let i = 0; i < view.cycle.length; i++) {
+            const a = view.cycle[i];
+            const b = view.cycle[(i + 1) % view.cycle.length];
+            if (diagonalEdges.has(edgeKey(a, b))) continue;
+            objects.push(curve("monotonetri-piece-edge", [at(a).x, at(b).x], [at(a).y, at(b).y], {
+                strokeColor: ACTIVE_CONSTRUCTION_COLOR, strokeWidth: 3, layer: 5,
+            }));
+        }
+        // Diagonals so far: one thin dashed construction stroke, including when it lies on the piece boundary.
+        for (const [a, b] of diagonals) {
             objects.push(curve("monotonetri-diagonal", [at(a).x, at(b).x], [at(a).y, at(b).y], {
-                strokeColor: GraphPalette.warningText, strokeWidth: 3, dash: 2, layer: 5,
+                strokeColor: ACTIVE_CONSTRUCTION_COLOR, strokeWidth: 2, dash: 2, layer: 5,
             }));
         }
         // The sweep line through the current vertex.
@@ -141,8 +154,8 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
         // The current vertex: a ring around its marker.
         if (view.vertex !== null) {
             objects.push(marker("monotonetri-current", view.vertex, {
-                face: "circle", size: 12, fillOpacity: 0, highlightFillOpacity: 0, strokeColor: GraphPalette.selectedControlPointOutline,
-                strokeWidth: 4, layer: 7,
+                face: "circle", size: 8, fillOpacity: 0, highlightFillOpacity: 0, strokeColor: ACTIVE_CONSTRUCTION_COLOR,
+                strokeWidth: 1.5, layer: 7,
             }));
         }
         return objects;

@@ -12,6 +12,7 @@ import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
+import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {BentleyOttmannControlActions, BentleyOttmannControls, BentleyOttmannLists} from "./BentleyOttmannControls";
 import {BentleyOttmannRun, runBentleyOttmann} from "./bentleyOttmannRun";
@@ -321,26 +322,26 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
             strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, layer: 3,
         }));
         objects.push(mark("sweep-event", sweepX, sweepY, {
-            face: "o", size: 6, strokeColor: GraphPalette.selectedControlPointOutline, fillColor: GraphPalette.constructionAccent, layer: 7,
+            face: "o", size: 6, strokeColor: ACTIVE_CONSTRUCTION_COLOR, strokeWidth: 1.5, fillColor: GraphPalette.constructionAccent, layer: 7,
         }));
-        // A hovered or focused status entry: a wide halo behind its segment.
-        const hovered = this.liveHovered();
-        if (hovered !== undefined && view.status.includes(hovered)) {
-            objects.push(along("sweep-hover", hovered, {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 15, strokeOpacity: 0.45, layer: 3}));
-        }
-        // Segments in the status: thicker than the base segments; those of the current event are the thickest.
+        // Status segments retain the resting sage weight; current-event segments use the active construction.
         const current = new Set([...view.current.starts, ...view.current.ends, ...view.current.passes]);
         for (const k of view.status) {
             const emphasised = current.has(k);
             objects.push(along(emphasised ? "sweep-current" : "sweep-open", k, {
-                strokeColor: emphasised ? GraphPalette.selectedControlPointOutline : GraphPalette.primaryCurve,
-                strokeWidth: emphasised ? 9 : 5, layer: 4,
+                strokeColor: emphasised ? ACTIVE_CONSTRUCTION_COLOR : GraphPalette.primaryCurve,
+                strokeWidth: emphasised ? 3 : 2, layer: 5,
             }));
         }
         // A segment of the current event that is not in the status (just popped, or just removed) is emphasised and dashed.
         for (const k of current) {
             if (view.status.includes(k)) continue;
-            objects.push(along("sweep-current-idle", k, {strokeColor: GraphPalette.selectedControlPointOutline, strokeWidth: 9, dash: 2, layer: 4}));
+            objects.push(along("sweep-current-idle", k, {strokeColor: ACTIVE_CONSTRUCTION_COLOR, strokeWidth: 3, dash: 2, layer: 5}));
+        }
+        // Draw hover/focus last so it remains a single blue stroke over any status cue.
+        const hovered = this.liveHovered();
+        if (hovered !== undefined && view.status.includes(hovered)) {
+            objects.push(along("sweep-hover", hovered, {strokeColor: ACTIVE_CONSTRUCTION_COLOR, strokeWidth: 4, layer: 5}));
         }
         // The neighbour test shown while it is the current step: both segments marked where they meet the sweep line, joined by a dashed link.
         if (view.test) {

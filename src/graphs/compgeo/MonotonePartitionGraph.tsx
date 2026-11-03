@@ -13,6 +13,7 @@ import {GraphSession} from "../base/GraphSession";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
+import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
 import {asClosedPolygon} from "./EarClippingGraph";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {MonotonePartitionControlActions, MonotonePartitionControls, MonotonePartitionLists, vertexTypeText} from "./MonotonePartitionControls";
@@ -354,13 +355,13 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         objects.push(curve("monotone-sweep-line", [Math.min(...xs) - scale, Math.max(...xs) + scale], [lineY, lineY], {
             strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, layer: 3,
         }));
-        // Status edges, thicker; those of the current vertex the thickest.
+        // Status edges sit over the base polygon edges; current edges use the active blue.
         for (const edge of view.status) {
             const [from, to] = run.edgeEnds(edge).map(at);
             const emphasised = view.current.has(edge);
             objects.push(curve(emphasised ? "monotone-status-current" : "monotone-status", [from.x, to.x], [from.y, to.y], {
-                strokeColor: emphasised ? GraphPalette.selectedControlPointOutline : GraphPalette.primaryCurve,
-                strokeWidth: emphasised ? 9 : 5, layer: 4,
+                strokeColor: emphasised ? ACTIVE_CONSTRUCTION_COLOR : GraphPalette.primaryCurve,
+                strokeWidth: emphasised ? 3 : 2, layer: 5,
             }));
         }
         // Diagonals as they are reported.
@@ -385,8 +386,8 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         // The current vertex: a ring around its marker.
         if (view.vertex !== null) {
             objects.push(marker("monotone-current", view.vertex, {
-                face: "circle", size: 12, fillOpacity: 0, highlightFillOpacity: 0, strokeColor: GraphPalette.selectedControlPointOutline,
-                strokeWidth: 4, layer: 7,
+                face: "circle", size: 8, fillOpacity: 0, highlightFillOpacity: 0, strokeColor: ACTIVE_CONSTRUCTION_COLOR,
+                strokeWidth: 1.5, layer: 7,
             }));
         }
         return objects;

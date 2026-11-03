@@ -65,7 +65,7 @@ class Forced extends Observed {
     protected override segmentsForTrace() { return this.forced; }
 }
 
-type Shown = {elType: string; name?: string; dataX?: number[]; dataY?: number[]; coords?: {usrCoords: number[]}};
+type Shown = {elType: string; name?: string; dataX?: number[]; dataY?: number[]; coords?: {usrCoords: number[]}; rendNode?: SVGElement};
 const objectsNamed = (graph: Observed, ...names: string[]) =>
     (graph.liveBoard().objectsList as Shown[]).filter(o => names.includes(o.name ?? ''));
 const TRACE_NAMES = ['sweep-line', 'sweep-event', 'sweep-hover', 'sweep-open', 'sweep-current', 'sweep-current-idle', 'sweep-test-link', 'sweep-test-mark', 'sweep-crossing'];
@@ -509,6 +509,30 @@ describe('side lists', () => {
         act(() => { fireEvent.blur(first); });
         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
         expect(entries('status', 'data-hovered')).toHaveLength(0);
+    });
+
+    test('hover and focus remain visible over an already active segment', () => {
+        const graph = new Observed();
+        mount(graph);
+        for (let i = 0; i < 24; i++) click('next-step');
+        const current = entries('status', 'data-current')[0];
+        expect(current).toBeTruthy();
+        const strokeWidth = (name: string) => {
+            const node = objectsNamed(graph, name)[0]?.rendNode;
+            expect(node).toBeTruthy();
+            const width = Number.parseFloat(node?.getAttribute('stroke-width') ?? '');
+            expect(width).toBeGreaterThan(0);
+            return width;
+        };
+        const activeWidth = strokeWidth('sweep-current');
+        act(() => { fireEvent.mouseEnter(current); });
+        expect(strokeWidth('sweep-hover')).toBeGreaterThan(activeWidth);
+        act(() => { fireEvent.mouseLeave(current); });
+        expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
+        act(() => { fireEvent.focus(current); });
+        expect(strokeWidth('sweep-hover')).toBeGreaterThan(activeWidth);
+        act(() => { fireEvent.blur(current); });
+        expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
     });
 
     describe('a hover goes stale', () => {

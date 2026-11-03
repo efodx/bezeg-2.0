@@ -18,7 +18,7 @@ class Observed extends PolygonAreaGraph {
     liveBoard() { return this.board; }
 }
 
-type Shown = {elType: string; name?: string; plaintext?: string; X?: () => number; Y?: () => number; visProp?: Record<string, unknown>};
+type Shown = {elType: string; name?: string; plaintext?: string; X?: () => number; Y?: () => number; visProp?: Record<string, unknown>; dataX?: number[]; dataY?: number[]; rendNode?: SVGElement};
 const all = (graph: Observed) => graph.liveBoard().objectsList as Shown[];
 const named = (graph: Observed, prefix: string) => all(graph).filter(o => (o.name ?? '').startsWith(prefix));
 const mount = (graph: Observed, strict = false) => {
@@ -129,6 +129,31 @@ test('fan triangles are labelled with their signed doubled areas, which sum to t
     expect(labels).toHaveLength(HULL_PENTAGON_MODEL.points.length - 2);
     expect(labels.map(l => Number(l.replace('+', '').replace('−', '-'))).reduce((a, b) => a + b, 0)).toBe(42);
     expect(named(graph, 'fan-triangle')).toHaveLength(3);
+});
+
+test('the fan exposes exactly its two internal diagonals as visible straight boundaries', () => {
+    const graph = new Observed();
+    mount(graph);
+    const diagonals = () => named(graph, 'fan-diagonal');
+    expect(diagonals().map(o => [o.dataX, o.dataY])).toEqual([
+        [[-1, 4], [3, 0]],
+        [[-1, 5], [3, 3]],
+    ]);
+    for (const diagonal of diagonals()) {
+        const node = diagonal.rendNode;
+        expect(node).toBeDefined();
+        expect(node!.getAttribute('d')).toMatch(/M.+L/);
+        expect(node!.getAttribute('stroke')).not.toMatch(/^(none|transparent)$/);
+        expect(Number.parseFloat(node!.getAttribute('stroke-width') ?? '')).toBeGreaterThan(0);
+        expect(node!.getAttribute('display')).not.toBe('none');
+    }
+    act(() => { graph.movePointTo(2, {x: 3, y: 0}); });
+    expect(diagonals().map(o => [o.dataX, o.dataY])).toEqual([
+        [[-1, 3], [3, 0]],
+        [[-1, 5], [3, 3]],
+    ]);
+    act(() => { graph.setOverlay('fan', false); });
+    expect(diagonals()).toHaveLength(0);
 });
 
 test('overlay objects are exact: removed when hidden, restored identically, and gone after unmount', () => {

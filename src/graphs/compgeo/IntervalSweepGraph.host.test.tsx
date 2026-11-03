@@ -66,9 +66,15 @@ class Forced extends Observed {
     protected override intervalsForTrace() { return this.forced; }
 }
 
-type Shown = {elType: string; name?: string; dataX?: number[]; dataY?: number[]};
+type Shown = {elType: string; name?: string; dataX?: number[]; dataY?: number[]; rendNode?: SVGElement};
 const objectsNamed = (graph: Observed, ...names: string[]) =>
     (graph.liveBoard().objectsList as Shown[]).filter(o => names.includes(o.name ?? ''));
+const renderedStrokeWidth = (object: Shown | undefined) => {
+    expect(object?.rendNode).toBeTruthy();
+    const width = object?.rendNode?.getAttribute('stroke-width');
+    expect(width).not.toBeNull();
+    return Number.parseFloat(width ?? '');
+};
 const sweepObjects = (graph: Observed) => objectsNamed(graph, 'sweep-line', 'sweep-open', 'sweep-current', 'sweep-current-idle', 'sweep-pair-link', 'sweep-pair-mark');
 /** The open intervals the board shows highlighted: the plain and the emphasised (still open) ones. */
 const boardOpen = (graph: Observed) => objectsNamed(graph, 'sweep-open', 'sweep-current').length;
@@ -475,11 +481,17 @@ describe('side lists', () => {
         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
         act(() => { fireEvent.mouseEnter(second); });
         expect(objectsNamed(graph, 'sweep-hover').map(o => o.dataY)).toEqual([[2, 2]]);
+        expect(renderedStrokeWidth(objectsNamed(graph, 'sweep-hover')[0])).toBeGreaterThan(renderedStrokeWidth(
+            objectsNamed(graph, 'sweep-open', 'sweep-current').find(o => o.dataY?.[0] === 2),
+        ));
         expect(entries('status', 'data-hovered')).toHaveLength(1);
         act(() => { fireEvent.mouseLeave(second); });
         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
         act(() => { fireEvent.focus(first); });
         expect(objectsNamed(graph, 'sweep-hover').map(o => o.dataY)).toEqual([[1, 1]]);
+        expect(renderedStrokeWidth(objectsNamed(graph, 'sweep-hover')[0])).toBeGreaterThan(renderedStrokeWidth(
+            objectsNamed(graph, 'sweep-open', 'sweep-current').find(o => o.dataY?.[0] === 1),
+        ));
         act(() => { fireEvent.blur(first); });
         expect(objectsNamed(graph, 'sweep-hover')).toHaveLength(0);
         expect(entries('status', 'data-hovered')).toHaveLength(0);

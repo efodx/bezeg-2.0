@@ -122,6 +122,13 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
         const exponent = model.gridStepExponent;
         const at = model.points.map(point => gridToBoard(point, exponent));
         const objects: JXG.GeometryElement[] = [];
+        // Draw each internal fan edge once; shared fills alone hide the decomposition.
+        for (let k = 2; k < at.length - 1; k++) {
+            objects.push(this.board.create("curve", [[at[0].x, at[k].x], [at[0].y, at[k].y]], {
+                name: "fan-diagonal", withLabel: false, highlight: false, fixed: true, layer: 3,
+                strokeColor: GraphPalette.primaryCurve, strokeWidth: () => this.displaySettings.strokeWidth,
+            }) as JXG.GeometryElement);
+        }
         doubledFanAreas(model.points).forEach((doubled, k) => {
             const corners = [at[0], at[k + 1], at[k + 2]];
             if (doubled !== 0n) {
@@ -137,7 +144,8 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
                 (corners[0].x + corners[1].x + corners[2].x) / 3, (corners[0].y + corners[1].y + corners[2].y) / 3, formatSigned(doubled),
             ], {
                 anchorX: "middle", anchorY: "middle", fontSize: 13, strokeColor: GraphPalette.label, highlight: false, fixed: true,
-                layer: 8, display: "html", name: "fan-label", cssStyle: "pointer-events:none;",
+                layer: 8, display: "html", name: "fan-label",
+                cssStyle: `pointer-events:none;background:${GraphPalette.boardSurface};padding:0 2px;`,
             }) as JXG.GeometryElement);
         });
         return objects;

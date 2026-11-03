@@ -12,6 +12,7 @@ import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {GraphPalette} from "../styles/GraphPalette";
+import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {IntervalSweepControlActions, IntervalSweepControls, IntervalSweepLists} from "./IntervalSweepControls";
 import {runIntervalSweep, IntervalRun} from "./intervalSweepRun";
@@ -308,21 +309,20 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         const bottom = gridToBoard({x: view.x, y: 0}, exponent);
         const top = gridToBoard({x: view.x, y: run.intervals.length + 1}, exponent);
         objects.push(curve("sweep-line", bottom, top, {strokeColor: GraphPalette.constructionAccent, strokeWidth: 2, layer: 3}));
-        // A hovered or focused status entry: a wide halo behind its interval.
-        const hovered = this.liveHovered();
-        if (hovered !== undefined && run.view(this.step).open.includes(hovered)) {
-            const {lo, hi} = run.intervals[hovered];
-            objects.push(curve("sweep-hover", at(lo, hovered), at(hi, hovered), {
-                strokeColor: GraphPalette.comparisonCurve, strokeWidth: 15, strokeOpacity: 0.45, layer: 3,
-            }));
-        }
-        // Open intervals: thicker than the base segments; the interval of the current event is the thickest.
+        // Every open interval is active in the sweep status; resting intervals remain on the base layer.
         for (const k of view.open) {
             const {lo, hi} = run.intervals[k];
             const emphasised = k === view.current;
             objects.push(curve(emphasised ? "sweep-current" : "sweep-open", at(lo, k), at(hi, k), {
-                strokeColor: emphasised ? GraphPalette.selectedControlPointOutline : GraphPalette.primaryCurve,
-                strokeWidth: emphasised ? 9 : 5, layer: 4,
+                strokeColor: ACTIVE_CONSTRUCTION_COLOR, strokeWidth: 3, layer: 5,
+            }));
+        }
+        // Draw hover/focus last so it remains a single blue stroke over any status cue.
+        const hovered = this.liveHovered();
+        if (hovered !== undefined && run.view(this.step).open.includes(hovered)) {
+            const {lo, hi} = run.intervals[hovered];
+            objects.push(curve("sweep-hover", at(lo, hovered), at(hi, hovered), {
+                strokeColor: ACTIVE_CONSTRUCTION_COLOR, strokeWidth: 4, layer: 5,
             }));
         }
         // The current interval that is not in the status (just popped, or just removed) is emphasised and dashed.
@@ -330,7 +330,7 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         if (current !== undefined && !view.open.includes(current)) {
             const {lo, hi} = run.intervals[current];
             objects.push(curve("sweep-current-idle", at(lo, current), at(hi, current), {
-                strokeColor: GraphPalette.selectedControlPointOutline, strokeWidth: 9, dash: 2, layer: 4,
+                strokeColor: ACTIVE_CONSTRUCTION_COLOR, strokeWidth: 3, dash: 2, layer: 5,
             }));
         }
         // A reported pair is marked on both intervals at the sweep line and joined by a dashed link.
