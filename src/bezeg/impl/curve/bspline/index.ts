@@ -22,3 +22,5 @@ export {derivativeSource, knotJoins, spanSources} from './derivative';
 export type {KnotJoin, SplineSpanSource} from './derivative';
 export {evaluateRational, liftToHomogeneous, projectHomogeneous, validateWeights} from './rational';
 export type {WeightError, WeightValidation} from './rational';
+export {blossom} from './blossom';
+export type {BlossomError, BlossomResult, BlossomTriangle} from './blossom';
