@@ -3,6 +3,8 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {FourierCoefficientsGraph} from './FourierCoefficientsGraph';
 import {GraphHost} from '../base/GraphHost';
+import {DomainError} from './BaseFunctionGraph';
+import {fourierSupError} from '../../analysis/fourierDecay';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {renderMessage, setLanguage} from '../../localization';
 import {LessonAction} from '../../learning/model';
@@ -224,4 +226,189 @@ test('a multi-action lesson scene (layout, a handle, K, harmonic, term, overlay)
     expect(graph.sumCurve().visPropCalc?.visible).toBe(false);
     expect(readout('order')).toBe('9');
     expect(label('selected')).toBe('Koeficient b₃');
+});
+
+// ---- The decay view (lesson F4) ------------------------------------------------------------------------------------
+
+const viewSelect = () => screen.getByLabelText(/^Pogled$/) as HTMLSelectElement;
+const choose = (select: HTMLSelectElement, value: string) => act(() => { fireEvent.change(select, {target: {value}}); });
+const panels = () => Array.from(document.querySelectorAll('[data-testid="fourier-decay-panel"]'));
+const panelExamples = () => panels().map(panel => panel.getAttribute('data-example'));
+const decayCell = (example: string, k: number) => document.querySelector(`[data-testid="fourier-decay-table"][data-example="${example}"] tr[data-k="${k}"] td`)?.textContent;
+const decayRows = (example: string) => document.querySelectorAll(`[data-testid="fourier-decay-table"][data-example="${example}"] tbody tr`).length;
+const bars = (example: string) => document.querySelectorAll(`[data-testid="fourier-decay-panel"][data-example="${example}"] rect[data-k]`);
+const zeroMarkers = (example: string) => document.querySelectorAll(`[data-testid="fourier-decay-panel"][data-example="${example}"] circle[data-zero]`);
+const zeroNote = () => document.querySelector('[data-testid="fourier-decay-zero-note"]');
+const nField = () => screen.getByLabelText(/^Število členov N$/) as HTMLInputElement;
+const scaleSelect = () => screen.getByLabelText(/^Merilo navpične osi$/) as HTMLSelectElement;
+const selectionSelect = (slot: number) => screen.getByLabelText(new RegExp(`^Funkcija ${slot}$`)) as HTMLSelectElement;
+
+test('the decay view shows three spectra with tables from the kernel, hides the projection controls and keeps the console clean', () => {
+    const errors = vi.spyOn(console, 'error');
+    const graph = mount();
+    choose(viewSelect(), 'decay');
+    expect(graph.modelNow().view).toBe('decay');
+    expect(panelExamples()).toEqual(['square', 'abs', 'smooth']);
+    expect(screen.queryByLabelText(/^Največji harmonik K$/)).toBeNull();
+    expect(screen.queryByTestId('fourier-spectrum')).toBeNull();
+    expect(screen.queryAllByLabelText(/^Vrednost f pri x = /)).toHaveLength(0);
+    expect(decayRows('square')).toBe(11);
+    expect(decayCell('square', 1)).toBe(sl(4 / Math.PI, 5));
+    expect(decayCell('square', 2)).toBe('0');
+    expect(decayCell('abs', 3)).toBe(sl(4 / (Math.PI * 9), 5));
+    expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+    // the board: f and S_N of the three examples are drawn, the projection's S_K is hidden
+    expect(graph.sumCurve().visPropCalc?.visible).toBe(false);
+    expect(graph.captionPlainLines().join(' ')).toContain('N = 11');
+    expect(errors.mock.calls.filter(call => !String(call[0]).includes('ReactDOMTestUtils.act'))).toEqual([]);
+    errors.mockRestore();
+});
+
+test('switching to the decay view and back keeps the fields of both views', () => {
+    const graph = mount();
+    act(() => {
+        graph.lesson({kind: 'function-parameter', name: 'fourier-order', value: 7});
+        graph.lesson({kind: 'function-parameter', name: 'fourier-n', value: 21});
+        graph.lesson({kind: 'function-choice', name: 'fourier-scale', value: 'log'});
+    });
+    const before = graph.modelNow();
+    choose(viewSelect(), 'decay');
+    expect(nField().value).toBe('21');
+    expect(scaleSelect().value).toBe('log');
+    choose(viewSelect(), 'projection');
+    expect(graph.modelNow()).toEqual({...before, view: 'projection'});
+    expect(field(/^Največji harmonik K$/).value).toBe('7');
+    expect(graph.sumCurve().visPropCalc?.visible).not.toBe(false);
+    choose(viewSelect(), 'decay');
+    expect(graph.modelNow()).toEqual({...before, view: 'decay'});
+});
+
+test('a change of N updates the tables, the bars and the sup error readouts', () => {
+    const graph = mount();
+    choose(viewSelect(), 'decay');
+    expect(readout('sup-2')).toBe(sl(fourierSupError('abs', 11), 5));
+    expect(readout('sup-2')).toBe('0,05293');
+    act(() => graph.lesson({kind: 'function-parameter', name: 'fourier-n', value: 5}));
+    expect(decayRows('abs')).toBe(5);
+    // k = 1, 3, 5 are bars; k = 2, 4 are exact zeros, drawn as markers
+    expect(bars('abs')).toHaveLength(3);
+    expect(zeroMarkers('abs')).toHaveLength(2);
+    expect(readout('n')).toBe('5');
+    expect(readout('sup-2')).toBe(sl(fourierSupError('abs', 5), 5));
+    expect(readout('sup-2')).not.toBe('0,05293');
+    act(() => { fireEvent.keyDown(nField(), {key: 'ArrowUp'}); });
+    expect(graph.modelNow().n).toBe(6);
+    expect(decayRows('smooth')).toBe(6);
+    expect(label('sup-1')).toBe('sup |f − Sₙ|, Kvadratni val sgn(x)');
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'fourier-n', value: 102})).toThrow(DomainError);
+    expect(() => graph.lesson({kind: 'function-parameter', name: 'fourier-n', value: 2.5})).toThrow(DomainError);
+    expect(graph.modelNow().n).toBe(6);
+});
+
+test('the log scale does not draw log 0 and says so, the linear scale draws a zero marker', () => {
+    const graph = mount();
+    choose(viewSelect(), 'decay');
+    // linear: the square wave has 5 exact zeros among k = 1..11 (even k), each a marker on the baseline, and no bar
+    expect(zeroMarkers('square')).toHaveLength(5);
+    expect(bars('square')).toHaveLength(6);
+    expect(zeroNote()).toBeNull();
+    choose(scaleSelect(), 'log');
+    expect(graph.modelNow().scale).toBe('log');
+    expect(zeroMarkers('square')).toHaveLength(0);
+    expect(bars('square')).toHaveLength(6);
+    expect(Array.from(bars('square')).map(bar => bar.getAttribute('data-k'))).toEqual(['1', '3', '5', '7', '9', '11']);
+    expect(zeroNote()?.textContent).toBe('log 0 ni narisan: ničelne amplitude niso na logaritemski osi.');
+    expect(document.querySelectorAll('[data-testid="fourier-decay-zero-note"]')).toHaveLength(2);
+    // the table still lists the zeros, as zeros
+    expect(decayCell('square', 2)).toBe('0');
+    act(() => { setLanguage('en'); });
+    expect(zeroNote()?.textContent).toBe('log 0 is not drawn: zero amplitudes are not on the logarithmic axis.');
+});
+
+test('the drawn bar heights follow the table amplitudes: proportional on the linear scale, to log10 above 10^-8 on the log scale', () => {
+    const graph = mount();
+    choose(viewSelect(), 'decay');
+    const amplitude = (k: number) => Number(document.querySelector(`[data-testid="fourier-decay-panel"][data-example="abs"] rect[data-k="${k}"]`)?.getAttribute('data-amplitude'));
+    const height = (k: number) => Number(document.querySelector(`[data-testid="fourier-decay-panel"][data-example="abs"] rect[data-k="${k}"]`)?.getAttribute('height'));
+    expect(amplitude(1)).toBeCloseTo(4 / Math.PI, 9);
+    expect(height(3) / height(1)).toBeCloseTo(1 / 9, 6);
+    choose(scaleSelect(), 'log');
+    expect(graph.modelNow().scale).toBe('log');
+    // plot height 122 over the nine decades 10^-8 .. 10^1 of this panel
+    for (const k of [1, 3, 11]) expect(height(k)).toBeCloseTo(((Math.log10(amplitude(k)) + 8) / 9) * 122, 6);
+});
+
+test('choosing a function that another slot already shows is rejected with the reason, and the model keeps its selections', () => {
+    const graph = mount();
+    choose(viewSelect(), 'decay');
+    expect(selectionSelect(1).value).toBe('square');
+    choose(selectionSelect(1), 'abs');
+    expect(graph.modelNow().selections).toEqual(['square', 'abs', 'smooth']);
+    expect(selectionSelect(1).value).toBe('square');
+    expect(screen.getByTestId('fourier-decay-rejection').textContent).toBe('Izbrane funkcije morajo biti med seboj različne.');
+    expect(panelExamples()).toEqual(['square', 'abs', 'smooth']);
+    // a free example is accepted and the message goes away
+    choose(selectionSelect(1), 'sawtooth');
+    expect(graph.modelNow().selections).toEqual(['sawtooth', 'abs', 'smooth']);
+    expect(screen.queryByTestId('fourier-decay-rejection')).toBeNull();
+    expect(panelExamples()).toEqual(['sawtooth', 'abs', 'smooth']);
+    expect(() => graph.lesson({kind: 'function-choice', name: 'fourier-selection-2', value: 'smooth'})).toThrow(DomainError);
+});
+
+test('a Preset keeps the decay fields through export and import', () => {
+    const graph = mount();
+    for (const action of [
+        {kind: 'function-choice', name: 'fourier-view', value: 'decay'},
+        {kind: 'function-choice', name: 'fourier-selection-1', value: 'sawtooth'},
+        {kind: 'function-choice', name: 'fourier-selection-3', value: 'jump'},
+        {kind: 'function-parameter', name: 'fourier-n', value: 31},
+        {kind: 'function-choice', name: 'fourier-scale', value: 'log'},
+    ] as LessonAction[]) act(() => graph.lesson(action));
+    const stored = graph.exportPresetData();
+    expect(stored).toMatchObject({view: 'decay', selections: ['sawtooth', 'abs', 'jump'], n: 31, scale: 'log'});
+    act(() => { graph.importPreset({id: 'default', data: DEFAULT_FOURIER_COEFFICIENTS_MODEL}); });
+    expect(panelExamples()).toEqual([]);
+    act(() => { graph.importPreset({id: 'stored', data: JSON.parse(JSON.stringify(stored))}); });
+    expect(graph.modelNow()).toEqual(stored);
+    expect(panelExamples()).toEqual(['sawtooth', 'abs', 'jump']);
+    expect(decayRows('jump')).toBe(31);
+    expect(nField().value).toBe('31');
+    expect(scaleSelect().value).toBe('log');
+});
+
+test('the decay view in both languages: a live switch keeps the model, and the notes state the forward direction only', () => {
+    const graph = mount();
+    choose(viewSelect(), 'decay');
+    const model = graph.modelNow();
+    expect(document.body.textContent).toContain('Obrata ne trdimo');
+    act(() => { setLanguage('en'); });
+    expect(graph.modelNow()).toBe(model);
+    expect(screen.getByLabelText(/^Number of terms N$/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Function 1$/)).toBeInTheDocument();
+    expect(document.body.textContent).toContain('The converse is not claimed');
+    expect(document.body.textContent).toContain('not a law');
+    expect(decayCell('abs', 1)).toBe(String(Number((4 / Math.PI).toFixed(5))));
+    expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+    act(() => { setLanguage('sl'); });
+    expect(decayCell('abs', 1)).toBe(sl(4 / Math.PI, 5));
+});
+
+test('a lesson scene with the decay actions runs in one synchronous tick and reads back from the state', () => {
+    const graph = mount();
+    act(() => {
+        for (const action of [
+            {kind: 'function-choice', name: 'fourier-view', value: 'decay'},
+            {kind: 'function-choice', name: 'fourier-selection-1', value: 'sawtooth'},
+            {kind: 'function-choice', name: 'fourier-selection-2', value: 'jump'},
+            {kind: 'function-choice', name: 'fourier-selection-3', value: 'abs'},
+            {kind: 'function-parameter', name: 'fourier-n', value: 40},
+            {kind: 'function-choice', name: 'fourier-scale', value: 'log'},
+        ] as LessonAction[]) graph.lesson(action);
+    });
+    expect(graph.state).toMatchObject({view: 'decay', selections: ['sawtooth', 'jump', 'abs'], n: 40, scale: 'log'});
+    expect(graph.modelNow()).toMatchObject({view: 'decay', selections: ['sawtooth', 'jump', 'abs'], n: 40, scale: 'log'});
+    expect(panelExamples()).toEqual(['sawtooth', 'jump', 'abs']);
+    expect(decayRows('jump')).toBe(40);
+    expect(readout('n')).toBe('40');
+    expect(document.body.textContent).toContain('zgornja ovojnica 4/(πk)');
 });

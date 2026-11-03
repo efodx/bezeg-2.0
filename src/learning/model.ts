@@ -22,7 +22,8 @@ import {INVERSE_RESTRICTION_IDS} from '../analysis/functionInverseModel';
 import {POLYNOMIAL_EXAMPLE_IDS} from '../analysis/polynomialZerosModel';
 import {RATIONAL_EXAMPLE_IDS} from '../analysis/rationalFunctionModel';
 import {FOURIER_SERIES_EXAMPLE_IDS} from '../analysis/fourierSeriesModel';
-import {FOURIER_COEFFICIENT_TERMS, FOURIER_COEFFICIENTS_LAYOUTS, FOURIER_COEFFICIENTS_VIEWS} from '../analysis/fourierCoefficientsModel';
+import {FOURIER_COEFFICIENT_TERMS, FOURIER_COEFFICIENTS_LAYOUTS, FOURIER_COEFFICIENTS_VIEWS, FOURIER_DECAY_SCALES} from '../analysis/fourierCoefficientsModel';
+import {FOURIER_EXAMPLE_IDS} from '../analysis/fourierExamples';
 import {MEAN_VALUE_EXAMPLE_IDS} from '../analysis/meanValue';
 import {FUNCTION_IDS} from '../analysis/functions';
 import {DARBOUX_EXAMPLE_IDS} from '../analysis/darboux';
@@ -87,6 +88,10 @@ const functionChoiceValues = {
     'fourier-view': FOURIER_COEFFICIENTS_VIEWS,
     'fourier-layout': FOURIER_COEFFICIENTS_LAYOUTS,
     'fourier-term': FOURIER_COEFFICIENT_TERMS,
+    'fourier-selection-1': FOURIER_EXAMPLE_IDS,
+    'fourier-selection-2': FOURIER_EXAMPLE_IDS,
+    'fourier-selection-3': FOURIER_EXAMPLE_IDS,
+    'fourier-scale': FOURIER_DECAY_SCALES,
     'uniform-example': UNIFORM_EXAMPLE_IDS,
     'complex-example': COMPLEX_EXAMPLE_IDS,
     'complex-reciprocal-example': COMPLEX_RECIPROCAL_EXAMPLE_IDS,
