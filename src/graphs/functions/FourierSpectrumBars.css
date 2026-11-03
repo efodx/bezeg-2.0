@@ -1,0 +1,8 @@
+.fourier-spectrum { margin: 0; }
+.fourier-spectrum figcaption { color: var(--workspace-ink); font-size: .9rem; font-weight: 700; }
+.fourier-spectrum-svg { width: 100%; height: auto; background: var(--workspace-panel); border: 1px solid var(--workspace-rule); border-radius: 4px; }
+.fourier-spectrum-axis { stroke: var(--workspace-ink-soft); stroke-width: 1; }
+.fourier-spectrum-label { fill: var(--workspace-ink-soft); }
+.fourier-spectrum-selected { stroke: var(--workspace-ink); stroke-width: 2; }
+.fourier-spectrum-table { width: 100%; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.fourier-spectrum-table th, .fourier-spectrum-table td { padding: 0 .4rem; text-align: right; }

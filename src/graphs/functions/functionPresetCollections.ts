@@ -28,6 +28,8 @@ import {checkUniformConvergenceModel, parseUniformConvergenceModel} from "../../
 import {uniformConvergenceFileMessage} from "./uniformConvergenceMessages";
 import {checkFourierSeriesModel, parseFourierSeriesModel} from "../../analysis/fourierSeriesModel";
 import {fourierSeriesFileMessage} from "./fourierSeriesMessages";
+import {checkFourierCoefficientsModel, parseFourierCoefficientsModel} from "../../analysis/fourierCoefficientsModel";
+import {fourierCoefficientsFileMessage} from "./fourierCoefficientsMessages";
 import {checkRungeModel, parseRungeModel} from "../../analysis/rungeInterpolationModel";
 import {rungeFileMessage} from "./rungeInterpolationMessages";
 import {checkLeastSquaresModel, DEFAULT_LEAST_SQUARES_MODEL, LeastSquaresModel, parseLeastSquaresModel} from "../../analysis/leastSquaresModel";
@@ -121,6 +123,11 @@ const diagnoseUniformConvergence: Diagnosis = data => {
 const diagnoseFourierSeries: Diagnosis = data => {
     const check = checkFourierSeriesModel(data);
     return check.ok || check.issue === undefined ? undefined : fourierSeriesFileMessage(check.issue);
+};
+/** The model module names the rule a rejected Fourier coefficients model broke; this only localizes it. */
+const diagnoseFourierCoefficients: Diagnosis = data => {
+    const check = checkFourierCoefficientsModel(data);
+    return check.ok || check.issue === undefined ? undefined : fourierCoefficientsFileMessage(check.issue);
 };
 /** The model module names the rule a rejected Runge interpolation model broke; this only localizes it. */
 const diagnoseRunge: Diagnosis = data => {
@@ -303,6 +310,7 @@ export const functionPresetCollections = {
     sequence: functionCollection("sequence", parseSequenceModel, diagnoseSequence),
     "uniform-convergence": functionCollection("uniform-convergence", parseUniformConvergenceModel, diagnoseUniformConvergence),
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
+    "fourier-coefficients": functionCollection("fourier-coefficients", parseFourierCoefficientsModel, diagnoseFourierCoefficients),
     "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
     "interp-least-squares": leastSquaresCollection(),
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),
