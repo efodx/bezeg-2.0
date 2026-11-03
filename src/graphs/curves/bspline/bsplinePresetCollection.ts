@@ -50,7 +50,7 @@ export const bsplinePresetCollection: PresetCollection<BSplinePresetData> = Obje
      */
     checkGraphState(graphState: unknown): Message | undefined {
         if (!isRecord(graphState)) return message("invalid_state");
-        const {knots, points, origin, ghost, refusal, ...rest} = graphState;
+        const {knots, points, origin, ghost, refusal, moved, ...rest} = graphState;
         if (knots !== undefined && !(Array.isArray(knots) && knots.every(isFiniteNumber))) return message("invalid_value", {value0: "knots"});
         if (points !== undefined && !(Array.isArray(points) && points.every(isPoint))) return message("invalid_value", {value0: "points"});
         // The insertion graph also keeps its Reset target (`origin`), the pre-insertion polygon (`ghost`) and the latest refusal; a restored Preset
@@ -58,6 +58,8 @@ export const bsplinePresetCollection: PresetCollection<BSplinePresetData> = Obje
         if (origin !== undefined && !isRecord(origin)) return message("invalid_value", {value0: "origin"});
         if (ghost !== undefined && !(Array.isArray(ghost) && ghost.every(isPoint))) return message("invalid_value", {value0: "ghost"});
         if (refusal !== undefined && refusal !== null && !isRecord(refusal)) return message("invalid_value", {value0: "refusal"});
+        // The extraction graph keeps the indices of the last drag (`moved`); a restore resets them to none.
+        if (moved !== undefined && !(Array.isArray(moved) && moved.every(isFiniteNumber))) return message("invalid_value", {value0: "moved"});
         return checkSceneState(rest);
     },
     check(data: unknown): PresetDataCheck<BSplinePresetData> {

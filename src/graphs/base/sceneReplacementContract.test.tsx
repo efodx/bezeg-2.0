@@ -199,6 +199,7 @@ const FIGURE_FAMILIES: Array<[string, () => GraphLike]> = [
     ['b-spline basis', () => graphFactories['bspline-basis']()],
     ['de Boor', () => graphFactories['bspline-deboor']()],
     ['B-spline insertion', () => graphFactories['bspline-insertion']()],
+    ['B-spline extraction', () => graphFactories['bspline-extraction']()],
     ['linear map', () => graphFactories['linear-map']()],
     ['complex function', () => graphFactories['complex-reciprocal']()],
 ];

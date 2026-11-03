@@ -322,6 +322,8 @@ export const sl = {
     "bspline_insertion_title": "Vstavljanje vozla in večkratnost",
     "prompt_bspline_basis": "Premikaj vozle in spreminjaj stopnjo. Katere bazne funkcije so neničelne pri izbranem t in kaj se zgodi, ko se vozel ponovi?",
     "prompt_bspline_deboor": "Premikaj parameter t in kontrolne točke ter korak za korakom izvedi de Boorov postopek. Katere kontrolne točke vplivajo na točko krivulje in kaj je enako kot pri De Casteljaujevem postopku?",
+    "bspline_extraction_title": "Izvlek Bézierjevih odsekov",
+    "prompt_bspline_extraction": "Premikaj kontrolne točke in opazuj, iz katerih Bézierjevih odsekov je sestavljena krivulja. Kateri odseki se ob premiku spremenijo in zakaj drugi ostanejo enaki?",
     "prompt_bspline_insertion": "Vstavi vozel in opazuj kontrolni poligon in krivuljo. Kaj se spremeni in kaj ostane enako? Kako večkratnost vozla določa gladkost krivulje v njem?",
     "cannot_save_presets_free_browser_storage_space_and_try_again": "Prednastavitev ni bilo mogoče shraniti. Sprosti prostor v brskalniku in poskusi znova.",
     "confirm_replacement_of_existing_preset_collections_first": "Najprej potrdi zamenjavo obstoječih zbirk prednastavitev.",

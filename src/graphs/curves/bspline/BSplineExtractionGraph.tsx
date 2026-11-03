@@ -40,7 +40,7 @@ const initialData = (): Omit<BSplineExtractionState, 'initialized'> => {
  * control points and the piece count (distinct interior knots + 1). After a drag the pieces whose interval lies in the support of the
  * moved point are emphasized and marked in the readout. The scene state is the only copy of the data; the owned
  * {@link BSplineExtractionScene} reads it lazily. Its Preset collection is `bsplinePresetCollection`; optional NURBS `weights` are
- * ignored on import and omitted on export. Not registered as a route yet; {@link pieceControlPoints} is the seam for "open as Bezier".
+ * ignored on import and omitted on export. Registered at `/bezeg-2.0/bspline/extraction` (`bspline-extraction`, no lesson yet); {@link pieceControlPoints} is the seam for "open as Bezier".
  */
 export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BSplinePresetData> {
     private scene?: BSplineExtractionScene;

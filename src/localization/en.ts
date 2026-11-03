@@ -323,6 +323,8 @@ export const en: Record<keyof typeof sl, string> = {
     "bspline_insertion_title": "Knot insertion and multiplicity",
     "prompt_bspline_basis": "Drag the knots and change the degree. Which basis functions are nonzero at the chosen t, and what happens when a knot is repeated?",
     "prompt_bspline_deboor": "Move the parameter t and the control points, and run de Boor's algorithm step by step. Which control points influence the curve point, and what is the same as in de Casteljau's algorithm?",
+    "bspline_extraction_title": "Bézier extraction",
+    "prompt_bspline_extraction": "Move the control points and watch which Bézier pieces make up the curve. Which pieces change when you move a point, and why do the others stay the same?",
     "prompt_bspline_insertion": "Insert a knot and watch the control polygon and the curve. What changes and what stays the same? How does the multiplicity of a knot determine the smoothness of the curve there?",
     "cannot_save_presets_free_browser_storage_space_and_try_again": "Cannot save presets. Free browser storage space and try again.",
     "confirm_replacement_of_existing_preset_collections_first": "Confirm replacement of existing preset collections first.",
