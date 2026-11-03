@@ -28,10 +28,15 @@ function rejectionOf(value: unknown): Message | undefined {
     if (!check.ok) return knotRejectionMessage(check.reason, knots, degree, points.length - 1);
     if (weights === undefined) return undefined;
     if (!Array.isArray(weights)) return message("bspline_weights_wrong_count", {value0: points.length});
-    const weightCheck = validateWeights(weights, points.length);
+    return weightsRejection(weights, points.length);
+}
+
+/** The localized reason the kernel refuses `weights` for `count` control points, or undefined when they are valid. */
+export function weightsRejection(weights: readonly unknown[], count: number): Message | undefined {
+    const weightCheck = validateWeights(weights as readonly number[], count);
     if (weightCheck.ok) return undefined;
     switch (weightCheck.reason) {
-        case "wrong_count": return message("bspline_weights_wrong_count", {value0: points.length});
+        case "wrong_count": return message("bspline_weights_wrong_count", {value0: count});
         case "not_finite": return message("bspline_weight_not_finite", {value0: (weightCheck.index ?? 0) + 1});
         case "nonpositive": return message("bspline_weight_nonpositive", {value0: (weightCheck.index ?? 0) + 1});
     }

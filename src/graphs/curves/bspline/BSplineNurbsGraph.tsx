@@ -1,5 +1,5 @@
 import React from "react";
-import {currentLanguage, message, renderMessage, t} from "../../../localization";
+import {currentLanguage, LocalizedError, message, renderMessage, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {NumberInput} from "../../../inputs/NumberInput";
@@ -8,7 +8,7 @@ import Slider from "../../../inputs/Slider";
 import {domain} from "../../../bezeg/impl/curve/bspline";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {LessonCurveFixture} from "../../../learning/model";
-import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
+import {BSplinePresetData, bsplinePresetCollection, weightsRejection} from "./bsplinePresetCollection";
 import {BSplineNurbsScene} from "./BSplineNurbsScene";
 import {assertDrawableCurve, ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
 import {
@@ -50,7 +50,7 @@ export const weightRefusalText = (refusal: WeightRefusal): string => renderMessa
     refusal.reason === 'nonpositive' ? "bspline_weight_nonpositive" : "bspline_weight_not_finite", {value0: refusal.index + 1}));
 
 /** The radial error as text in exponent notation (it is near rounding or clearly large), with the language's decimal separator. */
-const errorText = (value: number): string => {
+export const errorText = (value: number): string => {
     const text = value === 0 ? '0' : value.toExponential(2);
     return currentLanguage() === 'sl' ? text.replace('.', ',') : text;
 };
@@ -85,6 +85,8 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
     /** A lesson curve fixture: its points, weights (unit if absent) and degree on the given knots, else on the clamped uniform vector. */
     protected override lessonFixtureData(curve: LessonCurveFixture): BSplinePresetData | undefined {
         const degree = curve.degree ?? this.defaultPreset().degree;
+        const problem = curve.weights ? weightsRejection(curve.weights, curve.points.length) : undefined;
+        if (problem) throw new LocalizedError(problem);
         return {
             degree, knots: curve.knots ? [...curve.knots] : knotsForCount(degree, true, curve.points.length),
             points: curve.points.map(point => [point[0], point[1]] as const), weights: curve.weights ? [...curve.weights] : onesFor(curve.points.length),
@@ -100,6 +102,8 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
     /** The imported curve becomes the state and the Reset target; a Preset without weights has unit weights. */
     override importPresetData(data: BSplinePresetData) {
         assertDrawableCurve(data, NURBS_MAX_POINTS);
+        const problem = data.weights ? weightsRejection(data.weights, data.points.length) : undefined;
+        if (problem) throw new LocalizedError(problem);
         const origin = copyNurbs({...data, points: data.points, weights: data.weights ?? onesFor(data.points.length)});
         // Data equal to a shipped example is that example again (the host Reset and the lesson default import it).
         const same = NURBS_EXAMPLE_IDS.find(id => JSON.stringify(presetOf(nurbsExample(id))) === JSON.stringify(presetOf(origin)));

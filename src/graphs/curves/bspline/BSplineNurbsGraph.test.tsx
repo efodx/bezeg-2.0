@@ -2,9 +2,10 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, describe, expect, test, vi} from 'vitest';
-import BSplineNurbsGraph from './BSplineNurbsGraph';
+import JXG from 'jsxgraph';
+import BSplineNurbsGraph, {errorText} from './BSplineNurbsGraph';
 import {GraphHost} from '../../base/GraphHost';
-import {setLanguage} from '../../../localization';
+import {LocalizedError, renderMessage, setLanguage} from '../../../localization';
 import {BSplinePresetData, bsplinePresetCollection} from './bsplinePresetCollection';
 import {angleDegrees, maxRadialError, nurbsExample, nurbsPointAt} from './bsplineNurbsModel';
 
@@ -258,6 +259,84 @@ describe('disposal', () => {
         view.unmount();
         expect(second.some(element => board.objectsList.includes(element))).toBe(false);
         expect(liveSubscriptions.count).toBe(before);
+    });
+});
+
+describe('lesson scenes and refused data', () => {
+    type Apply = Parameters<ReturnType<ObservedGraph['getLessonCapabilities']>['apply']>[0];
+    const fixture = (curve: object) => ({kind: 'prepared-scene', sceneId: 's', source: 'lesson-fixture', curve}) as unknown as Apply;
+    const square: [number, number][] = [[0, 0], [1, 2], [3, 2], [4, 0]];
+
+    test('a lesson fixture keeps points, weights (unit when absent), origin and example; t, circle and refusal reset', () => {
+        const {graph, view} = mount();
+        act(() => { graph.setT(0.4); graph.setShowCircle(false); graph.setWeight(1, 0); });
+        expect(graph.state.refusal).not.toBeNull();
+        act(() => graph.getLessonCapabilities().apply(fixture({points: square, degree: 2, weights: [1, 2, 3, 4]})));
+        expect([graph.state.points, graph.state.weights, graph.state.degree]).toEqual([square, [1, 2, 3, 4], 2]);
+        expect(graph.state.origin.weights).toEqual([1, 2, 3, 4]);
+        expect(graph.state.origin.points).toEqual(square);
+        expect(graph.state.example).toBe('custom');
+        expect([graph.state.t, graph.state.showCircle, graph.state.refusal]).toEqual([1 / 16, true, null]);
+        act(() => { graph.setT(0.5); graph.setShowCircle(false); });
+        act(() => graph.getLessonCapabilities().apply(fixture({points: square, degree: 2})));
+        expect(graph.state.weights).toEqual([1, 1, 1, 1]);
+        expect(graph.state.origin.weights).toEqual([1, 1, 1, 1]);
+        expect([graph.state.t, graph.state.showCircle, graph.state.refusal]).toEqual([1 / 16, true, null]);
+        view.unmount();
+    });
+
+    test.each([[[1, 2, 3]], [[1, 2, 0, 4]], [[1, 2, -1, 4]]])('a lesson fixture with weights %j is refused with a localized weight message and the scene unchanged', weights => {
+        const {graph, view} = mount();
+        const before = [graph.state.points, graph.state.weights, graph.state.knots];
+        let thrown: unknown;
+        try { act(() => graph.getLessonCapabilities().apply(fixture({points: square, degree: 2, weights}))); } catch (error) { thrown = error; }
+        expect(thrown).toBeInstanceOf(LocalizedError);
+        expect((thrown as Error).message).toMatch(/^utež 3 mora biti pozitivna$|^uteži mora biti toliko kot kontrolnih točk \(4\)$/);
+        expect([graph.state.points, graph.state.weights, graph.state.knots]).toEqual(before);
+        view.unmount();
+    });
+
+    test.each([
+        [[1, 2, 3], /^uteži mora biti toliko kot kontrolnih točk \(4\)$/],
+        [[1, 2, 0, 4], /^utež 3 mora biti pozitivna$/],
+        [[1, -2, 3, 4], /^utež 2 mora biti pozitivna$/],
+    ])('importing weights %j is refused with an actionable message and the state is unchanged', (weights, text) => {
+        const {graph, view} = mount();
+        const data = {degree: 2, knots: [0, 0, 0, 1, 2, 2, 2], points: square, weights};
+        const checked = bsplinePresetCollection.check(data);
+        expect('rejection' in checked && renderMessage(checked.rejection)).toMatch(text);
+        const before = JSON.stringify(graph.state);
+        let thrown: unknown;
+        try { act(() => graph.importPresetData(data)); } catch (error) { thrown = error; }
+        expect(thrown).toBeInstanceOf(LocalizedError);
+        expect((thrown as Error).message).toMatch(text);
+        expect(JSON.stringify(graph.state)).toBe(before);
+        view.unmount();
+    });
+});
+
+describe('dragging and language', () => {
+    test('a control-point drag updates the state points and the radial-error readout', () => {
+        const {graph, view} = mount();
+        const readout = () => document.querySelector('[data-nurbs-readout="radial-error"]')!.textContent!;
+        const before = readout();
+        const moved = graph.sceneOf().curve.getJxgPoints()[2];
+        act(() => { moved.setPosition(JXG.COORDS_BY_USER, [1.5, 0.3]); (moved as unknown as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers(['drag'], []); });
+        expect(graph.state.points[2]).toEqual([1.5, 0.3]);
+        expect(graph.state.points.map(p => p.length)).toEqual(Array(9).fill(2));
+        expect(graph.radialError()).toBeGreaterThan(0.1);
+        expect(readout()).not.toBe(before);
+        expect(readout()).toBe(`Največji odmik od enotske krožnice: ${errorText(graph.radialError())}`);
+        view.unmount();
+    });
+
+    test('the refusal reason renders in English after a language switch', () => {
+        const {graph, view} = mount();
+        act(() => { graph.setWeight(3, 0); });
+        expect(screen.getByRole('alert').textContent).toBe('utež 4 mora biti pozitivna');
+        act(() => setLanguage('en'));
+        expect(screen.getByRole('alert').textContent).toBe('weight 4 must be positive');
+        view.unmount();
     });
 });
 
