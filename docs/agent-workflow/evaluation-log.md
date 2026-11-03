@@ -1759,3 +1759,13 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - F6 smoke `bezeg-smoke` Sonnet: 60k tokens, 26 tools, 6 min, all items passed with the marker sizes per item, as the handoff 33 lesson asked. The handler's look at the screenshots agreed.
 - Miss: the local `just check` samples the transient-state contract, so it passed. CI's full run (`BEZEG_TRANSIENT_STATE=all`) failed on `prob-summary` once `lesson: false` was dropped. The cause was `perturbModel`, which nudges only numeric fields. Fixed in `7601ea6a`. After any slice that drops `lesson: false`, or that adds a graph whose model has no numeric field, run `BEZEG_TRANSIENT_STATE=all npx vitest run src/graphs/base/GraphTransientState` before pushing.
 - Context: soft threshold fired while the CI failure was being fixed; handed off after the fix was pushed.
+
+## Curves handler 35 (Opus, auto, medium), 2026-11-03
+
+- PS-C-5a1 model `bezeg-worker` Sonnet: 50k tokens, 12 tools, 3.5 min, complete; eight mutations seen failing; the handler reviewed the view mathematics and reran the tests.
+- PS-C-5a2 graph `bezeg-worker` Sonnet: 118k tokens, 44 tools, 10 min, complete; eight mutations. Sonnet review (28k tokens, 7 tools): no blocking findings; its should-fix (mutation evidence) was already covered by the worker's report and the model tests.
+- PS-C-5b registration and PS-C-5c hooks handler-made from the `2bc90e9c` and `eed10ca6` templates.
+- Smoke `bezeg-smoke` Sonnet: 52k tokens, 30 tools, 9 min; nine of ten checks passed, and the visual check reported label overlaps. The handler viewed two screenshots and deferred the overlaps as minor.
+- Applied the handoff 34 lesson: `BEZEG_TRANSIENT_STATE=all` over `GraphTransientState` after registering a graph whose model has no numeric field. It failed on `prob-correlation` before the push of the fix and passed after it (`7e4e8c23`), so CI did not have to find it.
+- Hosted CI: `unit (2)` fails on Functions' `fourier-coefficients` Preset collection (`39217a5e`), not curves; Functions had the fix uncommitted in its worktree, so curves left it alone.
+- Context: the soft threshold fired after PS-C-5c; handed off before the lesson PS-C-5d.
