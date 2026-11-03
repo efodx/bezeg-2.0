@@ -67,7 +67,9 @@ const targets = {
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'fourier-series': ['Default square wave with the partial sum, the target and the epsilon band', [], [-7.2, 3.6, 7.2, -2]],
     'prob-binomial-normal': ['Default B(20; 1/2) bars with the matching normal curve and the shaded P(X <= 8)', [], [-1.5, 0.2, 21.5, -0.03]],
-    'prob-clt': ['Default uniform base density at n = 1, standardized, over the standard normal curve', [], [-6, 0.6, 6, -0.06]],
+    // At the default n = 1 the board shows only the uniform base density, so the poster takes the skewed example at n = 3,
+    // where the standardized sum is visibly close to, but not yet on, the normal curve.
+    'prob-clt': ['Skewed base density at n = 3: the standardized sum approaching the standard normal curve', [field('Primer', 'skewed', 'select'), field('Število seštevancev n', 3)], [-3.6, 0.47, 3.6, -0.03]],
     'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with mean and median markers and the box plot (school rule)', [], [1, 4, 11, -2]],
     'prob-correlation': ['Default points (0,1), (1,2), (2,2), (3,4) with the regression line y = 0.9x + 0.9 and the residuals', [], [-1.5, 5.5, 4.5, -0.5]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
