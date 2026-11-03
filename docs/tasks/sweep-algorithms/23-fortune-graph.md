@@ -1,6 +1,6 @@
 # 23 — Fortune graph and beach-line measurement (C5)
 
-Status: planned 2026-11-03 (geometry handler 43). Source: [spec C5](../../specs/sweep-algorithms-lessons.md#c5-fortunes-algorithm-showpiece) (capabilities, steps, acceptance 5), [testing decisions](../../specs/sweep-algorithms-lessons.md#testing-decisions) (performance), [performance plan](../../performance-plan.md), [reuse review](../../reviews/triangulation-voronoi/18-fortune-reuse.md). Kind: F2a; engineering, mathematical and UI/accessibility reviews. Depends on 22, the point-set graph core, triangulation 18 (`voronoiDrawing.ts`) and 19 (`VoronoiGraph`, whose follow-view and marker behaviour this graph must match).
+Status: accepted 2026-11-03 (geometry handler 44, [record](../../reviews/sweep-algorithms/23-acceptance.md)); planned by handler 43. Source: [spec C5](../../specs/sweep-algorithms-lessons.md#c5-fortunes-algorithm-showpiece) (capabilities, steps, acceptance 5), [testing decisions](../../specs/sweep-algorithms-lessons.md#testing-decisions) (performance), [performance plan](../../performance-plan.md), [reuse review](../../reviews/triangulation-voronoi/18-fortune-reuse.md). Kind: F2a; engineering, mathematical and UI/accessibility reviews. Depends on 22, the point-set graph core, triangulation 18 (`voronoiDrawing.ts`) and 19 (`VoronoiGraph`, whose follow-view and marker behaviour this graph must match).
 
 ## Decisions (handler 43, 2026-11-03)
 

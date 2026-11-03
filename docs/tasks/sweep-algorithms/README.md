@@ -59,7 +59,7 @@ Release condition (spec): S1 released (done), triangulation T0 and T3 accepted, 
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | 22 | [Fortune kernel](22-fortune-kernel.md) | F1 | 02, triangulation 05 | accepted 2026-11-03 (handler 44, [record](../../reviews/sweep-algorithms/22-acceptance.md)) |
-| 23 | [Fortune graph and beach-line measurement](23-fortune-graph.md) | F2a | 22, triangulation 18–19, T3 F6 | planned |
+| 23 | [Fortune graph and beach-line measurement](23-fortune-graph.md) | F2a | 22, triangulation 18–19, T3 F6 | accepted 2026-11-03 (handler 44, [record](../../reviews/sweep-algorithms/23-acceptance.md)) |
 | 24 | [Fortune registration](24-fortune-registration.md) | F2b | 23 | planned |
 | 25 | [Fortune lesson C5](25-fortune-lesson.md) | F3 | 23, 24 | planned |
 | 26 | [Fortune chapter section](26-fortune-chapter-section.md) | F4 | 25 | planned |
