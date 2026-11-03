@@ -38,6 +38,7 @@ import preview_interp_subdivision from './images/demonstrations/catalog/interp-s
 import preview_bspline_basis from './images/demonstrations/catalog/bspline-basis.png';
 import preview_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.png';
 import preview_bspline_insertion from './images/demonstrations/catalog/bspline-insertion.png';
+import preview_bspline_extraction from './images/demonstrations/catalog/bspline-extraction.png';
 import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.png';
 import preview_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.png';
 import preview_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.png';
@@ -97,6 +98,7 @@ import preview_interval_sweep from './images/demonstrations/catalog/interval-swe
 import preview_segment_intersections from './images/demonstrations/catalog/segment-intersections.png';
 import preview_monotone_partition from './images/demonstrations/catalog/monotone-partition.png';
 import preview_monotone_triangulation from './images/demonstrations/catalog/monotone-triangulation.png';
+import preview_fortune from './images/demonstrations/catalog/fortune.png';
 import preview_projective_cross_ratio from './images/demonstrations/catalog/projective-cross-ratio.png';
 import preview_projective_pascal from './images/demonstrations/catalog/projective-pascal.png';
 import preview_projective_pole_polar from './images/demonstrations/catalog/projective-pole-polar.png';
@@ -141,6 +143,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'bspline-basis': preview_bspline_basis,
     'bspline-deboor': preview_bspline_deboor,
     'bspline-insertion': preview_bspline_insertion,
+    'bspline-extraction': preview_bspline_extraction,
     'patch-tensor': preview_patch_tensor,
     'patch-decasteljau': preview_patch_decasteljau,
     'patch-derivatives': preview_patch_derivatives,
@@ -200,6 +203,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'segment-intersections': preview_segment_intersections,
     'monotone-partition': preview_monotone_partition,
     'monotone-triangulation': preview_monotone_triangulation,
+    'fortune': preview_fortune,
     'projective-cross-ratio': preview_projective_cross_ratio,
     'projective-pascal': preview_projective_pascal,
     'projective-pole-polar': preview_projective_pole_polar,
