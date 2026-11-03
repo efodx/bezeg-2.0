@@ -40,6 +40,15 @@ The exact sign of the incircle determinant of four grid points, which tells whet
 **Delaunay triangulation** (*Delaunayeva triangulacija*):
 A triangulation in which every edge is legal, equivalently no triangle's circumcircle holds another point strictly inside; it is unique when no four points lie on one circle. Lawson's algorithm reaches it from any triangulation by flipping illegal edges until none remain; the Delaunay Demonstration records those flips as a trace.
 
+**Voronoi diagram** (*Voronojev diagram*):
+The division of the plane into cells, one per site (*mesto*): the cell (*celica*) of a site is the set of points no farther from it than from any other site, an intersection of half-planes bounded by perpendicular bisectors. Voronoi vertices (*Voronojeva oglišča*) are points equidistant from three or more nearest sites; cells of sites on the convex hull are unbounded, and the edge between the cells of two consecutive hull sites is a ray.
+
+**Duality** (*dualnost*):
+The correspondence between the Voronoi diagram and the Delaunay triangulation of the same sites: each Delaunay triangle gives the Voronoi vertex at its circumcentre, each interior Delaunay edge a finite Voronoi edge and each hull edge a ray. The dual is a triangulation only when no four sites lie on an empty circle.
+
+**Cocircular points** (*kocirkularne točke*):
+Four or more points on one circle, detected when the incircle test returns zero. When that circle holds no other site, the Delaunay triangulation is not unique and the Voronoi vertex at its centre has degree four or more; the degenerate-sites Demonstration shows this case next to collinear sites, whose cells are strips and half-planes with no vertices.
+
 **Sweep line**:
 A line moved across the plane that stops only at events (interval or segment endpoints, intersections) held in the event queue; the status is the ordered list of objects the line currently crosses.
 
