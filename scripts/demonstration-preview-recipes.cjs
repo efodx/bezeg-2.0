@@ -58,7 +58,7 @@ const targets = {
     'arc-length': ['Original arc and visibly coarse two-segment approximation', [], [-0.4, 2, 3.6, -0.7]],
     'root-finding': ['Default Newton tangent step on the quadratic example with the start and the next iterate', [button('Naslednji korak')], [-4.5, 6, 4.5, -3]],
     quadrature: ['Default two-subinterval trapezoid on sin with the error visible against the exact area', [], [-1, 2.6, 4.8, -1.8]],
-    'euler-method': ['Default direction field with the Euler polyline, the dashed exact curve and the initial point', [], [-2, 5, 3.5, -1.5]],
+    'euler-method': ['Default direction field with the Euler polyline, the dashed exact curve and the initial point', [], [-1.2, 3, 2.6, 0.7]],
     bisection: ['First exact halving with midpoint and discarded half before further narrowing', [button('Naslednji korak')], [0.85, 2.3, 2.15, -1.25]],
     'mean-value': ['Shallower tangent and fixed secant before the matching-point discovery', [field('Točka dotika c', 0.5, 'number')], [-0.3, 4.8, 2.4, -0.5]],
     accumulation: ['Accumulation function revealed beside integrand and signed area', [button('Pokaži akumulacijo A')], [-0.5, 2.6, 6.5, -1.4]],

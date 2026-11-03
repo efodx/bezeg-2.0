@@ -37,6 +37,7 @@ import preview_interp_least_squares from './images/demonstrations/catalog/interp
 import preview_interp_subdivision from './images/demonstrations/catalog/interp-subdivision.png';
 import preview_bspline_basis from './images/demonstrations/catalog/bspline-basis.png';
 import preview_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.png';
+import preview_bspline_insertion from './images/demonstrations/catalog/bspline-insertion.png';
 import preview_patch_tensor from './images/demonstrations/catalog/patch-tensor.png';
 import preview_patch_decasteljau from './images/demonstrations/catalog/patch-decasteljau.png';
 import preview_patch_derivatives from './images/demonstrations/catalog/patch-derivatives.png';
@@ -59,6 +60,7 @@ import preview_arc_length from './images/demonstrations/catalog/arc-length.png';
 import preview_bisection from './images/demonstrations/catalog/bisection.png';
 import preview_root_finding from './images/demonstrations/catalog/root-finding.png';
 import preview_quadrature from './images/demonstrations/catalog/quadrature.png';
+import preview_euler_method from './images/demonstrations/catalog/euler-method.png';
 import preview_mean_value from './images/demonstrations/catalog/mean-value.png';
 import preview_accumulation from './images/demonstrations/catalog/accumulation.png';
 import preview_darboux from './images/demonstrations/catalog/darboux.png';
@@ -138,6 +140,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'interp-subdivision': preview_interp_subdivision,
     'bspline-basis': preview_bspline_basis,
     'bspline-deboor': preview_bspline_deboor,
+    'bspline-insertion': preview_bspline_insertion,
     'patch-tensor': preview_patch_tensor,
     'patch-decasteljau': preview_patch_decasteljau,
     'patch-derivatives': preview_patch_derivatives,
@@ -160,6 +163,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'bisection': preview_bisection,
     'root-finding': preview_root_finding,
     'quadrature': preview_quadrature,
+    'euler-method': preview_euler_method,
     'mean-value': preview_mean_value,
     'accumulation': preview_accumulation,
     'darboux': preview_darboux,
