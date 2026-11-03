@@ -312,6 +312,8 @@ export const sl = {
     "bse_count": "Število odsekov: {value0} (različni notranji vozli + 1)",
     "bse_affected_note": "Zadnji premik je spremenil odsekov: {value0}.",
     "bse_no_pieces": "Odsekov ni mogoče izračunati.",
+    "bse_open_as_bezier": "Odpri kot Bézierjevo krivuljo",
+    "bse_open_as_bezier_piece": "Odpri odsek {value0} kot Bézierjevo krivuljo",
     "bse_piece_row": "Odsek {value0}: u ∈ [{value1}, {value2}], točke {value3}",
     "bse_piece_changed": "(spremenjen)",
     "b_splines": "B-zlepki",

@@ -154,6 +154,12 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         return piece?.points.map(p => [p[0], p[1]] as const);
     }
 
+    /** Hands piece `index` to the host, which opens it in the Bezier Demonstration (ADR 0038). No-op without a host or piece. */
+    openAsBezier(index: number): void {
+        const points = this.pieceControlPoints(index);
+        if (points) this.hostBridge.openAsBezier?.(points);
+    }
+
     /** Indices of the pieces whose interval lies in the support of a point moved by the last drag. */
     affected(): number[] {
         const {knots, degree, moved} = this.state;
@@ -220,7 +226,12 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
                 {pieces.length
                     ? <ul data-extraction-readout="pieces">{lines.map((line, index) =>
                         <li key={index} data-affected={affected.includes(index) ? 'true' : 'false'}
-                            style={{borderLeft: `4px solid ${pieceColor(index)}`, paddingLeft: '0.4em'}}>{line}</li>)}</ul>
+                            style={{borderLeft: `4px solid ${pieceColor(index)}`, paddingLeft: '0.4em'}}>{line}
+                            {this.hostBridge.openAsBezier
+                                ? <> <button type="button" data-action="open-as-bezier" data-piece={index}
+                                             aria-label={t("bse_open_as_bezier_piece", {value0: index + 1})}
+                                             onClick={() => this.openAsBezier(index)}>{t("bse_open_as_bezier")}</button></>
+                                : null}</li>)}</ul>
                     : <p className="inspector-help">{t("bse_no_pieces")}</p>}
             </div>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,

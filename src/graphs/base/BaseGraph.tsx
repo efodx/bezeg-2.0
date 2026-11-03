@@ -103,6 +103,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     private pendingPreviousState?: S;
     private pendingCallbacks: Array<() => void> = [];
     private hasBeenMounted = false;
+    /**
+     * App-shell seams the route host fills before mount, so graphs stay free of router code: `bezierHandoff` is the validated
+     * one-shot points handoff (ADR 0038), `openAsBezier` navigates to the Bezier Demonstration with control points.
+     */
+    readonly hostBridge: {
+        bezierHandoff?: ReadonlyArray<readonly [number, number]>;
+        openAsBezier?: (points: ReadonlyArray<readonly [number, number]>) => void;
+    } = {};
     private selectedPresetIdValue = "";
     private presetListVersionValue = 0;
     /** Why the last Preset save or delete did not happen; shown beside the Preset list until the next one succeeds. */
@@ -768,7 +776,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
                 suspendBoard: false,
                     importData: () => {
                     if (preset) this.importPreset(preset);
-                    else this.importPresetData(this.defaultPreset());
+                    else this.importPresetData(this.initialPresetData());
                 },
                 transientState: undefined,
                 // TODO We should remove this...
@@ -777,6 +785,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             session.observeResize(container);
             session.markReady();
         }
+    }
+
+    /** The data a mount without a selected Preset loads: the default scene, or a graph's validated host handoff. */
+    protected initialPresetData(): D {
+        return this.defaultPreset();
     }
 
     /**

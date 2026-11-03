@@ -165,6 +165,23 @@ test('invalid family context is removed while unrelated query values and the has
     expect(screen.queryByRole('region', {name: 'Investigation instructions'})).not.toBeInTheDocument();
 });
 
+test('a search-normalising replace never forwards the one-shot Bezier handoff and keeps the rest of the state (ADR 0038)', async () => {
+    const states: unknown[] = [];
+    function StateReadout() {
+        const location = useLocation();
+        states.push(location.state);
+        return <output data-testid="location">{location.pathname}{location.search}</output>;
+    }
+    const demonstrationReturn = {location: '/bezeg-2.0/demonstrations?q=x'};
+    render(<MemoryRouter initialEntries={[{pathname: '/bezeg-2.0/bernstein', search: '?explore=duplicate', state: {demonstrationReturn, bezierHandoff: {kind: 'bezier-points', points: [[0, 0], [1, 1]]}}}]}>
+        <DemonstrationWorkspace description="Explore" edit={null} display={null} save={null} navigate={vi.fn()}/>
+        <StateReadout/>
+    </MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/bezeg-2\.0\/bernstein$/));
+    expect(states[states.length - 1]).toEqual({demonstrationReturn});
+});
+
 test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
     render(<MemoryRouter initialEntries={['/bezeg-2.0/spline/spline?learn=1']}><DemonstrationWorkspace description="Raziskuj"
         edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}

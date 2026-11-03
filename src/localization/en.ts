@@ -313,6 +313,8 @@ export const en: Record<keyof typeof sl, string> = {
     "bse_count": "Pieces: {value0} (distinct interior knots + 1)",
     "bse_affected_note": "Pieces changed by the last move: {value0}.",
     "bse_no_pieces": "The pieces cannot be computed.",
+    "bse_open_as_bezier": "Open as Bézier curve",
+    "bse_open_as_bezier_piece": "Open piece {value0} as a Bézier curve",
     "bse_piece_row": "Piece {value0}: u ∈ [{value1}, {value2}], points {value3}",
     "bse_piece_changed": "(changed)",
     "b_splines": "B-splines",

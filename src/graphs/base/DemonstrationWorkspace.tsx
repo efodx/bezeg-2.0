@@ -1,5 +1,5 @@
 import {useT} from "../../localization";
-import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {SiteContext} from "../context/react/SiteContext";
 import {PresetLockContext} from "../context/react/PresetLockContext";
@@ -7,6 +7,7 @@ import {JGBox} from "../../JGBox";
 import {findDemonstration, getDemonstrationCatalog, NavigationAction, Demonstration} from "../../demonstrations";
 import {DemonstrationPicker} from '../../DemonstrationPicker';
 import {readDemonstrationReturnContext} from '../../demonstrationNavigation';
+import {withoutBezierHandoff} from '../../bezierHandoff';
 import "./DemonstrationWorkspace.css";
 import "./WorkspaceControls.css";
 import "./DemonstrationWorkspaceIdentity.css";
@@ -42,6 +43,9 @@ export function DemonstrationWorkspace(props: {
     const [lessonGraphActions, setLessonGraphActions] = useState<{animationControls?: React.ReactNode}>();
     const location = useLocation();
     const {pathname, search, hash} = location;
+    // The one-shot Bezier handoff (ADR 0038) is never forwarded: GraphRoute consumes it, and a replace carrying a stale copy
+    // would bring it back for the next reload.
+    const forwardedState = useMemo(() => withoutBezierHandoff(location.state), [location.state]);
     const returnContext = readDemonstrationReturnContext(location.state);
     const navigateRoute = useNavigate();
     const {families} = getDemonstrationCatalog();
@@ -55,8 +59,8 @@ export function DemonstrationWorkspace(props: {
     const familyInvestigation = readFamilyInvestigation(search, pathname);
     useEffect(() => {
         if (!familyInvestigation.invalid || lessonOpen) return;
-        navigateRoute({pathname, search: removeFamilyInvestigation(search), hash}, {replace: true, state: location.state});
-    }, [familyInvestigation.invalid, hash, lessonOpen, location.state, navigateRoute, pathname, search]);
+        navigateRoute({pathname, search: removeFamilyInvestigation(search), hash}, {replace: true, state: forwardedState});
+    }, [familyInvestigation.invalid, hash, lessonOpen, forwardedState, navigateRoute, pathname, search]);
     const family = families.find(entry => entry.id === demonstration?.family);
     const [pickerOpen, setPickerOpen] = useState(false);
     const switchButton = useRef<HTMLButtonElement>(null);
@@ -72,7 +76,7 @@ export function DemonstrationWorkspace(props: {
             return;
         }
         closeLesson.current?.();
-        navigateRoute(entry.path + (startLesson ? '?learn=1' : ''), {state: location.state});
+        navigateRoute(entry.path + (startLesson ? '?learn=1' : ''), {state: forwardedState});
     };
     const navigationLabels: Record<Exclude<NavigationAction, 'fit'>, [string, string]> = {
         left: ['←', t('pan_left')], up: ['↑', t('pan_up')], down: ['↓', t('pan_down')],
@@ -101,7 +105,7 @@ export function DemonstrationWorkspace(props: {
         query.set('learn', '1');
         query.set('learnChapter', lessonOwner.chapterId);
         query.set('learnSection', lessonOwner.sectionId);
-        navigateRoute({pathname, search: `?${query.toString()}`, hash}, {replace: true, state: location.state});
+        navigateRoute({pathname, search: `?${query.toString()}`, hash}, {replace: true, state: forwardedState});
         setLessonMode('content');
     };
     useEffect(() => {
@@ -111,8 +115,8 @@ export function DemonstrationWorkspace(props: {
         query.set('learnChapter', lessonOwner.chapterId);
         query.set('learnSection', lessonOwner.sectionId);
         const nextSearch = `?${query.toString()}`;
-        if (nextSearch !== search) navigateRoute({pathname, search: nextSearch, hash}, {replace: true, state: location.state});
-    }, [demonstration, hash, lesson, lessonOwner, location.state, navigateRoute, pathname, search]);
+        if (nextSearch !== search) navigateRoute({pathname, search: nextSearch, hash}, {replace: true, state: forwardedState});
+    }, [demonstration, hash, lesson, lessonOwner, forwardedState, navigateRoute, pathname, search]);
     // The graph container is shared with the host (which mounts the board on it) and with the lesson overlay (which
     // keeps its prompt inside it).
     const graphContainer = useRef<HTMLDivElement | null>(null);
@@ -140,7 +144,7 @@ export function DemonstrationWorkspace(props: {
         className={`demonstration-workspace ${fullScreen ? "is-presenting" : ""} ${lessonActive ? `lesson-open lesson-${lessonMode}` : ""}`}>
         <header className="workspace-heading">
             <div className="workspace-heading-copy"><nav className="workspace-breadcrumb" aria-label={t('library_breadcrumb')}>
-                <Link to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={location.state}>{t('demonstrations')}</Link>
+                <Link to={returnContext?.location ?? '/bezeg-2.0/demonstrations'} state={forwardedState}>{t('demonstrations')}</Link>
                 {family && <><span aria-hidden="true"> / </span><Link to={'/bezeg-2.0/demonstrations?topic=' + encodeURIComponent(family.id)}>{family.title}</Link></>}
                 {demonstration && <><span aria-hidden="true"> / </span><span aria-current="page">{demonstration.catalogTitle}</span></>}
             </nav>
@@ -172,7 +176,7 @@ export function DemonstrationWorkspace(props: {
             </div>
             <div className="workspace-actions">
                 {chapter.readAbout && !lessonActive && !chapter.activity && <button disabled={props.pickerUnavailable} onClick={chapter.readAbout}>{t('chapter_read_about')}</button>}
-                {!lessonActive && !chapter.activity && chapterActivityVisit.hasChapterReturn() && <Link to={chapterActivityVisit.readingReturnPath()} state={location.state}>{t('chapter_return')}</Link>}
+                {!lessonActive && !chapter.activity && chapterActivityVisit.hasChapterReturn() && <Link to={chapterActivityVisit.readingReturnPath()} state={forwardedState}>{t('chapter_return')}</Link>}
                 {demonstration && <button ref={switchButton} aria-disabled={props.graphBusy || props.pickerUnavailable || undefined}
                     aria-describedby={props.pickerUnavailable ? 'workspace-picker-unavailable' : undefined}
                     title={props.pickerUnavailable ? t('library_picker_busy') : undefined}
@@ -209,7 +213,7 @@ export function DemonstrationWorkspace(props: {
                 sectionTitle: getGuidedLessonSectionTitle(lessonOwner, language),
                 returnPath: guidedLessonReturnPath(lessonOwner),
                 returnLabel: t('chapter_return'),
-                onReturn: () => navigateRoute(guidedLessonReturnPath(lessonOwner), {state: location.state}),
+                onReturn: () => navigateRoute(guidedLessonReturnPath(lessonOwner), {state: forwardedState}),
             } : undefined}
             onModeChange={setLessonMode}
             onClose={() => {
@@ -217,7 +221,7 @@ export function DemonstrationWorkspace(props: {
                 const query = new URLSearchParams(search);
                 if (['learn', 'example', 'explore', 'chapter', 'activity'].some(key => query.has(key))) {
                     for (const key of ['learn', 'example', 'explore', 'chapter', 'activity']) query.delete(key);
-                    navigateRoute({pathname, search: query.toString() ? `?${query.toString()}` : '', hash}, {replace: true, state: location.state});
+                    navigateRoute({pathname, search: query.toString() ? `?${query.toString()}` : '', hash}, {replace: true, state: forwardedState});
                 }
                 setTimeout(() => learnButton.current?.focus(), 0);
             }}/>}
