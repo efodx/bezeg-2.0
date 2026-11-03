@@ -49,6 +49,8 @@ import preview_exponential_function from './images/demonstrations/catalog/expone
 import preview_trigonometric_functions from './images/demonstrations/catalog/trigonometric-functions.png';
 import preview_function_transformation from './images/demonstrations/catalog/function-transformation.png';
 import preview_function_inverse from './images/demonstrations/catalog/function-inverse.png';
+import preview_polynomial_zeros from './images/demonstrations/catalog/polynomial-zeros.png';
+import preview_rational_function from './images/demonstrations/catalog/rational-function.png';
 import preview_continuity from './images/demonstrations/catalog/continuity.png';
 import preview_derivative from './images/demonstrations/catalog/derivative.png';
 import preview_definite_integral from './images/demonstrations/catalog/definite-integral.png';
@@ -66,8 +68,13 @@ import preview_taylor from './images/demonstrations/catalog/taylor.png';
 import preview_sequence from './images/demonstrations/catalog/sequence.png';
 import preview_uniform_convergence from './images/demonstrations/catalog/uniform-convergence.png';
 import preview_fourier_series from './images/demonstrations/catalog/fourier-series.png';
+import preview_fourier_coefficients from './images/demonstrations/catalog/fourier-coefficients.png';
 import preview_fixed_point from './images/demonstrations/catalog/fixed-point.png';
 import preview_prob_density from './images/demonstrations/catalog/prob-density.png';
+import preview_prob_binomial_normal from './images/demonstrations/catalog/prob-binomial-normal.png';
+import preview_prob_clt from './images/demonstrations/catalog/prob-clt.png';
+import preview_prob_summary from './images/demonstrations/catalog/prob-summary.png';
+import preview_prob_correlation from './images/demonstrations/catalog/prob-correlation.png';
 import preview_linear_map from './images/demonstrations/catalog/linear-map.png';
 import preview_complex_reciprocal from './images/demonstrations/catalog/complex-reciprocal.png';
 import preview_complex_roots from './images/demonstrations/catalog/complex-roots.png';
@@ -82,8 +89,12 @@ import preview_convex_hull from './images/demonstrations/catalog/convex-hull.png
 import preview_ear_clipping from './images/demonstrations/catalog/ear-clipping.png';
 import preview_point_set_triangulation from './images/demonstrations/catalog/point-set-triangulation.png';
 import preview_delaunay from './images/demonstrations/catalog/delaunay.png';
+import preview_voronoi from './images/demonstrations/catalog/voronoi.png';
+import preview_voronoi_degenerate from './images/demonstrations/catalog/voronoi-degenerate.png';
 import preview_interval_sweep from './images/demonstrations/catalog/interval-sweep.png';
 import preview_segment_intersections from './images/demonstrations/catalog/segment-intersections.png';
+import preview_monotone_partition from './images/demonstrations/catalog/monotone-partition.png';
+import preview_monotone_triangulation from './images/demonstrations/catalog/monotone-triangulation.png';
 import preview_projective_cross_ratio from './images/demonstrations/catalog/projective-cross-ratio.png';
 import preview_projective_pascal from './images/demonstrations/catalog/projective-pascal.png';
 import preview_projective_pole_polar from './images/demonstrations/catalog/projective-pole-polar.png';
@@ -139,6 +150,8 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'trigonometric-functions': preview_trigonometric_functions,
     'function-transformation': preview_function_transformation,
     'function-inverse': preview_function_inverse,
+    'polynomial-zeros': preview_polynomial_zeros,
+    'rational-function': preview_rational_function,
     'continuity': preview_continuity,
     'derivative': preview_derivative,
     'definite-integral': preview_definite_integral,
@@ -156,8 +169,13 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'sequence': preview_sequence,
     'uniform-convergence': preview_uniform_convergence,
     'fourier-series': preview_fourier_series,
+    'fourier-coefficients': preview_fourier_coefficients,
     'fixed-point': preview_fixed_point,
     'prob-density': preview_prob_density,
+    'prob-binomial-normal': preview_prob_binomial_normal,
+    'prob-clt': preview_prob_clt,
+    'prob-summary': preview_prob_summary,
+    'prob-correlation': preview_prob_correlation,
     'linear-map': preview_linear_map,
     'complex-reciprocal': preview_complex_reciprocal,
     'complex-roots': preview_complex_roots,
@@ -172,8 +190,12 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'ear-clipping': preview_ear_clipping,
     'point-set-triangulation': preview_point_set_triangulation,
     'delaunay': preview_delaunay,
+    'voronoi': preview_voronoi,
+    'voronoi-degenerate': preview_voronoi_degenerate,
     'interval-sweep': preview_interval_sweep,
     'segment-intersections': preview_segment_intersections,
+    'monotone-partition': preview_monotone_partition,
+    'monotone-triangulation': preview_monotone_triangulation,
     'projective-cross-ratio': preview_projective_cross_ratio,
     'projective-pascal': preview_projective_pascal,
     'projective-pole-polar': preview_projective_pole_polar,

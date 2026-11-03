@@ -107,7 +107,7 @@ const targets = {
     // Default polygon (0,0), (4,3), (8,0), (12,8), (8,5), (4,8): x 0..12, y 0..8. At step 8 of 14 the split vertex v2 = (4,3) has joined its helper v5 = (8,5) by the first diagonal.
     'monotone-partition': ['Default hexagon with one split vertex at step 8 of 14 of the monotone partition sweep: the sweep line, the vertex types and the diagonal v2-v5 just added', [button('Naslednji korak', 8)], [-2.18, 9, 14.18, -1]],
     // The same polygon (x 0..12, y 0..8) and window. At step 33 of 43 the partition is done (diagonal v2-v5); the first piece is triangulated and the second is under way with its two chains and stack.
-    'monotone-triangulation': ['Default hexagon at step 33 of 43 of the monotone triangulation: the diagonal v2-v5, the finished first piece and the second piece with its chains and stack', [button('Naslednji korak', 33)], [-2.18, 9, 14.18, -1]],
+    'monotone-triangulation': ['Default hexagon at step 33 of 43 of the monotone triangulation: the diagonal v2-v5, the finished first piece and the second piece with its chains and stack', [button('Naslednji korak', 33)], [-0.68, 9, 15.68, -1]],
     // Default seven sites (x -1..9, y 0..8); the seven Voronoi vertices span x 0.33..9.1, y -1..5.93 and the query point is (4,2). The window keeps 360:220 around them.
     voronoi: ['Default seven sites with their Voronoi cells and vertices, the cell of the site nearest the query point highlighted', [], [-5.16, 9.2, 13.16, -2]],
     // The "Trapez" example: sites (0,0), (8,0), (9,5), (-1,5) are cocircular, so the Voronoi vertex (4, 3.4) has degree 4; the query point is (4,2). x -1..9, y 0..5.
