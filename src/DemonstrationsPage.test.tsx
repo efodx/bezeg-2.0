@@ -43,7 +43,7 @@ test('the catalogue shows the ordered collection and only supported lesson desti
         expect(card.querySelector('.demonstrations-catalog-copy p')).not.toBeEmptyDOMElement();
         // Posters are a partial record: these ids have none until their capture tasks.
         if (!['linear-map', 'complex-reciprocal', 'complex-roots', 'triangle-centres', 'inscribed-angle', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep',
-            'segment-intersections', 'monotone-partition', 'monotone-triangulation', 'voronoi', 'voronoi-degenerate', 'prob-binomial-normal', 'curve-parametric', 'curve-curvature', 'interp-lagrange', 'interp-hermite', 'patch-coons', 'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'root-finding', 'function-transformation', 'function-inverse', 'fourier-series'].includes(entry.id)) {
+            'segment-intersections', 'monotone-partition', 'monotone-triangulation', 'voronoi', 'voronoi-degenerate', 'polynomial-zeros', 'rational-function', 'prob-binomial-normal', 'curve-parametric', 'curve-curvature', 'interp-lagrange', 'interp-hermite', 'patch-coons', 'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'root-finding', 'function-transformation', 'function-inverse', 'fourier-series'].includes(entry.id)) {
             expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('src');
             expect(card.querySelector('.demonstrations-catalog-preview')).toHaveAttribute('alt', '');
         }

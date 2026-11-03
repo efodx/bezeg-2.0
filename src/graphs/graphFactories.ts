@@ -54,6 +54,8 @@ import { RootFindingGraph } from './functions/RootFindingGraph';
 import { QuadratureGraph } from './functions/QuadratureGraph';
 import { FunctionTransformationGraph } from './functions/FunctionTransformationGraph';
 import { FunctionInverseGraph } from './functions/FunctionInverseGraph';
+import { PolynomialZerosGraph } from './functions/PolynomialZerosGraph';
+import { RationalFunctionGraph } from './functions/RationalFunctionGraph';
 import { FourierSeriesGraph } from './functions/FourierSeriesGraph';
 import { MeanValueGraph } from './functions/MeanValueGraph';
 import { AccumulationGraph } from './functions/AccumulationGraph';
@@ -145,6 +147,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'trigonometric-functions': () => new TrigonometricFunctionsGraph(),
     'function-transformation': () => new FunctionTransformationGraph(),
     'function-inverse': () => new FunctionInverseGraph(),
+    'polynomial-zeros': () => new PolynomialZerosGraph(),
+    'rational-function': () => new RationalFunctionGraph(),
     'continuity': () => new ContinuityGraph(),
     'derivative': () => new DerivativeGraph(),
     'definite-integral': () => new DefiniteIntegralGraph(),

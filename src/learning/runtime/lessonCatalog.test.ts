@@ -184,8 +184,8 @@ test('every active demonstration route has an available lesson unless it opts ou
     const lessonIds = ids.filter(id => LESSON_DEMONSTRATION_IDS.includes(id));
     // Task13 publishes the six patch demonstrations alongside the existing curve lessons.
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
-    // The voronoi and voronoi-degenerate ids (lessons in T3 tasks 22 and 23) ship without a lesson; the quadrature lesson N4, the monotone-partition lesson C3 (sweep task 19), the monotone-triangulation lesson C4 (sweep task 20), the density lesson P1, the binomial-normal lesson P2, the Delaunay lesson B3, the least-squares lesson I4, the inversion lesson T5 and the projective lessons K4 and K5 ended their opt-outs.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['voronoi', 'voronoi-degenerate']);
+    // The polynomial-zeros and rational-function ids (lessons in school function graphs F3), the voronoi and voronoi-degenerate ids (lessons in T3 tasks 22 and 23) ship without a lesson; the quadrature lesson N4, the monotone-partition lesson C3 (sweep task 19), the monotone-triangulation lesson C4 (sweep task 20), the density lesson P1, the binomial-normal lesson P2, the Delaunay lesson B3, the least-squares lesson I4, the inversion lesson T5 and the projective lessons K4 and K5 ended their opt-outs.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['polynomial-zeros', 'rational-function', 'voronoi', 'voronoi-degenerate']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

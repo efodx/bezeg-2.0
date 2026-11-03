@@ -98,7 +98,7 @@ test('all existing graph URLs retain their graph implementations behind lazy rou
     })));
     const graphFor = (path: string) => routeFactories.get(path);
     const catalogPaths = catalog.map(({path}) => path);
-    expect(catalogPaths).toHaveLength(93);
+    expect(catalogPaths).toHaveLength(95);
     expect(catalogPaths.every(path => typeof children.find(route => route.path === path)?.lazy === 'function')).toBe(true);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/patches/tensor')).toBe(TensorPatchGraph);

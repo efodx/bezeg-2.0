@@ -46,6 +46,8 @@ const targets = {
     'exponential-function': ['Original growth region and reference points', [], [-1.5, 5, 2.5, -0.6]],
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],
     'function-transformation': ['Default transformed graph with the faint base graph and the marked point mapped to its image', [], [-6, 7, 12, -9]],
+    'polynomial-zeros': ['Default polynomial with its zeros marked and the multiplicity of each', [], [-5, 6, 5, -6]],
+    'rational-function': ['Default rational function with its zero, pole and oblique asymptote', [], [-8, 8, 8, -8]],
     'function-inverse': ['Default function and its inverse mirrored over y = x with the point P and its mirror', [], [-4, 9, 11, -4]],
     continuity: ['Actual jump and distinct open and closed endpoints', [], [-2.3, 4.3, 3.2, -1]],
     derivative: ['Distinct tangent and nearby secant on the original quadratic', [toggle('Prikaži tangento (natančna mejna premica)')], [-0.4, 5, 2.5, -1]],
