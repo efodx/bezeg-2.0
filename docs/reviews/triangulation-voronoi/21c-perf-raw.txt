@@ -1,0 +1,20 @@
+# Raw perf output, 21c (voronoi, 40 sites). Script: /c/Users/1337Hacker/.claude/jobs/32081cc6/tmp/smoke21c/perf.cjs
+## Cases default + Delaunay (run was cut by the script's 300 s timeout during 'grid on' run 3; grid reran separately)
+browser Chromium 156.0.8078.4 viewport 1440x900 dsf 1 base http://127.0.0.1:4313/bezeg-2.0
+{"case":"default overlays","run":1,"points":40,"frames":208,"moves":41,"median":16.700000000000728,"p95":16.799999999999272,"max":66.70000000000073,"latMedian":8.200000003726018,"latMax":16.5,"movedPx":50}
+{"case":"default overlays","run":2,"points":40,"frames":208,"moves":41,"median":16.700000000000728,"p95":16.799999999999272,"max":50,"latMedian":8.000000002979505,"latMax":15.099999999998545,"movedPx":50}
+{"case":"default overlays","run":3,"points":40,"frames":203,"moves":41,"median":16.69999999999891,"p95":16.80000000000291,"max":50,"latMedian":8.10000000074524,"latMax":32.800000002980596,"movedPx":50}
+{"case":"Delaunay overlay on","run":1,"points":40,"frames":218,"moves":41,"median":16.69999999999709,"p95":16.80000000000291,"max":4149.9000000000015,"latMedian":7.300000003724563,"latMax":16.10000000447326,"movedPx":50}
+{"case":"Delaunay overlay on","run":2,"points":40,"frames":221,"moves":41,"median":16.69999999999709,"p95":16.80000000000291,"max":4149.800000000003,"latMedian":8.949999999254942,"latMax":16.400000001493027,"movedPx":50}
+{"case":"Delaunay overlay on","run":3,"points":40,"frames":208,"moves":41,"median":16.69999999999709,"p95":16.80000000000291,"max":3716.4999999999964,"latMedian":8.24999999627471,"latMax":3033.1999999955297,"movedPx":50}
+{"case":"grid on","run":1,"points":40,"frames":194,"moves":41,"median":16.69999999999891,"p95":16.799999999999272,"max":66.69999999999709,"latMedian":8.549999994039354,"latMax":32.59999999701904,"movedPx":50}
+{"case":"grid on","run":2,"points":40,"frames":201,"moves":41,"median":16.69999999999891,"p95":16.80000000000109,"max":50.100000000000364,"latMedian":8.900000004469803,"latMax":15.79999999850952,"movedPx":50}
+
+## grid on (rerun, ONLY=grid on)
+browser Chromium 156.0.8078.4 viewport 1440x900 dsf 1 base http://127.0.0.1:4313/bezeg-2.0
+{"case":"grid on","run":1,"points":40,"frames":206,"moves":41,"median":16.69999999999891,"p95":16.799999999999272,"max":66.79999999999927,"latMedian":7.900000000744512,"latMax":15.900000001489389,"movedPx":50}
+{"case":"grid on","run":2,"points":40,"frames":204,"moves":41,"median":16.69999999999891,"p95":16.80000000000109,"max":66.70000000000073,"latMedian":8.150000003724927,"latMax":16.200000004469985,"movedPx":50}
+{"case":"grid on","run":3,"points":40,"frames":197,"moves":41,"median":16.700000000000728,"p95":16.80000000000291,"max":66.70000000000073,"latMedian":7.80000000223481,"latMax":16.300000001490844,"movedPx":50}
+
+case | frames/run | median ms | p95 ms | max ms | move->frame median | move->frame max
+grid on | 206/204/197 | 16.7 | 16.8 | 66.8 | 7.9 | 16.3

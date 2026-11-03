@@ -1,0 +1,58 @@
+unit: failed (1) in 18.8s (2 workers, no slot); revision 773999498392bf567c70d000667d9897be143ae2; dirty; log .command-logs\2026-11-03T02-44-06-263Z-2528-fc3f3b8f.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/DelaunayGraph.host.test.tsx --no-fsModuleCache
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx (25 tests | 2 failed) 9821ms
+   × an overlay redraw removes its objects with a bounded number of board updates, not one per removed line 77ms
+   × a press on a point lying over a triangle selects no triangle, and a press beside it does 51ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > an overlay redraw removes its objects with a bounded number of board updates, not one per removed line
+AssertionError: expected 13 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 13
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:493:34
+    491|     expect(removals).toHaveBeenCalled();
+    492|     // JSXGraph's Line.remove updates the whole board; unsuspended, th…
+    493|     expect(rendersWhileRemoving).toBe(0);
+       |                                  ^
+    494|     removals.mockRestore();
+    495|     updates.mockRestore();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/compgeo/DelaunayGraph.host.test.tsx > a press on a point lying over a triangle selects no triangle, and a press beside it does
+AssertionError: expected "getAllObjectsUnderMouse" to be called with arguments: [ {} ]
+
+Number of calls: 0
+
+ ❯ src/graphs/compgeo/DelaunayGraph.host.test.tsx:506:24
+    504|     const underMouse = vi.spyOn(board, 'getAllObjectsUnderMouse').mock…
+    505|     await act(async () => { triangleShapes(graph)[0].triggerEventHandl…
+    506|     expect(underMouse).toHaveBeenCalledWith(event);
+       |                        ^
+    507|     expect(graph.selectedTriangle()).toBeUndefined();
+    508|     underMouse.mockReturnValue([triangleShapes(graph)[0]] as never);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 23 passed (25)
+   Start at  03:44:06
+   Duration  18.05s (tests 55%, transform 29%, import 8%, environment 6%, setup 3%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

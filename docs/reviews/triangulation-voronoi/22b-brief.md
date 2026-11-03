@@ -1,0 +1,12 @@
+# Brief (handoff-v12): T3 task 22/24a, finish round (22b)
+
+- **Role:** implementation in the existing worktree `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-ab6e252dd83a77fd9` (branch `worktree-agent-ab6e252dd83a77fd9`, uncommitted work of the first 22 worker). Work only there. Do not commit, push or delegate. Pass `--no-fsModuleCache` to every Vitest run.
+- **Start from:** `docs/reviews/triangulation-voronoi/22-handoff.md` in that worktree (done items, remaining steps 1–7, temp files `C:/Users/1337Hacker/AppData/Local/Temp/w22-section.ts` and `w22-ins2.cjs`). The original brief is `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry/docs/reviews/triangulation-voronoi/22-brief.md`; its acceptance, tests, checks and return format still apply. Read `git diff --stat` first, then only the parts you need.
+- **Handler decisions:**
+  1. Task 24 item 3 holds: the chapter's B3 (`delaunay`) section gains a forward link to the `voronoi` section, with a test. The narrowed unreleased-lessons scan covers B2's section text and B3's section text except that link; the B3 *lesson* (which now links to B4) is outside the scan.
+  2. The lesson's generic mention of cocircular and collinear sites in `edgeCases` may stay, as long as nothing names or links `voronoi-degenerate` or lesson B5.
+  3. **New `diagram` overlay (Preset compatibility):** a stored `compgeo-voronoi` Preset written before this change (no `diagram` key in its overlays) must still import and show the diagram. Add a test with such a Preset payload, and check that `compgeo-voronoi-degenerate` Presets are unaffected. If the overlay changes what a Preset stores, report it, because it becomes a recorded breaking change.
+  4. Voronoi has no `next-step` animation: the equivalence test is `set-construction` ×k versus the construct-next control ×k, as the first worker proposed.
+- **Checks:** as the 22 brief, plus the full set of Voronoi host and Preset tests (`just unit src/graphs/compgeo src/learning --no-fsModuleCache`) and one observed mutation failure per new assertion (lesson numbers, spoiler hiding, action rejection, ownership move, overlay compatibility). Logs `docs/reviews/triangulation-voronoi/22b-*.log` in the worktree.
+- **Return (≤350 words):** as the 22 brief.
+- **Budget:** grep first; ≤150 lines per read; output to logs. On `HANDOFF` or past about 40 turns, update `22-handoff.md` and return partial.

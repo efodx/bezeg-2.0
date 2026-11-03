@@ -1,0 +1,15 @@
+browser Chromium 156.0.8078.4 viewport 1440x900 dsf 1 base http://127.0.0.1:4313/bezeg-2.0
+{"case":"default overlays","run":1,"points":40,"frames":196,"moves":41,"median":16.69999999999891,"p95":16.80000000000109,"max":33.399999999999636,"latMedian":9.249999997764462,"latMax":16.69999999552965,"movedPx":50}
+{"case":"default overlays","run":2,"points":40,"frames":194,"moves":41,"median":16.69999999999891,"p95":16.799999999999272,"max":33.400000000001455,"latMedian":8.550000003725472,"latMax":16.60000000446962,"movedPx":50}
+{"case":"default overlays","run":3,"points":40,"frames":195,"moves":41,"median":16.700000000000728,"p95":16.80000000000291,"max":50,"latMedian":7.050000005960101,"latMax":16.599999999998545,"movedPx":50}
+{"case":"Delaunay overlay on","run":1,"points":40,"frames":214,"moves":41,"median":16.700000000000728,"p95":16.799999999999272,"max":133.39999999999782,"latMedian":7.449999997019404,"latMax":15.799999999999272,"movedPx":50}
+{"case":"Delaunay overlay on","run":2,"points":40,"frames":213,"moves":41,"median":16.69999999999891,"p95":16.80000000000109,"max":116.69999999999709,"latMedian":7.999999999254214,"latMax":116.5,"movedPx":50}
+{"case":"Delaunay overlay on","run":3,"points":40,"frames":210,"moves":41,"median":16.700000000000728,"p95":16.799999999999272,"max":133.29999999999927,"latMedian":8.149999999999636,"latMax":16.49999999404099,"movedPx":50}
+{"case":"grid on","run":1,"points":40,"frames":206,"moves":41,"median":16.69999999999891,"p95":16.80000000000109,"max":66.69999999999891,"latMedian":8.850000001490116,"latMax":15.600000002979868,"movedPx":50}
+{"case":"grid on","run":2,"points":40,"frames":207,"moves":41,"median":16.69999999999709,"p95":16.80000000000291,"max":66.70000000000073,"latMedian":8.99999999627471,"latMax":49.899999998509884,"movedPx":50}
+{"case":"grid on","run":3,"points":40,"frames":202,"moves":41,"median":16.69999999999891,"p95":16.80000000000109,"max":66.69999999999891,"latMedian":8.550000000745058,"latMax":15.500000004471076,"movedPx":50}
+
+case | frames/run | median ms | p95 ms | max ms | move->frame median | move->frame max
+default overlays | 196/194/195 | 16.7 | 16.8 | 50.0 | 8.6 | 16.7
+Delaunay overlay on | 214/213/210 | 16.7 | 16.8 | 133.4 | 8.0 | 116.5
+grid on | 206/207/202 | 16.7 | 16.8 | 66.7 | 8.9 | 49.9
