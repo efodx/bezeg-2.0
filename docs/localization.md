@@ -108,6 +108,9 @@ The static document initially declares Slovenian, and runtime selection updates 
 | število harmonikov N | number of harmonics N (Fourier series F2a). Not "stopnja" (Taylor, a polynomial degree) and not "indeks" (uniform convergence, an index of a sequence): N counts the sine terms of the sum, so the count is named; a harmonic is "harmonik" (genitive plural "harmonikov") |
 | pravokotni val; žagasti val | square wave; sawtooth wave (Fourier series F2a examples; "žagasti" is the established adjective for the saw shape) |
 | Gibbsov pojav; vrh pri \(\pi/(N+1)\) | Gibbs phenomenon; the peak of the overshoot at \(\pi/(N+1)\) (Fourier series F2a; "vrh" is the board label for the maximum of the sum) |
+| spekter koeficientov | spectrum of coefficients: the bars of \(a_k\) and \(b_k\) (Fourier series 05 F2a; FMF notes say "amplitudni spekter" for the amplitude sequence, which these bars are not). Sources in the Fourier spec terms table |
+| Parsevalova identiteta; Parsevalova vsota | Parseval's identity; Parseval sum \(a_0^2/2+\sum_{k\le K}(a_k^2+b_k^2)\) (Fourier series 05 F2a; "identiteta" as in the FMF Analiza 4 problem book, not "enakost" or "enačba") |
+| integral kvadrata \((1/\pi)\int f^2\) | integral of the square (Fourier series 05 F2a). Not "povprečje kvadrata" or "srednja kvadratna vrednost": over \([-\pi,\pi]\) it is twice the mean of \(f^2\) |
 | premik (znotraj / zunaj) | shift (inside f: horizontal, c; outside f: vertical, d); school function graphs S1. "prenos" is not used |
 | raztegnitev (znotraj / zunaj) | stretch (inside f: horizontal, b; outside f: vertical, a); S1 |
 | zrcaljenje (čez os x / čez premico x = c) | reflection (negative a: about the x-axis; negative b: about the line x = c); S1 |

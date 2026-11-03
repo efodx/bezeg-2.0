@@ -262,7 +262,7 @@ export function partialSum(coefficients: RealCoefficients, N: number, x: number)
     return s;
 }
 
-/** Mean square (1/pi) int f^2 over [-pi, pi]: exact for piecewise-linear shapes, quadrature otherwise. */
+/** (1/pi) int f^2 over [-pi, pi] (twice the mean of f^2; the left side of Parseval's identity): exact for piecewise-linear shapes, quadrature otherwise. */
 export function meanSquare(source: FourierSource): number {
     assertSource(source);
     if (source.kind === 'function') {
