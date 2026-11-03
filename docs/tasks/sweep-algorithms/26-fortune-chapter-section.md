@@ -1,0 +1,15 @@
+# 26 — Fortune chapter section (C5)
+
+Status: planned 2026-11-03 (geometry handler 43). Source: [spec placement](../../specs/sweep-algorithms-lessons.md#placement), [13 sweep chapter](13-sweep-chapter.md), [21 S2 sections](21-s2-chapter-sections.md). Kind: F4, engineering review. Depends on 25.
+
+## Scope
+
+1. Add a `fortune` section to the `sweep-algorithms` chapter, with SL/EN prose, an activity link to the lesson and an example card. Link it from the triangulation chapter's Voronoi section as "another way to the same diagram".
+2. Remove `fortune` from `CHAPTER_LINK_PENDING` and move the lesson off its interim owner. Recount the chapter and preview-copy totals from their test failures.
+3. Browser check: the chapter at 1440×900 and 390×844 in SL and EN, and focus return from the lesson to the section link.
+
+Checks: chapter and catalog unit tests, `lessonMathNotation.test.ts`, `npx tsc --noEmit --pretty false`, the production build.
+
+## Batch acceptance (F6, after 26)
+
+The S3 F6 record lives in `docs/reviews/feature-streams/geometry/f6-s3-acceptance.md`. It holds the criterion-to-test matrix for C5 acceptance 1–6, `just check`, the bilingual smoke, the performance record from 23, and the poster capture.

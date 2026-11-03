@@ -52,6 +52,19 @@ S1 and triangulation T1 are released, so C4 makes the ear-clipping contrast. The
 | 21 | [Chapter sections for S2](21-s2-chapter-sections.md) | F4 | 19, 20 | accepted 2026-11-03 (handler 39, [record](../../reviews/sweep-algorithms/21-acceptance.md)) |
 | F6 | [S2 acceptance (C3, C4)](../../reviews/feature-streams/geometry/f6-s2-acceptance.md) | F6 | 14–21 | accepted 2026-11-03 (handler 40); S2 released |
 
+## Batch S3 — C5 Fortune (planned 2026-11-03, handler 43)
+
+Release condition (spec): S1 released (done), triangulation T0 and T3 accepted, and the beach-line drawing measured (task 23). The kernel task needs only T0 and the Voronoi value (triangulation 05), so it starts now. The graph waits for T3's F6 record and the marker follow-view fix.
+
+| # | Task | Kind | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| 22 | [Fortune kernel](22-fortune-kernel.md) | F1 | 02, triangulation 05 | planned |
+| 23 | [Fortune graph and beach-line measurement](23-fortune-graph.md) | F2a | 22, triangulation 18–19, T3 F6 | planned |
+| 24 | [Fortune registration](24-fortune-registration.md) | F2b | 23 | planned |
+| 25 | [Fortune lesson C5](25-fortune-lesson.md) | F3 | 23, 24 | planned |
+| 26 | [Fortune chapter section](26-fortune-chapter-section.md) | F4 | 25 | planned |
+| F6 | S3 acceptance | F6 | 22–26 | — |
+
 ## Later batches
 
-- **S3 (C5):** kernel, graph, registration, lesson and media as in the spec's release batches; S3 needs triangulation T0 and T3 (the Voronoi value) and a measured beach-line drawing. Task files are written when the kernels they use are accepted.
+- **C6 (closest pair, overlay):** not scheduled; an owner decision.
