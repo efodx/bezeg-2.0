@@ -228,7 +228,9 @@ test('surface capture resizes before rejecting an out-of-frame projected point',
 
 test('numerical, school, fourier and projective capture families accept exactly their own routes', () => {
     const entries = {
-        'numerical-methods': [{id: 'numerical-methods.root-finding.root-finding', path: '/bezeg-2.0/analysis/root-finding?example=lesson.numerical-methods.root-finding.root-finding'}],
+        'numerical-methods': [
+            {id: 'numerical-methods.root-finding.root-finding', path: '/bezeg-2.0/analysis/root-finding?example=lesson.numerical-methods.root-finding.root-finding'},
+            {id: 'numerical-methods.quadrature.quadrature', path: '/bezeg-2.0/analysis/quadrature?example=lesson.numerical-methods.quadrature.quadrature'}],
         'school-function-graphs': [
             {id: 'school-function-graphs.function-transformation.function-transformation', path: '/bezeg-2.0/functions/transformations?example=lesson.school-function-graphs.function-transformation.function-transformation'},
             {id: 'school-function-graphs.function-inverse.function-inverse', path: '/bezeg-2.0/functions/inverse?example=lesson.school-function-graphs.function-inverse.function-inverse'}],
@@ -256,6 +258,8 @@ test('numerical, school, fourier and projective capture families accept exactly 
     // Neighbouring routes of the same Demonstration families are refused.
     assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][0], path: '/bezeg-2.0/analysis/bisection'}], 'numerical-methods'), /requires a numerical-methods inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][0], path: '/bezeg-2.0/analysis/root-findingx'}], 'numerical-methods'), /requires a numerical-methods inventory/);
+    for (const path of ['/bezeg-2.0/analysis/quadraturex', '/bezeg-2.0/analysis/quadrature-rules', '/bezeg-2.0/analysis/bisection', '/bezeg-2.0/analysis', '/bezeg-2.0/quadrature'])
+        assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][1], path}], 'numerical-methods'), /requires a numerical-methods inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['school-function-graphs'][0], path: '/bezeg-2.0/functions/derivative'}], 'school-function-graphs'), /requires a school-function-graphs inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][0], path: '/bezeg-2.0/analysis/fourier-seriesx'}], 'fourier-series'), /requires a fourier-series inventory/);
     for (const path of ['/bezeg-2.0/projective/cross-ratiox', '/bezeg-2.0/projective', '/bezeg-2.0/projective/conics', '/bezeg-2.0/pascal', '/bezeg-2.0/projective/five-pointx', '/bezeg-2.0/projective/tangent'])

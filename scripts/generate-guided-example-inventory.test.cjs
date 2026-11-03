@@ -103,6 +103,18 @@ test('numerical methods expectations are authored from the Newton start and the 
     assert.ok(chapterInventories['numerical-methods']);
 });
 
+test('quadrature expectations are authored from the bounds: two points on the axis and two curves', () => {
+    const scene = (extra = [], rule = 'simpson', n = 4) => fnStep([fnChoice('quadrature-function', 'sin'), fnParam('quadrature-a', 0), fnParam('quadrature-b', 3), fnParam('quadrature-n', n), fnChoice('quadrature-rule', rule), ...extra]);
+    assert.deepEqual(numericalExpectedFor('q', scene()), {types: {point: 2}, curveCount: 2, points: [[0, 0], [3, 0]]});
+    assert.deepEqual(numericalExpectedFor('q', scene([], 'trapezoid', 3)).points, [[0, 0], [3, 0]]);
+    assert.throws(() => numericalExpectedFor('q', scene([{kind: 'animation', animationId: 'x', command: 'next-step'}])), /only sets/);
+    assert.throws(() => numericalExpectedFor('q', scene([], 'simpson', 3)), /even for Simpson/);
+    assert.throws(() => numericalExpectedFor('q', scene([], 'midpoint')), /no authored quadrature rule/);
+    assert.throws(() => numericalExpectedFor('q', fnStep([fnChoice('quadrature-function', 'cube'), fnParam('quadrature-a', 0), fnParam('quadrature-b', 3), fnParam('quadrature-n', 2), fnChoice('quadrature-rule', 'trapezoid')])), /no authored quadrature function/);
+    assert.throws(() => numericalExpectedFor('q', fnStep([fnChoice('quadrature-function', 'sin'), fnParam('quadrature-a', 4), fnParam('quadrature-b', 3), fnParam('quadrature-n', 2), fnChoice('quadrature-rule', 'trapezoid')])), /below quadrature-b/);
+    assert.throws(() => numericalExpectedFor('q', fnStep([fnChoice('quadrature-function', 'sin'), fnParam('quadrature-b', 3), fnParam('quadrature-n', 2), fnChoice('quadrature-rule', 'trapezoid')])), /exactly once/);
+});
+
 test('school function graphs expectations are authored from the transformation rule and the mirror point', () => {
     const transform = (a, b, c, d, u, visible = true) => fnStep([fnChoice('transform-base', 'square'), fnParam('transform-a', a), fnParam('transform-b', b), fnParam('transform-c', c),
         fnParam('transform-d', d), fnParam('transform-u', u), {kind: 'function-visibility', target: 'reference', visible}]);

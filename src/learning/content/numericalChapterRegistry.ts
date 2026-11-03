@@ -7,15 +7,16 @@ import {NUMERICAL_CHAPTER_ID} from './numericalChapterId';
 
 export {NUMERICAL_CHAPTER_ID};
 
-/** Section id to the Demonstration whose reviewed lesson (numericalMethodsGuidedLessons.ts) the section owns. The opening section owns none. One Demonstration has one lesson, so the section owns N1, N2 and N3 together. */
+/** Section id to the Demonstration whose reviewed lesson (numericalMethodsGuidedLessons.ts) the section owns. The opening section owns none. One Demonstration has one lesson, so the root-finding section owns N1, N2 and N3 together and the quadrature section owns N4. */
 const sectionDemonstrations = {
     'root-finding': 'root-finding',
+    quadrature: 'quadrature',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type NumericalSectionId = keyof typeof sectionDemonstrations;
 
 /**
- * Section-owned activity (spec N1 to N3). The lesson text stays in numericalMethodsGuidedLessons.ts; the getters read it lazily because
+ * Section-owned activity (spec N1 to N4). The lesson text stays in numericalMethodsGuidedLessons.ts; the getters read it lazily because
  * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
  */
 export const numericalGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(

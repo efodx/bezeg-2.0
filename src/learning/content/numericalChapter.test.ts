@@ -15,22 +15,22 @@ const proseOf = (language: 'sl' | 'en') => numericalChapter.sections[1].paragrap
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter is registered last in the Analysis family with an opening and one lesson section', () => {
+    test('the chapter is registered last in the Analysis family with an opening and two lesson sections', () => {
         expect(numericalChapter.id).toBe(NUMERICAL_CHAPTER_ID);
         expect(NUMERICAL_CHAPTER_ID).toBe('numerical-methods');
         expect(numericalChapter.title).toEqual({sl: 'Numerične metode na grafu', en: 'Numerical methods on the graph'});
         expect(numericalChapter.family).toBe('analysis');
-        expect(numericalChapter.sections.map(section => section.id)).toEqual(['numerical-idea', ID]);
-        expect(Object.keys(numericalGuidedExampleRegistry)).toEqual([ID]);
+        expect(numericalChapter.sections.map(section => section.id)).toEqual(['numerical-idea', ID, 'quadrature']);
+        expect(Object.keys(numericalGuidedExampleRegistry)).toEqual([ID, 'quadrature']);
         expect(familyChapters.findIndex(chapter => chapter.id === NUMERICAL_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'analysis') + 1);
         expect(learningChapters.some(chapter => chapter.id === NUMERICAL_CHAPTER_ID)).toBe(true);
         expect(numericalChapter.sections[1].demonstrationIds).toEqual([ID]);
     });
 
-    test('quadrature and Euler are not advertised', () => {
+    test('Euler and the later lessons are not advertised', () => {
         const everything = JSON.stringify([{...numericalChapter, title: undefined}, ...Object.values(numericalGuidedExampleRegistry)]).toLowerCase();
-        for (const word of ['simpson', 'trapez', 'euler', 'eulerjev', 'quadrature', 'kvadratur', 'polje smeri', 'direction field', 'diferencialn']) expect(everything).not.toContain(word);
+        for (const word of ['euler', 'eulerjev', 'polje smeri', 'direction field', 'diferencialn']) expect(everything).not.toContain(word);
     });
 
     test('there are no figures, the text is bilingual and the example link closes the lesson section', () => {
@@ -136,5 +136,64 @@ describe('chapter structure and registration', () => {
     test('the lesson text is available in English after the move', () => {
         setLanguage('en');
         expect(getLessonForDemonstration(ID)!.title.en.length).toBeGreaterThan(5);
+    });
+});
+
+describe('the quadrature section (N4)', () => {
+    const QUAD = 'quadrature';
+    const section = numericalChapter.sections[2];
+    const prose = (language: 'sl' | 'en') => section.paragraphs.map(p => p[language]).join(' ') + section.formula;
+
+    test('it follows root finding, owns the quadrature lesson and closes with its example link', () => {
+        expect(section.id).toBe(QUAD);
+        expect(section.demonstrationIds).toEqual([QUAD]);
+        expect(section.investigationPrompts?.[QUAD]?.sl.length).toBeGreaterThan(20);
+        expect(section.investigationPrompts?.[QUAD]?.en.length).toBeGreaterThan(20);
+        const registered = familyChapters.find(chapter => chapter.id === NUMERICAL_CHAPTER_ID)!.sections[2];
+        expect(registered.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: `${NUMERICAL_CHAPTER_ID}.${QUAD}.${QUAD}`});
+        expect(getGuidedLessonOwners(QUAD)).toEqual([{chapterId: NUMERICAL_CHAPTER_ID, sectionId: QUAD}]);
+        expect(getGuidedLessonOwner(QUAD)).toEqual({chapterId: NUMERICAL_CHAPTER_ID, sectionId: QUAD});
+        expect(authoredGuidedLessonIds(NUMERICAL_CHAPTER_ID, QUAD)).toEqual([QUAD]);
+        expect(getLessonForDemonstration(QUAD)).toBe(numericalGuidedExampleRegistry[QUAD]);
+        expect(numericalGuidedExamplePath(QUAD)).toContain(`?example=lesson.${NUMERICAL_CHAPTER_ID}.${QUAD}.${QUAD}`);
+        expect(getChapterGuidedExamples(NUMERICAL_CHAPTER_ID, QUAD).map(link => link.path)).toEqual([numericalGuidedExamplePath(QUAD)]);
+        expect(guidedLessonReturnPath(getGuidedLessonOwner(QUAD)!)).toBe(`/bezeg-2.0/learn/${NUMERICAL_CHAPTER_ID}#${QUAD}`);
+    });
+
+    test('hypotheses, orders and the observation caveat are stated in both languages', () => {
+        const facts = {
+            sl: ['Izrek', 'dvakrat zvezno odvedljiva', 'štirikrat zvezno odvedljiva', 'h^2', 'h^4', 'opažanja', 'ne dokaz', 'ne \\(16\\)', 'sodo'],
+            en: ['Theorem', 'twice continuously differentiable', 'four times continuously differentiable', 'h^2', 'h^4', 'observations', 'not a proof', 'not \\(16\\)', 'even'],
+        };
+        for (const language of ['sl', 'en'] as const) for (const fact of facts[language]) expect(prose(language), `${language}: ${fact}`).toContain(fact);
+    });
+
+    test('every quoted number is recomputed with an independent loop', () => {
+        const trapezoid = (f: (x: number) => number, a: number, b: number, n: number) => {
+            const h = (b - a) / n;
+            let sum = (f(a) + f(b)) / 2;
+            for (let i = 1; i < n; i++) sum += f(a + i * h);
+            return sum * h;
+        };
+        const simpson = (f: (x: number) => number, a: number, b: number, n: number) => {
+            const h = (b - a) / n;
+            let sum = f(a) + f(b);
+            for (let i = 1; i < n; i++) sum += (i % 2 === 1 ? 4 : 2) * f(a + i * h);
+            return sum * h / 3;
+        };
+        const error = (rule: typeof trapezoid, n: number) => Math.abs(rule(Math.sin, 0, Math.PI, n) - 2);
+        const sig = (value: number, digits: number) => Number(value.toPrecision(digits));
+        expect([2, 4, 8].map(n => sig(error(trapezoid, n), 3))).toEqual([0.429, 0.104, 0.0258]);
+        expect([2, 4, 8].map(n => sig(error(trapezoid, n), 4))).toEqual([0.4292, 0.1039, 0.02577]);
+        expect([2, 4, 8].map(n => sig(error(simpson, n), 3))).toEqual([0.0944, 0.00456, 0.000269]);
+        expect([sig(error(trapezoid, 16), 3), sig(error(simpson, 16), 3)]).toEqual([0.00643, 0.0000166]);
+        const ratio = (rule: typeof trapezoid, n: number) => sig(sig(error(rule, n / 2), 4) / sig(error(rule, n), 4), 3);
+        expect([ratio(trapezoid, 4), ratio(trapezoid, 8), ratio(simpson, 4), ratio(simpson, 8), ratio(simpson, 16)]).toEqual([4.13, 4.03, 20.7, 16.9, 16.2]);
+        expect(simpson(x => x * x, 0, 3, 2)).toBeCloseTo(9, 12);
+        expect(sig(trapezoid(x => x * x, 0, 3, 2) - 9, 4)).toBe(1.125);
+        const sl = prose('sl');
+        for (const quoted of ['0{,}4292', '0{,}1039', '0{,}0258', '4{,}13', '4{,}03', '0{,}0944', '0{,}00456', '0{,}000269', '20{,}7', '16{,}9', '1{,}66\\cdot10^{-5}', '16{,}2', '0{,}00643', '1{,}125']) expect(sl, quoted).toContain(quoted);
+        const en = prose('en');
+        for (const quoted of ['0.4292', '0.1039', '0.0258', '4.13', '4.03', '0.0944', '0.00456', '0.000269', '20.7', '16.9', '1.66\\cdot10^{-5}', '16.2', '0.00643', '1.125']) expect(en, quoted).toContain(quoted);
     });
 });

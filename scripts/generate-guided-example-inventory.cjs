@@ -315,6 +315,7 @@ const rootFindingExamples = {'square-minus-two': x => x * x - 2};
  */
 function numericalExpectedFor(id, step) {
     const actions = step.scene.actions;
+    if (actions.some(item => /^quadrature-/.test(item.name ?? ''))) return quadratureExpectedFor(id, actions);
     assertOnlyActions(id, actions, [['function-choice', /^root-finding-(method|example)$/], ['function-parameter', /^root-x0$/]], 'numericalExpectedFor');
     assert.equal(sceneValue(id, actions, 'function-choice', 'root-finding-method'), 'newton', `${id}: only the Newton first frame is authored`);
     const example = sceneValue(id, actions, 'function-choice', 'root-finding-example');
@@ -322,6 +323,27 @@ function numericalExpectedFor(id, step) {
     const x0 = sceneValue(id, actions, 'function-parameter', 'root-x0');
     assert.ok(Number.isFinite(x0), `${id}: root-x0 must be a finite number`);
     return {types: {point: 3, segment: 1}, curveCount: 1, points: [[x0, rootFindingExamples[example](x0)], [x0, 0]]};
+}
+
+// Authored from src/analysis/quadratureModel.ts (the model {rule, fn, a, b, n}) and src/graphs/functions/QuadratureGraph.tsx (createScene), not from a capture.
+const quadratureFunctions = ['square', 'sin', 'exp'];
+const quadratureRules = ['trapezoid', 'simpson'];
+
+/**
+ * First-frame expectation of the Numerical methods quadrature lesson (N4): the filled shapes of the rule (one curve) and the graph of f
+ * (one functiongraph), and the two bound points (a, 0) and (b, 0) on the axis; the caption texts do not count. Every one of the five model
+ * values must be set exactly once by the opening scene, with a valid rule, function, a < b and n (even for Simpson, never rounded).
+ */
+function quadratureExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^quadrature-(function|rule)$/], ['function-parameter', /^quadrature-(a|b|n)$/]], 'numericalExpectedFor');
+    const fn = sceneValue(id, actions, 'function-choice', 'quadrature-function');
+    assert.ok(quadratureFunctions.includes(fn), `${id}: no authored quadrature function ${JSON.stringify(fn)}`);
+    const rule = sceneValue(id, actions, 'function-choice', 'quadrature-rule');
+    assert.ok(quadratureRules.includes(rule), `${id}: no authored quadrature rule ${JSON.stringify(rule)}`);
+    const [a, b, n] = ['a', 'b', 'n'].map(name => sceneValue(id, actions, 'function-parameter', `quadrature-${name}`));
+    assert.ok(Number.isFinite(a) && Number.isFinite(b) && a < b, `${id}: quadrature-a must be a finite number below quadrature-b`);
+    assert.ok(Number.isInteger(n) && n >= 1 && n <= 150 && (rule !== 'simpson' || n % 2 === 0), `${id}: quadrature-n must be an integer from 1 to 150, even for Simpson`);
+    return {types: {point: 2}, curveCount: 2, points: [[a, 0], [b, 0]]};
 }
 
 // Authored from src/analysis/transformation.ts (base functions) and the rule y = a f(b (x - c)) + d, not from a capture.
