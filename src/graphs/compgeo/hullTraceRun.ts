@@ -1,5 +1,5 @@
 import type {GridPoint} from "../../compgeo/grid";
-import {monotoneChainStateAt, monotoneChainTrace, type MonotoneChainNote} from "../../compgeo/monotoneChain";
+import {monotoneChainStateAt, monotoneChainTrace, type MonotoneChainNote, type MonotoneChainOptions} from "../../compgeo/monotoneChain";
 import {slowHullStateAt, slowHullTrace, type SlowHullNote} from "../../compgeo/slowHull";
 import {giftWrappingStateAt, giftWrappingTrace, type GiftWrappingNote} from "../../compgeo/giftWrapping";
 import {clampTraceIndex} from "../../compgeo/trace";
@@ -79,8 +79,8 @@ const asPair = (a: number | undefined, b: number | undefined): readonly [number,
     a === undefined || b === undefined ? [] : [[a, b]];
 const longPaths = (paths: readonly (readonly number[])[]) => paths.filter(path => path.length >= 2);
 
-function monotoneRun(points: readonly GridPoint[]): HullRun {
-    const trace = monotoneChainTrace(points);
+function monotoneRun(points: readonly GridPoint[], options?: Partial<MonotoneChainOptions>): HullRun {
+    const trace = monotoneChainTrace(points, options);
     return {
         algorithm: "monotone-chain", length: trace.length, totalPredicates: trace.length ? trace[trace.length - 1].predicateCount : 0,
         clamp: step => clampTraceIndex(trace, step),
@@ -158,11 +158,12 @@ const relabelOutput = (info: HullEventInfo | undefined): HullEventInfo | undefin
 /**
  * Runs one algorithm on the points. Never throws: input a trace refuses (more than 40 points, non-grid points) gives an
  * empty run, which the graph shows as an empty trace. `noteKey` strings are narrowed with the algorithm's own union.
+ * `chainOptions` are the monotone chain's rule variants (task 19, lesson A5) and are ignored by the other two algorithms.
  */
-export function runHullTrace(algorithm: HullAlgorithm, points: readonly GridPoint[]): HullRun {
+export function runHullTrace(algorithm: HullAlgorithm, points: readonly GridPoint[], chainOptions?: Partial<MonotoneChainOptions>): HullRun {
     const empty: HullRun = {algorithm, length: 0, totalPredicates: 0, clamp: () => 0, event: () => undefined, view: () => EMPTY_VIEW};
     try {
-        const run = algorithm === "monotone-chain" ? monotoneRun(points) : algorithm === "slow-edge-test" ? slowRun(points) : giftRun(points);
+        const run = algorithm === "monotone-chain" ? monotoneRun(points, chainOptions) : algorithm === "slow-edge-test" ? slowRun(points) : giftRun(points);
         return endsFewerThanThree(run) ? {...run, event: index => relabelOutput(run.event(index))} : run;
     } catch {
         return empty;

@@ -1,0 +1,43 @@
+unit: failed (1) in 10.4s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-18-55-049Z-27620-57b9f2d4.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 3642ms
+   ❯ Kettner mode (11)
+     × Play and Next step do nothing in the Kettner view: no timer runs on the hidden chain 78ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > Play and Next step do nothing in the Kettner view: no timer runs on the hidden chain
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:289:28
+    287|         expect(graph.isPlaying).toBe(false);
+    288|         act(() => { graph.nextStep(); });
+    289|         expect(graph.step).toBe(1);
+       |                            ^
+    290|         expect(graph.isPlaying).toBe(false);
+    291|         setMode('chain');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:18:55
+   Duration  9.45s (tests 39%, transform 25%, import 19%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

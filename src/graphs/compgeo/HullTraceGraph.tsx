@@ -372,7 +372,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private readonly hullActions: HullTraceControlActions = {
+    protected readonly hullActions: HullTraceControlActions = {
         setAlgorithm: algorithm => this.setAlgorithm(algorithm),
         nextStep: () => this.nextStep(),
         playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
@@ -383,13 +383,18 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         return false;
     }
 
-    protected override workspaceEdit(): React.ReactNode {
+    /** The playback controls and status; a derived graph (task 19) overrides it to add its own choices around them. */
+    protected hullControls(): React.ReactNode {
         const run = this.run();
         const step = this.step;
+        return <HullTraceControls algorithm={this.algorithm} step={step} length={run.length} playing={this.controller.isPlaying()}
+                                  event={run.event(step)} points={this.model.points} gridStepExponent={this.model.gridStepExponent}
+                                  totals={run.view(step).done ? this.totals() : undefined} actions={this.hullActions}/>;
+    }
+
+    protected override workspaceEdit(): React.ReactNode {
         return <>
-            <HullTraceControls algorithm={this.algorithm} step={step} length={run.length} playing={this.controller.isPlaying()}
-                               event={run.event(step)} points={this.model.points} gridStepExponent={this.model.gridStepExponent}
-                               totals={run.view(step).done ? this.totals() : undefined} actions={this.hullActions}/>
+            {this.hullControls()}
             {super.workspaceEdit()}
         </>;
     }

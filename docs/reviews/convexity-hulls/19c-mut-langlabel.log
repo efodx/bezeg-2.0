@@ -1,0 +1,40 @@
+unit: failed (1) in 13.5s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-22-35-120Z-34368-6ae285da.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4575ms
+   ❯ scene change, language and lifecycle (6)
+     × a language switch updates the readout, the title and the board label in both views and keeps the board objects 110ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > scene change, language and lifecycle > a language switch updates the readout, the title and the board label in both views and keeps the board objects
+AssertionError: expected 'Točke na mreži. Izbrano točko premakn…' to be 'Zemljevid predznakov orientacije, Nen…' // Object.is equality
+
+Expected: "Zemljevid predznakov orientacije, Nenatančno (double): 64 × 64 celic, vodoravno i, navpično j. Izbrana celica: i = 41, j = 48. Puščične tipke izberejo celico."
+Received: "Točke na mreži. Izbrano točko premakneš s puščičnimi tipkami, odstraniš pa s tipko Delete."
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:435:34
+    433|         expect(kettnerObjects(graph)).toHaveLength(3);
+    434|         expect(title()).toBe('Nenatančno (double)');
+    435|         expect(ariaLabel(graph)).toBe('Zemljevid predznakov orientacij…
+       |                                  ^
+    436|     });
+    437|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:22:36
+   Duration  12.07s (tests 40%, transform 22%, import 17%, environment 16%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

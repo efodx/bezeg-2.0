@@ -1,0 +1,43 @@
+unit: failed (1) in 12.2s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-21-22-166Z-24932-db5f3e57.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4473ms
+   ❯ Kettner mode (11)
+     × no point exists or can be added in Kettner mode, not even by a board press in add mode 94ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > no point exists or can be added in Kettner mode, not even by a board press in add mode
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:272:33
+    270|         expect(graph.isAddMode).toBe(false);
+    271|         act(() => { graph.setAddMode(true); });
+    272|         expect(graph.isAddMode).toBe(false);
+       |                                 ^
+    273|         expect(chainPoints(graph)).toHaveLength(0);
+    274|         const before = graph.model.points.length;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:21:22
+   Duration  11.34s (tests 40%, transform 25%, import 19%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

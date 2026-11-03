@@ -1,0 +1,47 @@
+unit: failed (1) in 11.7s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-21-09-172Z-32108-5dc84574.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4383ms
+   ❯ Kettner mode (11)
+     × a board press selects the cell under it; a press outside 0..63 is ignored 98ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > a board press selects the cell under it; a press outside 0..63 is ignored
+AssertionError: expected { i: +0, j: 5 } to deeply equal { i: 63, j: +0 }
+
+- Expected
++ Received
+
+  {
+-   "i": 63,
+-   "j": 0,
++   "i": 0,
++   "j": 5,
+  }
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:310:39
+    308|         for (const [x, y] of [[-0.2, 5], [64.1, 5], [5, -0.2], [5, 64.…
+    309|             pressBoardAt(graph, x, y);
+    310|             expect(graph.kettnerCell).toEqual({i: 63, j: 0});
+       |                                       ^
+    311|         }
+    312|         setMode('chain');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:21:10
+   Duration  10.74s (tests 41%, transform 24%, import 17%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

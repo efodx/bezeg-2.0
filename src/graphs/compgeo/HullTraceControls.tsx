@@ -23,18 +23,22 @@ export interface HullTraceControlsProps {
     /** Total orientation tests of every algorithm on the current points; present only after `done`. */
     totals: Readonly<Record<HullAlgorithm, number>> | undefined;
     actions: HullTraceControlActions;
+    /** The algorithm is fixed by the host (the robustness graph, task 19): the algorithm choice is not shown. */
+    fixedAlgorithm?: boolean;
+    /** The monotone chain keeps a collinear middle point (pop rule `<`): the collinear test note says so. */
+    collinearKept?: boolean;
 }
 
 type Translate = ReturnType<typeof useT>;
 
 /** The status-line sentence of a trace note. Exhaustive over the three algorithms' note keys. */
-function noteText(t: Translate, note: HullNote): string {
+function noteText(t: Translate, note: HullNote, collinearKept = false): string {
     switch (note) {
         case "phase-lower": return t("hulltrace_note_phase_lower");
         case "phase-upper": return t("hulltrace_note_phase_upper");
         case "test-turn-left": return t("hulltrace_note_test_turn_left");
         case "test-turn-right": return t("hulltrace_note_test_turn_right");
-        case "test-collinear": return t("hulltrace_note_test_collinear");
+        case "test-collinear": return collinearKept ? t("hullrobust_note_test_collinear_kept") : t("hulltrace_note_test_collinear");
         case "accept-push": return t("hulltrace_note_accept_push");
         case "reject-pop": return t("hulltrace_note_reject_pop");
         case "output-hull": return t("hulltrace_note_output_hull");
@@ -67,7 +71,7 @@ function algorithmName(t: Translate, algorithm: HullAlgorithm): string {
 export function HullTraceControls(props: HullTraceControlsProps) {
     const t = useT();
     const {language} = useLanguage();
-    const {algorithm, step, length, playing, event, points, gridStepExponent, totals, actions} = props;
+    const {algorithm, step, length, playing, event, points, gridStepExponent, totals, actions, fixedAlgorithm, collinearKept} = props;
     const atEnd = step >= length - 1;
     const nextUnavailable = atEnd;
     const playUnavailable = atEnd && !playing;
@@ -93,12 +97,12 @@ export function HullTraceControls(props: HullTraceControlsProps) {
     const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: length});
     const countText = event ? t("hulltrace_predicate_count", {value0: event.predicateCount}) : undefined;
     return <>
-        <div className="inspector-group">
+        {!fixedAlgorithm && <div className="inspector-group">
             <ChoiceSelect label={t("hulltrace_algorithm_label")} value={algorithm}
                           options={HULL_ALGORITHMS.map(id => ({value: id, text: algorithmName(t, id)}))}
                           onChange={value => { const next = parseHullAlgorithm(value); if (next) actions.setAlgorithm(next); }}
                           help={algorithm === "slow-edge-test" ? t("hulltrace_slow_note", {value0: length}) : undefined}/>
-        </div>
+        </div>}
         <div className="inspector-group">
             <div className="inspector-playback" role="group" aria-label={t("hulltrace_controls_label")}>
                 <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
@@ -112,12 +116,12 @@ export function HullTraceControls(props: HullTraceControlsProps) {
         </div>
         <div className="inspector-group" data-hull-trace-status="">
             <p className="inspector-help" data-hull-trace="step">{stepText}</p>
-            {event && <p className="inspector-help" data-hull-trace="note">{noteText(t, event.note)}</p>}
+            {event && <p className="inspector-help" data-hull-trace="note">{noteText(t, event.note, collinearKept)}</p>}
             {detail && <p className="inspector-help" data-hull-trace="detail">{detail}</p>}
             {event && <p className="inspector-help" data-hull-trace="count">{countText}</p>}
             {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces the status once on Pause or at the end. */}
             <p className="visually-hidden" role="status" aria-live="polite" data-hull-trace-live="">
-                {playing ? "" : [stepText, event && noteText(t, event.note), detail, countText].filter(Boolean).join(". ")}</p>
+                {playing ? "" : [stepText, event && noteText(t, event.note, collinearKept), detail, countText].filter(Boolean).join(". ")}</p>
             {totals && <>
                 <h3 className="inspector-help">{t("hulltrace_counts_title")}</h3>
                 <ul data-hull-trace="totals">

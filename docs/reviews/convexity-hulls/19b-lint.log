@@ -1,0 +1,4 @@
+Waiting for unit (pid 8568) to finish starting before reading free memory.
+Waiting for build (pid 35036) to finish starting before reading free memory.
+Memory available for lint after 25s.
+lint: passed in 7.0s; revision f8ed2ca0f7b93de0d7b89ad6ec2ae7ae24494e85; dirty; log .command-logs\2026-11-03T17-09-34-267Z-35824-32bb1936.log

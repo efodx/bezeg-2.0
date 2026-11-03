@@ -1,0 +1,40 @@
+unit: failed (1) in 11.6s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-19-06-484Z-31004-7ea48f0d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4420ms
+   ❯ Kettner mode (11)
+     × the selection outline differs from the mismatch frame by colour, not only by width 77ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > the selection outline differs from the mismatch frame by colour, not only by width
+AssertionError: expected '#654c2b' to be '#587445' // Object.is equality
+
+Expected: "#587445"
+Received: "#654c2b"
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:337:24
+    335|         const outline = named(graph, 'kettner-cell')[0] as unknown as …
+    336|         const colour = outline.borders[0].visProp.strokecolor.toLowerC…
+    337|         expect(colour).toBe(GraphPalette.primaryCurve);
+       |                        ^
+    338|         expect(colour).not.toBe(GraphPalette.selectedControlPointOutli…
+    339|         expect(kettnerSvg('inexact')).toContain(GraphPalette.selectedC…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:19:07
+   Duration  10.56s (tests 42%, transform 24%, import 18%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

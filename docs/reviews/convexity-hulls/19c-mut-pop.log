@@ -1,0 +1,77 @@
+unit: failed (1) in 12.8s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-21-35-387Z-27580-61656fe5.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 3 failed) 4590ms
+   ❯ chain mode (8)
+     × sample 1: (2,0) is dropped under <= and kept under <; (2,5) is on the hull either way 738ms
+     × three collinear points under < list the middle point twice, and the readout says so 254ms
+     × a pop-rule change pauses a running playback, returns to step 0 and redraws the board 110ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > chain mode > sample 1: (2,0) is dropped under <= and kept under <; (2,5) is on the hull either way
+AssertionError: expected 53 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 53
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:86:28
+     84|         choose('rules', 0, 'right');
+     85|         expect(graph.popRule).toBe('right');
+     86|         expect(graph.step).toBe(0);
+       |                            ^
+     87|         expect(part('rule')).toMatch(/< 0/);
+     88|         expect(part('rule')).not.toMatch(/≤/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > chain mode > three collinear points under < list the middle point twice, and the readout says so
+Error: the trace did not finish with a hull
+ ❯ finish src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:50:41
+     48|     for (let i = 0; i < graph.run().length + 1; i++) if (!graph.run().…
+     49|     const view = graph.run().view(graph.step);
+     50|     if (!view.done || !view.hull) throw new Error('the trace did not f…
+       |                                         ^
+     51|     return view.hull;
+     52| };
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:105:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > chain mode > a pop-rule change pauses a running playback, returns to step 0 and redraws the board
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:136:33
+    134|         choose('rules', 0, 'right');
+    135|         expect(graph.popRule).toBe('right');
+    136|         expect(graph.isPlaying).toBe(false);
+       |                                 ^
+    137|         expect(graph.step).toBe(0);
+    138|         expect(chainPoints(graph)).toHaveLength(9);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 22 passed (25)
+   Start at  18:21:36
+   Duration  11.68s (tests 40%, transform 24%, import 18%, environment 13%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

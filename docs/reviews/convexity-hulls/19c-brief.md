@@ -1,0 +1,21 @@
+# Brief 19c (handoff-v12), repair, geometry handler 49, 2026-11-03
+
+- **Role:** repair worker, edit permission in worktree `C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry` (branch `stream-geometry`). Do not commit, push or delegate.
+- **Goal:** repair the review findings on task [19](../../tasks/convexity-hulls/19-hull-robustness-graph.md) (hull robustness graph, uncommitted in the working tree). Previous worker notes: [19-handoff.md](19-handoff.md).
+- **Scope:** `src/graphs/compgeo/HullRobustnessGraph.tsx`, `HullRobustnessControls.tsx`, `hullRobustnessReadout.ts(+test)`, `kettnerBoard.ts`, `HullRobustnessGraph.host.test.tsx`, and the `hullrobust_*` block in `src/localization/sl.ts`/`en.ts`. Do not touch `pointinpolygon_*`, `PointInPolygon*` (committed task 18) or other files; hull-trace files only if a finding requires it.
+- **Findings to fix (location, expected):**
+  1. `HullRobustnessControls.tsx:138-143`: the selected-cell readout is an `aria-live` div with an h3 + four lines, so each arrow key announces ~5 sentences. Expected: one concise `role="status"` line (e.g. cell, exact sign, inexact sign/verdict); other lines non-live; fix the h3 heading-level skip (use a non-heading or the correct level per surrounding markup).
+  2. `kettnerBoard.ts:46` vs `:67`: mismatch frame and selected-cell outline share colour `#654c2b`, differing only in width; at default (41,48), a mismatch cell, they are hard to tell apart. Expected: a selection outline distinct in more than width (distinct colour from the palette plus double/offset outline), visible on projection.
+  3. `sl.ts` `hullrobust_keyboard_note` "Celico izbereš …": make it impersonal Slovenian (e.g. "Celica se izbere s klikom, …"); check no other `hullrobust_*` sl string is 2nd person.
+  4. Board `aria-label` in Kettner mode should name the panel (inexact/exact) and the selected cell, and update on panel/cell change and language switch.
+  5. `HullRobustnessGraph.tsx:132-133`: non-chain `setAlgorithm` throws plain `Error`; throw the base class's `UnsupportedLessonActionError` (grep its use in `PointSetGraph.tsx`).
+  6. `HullRobustnessGraph.tsx:155-161`: the view switches only in `setRobustnessMode`; a mode change via `replaceState`/scene reset/Preset leaves the other mode's box. Expected: when the drawn mode changes in `syncScene` and the state carries no explicit view for it, apply that mode's default view; clear `chainBox` on scene reset. Add a host test.
+  7. `HullRobustnessGraph.tsx:179-191`: Play/Next in Kettner mode run the hidden chain's timer. Expected: refuse (no-op, no timer) in Kettner mode; test it.
+  8. Tests (`HullRobustnessGraph.host.test.tsx`):
+     - `:118-128` rule-change test never starts playback. Start Play first, then change pop rule and (separately) duplicates rule; assert paused and step 0; drop the near-vacuous `curves <= curvesAtStep`.
+     - Add a test for the pointer path `onCellPress` (`:171-175`): a board press at a known cell selects it; a press outside 0..63 is ignored (stub `getUsrCoordsOfMouse` if needed).
+     - Language test: replace `toBeTruthy()` on aria-label with exact sl/en expectations; assert `kettner-title` text changes on a language switch.
+     - "no point in Kettner mode": replace the vacuous loop with a board press in add mode that must not add a point (point count unchanged).
+- **Checks:** run `just unit src/graphs/compgeo/HullRobustnessGraph.host.test.tsx src/graphs/compgeo/hullRobustnessReadout.test.ts > docs/reviews/convexity-hulls/19c-host.log 2>&1` early. For each new/strengthened assertion, report an observed failure against the pre-fix code or a deliberate mutation (revert after). Then `npx tsc --noEmit --pretty false`, `just unit src/graphs/compgeo src/compgeo --maxWorkers=2`, `just lint src/graphs/compgeo src/compgeo`, `just build`; logs `docs/reviews/convexity-hulls/19c-*.log`, extract only failures.
+- **Return:** ≤250 words: per finding fixed (`file:line`) or deferred with reason; observed failures for new assertions; check results with log paths; unverified cases.
+- **Budget:** about 30 turns. Locate with `grep -l`/`-c` first, read ≤150 lines per call, quote `file:line`, logs to files. On a `HANDOFF` message or past ~30 turns, stop consistently, write `docs/reviews/convexity-hulls/19c-handoff.md` and return partial.

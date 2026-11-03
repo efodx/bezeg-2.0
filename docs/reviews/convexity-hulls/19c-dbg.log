@@ -1,0 +1,51 @@
+unit: failed (1) in 10.5s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-17-36-121Z-34640-db8c6a93.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx -t restored checkpoint
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > scene change, language and lifecycle > a mode change by a restored checkpoint or a replaced state shows that mode's view
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+stdout | src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > scene change, language and lifecycle > a mode change by a restored checkpoint or a replaced state shows that mode's view
+DBG undefined chain undefined
+DBG chain chain undefined
+DBG chain chain undefined
+DBG chain kettner undefined
+DBG kettner kettner [ -3.625, 6.25, 7.624999999999999, -1.2499999999999993 ]
+DBG kettner chain undefined
+DBG chain chain undefined
+DBG chain kettner undefined
+DBG kettner kettner [ -41.125, 81.75, 105.125, -15.750000000000007 ]
+DBG kettner chain [ -41.125, 81.75, 105.125, -15.750000000000007 ]
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed | 24 skipped) 427ms
+   ❯ scene change, language and lifecycle (6)
+     × a mode change by a restored checkpoint or a replaced state shows that mode's view 424ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > scene change, language and lifecycle > a mode change by a restored checkpoint or a replaced state shows that mode's view
+AssertionError: expected 182.8125 to be close to 11.25, received difference is 171.5625, but expected 0.0005
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:471:33
+    469|         act(() => { graph.swap({...graph.getInitialState(), mode: 'cha…
+    470|         expect(graph.robustnessMode).toBe('chain');
+    471|         expect(boxWidth(graph)).toBeCloseTo(chainWidth, 3);
+       |                                 ^
+    472|         act(() => { graph.swap({...graph.getInitialState(), mode: 'ket…
+    473|         expect(boxWidth(graph)).toBeCloseTo(kettnerWidth, 3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 skipped (25)
+   Start at  18:17:37
+   Duration  9.25s (transform 38%, import 32%, environment 17%, setup 9%, tests 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

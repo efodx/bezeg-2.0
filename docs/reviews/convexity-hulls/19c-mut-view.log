@@ -1,0 +1,36 @@
+unit: failed (1) in 12.1s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-19-35-987Z-12148-109cc34d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4885ms
+   ❯ scene change, language and lifecycle (6)
+     × a mode change by a restored checkpoint or a replaced state shows that mode's view 63ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > scene change, language and lifecycle > a mode change by a restored checkpoint or a replaced state shows that mode's view
+AssertionError: expected 11.25 to be greater than 45
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:462:30
+    460|         const kettner = capabilities.captureState();
+    461|         const kettnerWidth = boxWidth(graph);
+    462|         expect(kettnerWidth).toBeGreaterThan(chainWidth * 4);
+       |                              ^
+    463|         act(() => { capabilities.restoreState(chain); });
+    464|         expect(graph.robustnessMode).toBe('chain');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:19:36
+   Duration  11.25s (tests 44%, transform 23%, import 17%, environment 11%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

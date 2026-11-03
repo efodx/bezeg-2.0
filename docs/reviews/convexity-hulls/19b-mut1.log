@@ -1,0 +1,75 @@
+Waiting for unit (pid 28788) to finish starting before reading free memory.
+Memory available for unit after 10s.
+unit: failed (1) in 9.4s (2 workers, no slot); revision f8ed2ca0f7b93de0d7b89ad6ec2ae7ae24494e85; dirty; log .command-logs\2026-11-03T17-01-58-652Z-35088-6c2a6bf8.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (18 tests | 3 failed) 3140ms
+   ❯ chain mode (7)
+     × sample 1: (2,0) is dropped under <= and kept under <; (2,5) is on the hull either way 1105ms
+     × three collinear points under < list the middle point twice, and the readout says so 161ms
+     × a duplicate appears on both chains under < with keep, and once under merge 280ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > chain mode > sample 1: (2,0) is dropped under <= and kept under <; (2,5) is on the hull either way
+AssertionError: expected [ 5, 2, 1, 3, 4 ] to include 7
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:76:22
+     74|         expect(part('rule')).not.toMatch(/≤/);
+     75|         const kept = finish(graph).hull;
+     76|         expect(kept).toContain(7);
+       |                      ^
+     77|         expect(kept).toContain(4);
+     78|         expect(kept.length).toBe(dropped.length + 1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > chain mode > three collinear points under < list the middle point twice, and the readout says so
+AssertionError: expected [ +0, 2 ] to deeply equal [ +0, 1, 2, 1 ]
+
+- Expected
++ Received
+
+  [
+    0,
+-   1,
+    2,
+-   1,
+  ]
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:88:36
+     86|         load(graph, model([[0, 0], [1, 1], [2, 2]]));
+     87|         choose('rules', 0, 'right');
+     88|         expect(finish(graph).hull).toEqual([0, 1, 2, 1]);
+       |                                    ^
+     89|         expect(part('repeated')).toBeTruthy();
+     90|         choose('rules', 0, 'non-left');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > chain mode > a duplicate appears on both chains under < with keep, and once under merge
+AssertionError: expected 1 to be greater than 1
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:106:30
+    104|         const kept = finish(graph).hull;
+    105|         const copies = (hull: readonly number[]) => hull.filter(i => i…
+    106|         expect(copies(kept)).toBeGreaterThan(copies(merged));
+       |                              ^
+    107|         expect(part('repeated')).toBeTruthy();
+    108|         expect(part('rule')).toMatch(/< 0/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 15 passed (18)
+   Start at  18:01:59
+   Duration  8.59s (tests 37%, transform 26%, import 19%, environment 12%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

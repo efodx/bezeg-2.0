@@ -1,0 +1,47 @@
+Waiting for unit (pid 6700) to finish starting before reading free memory.
+Memory available for unit after 60s.
+unit: failed (1) in 12.5s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-20-55-696Z-35128-674a0148.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4597ms
+   ❯ chain mode (8)
+     × this graph runs the monotone chain only: another algorithm is refused 63ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > chain mode > this graph runs the monotone chain only: another algorithm is refused
+AssertionError: expected error to be instance of UnsupportedLessonActionError
+
+- Expected:
+[Function UnsupportedLessonActionError]
+
++ Received:
+Error {
+  "message": "x",
+}
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:171:59
+    169|         const graph = new Observed();
+    170|         mount(graph);
+    171|         expect(() => graph.setAlgorithm('gift-wrapping')).toThrow(Unsu…
+       |                                                           ^
+    172|         expect(graph.algorithm).toBe('monotone-chain');
+    173|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:20:56
+   Duration  11.48s (tests 41%, transform 26%, import 19%, environment 10%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

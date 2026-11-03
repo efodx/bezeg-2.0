@@ -1,0 +1,40 @@
+unit: failed (1) in 16.2s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-19-19-013Z-30804-849d3e2a.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4249ms
+   ❯ scene change, language and lifecycle (6)
+     × the board label follows the panel and the selected cell, and the chain label returns with the chain view 79ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > scene change, language and lifecycle > the board label follows the panel and the selected cell, and the chain label returns with the chain view
+AssertionError: expected 'Zemljevid predznakov orientacije, Nen…' to contain 'i = 7, j = 9'
+
+Expected: "i = 7, j = 9"
+Received: "Zemljevid predznakov orientacije, Nenatančno (double): 64 × 64 celic, vodoravno i, navpično j. Izbrana celica: i = 41, j = 48. Puščične tipke izberejo celico."
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:444:34
+    442|         act(() => { graph.selectKettnerCell(7, 9); });
+    443|         expect(ariaLabel(graph)).toContain('Nenatančno (double)');
+    444|         expect(ariaLabel(graph)).toContain('i = 7, j = 9');
+       |                                  ^
+    445|         choose('panel', 0, 'exact');
+    446|         expect(ariaLabel(graph)).toContain('Natančno:');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:19:19
+   Duration  15.21s (transform 33%, tests 28%, import 25%, environment 9%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

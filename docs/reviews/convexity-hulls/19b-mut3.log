@@ -1,0 +1,43 @@
+unit: failed (1) in 10.2s (2 workers, no slot); revision f8ed2ca0f7b93de0d7b89ad6ec2ae7ae24494e85; dirty; log .command-logs\2026-11-03T17-02-34-598Z-32260-b0a4bc14.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (18 tests | 1 failed) 3583ms
+   ❯ Kettner mode (7)
+     × the selected cell defaults to (41, 48) and its readout equals the sign map 135ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > the selected cell defaults to (41, 48) and its readout equals the sign map
+AssertionError: expected 'Nenatančna vrednost (double): 0' to match /5[,.]68/
+
+- Expected:
+/5[,.]68/
+
++ Received:
+"Nenatančna vrednost (double): 0"
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:199:42
+    197|         expect(part('cell-exact')).toContain('+');
+    198|         expect(part('cell-naive-sign')).toContain('−');
+    199|         expect(part('cell-naive-value')).toMatch(/5[,.]68/);
+       |                                          ^
+    200|     });
+    201|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  18:02:35
+   Duration  9.33s (tests 39%, transform 26%, import 19%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

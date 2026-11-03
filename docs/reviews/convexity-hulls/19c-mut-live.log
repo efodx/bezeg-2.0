@@ -1,0 +1,43 @@
+unit: failed (1) in 11.9s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-22-03-578Z-29408-991158dc.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4462ms
+   ❯ Kettner mode (11)
+     × the selected-cell readout is one live status line; the detail lines are not live and no heading is skipped 93ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > the selected-cell readout is one live status line; the detail lines are not live and no heading is skipped
+AssertionError: expected …(2) to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:322:22
+    320|         setMode('kettner');
+    321|         const live = document.querySelectorAll('[data-hull-robustness=…
+    322|         expect(live).toHaveLength(1);
+       |                      ^
+    323|         expect(live[0].getAttribute('data-hull-robustness')).toBe('cel…
+    324|         expect(live[0].textContent).toMatch(/i = 41.*j = 48/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:22:04
+   Duration  10.95s (tests 41%, transform 24%, import 18%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

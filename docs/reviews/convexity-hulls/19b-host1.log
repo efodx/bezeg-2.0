@@ -1,0 +1,146 @@
+Waiting for unit (pid 25316) to finish starting before reading free memory.
+Memory available for unit after 15s.
+unit: failed (1) in 8.9s (2 workers, no slot); revision f8ed2ca0f7b93de0d7b89ad6ec2ae7ae24494e85; dirty; log .command-logs\2026-11-03T16-56-10-865Z-32696-21c4bf8d.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (18 tests | 6 failed) 2804ms
+   ❯ Kettner mode (7)
+     × switching to Kettner disposes the chain objects and draws exactly the three map objects; back restores the chain 104ms
+     × the selected cell defaults to (41, 48) and its readout equals the sign map 113ms
+     × every rendered string for a double result carries the inexact label, in Slovenian and in English 62ms
+     × no point exists or can be added in Kettner mode 62ms
+     × the panel toggle swaps the image and keeps one image on the board 65ms
+   ❯ scene change, language and lifecycle (4)
+     × a language switch updates the readout in both views and keeps the board objects 63ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > switching to Kettner disposes the chain objects and draws exactly the three map objects; back restores the chain
+AssertionError: expected 49 to be 47 // Object.is equality
+
+- Expected
++ Received
+
+- 47
++ 49
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:168:39
+    166|         expect(chainPoints(graph)).toHaveLength(9);
+    167|         expect(graph.step).toBe(2);
+    168|         expect(objects(graph).length).toBe(steppedTotal);
+       |                                       ^
+    169|         setMode('kettner');
+    170|         expect(objects(graph).length).toBe(kettnerTotal);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > the selected cell defaults to (41, 48) and its readout equals the sign map
+AssertionError: expected 'Nenatančna vrednost (double): 0' to match /5[,.]68/
+
+- Expected:
+/5[,.]68/
+
++ Received:
+"Nenatančna vrednost (double): 0"
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:198:42
+    196|         expect(part('cell-exact')).toContain('+');
+    197|         expect(part('cell-naive-sign')).toContain('−');
+    198|         expect(part('cell-naive-value')).toMatch(/5[,.]68/);
+       |                                          ^
+    199|     });
+    200|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > every rendered string for a double result carries the inexact label, in Slovenian and in English
+AssertionError: expected 'Nenatančen predznak (double): −' to match /nenatančn/i
+
+- Expected:
+/nenatančn/i
+
++ Received:
+"Nenatančen predznak (double): −"
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:217:50
+    215|         setMode('kettner');
+    216|         const naive = () => ['cell-naive-sign', 'cell-naive-value'].ma…
+    217|         for (const text of naive()) expect(text).toMatch(/nenatančn/i);
+       |                                                  ^
+    218|         expect(part('panel')).toMatch(/nenatančn/i);
+    219|         const kinds = new Set<string>();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > no point exists or can be added in Kettner mode
+AssertionError: expected undefined to be false // Object.is equality
+
+- Expected:
+false
+
++ Received:
+undefined
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:239:31
+    237|         act(() => { graph.setAddMode(true); });
+    238|         setMode('kettner');
+    239|         expect(graph.addMode).toBe(false);
+       |                               ^
+    240|         act(() => { graph.setAddMode(true); });
+    241|         expect(graph.addMode).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > Kettner mode > the panel toggle swaps the image and keeps one image on the board
+AssertionError: expected 'Nenatančen predznak (double): −' to match /nenatančn/i
+
+- Expected:
+/nenatančn/i
+
++ Received:
+"Nenatančen predznak (double): −"
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:276:41
+    274|         expect(named(graph, 'kettner-image')[0]).not.toBe(first);
+    275|         expect(kettnerObjects(graph)).toHaveLength(3);
+    276|         expect(part('cell-naive-sign')).toMatch(/nenatančn/i);
+       |                                         ^
+    277|     });
+    278| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > scene change, language and lifecycle > a language switch updates the readout in both views and keeps the board objects
+AssertionError: expected 'Nenatančen predznak (double): −' to match /nenatančn/i
+
+- Expected:
+/nenatančn/i
+
++ Received:
+"Nenatančen predznak (double): −"
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:329:41
+    327|         expect(kettnerObjects(graph)).toHaveLength(3);
+    328|         act(() => { setLanguage('sl'); });
+    329|         expect(part('cell-naive-sign')).toMatch(/nenatančn/i);
+       |                                         ^
+    330|         expect(kettnerObjects(graph)).toHaveLength(3);
+    331|         const container = graph.liveBoard().containerObj as HTMLElemen…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 12 passed (18)
+   Start at  17:56:11
+   Duration  8.02s (tests 36%, transform 27%, import 19%, environment 13%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

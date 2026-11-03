@@ -1,0 +1,40 @@
+unit: failed (1) in 12.7s (2 workers, no slot); revision b310d909bda94a7ae9948854217444f461e5f23b; dirty; log .command-logs\2026-11-03T17-22-49-613Z-31384-7efe79bf.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullRobustnessGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx (25 tests | 1 failed) 4958ms
+   ❯ scene change, language and lifecycle (6)
+     × a language switch updates the readout, the title and the board label in both views and keeps the board objects 113ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullRobustnessGraph.host.test.tsx > scene change, language and lifecycle > a language switch updates the readout, the title and the board label in both views and keeps the board objects
+AssertionError: expected 'Inexact (double)' to be 'Nenatančno (double)' // Object.is equality
+
+Expected: "Nenatančno (double)"
+Received: "Inexact (double)"
+
+ ❯ src/graphs/compgeo/HullRobustnessGraph.host.test.tsx:434:25
+    432|         expect(part('cell-naive-sign')).toMatch(/nenatanč/i);
+    433|         expect(kettnerObjects(graph)).toHaveLength(3);
+    434|         expect(title()).toBe('Nenatančno (double)');
+       |                         ^
+    435|         expect(ariaLabel(graph)).toBe('Zemljevid predznakov orientacij…
+    436|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  18:22:50
+   Duration  11.74s (tests 43%, transform 25%, import 17%, environment 10%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
