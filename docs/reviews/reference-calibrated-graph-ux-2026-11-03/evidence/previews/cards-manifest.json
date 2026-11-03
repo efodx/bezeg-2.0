@@ -1,0 +1,1138 @@
+{
+  "route": "/bezeg-2.0/demonstrations",
+  "viewport": {
+    "width": 1680,
+    "height": 1100,
+    "deviceScaleFactor": 1
+  },
+  "expected": 45,
+  "count": 45,
+  "items": [
+    {
+      "id": "triangle-centres",
+      "filename": "poster-triangle-centres.png",
+      "title": "Znamenite točke trikotnika",
+      "card": {
+        "x": 452,
+        "y": 319,
+        "width": 330,
+        "height": 461
+      },
+      "media": {
+        "x": 453,
+        "y": 320,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/triangle-centres-BuGFSv3j.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-triangle-centres.png"
+    },
+    {
+      "id": "inscribed-angle",
+      "filename": "poster-inscribed-angle.png",
+      "title": "Obodni kot in Talesov izrek",
+      "card": {
+        "x": 796,
+        "y": 319,
+        "width": 330,
+        "height": 461
+      },
+      "media": {
+        "x": 797,
+        "y": 320,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/inscribed-angle-B1nOoTwj.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-inscribed-angle.png"
+    },
+    {
+      "id": "euler-line",
+      "filename": "poster-euler-line.png",
+      "title": "Eulerjeva premica in krožnica devetih točk",
+      "card": {
+        "x": 1140,
+        "y": 319,
+        "width": 330,
+        "height": 461
+      },
+      "media": {
+        "x": 1141,
+        "y": 320,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/euler-line-DXyZjm1E.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-euler-line.png"
+    },
+    {
+      "id": "simson-line",
+      "filename": "poster-simson-line.png",
+      "title": "Simsonova premica",
+      "card": {
+        "x": 452,
+        "y": 681,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 453,
+        "y": 682,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/simson-line-B-muXKGm.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-simson-line.png"
+    },
+    {
+      "id": "inversion",
+      "filename": "poster-inversion.png",
+      "title": "Inverzija",
+      "card": {
+        "x": 796,
+        "y": 681,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 797,
+        "y": 682,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/inversion-9uIArej8.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-inversion.png"
+    },
+    {
+      "id": "orientation",
+      "filename": "poster-orientation.png",
+      "title": "Orientacija treh točk",
+      "card": {
+        "x": 1140,
+        "y": 681,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 1141,
+        "y": 682,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/orientation-BsmB2lGg.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-orientation.png"
+    },
+    {
+      "id": "polygon-area",
+      "filename": "poster-polygon-area.png",
+      "title": "Ploščina večkotnika",
+      "card": {
+        "x": 452,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 453,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/polygon-area-BrSuJiVn.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-polygon-area.png"
+    },
+    {
+      "id": "convex-hull",
+      "filename": "poster-convex-hull.png",
+      "title": "Konveksna ovojnica",
+      "card": {
+        "x": 796,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 797,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/convex-hull-FBfpCclw.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-convex-hull.png"
+    },
+    {
+      "id": "ear-clipping",
+      "filename": "poster-ear-clipping.png",
+      "title": "Triangulacija z rezanjem ušes",
+      "card": {
+        "x": 1140,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 1141,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/ear-clipping-C81RITOP.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-ear-clipping.png"
+    },
+    {
+      "id": "point-set-triangulation",
+      "filename": "poster-point-set-triangulation.png",
+      "title": "Triangulacija množice točk",
+      "card": {
+        "x": 452,
+        "y": 701,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 453,
+        "y": 702,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/point-set-triangulation-EHfyAZls.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-point-set-triangulation.png"
+    },
+    {
+      "id": "delaunay",
+      "filename": "poster-delaunay.png",
+      "title": "Delaunayeva triangulacija",
+      "card": {
+        "x": 796,
+        "y": 701,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 797,
+        "y": 702,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/delaunay-DsLRsMW3.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-delaunay.png"
+    },
+    {
+      "id": "voronoi",
+      "filename": "poster-voronoi.png",
+      "title": "Voronojev diagram",
+      "card": {
+        "x": 1140,
+        "y": 701,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 1141,
+        "y": 702,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/voronoi-CsKQmdjf.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-voronoi.png"
+    },
+    {
+      "id": "voronoi-degenerate",
+      "filename": "poster-voronoi-degenerate.png",
+      "title": "Izrojena mesta",
+      "card": {
+        "x": 452,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 453,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/voronoi-degenerate-CoQw_vgs.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-voronoi-degenerate.png"
+    },
+    {
+      "id": "interval-sweep",
+      "filename": "poster-interval-sweep.png",
+      "title": "Pometanje intervalov",
+      "card": {
+        "x": 796,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 797,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/interval-sweep-R8Ot00tx.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-interval-sweep.png"
+    },
+    {
+      "id": "segment-intersections",
+      "filename": "poster-segment-intersections.png",
+      "title": "Presečišča daljic",
+      "card": {
+        "x": 1140,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 1141,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/segment-intersections-B3lHdKCQ.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-segment-intersections.png"
+    },
+    {
+      "id": "monotone-partition",
+      "filename": "poster-monotone-partition.png",
+      "title": "Razdelitev na monotone večkotnike",
+      "card": {
+        "x": 452,
+        "y": 701,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 453,
+        "y": 702,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/monotone-partition-WviA_u-e.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-monotone-partition.png"
+    },
+    {
+      "id": "monotone-triangulation",
+      "filename": "poster-monotone-triangulation.png",
+      "title": "Triangulacija monotonega večkotnika",
+      "card": {
+        "x": 796,
+        "y": 701,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 797,
+        "y": 702,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/monotone-triangulation-CMcz2fJb.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-monotone-triangulation.png"
+    },
+    {
+      "id": "fortune",
+      "filename": "poster-fortune.png",
+      "title": "Fortunov algoritem",
+      "card": {
+        "x": 1140,
+        "y": 701,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 1141,
+        "y": 702,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/fortune-DUHxrcE-.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-fortune.png"
+    },
+    {
+      "id": "function-transformation",
+      "filename": "poster-function-transformation.png",
+      "title": "Premiki, raztegnitve in zrcaljenja grafa",
+      "card": {
+        "x": 1140,
+        "y": 330,
+        "width": 330,
+        "height": 439
+      },
+      "media": {
+        "x": 1141,
+        "y": 331,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/function-transformation-Xjc6JE9p.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-function-transformation.png"
+    },
+    {
+      "id": "function-inverse",
+      "filename": "poster-function-inverse.png",
+      "title": "Inverzna funkcija in logaritem",
+      "card": {
+        "x": 452,
+        "y": 679,
+        "width": 330,
+        "height": 422
+      },
+      "media": {
+        "x": 453,
+        "y": 680,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/function-inverse-DEG04iey.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-function-inverse.png"
+    },
+    {
+      "id": "polynomial-zeros",
+      "filename": "poster-polynomial-zeros.png",
+      "title": "Ničle polinoma in večkratnost",
+      "card": {
+        "x": 796,
+        "y": 679,
+        "width": 330,
+        "height": 422
+      },
+      "media": {
+        "x": 797,
+        "y": 680,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/polynomial-zeros-pL25-h9e.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-polynomial-zeros.png"
+    },
+    {
+      "id": "rational-function",
+      "filename": "poster-rational-function.png",
+      "title": "Racionalne funkcije: ničle, poli, asimptote",
+      "card": {
+        "x": 1140,
+        "y": 679,
+        "width": 330,
+        "height": 422
+      },
+      "media": {
+        "x": 1141,
+        "y": 680,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/rational-function-Bdun4cgH.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-rational-function.png"
+    },
+    {
+      "id": "root-finding",
+      "filename": "poster-root-finding.png",
+      "title": "Tangentna in sekantna metoda",
+      "card": {
+        "x": 1140,
+        "y": 340,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 1141,
+        "y": 341,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/root-finding-B1z_ePOl.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-root-finding.png"
+    },
+    {
+      "id": "quadrature",
+      "filename": "poster-quadrature.png",
+      "title": "Trapezno in Simpsonovo pravilo",
+      "card": {
+        "x": 452,
+        "y": 681,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 453,
+        "y": 682,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/quadrature-D7Knfu_w.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-quadrature.png"
+    },
+    {
+      "id": "euler-method",
+      "filename": "poster-euler-method.png",
+      "title": "Polje smeri in Eulerjeva metoda",
+      "card": {
+        "x": 796,
+        "y": 681,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 797,
+        "y": 682,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/euler-method-CwDkUm8k.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-euler-method.png"
+    },
+    {
+      "id": "fourier-series",
+      "filename": "poster-fourier-series.png",
+      "title": "Fourierova vrsta",
+      "card": {
+        "x": 796,
+        "y": 330,
+        "width": 330,
+        "height": 439
+      },
+      "media": {
+        "x": 797,
+        "y": 331,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/fourier-series-3xEkp6IR.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-fourier-series.png"
+    },
+    {
+      "id": "fourier-coefficients",
+      "filename": "poster-fourier-coefficients.png",
+      "title": "Fourierovi koeficienti",
+      "card": {
+        "x": 1140,
+        "y": 330,
+        "width": 330,
+        "height": 439
+      },
+      "media": {
+        "x": 1141,
+        "y": 331,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/fourier-coefficients-C2pzgFUW.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-fourier-coefficients.png"
+    },
+    {
+      "id": "projective-cross-ratio",
+      "filename": "poster-projective-cross-ratio.png",
+      "title": "Dvorazmerje in središčna projekcija",
+      "card": {
+        "x": 452,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 453,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/projective-cross-ratio-hfSs0y9T.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-projective-cross-ratio.png"
+    },
+    {
+      "id": "projective-pascal",
+      "filename": "poster-projective-pascal.png",
+      "title": "Pascalov in Pappusov izrek",
+      "card": {
+        "x": 796,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 797,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/projective-pascal-B50GaCj6.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-projective-pascal.png"
+    },
+    {
+      "id": "projective-pole-polar",
+      "filename": "poster-projective-pole-polar.png",
+      "title": "Pol in polara",
+      "card": {
+        "x": 1140,
+        "y": 350,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 1141,
+        "y": 351,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/projective-pole-polar-DZcNBzUj.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-projective-pole-polar.png"
+    },
+    {
+      "id": "projective-five-point",
+      "filename": "poster-projective-five-point.png",
+      "title": "Stožnica skozi pet točk",
+      "card": {
+        "x": 452,
+        "y": 701,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 453,
+        "y": 702,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/projective-five-point-1hTfDqQA.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-projective-five-point.png"
+    },
+    {
+      "id": "projective-three-views",
+      "filename": "poster-projective-three-views.png",
+      "title": "Ena stožnica, trije pogledi",
+      "card": {
+        "x": 796,
+        "y": 701,
+        "width": 330,
+        "height": 400
+      },
+      "media": {
+        "x": 797,
+        "y": 702,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/projective-three-views-ae0lvM3n.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-projective-three-views.png"
+    },
+    {
+      "id": "bspline-basis",
+      "filename": "poster-bspline-basis.png",
+      "title": "Bazne funkcije B-zlepka",
+      "card": {
+        "x": 796,
+        "y": 340,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 797,
+        "y": 341,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/bspline-basis-C5Ui0qaT.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-bspline-basis.png"
+    },
+    {
+      "id": "bspline-deboor",
+      "filename": "poster-bspline-deboor.png",
+      "title": "de Boorov postopek",
+      "card": {
+        "x": 1140,
+        "y": 340,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 1141,
+        "y": 341,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/bspline-deboor-4hZO0b1X.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-bspline-deboor.png"
+    },
+    {
+      "id": "bspline-insertion",
+      "filename": "poster-bspline-insertion.png",
+      "title": "Vstavljanje vozla in večkratnost",
+      "card": {
+        "x": 452,
+        "y": 681,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 453,
+        "y": 682,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/bspline-insertion-DN33oIci.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-bspline-insertion.png"
+    },
+    {
+      "id": "bspline-extraction",
+      "filename": "poster-bspline-extraction.png",
+      "title": "Izvlek Bézierjevih odsekov",
+      "card": {
+        "x": 796,
+        "y": 681,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 797,
+        "y": 682,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/bspline-extraction-uJkjB5Xw.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-bspline-extraction.png"
+    },
+    {
+      "id": "bspline-nurbs",
+      "filename": "poster-bspline-nurbs.png",
+      "title": "NURBS in krog",
+      "card": {
+        "x": 1140,
+        "y": 681,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 1141,
+        "y": 682,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/bspline-nurbs-DJxKlX8u.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-bspline-nurbs.png"
+    },
+    {
+      "id": "prob-density",
+      "filename": "poster-prob-density.png",
+      "title": "Gostota in verjetnost kot ploščina",
+      "card": {
+        "x": 796,
+        "y": 330,
+        "width": 330,
+        "height": 439
+      },
+      "media": {
+        "x": 797,
+        "y": 331,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/prob-density-DlXc7mad.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-prob-density.png"
+    },
+    {
+      "id": "prob-binomial-normal",
+      "filename": "poster-prob-binomial-normal.png",
+      "title": "Od binomske k normalni porazdelitvi",
+      "card": {
+        "x": 1140,
+        "y": 330,
+        "width": 330,
+        "height": 439
+      },
+      "media": {
+        "x": 1141,
+        "y": 331,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/prob-binomial-normal-Bd2HAxaC.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-prob-binomial-normal.png"
+    },
+    {
+      "id": "prob-clt",
+      "filename": "poster-prob-clt.png",
+      "title": "Centralni limitni izrek brez naključja",
+      "card": {
+        "x": 452,
+        "y": 662,
+        "width": 330,
+        "height": 439
+      },
+      "media": {
+        "x": 453,
+        "y": 663,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/prob-clt-Ct0NwPls.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-prob-clt.png"
+    },
+    {
+      "id": "prob-summary",
+      "filename": "poster-prob-summary.png",
+      "title": "Aritmetična sredina, mediana, standardni odklon in škatla z brki",
+      "card": {
+        "x": 796,
+        "y": 662,
+        "width": 330,
+        "height": 439
+      },
+      "media": {
+        "x": 797,
+        "y": 663,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/prob-summary-Bb0AceRj.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-prob-summary.png"
+    },
+    {
+      "id": "prob-correlation",
+      "filename": "poster-prob-correlation.png",
+      "title": "Korelacija in regresijska premica",
+      "card": {
+        "x": 1140,
+        "y": 662,
+        "width": 330,
+        "height": 439
+      },
+      "media": {
+        "x": 1141,
+        "y": 663,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/prob-correlation-B2ck42eu.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-prob-correlation.png"
+    },
+    {
+      "id": "linear-map",
+      "filename": "poster-linear-map.png",
+      "title": "Linearna preslikava",
+      "card": {
+        "x": 452,
+        "y": 341,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 453,
+        "y": 342,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/linear-map-DjKZ4s1I.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-linear-map.png"
+    },
+    {
+      "id": "complex-reciprocal",
+      "filename": "poster-complex-reciprocal.png",
+      "title": "Obratna vrednost in inverzija v krožnici",
+      "card": {
+        "x": 796,
+        "y": 341,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 797,
+        "y": 342,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/complex-reciprocal-CddpmpoI.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-complex-reciprocal.png"
+    },
+    {
+      "id": "complex-roots",
+      "filename": "poster-complex-roots.png",
+      "title": "n-ti koren",
+      "card": {
+        "x": 1140,
+        "y": 341,
+        "width": 330,
+        "height": 420
+      },
+      "media": {
+        "x": 1141,
+        "y": 342,
+        "width": 328,
+        "height": 200
+      },
+      "assetUrl": "http://127.0.0.1:4325/bezeg-2.0/assets/complex-roots-D9uv3H8L.png",
+      "naturalAsset": {
+        "width": 720,
+        "height": 440
+      },
+      "state": "default static poster",
+      "hoverClip": "not applicable: no motion asset for this scoped card",
+      "evidence": "docs/reviews/reference-calibrated-graph-ux-2026-11-03/evidence/previews/poster-complex-roots.png"
+    }
+  ],
+  "hoverMotionOverlap": []
+}
