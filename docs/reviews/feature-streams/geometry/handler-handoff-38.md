@@ -28,7 +28,22 @@ Written 2026-11-03 by handler 38 (Opus 5.5, auto, effort medium). Continues [han
 
 ## 22b status at handoff
 
-(filled in below when the worker returned)
+22b returned **complete except the build**, uncommitted in `agent-ab6e252dd83a77fd9`.
+
+- Passed: tsc, eslint, and `just unit src/graphs/compgeo src/learning src/compgeo src/demonstrations.test.ts --no-fsModuleCache` (`22b-unit-3.log`).
+- Mutations: seven, each observed failing (`22b-mutation.log`), covering lesson numbers, spoiler hiding, action rejection, ownership, overlay compatibility, the B3 forward link and `set-construction`.
+- `just build` failed only on the worktree's missing `node_modules` (the CSS import).
+- Additions:
+  - the `voronoi` chapter section and the B3 section's forward paragraph;
+  - the preview copy entry, with counts now 92 lessons and 99 copy entries;
+  - an `authoredChapterCoverage` count of 104;
+  - the `voronoi` smoke row, checked with `node --check` only;
+  - `compgeoVoronoiLesson.test.ts` with 11 tests.
+- **Bug fixed:** `'delaunay'` was missing from `POINT_SET_OVERLAY_NAMES` (`pointSetModel.ts`), which made every `set-overlay delaunay` action on Voronoi fail. Review this.
+- **Presets:** a stored Preset without `diagram` imports with the diagram shown, and degenerate Presets are unaffected (tested). New files store `overlays.diagram` only when it is off; an older app may reject such a file, which is forward-only. The worker proposes no breaking-change record; the reviewer should confirm this.
+- Quoted values match the kernel and the readout: 7 vertices, 8 finite edges, 5 rays, 2 bounded and 5 unbounded cells, \((4,-1)\) for \(P_1P_2P_6\) (triangle index 2).
+- Several files now mix LF and CRLF. Normalise them before committing.
+- Both workers' count edits conflict: sweep 21 counts 105 audited homes, 22b counts 104, so together they should give 106. Both rewrote the plural in `LearningPage.test.tsx`. Recount after merging.
 
 ## Next steps, exactly
 
