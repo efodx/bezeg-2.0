@@ -1,0 +1,42 @@
+unit: failed (1) in 7.5s (2 workers, no slot); revision f8ed2ca0f7b93de0d7b89ad6ec2ae7ae24494e85; dirty; log .command-logs\2026-11-03T16-54-53-065Z-17260-fe1e7191.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/PointInPolygonGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/PointInPolygonGraph.host.test.tsx (15 tests | 1 failed) 1599ms
+   × overlay objects are exact: removed when hidden, restored identically, kept for q, and freed on unmount 169ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/PointInPolygonGraph.host.test.tsx > overlay objects are exact: removed when hidden, restored identically, kept for q, and freed on unmount
+AssertionError: expected [ <Anonymous Class>{ …(56) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/graphs/compgeo/PointInPolygonGraph.host.test.tsx:207:72
+    205|     // JSXGraph's freeBoard empties board.objects (objectsList keeps s…
+    206|     expect(Object.keys(board.objects)).toHaveLength(0);
+    207|     expect((board.objectsList as Shown[]).filter(o => o.name === 'q'))…
+       |                                                                        ^
+    208| });
+    209|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  17:54:53
+   Duration  6.59s (transform 31%, tests 25%, import 22%, environment 16%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

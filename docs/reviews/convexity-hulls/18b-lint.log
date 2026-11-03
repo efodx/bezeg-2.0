@@ -1,0 +1,11 @@
+lint: failed (1) in 7.3s; revision f8ed2ca0f7b93de0d7b89ad6ec2ae7ae24494e85; dirty; log .command-logs\2026-11-03T16-58-08-774Z-33976-db0340e6.log
+
+Recent output:
+
+C:\Users\1337Hacker\Desktop\bezeg-2.0\.claude\worktrees\stream-geometry\src\graphs\compgeo\tmpdebug.host.test.tsx
+  21:88  error  Parsing error: Unterminated string literal
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+error: recipe `lint` failed on line 18 with exit code 1

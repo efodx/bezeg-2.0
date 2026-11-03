@@ -1,0 +1,111 @@
+Waiting for unit (pid 29776) to finish starting before reading free memory.
+Memory available for unit after 5s.
+unit: failed (1) in 8.0s (2 workers, no slot); revision f8ed2ca0f7b93de0d7b89ad6ec2ae7ae24494e85; dirty; log .command-logs\2026-11-03T16-54-05-632Z-29492-9e3b7004.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/PointInPolygonGraph.host.test.tsx src/graphs/compgeo/pointInPolygonReadout.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/pointInPolygonReadout.test.ts (11 tests | 2 failed) 27ms
+   ❯ rayMarkers (5)
+     × a horizontal edge on the ray is a touch, not a crossing: both its endpoints are marked once 5ms
+     × a ray along the top tip of the pentagram only touches it: no crossing, one diamond at (0,16) 1ms
+ ❯ src/graphs/compgeo/PointInPolygonGraph.host.test.tsx (15 tests | 1 failed) 1515ms
+   × vertex touches that do not count are diamonds, counted crossings circles: shape, not only colour 61ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/PointInPolygonGraph.host.test.tsx > vertex touches that do not count are diamonds, counted crossings circles: shape, not only colour
+AssertionError: expected [] to deeply equal [ [ +0, +0, '<>' ], [ 6, +0, '<>' ] ]
+
+- Expected
++ Received
+
+- [
+-   [
+-     0,
+-     0,
+-     "<>",
+-   ],
+-   [
+-     6,
+-     0,
+-     "<>",
+-   ],
+- ]
++ []
+
+ ❯ src/graphs/compgeo/PointInPolygonGraph.host.test.tsx:153:65
+    151|     expect(named(graph, 'ray-crossing').map(o => o.visProp?.face)).toE…
+    152|     const touches = named(graph, 'ray-touch');
+    153|     expect(touches.map(o => [o.X!(), o.Y!(), o.visProp?.face])).toEqua…
+       |                                                                 ^
+    154|     expect(texts(graph, 'ray-number')).toEqual(['1', '2']);
+    155| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/graphs/compgeo/pointInPolygonReadout.test.ts > rayMarkers > a horizontal edge on the ray is a touch, not a crossing: both its endpoints are marked once
+AssertionError: expected [] to deeply equal [ { x: +0, y: +0 }, { x: 6, y: +0 } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "x": 0,
+-     "y": 0,
+-   },
+-   {
+-     "x": 6,
+-     "y": 0,
+-   },
+- ]
++ []
+
+ ❯ src/graphs/compgeo/pointInPolygonReadout.test.ts:83:33
+     81|         if (markers.kind !== "ray") throw new Error("expected a ray");
+     82|         expect(markers.crossings.map(c => c.x.format())).toEqual(["0",…
+     83|         expect(markers.touches).toEqual([{x: 0, y: 0}, {x: 6, y: 0}]);
+       |                                 ^
+     84|     });
+     85|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/graphs/compgeo/pointInPolygonReadout.test.ts > rayMarkers > a ray along the top tip of the pentagram only touches it: no crossing, one diamond at (0,16)
+AssertionError: expected [] to deeply equal [ { x: +0, y: 16 } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "x": 0,
+-     "y": 16,
+-   },
+- ]
++ []
+
+ ❯ src/graphs/compgeo/pointInPolygonReadout.test.ts:90:33
+     88|         if (markers.kind !== "ray") throw new Error("expected a ray");
+     89|         expect(markers.crossings).toHaveLength(0);
+     90|         expect(markers.touches).toEqual([{x: 0, y: 16}]);
+       |                                 ^
+     91|     });
+     92|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 23 passed (26)
+   Start at  17:54:06
+   Duration  6.85s (transform 28%, environment 25%, tests 18%, import 17%, setup 11%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1
