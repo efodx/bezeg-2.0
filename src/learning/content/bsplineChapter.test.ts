@@ -9,7 +9,7 @@ import {bsplineChapter} from './bsplineChapter';
 import {BSPLINE_CHAPTER_ID, bsplineGuidedExamplePath, bsplineGuidedExampleRegistry} from './bsplineChapterRegistry';
 import {familyChapters} from './familyChapters';
 
-const IDS = ['bspline-basis', 'bspline-deboor', 'bspline-insertion'] as const;
+const IDS = ['bspline-basis', 'bspline-deboor', 'bspline-insertion', 'bspline-extraction'] as const;
 const everything = (language: 'sl' | 'en') => [
     bsplineChapter.purpose, bsplineChapter.prerequisites,
     ...bsplineChapter.sections.flatMap(section => [section.title, ...section.paragraphs]),
@@ -18,7 +18,7 @@ const everything = (language: 'sl' | 'en') => [
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter follows splines in the curves strand with an opening and three lesson sections', () => {
+    test('the chapter follows splines in the curves strand with an opening and four lesson sections', () => {
         expect(bsplineChapter.id).toBe(BSPLINE_CHAPTER_ID);
         expect(bsplineChapter.title).toEqual({sl: 'B-zlepki in NURBS', en: 'B-splines and NURBS'});
         expect(bsplineChapter.family).toBe('/bezeg-2.0/bspline');
@@ -27,7 +27,7 @@ describe('chapter structure and registration', () => {
         expect(familyChapters.findIndex(chapter => chapter.id === BSPLINE_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'splines') + 1);
         expect(learningChapters.some(chapter => chapter.id === BSPLINE_CHAPTER_ID)).toBe(true);
-        expect(bsplineChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['bspline-basis'], ['bspline-deboor'], ['bspline-insertion']]);
+        expect(bsplineChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['bspline-basis'], ['bspline-deboor'], ['bspline-insertion'], ['bspline-extraction']]);
         expect(bsplineChapter.prerequisiteLinks?.map(link => link.path)).toEqual(['/bezeg-2.0/learn/bezier-curves', '/bezeg-2.0/learn/splines']);
     });
 
@@ -44,8 +44,8 @@ describe('chapter structure and registration', () => {
         for (const language of ['sl', 'en'] as const) {
             const body = bsplineChapter.sections.flatMap(section => section.paragraphs.map(p => p[language])).join(' ').toLowerCase();
             const named = language === 'sl'
-                ? ['izvlek', 'cvetenje', 'polarna oblika', 'krog', 'nurbs', 'racionaln']
-                : ['extraction', 'blossom', 'polar form', 'circle', 'nurbs', 'rational'];
+                ? ['cvetenje', 'polarna oblika', 'krog', 'nurbs', 'racionaln']
+                : ['blossom', 'polar form', 'circle', 'nurbs', 'rational'];
             for (const word of named) expect(body, `${language}: ${word}`).not.toContain(word);
         }
         expect(bsplineChapter.sections.flatMap(section => section.demonstrationIds ?? [])).toEqual([...IDS]);

@@ -19,7 +19,7 @@ function withExample(sectionId: BSplineSectionId, section: FamilyChapterSection)
     return {...section, orderedContent: content};
 }
 
-/** B-spline spec batches A and B so far: only the released lessons (L1 the basis functions, L2 the curve and de Boor's algorithm, L3 knot insertion and multiplicity) are mentioned; later sections are not named. */
+/** B-spline spec batches A and B so far: only the released lessons (L1 the basis functions, L2 the curve and de Boor's algorithm, L3 knot insertion and multiplicity, L4 Bézier extraction) are mentioned; later sections are not named. */
 export const bsplineChapter: FamilyChapter = {
     id: BSPLINE_CHAPTER_ID,
     family: '/bezeg-2.0/bspline',
@@ -85,6 +85,19 @@ export const bsplineChapter: FamilyChapter = {
                      'Goal of the section: you can say that inserting a knot changes the control polygon but not the curve, and that the multiplicity of a knot determines the continuity. Inserting a knot \\(x\\) creates one more control point: the points near \\(x\\) are replaced by new points on the segments between the old ones. The curve stays the same because the new basis and the new points give the same sum.'),
                 text('Za točke \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) in vozle \\((0,0,0,1,2,2,2)\\) vstavitev \\(u=\\tfrac12\\) da točke \\((0,0)\\), \\((0{,}5;\\,1)\\), \\((1{,}5;\\,2)\\), \\((3,2)\\), \\((4,0)\\); novi točki sta točki prve ravni de Boorovega postopka. Vozel večkratnosti \\(m\\) pri stopnji \\(k\\) daje zveznost \\(C^{k-m}\\). Pri kubični krivulji z dvojnim vozlom se tangenta ujema, ukrivljenost \\(\\kappa\\) pa skoči z \\(\\tfrac83\\) na \\(\\tfrac{16}3\\); glavnik ukrivljenosti ta skok pokaže.',
                      'For the points \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) and the knots \\((0,0,0,1,2,2,2)\\), inserting \\(u=\\tfrac12\\) gives the points \\((0,0)\\), \\((0.5,\\,1)\\), \\((1.5,\\,2)\\), \\((3,2)\\), \\((4,0)\\); the new points are the level-1 points of de Boor\'s algorithm. A knot of multiplicity \\(m\\) at degree \\(k\\) gives the continuity \\(C^{k-m}\\). For a cubic with a double knot the tangent agrees while the curvature \\(\\kappa\\) jumps from \\(\\tfrac83\\) to \\(\\tfrac{16}3\\); the curvature comb shows that jump.'),
+            ],
+        }),
+        withExample('bspline-extraction', {
+            id: 'bspline-extraction',
+            demonstrationIds: ['bspline-extraction'],
+            investigationPrompts: {'bspline-extraction': text('Premakni kontrolno točko in poglej, kateri odseki se spremenijo. Preštej odseke in jih primerjaj s številom različnih notranjih vozlov.', 'Move a control point and see which pieces change. Count the pieces and compare them with the number of distinct interior knots.')},
+            title: text('Izvlek Bézierjevih odsekov', 'Bézier extraction'),
+            formula: String.raw`m=r+1`,
+            paragraphs: [
+                text('Cilj razdelka: znaš povedati, da lahko B-zlepek z vstavljanjem vozlov razdeliš na navadne Bézierjeve odseke, in izračunati njihovo število. Vozel vstavljamo, dokler nima večkratnosti \\(k\\); tedaj je vsak odsek Bézierjeva krivulja svojih \\(k+1\\) točk. Število odsekov \\(m\\) je za ena večje od števila \\(r\\) različnih notranjih vozlov.',
+                     'Goal of the section: you can say that a B-spline can be split into ordinary Bézier pieces by inserting knots, and count them. A knot is inserted until its multiplicity is \\(k\\); then each piece is a Bézier curve of its \\(k+1\\) points. The number of pieces \\(m\\) is one more than the number \\(r\\) of distinct interior knots.'),
+                text('Za točke \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) in vozle \\((0,0,0,1,2,2,2)\\) sta odseka \\((0,0)\\), \\((1,2)\\), \\((2,2)\\) in \\((2,2)\\), \\((3,2)\\), \\((4,0)\\); stična točka \\((2,2)\\) je \\(\\tfrac12P_1+\\tfrac12P_2\\). Premik kontrolne točke spremeni le odseke v njenem nosilcu, ostali ostanejo isti; vsak odsek lahko odpreš kot navadno Bézierjevo krivuljo.',
+                     'For the points \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) and the knots \\((0,0,0,1,2,2,2)\\) the pieces are \\((0,0)\\), \\((1,2)\\), \\((2,2)\\) and \\((2,2)\\), \\((3,2)\\), \\((4,0)\\); the junction \\((2,2)\\) is \\(\\tfrac12P_1+\\tfrac12P_2\\). Moving a control point changes only the pieces in its support while the others stay the same; each piece can be opened as an ordinary Bézier curve.'),
             ],
         }),
     ],

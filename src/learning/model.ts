@@ -245,6 +245,14 @@ export type LessonAction =
     | {readonly kind: 'knot-insertion'; readonly operation: 'set-comb'; readonly visible: boolean}
     | {readonly kind: 'knot-insertion'; readonly operation: 'reset'}
     /**
+     * BSplineExtractionGraph's scene actions: `move-point` puts control point `index` at `to` exactly as a drag does (the points change and
+     * `moved` records it, so the affected pieces are marked), `set-example` loads the quadratic or the cubic as the Reset target, `reset`
+     * returns to the origin. An invalid index, a non-finite position or an unknown example is a lesson-content error.
+     */
+    | {readonly kind: 'bezier-extraction'; readonly operation: 'move-point'; readonly index: number; readonly to: readonly [number, number]}
+    | {readonly kind: 'bezier-extraction'; readonly operation: 'set-example'; readonly exampleId: 'quadratic' | 'cubic'}
+    | {readonly kind: 'bezier-extraction'; readonly operation: 'reset'}
+    /**
      * LinearMapGraph's scene actions (validated by `validateSet*` in `src/linear/linearMapModel.ts`). Kinds are typed; the graph still
      * enforces the domain (grid, ranges): scene data is strict, so an off-grid entry is a lesson-content error, never snapped.
      */

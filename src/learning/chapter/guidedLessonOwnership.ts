@@ -135,6 +135,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'bspline-basis': {chapterId: 'b-splines', sectionId: 'bspline-basis'},
     'bspline-deboor': {chapterId: 'b-splines', sectionId: 'bspline-deboor'},
     'bspline-insertion': {chapterId: 'b-splines', sectionId: 'bspline-insertion'},
+    'bspline-extraction': {chapterId: 'b-splines', sectionId: 'bspline-extraction'},
 };
 
 const additionalOwners: Partial<Record<DemonstrationId, readonly GuidedLessonOwner[]>> = {

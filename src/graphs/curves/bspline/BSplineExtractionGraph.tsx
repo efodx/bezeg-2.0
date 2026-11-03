@@ -2,7 +2,8 @@ import React from "react";
 import {currentLanguage, renderMessage, t} from "../../../localization";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
-import type {LessonCurveFixture} from "../../../learning/model";
+import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {InvalidKnotVectorError} from "../../../bezeg/impl/curve/bspline-curve";
 import type {BezierPiece} from "../../../bezeg/impl/curve/bspline";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
@@ -40,7 +41,7 @@ const initialData = (): Omit<BSplineExtractionState, 'initialized'> => {
  * control points and the piece count (distinct interior knots + 1). After a drag the pieces whose interval lies in the support of the
  * moved point are emphasized and marked in the readout. The scene state is the only copy of the data; the owned
  * {@link BSplineExtractionScene} reads it lazily. Its Preset collection is `bsplinePresetCollection`; optional NURBS `weights` are
- * ignored on import and omitted on export. Registered at `/bezeg-2.0/bspline/extraction` (`bspline-extraction`, no lesson yet); {@link pieceControlPoints} is the seam for "open as Bezier".
+ * ignored on import and omitted on export. Registered at `/bezeg-2.0/bspline/extraction` (`bspline-extraction`); lesson L4 drives it through `bezier-extraction` scene actions; {@link pieceControlPoints} is the seam for "open as Bezier".
  */
 export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BSplinePresetData> {
     private scene?: BSplineExtractionScene;
@@ -87,6 +88,12 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
 
     protected override initialView(): [number, number, number, number] {
         return [-1.5, 3.5, 6.5, -1.5];
+    }
+
+    /** Runs right after `importPresetData` for a lesson fixture or default scene: the imported curve and its Reset target survive, the rest is fresh. */
+    protected override lessonDefaultState(): BSplineExtractionState {
+        const {degree, knots, points, origin, example} = this.state;
+        return {initialized: true, ...initialData(), ...copyData({degree, knots, points}), origin, example};
     }
 
     override initialize() {
@@ -198,6 +205,29 @@ export class BSplineExtractionGraph extends BaseGraph<BSplineExtractionState, BS
         }
         this.setState({knots: candidate, moved: []});
         return undefined;
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('bezier-extraction', action => this.applyExtractionAction(action));
+    }
+
+    /** Applies one `bezier-extraction` scene action; an invalid index, value or example throws (the lesson content is wrong). */
+    private applyExtractionAction(action: Extract<LessonAction, {kind: 'bezier-extraction'}>): void {
+        if (action.operation === 'move-point') {
+            const {index, to} = action;
+            if (!Number.isInteger(index) || index < 0 || index >= this.state.points.length) throw new Error(`There is no control point ${String(index)}.`);
+            if (!Array.isArray(to) || to.length !== 2 || !to.every(Number.isFinite)) throw new Error('The new position of the control point must be two finite numbers.');
+            const points = this.state.points.map((point, i) => i === index ? [to[0], to[1]] as const : point);
+            this.setState({points, moved: this.dragMoved(points)});
+        } else if (action.operation === 'set-example') {
+            if (!INSERTION_EXAMPLE_IDS.includes(action.exampleId)) throw new Error(`Unknown extraction example “${String(action.exampleId)}”.`);
+            this.selectExample(action.exampleId);
+        } else {
+            this.resetToOrigin();
+        }
     }
 
     // ---- Controls ----------------------------------------------------------------------------------------------------
