@@ -67,6 +67,9 @@ interface Derived {
     readonly box?: RationalBox;
 }
 
+/** Distance in pixels the follow box keeps from every view edge, so a 16 px "continues" glyph is fully visible. */
+const CONTINUES_INSET_PX = 16;
+
 /**
  * The Voronoi diagram with the Delaunay duality overlay (task 19, spec B4). `VoronoiGraph extends PointSetGraph` in points
  * mode only. The diagram is derived from the points (`voronoiFromDelaunay`) and never stored; the scene keeps the points,
@@ -89,9 +92,6 @@ interface Derived {
  * Ownership: the drawing handle, the construction objects and the query point are disposed with the figure scene and before
  * the board is freed.
  */
-/** Distance in pixels the follow box keeps from every view edge, so a 16 px "continues" glyph is fully visible. */
-const CONTINUES_INSET_PX = 16;
-
 export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     private derivedMemo?: Derived;
     private selectedTriangleValue?: readonly [number, number, number];
