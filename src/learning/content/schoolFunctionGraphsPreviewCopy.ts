@@ -26,9 +26,9 @@ export const schoolFunctionGraphsPreviewCopy = {
         'The zeros are \\(-2\\) with multiplicity \\(1\\) and \\(1\\) with multiplicity \\(2\\); the \\(y\\)-intercept is \\(p(0)=2\\).',
     ),
     'school-function-graphs.rational-function.rational-function': copy(
-        'Graf funkcije \\(\\frac{x^2-1}{x-2}\\) z ničlama \\(-1\\) in \\(1\\), polom \\(2\\) in črtkano poševno asimptoto \\(y=x+2\\).',
-        'The graph of \\(\\frac{x^2-1}{x-2}\\) with the zeros \\(-1\\) and \\(1\\), the pole \\(2\\) and the dashed oblique asymptote \\(y=x+2\\).',
-        'Pri \\(x=10\\) je člen z ostankom \\(\\frac38=0{,}375\\) in \\(f(10)=12{,}375\\).',
-        'At \\(x=10\\) the remainder term is \\(\\frac38=0.375\\) and \\(f(10)=12.375\\).',
+        'Graf funkcije \\(\\frac{x^2-1}{x-2}\\) z ničlama \\(-1\\) in \\(1\\), polom \\(2\\), črtkano navpično asimptoto \\(x=2\\) in črtkano poševno asimptoto \\(y=x+2\\).',
+        'The graph of \\(\\frac{x^2-1}{x-2}\\) with the zeros \\(-1\\) and \\(1\\), the pole \\(2\\), the dashed vertical asymptote \\(x=2\\) and the dashed oblique asymptote \\(y=x+2\\).',
+        'Ker je \\(f(x)=x+2+\\frac{3}{x-2}\\), se graf pri velikih \\(|x|\\) približuje premici \\(y=x+2\\), ob polu pa navpični premici \\(x=2\\).',
+        'Since \\(f(x)=x+2+\\frac{3}{x-2}\\), the graph approaches the line \\(y=x+2\\) for large \\(|x|\\) and the vertical line \\(x=2\\) near the pole.',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

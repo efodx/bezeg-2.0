@@ -210,7 +210,9 @@ it('publishes the Complex maps example cards with their own checked images and p
 const functionsCards = [
     {chapterId: 'numerical-methods', copy: numericalPreviewCopy, ids: ['numerical-methods.quadrature.quadrature', 'numerical-methods.root-finding.root-finding'], counts: [[2, 2], [1, 3]]},
     {chapterId: 'school-function-graphs', copy: schoolFunctionGraphsPreviewCopy,
-        ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation'], counts: [[2, 2], [2, 2]]},
+        ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation',
+            'school-function-graphs.polynomial-zeros.polynomial-zeros', 'school-function-graphs.rational-function.rational-function'],
+        counts: [[2, 2], [2, 2], [1, 2], [1, 4]]},
     {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-series.fourier-series'], counts: [[6, 7]]},
     {chapterId: 'projective-conics', copy: projectiveConicsPreviewCopy,
         ids: ['projective-conics.projective-cross-ratio.projective-cross-ratio', 'projective-conics.projective-five-point.projective-five-point',

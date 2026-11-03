@@ -74,6 +74,82 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "school-function-graphs.polynomial-zeros.polynomial-zeros",
+      "demonstrationId": "polynomial-zeros",
+      "path": "/bezeg-2.0/functions/polynomial-zeros?example=lesson.school-function-graphs.polynomial-zeros.polynomial-zeros",
+      "sceneFingerprint": "37c050d7624968ba9d960167cd24ae239e980df009f962060c25b433707cf780",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"poly-signs-default\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"poly-signs-default\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"polynomial-example\",\"value\":\"default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"polynomial-derivative\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 2
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            -2,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "school-function-graphs.rational-function.rational-function",
+      "demonstrationId": "rational-function",
+      "path": "/bezeg-2.0/functions/rational-functions?example=lesson.school-function-graphs.rational-function.rational-function",
+      "sceneFingerprint": "213f01db8c6d315e4a9fd2b00b3cbf27cb576f5c46d7b294c99d11cbc624ec1b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rat-pole-oblique\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"rat-pole-oblique\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"rational-example\",\"value\":\"oblique\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"rational-probe\",\"value\":10}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "line": 2,
+          "point": 4,
+          "segment": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            -1,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            10,
+            12.375
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }
