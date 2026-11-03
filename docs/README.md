@@ -16,6 +16,7 @@ Start with the guidance for the area you are changing. This is an index, not req
 
 ## Direction and work queue
 
+- [Lesson-authoring architecture](specs/lesson-authoring-architecture.md): lead-reviewed plan for five bounded workstreams covering controls, lesson lookup, registration, scene ownership and persistence; implementation unstarted.
 - [JSXGraph surface view](tasks/jsxgraph-surface-view/README.md): complete. Patch views drawn with JSXGraph instead of Three.js ([spec](specs/jsxgraph-surface-view.md), [acceptance record](reviews/jsxgraph-surface-view/switch-over.md)).
 - [Bézier drawing playground](specs/bezier-drawing-playground.md): approved, unstarted. A pen-tool drawing in the Bézier chapter (Draw at the start, Look underneath at the end), drawn with plain SVG ([ADR 0020](adr/0020-svg-drawing-playground.md)).
 - [Bézier patches](tasks/bezier-patches/README.md): new *Bézierjeve krpe* family (tensor-product and triangular). Four planned foundation tasks (JSXGraph upgrade, renderer spike/ADR, shared curve kernels, 3D points) from the [spec](specs/bezier-patches.md); implementation unstarted.

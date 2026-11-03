@@ -4,6 +4,8 @@ Reviewed on 2026-11-03. The requested last-three-days window is pinned to `d7204
 
 This is a code and architecture review. It excludes mathematical correctness, lesson prose, curriculum coverage and translation quality. Inspection concentrates on shared integration paths and representative new families, rather than claiming a line-by-line review of the entire diff. Engineering, spec conformance and control consistency received independent read-only reviews; the handler checked the cited implementations. No application changes are proposed as already approved implementation work.
 
+Planning follow-up: the lead reviewed three worker proposals and consolidated the accepted direction into [one canonical architecture specification](../specs/lesson-authoring-architecture.md) with five bounded workstreams and [ADR 0039](../adr/0039-lesson-authoring-module-ownership.md). That specification supersedes the separate-spec organization suggested below; this review remains the historical diagnosis. Application implementation is unstarted.
+
 ## Standards
 
 ### S1. Shared controls are optional, so new families bypass them — P2, observed
