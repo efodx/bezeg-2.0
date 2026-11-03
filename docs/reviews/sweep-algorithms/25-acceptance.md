@@ -40,19 +40,21 @@ Accepted 2026-11-03 by geometry handler 46. Source: [task 25](../../tasks/sweep-
 
 The graph change is 22 lines and follows the shared trace-command pattern (`traceLessonActions`). The lesson and the host test were reviewed by handler 45. No optional `bezeg-reviewer` was run.
 
-## Rebase onto `55ced5ec`
+## Rebase onto `cfb55afd`
 
-Master had gained the curves L3 lesson on `bspline-insertion`. The conflicts were resolved as unions:
+The feature was rebased twice. Master first gained the curves L3 lesson on `bspline-insertion`, then the numerical N5 lesson on `euler-method`. The conflicts were resolved as unions:
 
-- `lessonMathNotation.test.ts` lists both ids.
-- The no-lesson list in `lessonCatalog.test.ts` is now `['bspline-extraction', 'euler-method']`.
-- The smoke `LESSONS` list starts with `fortune, bsplineInsertion`.
+- `lessonMathNotation.test.ts` lists all three ids.
+- The no-lesson list in `lessonCatalog.test.ts` is now `['bspline-extraction']`.
+- The smoke `LESSONS` list starts with `fortune, bsplineInsertion`, and `eulerMethod` keeps its place.
 
-The auto-merge had silently collapsed both sides' increments in `guidedExamplePreviewCopy.test.ts`. They were recounted to 101 available lessons and 108 preview copies.
+Both times, the auto-merge silently collapsed the two sides' identical increments in `guidedExamplePreviewCopy.test.ts`. They were recounted to 102 available lessons and 109 preview copies.
 
-Afterwards, at `aea4eeba`:
+Afterwards, at `12d9f6ff`:
 
-- tsc was clean ([25-rebase-tsc.log](25-rebase-tsc.log));
-- the focused unit run passed, 112 files and 1840 tests ([25-rebase-unit.log](25-rebase-unit.log));
-- the build passed ([25-rebase-build.log](25-rebase-build.log));
-- `just smoke-lesson fortune bspline-insertion` passed ([25-rebase-smoke.log](25-rebase-smoke.log)).
+- tsc was clean ([25-rebase-tsc.log](25-rebase-tsc.log)).
+- The focused unit run had 1850 of 1851 tests passing ([25-rebase-unit.log](25-rebase-unit.log)).
+  - The single failure was master's Euler card in `guidedExamplePreviews.test.ts` (`import.meta.glob`).
+  - After clearing `node_modules/.vite/vitest` and `node_modules/.vitest-cache`, that file passed, 8 of 8 ([25-rebase-unit-previews.log](25-rebase-unit-previews.log)). It was a stale Vitest cache.
+- The build passed ([25-rebase-build.log](25-rebase-build.log)).
+- `just smoke-lesson fortune bspline-insertion euler-method` passed ([25-rebase-smoke.log](25-rebase-smoke.log)).

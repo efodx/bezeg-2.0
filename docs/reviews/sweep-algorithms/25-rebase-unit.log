@@ -1,1 +1,50 @@
-unit: passed in 481.1s (2 workers, no slot); revision aea4eeba3ce5ef47e4666c743e39c5e5a81939ed; dirty; log .command-logs\2026-11-03T13-25-34-075Z-32532-078ab72d.log
+Waiting for unit (pid 23408) to finish starting before reading free memory.
+Memory available for unit after 55s.
+unit: failed (1) in 425.4s (2 workers, no slot); revision 12d9f6ff118d9b1aaa52a844870f539903c5e215; dirty; log .command-logs\2026-11-03T13-36-17-083Z-30672-ae0b4dc5.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning src/graphs/compgeo/Fortune src/graphs/compgeo/fortune src/compgeo/sweep/fortune src/demonstrations src/presets
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts (8 tests | 1 failed) 67ms
+   × publishes the numerical-methods example cards with their own checked images and copy 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExamplePreviews.test.ts > publishes the numerical-methods example cards with their own checked images and copy
+AssertionError: numerical-methods.euler-method.euler-method/sl: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts:261:64
+    259|             for (const language of ['sl', 'en'] as const) {
+    260|                 const preview = resolveGuidedExamplePreview(home.id, h…
+    261|                 expect(preview?.src, `${home.id}/${language}`).toBeTru…
+       |                                                                ^
+    262|                 expect(preview?.alt.trim()).toBeTruthy();
+    263|                 expect(preview?.caption.trim()).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 112 passed (113)
+      Tests  1 failed | 1850 passed (1851)
+   Start at  14:36:17
+   Duration  424.65s (tests 70%, environment 14%, import 9%, setup 6%, transform 1%)
+
+    Isolate  113 workers spawned · ~1.14s startup each (spawn + environment, per file)
+             at least ~63.09s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1
