@@ -334,8 +334,8 @@ test('the drawn bar heights follow the table amplitudes: proportional on the lin
     expect(height(3) / height(1)).toBeCloseTo(1 / 9, 6);
     choose(scaleSelect(), 'log');
     expect(graph.modelNow().scale).toBe('log');
-    // plot height 122 over the nine decades 10^-8 .. 10^1 of this panel
-    for (const k of [1, 3, 11]) expect(height(k)).toBeCloseTo(((Math.log10(amplitude(k)) + 8) / 9) * 122, 6);
+    // plot height 118 over the nine decades 10^-8 .. 10^1 of this panel
+    for (const k of [1, 3, 11]) expect(height(k)).toBeCloseTo(((Math.log10(amplitude(k)) + 8) / 9) * 118, 6);
 });
 
 test('choosing a function that another slot already shows is rejected with the reason, and the model keeps its selections', () => {
@@ -353,6 +353,32 @@ test('choosing a function that another slot already shows is rejected with the r
     expect(screen.queryByTestId('fourier-decay-rejection')).toBeNull();
     expect(panelExamples()).toEqual(['sawtooth', 'abs', 'smooth']);
     expect(() => graph.lesson({kind: 'function-choice', name: 'fourier-selection-2', value: 'smooth'})).toThrow(DomainError);
+});
+
+test('the smooth example at N = 30 shows no zero key, note or table zero, in linear and in log scale', () => {
+    const graph = mount();
+    for (const action of [
+        {kind: 'function-choice', name: 'fourier-view', value: 'decay'},
+        {kind: 'function-parameter', name: 'fourier-n', value: 30},
+    ] as LessonAction[]) act(() => graph.lesson(action));
+    expect(panelExamples()).toEqual(['square', 'abs', 'smooth']);
+    for (const scale of ['linear', 'log']) {
+        act(() => graph.lesson({kind: 'function-choice', name: 'fourier-scale', value: scale} as LessonAction));
+        const smooth = document.querySelector('[data-testid="fourier-decay-panel"][data-example="smooth"]') as HTMLElement;
+        expect(smooth.querySelector('[data-testid="fourier-decay-zero-key"]')).toBeNull();
+        expect(smooth.querySelector('[data-testid="fourier-decay-zero-note"]')).toBeNull();
+        expect(smooth.querySelectorAll('circle[data-zero]')).toHaveLength(0);
+        for (let k = 1; k <= 30; k++) expect(decayCell('smooth', k)).not.toBe('0');
+    }
+    expect(decayCell('smooth', 10)).toMatch(/^2,203e−6$/);
+});
+
+test('an example shown by another slot is a disabled option in the other selects', () => {
+    mount();
+    choose(viewSelect(), 'decay');
+    const disabled = (slot: number) => [...selectionSelect(slot).options].filter(option => option.disabled).map(option => option.value);
+    expect(disabled(1)).toEqual(['abs', 'smooth']);
+    expect(disabled(2)).toEqual(['square', 'smooth']);
 });
 
 test('a Preset keeps the decay fields through export and import', () => {

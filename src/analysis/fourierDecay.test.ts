@@ -1,4 +1,6 @@
 import {describe, expect, test} from 'vitest';
+import {partialSum} from './fourier';
+import {FOURIER_EXAMPLES} from './fourierExamples';
 import {
     FOURIER_DECAY_MAX_ORDER, FOURIER_DECAY_REFERENCES, FOURIER_JUMP_POINTS, FOURIER_SUP_GRID_POINTS, fourierAmplitudes, fourierExampleCoefficients,
     fourierLogAxis, fourierSupError, isZeroAmplitude,
@@ -11,7 +13,7 @@ describe('amplitudes against their reference curves', () => {
     test.each(FOURIER_EXAMPLE_IDS)('%s: A_k is at most its reference for every k <= 101', id => {
         const amplitudes = fourierAmplitudes(id, FOURIER_DECAY_MAX_ORDER);
         expect(amplitudes).toHaveLength(101);
-        amplitudes.forEach((value, i) => expect(value).toBeLessThanOrEqual(FOURIER_DECAY_REFERENCES[id].amplitude(i + 1) + 1e-9));
+        amplitudes.forEach((value, i) => expect(value).toBeLessThanOrEqual(FOURIER_DECAY_REFERENCES[id].amplitude(i + 1) * (1 + 1e-9)));
     });
 
     test('equality at odd k for the square wave and |x| (and at every k for the sawtooth), to the kernel quadrature', () => {
@@ -26,6 +28,18 @@ describe('amplitudes against their reference curves', () => {
         for (let k = 2; k <= 100; k += 2) expect(isZeroAmplitude(amplitude('square', k))).toBe(true);
         expect(isZeroAmplitude(amplitude('square', 3))).toBe(false);
         expect(isZeroAmplitude(amplitude('sawtooth', 100))).toBe(false);
+    });
+
+    test('no smooth amplitude for k <= 101 is a zero: they are the closed form (2/sqrt3) r^k', () => {
+        for (let k = 1; k <= 101; k++) {
+            expect(isZeroAmplitude(amplitude('smooth', k))).toBe(false);
+            expect(amplitude('smooth', k)).toBeGreaterThan(0);
+        }
+    });
+
+    test('the closed form of the smooth amplitudes agrees with the kernel to 1e-12 absolute for k <= 20', () => {
+        const {a, b} = fourierExampleCoefficients('smooth');
+        for (let k = 1; k <= 20; k++) expect(Math.abs(Math.hypot(a[k], b[k]) - amplitude('smooth', k))).toBeLessThan(1e-12);
     });
 });
 
@@ -71,6 +85,41 @@ describe('sup error of S_N on the 20001-point grid, jump points excluded', () =>
         // At the jump x = 0 the square wave and S_N differ by 1 (S_N(0) = 0 and f(0) = 0 in the example's own value, so the
         // distance only shows next to it): the sup error is the Gibbs-type error near the jump, finite and below the jump height.
         expect(fourierSupError('square', 11)).toBeLessThan(1.2);
+    });
+});
+
+describe('the incremental sup error against a direct partial sum', () => {
+    const direct = (id: (typeof FOURIER_EXAMPLE_IDS)[number], N: number) => {
+        const source = FOURIER_EXAMPLES[id].source;
+        if (source.kind !== 'function') throw new Error('function expected');
+        const coefficients = fourierExampleCoefficients(id);
+        let worst = 0;
+        for (let i = 0; i < FOURIER_SUP_GRID_POINTS; i++) {
+            const x = -Math.PI + (2 * Math.PI * i) / (FOURIER_SUP_GRID_POINTS - 1);
+            if (FOURIER_JUMP_POINTS[id].some(j => Math.abs(x - j) < 1e-9)) continue;
+            worst = Math.max(worst, Math.abs(source.f(x) - partialSum(coefficients, N, x)));
+        }
+        return worst;
+    };
+    const agrees = (id: (typeof FOURIER_EXAMPLE_IDS)[number], N: number) => {
+        const expected = direct(id, N);
+        const got = fourierSupError(id, N);
+        expect(Math.abs(got - expected)).toBeLessThanOrEqual(Math.max(1e-13, 1e-12 * expected));
+    };
+
+    test.each(FOURIER_EXAMPLE_IDS)('%s: N in 1, 11, 50, 101 in sweep order', id => {
+        for (const N of [1, 11, 50, 101]) agrees(id, N);
+    });
+
+    test.each(FOURIER_EXAMPLE_IDS)('%s: out-of-order calls 101, 5, 60 restart correctly', id => {
+        // Distinct N values not asked above, so the cache does not answer them.
+        for (const N of [99, 6, 61]) agrees(id, N);
+    });
+
+    test('cold sweep 1..101 of three examples (informational timing)', () => {
+        const start = performance.now();
+        for (const id of ['square', 'abs', 'smooth'] as const) for (let N = 1; N <= 101; N++) fourierSupError(id, N);
+        console.info(`sup error sweep timing: ${(performance.now() - start).toFixed(0)} ms`);
     });
 });
 

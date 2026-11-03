@@ -8,7 +8,10 @@
 .fourier-decay-svg { width: 100%; height: auto; background: var(--workspace-panel); border: 1px solid var(--workspace-rule); border-radius: 4px; }
 .fourier-decay-axis { stroke: var(--workspace-ink-soft); stroke-width: 1; }
 .fourier-decay-grid { stroke: var(--workspace-rule); stroke-width: 1; }
-.fourier-decay-label { fill: var(--workspace-ink-soft); }
+.fourier-decay-plot { position: relative; }
+.fourier-decay-label { position: absolute; color: var(--workspace-ink-soft); font-size: .75rem; line-height: 1; white-space: nowrap; pointer-events: none; }
+.fourier-decay-label-y { transform: translateY(-50%); }
+.fourier-decay-label-x { transform: translateX(-50%); }
 .fourier-decay-reference { fill: none; stroke: var(--workspace-ink-soft); stroke-width: 1.2; stroke-dasharray: 4 3; }
 .fourier-decay-zero { fill: var(--workspace-panel); stroke: var(--workspace-ink); stroke-width: 1.2; }
 .fourier-decay-key, .fourier-decay-note { margin: .15rem 0 0; color: var(--workspace-ink-soft); font-size: .8rem; font-weight: 400; }

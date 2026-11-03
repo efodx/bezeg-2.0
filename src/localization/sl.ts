@@ -1569,7 +1569,7 @@ export const sl = {
     "fourier_decay_reference_exact": "Črtkano: primerjalna krivulja {value0}",
     "fourier_decay_reference_envelope": "Črtkano: zgornja ovojnica {value0}",
     "fourier_decay_readout_sup": "sup |f − Sₙ|, {value0}",
-    "fourier_decay_sup_help": "Supremum napake je največje odstopanje |f − Sₙ| na mreži 20001 točk na [−π, π]; skočne točke so izključene.",
+    "fourier_decay_sup_help": "Supremum napake je največje odstopanje |f − Sₙ| na mreži 20001 točk na [−π, π]; skočne točke so izključene, sosednja vozlišča mreže pa ne. Zato pri funkcijah s skokom napaka ne pade proti 0.",
     "fourier_decay_note": "Izrek (samo v tej smeri): če je f 2π-periodična, je f⁽ᵐ⁻¹⁾ absolutno zvezna in f⁽ᵐ⁾ odsekoma zvezna, je |cₖ| = O(k^−(m+1)); analitične periodične funkcije imajo geometrijsko pojemanje (Zygmund, Körner). Naklon, prebran pri končnih k, je opažanje na treh primerih, ne zakon.",
     "fourier_decay_note_uniform": "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni.",
     "fourier_decay_board_title": "Funkcije in delne vsote Sₙ za N = {value0}",

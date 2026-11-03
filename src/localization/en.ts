@@ -1570,7 +1570,7 @@ export const en: Record<keyof typeof sl, string> = {
     "fourier_decay_reference_exact": "Dashed: reference curve {value0}",
     "fourier_decay_reference_envelope": "Dashed: upper envelope {value0}",
     "fourier_decay_readout_sup": "sup |f − Sₙ|, {value0}",
-    "fourier_decay_sup_help": "The supremum error is the largest |f − Sₙ| on a grid of 20001 points on [−π, π]; the jump points are excluded.",
+    "fourier_decay_sup_help": "The supremum error is the largest |f − Sₙ| on a grid of 20001 points on [−π, π]; the jump points are excluded, but the grid nodes next to a jump are not. So for functions with a jump the error does not go to 0.",
     "fourier_decay_note": "Theorem (this direction only): if f is 2π-periodic, f⁽ᵐ⁻¹⁾ is absolutely continuous and f⁽ᵐ⁾ is piecewise continuous, then |cₖ| = O(k^−(m+1)); analytic periodic functions decay geometrically (Zygmund, Körner). A slope read at finite k is an observation of three examples, not a law.",
     "fourier_decay_note_uniform": "If Σ|cₖ| < ∞ the series converges uniformly (Weierstrass M-test). The converse is not claimed and is not true in general: a divergent sum Σ|cₖ| does not mean there is no uniform convergence.",
     "fourier_decay_board_title": "Functions and partial sums Sₙ for N = {value0}",

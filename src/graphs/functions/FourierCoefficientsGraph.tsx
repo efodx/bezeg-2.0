@@ -401,8 +401,12 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         const scaleText: Record<FourierDecayScale, string> = {linear: t("fourier_decay_scale_linear"), log: t("fourier_decay_scale_log")};
         const signature = state.selections.join();
         return <div className="inspector-group">
+            {/* An example shown by another slot is disabled here (the model also rejects it, with a visible reason, for lesson and Preset paths).
+                Lesson authors: swapping two examples between slots needs a free example as an intermediate step. */}
             {state.selections.map((id, slot) => <ExampleChoice key={slot} label={t("fourier_decay_selection_label", {value0: slot + 1})} value={id} signature={signature}
-                                                            options={FOURIER_EXAMPLE_IDS.map(option => ({value: option, text: this.exampleName(option)}))}
+                                                            options={FOURIER_EXAMPLE_IDS.map(option => ({
+                                                                value: option, text: this.exampleName(option), disabled: option !== id && state.selections.includes(option),
+                                                            }))}
                                                             apply={next => this.trySelect(slot, next)}/>)}
             <NumberInput label={t("fourier_decay_n_label")} integer value={state.n} min={FOURIER_DECAY_N_MIN} max={FOURIER_DECAY_N_MAX} step={1} decimals={0}
                          rejectedHint={t("fourier_coef_issue_n", {value0: FOURIER_DECAY_N_MIN, value1: FOURIER_DECAY_N_MAX})}
@@ -510,7 +514,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
 
 /** A select of one decay example; a choice the model rejects shows its reason beside the select until the selections change. */
 function ExampleChoice(props: {
-    label: string; value: string; signature: string; options: readonly { value: string; text: string }[]; apply: (value: string) => Message | undefined;
+    label: string; value: string; signature: string; options: readonly { value: string; text: string; disabled?: boolean }[]; apply: (value: string) => Message | undefined;
 }) {
     useT();
     const [rejection, setRejection] = useState<{ reason: Message; signature: string } | undefined>();

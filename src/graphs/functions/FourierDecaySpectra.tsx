@@ -10,12 +10,15 @@ import "./FourierDecaySpectra.css";
 
 const W = 240;
 const H = 150;
-const PAD_LEFT = 40;
+const PAD_LEFT = 52;
 const PAD_RIGHT = 6;
 const PAD_TOP = 8;
-const PAD_BOTTOM = 20;
+const PAD_BOTTOM = 24;
 const PLOT_H = H - PAD_TOP - PAD_BOTTOM;
 const baseline = PAD_TOP + PLOT_H;
+/** Tick and k labels are HTML spans over the scaled svg, positioned in percent and sized in CSS rem (.75rem = 12 px), so they do not shrink with the viewBox. */
+const pctX = (x: number) => `${((x / W) * 100).toFixed(3)}%`;
+const pctY = (y: number) => `${((y / H) * 100).toFixed(3)}%`;
 
 const SUPERSCRIPT: Record<string, string> = {"-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"};
 /** 10^e as text: 10⁻⁸. */
@@ -64,7 +67,7 @@ export function FourierDecaySpectra(props: FourierDecaySpectraProps) {
                 };
                 const linearY = (value: number) => baseline - (value / maximum) * PLOT_H;
                 const yOf = scale === "log" ? logY : linearY;
-                const hidden = amplitudes.filter(isZeroAmplitude).length;
+                const hidden = amplitudes.filter(value => isZeroAmplitude(value)).length;
                 const floored = scale === "log" && amplitudes.some(value => !isZeroAmplitude(value) && Math.log10(value) < FOURIER_LOG_MIN_EXPONENT);
                 const barWidth = Math.max(0.8, slot * 0.7);
                 const color = props.colors[panel];
@@ -89,13 +92,11 @@ export function FourierDecaySpectra(props: FourierDecaySpectraProps) {
                 const panelId = `${idBase}-${panel}`;
                 return <figure key={panel} className="fourier-decay-panel" data-testid="fourier-decay-panel" data-example={id} data-panel={panel}>
                     <figcaption><span className="fourier-decay-swatch" style={{backgroundColor: color}} aria-hidden="true"/>{name}</figcaption>
+                    <div className="fourier-decay-plot">
                     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby={`${panelId}-desc`} className="fourier-decay-svg">
                         <desc id={`${panelId}-desc`}>{t("fourier_decay_spectrum_desc", {value0: name, value1: N, value2: scaleText})}</desc>
                         <line x1={PAD_LEFT} x2={W - PAD_RIGHT} y1={baseline} y2={baseline} className="fourier-decay-axis"/>
                         <line x1={PAD_LEFT} x2={PAD_LEFT} y1={PAD_TOP} y2={baseline} className="fourier-decay-axis"/>
-                        {ticks.map(tick => <text key={tick.text} x={PAD_LEFT - 4} y={tick.y + 4} textAnchor="end" className="fourier-decay-label" style={{fontSize: 10}}>{tick.text}</text>)}
-                        {Array.from({length: N}, (_, i) => i + 1).filter(k => k === 1 || k % labelEvery === 0).map(k =>
-                            <text key={k} x={centre(k)} y={H - 6} textAnchor="middle" className="fourier-decay-label" style={{fontSize: 10}}>{k}</text>)}
                         {amplitudes.map((value, i) => {
                             const k = i + 1;
                             if (isZeroAmplitude(value)) {
@@ -108,6 +109,11 @@ export function FourierDecaySpectra(props: FourierDecaySpectraProps) {
                         })}
                         {runs.map((d, i) => <path key={i} d={d} className="fourier-decay-reference" data-reference={id}/>)}
                     </svg>
+                    {ticks.map(tick => <span key={tick.text} className="fourier-decay-label fourier-decay-label-y" aria-hidden="true"
+                                             style={{right: `calc(100% - ${pctX(PAD_LEFT - 4)})`, top: pctY(tick.y)}}>{tick.text}</span>)}
+                    {Array.from({length: N}, (_, i) => i + 1).filter(k => k === 1 || k % labelEvery === 0).map(k =>
+                        <span key={k} className="fourier-decay-label fourier-decay-label-x" aria-hidden="true" style={{left: pctX(centre(k)), top: pctY(baseline + 3)}}>{k}</span>)}
+                    </div>
                     <p className="fourier-decay-key">{reference.kind === "envelope"
                         ? t("fourier_decay_reference_envelope", {value0: reference.formula})
                         : t("fourier_decay_reference_exact", {value0: reference.formula})}</p>
