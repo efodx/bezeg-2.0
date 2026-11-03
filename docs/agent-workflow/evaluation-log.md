@@ -1730,3 +1730,12 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Handler slip: a Python edit wrote LF lines into a CRLF working copy, committing mixed endings; fixed by a follow-up commit.
 - Context: soft threshold fired after the graph review; committed, pushed and handed off before registration PS-B-2b.
 
+
+## Curves handler 32 (Opus, auto, medium), 2026-11-03
+
+- PS-B-2b registration done by the handler from the 12-file template (small, mechanical). Its catalog Preset round trip exposed a latent PS-B-2a2 defect: `prob-clt` had no `checkGraphState`, so the generic flat check refused `heights` and every saved Preset failed import. The worker's host test had passed vacuously through `checkGraphState?.()`. Lesson for briefs: an optional-call assertion must not pass when the hook is missing; registering a route is the first full Preset file round trip, so register before accepting a graph's Preset work, or ask for the catalog round trip in the graph slice.
+- PS-B-2b smoke `bezeg-smoke` Sonnet: 54k tokens, 38 tools, 9 min, 10 checks with exact strings and rAF frame stats (median 16,7 ms at n = 30). It found the shape-edit hint misleading (fixed) and two non-blocking notes.
+- PS-B-3a hooks `bezeg-worker` Sonnet, run in parallel with the read-only smoke (told not to build while the preview served `dist/`): 54k tokens, 38 tools, 19 min, complete; three mutations seen failing.
+- PS-B-3b lesson + chapter section `bezeg-worker` Sonnet: 135k tokens (reached the watcher threshold as it returned), 62 tools, 24 min, complete with build and `smoke-lesson`; three mutations; two necessary out-of-brief test fixes. A lesson-plus-chapter slice is near the top of one Sonnet budget; split chapter and lesson next time.
+- Handler slips: a stray `git checkout -p` in a chained command blocked on its prompt (no changes discarded; the mutation-restore step after it never ran and was redone); a push chained with `;` after a conflicting rebase pushed the partially rebased HEAD (one verified commit, a fast-forward), rechecked afterwards. Chain push only with `&&` after the rebase.
+- Context: soft threshold fired after PS-B-3b was committed and smoked; handed off before P4.
