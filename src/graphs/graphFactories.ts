@@ -76,6 +76,7 @@ import { LinearMapGraph } from './linear/LinearMapGraph';
 import { FixedPointGraph } from './functions/FixedPointGraph';
 import DensityAreaGraph from './functions/DensityAreaGraph';
 import BinomialNormalGraph from './functions/BinomialNormalGraph';
+import CltGraph from './functions/CltGraph';
 import type BaseGraph from './base/BaseGraph';
 import type {BaseGraphState} from './base/BaseGraph';
 import RationalSubdivisionGraph2 from './curves/rational/RationalSubdivisionGraph2';
@@ -169,6 +170,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'fixed-point': () => new FixedPointGraph(),
     'prob-density': () => new DensityAreaGraph(),
     'prob-binomial-normal': () => new BinomialNormalGraph(),
+    'prob-clt': () => new CltGraph(),
     'linear-map': () => new LinearMapGraph(),
     'complex-reciprocal': () => new ComplexReciprocalGraph(),
     'complex-roots': () => new ComplexRootsGraph(),
