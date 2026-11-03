@@ -43,7 +43,7 @@ Planned 2026-11-03 (geometry handler 48). The A5 "free double" board is a fixed 
 
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
-| 16 | [Point-in-polygon kernel and pentagram approximation](16-point-in-polygon-kernel.md) | F1 | 02, 07 | planned |
+| 16 | [Point-in-polygon kernel and pentagram approximation](16-point-in-polygon-kernel.md) | F1 | 02, 07 | accepted 2026-11-03 (handler 48) |
 | 17 | [Monotone chain rule variants and the Kettner sign map](17-chain-variants-kettner-map.md) | F1 | 02, 03 | planned |
 | 18 | [Point-in-polygon graph](18-point-in-polygon-graph.md) | F2a | 16, 09 | planned |
 | 19 | [Hull robustness graph](19-hull-robustness-graph.md) | F2a | 17, 10 | planned |

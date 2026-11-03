@@ -1,6 +1,6 @@
 # 16 — Point-in-polygon kernel and pentagram approximation (Batch 2, F1)
 
-Status: planned 2026-11-03 (geometry handler 48). Source: spec [A3](../../specs/convexity-hulls-lessons.md#a3-point-in-polygon) (examples, acceptance 1–5, note), [testing decisions](../../specs/convexity-hulls-lessons.md#testing-decisions), [correctness notes](../../specs/convexity-hulls-lessons.md#correctness-notes), [ADR 0021](../../adr/0021-exact-grid-predicates.md). Kind: F1 (math review). Depends on 02 (`predicates.ts`) and 07 (`polygonMeasures.ts`).
+Status: accepted 2026-11-03 (geometry handler 48; Sonnet `bezeg-worker` high, handler math review: the `orient` side test, the strict half-open comparison and the boundary-first order are correct; mutations `>=` for `>` and a dropped boundary check failed 5 and 10 tests). Pentagram scale \(R=16\): \((0,16),(-9,-13),(15,5),(-15,5),(9,-13)\); the ray-through-vertex test lifts \(q\) by \(1/1024\) on a polygon scaled by \(1024\). Planned 2026-11-03 (geometry handler 48). Source: spec [A3](../../specs/convexity-hulls-lessons.md#a3-point-in-polygon) (examples, acceptance 1–5, note), [testing decisions](../../specs/convexity-hulls-lessons.md#testing-decisions), [correctness notes](../../specs/convexity-hulls-lessons.md#correctness-notes), [ADR 0021](../../adr/0021-exact-grid-predicates.md). Kind: F1 (math review). Depends on 02 (`predicates.ts`) and 07 (`polygonMeasures.ts`).
 
 New module `src/compgeo/pointInPolygon.ts`, independent of React, JSXGraph and localization.
 
