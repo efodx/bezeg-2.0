@@ -8,6 +8,7 @@ import {
     directrixDistance,
     focalDistance,
     focusDirectrixRatio,
+    matchedConicArc,
     maxConicDeviation,
     quarterEllipseBezier,
     rationalQuadraticPoint,
@@ -145,5 +146,71 @@ describe('Bezier bridge', () => {
         const m = rationalQuadraticPoint([{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}], [1, 1, 1], 0.5);
         expect(m.x).toBeCloseTo(0.75, 12);
         expect(m.y).toBeCloseTo(0.25, 12);
+    });
+});
+
+describe('matched Bezier arc', () => {
+    // The conic of eccentricity e with semi-latus rectum ell = 1.8, focus (4, 0) and the directrix to the right of the focus.
+    const withEccentricity = (e: number) => e === 0
+        ? circleConic({x: 0, y: 0}, 1.8)
+        : conicFromFocusDirectrix({x: 4, y: 0}, {nx: 1, ny: 0, d: 4 + 1.8 / e}, e);
+
+    it('is the quarter ellipse (5,0),(5,3),(0,3) with weights 1, sqrt(2)/2, 1 at the spec default; t = 1/2 gives (3.5355, 2.1213)', () => {
+        const arc = matchedConicArc(ellipse());
+        expect(arc.kind).toBe('ellipse');
+        arc.points.forEach((p, i) => {
+            expect(p.x).toBeCloseTo([5, 5, 0][i], 12);
+            expect(p.y).toBeCloseTo([0, 3, 3][i], 12);
+        });
+        expect(arc.weights).toEqual([1, Math.SQRT1_2, 1]);
+        const mid = rationalQuadraticPoint(arc.points, arc.weights, 0.5);
+        expect(mid.x).toBeCloseTo(3.5355, 4);
+        expect(mid.y).toBeCloseTo(2.1213, 4);
+        expect(mid.x ** 2 / 25 + mid.y ** 2 / 9).toBeCloseTo(1, 12);
+    });
+
+    it('classifyMiddleWeight of the matched arc equals the conic kind for eccentricities 0.3, 0.8, 1, 1.5, 5/3 (a circle is an ellipse)', () => {
+        const expected = {0: 'ellipse', 0.3: 'ellipse', 0.8: 'ellipse', 1: 'parabola', 1.5: 'hyperbola', [5 / 3]: 'hyperbola'} as const;
+        for (const [e, kind] of Object.entries(expected)) {
+            const conic = withEccentricity(Number(e));
+            const arc = matchedConicArc(conic);
+            expect(classifyMiddleWeight(arc.weights[1])).toBe(kind);
+            expect(arc.weights[0]).toBe(1);
+            expect(arc.weights[2]).toBe(1);
+        }
+    });
+
+    it('has middle weight exactly 1 for the parabola', () => {
+        expect(matchedConicArc(parabola()).weights).toEqual([1, 1, 1]);
+        expect(matchedConicArc(withEccentricity(1)).weights[1]).toBe(1);
+    });
+
+    it('lies on its conic for every kind (deviation below 1e-9) and the hyperbola/parabola arc runs vertex to latus-rectum endpoint', () => {
+        for (const e of [0, 0.3, 0.8, 1, 1.2, 1.5, 5 / 3, 2.5]) {
+            const conic = withEccentricity(e);
+            const arc = matchedConicArc(conic);
+            expect(maxConicDeviation(conic, sampleRationalQuadratic(arc.points, arc.weights, 200))).toBeLessThan(1e-9);
+        }
+        const h = matchedConicArc(hyperbola());
+        expect(h.points[0].x).toBeCloseTo(3, 12);
+        expect(h.points[0].y).toBeCloseTo(0, 12);
+        expect(Math.hypot(h.points[2].x - 5, h.points[2].y)).toBeCloseTo(16 / 3, 12);
+        expect(h.points[2].x).toBeCloseTo(5, 12);
+    });
+
+    it('grows away from the conic when the middle weight changes', () => {
+        const conic = withEccentricity(0.8);
+        const arc = matchedConicArc(conic);
+        const dev = (w: number) => maxConicDeviation(conic, sampleRationalQuadratic(arc.points, [1, w, 1], 100));
+        expect(dev(arc.weights[1])).toBeLessThan(1e-9);
+        expect(dev(0.9)).toBeGreaterThan(0.01);
+        expect(dev(0.3)).toBeGreaterThan(dev(0.5));
+    });
+
+    it('works with the directrix on the left of the focus (the arc stays on the upper side)', () => {
+        const left = conicFromFocusDirectrix({x: 5, y: 0}, {nx: 1, ny: 0, d: 1.8}, 5 / 3);
+        const arc = matchedConicArc(left);
+        expect(arc.points[2].y).toBeGreaterThan(0);
+        expect(maxConicDeviation(left, sampleRationalQuadratic(arc.points, arc.weights, 100))).toBeLessThan(1e-9);
     });
 });

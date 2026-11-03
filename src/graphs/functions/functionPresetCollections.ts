@@ -63,6 +63,8 @@ import {checkZeroList} from "../../analysis/zeroListModel";
 import {rationalFunctionFileMessage} from "./rationalFunctionMessages";
 import {checkGeometricSeriesModel, parseGeometricSeriesModel} from "../../analysis/geometricSeriesModel";
 import {geometricSeriesFileMessage} from "./geometricSeriesMessages";
+import {checkConicFocalModel, parseConicFocalModel} from "../../analysis/conicFocalModel";
+import {conicFocalFileMessage} from "./conicFocalMessages";
 import {polynomialZerosFileMessage} from "./polynomialZerosMessages";
 import {zeroListFileMessage} from "./zeroListMessages";
 import {checkSceneState, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
@@ -305,6 +307,12 @@ const diagnoseGeometricSeries = (data: unknown): Message | undefined => {
     return check.ok ? undefined : geometricSeriesFileMessage(check.issue);
 };
 
+/** The model module names the rule a rejected conic view broke; this only localizes it. */
+const diagnoseConicFocal = (data: unknown): Message | undefined => {
+    const check = checkConicFocalModel(data);
+    return check.ok ? undefined : conicFocalFileMessage(check.issue);
+};
+
 const diagnoseRationalFunction: Diagnosis = data => {
     const check = checkRationalFunctionModel(data);
     return check.ok || check.issue === undefined ? undefined : rationalFunctionFileMessage(check.issue);
@@ -400,4 +408,5 @@ export const functionPresetCollections = {
     "rational-function": rationalFunctionCollection(),
     "function-inverse": functionCollection("function-inverse", parseFunctionInverseModel, diagnoseFunctionInverse),
     "geometric-series": functionCollection("geometric-series", parseGeometricSeriesModel, undefined, diagnoseGeometricSeries),
+    "conic-focal": functionCollection("conic-focal", parseConicFocalModel, undefined, diagnoseConicFocal),
 } as const;

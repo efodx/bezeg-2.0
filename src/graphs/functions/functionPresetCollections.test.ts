@@ -1103,3 +1103,39 @@ test.each([
     expect(() => preflightPresetImport(geometricSeriesPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
     expect(localStorage.length).toBe(0);
 });
+
+const conicFocalPreset = (data: unknown) => JSON.stringify({"preset-conic-focal": {data: [{id: "Osnova", boardState: {boundingBox: [-14, 9, 14, -9]},
+    graphState: {initialized: true}, data}]}});
+const validConicFocal = {focusX: 4, direction: 1, ell: 1.8, epsilon: 0.8, phi: 2.4, bridge: true, weight: null};
+
+test("conic-focal collection imports a model object including epsilon 0 and 1 and a chosen weight, keeping other storage untouched", () => {
+    localStorage.setItem("other-app", "keep");
+    commitPresetImport(preflightPresetImport(conicFocalPreset({...validConicFocal, epsilon: 0, weight: 1.5})));
+    expect(JSON.parse(localStorage.getItem("preset-conic-focal")!).data[0].data).toEqual({...validConicFocal, epsilon: 0, weight: 1.5});
+    expect(localStorage.getItem("other-app")).toBe("keep");
+    expect(() => preflightPresetImport(conicFocalPreset({...validConicFocal, epsilon: 1}))).not.toThrow();
+});
+
+test.each([[[]], [null], ["nonsense"], [{}], [{...validConicFocal, epsilon: NaN}], [{...validConicFocal, epsilon: 2.6}], [{...validConicFocal, epsilon: -0.1}],
+    [{...validConicFocal, epsilon: "1"}], [{...validConicFocal, ell: 0}], [{...validConicFocal, ell: 7}], [{...validConicFocal, phi: 3.5}],
+    [{...validConicFocal, weight: 0}], [{...validConicFocal, weight: 6}], [{...validConicFocal, weight: "1"}], [{...validConicFocal, direction: 2}],
+    [{...validConicFocal, bridge: "yes"}], [{...validConicFocal, focusX: 99}]])
+("conic-focal collection rejects out-of-domain data without writing: %j", data => {
+    expect(() => preflightPresetImport(conicFocalPreset(data))).toThrow(LocalizedError);
+    expect(localStorage.length).toBe(0);
+});
+
+test.each([
+    [{...validConicFocal, epsilon: 3}, /field epsilon|polje epsilon/],
+    [{...validConicFocal, ell: 0}, /field ell|polje ell/],
+    [{...validConicFocal, phi: 9}, /field phi|polje phi/],
+    [{...validConicFocal, weight: 9}, /field weight|polje weight/],
+    [{...validConicFocal, direction: 0}, /field direction|polje direction/],
+    [{...validConicFocal, bridge: 1}, /field bridge|polje bridge/],
+    [{...validConicFocal, focusX: 50}, /field focusX|polje focusX/],
+    ["nonsense", /fields focusX, direction, ell, epsilon, phi, bridge and weight|polji focusX, direction, ell, epsilon, phi, bridge in weight/],
+])("conic-focal errors name the field to fix: %j", (data, expected) => {
+    expect(() => preflightPresetImport(conicFocalPreset(data))).toThrow(expected);
+    expect(() => preflightPresetImport(conicFocalPreset(data))).not.toThrow(/invalid function data|neveljavni podatki funkcije/);
+    expect(localStorage.length).toBe(0);
+});

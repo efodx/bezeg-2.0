@@ -54,6 +54,9 @@ The static document initially declares Slovenian, and runtime selection updates 
 | izoparametrična krivulja | isoparametric curve (iso-curve) |
 | baricentrične koordinate | barycentric coordinates |
 | Bernsteinova utež točke | Bernstein weight of a control point |
+| polparameter ℓ | semi-latus rectum (conic focal view; standard in Slovenian conic teaching, "parameter" alone is the full latus rectum 2ℓ) |
+| utež w₁ (Bézierjevega loka) | weight (matches the existing "utež" for rational Bézier weights) |
+| teme / stransko teme | vertex / co-vertex (conic) |
 | azimut / višinski kot | azimuth / elevation (camera) |
 | mešani odvod | twist (mixed partial derivative) |
 | točka / kotna točka / gladka točka | anchor point / corner point / smooth point (drawing playground) |

@@ -221,3 +221,61 @@ export function quarterEllipseBezier(a: number, b: number): {
         weights: [1, Math.SQRT1_2, 1],
     };
 }
+
+/** A rational quadratic Bezier arc (end weights 1) lying on a conic, with the conic kind it represents. */
+export interface MatchedConicArc {
+    kind: ConicKind;
+    points: [Vec2, Vec2, Vec2];
+    weights: [number, number, number];
+}
+
+/**
+ * The rational quadratic Bezier arc that lies on the conic (end weights 1, so the middle weight decides the kind):
+ * - ellipse and circle: the quarter arc from the vertex nearest the directrix to the co-vertex on the upper side
+ *   (`quarterEllipseBezier` placed with the conic's centre and axes; the circle uses its centre and direction (1, 0));
+ * - parabola and hyperbola: the arc from the vertex to the latus rectum endpoint on the upper side. P1 is the
+ *   intersection of the two end tangents; the middle weight is the one for which the point at t = 1/2 satisfies
+ *   |PF| = epsilon |Pd| (a quadratic in the position of that point on the line from the chord midpoint to P1, solved
+ *   in the numerically stable form so that it stays accurate for epsilon near 1).
+ * For epsilon = 1 the analytic solution is lambda = 1/2, i.e. the weight is exactly 1, so the parabola returns it directly
+ * (no snap of a solved value is needed).
+ */
+export function matchedConicArc(conic: Conic): MatchedConicArc {
+    const dir = conic.directrix;
+    const n: Vec2 = dir ? {x: dir.nx, y: dir.ny} : {x: 1, y: 0};
+    let perp: Vec2 = {x: -n.y, y: n.x};
+    if (perp.y < 0 || (perp.y === 0 && perp.x < 0)) perp = {x: -perp.x, y: -perp.y};
+    const place = (origin: Vec2, along: number, across: number): Vec2 =>
+        ({x: origin.x + along * n.x + across * perp.x, y: origin.y + along * n.y + across * perp.y});
+    if (conic.kind === 'circle' || conic.kind === 'ellipse') {
+        const m = conicMetrics(conic);
+        const arc = quarterEllipseBezier(m.a as number, m.b as number);
+        const centre = m.centre as Vec2;
+        return {
+            kind: conic.kind,
+            points: arc.points.map(p => place(centre, p.x, p.y)) as [Vec2, Vec2, Vec2],
+            weights: arc.weights,
+        };
+    }
+    const e = conic.epsilon;
+    const ell = e * (conic.focusDirectrixDistance as number);
+    const v = ell / (1 + e);
+    const f = conic.focus;
+    const points: [Vec2, Vec2, Vec2] = [place(f, v, 0), place(f, v, ell - e * v), place(f, 0, ell)];
+    if (conic.kind === 'parabola') return {kind: 'parabola', points, weights: [1, 1, 1]};
+    // Local coordinates (x along the axis from F, y across). M(lambda) = chord midpoint + lambda (P1 - chord midpoint).
+    const k = 1 - e * e;
+    const mx = v / 2;
+    const my = ell / 2;
+    const dx = v / 2;
+    const dy = ell / 2 - e * v;
+    const qa = k * dx * dx + dy * dy;
+    const qb = 2 * (k * mx * dx + my * dy + ell * e * dx);
+    const qc = k * mx * mx + my * my + 2 * ell * e * mx - ell * ell;
+    const disc = Math.sqrt(Math.max(0, qb * qb - 4 * qa * qc));
+    const q = -(qb + (qb < 0 ? -disc : disc)) / 2;
+    const roots = [qa !== 0 ? q / qa : NaN, q !== 0 ? qc / q : NaN].filter(r => r > 0 && r < 1);
+    const lambda = roots.reduce((best, r) => Math.abs(r - 0.5) < Math.abs(best - 0.5) ? r : best, roots[0]);
+    if (!(lambda > 0 && lambda < 1)) throw new RangeError('No Bezier arc matches this conic.');
+    return {kind: 'hyperbola', points, weights: [1, lambda / (1 - lambda), 1]};
+}
