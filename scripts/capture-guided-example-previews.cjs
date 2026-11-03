@@ -54,7 +54,7 @@ const chapterFamilies = {
     patches: {label: 'patch', idPrefix: 'bezier-patches.', route: /^\/bezeg-2\.0\/patches(?:\/|$)/, routeText: '/bezeg-2.0/patches'},
     'linear-maps': {label: 'linear-maps', idPrefix: 'linear-maps.', route: /^\/bezeg-2\.0\/linear-map(?:\/|$)/, routeText: '/bezeg-2.0/linear-map'},
     'complex-maps': {label: 'complex-maps', idPrefix: 'complex-maps.', route: /^\/bezeg-2\.0\/complex-(?:reciprocal|roots)(?:\/|$)/, routeText: '/bezeg-2.0/complex-reciprocal or /bezeg-2.0/complex-roots'},
-    'numerical-methods': {label: 'numerical-methods', idPrefix: 'numerical-methods.', route: /^\/bezeg-2\.0\/analysis\/(?:root-finding|quadrature)(?:\/|$)/, routeText: '/bezeg-2.0/analysis/root-finding or /bezeg-2.0/analysis/quadrature'},
+    'numerical-methods': {label: 'numerical-methods', idPrefix: 'numerical-methods.', route: /^\/bezeg-2\.0\/analysis\/(?:root-finding|quadrature|euler-method)(?:\/|$)/, routeText: '/bezeg-2.0/analysis/root-finding, /bezeg-2.0/analysis/quadrature or /bezeg-2.0/analysis/euler-method'},
     'school-function-graphs': {label: 'school-function-graphs', idPrefix: 'school-function-graphs.', route: /^\/bezeg-2\.0\/functions\/(?:transformations|inverse|polynomial-zeros|rational-functions)(?:\/|$)/, routeText: '/bezeg-2.0/functions/transformations, /inverse, /polynomial-zeros or /rational-functions'},
     'fourier-series': {label: 'fourier-series', idPrefix: 'fourier-series.', route: /^\/bezeg-2\.0\/analysis\/fourier-(?:series|coefficients)(?:\/|$)/, routeText: '/bezeg-2.0/analysis/fourier-series or /bezeg-2.0/analysis/fourier-coefficients'},
     'projective-conics': {label: 'projective-conics', idPrefix: 'projective-conics.', route: /^\/bezeg-2\.0\/projective\/(?:cross-ratio|pascal|pole-polar|five-point|three-views)(?:\/|$)/, routeText: '/bezeg-2.0/projective/cross-ratio, /pascal, /pole-polar, /five-point or /three-views'},
@@ -151,7 +151,7 @@ function inspectBoard(page) {
                 const points = Array.isArray(object.dataX) && Array.isArray(object.dataY) && object.dataX.length === object.dataY.length
                     ? object.dataX.map((x, index) => [x, object.dataY[index]]).filter(point => point.every(Number.isFinite))
                     : [];
-                return {id: object.id, samples, points};
+                return {id: object.id, samples, points, viewportGenerated: object.viewportGenerated === true};
             });
         const curves = curveObjects.map(object => object.samples).sort((a,b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
         const types = visible.reduce((counts, object) => (counts[object.elType] = (counts[object.elType] || 0) + 1, counts), {});
@@ -251,6 +251,15 @@ function isCameraScaledCurve(before, after, initialUnitScale, presentedUnitScale
     return sameArc && scale >= cameraScaleRange[0] && scale <= cameraScaleRange[1];
 }
 
+// A curve the graph marks as rebuilt for every view (a direction field) changes with the framing by design. Accept it only when both
+// captures mark the same board object and its marks after framing are non-empty and inside the presented window.
+function isViewportGeneratedInWindow(beforeData, afterData, boundingBox) {
+    if (!beforeData?.viewportGenerated || !afterData?.viewportGenerated || beforeData.id !== afterData.id || !Array.isArray(boundingBox)) return false;
+    const [left, top, right, bottom] = boundingBox;
+    const slack = 1e-9 * Math.max(1, Math.abs(right - left), Math.abs(top - bottom));
+    return afterData.points.length > 0 && afterData.points.every(([x, y]) => x >= left - slack && x <= right + slack && y >= bottom - slack && y <= top + slack);
+}
+
 function assertPresentationGeometryStable(initial, presented, exampleId = 'capture') {
     assert.deepEqual(presented.points, initial.points, 'capture presentation changed point geometry');
     assert.equal(presented.curves.length, initial.curves.length, 'capture presentation changed curve count');
@@ -267,7 +276,8 @@ function assertPresentationGeometryStable(initial, presented, exampleId = 'captu
         const afterData = presented.curveData?.find(curve => beforeData && curve.id === beforeData.id)
             ?? presented.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(after));
         const sameFunctionOnOverlap = isSameGraphOnOverlap(beforeData, afterData, initial.boundingBox && presented.boundingBox ? [initial.boundingBox, presented.boundingBox] : undefined);
-        if (!cameraDrivenHorizontal && !cameraScaledConstruction && !sameFunctionOnOverlap) {
+        const viewportField = isViewportGeneratedInWindow(beforeData, afterData, presented.boundingBox);
+        if (!cameraDrivenHorizontal && !cameraScaledConstruction && !sameFunctionOnOverlap && !viewportField) {
             throw new Error(`${exampleId}: capture presentation changed curve geometry at index ${index}; before=${JSON.stringify(before)}; after=${JSON.stringify(after)}; unitScale=${JSON.stringify(initial.unitScale)}->${JSON.stringify(presented.unitScale)}; boundingBox=${JSON.stringify(initial.boundingBox)}->${JSON.stringify(presented.boundingBox)}`);
         }
     }

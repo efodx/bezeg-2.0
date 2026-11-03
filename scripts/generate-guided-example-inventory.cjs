@@ -316,6 +316,7 @@ const rootFindingExamples = {'square-minus-two': x => x * x - 2};
 function numericalExpectedFor(id, step) {
     const actions = step.scene.actions;
     if (actions.some(item => /^quadrature-/.test(item.name ?? ''))) return quadratureExpectedFor(id, actions);
+    if (actions.some(item => /^euler-/.test(item.name ?? item.target ?? ''))) return eulerExpectedFor(id, actions);
     assertOnlyActions(id, actions, [['function-choice', /^root-finding-(method|example)$/], ['function-parameter', /^root-x0$/]], 'numericalExpectedFor');
     assert.equal(sceneValue(id, actions, 'function-choice', 'root-finding-method'), 'newton', `${id}: only the Newton first frame is authored`);
     const example = sceneValue(id, actions, 'function-choice', 'root-finding-example');
@@ -344,6 +345,29 @@ function quadratureExpectedFor(id, actions) {
     assert.ok(Number.isFinite(a) && Number.isFinite(b) && a < b, `${id}: quadrature-a must be a finite number below quadrature-b`);
     assert.ok(Number.isInteger(n) && n >= 1 && n <= 150 && (rule !== 'simpson' || n % 2 === 0), `${id}: quadrature-n must be an integer from 1 to 150, even for Simpson`);
     return {types: {point: 2}, curveCount: 2, points: [[a, 0], [b, 0]]};
+}
+
+// Authored from src/analysis/eulerModel.ts / odeEuler.ts (the model) and src/graphs/functions/EulerGraph.tsx (createScene), not from a capture.
+const eulerExamples = ['exponential', 'linear-relaxation', 'blow-up'];
+const eulerSteps = ['1', '0.5', '0.25', '0.125', '0.0625'];
+
+/**
+ * First-frame expectation of the Numerical methods Euler lesson (N5): the direction field and the node crosses, the Euler polyline only
+ * when end x > x0, the dashed exact functiongraph only when `euler-exact` is shown, and the initial point P0 = (x0, y0).
+ */
+function eulerExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^euler-(example|step)$/], ['function-parameter', /^euler-(x0|y0|end)$/], ['function-visibility', /^euler-exact$/]], 'eulerExpectedFor');
+    const example = sceneValue(id, actions, 'function-choice', 'euler-example');
+    assert.ok(eulerExamples.includes(example), `${id}: no authored Euler example ${JSON.stringify(example)}`);
+    const step = sceneValue(id, actions, 'function-choice', 'euler-step');
+    assert.ok(eulerSteps.includes(step), `${id}: no authored Euler step ${JSON.stringify(step)}`);
+    const [x0, y0, end] = ['x0', 'y0', 'end'].map(name => sceneValue(id, actions, 'function-parameter', `euler-${name}`));
+    assert.ok([x0, y0, end].every(Number.isFinite) && end >= x0, `${id}: euler-x0, euler-y0 and euler-end must be finite numbers with euler-end not below euler-x0`);
+    const visibility = actions.filter(item => item.kind === 'function-visibility');
+    assert.ok(visibility.length === 1 && typeof visibility[0].visible === 'boolean', `${id}: opening scene must set euler-exact exactly once`);
+    // The field and the node crosses always; the polyline only with at least one step (EulerGraph hides a single-node polyline).
+    const curves = 2 + (end > x0 ? 1 : 0) + (visibility[0].visible ? 1 : 0);
+    return {types: {curve: curves, point: 1}, curveCount: curves, points: [[x0, y0]]};
 }
 
 // Authored from src/analysis/transformation.ts (base functions) and the rule y = a f(b (x - c)) + d, not from a capture.

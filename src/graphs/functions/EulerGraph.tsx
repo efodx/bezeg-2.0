@@ -107,6 +107,9 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
     protected override lessonFunctionActions(): FunctionLessonActions {
         return {
+            visibility: {
+                "euler-exact": visible => this.setShowExact(visible),
+            },
             parameters: {
                 "euler-x0": value => this.setInitial(value, this.model.y0),
                 "euler-y0": value => this.setInitial(this.model.x0, value),
@@ -149,7 +152,9 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         // Layers, lowest first: the field, the exact solution, the polyline with its nodes, then the initial point.
         const field = this.own(board.create("curve", [[], []], {
             strokeColor: GraphPalette.referenceCurve, strokeWidth: thin, highlight: false, fixed: true,
-        })) as unknown as { dataX: number[]; dataY: number[]; updateDataArray: () => void };
+        })) as unknown as { dataX: number[]; dataY: number[]; updateDataArray: () => void; viewportGenerated?: boolean };
+        // Rebuilt for every view: guided-example capture checks this curve against the presented window instead of the opening one.
+        field.viewportGenerated = true;
         field.updateDataArray = () => {
             const [left, top, right, bottom] = board.getBoundingBox();
             const size = this.boardSize();
@@ -172,6 +177,8 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
         const polyline = this.own(board.create("curve", [[], []], {
             strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth: this.displayStrokeWidth,
+            // A single node (end x = x0, or a reveal of zero steps) is no polyline: hidden rather than a degenerate one-sample curve.
+            visible: () => this.viewOf(model()).visibleNodes.length > 1,
         })) as unknown as { dataX: number[]; dataY: number[]; updateDataArray: () => void };
         polyline.updateDataArray = () => {
             const nodes = this.viewOf(model()).visibleNodes;

@@ -147,6 +147,25 @@ test('accepts a sampled graph whose viewport domain changes while its shared fun
     assert.throws(() => assertPresentationGeometryStable(initial, changed, 'continuity'), /curve geometry/);
 });
 
+test('accepts a marked viewport-generated field rebuilt inside the presented window, and nothing else', () => {
+    const field = (samples, points, viewportGenerated = true, id = 'field') => ({id, samples, points, viewportGenerated});
+    const initial = {points: [], boundingBox: [-4, 4, 5, -1], curves: [[[-3.7, -0.8], [0, 1], [4, 3]]],
+        curveData: [field([[-3.7, -0.8], [0, 1], [4, 3]], [[-3.7, -0.8], [0, 1], [4, 3]])]};
+    const presented = {points: [], boundingBox: [-1.7, 3.3, 3.1, 0.4], curves: [[[-1.6, 0.5], [0, 1], [3, 3]]],
+        curveData: [field([[-1.6, 0.5], [0, 1], [3, 3]], [[-1.6, 0.5], [0, 1], [3, 3]])]};
+    assert.doesNotThrow(() => assertPresentationGeometryStable(initial, presented, 'euler'));
+    // a mark outside the presented window, an unmarked curve, a different board object, or no marks at all
+    const outside = structuredClone(presented);
+    outside.curveData[0].points.push([3.5, 1]);
+    assert.throws(() => assertPresentationGeometryStable(initial, outside, 'euler'), /curve geometry/);
+    const unmarked = {...presented, curveData: [field(presented.curves[0], presented.curves[0], false)]};
+    assert.throws(() => assertPresentationGeometryStable(initial, unmarked, 'euler'), /curve geometry/);
+    const other = {...presented, curveData: [field(presented.curves[0], presented.curves[0], true, 'other')]};
+    assert.throws(() => assertPresentationGeometryStable(initial, other, 'euler'), /curve geometry/);
+    const empty = {...presented, curveData: [field(presented.curves[0], [])]};
+    assert.throws(() => assertPresentationGeometryStable(initial, empty, 'euler'), /curve geometry/);
+});
+
 test('diagnoses a camera-reframed curve change with example id and before/after samples', () => {
     const mutated = {...presented, curves: [[[-2.52, -0.2], [9, -0.2], [20.52, -0.2]]]};
     assert.throws(() => assertPresentationGeometryStable(before, mutated, 'example-id'), error => {
@@ -230,7 +249,8 @@ test('numerical, school, fourier and projective capture families accept exactly 
     const entries = {
         'numerical-methods': [
             {id: 'numerical-methods.root-finding.root-finding', path: '/bezeg-2.0/analysis/root-finding?example=lesson.numerical-methods.root-finding.root-finding'},
-            {id: 'numerical-methods.quadrature.quadrature', path: '/bezeg-2.0/analysis/quadrature?example=lesson.numerical-methods.quadrature.quadrature'}],
+            {id: 'numerical-methods.quadrature.quadrature', path: '/bezeg-2.0/analysis/quadrature?example=lesson.numerical-methods.quadrature.quadrature'},
+            {id: 'numerical-methods.euler-method.euler-method', path: '/bezeg-2.0/analysis/euler-method?example=lesson.numerical-methods.euler-method.euler-method'}],
         'school-function-graphs': [
             {id: 'school-function-graphs.function-transformation.function-transformation', path: '/bezeg-2.0/functions/transformations?example=lesson.school-function-graphs.function-transformation.function-transformation'},
             {id: 'school-function-graphs.function-inverse.function-inverse', path: '/bezeg-2.0/functions/inverse?example=lesson.school-function-graphs.function-inverse.function-inverse'},
@@ -263,6 +283,8 @@ test('numerical, school, fourier and projective capture families accept exactly 
     assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][0], path: '/bezeg-2.0/analysis/root-findingx'}], 'numerical-methods'), /requires a numerical-methods inventory/);
     for (const path of ['/bezeg-2.0/analysis/quadraturex', '/bezeg-2.0/analysis/quadrature-rules', '/bezeg-2.0/analysis/bisection', '/bezeg-2.0/analysis', '/bezeg-2.0/quadrature'])
         assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][1], path}], 'numerical-methods'), /requires a numerical-methods inventory/);
+    for (const path of ['/bezeg-2.0/analysis/euler-methodx', '/bezeg-2.0/analysis/euler', '/bezeg-2.0/analysis/euler-methods', '/bezeg-2.0/euler-method'])
+        assert.throws(() => assertInventoryFamily([{...entries['numerical-methods'][2], path}], 'numerical-methods'), /requires a numerical-methods inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['school-function-graphs'][0], path: '/bezeg-2.0/functions/derivative'}], 'school-function-graphs'), /requires a school-function-graphs inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][0], path: '/bezeg-2.0/analysis/fourier-seriesx'}], 'fourier-series'), /requires a fourier-series inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][1], path: '/bezeg-2.0/analysis/fourier-coefficientsx'}], 'fourier-series'), /requires a fourier-series inventory/);

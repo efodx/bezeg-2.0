@@ -64,3 +64,16 @@ test('a multi-action Euler lesson scene runs in one synchronous sequence and lat
     expect(graph.model).toEqual(before);
     expect(() => run({kind: 'function-parameter', name: 'root-x0', value: 1} as LessonAction)).toThrow(UnsupportedLessonActionError);
 });
+
+test('the euler-exact visibility target hides and shows the exact curve and other targets stay unsupported', () => {
+    const graph = makeGraph();
+    expect(graph.model.showExact).toBe(true);
+    graph.applyLessonAction({kind: 'function-visibility', target: 'euler-exact', visible: false});
+    expect(graph.model.showExact).toBe(false);
+    // A later action in the same tick reads the hidden state and leaves it alone.
+    graph.applyLessonAction({kind: 'function-choice', name: 'euler-step', value: '0.25'});
+    expect(graph.model).toMatchObject({showExact: false, step: 0.25});
+    graph.applyLessonAction({kind: 'function-visibility', target: 'euler-exact', visible: true});
+    expect(graph.model.showExact).toBe(true);
+    expect(() => graph.applyLessonAction({kind: 'function-visibility', target: 'reference', visible: true})).toThrow(UnsupportedLessonActionError);
+});
