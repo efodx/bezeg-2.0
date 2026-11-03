@@ -4,7 +4,7 @@ Handler 38 (Opus, `--permission-mode auto`, `--effort medium`) wrote this on 202
 
 ## State
 
-- Branch `worktree-stream-curves`, rebased on `origin/master`. Everything listed under "Done" through `feee74c2` is on `master`; hosted CI green at `81fc810c` (the run for `feee74c2` was not checked by this handler).
+- Branch `worktree-stream-curves`, rebased on `origin/master`. Everything listed under "Done" through `feee74c2` is on `master`; hosted CI green at `165448ba`; the `feee74c2` run was cancelled by later pushes. Another stream then pushed `26a7bd74`..`1837597f` on top: an Euler route, the Demonstration total fixed to 102, and the **`bspline-insertion` poster captured** (`fd5d206e`). Check CI at `1837597f` or later, and rebase this branch onto it first (expect count/list conflicts in the wip commit's catalog tests: keep both sides).
 - BS-B-3a: wip commit on the branch only, see "In flight".
 - The preview on port 3012 may still be running from this session (build of the tree before BS-B-3a); restart your own if needed.
 - Settings: Opus handler, `--permission-mode auto`, `--effort medium`; self-watch soft 175k, handoff 215k. Workers `bezeg-worker` Sonnet medium, reviews `bezeg-reviewer` Sonnet, smoke `bezeg-smoke` (Haiku narrow, Sonnet new UI).
@@ -27,7 +27,7 @@ BS-B-3a (L3 lesson on `bspline-insertion`): commit `f08ecc53` (**wip, unverified
 
 1. Verify and complete BS-B-3a: run the checks above, fix failures (repair worker or handler), recompute the step numbers against the spec (L3 defaults), fix the class doc, complete the evidence note, Haiku browser check of `?learn=1` (SL/EN), mark the README row, then push to `master` with the rest of the branch (the wip commit stays in history, followed by the fix commits).
 2. BS-B-3b L4 lesson on `bspline-extraction` (step 3 uses the open-as-Bézier button; the handoff is router state, so a lesson can only point at the button, not navigate on its own).
-3. Batch B release: posters for `bspline-insertion` and `bspline-extraction` (fetch and check `POSTER_PENDING` on `origin/master` first), chapter links (`CHAPTER_LINK_PENDING`; the family page has no cards for the two routes yet), then the release slice as in the plan.
+3. Batch B release: the `bspline-extraction` poster (`bspline-insertion` was captured by another stream in `fd5d206e`) (fetch and check `POSTER_PENDING` on `origin/master` first), chapter links (`CHAPTER_LINK_PENDING`; the family page has no cards for the two routes yet), then the release slice as in the plan.
 4. Low priority, carried from handoff 37: P5 line labels (`CorrelationGraph.tsx:233`), `prob-correlation` residuals faint on the poster, the ±20 `NumberInput` refusal, items from handoff 34.
 
 ## Lessons for briefs
