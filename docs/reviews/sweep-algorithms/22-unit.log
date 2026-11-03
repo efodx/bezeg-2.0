@@ -1,0 +1,20 @@
+unit: passed in 12.0s (2 workers, no slot); revision 65463ba1daec9a520f96dc56998b6b7e4a8348ea; dirty; log .command-logs\2026-11-03T09-45-52-539Z-28892-62b91ac6.log
+
+$ ["C:\\Program Files\\nodejs\\node.EXE","C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js","test","--","--run","src/compgeo/sweep","--maxWorkers=2"]
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo/sweep --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/agent-a4439a1de43c1003c
+
+
+ Test Files  9 passed (9)
+      Tests  147 passed (147)
+   Start at  10:45:53
+   Duration  11.41s (environment 56%, setup 22%, tests 16%, transform 5%, import 1%)
+
+Environment  jsdom was created 9 times · 11.10s total, 56% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

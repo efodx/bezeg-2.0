@@ -1,0 +1,18 @@
+Task 22 random and degenerate runs (src/compgeo/sweep/fortune.test.ts, `lcg` from testPolygons; all passed in
+`just unit src/compgeo/sweep`, see 22-unit.log: 147 tests passed).
+
+General position (no three collinear, no four cocircular), each set checked equal to voronoiFromDelaunay, executed circles
+empty, cancelled circles hold a site strictly inside (no false alarms), vertex count 2n-2-h, arc-above equals brute force:
+- seed 2026, range 10, n = 3..12: 517 attempts, 300 accepted. 478 cancelled and 1483 executed circles; 140 sets with equal y.
+- seed 77, range = SWEEP_COORD_LIMIT, n = 3..12: 60 accepted.
+Trace consistency (queue empties, every circle has a fate, pops = sites + executed): seed 404, 60 sets, range 8, n = 3..12.
+Surd order ("orders circle events by exact height"): seed 31, 150 sets, range 6, n = 3..12.
+Breakpoint root against numeric roots: seed 11, 400 draws, > 4000 comparisons.
+Degenerate: 500 small-grid sets (seed 909, range 3, n = 3..10, so equal-y, collinear and cocircular mixed): 123 with an exact hit,
+238 with four cocircular sites, 306 with three collinear, 418 with equal y. Cancel rule over all of them: 863 cancelled
+circles with a site strictly inside, 176 cancelled empty circles (false alarms), each with an executed circle at the
+exact same centre. Fixed sets: rectangle, four and six cocircular (20 shuffles), equal y, one height, collinear.
+Cancel rule extra run (throwaway harness, not kept): 14 000 sets, n = 4..12, grid ranges 2,3,4,5 (4000, 4000, 3000, 3000;
+seeds 1..4): 37 666 cancelled circles with a site inside, 7687 empty cancelled circles all superseded by an executed circle
+at the same centre, 0 superseded only by a site hit. Hence the test accepts only the executed branch.
+Doubles-order search: see 22-doubles.log.

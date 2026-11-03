@@ -1,0 +1,78 @@
+Task 22 mutations. Each mutation was applied to src/compgeo/sweep/fortune.ts alone, `just unit src/compgeo/sweep/fortune.test
+--maxWorkers=2` was run, and the file was restored byte-identical afterwards (diff against the pre-mutation copy empty).
+Baseline without mutation: 26 passed.
+## mutation a: fortune.ts:431
+  old: cancelBroken(above.id);
+  new: // cancelBroken(above.id);
+  summary: ['1 ⎯⎯⎯⎯⎯⎯⎯', '1 failed | 25 passed (26)']
+  FAIL default example A, B, C, D > lets D split the arc of A and cancel that event; the circle contains D
+
+## mutation b: fortune.ts:338
+  old: if (orient(sites[a.site], sites[b.site], sites[c.site]) >= 0) return;
+  new: if (orient(sites[a.site], sites[b.site], sites[c.site]) === 0) return;
+  summary: ['no tests']
+
+## mutation b2: fortune.ts:338
+  old: if (orient(sites[a.site], sites[b.site], sites[c.site]) >= 0) return;
+  new: if (orient(sites[a.site], sites[b.site], sites[c.site]) > 0) return;
+  summary: ['5 ⎯⎯⎯⎯⎯⎯⎯', '5 failed | 21 passed (26)']
+  FAIL degenerate inputs > finds exact hits among small-grid sets and still equals the dual
+  FAIL degenerate inputs > handles all sites at one height: vertical bisectors from infinity, no circle events
+  FAIL degenerate inputs > handles all sites collinear: parallel line edges, no vertices
+  FAIL event order with surd heights > orders circle events by exact height, ties by x, on every random run
+  FAIL random general-position site sets > keeps the trace consistent: queue empties, every circle has a fate, status ends with the final beach line
+
+## mutation c: fortune.ts:185
+  old: const byHeight = compareSurdHeights(a.q, a.r, b.q, b.r);
+    if (byHeight
+  new: const [da, db] = [a.q.toNumber() - Math.sqrt(a.r.toNumber()), b.q.toNumber() - Math.sqrt(b.r.toNumber())];
+    const byHeight = da < db ? -1 : da > db ? 1 : 0;
+    if (byHeight
+  summary: ['1 ⎯⎯⎯⎯⎯⎯⎯', '1 failed | 25 passed (26)']
+  FAIL event order with surd heights > pops circle events of equal exact height by increasing x, which doubles can invert
+
+## mutation d: fortune.ts:165
+  old: if (uR.compare(uL) > 0) { // right site higher
+  new: if (uR.compare(uL) < 0) { // right site higher
+  summary: ['20 ⎯⎯⎯⎯⎯⎯⎯', '20 failed | 6 passed (26)']
+  FAIL default example A, B, C, D > counts predicates monotonically, at least one per breakpoint test
+  FAIL default example A, B, C, D > folds the state: beach, breakpoints with their traced edge, height, vertices
+  FAIL default example A, B, C, D > gives the final diagram: 2 vertices, 1 finite edge on y = 1 and 4 rays
+  FAIL default example A, B, C, D > has two true events at 1 - sqrt(65)/2, centres (-1/2, 1) then (1/2, 1), each reported once
+  FAIL default example A, B, C, D > lets D split the arc of A and cancel that event; the circle contains D
+  FAIL default example A, B, C, D > orders the queue exactly: by height, then x, with surd heights
+  FAIL default example A, B, C, D > processes the sites A, B, C, then D, then two circle events
+  FAIL degenerate inputs > finds exact hits among small-grid sets and still equals the dual
+  FAIL degenerate inputs > handles all sites collinear: parallel line edges, no vertices
+  FAIL degenerate inputs > handles equal-y sites: pointed first arcs, tie by increasing x
+  FAIL degenerate inputs > handles four cocircular sites: one vertex of degree four, even with several circle events
+  FAIL event order with surd heights > orders circle events by exact height, ties by x, on every random run
+  FAIL event order with surd heights > pops a circle event before a site at its lowest point
+  FAIL event order with surd heights > pops circle events of equal exact height by increasing x, which doubles can invert
+  FAIL random general-position site sets > also holds with all-distinct heights and with large coordinates
+  FAIL random general-position site sets > equals the Delaunay dual, with empty executed and non-empty cancelled circles
+  FAIL random general-position site sets > keeps the trace consistent: queue empties, every circle has a fate, status ends with the final beach line
+  FAIL the root of the breakpoint test > agrees with the numeric roots of the two parabolas
+  FAIL the root of the breakpoint test > handles equal heights, pointed arcs and exact hits
+  FAIL the root of the breakpoint test > returns 0 exactly at the breakpoint of arcs with unequal heights, and the signs on both sides
+
+## mutation e: fortune.ts:189
+  old: if (a.circle !== b.circle) return a.circle ? -1 : 1;
+  new: if (a.circle !== b.circle) return a.circle ? 1 : -1;
+  summary: ['1 ⎯⎯⎯⎯⎯⎯⎯', '1 failed | 25 passed (26)']
+  FAIL event order with surd heights > pops a circle event before a site at its lowest point
+
+## mutation b (strict variant `=== 0`: diverging triples scheduled, only collinear skipped)
+  fortune.ts:338; observed: 0 tests ran. Describe-time `run(sites)` in the suite throws
+  "internal error: edge 0,2 has 1 vertices and 2 infinite ends" (assemble, fortune.ts:514), so the whole suite fails (26 of 26).
+  The b2 entry above (`> 0`, collinear triple reaches circumcentre) shows the per-test spread for a milder variant.
+
+Notes
+- (a) is caught by exactly one test, the trace check "lets D split the arc of A and cancel that event". Without the cancel at
+  the split, the stale event stays pending and is cancelled by a later cancelBroken as 'neighbour'; no random test saw it
+  popped stale, so the effect is the trace position and the reason ('split' vs 'neighbour'), not the diagram.
+- (c) is caught only by the new test "pops circle events of equal exact height by increasing x, which doubles can invert"
+  (see 22-doubles.log: doubles ties are broken wrongly only for exact rational heights shared by distinct circles).
+- (d) also fails the new direct hit test "returns 0 exactly at the breakpoint of arcs with unequal heights".
+- (e) is the tie-convention flip (circle before site at an equal height and x); only the new test "pops a circle event
+  before a site at its lowest point" fails, which fits the finding that the diagram is unchanged by the flip.

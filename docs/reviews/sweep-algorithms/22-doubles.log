@@ -1,0 +1,24 @@
+Task 22 doubles search (script: 22-doubles-search.cjs, `node --max-old-space-size=8000 22-doubles-search.cjs 10 <dir>`, 56 s).
+Space: every non-collinear triple of integer grid points in [-10,10]^2 (441 points, 14 066 996 triples), deduplicated by exact
+circle (centre and r^2): 10 086 360 circles. Event height of a circle = c_y - sqrt(r^2) = (CY - sqrt S)/dd with integers
+(the lowest point); site height = y (r = 0), 441 sites. Doubles = q.toNumber() - Math.sqrt(r.toNumber()), the formula the
+mutation uses.
+Method. Circles whose S is a perfect square have rational heights: grouped by the exact rational (111 395 circles, plus the
+sites). An exact tie between distinct irrational heights needs equal (q, r) (sqrt r1 - sqrt r2 rational forces both to be
+equal), where doubles coincide, so irrational heights can differ only by near-ties: all pairs within a 1e-9 relative window
+of the double height were compared exactly (BigInt).
+Result.
+- Irrational/site near pairs: 97 690 359 compared exactly; doubles inverted or tied distinct exact values in 0 of them.
+  (Exact ties with equal q, r and different centre x: 97 606 831, doubles agree on those.)
+- Rational classes with >= 2 distinct entries: 2268; 405 of them have doubles that are not all equal (ties split by 1 ulp).
+  Pairs where the doubles order contradicts the exact tie rule (x_i < x_j but double_i < double_j): 1 762 694.
+  So the double order differs from the exact order, but only through exact rational ties, never through distinct values.
+- Does it change a run? 30 000 smallest pairs (4 to 6 sites, circle-vs-circle and circle-vs-site, union of the triples) were run
+  through the kernel with the original and the doubles queue key: the pop order differed in 5334 of them
+  (767 with 5 sites, 4567 with 6, none with 4). The 5-site set [(-6,-8),(0,0),(-6,8),(0,-8),(6,-4)] is pinned in
+  fortune.test.ts: circle events 6 and 9 (ids) have height -25/3 and different centre x; exact order 6 then 9, doubles 9 then 6.
+Raw output of the script follows.
+L=10 triples=14066996 distinct circles=10086360 rational-height circles=111395 irrational=9975406
+rational classes with >=2 entries: 2268; classes whose doubles are not all equal: 405; wrong ordered pairs: 1762694
+irrational/site near pairs checked: 97690359; doubles invert or tie distinct exact values: 0; exact ties with different (centre or r): 97606831
+[]
