@@ -3230,7 +3230,7 @@ export const sl = {
     "prob_clt_example_custom": "Po meri",
     "prob_clt_n_label": "Število seštevancev n",
     "prob_clt_height_label": "Višina {value0} (pri x = {value1})",
-    "prob_clt_heights_help": "Pet višin določa odsekoma linearno osnovno gostoto na [0, 1]; gostota se samodejno normira. Sprememba oblike ustavi predvajanje in začne seštevanje znova.",
+    "prob_clt_heights_help": "Pet višin določa odsekoma linearno osnovno gostoto na [0, 1]; gostota se samodejno normira. Sprememba oblike ustavi predvajanje in vsoto pri istem n izračuna znova za novo obliko.",
     "prob_clt_cdf_label": "Porazdelitvena funkcija namesto gostote",
     "prob_clt_iteration_controls": "Kontrole seštevanja",
     "prob_clt_next_step": "Dodaj še eno kopijo",

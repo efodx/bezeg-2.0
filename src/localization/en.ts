@@ -3231,7 +3231,7 @@ export const en: Record<keyof typeof sl, string> = {
     "prob_clt_example_custom": "Custom",
     "prob_clt_n_label": "Number of summands n",
     "prob_clt_height_label": "Height {value0} (at x = {value1})",
-    "prob_clt_heights_help": "Five heights define the piecewise linear base density on [0, 1]; the density is normalized automatically. Changing the shape pauses playback and starts the sum again.",
+    "prob_clt_heights_help": "Five heights define the piecewise linear base density on [0, 1]; the density is normalized automatically. Changing the shape pauses playback and recomputes the sum for the new shape at the same n.",
     "prob_clt_cdf_label": "Distribution function instead of density",
     "prob_clt_iteration_controls": "Summing controls",
     "prob_clt_next_step": "Add one more copy",
