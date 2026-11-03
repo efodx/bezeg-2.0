@@ -3306,6 +3306,8 @@ export const sl = {
     "prob_summary_note": "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost.",
     "prob_summary_legend_values": "Vrednost (pika)",
     "prob_summary_legend_mean": "Aritmetična sredina (trikotnik)",
+    "prob_summary_mark_mean": "sredina",
+    "prob_summary_mark_median": "mediana",
     "prob_summary_legend_median": "Mediana (kvadrat)",
     "prob_summary_legend_box": "Škatla z brki (Q₁, mediana, Q₃)",
     "prob_summary_legend_outlier": "Osamelec (romb)",

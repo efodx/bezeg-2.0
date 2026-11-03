@@ -3307,6 +3307,8 @@ export const en: Record<keyof typeof sl, string> = {
     "prob_summary_note": "The names of the rule and of the kind of deviation are part of the answer, because calculators and software differ. Here an outlier is a value beyond the fences 1.5 interquartile ranges from the quartiles; that is a convention, not a mathematical property.",
     "prob_summary_legend_values": "Value (dot)",
     "prob_summary_legend_mean": "Mean (triangle)",
+    "prob_summary_mark_mean": "mean",
+    "prob_summary_mark_median": "median",
     "prob_summary_legend_median": "Median (square)",
     "prob_summary_legend_box": "Box plot (Q₁, median, Q₃)",
     "prob_summary_legend_outlier": "Outlier (diamond)",

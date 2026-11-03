@@ -264,18 +264,24 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
             this.own(board.create("point", [() => outlierAt(i) ?? 0, (BOX_BOTTOM + BOX_TOP) / 2], {
                 ...this.styles.point.default, name: "", withLabel: false, face: "diamond", fixed: true, highlight: false,
                 fillColor: GraphPalette.warningText, strokeColor: GraphPalette.pointOutline,
-                size: () => Math.max(5, this.displaySettings.pointSize + 1),
+                size: () => Math.max(7, this.displaySettings.pointSize + 3),
                 visible: () => boxShown() && outlierAt(i) !== undefined,
             }));
         }
 
-        // The mean (triangle) and median (square) markers below the axis.
-        const marker = (face: string, color: string, x: () => number, y: number) => this.own(board.create("point", [x, y], {
-            ...this.styles.point.default, name: "", withLabel: false, face, fixed: true, highlight: false, fillColor: color,
-            strokeColor: GraphPalette.pointOutline, size: () => Math.max(5, this.displaySettings.pointSize + 1),
-        }));
-        marker("triangleup", GraphPalette.comparisonCurve, () => view().mean, MEAN_Y);
-        marker("square", GraphPalette.additionalCurves[1], () => view().median, MEDIAN_Y);
+        // The mean (triangle) and median (square) markers below the axis, large enough for projection and captioned on the
+        // board, so they are told apart by shape and word, not by colour alone.
+        const marker = (face: string, color: string, x: () => number, y: number, caption: () => string) => {
+            this.own(board.create("point", [x, y], {
+                ...this.styles.point.default, name: "", withLabel: false, face, fixed: true, highlight: false, fillColor: color,
+                strokeColor: GraphPalette.pointOutline, size: () => Math.max(8, this.displaySettings.pointSize + 4),
+            }));
+            this.own(board.create("text", [() => x() + 14 / board.unitX, y, caption], {
+                anchorY: "middle", fixed: true, highlight: false, color, fontSize: 15,
+            }));
+        };
+        marker("triangleup", GraphPalette.comparisonCurve, () => view().mean, MEAN_Y, () => t("prob_summary_mark_mean"));
+        marker("square", GraphPalette.additionalCurves[1], () => view().median, MEDIAN_Y, () => t("prob_summary_mark_median"));
 
         // The draggable dots, horizontally only.
         this.pointObjects = [];
