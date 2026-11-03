@@ -1769,3 +1769,11 @@ Task: [platform stream](../tasks/feature-streams/platform.md) step 2, [A10](../t
 - Applied the handoff 34 lesson: `BEZEG_TRANSIENT_STATE=all` over `GraphTransientState` after registering a graph whose model has no numeric field. It failed on `prob-correlation` before the push of the fix and passed after it (`7e4e8c23`), so CI did not have to find it.
 - Hosted CI: `unit (2)` fails on Functions' `fourier-coefficients` Preset collection (`39217a5e`), not curves; Functions had the fix uncommitted in its worktree, so curves left it alone.
 - Context: the soft threshold fired after PS-C-5c; handed off before the lesson PS-C-5d.
+
+## Curves handler 36 (Opus, auto, medium), 2026-11-03
+
+- PS-C-5d1 lesson `bezeg-worker` Sonnet: 96k tokens, 53 tools, 27 min, complete; one mutation seen failing (the `set-point` target). It added the required smoke row outside its brief. Handler repair: the definitions block named the slope `a` and had an English `\text{ with }` in the formula, against the UI's `y = a + bx`.
+- PS-C-5d2 chapter section handler-made. Defect: a Python script passed through a Bash heredoc lost one backslash of each `\\(` pair, so the prose had `\(` (a tab in `\tfrac`). `lessonMathNotation.test.ts` caught it; the handler's own needle tests had been weakened the same way and passed. Fix: write such scripts with the Write tool.
+- Smoke `bezeg-smoke` Sonnet: 43k tokens, 16 tools, 10 min; all checks passed in SL/EN at 1440 and 390. It misread the lesson walk (six Next clicks are three steps, at two frames per step); `just smoke-lesson` covers the per-step values.
+- Two rebases over Functions and Geometry needed mechanical resolutions (opt-out lists, the LESSONS row) and two count merges (coverage 112, preview copy 98/105); the focused learning tests caught the counts before the push.
+- Context: the soft threshold fired after the PS-C-F6 record; handed off before the joint poster capture.
