@@ -1,0 +1,91 @@
+check: failed (1) in 900.3s (test slot 1/3, 3 workers); revision 8ce54627b547246648ca26f054750c157343793e; dirty; log .command-logs\2026-11-03T06-20-54-749Z-30928-b9d0d6cf.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx (198 tests | 2 failed) 19568ms
+   ❯ Preset collection definitions (3)
+     × the accepted collection keys are the file contract, each defined once 10ms
+     × every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys 24ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > Preset collection definitions > the accepted collection keys are the file contract, each defined once
+AssertionError: expected [ 'accumulation', …(96) ] to deeply equal [ 'accumulation', …(95) ]
+
+- Expected
++ Received
+
+@@ -45,10 +45,11 @@
+    "derivative",
+    "elevation-graph",
+    "exponential-function",
+    "extrema",
+    "fixed-point",
++   "fourier-coefficients",
+    "fourier-series",
+    "function-inverse",
+    "function-transformation",
+    "g1-spline",
+    "g1-spline-graph",
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:52:34
+     50|         const keys = presetCollections.map(collection => collection.ke…
+     51|         expect(new Set(keys).size).toBe(keys.length);
+     52|         expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PA…
+       |                                  ^
+     53|             ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS,…
+     54|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/graphs/base/presets/PresetCatalog.test.tsx > Preset collection definitions > every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys
+AssertionError: expected [ Array(2) ] to deeply equal [ { key: 'g1-spline', …(1) } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "check": [Function check],
+      "key": "g1-spline",
+    },
++   {
++     "check": [Function check],
++     "key": "fourier-coefficients",
++   },
+  ]
+
+ ❯ src/graphs/base/presets/PresetCatalog.test.tsx:69:83
+     67|         }
+     68|         const unused = presetCollections.filter(collection => !used.ha…
+     69|         expect(unused.filter(collection => !PATCH_KEYS.includes(collec…
+       |                                                                                   ^
+     70|         expect(unused.map(collection => collection.key)).toEqual(['g1-…
+     71|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 523 passed | 2 skipped (526)
+      Tests  2 failed | 10173 passed | 3 skipped (10178)
+   Start at  07:21:40
+   Duration  854.47s (tests 54%, environment 22%, import 12%, setup 10%, transform 1%)
+
+    Isolate  526 workers spawned · ~1.19s startup each (spawn + environment, per file)
+             at least ~208.10s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `check` failed on line 10 with exit code 1
