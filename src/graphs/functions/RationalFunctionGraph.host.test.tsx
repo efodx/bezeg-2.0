@@ -162,6 +162,21 @@ test('a multi-action lesson scene runs in one synchronous sequence; a rejected v
     expect(graph.modelNow()).toBe(before);
 });
 
+test('the asymptote labels keep off the curve: y = x + 2 above the line where the curve is below it, x = 2 left of the pole', () => {
+    const graph = mount();
+    graph.liveBoard().unitX = 40;
+    graph.liveBoard().unitY = 40;
+    vi.spyOn(graph.liveBoard(), 'getBoundingBox').mockReturnValue([-10, 9, 16, -7]);
+    const internals = graph as unknown as {asymptoteLabelSpot(): [number, number] | undefined; poleLabelLeft(a: number): boolean; valueAt(x: number): number};
+    const [x, y] = internals.asymptoteLabelSpot()!;
+    // f(x) = x + 2 + 3/(x - 2) lies above its asymptote right of the pole and below it left of the pole, so the label moves left of x = 2.
+    expect(x).toBeLessThan(2 - 12 / 40);
+    expect(internals.valueAt(x)).toBeLessThan(x + 2);
+    expect(y).toBeGreaterThan(x + 2);
+    // f rises to +infinity right of x = 2 and falls left of it, so the label at the top of the view goes left.
+    expect(internals.poleLabelLeft(2)).toBe(true);
+});
+
 test('the oblique asymptote label stays inside a wide view, where y = x + 2 leaves through the top and bottom edges', () => {
     const graph = mount();
     graph.liveBoard().unitY = 40; // jsdom has no canvas height; 40 px per unit as on a desktop board

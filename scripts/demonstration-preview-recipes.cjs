@@ -47,7 +47,7 @@ const targets = {
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],
     'function-transformation': ['Default transformed graph with the faint base graph and the marked point mapped to its image', [], [-6, 7, 12, -9]],
     'polynomial-zeros': ['Default polynomial with its zeros marked and the multiplicity of each', [], [-5, 6, 5, -6]],
-    'rational-function': ['Default rational function with its zero, pole and oblique asymptote', [], [-8, 8, 8, -8]],
+    'rational-function': ['Default rational function with its zero, pole and oblique asymptote', [], [-4.7, 8, 12.7, -2.6]],
     'function-inverse': ['Default function and its inverse mirrored over y = x with the point P and its mirror', [], [-4, 9, 11, -4]],
     continuity: ['Actual jump and distinct open and closed endpoints', [], [-2.3, 4.3, 3.2, -1]],
     derivative: ['Distinct tangent and nearby secant on the original quadratic', [toggle('Prikaži tangento (natančna mejna premica)')], [-0.4, 5, 2.5, -1]],
@@ -73,7 +73,7 @@ const targets = {
     'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with mean and median markers and the box plot (school rule)', [], [1, 4, 11, -2]],
     'prob-correlation': ['Default points (0,1), (1,2), (2,2), (3,4) with the regression line y = 0.9x + 0.9 and the residuals', [], [-1.5, 5.5, 4.5, -0.5]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
-    'fourier-coefficients': ['Default shape with the first coefficient bars and the partial sum', [], [-7.2, 3.6, 7.2, -2]],
+    'fourier-coefficients': ['Default shape with the first coefficient bars and the partial sum', [], [-6.2, 3.8, 6.2, -3.8]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
     'linear-map': ['Example matrix A with the image grid, the unit square and its image, and a Bezier curve with its image', [field('Primer matrike', 'basis-default', 'select')], [-1.6, 6.6, 11.6, -1.47]],

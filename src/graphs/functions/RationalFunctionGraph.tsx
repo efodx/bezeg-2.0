@@ -189,8 +189,8 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
     }
 
     /** A board label: HTML text with a light background, hidden with `visible`. */
-    private label(position: () => [number, number], content: () => string, visible: () => boolean, anchorX: "left" | "right" | "middle" = "left",
-                  anchorY: "top" | "bottom" | "middle" = "top"): void {
+    private label(position: () => [number, number], content: () => string, visible: () => boolean,
+                  anchorX: "left" | "right" | "middle" | (() => "left" | "right") = "left", anchorY: "top" | "bottom" | "middle" = "top"): void {
         this.own(this.board.create("text", [() => position()[0], () => position()[1], () => mathTextHtml(content())], {
             anchorX, anchorY, fixed: true, highlight: false, parse: false, visible, strokeColor: GraphPalette.label,
             fontSize: () => Math.max(10, this.displaySettings.fontSize * 0.9), cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE,
@@ -205,15 +205,31 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         }));
     }
 
+    /** f(x), NaN at a pole. */
+    private valueAt(x: number): number {
+        const {numerator, denominator} = rationalSpecsOf(this.model);
+        return polyValue(numerator, x) / polyValue(denominator, x);
+    }
+
+    /**
+     * Whether the label x = a sits left of the pole: the label is at the top of the view, so it goes left when f rises to +infinity on the
+     * right of a and falls on the left; otherwise the branch near the top is on the left (or on both sides) and the label stays right.
+     */
+    private poleLabelLeft(a: number): boolean {
+        const step = 1 / this.board.unitX;
+        return this.valueAt(a + step) > 0 && this.valueAt(a - step) < 0;
+    }
+
     /** The vertical asymptote and the label x = a of the `index`-th pole. */
     private poleObjects(index: number): void {
         const pole = () => this.factsOf(this.model).poles[index];
         const present = () => pole() !== undefined;
+        const left = () => this.poleLabelLeft(pole()?.x ?? 0);
         this.dashedLine(() => [pole()?.x ?? 0, 0], () => [pole()?.x ?? 0, 1], present);
         this.label(() => {
             const [, top, , bottom] = this.board.getBoundingBox();
-            return [(pole()?.x ?? 0) + 5 / this.board.unitX, top - (0.05 + 0.06 * index) * (top - bottom)];
-        }, () => `x = ${formatNumber(pole()?.x ?? 0, currentLanguage(), ZERO_GRID_DECIMALS)}`, present);
+            return [(pole()?.x ?? 0) + (left() ? -5 : 5) / this.board.unitX, top - (0.05 + 0.06 * index) * (top - bottom)];
+        }, () => `x = ${formatNumber(pole()?.x ?? 0, currentLanguage(), ZERO_GRID_DECIMALS)}`, present, () => left() ? "right" : "left");
     }
 
     /** The open circle and the point label of the `index`-th hole. */
@@ -235,6 +251,8 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
     /**
      * Where the label of the horizontal or oblique asymptote sits: at the rightmost x where the line is inside the view inset from its
      * edges. A steep line leaves a wide view through the top or bottom edge, so the spot is found by clipping the line, not at the side edges.
+     * The label sits above the line and ends at the spot, so it is clear of the line whatever its slope; the spot is the rightmost one where the
+     * curve runs below the line, at least 12 px from every pole, so the label does not cover the curve (the plain rightmost spot otherwise).
      */
     private asymptoteLabelSpot(): [number, number] | undefined {
         const line = this.asymptoteLine();
@@ -252,7 +270,18 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             high = Math.min(high, Math.max(a, b));
             if (!(low < high)) return undefined;
         }
-        return [high, line.slope * high + line.intercept + 6 / this.board.unitY];
+        const poles = this.factsOf(this.model).poles.map(pole => pole.x);
+        const clear = (x: number) => poles.every(pole => Math.abs(x - pole) * this.board.unitX >= 12) && !(this.valueAt(x) >= line.slope * x + line.intercept);
+        const samples = 64;
+        let spot = high;
+        for (let index = 0; index <= samples; index++) {
+            const x = high - (high - low) * index / samples;
+            if (clear(x)) {
+                spot = x;
+                break;
+            }
+        }
+        return [spot, line.slope * spot + line.intercept + 6 / this.board.unitY];
     }
 
     /** The probe: the gap between the curve and its asymptote at x (this is r(x)/q(x)), a point on the curve and its value. */
