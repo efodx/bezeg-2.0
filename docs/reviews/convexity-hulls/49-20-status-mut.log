@@ -1,0 +1,39 @@
+unit: failed (1) in 13.1s (2 workers, no slot); revision 4bc016c703a8dbc8ea0b1371593a22dc8ba52052; dirty; log .command-logs\2026-11-04T23-37-27-280Z-40944-86dc1e44.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/HullTraceGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/HullTraceGraph.host.test.tsx (15 tests | 1 failed) 5413ms
+   × the live region is silent while Play ticks and announces the status once after Pause and at done 76ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/HullTraceGraph.host.test.tsx > the live region is silent while Play ticks and announces the status once after Pause and at done
+AssertionError: expected 'Korak 1 od 56. Spodnja veriga: točke …' not to contain '..'
+
+Expected: ".."
+Received: "Korak 1 od 56. Spodnja veriga: točke po vrsti dodajamo od leve proti desni.. Orientacijskih preizkusov doslej: 0"
+
+ ❯ src/graphs/compgeo/HullTraceGraph.host.test.tsx:308:28
+    306|     expect(liveText()).toContain('Korak 1 od');
+    307|     // Each piece ends with one full stop: the notes carry their own, …
+    308|     expect(liveText()).not.toContain('..');
+       |                            ^
+    309|     expect(liveText()).toMatch(/\.$/);
+    310|     click('play-pause');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  00:37:28
+   Duration  12.09s (tests 45%, transform 23%, import 16%, environment 11%, setup 5%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

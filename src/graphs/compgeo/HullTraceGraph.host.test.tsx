@@ -304,6 +304,9 @@ test('the live region is silent while Play ticks and announces the status once a
     const graph = new Observed({}, frames.scheduler);
     mount(graph);
     expect(liveText()).toContain('Korak 1 od');
+    // Each piece ends with one full stop: the notes carry their own, so the join must not double it.
+    expect(liveText()).not.toContain('..');
+    expect(liveText()).toMatch(/\.$/);
     click('play-pause');
     expect(liveText()).toBe('');
     tick(frames, 5);
@@ -312,6 +315,7 @@ test('the live region is silent while Play ticks and announces the status once a
     click('play-pause');
     expect(graph.isPlaying).toBe(false);
     expect(liveText()).toContain(`Korak 6 od ${graph.run().length}`);
+    expect(liveText()).not.toContain('..');
     click('play-pause');
     for (let ran = true, i = 0; ran && i < graph.run().length + 5; i++) act(() => { ran = frames.frame(HULL_TRACE_STEP_INTERVAL_MS); });
     expect(graph.isPlaying).toBe(false);
