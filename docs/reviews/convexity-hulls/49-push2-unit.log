@@ -1,0 +1,52 @@
+Waiting for unit (pid 35760) to finish starting before reading free memory.
+Memory available for unit after 5s.
+unit: failed (1) in 1029.8s (2 workers, no slot); revision 7a5ff8790f7b2f1e81c38c432e15d6b654bcdabb; dirty; log .command-logs\2026-11-04T23-40-27-269Z-41516-94ca8595.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/compgeo src/graphs/compgeo src/graphs/base src/demonstrations.test.ts src/demonstrationPreviewAssets.test.ts src/Routes.test.tsx src/learning/runtime src/learning/content src/learning/chapter src/localization --maxWorkers=2
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts (8 tests | 1 failed) 77ms
+   × publishes the school-function-graphs example cards with their own checked images and copy 8ms
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: Window's scrollTo() method
+Not implemented: navigation to another Document
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/chapter/guidedExamplePreviews.test.ts > publishes the school-function-graphs example cards with their own checked images and copy
+AssertionError: school-function-graphs.geometric-series.geometric-series/sl: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts:264:64
+    262|             for (const language of ['sl', 'en'] as const) {
+    263|                 const preview = resolveGuidedExamplePreview(home.id, h…
+    264|                 expect(preview?.src, `${home.id}/${language}`).toBeTru…
+       |                                                                ^
+    265|                 expect(preview?.alt.trim()).toBeTruthy();
+    266|                 expect(preview?.caption.trim()).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 237 passed | 2 skipped (240)
+      Tests  1 failed | 4849 passed | 3 skipped (4853)
+   Start at  00:40:28
+   Duration  1028.92s (tests 64%, environment 16%, import 11%, setup 7%, transform 1%)
+
+    Isolate  240 workers spawned · ~1.54s startup each (spawn + environment, per file)
+             at least ~183.53s faster with isolate: false — reuses workers across files instead of one per file
+
+
+error: recipe `unit` failed on line 22 with exit code 1
