@@ -30,7 +30,7 @@ const FILE_CONTRACT_KEYS = ["bernstein-graph", "bezier-curve", "decasteljau", "d
 /** Collections added after those files: the patch families . */
 const PATCH_KEYS = ["patch-tensor", "patch-decasteljau", "patch-derivatives", "patch-subdivision", "patch-joins", "patch-triangular"];
 /** The computational-geometry Demonstrations, one collection each. */
-const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hull-trace",
+const COMPGEO_KEYS = ["compgeo-orientation", "compgeo-polygon-area", "compgeo-hull-trace", "compgeo-point-in-polygon", "compgeo-hull-robustness",
     "compgeo-ear-clipping", "compgeo-interval-sweep", "compgeo-bentley-ottmann", "compgeo-notable-points", "compgeo-inscribed-angle", "compgeo-euler-line", "compgeo-simson-line", "compgeo-inversion", "compgeo-triangulation", "compgeo-delaunay", "compgeo-voronoi", "compgeo-voronoi-degenerate", "compgeo-monotone-partition", "compgeo-monotone-triangulation", "compgeo-fortune"];
 /** The projective-conics Demonstrations, one collection each. */
 const PROJECTIVE_KEYS = ["projective-cross-ratio", "projective-pascal", "projective-pole-polar", "projective-five-point", "projective-three-views"];

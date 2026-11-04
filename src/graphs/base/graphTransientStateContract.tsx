@@ -68,6 +68,8 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     orientation: ['model'],
     'polygon-area': ['model'],
     'convex-hull': ['model'],
+    'point-in-polygon': ['model'],
+    'hull-robustness': ['model'],
     'ear-clipping': ['model'],
     'point-set-triangulation': ['model', 'triangles', 'previous'],
     'delaunay': ['model', 'triangles', 'previous'],

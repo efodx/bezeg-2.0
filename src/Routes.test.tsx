@@ -32,6 +32,8 @@ import { FixedPointGraph } from './graphs/functions/FixedPointGraph';
 import { OrientationGraph } from './graphs/compgeo/OrientationGraph';
 import { PolygonAreaGraph } from './graphs/compgeo/PolygonAreaGraph';
 import { HullTraceGraph } from './graphs/compgeo/HullTraceGraph';
+import { PointInPolygonGraph } from './graphs/compgeo/PointInPolygonGraph';
+import { HullRobustnessGraph } from './graphs/compgeo/HullRobustnessGraph';
 import { EarClippingGraph } from './graphs/compgeo/EarClippingGraph';
 import { TriangulationGraph } from './graphs/compgeo/TriangulationGraph';
 import { DelaunayGraph } from './graphs/compgeo/DelaunayGraph';
@@ -99,7 +101,7 @@ test('all existing graph URLs retain their graph implementations behind lazy rou
     })));
     const graphFor = (path: string) => routeFactories.get(path);
     const catalogPaths = catalog.map(({path}) => path);
-    expect(catalogPaths).toHaveLength(107);
+    expect(catalogPaths).toHaveLength(109);
     expect(catalogPaths.every(path => typeof children.find(route => route.path === path)?.lazy === 'function')).toBe(true);
     expect(graphFor('/bezeg-2.0/bernstein')).toBe(BernsteinGraph);
     expect(graphFor('/bezeg-2.0/patches/tensor')).toBe(TensorPatchGraph);
@@ -155,6 +157,8 @@ test('all existing graph URLs retain their graph implementations behind lazy rou
     expect(graphFor('/bezeg-2.0/compgeo/orientation')).toBe(OrientationGraph);
     expect(graphFor('/bezeg-2.0/compgeo/polygon-area')).toBe(PolygonAreaGraph);
     expect(graphFor('/bezeg-2.0/compgeo/convex-hull')).toBe(HullTraceGraph);
+    expect(graphFor('/bezeg-2.0/compgeo/point-in-polygon')).toBe(PointInPolygonGraph);
+    expect(graphFor('/bezeg-2.0/compgeo/hull-robustness')).toBe(HullRobustnessGraph);
     expect(graphFor('/bezeg-2.0/compgeo/ear-clipping')).toBe(EarClippingGraph);
     expect(graphFor('/bezeg-2.0/compgeo/point-set-triangulation')).toBe(TriangulationGraph);
     expect(graphFor('/bezeg-2.0/compgeo/delaunay')).toBe(DelaunayGraph);

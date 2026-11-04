@@ -1,0 +1,43 @@
+PASS 1-route-point-in-polygon :: SL h1="Točka v večkotniku", after refresh="Točka v večkotniku", EN live="Point in polygon", EN after refresh lang=en h1="Point in polygon"
+PASS 1-route-hull-robustness :: SL h1="Izrojeni primeri in robustnost", after refresh="Izrojeni primeri in robustnost", EN live="Degenerate cases and robustness", EN after refresh lang=en h1="Degenerate cases and robustness"
+PASS 1-catalog-sl :: url=http://127.0.0.1:4391/bezeg-2.0/demonstrations order=orientation,polygon-area,convex-hull,point-in-polygon,hull-robustness,ear-clipping,point-set-triangulation,delaunay,voronoi,voronoi-degenerate,interval-sweep,segment-intersections,monotone-partition,monotone-triangulation,fortune
+PASS 1-catalog-en :: url=http://127.0.0.1:4391/bezeg-2.0/demonstrations order=orientation,polygon-area,convex-hull,point-in-polygon,hull-robustness,ear-clipping,point-set-triangulation,delaunay,voronoi,voronoi-degenerate,interval-sweep,segment-intersections,monotone-partition,monotone-triangulation,fortune
+FAIL 2-kbd-sl :: EXC TimeoutError: locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('button').filter({ hasText: /q/ }).first()[22m
+
+FAIL 2-kbd-en :: EXC TimeoutError: locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('button').filter({ hasText: /q/ }).first()[22m
+
+PASS 2-ray :: checkbox true->false, svg len 16495->14683->16495
+PASS 2-readout-lang :: SL="Točka q je znotraj večkotnika. | Število presečišč poltraka z robom: 1 | Sodo-li" EN="Point q is inside the polygon. | Crossings of the ray with the boundary: 1 | Eve"
+PASS 2-touch :: Točk: 5 od največ 40 -> tap on empty board area Točk: 5 od največ 40 -> tap near polygon Točk: 6 od največ 40; Večkotnik je enostaven. 
+[sl] s0 Korak 1 od 56
+   Next x2 Korak 3 od 56
+   Play 2.5s Korak 9 od 56
+   Reset Korak 1 od 56
+   rule->1: Korak 1 od 54 ; Veljavno pravilo: orient < 0: kolinearne točke obdržimo. Podvojene točke: združi v eno. 
+   dups->1: Korak 1 od 54 ; Veljavno pravilo: orient < 0: kolinearne točke obdržimo. Podvojene točke: obdrži vse kopije. 
+   kettner: Izbrana celica: i = 41, j = 48. Natančen predznak +, nenatančen (double) −. | Natančen predznak: + | Nenatančen predznak (double): − | Nenatančna vrednost (double): −5,68·10⁻¹⁴ 
+   click cell: Izbrana celica: i = 12, j = 17. Natančen predznak +, nenatančen (double) 0. 
+   arrows R,R,U: Izbrana celica: i = 14, j = 18. Natančen predznak +, nenatančen (double) 0. 
+   back chain: Korak 1 od 54
+FAIL 3-hull-sl :: default cell41,48+inexact label=true; click=12,17; arrows=14,18
+[en] s0 Step 1 of 56
+   Next x2 Step 3 of 56
+   Play 2.5s Step 9 of 56
+   Reset Step 1 of 56
+   rule->1: Step 1 of 54 ; Active rule: orient < 0: keep collinear points. Duplicate points: merge into one. 
+   dups->1: Step 1 of 54 ; Active rule: orient < 0: keep collinear points. Duplicate points: keep every copy. 
+   kettner: Selected cell: i = 41, j = 48. Exact sign +, inexact (double) sign −. | Exact sign: + | Inexact sign (double): − | Inexact value (double): −5.68·10⁻¹⁴ 
+   click cell: Selected cell: i = 12, j = 17. Exact sign +, inexact (double) sign 0. 
+   arrows R,R,U: Selected cell: i = 14, j = 18. Exact sign +, inexact (double) sign 0. 
+   back chain: Step 1 of 54
+FAIL 3-hull-en :: default cell41,48+inexact label=true; click=12,17; arrows=14,18
+PASS 4-timing :: switch median 20 max 62 ms [62,20,16,23,18]; cell median 12 max 16 ms [9,12,8,16,14] (headless Chromium 1400x1000; input event -> aria-label change -> 2 rAF; click includes pointer release)
+PASS 5-preset-pip-sl :: saved q=-3,4 changed q=1,1 restored q=-3,4; readout Točka q je zunaj večkotnika. | Število presečišč p
+PASS 5-preset-pip-en :: saved q=-3,4 changed q=1,1 restored q=-3,4; readout Point q is outside the polygon. | Crossings of the
+PASS 5-preset-hull-sl :: saved: Izbrana celica: i = 20, j = 33. Natančen; restored mode=kettner cell="Izbrana celica: i = 20, j = 33. Natančen"; rule=right (opts non-left,right) dup=keep (opts merge,keep)
+PASS 5-preset-hull-en :: saved: Selected cell: i = 20, j = 33. Exact sig; restored mode=kettner cell="Selected cell: i = 20, j = 33. Exact sig"; rule=right (opts non-left,right) dup=keep (opts merge,keep)
+CONSOLE ERRORS: none

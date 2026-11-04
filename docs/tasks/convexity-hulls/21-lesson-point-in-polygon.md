@@ -22,3 +22,5 @@ Status: planned 2026-11-03 (geometry handler 48). Source: spec [A3](../../specs/
    - observed mutation failures, for example the step 3 query moved one grid step.
 
 Checks: as 13, with `just smoke-lesson point-in-polygon` in both languages with a live switch.
+
+Carried from 18's review (handler 49): the `ray` overlay numbers the counted crossings, which gives the even–odd verdict away, so the "predict" step must hide `ray` as well as `values`. `ray` and `winding` are not yet in `POINT_SET_OVERLAY_NAMES` (`src/compgeo/pointSetModel.ts`), and `set-query-point` is documented as VoronoiGraph only (`src/learning/model.ts`); extend both.

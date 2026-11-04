@@ -5,8 +5,10 @@ import {degenerateCollection} from "./degenerateSitesPresets";
 import {delaunayCollection} from "./delaunayPresetCollection";
 import {earClippingCollection} from "./earClippingPresetCollection";
 import {fortuneCollection} from "./fortunePresetCollection";
+import {hullRobustnessPresetCollection} from "./hullRobustnessPresetCollection";
 import {hullTracePresetCollection} from "./hullTracePresetCollection";
 import {intervalSweepCollection} from "./intervalSweepPresetCollection";
+import {pointInPolygonPresetCollection} from "./pointInPolygonPresetCollection";
 import {monotonePartitionCollection} from "./monotonePartitionPresetCollection";
 import {monotoneTriangulationCollection} from "./monotoneTriangulationPresetCollection";
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
@@ -33,6 +35,10 @@ export const polygonAreaPresetCollection: PresetCollection<PointSetModel> =
 /** The hull trace graph validates with the default point limit, as it always has. */
 export const hullTraceCollection: PresetCollection<PointSetModel> = hullTracePresetCollection(HULL_TRACE_OVERLAY_IDS);
 
+/** The robustness graph shows the hull trace's overlays and stores its own mode, rule and cell fields. */
+export const hullRobustnessCollection: PresetCollection<PointSetModel> = hullRobustnessPresetCollection(HULL_TRACE_OVERLAY_IDS);
+
 export const compgeoPresetCollections = [orientationPresetCollection, polygonAreaPresetCollection, hullTraceCollection,
+    pointInPolygonPresetCollection, hullRobustnessCollection,
     earClippingCollection, intervalSweepCollection, bentleyOttmannCollection, triangulationCollection, delaunayCollection,
     monotonePartitionCollection, monotoneTriangulationCollection, voronoiCollection, degenerateCollection, fortuneCollection] as const;

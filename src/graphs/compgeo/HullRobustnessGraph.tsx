@@ -8,6 +8,8 @@ import {fitBoundingBox} from "../base/fitBoundingBox";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {UnsupportedLessonActionError} from "../../learning/model";
 import {PointSetGraphState} from "./PointSetGraph";
+import {PresetCollection} from "../base/presets/PresetCollection";
+import {hullRobustnessCollection} from "./compgeoPresetCollections";
 import {HullTraceGraph, HullTraceGraphState} from "./HullTraceGraph";
 import {HullTraceControls} from "./HullTraceControls";
 import {HullAlgorithm, HullRun, runHullTrace} from "./hullTraceRun";
@@ -55,7 +57,7 @@ export interface HullRobustnessGraphState extends HullTraceGraphState {
  *   or the inspector's fields.
  * - The scene state carries `mode` (the typed scene option: a lesson or a Preset names the view), `pop`, `duplicates`, `panel`,
  *   `cellI` and `cellJ`. A mode switch disposes the other mode's board objects and rebuilds them on return; the view of the chain
- *   is restored on return. The Preset collection and route belong to task 20.
+ *   is restored on return. The Preset collection is `hullRobustnessCollection` (key `compgeo-hull-robustness`).
  * - Ownership: the key listener, the press handler and the language subscription are registered on the session; the three Kettner
  *   objects are removed with the scene (`disposeFigureScene`) and when the mode changes.
  */
@@ -313,6 +315,11 @@ export class HullRobustnessGraph extends HullTraceGraph {
         } finally {
             this.savedViewApplied = false;
         }
+    }
+
+    /** The robustness graph's own collection (`compgeo-hull-robustness`): it also checks the mode, rules, panel and cell fields. */
+    override presetCollection(): PresetCollection<PointSetModel> {
+        return hullRobustnessCollection;
     }
 
     override importPresetData(data: PointSetModel): void {

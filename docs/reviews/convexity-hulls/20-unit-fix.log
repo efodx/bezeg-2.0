@@ -1,0 +1,122 @@
+unit: failed (1) in 215.8s (2 workers, no slot); revision 4bc016c703a8dbc8ea0b1371593a22dc8ba52052; dirty; log .command-logs\2026-11-03T18-23-21-732Z-36952-9b5951bb.log; warnings present (see log)
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/base/GraphTransientState src/learning/content/familyChapters.test.ts src/learning/chapter/guidedExamplePreviews.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+stderr | src/graphs/base/GraphTransientState.part4.test.tsx > point-in-polygon > Preset replacement (reset to the default scene) matches a newly mounted graph
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+WARNING: gridX is deprecated. Please use majorStep instead.
+WARNING: gridY is deprecated. Please use majorStep instead.
+
+ ❯ src/graphs/base/GraphTransientState.part4.test.tsx (216 tests | 1 failed) 71315ms
+   ❯ point-in-polygon (8)
+     × Preset replacement (reset to the default scene) matches a newly mounted graph 277ms
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts (8 tests | 1 failed) 86ms
+   × publishes the school-function-graphs example cards with their own checked images and copy 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/base/GraphTransientState.part4.test.tsx > point-in-polygon > Preset replacement (reset to the default scene) matches a newly mounted graph
+AssertionError: expected { …(8) } to deeply equal { …(8) }
+
+- Expected
++ Received
+
+@@ -17,10 +17,19 @@
+      "label label",
+      "label label",
+      "label label",
+      "label label",
+      "label label",
++     "label label",
++     "label label",
++     "label label",
++     "label label",
++     "label label",
++     "label label",
++     "label label",
++     "label label",
++     "label label",
+      "line",
+      "point 0,0",
+      "point 0,4",
+      "point 3,1",
+      "point 3,2",
+@@ -148,11 +157,11 @@
+        "pointSetAddMode": false,
+      },
+      "fields": {},
+    },
+    "view": [
+-     0.1875,
+-     2.875,
+-     5.8125,
+-     -0.875,
++     -7.125,
++     12.75,
++     19.125,
++     -4.75,
+    ],
+  }
+
+ ❯ src/graphs/base/graphTransientStateContract.tsx:298:35
+    296|             expect(full(mounted)).not.toEqual(expected);
+    297|             await settle(() => mounted.graph.reset());
+    298|             expect(full(mounted)).toEqual(expected);
+       |                                   ^
+    299|             reference.view.unmount();
+    300|             mounted.view.unmount();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/learning/chapter/guidedExamplePreviews.test.ts > publishes the school-function-graphs example cards with their own checked images and copy
+AssertionError: school-function-graphs.geometric-series.geometric-series/sl: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/learning/chapter/guidedExamplePreviews.test.ts:264:64
+    262|             for (const language of ['sl', 'en'] as const) {
+    263|                 const preview = resolveGuidedExamplePreview(home.id, h…
+    264|                 expect(preview?.src, `${home.id}/${language}`).toBeTru…
+       |                                                                ^
+    265|                 expect(preview?.alt.trim()).toBeTruthy();
+    266|                 expect(preview?.caption.trim()).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 5 passed (7)
+      Tests  2 failed | 889 passed (891)
+   Start at  19:23:22
+   Duration  214.93s (tests 93%, import 2%, environment 2%, transform 1%, setup 1%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

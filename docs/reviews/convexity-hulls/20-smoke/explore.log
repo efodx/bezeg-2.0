@@ -1,0 +1,14 @@
+ORODJA ZA TA GRAF | Orodja | Strni | Uredi | Prikaz | Shrani | krivulja | pogled | primer | Prednastavitve v tem brskalniku |  | Shranjeno v tem brskalniku. Izvozi datoteko za varnostno kopijo ali prenos v drug brskalnik. |  | Prednastavitve | Privzeta | Ponastavi | Shrani | Izbriši | Izvozi prednastavitve | Uvozi prednastavitve | Generiraj slike za prednastavitve | Izvoz slike | SVG | PNG
+BUTTON|submit|Strni
+BUTTON|submit|Uredi
+BUTTON|submit|Prikaz
+BUTTON|submit|Shrani
+SELECT|select-one|Prednastavitve
+BUTTON|button|Ponastavi prednastavitev
+BUTTON|button|Shrani prednastavitev
+BUTTON|button|Izbriši prednastavitev
+BUTTON|button|Izvozi prednastavitve
+BUTTON|button|Uvozi prednastavitve
+BUTTON|button|Generiraj slike za prednastavitve
+BUTTON|button|SVG
+BUTTON|button|PNG

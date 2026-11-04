@@ -5,8 +5,8 @@ import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/Prese
 import {pointSetPresetCollection} from "./pointSetPresetCollection";
 
 /**
- * The file contract key of the point-in-polygon graph's Preset collection. Like the other convexity graphs it is not yet listed in
- * `compgeoPresetCollections` / `presetCollections`: the route that first uses the graph (task 20) registers it.
+ * The file contract key of the point-in-polygon graph's Preset collection. It is listed in `presetCollections` through
+ * `compgeoPresetCollections.ts`.
  */
 export const POINT_IN_POLYGON_PRESET_KEY = "compgeo-point-in-polygon";
 export const POINT_IN_POLYGON_OVERLAY_IDS = ["grid", "ray", "winding", "values"] as const;

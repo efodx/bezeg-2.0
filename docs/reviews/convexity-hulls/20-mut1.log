@@ -1,0 +1,69 @@
+unit: failed (1) in 6.2s (2 workers, no slot); revision 4bc016c703a8dbc8ea0b1371593a22dc8ba52052; dirty; log .command-logs\2026-11-03T17-50-19-352Z-32248-f71ba20b.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/batch2PresetCollections.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/batch2PresetCollections.host.test.tsx (14 tests | 4 failed) 468ms
+   ❯ hull robustness Preset (12)
+     × rejects a bad pop rule with an actionable message 3ms
+     × rejects a bad pop rule type with an actionable message 0ms
+     × rejects a bad cell above 63 with an actionable message 0ms
+     × rejects a bad text cell with an actionable message 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/batch2PresetCollections.host.test.tsx > hull robustness Preset > rejects a bad pop rule with an actionable message
+ FAIL  src/graphs/compgeo/batch2PresetCollections.host.test.tsx > hull robustness Preset > rejects a bad pop rule type with an actionable message
+AssertionError: expected undefined to be 'hullrobust_invalid_pop' // Object.is equality
+
+- Expected:
+"hullrobust_invalid_pop"
+
++ Received:
+undefined
+
+ ❯ rejected src/graphs/compgeo/batch2PresetCollections.host.test.tsx:36:26
+     34| /** A rejection names its message key and reads the same, with no left…
+     35| const rejected = (message: Message | undefined, key: string, mention: …
+     36|     expect(message?.key).toBe(key);
+       |                          ^
+     37|     if (!message) return;
+     38|     for (const language of ['sl', 'en'] as const) {
+ ❯ src/graphs/compgeo/batch2PresetCollections.host.test.tsx:123:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/graphs/compgeo/batch2PresetCollections.host.test.tsx > hull robustness Preset > rejects a bad cell above 63 with an actionable message
+ FAIL  src/graphs/compgeo/batch2PresetCollections.host.test.tsx > hull robustness Preset > rejects a bad text cell with an actionable message
+AssertionError: expected undefined to be 'hullrobust_invalid_cell' // Object.is equality
+
+- Expected:
+"hullrobust_invalid_cell"
+
++ Received:
+undefined
+
+ ❯ rejected src/graphs/compgeo/batch2PresetCollections.host.test.tsx:36:26
+     34| /** A rejection names its message key and reads the same, with no left…
+     35| const rejected = (message: Message | undefined, key: string, mention: …
+     36|     expect(message?.key).toBe(key);
+       |                          ^
+     37|     if (!message) return;
+     38|     for (const language of ['sl', 'en'] as const) {
+ ❯ src/graphs/compgeo/batch2PresetCollections.host.test.tsx:123:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 10 passed (14)
+   Start at  18:50:19
+   Duration  5.51s (transform 38%, import 27%, environment 19%, tests 9%, setup 8%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

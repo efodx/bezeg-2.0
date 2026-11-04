@@ -1,0 +1,47 @@
+unit: failed (1) in 8.1s (2 workers, no slot); revision 4bc016c703a8dbc8ea0b1371593a22dc8ba52052; dirty; log .command-logs\2026-11-03T18-36-07-953Z-23036-1b5750b5.log
+
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/batch2PresetCollections.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/batch2PresetCollections.host.test.tsx (15 tests | 1 failed) 562ms
+   ❯ hull robustness Preset (13)
+     × the hull trace graph keeps its own collection, which still rejects the robustness fields 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/batch2PresetCollections.host.test.tsx > hull robustness Preset > the hull trace graph keeps its own collection, which still rejects the robustness fields
+AssertionError: expected { Object (key, checkGraphState, ...) } to be { key: 'compgeo-hull-trace', …(2) } // Object.is equality
+
+- Expected
++ Received
+
+  {
+    "check": [Function check],
+    "checkGraphState": [Function checkGraphState],
+-   "key": "compgeo-hull-trace",
++   "key": "compgeo-hull-robustness",
+  }
+
+ ❯ src/graphs/compgeo/batch2PresetCollections.host.test.tsx:110:57
+    108|
+    109|     test('the hull trace graph keeps its own collection, which still r…
+    110|         expect(new HullTraceGraph().presetCollection()).toBe(hullTrace…
+       |                                                         ^
+    111|         expect(hullTraceCollection).not.toBe(robust);
+    112|         const traceState = {initialized: true, algorithm: 'monotone-ch…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  19:36:08
+   Duration  7.12s (transform 37%, import 27%, environment 20%, tests 8%, setup 8%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

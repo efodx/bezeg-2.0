@@ -91,6 +91,10 @@ const targets = {
     orientation: ['Default left turn p=(0,0), q=(4,0), r=(3,2) with line pq and the shaded triangle pqr', [], [-1.2, 3.6, 5.6, -1.2]],
     'polygon-area': ['The hull pentagon with its triangle fan and lattice points in the polygon area workspace', [], [-2.6, 6.4, 6.6, -1.4]],
     'convex-hull': ['Sample 1 of nine points after a few Next steps of the monotone chain trace, with the hull so far', [button('Naslednji korak', 4)], [-2.6, 6.4, 6.6, -1.4]],
+    // The notched pentagon (0,0), (6,0), (6,4), (3,2), (0,4) with q = (3,1) and the ray overlay; the window keeps the 360:220 aspect so the grid cells stay square.
+    'point-in-polygon': ['The notched pentagon with the query point q=(3,1) and its ray to the right crossing the boundary once', [toggle('Poltrak')], [-1.4, 4.69, 7.4, -0.69]],
+    // Sample 1 of the monotone chain in chain mode (the default view of the robustness graph) after four Next steps; the window keeps the 360:220 aspect.
+    'hull-robustness': ['Sample 1 of nine points after a few Next steps of the monotone chain in chain mode, under the default pop rule', [button('Naslednji korak', 4)], [-2.9, 5.5, 6.9, -0.5]],
     // Default pentagon (0,0), (6,0), (6,4), (3,2), (0,4) with the reflex vertex (3,2).
     'ear-clipping': ['Default pentagon with one reflex vertex at the end of its 12-step ear-clipping trace, cut into three triangles', [button('Naslednji korak', 11)], [-0.8, 4.8, 6.8, -0.8]],
     // Sample 1: intervals [0,4], [2,7], [3,5], [6,9], [8,10] on rows 1 to 5.
@@ -308,7 +312,7 @@ async function outcome(page, id) {
 }
 
 // Demonstrations whose defining object is a line or polygon edge rather than a curve.
-const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay', 'monotone-partition', 'monotone-triangulation', 'geometric-series']);
+const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-area', 'convex-hull', 'point-in-polygon', 'hull-robustness', 'ear-clipping', 'interval-sweep', 'segment-intersections', 'triangle-centres', 'inscribed-angle', 'euler-line', 'simson-line', 'projective-cross-ratio', 'point-set-triangulation', 'delaunay', 'monotone-partition', 'monotone-triangulation', 'geometric-series']);
 // Demonstrations whose defining objects are JSXGraph circles.
 const CIRCLE_DEFINED_IDS = new Set(['inversion']);
 

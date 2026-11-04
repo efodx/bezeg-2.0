@@ -187,8 +187,8 @@ test('every active demonstration route has an available lesson unless it opts ou
     // Every Demonstration ships with a lesson (the last opt-out, fourier-coefficients, gained lesson F2/F4 in Fourier 05 F3); the correlation lesson P5 (curves PS-C-5d1), the Voronoi degenerate-case lesson B5 (T3 task 23), the quadrature lesson N4, the monotone-partition lesson C3 (sweep task 19), the monotone-triangulation lesson C4 (sweep task 20), the density lesson P1, the binomial-normal lesson P2, the CLT lesson P3, the summary-statistics lesson P4, the Delaunay lesson B3, the Voronoi lesson B4, the least-squares lesson I4, the inversion lesson T5 and the projective lessons K4 and K5 ended their opt-outs.
     // Every Demonstration has a lesson since the Fortune lesson (sweep task 25) retired fortune from this list.
     // conic-focal ended its opt-out with school function graphs F3 Part B.
-    // bspline-blossom (BS-C-L6c) opts out until its L6 lesson lands in BS-C-L6d.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['bspline-blossom']);
+    // bspline-blossom (BS-C-L6c) opts out until its L6 lesson lands in BS-C-L6d; point-in-polygon and hull-robustness until convexity lessons 21 and 22.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['bspline-blossom', 'point-in-polygon', 'hull-robustness']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 

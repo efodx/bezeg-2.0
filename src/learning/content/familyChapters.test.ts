@@ -34,7 +34,8 @@ function withoutMath(source: string) {
 // bspline-nurbs joined the b-splines chapter with its L5 lesson and section (BS-C-3).
 // bspline-blossom joins the b-splines chapter with its L6 lesson and section (BS-C-L6d), which removes it here.
 // conic-focal joined the school function graphs chapter with its S6 lesson and section (07 F3 Part B).
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'bspline-blossom'];
+// point-in-polygon and hull-robustness await their lessons and the Batch 2 chapter sections (convexity tasks 21 to 23).
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'bspline-blossom', 'point-in-polygon', 'hull-robustness'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 

@@ -1,0 +1,33 @@
+PASS 1-route-point-in-polygon :: SL h1="Točka v večkotniku", after refresh="Točka v večkotniku", EN live="Point in polygon", EN after refresh lang=en h1="Point in polygon"
+FAIL 1-route-hull-robustness :: SL h1="Degenerate cases and robustness", after refresh="Degenerate cases and robustness", EN live="Degenerate cases and robustness", EN after refresh lang=en h1="Degenerate cases and robustness"
+FAIL 1-catalog-sl :: url=http://127.0.0.1:4391/bezeg-2.0/demonstrations order=orientation,orientation,orientation,orientation?learn=1,polygon-area,polygon-area,polygon-area,polygon-area?learn=1,convex-hull,convex-hull,convex-hull,convex-hull?learn=1,point-in-polygon,point-in-polygon,point-in-polygon,hull-robustness,hull-robustness,hull-robustness,ear-clipping,ear-clipping,ear-clipping,ear-clipping?learn=1,point-set-triangulation,point-set-triangulation,point-set-triangulation,point-set-triangulation?learn=1,delaunay,delaunay,delaunay,delaunay?learn=1,voronoi,voronoi,voronoi,voronoi?learn=1,voronoi-degenerate,voronoi-degenerate,voronoi-degenerate,voronoi-degenerate?learn=1,interval-sweep,interval-sweep,interval-sweep,interval-sweep?learn=1,segment-intersections,segment-intersections,segment-intersections,segment-intersections?learn=1,monotone-partition,monotone-partition,monotone-partition,monotone-partition?learn=1,monotone-triangulation,monotone-triangulation,monotone-triangulation,monotone-triangulation?learn=1,fortune,fortune,fortune,fortune?learn=1
+FAIL 1-catalog-en :: url=http://127.0.0.1:4391/bezeg-2.0/demonstrations order=orientation,orientation,orientation,orientation?learn=1,polygon-area,polygon-area,polygon-area,polygon-area?learn=1,convex-hull,convex-hull,convex-hull,convex-hull?learn=1,point-in-polygon,point-in-polygon,point-in-polygon,hull-robustness,hull-robustness,hull-robustness,ear-clipping,ear-clipping,ear-clipping,ear-clipping?learn=1,point-set-triangulation,point-set-triangulation,point-set-triangulation,point-set-triangulation?learn=1,delaunay,delaunay,delaunay,delaunay?learn=1,voronoi,voronoi,voronoi,voronoi?learn=1,voronoi-degenerate,voronoi-degenerate,voronoi-degenerate,voronoi-degenerate?learn=1,interval-sweep,interval-sweep,interval-sweep,interval-sweep?learn=1,segment-intersections,segment-intersections,segment-intersections,segment-intersections?learn=1,monotone-partition,monotone-partition,monotone-partition,monotone-partition?learn=1,monotone-triangulation,monotone-triangulation,monotone-triangulation,monotone-triangulation?learn=1,fortune,fortune,fortune,fortune?learn=1
+FAIL 2-kbd-sl :: EXC TimeoutError: locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="q"]').first()[22m
+
+FAIL 2-kbd-en :: EXC TimeoutError: locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="q"]').first()[22m
+
+PASS 2-ray :: checkbox true->false, svg len 16495->14683->16495
+PASS 2-readout-lang :: SL="Točka q je znotraj večkotnika. | Število presečišč poltraka z robom: 1 | Sodo-li" EN="Point q is inside the polygon. | Crossings of the ray with the boundary: 1 | Eve"
+FAIL 2-touch :: Točk: 5 od največ 40 -> Točk: 5 od največ 40; Večkotnik je enostaven. 
+FAIL 3-hull-sl :: EXC Error: locator.click: Error: strict mode violation: locator('button').filter({ hasText: /^(Ponastavi|Reset)$/ }) resolved to 2 elements:
+    1) <button type="button" data-action="reset" aria-disabled="false">Ponastavi</button> aka getByRole('button', { name: 'Ponastavi' })
+    2) <button type="butto
+FAIL 3-hull-en :: EXC Error: locator.click: Error: strict mode violation: locator('button').filter({ hasText: /^(Ponastavi|Reset)$/ }) resolved to 2 elements:
+    1) <button type="button" data-action="reset" aria-disabled="false">Reset</button> aka getByRole('button', { name: 'Reset' })
+    2) <button type="button" class
+PASS 4-timing :: switch median 16 max 43 ms [43,16,14,13,18]; cell median 9 max 16 ms [16,9,6,13,6] (headless Chromium 1400x1000; input event -> aria-label change -> 2 rAF; click includes pointer release)
+PASS 5-preset-pip-sl :: saved q=-3,4 changed q=1,1 restored q=-3,4; readout Točka q je zunaj večkotnika. | Število presečišč p
+PASS 5-preset-pip-en :: saved q=-3,4 changed q=1,1 restored q=-3,4; readout Point q is outside the polygon. | Crossings of the
+FAIL 5-preset-hull-sl :: EXC Error: page.evaluate: TypeError: Illegal invocation
+    at eval (eval at evaluate (:370:30), <anonymous>:1:226)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+FAIL 5-preset-hull-en :: EXC Error: page.evaluate: TypeError: Illegal invocation
+    at eval (eval at evaluate (:370:30), <anonymous>:1:226)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+CONSOLE ERRORS: none

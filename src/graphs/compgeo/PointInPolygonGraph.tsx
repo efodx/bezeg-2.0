@@ -33,7 +33,7 @@ import {POINT_IN_POLYGON_OVERLAY_IDS, pointInPolygonPresetCollection} from "./po
  * - Examples: `loadFigure("notched" | "pentagram")` loads task 16's polygon with its query point ((3, 1) or the centre (0, 0)) and
  *   fits the view. The pentagram is a lattice approximation (see `PENTAGRAM_VERTICES`).
  * - Preset: `pointInPolygonPresetCollection` (key `compgeo-point-in-polygon`) carries the polygon as `data` and the query in
- *   `graphState`. No route or catalog entry yet; the route (task 20) registers the collection.
+ *   `graphState`. The collection is listed in `compgeoPresetCollections`.
  * - Ownership: the query point is removed with the figure scene and before the board is freed; the key listener and language
  *   subscription are registered on the session and undone by its cleanup.
  */
@@ -262,10 +262,12 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
         this.queryRefused = false;
     }
 
-    /** The view fitted to the polygon and q (the default example spans x 0 to 6, y 0 to 4). */
+    /**
+     * The view fitted to the default example (x 0 to 6, y 0 to 4, q = (3, 1)). It is read before a reset replaces the scene, so it must
+     * not depend on the current polygon or q; `loadFigure` fits the view to the figure it loads itself.
+     */
     protected override initialView(): [number, number, number, number] {
-        const model = this.model;
-        return viewFor(model.points, this.query, model.gridStepExponent);
+        return viewFor(NOTCHED_MODEL.points, NOTCHED_QUERY, NOTCHED_MODEL.gridStepExponent);
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
