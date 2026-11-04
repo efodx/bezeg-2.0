@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
@@ -92,6 +92,15 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
     protected setWeight(value: number | null): void { this.applyEdit(setConicWeight(this.model, value)); }
 
     protected setBridge(value: boolean): void { this.applyEdit(setConicBridge(this.model, value)); }
+
+    /** Lesson scenes choose the example (it fixes the conic, P and the bridge setting), show the Bezier arc and set its middle weight. */
+    protected override lessonFunctionActions(): FunctionLessonActions {
+        return {
+            parameters: {"conic-weight": value => this.setWeight(value)},
+            visibility: {"conic-bridge": visible => this.setBridge(visible)},
+            choices: {"conic-example": value => this.setExample(value)},
+        };
+    }
 
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
 

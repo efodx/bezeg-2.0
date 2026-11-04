@@ -200,6 +200,14 @@ test('geometric series expectations are authored from the example, the shown ter
     assert.throws(() => schoolFunctionGraphsExpectedFor('school-function-graphs.geometric-series.geometric-series', fnStep([fnChoice('series-example', 'default'), fnParam('series-n', 3), fnParam('series-tolerance', 0), fnParam('series-q', 0.9)])), /extend seriesExpectedFor/);
 });
 
+test('conic expectations are authored for the ellipse opening scene only', () => {
+    const id = 'school-function-graphs.conic-focal.conic-focal';
+    assert.deepEqual(schoolFunctionGraphsExpectedFor(id, fnStep([fnChoice('conic-example', 'ellipse')])),
+        {types: {curve: 1, line: 1, segment: 3, point: 3}, curveCount: 1, points: [[-4, 0], [0, 3], [4, 0]]});
+    assert.throws(() => schoolFunctionGraphsExpectedFor(id, fnStep([fnChoice('conic-example', 'circle')])), /extend conicExpectedFor/);
+    assert.throws(() => schoolFunctionGraphsExpectedFor(id, fnStep([fnChoice('conic-example', 'ellipse'), fnParam('conic-weight', 1)])), /extend conicExpectedFor/);
+});
+
 test('fourier series expectations are authored from the closed-form partial sum', () => {
     const scene = (n, x, example = 'square') => fnStep([fnChoice('fourier-example', example), fnParam('fourier-n', n), fnParam('fourier-x', x), fnParam('fourier-epsilon', 0.1)]);
     const expected = fourierExpectedFor('f', scene(1, 1.57));

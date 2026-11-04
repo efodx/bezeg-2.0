@@ -33,7 +33,8 @@ function withoutMath(source: string) {
 // bspline-extraction joined the b-splines chapter with its L4 lesson and section (BS-B-3b).
 // bspline-nurbs joined the b-splines chapter with its L5 lesson and section (BS-C-3).
 // bspline-blossom joins the b-splines chapter with its L6 lesson and section (BS-C-L6d), which removes it here.
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'conic-focal', 'bspline-blossom'];
+// conic-focal joined the school function graphs chapter with its S6 lesson and section (07 F3 Part B).
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'bspline-blossom'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 

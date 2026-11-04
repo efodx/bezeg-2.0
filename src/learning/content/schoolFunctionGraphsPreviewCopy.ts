@@ -5,7 +5,7 @@ const copy = (altSl: string, altEn: string, captionSl: string, captionEn: string
     caption: {sl: captionSl, en: captionEn},
 });
 
-/** Describes each prepared opening scene of the School function graphs chapter, keyed by example id (S1 to S5). */
+/** Describes each prepared opening scene of the School function graphs chapter, keyed by example id (S1 to S6). */
 export const schoolFunctionGraphsPreviewCopy = {
     'school-function-graphs.function-transformation.function-transformation': copy(
         'Parabola \\(y=x^2\\) in njen duh, ki se z njo sklada, ter sledena točka \\((2,4)\\) na grafu.',
@@ -36,5 +36,11 @@ export const schoolFunctionGraphsPreviewCopy = {
         'The term and partial-sum bars of the geometric series \\(a=1\\), \\(q=\\tfrac12\\) with three shown terms and the horizontal line of the limit \\(2\\).',
         'Delna vsota \\(S_3=1{,}75\\) je še pod limito \\(2\\); vsak naslednji člen je polovica prejšnjega.',
         'The partial sum \\(S_3=1.75\\) is still below the limit \\(2\\); every next term is half of the previous one.',
+    ),
+    'school-function-graphs.conic-focal.conic-focal': copy(
+        'Elipsa z goriščema \\((\\pm4,0)\\), točko \\(P=(0,3)\\), njenima razdaljama do gorišč \\(5\\) in \\(5\\) ter vodnico; numerična ekscentričnost je \\(0{,}8\\).',
+        'An ellipse with the foci \\((\\pm4,0)\\), the point \\(P=(0,3)\\), its distances \\(5\\) and \\(5\\) to the foci and a directrix; the numerical eccentricity is \\(0.8\\).',
+        'Vsota razdalj od \\(P\\) do obeh gorišč je \\(10\\), razdalja do vodnice pa \\(6{,}25\\).',
+        'The sum of the distances from \\(P\\) to the two foci is \\(10\\), and the distance to the directrix is \\(6.25\\).',
     ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

@@ -14,6 +14,7 @@ const sectionDemonstrations = {
     'polynomial-zeros': 'polynomial-zeros',
     'rational-function': 'rational-function',
     'geometric-series': 'geometric-series',
+    'conic-focal': 'conic-focal',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type SchoolFunctionGraphsSectionId = keyof typeof sectionDemonstrations;

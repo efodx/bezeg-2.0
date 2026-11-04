@@ -11,7 +11,7 @@ import {
     SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID as CHAPTER, schoolFunctionGraphsGuidedExamplePath, schoolFunctionGraphsGuidedExampleRegistry,
 } from './schoolFunctionGraphsChapterRegistry';
 
-const IDS = ['function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series'] as const;
+const IDS = ['function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series', 'conic-focal'] as const;
 const chapter = schoolFunctionGraphsChapter;
 const proseOf = (index: number, language: 'sl' | 'en') => chapter.sections[index].paragraphs.map(p => p[language]).join(' ') + chapter.sections[index].formula;
 
@@ -26,14 +26,7 @@ describe('chapter structure and registration', () => {
         expect(chapter.sections.map(section => section.id)).toEqual([...IDS]);
         expect(Object.keys(schoolFunctionGraphsGuidedExampleRegistry)).toEqual([...IDS]);
         expect(learningChapters.some(item => item.id === CHAPTER)).toBe(true);
-        expect(chapter.sections.map(section => section.demonstrationIds)).toEqual([['function-transformation'], ['function-inverse'], ['polynomial-zeros'], ['rational-function'], ['geometric-series']]);
-    });
-
-    test('only the released lessons are advertised (not the conics)', () => {
-        const everything = JSON.stringify({...chapter, title: undefined}).toLowerCase();
-        for (const word of ['stožnic', 'conic']) {
-            expect(everything, word).not.toContain(word);
-        }
+        expect(chapter.sections.map(section => section.demonstrationIds)).toEqual([['function-transformation'], ['function-inverse'], ['polynomial-zeros'], ['rational-function'], ['geometric-series'], ['conic-focal']]);
     });
 
     test('there are no figures, the text is bilingual and each example link closes its section', () => {
@@ -62,6 +55,7 @@ describe('chapter structure and registration', () => {
             {sl: ['večkratnosti', 'seka', 'dotika', 'odvod', 'Stopnja je vsota večkratnosti', 'p(-1)=4', 'prevoj', 'zavrnjena'], en: ['multiplicity', 'crosses', 'touches', 'derivative', 'degree is the sum of the multiplicities', 'p(-1)=4', 'inflection', 'refused']},
             {sl: ['ol lihe večkratnosti', 'luknjo, ne pola', 'pri končnem \\(x\\) seka', 'ostank', '\\frac38=0{,}375', '2{,}0625', '(1;2)'], en: ['pole of odd multiplicity', 'a hole, not a pole', 'at a finite \\(x\\), because', 'remainder', '\\frac38=0.375', '2.0625', '(1,2)']},
             {sl: ['le za \\(|q|<1\\)', 'q=-1', 'nihajo', 'ponazarja', 'ne eno od njih', '0{,}999\\dots=1', '\\dfrac{31}{16}=1{,}9375'], en: ['only for \\(|q|<1\\)', 'q=-1', 'oscillate', 'illustrates', 'not one of them', '0.999\\dots=1', '\\dfrac{31}{16}=1.9375']},
+            {sl: ['razmerje', 'numerična ekscentričnost', 'krožnica ni stožnica z vodnico', 'ni določeno', 'ne razdalja', '\\dfrac5{6{,}25}=0{,}8=\\varepsilon', 'w_1=\\tfrac{\\sqrt2}2'], en: ['ratio', 'eccentricity', 'the circle is not a conic with a directrix', 'is undefined', 'not a distance', '\\dfrac5{6.25}=0.8=\\varepsilon', 'w_1=\\tfrac{\\sqrt2}2']},
         ];
         for (const language of ['sl', 'en'] as const) {
             facts.forEach((set, index) => {
@@ -74,6 +68,7 @@ describe('chapter structure and registration', () => {
         expect(chapter.sections[2].formula).toBe('p(x)=k\\,(x-z_1)^{m_1}(x-z_2)^{m_2}\\cdots(x-z_r)^{m_r}');
         expect(chapter.sections[3].formula).toBe('f(x)=\\frac{p(x)}{q(x)}=s(x)+\\frac{r(x)}{q(x)}');
         expect(chapter.sections[4].formula).toBe('S_n=a\\,\\frac{1-q^n}{1-q},\\qquad S_n\\to\\frac a{1-q}\\quad(|q|<1)');
+        expect(chapter.sections[5].formula).toBe('|PF|=\\varepsilon\\,|Pd|');
     });
 
     test('every quoted number is recomputed', () => {

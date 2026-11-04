@@ -53,6 +53,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'polynomial-zeros': {chapterId: 'school-function-graphs', sectionId: 'polynomial-zeros'},
     'rational-function': {chapterId: 'school-function-graphs', sectionId: 'rational-function'},
     'geometric-series': {chapterId: 'school-function-graphs', sectionId: 'geometric-series'},
+    'conic-focal': {chapterId: 'school-function-graphs', sectionId: 'conic-focal'},
     // Fourier series F1 and F3: its own section of the Fourier series chapter.
     'fourier-series': {chapterId: 'fourier-series', sectionId: 'fourier-series'},
     // Fourier coefficients F2 and F4: its own section of the Fourier series chapter.

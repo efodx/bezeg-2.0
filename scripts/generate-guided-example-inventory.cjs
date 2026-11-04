@@ -503,6 +503,20 @@ function seriesExpectedFor(id, actions) {
     return {types: {segment: 2 * terms + (limit ? 1 : 0) + (band ? 2 : 0), ...(band ? {curve: 1} : {})}, curveCount: band ? 1 : 0, points: []};
 }
 
+// Authored from src/analysis/conicFocalModel.ts (the ellipse example: foci (-4, 0) and (4, 0), P = (0, 3)), not from a capture.
+/**
+ * First-frame expectation of the Conics lesson, authored for the opening scene only: the ellipse example without the Bezier bridge. It draws
+ * the conic (a curve), the directrix (a line), the segments P to F, P to the second focus and P to the directrix, and the focus, the second
+ * focus and P (points). The other examples change what is drawn (parabola and hyperbola, circle without a directrix, the bridge), so they are
+ * rejected until this function is extended.
+ */
+function conicExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^conic-example$/]], 'conicExpectedFor');
+    const example = sceneValue(id, actions, 'function-choice', 'conic-example');
+    assert.equal(example, 'ellipse', `${id}: only the ellipse example has an authored first frame; extend conicExpectedFor`);
+    return {types: {curve: 1, line: 1, segment: 3, point: 3}, curveCount: 1, points: [[-4, 0], [0, 3], [4, 0]]};
+}
+
 /** First-frame expectation of a School function graphs lesson, chosen by the Demonstration the id ends with. */
 function schoolFunctionGraphsExpectedFor(id, step) {
     if (id.endsWith('.function-transformation')) return transformationExpectedFor(id, step.scene.actions);
@@ -510,6 +524,7 @@ function schoolFunctionGraphsExpectedFor(id, step) {
     if (id.endsWith('.polynomial-zeros')) return polynomialExpectedFor(id, step.scene.actions);
     if (id.endsWith('.rational-function')) return rationalExpectedFor(id, step.scene.actions);
     if (id.endsWith('.geometric-series')) return seriesExpectedFor(id, step.scene.actions);
+    if (id.endsWith('.conic-focal')) return conicExpectedFor(id, step.scene.actions);
     assert.fail(`${id}: no authored School function graphs first frame`);
 }
 

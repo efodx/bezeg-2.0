@@ -1,6 +1,6 @@
 /**
  * Guided lessons of the School function graphs family (docs/specs/school-function-graphs-lessons.md), batch C: S5, the geometric series and
- * its partial sums, on `geometric-series`. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every
+ * its partial sums, on `geometric-series`. S6, the conics (focus, directrix, eccentricity and the Bezier bridge), on `conic-focal`. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"): every
  * number it quotes is a value of the scene it belongs to, and `schoolFunctionGraphsBatchCGuidedLessons.test.ts` checks that against the real
  * graph and against values recomputed without the kernel. Scenes use only the `function-choice` and `function-parameter` actions the graph
  * registers (`series-example`, `series-n`, `series-tolerance`). Every scene sets the example first (it fixes a and q, one revealed term and
@@ -247,4 +247,232 @@ const seriesLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const schoolFunctionGraphsBatchCGuidedLessons: readonly GuidedLesson[] = [seriesLesson];
+// ---------------------------------------------------------------------------------------------------------------- S6
+
+export type ConicLessonExample = 'ellipse' | 'parabola' | 'hyperbola' | 'circle';
+
+/**
+ * An S6 scene from the default scene: the example first (it fixes the conic, the point P and switches the Bezier arc off, with the matched
+ * weight), then, if wanted, the arc and its middle weight. So no scene depends on the scene before it.
+ */
+const conicScene = (id: string, example: ConicLessonExample, bridge: {readonly weight?: number} | undefined, sl: string, en: string): LessonScene => {
+    const actions: LessonAction[] = [
+        {kind: 'prepared-scene', sceneId: id, source: 'demonstration-default'},
+        {kind: 'function-choice', name: 'conic-example', value: example},
+        ...(bridge === undefined ? [] : [{kind: 'function-visibility', target: 'conic-bridge', visible: true} satisfies LessonAction]),
+        ...(bridge?.weight === undefined ? [] : [{kind: 'function-parameter', name: 'conic-weight', value: bridge.weight} satisfies LessonAction]),
+    ];
+    return {id, basedOn: 'demonstration-default', actions, expectedState: text(sl, en)};
+};
+
+const conicLesson: GuidedLesson = {
+    demonstrationId: 'conic-focal',
+    title: text('Stožnice: gorišče, vodnica, ekscentričnost in most do Bézierja', 'Conics: focus, directrix, eccentricity and the Bézier bridge'),
+    summary: text(
+        'Točka \\(P\\) leži na stožnici natanko tedaj, ko je \\(|PF|=\\varepsilon\\,|Pd|\\) (\\(F\\) gorišče, \\(d\\) vodnica, \\(\\varepsilon\\) numerična ekscentričnost). Za \\(\\varepsilon<1\\) je to elipsa, za \\(\\varepsilon=1\\) parabola, za \\(\\varepsilon>1\\) hiperbola, za \\(\\varepsilon=0\\) krožnica brez vodnice. Stožnico dobimo tudi kot racionalni kvadratni Bézierjev lok, srednja utež pa odloči o vrsti.',
+        'A point \\(P\\) lies on a conic exactly when \\(|PF|=\\varepsilon\\,|Pd|\\) (\\(F\\) the focus, \\(d\\) the directrix, \\(\\varepsilon\\) the eccentricity). For \\(\\varepsilon<1\\) it is an ellipse, for \\(\\varepsilon=1\\) a parabola, for \\(\\varepsilon>1\\) a hyperbola, and for \\(\\varepsilon=0\\) a circle without a directrix. A conic is also a rational quadratic Bézier arc, and the middle weight decides its kind.',
+    ),
+    prerequisites: [
+        text('Potrebno je znanje o afinih slikah grafov iz lekcije o transformacijah funkcij in o racionalnih Bézierjevih krivuljah (poglavje Racionalne krivulje, lekcija Racionalna Bézierjeva krivulja).', 'Assumes affine images of graphs from the lesson on function transformations and rational Bézier curves (the chapter Rational curves, the lesson Rational Bézier curve).'),
+    ],
+    learningGoals: [
+        text('Za točko na elipsi izračunaš razdalji do obeh gorišč in preveriš, da je njuna vsota enaka \\(2a\\).', 'For a point on an ellipse compute the distances to both foci and check that their sum equals \\(2a\\).'),
+        text('Iz razmerja \\(|PF|/|Pd|\\) prebereš \\(\\varepsilon\\), po njem ločiš elipso, parabolo in hiperbolo ter vidiš krožnico kot mejni primer \\(\\varepsilon=0\\).', 'Read \\(\\varepsilon\\) from the ratio \\(|PF|/|Pd|\\), tell the ellipse, parabola and hyperbola apart by it, and see the circle as the limiting case \\(\\varepsilon=0\\).'),
+        text('Poveš, da srednja utež \\(w_1<1\\) da elipso, \\(w_1=1\\) parabolo in \\(w_1>1\\) hiperbolo, in to povežeš z racionalno Bézierjevo krivuljo.', 'State that the middle weight \\(w_1<1\\) gives an ellipse, \\(w_1=1\\) a parabola and \\(w_1>1\\) a hyperbola, and connect this with the rational Bézier curve.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'conic-definition',
+            latex: '|PF|=\\varepsilon\\,|Pd|',
+            notation: text(
+                '\\(F\\) je gorišče, \\(d\\) vodnica, \\(|Pd|\\) razdalja točke \\(P\\) do vodnice in \\(\\varepsilon\\ge0\\) numerična ekscentričnost.',
+                '\\(F\\) is the focus, \\(d\\) the directrix, \\(|Pd|\\) the distance of \\(P\\) from the directrix and \\(\\varepsilon\\ge0\\) the eccentricity.',
+            ),
+            explanation: text(
+                'Za \\(\\varepsilon<1\\) je krivulja elipsa, za \\(\\varepsilon=1\\) parabola in za \\(\\varepsilon>1\\) hiperbola. Pri \\(\\varepsilon=0\\) enačba \\(|PF|=0\\cdot|Pd|\\) velja le v točki \\(F\\); krožnica je zato mejni primer s polmerom \\(\\ell\\) okoli \\(F\\) in brez vodnice. Pri elipsi in hiperboli je \\(\\varepsilon=c/a\\).',
+                'For \\(\\varepsilon<1\\) the curve is an ellipse, for \\(\\varepsilon=1\\) a parabola and for \\(\\varepsilon>1\\) a hyperbola. At \\(\\varepsilon=0\\) the equation \\(|PF|=0\\cdot|Pd|\\) holds only at \\(F\\); the circle is therefore a limiting case, with radius \\(\\ell\\) around \\(F\\) and no directrix. For the ellipse and the hyperbola \\(\\varepsilon=c/a\\).',
+            ),
+        },
+        {
+            id: 'conic-focal-sum-difference',
+            latex: '|PF_1|+|PF_2|=2a\\ \\text{(ellipse)},\\qquad \\bigl||PF_2|-|PF_1|\\bigr|=2a\\ \\text{(hyperbola)}',
+            notation: text(
+                '\\(F_1\\) in \\(F_2\\) sta gorišči, \\(a\\) je velika polos in \\(2a\\) razdalja med temenoma na glavni osi.',
+                '\\(F_1\\) and \\(F_2\\) are the foci, \\(a\\) is the semi-major axis and \\(2a\\) the distance between the vertices on the main axis.',
+            ),
+            explanation: text(
+                'Pri elipsi je vsota razdalj do gorišč za vsako točko enaka \\(2a\\), pri hiperboli pa je stalna razlika razdalj. Pri obeh je \\(\\varepsilon=c/a\\).',
+                'On an ellipse the sum of the distances to the foci equals \\(2a\\) for every point, and on a hyperbola the difference of the distances is constant. In both cases \\(\\varepsilon=c/a\\).',
+            ),
+        },
+        {
+            id: 'conic-rational-bezier',
+            latex: 'R(t)=\\frac{(1-t)^2P_0+2t(1-t)w_1P_1+t^2P_2}{(1-t)^2+2t(1-t)w_1+t^2}',
+            notation: text(
+                '\\(P_0,P_1,P_2\\) so kontrolne točke, \\(w_1\\) je srednja utež, krajni uteži sta \\(1\\), \\(t\\in[0,1]\\).',
+                '\\(P_0,P_1,P_2\\) are the control points, \\(w_1\\) the middle weight, the end weights are \\(1\\), and \\(t\\in[0,1]\\).',
+            ),
+            explanation: text(
+                'Pri krajnih utežeh \\(1\\) je lok del elipse za \\(w_1<1\\), del parabole za \\(w_1=1\\) in del hiperbole za \\(w_1>1\\). Prilegajočo se utež določa oblika stožnice; le z njo lok leži na stožnici.',
+                'With end weights \\(1\\) the arc is a piece of an ellipse for \\(w_1<1\\), of a parabola for \\(w_1=1\\) and of a hyperbola for \\(w_1>1\\). The matching weight is fixed by the shape of the conic; only with it does the arc lie on the conic.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'conic-ellipse-ratio',
+            title: text('Razmerje na elipsi \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\) v točki \\(P=(0,3)\\)', 'The ratio on the ellipse \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\) at \\(P=(0,3)\\)'),
+            calculationLatex: '\\frac{|PF|}{|Pd|}=\\frac5{6.25}',
+            resultLatex: '\\frac45',
+            check: text(
+                'Tu je \\(a=5\\), \\(b=3\\), \\(c=\\sqrt{25-9}=4\\), gorišče \\(F=(4,0)\\), vodnica \\(x=\\dfrac{a^2}c=6{,}25\\). Je \\(|PF|=\\sqrt{16+9}=5\\) in \\(|Pd|=6{,}25-0=6{,}25\\), torej \\(\\dfrac5{6{,}25}=0{,}8=\\dfrac ca=\\varepsilon\\). Drugo gorišče \\((-4,0)\\) da \\(|PF_2|=5\\) in vsoto \\(10=2a\\).',
+                'Here \\(a=5\\), \\(b=3\\), \\(c=\\sqrt{25-9}=4\\), the focus is \\(F=(4,0)\\) and the directrix \\(x=\\dfrac{a^2}c=6.25\\). We get \\(|PF|=\\sqrt{16+9}=5\\) and \\(|Pd|=6.25-0=6.25\\), so \\(\\dfrac5{6.25}=0.8=\\dfrac ca=\\varepsilon\\). The other focus \\((-4,0)\\) gives \\(|PF_2|=5\\) and the sum \\(10=2a\\).',
+            ),
+        },
+        {
+            id: 'conic-hyperbola-ratio',
+            title: text('Hiperbola \\(\\tfrac{x^2}9-\\tfrac{y^2}{16}=1\\) v točki \\(P=(6,\\sqrt{48})\\)', 'The hyperbola \\(\\tfrac{x^2}9-\\tfrac{y^2}{16}=1\\) at \\(P=(6,\\sqrt{48})\\)'),
+            calculationLatex: '\\frac{|PF|}{|Pd|}=\\frac7{4.2}',
+            resultLatex: '\\frac53',
+            check: text(
+                'Tu je \\(a=3\\), \\(b=4\\), \\(c=5\\), \\(F=(5,0)\\), \\(F_2=(-5,0)\\), vodnica \\(x=\\dfrac{a^2}c=1{,}8\\). Je \\(|PF|=\\sqrt{1+48}=7\\), \\(|Pd|=6-1{,}8=4{,}2\\) in \\(\\dfrac7{4{,}2}=\\dfrac53=\\varepsilon\\). Drugo gorišče da \\(|PF_2|=\\sqrt{121+48}=13\\), razlika pa je \\(13-7=6=2a\\).',
+                'Here \\(a=3\\), \\(b=4\\), \\(c=5\\), \\(F=(5,0)\\), \\(F_2=(-5,0)\\) and the directrix \\(x=\\dfrac{a^2}c=1.8\\). We get \\(|PF|=\\sqrt{1+48}=7\\), \\(|Pd|=6-1.8=4.2\\) and \\(\\dfrac7{4.2}=\\dfrac53=\\varepsilon\\). The other focus gives \\(|PF_2|=\\sqrt{121+48}=13\\), and the difference is \\(13-7=6=2a\\).',
+            ),
+        },
+        {
+            id: 'conic-quarter-ellipse-bezier',
+            title: text('Četrtina elipse kot racionalna Bézierjeva krivulja', 'A quarter ellipse as a rational Bézier curve'),
+            calculationLatex: 'R\\bigl(\\tfrac12\\bigr)=\\frac{P_0+\\sqrt2\\,P_1+P_2}{2+\\sqrt2}',
+            resultLatex: '(3.5355,\\;2.1213)',
+            check: text(
+                'Kontrolne točke so \\((5,0)\\), \\((5,3)\\), \\((0,3)\\) z utežmi \\(1\\), \\(\\tfrac{\\sqrt2}2\\), \\(1\\). Pri \\(t=\\tfrac12\\) je imenovalec \\(2+\\sqrt2\\), števec pa \\((5+5\\sqrt2,\\ 3+3\\sqrt2)\\), torej \\(R=(3{,}5355;\\ 2{,}1213)\\). Preverimo: \\(\\tfrac{3{,}5355^2}{25}+\\tfrac{2{,}1213^2}9=0{,}5+0{,}5=1\\).',
+                'The control points are \\((5,0)\\), \\((5,3)\\), \\((0,3)\\) with the weights \\(1\\), \\(\\tfrac{\\sqrt2}2\\), \\(1\\). At \\(t=\\tfrac12\\) the denominator is \\(2+\\sqrt2\\) and the numerator \\((5+5\\sqrt2,\\ 3+3\\sqrt2)\\), so \\(R=(3.5355,\\ 2.1213)\\). Check: \\(\\tfrac{3.5355^2}{25}+\\tfrac{2.1213^2}9=0.5+0.5=1\\).',
+            ),
+        },
+    ],
+    steps: [
+        step({
+            id: 'conic-ellipse-sum', order: 1,
+            title: text('Vsota razdalj do gorišč na elipsi', 'The sum of the focal distances on an ellipse'),
+            purpose: text('Za točko na elipsi izmeriti obe razdalji do gorišč in videti, da je njuna vsota stalna.', 'Measuring both focal distances for a point on an ellipse and seeing that their sum is constant.'),
+            explanation: text(
+                'Elipsa \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\) ima gorišči \\(F=(4,0)\\) in \\(F_2=(-4,0)\\). V točki \\(P=(0,3)\\) je \\(|PF|=5\\) in \\(|PF_2|=5\\), vsota je \\(10=2a\\). Povleci \\(P\\) po elipsi: razdalji se spreminjata, vsota pa ostane \\(10\\).',
+                'The ellipse \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\) has the foci \\(F=(4,0)\\) and \\(F_2=(-4,0)\\). At \\(P=(0,3)\\) we have \\(|PF|=5\\) and \\(|PF_2|=5\\), and the sum is \\(10=2a\\). Drag \\(P\\) along the ellipse: the distances change, but the sum stays \\(10\\).',
+            ),
+            formulaIds: ['conic-focal-sum-difference'],
+            observationPrompt: text('Povleci točko \\(P\\) v desno teme in preberi \\(|PF|\\), \\(|PF_2|\\) in njuno vsoto.', 'Drag \\(P\\) to the right vertex and read \\(|PF|\\), \\(|PF_2|\\) and their sum.'),
+            expectedObservations: [text('V desnem temenu \\((5,0)\\) je \\(|PF|=1\\) in \\(|PF_2|=9\\); vsota je spet \\(10\\).', 'At the right vertex \\((5,0)\\) we have \\(|PF|=1\\) and \\(|PF_2|=9\\); the sum is again \\(10\\).')],
+            scene: conicScene('conic-ellipse-sum-scene', 'ellipse', undefined,
+                'Elipsa s točko \\(P=(0,3)\\): \\(|PF|=5\\), \\(|PF_2|=5\\) in vsota \\(10\\).',
+                'The ellipse with the point \\(P=(0,3)\\): \\(|PF|=5\\), \\(|PF_2|=5\\) and the sum \\(10\\).'),
+        }),
+        step({
+            id: 'conic-ratio-reveal', order: 2,
+            title: text('Napovej razmerje do vodnice', 'Predict the ratio to the directrix'),
+            purpose: text('Napovedati razmerje \\(|PF|/|Pd|\\) in ga primerjati z \\(\\varepsilon=\\tfrac ca\\).', 'Predicting the ratio \\(|PF|/|Pd|\\) and comparing it with \\(\\varepsilon=\\tfrac ca\\).'),
+            explanation: text(
+                'Vodnica elipse je črtkana premica \\(x=6{,}25\\). Preden pogledaš odčitek, izračunaj razmerje \\(|PF|/|Pd|\\) pri \\(P=(0,3)\\): \\(|PF|=5\\), razdalja do vodnice je \\(6{,}25\\), razmerje je \\(\\dfrac5{6{,}25}=0{,}8\\). To je natanko \\(\\varepsilon=\\dfrac ca=\\dfrac45\\) in tako ostane za vsako točko elipse.',
+                'The directrix of the ellipse is the dashed line \\(x=6.25\\). Before you look at the readout, compute the ratio \\(|PF|/|Pd|\\) at \\(P=(0,3)\\): \\(|PF|=5\\), the distance to the directrix is \\(6.25\\), and the ratio is \\(\\dfrac5{6.25}=0.8\\). This is exactly \\(\\varepsilon=\\dfrac ca=\\dfrac45\\), and it stays so for every point of the ellipse.',
+            ),
+            formulaIds: ['conic-definition'],
+            workedExampleId: 'conic-ellipse-ratio',
+            observationPrompt: text('Zapiši napoved razmerja, nato povleci \\(P\\) drugam in preveri, ali se razmerje spremeni.', 'Write down your predicted ratio, then drag \\(P\\) elsewhere and check whether the ratio changes.'),
+            expectedObservations: [text('Razmerje je vedno \\(0{,}8=\\varepsilon\\), čeprav se \\(|PF|\\) in \\(|Pd|\\) spreminjata.', 'The ratio is always \\(0.8=\\varepsilon\\), although \\(|PF|\\) and \\(|Pd|\\) change.')],
+            scene: conicScene('conic-ratio-reveal-scene', 'ellipse', undefined,
+                'Elipsa s točko \\(P=(0,3)\\): \\(|PF|=5\\), \\(|Pd|=6{,}25\\) in razmerje \\(0{,}8=\\varepsilon\\).',
+                'The ellipse with the point \\(P=(0,3)\\): \\(|PF|=5\\), \\(|Pd|=6.25\\) and the ratio \\(0.8=\\varepsilon\\).'),
+        }),
+        step({
+            id: 'conic-parabola', order: 3,
+            title: text('Drsenje \\(\\varepsilon\\) skozi \\(1\\): parabola', 'Sliding \\(\\varepsilon\\) through \\(1\\): the parabola'),
+            purpose: text('Videti, da natanko \\(\\varepsilon=1\\) da parabolo, v kateri je \\(P\\) enako daleč od gorišča in vodnice.', 'Seeing that exactly \\(\\varepsilon=1\\) gives the parabola, in which \\(P\\) is equally far from the focus and the directrix.'),
+            explanation: text(
+                'Parabola \\(y^2=4x\\) ima gorišče \\((1,0)\\) in vodnico \\(x=-1\\). V točki \\(P=(1,2)\\) je \\(|PF|=2\\) in \\(|Pd|=2\\), razmerje je \\(1=\\varepsilon\\). Drsnik za \\(\\varepsilon\\) doseže natanko \\(1\\): pod \\(1\\) je krivulja elipsa, nad \\(1\\) hiperbola, parabola pa je meja, pri kateri se elipsa odpre in drugega gorišča ni več.',
+                'The parabola \\(y^2=4x\\) has the focus \\((1,0)\\) and the directrix \\(x=-1\\). At \\(P=(1,2)\\) we have \\(|PF|=2\\) and \\(|Pd|=2\\), and the ratio is \\(1=\\varepsilon\\). The slider for \\(\\varepsilon\\) reaches exactly \\(1\\): below \\(1\\) the curve is an ellipse, above \\(1\\) a hyperbola, and the parabola is the border where the ellipse opens up and the second focus is gone.',
+            ),
+            formulaIds: ['conic-definition'],
+            observationPrompt: text('Z drsnikom pelji \\(\\varepsilon\\) čez \\(1\\) in opazuj, kaj se zgodi z drugim goriščem in z vejami krivulje.', 'Move \\(\\varepsilon\\) across \\(1\\) with the slider and watch what happens to the second focus and to the branches of the curve.'),
+            expectedObservations: [text('Pod \\(1\\) je krivulja sklenjena in ima dve gorišči, pri \\(1\\) drugega gorišča ni, nad \\(1\\) sta dve veji.', 'Below \\(1\\) the curve is closed with two foci, at \\(1\\) there is no second focus, and above \\(1\\) there are two branches.')],
+            scene: conicScene('conic-parabola-scene', 'parabola', undefined,
+                'Parabola \\(\\varepsilon=1\\) s točko \\(P=(1,2)\\): \\(|PF|=2\\), \\(|Pd|=2\\).',
+                'The parabola \\(\\varepsilon=1\\) with the point \\(P=(1,2)\\): \\(|PF|=2\\), \\(|Pd|=2\\).'),
+        }),
+        step({
+            id: 'conic-hyperbola', order: 4,
+            title: text('Hiperbola: razlika razdalj do gorišč', 'The hyperbola: the difference of the focal distances'),
+            purpose: text('Pri \\(\\varepsilon>1\\) videti, da je razlika razdalj do gorišč stalna.', 'Seeing that for \\(\\varepsilon>1\\) the difference of the focal distances is constant.'),
+            explanation: text(
+                'Hiperbola \\(\\tfrac{x^2}9-\\tfrac{y^2}{16}=1\\) ima \\(c=5\\), \\(\\varepsilon=\\tfrac53\\) in vodnico \\(x=1{,}8\\). V točki \\(P=(6,\\sqrt{48})\\) je \\(|PF|=7\\), razdalja do vodnice \\(4{,}2\\), razmerje \\(\\tfrac53\\approx1{,}6667\\), \\(|PF_2|=13\\) in razlika \\(13-7=6=2a\\).',
+                'The hyperbola \\(\\tfrac{x^2}9-\\tfrac{y^2}{16}=1\\) has \\(c=5\\), \\(\\varepsilon=\\tfrac53\\) and the directrix \\(x=1.8\\). At \\(P=(6,\\sqrt{48})\\) we have \\(|PF|=7\\), the distance to the directrix \\(4.2\\), the ratio \\(\\tfrac53\\approx1.6667\\), \\(|PF_2|=13\\) and the difference \\(13-7=6=2a\\).',
+            ),
+            formulaIds: ['conic-definition', 'conic-focal-sum-difference'],
+            workedExampleId: 'conic-hyperbola-ratio',
+            observationPrompt: text('Povleci \\(P\\) po veji in pri vsakem položaju preberi razliko \\(|PF_2|-|PF|\\).', 'Drag \\(P\\) along the branch and read the difference \\(|PF_2|-|PF|\\) at each position.'),
+            expectedObservations: [text('Razlika ostane \\(6\\), razmerje pa \\(\\tfrac53\\).', 'The difference stays \\(6\\) and the ratio stays \\(\\tfrac53\\).')],
+            scene: conicScene('conic-hyperbola-scene', 'hyperbola', undefined,
+                'Hiperbola s točko \\(P=(6,\\sqrt{48})\\): \\(|PF|=7\\), \\(|Pd|=4{,}2\\), razmerje \\(1{,}6667\\), \\(|PF_2|=13\\) in razlika \\(6\\).',
+                'The hyperbola with the point \\(P=(6,\\sqrt{48})\\): \\(|PF|=7\\), \\(|Pd|=4.2\\), the ratio \\(1.6667\\), \\(|PF_2|=13\\) and the difference \\(6\\).'),
+        }),
+        step({
+            id: 'conic-circle', order: 5,
+            title: text('Krožnica kot \\(\\varepsilon=0\\)', 'The circle as \\(\\varepsilon=0\\)'),
+            purpose: text('Razumeti krožnico kot mejni primer brez vodnice.', 'Understanding the circle as the limiting case without a directrix.'),
+            explanation: text(
+                'Ko gre \\(\\varepsilon\\to0\\), se drugo gorišče približuje prvemu, vodnica na razdalji \\(\\ell/\\varepsilon\\) pa odide v neskončnost. Pri \\(\\varepsilon=0\\) gorišči sovpadata, krivulja je krožnica s polmerom \\(\\ell\\) okoli \\(F\\) in vodnice ni. Razmerje \\(|PF|/|Pd|\\) zato ni določeno, razdalja \\(|PF|\\) pa je povsod enaka polmeru.',
+                'As \\(\\varepsilon\\to0\\) the second focus approaches the first and the directrix, at distance \\(\\ell/\\varepsilon\\), runs off to infinity. At \\(\\varepsilon=0\\) the foci coincide, the curve is a circle of radius \\(\\ell\\) around \\(F\\) and there is no directrix. The ratio \\(|PF|/|Pd|\\) is therefore undefined, while \\(|PF|\\) equals the radius everywhere.',
+            ),
+            formulaIds: ['conic-definition'],
+            observationPrompt: text('Poišči vodnico in odčitek razmerja ter povleci \\(P\\): kaj se zgodi z \\(|PF|\\)?', 'Look for the directrix and the ratio readout and drag \\(P\\): what happens to \\(|PF|\\)?'),
+            expectedObservations: [text('Vodnice ni, razmerje je nedoločeno, \\(|PF|=3\\) je povsod enak polmeru.', 'There is no directrix, the ratio is undefined, and \\(|PF|=3\\) equals the radius everywhere.')],
+            scene: conicScene('conic-circle-scene', 'circle', undefined,
+                'Krožnica \\(\\varepsilon=0\\) s polmerom \\(3\\): \\(|PF|=3\\), vodnice ni in razmerje ni določeno.',
+                'The circle \\(\\varepsilon=0\\) of radius \\(3\\): \\(|PF|=3\\), there is no directrix and the ratio is undefined.'),
+        }),
+        step({
+            id: 'conic-bridge', order: 6,
+            title: text('Most do Bézierja: četrtina elipse', 'The Bézier bridge: a quarter ellipse'),
+            purpose: text('Videti, da racionalni kvadratni Bézierjev lok z utežjo \\(\\tfrac{\\sqrt2}2\\) leži na elipsi.', 'Seeing that a rational quadratic Bézier arc with the weight \\(\\tfrac{\\sqrt2}2\\) lies on the ellipse.'),
+            explanation: text(
+                'Črtkani lok ima kontrolne točke \\((5,0)\\), \\((5,3)\\), \\((0,3)\\) in uteži \\(1\\), \\(w_1=\\tfrac{\\sqrt2}2\\approx0{,}7071\\), \\(1\\); to je afina slika krožnega loka z istimi utežmi. Pri \\(t=\\tfrac12\\) je lok v točki \\((3{,}5355;\\ 2{,}1213)\\), ki ustreza \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\). Odstopanje loka od stožnice, to je največji \\(\\bigl||PF|-\\varepsilon|Pd|\\bigr|\\) vzdolž loka (ostanek v enotah dolžine, ne razdalja), je zato le zaokrožitvena napaka. O tej povezavi govori poglavje Racionalne krivulje.',
+                'The dashed arc has the control points \\((5,0)\\), \\((5,3)\\), \\((0,3)\\) and the weights \\(1\\), \\(w_1=\\tfrac{\\sqrt2}2\\approx0.7071\\), \\(1\\); it is the affine image of a circular arc with the same weights. At \\(t=\\tfrac12\\) the arc is at \\((3.5355,\\ 2.1213)\\), which satisfies \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\). The deviation of the arc from the conic, the largest \\(\\bigl||PF|-\\varepsilon|Pd|\\bigr|\\) along the arc (a residual in length units, not a distance), is therefore only rounding error. This link is the subject of the chapter Rational curves.',
+            ),
+            formulaIds: ['conic-rational-bezier'],
+            workedExampleId: 'conic-quarter-ellipse-bezier',
+            observationPrompt: text('Preberi srednjo utež in odstopanje loka od stožnice ter poišči lok na elipsi.', 'Read the middle weight and the deviation of the arc from the conic, and find the arc on the ellipse.'),
+            expectedObservations: [text('Utež je \\(0{,}7071\\), vrsta po uteži je elipsa in odstopanje je praktično \\(0\\).', 'The weight is \\(0.7071\\), the kind by weight is ellipse and the deviation is practically \\(0\\).')],
+            scene: conicScene('conic-bridge-scene', 'ellipse', {},
+                'Elipsa z Bézierjevim lokom: srednja utež \\(w_1=\\tfrac{\\sqrt2}2\\approx0{,}7071\\) (elipsa), lok leži na elipsi in odstopanje je praktično \\(0\\).',
+                'The ellipse with the Bézier arc: the middle weight \\(w_1=\\tfrac{\\sqrt2}2\\approx0.7071\\) (ellipse), the arc lies on the ellipse and the deviation is practically \\(0\\).'),
+        }),
+        step({
+            id: 'conic-weight', order: 7,
+            title: text('Srednja utež odloči o vrsti', 'The middle weight decides the kind'),
+            purpose: text('Povezati srednjo utež z vrsto stožnice in prosto raziskovati.', 'Connecting the middle weight with the kind of conic, and exploring freely.'),
+            explanation: text(
+                'Pri krajnih utežeh \\(1\\) da \\(w_1<1\\) elipso, \\(w_1=1\\) parabolo in \\(w_1>1\\) hiperbolo. Zdaj je \\(w_1=1\\): lok je del parabole in zato ni več na elipsi, odstopanje pa je jasno večje od \\(0\\). Premakni drsnik pod \\(1\\) (elipsa) in nad \\(1\\) (hiperbola) ter pritisni Prilegajoča se utež, da se lok vrne na stožnico. Nato prosto spreminjaj \\(\\varepsilon\\), \\(\\ell\\) in \\(\\varphi\\): vrsta po uteži se vedno ujema z vrsto stožnice.',
+                'With end weights \\(1\\), \\(w_1<1\\) gives an ellipse, \\(w_1=1\\) a parabola and \\(w_1>1\\) a hyperbola. Now \\(w_1=1\\): the arc is a piece of a parabola and therefore no longer on the ellipse, and the deviation is clearly above \\(0\\). Move the slider below \\(1\\) (ellipse) and above \\(1\\) (hyperbola), and press Matched weight to bring the arc back onto the conic. Then change \\(\\varepsilon\\), \\(\\ell\\) and \\(\\varphi\\) freely: the kind by weight always matches the kind of the conic.',
+            ),
+            formulaIds: ['conic-rational-bezier'],
+            observationPrompt: text('Premakni \\(w_1\\) pod \\(1\\) in nad \\(1\\) in preberi vrsto po uteži; nato pritisni Prilegajoča se utež.', 'Move \\(w_1\\) below \\(1\\) and above \\(1\\) and read the kind by weight; then press Matched weight.'),
+            expectedObservations: [text('Utež pod \\(1\\) da elipso, nad \\(1\\) hiperbolo, natanko \\(1\\) parabolo; lok leži na stožnici le pri prilegajoči se uteži.', 'A weight below \\(1\\) gives an ellipse, above \\(1\\) a hyperbola and exactly \\(1\\) a parabola; the arc lies on the conic only at the matching weight.')],
+            scene: conicScene('conic-weight-scene', 'ellipse', {weight: 1},
+                'Elipsa z Bézierjevim lokom in srednjo utežjo \\(w_1=1\\): vrsta po uteži je parabola, lok ne leži na elipsi.',
+                'The ellipse with the Bézier arc and the middle weight \\(w_1=1\\): the kind by weight is a parabola, and the arc is off the ellipse.'),
+        }),
+    ],
+    sources: [
+        {
+            id: 'bezeg-conic-focal-implementation',
+            citation: 'Bezeg source: src/analysis/conic.ts, src/analysis/conicFocalModel.ts and src/graphs/functions/ConicFocalGraph.tsx.',
+            implementationCorrespondence: 'A scene chooses the example (conic and point P) by conic-example, shows the Bézier arc by conic-bridge and sets its middle weight by conic-weight. The conic is drawn from its definition and the arc is laid over it. The lesson text quotes only values of those scenes and values recomputed in the test.',
+        },
+    ],
+    edgeCases: [
+        text('Numerična ekscentričnost je med \\(0\\) in \\(2{,}5\\), polparameter \\(\\ell\\) med \\(0{,}5\\) in \\(6\\), srednja utež med \\(0{,}1\\) in \\(5\\); vrednost zunaj območja je zavrnjena in je ne zaokrožimo.', 'The eccentricity lies in \\(0\\) to \\(2.5\\), the semi-latus rectum \\(\\ell\\) in \\(0.5\\) to \\(6\\), the middle weight in \\(0.1\\) to \\(5\\); a value outside the range is rejected, not rounded.'),
+        text('Pri \\(\\varepsilon=0\\) je krožnica brez vodnice in razmerje \\(|PF|/|Pd|\\) ni določeno; parabola je natanko pri \\(\\varepsilon=1\\).', 'At \\(\\varepsilon=0\\) the circle has no directrix and the ratio \\(|PF|/|Pd|\\) is undefined; the parabola is exactly at \\(\\varepsilon=1\\).'),
+        text('Parabola in hiperbola sta narisani le do razdalje \\(50\\) od gorišča; prikazano odstopanje loka je ostanek \\(\\bigl||PF|-\\varepsilon|Pd|\\bigr|\\) v enotah dolžine, ne razdalja.', 'The parabola and the hyperbola are drawn only up to distance \\(50\\) from the focus; the shown deviation of the arc is the residual \\(\\bigl||PF|-\\varepsilon|Pd|\\bigr|\\) in length units, not a distance.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const schoolFunctionGraphsBatchCGuidedLessons: readonly GuidedLesson[] = [seriesLesson, conicLesson];

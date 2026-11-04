@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
+  "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
+    "revision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
     "dirty": true,
-    "inputs": "352f56e1f8768fbd0df7a1acd80b55eb64661d4adad9c074293e62aa65d45a7b",
-    "output": "528dce6f92219c02b7da1acbfb6536a79a189d0034c701e053dfaca68ec44c00"
+    "inputs": "ef16f76cea358049962900ac3d459ab3365a5dc097c86f058e0a8c230a036b96",
+    "output": "10d87225650d140cb58b0434857dfddb0130a33a6bff6498d714be8d780edc55"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
-    "stampRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
+    "stampRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
     "stampDirty": true,
-    "localOutputHash": "528dce6f92219c02b7da1acbfb6536a79a189d0034c701e053dfaca68ec44c00",
+    "localOutputHash": "10d87225650d140cb58b0434857dfddb0130a33a6bff6498d714be8d780edc55",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DwJHoWex.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-DwJHoWex.js",
-        "sha256": "d9b52c521787bea21ba678b9b4e7d0418f7003bdec1ad4ef33a89cdc3a7ab395",
+        "name": "index-B2qh2IJc.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-B2qh2IJc.js",
+        "sha256": "1bdbfdf3c4061fd92bba8f5664315d119a00d6c871e9801b4f39fc7bc476b0af",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BtZakI70.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-BtZakI70.js",
-        "sha256": "3ee899985b7271df584cc61afb6a79d809cc645c868fbb06aec0608c46380bb2",
+        "name": "jsx-runtime-DXaK8H67.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-DXaK8H67.js",
+        "sha256": "9ef284978f778040432c7ac85cc8382a8dc12f90b791d92baa63c00043b4b297",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-CPA7upEj.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-CPA7upEj.js",
-        "sha256": "0a7a68d657c941847c63cb511aec6fd700fefe5fc05632a243f9038d10f3eddf",
+        "name": "react-dom-4YqOUQ2l.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-4YqOUQ2l.js",
+        "sha256": "4119113974150c9515c995d169c99c7560c2368d70d4c69d57fad1c81d5aaea1",
         "matchesLocalBuild": true
       },
       {
@@ -55,17 +55,18 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "3a05465634e4c13931471b4f6982212c3a73e25ece5a8b440e14d162f7f12585",
+    "inventory": "dd693e730dbcc74275fa31ab039902ee2d30a4fe50180d3e2709a5ac31f63bf8",
     "entries": {
       "school-function-graphs.function-transformation.function-transformation": "e56f1232fd6ff5f6a2a46c1762a371a0cf1e2fe82076437f2cc2a5a93309036f",
       "school-function-graphs.function-inverse.function-inverse": "5687e549a533a6a6078063e3171c758fc26eba8418b64ba80ee25e3d303ed7b3",
       "school-function-graphs.polynomial-zeros.polynomial-zeros": "bb0305533d0b1a2a3a474db6ad712f1162db0f89492084463be66ce899fdf942",
       "school-function-graphs.rational-function.rational-function": "78434223a34ddafabd9ee56981f9b5e421b2d9f5b3c8f86e7d9da767f39f078b",
-      "school-function-graphs.geometric-series.geometric-series": "2f874ef35040fa2b04961ca6fc78f383aabb83f9126d166b97dfc595284ce9bc"
+      "school-function-graphs.geometric-series.geometric-series": "2f874ef35040fa2b04961ca6fc78f383aabb83f9126d166b97dfc595284ce9bc",
+      "school-function-graphs.conic-focal.conic-focal": "a98102e2541b4131e4abe7c2c02a51d9989d7b7963ddb7346b1abd74645af345"
     },
-    "presentation": "7e8bcc4a1a832f1a345df61b658e84820ef6f92f59bd96f74cf98cf7bac4350f",
-    "buildOutput": "528dce6f92219c02b7da1acbfb6536a79a189d0034c701e053dfaca68ec44c00",
-    "buildInputs": "352f56e1f8768fbd0df7a1acd80b55eb64661d4adad9c074293e62aa65d45a7b"
+    "presentation": "6f9505855e22a0d0047e436ca3f202010980751f0b62bcb95d3855ad7af4291e",
+    "buildOutput": "10d87225650d140cb58b0434857dfddb0130a33a6bff6498d714be8d780edc55",
+    "buildInputs": "ef16f76cea358049962900ac3d459ab3365a5dc097c86f058e0a8c230a036b96"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -146,6 +147,19 @@
             3.5,
             12,
             -1.5
+          ]
+        }
+      },
+      {
+        "id": "school-function-graphs.conic-focal.conic-focal",
+        "demonstrationId": "conic-focal",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -8,
+            8,
+            8,
+            -8
           ]
         }
       }
@@ -300,8 +314,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
-        "sourceRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
+        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
         "pageErrors": []
       }
     },
@@ -454,8 +468,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
-        "sourceRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
+        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
         "pageErrors": []
       }
     },
@@ -574,8 +588,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
-        "sourceRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
+        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
         "pageErrors": []
       }
     },
@@ -708,8 +722,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
-        "sourceRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
+        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
         "pageErrors": []
       }
     },
@@ -786,8 +800,137 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
-        "sourceRevision": "86d613022009c15cf0b1c6d806aafbde6e913d52",
+        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "school-function-graphs.conic-focal.conic-focal",
+      "demonstrationId": "conic-focal",
+      "path": "/bezeg-2.0/functions/conics?example=lesson.school-function-graphs.conic-focal.conic-focal",
+      "sceneFingerprint": "3d6ea66f4226375c496bdfde07dfe8bc92f2bbcabef7098203accb50ed2f0244",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"conic-ellipse-sum-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"conic-ellipse-sum-scene\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"conic-example\",\"value\":\"ellipse\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "school-function-graphs.conic-focal.conic-focal.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "9c4c0ae46cb3376463d9e8d5cf3cb5b1f790ee2502e3a12c8703f6208de9ce1d",
+      "scene": {
+        "visibleElementCount": 25,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "line": 1,
+          "curve": 1,
+          "segment": 3,
+          "point": 3
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              5,
+              0
+            ],
+            [
+              4.999905,
+              0.01309
+            ],
+            [
+              4.99981,
+              0.026181
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:line",
+          "type:segment",
+          "type:point",
+          "curve-count",
+          "point:-4,0",
+          "point:0,3",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 24,
+            "line": 1,
+            "curve": 1,
+            "segment": 3,
+            "point": 3,
+            "text": 1
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                5,
+                0
+              ],
+              [
+                4.999905,
+                0.01309
+              ],
+              [
+                4.99981,
+                0.026181
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:line",
+            "type:segment",
+            "type:point",
+            "curve-count",
+            "point:-4,0",
+            "point:0,3",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 13,
+          "line": 1,
+          "curve": 1,
+          "segment": 3,
+          "point": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
+        "sourceRevision": "22a4d16d63bd427d964d00089496c8fa83ee74e3",
         "pageErrors": []
       }
     }

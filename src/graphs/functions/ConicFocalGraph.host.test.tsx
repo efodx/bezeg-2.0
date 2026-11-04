@@ -110,7 +110,7 @@ test('dragging P and the numeric angle keep the ratio equal to the eccentricity'
 
 test('the epsilon slider steps land on exactly 1 and exactly 0, with the kind and the circle readout', () => {
     const {graph} = mountGraph();
-    const slider = () => screen.getByLabelText('Numerična izsrednost ε');
+    const slider = () => screen.getByLabelText('Numerična ekscentričnost ε');
     for (let i = 0; i <= 50; i++) {
         act(() => { fireEvent.change(slider(), {target: {value: String(i * 0.05)}}); });
         if (i === 20) {

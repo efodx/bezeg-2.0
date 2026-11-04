@@ -210,10 +210,10 @@ it('publishes the Complex maps example cards with their own checked images and p
 const functionsCards = [
     {chapterId: 'numerical-methods', copy: numericalPreviewCopy, ids: ['numerical-methods.euler-method.euler-method', 'numerical-methods.quadrature.quadrature', 'numerical-methods.root-finding.root-finding'], counts: [[2, 1], [2, 2], [1, 3]]},
     {chapterId: 'school-function-graphs', copy: schoolFunctionGraphsPreviewCopy,
-        ids: ['school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation',
+        ids: ['school-function-graphs.conic-focal.conic-focal', 'school-function-graphs.function-inverse.function-inverse', 'school-function-graphs.function-transformation.function-transformation',
             'school-function-graphs.geometric-series.geometric-series', 'school-function-graphs.polynomial-zeros.polynomial-zeros',
             'school-function-graphs.rational-function.rational-function'],
-        counts: [[2, 2], [2, 2], [0, 0], [1, 2], [1, 4]]},
+        counts: [[1, 3], [2, 2], [2, 2], [0, 0], [1, 2], [1, 4]]},
     {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-coefficients.fourier-coefficients', 'fourier-series.fourier-series.fourier-series'], counts: [[5, 7], [6, 7]]},
     {chapterId: 'projective-conics', copy: projectiveConicsPreviewCopy,
         ids: ['projective-conics.projective-cross-ratio.projective-cross-ratio', 'projective-conics.projective-five-point.projective-five-point',

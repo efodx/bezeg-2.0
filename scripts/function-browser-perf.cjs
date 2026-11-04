@@ -63,11 +63,11 @@ async function runOnce07(browser, c) {
             await page.waitForFunction(() => /Predvajaj/.test(document.querySelector('[data-action="play-pause"]').textContent), null, {timeout: 60000});
             t1 = await page.evaluate(() => performance.now());
         } else {
-            const eps = page.getByLabel(/Numerična izsrednost/).first();
+            const eps = page.getByLabel(/Numerična ekscentričnost/).first();
             const lo = Number(await eps.getAttribute('min')), hi = Number(await eps.getAttribute('max'));
             await startSampling(page);
             t0 = await page.evaluate(() => performance.now());
-            for (let k = 0; k <= 100; k++) { await setRange(page, /Numerična izsrednost/, lo + (hi - lo) * (k <= 50 ? k / 50 : (100 - k) / 50)); await page.waitForTimeout(20); }
+            for (let k = 0; k <= 100; k++) { await setRange(page, /Numerična ekscentričnost/, lo + (hi - lo) * (k <= 50 ? k / 50 : (100 - k) / 50)); await page.waitForTimeout(20); }
             t1 = await page.evaluate(() => performance.now());
         }
         const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });

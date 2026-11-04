@@ -256,7 +256,8 @@ test('numerical, school, fourier and projective capture families accept exactly 
             {id: 'school-function-graphs.function-inverse.function-inverse', path: '/bezeg-2.0/functions/inverse?example=lesson.school-function-graphs.function-inverse.function-inverse'},
             {id: 'school-function-graphs.polynomial-zeros.polynomial-zeros', path: '/bezeg-2.0/functions/polynomial-zeros?example=lesson.school-function-graphs.polynomial-zeros.polynomial-zeros'},
             {id: 'school-function-graphs.rational-function.rational-function', path: '/bezeg-2.0/functions/rational-functions?example=lesson.school-function-graphs.rational-function.rational-function'},
-            {id: 'school-function-graphs.geometric-series.geometric-series', path: '/bezeg-2.0/functions/geometric-series?example=lesson.school-function-graphs.geometric-series.geometric-series'}],
+            {id: 'school-function-graphs.geometric-series.geometric-series', path: '/bezeg-2.0/functions/geometric-series?example=lesson.school-function-graphs.geometric-series.geometric-series'},
+            {id: 'school-function-graphs.conic-focal.conic-focal', path: '/bezeg-2.0/functions/conics?example=lesson.school-function-graphs.conic-focal.conic-focal'}],
         'fourier-series': [{id: 'fourier-series.fourier-series.fourier-series', path: '/bezeg-2.0/analysis/fourier-series?example=lesson.fourier-series.fourier-series.fourier-series'},
             {id: 'fourier-series.fourier-coefficients.fourier-coefficients', path: '/bezeg-2.0/analysis/fourier-coefficients?example=lesson.fourier-series.fourier-coefficients.fourier-coefficients'}],
         'projective-conics': [
