@@ -98,7 +98,7 @@ const targets = {
     // Sample 1 of the monotone chain in chain mode (the default view of the robustness graph) after four Next steps; the window keeps the 360:220 aspect.
     'hull-robustness': ['Sample 1 of nine points after a few Next steps of the monotone chain in chain mode, under the default pop rule', [button('Naslednji korak', 4)], [-2.9, 5.5, 6.9, -0.5]],
     // The default crossing pair, quadratics (0,0), (2,4), (4,0) and (0,3), (2,-1), (4,3), after six Next steps: the discard verdict at depth 3, where 8 of the 64 piece pairs remain near the two crossings. The curves span x 0 to 4, y 0 to 3 and the hulls reach y -1; the window keeps the 720:440 aspect (9.16:5.6).
-    'bezier-hulls': ['Default crossing pair of quadratic Bezier curves at subdivision depth 3 after six Next steps: the hulls of the remaining piece pairs cluster around the two crossings, the discarded pairs drawn thin and dashed', [button('Naslednji korak', 6)], [-2.58, 4.3, 6.58, -1.3]],
+    'bezier-hulls': ['Default crossing pair of quadratic Bezier curves at subdivision depth 3 after six Next steps: the hulls of the pieces still in a pair cluster around the two crossings, the other pieces drawn thin and unfilled', [button('Naslednji korak', 6)], [-2.58, 4.3, 6.58, -1.3]],
     // Default pentagon (0,0), (6,0), (6,4), (3,2), (0,4) with the reflex vertex (3,2).
     'ear-clipping': ['Default pentagon with one reflex vertex at the end of its 12-step ear-clipping trace, cut into three triangles', [button('Naslednji korak', 11)], [-0.8, 4.8, 6.8, -0.8]],
     // Sample 1: intervals [0,4], [2,7], [3,5], [6,9], [8,10] on rows 1 to 5.

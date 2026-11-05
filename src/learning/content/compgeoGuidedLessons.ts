@@ -3140,7 +3140,7 @@ export const BEZIER_HULLS_STEPS = {split: 1, discard: 2, end: 8} as const;
 export const BEZIER_HULLS_CROSSING: readonly LessonPoint[] = [[0, 0], [2, 4], [4, 0], [0, 3], [2, -1], [4, 3]];
 export const BEZIER_HULLS_NEAR_MISS: readonly LessonPoint[] = [[4, 0], [8, 2], [2, 6], [5, 0], [7, 4], [3, 6]];
 export const BEZIER_HULLS_SHIFTED: readonly LessonPoint[] = [[0, 0], [4, 8], [8, 0], [1, 6], [5, -2], [9, 6]];
-const BEZIER_HULLS_VIEW: LessonViewBox = [-1, 6, 9, -2];
+const BEZIER_HULLS_VIEW: LessonViewBox = [-1, 6.5, 9, -2];
 /** A trace step of the Bézier hulls graph, clamped like a stored Preset step; `'end'` is the last. */
 const traceStep = (step: number | 'end'): LessonAction => ({kind: 'point-set', operation: 'set-trace-step', step});
 /**
