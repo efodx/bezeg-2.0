@@ -20,7 +20,7 @@ describe('guided example preview copy', () => {
         const activityIds = activities.map(activity => activity.id);
         const missingActivityCopy = activityIds.filter(id => !Object.hasOwn(guidedActivityPreviewCopyById, id));
 
-        expect(GUIDED_LESSON_AVAILABLE_IDS).toHaveLength(112);
+        expect(GUIDED_LESSON_AVAILABLE_IDS).toHaveLength(113);
         expect(lessonIds).toHaveLength(GUIDED_LESSON_AVAILABLE_IDS.length);
         expect(missingLessonCopy).toEqual([]);
         expect(Object.keys(guidedActivityPreviewCopyById)).toHaveLength(6);
