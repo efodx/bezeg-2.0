@@ -1897,3 +1897,23 @@ Handoff — smoke/UI: five-route checklist with stable handler-owned production 
 - Accepted: F6 record, matrix, docs, 2 tests with observed mutations, `just check` 1102 s, hosted run 41980663752 with every job executed. Convexity complete; stream `complete`.
 - Reviewer value: an explicit vacuity instruction produced two real gaps (shared-endpoint prose unpinned, no arrow-key test), both closed. Its summary tally (28 and 8) differed from its own table (31 and 9): count from the table. It also called exit restore a gap where a generic runtime test exists; the brief did not point it at shared runtime tests.
 - Environment failures, not code: `npm test` from the Bash tool's Git Bash says `'vitest' is not recognized`, and passes from PowerShell. The background wrapper reported 0 on that failed check, and only the recorded `EXIT=1` showed it, which confirms handoff 54's rule. A heredoc halved `\r\n` in a Python edit script, also an earlier handoff's warning. Hand-back text was not in the worker's transcript file, so the matrix was retyped.
+
+### 2026-11-05 curves handler 48: CG-B2-3 L3 lesson (from handoff notes)
+
+- Implementation, M. Handler Opus, auto, medium. Two `bezeg-worker` workers and one Sonnet review; written by handler 50 from [handoff 48](../reviews/feature-streams/curves/handler-handoff-48.md), so no timestamps or usage.
+- Accepted: L3 lesson and chapter section (`52f1094b`).
+- Worker 1 stopped at 135k after 65 turns with no tests landed: it spent its budget on probes and lesson text. Worker 2 finished in 20 tool calls from worker 1's note. Handler's added brief rule: write a lesson's text, scene and tests as two slices.
+
+### 2026-11-05 curves handler 49: L3 browser walk (from handoff notes)
+
+- Smoke, S. One `bezeg-smoke` Sonnet worker: 40 tool calls, 60k tokens (worker's reported usage), 12.6 minutes. Written by handler 50 from [handoff 49](../reviews/feature-streams/curves/handler-handoff-49.md).
+- Accepted: all six checks reported with evidence; gaps carried from handoff 47 closed. No repair rounds.
+- Handler context: 175k reached at turn 21, mostly whole-file opening reads of `docs/agent-workflow.md`, `docs/commands.md` and the lesson file. The handler wrote the L4 draft itself and left its tests to a successor.
+
+### 2026-11-05 curves handler 50: CG-B2-4 L4 tests, review and walk
+
+- Implementation, M, estimated before dispatch. Handler Opus, auto, medium. Three subagents, all requested Sonnet: `bezeg-worker` tests, `bezeg-reviewer` mathematics, `bezeg-smoke` screenshots. Brief handoff-v12.
+- Worker: dispatched 07:57Z, reported about 08:11Z; 36 tool calls, 106k tokens, 14.6 minutes. Text and scene already existed, so the slice was tests only, as handoff 48's rule asked: it finished in one pass where the first L3 worker landed none. Nine mutations reported, one honest non-detection named.
+- Reviewer: 9 tool calls, 39k tokens, 87 seconds. All values confirmed with its own script; two weak substring assertions, checked by the handler and accepted.
+- Smoke: 41 tool calls, 77k tokens, 11.3 minutes. Found what tests could not: step 5 at 1280 by 720 hid the curve under the panel. Handler fixed it with a scene view and rechecked on a rebuild by reusing the worker's script, so no second worker. One repair round, code issue.
+- Accepted: `just check` 1036 s before the view fix; after it typecheck, 1506 learning tests and `smoke-lesson`. The full check was not repeated for the one-constant change; hosted CI covers it.
