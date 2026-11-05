@@ -37,6 +37,9 @@ The shoelace sum \(\tfrac12\sum(x_iy_{i+1}-x_{i+1}y_i)\) of a polygon: positive 
 **Convex hull**:
 The smallest convex polygon containing a point set. The hull Demonstration builds it by three algorithms (the slow edge test, the monotone chain and gift wrapping) that must return the same vertices; a point on a hull edge is on the boundary but not a vertex.
 
+**Piece pair** (*par odsekov*):
+One piece of each of two Bézier curves after the same number of halvings. The pair is discarded when the hulls of its control points are certified disjoint, which proves the two pieces do not meet. A kept pair proves nothing: overlapping hulls are necessary for a crossing, not sufficient.
+
 **Winding number** (*ovojno število*):
 How many times a closed polygon turns around a query point, counted with sign. It decides inside or outside by the nonzero rule. Not defined for a point on the boundary, which is reported as on the boundary.
 

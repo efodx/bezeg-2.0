@@ -1,0 +1,53 @@
+﻿unit: failed (1) in 8.8s (2 workers, no slot); revision 7d13c2b3f94ecc6e8103609648246428b401251b; dirty; log .command-logs\2026-11-05T06-37-31-086Z-41604-566d34dd.log
+just : 
+At C:\Users\1337Hacker\.claude\jobs\41e0973f\tmp\mut.ps1:10 char:9
++         just unit $tests *> "$R/$log"
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/graphs/compgeo/CurvePairGraph.host.test.tsx
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/graphs/compgeo/CurvePairGraph.host.test.tsx (20 tests | 1 failed) 1714ms
+   × arrow keys move the selected control point one grid step and redraw its curve, without a selection they do 
+nothing 78ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/graphs/compgeo/CurvePairGraph.host.test.tsx > arrow keys move the selected control point one grid step and 
+redraw its curve, without a selection they do nothing
+AssertionError: expected { x: 2, y: 4 } to deeply equal { x: 2, y: 5 }
+
+- Expected
++ Received
+
+  {
+    "x": 2,
+-   "y": 5,
++   "y": 4,
+  }
+
+ ❯ src/graphs/compgeo/CurvePairGraph.host.test.tsx:114:35
+    112|     expect(maxOf(mainCurves(graph)[0].dataY)).toBeCloseTo(2, 3);
+    113|     press('ArrowUp');
+    114|     expect(graph.model.points[1]).toEqual({x: 2, y: 5});
+       |                                   ^
+    115|     expect(mainCurves(graph)[0].dataY?.length).toBe(97);
+    116|     expect(maxOf(mainCurves(graph)[0].dataY)).toBeCloseTo(2.5, 3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 passed (20)
+   Start at  07:37:31
+   Duration  8.01s (transform 33%, import 24%, tests 22%, environment 15%, setup 6%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

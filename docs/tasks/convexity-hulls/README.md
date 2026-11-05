@@ -70,7 +70,7 @@ Planned 2026-11-05 (geometry handler 52). Kernel [11](11-hull-separation.md) was
 | 27 | [Batch 3 registration](27-batch3-registration.md): `bezier-hulls` | F2b | 26 | accepted 2026-11-05, poster pending |
 | 28 | [Lesson A6 scene, wiring and chapter section](28-lesson-bezier-hulls.md) | F3, F4 | 27 | accepted 2026-11-05 (handler 54) |
 | 29 | [Lesson A6 tests and gates](29-lesson-bezier-hulls-tests.md) | F3 | 28 | accepted 2026-11-05 (handler 54) |
-| — | F5 poster; F6 acceptance | F5–F6 | 29 | F5 poster captured 2026-11-05 (handler 54); F6 record and docs pending |
+| — | F5 poster; F6 acceptance | F5–F6 | 29 | accepted 2026-11-05 (handler 55, [record](../../reviews/feature-streams/geometry/f6-convexity-batch3-acceptance.md)) |
 
 ## Earlier notes on Batch 3
 - **Batch 3 (A6):** kernel [11 conservative hull separation](11-hull-separation.md) (F1, accepted 2026-10-31 after math review; [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md); not gated, written early because the Curves D2 graph needs it); the pair-of-curves view (measure at depth 4); F2b, F3, F4, F5, F6.

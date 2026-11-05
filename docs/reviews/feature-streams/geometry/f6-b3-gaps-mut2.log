@@ -1,0 +1,59 @@
+﻿unit: failed (1) in 12.0s (2 workers, no slot); revision 7d13c2b3f94ecc6e8103609648246428b401251b; dirty; log .command-logs\2026-11-05T06-37-40-300Z-46480-fac63f17.log
+just : 
+At C:\Users\1337Hacker\.claude\jobs\41e0973f\tmp\mut.ps1:10 char:9
++         just unit $tests *> "$R/$log"
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Recent output:
+
+> bezeg-2.0@2.0.0 test
+> vitest --run src/learning/content/compgeoBezierHullsLesson.test.ts
+
+
+ RUN  v5.0.4 C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-geometry
+
+ ❯ src/learning/content/compgeoBezierHullsLesson.test.ts (22 tests | 1 failed) 4845ms
+   ❯ acceptance 4: overlap is necessary, not sufficient; the recursion stops at a fixed depth; the test is not called 
+exact (10)
+     × en: the depth 4 step explains the eight pairs by crossings at shared piece endpoints, four pairs at each 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/learning/content/compgeoBezierHullsLesson.test.ts > acceptance 4: overlap is necessary, not sufficient; the 
+recursion stops at a fixed depth; the test is not called exact > en: the depth 4 step explains the eight pairs by 
+crossings at shared piece endpoints, four pairs at each
+AssertionError: expected 'At depth \(4\) of \(4\), \(8\) of \(2…' to match /shared endpoints of pieces from depth…/
+
+- Expected:
+/shared endpoints of pieces from depth \\\(2\\\) on/
+
++ Received:
+"At depth \\(4\\) of \\(4\\), \\(8\\) of \\(256\\) pairs of pieces remain (readout: \\(32\\) tested, \\(24\\) 
+discarded). Eight rather than two, because the crossings at \\(t=\\tfrac14\\) and \\(t=\\tfrac34\\) are pieces near 
+each crossing: at a crossing two pieces of each curve meet, so four pairs touch each crossing, \\(8\\) in all. Hulls 
+that touch count as overlapping, because the test prefers to keep a pair. If the curve \\(B\\) moved half a unit to 
+the right, the crossings would no longer fall on shared endpoints. This grid has no half units, but the curves at 
+twice the size, \\((0,0)\\), \\((4,8)\\), \\((8,0)\\) and \\((1,6)\\), \\((5,-2)\\), \\((9,6)\\), give the same 
+position: the readout shows \\(2\\) pairs, one at each crossing. The remaining pairs gather at the crossings, but 
+overlap alone does not prove an intersection."
+
+ ❯ src/learning/content/compgeoBezierHullsLesson.test.ts:339:33
+    337|         test(`${language}: the depth 4 step explains the eight pairs b…
+    338|             const explanation = authoredStep('bh-depth4').explanation[…
+    339|             expect(explanation).toMatch(language === 'sl' ? /skupni kr…
+       |                                 ^
+    340|             expect(explanation).toMatch(language === 'sl' ? /štirje pa…
+    341|         });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 21 passed (22)
+   Start at  07:37:41
+   Duration  11.22s (tests 44%, transform 24%, import 17%, environment 11%, setup 4%)
+
+
+error: recipe `unit` failed on line 22 with exit code 1

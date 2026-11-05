@@ -1883,3 +1883,17 @@ Handoff — smoke/UI: five-route checklist with stable handler-owned production 
 - Smoke value: the walk found a defect older than this family (LaTeX in `alt`, 146 strings) that unit tests and notation checks could not see. Naming "view the card as a learner" led to the image-language limitation too.
 - Handler errors, all caught before commit: a first exhaustive test passed with the fix removed, because its loop reached only copy without math and called the converter directly; a `sed` mutation silently did not apply. A mutation helper that exits when the text is absent caught the second. Rule of thumb: a mutation that passes is either a vacuous test or a mutation that never landed; check which.
 - Measurement: 3 runs did not separate tooth counts at CPU ÷4 (p95 non-monotonic); 7 runs did. The brief's interleaving and reality assertions held up; its 3-run default did not.
+
+### 2026-11-05 geometry handlers 52-54: convexity Batch 3 tasks 24-29 and F5
+
+- Role/class: Claude Opus handlers, `auto`, medium; L, several slices across three handlers. Workers `bezeg-worker` (Sonnet, high), `bezeg-reviewer` (Sonnet), `bezeg-smoke` (Sonnet), brief `handoff-v12`. Exact worker counts and usage were not retained here; handoffs 52-54 are the source.
+- Accepted: curve pair model, `CurvePairGraph`, readout and Presets with the depth 4 measurement, `bezier-hulls` registration, lesson A6 with its chapter section, 27 lesson tests with three observed mutations, poster. Smoke 10 pass, 0 fail.
+- Repairs/limits: reading card-hidden pictures changed the lesson text (step 4 spoke of thin discarded pairs; all four hulls are still kept). Two writers in `BezierHulls*` gave false tsc and load failures, so one writer per file family. Worker 28 reached 135k in 57 turns on lesson research: split a lesson's reading from its writing.
+- CI: a docs push cancelled the code run, and the green docs run skipped every job, so Batch 3 stayed hosted-unverified through handoff 53. Rule of thumb: confirm the jobs ran, not the run's colour.
+
+### 2026-11-05 geometry handler 55: convexity Batch 3 F6 acceptance
+
+- Role/class: Claude Opus handler, `auto`, medium; S. One worker: `bezeg-reviewer` (Sonnet, read-only, `handoff-v12`), evidence matrix, 11 tool uses, 159 s, 49,129 tokens (tool result, worker scope). Handler kept docs, two small tests, the picture check and the record: the tests were tightly coupled to the matrix findings.
+- Accepted: F6 record, matrix, docs, 2 tests with observed mutations, `just check` 1102 s, hosted run 41980663752 with every job executed. Convexity complete; stream `complete`.
+- Reviewer value: an explicit vacuity instruction produced two real gaps (shared-endpoint prose unpinned, no arrow-key test), both closed. Its summary tally (28 and 8) differed from its own table (31 and 9): count from the table. It also called exit restore a gap where a generic runtime test exists; the brief did not point it at shared runtime tests.
+- Environment failures, not code: `npm test` from the Bash tool's Git Bash says `'vitest' is not recognized`, and passes from PowerShell. The background wrapper reported 0 on that failed check, and only the recorded `EXIT=1` showed it, which confirms handoff 54's rule. A heredoc halved `\r\n` in a Python edit script, also an earlier handoff's warning. Hand-back text was not in the worker's transcript file, so the matrix was retyped.

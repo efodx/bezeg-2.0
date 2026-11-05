@@ -334,6 +334,12 @@ describe('acceptance 4: overlap is necessary, not sufficient; the recursion stop
             expect(chapterSection().paragraphs.map(p => p[language]).join(' ')).toMatch(NOT_SUFFICIENT[language]);
         });
 
+        test(`${language}: the depth 4 step explains the eight pairs by crossings at shared piece endpoints, four pairs at each`, () => {
+            const explanation = authoredStep('bh-depth4').explanation[language];
+            expect(explanation).toMatch(language === 'sl' ? /skupni krajišči odsekov že od globine \\\(2\\\)/ : /shared endpoints of pieces from depth \\\(2\\\) on/);
+            expect(explanation).toMatch(language === 'sl' ? /štirje pari ob vsakem presečišču/ : /four pairs touch each crossing/);
+        });
+
         test(`${language}: the near-miss step, the test formula and the chapter say the recursion stops at a fixed depth`, () => {
             expect(authoredStep('bh-near-miss').explanation[language]).toMatch(language === 'sl' ? /fiksni globini \\\(4\\\)/ : /fixed depth \\\(4\\\)/);
             const formula = authored().formulaBlocks.find(f => f.id === 'bh-hull-test')!;
