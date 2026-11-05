@@ -1942,3 +1942,11 @@ Handoff — smoke/UI: five-route checklist with stable handler-owned production 
 - Engineering and UI review, Sonnet: 12 tool calls, 38k tokens, 62 s. No high or medium finding, two low notes. It ran no mutations, so handler 52's record answers that concern.
 - Smoke, Sonnet: 26 tool calls, 64k tokens, 5 minutes. One real failure no jsdom test could reach, the caption at 390×844, and it caught that the handoff's "the base point drags" was false. The handler confirmed that with a mouse drag on both routes.
 - Outcome: accepted after one handler fix. A foreground `just check` survived the memory reaper once memory was free; the harness moved it to the background at 600 s and it kept running.
+
+Curves handler 54, CG-B3-3 L5 lesson (2026-11-05):
+
+- Lesson worker: 48 tool calls, 117k tokens, 13 minutes. Accepted with one handler fix, the missing calculation frame.
+- Test worker: 41 tool calls, 110k tokens, 21 minutes. First pass accepted, no defect found.
+- Review, Sonnet: 14 tool calls, 46k tokens, 2 minutes. No high or medium finding, two low notes; one gave the close test.
+- Smoke, Sonnet: 34 tool calls, 55k tokens, 2 minutes. Screenshots at two sizes found what the 13 real-graph tests and the smoke row could not: the panel hid the scene's point. Its viewport-only shots missed the plot, and it read a family-wide layout as an L5 defect; a full-page shot and a comparison with L4 settled both.
+- Outcome: accepted after one handler fix to the view and prompt. The handler's first catalog test assumed handoff 53's frame contract was universal; running it showed 17 lessons breaking it, which became a finding for Functions.

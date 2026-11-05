@@ -192,7 +192,7 @@ test('every active demonstration route has an available lesson unless it opts ou
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 
-// These lessons list a worked example on steps with no calculation frame, so the learner never sees it (curves handler 54, reported to Functions). Remove an id once its lesson is fixed; do not add one.
+// These lessons list a worked example on steps with no calculation frame, so the learner never sees it (curves handler 54, open for the owner). Remove an id once its lesson is fixed; do not add one.
 const WORKED_EXAMPLE_NOT_SHOWN = [
     'function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series', 'conic-focal',
     'root-finding', 'quadrature', 'euler-method', 'fourier-series', 'fourier-coefficients', 'epicycles',

@@ -13,6 +13,8 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 - **Gate reading.** `G-CURVE` gates anything that subclasses or edits the spline graphs, the spline adapter or curve-editing gestures (the comb on spline graphs). The L2 curvature graph only subclasses `BezierCurveGraph` and adds an overlay, so its F2a runs before `G-CURVE`; if Platform A6 changes `BezierCurveGraph`'s gesture code, the subclass rebases over it.
 - **Terms.** The spec's Slovenian proposals are used as written (one-shot rule): ukrivljenost, krivinska krožnica, krivinski polmer, glavnik ukrivljenosti, evoluta, vzporedna krivulja, ovojnica, polarna krivulja, ost, Frenetov okvir, prevoj.
 
+- **L6 ships (handler 54, 2026-11-05).** The spec lets it be dropped, but its scope is small, its route and term are already decided, it shows the de Casteljau construction from a new side, and family 2's optional L6 set the precedent. It runs before CG-B3-5 so one capture serves both posters.
+
 ## Slices
 
 | Id | Kind | Content | Depends on | Status |
@@ -33,6 +35,10 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-B2-4 | F4 | L4 lesson and chapter section for `curve-evolute` | B2-3 | done (handler 50): [evidence](../../reviews/curve-geometry/cg-b2-4-lesson.md) |
 | CG-B2-5 | F5 | Media | B2-4 | done (handler 50): [evidence](../../reviews/curve-geometry/cg-b2-5-media.md) |
 | CG-B2-6 | F6 | Batch 2 gate | B2-5 | done, **Batch 2 released** (handler 51): [gate record](../../reviews/curve-geometry/cg-b2-6-gate.md), [measurement](../../reviews/curve-geometry/cg-b2-6-measurement.md), [audit](../../reviews/curve-geometry/cg-b2-6-criterion-audit.md) |
-| CG-B3-2a | F2a | `curve-offset` (with PH cross-check; tangential-cusp detection from the CG-1 review) and optional `curve-envelope` graphs | B2 shipped | `curve-offset` kernel and graph done, reviewed, smoked and measured ([evidence](../../reviews/curve-geometry/cg-b3-2a-graphs.md)); `curve-envelope` waits for the L6 decision |
-| CG-B3-2b | F2b | Registration | B3-2a | `curve-offset` registered (`lesson: false`, poster pending) |
-| CG-B3-3…6 | F3–F6 | L5/L6 lessons, chapter sections, media, Batch 3 gate | B3-2b | planned |
+| CG-B3-2a | F2a | `curve-offset` (with PH cross-check; tangential-cusp detection from the CG-1 review) and optional `curve-envelope` graphs | B2 shipped | `curve-offset` kernel and graph done, reviewed, smoked and measured ([evidence](../../reviews/curve-geometry/cg-b3-2a-graphs.md)); `curve-envelope`: CG-B3-4a |
+| CG-B3-2b | F2b | Registration | B3-2a | `curve-offset` registered (poster pending) |
+| CG-B3-3 | F3 | L5 lesson and chapter section for `curve-offset` | B3-2b | done (handler 54): [evidence](../../reviews/curve-geometry/cg-b3-3-lesson.md) |
+| CG-B3-4a | F2a, F2b | `curve-envelope` graph and registration (`lesson: false`) | B2 shipped | planned; L6 ships (decision above) |
+| CG-B3-4b | F3 | L6 lesson and chapter section | B3-4a | planned |
+| CG-B3-5 | F5 | Cards and posters for `curve-offset` and `curve-envelope`, joint capture | B3-4b | planned |
+| CG-B3-6 | F6 | Batch 3 gate | B3-5 | planned |
