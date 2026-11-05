@@ -166,6 +166,11 @@ export class HullRobustnessGraph extends HullTraceGraph {
             const parsed = parseDuplicateRule(duplicates);
             if (parsed === undefined) throw new Error(`point-set set-duplicates: duplicates must be "merge" or "keep", got ${String(duplicates)}.`);
             this.setDuplicateRule(parsed);
+        } else if (action.operation === "set-panel") {
+            const panel: unknown = action.panel;
+            const parsed = parseKettnerPanel(panel);
+            if (parsed === undefined) throw new Error(`point-set set-panel: panel must be "inexact" or "exact", got ${String(panel)}.`);
+            this.setKettnerPanel(parsed);
         } else if (action.operation === "select-cell") {
             const i = parseKettnerCoordinate(action.i);
             const j = parseKettnerCoordinate(action.j);

@@ -96,12 +96,15 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
     } else if (operation === 'set-duplicates') {
         const duplicates = (data as Record<string, unknown>).duplicates;
         if (duplicates !== 'merge' && duplicates !== 'keep') throw new Error('A point-set set-duplicates action needs duplicates "merge" or "keep".');
+    } else if (operation === 'set-panel') {
+        const panel = (data as Record<string, unknown>).panel;
+        if (panel !== 'inexact' && panel !== 'exact') throw new Error('A point-set set-panel action needs the panel "inexact" or "exact".');
     } else if (operation === 'select-cell') {
         const {i, j} = data as Record<string, unknown>;
         const cell = (v: unknown): boolean => typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= 63;
         if (!cell(i) || !cell(j)) throw new Error('A point-set select-cell action needs integer cell coordinates i and j from 0 to 63.');
     } else {
-        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction, set-query-point, set-polygon, set-mode, set-pop-rule, set-duplicates or select-cell.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction, set-query-point, set-polygon, set-mode, set-pop-rule, set-duplicates, set-panel or select-cell.');
     }
     return action;
 }

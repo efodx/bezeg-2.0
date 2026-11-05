@@ -50,6 +50,7 @@ const ps = (operation: string, fields: object = {}) => ({kind: 'point-set', oper
 const setMode = (mode: string) => ps('set-mode', {mode});
 const setPop = (rule: string) => ps('set-pop-rule', {rule});
 const setDuplicates = (duplicates: string) => ps('set-duplicates', {duplicates});
+const setPanel = (panel: unknown) => ps('set-panel', {panel});
 const selectCell = (i: unknown, j: unknown) => ps('select-cell', {i, j});
 const trace = (command: string): LessonAction => ({kind: 'animation', animationId: 'algorithm-trace', command}) as LessonAction;
 const apply = (graph: Observed, action: LessonAction) => act(() => { graph.run1(action); });
@@ -128,6 +129,8 @@ describe('every edit action pauses a running playback and returns to step 0', ()
         ['set-pop-rule', setPop('right')],
         ['set-duplicates', setDuplicates('keep')],
         ['set-mode kettner', setMode('kettner')],
+        ['set-panel', setPanel('exact')],
+        ['set-panel (already chosen)', setPanel('inexact')],
         ['select-cell', selectCell(3, 4)],
         ['set-mode chain (already chain)', setMode('chain')],
         ['set-pop-rule (already chosen)', setPop('non-left')],
@@ -188,6 +191,7 @@ test('a bad value is a lesson-content error that changes nothing', () => {
     }
     expect(() => graph.run1(setPop('left'))).toThrow('set-pop-rule');
     expect(() => graph.run1(setDuplicates('drop'))).toThrow('set-duplicates');
+    for (const panel of ['both', 'Exact', undefined, 1]) expect(() => graph.run1(setPanel(panel))).toThrow('set-panel');
     for (const mode of ['both', 'sites', 'four-point']) expect(() => graph.run1(setMode(mode))).toThrow('set-mode');
     expect([graph.step, graph.isPlaying, graph.state]).toEqual([stepBefore, true, stateBefore]);
     expect(graph.kettnerCell).toEqual({i: 41, j: 48});
@@ -199,17 +203,17 @@ test('set-algorithm other than the monotone chain is still refused, and the new 
         expect(() => graph.run1(ps('set-algorithm', {algorithm}))).toThrow(UnsupportedLessonActionError);
     }
     expect(() => graph.run1(ps('set-algorithm', {algorithm: 'monotone-chain'}))).not.toThrow();
-    for (const action of [setMode('kettner'), setPop('right'), setDuplicates('keep'), selectCell(1, 2)]) expect(graph.supportsLessonAction(action)).toBe(true);
+    for (const action of [setMode('kettner'), setPop('right'), setDuplicates('keep'), setPanel('exact'), selectCell(1, 2)]) expect(graph.supportsLessonAction(action)).toBe(true);
 });
 
 test('the Voronoi graphs reject the hull modes, and other point-set graphs reject the new operations', () => {
     for (const graph of [new VoronoiGraph(), new DegenerateSitesGraph()]) {
         for (const mode of ['chain', 'kettner']) expect(() => graph.applyPointSetAction(setMode(mode))).toThrow('set-mode');
-        for (const action of [setPop('right'), setDuplicates('keep'), selectCell(1, 1)]) {
+        for (const action of [setPop('right'), setDuplicates('keep'), setPanel('exact'), selectCell(1, 1)]) {
             expect(() => graph.applyPointSetAction(action)).toThrow(UnsupportedLessonActionError);
         }
     }
-    for (const action of [setMode('kettner'), setPop('right'), setDuplicates('keep'), selectCell(1, 1)]) {
+    for (const action of [setMode('kettner'), setPop('right'), setDuplicates('keep'), setPanel('exact'), selectCell(1, 1)]) {
         expect(() => new PointSetGraph().applyPointSetAction(action)).toThrow(UnsupportedLessonActionError);
     }
 });
@@ -217,9 +221,9 @@ test('the Voronoi graphs reject the hull modes, and other point-set graphs rejec
 test('the catalog checks the shape of the new actions and passes the good ones through unchanged', () => {
     const scene = (actions: LessonAction[]): Parameters<typeof sceneActions>[0] =>
         ({id: 'hull-robustness', basedOn: 'demonstration-default', actions, expectedState: {sl: 's', en: 'e'}});
-    const good = [setMode('kettner'), setMode('chain'), setPop('right'), setDuplicates('keep'), selectCell(41, 48)];
+    const good = [setMode('kettner'), setMode('chain'), setPop('right'), setDuplicates('keep'), setPanel('inexact'), setPanel('exact'), selectCell(41, 48)];
     expect(sceneActions(scene(good)).slice(1)).toEqual(good);
-    for (const bad of [setMode('both'), setPop('left'), setDuplicates('drop'), selectCell(1.5, 2), selectCell(0, 64), selectCell(-1, 0)]) {
+    for (const bad of [setMode('both'), setPop('left'), setDuplicates('drop'), setPanel('both'), setPanel(undefined), selectCell(1.5, 2), selectCell(0, 64), selectCell(-1, 0)]) {
         expect(() => sceneActions(scene([bad]))).toThrow();
     }
 });

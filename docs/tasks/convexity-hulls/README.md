@@ -49,8 +49,8 @@ Planned 2026-11-03 (geometry handler 48). The A5 "free double" board is a fixed 
 | 19 | [Hull robustness graph](19-hull-robustness-graph.md) | F2a | 17, 10 | planned |
 | 20 | [Batch 2 registration](20-batch2-registration.md): `point-in-polygon`, `hull-robustness` | F2b | 18, 19, `G-REG` | planned |
 | 21 | [Lesson A3 point in polygon](21-lesson-point-in-polygon.md) | F3 | 20 | accepted 2026-11-05 (handler 50) |
-| 22 | [Lesson A5 degenerate cases and robustness](22-lesson-hull-robustness.md) | F3 | 20, 21 | actions done; lesson next (brief 22b) |
-| 23 | [Chapter sections for A3 and A5](23-batch2-chapter.md) | F4 | 21, 22 | A3 section done with 21; A5 goes with 22 |
+| 22 | [Lesson A5 degenerate cases and robustness](22-lesson-hull-robustness.md) | F3 | 20, 21 | accepted 2026-11-05 (handler 51) |
+| 23 | [Chapter sections for A3 and A5](23-batch2-chapter.md) | F4 | 21, 22 | both sections done with 21 and 22; chapter smoke next |
 | — | F5 posters; F6 acceptance | F5–F6 | 23 | planned |
 
 ## Later batches (task files written when the previous batch is accepted)

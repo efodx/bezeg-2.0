@@ -2912,4 +2912,219 @@ const pointInPolygon: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation, fortune, pointInPolygon];
+/**
+ * Hull robustness lesson (docs/specs/convexity-hulls-lessons.md, A5). The scenes use the `set-mode`, `set-pop-rule`, `set-duplicates`,
+ * `select-cell` and `set-points` actions of `HullRobustnessGraph` and its `algorithm-trace` animation; `compgeoHullRobustnessLesson.test.ts`
+ * checks every quoted number against the real graph's readout. Next-step presses to the end of the trace: three collinear points under
+ * the rule `<` need 11, sample 1 under `<=` needs 55, sample 1 with a copy of (4, 0) under `<` and "keep all copies" needs 57.
+ * The Kettner map is shown at the cell i = 41, j = 48, first in its inexact panel and then, by `set-panel`, in its exact one.
+ */
+export const ROBUST_STEPS = {collinearEnd: 11, sampleEnd: 55, duplicateEnd: 57} as const;
+export const ROBUST_COLLINEAR: readonly LessonPoint[] = [[0, 0], [2, 0], [4, 0]];
+export const ROBUST_DUPLICATE_POINTS: readonly LessonPoint[] = [[2, 2], [4, 0], [0, 0], [5, 3], [2, 5], [-1, 3], [3, 1], [2, 0], [1, 1], [4, 0]];
+export const ROBUST_CELL = {i: 41, j: 48} as const;
+interface RobustChain {
+    readonly pop: 'non-left' | 'right';
+    readonly duplicates?: 'merge' | 'keep';
+    readonly points?: readonly LessonPoint[];
+    readonly shown: boolean;
+    readonly presses: number;
+}
+/** A chain scene: the view, the two rules, the points (sample 1 when absent), the trace and hull overlays together, then Next-step presses. */
+const robustChain = (id: string, chain: RobustChain, sl: string, en: string): LessonScene =>
+    scene(id, [
+        {kind: 'point-set', operation: 'set-mode', mode: 'chain'},
+        {kind: 'point-set', operation: 'set-pop-rule', rule: chain.pop},
+        {kind: 'point-set', operation: 'set-duplicates', duplicates: chain.duplicates ?? 'merge'},
+        ...(chain.points ? [points(chain.points)] : []),
+        overlay('trace', chain.shown), overlay('hull', chain.shown),
+        ...nextSteps(chain.presses),
+    ], sl, en);
+/** The Kettner map of one panel at one cell. */
+const robustKettner = (id: string, panel: 'inexact' | 'exact', i: number, j: number, sl: string, en: string): LessonScene =>
+    scene(id, [{kind: 'point-set', operation: 'set-mode', mode: 'kettner'}, {kind: 'point-set', operation: 'set-panel', panel}, {kind: 'point-set', operation: 'select-cell', i, j}], sl, en);
+
+const hullRobustness: GuidedLesson = {
+    demonstrationId: 'hull-robustness',
+    title: text('Izrojeni primeri in robustnost', 'Degenerate cases and robustness'),
+    summary: text(
+        'Kolinearne točke, podvojene točke in zaokrožitvene napake lahko pokvarijo algoritem za ovojnico. Pravilo \\(\\le\\) proti \\(<\\) pri monotoni verigi odloči, ali točka na robu ostane; na teh vhodnih podatkih nenatančen račun z double v \\(112\\) od \\(4096\\) celic da napačen predznak, natančen račun na mreži pa se ne zmoti.',
+        'Collinear points, duplicate points and rounding error can break a hull algorithm. The rule \\(\\le\\) versus \\(<\\) in the monotone chain decides whether a point on an edge stays; on these inputs an inexact double calculation gives the wrong sign in \\(112\\) of \\(4096\\) cells, while the exact calculation on the grid is not wrong.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o konveksni ovojnici: monotona veriga, njen preizkus \\(D\\) in odstranjevanje točke.', 'The lesson on the convex hull is required: the monotone chain, its test \\(D\\) and the removal of a point.'),
+    ],
+    learningGoals: [
+        text('Razložiš, kaj naredita pravili \\(\\le\\) in \\(<\\) pri treh kolinearnih točkah in pri točki na robu ovojnice.', 'Explain what the rules \\(\\le\\) and \\(<\\) do with three collinear points and with a point on a hull edge.'),
+        text('Na primeru pokažeš, kako podvojena točka in pravilo \\(<\\) skupaj dasta izpis, ki ni rob večkotnika.', 'Show with an example how a duplicate point and the rule \\(<\\) together give an output that is not a polygon boundary.'),
+        text('Preveriš, da ima nenatančen račun z double na teh vhodnih podatkih lahko napačen predznak, natančen račun na mreži pa ne.', 'Check that an inexact double calculation on these inputs can have the wrong sign, while the exact calculation on the grid cannot.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'robust-pop-rule',
+            latex: 'D(a,b,c)\\le 0\\ \\text{(odstrani }b\\text{)},\\qquad D(a,b,c)<0\\ \\text{(odstrani }b\\text{)}',
+            notation: text(
+                '\\(a\\), \\(b\\), \\(c\\) so zaporedne točke verige, \\(D\\) je orientacijski preizkus iz lekcije o ovojnici.',
+                '\\(a\\), \\(b\\), \\(c\\) are consecutive points of the chain and \\(D\\) is the orientation test from the hull lesson.',
+            ),
+            explanation: text(
+                'Prvo pravilo odstrani srednjo točko \\(b\\) tudi pri \\(D=0\\), torej ko so točke kolinearne; drugo jo pri \\(D=0\\) obdrži. Zato se pravili razlikujeta samo pri kolinearnih točkah.',
+                'The first rule removes the middle point \\(b\\) also when \\(D=0\\), that is, when the points are collinear; the second keeps it when \\(D=0\\). So the rules differ only on collinear points.',
+            ),
+        },
+        {
+            id: 'robust-kettner-setup',
+            latex: 'p=(0{,}5+i\\,2^{-53},\\;0{,}5+j\\,2^{-53}),\\quad q=(12,12),\\quad r=(24,24)',
+            notation: text(
+                '\\(i\\) in \\(j\\) sta celi števili od \\(0\\) do \\(63\\); vsaka od \\(64\\cdot64=4096\\) celic zemljevida je ena trojica \\(p\\), \\(q\\), \\(r\\).',
+                '\\(i\\) and \\(j\\) are integers from \\(0\\) to \\(63\\); each of the \\(64\\cdot64=4096\\) cells of the map is one triple \\(p\\), \\(q\\), \\(r\\).',
+            ),
+            explanation: text(
+                'Točki \\(q\\) in \\(r\\) določata premico \\(y=x\\), točka \\(p\\) pa je od nje oddaljena za nekaj enot \\(2^{-53}\\), kar je pod ločljivostjo števil double. Zato nenatančen račun z double na teh vhodnih podatkih pogosto zaokroži na napačen predznak ali na \\(0\\).',
+                'The points \\(q\\) and \\(r\\) define the line \\(y=x\\), and \\(p\\) is a few units of \\(2^{-53}\\) away from it, below the resolution of doubles. So on these inputs an inexact double calculation often rounds to the wrong sign or to \\(0\\).',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'robust-collinear-example',
+            title: text('Tri kolinearne točke \\((0,0)\\), \\((2,0)\\), \\((4,0)\\)', 'Three collinear points \\((0,0)\\), \\((2,0)\\), \\((4,0)\\)'),
+            calculationLatex: 'D=(2-0)(0-0)-(0-0)(4-0)=0-0',
+            resultLatex: 'D=0',
+            check: text(
+                'Preizkus pokaže \\(D=0\\): točke so kolinearne, zato mora pravilo odločiti, ali srednja točka ostane.',
+                'The test shows \\(D=0\\): the points are collinear, so the rule has to decide whether the middle point stays.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'robust-collinear', order: 1,
+            title: text('Tri kolinearne točke', 'Three collinear points'),
+            purpose: text('Videti, da kolinearne točke zahtevajo odločitev.', 'Seeing that collinear points call for a decision.'),
+            explanation: text(
+                'Točke \\((0,0)\\), \\((2,0)\\) in \\((4,0)\\) so na isti premici, zato je \\(D=0\\). Ovojnica teh točk je daljica od \\((0,0)\\) do \\((4,0)\\) in srednja točka ni oglišče. Monotona veriga je zdaj zagnana s pravilom \\(<\\), ki pri \\(D=0\\) srednjo točko obdrži: izpis ima \\(4\\) vnose in točko \\(P2=(2,0)\\) navaja dvakrat, na spodnji in na zgornji verigi. Izpis zato ni rob večkotnika.',
+                'The points \\((0,0)\\), \\((2,0)\\) and \\((4,0)\\) are on one line, so \\(D=0\\). The hull of these points is the segment from \\((0,0)\\) to \\((4,0)\\) and the middle point is not a vertex. The monotone chain is now run with the rule \\(<\\), which keeps the middle point when \\(D=0\\): the output has \\(4\\) entries and lists the point \\(P2=(2,0)\\) twice, on the lower and on the upper chain. So the output is not a polygon boundary.',
+            ),
+            formulaIds: ['robust-pop-rule'], workedExampleId: 'robust-collinear-example',
+            frames: [frame('robust-collinear-explanation', 'explanation'), frame('robust-collinear-calculation', 'calculation'), frame('robust-collinear-observation', 'observation')],
+            observationPrompt: text('Preberi izpis ovojnice in poišči mesto, ki se ponovi.', 'Read the hull output and find the location that is repeated.'),
+            expectedObservations: [text('Izpis ima \\(4\\) vnose, \\(P2\\) pa je naveden dvakrat; izpis opozori, da ni rob večkotnika.', 'The output has \\(4\\) entries and \\(P2\\) is listed twice; the readout warns that the output is not a polygon boundary.')],
+            scene: robustChain('robust-collinear', {pop: 'right', points: ROBUST_COLLINEAR, shown: true, presses: ROBUST_STEPS.collinearEnd},
+                'Tri kolinearne točke, pravilo \\(<\\), veriga je končana: izpis ima \\(4\\) vnose in \\(P2\\) navaja dvakrat.',
+                'Three collinear points, the rule \\(<\\), the chain is finished: the output has \\(4\\) entries and lists \\(P2\\) twice.'),
+        },
+        {
+            id: 'robust-predict', order: 2,
+            title: text('Napovej pravilo', 'Predict the rule'),
+            purpose: text('Pred razkritjem napovedati, kaj naredi pravilo.', 'Predicting what the rule does before the reveal.'),
+            explanation: text(
+                'Preden poženeš verigo, napovej: na vzorcu devetih točk leži \\((2,0)\\) na robu med \\((0,0)\\) in \\((4,0)\\). Ali bo ta točka v izpisu ovojnice, če veriga točko odstrani pri \\(D\\le0\\)? Kaj pa, če jo odstrani samo pri \\(D<0\\)? Sled in ovojnica sta skrita, izpis ovojnice čaka na konec sledi; v inspektorju je pravilo že izbrano, a ga zaenkrat ne uporabi za odgovor.',
+                'Before you run the chain, predict: in the sample of nine points, \\((2,0)\\) lies on the edge between \\((0,0)\\) and \\((4,0)\\). Will that point be in the hull output if the chain removes a point when \\(D\\le0\\)? And if it removes only when \\(D<0\\)? The trace and the hull are hidden and the hull output waits for the end of the trace; the rule is already chosen in the inspector, but do not use it as the answer yet.',
+            ),
+            formulaIds: ['robust-pop-rule'],
+            frames: [frame('robust-predict-explanation', 'explanation'), frame('robust-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši, pri katerem pravilu pričakuješ točko \\((2,0)\\) v izpisu.', 'Write down under which rule you expect the point \\((2,0)\\) in the output.'),
+            expectedObservations: [text('Sled je na začetku in izpis ovojnice še ni narejen, zato napoved še ni preverjena; naslednji korak jo primerja.', 'The trace is at its start and the hull output is not made yet, so the prediction is not checked; the next step compares it.')],
+            scene: robustChain('robust-predict', {pop: 'non-left', shown: false, presses: 0},
+                'Vzorec devetih točk, sled in ovojnica sta skrita, veriga je na začetku; izpis ovojnice še čaka.',
+                'The sample of nine points, the trace and the hull are hidden, the chain is at its start; the hull output is still pending.'),
+        },
+        {
+            id: 'robust-pop-rules', order: 3,
+            title: text('Pravili \\(\\le\\) in \\(<\\)', 'The rules \\(\\le\\) and \\(<\\)'),
+            purpose: text('Primerjati obe pravili na istih točkah.', 'Comparing both rules on the same points.'),
+            explanation: text(
+                'Veriga je zdaj končana s pravilom \\(\\le\\): izpis ima \\(5\\) vnosov in \\((2,0)\\) ni med njimi, saj je pri \\(D=0\\) odstranjena. Porabi \\(23\\) preizkusov. Zdaj v inspektorju izberi pravilo \\(<\\) in pritisni Predvajaj: izpis ima \\(6\\) vnosov in \\((2,0)\\) ostane, ker se pri \\(D=0\\) ne odstrani; veriga porabi \\(22\\) preizkusov. Obe pravili sta v redu, če veš, katero uporabljaš: prvo daje oglišča, drugo vse točke na robu.',
+                'The chain is now finished with the rule \\(\\le\\): the output has \\(5\\) entries and \\((2,0)\\) is not among them, because it is removed at \\(D=0\\). It uses \\(23\\) tests. Now choose the rule \\(<\\) in the inspector and press Play: the output has \\(6\\) entries and \\((2,0)\\) stays, because it is not removed at \\(D=0\\); the chain uses \\(22\\) tests. Both rules are fine if you know which one you use: the first gives the vertices, the second all the points on the boundary.',
+            ),
+            formulaIds: ['robust-pop-rule'],
+            frames: [frame('robust-pop-rules-explanation', 'explanation'), frame('robust-pop-rules-observation', 'observation')],
+            observationPrompt: text('Primerjaj izpis z napovedjo, nato izberi pravilo \\(<\\) in pritisni Predvajaj.', 'Compare the output with your prediction, then choose the rule \\(<\\) and press Play.'),
+            expectedObservations: [text('Pri \\(\\le\\) je izpis brez \\((2,0)\\) (\\(5\\) vnosov, \\(23\\) preizkusov); pri \\(<\\) je \\((2,0)\\) v izpisu (\\(6\\) vnosov, \\(22\\) preizkusov).', 'Under \\(\\le\\) the output is without \\((2,0)\\) (\\(5\\) entries, \\(23\\) tests); under \\(<\\) the output contains \\((2,0)\\) (\\(6\\) entries, \\(22\\) tests).')],
+            scene: robustChain('robust-pop-rules', {pop: 'non-left', shown: true, presses: ROBUST_STEPS.sampleEnd},
+                'Vzorec devetih točk, pravilo \\(\\le\\), veriga je končana: izpis ima \\(5\\) vnosov, brez \\((2,0)\\).',
+                'The sample of nine points, the rule \\(\\le\\), the chain is finished: the output has \\(5\\) entries, without \\((2,0)\\).'),
+        },
+        {
+            id: 'robust-duplicates', order: 4,
+            title: text('Podvojena točka', 'A duplicate point'),
+            purpose: text('Videti, kaj naredi kopija točke.', 'Seeing what a copy of a point does.'),
+            explanation: text(
+                'Vzorcu smo dodali še eno kopijo točke \\((4,0)\\), \\(P10\\). Pravilo je \\(<\\), podvojene točke pa so nastavljene na \„obdrži vse kopije\“. Veriga je končana in izpis ima \\(9\\) vnosov: mesto \\((4,0)\\) se ponovi in izpis ni rob večkotnika. Če podvojene točke združiš v eno, izpis spet pokaže \\(6\\) vnosov brez ponavljanja. Težavo povzroči kombinacija obeh nastavitev, ne ena sama.',
+                'The sample has one more copy of the point \\((4,0)\\), \\(P10\\). The rule is \\(<\\) and the duplicates are set to "keep all copies". The chain is finished and the output has \\(9\\) entries: the location \\((4,0)\\) is repeated and the output is not a polygon boundary. If you merge the duplicates into one, the output shows \\(6\\) entries again without a repeat. The problem comes from the combination of both settings, not from either alone.',
+            ),
+            formulaIds: ['robust-pop-rule'],
+            frames: [frame('robust-duplicates-explanation', 'explanation'), frame('robust-duplicates-observation', 'observation')],
+            observationPrompt: text('Preberi izpis ovojnice, nato izberi \„druži v eno\“ in primerjaj.', 'Read the hull output, then choose "merge into one" and compare.'),
+            expectedObservations: [text('Pri \„obdrži vse kopije\“ izpis ima \\(9\\) vnosov in ponovi mesto \\((4,0)\\); pri združenih kopijah ima \\(6\\) vnosov.', 'Under "keep all copies" the output has \\(9\\) entries and repeats the location \\((4,0)\\); with merged copies it has \\(6\\) entries.')],
+            scene: robustChain('robust-duplicates', {pop: 'right', duplicates: 'keep', points: ROBUST_DUPLICATE_POINTS, shown: true, presses: ROBUST_STEPS.duplicateEnd},
+                'Vzorec s kopijo točke \\((4,0)\\), pravilo \\(<\\), obdrži vse kopije: izpis ima \\(9\\) vnosov in ponovi mesto \\((4,0)\\).',
+                'The sample with a copy of the point \\((4,0)\\), the rule \\(<\\), keep all copies: the output has \\(9\\) entries and repeats the location \\((4,0)\\).'),
+        },
+        {
+            id: 'robust-kettner-inexact', order: 5,
+            title: text('Zemljevid predznakov: nenatančen račun', 'The sign map: an inexact calculation'),
+            purpose: text('Videti primer, v katerem nenatančen račun z double zgreši predznak.', 'Seeing a case where an inexact double calculation misses the sign.'),
+            explanation: text(
+                'Zemljevid ima \\(64\\cdot64=4096\\) celic; v vsaki je predznak orientacije trojice \\(p\\), \\(q\\), \\(r\\), izračunan z navadnimi števili double, torej NENATANČNO. Na teh vhodnih podatkih ima račun z double v \\(112\\) celicah napačen predznak, v \\(2052\\) celicah pa napačno ničlo. Izbrana celica \\(i=41\\), \\(j=48\\) je ena od napačnih: nenatančna vrednost (double) je \\(-5{,}68\\times10^{-14}\\), predznak je torej \\(-\\). To ne pomeni, da račun z double vedno odpove; pokaže, kaj se zgodi pri točkah tako blizu premice.',
+                'The map has \\(64\\cdot64=4096\\) cells; each holds the sign of the orientation of the triple \\(p\\), \\(q\\), \\(r\\), calculated in plain doubles, so INEXACTLY. On these inputs the double calculation has the wrong sign in \\(112\\) cells and a false zero in \\(2052\\) cells. The selected cell \\(i=41\\), \\(j=48\\) is one of the wrong ones: the inexact value (double) is \\(-5.68\\times10^{-14}\\), so the sign is \\(-\\). This does not mean a double calculation always fails; it shows what happens for points this close to a line.',
+            ),
+            formulaIds: ['robust-kettner-setup'],
+            frames: [frame('robust-kettner-inexact-explanation', 'explanation'), frame('robust-kettner-inexact-observation', 'observation')],
+            observationPrompt: text('Preberi nenatančno vrednost (double) in natančen predznak izbrane celice.', 'Read the inexact value (double) and the exact sign of the selected cell.'),
+            expectedObservations: [text('Izbrana celica \\(i=41\\), \\(j=48\\) ima nenatančen predznak \\(-\\) (vrednost \\(-5{,}68\\times10^{-14}\\)) in natančen predznak \\(+\\); izpis šteje \\(112\\) napačnih predznakov in \\(2052\\) napačnih ničel.', 'The selected cell \\(i=41\\), \\(j=48\\) has the inexact sign \\(-\\) (value \\(-5.68\\times10^{-14}\\)) and the exact sign \\(+\\); the readout counts \\(112\\) wrong signs and \\(2052\\) false zeros.')],
+            scene: robustKettner('robust-kettner-inexact', 'inexact', ROBUST_CELL.i, ROBUST_CELL.j,
+                'Zemljevid predznakov (nenatančen, double), izbrana je celica \\(i=41\\), \\(j=48\\): nenatančna vrednost \\(-5{,}68\\times10^{-14}\\).',
+                'The sign map (inexact, double) with the cell \\(i=41\\), \\(j=48\\) selected: inexact value \\(-5.68\\times10^{-14}\\).'),
+        },
+        {
+            id: 'robust-kettner-exact', order: 6,
+            title: text('Natančen račun na mreži', 'The exact calculation on the grid'),
+            purpose: text('Primerjati natančen predznak z nenatančnim in razložiti, zakaj mrežne točke ne odpovejo.', 'Comparing the exact sign with the inexact one and explaining why grid points do not fail.'),
+            explanation: text(
+                'Ista celica \\(i=41\\), \\(j=48\\), zdaj z natančnim računom. Natančen predznak je \\(+\\) (vrednost je približno \\(+9{,}33\\times10^{-15}\\)), nenatančen račun z double pa je dal \\(-\\). Bezeg se temu izogne: točke so na mreži s celimi koordinatami \\(|x|,|y|\\le2^{25}\\) (ADR 0021), zato so produkti v preizkusu \\(D\\) manjši od \\(2^{53}\\) in je račun natančen, vsak zavoj pa se odloči z natančnim celoštevilskim računom. Primer kaže te vhodne podatke, ne pravila za vse račune z double.',
+                'The same cell \\(i=41\\), \\(j=48\\), now with the exact calculation. The exact sign is \\(+\\) (the value is about \\(+9.33\\times10^{-15}\\)), while the inexact double calculation gave \\(-\\). Bezeg avoids this: points are on a grid with integer coordinates \\(|x|,|y|\\le2^{25}\\) (ADR 0021), so the products in the test \\(D\\) are below \\(2^{53}\\) and the calculation is exact, and every turn is decided with exact integer arithmetic. The example shows these inputs, not a rule for all double calculations.',
+            ),
+            formulaIds: ['robust-kettner-setup'],
+            frames: [frame('robust-kettner-exact-explanation', 'explanation'), frame('robust-kettner-exact-observation', 'observation')],
+            observationPrompt: text('Primerjaj natančen predznak z nenatančnim v izbrani celici.', 'Compare the exact sign with the inexact one in the selected cell.'),
+            expectedObservations: [text('V celici \\(i=41\\), \\(j=48\\) je natančen predznak \\(+\\), nenatančen (double) pa \\(-\\).', 'In the cell \\(i=41\\), \\(j=48\\) the exact sign is \\(+\\) and the inexact (double) one is \\(-\\).')],
+            scene: robustKettner('robust-kettner-exact', 'exact', ROBUST_CELL.i, ROBUST_CELL.j,
+                'Zemljevid predznakov, celica \\(i=41\\), \\(j=48\\): natančen predznak \\(+\\), nenatančen (double) \\(-\\); prikazan je natančen zemljevid.',
+                'The sign map, cell \\(i=41\\), \\(j=48\\): exact sign \\(+\\), inexact (double) \\(-\\); the exact map is shown.'),
+        },
+        {
+            id: 'robust-explore', order: 7,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno preizkusiti pravili, kopije in zemljevid.', 'Trying the rules, copies and the map on your own.'),
+            explanation: text(
+                'Veriga je na začetku z vzorcem devetih točk, pravilom \\(\\le\\) in združenimi kopijami. Dodaj točko na rob ovojnice ali kopijo obstoječe točke, zamenjaj pravili in preberi izpis. V prikazu Zemljevid predznakov izberi druge celice s klikom ali s puščičnimi tipkami in poišči celico, kjer se nenatančni in natančni predznak ujemata.',
+                'The chain is at its start with the sample of nine points, the rule \\(\\le\\) and merged copies. Add a point on a hull edge or a copy of an existing point, change the rules and read the output. In the view Sign map choose other cells with a click or the arrow keys and find a cell where the inexact and exact signs agree.',
+            ),
+            formulaIds: ['robust-pop-rule', 'robust-kettner-setup'],
+            frames: [frame('robust-explore-explanation', 'explanation'), frame('robust-explore-observation', 'observation')],
+            observationPrompt: text('Poišči celico, v kateri nenatančni in natančni predznak sovpadata.', 'Find a cell in which the inexact and exact signs agree.'),
+            expectedObservations: [text('Vsaka sprememba pravila ali točk vrne verigo na začetek; v zemljevidu je veliko celic, kjer se predznaka ujemata.', 'Every change of rule or points returns the chain to its start; the map has many cells where the signs agree.')],
+            scene: robustChain('robust-explore', {pop: 'non-left', shown: true, presses: 0},
+                'Veriga je na začetku z vzorcem devetih točk, pravilom \\(\\le\\) in združenimi kopijami.',
+                'The chain is at its start with the sample of nine points, the rule \\(\\le\\) and merged copies.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-robust', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Chapter 1.'},
+        {id: 'kettner-2008', citation: 'Kettner, L., Mehlhorn, K., Pion, S., Schirra, S., Yap, C. Classroom examples of robustness problems in geometric computations, Computational Geometry 40 (2008).'},
+        {
+            id: 'bezeg-robust-implementation',
+            citation: 'Bezeg source: src/compgeo/monotoneChain.ts, src/compgeo/inexactOrientation.ts, docs/adr/0021-exact-grid-predicates.md and src/graphs/compgeo/HullRobustnessGraph.tsx.',
+            implementationCorrespondence: 'The chain decides every turn with the exact integer orientation test; the Kettner map shows the double sign next to the exact one and the double value is only displayed, never used by an algorithm. A lesson scene chooses the view, the two rules, the points and the cell with the point-set actions and presses Next step with the algorithm-trace animation actions in one synchronous tick; the exact map is chosen with the panel control.',
+        },
+    ],
+    edgeCases: [
+        text('Pri pravilu \\(<\\) tri kolinearne točke dajo izpis, v katerem je srednja točka dvakrat; pri \\(\\le\\) je ovojnica daljica.', 'Under the rule \\(<\\) three collinear points give an output that lists the middle point twice; under \\(\\le\\) the hull is a segment.'),
+        text('Točke zemljevida predznakov niso na mreži (imajo premik \\(2^{-53}\\)); zato je tam viden pojav, ki ga mrežni račun v Bezegu ne more povzročiti.', 'The points of the sign map are not on the grid (they have an offset of \\(2^{-53}\\)); so the effect seen there is one that the grid calculation in Bezeg cannot cause.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation, fortune, pointInPolygon, hullRobustness];

@@ -9,7 +9,7 @@ import {convexityChapter} from './convexityChapter';
 import {CONVEXITY_CHAPTER_ID, convexityGuidedExamplePath, convexityGuidedExampleRegistry} from './convexityChapterRegistry';
 import {familyChapters} from './familyChapters';
 
-const SECTIONS = ['orientation', 'polygon-area', 'point-in-polygon', 'convex-hull'] as const;
+const SECTIONS = ['orientation', 'polygon-area', 'point-in-polygon', 'convex-hull', 'hull-robustness'] as const;
 
 beforeEach(() => setLanguage('sl'));
 
@@ -26,7 +26,7 @@ describe('chapter structure and registration', () => {
 
     test('unreleased lessons are not advertised', () => {
         const everything = JSON.stringify([convexityChapter, ...Object.values(convexityGuidedExampleRegistry)]);
-        for (const word of ['degenerate', 'robust', 'ear-clipping']) expect(everything).not.toContain(word);
+        for (const word of ['ear-clipping']) expect(everything).not.toContain(word);
     });
 
     test('the opening links to the Bezier hull section and the chapter is bilingual', () => {

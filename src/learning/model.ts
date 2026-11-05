@@ -327,6 +327,7 @@ export type LessonAction =
     | {readonly kind: 'point-set'; readonly operation: 'set-pop-rule'; readonly rule: 'non-left' | 'right'}
     /** HullRobustnessGraph only (any other point-set graph throws `UnsupportedLessonActionError`): the duplicates control (`merge` keeps one of equal points, `keep` keeps them all). Pauses playback and returns the trace to step 0. Any other value is a lesson-content error. */
     | {readonly kind: 'point-set'; readonly operation: 'set-duplicates'; readonly duplicates: 'merge' | 'keep'}
+    | {readonly kind: 'point-set'; readonly operation: 'set-panel'; readonly panel: 'inexact' | 'exact'}
     /** HullRobustnessGraph only (any other point-set graph throws `UnsupportedLessonActionError`): selects Kettner cell `(i, j)`, each an integer from 0 to 63; anything else is a lesson-content error and is never clamped. Pauses playback and returns the trace to step 0. */
     | {readonly kind: 'point-set'; readonly operation: 'select-cell'; readonly i: number; readonly j: number}
     /**

@@ -186,9 +186,8 @@ test('every active demonstration route has an available lesson unless it opts ou
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
     // Every Demonstration ships with a lesson (the last opt-out, fourier-coefficients, gained lesson F2/F4 in Fourier 05 F3); the correlation lesson P5 (curves PS-C-5d1), the Voronoi degenerate-case lesson B5 (T3 task 23), the quadrature lesson N4, the monotone-partition lesson C3 (sweep task 19), the monotone-triangulation lesson C4 (sweep task 20), the density lesson P1, the binomial-normal lesson P2, the CLT lesson P3, the summary-statistics lesson P4, the Delaunay lesson B3, the Voronoi lesson B4, the least-squares lesson I4, the inversion lesson T5 and the projective lessons K4 and K5 ended their opt-outs.
     // Every Demonstration has a lesson since the Fortune lesson (sweep task 25) retired fortune from this list.
-    // conic-focal ended its opt-out with school function graphs F3 Part B; bspline-blossom with BS-C-L6d; point-in-polygon with convexity lesson 21.
-    // hull-robustness opts out until convexity lesson 22.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['hull-robustness']);
+    // conic-focal ended its opt-out with school function graphs F3 Part B; bspline-blossom with BS-C-L6d; point-in-polygon with convexity lesson 21; hull-robustness with convexity lesson 22.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual([]);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 
@@ -224,6 +223,8 @@ describe('typed scene actions', () => {
         for (const rule of ['left', undefined, 1]) expect(() => run(ps('set-pop-rule', {rule}))).toThrow('set-pop-rule');
         for (const duplicates of ['merge', 'keep']) expect(() => run(ps('set-duplicates', {duplicates}))).not.toThrow();
         for (const duplicates of ['drop', undefined]) expect(() => run(ps('set-duplicates', {duplicates}))).toThrow('set-duplicates');
+        for (const panel of ['inexact', 'exact']) expect(() => run(ps('set-panel', {panel}))).not.toThrow();
+        for (const panel of ['both', 'Exact', undefined, 1]) expect(() => run(ps('set-panel', {panel}))).toThrow('set-panel');
         expect(() => run(ps('select-cell', {i: 0, j: 63}))).not.toThrow();
         for (const [i, j] of [[-1, 0], [0, 64], [1.5, 2], [Number.NaN, 0], ['3', 4], [undefined, 4]]) {
             expect(() => run(ps('select-cell', {i, j}))).toThrow('select-cell');
