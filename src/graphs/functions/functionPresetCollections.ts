@@ -32,6 +32,8 @@ import {checkFourierSeriesModel, parseFourierSeriesModel} from "../../analysis/f
 import {fourierSeriesFileMessage} from "./fourierSeriesMessages";
 import {checkFourierCoefficientsModel, DEFAULT_FOURIER_COEFFICIENTS_MODEL, type FourierCoefficientsModel, parseFourierCoefficientsModel} from "../../analysis/fourierCoefficientsModel";
 import {fourierCoefficientsFileMessage} from "./fourierCoefficientsMessages";
+import {checkEpicycleModel, defaultEpicycleModel, type EpicycleModel, parseEpicycleModel} from "../../analysis/epicycleModel";
+import {epicycleFileMessage} from "./epicycleMessages";
 import {checkRungeModel, parseRungeModel} from "../../analysis/rungeInterpolationModel";
 import {rungeFileMessage} from "./rungeInterpolationMessages";
 import {checkLeastSquaresModel, DEFAULT_LEAST_SQUARES_MODEL, LeastSquaresModel, parseLeastSquaresModel} from "../../analysis/leastSquaresModel";
@@ -387,6 +389,35 @@ function eulerCollection(): PresetCollection<EulerModel> {
         },
     });
 }
+
+/** The model module names the rule a rejected epicycle model broke; this only localizes it. */
+const diagnoseEpicycle: Diagnosis = data => {
+    const check = checkEpicycleModel(data);
+    return check.ok || check.issue === undefined ? undefined : epicycleFileMessage(check.issue);
+};
+/**
+ * The epicycle scene state holds the model, whose `vertices` and `spans` lists the shared flat scene-state rule rejects. Whenever
+ * any model field is present, the fields are checked together by the model's own rules (missing fields take the default example),
+ * and the remaining fields go through `checkSceneState`. The model itself is still restored from the Preset data. Not yet in the
+ * Demonstration map below: the route and the catalog entry come later.
+ */
+const EPICYCLE_FIELDS: readonly string[] = Object.keys(defaultEpicycleModel());
+export const epicyclePresetCollection: PresetCollection<EpicycleModel> = (() => {
+    const base = functionCollection("epicycle", parseEpicycleModel, diagnoseEpicycle);
+    return Object.freeze({
+        ...base,
+        checkGraphState(graphState: unknown): Message | undefined {
+            if (!isRecord(graphState)) return message("invalid_state");
+            const rest = Object.fromEntries(Object.entries(graphState).filter(([key]) => !EPICYCLE_FIELDS.includes(key)));
+            const present = Object.fromEntries(EPICYCLE_FIELDS.filter(field => graphState[field] !== undefined).map(field => [field, graphState[field]]));
+            if (Object.keys(present).length > 0) {
+                const check = checkEpicycleModel({...defaultEpicycleModel(), ...present});
+                if (!check.ok) return check.issue === undefined ? message("invalid_state") : epicycleFileMessage(check.issue);
+            }
+            return checkSceneState(rest);
+        },
+    });
+})();
 
 /** The Preset collections of the function, Analysis and complex Demonstrations (`BaseFunctionGraph`), by Demonstration id. */
 export const functionPresetCollections = {
