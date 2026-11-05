@@ -48,6 +48,12 @@ class Probe extends CurveEnvelopeGraph {
     captions() { return this.owned().filter(element => element.elType === 'text').map(element => element.plaintext ?? '').filter(Boolean); }
     published(): string { return this['liveReadout'].getSnapshot(); }
     curveVisible(): boolean { return this.getFirstJxgCurve().getJxgCurve().visProp.visible as boolean; }
+    /** A lesson step on a hidden curve: its scene shows the curve again, and its action hides it, all in one batch. */
+    sceneThenHide() {
+        this.setEnvelopeCurveShown(true);
+        this.syncReplacedScene();
+        this.setEnvelopeCurveShown(false);
+    }
     movePoint(index: number, to: number[]) {
         const point = this.getFirstJxgCurve().getJxgPoints()[index];
         point.moveTo(to, 0);
@@ -263,6 +269,17 @@ describe('collinear and coincident controls', () => {
         } finally { view.unmount(); }
     });
 
+    test('a drag lands on the line only to a pixel, which still counts; three pixels off does not', () => {
+        const {graph, view} = mount();
+        try {
+            const pixel = 1 / graph.liveBoard().unitX;
+            act(() => graph.movePoint(1, [0.5 + 0.5 * pixel, 0.5]));
+            expect(graph.envelope()!.collinear()).toBe(true);
+            act(() => graph.movePoint(1, [0.5 + 5 * pixel, 0.5]));
+            expect(graph.envelope()!.collinear()).toBe(false);
+        } finally { view.unmount(); }
+    });
+
     test('a proper curve has no collinear note, and moving a point onto the line adds it', () => {
         const {graph, view} = mount();
         try {
@@ -296,6 +313,17 @@ describe('Preset round trip and Reset', () => {
         } finally { view.unmount(); }
     });
 
+    test('a scene that shows the curve and an action that hides it again in one batch leave it hidden', () => {
+        const {graph, view} = mount();
+        try {
+            act(() => graph.setEnvelopeCurveShown(false));
+            expect(graph.curveVisible()).toBe(false);
+            act(() => graph.sceneThenHide());
+            expect(graph.state.envelopeCurveShown).toBe(false);
+            expect(graph.curveVisible()).toBe(false);
+        } finally { view.unmount(); }
+    });
+
     test('Reset returns to the opening scene, the curve visible', async () => {
         const {graph, view} = mount();
         try {
@@ -311,6 +339,17 @@ describe('Preset round trip and Reset', () => {
 });
 
 describe('the readout', () => {
+    test('a language switch keeps the collinear note, translated at once', async () => {
+        const {graph, view} = mount();
+        try {
+            act(() => graph.movePoint(1, [0.5, 0.5]));
+            await screen.findByText(t('envelope_readout_collinear'), {selector: '.inspector-help'});
+            act(() => setLanguage('en'));
+            expect(graph.published()).toContain(t('envelope_readout_collinear'));
+            expect(screen.getByText(t('envelope_readout_collinear'), {selector: '.inspector-help'})).toBeInTheDocument();
+        } finally { view.unmount(); }
+    });
+
     test('a language switch refreshes the board caption, with the decimal comma in sl', () => {
         const {graph, view} = mount();
         try {

@@ -142,6 +142,12 @@ describe('the family polyline', () => {
 });
 
 describe('isCollinear', () => {
+    test('slack widens the test by a distance from the line, and no more', () => {
+        expect(isCollinear([[0, 0], [1, 0.01], [2, 0]])).toBe(false);
+        expect(isCollinear([[0, 0], [1, 0.01], [2, 0]], 0.011)).toBe(true);
+        expect(isCollinear([[0, 0], [1, 0.01], [2, 0]], 0.009)).toBe(false);
+    });
+
     test('is false for a proper quadratic, cubic and quartic', () => {
         expect(isCollinear(QUADRATIC)).toBe(false);
         expect(isCollinear(CUBIC)).toBe(false);

@@ -4,7 +4,7 @@
  */
 import {preflightPresetImport} from "../base/presets/PresetImport";
 import {LocalizedError, Message} from "../../localization";
-import {curveCombPresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections} from "./curvePresetCollections";
+import {curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections} from "./curvePresetCollections";
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -126,6 +126,31 @@ describe("the comb Demonstration's scene state", () => {
         [{combCount: 7}, "invalid_parameter", "combCount"],
         [{combCount: 257}, "invalid_parameter", "combCount"],
         [{combCount: 64.5}, "invalid_parameter", "combCount"],
+    ])("rejects %j", (state, key, field) => {
+        expect(check(state)).toEqual({key, params: {value0: field}});
+    });
+});
+
+describe("the envelope Demonstration's scene state", () => {
+    const check = (state: unknown) => curveEnvelopePresetCollection.checkGraphState?.(state);
+
+    test("accepts its bounds and a state without the fields", () => {
+        expect(curveEnvelopePresetCollection.checkGraphState).toBeDefined();
+        expect(check({envelopeT: 0, envelopeLineCount: 1, envelopeLinesShown: true, envelopeCurveShown: false, envelopeTouchShown: true})).toBeUndefined();
+        expect(check({envelopeT: 1, envelopeLineCount: 200})).toBeUndefined();
+        expect(check({})).toBeUndefined();
+    });
+
+    test.each([
+        [{envelopeT: -0.1}, "invalid_parameter", "envelopeT"],
+        [{envelopeT: 1.1}, "invalid_parameter", "envelopeT"],
+        [{envelopeT: "0.5"}, "invalid_parameter", "envelopeT"],
+        [{envelopeLineCount: 0}, "invalid_parameter", "envelopeLineCount"],
+        [{envelopeLineCount: 201}, "invalid_parameter", "envelopeLineCount"],
+        [{envelopeLineCount: 10.5}, "invalid_parameter", "envelopeLineCount"],
+        [{envelopeLinesShown: 1}, "invalid_option", "envelopeLinesShown"],
+        [{envelopeCurveShown: "no"}, "invalid_option", "envelopeCurveShown"],
+        [{envelopeTouchShown: 0}, "invalid_option", "envelopeTouchShown"],
     ])("rejects %j", (state, key, field) => {
         expect(check(state)).toEqual({key, params: {value0: field}});
     });

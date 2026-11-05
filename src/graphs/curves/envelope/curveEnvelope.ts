@@ -67,9 +67,10 @@ export function envelopeFamily(rows: Rows, count: number): EnvelopeFamily {
 
 /**
  * All control points lie on one line (coincident points included), within a tolerance relative to the size of the point set.
- * Then every de Casteljau line lies on that line and the curve is a segment, not an envelope.
+ * Then every de Casteljau line lies on that line and the curve is a segment, not an envelope. `slack` widens the test by a
+ * distance in the rows' units, for a caller whose points are only as exact as a drag.
  */
-export function isCollinear(rows: Rows): boolean {
+export function isCollinear(rows: Rows, slack = 0): boolean {
     if (rows.length < 3) return true;
     const origin = rows[0];
     let far = rows[0], farDistance = 0;
@@ -79,5 +80,5 @@ export function isCollinear(rows: Rows): boolean {
     }
     if (farDistance === 0) return true;
     const dx = (far[0] - origin[0]) / farDistance, dy = (far[1] - origin[1]) / farDistance;
-    return rows.every(row => Math.abs(dx * (row[1] - origin[1]) - dy * (row[0] - origin[0])) <= COLLINEAR_TOLERANCE * farDistance);
+    return rows.every(row => Math.abs(dx * (row[1] - origin[1]) - dy * (row[0] - origin[0])) <= COLLINEAR_TOLERANCE * farDistance + slack);
 }

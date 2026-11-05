@@ -24,6 +24,8 @@ interface EnvelopeSettings {
     fontSize: () => number;
     /** Called with the readout text on every board update that draws it (for a live region). */
     onReadout?: (text: string) => void;
+    /** Called with the translated readout after a language change, which must not wait for the quiet period. */
+    onLanguageReadout?: (text: string) => void;
 }
 
 type DataCurve = GeometryElement & { dataX: number[]; dataY: number[]; updateDataArray: () => void; needsUpdate: boolean; update: () => void };
@@ -63,9 +65,11 @@ export class EnvelopeOverlay {
         return rows ? tangentSegment(rows, this.settings.t()) : undefined;
     }
 
+    /** Collinear to within one screen pixel: a drag cannot land closer, and at that distance the curve looks like the segment. */
     collinear(): boolean {
         const rows = this.settings.rows();
-        return rows !== undefined && isCollinear(rows);
+        const pixel = 1 / Math.max(1e-9, Math.min(this.board.unitX, this.board.unitY));
+        return rows !== undefined && isCollinear(rows, pixel);
     }
 
     /** The caption lines: number of lines, t, and for collinear control points the note that there is no envelope. Empty without a curve. */
@@ -147,7 +151,9 @@ export class EnvelopeOverlay {
 
         // Board text is recomputed only on board update, which a language change does not trigger.
         this.stopLanguageUpdates = onLanguageChange(() => {
-            if (!this.disposed && board.renderer) board.update();
+            if (this.disposed || !board.renderer) return;
+            board.update();
+            this.settings.onLanguageReadout?.(this.readoutText());
         });
     }
 

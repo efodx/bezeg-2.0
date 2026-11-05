@@ -51,6 +51,8 @@ class CurveEnvelopeGraph extends BaseBezierCurveGraph<CurveEnvelopeStates> {
     private overlay?: EnvelopeOverlay;
     /** What the overlay last read: a lesson scene resets the state and sets it back within one batch, so comparing only with the previous state would miss a redraw. */
     private drawn?: { t: number, count: number, lines: boolean, touch: boolean };
+    /** The Bezier curve's last applied visibility, for the same reason as {@link drawn}. */
+    private curveApplied?: boolean;
     /** Owned by the graph so it survives overlay recreation on scene import. */
     private readonly liveReadout = new SettledReadout();
 
@@ -118,7 +120,8 @@ class CurveEnvelopeGraph extends BaseBezierCurveGraph<CurveEnvelopeStates> {
     private applyCurveVisibility() {
         const jxg = this.getFirstJxgCurve()?.getJxgCurve();
         if (!jxg || !this.board) return;
-        jxg.setAttribute({visible: this.effectiveCurveShown()});
+        this.curveApplied = this.effectiveCurveShown();
+        jxg.setAttribute({visible: this.curveApplied});
     }
 
     /** Idempotent: removes any earlier overlay and creates one reading the current first curve lazily. */
@@ -137,6 +140,7 @@ class CurveEnvelopeGraph extends BaseBezierCurveGraph<CurveEnvelopeStates> {
             touchShown: () => this.state.envelopeTouchShown !== false,
             fontSize: () => this.displaySettings.fontSize,
             onReadout: text => this.liveReadout.report(text),
+            onLanguageReadout: text => this.liveReadout.replace(text),
         });
     }
 
@@ -177,7 +181,7 @@ class CurveEnvelopeGraph extends BaseBezierCurveGraph<CurveEnvelopeStates> {
         const drawn = this.drawn;
         const stale = drawn !== undefined && (drawn.t !== this.effectiveT() || drawn.count !== this.effectiveCount()
             || drawn.lines !== (this.state.envelopeLinesShown !== false) || drawn.touch !== (this.state.envelopeTouchShown !== false));
-        const curveChanged = prevState.envelopeCurveShown !== this.state.envelopeCurveShown;
+        const curveChanged = this.curveApplied !== this.effectiveCurveShown();
         if (curveChanged) this.applyCurveVisibility();
         if (stale || curveChanged || prevState.envelopeT !== this.state.envelopeT || prevState.envelopeLineCount !== this.state.envelopeLineCount
             || prevState.envelopeLinesShown !== this.state.envelopeLinesShown || prevState.envelopeTouchShown !== this.state.envelopeTouchShown) {
