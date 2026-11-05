@@ -1950,3 +1950,10 @@ Curves handler 54, CG-B3-3 L5 lesson (2026-11-05):
 - Review, Sonnet: 14 tool calls, 46k tokens, 2 minutes. No high or medium finding, two low notes; one gave the close test.
 - Smoke, Sonnet: 34 tool calls, 55k tokens, 2 minutes. Screenshots at two sizes found what the 13 real-graph tests and the smoke row could not: the panel hid the scene's point. Its viewport-only shots missed the plot, and it read a family-wide layout as an L5 defect; a full-page shot and a comparison with L4 settled both.
 - Outcome: accepted after one handler fix to the view and prompt. The handler's first catalog test assumed handoff 53's frame contract was universal; running it showed 17 lessons breaking it, which became a finding for Functions.
+
+CG-B3-4a graph (curves handlers 54 and 55, 2026-11-05):
+
+- Graph worker, Sonnet: 46 tool calls, 116k tokens, 16 minutes. Accepted after three fixes by the handler; its 36 tests passed yet missed all three.
+- Review, Sonnet: 17 tool calls, 45k tokens, 2 minutes. One medium bug and one low, both real, both reproduced by tests that failed first; one design note kept.
+- Smoke, Sonnet: 25 tool calls, 53k tokens, 5 minutes. 9 of 10 passed. It reported the collinear note as a 390 px failure, undiagnosed; the handler traced it to a 1e-9 tolerance no drag reaches, so the pass at 1440 px was luck of the pixel scale. jsdom tests moved points exactly and could not see this.
+- Outcome: accepted. The handler committed `70c21746` with five failing tests, because a chained command did not stop on the test exit code; corrected in `8c5b99aa` before any push. Gate a commit on the check's exit code.
