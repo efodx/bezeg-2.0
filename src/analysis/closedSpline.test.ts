@@ -334,4 +334,23 @@ describe('epicycle chain', () => {
         expect(trace[16].re).toBeCloseTo(epicycleChain(c, 3, TWO_PI / 4).sum.re, 12);
         expect(() => traceSum(c, 3, 0)).toThrow();
     });
+
+    it('traceSum equals a per-sample epicycleChain loop exactly, including tied moduli', () => {
+        // |c_-1| = |c_1| = 2 and |c_-2| = |c_2| = sqrt 2 are ties.
+        const tied = {N: 3, c: [{re: 0, im: 1}, {re: 1, im: 1}, {re: 2, im: 0}, {re: 0.5, im: 0}, {re: 2, im: 0}, {re: 1, im: -1}, {re: 0.3, im: 0.4}]};
+        const cases: Array<[typeof tied, number]> = [
+            [tied, 3],
+            [tied, 2],
+            [loopCoefficients(circleLoop(), 9), 9],
+            [loopCoefficients(diamondLoop(), 9), 5],
+        ];
+        for (const [coef, N] of cases) {
+            const trace = traceSum(coef, N, 257);
+            trace.forEach((p, j) => {
+                const e = epicycleChain(coef, N, (TWO_PI * j) / 257).sum;
+                expect(p.re).toBe(e.re);
+                expect(p.im).toBe(e.im);
+            });
+        }
+    });
 });

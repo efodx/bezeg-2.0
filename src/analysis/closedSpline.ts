@@ -230,10 +230,28 @@ export function epicycleChain(coefficients: LoopCoefficients, N: number, t: numb
     return {order, points, sum: cur};
 }
 
-/** S_N at `count` samples t_j = 2 pi j / count, j = 0..count-1. */
+/**
+ * S_N at `count` samples t_j = 2 pi j / count, j = 0..count-1. The chain order is computed once, and the terms are added in
+ * exactly the order and with the same operations as `epicycleChain`, so every sample equals `epicycleChain(...).sum`.
+ */
 export function traceSum(coefficients: LoopCoefficients, N: number, count: number): FourierComplex[] {
     if (!Number.isInteger(count) || count < 1) {
         throw new ClosedLoopError('count', 'The sample count must be a positive integer.');
     }
-    return Array.from({length: count}, (_, j) => epicycleChain(coefficients, N, (TWO_PI * j) / count).sum);
+    const order = epicycleOrder(coefficients, N);
+    const terms = order.map((k) => ({k, c: coefficientAt(coefficients, k)}));
+    const c0 = coefficientAt(coefficients, 0);
+    return Array.from({length: count}, (_, j) => {
+        const t = (TWO_PI * j) / count;
+        let re = c0.re;
+        let im = c0.im;
+        for (const {k, c} of terms) {
+            const co = Math.cos(k * t);
+            const si = Math.sin(k * t);
+            const nre = re + c.re * co - c.im * si;
+            im = im + c.re * si + c.im * co;
+            re = nre;
+        }
+        return {re, im};
+    });
 }
