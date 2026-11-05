@@ -38,7 +38,7 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-B3-2a | F2a | `curve-offset` (with PH cross-check; tangential-cusp detection from the CG-1 review) and optional `curve-envelope` graphs | B2 shipped | `curve-offset` kernel and graph done, reviewed, smoked and measured ([evidence](../../reviews/curve-geometry/cg-b3-2a-graphs.md)); `curve-envelope`: CG-B3-4a |
 | CG-B3-2b | F2b | Registration | B3-2a | `curve-offset` registered (poster pending) |
 | CG-B3-3 | F3 | L5 lesson and chapter section for `curve-offset` | B3-2b | done (handler 54): [evidence](../../reviews/curve-geometry/cg-b3-3-lesson.md) |
-| CG-B3-4a | F2a, F2b | `curve-envelope` graph and registration (`lesson: false`) | B2 shipped | planned; L6 ships (decision above) |
+| CG-B3-4a | F2a, F2b | `curve-envelope` graph and registration (`lesson: false`) | B2 shipped | kernel, graph and registration committed (handler 54, branch `curves-l6-envelope`); review, browser check and measurement next |
 | CG-B3-4b | F3 | L6 lesson and chapter section | B3-4a | planned |
 | CG-B3-5 | F5 | Cards and posters for `curve-offset` and `curve-envelope`, joint capture | B3-4b | planned |
 | CG-B3-6 | F6 | Batch 3 gate | B3-5 | planned |
