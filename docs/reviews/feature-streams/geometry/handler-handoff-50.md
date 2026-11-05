@@ -20,7 +20,7 @@ Local `stream-geometry` = origin/master + the 21/22 commits + this note. **If th
 1. Confirm hosted CI for this push (`gh run list --branch master`). A cancelled run is normal when a newer push follows; check that a descendant run succeeded.
 2. **Task 22: dispatch [brief 22b](../../convexity-hulls/22b-brief.md) as written.** It is ready, and includes the A5 chapter section (registry, section with a `formula`, owner, `CHAPTER_LINK_PENDING`, `SECTIONS`, the "next four sections" sentence). It may exceed 30 turns: 21b took 74 tool uses, so split off the section if the worker reports partial. Expect `guidedExamplePreviewCopy.test.ts` to go to 109 and 116, `authoredChapterCoverage.test.ts` to 123, and the no-lesson list to `[]`. Run `just smoke-lesson hull-robustness` before accepting.
 3. **Task 23:** what remains is the chapter smoke at 1440×900 and 390×844 in SL and EN, including focus return from both lessons. The sections themselves land with 21 and 22.
-4. **F5:** capture `point-in-polygon` and `hull-robustness`, emptying `POSTER_PENDING` first per handoff 48's risk.
+4. **F5:** Curves captured `point-in-polygon` and `hull-robustness` jointly (`36df707e`), and `POSTER_PENDING` is empty. Only the F5 visual comparison remains (a Haiku review of the two catalog posters). They were captured before these lessons existed; recapture only if the review finds a fault.
 5. **Batch 2 F6:** criterion-to-test matrix, bilingual smoke and `just check`.
 6. **Worktree and branch cleanup needs the owner.** `origin/geometry-batch2-wip` can be deleted with permission. The other lists are in handoffs 40, 41, 43 and 44, plus `origin/geometry-fortune-lesson-wip` and `origin/geometry-fortune-chapter-wip`. Ask before acting.
 
