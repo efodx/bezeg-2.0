@@ -1743,6 +1743,20 @@ const convexHull = {
     },
 };
 
+// Point in polygon: crossings and winding number of the readout per step 1..7 (empty while the values overlay is off, the predict step).
+const PIP_CROSSINGS = ['1', '', '3', '3', '2', '2', '1'];
+const PIP_WINDING = ['1', '', '1', '1', '0', '2', '1'];
+const pointInPolygon = {
+    id: 'point-in-polygon',
+    path: `${BASE}/compgeo/point-in-polygon`,
+    titles: {sl: 'Točka v večkotniku', en: 'Point in polygon'},
+    steps: 7,
+    minFrames: 16, // 2 frames per step, 3 on steps 5 and 6 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => [await page.locator('[data-pip-readout]').getAttribute('data-pip-crossings'), await page.locator('[data-pip-readout]').getAttribute('data-pip-winding')], {message: `point in polygon crossings and winding number at ${label}`}).toEqual([PIP_CROSSINGS[step - 1], PIP_WINDING[step - 1]]);
+    },
+};
+
 // Ear clipping: the trace step shown per lesson step 1..7 (start, start, first ear test, done, done, done, the comb's done); the number is language independent.
 const EAR_STEPS = ['1', '1', '4', '12', '12', '12', '35'];
 const earClipping = {
@@ -2278,7 +2292,7 @@ const fortune = {
     },
 };
 
-const LESSONS = [bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,, const LESSONS = [conicFocal
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);

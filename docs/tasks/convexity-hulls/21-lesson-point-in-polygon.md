@@ -1,6 +1,6 @@
 # 21 — Lesson A3 point in polygon (Batch 2, F3)
 
-Status: planned 2026-11-03 (geometry handler 48). Source: spec [A3](../../specs/convexity-hulls-lessons.md#a3-point-in-polygon) (goal, prerequisites A1 and A2, steps 1–7, acceptance 1–6), [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31). Kind: F3; the review covers scene actions, readouts and the stated rule, not prose. Depends on 20. Template: [13](13-lessons-orientation-area.md).
+Status: accepted 2026-11-05 (geometry handler 50; workers 21a actions and 21b lesson, Sonnet high; engineering review of the actions found no defect in this graph; the interim chapter owner is `convex-hull` until task 23). Planned 2026-11-03 (geometry handler 48). Source: spec [A3](../../specs/convexity-hulls-lessons.md#a3-point-in-polygon) (goal, prerequisites A1 and A2, steps 1–7, acceptance 1–6), [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31). Kind: F3; the review covers scene actions, readouts and the stated rule, not prose. Depends on 20. Template: [13](13-lessons-orientation-area.md).
 
 1. **Actions.** `PointInPolygonGraph` registers typed actions:
    - move the query point;

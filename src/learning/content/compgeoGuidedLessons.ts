@@ -2702,4 +2702,214 @@ const fortune: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation, fortune];
+/**
+ * Point-in-polygon lesson (docs/specs/convexity-hulls-lessons.md, A3). The scenes use the `set-polygon`, `set-query-point` and `set-overlay`
+ * actions of `PointInPolygonGraph`; `compgeoPointInPolygonLesson.test.ts` checks every quoted number against the real graph's readout.
+ * Query points are whole grid steps: the notched pentagon at (3, 1), (1, 3), (1, 2) and (3, 3), the lattice pentagram at its centre (0, 0).
+ */
+export const PIP_QUERY = {drag: [3, 1], predict: [1, 3], vertexRay: [1, 2], notch: [3, 3], pentagramCentre: [0, 0], pentagramTip: [0, 12], onEdge: [3, 0]} as const satisfies Record<string, readonly [number, number]>;
+type PipOverlay = 'ray' | 'winding' | 'values';
+const PIP_OVERLAYS: readonly PipOverlay[] = ['ray', 'winding', 'values'];
+/** A point-in-polygon scene: the figure with its query point, then exactly the listed overlays shown, all in one synchronous tick. */
+const pipScene = (id: string, figure: 'notched' | 'pentagram', query: readonly [number, number], shown: readonly PipOverlay[], sl: string, en: string): LessonScene =>
+    scene(id, [
+        {kind: 'point-set', operation: 'set-polygon', polygon: figure},
+        {kind: 'point-set', operation: 'set-query-point', point: query},
+        ...PIP_OVERLAYS.map(name => overlay(name, shown.includes(name))),
+    ], sl, en);
+
+const pointInPolygon: GuidedLesson = {
+    demonstrationId: 'point-in-polygon',
+    title: text('Točka v večkotniku', 'Point in polygon'),
+    summary: text(
+        'Ali točka \\(q\\) leži znotraj večkotnika? Poltrak iz \\(q\\) šteje presečišča z robom, ovojno število šteje obhode okrog \\(q\\); pri večkotniku, ki seka samega sebe (pentagram), sodo-liho in neničelno pravilo dasta različen odgovor.',
+        'Does the point \\(q\\) lie inside a polygon? A ray from \\(q\\) counts crossings with the boundary, the winding number counts turns around \\(q\\); for a self-intersecting polygon (the pentagram) the even–odd and the nonzero rule give different answers.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o orientaciji treh točk: predznak vrednosti \\(D\\) pove, ali rob poltraka prečka od spodaj navzgor ali obratno.', 'The lesson on the orientation of three points is required: the sign of \\(D\\) tells whether an edge crosses the ray upwards or downwards.'),
+        text('Potrebna je lekcija o ploščini večkotnika: ovojno število in predznačena ploščina izhajata iz iste usmeritve robov.', 'The lesson on polygon area is required: the winding number and the signed area come from the same orientation of the edges.'),
+    ],
+    learningGoals: [
+        text('Z lego poltraka prešteješ presečišča in iz parnosti določiš, ali je točka znotraj.', 'Count the crossings of the ray and decide from their parity whether the point is inside.'),
+        text('Poveš, kako polodprto pravilo obravnava oglišče na poltraku in zakaj točka na robu ni ne znotraj ne zunaj.', 'Say how the half-open rule treats a vertex on the ray, and why a point on the boundary is neither inside nor outside.'),
+        text('Razložiš ovojno število in na pentagramu pokažeš, da se sodo-liho in neničelno pravilo razlikujeta.', 'Explain the winding number and show on the pentagram that the even–odd and the nonzero rule differ.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'pip-ray-rule',
+            latex: '\\text{rob }ab\\text{ šteje}\\iff (a_y>q_y)\\neq(b_y>q_y)\\ \\text{in presečišče je desno od }q',
+            notation: text(
+                '\\(a\\), \\(b\\) sta krajišči roba, \\(q\\) je točka in \\(a_y\\), \\(b_y\\), \\(q_y\\) so ordinate; poltrak teče iz \\(q\\) v smeri \\(+x\\).',
+                '\\(a\\), \\(b\\) are the endpoints of an edge, \\(q\\) is the point and \\(a_y\\), \\(b_y\\), \\(q_y\\) are the ordinates; the ray runs from \\(q\\) in the \\(+x\\) direction.',
+            ),
+            explanation: text(
+                'Rob šteje natanko takrat, ko je natanko eno njegovo krajišče strogo nad vodoravnico skozi \\(q\\). Oglišče na poltraku se torej obravnava, kot da je tik pod njim, vodoravni rob na poltraku pa ne šteje nikoli. Točka na robu je poseben primer: ni ne znotraj ne zunaj.',
+                'An edge counts exactly when exactly one of its endpoints is strictly above the horizontal line through \\(q\\). So a vertex on the ray is treated as lying just below it, and a horizontal edge on the ray never counts. A point on the boundary is a case of its own: neither inside nor outside.',
+            ),
+        },
+        {
+            id: 'pip-winding-rule',
+            latex: 'c=c_{\\uparrow}+c_{\\downarrow},\\qquad w=c_{\\uparrow}-c_{\\downarrow}',
+            notation: text(
+                '\\(c_{\\uparrow}\\) je število štetih robov, ki poltrak prečkajo navzgor, \\(c_{\\downarrow}\\) navzdol; \\(c\\) je število presečišč, \\(w\\) ovojno število.',
+                '\\(c_{\\uparrow}\\) is the number of counted edges that cross the ray upwards, \\(c_{\\downarrow}\\) downwards; \\(c\\) is the crossing count and \\(w\\) the winding number.',
+            ),
+            explanation: text(
+                'Sodo-liho pravilo pravi: znotraj, če je \\(c\\) liho. Neničelno pravilo pravi: znotraj, če je \\(w\\neq0\\). Ker sta \\(c\\) in \\(w\\) iste parnosti, se pravili razlikujeta le, kadar je \\(w\\) sodo in različno od \\(0\\), kar je mogoče samo pri večkotniku, ki seka samega sebe.',
+                'The even–odd rule says: inside if \\(c\\) is odd. The nonzero rule says: inside if \\(w\\neq0\\). Since \\(c\\) and \\(w\\) have the same parity, the rules differ only when \\(w\\) is even and not \\(0\\), which is possible only for a self-intersecting polygon.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'pip-notch-example',
+            title: text('Točka \\(q=(3,3)\\) v zarezi', 'The point \\(q=(3,3)\\) in the notch'),
+            calculationLatex: 'c=1+1=2,\\quad w=(-1)+(+1)=0',
+            resultLatex: 'c=2,\\; w=0',
+            check: text(
+                'Izpis pod grafom pokaže \\(2\\) presečišči in ovojno število \\(0\\): točka je zunaj, čeprav leži med oglišči petkotnika.',
+                'The readout under the graph shows \\(2\\) crossings and winding number \\(0\\): the point is outside although it lies among the vertices of the pentagon.',
+            ),
+        },
+        {
+            id: 'pip-pentagram-example',
+            title: text('Središče pentagrama', 'The centre of the pentagram'),
+            calculationLatex: 'c=1+1=2,\\quad w=(+1)+(+1)=2',
+            resultLatex: 'c=2,\\; w=2',
+            check: text(
+                'Izpis pokaže \\(2\\) presečišči in ovojno število \\(2\\): sodo-liho pravilo reče zunaj, neničelno pravilo znotraj.',
+                'The readout shows \\(2\\) crossings and winding number \\(2\\): the even–odd rule says outside, the nonzero rule says inside.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'pip-drag', order: 1,
+            title: text('Premakni točko', 'Drag the point'),
+            purpose: text('Spoznati vprašanje: kje glede na večkotnik je točka \\(q\\)?', 'Meeting the question: where is the point \\(q\\) relative to the polygon?'),
+            explanation: text(
+                'Petkotnik z zarezo ima oglišča \\((0,0)\\), \\((6,0)\\), \\((6,4)\\), \\((3,2)\\) in \\((0,4)\\). Točko \\(q\\), zdaj v \\((3,1)\\), premikaj z miško ali s puščičnimi tipkami in beri izpis pod grafom: pove, ali je \\(q\\) znotraj ali zunaj. Poltraka še ne vidiš.',
+                'The notched pentagon has the vertices \\((0,0)\\), \\((6,0)\\), \\((6,4)\\), \\((3,2)\\) and \\((0,4)\\). Drag the point \\(q\\), now at \\((3,1)\\), with the mouse or the arrow keys and read the readout under the graph: it says whether \\(q\\) is inside or outside. You do not see the ray yet.',
+            ),
+            formulaIds: [],
+            frames: [frame('pip-drag-explanation', 'explanation'), frame('pip-drag-observation', 'observation')],
+            observationPrompt: text('Premakni \\(q\\) v zarezo pri vrhu in opazuj, kdaj se izpis spremeni.', 'Move \\(q\\) into the notch at the top and watch when the readout changes.'),
+            expectedObservations: [text('V \\((3,1)\\) je \\(q\\) znotraj; v zarezi, na primer v \\((3,3)\\), je zunaj.', 'At \\((3,1)\\) the point \\(q\\) is inside; in the notch, for example at \\((3,3)\\), it is outside.')],
+            scene: pipScene('pip-drag', 'notched', PIP_QUERY.drag, ['values'],
+                'Petkotnik z zarezo s točko \\(q=(3,1)\\); izpis je viden, poltrak in ovojno število sta skrita.',
+                'The notched pentagon with the point \\(q=(3,1)\\); the readout is shown, the ray and the winding number are hidden.'),
+        },
+        {
+            id: 'pip-predict', order: 2,
+            title: text('Napovej', 'Predict'),
+            purpose: text('Pred razkritjem napovedati, ali je \\(q\\) znotraj.', 'Predicting whether \\(q\\) is inside before the reveal.'),
+            explanation: text(
+                'Točka \\(q\\) je zdaj v \\((1,3)\\), levo od zareze. Izpis, poltrak in ovojno število so skriti. Napovej: je \\(q\\) znotraj ali zunaj? In koliko robov bi prečkal vodoraven poltrak, ki gre iz \\(q\\) v desno?',
+                'The point \\(q\\) is now at \\((1,3)\\), to the left of the notch. The readout, the ray and the winding number are hidden. Predict: is \\(q\\) inside or outside? And how many edges would a horizontal ray going right from \\(q\\) cross?',
+            ),
+            formulaIds: ['pip-ray-rule'],
+            frames: [frame('pip-predict-explanation', 'explanation'), frame('pip-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši napoved o legi in o številu presečišč.', 'Write down your prediction of the position and of the number of crossings.'),
+            expectedObservations: [text('Rezultat in poltrak sta skrita, zato napoved še ni preverjena; v naslednjem koraku jo primerjamo.', 'The result and the ray are hidden, so the prediction is not yet checked; the next step compares it.')],
+            scene: pipScene('pip-predict', 'notched', PIP_QUERY.predict, [],
+                'Točka \\(q=(1,3)\\); izpis, poltrak in ovojno število so skriti.',
+                'The point \\(q=(1,3)\\); the readout, the ray and the winding number are hidden.'),
+        },
+        {
+            id: 'pip-ray-reveal', order: 3,
+            title: text('Poltrak in presečišča', 'The ray and the crossings'),
+            purpose: text('Preveriti napoved s štetjem presečišč poltraka.', 'Checking the prediction by counting the crossings of the ray.'),
+            explanation: text(
+                'Poltrak iz \\(q=(1,3)\\) v desno prečka rob v \\(3\\) točkah, oštevilčenih od \\(q\\) navzven. Število je liho, zato je \\(q\\) znotraj: poltrak najprej vstopi v zarezo, jo zapusti in na koncu zapusti večkotnik. Isto pove izpis.',
+                'The ray from \\(q=(1,3)\\) to the right crosses the boundary in \\(3\\) points, numbered outwards from \\(q\\). The number is odd, so \\(q\\) is inside: the ray enters the notch, leaves it and finally leaves the polygon. The readout says the same.',
+            ),
+            formulaIds: ['pip-ray-rule'],
+            frames: [frame('pip-ray-reveal-explanation', 'explanation'), frame('pip-ray-reveal-observation', 'observation')],
+            observationPrompt: text('Primerjaj napoved s številom presečišč in premakni \\(q\\) navzgor v zarezo.', 'Compare your prediction with the number of crossings and move \\(q\\) up into the notch.'),
+            expectedObservations: [text('Tri presečišča (liho) pomenijo znotraj; ko je \\(q\\) v zarezi, jih je sodo mnogo in točka je zunaj.', 'Three crossings (odd) mean inside; when \\(q\\) is in the notch the count is even and the point is outside.')],
+            scene: pipScene('pip-ray-reveal', 'notched', PIP_QUERY.predict, ['ray', 'values'],
+                'Točka \\(q=(1,3)\\) s poltrakom in izpisom: \\(3\\) presečišča, znotraj.',
+                'The point \\(q=(1,3)\\) with the ray and the readout: \\(3\\) crossings, inside.'),
+        },
+        {
+            id: 'pip-boundary', order: 4,
+            title: text('Oglišče na poltraku in točka na robu', 'A vertex on the ray and a point on the boundary'),
+            purpose: text('Spoznati pravilo za oglišče na poltraku in poseben primer točke na robu.', 'Learning the rule for a vertex on the ray and the special case of a point on the boundary.'),
+            explanation: text(
+                'Točko premaknemo v \\((1,2)\\): poltrak zdaj gre skozi oglišče \\((3,2)\\). Polodprto pravilo oglišče na poltraku obravnava, kot da je tik pod njim: rob šteje, če je natanko eno njegovo krajišče strogo nad poltrakom. Oba roba v \\((3,2)\\) imata drugo krajišče nad poltrakom, zato oba štejeta in izpis pokaže \\(3\\) presečišča; odgovor ostane znotraj, kakor pri bližnjem poltraku. Vodoravni rob na poltraku ne šteje nikoli. Če \\(q\\) povlečeš na rob, na primer v \\((3,0)\\), izpis pove, da je točka na robu: to ni ne znotraj ne zunaj in presečišč ter ovojnega števila ni.',
+                'We move the point to \\((1,2)\\): the ray now passes through the vertex \\((3,2)\\). The half-open rule treats a vertex on the ray as lying just below it: an edge counts if exactly one of its endpoints is strictly above the ray. Both edges at \\((3,2)\\) have their other endpoint above the ray, so both count and the readout shows \\(3\\) crossings; the answer stays inside, as for a nearby ray. A horizontal edge on the ray never counts. If you drag \\(q\\) onto an edge, for example to \\((3,0)\\), the readout says the point is on the boundary: that is neither inside nor outside, and there is no crossing count or winding number.',
+            ),
+            formulaIds: ['pip-ray-rule'],
+            frames: [frame('pip-boundary-explanation', 'explanation'), frame('pip-boundary-observation', 'observation')],
+            observationPrompt: text('Povleci \\(q\\) na spodnji rob in nazaj ter opazuj, kaj se zgodi z izpisom.', 'Drag \\(q\\) onto the bottom edge and back and watch what happens to the readout.'),
+            expectedObservations: [text('Na robu izpis pove "na robu" in ne pokaže števila presečišč; tik ob robu je točka spet znotraj ali zunaj.', 'On an edge the readout says "on the boundary" and shows no crossing count; right next to the edge the point is inside or outside again.')],
+            scene: pipScene('pip-boundary', 'notched', PIP_QUERY.vertexRay, ['ray', 'values'],
+                'Točka \\(q=(1,2)\\): poltrak gre skozi oglišče \\((3,2)\\), \\(3\\) presečišča, znotraj.',
+                'The point \\(q=(1,2)\\): the ray passes through the vertex \\((3,2)\\), \\(3\\) crossings, inside.'),
+        },
+        {
+            id: 'pip-winding', order: 5,
+            title: text('Ovojno število', 'The winding number'),
+            purpose: text('Šteti presečišča s smerjo in dobiti ovojno število.', 'Counting the crossings with direction to get the winding number.'),
+            explanation: text(
+                'Ovojno število šteje, kolikokrat rob obide \\(q\\) v nasprotni smeri urinega kazalca. Vsako presečišče šteje \\(+1\\), če rob poltrak prečka navzgor, in \\(-1\\), če navzdol. Pri \\(q=(3,3)\\) v zarezi sta presečišči dve, ena navzgor in ena navzdol, zato je ovojno število \\(0\\) in točka je zunaj. Pri \\((1,3)\\) je ovojno število \\(1\\).',
+                'The winding number counts how many times the boundary goes around \\(q\\) counter-clockwise. Each crossing counts \\(+1\\) if the edge crosses the ray upwards and \\(-1\\) if downwards. For \\(q=(3,3)\\) in the notch there are two crossings, one up and one down, so the winding number is \\(0\\) and the point is outside. At \\((1,3)\\) the winding number is \\(1\\).',
+            ),
+            formulaIds: ['pip-winding-rule'], workedExampleId: 'pip-notch-example',
+            frames: [frame('pip-winding-explanation', 'explanation'), frame('pip-winding-calculation', 'calculation'), frame('pip-winding-observation', 'observation')],
+            observationPrompt: text('Primerjaj število presečišč in ovojno število na več točkah.', 'Compare the crossing count and the winding number at several points.'),
+            expectedObservations: [text('Število presečišč in ovojno število sta vedno iste parnosti; v zarezi je ovojno število \\(0\\), v petkotniku \\(1\\).', 'The crossing count and the winding number always have the same parity; in the notch the winding number is \\(0\\), in the pentagon \\(1\\).')],
+            scene: pipScene('pip-winding', 'notched', PIP_QUERY.notch, ['ray', 'winding', 'values'],
+                'Točka \\(q=(3,3)\\) v zarezi: \\(2\\) presečišči, ovojno število \\(0\\), zunaj; oznake smeri robov so vidne.',
+                'The point \\(q=(3,3)\\) in the notch: \\(2\\) crossings, winding number \\(0\\), outside; the edge direction labels are shown.'),
+        },
+        {
+            id: 'pip-pentagram', order: 6,
+            title: text('Pentagram: pravili se razlikujeta', 'The pentagram: the rules differ'),
+            purpose: text('Videti večkotnik, pri katerem sodo-liho in neničelno pravilo nista enaki.', 'Seeing a polygon where the even–odd and the nonzero rule are not the same.'),
+            explanation: text(
+                'Pentagram seka samega sebe. V središču \\((0,0)\\) poltrak prečka dva roba v isti smeri, zato je \\(c=2\\) in \\(w=2\\): sodo-liho pravilo reče zunaj, neničelno pravilo znotraj. V konici, na primer v \\((0,12)\\), je \\(c=1\\) in \\(w=1\\) in pravili se ujemata. Slika je mrežni približek pravilnega pentagrama, saj njegova oglišča niso mrežne točke: oglišča \\((0,16)\\), \\((-9,-13)\\), \\((15,5)\\), \\((-15,5)\\) in \\((9,-13)\\) so celoštevilska, ovojna števila pa so preverjena s točnim preizkusom.',
+                'The pentagram crosses itself. At the centre \\((0,0)\\) the ray crosses two edges in the same direction, so \\(c=2\\) and \\(w=2\\): the even–odd rule says outside, the nonzero rule says inside. In a tip, for example at \\((0,12)\\), we have \\(c=1\\) and \\(w=1\\) and the rules agree. The figure is a lattice approximation of the regular pentagram, because its vertices are not lattice points: the vertices \\((0,16)\\), \\((-9,-13)\\), \\((15,5)\\), \\((-15,5)\\) and \\((9,-13)\\) are integers, and the winding numbers are checked by an exact test.',
+            ),
+            formulaIds: ['pip-winding-rule'], workedExampleId: 'pip-pentagram-example',
+            frames: [frame('pip-pentagram-explanation', 'explanation'), frame('pip-pentagram-calculation', 'calculation'), frame('pip-pentagram-observation', 'observation')],
+            observationPrompt: text('Povleci \\(q\\) iz središča v konico in opazuj, kdaj se pravili ujemata.', 'Drag \\(q\\) from the centre into a tip and watch when the rules agree.'),
+            expectedObservations: [text('V središču je ovojno število \\(2\\) in pravili se razlikujeta; v konici je \\(1\\) in se ujemata.', 'At the centre the winding number is \\(2\\) and the rules differ; in a tip it is \\(1\\) and they agree.')],
+            scene: pipScene('pip-pentagram', 'pentagram', PIP_QUERY.pentagramCentre, ['ray', 'winding', 'values'],
+                'Mrežni pentagram s točko \\(q=(0,0)\\) v središču: \\(2\\) presečišči, ovojno število \\(2\\), pravili se razlikujeta.',
+                'The lattice pentagram with the point \\(q=(0,0)\\) at the centre: \\(2\\) crossings, winding number \\(2\\), the rules differ.'),
+        },
+        {
+            id: 'pip-explore', order: 7,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno preizkusiti točke, oglišča in obe pravili.', 'Trying points, vertices and both rules on your own.'),
+            explanation: text(
+                'Premikaj \\(q\\) po petkotniku z zarezo in po pentagramu (gumba Primeri) ter vklapljaj poltrak, ovojno število in izpis. Poskusi najti točko, kjer je število presečišč liho, ovojno število pa ni \\(1\\), in točko na robu.',
+                'Move \\(q\\) around the notched pentagon and the pentagram (the Examples buttons) and switch the ray, the winding number and the readout on and off. Try to find a point where the crossing count is odd but the winding number is not \\(1\\), and a point on the boundary.',
+            ),
+            formulaIds: ['pip-ray-rule', 'pip-winding-rule'],
+            frames: [frame('pip-explore-explanation', 'explanation'), frame('pip-explore-observation', 'observation')],
+            observationPrompt: text('Poišči točko, kjer se sodo-liho in neničelno pravilo razlikujeta.', 'Find a point where the even–odd and the nonzero rule differ.'),
+            expectedObservations: [text('Pravili se razlikujeta le na pentagramu, v njegovem središčnem petkotniku, kjer je ovojno število \\(2\\).', 'The rules differ only on the pentagram, in its central pentagon, where the winding number is \\(2\\).')],
+            scene: pipScene('pip-explore', 'notched', PIP_QUERY.drag, ['ray', 'winding', 'values'],
+                'Petkotnik z zarezo s točko \\(q=(3,1)\\); poltrak, ovojno število in izpis so vidni.',
+                'The notched pentagon with the point \\(q=(3,1)\\); the ray, the winding number and the readout are shown.'),
+        },
+    ],
+    sources: [
+        {id: 'berg-pip', citation: 'de Berg, M., Cheong, O., van Kreveld, M., Overmars, M. Computational Geometry: Algorithms and Applications, 3rd ed., Chapter 1.'},
+        {id: 'hormann-agathos-2001', citation: 'Hormann, K., Agathos, A. The point in polygon problem for arbitrary polygons, Computational Geometry 20 (2001).'},
+        {
+            id: 'bezeg-pip-implementation',
+            citation: 'Bezeg source: src/compgeo/pointInPolygon.ts, src/graphs/compgeo/pointInPolygonReadout.ts and src/graphs/compgeo/PointInPolygonGraph.tsx.',
+            implementationCorrespondence: 'Every crossing is decided by the exact integer orientation test with the half-open rule, and only the crossing\'s x for drawing is a rational; a lesson scene loads the figure, places the query point on the grid and switches the ray, winding and readout overlays with the point-set actions in one synchronous tick.',
+        },
+    ],
+    edgeCases: [
+        text('Točka na robu ali v oglišču ni ne znotraj ne zunaj; izpis ne pokaže števila presečišč ali ovojnega števila.', 'A point on an edge or at a vertex is neither inside nor outside; the readout shows no crossing count or winding number.'),
+        text('Pri večkotniku, ki seka samega sebe, pravili lahko dasta različen odgovor; pentagram je mrežni približek.', 'For a self-intersecting polygon the rules can disagree; the pentagram is a lattice approximation.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation, fortune, pointInPolygon];

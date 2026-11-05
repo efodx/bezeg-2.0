@@ -186,9 +186,9 @@ test('every active demonstration route has an available lesson unless it opts ou
     expect(lessonIds.filter(id => !isGuidedLessonAvailable(id))).toEqual([]);
     // Every Demonstration ships with a lesson (the last opt-out, fourier-coefficients, gained lesson F2/F4 in Fourier 05 F3); the correlation lesson P5 (curves PS-C-5d1), the Voronoi degenerate-case lesson B5 (T3 task 23), the quadrature lesson N4, the monotone-partition lesson C3 (sweep task 19), the monotone-triangulation lesson C4 (sweep task 20), the density lesson P1, the binomial-normal lesson P2, the CLT lesson P3, the summary-statistics lesson P4, the Delaunay lesson B3, the Voronoi lesson B4, the least-squares lesson I4, the inversion lesson T5 and the projective lessons K4 and K5 ended their opt-outs.
     // Every Demonstration has a lesson since the Fortune lesson (sweep task 25) retired fortune from this list.
-    // conic-focal ended its opt-out with school function graphs F3 Part B; bspline-blossom with BS-C-L6d.
-    // point-in-polygon and hull-robustness opt out until convexity lessons 21 and 22.
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['point-in-polygon', 'hull-robustness']);
+    // conic-focal ended its opt-out with school function graphs F3 Part B; bspline-blossom with BS-C-L6d; point-in-polygon with convexity lesson 21.
+    // hull-robustness opts out until convexity lesson 22.
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['hull-robustness']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 
@@ -213,6 +213,21 @@ describe('typed scene actions', () => {
             {kind: 'curve-visibility', target: 'control-polygon', visible: true},
             {kind: 'curve-evaluation', parameter: 0.5},
         ]);
+    });
+
+    test('hull robustness point-set actions pass with the right shape and are rejected otherwise', () => {
+        const run = (action: unknown) => sceneActions(scene([action as Parameters<typeof sceneActions>[0]['actions'][number]]));
+        const ps = (operation: string, fields: object) => ({kind: 'point-set', operation, ...fields});
+        for (const mode of ['chain', 'kettner', 'sites', 'four-point']) expect(() => run(ps('set-mode', {mode}))).not.toThrow();
+        expect(() => run(ps('set-mode', {mode: 'both'}))).toThrow('set-mode');
+        for (const rule of ['non-left', 'right']) expect(() => run(ps('set-pop-rule', {rule}))).not.toThrow();
+        for (const rule of ['left', undefined, 1]) expect(() => run(ps('set-pop-rule', {rule}))).toThrow('set-pop-rule');
+        for (const duplicates of ['merge', 'keep']) expect(() => run(ps('set-duplicates', {duplicates}))).not.toThrow();
+        for (const duplicates of ['drop', undefined]) expect(() => run(ps('set-duplicates', {duplicates}))).toThrow('set-duplicates');
+        expect(() => run(ps('select-cell', {i: 0, j: 63}))).not.toThrow();
+        for (const [i, j] of [[-1, 0], [0, 64], [1.5, 2], [Number.NaN, 0], ['3', 4], [undefined, 4]]) {
+            expect(() => run(ps('select-cell', {i, j}))).toThrow('select-cell');
+        }
     });
 
     test('triangulation point-set actions pass with the right shape and are rejected otherwise', () => {
@@ -242,6 +257,14 @@ describe('typed scene actions', () => {
             expect(() => run(ps({triangle}))).toThrow('select-triangle');
         }
         expect(() => run(ps({}))).toThrow('select-triangle');
+    });
+
+    test('set-polygon needs a known example name and set-query-point an [x, y] pair or null; the grid is left to the graph', () => {
+        const run = (action: unknown) => sceneActions(scene([action as Parameters<typeof sceneActions>[0]['actions'][number]]));
+        for (const polygon of ['notched', 'pentagram']) expect(() => run({kind: 'point-set', operation: 'set-polygon', polygon})).not.toThrow();
+        for (const polygon of [undefined, null, 'hexagon', 1, ['notched']]) expect(() => run({kind: 'point-set', operation: 'set-polygon', polygon})).toThrow('set-polygon');
+        for (const point of [null, [3, 1], [0.5, 1], [10 ** 9, 0]]) expect(() => run({kind: 'point-set', operation: 'set-query-point', point})).not.toThrow();
+        for (const point of [undefined, [1], [1, 2, 3], [Number.NaN, 1], [Number.POSITIVE_INFINITY, 1]]) expect(() => run({kind: 'point-set', operation: 'set-query-point', point})).toThrow('set-query-point');
     });
 
     test('lesson ids distinguish pilot content from other guided content', () => {
