@@ -4,6 +4,8 @@ import {CurveTypeName, isCurveTypeName} from "./object/curveTypeNames";
 import {EVOLUTE_TRACE_MODES} from "../../learning/model";
 import {COMB_MAX_COUNT, COMB_MIN_COUNT} from "../../bezeg/impl/curve/curvature";
 import {COMB_GAIN_MAX, COMB_GAIN_MIN} from "./comb/curveComb";
+import {OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "./object/JXGPHBezierCurve";
+import {OFFSET_SAMPLES_MAX, OFFSET_SAMPLES_MIN} from "./offset/curveOffset";
 
 /**
  * One stored curve: control points, with weights (rational), the PH generating point and hodograph points, or spline
@@ -146,6 +148,19 @@ export const curveCombPresetCollection = curveCollection("curve-comb", {
     },
 });
 
+/** The offset Demonstration's collection (lesson L5): a Bézier curve (the parabola) or a PH curve, with the offset display state. */
+export const curveOffsetPresetCollection = curveCollection("curve-offset", {
+    type: ["JSXBezierCurve", "JSXPHBezierCurve"],
+    graphState: ({offsetD, offsetSamples, offsetShown, offsetCuspsShown, offsetSpeedPlotShown}) => {
+        if (offsetD !== undefined && !(isFiniteNumber(offsetD) && offsetD >= OFFSET_DISTANCE_MIN && offsetD <= OFFSET_DISTANCE_MAX)) return message("invalid_parameter", {value0: "offsetD"});
+        if (offsetSamples !== undefined && !(isIntegerAtLeast(offsetSamples, OFFSET_SAMPLES_MIN) && offsetSamples <= OFFSET_SAMPLES_MAX)) return message("invalid_parameter", {value0: "offsetSamples"});
+        if (offsetShown !== undefined && typeof offsetShown !== "boolean") return message("invalid_option", {value0: "offsetShown"});
+        if (offsetCuspsShown !== undefined && typeof offsetCuspsShown !== "boolean") return message("invalid_option", {value0: "offsetCuspsShown"});
+        if (offsetSpeedPlotShown !== undefined && typeof offsetSpeedPlotShown !== "boolean") return message("invalid_option", {value0: "offsetSpeedPlotShown"});
+        return undefined;
+    },
+});
+
 /**
  * The Preset collections of the curve Demonstrations, by Demonstration id. Collections of one curve type share their
  * rules; a collection differs only in its key, and PH collections in their degree.
@@ -179,6 +194,7 @@ export const curvePresetCollections = {
     "curve-curvature": curvatureCurvePresetCollection,
     "curve-comb": curveCombPresetCollection,
     "curve-evolute": evoluteCurvePresetCollection,
+    "curve-offset": curveOffsetPresetCollection,
 } as const;
 
 /**

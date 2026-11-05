@@ -42,7 +42,10 @@ The static document initially declares Slovenian, and runtime selection updates 
 | utežena parametrizacija | weighted parametrization |
 | enakomerna parametrizacija | uniform parametrization |
 | hodograf | hodograph |
-| odmik krivulje | curve offset |
+| odmik krivulje | curve offset (PH routes) |
+| vzporednica, vzporedna krivulja | offset curve (the `curve-offset` Demonstration and its lesson) |
+| ost | cusp |
+| faktor hitrosti | speed factor (\(1+d\kappa\)) |
 | prednastavitev | preset |
 | Bézierjeve krpe | Bézier patches (family) |
 | Bézierjeva krpa | Bézier patch |
