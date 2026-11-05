@@ -57,6 +57,12 @@ import {PointSetControlActions, PointSetControls, PointSetNotice} from "./PointS
  * returned objects and removes them before the next call, on scene replacement and on unmount. Create objects with fixed
  * data from `model` (not live point references), because they are rebuilt per change, not per frame.
  *
+ * Two further extension points. `fixesPointCount()` (default false): a subclass whose point count is part of its meaning (the curve
+ * pair, 6 or 8 points) returns true; `addPointAt`, `removeSelected`, `clear` and Add mode are then refused with the `fixed` notice, and
+ * the inspector offers no Add mode, Remove, Clear or new-point form. `drawModelObjects(model)` creates objects that are always
+ * drawn (not switchable), from fixed data of `model` like an overlay; the base owns them with the overlay objects (same redraw
+ * per model or shown-set change, same removal on scene replacement and unmount).
+ *
  * Lesson actions: `registerLessonActions` handles the `point-set` kind (`applyPointSetAction`). `set-points` replaces the
  * model through `parsePointSetModel` with this graph's limits and throws on any rejection (never snaps or clips);
  * `set-overlay` throws `UnsupportedLessonActionError` for an overlay this graph does not own. Subclasses inherit both.
@@ -172,11 +178,20 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return false;
     }
 
+    /** When the point count is fixed, shows the `fixed` notice and returns true (the caller changes nothing). */
+    private refuseFixedCount(): boolean {
+        if (!this.fixesPointCount()) return false;
+        this.noticeValue = {kind: "fixed"};
+        this.requestRender();
+        return true;
+    }
+
     private limitNoticeKind(): "limit" | "segment-limit" | "interval-limit" {
         return this.model.mode === "segments" ? "segment-limit" : this.model.mode === "intervals" ? "interval-limit" : "limit";
     }
 
     addPointAt(point: GridPoint): boolean {
+        if (this.refuseFixedCount()) return false;
         const added = this.apply(addPoint(this.model, point, this.options));
         if (added) this.selected = this.model.points.length - 1;
         return added;
@@ -238,6 +253,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     removeSelected(): boolean {
         const index = this.selected;
         if (index === undefined) return false;
+        if (this.refuseFixedCount()) return false;
         const removed = this.apply(removePoint(this.model, index));
         if (removed) {
             if (this.model.mode === "segments" || this.model.mode === "intervals") this.selected = undefined;
@@ -247,6 +263,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     clear(): boolean {
+        if (this.refuseFixedCount()) return false;
         this.selected = undefined;
         this.pending = undefined;
         return this.apply({ok: true, model: clearPoints(this.model)});
@@ -333,6 +350,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
     }
 
     setAddMode(on: boolean): void {
+        if (on && this.refuseFixedCount()) return;
         this.addModeOn = on;
         const hadPending = this.pending !== undefined;
         if (!on) this.pending = undefined;
@@ -384,6 +402,14 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
      */
     protected overlayInputs(): unknown {
         return undefined;
+    }
+
+    /**
+     * Objects that are always drawn (not an overlay switch), from fixed data of `model`; the curve pair's two curves. The base owns
+     * them with the overlay objects: they are rebuilt whenever the overlays are, before them, and removed with them.
+     */
+    protected drawModelObjects(_model: PointSetModel): JXG.GeometryElement[] {
+        return [];
     }
 
     /**
@@ -714,13 +740,16 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.removeObjects(this.overlayObjects);
         this.overlayObjects = [];
         const overlays = this.state.overlays;
-        for (const id of this.overlayIds()) {
-            if (!this.overlayShown(id)) continue;
-            // Some board elements (the grid) create helper objects of their own; the base owns every object a draw added.
+        // Some board elements (the grid) create helper objects of their own; the base owns every object a draw added.
+        const owned = (draw: () => JXG.GeometryElement[]): void => {
             const before = new Set<unknown>(this.board.objectsList as unknown[]);
-            const drawn = this.drawOverlay(id, model);
+            const drawn = draw();
             const created = (this.board.objectsList as JXG.GeometryElement[]).filter(object => !before.has(object) && !drawn.includes(object));
             this.overlayObjects.push(...drawn, ...created);
+        };
+        owned(() => this.drawModelObjects(model));
+        for (const id of this.overlayIds()) {
+            if (this.overlayShown(id)) owned(() => this.drawOverlay(id, model));
         }
         this.overlaysDrawnFor = {model, overlays, extra: this.overlayInputs()};
     }
@@ -788,8 +817,13 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return true;
     }
 
+    /** A subclass whose number of points is fixed returns true: no add, remove, clear or Add mode (refused with the `fixed` notice, absent from the inspector). */
+    protected fixesPointCount(): boolean {
+        return false;
+    }
+
     protected override workspaceEdit(): React.ReactNode {
-        return <PointSetControls showModeToggle={this.showsModeToggle()} showClosedToggle={this.showsClosedToggle()} allowsSegments={this.allowsSegments()} allowsIntervals={this.allowsIntervals()} pending={this.pending}
+        return <PointSetControls showModeToggle={this.showsModeToggle()} showClosedToggle={this.showsClosedToggle()} fixedCount={this.fixesPointCount()} allowsSegments={this.allowsSegments()} allowsIntervals={this.allowsIntervals()} pending={this.pending}
                                  segmentLimit={this.segmentLimit} intervalLimit={this.intervalLimit} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
                                  pointLimit={this.pointLimit} coordinateLimit={this.coordinateLimit} simplicity={this.simplicity()}
                                  overlays={this.overlayIds().map(id => ({id, label: this.overlayLabel(id), shown: this.overlayShown(id)}))}

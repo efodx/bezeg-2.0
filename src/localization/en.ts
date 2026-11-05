@@ -2175,6 +2175,8 @@ export const en: Record<keyof typeof sl, string> = {
     "pointset_interval_pending": "First endpoint placed at x = {value0}. Click the second endpoint or press Esc to cancel.",
     "pointset_invalid_odd_interval_endpoints": "in intervals mode the number of endpoints must be even (two per interval); add or remove an endpoint in the file",
     "pointset_invalid_interval_rows": "in intervals mode both endpoints of interval k must have y = k + 1; fix the y values in the file",
+    "pointset_count_fixed": "The number of points is set by the curve degree: points cannot be added, removed or cleared. Drag a point or edit its coordinates instead.",
+    "curvepair_invalid_point_count": "two curves of the same degree need 3 or 4 control points each, so 6 or 8 points in points mode; fix the number of points in the file",
     "intervalsweep_controls_label": "Sweep playback",
     "intervalsweep_next_step": "Next step",
     "intervalsweep_playback_note": "Playback takes one step at a time and stops at the end. Changing the intervals returns to the start and stops playback. The sweep line is vertical; open intervals are thickened, the interval of the current event is thickest, and a reported pair is joined by a dashed blue line. A dashed thick interval is the interval of the current event while it is not open (just before it enters or after it leaves).",

@@ -25,7 +25,7 @@ export interface PointSetControlActions {
 }
 
 export interface PointSetNotice {
-    readonly kind: "limit" | "range" | "segment-limit" | "interval-limit";
+    readonly kind: "limit" | "range" | "segment-limit" | "interval-limit" | "fixed";
 }
 
 export interface PointSetControlsProps {
@@ -43,6 +43,8 @@ export interface PointSetControlsProps {
     showModeToggle?: boolean;
     /** False hides the closed-polygon checkbox for a graph that only works on closed polygons. */
     showClosedToggle?: boolean;
+    /** True hides Add mode, Remove, Clear, the point count and the new-point form: the number of points is fixed. Default false. */
+    fixedCount?: boolean;
     /** Whether the mode toggle also offers segments mode. Default false. */
     allowsSegments?: boolean;
     /** Segments mode: the most segments, and the first endpoint waiting for its second click. */
@@ -163,7 +165,9 @@ export function PointSetControls(props: PointSetControlsProps) {
     const segments = model.mode === "segments";
     const intervals = model.mode === "intervals";
     const paired = segments || intervals;
+    const fixed = props.fixedCount === true;
     const noticeText = !notice ? ""
+        : notice.kind === "fixed" ? t("pointset_count_fixed")
         : notice.kind === "limit" ? t("pointset_limit_reached", {value0: props.pointLimit})
             : notice.kind === "segment-limit" ? t("pointset_segment_limit_reached", {value0: props.segmentLimit ?? 0})
                 : notice.kind === "interval-limit" ? t("pointset_interval_limit_reached", {value0: props.intervalLimit ?? 0})
@@ -185,13 +189,13 @@ export function PointSetControls(props: PointSetControlsProps) {
             <p className="inspector-help">{t("pointset_grid_step", {value0: formatNumber(2 ** model.gridStepExponent, language, 8)})}</p>
         </div>
         <div className="inspector-group">
-            <button type="button" className={button} aria-pressed={props.addMode} onClick={() => actions.setAddMode(!props.addMode)}>{t("pointset_add_mode")}</button>
-            <button type="button" className={button} disabled={selected === undefined} onClick={() => actions.removeSelected()}>{t(segments ? "pointset_remove_segment" : intervals ? "pointset_remove_interval" : "pointset_remove")}</button>
-            <button type="button" className={button} disabled={model.points.length === 0} onClick={() => actions.clear()}>{t("pointset_clear")}</button>
-            <p className="inspector-help" data-pointset-count>{segments
+            {!fixed && <button type="button" className={button} aria-pressed={props.addMode} onClick={() => actions.setAddMode(!props.addMode)}>{t("pointset_add_mode")}</button>}
+            {!fixed && <button type="button" className={button} disabled={selected === undefined} onClick={() => actions.removeSelected()}>{t(segments ? "pointset_remove_segment" : intervals ? "pointset_remove_interval" : "pointset_remove")}</button>}
+            {!fixed && <button type="button" className={button} disabled={model.points.length === 0} onClick={() => actions.clear()}>{t("pointset_clear")}</button>}
+            {!fixed && <p className="inspector-help" data-pointset-count>{segments
                 ? t("pointset_segment_count", {value0: model.points.length >> 1, value1: props.segmentLimit ?? 0})
                 : intervals ? t("pointset_interval_count", {value0: model.points.length >> 1, value1: props.intervalLimit ?? 0})
-                : t("pointset_point_count", {value0: model.points.length, value1: props.pointLimit})}</p>
+                : t("pointset_point_count", {value0: model.points.length, value1: props.pointLimit})}</p>}
             <p className="inspector-help" data-pointset-selection>{selected === undefined ? t("pointset_no_selection")
                 : segments ? t("pointset_selected_segment", {value0: (selected >> 1) + 1})
                 : intervals ? t("pointset_selected_interval", {value0: intervalLetter(selected >> 1)}) : t("pointset_selected_point", {value0: selected + 1})}</p>
@@ -214,11 +218,11 @@ export function PointSetControls(props: PointSetControlsProps) {
                     <IntegerField label={t("pointset_point_y", {value0: i + 1})} value={point.y} onCommit={y => actions.movePoint(i, {x: point.x, y})}/>
                 </li>)}
             </ol>
-            <form className="pointset-add" onSubmit={event => {event.preventDefault(); actions.addPoint({x: newX, y: newY});}}>
+            {!fixed && <form className="pointset-add" onSubmit={event => {event.preventDefault(); actions.addPoint({x: newX, y: newY});}}>
                 <IntegerField label={t("pointset_new_x")} value={newX} onCommit={setNewX}/>
                 <IntegerField label={t("pointset_new_y")} value={newY} onCommit={setNewY}/>
                 <button type="submit" className={button}>{t("pointset_add_point")}</button>
-            </form>
+            </form>}
         </div>}
     </div>;
 }

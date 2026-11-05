@@ -25,7 +25,7 @@ export interface PointSetModel {
 }
 
 /** The closed list of overlay names a lesson scene may switch (`point-set` `set-overlay`); a graph accepts only the ones it owns. */
-export const POINT_SET_OVERLAY_NAMES = ['grid', 'diagram', 'delaunay', 'turn', 'fan', 'lattice', 'trace', 'hull', 'values', 'reflex', 'triangulation', 'colouring', 'guards', 'triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre', 'radii', 'angles', 'edges', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle', 'sidelines', 'perpendiculars', 'simson', 'pedal', 'inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents', 'ray', 'winding'] as const;
+export const POINT_SET_OVERLAY_NAMES = ['grid', 'diagram', 'delaunay', 'turn', 'fan', 'lattice', 'trace', 'hull', 'values', 'reflex', 'triangulation', 'colouring', 'guards', 'triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre', 'radii', 'angles', 'edges', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle', 'sidelines', 'perpendiculars', 'simson', 'pedal', 'inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents', 'ray', 'winding', 'control', 'pieces'] as const;
 export type PointSetOverlayName = typeof POINT_SET_OVERLAY_NAMES[number];
 
 export const DEFAULT_POINT_LIMIT = 40;
