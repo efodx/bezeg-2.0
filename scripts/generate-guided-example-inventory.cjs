@@ -607,6 +607,7 @@ function curveGeometryExpectedFor(id, step) {
     if (id.endsWith('.curve-comb')) return curveCombExpectedFor(id, actions);
     if (id.endsWith('.curve-evolute')) return curveEvoluteExpectedFor(id, actions);
     if (id.endsWith('.curve-offset')) return curveOffsetExpectedFor(id, actions);
+    if (id.endsWith('.curve-envelope')) return curveEnvelopeExpectedFor(id, actions);
     assert.ok(id.endsWith('.curve-curvature'), `${id}: no authored Curve geometry first frame`);
     assertOnlyActions(id, actions, [['parameter', /^t$/], ['curve-visibility', /^curvature-(frame|circle)$/]], 'curveGeometryExpectedFor');
     assert.equal(sceneValue(id, actions, 'parameter', 't'), 0.5, `${id}: only t = 0.5 is authored`);
@@ -663,6 +664,22 @@ function curveOffsetExpectedFor(id, actions) {
     const prepared = actions.filter(item => item.kind === 'prepared-scene');
     assert.deepEqual(prepared.length === 1 ? prepared[0].curve?.points : undefined, [[-1, 0], [0, 0], [1, 0]], `${id}: only the segment (-1,0), (0,0), (1,0) is authored`);
     return {types: {curve: 2, point: 3}, curveCount: 2, points: [[-1, 0], [0, 0], [1, 0]]};
+}
+
+/**
+ * L6 (envelope, the controls (1,0), (0,0), (0,1), four lines, the curve and the touching point hidden): the control polygon's three points
+ * and four lines. The Bezier curve is hidden, so it adds nothing. The counts follow the curve-envelope graph's board objects and are checked
+ * by the capture of the card (CG-B3-5), not by a browser run of this slice.
+ */
+function curveEnvelopeExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['envelope-t', /^$/], ['envelope-lines', /^$/], ['curve-visibility', /^envelope-(lines|curve|touch)$/]], 'curveEnvelopeExpectedFor');
+    const count = actions.filter(item => item.kind === 'envelope-lines');
+    assert.ok(count.length === 1 && count[0].value === 4, `${id}: only four lines are authored`);
+    const shown = target => actions.filter(item => item.kind === 'curve-visibility' && item.target === target).map(item => item.visible);
+    assert.deepEqual([shown('envelope-lines'), shown('envelope-curve'), shown('envelope-touch')], [[true], [false], [false]], `${id}: the lines shown, the curve and the touching point hidden`);
+    const prepared = actions.filter(item => item.kind === 'prepared-scene');
+    assert.deepEqual(prepared.length === 1 ? prepared[0].curve?.points : undefined, [[1, 0], [0, 0], [0, 1]], `${id}: only the controls (1,0), (0,0), (0,1) are authored`);
+    return {types: {segment: 4, point: 3}, curveCount: 0, points: [[1, 0], [0, 0], [0, 1]]};
 }
 
 /**

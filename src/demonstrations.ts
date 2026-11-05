@@ -67,7 +67,7 @@ const definitions = [
     {id: 'curve-comb', path: '/bezeg-2.0/curve-geometry/comb', family: '/bezeg-2.0/curve-geometry', title: 'curve_comb_title', prompts: ['prompt_curve_comb', 'prompt_compare']},
     {id: 'curve-evolute', path: '/bezeg-2.0/curve-geometry/evolute', family: '/bezeg-2.0/curve-geometry', title: 'curve_evolute_title', prompts: ['prompt_curve_evolute', 'prompt_compare']},
     {id: 'curve-offset', path: '/bezeg-2.0/curve-geometry/offset', family: '/bezeg-2.0/curve-geometry', title: 'curve_offset_title', prompts: ['prompt_curve_offset', 'prompt_compare']},
-    {id: 'curve-envelope', path: '/bezeg-2.0/curve-geometry/envelope', family: '/bezeg-2.0/curve-geometry', title: 'curve_envelope_title', prompts: ['prompt_curve_envelope', 'prompt_compare'], lesson: false},
+    {id: 'curve-envelope', path: '/bezeg-2.0/curve-geometry/envelope', family: '/bezeg-2.0/curve-geometry', title: 'curve_envelope_title', prompts: ['prompt_curve_envelope', 'prompt_compare']},
     {id: 'interp-lagrange', path: '/bezeg-2.0/interpolation/lagrange', family: '/bezeg-2.0/interpolation', title: 'interp_lagrange_title', prompts: ['prompt_interp_lagrange', 'prompt_compare']},
     {id: 'interp-hermite', path: '/bezeg-2.0/interpolation/hermite', family: '/bezeg-2.0/interpolation', title: 'interp_hermite_title', prompts: ['prompt_interp_hermite', 'prompt_compare']},
     {id: 'interp-runge', path: '/bezeg-2.0/interpolation/runge', family: '/bezeg-2.0/interpolation', title: 'interp_runge_title', prompts: ['prompt_interp_runge', 'prompt_compare']},

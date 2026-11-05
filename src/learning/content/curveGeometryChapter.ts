@@ -19,7 +19,7 @@ function withExample(sectionId: CurveGeometrySectionId, section: FamilyChapterSe
     return {...section, orderedContent: content};
 }
 
-/** Curve geometry batches 1 to 3: L1 parametric and polar curves, L2 curvature and the osculating circle, L3 the curvature comb and spline joins, L4 the evolute and L5 offset curves. */
+/** Curve geometry batches 1 to 3: L1 parametric and polar curves, L2 curvature and the osculating circle, L3 the curvature comb and spline joins, L4 the evolute, L5 offset curves and L6 the envelope of de Casteljau lines. */
 export const curveGeometryChapter: FamilyChapter = {
     id: CURVE_GEOMETRY_CHAPTER_ID,
     family: '/bezeg-2.0/curve-geometry',
@@ -130,6 +130,21 @@ export const curveGeometryChapter: FamilyChapter = {
                      'The speed of the offset is \\((1+d\\kappa)\\) times the speed of the curve, so the offset is regular as long as \\(1+d\\kappa\\ne0\\). At \\(d=-\\tfrac1\\kappa\\) it gets a cusp, and that point is the centre of the osculating circle, so a point of the evolute. For the parabola \\(y=x^2\\) the first cusp is at \\(d=-\\tfrac12\\) at the point \\((0,\\tfrac12)\\), and at \\(d=-1\\) there are two, at \\(x=\\pm0.38321\\).'),
                 text('Narisana vzporednica je vzorčena, zato je približna; vzporednica PH krivulje je točna racionalna krivulja. Slika prikazuje le lokalne osti, globalnih samopresekov vzporednice ne iščemo.',
                      'The drawn offset is sampled, so it is approximate; the offset of a PH curve is an exact rational curve. The picture shows local cusps only, global self-intersections of the offset are not solved.'),
+            ],
+        }),
+        withExample('curve-envelope', {
+            id: 'curve-envelope',
+            demonstrationIds: ['curve-envelope'],
+            investigationPrompts: {'curve-envelope': text('Napovej, kaj tvori roj premic skozi točki \\(Q_0(t)\\) in \\(Q_1(t)\\), nato povečuj število premic. Premakni srednjo kontrolno točko in preveri, ali se premice še dotikajo krivulje; poišči lego, pri kateri ovojnice ni.', 'Predict what the swarm of lines through the points \\(Q_0(t)\\) and \\(Q_1(t)\\) forms, then increase the number of lines. Move the middle control point and check whether the lines still touch the curve; find the position where there is no envelope.')},
+            title: text('Ovojnica premic', 'The envelope of lines'),
+            formula: String.raw`\frac{x}{1-t}+\frac{y}{t}=1\ \Longrightarrow\ \sqrt{x}+\sqrt{y}=1`,
+            paragraphs: [
+                text('Cilj razdelka: znaš razložiti, da je kvadratna Bézierova krivulja ovojnica premic, ki povezujejo istoležni točki \\(Q_0(t)\\) in \\(Q_1(t)\\) prve vrstice de Casteljaujeve sheme. Ovojnica družine premic je krivulja, ki se je dotika vsaka premica družine; premica pri \\(t\\) se krivulje dotika v točki \\(B(t)\\).',
+                     'Goal of the section: you can explain that a quadratic Bézier curve is the envelope of the lines joining the corresponding points \\(Q_0(t)\\) and \\(Q_1(t)\\) of the first row of the de Casteljau scheme. The envelope of a family of lines is the curve that every line of the family touches; the line at \\(t\\) touches the curve at the point \\(B(t)\\).'),
+                text('Pri kontrolnih točkah \\((1,0)\\), \\((0,0)\\), \\((0,1)\\) je \\(Q_0=(1-t,0)\\), \\(Q_1=(0,t)\\), premica ima enačbo \\(\\tfrac{x}{1-t}+\\tfrac{y}{t}=1\\) in se dotika krivulje v \\(B(t)=((1-t)^2,\\,t^2)\\). Zato je ovojnica krivulja \\(\\sqrt x+\\sqrt y=1\\); pri \\(t=\\tfrac12\\) je \\(B=(\\tfrac14,\\tfrac14)\\) in \\(\\sqrt{\\tfrac14}+\\sqrt{\\tfrac14}=1\\).',
+                     'For the control points \\((1,0)\\), \\((0,0)\\), \\((0,1)\\) we get \\(Q_0=(1-t,0)\\), \\(Q_1=(0,t)\\), the line has the equation \\(\\tfrac{x}{1-t}+\\tfrac{y}{t}=1\\) and touches the curve at \\(B(t)=((1-t)^2,\\,t^2)\\). So the envelope is the curve \\(\\sqrt x+\\sqrt y=1\\); at \\(t=\\tfrac12\\) we get \\(B=(\\tfrac14,\\tfrac14)\\) and \\(\\sqrt{\\tfrac14}+\\sqrt{\\tfrac14}=1\\).'),
+                text('Ovojnica ostane Bézierova krivulja, ko premikaš srednjo kontrolno točko. Če so kontrolne točke kolinearne, so vse premice ena premica, krivulja je daljica in ovojnice ni. Narišemo največ \\(200\\) premic, zato je slika pri velikem številu premic le približek ovojnice.',
+                     'The envelope stays the Bézier curve when you move the middle control point. If the control points are collinear, all the lines are one line, the curve is a segment and there is no envelope. At most \\(200\\) lines are drawn, so the picture is only an approximation of the envelope.'),
             ],
         }),
     ],

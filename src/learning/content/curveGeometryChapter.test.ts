@@ -11,7 +11,7 @@ import {
 } from './curveGeometryChapterRegistry';
 import {familyChapters} from './familyChapters';
 
-const IDS = ['curve-parametric', 'curve-curvature', 'curve-comb', 'curve-evolute', 'curve-offset'] as const;
+const IDS = ['curve-parametric', 'curve-curvature', 'curve-comb', 'curve-evolute', 'curve-offset', 'curve-envelope'] as const;
 const everything = (language: 'sl' | 'en') => [
     curveGeometryChapter.purpose, curveGeometryChapter.prerequisites,
     ...curveGeometryChapter.sections.flatMap(section => [section.title, ...section.paragraphs]),
@@ -20,7 +20,7 @@ const everything = (language: 'sl' | 'en') => [
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter follows parametrization in the curves strand with an opening and five lesson sections', () => {
+    test('the chapter follows parametrization in the curves strand with an opening and six lesson sections', () => {
         expect(curveGeometryChapter.id).toBe(CURVE_GEOMETRY_CHAPTER_ID);
         expect(curveGeometryChapter.title).toEqual({sl: 'Geometrija krivulj', en: 'Geometry of curves'});
         expect(curveGeometryChapter.family).toBe('/bezeg-2.0/curve-geometry');
@@ -33,7 +33,7 @@ describe('chapter structure and registration', () => {
             expect(order.indexOf(link.path.split('/').at(-1)!), link.path).toBeLessThan(order.indexOf(CURVE_GEOMETRY_CHAPTER_ID));
         }
         expect(learningChapters.some(chapter => chapter.id === CURVE_GEOMETRY_CHAPTER_ID)).toBe(true);
-        expect(curveGeometryChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['curve-parametric'], ['curve-curvature'], ['curve-comb'], ['curve-evolute'], ['curve-offset']]);
+        expect(curveGeometryChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['curve-parametric'], ['curve-curvature'], ['curve-comb'], ['curve-evolute'], ['curve-offset'], ['curve-envelope']]);
         expect(curveGeometryChapter.prerequisiteLinks?.map(link => link.path)).toEqual([
             '/bezeg-2.0/learn/parametrization', '/bezeg-2.0/learn/ph-curves', '/bezeg-2.0/learn/bezier-curves', '/bezeg-2.0/learn/functions-and-calculus',
         ]);
@@ -47,8 +47,8 @@ describe('chapter structure and registration', () => {
         });
     });
 
-    test('all five released lessons are presented and the terms are in both languages', () => {
-        const terms = {sl: ['ukrivljenost', 'krivinska krožnica', 'parametrične in polarne krivulje', 'glavnik ukrivljenosti', 'stik', 'evoluta', 'ost', 'vzporednica'], en: ['curvature', 'osculating circle', 'parametric and polar curves', 'curvature comb', 'join', 'evolute', 'cusp', 'offset']};
+    test('all six released lessons are presented and the terms are in both languages', () => {
+        const terms = {sl: ['ukrivljenost', 'krivinska krožnica', 'parametrične in polarne krivulje', 'glavnik ukrivljenosti', 'stik', 'evoluta', 'ost', 'vzporednica', 'ovojnica'], en: ['curvature', 'osculating circle', 'parametric and polar curves', 'curvature comb', 'join', 'evolute', 'cusp', 'offset', 'envelope']};
         for (const language of ['sl', 'en'] as const) {
             const body = everything(language).toLowerCase();
             for (const word of terms[language]) expect(body, `${language}: ${word}`).toContain(word);

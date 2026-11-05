@@ -1,6 +1,6 @@
 /**
  * Guided lessons of the Curve geometry family (docs/specs/curve-geometry-lessons.md): L1, parametric and polar curves, L2,
- * curvature and the osculating circle, L3, the curvature comb and spline joins, L4, the evolute, and L5, offset curves. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"):
+ * curvature and the osculating circle, L3, the curvature comb and spline joins, L4, the evolute, and L5, offset curves, and L6, the envelope of de Casteljau lines. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"):
  * every value it quotes is the readout of the scene it belongs to, and `curveGeometryGuidedLessons.test.ts` checks that against
  * the real graphs. Scenes use the `parametric-curve`, `parameter` (`t`), `curve-visibility` (`curvature-frame`,
  * `curvature-circle`, `curvature-comb`, `evolute-normal`), `comb-curve`, `comb-gain`, `spline-beta`, `evolute-trace` and `parametric-roll` animation actions; L5 adds `offset-curve`, `offset-distance`, `offset-samples` and the `offset-trace`, `offset-cusps` and `offset-speed-plot` overlays.
@@ -1033,4 +1033,218 @@ const offsetLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const curveGeometryGuidedLessons: readonly GuidedLesson[] = [parametricLesson, curvatureLesson, combLesson, evoluteLesson, offsetLesson];
+// ---- L6: the envelope of de Casteljau lines -----------------------------------------------------------------------------
+
+/** The default controls (1,0), (0,0), (0,1): the lines are x/(1-t) + y/t = 1 and the envelope is sqrt(x) + sqrt(y) = 1. */
+export const ENVELOPE_CORNER: LessonCurveFixture = {points: [[1, 0], [0, 0], [0, 1]]};
+/** The middle control point moved to (1,1) (step 5). */
+export const ENVELOPE_MOVED: LessonCurveFixture = {points: [[1, 0], [1, 1], [0, 1]]};
+/** The middle control point at (1/2,1/2): the three points are collinear and every line lies on x + y = 1 (step 6). */
+export const ENVELOPE_COLLINEAR: LessonCurveFixture = {points: [[1, 0], [0.5, 0.5], [0, 1]]};
+// Low on the board: the lesson panel covers its upper half, so the view is centred at y = 1.5 and the curves, whose controls lie at y <= 1, sit below the panel.
+export const ENVELOPE_VIEW: LessonViewBox = [-2.2, 3.6, 2.2, -0.6];
+
+/**
+ * A scene of the curve-envelope graph. The parameter t, the line count and the three switches are always set, so the scenes do not
+ * depend on each other under backward and jump navigation.
+ */
+const envelopeScene = (
+    id: string, curve: LessonCurveFixture, t: number, lines: number,
+    shown: {lines: boolean; curve: boolean; touch: boolean}, sl: string, en: string,
+): LessonScene => ({
+    id,
+    basedOn: 'lesson-fixture',
+    curve,
+    view: ENVELOPE_VIEW,
+    actions: [
+        {kind: 'envelope-t', value: t}, {kind: 'envelope-lines', value: lines},
+        {kind: 'curve-visibility', target: 'envelope-lines', visible: shown.lines},
+        {kind: 'curve-visibility', target: 'envelope-curve', visible: shown.curve},
+        {kind: 'curve-visibility', target: 'envelope-touch', visible: shown.touch},
+    ],
+    expectedState: text(sl, en),
+});
+
+const envelopeLesson: GuidedLesson = {
+    demonstrationId: 'curve-envelope',
+    title: text('Ovojnica premic', 'The envelope of lines'),
+    summary: text(
+        'Kvadratna Bézierova krivulja je ovojnica premic, ki povezujejo istoležni točki prve vrstice de Casteljaujeve sheme: vsaka premica družine se krivulje dotika. Pri kontrolnih točkah \\((1,0)\\), \\((0,0)\\), \\((0,1)\\) je ovojnica krivulja \\(\\sqrt x+\\sqrt y=1\\).',
+        'A quadratic Bézier curve is the envelope of the lines joining the corresponding points of the first row of the de Casteljau scheme: every line of the family touches the curve. For the control points \\((1,0)\\), \\((0,0)\\), \\((0,1)\\) the envelope is the curve \\(\\sqrt x+\\sqrt y=1\\).',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o de Casteljaujevem algoritmu: točki \\(Q_0\\) in \\(Q_1\\) sta točki prve vrstice sheme.', 'The lesson on the de Casteljau algorithm is needed: the points \\(Q_0\\) and \\(Q_1\\) are the points of the first row of the scheme.'),
+    ],
+    learningGoals: [
+        text('Napoveš, kaj tvori množica premic skozi točki \\(Q_0(t)\\) in \\(Q_1(t)\\).', 'Predict what the set of lines through the points \\(Q_0(t)\\) and \\(Q_1(t)\\) forms.'),
+        text('Veš, da se vsaka premica družine dotika krivulje v točki \\(B(t)\\), in znaš to preveriti na primeru.', 'Know that every line of the family touches the curve at the point \\(B(t)\\), and check it on an example.'),
+        text('Veš, da ovojnica ostane Bézierova krivulja, ko premikaš srednjo kontrolno točko, in da je pri kolinearnih točkah ni.', 'Know that the envelope stays the Bézier curve when you move the middle control point, and that there is none for collinear points.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'envelope-line',
+            latex: 'Q_0=(1-t)P_0+tP_1,\\quad Q_1=(1-t)P_1+tP_2,\\qquad B(t)=(1-t)Q_0+tQ_1',
+            notation: text(
+                '\\(P_0\\), \\(P_1\\), \\(P_2\\) so kontrolne točke, \\(Q_0\\) in \\(Q_1\\) točki prve vrstice de Casteljaujeve sheme in \\(B(t)\\) točka krivulje.',
+                '\\(P_0\\), \\(P_1\\), \\(P_2\\) are the control points, \\(Q_0\\) and \\(Q_1\\) the points of the first row of the de Casteljau scheme and \\(B(t)\\) the point of the curve.',
+            ),
+            explanation: text(
+                'Za vsak \\(t\\) imamo premico skozi \\(Q_0\\) in \\(Q_1\\). Točka \\(B(t)\\) leži na njej, saj je njuna kombinacija, tangentni vektor pa je \\(B^{\\prime}(t)=2\\,(Q_1-Q_0)\\), vzporeden premici. Zato se premica pri \\(t\\) dotika krivulje v \\(B(t)\\).',
+                'For every \\(t\\) there is a line through \\(Q_0\\) and \\(Q_1\\). The point \\(B(t)\\) lies on it, being a combination of the two, and the tangent vector is \\(B^{\\prime}(t)=2\\,(Q_1-Q_0)\\), parallel to the line. So the line at \\(t\\) touches the curve at \\(B(t)\\).',
+            ),
+        },
+        {
+            id: 'envelope-curve',
+            latex: '\\frac{x}{1-t}+\\frac{y}{t}=1\\ \\Longrightarrow\\ \\sqrt{x}+\\sqrt{y}=1,\\qquad B(t)=\\bigl((1-t)^2,\\ t^2\\bigr)',
+            notation: text(
+                'Velja za kontrolne točke \\((1,0)\\), \\((0,0)\\), \\((0,1)\\); \\(x\\) in \\(y\\) sta koordinati točke premice.',
+                'This holds for the control points \\((1,0)\\), \\((0,0)\\), \\((0,1)\\); \\(x\\) and \\(y\\) are the coordinates of a point of the line.',
+            ),
+            explanation: text(
+                'Tedaj je \\(Q_0=(1-t,0)\\) in \\(Q_1=(0,t)\\), premica ima enačbo \\(\\tfrac{x}{1-t}+\\tfrac{y}{t}=1\\) in se dotika krivulje v \\(B(t)=((1-t)^2,\\,t^2)\\). Za to točko je \\(\\sqrt x+\\sqrt y=(1-t)+t=1\\), torej je ovojnica krivulja \\(\\sqrt x+\\sqrt y=1\\), to je ta Bézierova krivulja.',
+                'Then \\(Q_0=(1-t,0)\\) and \\(Q_1=(0,t)\\), the line has the equation \\(\\tfrac{x}{1-t}+\\tfrac{y}{t}=1\\) and touches the curve at \\(B(t)=((1-t)^2,\\,t^2)\\). For this point \\(\\sqrt x+\\sqrt y=(1-t)+t=1\\), so the envelope is the curve \\(\\sqrt x+\\sqrt y=1\\), that is this Bézier curve.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'envelope-example',
+            title: text('Premica pri \\(t=\\tfrac12\\)', 'The line at \\(t=\\tfrac12\\)'),
+            calculationLatex: 'Q_0=\\bigl(\\tfrac12,0\\bigr),\\ Q_1=\\bigl(0,\\tfrac12\\bigr):\\quad 2x+2y=1,\\quad B\\bigl(\\tfrac12\\bigr)=\\bigl(\\tfrac14,\\tfrac14\\bigr)',
+            resultLatex: '\\sqrt{\\tfrac14}+\\sqrt{\\tfrac14}=\\tfrac12+\\tfrac12=1',
+            check: text(
+                'Točka \\(\\bigl(\\tfrac14,\\tfrac14\\bigr)\\) leži na premici \\(2x+2y=1\\) in na krivulji \\(\\sqrt x+\\sqrt y=1\\), premica pa ima isto smer kot tangenta \\(B^{\\prime}\\bigl(\\tfrac12\\bigr)=(-1,1)\\).',
+                'The point \\(\\bigl(\\tfrac14,\\tfrac14\\bigr)\\) lies on the line \\(2x+2y=1\\) and on the curve \\(\\sqrt x+\\sqrt y=1\\), and the line has the direction of the tangent \\(B^{\\prime}\\bigl(\\tfrac12\\bigr)=(-1,1)\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'envelope-predict', order: 1,
+            title: text('Napoved: kaj tvorijo premice', 'Predict: what the lines form'),
+            purpose: text('Napovedati, kaj tvori roj premic.', 'Predicting what a swarm of lines forms.'),
+            explanation: text(
+                'Za vsak \\(t\\) povežemo točki \\(Q_0(t)\\) in \\(Q_1(t)\\) prve vrstice de Casteljaujeve sheme. Na sliki so le \\(4\\) premice, Bézierova krivulja pa je skrita; ostane kontrolni poligon \\((1,0)\\), \\((0,0)\\), \\((0,1)\\). Napovej, kakšno obliko tvori roj teh premic, ko jih je vse več.',
+                'For every \\(t\\) we join the points \\(Q_0(t)\\) and \\(Q_1(t)\\) of the first row of the de Casteljau scheme. The picture shows only \\(4\\) lines and the Bézier curve is hidden; the control polygon \\((1,0)\\), \\((0,0)\\), \\((0,1)\\) stays. Predict the shape that the swarm of these lines forms as there are more of them.',
+            ),
+            formulaIds: ['envelope-line'],
+            frames: [frame('envelope-predict-explanation', 'explanation'), frame('envelope-predict-observation', 'observation')],
+            observationPrompt: text('Napovej obliko, ki jo tvorijo premice, nato pojdi na naslednji korak.', 'Predict the shape that the lines form, then go to the next step.'),
+            expectedObservations: [text('Premice obdajajo ukrivljen rob, ki leži med kontrolno točko \\((0,0)\\) in daljico od \\((1,0)\\) do \\((0,1)\\); s štirimi premicami je komaj nakazan.', 'The lines surround a curved edge that lies between the control point \\((0,0)\\) and the segment from \\((1,0)\\) to \\((0,1)\\); with four lines it is barely hinted at.')],
+            scene: envelopeScene('envelope-few-lines', ENVELOPE_CORNER, 0.5, 4, {lines: true, curve: false, touch: false},
+                'Štiri premice in kontrolni poligon \\((1,0)\\), \\((0,0)\\), \\((0,1)\\); krivulja in dotikališče sta skrita; izpis: število premic \\(4\\).',
+                'Four lines and the control polygon \\((1,0)\\), \\((0,0)\\), \\((0,1)\\); the curve and the touching point are hidden; the readout: number of lines \\(4\\).'),
+        },
+        {
+            id: 'envelope-more-lines', order: 2,
+            title: text('Več premic', 'More lines'),
+            purpose: text('Videti, kako roj premic z njihovim številom razkrije rob.', 'Seeing how the swarm of lines reveals an edge as their number grows.'),
+            explanation: text(
+                'Na sliki je \\(64\\) premic, krivulja je še skrita. Rob roja je že jasno viden. V pregledovalniku z drsnikom »Število premic« nastavi najprej \\(4\\), nato \\(16\\), \\(64\\) in \\(200\\) in opazuj, kako se rob zgošča. Narišemo največ \\(200\\) premic hkrati.',
+                'The picture shows \\(64\\) lines, the curve is still hidden. The edge of the swarm is already clearly visible. In the inspector, use the slider "Število premic" to set first \\(4\\), then \\(16\\), \\(64\\) and \\(200\\) and watch the edge become denser. At most \\(200\\) lines are drawn at once.',
+            ),
+            formulaIds: ['envelope-line'],
+            frames: [frame('envelope-more-lines-explanation', 'explanation'), frame('envelope-more-lines-observation', 'observation')],
+            observationPrompt: text('Z drsnikom »Število premic« v pregledovalniku nastavi \\(4\\), \\(16\\), \\(64\\) in \\(200\\) premic.', 'With the "Število premic" slider in the inspector set \\(4\\), \\(16\\), \\(64\\) and \\(200\\) lines.'),
+            expectedObservations: [text('Z vsakim korakom je rob roja bolj gladek; pri \\(200\\) premicah je videti kot zvezna krivulja, ki se je vsaka premica dotika v eni točki.', 'With every step the edge of the swarm is smoother; with \\(200\\) lines it looks like a continuous curve that each line touches in one point.')],
+            scene: envelopeScene('envelope-many-lines', ENVELOPE_CORNER, 0.5, 64, {lines: true, curve: false, touch: false},
+                '\\(64\\) premic, krivulja in dotikališče sta skrita; izpis: število premic \\(64\\).',
+                '\\(64\\) lines, the curve and the touching point are hidden; the readout: number of lines \\(64\\).'),
+        },
+        {
+            id: 'envelope-reveal', order: 3,
+            title: text('Razkritje krivulje', 'Revealing the curve'),
+            purpose: text('Rob roja primerjati z Bézierovo krivuljo.', 'Comparing the edge of the swarm with the Bézier curve.'),
+            explanation: text(
+                'Pri \\(200\\) premicah je krivulja prikazana. Rob roja je prav Bézierova krivulja s kontrolnimi točkami \\((1,0)\\), \\((0,0)\\), \\((0,1)\\): ovojnica družine je krivulja, ki se je dotika vsaka premica družine. S stikalom »Krivulja« v pregledovalniku jo lahko skriješ in spet pokažeš.',
+                'With \\(200\\) lines the curve is shown. The edge of the swarm is exactly the Bézier curve with the control points \\((1,0)\\), \\((0,0)\\), \\((0,1)\\): the envelope of a family is the curve that every line of the family touches. With the switch "Krivulja" in the inspector you can hide it and show it again.',
+            ),
+            formulaIds: ['envelope-curve'],
+            frames: [frame('envelope-reveal-explanation', 'explanation'), frame('envelope-reveal-observation', 'observation')],
+            observationPrompt: text('Preklopi stikalo »Krivulja« in primerjaj rob roja s krivuljo.', 'Switch "Krivulja" and compare the edge of the swarm with the curve.'),
+            expectedObservations: [text('Krivulja se ujema z robom roja \\(200\\) premic; vsaka premica se je dotika.', 'The curve agrees with the edge of the swarm of \\(200\\) lines; every line touches it.')],
+            scene: envelopeScene('envelope-revealed', ENVELOPE_CORNER, 0.5, 200, {lines: true, curve: true, touch: false},
+                '\\(200\\) premic in Bézierova krivulja; dotikališče je skrito; izpis: število premic \\(200\\).',
+                '\\(200\\) lines and the Bézier curve; the touching point is hidden; the readout: number of lines \\(200\\).'),
+        },
+        {
+            id: 'envelope-slide-t', order: 4,
+            title: text('Dotikališče pri parametru \\(t\\)', 'The touching point at the parameter \\(t\\)'),
+            purpose: text('Videti, da se premica pri \\(t\\) dotika krivulje v točki \\(B(t)\\).', 'Seeing that the line at \\(t\\) touches the curve at the point \\(B(t)\\).'),
+            explanation: text(
+                'Poudarjena je ena premica družine, pri \\(t=\\tfrac12\\), in njeno dotikališče \\(B(\\tfrac12)=(\\tfrac14,\\tfrac14)\\). Premica poteka skozi \\(Q_0=(\\tfrac12,0)\\) in \\(Q_1=(0,\\tfrac12)\\) ter ima enačbo \\(2x+2y=1\\). Dotikališče leži na krivulji \\(\\sqrt x+\\sqrt y=1\\), saj je \\(\\sqrt{\\tfrac14}+\\sqrt{\\tfrac14}=1\\). Za izračun odpri okvir z računom.',
+                'One line of the family is highlighted, at \\(t=\\tfrac12\\), together with its touching point \\(B(\\tfrac12)=(\\tfrac14,\\tfrac14)\\). The line passes through \\(Q_0=(\\tfrac12,0)\\) and \\(Q_1=(0,\\tfrac12)\\) and has the equation \\(2x+2y=1\\). The touching point lies on the curve \\(\\sqrt x+\\sqrt y=1\\), because \\(\\sqrt{\\tfrac14}+\\sqrt{\\tfrac14}=1\\). Open the calculation frame for the computation.',
+            ),
+            formulaIds: ['envelope-line', 'envelope-curve'],
+            frames: [frame('envelope-slide-t-explanation', 'explanation'), frame('envelope-slide-t-calculation', 'calculation'), frame('envelope-slide-t-observation', 'observation')],
+            observationPrompt: text('Z drsnikom »Parameter t« v pregledovalniku premikaj \\(t\\) od \\(0\\) do \\(1\\) in spremljaj dotikališče.', 'With the "Parameter t" slider in the inspector move \\(t\\) from \\(0\\) to \\(1\\) and follow the touching point.'),
+            expectedObservations: [text('Dotikališče drsi po krivulji od \\((1,0)\\) do \\((0,1)\\), poudarjena premica pa se ga ves čas dotika in ima smer tangente.', 'The touching point slides along the curve from \\((1,0)\\) to \\((0,1)\\), and the highlighted line touches it all the time and has the direction of the tangent.')],
+            workedExampleId: 'envelope-example',
+            scene: envelopeScene('envelope-touch', ENVELOPE_CORNER, 0.5, 21, {lines: true, curve: true, touch: true},
+                'Poudarjena je premica pri \\(t=0{,}5\\) z dotikališčem \\((0{,}25;\\ 0{,}25)\\), vidnih je \\(21\\) premic; izpis: število premic \\(21\\), \\(t=0{,}5\\).',
+                'The line at \\(t=0.5\\) is highlighted with the touching point \\((0.25,\\ 0.25)\\), \\(21\\) lines are visible; the readout: number of lines \\(21\\), \\(t=0.5\\).'),
+        },
+        {
+            id: 'envelope-drag', order: 5,
+            title: text('Premik srednje kontrolne točke', 'Moving the middle control point'),
+            purpose: text('Videti, da ovojnica ostane Bézierova krivulja, ko se kontrolna točka premakne.', 'Seeing that the envelope stays the Bézier curve when a control point moves.'),
+            explanation: text(
+                'Srednja kontrolna točka je zdaj v \\((1,1)\\). Za \\(t=\\tfrac12\\) je \\(Q_0=(1,\\tfrac12)\\), \\(Q_1=(\\tfrac12,1)\\) in dotikališče \\(B(\\tfrac12)=(\\tfrac34,\\tfrac34)\\). Ovojnica premic je še vedno Bézierova krivulja s temi kontrolnimi točkami, le druga kot prej.',
+                'The middle control point is now at \\((1,1)\\). For \\(t=\\tfrac12\\) we get \\(Q_0=(1,\\tfrac12)\\), \\(Q_1=(\\tfrac12,1)\\) and the touching point \\(B(\\tfrac12)=(\\tfrac34,\\tfrac34)\\). The envelope of the lines is still the Bézier curve with these control points, just a different one from before.',
+            ),
+            formulaIds: ['envelope-line'],
+            frames: [frame('envelope-drag-explanation', 'explanation'), frame('envelope-drag-observation', 'observation')],
+            observationPrompt: text('Na plošči povleci srednjo kontrolno točko in opazuj, ali se premice še dotikajo krivulje.', 'On the board drag the middle control point and watch whether the lines still touch the curve.'),
+            expectedObservations: [text('Ko vlečeš srednjo kontrolno točko, se premice premikajo skupaj z njo in ovojnica ostane Bézierova krivulja s trenutnimi kontrolnimi točkami.', 'As you drag the middle control point, the lines move with it and the envelope stays the Bézier curve with the current control points.')],
+            scene: envelopeScene('envelope-moved-middle', ENVELOPE_MOVED, 0.5, 21, {lines: true, curve: true, touch: true},
+                'Kontrolne točke \\((1,0)\\), \\((1,1)\\), \\((0,1)\\); dotikališče pri \\(t=0{,}5\\) je \\((0{,}75;\\ 0{,}75)\\), vidnih je \\(21\\) premic.',
+                'The control points \\((1,0)\\), \\((1,1)\\), \\((0,1)\\); the touching point at \\(t=0.5\\) is \\((0.75,\\ 0.75)\\), \\(21\\) lines are visible.'),
+        },
+        {
+            id: 'envelope-collinear', order: 6,
+            title: text('Kolinearne kontrolne točke', 'Collinear control points'),
+            purpose: text('Spoznati primer, ko ovojnice ni.', 'Learning the case in which there is no envelope.'),
+            explanation: text(
+                'Srednja kontrolna točka je v \\((\\tfrac12,\\tfrac12)\\), na daljici od \\((1,0)\\) do \\((0,1)\\). Točki \\(Q_0\\) in \\(Q_1\\) ter \\(B(t)\\) vse ležijo na premici \\(x+y=1\\), zato so vse premice družine ena sama premica, krivulja pa je daljica. Ovojnice ni: premice niso ločene tangente krivulje. Izpis na plošči in v pregledovalniku to pove.',
+                'The middle control point is at \\((\\tfrac12,\\tfrac12)\\), on the segment from \\((1,0)\\) to \\((0,1)\\). The points \\(Q_0\\), \\(Q_1\\) and \\(B(t)\\) all lie on the line \\(x+y=1\\), so all the lines of the family are one line and the curve is a segment. There is no envelope: the lines are not separate tangents of the curve. The readout on the board and in the inspector says so.',
+            ),
+            formulaIds: ['envelope-line'],
+            frames: [frame('envelope-collinear-explanation', 'explanation'), frame('envelope-collinear-observation', 'observation')],
+            observationPrompt: text('Na plošči povleci srednjo kontrolno točko z daljice in opazuj, kdaj se spet pojavi ovojnica.', 'On the board drag the middle control point off the segment and watch when the envelope appears again.'),
+            expectedObservations: [text('Na daljici izpis pove, da kontrolne točke ležijo na isti premici; ko točko povlečeš z nje, se premice spet razprejo v ovojnico.', 'On the segment the readout says that the control points lie on one line; once you drag the point off it, the lines fan out into an envelope again.')],
+            scene: envelopeScene('envelope-degenerate', ENVELOPE_COLLINEAR, 0.5, 21, {lines: true, curve: true, touch: true},
+                'Kontrolne točke \\((1,0)\\), \\((\\tfrac12,\\tfrac12)\\), \\((0,1)\\) so kolinearne: vse premice ležijo na \\(x+y=1\\), krivulja je daljica; izpis to pove.',
+                'The control points \\((1,0)\\), \\((\\tfrac12,\\tfrac12)\\), \\((0,1)\\) are collinear: all the lines lie on \\(x+y=1\\), the curve is a segment; the readout says so.'),
+        },
+        {
+            id: 'envelope-explore', order: 7,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno raziskati ovojnico.', 'Exploring the envelope on your own.'),
+            explanation: text(
+                'Spet so kontrolne točke \\((1,0)\\), \\((0,0)\\), \\((0,1)\\) pri \\(t=\\tfrac12\\) z \\(21\\) premicami. Premikaj kontrolne točke, spreminjaj »Število premic« in »Parameter t« ter preklapljaj stikala »Premice«, »Krivulja« in »Premica pri t in dotikališče«.',
+                'The control points \\((1,0)\\), \\((0,0)\\), \\((0,1)\\) are back at \\(t=\\tfrac12\\) with \\(21\\) lines. Move the control points, change "Število premic" and "Parameter t" and switch "Premice", "Krivulja" and "Premica pri t in dotikališče".',
+            ),
+            formulaIds: ['envelope-line', 'envelope-curve'],
+            frames: [frame('envelope-explore-explanation', 'explanation'), frame('envelope-explore-observation', 'observation')],
+            observationPrompt: text('Poišči lego kontrolnih točk, pri kateri je krivulja najbolj sploščena, in preveri, da se je premice še vedno dotikajo.', 'Find a position of the control points where the curve is flattest and check that the lines still touch it.'),
+            expectedObservations: [text('Kadar so kontrolne točke skoraj kolinearne, je krivulja skoraj daljica in so premice skoraj ena sama; pri kolinearnih točkah ovojnice ni.', 'When the control points are nearly collinear the curve is almost a segment and the lines are almost one; for collinear points there is no envelope.')],
+            scene: envelopeScene('envelope-explore-start', ENVELOPE_CORNER, 0.5, 21, {lines: true, curve: true, touch: true},
+                'Kontrolne točke \\((1,0)\\), \\((0,0)\\), \\((0,1)\\), \\(t=0{,}5\\), \\(21\\) premic; vse je prosto za raziskovanje.',
+                'The control points \\((1,0)\\), \\((0,0)\\), \\((0,1)\\), \\(t=0.5\\), \\(21\\) lines; everything is free to explore.'),
+        },
+    ],
+    sources: [
+        {
+            id: 'bezeg-envelope-implementation',
+            citation: 'Bezeg source: src/graphs/curves/envelope/curveEnvelope.ts, EnvelopeOverlay.ts and CurveEnvelopeGraph.tsx.',
+            implementationCorrespondence: 'The lines, the touching point and the readout come from curveEnvelope.ts and the owned overlay. A lesson scene sets the parameter with envelope-t, the line count with envelope-lines and the overlays with the curve-visibility actions envelope-lines, envelope-curve and envelope-touch. At most 200 lines are drawn. The spec names no curriculum source for envelopes; the closed form for the controls (1,0), (0,0), (0,1) is derived in the lesson.',
+        },
+    ],
+    edgeCases: [
+        text('Pri kolinearnih kontrolnih točkah so vse premice ena premica in je krivulja daljica: ovojnice ni.', 'For collinear control points all the lines are one line and the curve is a segment: there is no envelope.'),
+        text('Narisanih je največ \\(200\\) premic, zato je rob roja pri velikem številu premic le približek ovojnice.', 'At most \\(200\\) lines are drawn, so the edge of the swarm is only an approximation of the envelope.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const curveGeometryGuidedLessons: readonly GuidedLesson[] = [parametricLesson, curvatureLesson, combLesson, evoluteLesson, offsetLesson, envelopeLesson];

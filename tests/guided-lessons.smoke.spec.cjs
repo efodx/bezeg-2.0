@@ -1940,6 +1940,19 @@ const curveOffset = {
     },
 };
 
+// Envelope: the board readout names the number of lines of each step (4, 64, 200, then 21), and step 6 the collinear note.
+const ENVELOPE_READOUTS = [/(Število premic|Number of lines): 4\b/, /(Število premic|Number of lines): 64\b/, /(Število premic|Number of lines): 200\b/, /(Število premic|Number of lines): 21\b/, /(Število premic|Number of lines): 21\b/, /(isti premici|one line)/, /(Število premic|Number of lines): 21\b/];
+const curveEnvelope = {
+    id: 'curve-envelope',
+    path: `${BASE}/curve-geometry/envelope`,
+    titles: {sl: 'Ovojnica premic', en: 'The envelope of lines'},
+    steps: 7,
+    minFrames: 15, // 2 frames per step, 3 on step 4 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect(boardText(page, ENVELOPE_READOUTS[step - 1]).first(), `envelope readout at ${label}`).toBeVisible();
+    },
+};
+
 // Interval sweep: the trace step shown per lesson step 1..7 (start, start, third entering event, e entered, done, done, the second sample's start); the number is language independent.
 const INTERVAL_STEPS = ['1', '1', '7', '21', '26', '26', '1'];
 const intervalSweep = {
@@ -2379,7 +2392,7 @@ const epicycles = {
 };
 
 const LESSONS = [bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset, curveEnvelope];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

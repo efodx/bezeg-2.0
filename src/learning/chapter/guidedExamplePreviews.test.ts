@@ -229,8 +229,8 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'curve-geometry', copy: curveGeometryPreviewCopy,
         ids: ['curve-geometry.curve-comb.curve-comb', 'curve-geometry.curve-curvature.curve-curvature', 'curve-geometry.curve-evolute.curve-evolute', 'curve-geometry.curve-parametric.curve-parametric'],
         counts: [[1, 4], [1, 5], [1, 6], [0, 2]],
-        // The offset card (CG-B3-3) needs a browser capture (image, manifest entry) that the lesson slice did not run; CG-B3-5 captures it.
-        pending: ['curve-geometry.curve-offset.curve-offset']},
+        // The offset and envelope cards (CG-B3-3, CG-B3-4) need a browser capture (image, manifest entry) that the lesson slice did not run; CG-B3-5 captures them.
+        pending: ['curve-geometry.curve-offset.curve-offset', 'curve-geometry.curve-envelope.curve-envelope']},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {
