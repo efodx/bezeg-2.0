@@ -1957,3 +1957,10 @@ CG-B3-4a graph (curves handlers 54 and 55, 2026-11-05):
 - Review, Sonnet: 17 tool calls, 45k tokens, 2 minutes. One medium bug and one low, both real, both reproduced by tests that failed first; one design note kept.
 - Smoke, Sonnet: 25 tool calls, 53k tokens, 5 minutes. 9 of 10 passed. It reported the collinear note as a 390 px failure, undiagnosed; the handler traced it to a 1e-9 tolerance no drag reaches, so the pass at 1440 px was luck of the pixel scale. jsdom tests moved points exactly and could not see this.
 - Outcome: accepted. The handler committed `70c21746` with five failing tests, because a chained command did not stop on the test exit code; corrected in `8c5b99aa` before any push. Gate a commit on the check's exit code.
+
+CG-B3-4b L6 lesson (curves handler 55, 2026-11-06):
+
+- Lesson worker, Sonnet: 56 tool calls, 129k tokens, 32 minutes, of which about 11 in one focused unit run. Accepted with two handler fixes. It ran a stale `fix.cjs` from the shared Temp folder, which changed an unrelated file; it restored the file and the handler confirmed it against `HEAD`. Scratch belongs in the job folder.
+- Test worker, Sonnet: 26 tool calls, 89k tokens, 13 minutes. First pass accepted, 10 mutations, no defect found.
+- Review, Sonnet: 18 tool calls, 46k tokens, 2 minutes. One medium finding, real and missed by every test: English prose naming Slovenian controls.
+- Smoke, Sonnet: 28 tool calls, 66k tokens, 10 minutes. All checks passed, and it called the worst visual problem minor. The handler opened one screenshot and saw the curve at an eighth of the board width. Two of its flags were artefacts of its own script. Read at least one screenshot yourself; a brief that says "keep it low" needs an upper bound on empty space too.
