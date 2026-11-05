@@ -37,6 +37,7 @@ const targets = {
     'curve-curvature': ['Default parabola with the osculating circle, its centre and the curvature readout at the opening parameter', []],
     'curve-comb': ['Default quadratic C1 spline with the curvature comb switched on, showing the jump of the comb at the joins', [field('Krivulja', 'c1', 'select'), toggle('Glavnik ukrivljenosti')], [-8, 4.9, 8, -4.9]],
     'curve-evolute': ['Default parabola with the whole evolute, its cusp and the normal at the opening parameter', [], [-5.2, 5, 5.2, -1.2]],
+    'curve-offset': ['Default parabola with the sampled offset at d = -1 and its two cusps marked', [field('Razdalja d', '-1'), toggle('Osti vzporednice')]],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],
     'interp-least-squares': ['Default four points with the best line and the squares of its residuals', [], [-1.2, 4.6, 5.7, 0.4]],
