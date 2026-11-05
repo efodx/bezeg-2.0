@@ -3127,4 +3127,212 @@ const hullRobustness: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation, fortune, pointInPolygon, hullRobustness];
+/**
+ * Back to Bézier hulls lesson (docs/specs/convexity-hulls-lessons.md, A6). The scenes use the `set-points`, `set-overlay` and
+ * `set-trace-step` actions of `BezierHullsGraph`; every number the text quotes is the graph's readout at the scene's trace step
+ * (the run has 9 events: step 0 the whole pair, then a split and a discard step per depth; the last step is depth 4).
+ * Crossing pair, step 1: 4 pairs to test; step 2: 2 of 4 kept (4 tested, 2 discarded); step 8: 8 of 256 kept (32 tested, 24 discarded).
+ * Near-miss pair, step 8: 1 of 256 kept (4 tested, 3 discarded); the curves are about 0.0108 apart and one more halving keeps none.
+ * `set-points` takes the whole-number grid only (grid step 0), so a half-unit shift of B is the doubled-grid pair `BEZIER_HULLS_SHIFTED`
+ * (2 of 256 kept, the counts of `curvePairSubdivision.test.ts`); the text quotes it and no scene loads it.
+ */
+export const BEZIER_HULLS_STEPS = {split: 1, discard: 2, end: 8} as const;
+export const BEZIER_HULLS_CROSSING: readonly LessonPoint[] = [[0, 0], [2, 4], [4, 0], [0, 3], [2, -1], [4, 3]];
+export const BEZIER_HULLS_NEAR_MISS: readonly LessonPoint[] = [[4, 0], [8, 2], [2, 6], [5, 0], [7, 4], [3, 6]];
+export const BEZIER_HULLS_SHIFTED: readonly LessonPoint[] = [[0, 0], [4, 8], [8, 0], [1, 6], [5, -2], [9, 6]];
+const BEZIER_HULLS_VIEW: LessonViewBox = [-1, 6, 9, -2];
+/** A trace step of the Bézier hulls graph, clamped like a stored Preset step; `'end'` is the last. */
+const traceStep = (step: number | 'end'): LessonAction => ({kind: 'point-set', operation: 'set-trace-step', step});
+/**
+ * A Bézier hulls scene: the curve pair, the control polygons and the whole-curve hulls, the pieces overlay on or off, and the
+ * trace at `step`. `set-points` returns the trace to step 0, so the step action comes last.
+ */
+const bezierHullsScene = (id: string, net: readonly LessonPoint[], pieces: boolean, step: number | 'end', sl: string, en: string): LessonScene =>
+    ({id, basedOn: 'demonstration-default', view: BEZIER_HULLS_VIEW,
+        actions: [points(net), overlay('control', true), overlay('hull', true), overlay('pieces', pieces), traceStep(step)], expectedState: text(sl, en)});
+
+const bezierHulls: GuidedLesson = {
+    demonstrationId: 'bezier-hulls',
+    title: text('Nazaj k ovojnicam Bézierjevih krivulj', 'Back to hulls of Bézier curves'),
+    summary: text(
+        'Bézierjeva krivulja leži v ovojnici svojih kontrolnih točk. Če se ovojnici dveh krivulj ne prekrivata, se krivulji ne sekata; če se prekrivata, se lahko sekata ali ne. Razpolavljanje krivulj zmanjšuje ovojnice odsekov: pri krivuljah, ki se sekata dvakrat, po štirih razpolovitvah ostane \\(8\\) od \\(256\\) parov odsekov, pri gnezdenih krivuljah, ki se ne sekata, pa en par.',
+        'A Bézier curve lies in the hull of its control points. If the hulls of two curves do not overlap, the curves do not meet; if they overlap, the curves may or may not meet. Halving the curves makes the hulls of the pieces smaller: for curves that cross twice, \\(8\\) of \\(256\\) pairs of pieces remain after four halvings, and for nested curves that do not meet, one pair.',
+    ),
+    prerequisites: [
+        text('Potrebna je lekcija o konveksni ovojnici (graf Konveksna ovojnica): ovojnica množice točk in njen izračun.', 'The lesson on the convex hull (the Convex hull graph) is required: the hull of a set of points and how it is computed.'),
+        text('Potreben je razdelek poglavja o Bézierjevih krivuljah o krajiščih in konveksni ovojnici: krivulja leži v ovojnici kontrolnih točk; poznati je treba tudi razpolovitev krivulje po de Casteljauju.', 'The section of the Bézier chapter on endpoints and the convex hull is required: the curve lies in the hull of its control points; the halving of a curve by de Casteljau is also assumed.'),
+    ],
+    learningGoals: [
+        text('Razložiš, zakaj krivulja leži v ovojnici svojih kontrolnih točk in zakaj ovojnici odsekov po razpolovitvi ležita v ovojnici cele krivulje.', 'Explain why a curve lies in the hull of its control points and why the hulls of the pieces after a halving lie in the hull of the whole curve.'),
+        text('Veš, da ločeni ovojnici dokažeta, da se odseka ne sekata, prekrivanje pa tega ne dokaže: prekrivanje je potreben, ne zadosten pogoj za presečišče.', 'Know that two separated hulls prove that the pieces do not meet, while overlap proves nothing: overlap is necessary, not sufficient, for an intersection.'),
+        text('Na primeru razložiš, zakaj po štirih razpolovitvah ostane \\(8\\) parov in zakaj en preostali par ne pomeni presečišča.', 'Explain with an example why \\(8\\) pairs remain after four halvings, and why one remaining pair does not mean an intersection.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'bh-hull-property',
+            latex: '\\mathbf{b}(t)=\\sum_{i=0}^{n}B_i^n(t)\\,\\mathbf{b}_i,\\qquad B_i^n(t)\\ge0,\\qquad \\sum_{i=0}^{n}B_i^n(t)=1',
+            notation: text(
+                '\\(\\mathbf{b}_0,\\dots,\\mathbf{b}_n\\) so kontrolne točke, \\(B_i^n\\) Bernsteinovi polinomi in \\(t\\in[0,1]\\).',
+                '\\(\\mathbf{b}_0,\\dots,\\mathbf{b}_n\\) are the control points, \\(B_i^n\\) the Bernstein polynomials and \\(t\\in[0,1]\\).',
+            ),
+            explanation: text(
+                'Koeficienti so nenegativni in imajo vsoto \\(1\\), zato je vsaka točka krivulje konveksna kombinacija kontrolnih točk in leži v njihovi ovojnici. Kontrolne točke odseka po razpolovitvi so konveksne kombinacije kontrolnih točk krivulje, zato ovojnica odseka leži v ovojnici cele krivulje. Slika to kaže na primerih; dokaz je v koeficientih.',
+                'The coefficients are nonnegative and sum to \\(1\\), so every point of the curve is a convex combination of the control points and lies in their hull. The control points of a piece after a halving are convex combinations of the control points of the curve, so the hull of the piece lies in the hull of the whole curve. The picture shows this on examples; the proof is in the coefficients.',
+            ),
+        },
+        {
+            id: 'bh-hull-test',
+            latex: 'H(P)\\cap H(Q)=\\varnothing\\ \\Rightarrow\\ P\\cap Q=\\varnothing',
+            notation: text(
+                '\\(P\\) in \\(Q\\) sta odseka dveh krivulj, \\(H\\) je ovojnica njunih kontrolnih točk. Ločenost ovojnic Bezeg potrdi z varnostno rezervo in računom z dvojnimi števili (double), ne z natančno aritmetiko.',
+                '\\(P\\) and \\(Q\\) are pieces of the two curves and \\(H\\) is the hull of their control points. Bezeg certifies the separation of the hulls with a safety margin and double arithmetic, not with exact arithmetic.',
+            ),
+            explanation: text(
+                'Sklep velja samo v to smer. Če se ovojnici prekrivata, se odseka lahko sekata ali ne, zato par ostane za naslednjo globino. Postopek se ustavi pri najvišji globini \\(4\\), ne pri natančnem presečišču.',
+                'The implication holds in this direction only. If the hulls overlap, the pieces may or may not meet, so the pair stays for the next depth. The procedure stops at the deepest depth \\(4\\), not at an exact intersection.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'bh-crossings-example',
+            title: text('Presečišči krivulj \\(A\\) in \\(B\\)', 'The crossings of the curves \\(A\\) and \\(B\\)'),
+            calculationLatex: '8t-8t^2=3-8t+8t^2\\ \\Longleftrightarrow\\ 16t^2-16t+3=(4t-1)(4t-3)=0',
+            resultLatex: 't=\\tfrac14,\\quad t=\\tfrac34',
+            check: text(
+                'Obe krivulji imata \\(x=4t\\), zato se sekata, kjer sta enaki komponenti \\(y\\): \\(y_A=8t-8t^2\\) in \\(y_B=3-8t+8t^2\\). Presečišči sta \\((1,1{,}5)\\) in \\((3,1{,}5)\\).',
+                'Both curves have \\(x=4t\\), so they meet where the \\(y\\)-components are equal: \\(y_A=8t-8t^2\\) and \\(y_B=3-8t+8t^2\\). The crossings are \\((1,1.5)\\) and \\((3,1.5)\\).',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'bh-hull', order: 1,
+            title: text('Krivulja v ovojnici', 'The curve in its hull'),
+            purpose: text('Videti, da vsaka krivulja leži v ovojnici svojih kontrolnih točk.', 'Seeing that each curve lies in the hull of its control points.'),
+            explanation: text(
+                'Krivulja \\(A\\) s kontrolnimi točkami \\((0,0)\\), \\((2,4)\\), \\((4,0)\\) (polna črta) in krivulja \\(B\\) s \\((0,3)\\), \\((2,-1)\\), \\((4,3)\\) (črtkana črta) sta kvadratni Bézierjevi krivulji. Vsaka leži v konveksni ovojnici svojih kontrolnih točk, ker so Bernsteinovi koeficienti nenegativni z vsoto \\(1\\). Ovojnici se prekrivata: izpis kaže globino \\(0\\) od \\(4\\) in ostane \\(1\\) par od \\(1\\). Prekrivanje samo pove, da se krivulji lahko sekata; to je potreben, ne zadosten pogoj.',
+                'The curve \\(A\\) with control points \\((0,0)\\), \\((2,4)\\), \\((4,0)\\) (solid line) and the curve \\(B\\) with \\((0,3)\\), \\((2,-1)\\), \\((4,3)\\) (dashed line) are quadratic Bézier curves. Each lies in the convex hull of its control points, because the Bernstein coefficients are nonnegative with sum \\(1\\). The hulls overlap: the readout shows depth \\(0\\) of \\(4\\) and \\(1\\) pair of \\(1\\) remains. Overlap only says that the curves may meet; it is a necessary, not a sufficient, condition.',
+            ),
+            formulaIds: ['bh-hull-property'], workedExampleId: 'bh-crossings-example',
+            frames: [frame('bh-hull-explanation', 'explanation'), frame('bh-hull-calculation', 'calculation'), frame('bh-hull-observation', 'observation')],
+            observationPrompt: text('Preveri, da vsaka krivulja leži v svoji ovojnici, in preberi izpis.', 'Check that each curve lies in its hull and read the readout.'),
+            expectedObservations: [text('Obe krivulji ležita v svojih ovojnicah, ovojnici se prekrivata; izpis: globina \\(0\\) od \\(4\\), ostane \\(1\\) par od \\(1\\).', 'Both curves lie in their hulls and the hulls overlap; the readout: depth \\(0\\) of \\(4\\), \\(1\\) pair of \\(1\\) remains.')],
+            scene: bezierHullsScene('bh-hull', BEZIER_HULLS_CROSSING, false, 0,
+                'Krivulji \\(A\\) in \\(B\\) s kontrolnima poligonoma in ovojnicama; globina \\(0\\) od \\(4\\), ostane \\(1\\) par od \\(1\\).',
+                'The curves \\(A\\) and \\(B\\) with control polygons and hulls; depth \\(0\\) of \\(4\\), \\(1\\) pair of \\(1\\) remains.'),
+        },
+        {
+            id: 'bh-split', order: 2,
+            title: text('Razpolovitev: manjši ovojnici', 'A halving: two smaller hulls'),
+            purpose: text('Videti, da ovojnici obeh polovic ležita v ovojnici cele krivulje.', 'Seeing that the hulls of the two halves lie in the hull of the whole curve.'),
+            explanation: text(
+                'Razpolovitev pri \\(t=\\tfrac12\\) po de Casteljauju razdeli vsako krivuljo na dva odseka z lastnima kontrolnima poligonoma. Ovojnica vsakega odseka (debela črta) leži znotraj ovojnice cele krivulje (tanka črta), zato so ovojnice manjše in tesneje obdajo krivuljo. Izpis kaže globino \\(1\\) od \\(4\\) in \\(4\\) pare odsekov za preizkus (\\(2\\cdot2\\)); odločitve še ni, ovojnice so šele na vrsti.',
+                'The halving at \\(t=\\tfrac12\\) by de Casteljau splits each curve into two pieces with their own control polygons. The hull of each piece (thick line) lies inside the hull of the whole curve (thin line), so the hulls are smaller and enclose the curve more tightly. The readout shows depth \\(1\\) of \\(4\\) and \\(4\\) pairs of pieces to test (\\(2\\cdot2\\)); there is no verdict yet, the hulls are only about to be tested.',
+            ),
+            formulaIds: ['bh-hull-property'],
+            frames: [frame('bh-split-explanation', 'explanation'), frame('bh-split-observation', 'observation')],
+            observationPrompt: text('Poišči ovojnico odseka in preveri, da leži znotraj ovojnice cele krivulje.', 'Find the hull of a piece and check that it lies inside the hull of the whole curve.'),
+            expectedObservations: [text('Vsaka krivulja ima dve ovojnici odsekov znotraj prvotne; izpis: globina \\(1\\) od \\(4\\), \\(4\\) pari za preizkus, brez odločitve.', 'Each curve has two hulls of pieces inside the original one; the readout: depth \\(1\\) of \\(4\\), \\(4\\) pairs to test, no verdict.')],
+            scene: bezierHullsScene('bh-split', BEZIER_HULLS_CROSSING, true, BEZIER_HULLS_STEPS.split,
+                'Po prvi razpolovitvi ima vsaka krivulja dve ovojnici odsekov; globina \\(1\\) od \\(4\\), \\(4\\) pari za preizkus, odločitve še ni.',
+                'After the first halving each curve has two hulls of pieces; depth \\(1\\) of \\(4\\), \\(4\\) pairs to test, no verdict yet.'),
+        },
+        {
+            id: 'bh-predict', order: 3,
+            title: text('Napovej pare, ki se lahko sekajo', 'Predict which pairs can meet'),
+            purpose: text('Pred razkritjem napovedati, kateri pari odsekov se lahko srečajo.', 'Predicting which pairs of pieces can meet before the reveal.'),
+            explanation: text(
+                'Od \\(4\\) parov odsekov se lahko sekata le par, katerega ovojnici se prekrivata: če sta ovojnici ločeni, odseka nimata skupne točke. Preden pritisneš Naslednji korak, napovej, koliko od \\(4\\) parov ima prekrivajoči se ovojnici in kje na krivuljah so. Izpis zaenkrat še nima odločitve: prikazuje samo \\(4\\) pare za preizkus.',
+                'Of the \\(4\\) pairs of pieces, only a pair whose hulls overlap can meet: if the hulls are separated, the pieces have no common point. Before you press Next step, predict how many of the \\(4\\) pairs have overlapping hulls and where on the curves they are. The readout has no verdict yet: it shows only the \\(4\\) pairs to test.',
+            ),
+            formulaIds: ['bh-hull-test'],
+            frames: [frame('bh-predict-explanation', 'explanation'), frame('bh-predict-observation', 'observation')],
+            observationPrompt: text('Zapiši, koliko parov in katere pričakuješ.', 'Write down how many pairs and which ones you expect.'),
+            expectedObservations: [text('Izpis še nima odločitve (\\(4\\) pari za preizkus); napoved preveri naslednji korak.', 'The readout has no verdict yet (\\(4\\) pairs to test); the next step checks the prediction.')],
+            scene: bezierHullsScene('bh-predict', BEZIER_HULLS_CROSSING, true, BEZIER_HULLS_STEPS.split,
+                'Isti prizor kot prej: globina \\(1\\) od \\(4\\), \\(4\\) pari za preizkus, odločitve še ni.',
+                'The same scene as before: depth \\(1\\) of \\(4\\), \\(4\\) pairs to test, no verdict yet.'),
+        },
+        {
+            id: 'bh-discard', order: 4,
+            title: text('Zavrženi pari', 'Discarded pairs'),
+            purpose: text('Videti, da dva od štirih parov odpadeta zaradi ločenih ovojnic.', 'Seeing that two of four pairs drop out because their hulls are separated.'),
+            explanation: text(
+                'Preizkus zavrže \\(2\\) od \\(4\\) parov: levi odsek krivulje \\(A\\) in desni odsek krivulje \\(B\\) imata ločeni ovojnici, prav tako desni odsek \\(A\\) in levi odsek \\(B\\). Ločenost je potrjena z varnostno rezervo, ne z natančnim računom; par, katerega ovojnici se dotikata, ostane. Ostaneta \\(2\\) od \\(4\\) parov (izpis: preizkušenih \\(4\\), zavrženih \\(2\\)): levi s levim in desni z desnim, tam sta presečišči pri \\(t=\\tfrac14\\) in \\(t=\\tfrac34\\). Zavrženi par ne vsebuje presečišča, ostala pa prekrivanje samo dopušča.',
+                'The test discards \\(2\\) of the \\(4\\) pairs: the left piece of the curve \\(A\\) and the right piece of the curve \\(B\\) have separated hulls, and so do the right piece of \\(A\\) and the left piece of \\(B\\). The separation is certified with a safety margin, not by exact arithmetic; a pair whose hulls touch stays. \\(2\\) of the \\(4\\) pairs remain (readout: \\(4\\) tested, \\(2\\) discarded): left with left and right with right, where the crossings at \\(t=\\tfrac14\\) and \\(t=\\tfrac34\\) are. A discarded pair holds no crossing, while the remaining pairs are only allowed by the overlap.',
+            ),
+            formulaIds: ['bh-hull-test'], workedExampleId: 'bh-crossings-example',
+            frames: [frame('bh-discard-explanation', 'explanation'), frame('bh-discard-calculation', 'calculation'), frame('bh-discard-observation', 'observation')],
+            observationPrompt: text('Primerjaj izpis z napovedjo: kateri pari so zavrženi in kateri ostanejo?', 'Compare the readout with your prediction: which pairs are discarded and which remain?'),
+            expectedObservations: [text('Ostaneta \\(2\\) od \\(4\\) parov, preizkušenih \\(4\\), zavrženih \\(2\\); zavržena sta para levo-desno in desno-levo. Vse štiri ovojnice ostanejo debele in zapolnjene, ker je vsak odsek še v enem preostalem paru: zavržen je par, ne odsek.', 'Of \\(4\\) pairs \\(2\\) remain, \\(4\\) tested, \\(2\\) discarded; the discarded ones are the pairs left-right and right-left. All four hulls stay thick and filled, because each piece is still in one remaining pair: a pair is discarded, not a piece.')],
+            scene: bezierHullsScene('bh-discard', BEZIER_HULLS_CROSSING, true, BEZIER_HULLS_STEPS.discard,
+                'Globina \\(1\\) od \\(4\\): ostaneta \\(2\\) od \\(4\\) parov, preizkušenih \\(4\\), zavrženih \\(2\\); ostala para sta debela in zapolnjena.',
+                'Depth \\(1\\) of \\(4\\): \\(2\\) of \\(4\\) pairs remain, \\(4\\) tested, \\(2\\) discarded; the remaining pairs are thick and filled.'),
+        },
+        {
+            id: 'bh-depth4', order: 5,
+            title: text('Štiri razpolovitve: ostane \\(8\\) parov', 'Four halvings: \\(8\\) pairs remain'),
+            purpose: text('Razložiti, zakaj po štirih razpolovitvah ostane osem parov.', 'Explaining why eight pairs remain after four halvings.'),
+            explanation: text(
+                'Pri globini \\(4\\) od \\(4\\) ostane \\(8\\) od \\(256\\) parov odsekov (izpis: preizkušenih \\(32\\), zavrženih \\(24\\)). Osem in ne dva, ker sta presečišči pri \\(t=\\tfrac14\\) in \\(t=\\tfrac34\\) skupni krajišči odsekov že od globine \\(2\\): v presečišču se stikata po dva odseka vsake krivulje, torej štirje pari ob vsakem presečišču, skupaj \\(8\\). Stikajoči se ovojnici štejeta za prekrivajoči, ker preizkus raje obdrži par. Če bi krivuljo \\(B\\) premaknil za pol enote v desno, presečišči ne bi več padli na skupna krajišča. Na tej mreži pol enote ni, isti položaj pa dasta dvakrat večji krivulji \\((0,0)\\), \\((4,8)\\), \\((8,0)\\) in \\((1,6)\\), \\((5,-2)\\), \\((9,6)\\): izpis pokaže \\(2\\) para, po enega ob presečišču. Preostali pari se zbirajo ob presečiščih, a prekrivanje samo presečišča ne dokaže.',
+                'At depth \\(4\\) of \\(4\\), \\(8\\) of \\(256\\) pairs of pieces remain (readout: \\(32\\) tested, \\(24\\) discarded). Eight rather than two, because the crossings at \\(t=\\tfrac14\\) and \\(t=\\tfrac34\\) are shared endpoints of pieces from depth \\(2\\) on: at a crossing two pieces of each curve meet, so four pairs touch each crossing, \\(8\\) in all. Hulls that touch count as overlapping, because the test prefers to keep a pair. If the curve \\(B\\) moved half a unit to the right, the crossings would no longer fall on shared endpoints. This grid has no half units, but the curves at twice the size, \\((0,0)\\), \\((4,8)\\), \\((8,0)\\) and \\((1,6)\\), \\((5,-2)\\), \\((9,6)\\), give the same position: the readout shows \\(2\\) pairs, one at each crossing. The remaining pairs gather at the crossings, but overlap alone does not prove an intersection.',
+            ),
+            formulaIds: ['bh-hull-test'], workedExampleId: 'bh-crossings-example',
+            frames: [frame('bh-depth4-explanation', 'explanation'), frame('bh-depth4-calculation', 'calculation'), frame('bh-depth4-observation', 'observation')],
+            observationPrompt: text('Poišči, kje na krivuljah ostanejo pari, in preštej jih ob vsakem presečišču.', 'Find where on the curves the pairs remain and count them at each crossing.'),
+            expectedObservations: [text('Ostane \\(8\\) od \\(256\\) parov, po \\(4\\) ob presečišču; izpis: preizkušenih \\(32\\), zavrženih \\(24\\), preostali pari se lahko sekajo ali ne.', 'There remain \\(8\\) of \\(256\\) pairs, \\(4\\) at each crossing; the readout: \\(32\\) tested, \\(24\\) discarded, the remaining pairs may or may not meet.')],
+            scene: bezierHullsScene('bh-depth4', BEZIER_HULLS_CROSSING, true, 'end',
+                'Globina \\(4\\) od \\(4\\): ostane \\(8\\) od \\(256\\) parov, preizkušenih \\(32\\), zavrženih \\(24\\); pari so ob presečiščih.',
+                'Depth \\(4\\) of \\(4\\): \\(8\\) of \\(256\\) pairs remain, \\(32\\) tested, \\(24\\) discarded; the pairs are at the crossings.'),
+        },
+        {
+            id: 'bh-near-miss', order: 6,
+            title: text('Preostali par ni presečišče', 'A remaining pair is not an intersection'),
+            purpose: text('Videti, da en preostali par ne pomeni presečišča.', 'Seeing that one remaining pair does not mean an intersection.'),
+            explanation: text(
+                'Gnezdeni krivulji s kontrolnimi točkami \\((4,0)\\), \\((8,2)\\), \\((2,6)\\) in \\((5,0)\\), \\((7,4)\\), \\((3,6)\\) se ne sekata: razdalja med njima je približno \\(0{,}01\\). Pri globini \\(4\\) od \\(4\\) vseeno ostane \\(1\\) par od \\(256\\) (izpis: preizkušeni \\(4\\), zavrženi \\(3\\)), ker ovojnici odsekov še nista ločeni. Ena razpolovitev več bi par zavrgla, a razpolavljanje se ustavi pri fiksni globini \\(4\\). Preostali par zato ne pomeni „tu je presečišče“, ampak „poglej bližje“: prekrivanje ovojnic je potreben, ne zadosten pogoj.',
+                'The nested curves with control points \\((4,0)\\), \\((8,2)\\), \\((2,6)\\) and \\((5,0)\\), \\((7,4)\\), \\((3,6)\\) do not meet: the distance between them is about \\(0.01\\). At depth \\(4\\) of \\(4\\) \\(1\\) pair of \\(256\\) still remains (readout: \\(4\\) tested, \\(3\\) discarded), because the hulls of the pieces are not yet separated. One more halving would discard the pair, but the halving stops at the fixed depth \\(4\\). So the remaining pair does not mean "here is an intersection" but "look closer": overlap of hulls is a necessary, not a sufficient, condition.',
+            ),
+            formulaIds: ['bh-hull-test'],
+            frames: [frame('bh-near-miss-explanation', 'explanation'), frame('bh-near-miss-observation', 'observation')],
+            observationPrompt: text('Preberi, koliko parov ostane. Na tej povečavi se krivulji na videz dotikata: skrij lekcijo, sliko ob preostalem paru večkrat povečaj in poišči razmik.', 'Read how many pairs remain. At this zoom the curves seem to touch: hide the lesson, zoom in several times at the remaining pair and find the gap.'),
+            expectedObservations: [text('Ostane \\(1\\) par od \\(256\\), preizkušenih \\(4\\), zavrženih \\(3\\), krivulji pa se ne sekata (razdalja približno \\(0{,}01\\)).', 'There remains \\(1\\) pair of \\(256\\), \\(4\\) tested, \\(3\\) discarded, yet the curves do not meet (distance about \\(0.01\\)).')],
+            scene: bezierHullsScene('bh-near-miss', BEZIER_HULLS_NEAR_MISS, true, 'end',
+                'Gnezdeni krivulji, globina \\(4\\) od \\(4\\): ostane \\(1\\) od \\(256\\) parov, preizkušenih \\(4\\), zavrženih \\(3\\); krivulji se ne sekata.',
+                'Nested curves, depth \\(4\\) of \\(4\\): \\(1\\) of \\(256\\) pairs remains, \\(4\\) tested, \\(3\\) discarded; the curves do not meet.'),
+        },
+        {
+            id: 'bh-explore', order: 7,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno premikati kontrolne točke in opazovati pare.', 'Moving control points and watching the pairs on your own.'),
+            explanation: text(
+                'Prikaz je spet na začetku s prvotnima krivuljama. Pritiskaj Naslednji korak in opazuj ovojnice odsekov; premakni kontrolno točko tako, da se krivulji ne sekata več, in poišči globino, pri kateri izgine zadnji par. Vsaka sprememba točke vrne prikaz na začetek. Polja s koordinatami so na voljo, ko lekcijo skriješ z gumbom Skrij; tam lahko vneseš tudi dvakrat večji krivulji iz koraka \\(5\\). Poskusi najti položaj, kjer par ostane do konca, krivulji pa se ne sekata.',
+                'The view is at its start again with the original curves. Press Next step and watch the hulls of the pieces; move a control point so that the curves no longer meet and find the depth at which the last pair disappears. Every change of a point returns the view to its start. The coordinate fields are available once you hide the lesson with the Hide button; there you can also enter the curves at twice the size from step \\(5\\). Try to find a position where a pair remains to the end although the curves do not meet.',
+            ),
+            formulaIds: ['bh-hull-test'],
+            frames: [frame('bh-explore-explanation', 'explanation'), frame('bh-explore-observation', 'observation')],
+            observationPrompt: text('Poišči položaj, kjer par ostane do globine \\(4\\), krivulji pa se ne sekata.', 'Find a position where a pair remains to depth \\(4\\) although the curves do not meet.'),
+            expectedObservations: [text('Ko se krivulji ne sekata, pari izginejo pri neki globini; pri tesnem približevanju lahko en par ostane do globine \\(4\\) in ne pomeni presečišča.', 'When the curves do not meet, the pairs disappear at some depth; for a close approach a pair can remain to depth \\(4\\) and does not mean an intersection.')],
+            scene: bezierHullsScene('bh-explore', BEZIER_HULLS_CROSSING, true, 0,
+                'Krivulji \\(A\\) in \\(B\\) na začetku: globina \\(0\\) od \\(4\\), ostane \\(1\\) par od \\(1\\).',
+                'The curves \\(A\\) and \\(B\\) at the start: depth \\(0\\) of \\(4\\), \\(1\\) pair of \\(1\\) remains.'),
+        },
+    ],
+    sources: [
+        {id: 'farin-bezier', citation: 'Farin, G. Curves and Surfaces for CAGD: A Practical Guide, 5th ed., the convex hull property and subdivision of Bézier curves.'},
+        {id: 'sederberg-nishita-1990', citation: 'Sederberg, T. W., Nishita, T. Curve intersection using Bézier clipping, Computer-Aided Design 22 (1990).'},
+        {
+            id: 'bezeg-bezier-hulls-implementation',
+            citation: 'Bezeg source: src/compgeo/curvePairSubdivision.ts, src/compgeo/hullSeparation.ts, docs/adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md and src/graphs/compgeo/BezierHullsGraph.tsx.',
+            implementationCorrespondence: 'The pieces come from de Casteljau halving at t = 1/2 and a pair is discarded only when a separating-axis test finds a gap above a keep-biased margin, so touching pieces stay; the test is conservative, not exact. A lesson scene loads the curve pair with the set-points action, shows the control polygons, hulls and pieces with set-overlay, and shows a trace step with set-trace-step, in one synchronous tick.',
+        },
+    ],
+    edgeCases: [
+        text('Če se krivulji sekata na skupnem krajišču odsekov, se dotikajo tudi ovojnice in par ostane; zato ob takem presečišču ostanejo štirje pari.', 'If the curves cross at a shared endpoint of pieces, the hulls touch too and the pair stays; so four pairs remain at such a crossing.'),
+        text('Preostali par pri najvišji globini lahko pomeni presečišče ali samo tesno bližino; razlikovati ju je treba z drugim računom.', 'A pair remaining at the deepest depth can mean an intersection or just a close approach; telling them apart needs another calculation.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const compgeoGuidedLessons: readonly GuidedLesson[] = [orientation, polygonArea, convexHull, earClipping, pointSetTriangulation, delaunay, voronoi, voronoiDegenerate, intervalSweep, segmentIntersections, monotonePartition, monotoneTriangulation, fortune, pointInPolygon, hullRobustness, bezierHulls];

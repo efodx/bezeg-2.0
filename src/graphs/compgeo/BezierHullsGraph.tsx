@@ -17,7 +17,9 @@ import {BezierHullsControlActions, BezierHullsControls} from "./BezierHullsContr
 import {parseBezierHullsStep} from "./bezierHullsPresetCollection";
 import {BEZIER_HULLS_OVERLAY_IDS, bezierHullsCollection} from "./compgeoPresetCollections";
 import {PointSetGraphState} from "./PointSetGraph";
-import {registerTraceCommands} from "./traceLessonActions";
+import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import type {LessonAction} from "../../learning/model";
+import {clampTraceIndex} from "../../compgeo/trace";
 
 /** Time between two playback steps (one step per interval, never more), as in the hull trace. */
 export const BEZIER_HULLS_STEP_INTERVAL_MS = 400;
@@ -213,7 +215,22 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
         this.requestRender();
     }
 
-    /** The `algorithm-trace` animation runs the very transitions of the buttons (the lesson `point-set` actions are task 28). */
+    /**
+     * Lesson actions: the `algorithm-trace` animation runs the very transitions of the buttons (`registerLessonActions`);
+     * `set-trace-step` pauses playback and shows the step (a number is clamped like a stored Preset step, `'end'` is the last
+     * step), the write a Preset restore makes. `set-points` (inherited) replaces the curve pair, returns to step 0 and pauses;
+     * it places points on the whole-number grid only, so a half-unit pair is given as its doubled-grid twin (same counts).
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation === "set-trace-step") {
+            const run = this.run();
+            this.setState(this.patch({step: clampTraceIndex(run, requestedTraceStep(action, run.length))}));
+            this.requestRender();
+            return;
+        }
+        super.applyPointSetAction(action);
+    }
+
     protected override registerLessonActions(registry: LessonActionRegistry): void {
         super.registerLessonActions(registry);
         registerTraceCommands(registry, this);

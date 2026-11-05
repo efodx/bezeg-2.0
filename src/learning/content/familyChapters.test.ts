@@ -36,8 +36,8 @@ function withoutMath(source: string) {
 // conic-focal joined the school function graphs chapter with its S6 lesson and section (07 F3 Part B).
 // point-in-polygon joined the convexity chapter with its A3 lesson and section (convexity task 21).
 // hull-robustness joined the convexity chapter with its A5 lesson and section (convexity task 22).
-// bezier-hulls awaits its lesson and chapter section (convexity task 28); curve-comb and curve-evolute theirs (CG-B2-3, CG-B2-4).
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'bezier-hulls', 'curve-comb', 'curve-evolute'];
+// bezier-hulls joined the convexity chapter with its A6 lesson and section (convexity task 28); curve-comb and curve-evolute await theirs (CG-B2-3, CG-B2-4).
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'curve-comb', 'curve-evolute'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 

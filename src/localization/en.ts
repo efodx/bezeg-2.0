@@ -2444,7 +2444,7 @@ export const en: Record<keyof typeof sl, string> = {
     "hullrobust_keyboard_note": "Select a cell by clicking it, with the arrow keys on the graph, or with the fields i and j. No point on this map can be dragged.",
     // Bezier hulls graph readout (convexity task 26).
     "bezierhulls_controls_label": "Subdivision playback",
-    "bezierhulls_playback_note": "Playback takes one step at a time and stops at the end. Changing a control point returns to the start and stops playback. Thick filled hull: the pair remains; thin unfilled hull: the pair is discarded.",
+    "bezierhulls_playback_note": "Playback takes one step at a time and stops at the end. Changing a control point returns to the start and stops playback. Thick filled hull: the piece is still in some pair; thin unfilled hull: all pairs of this piece are discarded.",
     "bezierhulls_depth": "Subdivision depth: {value0} of {value1}",
     "bezierhulls_candidates": "Piece pairs to test: {value0}. No verdict yet: the hulls are still to be tested.",
     "bezierhulls_kept": "Piece pairs that remain: {value0} of {value1}",

@@ -304,7 +304,7 @@ export type LessonAction =
     | {readonly kind: 'point-set'; readonly operation: 'set-overlay'; readonly overlay: PointSetOverlayName; readonly visible: boolean}
     /** HullTraceGraph only (any other point-set graph throws `UnsupportedLessonActionError`): picks the algorithm, returns to step 0 and pauses. */
     | {readonly kind: 'point-set'; readonly operation: 'set-algorithm'; readonly algorithm: HullAlgorithm}
-    /** EarClippingGraph only (any other point-set graph throws `UnsupportedLessonActionError`): pauses playback and sets the trace step; a number is clamped like a stored Preset step and `'end'` is the last step. */
+    /** Graphs with a trace step (any other point-set graph throws `UnsupportedLessonActionError`): pauses playback and sets the trace step; a number is clamped like a stored Preset step and `'end'` is the last step. */
     | {readonly kind: 'point-set'; readonly operation: 'set-trace-step'; readonly step: number | 'end'}
     /** TriangulationGraph and DelaunayGraph only (any other point-set graph throws `UnsupportedLessonActionError`): replaces the triangulation of the current points with `triangles` (counter-clockwise vertex index triples), checked like a stored Preset's list. An invalid list (wrong indices, overlap, gaps, not a triangulation) is a lesson-content error and is never repaired. */
     | {readonly kind: 'point-set'; readonly operation: 'set-triangulation'; readonly triangles: readonly (readonly [number, number, number])[]}

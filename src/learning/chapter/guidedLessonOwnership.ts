@@ -101,6 +101,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'convex-hull': {chapterId: 'convexity-hulls', sectionId: 'convex-hull'},
     'point-in-polygon': {chapterId: 'convexity-hulls', sectionId: 'point-in-polygon'},
     'hull-robustness': {chapterId: 'convexity-hulls', sectionId: 'hull-robustness'},
+    'bezier-hulls': {chapterId: 'convexity-hulls', sectionId: 'bezier-hulls'},
     // The Triangulations and Voronoi chapter owns the ear clipping lesson (batch T1).
     'ear-clipping': {chapterId: 'triangulations-voronoi', sectionId: 'ear-clipping'},
     // The chapter's own section for counting the triangles of a point-set triangulation (lesson B2).

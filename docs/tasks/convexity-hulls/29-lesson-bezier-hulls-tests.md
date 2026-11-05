@@ -1,6 +1,6 @@
 # 29 — Lesson A6 tests and gates (Batch 3, F3)
 
-Status: planned 2026-11-05 (geometry handler 52). Template: tests of [21](21-lesson-point-in-polygon.md) and [22](22-lesson-hull-robustness.md). Kind: F3. Depends on 28.
+Status: accepted 2026-11-05 (handler 54, 27 new tests, three observed mutations). Planned by handler 52. Template: tests of [21](21-lesson-point-in-polygon.md) and [22](22-lesson-hull-robustness.md). Kind: F3. Depends on 28.
 
 Tests:
 

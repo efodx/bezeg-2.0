@@ -9,7 +9,7 @@ import {convexityChapter} from './convexityChapter';
 import {CONVEXITY_CHAPTER_ID, convexityGuidedExamplePath, convexityGuidedExampleRegistry} from './convexityChapterRegistry';
 import {familyChapters} from './familyChapters';
 
-const SECTIONS = ['orientation', 'polygon-area', 'point-in-polygon', 'convex-hull', 'hull-robustness'] as const;
+const SECTIONS = ['orientation', 'polygon-area', 'point-in-polygon', 'convex-hull', 'hull-robustness', 'bezier-hulls'] as const;
 
 beforeEach(() => setLanguage('sl'));
 

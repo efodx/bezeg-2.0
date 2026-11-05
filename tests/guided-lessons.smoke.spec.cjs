@@ -1774,6 +1774,23 @@ const hullRobustness = {
     },
 };
 
+// Bezier hulls: the numbers of the kept-pairs line per lesson step 1..7 (kept of all; the split steps 2 and 3 have no verdict yet, so they show the pairs to test).
+const BEZIER_HULLS_NUMBERS = ['1 1', '4', '4', '2 4', '8 256', '1 256', '1 1'];
+const bezierHulls = {
+    id: 'bezier-hulls',
+    path: `${BASE}/compgeo/bezier-hulls`,
+    titles: {sl: 'Nazaj k ovojnicam Bézierjevih krivulj', en: 'Back to hulls of Bézier curves'},
+    steps: 7,
+    minFrames: 17, // 2 frames per step, 3 on steps 1, 4 and 5 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect.poll(async () => {
+            const kept = page.locator('[data-bezier-hulls="kept"]');
+            const line = (await kept.count()) ? kept : page.locator('[data-bezier-hulls="candidates"]');
+            return ((await line.first().textContent()) || '').match(/\d+/g)?.join(' ');
+        }, {message: `bezier hulls pair counts at ${label}`}).toBe(BEZIER_HULLS_NUMBERS[step - 1]);
+    },
+};
+
 // Ear clipping: the trace step shown per lesson step 1..7 (start, start, first ear test, done, done, done, the comb's done); the number is language independent.
 const EAR_STEPS = ['1', '1', '4', '12', '12', '12', '35'];
 const earClipping = {
@@ -2311,7 +2328,7 @@ const fortune = {
     },
 };
 
-const LESSONS = [bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
+const LESSONS = [bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
     alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
