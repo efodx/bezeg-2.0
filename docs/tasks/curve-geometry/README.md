@@ -30,6 +30,7 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-B2-2a | F2a | `curve-comb` (one graph switching cubic, C1, C2, G1) and `curve-evolute` graphs | B2-1 | done (handler 46): [evidence](../../reviews/curve-geometry/cg-b2-2a-graphs.md); browser check in 2b |
 | CG-B2-2b | F2b | Register both Demonstrations (route, catalog, factories, `lesson: false`) | B2-2a | done (handler 47): [evidence](../../reviews/curve-geometry/cg-b2-2b-registration.md); fixed the evolute's first paint; it now opens at \(t=0.75\) |
 | CG-B2-3 | F3 | L3 lesson and chapter section for `curve-comb` | B2-2b | done (handler 48): [evidence](../../reviews/curve-geometry/cg-b2-3-lesson.md); chapter card and poster wait for CG-B2-5 |
-| CG-B2-4…6 | F4–F6 | L4 lesson and section, media, Batch 2 gate | B2-3 | planned |
+| CG-B2-4 | F4 | L4 lesson and chapter section for `curve-evolute` | B2-3 | in progress: draft on `curves-l4-draft`, tests next ([handoff 49](../../reviews/feature-streams/curves/handler-handoff-49.md)) |
+| CG-B2-5, CG-B2-6 | F5, F6 | Media, Batch 2 gate | B2-4 | planned |
 | CG-B3-2a | F2a | `curve-offset` (with PH cross-check; tangential-cusp detection from the CG-1 review) and optional `curve-envelope` graphs | B2 shipped | planned |
 | CG-B3-2b…6 | F2b–F6 | Registration, L5/L6 lessons, chapter sections, media, Batch 3 gate | B3-2a | planned |

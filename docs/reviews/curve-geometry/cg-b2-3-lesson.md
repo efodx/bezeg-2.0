@@ -45,8 +45,22 @@ Card image for `curve-geometry.curve-comb.curve-comb` is not captured (PNG, mani
 - **Registration lists the focused set missed.** `just check` found `lessonSmokeCoverage.test.ts` (no smoke row) and `guidedExamplePreviewCopy.test.ts` (counts 109 and 116). A smoke row `curvatureComb` now exists; the counts are 110 and 117.
 - **Engineering review.** No blocking defect. Finding 1 (`pending` could stay after capture) did not hold: `guidedExamplePreviews.test.ts` compares inventory, manifest and PNG lists exactly with the ids outside `pending`, so a captured card fails until `pending` is removed. Finding 2 (vacuous tooth assertions) fixed: halving the gain must halve every tooth. Finding 3 (`combCount` kept across kinds) is by design; no lesson text quotes a value that depends on it.
 
+## Browser walk (handler 49)
+
+`bezeg-smoke` (Sonnet) on the production build of `9afe7c3`, Chromium, 1920 by 1080 and 1280 by 720, all 13 frames and the completion frame, no console error and no horizontal page scroll.
+
+- **Controls.** The comb toggle works after "Opazuj na grafu". The gain slider starts at 2; typing 3 lengthens the teeth in total from 38,3 to 57,4; ArrowRight five times gives 3,25; Home gives 0,1. The next step restores the authored gain 1,4. On step 5, \(b_2=2\) reads "desno -0,0352, skok -0,1569". On step 6, \(b_2\) is back at 1 and the jump is -0,2625; \(b_1=2\) makes the readout name Stik 1.
+- **Curves at step 2.** Four exist and three are drawn: the cubic (407 points), the teeth (192) and the tip line (65). The fourth, the cross-bar curve, has no points. This confirms the expected set.
+- **Chapter.** Section `curve-comb` has no figure, and its link opens the lesson at step 1, frame 1.
+- **Reset** (in the Save tab). The comb route returns to comb off, gain 1,4, one visible curve; the evolute route to \(t=0{,}75\), full trace and the original board.
+
+## Layout findings for the gate
+
+- At both sizes the lesson panel hides the top of the curve and teeth. At steps 3 and 5 the board readout at the top left runs under the panel, so the join values are cut off on the board; the panel text restates them. On step 5 the join is partly under the panel at 1920 by 1080.
+- On step 1 at 1280 by 720 the panel is taller than the viewport, so the page must scroll to reach Next.
+- `curve-evolute` at 390 by 844: the curve and evolute are in view but small, and the large readout overlaps the curve and the labels E, N, T and p0. Legible but cluttered.
+
 ## Not covered
 
-- A full browser walk of the lesson at 1920 by 1080, with control interaction on the observation frames. The smoke row covers the steps at the Playwright default size.
-- The lesson panel still overlaps the board centre at 1280 by 720, as in every lesson. It can be moved or hidden.
-- Which curves make up the 3 visible in the smoke row at step 2. The expected set is the cubic, the teeth and the tip line, with the empty cross-bar curve not counted: confirm it in the walk.
+- At 1920 by 1080 only step 5's screenshot was opened; the others were checked by script.
+- Leaving and resuming the lesson: the walk used only "Opazuj na grafu" and "Skrij".
