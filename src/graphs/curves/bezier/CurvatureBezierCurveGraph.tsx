@@ -6,6 +6,7 @@ import {curvatureCurvePresetCollection, CurveCollectionPresetData} from "../curv
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {CurvatureOverlay} from "./CurvatureOverlay";
+import {LiveReadout, SettledReadout} from "../LiveReadout";
 
 export interface CurvatureGraphStates extends BaseGraphStates {
     /** The Bezier parameter at which the frame and osculating circle are drawn. */
@@ -66,6 +67,9 @@ export abstract class CurvatureOverlayGraph<S extends CurvatureGraphStates> exte
         }]];
     }
 
+    /** Owned by the graph so it survives overlay recreation on scene import. */
+    private readonly liveReadout = new SettledReadout();
+
     override presetCollection() {
         return curvatureCurvePresetCollection;
     }
@@ -96,8 +100,15 @@ export abstract class CurvatureOverlayGraph<S extends CurvatureGraphStates> exte
             showCircle: () => this.state.curvatureCircleShown,
             fontSize: () => this.displaySettings.fontSize,
             extraReadout: this.overlayExtraReadout(),
+            onReadout: text => this.liveReadout.report(text),
         });
         this.createExtraOverlays();
+    }
+
+    /** A replaced scene is complete only here: the first board text predates the extra overlays and the restored state. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        if (this.overlay) this.liveReadout.replace(this.overlay.readoutText());
     }
 
     private removeOverlay() {
@@ -113,6 +124,7 @@ export abstract class CurvatureOverlayGraph<S extends CurvatureGraphStates> exte
 
     override unmount() {
         this.removeOverlay();
+        this.liveReadout.cancel();
         super.unmount();
     }
 
@@ -132,7 +144,7 @@ export abstract class CurvatureOverlayGraph<S extends CurvatureGraphStates> exte
      * because the Demonstration is about moving t.
      */
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.state.initialized && this.parameterSlider()}{this.state.initialized && this.workspaceCurvatureExtras()}{super.workspaceEdit()}</>;
+        return <>{this.state.initialized && this.parameterSlider()}{this.state.initialized && this.workspaceCurvatureExtras()}{super.workspaceEdit()}<LiveReadout readout={this.liveReadout}/></>;
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {

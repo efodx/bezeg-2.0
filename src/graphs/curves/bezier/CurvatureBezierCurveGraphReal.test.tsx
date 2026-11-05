@@ -1,5 +1,5 @@
 import React from 'react';
-import {fireEvent, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import CurvatureBezierCurveGraph, {CURVATURE_T_DEFAULT} from './CurvatureBezierCurveGraph';
 import {currentLanguage, setLanguage, t} from '../../../localization';
@@ -129,4 +129,53 @@ test('a language switch with the overlay alive rewrites the visible readout in t
         setLanguage('sl');
         host.unmount();
     }
+});
+
+describe('the polite live region follows the curvature readout once it has settled', () => {
+    const region = () => document.querySelector('[data-readout-live]')!;
+    const advance = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
+    beforeEach(() => { vi.useFakeTimers(); });
+    afterEach(() => { vi.useRealTimers(); setLanguage('sl'); });
+
+    test('a burst of slider moves changes the region once, to the board readout of the final value; both languages follow', () => {
+        const graph = new ObservedCurvatureGraph();
+        const host = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        const mutations = new MutationObserver(() => undefined);
+        try {
+            expect(region().getAttribute('aria-live')).toBe('polite');
+            const num = (v: number, language: 'sl' | 'en') => formatNumber(v, language, 4);
+            expect(region().textContent).toBe(`Ukrivljenost κ = 2. Krivinski polmer R = 0,5. Smerni kot tangente φ = 0°.`);
+            mutations.observe(region(), {childList: true, characterData: true, subtree: true});
+            const slider = screen.getByRole('slider', {name: t('curvature_parameter_t')});
+            for (let i = 1; i <= 20; i++) { fireEvent.change(slider, {target: {value: String(0.5 + i * 0.02)}}); advance(50); }
+            expect(mutations.takeRecords()).toHaveLength(0);
+            advance(600);
+            const kappa = 2 / Math.pow(1 + 4 * 0.64, 1.5);
+            expect(region().textContent).toContain(`κ = ${num(kappa, 'sl')}.`);
+            expect(mutations.takeRecords().length).toBeGreaterThan(0);
+            advance(5000);
+            expect(mutations.takeRecords()).toHaveLength(0);
+            act(() => setLanguage('en'));
+            advance(600);
+            expect(region().textContent).toContain(`Curvature κ = ${num(kappa, 'en')}.`);
+            expect(region().textContent).toContain('Radius of curvature R = ');
+            act(() => setLanguage('sl'));
+            advance(600);
+            expect(region().textContent).toContain(`Ukrivljenost κ = ${num(kappa, 'sl')}.`);
+        } finally {
+            mutations.disconnect();
+            host.unmount();
+        }
+    });
+
+    test('unmounting with a change pending publishes nothing later', () => {
+        const graph = new ObservedCurvatureGraph();
+        const host = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        const store = (graph as unknown as { liveReadout: { getSnapshot(): string } }).liveReadout;
+        const before = store.getSnapshot();
+        fireEvent.change(screen.getByRole('slider', {name: t('curvature_parameter_t')}), {target: {value: '0.2'}});
+        host.unmount();
+        expect(() => vi.advanceTimersByTime(5000)).not.toThrow();
+        expect(store.getSnapshot()).toBe(before);
+    });
 });

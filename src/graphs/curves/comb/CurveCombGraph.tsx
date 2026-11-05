@@ -9,6 +9,7 @@ import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
 import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {curveCombPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
+import {LiveReadout, SettledReadout} from "../LiveReadout";
 import {ClassMapper} from "../object/ClassMapper";
 import {AbstractJXGSplineCurve} from "../object/AbstractJXGSplineCurve";
 import type {CurveTypeName} from "../object/curveTypeNames";
@@ -121,6 +122,9 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
         return cubicDefaultPreset();
     }
 
+    /** Owned by the graph so it survives overlay recreation on scene import. */
+    private readonly liveReadout = new SettledReadout();
+
     override presetCollection() {
         return curveCombPresetCollection;
     }
@@ -150,6 +154,12 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
         return curve instanceof BezierSpline ? curve.getUnderlyingCurves().map(span => rows(span.getPoints())) : [rows(curve.getPoints())];
     }
 
+    /** A restored scene must not leave the edited scene's readout in the live region until the quiet period ends. */
+    protected override syncReplacedScene(): void {
+        super.syncReplacedScene();
+        if (this.overlay) this.liveReadout.replace(this.overlay.readoutText());
+    }
+
     /** The live overlay, for the lesson and tests. */
     comb(): CombOverlay | undefined {
         return this.overlay;
@@ -169,6 +179,7 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
             gain: () => this.effectiveGain(),
             count: () => this.effectiveCount(),
             fontSize: () => this.displaySettings.fontSize,
+            onReadout: text => this.liveReadout.report(text),
         });
     }
 
@@ -184,6 +195,7 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
 
     override unmount() {
         this.removeOverlay();
+        this.liveReadout.cancel();
         super.unmount();
     }
 
@@ -254,7 +266,7 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
 
     /** Structured editing does not render `getGraphCommands`, and the spline path renders only the selected-curve tools, so the comb has its own Edit group, first. */
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.state.initialized && this.combControls()}{super.workspaceEdit()}</>;
+        return <>{this.state.initialized && this.combControls()}{super.workspaceEdit()}<LiveReadout readout={this.liveReadout}/></>;
     }
 
     private combControls() {

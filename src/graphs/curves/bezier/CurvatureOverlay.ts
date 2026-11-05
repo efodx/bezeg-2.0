@@ -53,6 +53,8 @@ interface OverlaySettings {
     showCircle?: () => boolean;
     /** Further readout text (one or more lines) appended to the readout; empty text adds nothing. */
     extraReadout?: () => string;
+    /** Called with the readout text on every board update that draws it (for a live region). */
+    onReadout?: (text: string) => void;
 }
 
 /**
@@ -144,7 +146,7 @@ export class CurvatureOverlay {
         this.create<Text>('text', [
             () => box()[0] + 0.02 * (box()[2] - box()[0]),
             () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => this.readoutText().split("\n").join("<br>"),
+            () => this.boardReadout().split("\n").join("<br>"),
         ], {
             anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false,
             fontSize: font, strokeColor: () => this.frame()?.status === 'circle' ? GraphPalette.label : GraphPalette.warningText,
@@ -154,6 +156,12 @@ export class CurvatureOverlay {
         this.stopLanguageUpdates = onLanguageChange(() => {
             if (!this.disposed && board.renderer) board.update();
         });
+    }
+
+    private boardReadout(): string {
+        const text = this.readoutText();
+        this.settings.onReadout?.(text);
+        return text;
     }
 
     /** The plain-text readout (lines joined by newlines; the board text shows them as `<br>`): kappa and radius, or the status for a line or a singular point. */

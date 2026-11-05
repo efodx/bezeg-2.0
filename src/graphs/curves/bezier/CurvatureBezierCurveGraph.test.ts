@@ -3,6 +3,7 @@ import {CurvatureOverlay, curvatureFrame} from './CurvatureOverlay';
 import {curvatureCurvePresetCollection} from '../curvePresetCollections';
 import {setLanguage, t} from '../../../localization';
 import {FigureExportScope} from '../../base/export/FigureExportOperation';
+import {SettledReadout} from '../LiveReadout';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the overlay also guards its callback. */
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
@@ -240,6 +241,7 @@ describe('overlay disposal', () => {
 function makeGraph() {
     const graph = Object.create(CurvatureBezierCurveGraph.prototype) as any;
     graph.board = fakeBoard();
+    graph.liveReadout = new SettledReadout();
     graph.figureExports = new FigureExportScope({requestRender: () => undefined, reload: () => undefined});
     graph.graphSession = {isReady: true, isAlive: true};
     const points = PARABOLA.map(p => ({X: () => p[0], Y: () => p[1]}));

@@ -344,3 +344,111 @@ test('a saved Preset restores the trace mode and the normal switch; the controls
         view.unmount();
     }
 });
+
+describe('the polite live region follows the readout once it has settled', () => {
+    const SETTLE = 600;
+    const region = () => document.querySelector('[data-readout-live]')!;
+    const spoken = (lines: string[]) => lines.map(line => /[.!?]$/.test(line) ? line : `${line}.`).join(' ');
+    const advance = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
+    const tSlider = () => screen.getByRole('slider', {name: t('curvature_parameter_t')});
+    beforeEach(() => { vi.useFakeTimers(); });
+    afterEach(() => { vi.useRealTimers(); });
+
+    test('starts with the current readout, and a burst of slider moves changes it exactly once, to the final value', () => {
+        const {graph, view} = mount();
+        const mutations = new MutationObserver(() => undefined);
+        try {
+            expect(region().getAttribute('aria-live')).toBe('polite');
+            expect(region().textContent).toBe(spoken(graph.readout()));
+            const initial = region().textContent;
+            expect(initial).toContain('Točka evolute E = (');
+            mutations.observe(region(), {childList: true, characterData: true, subtree: true});
+            for (let i = 1; i <= 20; i++) {
+                fireEvent.change(tSlider(), {target: {value: String(0.2 + i * 0.04)}});
+                advance(50);
+            }
+            expect(graph.state.curvatureT).toBeCloseTo(1, 9);
+            expect(region().textContent).toBe(initial);
+            expect(mutations.takeRecords()).toHaveLength(0);
+            advance(SETTLE);
+            expect(mutations.takeRecords().length).toBeGreaterThan(0);
+            const final = spoken(graph.readout());
+            expect(region().textContent).toBe(final);
+            expect(final).not.toBe(initial);
+            expect(final).toContain('Točka evolute E = (−4, 3,5).');
+            expect(final).toContain('Točka evolute E = (');
+            advance(5 * SETTLE);
+            expect(mutations.takeRecords()).toHaveLength(0);
+        } finally {
+            mutations.disconnect();
+            view.unmount();
+        }
+    });
+
+    test('a straight curve says there is no evolute point, a singular point says it is undefined, in both languages', async () => {
+        const {graph, view} = mount();
+        try {
+            await settle(() => graph.loadPreset({id: 'straight', data: [['JSXBezierCurve', {points: [[-2, -2], [-1, -1], [1, 1], [2, 2]]}]]}));
+            await flush();
+            graph.liveBoard().update();
+            advance(SETTLE);
+            expect(region().textContent).toContain(t('evolute_status_none'));
+            expect(region().textContent).toContain(t('curvature_status_line'));
+            expect(region().textContent).toBe(spoken(graph.readout()));
+            await settle(() => graph.loadPreset({id: 'cusp', data: [['JSXBezierCurve', {points: [[0, 0], [0, 0], [1, 1]]}]]}));
+            await flush();
+            act(() => graph.setCurvatureT(0));
+            graph.liveBoard().update();
+            advance(SETTLE);
+            expect(region().textContent).toBe(spoken([t('curvature_status_singular'), t('evolute_status_undefined')]));
+            act(() => setLanguage('en'));
+            expect(region().textContent).toContain('Ukrivljenost tu ni določena');
+            advance(SETTLE);
+            expect(region().textContent).toBe('Curvature is undefined here (the speed is 0). The evolute point is not defined.');
+            await settle(() => graph.loadPreset({id: 'quadratic', data: [['JSXBezierCurve', {points: [[-1, 1], [0, -1], [1, 1]]}]]}));
+            await flush();
+            act(() => graph.setCurvatureT(0.5));
+            graph.liveBoard().update();
+            advance(SETTLE);
+            expect(region().textContent).toContain('Curvature κ = 2.');
+            expect(region().textContent).toContain('Radius of curvature R = 0.5.');
+            expect(region().textContent).toContain('Evolute point E = (0, 0.5).');
+            act(() => setLanguage('sl'));
+            advance(SETTLE);
+            expect(region().textContent).toContain('Ukrivljenost κ = 2.');
+            expect(region().textContent).toContain('Krivinski polmer R = 0,5.');
+        } finally {
+            view.unmount();
+        }
+    });
+
+    test('a replaced scene publishes its own readout at once and drops the pending edit', async () => {
+        const {graph, view} = mount();
+        try {
+            const opening = region().textContent;
+            fireEvent.change(tSlider(), {target: {value: '0.9'}});
+            await settle(() => graph.loadPreset({id: 'other', data: [['JSXBezierCurve', {points: [[-2, 0], [0, 3], [2, 0]]}]]}));
+            await flush();
+            const scene = region().textContent;
+            expect(scene).not.toBe(opening);
+            graph.liveBoard().update();
+            expect(scene).toBe(spoken(graph.readout()));
+            advance(5000);
+            expect(region().textContent).toBe(scene);
+        } finally {
+            view.unmount();
+        }
+    });
+
+    test('unmounting with a change pending publishes nothing later', () => {
+        const {graph, view} = mount();
+        const store = (graph as unknown as { liveReadout: { getSnapshot(): string } }).liveReadout;
+        const before = store.getSnapshot();
+        const timers = vi.getTimerCount();
+        fireEvent.change(tSlider(), {target: {value: '0.9'}});
+        expect(vi.getTimerCount()).toBeGreaterThan(timers);
+        view.unmount();
+        expect(() => vi.advanceTimersByTime(5000)).not.toThrow();
+        expect(store.getSnapshot()).toBe(before);
+    });
+});

@@ -12,6 +12,8 @@ interface CombSettings {
     count: () => number;
     gain: () => number;
     fontSize: () => number;
+    /** Called with the readout text on every board update that draws it (for a live region). */
+    onReadout?: (text: string) => void;
 }
 
 type DataCurve = GeometryElement & { dataX: number[]; dataY: number[]; updateDataArray: () => void };
@@ -95,7 +97,11 @@ export class CombOverlay {
         this.create<Text>('text', [
             () => box()[0] + 0.02 * (box()[2] - box()[0]),
             () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => this.readoutText(),
+            () => {
+                const text = this.readoutText();
+                this.settings.onReadout?.(text);
+                return text;
+            },
         ], {
             anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false,
             fontSize: () => this.settings.fontSize(), strokeColor: GraphPalette.label,

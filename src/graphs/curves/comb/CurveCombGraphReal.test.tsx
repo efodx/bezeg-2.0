@@ -483,3 +483,95 @@ test('a scene that changes the gain and sets it back within one batch still redr
         expect(boardUpdate).toHaveBeenCalled();
     } finally { view.unmount(); }
 });
+
+describe('the polite live region follows the join readout once it has settled', () => {
+    const region = () => document.querySelector('[data-readout-live]')!;
+    const advance = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
+    const spoken = (graph: ObservedCombGraph) => graph.readout().map(line => /[.!?]$/.test(line) ? line : `${line}.`).join(' ');
+    beforeEach(() => { vi.useFakeTimers(); });
+    afterEach(() => { vi.useRealTimers(); setLanguage('sl'); });
+
+    test('empty while the comb is off or the curve is a cubic; a spline kind reaches the region once, after the quiet period', () => {
+        const {graph, view} = mount();
+        const mutations = new MutationObserver(() => undefined);
+        try {
+            expect(region().getAttribute('aria-live')).toBe('polite');
+            expect(region().textContent).toBe('');
+            mutations.observe(region(), {childList: true, characterData: true, subtree: true});
+            act(() => { graph.setCombShown(true); graph.setCurveKind('c1'); });
+            // Nothing was published yet, so the first text goes out at once (no quiet period).
+            expect(region().textContent).toMatch(/^Stik \d: ukrivljenost κ levo/);
+            expect(region().textContent).toBe(spoken(graph));
+            // A kind switch replaces the scene, so its text goes out at once and no earlier kind's text can follow it.
+            const c1Text = region().textContent;
+            for (const kind of ['c2', 'g1'] as CombCurveKind[]) {
+                act(() => graph.setCurveKind(kind));
+                expect(region().textContent).toBe(spoken(graph));
+            }
+            expect(region().textContent).not.toBe(c1Text);
+            // A burst of beta changes moves the join's curvature: one change, to the final value, after the quiet period.
+            mutations.takeRecords();
+            const g1Text = region().textContent;
+            for (let i = 0; i < 10; i++) { act(() => (graph as unknown as { setBeta(index: number, value: number): void }).setBeta(0, 1.2 + i * 0.1)); advance(50); }
+            expect(mutations.takeRecords()).toHaveLength(0);
+            advance(600);
+            expect(region().textContent).toBe(spoken(graph));
+            expect(region().textContent).not.toBe(g1Text);
+            expect(mutations.takeRecords().length).toBeGreaterThan(0);
+            advance(5000);
+            expect(mutations.takeRecords()).toHaveLength(0);
+            // The cubic has no joins: after settling there is no stale join text.
+            act(() => graph.setCurveKind('cubic'));
+            advance(600);
+            expect(region().textContent).toBe('');
+            act(() => graph.setCurveKind('c1'));
+            advance(600);
+            act(() => graph.setCombShown(false));
+            advance(600);
+            expect(region().textContent).toBe('');
+            expect(graph.readout()).toEqual([]);
+        } finally {
+            mutations.disconnect();
+            view.unmount();
+        }
+    });
+
+    test('a singular join, both languages, and a scene import keeps the region working', () => {
+        const {graph, view} = mount();
+        try {
+            act(() => { graph.setCombShown(true); graph.setCurveKind('c1'); });
+            advance(600);
+            act(() => setLanguage('en'));
+            advance(600);
+            expect(region().textContent).toMatch(/^Join \d: curvature κ left /);
+            expect(region().textContent).toContain(formatNumber(graph.comb()!.largestJoin()!.jump!, 'en', 4));
+            act(() => setLanguage('sl'));
+            const singularScene = [['JSXQuadraticC1SplineCurve', {
+                points: [[-4, 3], [-4, -3], [-1, -3], [-1, -3], [3, 3], [4, -3]], degree: 2, continuity: 1,
+                state: {showingJxgPoints: true, showingControlPolygon: false, showingConvexHull: false},
+            }]] as const;
+            act(() => graph.replaceScene(singularScene as never));
+            act(() => graph.setCombShown(true));
+            advance(600);
+            expect(region().textContent).toContain('ukrivljenost tu ni določena');
+            expect(region().textContent).toBe(spoken(graph));
+        } finally {
+            view.unmount();
+        }
+    });
+
+    test('unmounting with a change pending publishes nothing later', () => {
+        const {graph, view} = mount();
+        const store = (graph as unknown as { liveReadout: { getSnapshot(): string } }).liveReadout;
+        act(() => { graph.setCombShown(true); graph.setCurveKind('g1'); });
+        advance(600);
+        const before = store.getSnapshot();
+        expect(before).not.toBe('');
+        const timers = vi.getTimerCount();
+        act(() => (graph as unknown as { setBeta(index: number, value: number): void }).setBeta(0, 1.7));
+        expect(vi.getTimerCount()).toBeGreaterThan(timers);
+        view.unmount();
+        expect(() => vi.advanceTimersByTime(5000)).not.toThrow();
+        expect(store.getSnapshot()).toBe(before);
+    });
+});
