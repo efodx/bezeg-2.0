@@ -30,6 +30,8 @@ import preview_weighted_parameterization from './images/demonstrations/catalog/w
 import preview_uniform_parameterization from './images/demonstrations/catalog/uniform-parameterization.png';
 import preview_curve_parametric from './images/demonstrations/catalog/curve-parametric.png';
 import preview_curve_curvature from './images/demonstrations/catalog/curve-curvature.png';
+import preview_curve_comb from './images/demonstrations/catalog/curve-comb.png';
+import preview_curve_evolute from './images/demonstrations/catalog/curve-evolute.png';
 import preview_interp_lagrange from './images/demonstrations/catalog/interp-lagrange.png';
 import preview_interp_hermite from './images/demonstrations/catalog/interp-hermite.png';
 import preview_interp_runge from './images/demonstrations/catalog/interp-runge.png';
@@ -76,6 +78,7 @@ import preview_sequence from './images/demonstrations/catalog/sequence.png';
 import preview_uniform_convergence from './images/demonstrations/catalog/uniform-convergence.png';
 import preview_fourier_series from './images/demonstrations/catalog/fourier-series.png';
 import preview_fourier_coefficients from './images/demonstrations/catalog/fourier-coefficients.png';
+import preview_epicycles from './images/demonstrations/catalog/epicycles.png';
 import preview_fixed_point from './images/demonstrations/catalog/fixed-point.png';
 import preview_prob_density from './images/demonstrations/catalog/prob-density.png';
 import preview_prob_binomial_normal from './images/demonstrations/catalog/prob-binomial-normal.png';
@@ -142,6 +145,8 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'uniform-parameterization': preview_uniform_parameterization,
     'curve-parametric': preview_curve_parametric,
     'curve-curvature': preview_curve_curvature,
+    'curve-comb': preview_curve_comb,
+    'curve-evolute': preview_curve_evolute,
     'interp-lagrange': preview_interp_lagrange,
     'interp-hermite': preview_interp_hermite,
     'interp-runge': preview_interp_runge,
@@ -188,6 +193,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'uniform-convergence': preview_uniform_convergence,
     'fourier-series': preview_fourier_series,
     'fourier-coefficients': preview_fourier_coefficients,
+    'epicycles': preview_epicycles,
     'fixed-point': preview_fixed_point,
     'prob-density': preview_prob_density,
     'prob-binomial-normal': preview_prob_binomial_normal,

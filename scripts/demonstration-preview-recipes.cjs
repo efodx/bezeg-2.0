@@ -35,8 +35,8 @@ const targets = {
     'uniform-parameterization': ['Weighted parameterization checkpoint with ten interior markers; the clip compares this with uniform arc-length spacing', [field('Izberi parametrizacijo', 'alpha', 'select'), field('Število točk', 10)]],
     'curve-parametric': ['Default cycloid with its generating circle, velocity vector and tangent at the opening parameter', []],
     'curve-curvature': ['Default parabola with the osculating circle, its centre and the curvature readout at the opening parameter', []],
-    'curve-comb': ['Default cubic with the curvature comb switched on', [toggle('Glavnik ukrivljenosti')]],
-    'curve-evolute': ['Default parabola with the whole evolute, its cusp and the normal at the opening parameter', []],
+    'curve-comb': ['Default quadratic C1 spline with the curvature comb switched on, showing the jump of the comb at the joins', [field('Krivulja', 'c1', 'select'), toggle('Glavnik ukrivljenosti')], [-8, 4.9, 8, -4.9]],
+    'curve-evolute': ['Default parabola with the whole evolute, its cusp and the normal at the opening parameter', [], [-5.2, 5, 5.2, -1.2]],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],
     'interp-least-squares': ['Default four points with the best line and the squares of its residuals', [], [-1.2, 4.6, 5.7, 0.4]],
@@ -82,6 +82,8 @@ const targets = {
     'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with mean and median markers and the box plot (school rule)', [], [1, 4, 11, -2]],
     'prob-correlation': ['Default points (0,1), (1,2), (2,2), (3,4) with the regression line y = 0.9x + 0.9 and the residuals', [], [-1.5, 5.5, 4.5, -0.5]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
+    // The default circle is a single epicycle, so the poster takes the Romb example and three Povečaj N za 1 steps (N = 3): the chain circles with the tip and the approximating curve.
+    epicycles: ['Romb example with three Povečaj N za 1 steps: the chain of two circles, the tip and the rounded-rhombus curve through the four vertices', [field('Primer', 'diamond', 'select'), button('Povečaj N za 1', 3)]],
     'fourier-coefficients': ['Default shape with the first coefficient bars and the partial sum', [], [-6.2, 3.8, 6.2, -3.8]],
     'fixed-point': ['First exact cobweb step before feeding successive outputs back as inputs', [button('Naslednji korak')], [-0.15, 1.2, 1.2, -0.15]],
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
