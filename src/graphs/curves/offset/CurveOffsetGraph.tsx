@@ -84,7 +84,7 @@ function curveLabel(kind: OffsetCurveKind): string {
  * cusps and the speed factor 1 + d*kappa. The kind is read from the live curve, never stored. For a PH curve the graph state
  * `offsetD` is the single source of truth: the adapter's exact offset (one curve, at distance d) is set from it after every
  * import and change, so the sampled trace and the exact rational offset are the same curve at the same d.
- * Known limit: the hodograph auxiliary board of the PH route is not here, so the PH shape is fixed (the base point drags).
+ * Known limit: the hodograph auxiliary board of the PH route is not here, so the PH curve is fixed here: its board points do not drag, on this route or the PH routes.
  */
 class CurveOffsetGraph extends BaseCurveGraph<CurveOffsetStates> {
     private overlay?: OffsetOverlay;
@@ -322,6 +322,8 @@ class CurveOffsetGraph extends BaseCurveGraph<CurveOffsetStates> {
                     onChange={value => this.setOffsetDistance(value)}/>
             <p className="inspector-help">{t("offset_help")}</p>
             <p className="inspector-help">{t("offset_local_note")}</p>
+            {this.effectiveShown() && <p className="inspector-help">{t("offset_readout_approx")}</p>}
+            {this.effectiveShown() && kind === 'ph' && <p className="inspector-help">{t("offset_readout_exact_ph")}</p>}
             <OnOffSwitch label={t("offset_cusps_shown")} checked={this.state.offsetCuspsShown} onChange={checked => this.setOffsetCuspsShown(checked)}/>
             <Slider min={OFFSET_SAMPLES_MIN} max={OFFSET_SAMPLES_MAX} step={1} value={this.effectiveSamples()} customText={t("offset_samples")}
                     onChange={value => this.setOffsetSamples(Math.round(value))}/>

@@ -73,6 +73,11 @@ class OffsetGraphProbe extends ObservedOffsetGraph {
     trace() { return this.owned().find(element => element.elType === 'curve')!; }
     markers() { return this.owned().filter(element => element.elType === 'point'); }
     captions() { return this.owned().filter(element => element.elType === 'text').map(element => element.plaintext ?? '').filter(Boolean); }
+    setBoardWidth(width: number) {
+        const board = this.liveBoard();
+        (board as unknown as { canvasWidth: number }).canvasWidth = width;
+        board.update();
+    }
     movePoint(index: number, to: number[]) {
         const point = this.getFirstJxgCurve().getJxgPoints()[index];
         point.moveTo(to, 0);
@@ -275,6 +280,27 @@ describe('the PH curve kind', () => {
 });
 
 describe('copy', () => {
+    test('a narrow board drops the wrapping notes from the caption; the live text and the inspector keep them', () => {
+        const {graph, view} = mount();
+        const inspectorNotes = () => Array.from(view.container.querySelectorAll('.inspector-help')).map(element => element.textContent);
+        const notes = [t('offset_readout_approx'), t('offset_readout_exact_ph')];
+        try {
+            act(() => graph.setCurveKind('ph'));
+            act(() => graph.setBoardWidth(364));
+            expect(graph.captions()).toHaveLength(2);
+            notes.forEach(note => expect(graph.captions()).not.toContain(note));
+            notes.forEach(note => expect(graph.offset()!.readoutText()).toContain(note));
+            expect(inspectorNotes()).toEqual(expect.arrayContaining(notes));
+            act(() => graph.setBoardWidth(1000));
+            expect(graph.captions()).toEqual(expect.arrayContaining(notes));
+            act(() => graph.setOffsetShown(false));
+            notes.forEach(note => expect(inspectorNotes()).not.toContain(note));
+            act(() => { graph.setOffsetShown(true); graph.setCurveKind('bezier'); });
+            expect(inspectorNotes()).toContain(notes[0]);
+            expect(inspectorNotes()).not.toContain(notes[1]);
+        } finally { view.unmount(); }
+    });
+
     test('the Bezier caption says approximate and has no exact line; the PH caption adds it; off shows neither', () => {
         const {graph, view} = mount();
         try {

@@ -9,6 +9,10 @@ import type {SpeedFactorPlotController} from "./SpeedFactorPlot";
 export const OFFSET_CUSP_MARKERS = 8;
 /** Caption lines on the board: distance, cusps, the approximation note, and for a PH curve the exactness note. */
 const CAPTION_LINES = 4;
+/** The lines that are always short: d and the cusp count. */
+const CAPTION_SHORT_LINES = 2;
+/** Board width in font sizes below which the longest note wraps onto the next line, which sits at a fixed pitch. */
+const CAPTION_NOTES_MIN_WIDTH = 24;
 
 export type OffsetCurveKind = 'bezier' | 'ph';
 
@@ -111,6 +115,13 @@ export class OffsetOverlay {
         return this.readoutLines().join(" ");
     }
 
+    /** What the board shows: a narrow board keeps the short lines, as the notes would cover the curve. The inspector and the live region always have them. An unmeasured board keeps every line. */
+    private captionLines(): string[] {
+        const lines = this.readoutLines();
+        const width = this.board.canvasWidth;
+        return width > 0 && width < CAPTION_NOTES_MIN_WIDTH * this.settings.fontSize() ? lines.slice(0, CAPTION_SHORT_LINES) : lines;
+    }
+
     private create<E extends GeometryElement>(type: string, parents: unknown[], attributes: Record<string, unknown>): E {
         const element = this.board.create(type, parents as never, attributes as never) as unknown as E;
         this.elements.push(element);
@@ -153,9 +164,8 @@ export class OffsetOverlay {
                 () => box()[0] + 0.02 * (box()[2] - box()[0]),
                 () => box()[1] - 0.02 * (box()[1] - box()[3]) - k * lineHeight(),
                 () => {
-                    const lines = this.readoutLines();
-                    if (k === 0) this.settings.onReadout?.(lines.join(" "));
-                    return lines[k] ?? "";
+                    if (k === 0) this.settings.onReadout?.(this.readoutText());
+                    return this.captionLines()[k] ?? "";
                 },
             ], {
                 anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false,
