@@ -1002,3 +1002,80 @@ test('Reset after the evolute scenes disposes the old overlay, restores the para
         h.mounted.view.unmount();
     }
 });
+
+/** Opens a real lesson session and advances it with next() until the step with the given id is shown. */
+function openAt(id: LessonId, stepId: string, capabilities: ReturnType<typeof combMount>['capabilities']) {
+    const lesson = getLessonForDemonstration(id)!;
+    const target = lesson.steps.findIndex(step => step.id === stepId);
+    expect(target, `${id} has step ${stepId}`).toBeGreaterThan(0);
+    const session = new LessonSession(lesson, capabilities);
+    act(() => session.start());
+    for (let guard = 0; session.snapshot().stepIndex < target && guard < 80; guard++) act(() => session.next());
+    expect(session.snapshot().stepIndex).toBe(target);
+    return session;
+}
+
+test('closing a real curve-comb session returns the board, the one comb overlay and the comb flags to the opening state', () => {
+    const h = combMount();
+    try {
+        const state = {...h.graph.state};
+        const kind = h.graph.curveKind();
+        const count = withoutTickLabels(h.graph);
+        const owned = combOf(h.graph).ownedElements();
+        expect(owned.length).toBeGreaterThan(0);
+        expect(state.combShown).toBe(false);
+
+        const session = openAt(COMB_ID, 'comb-g1', h.capabilities);
+        // The lesson really changed the scene: spline kind and comb on.
+        expect(h.graph.curveKind()).toBe('g1');
+        expect(h.graph.state.combShown).toBe(true);
+        expect(withoutTickLabels(h.graph)).not.toBe(count);
+        const during = combOf(h.graph).ownedElements();
+        expect(during.length).toBeGreaterThan(0);
+
+        act(() => session.close());
+        h.graph.board.update();
+        expect(h.graph.curveKind()).toBe(kind);
+        expect(h.graph.state).toMatchObject(state);
+        expect(withoutTickLabels(h.graph)).toBe(count);
+        // Exactly one set of owned elements, all on the board; nothing of the g1 overlay is left.
+        const after = combOf(h.graph).ownedElements();
+        expect(after).toHaveLength(owned.length);
+        after.forEach(element => expect(h.graph.board.objectsList.includes(element)).toBe(true));
+        during.filter(element => !after.includes(element)).forEach(element => expect(h.graph.board.objectsList.includes(element)).toBe(false));
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('closing a real curve-evolute session returns the board, the one evolute overlay and the trace and normal flags to the opening state', () => {
+    const h = evoluteMount();
+    try {
+        const state = {...h.graph.state};
+        const count = withoutTickLabels(h.graph);
+        const before = [...h.graph.evoluteElements()];
+        const original = h.graph.getFirstCurve().getPoints().map(point => [point.X(), point.Y()]);
+        expect(before).toHaveLength(6);
+        expect(state).toMatchObject({evoluteTrace: 'full', evoluteNormalShown: true});
+
+        const session = openAt(EVOLUTE_ID, 'evolute-trace', h.capabilities);
+        // The lesson really changed the scene: this step traces up to the parameter and hides the normals.
+        expect(h.graph.state.evoluteTrace).toBe('to-parameter');
+        expect(h.graph.state.evoluteNormalShown).toBe(false);
+        const during = [...h.graph.evoluteElements()];
+
+        act(() => session.close());
+        h.graph.board.update();
+        expect(h.graph.state).toMatchObject(state);
+        expect(h.graph.getFirstCurve().getPoints().map(point => [point.X(), point.Y()])).toEqual(original);
+        expect(withoutTickLabels(h.graph)).toBe(count);
+        const after = [...h.graph.evoluteElements()];
+        expect(after).toHaveLength(6);
+        after.forEach(element => expect(h.graph.board.objectsList.includes(element)).toBe(true));
+        [...before, ...during].filter(element => !after.includes(element)).forEach(element => expect(h.graph.board.objectsList.includes(element)).toBe(false));
+        expect(evoluteTraceCurve(h.graph).evalVisProp('visible')).toBe(true);
+        near(evolutePointOnBoard(h.graph), parabolaE(0.75), 1e-9, 'E after close');
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
