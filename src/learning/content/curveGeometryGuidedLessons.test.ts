@@ -20,7 +20,7 @@ beforeEach(() => {
     setLanguage('sl');
 });
 
-type LessonId = 'curve-parametric' | 'curve-curvature' | 'curve-comb';
+type LessonId = 'curve-parametric' | 'curve-curvature' | 'curve-comb' | 'curve-evolute';
 const PI = Math.PI;
 const stepOf = (demonstrationId: LessonId, stepId: string): GuidedLessonStep =>
     curveGeometryGuidedLessons.find(lesson => lesson.demonstrationId === demonstrationId)!.steps.find(step => step.id === stepId)!;
@@ -589,6 +589,415 @@ test('cycling all four curve kinds by lesson scenes leaves no comb element of an
         }
         h.scene(order[0]);
         expect(withoutTickLabels(h.graph)).toBe(counts.get('comb-predict'));
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+// ---- L4: the evolute ------------------------------------------------------------------------------------------------------
+
+type EvoluteDrawn = {
+    elType: string; dataX?: number[]; dataY?: number[]; X?: () => number; Y?: () => number; plaintext?: string;
+    evalVisProp: (name: string) => unknown; point1?: EvoluteDrawn; point2?: EvoluteDrawn;
+};
+type EvoluteGraphView = {
+    state: { curvatureT: number; evoluteTrace: string; evoluteNormalShown: boolean; curvatureFrameShown: boolean; curvatureCircleShown: boolean };
+    board: { objectsList: unknown[]; update(): void; getBoundingBox(): number[] };
+    evoluteElements(): readonly unknown[];
+    overlay: { ownedElements(): readonly unknown[]; frame(): { status: string; kappa?: number; radius?: number; centre?: number[] } | undefined };
+    getFirstCurve(): { getPoints(): Array<{ X(): number; Y(): number }> };
+    reset(): Promise<void>;
+};
+const EVOLUTE_ID: LessonId = 'curve-evolute';
+const evoluteMount = () => mount<EvoluteGraphView>(EVOLUTE_ID);
+/** The owned evolute elements in creation order: trace, two anchor points, normal line, the point E, its tag. */
+const evoluteDrawn = (graph: EvoluteGraphView) => [...graph.evoluteElements()] as EvoluteDrawn[];
+const evoluteTraceCurve = (graph: EvoluteGraphView) => evoluteDrawn(graph).find(element => element.elType === 'curve')!;
+const evoluteNormalLine = (graph: EvoluteGraphView) => evoluteDrawn(graph).find(element => element.elType === 'line')!;
+/** The point E is the third point the overlay creates (after the two anchors of the normal line). */
+const evolutePointElement = (graph: EvoluteGraphView) => evoluteDrawn(graph).filter(element => element.elType === 'point')[2];
+const evolutePointOnBoard = (graph: EvoluteGraphView): [number, number] => [evolutePointElement(graph).X!(), evolutePointElement(graph).Y!()];
+const evolutePointShown = (graph: EvoluteGraphView) => evolutePointElement(graph).evalVisProp('visible');
+const circleOf = (graph: EvoluteGraphView) => (graph.overlay.ownedElements() as EvoluteDrawn[]).find(element => element.elType === 'circle')!;
+const frameArrows = (graph: EvoluteGraphView) => (graph.overlay.ownedElements() as EvoluteDrawn[]).filter(element => element.elType === 'segment');
+const evoluteReadout = (graph: EvoluteGraphView) =>
+    ((graph.board.objectsList as EvoluteDrawn[]).find(o => o.elType === 'text' && (o.plaintext ?? '').includes('κ'))?.plaintext ?? '').split('<br>');
+const finiteSamples = (curve: EvoluteDrawn) => (curve.dataX ?? []).map((x, i) => [x, curve.dataY![i]] as [number, number]).filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+const near = (actual: readonly number[], expected: readonly number[], tolerance: number, label: string) => {
+    expect(actual, label).toHaveLength(expected.length);
+    expected.forEach((value, index) => expect(Math.abs(actual[index] - value), `${label} [${index}]`).toBeLessThan(tolerance));
+};
+
+/** The evolute of the parabola y = x^2 with x = 2t - 1, written down from the closed form (not read from the code). */
+const parabolaE = (t: number): [number, number] => { const x = 2 * t - 1; return [-4 * x ** 3, 3 * x ** 2 + 0.5]; };
+
+/** The S-cubic x = 3t, y = 6t(1-t)(1-2t), by its own derivatives: point, signed curvature and centre of curvature. */
+function sCubic(t: number) {
+    const y = 6 * t * (1 - t) * (1 - 2 * t);
+    const dy = 6 - 36 * t + 36 * t * t, ddy = -36 + 72 * t;
+    const cross = 3 * ddy; // x'y'' - y'x'' with x' = 3, x'' = 0
+    const speed2 = 9 + dy * dy;
+    const kappa = cross / speed2 ** 1.5;
+    const centre = cross === 0 ? undefined : [3 * t + speed2 / cross * -dy, y + speed2 / cross * 3] as [number, number];
+    return {point: [3 * t, y] as [number, number], kappa, centre};
+}
+/** The parameters in (0, 1) where kappa' = 0, by a scan for sign changes of a central difference and bisection. */
+function sCubicVertices() {
+    const slope = (t: number) => (sCubic(t + 1e-6).kappa - sCubic(t - 1e-6).kappa);
+    const found: number[] = [];
+    const steps = 2000;
+    for (let i = 1; i < steps - 1; i++) {
+        let a = i / steps, b = (i + 1) / steps;
+        if (slope(a) * slope(b) > 0) continue;
+        for (let k = 0; k < 60; k++) { const m = (a + b) / 2; if (slope(a) * slope(m) <= 0) b = m; else a = m; }
+        found.push((a + b) / 2);
+    }
+    return found;
+}
+
+const EVOLUTE_PARABOLA_POINTS = [[-1, 1], [0, -1], [1, 1]];
+const S_CUBIC_POINTS = [[0, 0], [1, 2], [2, -2], [3, 0]];
+/** [step id, t, trace mode, normal shown, frame shown, view box, control points]; the circle is shown in every scene. */
+const EVOLUTE_CONTRACT: ReadonlyArray<readonly [string, number, string, boolean, boolean, readonly number[], number[][]]> = [
+    ['evolute-predict', 0.75, 'hidden', false, false, [-5.2, 5, 5.2, -1.2], EVOLUTE_PARABOLA_POINTS],
+    ['evolute-trace', 0.75, 'to-parameter', false, false, [-5.2, 5, 5.2, -1.2], EVOLUTE_PARABOLA_POINTS],
+    ['evolute-normals', 0.75, 'full', true, false, [-5.2, 5, 5.2, -1.2], EVOLUTE_PARABOLA_POINTS],
+    ['evolute-cusp', 0.5, 'full', true, false, [-5.2, 5, 5.2, -1.2], EVOLUTE_PARABOLA_POINTS],
+    ['evolute-cubic', 0.19, 'full', true, false, [-1.5, 4.9, 4.5, -2.5], S_CUBIC_POINTS],
+    ['evolute-explore', 0.75, 'full', true, true, [-5.2, 5, 5.2, -1.2], EVOLUTE_PARABOLA_POINTS],
+];
+
+test('the evolute lesson has the six scenes of the contract in order', () => {
+    const lesson = curveGeometryGuidedLessons.find(item => item.demonstrationId === EVOLUTE_ID)!;
+    expect(lesson.steps.map(step => step.id)).toEqual(EVOLUTE_CONTRACT.map(row => row[0]));
+});
+
+test('every evolute scene sets t, trace, normal, frame, circle, view and curve as the contract says, on the real board', () => {
+    const h = evoluteMount();
+    try {
+        for (const [id, t, mode, normal, frame, view, points] of EVOLUTE_CONTRACT) {
+            const step = stepOf(EVOLUTE_ID, id);
+            h.scene(step);
+            h.graph.board.update();
+            expect(h.graph.state, id).toMatchObject({curvatureT: t, evoluteTrace: mode, evoluteNormalShown: normal, curvatureFrameShown: frame, curvatureCircleShown: true});
+            // The objects themselves, not only the state flags.
+            expect(evoluteNormalLine(h.graph).evalVisProp('visible'), `${id} normal`).toBe(normal);
+            const arrows = frameArrows(h.graph);
+            expect(arrows, `${id} frame arrows`).toHaveLength(2);
+            arrows.forEach(arrow => expect(arrow.evalVisProp('visible'), `${id} frame`).toBe(frame));
+            expect(circleOf(h.graph).evalVisProp('visible'), `${id} circle`).toBe(true);
+            expect(evoluteTraceCurve(h.graph).evalVisProp('visible'), `${id} trace`).toBe(mode !== 'hidden');
+            expect(h.graph.getFirstCurve().getPoints().map(point => [point.X(), point.Y()]), `${id} curve`).toEqual(points);
+            // The view goes through fitBoundingBox (margins, equal units) at the harness's 600 by 400 canvas.
+            const [left, top, right, bottom] = view;
+            const expected = fitBoundingBox([[left, top], [right, bottom]], 600, 400)!;
+            const box = h.graph.board.getBoundingBox();
+            expect(box).toHaveLength(4);
+            box.forEach((value, index) => expect(value, `${id} box ${index}`).toBeCloseTo(expected[index], 9));
+            // The trace the mode draws.
+            const samples = finiteSamples(evoluteTraceCurve(h.graph));
+            if (mode === 'hidden') {
+                expect(samples, `${id} hidden trace`).toHaveLength(0);
+            } else if (points === EVOLUTE_PARABOLA_POINTS) {
+                expect(samples.length, `${id} trace samples`).toBe(256);
+                near(samples[0], [4, 3.5], 1e-9, `${id} trace start`);
+                near(samples.at(-1)!, mode === 'full' ? [-4, 3.5] : parabolaE(t), 1e-9, `${id} trace end`);
+            } else {
+                const start = sCubic(0).centre;
+                expect(start, 'S-cubic starts with a centre').toBeDefined();
+                expect(samples.length, `${id} trace samples`).toBeGreaterThan(100);
+                near(samples[0], start!, 1e-9, `${id} trace start`);
+            }
+        }
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the evolute point on the real board is the closed form on the parabola to 1e-9 and the normal line passes through it', () => {
+    const h = evoluteMount();
+    try {
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-normals'));
+        let checked = 0;
+        for (const t of [0, 0.05, 0.2, 0.25, 0.4, 0.5, 0.6, 0.75, 0.9, 1]) {
+            h.apply({kind: 'parameter', name: 't', value: t});
+            h.graph.board.update();
+            expect(h.graph.state.curvatureT).toBe(t);
+            const e = evolutePointOnBoard(h.graph);
+            near(e, parabolaE(t), 1e-9, `E at t = ${t}`);
+            expect(evolutePointShown(h.graph), `E shown at t = ${t}`).toBe(true);
+            // The normal line, as the two points that define it on the board.
+            const line = evoluteNormalLine(h.graph);
+            const a = [line.point1!.X!(), line.point1!.Y!()], b = [line.point2!.X!(), line.point2!.Y!()];
+            const distance = Math.abs((b[0] - a[0]) * (e[1] - a[1]) - (b[1] - a[1]) * (e[0] - a[0])) / Math.hypot(b[0] - a[0], b[1] - a[1]);
+            expect(distance, `normal to E at t = ${t}`).toBeLessThan(1e-9);
+            // The normal is perpendicular to the tangent (1, 2x) of y = x^2 at x = 2t - 1.
+            const x = 2 * t - 1;
+            const cosine = ((b[0] - a[0]) * 1 + (b[1] - a[1]) * 2 * x) / Math.hypot(b[0] - a[0], b[1] - a[1]) / Math.hypot(1, 2 * x);
+            expect(Math.abs(cosine), `normal perpendicular at t = ${t}`).toBeLessThan(1e-9);
+            checked++;
+        }
+        expect(checked).toBe(10);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the normal line is the tangent of the drawn trace: parallel to a finite difference of its samples at E', () => {
+    const h = evoluteMount();
+    try {
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-normals'));
+        const samples = 256;
+        let checked = 0;
+        for (const index of [40, 90, 100, 170, 210]) {
+            h.apply({kind: 'parameter', name: 't', value: index / (samples - 1)});
+            h.graph.board.update();
+            const trace = evoluteTraceCurve(h.graph);
+            expect(trace.dataX, 'whole trace').toHaveLength(samples);
+            // The trace sample at the parameter is E; its neighbours give the direction of the evolute there.
+            near([trace.dataX![index], trace.dataY![index]], evolutePointOnBoard(h.graph), 1e-9, `sample ${index} is E`);
+            const dx = trace.dataX![index + 1] - trace.dataX![index - 1], dy = trace.dataY![index + 1] - trace.dataY![index - 1];
+            const line = evoluteNormalLine(h.graph);
+            const nx = line.point2!.X!() - line.point1!.X!(), ny = line.point2!.Y!() - line.point1!.Y!();
+            const sine = Math.abs(dx * ny - dy * nx) / Math.hypot(dx, dy) / Math.hypot(nx, ny);
+            expect(Math.hypot(dx, dy), `step ${index}`).toBeGreaterThan(1e-4);
+            expect(sine, `tangency at sample ${index}`).toBeLessThan(2e-3);
+            checked++;
+        }
+        expect(checked).toBe(5);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the S-cubic has two vertices and the evolute two cusps at the quoted values, and the board agrees', () => {
+    const vertices = sCubicVertices();
+    expect(vertices).toHaveLength(2);
+    expect(vertices[0]).toBeCloseTo(0.1907, 4);
+    expect(vertices[1]).toBeCloseTo(0.8093, 4);
+    const quoted = [[0.6332, 0.1598], [2.3668, -0.1598]];
+    vertices.forEach((t, index) => {
+        expect(Math.abs(sCubic(t).kappa), `|kappa| at vertex ${index}`).toBeGreaterThan(2.3945);
+        expect(Math.abs(sCubic(t).kappa)).toBeLessThan(2.3955);
+        near(sCubic(t).centre!, quoted[index], 5e-5, `cusp ${index}`);
+    });
+    const h = evoluteMount();
+    try {
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-cubic'));
+        const at = (value: number) => { h.apply({kind: 'parameter', name: 't', value}); h.graph.board.update(); return evolutePointOnBoard(h.graph); };
+        const moveAround = (centre: number, step: number) => {
+            const before = at(centre - step), after = at(centre + step);
+            return Math.hypot(after[0] - before[0], after[1] - before[1]);
+        };
+        vertices.forEach((t, index) => {
+            near(at(t), sCubic(t).centre!, 1e-9, `board E at vertex ${index}`);
+            near(at(t), quoted[index], 5e-5, `board cusp ${index}`);
+            // A cusp: the evolute point barely moves for small steps around the vertex, but moves at an ordinary parameter.
+            expect(moveAround(t, 1e-3), `movement of E at vertex ${index}`).toBeLessThan(1e-5);
+            expect(moveAround(index === 0 ? 0.3 : 0.7, 1e-3), `movement of E away from the vertex ${index}`).toBeGreaterThan(1e-3);
+        });
+        // The scene's t = 0.19: kappa, R and the rounded E the text quotes.
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-cubic'));
+        h.graph.board.update();
+        const frame = h.graph.overlay.frame()!;
+        expect(frame.status).toBe('circle');
+        expect(frame.kappa!).toBeCloseTo(-2.3952, 4);
+        expect(frame.radius!).toBeCloseTo(0.4175, 4);
+        expect(frame.kappa).toBeCloseTo(sCubic(0.19).kappa, 9);
+        expect(evolutePointOnBoard(h.graph).map(value => value.toFixed(4))).toEqual(['0.6332', '0.1598']);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('at the inflection of the S-cubic the readout says there is no point, E is hidden and the trace breaks with no segment across', () => {
+    const h = evoluteMount();
+    try {
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-cubic'));
+        h.apply({kind: 'parameter', name: 't', value: 0.5});
+        h.graph.board.update();
+        expect(sCubic(0.5).kappa).toBeCloseTo(0, 12);
+        expect(evoluteReadout(h.graph).at(-1)).toBe('Točke evolute ni: ukrivljenost je 0, središče krivinske krožnice je neskončno daleč');
+        expect(evolutePointShown(h.graph)).toBe(false);
+        const trace = evoluteTraceCurve(h.graph);
+        const xs = trace.dataX!, ys = trace.dataY!;
+        expect(xs).toHaveLength(ys.length);
+        expect(xs.length).toBeGreaterThan(200);
+        xs.forEach((x, index) => expect(Number.isNaN(x), `NaN at ${index} in both arrays`).toBe(Number.isNaN(ys[index])));
+        // Rebuild the sequence of evolute points from the S-cubic's own formulas and walk the drawn data against it.
+        const expected = Array.from({length: 256}, (_, i) => ({i, ...sCubic(i / 255)}));
+        let pointer = 0, previous: {i: number; sign: number} | undefined, breaks = 0, brokenSinceLast = false, signChanges = 0;
+        for (let k = 0; k < xs.length; k++) {
+            if (Number.isNaN(xs[k])) { brokenSinceLast = true; breaks++; continue; }
+            while (pointer < expected.length && !(expected[pointer].centre && Math.hypot(expected[pointer].centre![0] - xs[k], expected[pointer].centre![1] - ys[k]) < 1e-9)) pointer++;
+            expect(pointer, `drawn point ${k} matches a sample of the curve`).toBeLessThan(expected.length);
+            const sign = Math.sign(expected[pointer].kappa);
+            if (previous && previous.sign !== sign) {
+                signChanges++;
+                // A change of the sign of kappa (the inflection) must have a NaN between the two neighbours.
+                expect(brokenSinceLast, `break between samples ${previous.i} and ${pointer}`).toBe(true);
+                expect(previous.i).toBeLessThanOrEqual(127);
+                expect(pointer).toBeGreaterThanOrEqual(128);
+            }
+            previous = {i: pointer, sign};
+            brokenSinceLast = false;
+            pointer++;
+        }
+        expect(signChanges).toBe(1);
+        expect(breaks).toBeGreaterThanOrEqual(1);
+        // Every break sits between two finite points, so the data has pieces and not a stray NaN at an end.
+        xs.forEach((x, k) => { if (Number.isNaN(x)) { expect(k).toBeGreaterThan(0); expect(k).toBeLessThan(xs.length - 1); expect(Number.isFinite(xs[k - 1])).toBe(true); expect(Number.isFinite(xs[k + 1])).toBe(true); } });
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the English readout of the evolute point and of the missing one', () => {
+    const h = evoluteMount();
+    try {
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-normals'));
+        setLanguage('en');
+        h.graph.board.update();
+        expect(evoluteReadout(h.graph).at(-1)).toBe('Evolute point E = (−0.5, 1.25)');
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-cubic'));
+        h.apply({kind: 'parameter', name: 't', value: 0.5});
+        h.graph.board.update();
+        expect(evoluteReadout(h.graph).at(-1)).toBe('No evolute point: the curvature is 0, so the centre of curvature is infinitely far');
+    } finally {
+        setLanguage('sl');
+        h.mounted.view.unmount();
+    }
+});
+
+/** [step id, values the Slovenian board readout shows, values the prose quotes in both languages (decimal commas are written as in Slovenian)]. */
+const EVOLUTE_QUOTES: ReadonlyArray<readonly [string, readonly string[], readonly string[]]> = [
+    ['evolute-predict', ['−0,5', '1,25'], ['0,75', String.raw`E=(-\tfrac12,\tfrac54)`, String.raw`(4,\tfrac72)`, String.raw`(0,\tfrac12)`, String.raw`(-4,\tfrac72)`]],
+    ['evolute-trace', ['−0,5', '1,25'], ['0,75', String.raw`(4,\tfrac72)`, String.raw`E=(-\tfrac12,\tfrac54)`]],
+    ['evolute-normals', ['0,7071', '1,4142', '−0,5', '1,25'], ['0,75', String.raw`\kappa=\tfrac{1}{\sqrt2}`, String.raw`R=\sqrt2`, String.raw`E=(\tfrac12,\tfrac54)`, '0,25']],
+    ['evolute-cusp', ['2', '0,5'], ['0,5', String.raw`\kappa=2`, String.raw`R=\tfrac12`, String.raw`E=(0,\tfrac12)`]],
+    ['evolute-cubic', ['−2,3952', '0,4175', '0,6332', '0,1598'], ['0,19', '0,1907', '0,8093', '2,395', '0,6332', '0,1598', '2,3668', '0,4175']],
+    ['evolute-explore', ['−0,5', '1,25'], ['0,75']],
+];
+
+test('every evolute scene shows on the board the values its text quotes, and the text quotes them in both languages', () => {
+    const lesson = curveGeometryGuidedLessons.find(item => item.demonstrationId === EVOLUTE_ID)!;
+    const h = evoluteMount();
+    try {
+        for (const [id, shown, quoted] of EVOLUTE_QUOTES) {
+            const step = stepOf(EVOLUTE_ID, id);
+            h.scene(step);
+            h.graph.board.update();
+            const readout = evoluteReadout(h.graph).join(' ');
+            expect(readout.length, `${id} readout`).toBeGreaterThan(0);
+            for (const value of shown) expect(readout, `${id} readout shows ${value}`).toContain(value);
+            for (const language of ['sl', 'en'] as const) {
+                // The worked example of a step quotes kappa and R, so its check text counts as the step's prose.
+                const example = lesson.workedExamples?.find(item => item.id === step.workedExampleId)?.check[language] ?? '';
+                const text = `${prose(step, language)} ${example}`;
+                expect(text.length).toBeGreaterThan(0);
+                for (const value of quoted) {
+                    const wanted = value.includes('\\') ? value : proseForm(value, language);
+                    expect(text, `${id} ${language} quotes ${value}`).toContain(wanted);
+                }
+            }
+        }
+        // The values of the parabola examples on the board: E at t = 0, 0.5, 1 and at t = 0.25, 0.75 as the text quotes them.
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-predict'));
+        const quotedPoints: Array<[number, number[]]> = [[0, [4, 3.5]], [0.5, [0, 0.5]], [1, [-4, 3.5]], [0.25, [0.5, 1.25]], [0.75, [-0.5, 1.25]]];
+        for (const [t, point] of quotedPoints) {
+            h.apply({kind: 'parameter', name: 't', value: t});
+            h.graph.board.update();
+            near(evolutePointOnBoard(h.graph), point, 1e-9, `E at t = ${t}`);
+        }
+        // Step 3: kappa = 1/sqrt2 and R = sqrt2 at t = 0.75; step 4: kappa = 2, R = 1/2 at t = 0.5.
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-normals'));
+        expect(h.graph.overlay.frame()!.kappa!).toBeCloseTo(Math.SQRT1_2, 12);
+        expect(h.graph.overlay.frame()!.radius!).toBeCloseTo(Math.SQRT2, 12);
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-cusp'));
+        expect(h.graph.overlay.frame()!.kappa!).toBeCloseTo(2, 12);
+        expect(h.graph.overlay.frame()!.radius!).toBeCloseTo(0.5, 12);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('evolute scenes run in one synchronous sequence leave the last scene on the board, each action reading the state of the one before', () => {
+    const h = evoluteMount();
+    try {
+        act(() => {
+            for (const action of actionsOf(stepOf(EVOLUTE_ID, 'evolute-predict'))) h.capabilities.apply(action);
+            for (const action of actionsOf(stepOf(EVOLUTE_ID, 'evolute-trace'))) h.capabilities.apply(action);
+            h.capabilities.apply({kind: 'parameter', name: 't', value: 0.25});
+            for (const action of actionsOf(stepOf(EVOLUTE_ID, 'evolute-cusp'))) h.capabilities.apply(action);
+        });
+        h.graph.board.update();
+        expect(h.graph.state).toMatchObject({curvatureT: 0.5, evoluteTrace: 'full', evoluteNormalShown: true, curvatureFrameShown: false, curvatureCircleShown: true});
+        near(evolutePointOnBoard(h.graph), [0, 0.5], 1e-9, 'E at the cusp scene');
+        const samples = finiteSamples(evoluteTraceCurve(h.graph));
+        expect(samples).toHaveLength(256);
+        near(samples.at(-1)!, [-4, 3.5], 1e-9, 'full trace end');
+        // Trace mode then parameter, in one tick: the partial trace ends at the new parameter.
+        act(() => {
+            h.capabilities.apply({kind: 'evolute-trace', mode: 'to-parameter'});
+            h.capabilities.apply({kind: 'parameter', name: 't', value: 0.25});
+        });
+        h.graph.board.update();
+        near(finiteSamples(evoluteTraceCurve(h.graph)).at(-1)!, parabolaE(0.25), 1e-9, 'trace ends at E(0.25)');
+        near(evolutePointOnBoard(h.graph), [0.5, 1.25], 1e-9, 'E(0.25)');
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('cycling the evolute scenes keeps the board object count without tick labels, and every earlier overlay element is gone', () => {
+    const h = evoluteMount();
+    try {
+        const order = EVOLUTE_CONTRACT.map(row => stepOf(EVOLUTE_ID, row[0]));
+        const counts = new Map<string, number>();
+        let previous: readonly unknown[] = [];
+        for (let round = 0; round < 3; round++) {
+            for (const step of order) {
+                h.scene(step);
+                const owned = h.graph.evoluteElements();
+                expect(owned, `${step.id} owned`).toHaveLength(6);
+                const length = withoutTickLabels(h.graph);
+                if (!counts.has(step.id)) counts.set(step.id, length);
+                expect(length, `${step.id} round ${round}`).toBe(counts.get(step.id));
+                previous.filter(element => !owned.includes(element)).forEach(element => expect(h.graph.board.objectsList.includes(element), step.id).toBe(false));
+                owned.forEach(element => expect(h.graph.board.objectsList.includes(element), step.id).toBe(true));
+                previous = owned;
+            }
+        }
+        expect(counts.size).toBe(order.length);
+        h.scene(order[0]);
+        expect(withoutTickLabels(h.graph)).toBe(counts.get('evolute-predict'));
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('Reset after the evolute scenes disposes the old overlay, restores the parabola and the route defaults and leaves one fresh overlay', async () => {
+    const h = evoluteMount();
+    try {
+        const original = h.graph.getFirstCurve().getPoints().map(point => [point.X(), point.Y()]);
+        const baseline = withoutTickLabels(h.graph);
+        const before = [...h.graph.evoluteElements()];
+        expect(before).toHaveLength(6);
+        h.scene(stepOf(EVOLUTE_ID, 'evolute-cubic'));
+        expect(h.graph.getFirstCurve().getPoints().map(point => [point.X(), point.Y()])).not.toEqual(original);
+        const during = [...h.graph.evoluteElements()];
+        expect(during).toHaveLength(6);
+        await settle(() => h.graph.reset());
+        h.graph.board.update();
+        expect(h.graph.state).toMatchObject({curvatureT: 0.75, evoluteTrace: 'full', evoluteNormalShown: true, curvatureFrameShown: true, curvatureCircleShown: true});
+        expect(h.graph.getFirstCurve().getPoints().map(point => [point.X(), point.Y()])).toEqual(original);
+        // Every element of the overlays that existed before the Reset is off the board; the new overlay is on it.
+        [...before, ...during].forEach(element => expect(h.graph.board.objectsList.includes(element)).toBe(false));
+        const after = [...h.graph.evoluteElements()];
+        expect(after).toHaveLength(6);
+        after.forEach(element => expect(h.graph.board.objectsList.includes(element)).toBe(true));
+        expect(withoutTickLabels(h.graph)).toBe(baseline);
+        near(evolutePointOnBoard(h.graph), parabolaE(0.75), 1e-9, 'E after Reset');
     } finally {
         h.mounted.view.unmount();
     }

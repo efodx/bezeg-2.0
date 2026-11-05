@@ -1914,6 +1914,19 @@ const curvatureComb = {
     },
 };
 
+// Evolute: the board readout names the evolute point E of each step (steps 1..3 and 6 the parabola at t = 0.75, step 4 its cusp at t = 0.5, step 5 the first cusp of the S-cubic at t = 0.19).
+const EVOLUTE_READOUTS = [/E = \([-−]0[.,]5, 1[.,]25\)/, /E = \([-−]0[.,]5, 1[.,]25\)/, /E = \([-−]0[.,]5, 1[.,]25\)/, /E = \(0, 0[.,]5\)/, /E = \(0[.,]6332, 0[.,]1598\)/, /E = \([-−]0[.,]5, 1[.,]25\)/];
+const curveEvolute = {
+    id: 'curve-evolute',
+    path: `${BASE}/curve-geometry/evolute`,
+    titles: {sl: 'Evoluta', en: 'Evolute'},
+    steps: 6,
+    minFrames: 13, // 2 frames per step, 3 on step 3 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect(boardText(page, EVOLUTE_READOUTS[step - 1]).first(), `evolute readout at ${label}`).toBeVisible();
+    },
+};
+
 // Interval sweep: the trace step shown per lesson step 1..7 (start, start, third entering event, e entered, done, done, the second sample's start); the number is language independent.
 const INTERVAL_STEPS = ['1', '1', '7', '21', '26', '26', '1'];
 const intervalSweep = {
@@ -2344,7 +2357,7 @@ const fortune = {
 };
 
 const LESSONS = [bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

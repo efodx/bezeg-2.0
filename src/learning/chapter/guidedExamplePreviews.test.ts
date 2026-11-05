@@ -228,8 +228,8 @@ const functionsCards: readonly FunctionsCard[] = [
         counts: [[0, 11], [3, 9], [1, 8], [1, 4], [5, 0]]},
     {chapterId: 'curve-geometry', copy: curveGeometryPreviewCopy,
         ids: ['curve-geometry.curve-curvature.curve-curvature', 'curve-geometry.curve-parametric.curve-parametric'], counts: [[1, 5], [0, 2]],
-        // The comb card (CG-B2-3) needs a browser capture (image, manifest entry, inventory entry) that the lesson slice did not run.
-        pending: ['curve-geometry.curve-comb.curve-comb']},
+        // The comb and evolute cards (CG-B2-3, CG-B2-4) need a browser capture (image, manifest entry, inventory entry) that the lesson slice did not run.
+        pending: ['curve-geometry.curve-comb.curve-comb', 'curve-geometry.curve-evolute.curve-evolute']},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {
