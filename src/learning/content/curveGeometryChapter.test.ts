@@ -11,7 +11,7 @@ import {
 } from './curveGeometryChapterRegistry';
 import {familyChapters} from './familyChapters';
 
-const IDS = ['curve-parametric', 'curve-curvature'] as const;
+const IDS = ['curve-parametric', 'curve-curvature', 'curve-comb'] as const;
 const everything = (language: 'sl' | 'en') => [
     curveGeometryChapter.purpose, curveGeometryChapter.prerequisites,
     ...curveGeometryChapter.sections.flatMap(section => [section.title, ...section.paragraphs]),
@@ -20,7 +20,7 @@ const everything = (language: 'sl' | 'en') => [
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter follows parametrization in the curves strand with an opening and two lesson sections', () => {
+    test('the chapter follows parametrization in the curves strand with an opening and three lesson sections', () => {
         expect(curveGeometryChapter.id).toBe(CURVE_GEOMETRY_CHAPTER_ID);
         expect(curveGeometryChapter.title).toEqual({sl: 'Geometrija krivulj', en: 'Geometry of curves'});
         expect(curveGeometryChapter.family).toBe('/bezeg-2.0/curve-geometry');
@@ -33,7 +33,7 @@ describe('chapter structure and registration', () => {
             expect(order.indexOf(link.path.split('/').at(-1)!), link.path).toBeLessThan(order.indexOf(CURVE_GEOMETRY_CHAPTER_ID));
         }
         expect(learningChapters.some(chapter => chapter.id === CURVE_GEOMETRY_CHAPTER_ID)).toBe(true);
-        expect(curveGeometryChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['curve-parametric'], ['curve-curvature']]);
+        expect(curveGeometryChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['curve-parametric'], ['curve-curvature'], ['curve-comb']]);
         expect(curveGeometryChapter.prerequisiteLinks?.map(link => link.path)).toEqual([
             '/bezeg-2.0/learn/parametrization', '/bezeg-2.0/learn/ph-curves', '/bezeg-2.0/learn/bezier-curves', '/bezeg-2.0/learn/functions-and-calculus',
         ]);
@@ -47,12 +47,12 @@ describe('chapter structure and registration', () => {
         });
     });
 
-    test('only the two released lessons are presented and the terms are in both languages', () => {
-        const terms = {sl: ['ukrivljenost', 'krivinska krožnica', 'parametrične in polarne krivulje'], en: ['curvature', 'osculating circle', 'parametric and polar curves']};
+    test('only the three released lessons are presented and the terms are in both languages', () => {
+        const terms = {sl: ['ukrivljenost', 'krivinska krožnica', 'parametrične in polarne krivulje', 'glavnik ukrivljenosti', 'stik'], en: ['curvature', 'osculating circle', 'parametric and polar curves', 'curvature comb', 'join']};
         for (const language of ['sl', 'en'] as const) {
             const body = everything(language).toLowerCase();
             for (const word of terms[language]) expect(body, `${language}: ${word}`).toContain(word);
-            for (const unreleased of language === 'sl' ? ['glavnik', 'odmik', 'evolut'] : ['comb', 'offset', 'evolute']) {
+            for (const unreleased of language === 'sl' ? ['odmik', 'evolut'] : ['offset', 'evolute']) {
                 expect(body, `${language}: ${unreleased}`).not.toContain(unreleased);
             }
         }
@@ -119,7 +119,7 @@ describe('chapter structure and registration', () => {
     });
 
     test('learn launches, example links and the accepted id break land on the owning sections', () => {
-        const formerOwners = {'curve-parametric': 'parametrization.uniform-timing', 'curve-curvature': 'bezier-curves.geometric-properties'} as const;
+        const formerOwners: Partial<Record<(typeof IDS)[number], string>> = {'curve-parametric': 'parametrization.uniform-timing', 'curve-curvature': 'bezier-curves.geometric-properties'};
         for (const id of IDS) {
             const launch = guidedLessonLaunchPath(id);
             expect(launch).toContain(`learnChapter=${CURVE_GEOMETRY_CHAPTER_ID}&learnSection=${id}`);
@@ -131,7 +131,8 @@ describe('chapter structure and registration', () => {
             expect(links.map(link => link.path)).toEqual([curveGeometryGuidedExamplePath(id)]);
             expect(links[0].path).toContain(`?example=${exampleId}`);
             // The accepted break: the interim owner's example id no longer resolves.
-            expect(resolveGuidedExample(`?example=lesson.${formerOwners[id]}.${id}`, id)?.lesson).toBeUndefined();
+            // The comb lesson is new in this chapter and has no former owner.
+            if (formerOwners[id]) expect(resolveGuidedExample(`?example=lesson.${formerOwners[id]}.${id}`, id)?.lesson).toBeUndefined();
         }
         expect(getChapterGuidedExamples(CURVE_GEOMETRY_CHAPTER_ID, 'curve-geometry-idea')).toEqual([]);
     });

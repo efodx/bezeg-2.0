@@ -19,14 +19,14 @@ function withExample(sectionId: CurveGeometrySectionId, section: FamilyChapterSe
     return {...section, orderedContent: content};
 }
 
-/** Curve geometry batch 1 only: L1 parametric and polar curves and L2 curvature and the osculating circle. Later lessons (the comb, offsets, evolutes) are not released and are not mentioned. */
+/** Curve geometry batches 1 and 2 so far: L1 parametric and polar curves, L2 curvature and the osculating circle and L3 the curvature comb and spline joins. Later lessons (offsets, evolutes) are not released and are not mentioned. */
 export const curveGeometryChapter: FamilyChapter = {
     id: CURVE_GEOMETRY_CHAPTER_ID,
     family: '/bezeg-2.0/curve-geometry',
     title: text('Geometrija krivulj', 'Geometry of curves'),
     purpose: text(
-        'Krivuljo opišemo s sledjo in z zakonom gibanja, nato pa iz odvodov preberemo, kako se zavija. Poglavje najprej loči parametrične in polarne krivulje, na cikloidi izračuna dolžino loka in ploščino, nato pa pokaže ukrivljenost in krivinsko krožnico, ki se krivulji v dani točki najbolje prilega.',
-        'A curve is described by its trace and by a rule of motion, and the derivatives then tell how it bends. The chapter first separates parametric and polar curves and computes arc length and area on the cycloid, then shows the curvature and the osculating circle, the circle that fits the curve best at a given point.',
+        'Krivuljo opišemo s sledjo in z zakonom gibanja, nato pa iz odvodov preberemo, kako se zavija. Poglavje najprej loči parametrične in polarne krivulje, na cikloidi izračuna dolžino loka in ploščino, nato pa pokaže ukrivljenost in krivinsko krožnico, ki se krivulji v dani točki najbolje prilega, na koncu pa glavnik ukrivljenosti, ki pokaže ukrivljenost vzdolž krivulje in skoke na stikih zlepkov.',
+        'A curve is described by its trace and by a rule of motion, and the derivatives then tell how it bends. The chapter first separates parametric and polar curves and computes arc length and area on the cycloid, then shows the curvature and the osculating circle, the circle that fits the curve best at a given point, and finally the curvature comb, which shows the curvature along the curve and the jumps at spline joins.',
     ),
     prerequisites: text(
         'Parametrizacija (sled in parameter), hitrost kot dolžina odvoda, kot jo uporabljajo PH-krivulje, Bézierjeve krivulje ter odvod in integral iz poglavja Funkcije in računanje. Dovolj je, da znaš odvajati \\(r(t)=(x(t),y(t))\\) po komponentah.',
@@ -81,6 +81,23 @@ export const curveGeometryChapter: FamilyChapter = {
                      'The cubic Bézier curve with the points \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) has \\(\\kappa(0)=\\tfrac23\\) at its first endpoint, \\(0.23570\\) at \\(t=\\tfrac12\\) and \\(0.05963\\) at the other endpoint. The first end therefore bends more. At an inflection \\(\\kappa=0\\): the circle becomes a line and the radius is infinite.'),
                 text('Za polarno krivuljo je \\(\\kappa=(\\rho^2+2\\rho^{\\prime2}-\\rho\\rho^{\\prime\\prime})/(\\rho^2+\\rho^{\\prime2})^{3/2}\\). Pri kardioidi \\(\\rho=1+\\cos\\theta\\) je pri \\(\\theta=0\\) \\(\\rho=2\\), \\(\\rho^{\\prime}=0\\) in \\(\\rho^{\\prime\\prime}=-1\\), zato je \\(\\kappa(0)=\\tfrac{4+2}{8}=\\tfrac34\\).',
                      'For a polar curve \\(\\kappa=(\\rho^2+2\\rho^{\\prime2}-\\rho\\rho^{\\prime\\prime})/(\\rho^2+\\rho^{\\prime2})^{3/2}\\). For the cardioid \\(\\rho=1+\\cos\\theta\\) at \\(\\theta=0\\) we have \\(\\rho=2\\), \\(\\rho^{\\prime}=0\\) and \\(\\rho^{\\prime\\prime}=-1\\), so \\(\\kappa(0)=\\tfrac{4+2}{8}=\\tfrac34\\).'),
+            ],
+        }),
+        withExample('curve-comb', {
+            id: 'curve-comb',
+            demonstrationIds: ['curve-comb'],
+            investigationPrompts: {'curve-comb': text('Napovej, kje je kubična krivulja najbolj ravna, nato vklopi glavnik in preveri. Primerjaj stike zlepkov C1, C2 in G1 ter premakni parameter \\(b\\) zlepka G1.', 'Predict where the cubic is flattest, then switch the comb on and check. Compare the joins of the C1, C2 and G1 splines and move the parameter \\(b\\) of the G1 spline.')},
+            title: text('Glavnik ukrivljenosti in stiki zlepkov', 'Curvature comb and spline joins'),
+            formula: String.raw`\ell(t)=g\,|\kappa(t)|,\qquad \Delta\kappa=\kappa_{+}-\kappa_{-}`,
+            paragraphs: [
+                text('Cilj razdelka: znaš z glavnikom prebrati ukrivljenost vzdolž krivulje in povedati, kdaj ima zlepek na stiku skok ukrivljenosti. Glavnik v vsaki točki krivulje nariše zob, ki je pravokoten na krivuljo in ima dolžino \\(\\ell=g\\,|\\kappa|\\), kjer je \\(g\\) ojačitev. Kjer so zobje kratki, je krivulja ravna, kjer so dolgi, se močno zavija.',
+                     'Goal of the section: you can read the curvature along a curve from the comb and say when a spline has a jump of curvature at a join. At every point of the curve the comb draws a tooth that is normal to the curve and has the length \\(\\ell=g\\,|\\kappa|\\), where \\(g\\) is the gain. Where the teeth are short the curve is flat, where they are long it bends strongly.'),
+                text('Kubična krivulja s točkami \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) ima pri \\(t=0\\) vrednost \\(\\kappa=\\tfrac23\\), pri \\(t=1\\) pa \\(0{,}05963\\): glavnik je na koncu \\((3,3)\\) najkrajši, krivulja je tam najbolj ravna.',
+                     'The cubic with the points \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) has \\(\\kappa=\\tfrac23\\) at \\(t=0\\) and \\(0.05963\\) at \\(t=1\\): the comb is shortest at the end \\((3,3)\\), where the curve is flattest.'),
+                text('Zlepek je sestavljen iz odsekov, ki se stikajo v vozlih. Glavnik se na stiku prekine, odčitek pa navede ukrivljenost tik pred stikom in tik za njim. Kvadratni zlepek C1 ima zvezno tangento, vendar ukrivljenost na stiku skoči. Kubični zlepek C2 ima zvezen tudi drugi odvod, zato je glavnik na regularnem stiku zvezen. Pri zlepku G1 skok določa prosti parameter \\(b\\).',
+                     'A spline is made of spans that meet at knots. The comb breaks at a join and the readout gives the curvature just before and just after it. The quadratic C1 spline has a continuous tangent, yet its curvature jumps at a join. The cubic C2 spline also has a continuous second derivative, so its comb is continuous at a regular join. For the G1 spline the free parameter \\(b\\) sets the jump.'),
+                text('Iz C2 sledi G2 le za regularne krivulje: pri točki z ničelno hitrostjo ukrivljenost ni določena, zato zveznost glavnika tam ni zagotovljena.',
+                     'C2 implies G2 for regular curves only: at a point of zero speed the curvature is not defined, so a continuous comb is not guaranteed there.'),
             ],
         }),
     ],

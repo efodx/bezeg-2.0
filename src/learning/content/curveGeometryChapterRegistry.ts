@@ -11,12 +11,13 @@ export {CURVE_GEOMETRY_CHAPTER_ID};
 const sectionDemonstrations = {
     'curve-parametric': 'curve-parametric',
     'curve-curvature': 'curve-curvature',
+    'curve-comb': 'curve-comb',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type CurveGeometrySectionId = keyof typeof sectionDemonstrations;
 
 /**
- * Section-owned activity (spec L1 and L2). The lesson text stays in the guided-lesson files; the getters read it lazily because
+ * Section-owned activity (spec L1, L2 and L3). The lesson text stays in the guided-lesson files; the getters read it lazily because
  * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
  */
 export const curveGeometryGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(

@@ -11,6 +11,7 @@ import {CURVATURE_T_DEFAULT} from '../../graphs/curves/bezier/CurvatureBezierCur
 import {DEFAULT_PARAMETRIC_PRESET} from '../../graphs/curves/parametric/parametricPresetCollection';
 import {checkSceneState} from '../../graphs/base/presets/PresetCollection';
 import {setLanguage} from '../../localization';
+import {fitBoundingBox} from '../../graphs/base/fitBoundingBox';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -19,7 +20,7 @@ beforeEach(() => {
     setLanguage('sl');
 });
 
-type LessonId = 'curve-parametric' | 'curve-curvature';
+type LessonId = 'curve-parametric' | 'curve-curvature' | 'curve-comb';
 const PI = Math.PI;
 const stepOf = (demonstrationId: LessonId, stepId: string): GuidedLessonStep =>
     curveGeometryGuidedLessons.find(lesson => lesson.demonstrationId === demonstrationId)!.steps.find(step => step.id === stepId)!;
@@ -386,6 +387,208 @@ test('a real lesson session hides the trace on step 1 only: forward, back and cl
         expect(h.graph.state.traceFull).toBe(false);
         act(() => session.close());
         expect(h.graph.state.traceFull).toBe(true);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+
+// ---- L3: curvature comb and spline joins ----------------------------------------------------------------------------------
+
+type CombBoardObject = { elType: string; dataX?: number[]; dataY?: number[]; visProp?: { visible?: boolean } };
+type CombOverlayView = {
+    readoutText(): string;
+    geometry(): { toothCount: number; clippedCount: number; joins: { index: number; point: number[]; kappaLeft?: number; kappaRight?: number; jump?: number }[] };
+    ownedElements(): readonly unknown[];
+};
+type CombGraphView = {
+    state: { combShown: boolean; combGain: number; combCount: number };
+    curveKind(): string;
+    comb(): CombOverlayView | undefined;
+    board: { objectsList: unknown[] };
+};
+const COMB_ID: LessonId = 'curve-comb';
+const combMount = () => mount<CombGraphView>(COMB_ID);
+const combOf = (graph: CombGraphView) => graph.comb()!;
+/** The comb curves actually on the board: teeth, tip line and clipped marks, each as the board holds them. */
+const combCurvesOnBoard = (graph: CombGraphView) => (combOf(graph).ownedElements() as CombBoardObject[])
+    .filter(element => element.elType === 'curve' && graph.board.objectsList.includes(element));
+const finiteCount = (values: number[] | undefined) => (values ?? []).filter(Number.isFinite).length;
+const toothLengths = (graph: CombGraphView) => {
+    const [teeth] = combCurvesOnBoard(graph);
+    const lengths: number[] = [];
+    for (let k = 0; k + 1 < teeth.dataX!.length; k += 3) lengths.push(Math.hypot(teeth.dataX![k + 1] - teeth.dataX![k], teeth.dataY![k + 1] - teeth.dataY![k]));
+    return lengths;
+};
+
+/** [step id, curve kind, comb shown, lines the Slovenian readout shows, numbers the prose quotes]. */
+const COMB_CASES: ReadonlyArray<readonly [string, string, boolean, readonly string[], readonly string[]]> = [
+    ['comb-predict', 'cubic', false, [], ['0,0596', '0,0835', '0,9333']],
+    ['comb-gain', 'cubic', true, [], ['1,3333', '0,1193', '11,18']],
+    ['comb-c1', 'c1', true, ['Stik 1: ukrivljenost κ levo 1,3333, desno 0,6667, skok −0,6667'], ['1,3333', '0,6667']],
+    ['comb-c2', 'c2', true, ['Stik 1: ukrivljenost κ levo 0,598, desno 0,598, skok 0'], ['0,598']],
+    ['comb-g1', 'g1', true, ['Stik 2: ukrivljenost κ levo 0,1217, desno −0,5635, skok −0,6852'], ['0,1217', '0,5635', '0,6852', '0,0427']],
+    ['comb-explore', 'g1', true, ['Stik 2: ukrivljenost κ levo 0,1217, desno −0,1409, skok −0,2625'], ['0,1217', '0,1409', '0,2625', '0,0427']],
+];
+
+test('every comb scene shows the readout its text quotes and draws (or hides) the comb on the board', () => {
+    const h = combMount();
+    try {
+        for (const [stepId, kind, shown, lines, numbers] of COMB_CASES) {
+            const step = stepOf(COMB_ID, stepId);
+            h.scene(step);
+            expect(h.graph.curveKind(), stepId).toBe(kind);
+            expect([h.graph.state.combShown, h.graph.state.combGain], stepId).toEqual([shown, stepId === 'comb-gain' ? 2 : 1.4]);
+            const readout = combOf(h.graph).readoutText();
+            if (lines.length === 0) expect(readout, stepId).toBe('');
+            for (const line of lines) expect(readout, `${stepId}: ${line}`).toContain(line);
+            const curves = combCurvesOnBoard(h.graph);
+            expect(curves, stepId).toHaveLength(3);
+            if (shown) {
+                // Drawn: the teeth and the tip line hold real finite geometry, and none is clipped at the lesson gains.
+                expect(finiteCount(curves[0].dataX), `${stepId} teeth`).toBeGreaterThan(0);
+                expect(finiteCount(curves[1].dataX), `${stepId} tip line`).toBeGreaterThan(0);
+                expect(curves.every(curve => curve.visProp?.visible !== false), stepId).toBe(true);
+                expect(combOf(h.graph).geometry().clippedCount, `${stepId} clipped`).toBe(0);
+            } else {
+                curves.forEach(curve => expect(curve.dataX, stepId).toEqual([]));
+            }
+            for (const number of numbers) for (const language of ['sl', 'en'] as const) {
+                expect(prose(step, language), `${stepId} ${language} quotes ${number}`).toContain(proseForm(number, language));
+            }
+        }
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('the quoted comb values come from the kernel: tooth lengths, join curvatures and the English readout', () => {
+    const h = combMount();
+    try {
+        h.scene(stepOf(COMB_ID, 'comb-predict'));
+        h.apply({kind: 'curve-visibility', target: 'curvature-comb', visible: true});
+        const lengths = toothLengths(h.graph);
+        expect(lengths).toHaveLength(64);
+        expect(lengths[0]).toBeCloseTo(1.4 * (2 / 3), 6);
+        expect(lengths.at(-1)!).toBeCloseTo(1.4 * 0.05963, 4);
+        expect(Math.min(...lengths)).toBe(lengths.at(-1));
+        expect(lengths[0]).toBeCloseTo(0.9333, 4);
+        expect(lengths.at(-1)!).toBeCloseTo(0.0835, 4);
+
+        h.scene(stepOf(COMB_ID, 'comb-gain'));
+        const doubled = toothLengths(h.graph);
+        expect(doubled[0]).toBeCloseTo(1.3333, 4);
+        expect(doubled.at(-1)!).toBeCloseTo(0.1193, 4);
+        expect(doubled[0] / doubled.at(-1)!).toBeCloseTo(11.18, 2);
+
+        h.scene(stepOf(COMB_ID, 'comb-c1'));
+        const c1 = combOf(h.graph).geometry().joins;
+        expect(c1.map(join => join.jump!)).toEqual([expect.closeTo(-0.6667, 4), expect.closeTo(-0.1944, 4), expect.closeTo(-0.375, 4)]);
+        expect([c1[0].kappaLeft, c1[0].kappaRight]).toEqual([expect.closeTo(1.3333, 4), expect.closeTo(0.6667, 4)]);
+        setLanguage('en');
+        expect(combOf(h.graph).readoutText()).toBe('Join 1: curvature κ left 1.3333, right 0.6667, jump −0.6667');
+        setLanguage('sl');
+
+        h.scene(stepOf(COMB_ID, 'comb-c2'));
+        for (const join of combOf(h.graph).geometry().joins) expect(Math.abs(join.jump!)).toBeLessThan(1e-12);
+
+        h.scene(stepOf(COMB_ID, 'comb-explore'));
+        const g1 = combOf(h.graph).geometry().joins;
+        expect(g1.map(join => join.jump!)).toEqual([expect.closeTo(-0.0427, 4), expect.closeTo(-0.2625, 4)]);
+        // The G1 step moves b_2 only: Join 1 keeps its jump, and b_2 = 2 gives the values the observation quotes.
+        h.scene(stepOf(COMB_ID, 'comb-g1'));
+        expect(combOf(h.graph).geometry().joins[0].jump!).toBeCloseTo(-0.0427, 4);
+        h.apply({kind: 'spline-beta', index: 1, value: 2});
+        expect(combOf(h.graph).readoutText()).toContain('desno −0,0352, skok −0,1569');
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('every sentence that says C2 implies G2 is labelled for regular curves only, in both languages', () => {
+    const lesson = curveGeometryGuidedLessons.find(entry => entry.demonstrationId === 'curve-comb')!;
+    for (const [language, label, claim] of [['sl', 'le za regularne krivulje', /iz C2 sledi G2/u], ['en', 'for regular curves only', /C2 implies G2/u]] as const) {
+        const body = JSON.stringify(lesson, (_key, value) => (value && typeof value === 'object' && 'sl' in value && 'en' in value ? value[language] : value));
+        const claims = body.split(/\.(?=\s|"|$)/u).filter(sentence => claim.test(sentence));
+        expect(claims.length, language).toBeGreaterThanOrEqual(3);
+        for (const sentence of claims) expect(sentence, language).toContain(label);
+    }
+});
+
+/** Board objects other than axis tick labels: JSXGraph keeps a pool of tick labels sized by the widest view shown, so they follow the view, not the scene. */
+const withoutTickLabels = (graph: {board: {objectsList: readonly unknown[]}}) => {
+    const objects = graph.board.objectsList as ReadonlyArray<{elType?: string; labels?: readonly unknown[]}>;
+    const labels = new Set(objects.filter(object => object.elType === 'ticks').flatMap(ticks => ticks.labels ?? []));
+    return objects.filter(object => !labels.has(object)).length;
+};
+
+test('every comb scene keeps its view through the curve replacement and frames all control points', () => {
+    const h = combMount();
+    try {
+        const lesson = curveGeometryGuidedLessons.find(item => item.demonstrationId === 'curve-comb')!;
+        expect(lesson.steps.length).toBeGreaterThan(0);
+        for (const step of lesson.steps) {
+            h.scene(step);
+            const box = (h.graph as unknown as {board: {getBoundingBox(): number[]}}).board.getBoundingBox();
+            const scene = step.scene!;
+            if (!('view' in scene) || !scene.view) throw new Error(`${step.id} has no view`);
+            const [left, top, right, bottom] = scene.view;
+            // The board applies an authored view through fitBoundingBox (margins, equal units) at the harness's 600 by 400 canvas.
+            const expected = fitBoundingBox([[left, top], [right, bottom]], 600, 400)!;
+            box.forEach((value, index) => expect(value, `${step.id} box ${index}`).toBeCloseTo(expected[index], 9));
+        }
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('one synchronous scene that ends on a spline kind keeps the comb switched on, its gain and count', () => {
+    const h = combMount();
+    try {
+        h.apply(
+            {kind: 'curve-visibility', target: 'curvature-comb', visible: true}, {kind: 'comb-gain', value: 3}, {kind: 'comb-count', value: 32},
+            {kind: 'comb-curve', curve: 'g1'}, {kind: 'spline-beta', index: 1, value: 0.5},
+        );
+        expect(h.graph.curveKind()).toBe('g1');
+        expect(h.graph.state).toMatchObject({combShown: true, combGain: 3, combCount: 32});
+        expect(combOf(h.graph).geometry().toothCount).toBe(Math.round(32 / 3) * 3);
+        expect(combOf(h.graph).readoutText()).toContain('desno −0,5635, skok −0,6852');
+        const curves = combCurvesOnBoard(h.graph);
+        expect(curves).toHaveLength(3);
+        expect(finiteCount(curves[0].dataX)).toBeGreaterThan(0);
+        // A tooth is gain times |kappa|, so halving the kept gain must halve every tooth: this fails if the replacement dropped the gain.
+        const atGainThree = toothLengths(h.graph);
+        expect(Math.max(...atGainThree)).toBeGreaterThan(0);
+        h.apply({kind: 'comb-gain', value: 1.5});
+        const atHalfGain = toothLengths(h.graph);
+        expect(atHalfGain).toHaveLength(atGainThree.length);
+        atGainThree.forEach((length, index) => expect(atHalfGain[index]).toBeCloseTo(length / 2, 9));
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('cycling all four curve kinds by lesson scenes leaves no comb element of an earlier kind on the board', () => {
+    const h = combMount();
+    try {
+        const order = ['comb-predict', 'comb-c1', 'comb-c2', 'comb-g1'].map(id => stepOf(COMB_ID, id));
+        const counts = new Map<string, number>();
+        let previous: readonly unknown[] = [];
+        for (let round = 0; round < 3; round++) {
+            for (const step of order) {
+                h.scene(step);
+                const owned = combOf(h.graph).ownedElements();
+                const length = withoutTickLabels(h.graph);
+                if (!counts.has(step.id)) counts.set(step.id, length);
+                expect(length, `${step.id} round ${round}`).toBe(counts.get(step.id));
+                // Every earlier overlay element is gone; this overlay's elements are all on the board.
+                previous.filter(element => !owned.includes(element)).forEach(element => expect(h.graph.board.objectsList.includes(element), step.id).toBe(false));
+                owned.forEach(element => expect(h.graph.board.objectsList.includes(element), step.id).toBe(true));
+                previous = owned;
+            }
+        }
+        h.scene(order[0]);
+        expect(withoutTickLabels(h.graph)).toBe(counts.get('comb-predict'));
     } finally {
         h.mounted.view.unmount();
     }

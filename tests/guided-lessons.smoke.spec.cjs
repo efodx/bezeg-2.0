@@ -1899,6 +1899,21 @@ const curvatureGeometry = {
     },
 };
 
+// Curvature comb: the board readout names the join with the largest jump on the spline steps 3..6. The cubic steps 1 and 2 have no join, so they check that the comb is hidden, then drawn.
+const COMB_READOUTS = [null, null, /1[.,]3333.*0[.,]6667.*[-−]0[.,]6667/s, /0[.,]598.*0[.,]598/s, /0[.,]1217.*[-−]0[.,]5635.*[-−]0[.,]6852/s, /0[.,]1217.*[-−]0[.,]1409.*[-−]0[.,]2625/s];
+const curvatureComb = {
+    id: 'curve-comb',
+    path: `${BASE}/curve-geometry/comb`,
+    titles: {sl: 'Glavnik ukrivljenosti in stiki zlepkov', en: 'Curvature comb and spline joins'},
+    steps: 6,
+    minFrames: 13, // 2 frames per step, 3 on step 1 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        const readout = COMB_READOUTS[step - 1];
+        if (readout) await expect(boardText(page, readout).first(), `comb readout at ${label}`).toBeVisible();
+        else await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `comb curves at ${label}`}).toBe(step === 1 ? 1 : 3);
+    },
+};
+
 // Interval sweep: the trace step shown per lesson step 1..7 (start, start, third entering event, e entered, done, done, the second sample's start); the number is language independent.
 const INTERVAL_STEPS = ['1', '1', '7', '21', '26', '26', '1'];
 const intervalSweep = {
@@ -2329,7 +2344,7 @@ const fortune = {
 };
 
 const LESSONS = [bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 
