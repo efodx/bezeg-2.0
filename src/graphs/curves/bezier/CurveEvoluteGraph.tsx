@@ -6,7 +6,6 @@ import {EVOLUTE_TRACE_MODES, EvoluteTraceMode} from "../../../learning/model";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {evoluteCurvePresetCollection} from "../curvePresetCollections";
 import {
-    CURVATURE_T_DEFAULT,
     CurvatureGraphStates,
     CurvatureOverlayGraph,
 } from "./CurvatureBezierCurveGraph";
@@ -27,6 +26,9 @@ export function isEvoluteTraceMode(value: unknown): value is EvoluteTraceMode {
  * Evolute Demonstration (lesson L4): the curvature Demonstration plus an owned {@link EvoluteOverlay}, created right after the
  * curvature overlay and removed before it. The parabola's evolute spans x in [-4, 4], y in [0.5, 3.5].
  */
+/** The opening parameter. At t = 0.5 the evolute point is the cusp, where the labels of E, T and N fall on top of each other. */
+export const EVOLUTE_T_DEFAULT = 0.75;
+
 class CurveEvoluteGraph extends CurvatureOverlayGraph<EvoluteGraphStates> {
     private evolute?: EvoluteOverlay;
     /** What the evolute overlay last read; see the same guard in the curvature graph. */
@@ -35,7 +37,7 @@ class CurveEvoluteGraph extends CurvatureOverlayGraph<EvoluteGraphStates> {
     override getInitialState(): EvoluteGraphStates {
         return {
             ...super.getInitialState(),
-            curvatureT: CURVATURE_T_DEFAULT,
+            curvatureT: EVOLUTE_T_DEFAULT,
             curvatureFrameShown: true,
             curvatureCircleShown: true,
             evoluteTrace: 'full',
@@ -52,7 +54,8 @@ class CurveEvoluteGraph extends CurvatureOverlayGraph<EvoluteGraphStates> {
     }
 
     protected override initialView(): [number, number, number, number] {
-        return [-4.5, 4, 4.5, -0.5];
+        // Leaves room above the trace's ends at y = 3.5 for the four-line readout, and below for the control point at y = -1.
+        return [-5.2, 5, 5.2, -1.2];
     }
 
     /** The evolute overlay's owned elements (empty when there is none). */
@@ -77,6 +80,9 @@ class CurveEvoluteGraph extends CurvatureOverlayGraph<EvoluteGraphStates> {
             normalShown: () => this.state.evoluteNormalShown,
             fontSize: () => this.displaySettings.fontSize,
         });
+        // The readout was first computed before this overlay existed, and the trace's visibility is a function: without this
+        // update a newly mounted graph shows neither until the next board update.
+        this.boardUpdate();
     }
 
     protected override removeExtraOverlays(): void {

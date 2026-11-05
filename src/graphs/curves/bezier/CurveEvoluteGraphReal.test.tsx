@@ -1,8 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import CurveEvoluteGraph from './CurveEvoluteGraph';
-import {CURVATURE_T_DEFAULT} from './CurvatureBezierCurveGraph';
+import CurveEvoluteGraph, {EVOLUTE_T_DEFAULT} from './CurveEvoluteGraph';
 import {evoluteCurvePresetCollection} from '../curvePresetCollections';
 import {setLanguage, t} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
@@ -128,7 +127,7 @@ test('L4(4): the owned element count returns to the baseline after Reset, Preset
     expect(graph.evoluteOwned()).toHaveLength(EVOLUTE_ELEMENTS);
     expect(graph.onBoard(graph.evoluteOwned())).toBe(EVOLUTE_ELEMENTS);
     expect(graph.onBoard(owned)).toBe(0);
-    expect(graph.state.curvatureT).toBe(CURVATURE_T_DEFAULT);
+    expect(graph.state.curvatureT).toBe(EVOLUTE_T_DEFAULT);
     expect(graph.state.evoluteTrace).toBe('full');
 
     const beforeImport = [...graph.evoluteOwned()];
@@ -141,6 +140,17 @@ test('L4(4): the owned element count returns to the baseline after Reset, Preset
     const last = [...graph.evoluteOwned(), ...graph.curvatureOwned()];
     view.unmount();
     expect(graph.onBoard(last, board)).toBe(0);
+});
+
+test('a newly mounted graph already draws the evolute and its readout, with no board update after mounting', () => {
+    const {graph, view} = mount();
+    try {
+        // x = 0.5 on the parabola: E = (-4x^3, 3x^2 + 1/2).
+        expect(graph.readout().at(-1)).toBe('Točka evolute E = (−0,5, 1,25)');
+        expect((graph.trace() as unknown as {visPropCalc: {visible: boolean}}).visPropCalc.visible).toBe(true);
+    } finally {
+        view.unmount();
+    }
 });
 
 test('Edit controls and board agree at the start, after lesson actions, Reset, Preset import and a language switch', async () => {
@@ -197,12 +207,12 @@ test('Edit controls and board agree at the start, after lesson actions, Reset, P
         await flush();
         expect(screen.getByLabelText('Evolute trace')).toHaveValue('hidden');
         expect(screen.getByLabelText('Normal at the point')).toBeInTheDocument();
-        expect(graph.readout().at(-1)).toBe('Evolute point E = (0, 0.5)');
+        expect(graph.readout().at(-1)).toBe('Evolute point E = (−0.5, 1.25)');
         setLanguage('sl');
         await flush();
         expect(screen.getByLabelText('Sled evolute')).toHaveValue('hidden');
-        expect(graph.readout().at(-1)).toBe('Točka evolute E = (0, 0,5)');
-        expect(graph.readout().slice(0, 2)).toEqual(['Ukrivljenost κ = 2', 'Krivinski polmer R = 0,5']);
+        expect(graph.readout().at(-1)).toBe('Točka evolute E = (−0,5, 1,25)');
+        expect(graph.readout().slice(0, 2)).toEqual(['Ukrivljenost κ = 0,7071', 'Krivinski polmer R = 1,4142']);
     } finally {
         view.unmount();
     }
@@ -303,7 +313,7 @@ test('a scene that resets and sets the trace mode back within one batch still re
 test('the evolute graph keeps its own Preset collection, view and default scene', () => {
     const graph = new ObservedEvoluteGraph();
     expect(graph.presetCollection()).toBe(evoluteCurvePresetCollection);
-    expect(graph.getInitialState()).toMatchObject({evoluteTrace: 'full', evoluteNormalShown: true, curvatureT: CURVATURE_T_DEFAULT});
+    expect(graph.getInitialState()).toMatchObject({evoluteTrace: 'full', evoluteNormalShown: true, curvatureT: EVOLUTE_T_DEFAULT});
     const view = graph['initialView']();
     // The whole evolute (x in [-4, 4], y in [0.5, 3.5]) and the curve (y in [0, 1]) lie inside.
     expect(view[0]).toBeLessThan(-4);
