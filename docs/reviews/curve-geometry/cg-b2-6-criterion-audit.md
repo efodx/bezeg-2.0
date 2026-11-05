@@ -33,3 +33,10 @@ Files: CCT=src/graphs/curves/comb/curveComb.test.ts, CCG=comb/CurveCombGraphReal
 | Batch gate: sl/en browser, a11y | cg-b2-3-lesson.md walk, SM rows | covered by walk; layout findings noted there (panel hides curve at 1280x720) |
 
 Vacuous tests: none found. CGL:434 hidden-comb branch asserts empty dataX, mutation-checked per cg-b2-3.
+
+## Repairs after the audit (handler 51)
+
+Four of the five partly covered rows are closed; see [the gate record](cg-b2-6-gate.md). The fifth, stored presets and routes unchanged, stays verified by diff with no dedicated test: the gate accepted that, and the repairs add no stored data.
+
+- L3-A5 and L4-A4: real `LessonSession` exit tests for `curve-comb` and `curve-evolute` in `curveGeometryGuidedLessons.test.ts`.
+- L3 defaults and the reused spline row: `splineDefaultPresets.test.ts` pins the exports and each route's `defaultPreset()` to literal points.

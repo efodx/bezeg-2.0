@@ -32,6 +32,6 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-B2-3 | F3 | L3 lesson and chapter section for `curve-comb` | B2-2b | done (handler 48): [evidence](../../reviews/curve-geometry/cg-b2-3-lesson.md); card and poster in CG-B2-5 |
 | CG-B2-4 | F4 | L4 lesson and chapter section for `curve-evolute` | B2-3 | done (handler 50): [evidence](../../reviews/curve-geometry/cg-b2-4-lesson.md) |
 | CG-B2-5 | F5 | Media | B2-4 | done (handler 50): [evidence](../../reviews/curve-geometry/cg-b2-5-media.md) |
-| CG-B2-6 | F6 | Batch 2 gate | B2-5 | in progress: [measurement](../../reviews/curve-geometry/cg-b2-6-measurement.md) meets the budget, [audit](../../reviews/curve-geometry/cg-b2-6-criterion-audit.md) done; live region and three test gaps open ([handoff 50](../../reviews/feature-streams/curves/handler-handoff-50.md)) |
-| CG-B3-2a | F2a | `curve-offset` (with PH cross-check; tangential-cusp detection from the CG-1 review) and optional `curve-envelope` graphs | B2 shipped | planned |
+| CG-B2-6 | F6 | Batch 2 gate | B2-5 | done, **Batch 2 released** (handler 51): [gate record](../../reviews/curve-geometry/cg-b2-6-gate.md), [measurement](../../reviews/curve-geometry/cg-b2-6-measurement.md), [audit](../../reviews/curve-geometry/cg-b2-6-criterion-audit.md) |
+| CG-B3-2a | F2a | `curve-offset` (with PH cross-check; tangential-cusp detection from the CG-1 review) and optional `curve-envelope` graphs | B2 shipped | kernel done (`e0b14d8f`, handler 51; mathematical review owed); graphs planned |
 | CG-B3-2b…6 | F2b–F6 | Registration, L5/L6 lessons, chapter sections, media, Batch 3 gate | B3-2a | planned |
