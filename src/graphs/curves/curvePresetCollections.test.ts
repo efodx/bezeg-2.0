@@ -4,7 +4,7 @@
  */
 import {preflightPresetImport} from "../base/presets/PresetImport";
 import {LocalizedError, Message} from "../../localization";
-import {curvePresetCollections, legacyCurvePresetCollections} from "./curvePresetCollections";
+import {curveCombPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections} from "./curvePresetCollections";
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -83,4 +83,50 @@ test("a shorter curve state written before the full state loads: missing display
     expect(preflightRejection("rational-bezier-elevation", seeded)).toBeUndefined();
     const withoutParameter = [["JSXBezierCurve", {points: [[0, 0], [1, 1]], state: {subdivisionT: 0.5, extrapolationT: 1.2}}]];
     expect(curvePresetCollections.bezier.check(withoutParameter)).toEqual({rejection: {key: "incomplete_curve_state", params: {}}});
+});
+
+describe("the evolute Demonstration's scene state", () => {
+    const check = (state: unknown) => evoluteCurvePresetCollection.checkGraphState?.(state);
+
+    test("accepts its own fields and a state without them", () => {
+        expect(evoluteCurvePresetCollection.checkGraphState).toBeDefined();
+        expect(check({curvatureT: 0.25, evoluteTrace: "to-parameter", evoluteNormalShown: false})).toBeUndefined();
+        expect(check({curvatureT: 1, evoluteTrace: "hidden"})).toBeUndefined();
+        expect(check({})).toBeUndefined();
+    });
+
+    test.each([
+        [{evoluteTrace: "sideways"}, "invalid_option", "evoluteTrace"],
+        [{evoluteNormalShown: "yes"}, "invalid_option", "evoluteNormalShown"],
+        [{curvatureT: 1.5}, "invalid_parameter", "curvatureT"],
+        [{curvatureT: "half"}, "invalid_parameter", "curvatureT"],
+    ])("rejects %j", (state, key, field) => {
+        expect(check(state)).toEqual({key, params: {value0: field}});
+    });
+
+    test("still applies the shared scene rules", () => {
+        expect(check({showingJxgPoints: "yes"})).toEqual({key: "invalid_option", params: {value0: "showingJxgPoints"}});
+    });
+});
+
+describe("the comb Demonstration's scene state", () => {
+    const check = (state: unknown) => curveCombPresetCollection.checkGraphState?.(state);
+
+    test("accepts its bounds and a state without the fields", () => {
+        expect(curveCombPresetCollection.checkGraphState).toBeDefined();
+        expect(check({combShown: true, combGain: 0.1, combCount: 8})).toBeUndefined();
+        expect(check({combShown: false, combGain: 6, combCount: 256})).toBeUndefined();
+        expect(check({})).toBeUndefined();
+    });
+
+    test.each([
+        [{combShown: 1}, "invalid_option", "combShown"],
+        [{combGain: 0.05}, "invalid_parameter", "combGain"],
+        [{combGain: 6.5}, "invalid_parameter", "combGain"],
+        [{combCount: 7}, "invalid_parameter", "combCount"],
+        [{combCount: 257}, "invalid_parameter", "combCount"],
+        [{combCount: 64.5}, "invalid_parameter", "combCount"],
+    ])("rejects %j", (state, key, field) => {
+        expect(check(state)).toEqual({key, params: {value0: field}});
+    });
 });

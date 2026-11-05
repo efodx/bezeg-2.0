@@ -51,6 +51,8 @@ interface OverlaySettings {
     showFrame?: () => boolean;
     /** Whether the osculating circle, or the tangent line where it degenerates, is drawn (default: yes). */
     showCircle?: () => boolean;
+    /** Further readout text (one or more lines) appended to the readout; empty text adds nothing. */
+    extraReadout?: () => string;
 }
 
 /**
@@ -156,6 +158,12 @@ export class CurvatureOverlay {
 
     /** The plain-text readout (lines joined by newlines; the board text shows them as `<br>`): kappa and radius, or the status for a line or a singular point. */
     readoutText(): string {
+        const base = this.curvatureReadoutText();
+        const extra = base ? this.settings.extraReadout?.() ?? "" : "";
+        return extra ? `${base}\n${extra}` : base;
+    }
+
+    private curvatureReadoutText(): string {
         const f = this.frame();
         if (!f) return "";
         const num = (value: number) => formatNumber(value, currentLanguage(), 4);

@@ -112,8 +112,12 @@ export type FunctionChoiceName = keyof typeof functionChoiceValues;
 export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonly string[]>> = functionChoiceValues;
 export const FUNCTION_CHOICE_NAMES = Object.keys(functionChoiceValues) as FunctionChoiceName[];
 
-/** The curve overlays a lesson can show or hide on a curve demonstration. `curvature-frame` (T and N) and `curvature-circle` (the osculating circle or line) belong to CurvatureBezierCurveGraph only. */
-export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle', 'parametric-trace-full'] as const;
+/** How much of the evolute CurveEvoluteGraph draws: nothing, the part for t in [0, parameter], or all of it. */
+export const EVOLUTE_TRACE_MODES = ['hidden', 'to-parameter', 'full'] as const;
+export type EvoluteTraceMode = typeof EVOLUTE_TRACE_MODES[number];
+
+/** The curve overlays a lesson can show or hide on a curve demonstration. `curvature-frame` (T and N) and `curvature-circle` (the osculating circle or line) belong to CurvatureBezierCurveGraph only; `curvature-comb` (the curvature comb) to CurveCombGraph only; `evolute-normal` (the normal line at the parameter) to CurveEvoluteGraph. */
+export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle', 'curvature-comb', 'evolute-normal', 'parametric-trace-full'] as const;
 export type CurveVisibilityTarget = typeof CURVE_VISIBILITY_TARGETS[number];
 
 /** The visibility switches a lesson can address on a surface (patch) demonstration. */
@@ -238,6 +242,8 @@ export type LessonAction =
     | {readonly kind: 'affine-transform'; readonly operation: 'reflect-x' | 'reflect-y'}
     /** `t` is the De Casteljau parameter (AbstractJXGBezierCurve.setDecasteljauT); `offset-distance` is the PH offset distance (JXGPHBezierCurve.setOffsetCurveDistance). ParametricCurveGraph reads `t` as its parameter (t or theta, inside the curve's domain); CurvatureBezierCurveGraph as the Bezier parameter in [0, 1]. */
     | {readonly kind: 'parameter'; readonly name: 't' | 'offset-distance'; readonly value: number}
+    /** CurveEvoluteGraph's trace of the evolute: none, from t = 0 to the parameter, or the whole curve. */
+    | {readonly kind: 'evolute-trace'; readonly mode: EvoluteTraceMode}
     /** BernsteinGraph's graph-owned degree action (an integer; BERNSTEIN_MAX_DEGREE bounds it). */
     | {readonly kind: 'bernstein-degree'; readonly degree: number}
     /** BernsteinGraph's graph-owned stacked-area view. */
@@ -409,6 +415,12 @@ export type LessonAction =
     | {readonly kind: 'spline-degree'; readonly value: number}
     /** G1 spline graphs' b/beta slider: `index` is a non-negative integer, the range of `value` is enforced by the graph. */
     | {readonly kind: 'spline-beta'; readonly index: number; readonly value: number}
+    /** CurveCombGraph's curve: replaces the scene with that curve's default (the cubic of L2, or the C1, C2 or G1 spline route's default points). The comb state is kept. */
+    | {readonly kind: 'comb-curve'; readonly curve: 'cubic' | 'c1' | 'c2' | 'g1'}
+    /** CurveCombGraph's tooth length gain (a positive number within COMB_GAIN_MIN..MAX). */
+    | {readonly kind: 'comb-gain'; readonly value: number}
+    /** CurveCombGraph's tooth count (an integer within COMB_MIN_COUNT..COMB_MAX_COUNT). */
+    | {readonly kind: 'comb-count'; readonly value: number}
     /** Spline graphs' point-label display switch. */
     | {readonly kind: 'spline-label-points'; readonly visible: boolean}
     /** Spline graphs' fixed-point display switch; `hidden` is true to hide them. */

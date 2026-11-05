@@ -1,6 +1,9 @@
 import {message, Message} from "../../localization";
 import {checkSceneState, isFiniteNumber, isIntegerAtLeast, isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
 import {CurveTypeName, isCurveTypeName} from "./object/curveTypeNames";
+import {EVOLUTE_TRACE_MODES} from "../../learning/model";
+import {COMB_MAX_COUNT, COMB_MIN_COUNT} from "../../bezeg/impl/curve/curvature";
+import {COMB_GAIN_MAX, COMB_GAIN_MIN} from "./comb/curveComb";
 
 /**
  * One stored curve: control points, with weights (rational), the PH generating point and hodograph points, or spline
@@ -75,12 +78,14 @@ function checkCurve(entry: unknown): Message | undefined {
 }
 
 interface CurveCollectionRules {
-    /** The curve type every curve of the collection has. */
-    readonly type: CurveTypeName;
+    /** The curve type every curve of the collection has, or the types any of its curves may have (the comb Demonstration). */
+    readonly type: CurveTypeName | readonly CurveTypeName[];
     /** A PH collection holds exactly one curve with this many hodograph control points (2: cubic, 3: quintic). */
     readonly hodographs?: 2 | 3;
     /** The scene is described by its scene state alone, so a Preset may hold no curves. */
     readonly allowEmpty?: boolean;
+    /** Rules for the fields this Demonstration adds to the scene state, on top of {@link checkSceneState}. */
+    readonly graphState?: (state: Record<string, unknown>) => Message | undefined;
 }
 
 function curveCollection(key: string, rules: CurveCollectionRules): PresetCollection<CurveCollectionPresetData> {
@@ -91,12 +96,14 @@ function curveCollection(key: string, rules: CurveCollectionRules): PresetCollec
             if (invalid) return invalid;
         }
         if (!rules.allowEmpty && data.length === 0) return message("preset_has_no_curve");
-        if (data.some(entry => entry[0] !== rules.type)) return message("curve_type_does_not_match_collection", {value0: `preset-${key}`});
+        const accepted: readonly CurveTypeName[] = typeof rules.type === "string" ? [rules.type] : rules.type;
+        if (data.some(entry => !accepted.includes(entry[0]))) return message("curve_type_does_not_match_collection", {value0: `preset-${key}`});
         if (rules.hodographs !== undefined && (data.length !== 1 || data[0][1].hodographs.length !== rules.hodographs)) {
             return message("ph_preset_has_an_incorrect_degree_or_number_of_curves");
         }
         return undefined;
     };
+    const {graphState} = rules;
     return Object.freeze({
         key,
         check(data: unknown): PresetDataCheck<CurveCollectionPresetData> {
@@ -104,6 +111,11 @@ function curveCollection(key: string, rules: CurveCollectionRules): PresetCollec
             // Every entry was checked above against its curve type's DTO rules.
             return rejection ? {rejection} : {data: data as CurveCollectionPresetData};
         },
+        ...(graphState ? {
+            checkGraphState(state: unknown): Message | undefined {
+                return checkSceneState(state) ?? (isRecord(state) ? graphState(state) : undefined);
+            },
+        } : {}),
     });
 }
 
@@ -112,6 +124,27 @@ const rational = (key: string) => curveCollection(key, {type: "JSXRationalBezier
 
 /** The curvature overlay's collection (lesson L2): a Bézier curve with the standard rules, under its own key. */
 export const curvatureCurvePresetCollection = bezier("curve-curvature");
+/** The evolute Demonstration's collection (lesson L4): a Bézier curve with the standard rules, under its own key. */
+export const evoluteCurvePresetCollection = curveCollection("curve-evolute", {
+    type: "JSXBezierCurve",
+    graphState: ({curvatureT, evoluteTrace, evoluteNormalShown}) => {
+        if (curvatureT !== undefined && !(isFiniteNumber(curvatureT) && curvatureT >= 0 && curvatureT <= 1)) return message("invalid_parameter", {value0: "curvatureT"});
+        if (evoluteTrace !== undefined && !EVOLUTE_TRACE_MODES.some(mode => mode === evoluteTrace)) return message("invalid_option", {value0: "evoluteTrace"});
+        if (evoluteNormalShown !== undefined && typeof evoluteNormalShown !== "boolean") return message("invalid_option", {value0: "evoluteNormalShown"});
+        return undefined;
+    },
+});
+
+/** The curvature comb's collection (lesson L3): a cubic Bézier curve or a quadratic C1, cubic C2 or quadratic G1 spline. */
+export const curveCombPresetCollection = curveCollection("curve-comb", {
+    type: ["JSXBezierCurve", "JSXQuadraticC1SplineCurve", "JSXQubicC2SplineCurve", "JSXQuadraticG1SplineCurve"],
+    graphState: ({combShown, combGain, combCount}) => {
+        if (combShown !== undefined && typeof combShown !== "boolean") return message("invalid_option", {value0: "combShown"});
+        if (combGain !== undefined && !(isFiniteNumber(combGain) && combGain >= COMB_GAIN_MIN && combGain <= COMB_GAIN_MAX)) return message("invalid_parameter", {value0: "combGain"});
+        if (combCount !== undefined && !(isIntegerAtLeast(combCount, COMB_MIN_COUNT) && combCount <= COMB_MAX_COUNT)) return message("invalid_parameter", {value0: "combCount"});
+        return undefined;
+    },
+});
 
 /**
  * The Preset collections of the curve Demonstrations, by Demonstration id. Collections of one curve type share their
@@ -144,6 +177,8 @@ export const curvePresetCollections = {
     "spline-g1-symmetric": curveCollection("g1-symmetric-spline-graph", {type: "JSXSymmetricQuadraticG1SplineCurve"}),
     "spline-parameterization": curveCollection("alfaparametrizacije", {type: "JSXQubicC2SplineCurve"}),
     "curve-curvature": curvatureCurvePresetCollection,
+    "curve-comb": curveCombPresetCollection,
+    "curve-evolute": evoluteCurvePresetCollection,
 } as const;
 
 /**

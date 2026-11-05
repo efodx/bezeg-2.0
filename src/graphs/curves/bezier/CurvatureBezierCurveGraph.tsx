@@ -10,7 +10,7 @@ import {CurvatureOverlay} from "./CurvatureOverlay";
 export interface CurvatureGraphStates extends BaseGraphStates {
     /** The Bezier parameter at which the frame and osculating circle are drawn. */
     curvatureT: number;
-    /** The T and N frame is drawn; a lesson step hides it before the reveal. Saved with Presets like `curvatureT`; a Preset without it keeps the current value. */
+    /** The T and N frame is drawn; a lesson step hides it before the reveal. Saved with Presets like `curvatureT`. */
     curvatureFrameShown: boolean;
     /** The osculating circle (or its tangent line) is drawn; saved with Presets like the frame flag. */
     curvatureCircleShown: boolean;
@@ -25,22 +25,31 @@ export const PARABOLA_CONTROL_POINTS: number[][] = [[-1, 1], [0, -1], [1, 1]];
  * Curvature Demonstration (ADR 0022): the Bezier graph plus one owned {@link CurvatureOverlay}. The overlay is
  * created after the curve exists, recreated after every scene import, and disposed with the scene and on unmount.
  */
-class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphStates> {
-    private overlay?: CurvatureOverlay;
+export abstract class CurvatureOverlayGraph<S extends CurvatureGraphStates> extends BaseBezierCurveGraph<S> {
+    protected overlay?: CurvatureOverlay;
     /** What the overlay last read. A lesson scene resets the state and sets it back within one batch, so comparing only with the previous state would miss a redraw. */
     private drawn?: { t: number, frame: boolean, circle: boolean };
 
     // Same structured editing as BezierCurveGraph; that class fixes its state type, so it cannot be subclassed here.
     protected override workspaceUsesStructuredEditing() { return true; }
 
-    override getInitialState() {
-        return {
-            ...super.getInitialState(),
-            curvatureT: CURVATURE_T_DEFAULT,
-            curvatureFrameShown: true,
-            curvatureCircleShown: true,
-        };
-    }
+    // The state type is fixed by each concrete class, so generic code cannot write a partial update to `S` without a cast.
+    protected abstract writeCurvatureState(update: Partial<CurvatureGraphStates>): void;
+
+    /** Text appended to the overlay's readout (a subclass adds its own quantity); undefined adds nothing. */
+    protected overlayExtraReadout(): (() => string) | undefined { return undefined; }
+
+    /** Extra Edit controls, placed between the parameter slider and the structured editing. */
+    protected workspaceCurvatureExtras(): React.ReactNode { return null; }
+
+    /** Creates the subclass's own overlays right after the curvature overlay (later elements draw above it). */
+    protected createExtraOverlays(): void {}
+
+    /** Removes the subclass's overlays; idempotent. Runs before the curvature overlay is removed. */
+    protected removeExtraOverlays(): void {}
+
+    /** Whether a state change other than the shared flags needs a board redraw. `prevState` is the state before the commit. */
+    protected extraStateChanged(_prevState: Readonly<S>): boolean { return false; }
 
     defaultPreset(): CurveCollectionPresetData {
         return [["JSXBezierCurve", {
@@ -73,7 +82,7 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
     }
 
     /** Idempotent: removes any earlier overlay and creates one reading the current first curve lazily. */
-    private ensureOverlay() {
+    protected ensureOverlay() {
         this.removeOverlay();
         if (!this.board || !this.graphSession?.isAlive) return;
         this.overlay = new CurvatureOverlay({
@@ -86,10 +95,13 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
             showFrame: () => this.state.curvatureFrameShown,
             showCircle: () => this.state.curvatureCircleShown,
             fontSize: () => this.displaySettings.fontSize,
+            extraReadout: this.overlayExtraReadout(),
         });
+        this.createExtraOverlays();
     }
 
     private removeOverlay() {
+        this.removeExtraOverlays();
         this.overlay?.dispose();
         this.overlay = undefined;
     }
@@ -104,14 +116,15 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
         super.unmount();
     }
 
-    protected override onStateChange(prevState: Readonly<CurvatureGraphStates>) {
+    protected override onStateChange(prevState: Readonly<S>) {
         super.onStateChange(prevState);
         const drawn = this.drawn;
         const stale = drawn !== undefined && (drawn.t !== this.state.curvatureT
             || drawn.frame !== this.state.curvatureFrameShown || drawn.circle !== this.state.curvatureCircleShown);
         if (prevState !== this.state && (stale || prevState.curvatureT !== this.state.curvatureT
             || prevState.curvatureFrameShown !== this.state.curvatureFrameShown
-            || prevState.curvatureCircleShown !== this.state.curvatureCircleShown)) this.boardUpdate();
+            || prevState.curvatureCircleShown !== this.state.curvatureCircleShown
+            || this.extraStateChanged(prevState))) this.boardUpdate();
     }
 
     /**
@@ -119,7 +132,7 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
      * because the Demonstration is about moving t.
      */
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.state.initialized && this.parameterSlider()}{super.workspaceEdit()}</>;
+        return <>{this.state.initialized && this.parameterSlider()}{this.state.initialized && this.workspaceCurvatureExtras()}{super.workspaceEdit()}</>;
     }
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
@@ -128,18 +141,34 @@ class CurvatureBezierCurveGraph extends BaseBezierCurveGraph<CurvatureGraphState
             if (!Number.isFinite(action.value) || action.value < 0 || action.value > 1) throw new Error('The curvature parameter must be between 0 and 1.');
             this.setCurvatureT(action.value);
         });
-        registry.onDiscriminated('curve-visibility', 'curvature-frame', action => this.setState({curvatureFrameShown: action.visible}));
-        registry.onDiscriminated('curve-visibility', 'curvature-circle', action => this.setState({curvatureCircleShown: action.visible}));
+        registry.onDiscriminated('curve-visibility', 'curvature-frame', action => this.writeCurvatureState({curvatureFrameShown: action.visible}));
+        registry.onDiscriminated('curve-visibility', 'curvature-circle', action => this.writeCurvatureState({curvatureCircleShown: action.visible}));
     }
 
     setCurvatureT(value: number) {
-        this.setState({curvatureT: value});
+        this.writeCurvatureState({curvatureT: value});
     }
 
     private parameterSlider() {
         return <div className="inspector-group"><Slider min={0} max={1} step={0.01} value={this.state.curvatureT}
                             customText={t("curvature_parameter_t")}
                             onChange={value => this.setCurvatureT(value)}/></div>;
+    }
+}
+
+/** Curvature Demonstration (lesson L2). */
+class CurvatureBezierCurveGraph extends CurvatureOverlayGraph<CurvatureGraphStates> {
+    override getInitialState(): CurvatureGraphStates {
+        return {
+            ...super.getInitialState(),
+            curvatureT: CURVATURE_T_DEFAULT,
+            curvatureFrameShown: true,
+            curvatureCircleShown: true,
+        };
+    }
+
+    protected override writeCurvatureState(update: Partial<CurvatureGraphStates>): void {
+        this.setState(update);
     }
 }
 

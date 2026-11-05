@@ -74,7 +74,7 @@ Common to all lessons: prerequisites link existing chapters (basics, splines, PH
 - **Goal.** The evolute is the locus of the centres of curvature; normals are tangent to it; its cusps correspond to vertices of the curve (extrema of \(\kappa\)).
 - **Prerequisites.** L2, L3.
 - **Defaults.** Parabola: evolute \((-4x^3,\,3x^2+\tfrac12)\), matching the centre at \(x=1\), \((-4,3.5)\) (sample 5). The cycloid's evolute being a congruent cycloid is a standard fact not checked in the research note; it may be included only after a numerical check is added to the tests.
-- **Steps.** (1) Predict the track of the circle's centre as the point moves. (2) Trace the evolute as \(t\) runs. (3) Show that normals touch the evolute. (4) Parabola: the cusp-free evolute and its point at \(x=0\). (5) Move a cubic's control points to produce vertices and cusps. (6) Free exploration.
+- **Steps.** (1) Predict the track of the circle's centre as the point moves. (2) Trace the evolute as \(t\) runs. (3) Show that normals touch the evolute. (4) Parabola: the evolute's cusp at \((0,	frac12)\), the centre of curvature of the vertex \(x=0\) (corrected 2026-11-05: an earlier draft said "cusp-free", but \(E'(0)=0\) and the evolute is a semicubical parabola). (5) Move a cubic's control points to produce vertices and cusps. (6) Free exploration.
 - **Acceptance.** (1) Evolute points equal the closed form on the parabola to 1e-9. (2) Normal line at \(t\) passes through the evolute point at \(t\). (3) Where \(\kappa=0\) the evolute point is omitted (it goes to infinity) and the trace breaks cleanly. (4) Overlay disposal and reset as in L3. (5) Both languages.
 
 ### L5. Offset curves (Vzporedne krivulje)

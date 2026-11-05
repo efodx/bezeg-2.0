@@ -2,6 +2,18 @@ import {BaseSplineCurveGraph} from "./BaseSplineCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {curvePresetCollections, CurveCollectionPresetData} from "../curvePresetCollections";
 
+/** The route's default scene; the curvature comb Demonstration starts its C2 spline from the same data. */
+export function c2SplineDefaultPreset(): CurveCollectionPresetData {
+    return [["JSXQubicC2SplineCurve", {
+        "points": [[-2.7, 1.8], [-4.7, 0.35], [-4.3, -3], [1, -2], [0.2, 1.8], [4, 1], [4.5, -2.3]],
+        "degree": 3,
+        "continuity": 3,
+        "state": {
+            "showingJxgPoints": true, "showingControlPolygon": false, "showingConvexHull": false
+        }
+    }]];
+}
+
 class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
 
     override presetCollection() {
@@ -9,14 +21,7 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
     }
 
     defaultPreset(): CurveCollectionPresetData {
-        return [["JSXQubicC2SplineCurve", {
-            "points": [[-2.7, 1.8], [-4.7, 0.35], [-4.3, -3], [1, -2], [0.2, 1.8], [4, 1], [4.5, -2.3]],
-            "degree": 3,
-            "continuity": 3,
-            "state": {
-                "showingJxgPoints": true, "showingControlPolygon": false, "showingConvexHull": false
-            }
-        }]];
+        return c2SplineDefaultPreset();
     }
 
 

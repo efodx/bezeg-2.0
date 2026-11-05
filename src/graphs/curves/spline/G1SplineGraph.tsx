@@ -15,6 +15,15 @@ interface G1SplineGraphStates extends BaseGraphStates {
     betaRevision?: number;
 }
 
+/** The route's default scene; the curvature comb Demonstration starts its G1 spline from the same data. */
+export function g1SplineDefaultPreset(): CurveCollectionPresetData {
+    return [["JSXQuadraticG1SplineCurve", {
+        "points": [[-2.5, 1], [-4, -1.5], [-2.5, -2.5], [0, -1], [3, 1]], "state": {
+            "showingJxgPoints": true, "showingControlPolygon": false, "showingConvexHull": false
+        }
+    }]];
+}
+
 class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
 
     override getGraphCommands(): JSX.Element[] {
@@ -23,11 +32,7 @@ class Graph extends BaseSplineCurveGraph<G1SplineGraphStates> {
     }
 
     defaultPreset(): CurveCollectionPresetData {
-        return [["JSXQuadraticG1SplineCurve", {
-            "points": [[-2.5, 1], [-4, -1.5], [-2.5, -2.5], [0, -1], [3, 1]], "state": {
-                "showingJxgPoints": true, "showingControlPolygon": false, "showingConvexHull": false
-            }
-        }]];
+        return g1SplineDefaultPreset();
     }
 
     override presetCollection() {
