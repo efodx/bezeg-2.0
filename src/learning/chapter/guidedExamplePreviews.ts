@@ -16,6 +16,7 @@ import {numericalPreviewCopy} from '../content/numericalPreviewCopy';
 import {schoolFunctionGraphsPreviewCopy} from '../content/schoolFunctionGraphsPreviewCopy';
 import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
 import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
+import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
     eager: true,
@@ -47,6 +48,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     'school-function-graphs': schoolFunctionGraphsPreviewCopy,
     'fourier-series': fourierPreviewCopy,
     'projective-conics': projectiveConicsPreviewCopy,
+    'curve-geometry': curveGeometryPreviewCopy,
 };
 
 function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {

@@ -1,0 +1,311 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "6d7757b0bad56da659d824011dccf0d411c4074e",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "6d7757b0bad56da659d824011dccf0d411c4074e",
+    "dirty": true,
+    "inputs": "d00a8c3d641b87b0e9b36eea9cb0660e0d8f15b1ab351592607f42de7cf9eace",
+    "output": "50c4439814bf4207393e306255571acff825a46f811a33c5c3b9f4f853ca6fae"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:4314/bezeg-2.0/",
+    "stampRevision": "6d7757b0bad56da659d824011dccf0d411c4074e",
+    "stampDirty": true,
+    "localOutputHash": "50c4439814bf4207393e306255571acff825a46f811a33c5c3b9f4f853ca6fae",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-BB8koRbt.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-BB8koRbt.js",
+        "sha256": "2c390e372f7ddc47cc02e9e32d43930936421db930f52db38e1e43b54d189dad",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-iTkg-rgP.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/jsx-runtime-iTkg-rgP.js",
+        "sha256": "26c93083a65e8a52abdcfdc8e653b6daa3c3ad34814c99c0aace0ed14792f1b9",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-BntLuf0H.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/react-dom-BntLuf0H.js",
+        "sha256": "44d208927cc8dc6582cbc0eb56f49d914048589246b7c8b636f0037702ea47c2",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:4314/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "bce75bef267ea6202322707006428b0c7228b3bf17a874b471c11f0287850853",
+    "entries": {
+      "curve-geometry.curve-parametric.curve-parametric": "86c17ca5dd26ab1a8f99b92b3b61ce4944ef73eb05d49f357df10b752d50a9b9",
+      "curve-geometry.curve-curvature.curve-curvature": "c95deb6850364c779d23c0931a278729e9fc57be411b598f59a151e7aa8e3bfe"
+    },
+    "presentation": "db6ff96a732d5bc610ce5eb8d19a8e2957f9131974fb2a6a377e29d193100cc4",
+    "buildOutput": "50c4439814bf4207393e306255571acff825a46f811a33c5c3b9f4f853ca6fae",
+    "buildInputs": "d00a8c3d641b87b0e9b36eea9cb0660e0d8f15b1ab351592607f42de7cf9eace"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "curve-geometry.curve-parametric.curve-parametric",
+        "demonstrationId": "curve-parametric",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "curve-geometry.curve-curvature.curve-curvature",
+        "demonstrationId": "curve-curvature",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "curve-geometry.curve-parametric.curve-parametric",
+      "demonstrationId": "curve-parametric",
+      "path": "/bezeg-2.0/curve-geometry/parametric?example=lesson.curve-geometry.curve-parametric.curve-parametric",
+      "sceneFingerprint": "aa786f60c8b1adddf20a4c7500110914c30bed9543ecf63afcfa5e8f84c50cee",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"parametric-roll-start\",\"source\":\"demonstration-default\"}",
+        "parametric-curve: {\"kind\":\"parametric-curve\",\"curve\":\"cycloid\",\"radius\":1}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"parametric-trace-full\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "curve-geometry.curve-parametric.curve-parametric.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "a1425e989fd7356bcc2a06113a73e0bf9252c7794090d69df99e0566ad162002",
+      "scene": {
+        "visibleElementCount": 5,
+        "visibleElementTypes": {
+          "point": 2,
+          "circle": 1,
+          "segment": 1,
+          "text": 1
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:circle",
+          "type:segment",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:0,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "point": 2,
+            "circle": 1,
+            "segment": 1,
+            "text": 1
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:circle",
+            "type:segment",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:0,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 2,
+          "circle": 1,
+          "segment": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "6d7757b0bad56da659d824011dccf0d411c4074e",
+        "sourceRevision": "6d7757b0bad56da659d824011dccf0d411c4074e",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "curve-geometry.curve-curvature.curve-curvature",
+      "demonstrationId": "curve-curvature",
+      "path": "/bezeg-2.0/curve-geometry/curvature?example=lesson.curve-geometry.curve-curvature.curve-curvature",
+      "sceneFingerprint": "0d02e86d6756a9a9769652fb427e2c6982d52e6a180958f2985ce9eaa2dd8524",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"curvature-predict-middle\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[0,0],[1,0],[2,1],[3,3]]},\"view\":[-3.5,4.5,5.5,-2.5]}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"curvature-frame\",\"visible\":false}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"curvature-circle\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "curve-geometry.curve-curvature.curve-curvature.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "e53bf0c35e5f17753da7fe8b2101692feb25c5ed036a9f181f7890e19ee3e9a7",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "point": 5,
+          "curve": 1,
+          "text": 1
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1.5,
+              0.75
+            ],
+            [
+              3,
+              3
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:1,0",
+          "point:2,1",
+          "point:3,3",
+          "point:1.5,0.75"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 17,
+            "point": 5,
+            "curve": 1,
+            "text": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1.5,
+                0.75
+              ],
+              [
+                3,
+                3
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:1,0",
+            "point:2,1",
+            "point:3,3",
+            "point:1.5,0.75"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "curve": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "6d7757b0bad56da659d824011dccf0d411c4074e",
+        "sourceRevision": "6d7757b0bad56da659d824011dccf0d411c4074e",
+        "pageErrors": []
+      }
+    }
+  ]
+}

@@ -12,6 +12,7 @@ import {numericalPreviewCopy} from '../content/numericalPreviewCopy';
 import {schoolFunctionGraphsPreviewCopy} from '../content/schoolFunctionGraphsPreviewCopy';
 import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
 import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
+import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -220,6 +221,8 @@ const functionsCards = [
             'projective-conics.projective-pascal.projective-pascal', 'projective-conics.projective-pole-polar.projective-pole-polar',
             'projective-conics.projective-three-views.projective-three-views'],
         counts: [[0, 11], [3, 9], [1, 8], [1, 4], [5, 0]]},
+    {chapterId: 'curve-geometry', copy: curveGeometryPreviewCopy,
+        ids: ['curve-geometry.curve-curvature.curve-curvature', 'curve-geometry.curve-parametric.curve-parametric'], counts: [[1, 5], [0, 2]]},
 ] as const;
 
 for (const {chapterId, copy, ids: expectedIds, counts} of functionsCards) {

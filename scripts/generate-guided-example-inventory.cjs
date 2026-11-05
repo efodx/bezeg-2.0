@@ -241,6 +241,12 @@ const chapterInventories = {
         pathExport: 'projectiveConicsGuidedExamplePath',
         expectedFor: projectiveConicsExpectedFor,
     },
+    'curve-geometry': {
+        module: '/src/learning/content/curveGeometryChapterRegistry.ts',
+        registryExport: 'curveGeometryGuidedExampleRegistry',
+        pathExport: 'curveGeometryGuidedExamplePath',
+        expectedFor: curveGeometryExpectedFor,
+    },
 };
 
 // Authored from src/linear/matrix2.ts (rows of the example matrices) and src/graphs/linear/linearMapScene.ts, not from a capture.
@@ -578,6 +584,38 @@ function fourierCoefficientsExpectedFor(id, step) {
         points: [[-Math.PI, -1], [1, -1], [1, 1], [Math.PI, 1], [-Math.PI, 0], [Math.PI, 0], [1, 0]]};
 }
 
+/**
+ * First-frame expectation of a Curve geometry lesson, authored from the mathematics of the frame, not from a capture.
+ * L1 (parametric, cycloid with radius 1 at t = 0): the curve (x, y) = (t - sin t, 1 - cos t), the dashed rolling circle with its centre
+ * (t, 1) = (0, 1) and the radius segment from the centre to the marked point (0, 0). The velocity (1 - cos t, sin t) is zero at t = 0, so
+ * its arrow is hidden. The scene hides the trace (`parametric-trace-full` off) so the learner predicts the path first; at t = 0 the partial
+ * trace has zero length and is not drawn. Visible: no curve, 1 circle, 1 segment and the points (0, 0) and (0, 1).
+ * L2 (curvature, cubic with control points (0,0), (1,0), (2,1), (3,3) at t = 1/2, frame and circle hidden): the Bezier curve, its four
+ * control points and the always drawn curve point B(1/2) = (0 + 3 + 6 + 3, 0 + 0 + 3 + 3) / 8 = (1.5, 0.75) where the readout is taken.
+ */
+function curveGeometryExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    if (id.endsWith('.curve-parametric')) {
+        assertOnlyActions(id, actions, [['parametric-curve', /^$/], ['parameter', /^t$/], ['curve-visibility', /^parametric-trace-full$/]], 'curveGeometryExpectedFor');
+        const curve = actions.filter(item => item.kind === 'parametric-curve');
+        assert.ok(curve.length === 1 && curve[0].curve === 'cycloid' && curve[0].radius === 1, `${id}: only the cycloid of radius 1 is authored`);
+        assert.equal(sceneValue(id, actions, 'parameter', 't'), 0, `${id}: only t = 0 is authored`);
+        const trace = actions.filter(item => item.kind === 'curve-visibility' && item.target === 'parametric-trace-full');
+        assert.ok(trace.length === 1 && trace[0].visible === false, `${id}: the trace must be hidden for the prediction`);
+        return {types: {circle: 1, segment: 1, point: 2}, curveCount: 0, points: [[0, 0], [0, 1]]};
+    }
+    assert.ok(id.endsWith('.curve-curvature'), `${id}: no authored Curve geometry first frame`);
+    assertOnlyActions(id, actions, [['parameter', /^t$/], ['curve-visibility', /^curvature-(frame|circle)$/]], 'curveGeometryExpectedFor');
+    assert.equal(sceneValue(id, actions, 'parameter', 't'), 0.5, `${id}: only t = 0.5 is authored`);
+    for (const target of ['curvature-frame', 'curvature-circle']) {
+        const shown = actions.filter(item => item.kind === 'curve-visibility' && item.target === target);
+        assert.ok(shown.length === 1 && shown[0].visible === false, `${id}: the ${target} must be hidden`);
+    }
+    const prepared = actions.filter(item => item.kind === 'prepared-scene');
+    assert.deepEqual(prepared.length === 1 ? prepared[0].curve?.points : undefined, [[0, 0], [1, 0], [2, 1], [3, 3]], `${id}: only the cubic with control points (0,0), (1,0), (2,1), (3,3) is authored`);
+    return {types: {curve: 1, point: 5}, curveCount: 1, points: [[0, 0], [1, 0], [2, 1], [3, 3], [1.5, 0.75]]};
+}
+
 /** Fails unless the opening scene is the prepared scene plus exactly one projective load-example action for the named example. */
 function projectiveOpening(id, actions, operation, exampleId) {
     const loads = actions.filter(item => item.kind === 'projective');
@@ -770,4 +808,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, projectiveConicsExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation};

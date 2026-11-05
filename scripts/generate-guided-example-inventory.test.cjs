@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, projectiveConicsExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -312,6 +312,32 @@ test('projective conics expectations are authored from the example numbers and w
     assert.throws(() => projectiveConicsExpectedFor('p.projective-pole-polar.projective-pole-polar', pcStep('pole-polar-load-example', 'default', [{kind: 'parameter', name: 't', value: 1}])), /prepared scene and one projective/);
     assert.throws(() => projectiveConicsExpectedFor('p.other.other', pcStep('load-example', 'default')), /no authored Projective conics first frame/);
     assert.ok(chapterInventories['projective-conics']);
+});
+
+test('curve geometry expectations are authored from the cycloid and the cubic', () => {
+    const prepared = {kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'};
+    const fixture = {kind: 'prepared-scene', sceneId: 'x', source: 'lesson-fixture', curve: {points: [[0, 0], [1, 0], [2, 1], [3, 3]]}};
+    const sceneOf = actions => step({scene: {actions}});
+    const roll = [prepared, {kind: 'parametric-curve', curve: 'cycloid', radius: 1}, {kind: 'parameter', name: 't', value: 0}, {kind: 'curve-visibility', target: 'parametric-trace-full', visible: false}];
+    const hide = visible => [{kind: 'curve-visibility', target: 'curvature-frame', visible}, {kind: 'curve-visibility', target: 'curvature-circle', visible: false}];
+    const cubic = [fixture, {kind: 'parameter', name: 't', value: 0.5}, ...hide(false)];
+    const rollId = 'curve-geometry.curve-parametric.curve-parametric', bendId = 'curve-geometry.curve-curvature.curve-curvature';
+    const l1 = curveGeometryExpectedFor(rollId, sceneOf(roll));
+    assert.deepEqual(l1, {types: {circle: 1, segment: 1, point: 2}, curveCount: 0, points: [[0, 0], [0, 1]]});
+    const l2 = curveGeometryExpectedFor(bendId, sceneOf(cubic));
+    assert.deepEqual(l2, {types: {curve: 1, point: 5}, curveCount: 1, points: [[0, 0], [1, 0], [2, 1], [3, 3], [1.5, 0.75]]});
+    assert.doesNotThrow(() => { assertExpectation(rollId, l1); assertExpectation(bendId, l2); });
+    // A changed first frame fails instead of being captured under the old expectation.
+    assert.throws(() => curveGeometryExpectedFor(rollId, sceneOf(roll.map(item => item.name === 't' ? {...item, value: 1} : item))), /only t = 0 is authored/);
+    assert.throws(() => curveGeometryExpectedFor(rollId, sceneOf(roll.map(item => item.curve ? {...item, curve: 'cardioid'} : item))), /only the cycloid of radius 1/);
+    assert.throws(() => curveGeometryExpectedFor(rollId, sceneOf([...roll, {kind: 'curve-visibility', target: 'curvature-frame', visible: true}])), /extend curveGeometryExpectedFor/);
+    assert.throws(() => curveGeometryExpectedFor(rollId, sceneOf(roll.map(item => item.target ? {...item, visible: true} : item))), /trace must be hidden/);
+    assert.throws(() => curveGeometryExpectedFor(rollId, sceneOf(roll.filter(item => !item.target))), /trace must be hidden/);
+    assert.throws(() => curveGeometryExpectedFor(bendId, sceneOf(cubic.map(item => item.name === 't' ? {...item, value: 1} : item))), /only t = 0.5 is authored/);
+    assert.throws(() => curveGeometryExpectedFor(bendId, sceneOf([fixture, {kind: 'parameter', name: 't', value: 0.5}, ...hide(true)])), /must be hidden/);
+    assert.throws(() => curveGeometryExpectedFor(bendId, sceneOf([{...fixture, curve: {points: [[0, 0], [1, 2], [2, -2], [3, 0]]}}, ...cubic.slice(1)])), /only the cubic with control points/);
+    assert.throws(() => curveGeometryExpectedFor('curve-geometry.other.other', sceneOf(roll)), /no authored Curve geometry first frame/);
+    assert.ok(chapterInventories['curve-geometry']);
 });
 
 test('a missing or empty chapter-owned expectation fails', () => {

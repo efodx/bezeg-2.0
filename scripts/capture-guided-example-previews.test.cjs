@@ -245,7 +245,7 @@ test('surface capture resizes before rejecting an out-of-frame projected point',
     await assert.rejects(prepareSurfaceCaptureFrame(page), /mesh bounds are cropped or behind/);
 });
 
-test('numerical, school, fourier and projective capture families accept exactly their own routes', () => {
+test('numerical, school, fourier, projective and curve-geometry capture families accept exactly their own routes', () => {
     const entries = {
         'numerical-methods': [
             {id: 'numerical-methods.root-finding.root-finding', path: '/bezeg-2.0/analysis/root-finding?example=lesson.numerical-methods.root-finding.root-finding'},
@@ -266,6 +266,8 @@ test('numerical, school, fourier and projective capture families accept exactly 
             {id: 'projective-conics.projective-pole-polar.projective-pole-polar', path: '/bezeg-2.0/projective/pole-polar?example=lesson.projective-conics.projective-pole-polar.projective-pole-polar'},
             {id: 'projective-conics.projective-five-point.projective-five-point', path: '/bezeg-2.0/projective/five-point?example=lesson.projective-conics.projective-five-point.projective-five-point'},
             {id: 'projective-conics.projective-three-views.projective-three-views', path: '/bezeg-2.0/projective/three-views?example=lesson.projective-conics.projective-three-views.projective-three-views'}],
+        'curve-geometry': [{id: 'curve-geometry.curve-parametric.curve-parametric', path: '/bezeg-2.0/curve-geometry/parametric?example=lesson.curve-geometry.curve-parametric.curve-parametric'},
+            {id: 'curve-geometry.curve-curvature.curve-curvature', path: '/bezeg-2.0/curve-geometry/curvature?example=lesson.curve-geometry.curve-curvature.curve-curvature'}],
     };
     const root = path.resolve(__dirname, '..');
     for (const [family, list] of Object.entries(entries)) {
@@ -292,6 +294,8 @@ test('numerical, school, fourier and projective capture families accept exactly 
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][1], path: '/bezeg-2.0/analysis/fourier-coefficientsx'}], 'fourier-series'), /requires a fourier-series inventory/);
     for (const path of ['/bezeg-2.0/projective/cross-ratiox', '/bezeg-2.0/projective', '/bezeg-2.0/projective/conics', '/bezeg-2.0/pascal', '/bezeg-2.0/projective/five-pointx', '/bezeg-2.0/projective/tangent'])
         assert.throws(() => assertInventoryFamily([{...entries['projective-conics'][0], path}], 'projective-conics'), /requires a projective-conics inventory/);
+    for (const path of ['/bezeg-2.0/curve-geometry/parametricx', '/bezeg-2.0/curve-geometry/curvaturex', '/bezeg-2.0/curve-geometry', '/bezeg-2.0/curve-geometry/other', '/bezeg-2.0/parametric'])
+        assert.throws(() => assertInventoryFamily([{...entries['curve-geometry'][0], path}], 'curve-geometry'), /requires a curve-geometry inventory/);
 });
 
 test('accepts a view-clamped function graph and its coinciding ghost across capture reframing, and pairs them by id', () => {

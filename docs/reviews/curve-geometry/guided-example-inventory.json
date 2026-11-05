@@ -1,0 +1,83 @@
+{
+  "examples": [
+    {
+      "id": "curve-geometry.curve-parametric.curve-parametric",
+      "demonstrationId": "curve-parametric",
+      "path": "/bezeg-2.0/curve-geometry/parametric?example=lesson.curve-geometry.curve-parametric.curve-parametric",
+      "sceneFingerprint": "aa786f60c8b1adddf20a4c7500110914c30bed9543ecf63afcfa5e8f84c50cee",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"parametric-roll-start\",\"source\":\"demonstration-default\"}",
+        "parametric-curve: {\"kind\":\"parametric-curve\",\"curve\":\"cycloid\",\"radius\":1}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"parametric-trace-full\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "circle": 1,
+          "segment": 1,
+          "point": 2
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "curve-geometry.curve-curvature.curve-curvature",
+      "demonstrationId": "curve-curvature",
+      "path": "/bezeg-2.0/curve-geometry/curvature?example=lesson.curve-geometry.curve-curvature.curve-curvature",
+      "sceneFingerprint": "0d02e86d6756a9a9769652fb427e2c6982d52e6a180958f2985ce9eaa2dd8524",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"curvature-predict-middle\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[0,0],[1,0],[2,1],[3,3]]},\"view\":[-3.5,4.5,5.5,-2.5]}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"curvature-frame\",\"visible\":false}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"curvature-circle\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 5
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            1.5,
+            0.75
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}
