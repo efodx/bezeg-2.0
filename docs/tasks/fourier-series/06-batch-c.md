@@ -10,4 +10,5 @@ e0\) only, closed drawing of the loop and whole trace, the error labelled as sam
    *Moved to F2b, which has the route:* ADR 0040's re-check of control-point drags and the host's update cadence, including the per-frame copy of the trace slice, and the on-screen check of large radii with 48-segment circles.
 3. Presets: loop, \(N\), parametrization; all validated.
    *Done with F2a:* `epicyclePresetCollection`, not yet in the Demonstration map.
+   *F2b stopped 2026-11-05, owner decision needed:* drags on the real route miss the ADR 0040 threshold (p95 33 to 50 ms, about 30 % of drag frames over 25 ms); see [Cause of the drag miss](../../reviews/fourier-series/06-epicycle-measurement.md#cause-of-the-drag-miss). The route is not on master.
 4. **F2b–F6:** as in task 04, for lesson F5. The prose says that coefficients depend on the parametrization and the start, and calls the trace an illustration.

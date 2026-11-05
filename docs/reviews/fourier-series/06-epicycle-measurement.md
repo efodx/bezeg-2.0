@@ -37,3 +37,34 @@ Trace size: at N=50, \(S=400\) against \(S=2000\) costs 0.3 to 0.4 ms more per p
 - Individual objects (a) are fine for playback (3 to 5 ms) and for a drag (5 to 7 ms p95) at N=50, but each N change removes and creates up to about 340 objects, costs 18 to 22 ms (p95 54 to 62) and drops frames. It fails the threshold on that case. Hiding and showing pre-created objects instead of rebuilding was not measured and would still pay for visiting all objects on each board update.
 - b1 and b2 stay at 1 to 6 ms for every operation (p95) and need no object rebuild when N changes. b2 shows all \(2N\) circles for 5.7 ms or less in the worst operation (p95), b1 only the first five.
 - Not measured: the real route with its React host, touch input, the target device, drag of control points (the harness moves anchors only), circle point counts above 48 (large radii may need more), and display rates above 60 Hz.
+
+## Host re-check
+
+Measured 2026-11-05 on the real route `/bezeg-2.0/analysis/epicycles` (`just build`, `just preview 4330`, revision 66b8dd45 plus the F2b registration, dirty), by `node scripts/fourier-browser-perf.cjs` with `PERF_ONLY=epicycles` (new cases). Chromium headless, 60 Hz, `deviceScaleFactor` 1, viewport 1440×900 unless noted, 3 runs per case (median of the run medians and p95s; max over runs; frames over 25 ms and sample counts per run). Example `uneven`, N=50 in every case. Drags are a 2 s vertical sine path of 150 `page.mouse` moves on the first vertex handle (round) or the first cubic control handle (square). Raw log: `C:/Users/1337Hacker/.claude/jobs/cb986187/tmp/fourier-f2b/perf.log`. Threshold (ADR 0040): p95 at most 16.8 ms and no frame over 25 ms.
+
+| Case | median ms | p95 ms | max ms | frames >25 ms per run | samples per run | Threshold |
+|---|---|---|---|---|---|---|
+| 1 vertex drag, N=50 | 16.7 | 50.0 | 66.7 | 145/144/145 | 493/491/490 | missed |
+| 2 cubic control drag, N=50 | 16.7 | 33.4 | 50.1 | 145/145/145 | 482/488/496 | missed |
+| 3 playback 5 s, N=50 | 16.7 | 16.7 | 16.8 | 0/0/0 | 301/302/302 | met |
+| 4 N sweep 1 to 50 to 1 | 16.7 | 16.7 | 16.8 | 0/0/0 | 275/270/271 | met |
+| 5 vertex drag, N=50, 1920 px | 16.7 | 50.0 | 83.3 | 145/145/145 | 494/493/491 | missed |
+
+The two drag cases and the 1920 px case miss: about 30 % of frames during a drag are over 25 ms (intervals of 33 to 50 ms, so every second or third frame is dropped). Playback, including the per-frame copy of the trace slice, and the N sweep meet the threshold. No optimisation was attempted; the ADR makes this an owner matter. This re-check does not separate whether the shortfall comes from the per-move recompute of coefficients and trace, from the JSXGraph point redraw, or from the Playwright mouse itself.
+
+Visual check: `uneven`, N=1, 1920×1080 (`C:/Users/1337Hacker/.claude/jobs/cb986187/tmp/fourier-f2b/uneven-n1-1920.png`). The largest circle is about 380 px across and the 48-segment polygon looks round, with no visible facets.
+
+## Cause of the drag miss
+
+The three drag cases miss the ADR 0040 threshold; playback and the \(N\) sweep pass, so drawing is not the cause. Timing each recompute stage in Node, `uneven`, \(N=50\), 60 runs after 20 warm-up runs, one throwaway script (handler, 2026-11-05):
+
+| Stage | median ms | p95 ms |
+| --- | --- | --- |
+| `analyzeEpicycle` | 23.41 | 25.84 |
+| `epicycleTrace` | 5.73 | 7.10 |
+| `epicycleLoopSamples` | 0.42 | 0.85 |
+| `maxTraceError` (cached samples) | 0.02 | 0.06 |
+| `epicycleTerms` | 0.04 | 0.06 |
+| Whole drag recompute | 28.17 | 33.66 |
+
+A frame has 16.7 ms, so the coefficients alone exceed it. `coefficientsFromFunction` evaluates \(z(t)\) by de Casteljau twice per node, for each of the 101 frequencies, over breakpoints refined for that \(k\). ADR 0034 §3 called the coefficient update cheap, and the ADR 0040 harness computed 16 nodes per span without that refinement, so neither saw this cost. The host's update cadence and React table were not isolated; the Node stages are a lower bound for the browser.
