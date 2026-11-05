@@ -31,6 +31,7 @@ import {bsplineDeBoorGuidedLessons} from './bsplineDeBoorGuidedLessons';
 import {bsplineInsertionGuidedLessons} from './bsplineInsertionGuidedLessons';
 import {bsplineExtractionGuidedLessons} from './bsplineExtractionGuidedLessons';
 import {bsplineNurbsGuidedLessons} from './bsplineNurbsGuidedLessons';
+import {bsplineBlossomGuidedLessons} from './bsplineBlossomGuidedLessons';
 import {fourierSeriesGuidedLessons} from './fourierSeriesGuidedLessons';
 import {fourierCoefficientsGuidedLessons} from './fourierCoefficientsGuidedLessons';
 import {probabilityGuidedLessons} from './probabilityGuidedLessons';
@@ -743,7 +744,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
 ];
 
 const lessonByDemonstration = new Map(pilotGuidedLessons.map(lesson => [lesson.demonstrationId, lesson]));
-const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons, ...functionGuidedLessons, ...analysisGuidedLessons, ...compgeoGuidedLessons, ...curveGeometryGuidedLessons, ...interpolationGuidedLessons, ...numericalMethodsGuidedLessons, ...schoolFunctionGraphsGuidedLessons, ...schoolFunctionGraphsBatchBGuidedLessons, ...schoolFunctionGraphsBatchCGuidedLessons, ...projectiveConicsGuidedLessons, ...coonsGuidedLessons, ...fourierSeriesGuidedLessons, ...fourierCoefficientsGuidedLessons, ...bsplineBasisGuidedLessons, ...bsplineDeBoorGuidedLessons, ...bsplineInsertionGuidedLessons, ...bsplineExtractionGuidedLessons, ...bsplineNurbsGuidedLessons, ...probabilityGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
+const allLessonByDemonstration = new Map([...pilotGuidedLessons, ...additionalGuidedLessons, ...expansionGuidedLessons, ...foundationGuidedLessons, ...parameterizationGuidedLessons, ...constructionGuidedLessons, ...rationalConstructionGuidedLessons, ...splineGuidedLessons, ...functionGuidedLessons, ...analysisGuidedLessons, ...compgeoGuidedLessons, ...curveGeometryGuidedLessons, ...interpolationGuidedLessons, ...numericalMethodsGuidedLessons, ...schoolFunctionGraphsGuidedLessons, ...schoolFunctionGraphsBatchBGuidedLessons, ...schoolFunctionGraphsBatchCGuidedLessons, ...projectiveConicsGuidedLessons, ...coonsGuidedLessons, ...fourierSeriesGuidedLessons, ...fourierCoefficientsGuidedLessons, ...bsplineBasisGuidedLessons, ...bsplineDeBoorGuidedLessons, ...bsplineInsertionGuidedLessons, ...bsplineExtractionGuidedLessons, ...bsplineNurbsGuidedLessons, ...bsplineBlossomGuidedLessons, ...probabilityGuidedLessons].map(lesson => [lesson.demonstrationId, lesson]));
 
 /** Returns static content without resolving or freezing a locale. */
 export function getPilotGuidedLesson(demonstrationId: 'bezier' | 'decasteljau' | 'ph-cubic'): GuidedLesson | undefined {

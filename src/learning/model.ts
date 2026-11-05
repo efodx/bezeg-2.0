@@ -268,6 +268,17 @@ export type LessonAction =
     | {readonly kind: 'nurbs-circle'; readonly operation: 'set-circle'; readonly visible: boolean}
     | {readonly kind: 'nurbs-circle'; readonly operation: 'reset'}
     /**
+     * BSplineBlossomGraph's scene actions: `set-degree` switches between degree 2 and 3 (any other value is refused), `set-segment` picks
+     * the segment [u_j, u_{j+1}) by its index j (an empty or unknown span is refused), `set-args` sets the arguments of f (exactly one per
+     * degree, each inside the domain), `set-bezier` shows or hides the segment's Bezier points and `reset` returns to the default curve,
+     * segment and arguments. Invalid input is a lesson-content error.
+     */
+    | {readonly kind: 'blossom'; readonly operation: 'set-degree'; readonly degree: number}
+    | {readonly kind: 'blossom'; readonly operation: 'set-segment'; readonly segment: number}
+    | {readonly kind: 'blossom'; readonly operation: 'set-args'; readonly args: readonly number[]}
+    | {readonly kind: 'blossom'; readonly operation: 'set-bezier'; readonly visible: boolean}
+    | {readonly kind: 'blossom'; readonly operation: 'reset'}
+    /**
      * LinearMapGraph's scene actions (validated by `validateSet*` in `src/linear/linearMapModel.ts`). Kinds are typed; the graph still
      * enforces the domain (grid, ranges): scene data is strict, so an off-grid entry is a lesson-content error, never snapped.
      */

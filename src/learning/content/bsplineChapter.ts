@@ -19,7 +19,7 @@ function withExample(sectionId: BSplineSectionId, section: FamilyChapterSection)
     return {...section, orderedContent: content};
 }
 
-/** B-spline spec batches A and B so far: only the released lessons (L1 the basis functions, L2 the curve and de Boor's algorithm, L3 knot insertion and multiplicity, L4 Bézier extraction, L5 NURBS and the circle) are mentioned; later sections are not named. */
+/** B-spline spec batches A and B so far: only the released lessons (L1 the basis functions, L2 the curve and de Boor's algorithm, L3 knot insertion and multiplicity, L4 Bézier extraction, L5 NURBS and the circle, L6 the blossom) are mentioned. */
 export const bsplineChapter: FamilyChapter = {
     id: BSPLINE_CHAPTER_ID,
     family: '/bezeg-2.0/bspline',
@@ -111,6 +111,19 @@ export const bsplineChapter: FamilyChapter = {
                      'Goal of the section: you can say that a B-spline with weights \\(w_i>0\\) becomes a NURBS, and that a quadratic NURBS can be an exact circle, which no polynomial B-spline can. The weight of each point multiplies its basis function and the sum is divided by the sum of the weighted basis functions; with unit weights the polynomial B-spline remains.'),
                 text('Devet točk \\((1,0)\\), \\((1,1)\\), \\((0,1)\\), \\((-1,1)\\), \\((-1,0)\\), \\((-1,-1)\\), \\((0,-1)\\), \\((1,-1)\\), \\((1,0)\\), vozelni vektor \\((0,0,0,\\tfrac14,\\tfrac14,\\tfrac12,\\tfrac12,\\tfrac34,\\tfrac34,1,1,1)\\) in uteži \\(\\tfrac{\\sqrt2}2\\) v ogliščih dajo enotsko krožnico. Pri enotskih utežeh je največji odmik od krožnice približno \\(6{,}07\\cdot10^{-2}\\), z utežmi \\(\\tfrac{\\sqrt2}2\\) pa le zaokrožitvena napaka. Parameter ni sorazmeren s kotom: točka pri \\(t=\\tfrac1{16}\\) je \\((0{,}92979;\\,0{,}36809)\\) pri kotu \\(21{,}598^\\circ\\), ne \\(22{,}5^\\circ\\). Slika kaže natančnost le v vzorčenih točkah; dokaz je racionalna identiteta iz poglavja o racionalnih Bézierjevih krivuljah.',
                      'The nine points \\((1,0)\\), \\((1,1)\\), \\((0,1)\\), \\((-1,1)\\), \\((-1,0)\\), \\((-1,-1)\\), \\((0,-1)\\), \\((1,-1)\\), \\((1,0)\\), the knot vector \\((0,0,0,\\tfrac14,\\tfrac14,\\tfrac12,\\tfrac12,\\tfrac34,\\tfrac34,1,1,1)\\) and weights \\(\\tfrac{\\sqrt2}2\\) at the corners give the unit circle. With unit weights the maximum deviation from the circle is about \\(6.07\\cdot10^{-2}\\); with the weights \\(\\tfrac{\\sqrt2}2\\) it is only rounding error. The parameter is not proportional to the angle: the point at \\(t=\\tfrac1{16}\\) is \\((0.92979,\\,0.36809)\\) at the angle \\(21.598^\\circ\\), not \\(22.5^\\circ\\). The picture shows exactness only at the sampled points; the proof is the rational identity from the chapter on rational Bézier curves.'),
+            ],
+        }),
+        withExample('bspline-blossom', {
+            id: 'bspline-blossom',
+            demonstrationIds: ['bspline-blossom'],
+            investigationPrompts: {'bspline-blossom': text('Napovej, kje je \\(f(0,1)\\), nato izberi poljuben par \\((a,b)\\), preveri \\(f(a,b)=f(b,a)\\) in nastavi enaka argumenta, da dobiš točko krivulje.', 'Predict where \\(f(0,1)\\) is, then choose any pair \\((a,b)\\), check \\(f(a,b)=f(b,a)\\) and set equal arguments to get a curve point.')},
+            title: text('Cvetenje (polarna oblika)', 'Blossoming (polar form)'),
+            formula: String.raw`d_i=f(u_{i+1},u_{i+2}),\qquad C(t)=f(t,t)`,
+            paragraphs: [
+                text('Cilj razdelka: znaš povedati, da cvetenje, imenovano tudi polarna oblika, dodeli odseku kvadratnega B-zlepka simetrično funkcijo \\(f(a,b)\\), ki vsebuje kontrolne točke, točke de Boorovega trikotnika in točke krivulje. Kontrolna točka je \\(d_i=f(u_{i+1},u_{i+2})\\), točka krivulje pa \\(f(t,t)\\).',
+                     'Goal of the section: you can say that the blossom, also called the polar form, gives a piece of a quadratic B-spline a symmetric function \\(f(a,b)\\) that holds the control points, the points of de Boor\'s triangle and the curve points. A control point is \\(d_i=f(u_{i+1},u_{i+2})\\) and a curve point is \\(f(t,t)\\).'),
+                text('Za vozle \\((0,0,0,1,2,2,2)\\) in točke \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) je \\(f(0,0)=(0,0)\\), \\(f(0,1)=(1,2)\\), \\(f(1,2)=(3,2)\\) in \\(f(2,2)=(4,0)\\). Pri \\(t=\\tfrac12\\) je \\(f(\\tfrac12,\\tfrac12)=(1;\\,1{,}5)\\), Bézierove točke odseka \\([0,1]\\) pa so \\((0,0)\\), \\((1,2)\\) in \\((2,2)\\). Ponujeni sta stopnji \\(2\\) in \\(3\\).',
+                     'For the knots \\((0,0,0,1,2,2,2)\\) and the points \\((0,0)\\), \\((1,2)\\), \\((3,2)\\), \\((4,0)\\) we get \\(f(0,0)=(0,0)\\), \\(f(0,1)=(1,2)\\), \\(f(1,2)=(3,2)\\) and \\(f(2,2)=(4,0)\\). At \\(t=\\tfrac12\\) the value is \\(f(\\tfrac12,\\tfrac12)=(1,\\,1.5)\\), and the Bézier points of the segment \\([0,1]\\) are \\((0,0)\\), \\((1,2)\\) and \\((2,2)\\). The degrees \\(2\\) and \\(3\\) are offered.'),
             ],
         }),
     ],

@@ -9,7 +9,7 @@ import {bsplineChapter} from './bsplineChapter';
 import {BSPLINE_CHAPTER_ID, bsplineGuidedExamplePath, bsplineGuidedExampleRegistry} from './bsplineChapterRegistry';
 import {familyChapters} from './familyChapters';
 
-const IDS = ['bspline-basis', 'bspline-deboor', 'bspline-insertion', 'bspline-extraction', 'bspline-nurbs'] as const;
+const IDS = ['bspline-basis', 'bspline-deboor', 'bspline-insertion', 'bspline-extraction', 'bspline-nurbs', 'bspline-blossom'] as const;
 const everything = (language: 'sl' | 'en') => [
     bsplineChapter.purpose, bsplineChapter.prerequisites,
     ...bsplineChapter.sections.flatMap(section => [section.title, ...section.paragraphs]),
@@ -18,7 +18,7 @@ const everything = (language: 'sl' | 'en') => [
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter follows splines in the curves strand with an opening and five lesson sections', () => {
+    test('the chapter follows splines in the curves strand with an opening and six lesson sections', () => {
         expect(bsplineChapter.id).toBe(BSPLINE_CHAPTER_ID);
         expect(bsplineChapter.title).toEqual({sl: 'B-zlepki in NURBS', en: 'B-splines and NURBS'});
         expect(bsplineChapter.family).toBe('/bezeg-2.0/bspline');
@@ -27,7 +27,7 @@ describe('chapter structure and registration', () => {
         expect(familyChapters.findIndex(chapter => chapter.id === BSPLINE_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'splines') + 1);
         expect(learningChapters.some(chapter => chapter.id === BSPLINE_CHAPTER_ID)).toBe(true);
-        expect(bsplineChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['bspline-basis'], ['bspline-deboor'], ['bspline-insertion'], ['bspline-extraction'], ['bspline-nurbs']]);
+        expect(bsplineChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual([['bspline-basis'], ['bspline-deboor'], ['bspline-insertion'], ['bspline-extraction'], ['bspline-nurbs'], ['bspline-blossom']]);
         expect(bsplineChapter.prerequisiteLinks?.map(link => link.path)).toEqual(['/bezeg-2.0/learn/bezier-curves', '/bezeg-2.0/learn/splines']);
     });
 
@@ -40,13 +40,11 @@ describe('chapter structure and registration', () => {
         expect(bsplineChapter.sections[1].formula).toBe(String.raw`\sum_i N_{i,k}(t)=1`);
     });
 
-    test('later lessons are not named, linked or offered as available', () => {
+    test('the last section names the blossom with its Slovenian term and no section offers an unreleased lesson', () => {
         for (const language of ['sl', 'en'] as const) {
             const body = bsplineChapter.sections.flatMap(section => section.paragraphs.map(p => p[language])).join(' ').toLowerCase();
-            const named = language === 'sl'
-                ? ['cvetenje', 'polarna oblika']
-                : ['blossom', 'polar form'];
-            for (const word of named) expect(body, `${language}: ${word}`).not.toContain(word);
+            const named = language === 'sl' ? ['cvetenje', 'polarna oblika'] : ['blossom', 'polar form'];
+            for (const word of named) expect(body, `${language}: ${word}`).toContain(word);
         }
         expect(bsplineChapter.sections.flatMap(section => section.demonstrationIds ?? [])).toEqual([...IDS]);
     });

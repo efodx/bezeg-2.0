@@ -5,7 +5,8 @@ import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
-import type {LessonCurveFixture} from "../../../learning/model";
+import type {LessonAction, LessonCurveFixture} from "../../../learning/model";
+import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BSplinePresetData, bsplinePresetCollection} from "./bsplinePresetCollection";
 import {BSplineBlossomScene} from "./BSplineBlossomScene";
 import {isClamped, rebuiltKnots} from "./bsplineBasisModel";
@@ -196,6 +197,42 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
     resetToDefaults() {
         this.setState(initialData());
         this.ensureScene();
+    }
+
+    // ---- Lesson actions ----------------------------------------------------------------------------------------------
+
+    protected override registerLessonActions(registry: LessonActionRegistry): void {
+        super.registerLessonActions(registry);
+        registry.on('blossom', action => this.applyBlossomAction(action));
+    }
+
+    /** Applies one `blossom` scene action through the setters the controls use; invalid input throws (the lesson content is wrong). */
+    private applyBlossomAction(action: Extract<LessonAction, {kind: 'blossom'}>): void {
+        switch (action.operation) {
+            case 'set-degree':
+                if (!BLOSSOM_DEGREES.includes(action.degree)) throw new Error(`The blossom is offered for degree 2 and 3, not ${String(action.degree)}.`);
+                this.setDegree(action.degree);
+                if (this.state.degree !== action.degree) throw new Error(`The curve cannot have degree ${action.degree}.`);
+                break;
+            case 'set-segment':
+                if (!blossomSegments(this.state.knots, this.state.degree).includes(action.segment)) throw new Error(`There is no segment ${String(action.segment)}.`);
+                this.setSegment(action.segment);
+                break;
+            case 'set-args': {
+                const {knots, degree} = this.state;
+                if (action.args.length !== degree) throw new Error(`The blossom of degree ${degree} takes ${degree} arguments.`);
+                const [start, end] = blossomDomain(knots, degree);
+                if (!action.args.every(a => Number.isFinite(a) && a >= start && a <= end)) throw new Error(`The arguments must lie in [${start}, ${end}].`);
+                action.args.forEach((value, index) => this.setArgument(index, value));
+                break;
+            }
+            case 'set-bezier':
+                if (typeof action.visible !== 'boolean') throw new Error('The Bezier points must be shown or hidden with a boolean.');
+                this.setShowBezier(action.visible);
+                break;
+            default:
+                this.resetToDefaults();
+        }
     }
 
     // ---- Controls ----------------------------------------------------------------------------------------------------
