@@ -19,14 +19,14 @@ function withExample(sectionId: CurveGeometrySectionId, section: FamilyChapterSe
     return {...section, orderedContent: content};
 }
 
-/** Curve geometry batches 1 and 2 so far: L1 parametric and polar curves, L2 curvature and the osculating circle and L3 the curvature comb and spline joins. Later lessons (offsets, evolutes) are not released and are not mentioned. */
+/** Curve geometry batches 1 and 2: L1 parametric and polar curves, L2 curvature and the osculating circle, L3 the curvature comb and spline joins and L4 the evolute. Later lessons (offsets) are not released and are not mentioned. */
 export const curveGeometryChapter: FamilyChapter = {
     id: CURVE_GEOMETRY_CHAPTER_ID,
     family: '/bezeg-2.0/curve-geometry',
     title: text('Geometrija krivulj', 'Geometry of curves'),
     purpose: text(
-        'Krivuljo opišemo s sledjo in z zakonom gibanja, nato pa iz odvodov preberemo, kako se zavija. Poglavje najprej loči parametrične in polarne krivulje, na cikloidi izračuna dolžino loka in ploščino, nato pa pokaže ukrivljenost in krivinsko krožnico, ki se krivulji v dani točki najbolje prilega, na koncu pa glavnik ukrivljenosti, ki pokaže ukrivljenost vzdolž krivulje in skoke na stikih zlepkov.',
-        'A curve is described by its trace and by a rule of motion, and the derivatives then tell how it bends. The chapter first separates parametric and polar curves and computes arc length and area on the cycloid, then shows the curvature and the osculating circle, the circle that fits the curve best at a given point, and finally the curvature comb, which shows the curvature along the curve and the jumps at spline joins.',
+        'Krivuljo opišemo s sledjo in z zakonom gibanja, nato pa iz odvodov preberemo, kako se zavija. Poglavje najprej loči parametrične in polarne krivulje, na cikloidi izračuna dolžino loka in ploščino, nato pa pokaže ukrivljenost in krivinsko krožnico, ki se krivulji v dani točki najbolje prilega, nato glavnik ukrivljenosti, ki pokaže ukrivljenost vzdolž krivulje in skoke na stikih zlepkov, na koncu pa evoluto, sled središč krivinskih krožnic.',
+        'A curve is described by its trace and by a rule of motion, and the derivatives then tell how it bends. The chapter first separates parametric and polar curves and computes arc length and area on the cycloid, then shows the curvature and the osculating circle, the circle that fits the curve best at a given point, then the curvature comb, which shows the curvature along the curve and the jumps at spline joins, and finally the evolute, the track of the centres of the osculating circles.',
     ),
     prerequisites: text(
         'Parametrizacija (sled in parameter), hitrost kot dolžina odvoda, kot jo uporabljajo PH-krivulje, Bézierjeve krivulje ter odvod in integral iz poglavja Funkcije in računanje. Dovolj je, da znaš odvajati \\(r(t)=(x(t),y(t))\\) po komponentah.',
@@ -98,6 +98,23 @@ export const curveGeometryChapter: FamilyChapter = {
                      'A spline is made of spans that meet at knots. The comb breaks at a join and the readout gives the curvature just before and just after it. The quadratic C1 spline has a continuous tangent, yet its curvature jumps at a join. The cubic C2 spline also has a continuous second derivative, so its comb is continuous at a regular join. For the G1 spline the free parameter \\(b\\) sets the jump.'),
                 text('Iz C2 sledi G2 le za regularne krivulje: pri točki z ničelno hitrostjo ukrivljenost ni določena, zato zveznost glavnika tam ni zagotovljena.',
                      'C2 implies G2 for regular curves only: at a point of zero speed the curvature is not defined, so a continuous comb is not guaranteed there.'),
+            ],
+        }),
+        withExample('curve-evolute', {
+            id: 'curve-evolute',
+            demonstrationIds: ['curve-evolute'],
+            investigationPrompts: {'curve-evolute': text('Napovej, kam gre središče krivinske krožnice, ko \\(t\\) teče po paraboli, nato vklopi sled evolute in normalo. Poišči ost nad temenom.', 'Predict where the centre of the osculating circle goes as \\(t\\) runs along the parabola, then switch on the trace of the evolute and the normal. Find the cusp above the vertex.')},
+            title: text('Evoluta', 'Evolute'),
+            formula: String.raw`E(t)=r(t)+\frac{1}{\kappa(t)}\,N(t)`,
+            paragraphs: [
+                text('Cilj razdelka: znaš evoluto opisati kot sled središč krivinskih krožnic in na njej prepoznati osti. Ko se točka premika po krivulji, se središče krivinske krožnice premika po drugi krivulji, evoluti. Točka evolute leži na normali na razdalji \\(R=1/|\\kappa|\\) od krivulje, na strani, kamor se krivulja zavija.',
+                     'Goal of the section: you can describe the evolute as the track of the centres of the osculating circles and recognise its cusps. As a point moves along a curve, the centre of the osculating circle moves along another curve, the evolute. A point of the evolute lies on the normal at the distance \\(R=1/|\\kappa|\\) from the curve, on the side to which the curve turns.'),
+                text('Za parabolo \\(y=x^2\\) je \\(E(x)=(-4x^3,3x^2+\\tfrac12)\\). Pri \\(x=1\\) je \\(E=(-4,\\tfrac72)\\), pri \\(x=0\\) pa \\(E=(0,\\tfrac12)\\). Točka evolute gre v nasprotno smer kot točka na paraboli.',
+                     'For the parabola \\(y=x^2\\) we have \\(E(x)=(-4x^3,3x^2+\\tfrac12)\\). At \\(x=1\\) this gives \\(E=(-4,\\tfrac72)\\) and at \\(x=0\\) it gives \\(E=(0,\\tfrac12)\\). The point of the evolute moves against the point on the parabola.'),
+                text('Odvod evolute ima smer normale krivulje, zato so normale tangente evolute. Kjer ima \\(\\kappa\\) lokalni ekstrem, ima krivulja teme, odvod evolute je tam enak \\(0\\) in evoluta ima ost. Pri paraboli je to točka \\((0,\\tfrac12)\\) nad temenom \\((0,0)\\).',
+                     'The derivative of the evolute has the direction of the normal of the curve, so the normals are tangents of the evolute. Where \\(\\kappa\\) has a local extremum the curve has a vertex, the derivative of the evolute is \\(0\\) there and the evolute has a cusp. For the parabola this is the point \\((0,\\tfrac12)\\) above the vertex \\((0,0)\\).'),
+                text('Na prevoju je \\(\\kappa=0\\): krivinska krožnica je premica, njeno središče je neskončno daleč in točke evolute ni. Sled se tam prekine.',
+                     'At an inflection \\(\\kappa=0\\): the osculating circle is a line, its centre is infinitely far away and there is no point of the evolute. The trace breaks there.'),
             ],
         }),
     ],
