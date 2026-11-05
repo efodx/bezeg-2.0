@@ -1,5 +1,5 @@
 # Stream: Functions
-Run state: active
+Run state: complete
 
 Rules and slice template: [feature streams](README.md). Port 4315. Handoffs: `docs/reviews/feature-streams/functions/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
@@ -11,6 +11,8 @@ Rules and slice template: [feature streams](README.md). Port 4315. Handoffs: `do
 | 4 | Fourier series | [fourier-series-lessons.md](../../specs/fourier-series-lessons.md) | Coefficient kernel: none. Graph code: `G-FN`; registration and lessons: `G-REG`. Epicycles drawing ADR by measurement | F0 done ([tasks](../fourier-series/README.md), ADR 0034); kernels 01–02 accepted; 03 F2a partial-sums graph and 04 F2b accepted (route `/analysis/fourier-series`); 04 F3 lessons F1, F3 and F4 chapter and F5 card accepted; F6 accepted 2026-11-02 (Batch A released); Batch B 05 F2a-1 (coefficients model and projection view, unmounted) accepted 2026-11-03 after engineering and mathematical review; F2a-2 decay view (review repairs, sweep p95 16,7 ms) and F2b route `/analysis/fourier-coefficients` accepted 2026-11-03 (spectra stacked in the inspector, owner follow-up); F3 lessons F2, F4, F4 chapter section and F5 card accepted 2026-11-03; F6 accepted 2026-11-03 (Batch B released; poster repairs `da824fdc`); 06 Batch C step 1 measured 2026-11-05, ADR 0040 (arm chain and all circles as two JSXGraph curves, trace 2000 samples); 06 F2a model and `EpicycleGraph` accepted 2026-11-05 (no route yet); F2b drags relaxed by owner decision 2026-11-05 (ADR 0040: p95 50,1 ms, no frame over 100 ms) and re-measured, all cases met; F2b route `/analysis/epicycles` on master 2026-11-05; F3 lesson F5, F4 chapter section, F5 card and F6 accepted 2026-11-05 on hosted CI (Batch C released; classroom device unchecked, handoff 39) |
 
 ## Notes
+
+- **Complete (functions handler 40, 2026-11-05):** all four families are released. [Final note](../../reviews/feature-streams/functions/handler-handoff-40.md), including what stays open for the owner.
 
 - **Done (curves handler 50, 2026-11-05): joint poster capture of `curve-comb`, `curve-evolute` and `epicycles`; `POSTER_PENDING` is empty.** The `epicycles` recipe is the Romb example with three "Povečaj N za 1", as the default unit circle is trivial at every N. Functions may refine it with a selective recapture when it adds the F5 card; the chapter card `fourier-series.epicycles.epicycles` stays Functions'. [Evidence](../../reviews/curve-geometry/cg-b2-5-media.md).
 

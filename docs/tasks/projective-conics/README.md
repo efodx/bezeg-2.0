@@ -10,7 +10,7 @@ Workers: `bezeg-worker`, Sonnet 5.5 `medium`. Task 04 (the five-point solver) ru
 | [02 Conic kernel, pencil parameter and Pascal](02-conic-kernel.md) | A | F1 | none | 01 | accepted 2026-10-31 |
 | [03 Conic sampler](03-conic-sampler.md) | A | F1 | none | 02 | accepted 2026-10-31 |
 | [04 Five-point solver and rational arc](04-five-point-solver.md) | B | F1 | none | 02 | accepted 2026-10-31 |
-| [05 Batch A graphs](05-batch-a-graphs.md) | A | F2a | none | 01–03 | planned |
+| [05 Batch A graphs](05-batch-a-graphs.md) | A | F2a | none | 01–03 | accepted (05a–05d; 05d: density 360, bound 14) |
 | [06 Batch A release](06-batch-a-release.md) | A | F2b–F6 | `G-REG` | 05 | F2b accepted 2026-11-01 (`5aa493ba`; browser frames in ADR 0033); smoke of the three routes 2026-11-01 passed after fixes (narrow cross-ratio readout, Pascal side labels and ideal-point text, drag onto the base point); F3a (K1), F3b (K2) and F3c (K3) lessons, F4 chapter, F5 cards and F6 accepted 2026-11-02 (Batch A released) |
 | [07 Batch B](07-batch-b.md) | B | F2a–F6 | `G-REG` (F2b–F6) | 04, 06 | accepted 2026-11-03 (Batch B released) |
 
