@@ -337,6 +337,21 @@ test('curve geometry expectations are authored from the cycloid and the cubic', 
     assert.throws(() => curveGeometryExpectedFor(bendId, sceneOf([fixture, {kind: 'parameter', name: 't', value: 0.5}, ...hide(true)])), /must be hidden/);
     assert.throws(() => curveGeometryExpectedFor(bendId, sceneOf([{...fixture, curve: {points: [[0, 0], [1, 2], [2, -2], [3, 0]]}}, ...cubic.slice(1)])), /only the cubic with control points/);
     assert.throws(() => curveGeometryExpectedFor('curve-geometry.other.other', sceneOf(roll)), /no authored Curve geometry first frame/);
+    // L3 comb (cubic, comb hidden) and L4 evolute (parabola at t = 0.75, trace and normal hidden).
+    const combId = 'curve-geometry.curve-comb.curve-comb', evoId = 'curve-geometry.curve-evolute.curve-evolute';
+    const combScene = [prepared, {kind: 'comb-curve', curve: 'cubic'}, {kind: 'comb-gain', value: 1.4}, {kind: 'curve-visibility', target: 'curvature-comb', visible: false}];
+    const evoScene = [prepared, {kind: 'parameter', name: 't', value: 0.75}, {kind: 'evolute-trace', mode: 'hidden'}, {kind: 'curve-visibility', target: 'evolute-normal', visible: false},
+        {kind: 'curve-visibility', target: 'curvature-frame', visible: false}, {kind: 'curve-visibility', target: 'curvature-circle', visible: true}];
+    const l3 = curveGeometryExpectedFor(combId, sceneOf(combScene));
+    assert.deepEqual(l3, {types: {curve: 1, point: 4}, curveCount: 1, points: [[0, 0], [1, 0], [2, 1], [3, 3]]});
+    const l4 = curveGeometryExpectedFor(evoId, sceneOf(evoScene));
+    assert.deepEqual(l4, {types: {curve: 1, circle: 1, point: 6}, curveCount: 1, points: [[-1, 1], [0, -1], [1, 1], [0.5, 0.25], [-0.5, 1.25]]});
+    assert.doesNotThrow(() => { assertExpectation(combId, l3); assertExpectation(evoId, l4); });
+    assert.throws(() => curveGeometryExpectedFor(combId, sceneOf(combScene.map(item => item.target ? {...item, visible: true} : item))), /comb must be hidden/);
+    assert.throws(() => curveGeometryExpectedFor(combId, sceneOf(combScene.map(item => item.curve ? {...item, curve: 'c1'} : item))), /only the demonstration cubic/);
+    assert.throws(() => curveGeometryExpectedFor(evoId, sceneOf(evoScene.map(item => item.name === 't' ? {...item, value: 0.5} : item))), /only t = 0.75 is authored/);
+    assert.throws(() => curveGeometryExpectedFor(evoId, sceneOf(evoScene.map(item => item.mode ? {...item, mode: 'full'} : item))), /trace must be hidden/);
+    assert.throws(() => curveGeometryExpectedFor(evoId, sceneOf(evoScene.map(item => item.target === 'evolute-normal' ? {...item, visible: true} : item))), /normal and frame hidden/);
     assert.ok(chapterInventories['curve-geometry']);
 });
 

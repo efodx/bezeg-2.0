@@ -604,6 +604,8 @@ function curveGeometryExpectedFor(id, step) {
         assert.ok(trace.length === 1 && trace[0].visible === false, `${id}: the trace must be hidden for the prediction`);
         return {types: {circle: 1, segment: 1, point: 2}, curveCount: 0, points: [[0, 0], [0, 1]]};
     }
+    if (id.endsWith('.curve-comb')) return curveCombExpectedFor(id, actions);
+    if (id.endsWith('.curve-evolute')) return curveEvoluteExpectedFor(id, actions);
     assert.ok(id.endsWith('.curve-curvature'), `${id}: no authored Curve geometry first frame`);
     assertOnlyActions(id, actions, [['parameter', /^t$/], ['curve-visibility', /^curvature-(frame|circle)$/]], 'curveGeometryExpectedFor');
     assert.equal(sceneValue(id, actions, 'parameter', 't'), 0.5, `${id}: only t = 0.5 is authored`);
@@ -614,6 +616,35 @@ function curveGeometryExpectedFor(id, step) {
     const prepared = actions.filter(item => item.kind === 'prepared-scene');
     assert.deepEqual(prepared.length === 1 ? prepared[0].curve?.points : undefined, [[0, 0], [1, 0], [2, 1], [3, 3]], `${id}: only the cubic with control points (0,0), (1,0), (2,1), (3,3) is authored`);
     return {types: {curve: 1, point: 5}, curveCount: 1, points: [[0, 0], [1, 0], [2, 1], [3, 3], [1.5, 0.75]]};
+}
+
+/**
+ * L3 (comb, cubic with control points (0,0), (1,0), (2,1), (3,3), comb hidden, gain 1.4): the Bezier curve and its four control points; the
+ * comb curves (teeth, tip line, clipped bars) are hidden and the readout is board text, so they add nothing visible.
+ */
+function curveCombExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['comb-curve', /^$/], ['comb-gain', /^$/], ['curve-visibility', /^curvature-comb$/]], 'curveCombExpectedFor');
+    const kind = actions.filter(item => item.kind === 'comb-curve');
+    assert.ok(kind.length === 1 && kind[0].curve === 'cubic', `${id}: only the demonstration cubic is authored`);
+    const comb = actions.filter(item => item.kind === 'curve-visibility' && item.target === 'curvature-comb');
+    assert.ok(comb.length === 1 && comb[0].visible === false, `${id}: the comb must be hidden for the prediction`);
+    return {types: {curve: 1, point: 4}, curveCount: 1, points: [[0, 0], [1, 0], [2, 1], [3, 3]]};
+}
+
+/**
+ * L4 (evolute, parabola y = x^2 as the quadratic Bezier with control points (-1,1), (0,-1), (1,1), x = 2t - 1, at t = 0.75, trace and
+ * normal hidden, frame hidden, circle shown): the curve, its three control points, the curve point B = (1/2, 1/4), the osculating circle
+ * of radius R = sqrt 2 with its centre E = (-1/2, 5/4) = B + R N (the parabola's evolute point (-4x^3, 3x^2 + 1/2) at x = 1/2), and
+ * the evolute point E drawn as a diamond on the same place. Two points lie on E, so five distinct positions are listed.
+ */
+function curveEvoluteExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['parameter', /^t$/], ['evolute-trace', /^$/], ['curve-visibility', /^(evolute-normal|curvature-frame|curvature-circle)$/]], 'curveEvoluteExpectedFor');
+    assert.equal(sceneValue(id, actions, 'parameter', 't'), 0.75, `${id}: only t = 0.75 is authored`);
+    const trace = actions.filter(item => item.kind === 'evolute-trace');
+    assert.ok(trace.length === 1 && trace[0].mode === 'hidden', `${id}: the trace must be hidden for the prediction`);
+    const shown = target => actions.filter(item => item.kind === 'curve-visibility' && item.target === target).map(item => item.visible);
+    assert.deepEqual([shown('evolute-normal'), shown('curvature-frame'), shown('curvature-circle')], [[false], [false], [true]], `${id}: normal and frame hidden, circle shown`);
+    return {types: {curve: 1, circle: 1, point: 6}, curveCount: 1, points: [[-1, 1], [0, -1], [1, 1], [0.5, 0.25], [-0.5, 1.25]]};
 }
 
 /** Fails unless the opening scene is the prepared scene plus exactly one projective load-example action for the named example. */

@@ -267,7 +267,9 @@ test('numerical, school, fourier, projective and curve-geometry capture families
             {id: 'projective-conics.projective-five-point.projective-five-point', path: '/bezeg-2.0/projective/five-point?example=lesson.projective-conics.projective-five-point.projective-five-point'},
             {id: 'projective-conics.projective-three-views.projective-three-views', path: '/bezeg-2.0/projective/three-views?example=lesson.projective-conics.projective-three-views.projective-three-views'}],
         'curve-geometry': [{id: 'curve-geometry.curve-parametric.curve-parametric', path: '/bezeg-2.0/curve-geometry/parametric?example=lesson.curve-geometry.curve-parametric.curve-parametric'},
-            {id: 'curve-geometry.curve-curvature.curve-curvature', path: '/bezeg-2.0/curve-geometry/curvature?example=lesson.curve-geometry.curve-curvature.curve-curvature'}],
+            {id: 'curve-geometry.curve-curvature.curve-curvature', path: '/bezeg-2.0/curve-geometry/curvature?example=lesson.curve-geometry.curve-curvature.curve-curvature'},
+            {id: 'curve-geometry.curve-comb.curve-comb', path: '/bezeg-2.0/curve-geometry/comb?example=lesson.curve-geometry.curve-comb.curve-comb'},
+            {id: 'curve-geometry.curve-evolute.curve-evolute', path: '/bezeg-2.0/curve-geometry/evolute?example=lesson.curve-geometry.curve-evolute.curve-evolute'}],
     };
     const root = path.resolve(__dirname, '..');
     for (const [family, list] of Object.entries(entries)) {
@@ -294,7 +296,7 @@ test('numerical, school, fourier, projective and curve-geometry capture families
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][1], path: '/bezeg-2.0/analysis/fourier-coefficientsx'}], 'fourier-series'), /requires a fourier-series inventory/);
     for (const path of ['/bezeg-2.0/projective/cross-ratiox', '/bezeg-2.0/projective', '/bezeg-2.0/projective/conics', '/bezeg-2.0/pascal', '/bezeg-2.0/projective/five-pointx', '/bezeg-2.0/projective/tangent'])
         assert.throws(() => assertInventoryFamily([{...entries['projective-conics'][0], path}], 'projective-conics'), /requires a projective-conics inventory/);
-    for (const path of ['/bezeg-2.0/curve-geometry/parametricx', '/bezeg-2.0/curve-geometry/curvaturex', '/bezeg-2.0/curve-geometry', '/bezeg-2.0/curve-geometry/other', '/bezeg-2.0/parametric'])
+    for (const path of ['/bezeg-2.0/curve-geometry/parametricx', '/bezeg-2.0/curve-geometry/curvaturex', '/bezeg-2.0/curve-geometry/combx', '/bezeg-2.0/curve-geometry/evolutes', '/bezeg-2.0/curve-geometry', '/bezeg-2.0/curve-geometry/other', '/bezeg-2.0/parametric'])
         assert.throws(() => assertInventoryFamily([{...entries['curve-geometry'][0], path}], 'curve-geometry'), /requires a curve-geometry inventory/);
 });
 
