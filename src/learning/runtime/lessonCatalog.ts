@@ -84,11 +84,24 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
     } else if (operation === 'set-query-point') {
         const point = (data as Record<string, unknown>).point;
         if (point !== null && !(Array.isArray(point) && point.length === 2 && isFinite(point[0]) && isFinite(point[1]))) throw new Error('A point-set set-query-point action needs an [x, y] pair of finite numbers, or null.');
+    } else if (operation === 'set-polygon') {
+        const polygon = (data as Record<string, unknown>).polygon;
+        if (polygon !== 'notched' && polygon !== 'pentagram') throw new Error('A point-set set-polygon action needs the polygon "notched" or "pentagram".');
     } else if (operation === 'set-mode') {
         const mode = (data as Record<string, unknown>).mode;
-        if (mode !== 'sites' && mode !== 'four-point') throw new Error('A point-set set-mode action needs the mode "sites" or "four-point".');
+        if (mode !== 'sites' && mode !== 'four-point' && mode !== 'chain' && mode !== 'kettner') throw new Error('A point-set set-mode action needs the mode "sites", "four-point", "chain" or "kettner".');
+    } else if (operation === 'set-pop-rule') {
+        const rule = (data as Record<string, unknown>).rule;
+        if (rule !== 'non-left' && rule !== 'right') throw new Error('A point-set set-pop-rule action needs the rule "non-left" or "right".');
+    } else if (operation === 'set-duplicates') {
+        const duplicates = (data as Record<string, unknown>).duplicates;
+        if (duplicates !== 'merge' && duplicates !== 'keep') throw new Error('A point-set set-duplicates action needs duplicates "merge" or "keep".');
+    } else if (operation === 'select-cell') {
+        const {i, j} = data as Record<string, unknown>;
+        const cell = (v: unknown): boolean => typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= 63;
+        if (!cell(i) || !cell(j)) throw new Error('A point-set select-cell action needs integer cell coordinates i and j from 0 to 63.');
     } else {
-        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction, set-query-point or set-mode.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction, set-query-point, set-polygon, set-mode, set-pop-rule, set-duplicates or select-cell.');
     }
     return action;
 }

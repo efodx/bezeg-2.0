@@ -7,6 +7,7 @@ import {BaseGraphState} from "../base/BaseGraph";
 import {fitBoundingBox} from "../base/fitBoundingBox";
 import {SceneStateUpdate} from "../base/SceneStore";
 import {UnsupportedLessonActionError} from "../../learning/model";
+import type {LessonAction} from "../../learning/model";
 import {PointSetGraphState} from "./PointSetGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {hullRobustnessCollection} from "./compgeoPresetCollections";
@@ -142,6 +143,43 @@ export class HullRobustnessGraph extends HullTraceGraph {
         this.resetTrace();
     }
 
+    /**
+     * Lesson actions: `set-mode` (`chain` or `kettner`; the Voronoi modes are rejected), `set-pop-rule`, `set-duplicates` and
+     * `select-cell` run the very methods of the controls, then pause playback and return the trace to step 0 (also when the
+     * value is already chosen, so a scene starts from a known state). A value outside the control's choices, or a cell
+     * coordinate that is not an integer from 0 to 63, is a lesson-content error and is never clamped or repaired. The other
+     * operations are `HullTraceGraph`'s (`set-algorithm` stays chain-only) and the base class's.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation === "set-mode") {
+            const mode: unknown = action.mode;
+            const parsed = parseRobustnessMode(mode);
+            if (parsed === undefined) throw new Error(`point-set set-mode: this graph's mode must be "chain" or "kettner", got ${String(mode)}.`);
+            this.setRobustnessMode(parsed);
+        } else if (action.operation === "set-pop-rule") {
+            const rule: unknown = action.rule;
+            const parsed = parsePopRule(rule);
+            if (parsed === undefined) throw new Error(`point-set set-pop-rule: rule must be "non-left" or "right", got ${String(rule)}.`);
+            this.setPopRule(parsed);
+        } else if (action.operation === "set-duplicates") {
+            const duplicates: unknown = action.duplicates;
+            const parsed = parseDuplicateRule(duplicates);
+            if (parsed === undefined) throw new Error(`point-set set-duplicates: duplicates must be "merge" or "keep", got ${String(duplicates)}.`);
+            this.setDuplicateRule(parsed);
+        } else if (action.operation === "select-cell") {
+            const i = parseKettnerCoordinate(action.i);
+            const j = parseKettnerCoordinate(action.j);
+            if (i === undefined || j === undefined) {
+                throw new Error(`point-set select-cell: i and j must be integers from 0 to ${String(KETTNER_SIZE - 1)}, got ${String(action.i)} and ${String(action.j)}.`);
+            }
+            this.selectKettnerCell(i, j);
+        } else {
+            super.applyPointSetAction(action);
+            return;
+        }
+        this.resetTrace();
+    }
+
     /** The Kettner view has no trace: Next step and Play do nothing there (no timer starts on the hidden chain). */
     override nextStep(): void {
         if (this.robustnessMode !== "chain") return;
@@ -195,7 +233,9 @@ export class HullRobustnessGraph extends HullTraceGraph {
         this.shownMode = mode;
         if (leaving === undefined || leaving === mode || this.savedViewApplied) return;
         if (leaving === "chain") this.chainBox = this.board.getBoundingBox() as [number, number, number, number];
-        this.showBox(mode === "kettner" ? KETTNER_VIEW : this.chainBox ?? CHAIN_VIEW);
+        // The saved chain box is already the shown view; fitting it again would add the margin and zoom out on every round trip.
+        if (mode === "chain" && this.chainBox) this.board.setBoundingBox([...this.chainBox], true);
+        else this.showBox(mode === "kettner" ? KETTNER_VIEW : CHAIN_VIEW);
     }
 
     setKettnerPanel(panel: KettnerPanel): void {

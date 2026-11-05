@@ -309,10 +309,23 @@ export type LessonAction =
     | {readonly kind: 'point-set'; readonly operation: 'select-site'; readonly site: number | null}
     /** VoronoiGraph only: sets how many bisectors of the chosen site are shown, `'end'` being all of them (the Next/Back/Reset buttons). No chosen site, or a count outside 0 to sites - 1, is a lesson-content error. */
     | {readonly kind: 'point-set'; readonly operation: 'set-construction'; readonly count: number | 'end'}
-    /** VoronoiGraph only: places the query point at `[x, y]`, each a multiple of 1/4 within the coordinate limit (the grid a drag snaps to); `null` returns it to its default. Anything else is a lesson-content error and never snapped. */
+    /**
+     * VoronoiGraph and PointInPolygonGraph only (any other point-set graph throws `UnsupportedLessonActionError`): places the query point at `[x, y]`
+     * on the grid a drag snaps to (VoronoiGraph: multiples of 1/4; PointInPolygonGraph: the polygon's grid steps, whole numbers for its examples) within the
+     * coordinate limit; `null` returns it to its default (PointInPolygonGraph: that of the current figure, (0, 0) for the pentagram, else (3, 1)).
+     * Anything else is a lesson-content error and never snapped.
+     */
     | {readonly kind: 'point-set'; readonly operation: 'set-query-point'; readonly point: readonly [number, number] | null}
-    /** VoronoiGraph and DegenerateSitesGraph only: switches the mode as the mode control does (`sites` or `four-point`; the four-point mode needs exactly four sites, else it is a lesson-content error). Sites, overlays, the chosen site and the query point are untouched. Any other mode value is a lesson-content error. */
-    | {readonly kind: 'point-set'; readonly operation: 'set-mode'; readonly mode: 'sites' | 'four-point'}
+    /** PointInPolygonGraph only (any other point-set graph throws `UnsupportedLessonActionError`): loads an example polygon with its own query point, as the example buttons do. Any other name is a lesson-content error. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-polygon'; readonly polygon: 'notched' | 'pentagram'}
+    /** VoronoiGraph and DegenerateSitesGraph (`sites` or `four-point`) and HullRobustnessGraph (`chain` or `kettner`) only; any other point-set graph throws `UnsupportedLessonActionError`. Switches the mode as the mode control does; the four-point mode needs exactly four sites, else it is a lesson-content error. Sites, overlays, the chosen site and the query point are untouched. A mode the graph does not offer, or any other value, is a lesson-content error. On HullRobustnessGraph it also pauses playback and returns the trace to step 0, and the view follows the mode. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-mode'; readonly mode: 'sites' | 'four-point' | 'chain' | 'kettner'}
+    /** HullRobustnessGraph only (any other point-set graph throws `UnsupportedLessonActionError`): the pop rule control (`non-left` pops on a left turn or collinear points, `right` only on a right turn). Pauses playback and returns the trace to step 0. Any other rule is a lesson-content error. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-pop-rule'; readonly rule: 'non-left' | 'right'}
+    /** HullRobustnessGraph only (any other point-set graph throws `UnsupportedLessonActionError`): the duplicates control (`merge` keeps one of equal points, `keep` keeps them all). Pauses playback and returns the trace to step 0. Any other value is a lesson-content error. */
+    | {readonly kind: 'point-set'; readonly operation: 'set-duplicates'; readonly duplicates: 'merge' | 'keep'}
+    /** HullRobustnessGraph only (any other point-set graph throws `UnsupportedLessonActionError`): selects Kettner cell `(i, j)`, each an integer from 0 to 63; anything else is a lesson-content error and is never clamped. Pauses playback and returns the trace to step 0. */
+    | {readonly kind: 'point-set'; readonly operation: 'select-cell'; readonly i: number; readonly j: number}
     /**
      * Projective graphs' scene actions; the union stays open for the other projective graphs. CrossRatioGraph (K1): `load-example`
      * is the example button; `move-handle` is a drag to the grid point (`handle` 0-3 are A-D on the line y = 0 and take only `x`,

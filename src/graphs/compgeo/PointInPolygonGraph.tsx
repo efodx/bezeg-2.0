@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
+import {LessonAction} from "../../learning/model";
 import {GraphSession} from "../base/GraphSession";
 import {BaseGraphState, TransientState} from "../base/BaseGraph";
 import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
@@ -233,6 +234,47 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
         this.setState(this.patch({query: {...query}}));
         if (this.hasBoard) this.board.setBoundingBox(viewFor(model.points, query, model.gridStepExponent), this.equalAxisUnits);
         this.requestRender();
+    }
+
+    // ---- Lesson actions ------------------------------------------------------------------------------------------
+
+    /** The figure q returns to on `set-query-point` `null`: the pentagram's centre while the polygon is the pentagram, else the notched default. */
+    private defaultQuery(): GridPoint {
+        const vertices = this.model.points;
+        const pentagram = this.model.closed && vertices.length === PENTAGRAM_MODEL.points.length
+            && vertices.every((p, i) => p.x === PENTAGRAM_MODEL.points[i].x && p.y === PENTAGRAM_MODEL.points[i].y);
+        return {...(pentagram ? PENTAGRAM_QUERY : NOTCHED_QUERY)};
+    }
+
+    /**
+     * Lesson actions: `set-polygon` is an example button (`loadFigure`); `set-query-point` places q on the grid a drag snaps to (whole grid
+     * steps of the polygon) and `null` returns it to the current figure's default. A value off the grid or beyond the coordinate limit is a
+     * lesson-content error and is never snapped. `set-overlay` for `ray`, `winding` and `values` is the base class's.
+     */
+    override applyPointSetAction(action: Extract<LessonAction, {kind: "point-set"}>): void {
+        if (action.operation === "set-polygon") {
+            const polygon: unknown = action.polygon;
+            if (polygon !== "notched" && polygon !== "pentagram") throw new Error(`point-set set-polygon: polygon must be "notched" or "pentagram", got ${JSON.stringify(polygon)}.`);
+            this.loadFigure(polygon);
+            return;
+        }
+        if (action.operation === "set-query-point") {
+            const point: unknown = action.point;
+            if (point === null) {
+                this.setQuery(this.defaultQuery());
+                return;
+            }
+            // The lesson gives board units; a grid point is a whole number of the polygon's grid steps.
+            const scale = 2 ** -this.model.gridStepExponent;
+            const limit = this.coordinateLimit;
+            const onGrid = (v: unknown): v is number => typeof v === "number" && isFinite(v) && Number.isInteger(v * scale) && Math.abs(v * scale) <= limit;
+            if (!Array.isArray(point) || point.length !== 2 || !onGrid(point[0]) || !onGrid(point[1])) {
+                throw new Error(`point-set set-query-point: point must be null or [x, y], each a multiple of ${String(2 ** this.model.gridStepExponent)} within ${String(limit)} grid steps, got ${JSON.stringify(point)}.`);
+            }
+            this.setQuery({x: point[0] * scale + 0, y: point[1] * scale + 0});
+            return;
+        }
+        super.applyPointSetAction(action);
     }
 
     // ---- Presets -------------------------------------------------------------------------------------------------
