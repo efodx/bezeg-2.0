@@ -188,7 +188,7 @@ test('every active demonstration route has an available lesson unless it opts ou
     // Every Demonstration has a lesson since the Fortune lesson (sweep task 25) retired fortune from this list.
     // conic-focal ended its opt-out with school function graphs F3 Part B; bspline-blossom with BS-C-L6d; point-in-polygon with convexity lesson 21; hull-robustness with convexity lesson 22; bezier-hulls with convexity lesson 28.
     // curve-evolute opts out until its lesson (CG-B2-4); epicycles until lesson F5 (Fourier 06 F3).
-    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['epicycles', 'curve-evolute']);
+    expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id))).toEqual(['curve-evolute', 'epicycles']);
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 
