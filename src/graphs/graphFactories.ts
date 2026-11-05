@@ -93,6 +93,8 @@ import RationalSubdivisionGraph2 from './curves/rational/RationalSubdivisionGrap
 import RationalBezierCurveGraph from './curves/rational/RationalBezierCurveGraph';
 import ParametricCurveGraph from './curves/parametric/ParametricCurveGraph';
 import CurvatureBezierCurveGraph from './curves/bezier/CurvatureBezierCurveGraph';
+import CurveEvoluteGraph from './curves/bezier/CurveEvoluteGraph';
+import CurveCombGraph from './curves/comb/CurveCombGraph';
 import RungeInterpolationGraph from './functions/RungeInterpolationGraph';
 import LeastSquaresGraph from './functions/LeastSquaresGraph';
 import InterpolationGraph from './curves/interpolation/InterpolationGraph';
@@ -149,6 +151,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'uniform-parameterization': () => new UniformParamBezierCurveGraph(),
     'curve-parametric': () => new ParametricCurveGraph(),
     'curve-curvature': () => new CurvatureBezierCurveGraph(),
+    'curve-comb': () => new CurveCombGraph(),
+    'curve-evolute': () => new CurveEvoluteGraph(),
     'interp-lagrange': () => new InterpolationGraph(),
     'interp-hermite': () => new HermiteGraph(),
     'interp-runge': () => new RungeInterpolationGraph(),

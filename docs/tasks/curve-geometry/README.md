@@ -28,6 +28,7 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-B1-6 | F6 | Batch 1 gate incl. L2 dragging measurement | 5 | done, **Batch 1 released** (handler 45): [criterion audit](../../reviews/curve-geometry/cg-b1-6-criterion-audit.md) with the browser pass, [dragging measurement](../../reviews/curve-geometry/cg-b1-6-dragging-measurement.md), overlay mathematics review, `just check`, hosted CI |
 | CG-B2-1 | F2a | Comb measurement (32/64/128/256 teeth, spline join drag) and comb drawing ADR | B1 shipped, `G-CURVE` | done (handler 45): [measurement](../../reviews/curve-geometry/cg-b2-1-comb-measurement.md), [ADR 0041](../../adr/0041-curvature-comb-drawing.md): one JSXGraph curve, default 64 teeth |
 | CG-B2-2a | F2a | `curve-comb` (one graph switching cubic, C1, C2, G1) and `curve-evolute` graphs | B2-1 | done (handler 46): [evidence](../../reviews/curve-geometry/cg-b2-2a-graphs.md); browser check in 2b |
-| CG-B2-2b…6 | F2b–F6 | Registration, L3/L4 lessons, chapter sections, media, Batch 2 gate | B2-2a | planned |
+| CG-B2-2b | F2b | Register both Demonstrations (route, catalog, factories, `lesson: false`) | B2-2a | done (handler 47): [evidence](../../reviews/curve-geometry/cg-b2-2b-registration.md); fixed the evolute's first paint; it now opens at \(t=0.75\) |
+| CG-B2-3…6 | F3–F6 | L3/L4 lessons, chapter sections, media, Batch 2 gate | B2-2b | planned |
 | CG-B3-2a | F2a | `curve-offset` (with PH cross-check; tangential-cusp detection from the CG-1 review) and optional `curve-envelope` graphs | B2 shipped | planned |
 | CG-B3-2b…6 | F2b–F6 | Registration, L5/L6 lessons, chapter sections, media, Batch 3 gate | B3-2a | planned |

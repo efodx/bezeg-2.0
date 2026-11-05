@@ -35,6 +35,8 @@ const targets = {
     'uniform-parameterization': ['Weighted parameterization checkpoint with ten interior markers; the clip compares this with uniform arc-length spacing', [field('Izberi parametrizacijo', 'alpha', 'select'), field('Število točk', 10)]],
     'curve-parametric': ['Default cycloid with its generating circle, velocity vector and tangent at the opening parameter', []],
     'curve-curvature': ['Default parabola with the osculating circle, its centre and the curvature readout at the opening parameter', []],
+    'curve-comb': ['Default cubic with the curvature comb switched on', [toggle('Glavnik ukrivljenosti')]],
+    'curve-evolute': ['Default parabola with the whole evolute, its cusp and the normal at the opening parameter', []],
     'interp-lagrange': ['Default interpolation points with the Lagrange polynomial through them', []],
     'interp-runge': ['Default Runge function with equispaced interpolation nodes and the polynomial through them', [], [-1.8, 2.1, 1.8, -0.1]],
     'interp-least-squares': ['Default four points with the best line and the squares of its residuals', [], [-1.2, 4.6, 5.7, 0.4]],
