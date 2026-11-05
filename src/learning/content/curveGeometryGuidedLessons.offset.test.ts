@@ -1,5 +1,6 @@
 import {act} from '@testing-library/react';
-import {sceneActions} from '../runtime/lessonCatalog';
+import {getLessonForDemonstration, sceneActions} from '../runtime/lessonCatalog';
+import {LessonSession} from '../runtime/LessonSession';
 import {curveGeometryGuidedLessons, OFFSET_SEGMENT} from './curveGeometryGuidedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
@@ -72,7 +73,7 @@ const countWithoutTickLabels = (graph: OffsetGraphView) => {
 
 const PARABOLA = [[-1, 1], [0, -1], [1, 1]];
 /** The windows written down here, not read from the lesson: the parabola and segment window, and the PH route's window. */
-const BEZIER_VIEW = [-2.6, 2.2, 2.6, -1.6];
+const BEZIER_VIEW = [-3, 3.4, 3, -1.2];
 const PH_VIEW = [-6, 5, 6, -5];
 /** [step id, d, samples, cusps shown, plot shown, expected cusp count, curve kind, view box, control points or undefined for the PH curve]. */
 const CONTRACT: ReadonlyArray<readonly [string, number, number, boolean, boolean, number, 'bezier' | 'ph', readonly number[], number[][] | undefined]> = [
@@ -448,6 +449,46 @@ test('every number the steps quote matches the scene and the closed form, in bot
         expect(example.check.en).toContain('0.9406');
         expect(every('en')).toContain('0.2251');
         expect(every('sl')).toContain('0{,}9406');
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('closing a real curve-offset session returns the state, the board and the one offset overlay to the opening state', () => {
+    const h = mount();
+    try {
+        const objects = () => (h.graph.board.objectsList as ReadonlyArray<Drawn & {labels?: readonly unknown[]}>);
+        const withoutTickLabels = () => {
+            const labels = new Set(objects().filter(object => object.elType === 'ticks').flatMap(ticks => ticks.labels ?? []));
+            return objects().filter(object => !labels.has(object)).length;
+        };
+        const state = {...h.graph.state};
+        const count = withoutTickLabels();
+        const box = h.graph.board.getBoundingBox();
+        const original = h.graph.getFirstCurve().getPoints().map(point => [point.X(), point.Y()]);
+        const before = [...h.graph.offset()!.ownedElements()];
+
+        const lessonOf = getLessonForDemonstration(ID)!;
+        const session = new LessonSession(lessonOf, h.capabilities);
+        act(() => session.start());
+        const target = lessonOf.steps.findIndex(step => step.id === 'offset-ph');
+        for (let guard = 0; session.snapshot().stepIndex < target && guard < 40; guard++) act(() => session.next());
+        // The lesson really moved on: the PH curve replaced the opening parabola.
+        expect(session.snapshot().stepIndex).toBe(target);
+        expect(h.graph.curveKind()).toBe('ph');
+        const during = [...(h.graph.offset()?.ownedElements() ?? [])];
+
+        act(() => session.close());
+        h.graph.board.update();
+        expect(h.graph.state).toMatchObject(state);
+        expect(h.graph.curveKind()).toBe('bezier');
+        expect(h.graph.getFirstCurve().getPoints().map(point => [point.X(), point.Y()])).toEqual(original);
+        h.graph.board.getBoundingBox().forEach((edge, index) => expect(edge).toBeCloseTo(box[index], 9));
+        expect(withoutTickLabels()).toBe(count);
+        const after = [...h.graph.offset()!.ownedElements()];
+        expect(after).toHaveLength(before.length);
+        after.forEach(element => expect(objects().includes(element as Drawn)).toBe(true));
+        [...before, ...during].filter(element => !after.includes(element)).forEach(element => expect(objects().includes(element as Drawn)).toBe(false));
     } finally {
         h.mounted.view.unmount();
     }

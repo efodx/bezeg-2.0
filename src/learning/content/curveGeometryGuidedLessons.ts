@@ -841,7 +841,8 @@ const evoluteLesson: GuidedLesson = {
 /** A straight segment as a quadratic Bezier curve: its offset is a parallel segment (step 1). */
 export const OFFSET_SEGMENT: LessonCurveFixture = {points: [[-1, 0], [0, 0], [1, 0]]};
 /** The window of the parabola and the segment, the same as the route's own window for the Bezier curve. */
-export const OFFSET_VIEW: LessonViewBox = [-2.6, 2.2, 2.6, -1.6];
+// Low on the board: the lesson panel covers its upper half, and the cusps at y = 0.94 must stay clear of it.
+export const OFFSET_VIEW: LessonViewBox = [-3, 3.4, 3, -1.2];
 
 /**
  * A scene of the curve-offset graph. The offset distance, the sample count and the three switches are always set, so the scenes do not
@@ -994,7 +995,7 @@ const offsetLesson: GuidedLesson = {
             ),
             formulaIds: ['offset-speed'],
             frames: [frame('offset-cusps-plot-explanation', 'explanation'), frame('offset-cusps-plot-calculation', 'calculation'), frame('offset-cusps-plot-observation', 'observation')],
-            observationPrompt: text('Poišči presečišči grafa z vodoravno osjo in ju primerjaj z osmi vzporednice.', 'Find where the graph crosses the horizontal axis and compare these points with the cusps of the offset.'),
+            observationPrompt: text('Med orodji poišči graf faktorja hitrosti. Njegovi presečišči z vodoravno osjo primerjaj z osmi vzporednice.', 'Find the speed factor graph among the tools. Compare the points where it crosses the horizontal axis with the cusps of the offset.'),
             expectedObservations: [text('Izpis navaja dve osti, graf faktorja \\(1+d\\kappa\\) pa seka vodoravno os v obeh.', 'The readout lists two cusps and the graph of the factor \\(1+d\\kappa\\) crosses the horizontal axis at both.')],
             workedExampleId: 'offset-parabola-example',
             scene: offsetScene('offset-parabola-cusps', undefined, -1, {cusps: true, plot: true}, 128,
