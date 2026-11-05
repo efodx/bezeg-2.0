@@ -160,8 +160,21 @@ export function offsetSpeedFactor(kappa: number, d: number): number {
 }
 
 /**
- * Parameters where 1 + d*kappa changes sign between consecutive regular samples `ts`, refined by bisection.
- * Intervals touching a singular sample are skipped.
+ * A refined local minimum of f = 1 + d*kappa is a tangential cusp when it is within this many units of 0, scaled by
+ * 1 + |d*kappa| (f is dimensionless; the factor admits the rounding noise of a large d*kappa). A double root locates t
+ * only to about sqrt(machine epsilon) (f ~ c*x^2 and f is evaluated to about 1e-16), i.e. ~1e-8, inside the 1e-6 the
+ * lessons need. A real near miss such as d = -0.49 on y = x^2 leaves f = 0.02, many orders above this.
+ */
+export const TANGENT_CUSP_TOLERANCE = 1e-9;
+/** Cusp parameters closer than this fraction of the sampled parameter range are one cusp. */
+export const CUSP_MERGE_FRACTION = 1e-7;
+
+/**
+ * Parameters where 1 + d*kappa vanishes between regular samples `ts`, sorted. Sign changes between consecutive samples
+ * are refined by bisection. A tangential zero (a double root, where f touches 0 without changing sign) is found as an
+ * interior local minimum of |f| between three same-signed regular samples, refined by golden section and accepted when
+ * |f| <= TANGENT_CUSP_TOLERANCE * (1 + |d*kappa|); if the refined minimum has crossed zero, the two roots are bisected.
+ * Intervals touching a singular sample are skipped. Roots within CUSP_MERGE_FRACTION of the range are merged.
  */
 export function cuspParameters(source: DerivativeSource, ts: ReadonlyArray<number>, d: number): number[] {
     const factor = (t: number): number | undefined => {
@@ -169,35 +182,86 @@ export function cuspParameters(source: DerivativeSource, ts: ReadonlyArray<numbe
         const c = curvatureAt(d1, d2, source.scale);
         return c.kind === 'regular' ? offsetSpeedFactor(c.kappa, d) : undefined;
     };
-    const roots: number[] = [];
-    let prevT: number | undefined;
-    let prevF: number | undefined;
-    for (const t of ts) {
-        const f = factor(t);
-        if (f !== undefined && prevT !== undefined && prevF !== undefined && prevF !== 0 && (f === 0 || (f < 0) !== (prevF < 0))) {
-            let lo = prevT;
-            let hi = t;
-            let fLo = prevF;
-            for (let i = 0; i < 80; i++) {
-                const mid = (lo + hi) / 2;
-                const fm = factor(mid);
-                if (fm === undefined || fm === 0) {
-                    lo = hi = mid;
-                    break;
-                }
-                if ((fm < 0) === (fLo < 0)) {
-                    lo = mid;
-                    fLo = fm;
-                } else {
-                    hi = mid;
-                }
+    const bisect = (a: number, b: number, fa: number): number => {
+        let lo = a;
+        let hi = b;
+        let fLo = fa;
+        for (let i = 0; i < 80; i++) {
+            const mid = (lo + hi) / 2;
+            const fm = factor(mid);
+            if (fm === undefined || fm === 0) {
+                lo = hi = mid;
+                break;
             }
-            roots.push((lo + hi) / 2);
+            if ((fm < 0) === (fLo < 0)) {
+                lo = mid;
+                fLo = fm;
+            } else {
+                hi = mid;
+            }
         }
-        prevT = t;
-        prevF = f;
+        return (lo + hi) / 2;
+    };
+    const fs = ts.map(factor);
+    const roots: number[] = [];
+    for (let i = 1; i < ts.length; i++) {
+        const prevF = fs[i - 1];
+        const f = fs[i];
+        if (f !== undefined && prevF !== undefined && prevF !== 0 && (f === 0 || (f < 0) !== (prevF < 0))) {
+            roots.push(bisect(ts[i - 1], ts[i], prevF));
+        }
     }
-    return roots;
+    // Tangential zeros: strict local minimum of |f| over three same-signed regular samples.
+    for (let i = 1; i + 1 < ts.length; i++) {
+        const fa = fs[i - 1];
+        const fb = fs[i];
+        const fc = fs[i + 1];
+        if (fa === undefined || fb === undefined || fc === undefined || fb === 0) continue;
+        const sign = fb < 0 ? -1 : 1;
+        if (fa * sign <= 0 || fc * sign <= 0) continue;
+        if (!(fb * sign <= fa * sign && fb * sign <= fc * sign && (fb * sign < fa * sign || fb * sign < fc * sign))) continue;
+        const g = (t: number): number => {
+            const v = factor(t);
+            return v === undefined ? Infinity : sign * v;
+        };
+        let lo = ts[i - 1];
+        let hi = ts[i + 1];
+        const inv = (Math.sqrt(5) - 1) / 2;
+        let x1 = hi - inv * (hi - lo);
+        let x2 = lo + inv * (hi - lo);
+        let g1 = g(x1);
+        let g2 = g(x2);
+        for (let k = 0; k < 80; k++) {
+            if (g1 <= g2) {
+                hi = x2; x2 = x1; g2 = g1;
+                x1 = hi - inv * (hi - lo);
+                g1 = g(x1);
+            } else {
+                lo = x1; x1 = x2; g1 = g2;
+                x2 = lo + inv * (hi - lo);
+                g2 = g(x2);
+            }
+        }
+        const tm = (lo + hi) / 2;
+        const gm = g(tm);
+        if (!Number.isFinite(gm)) continue;
+        if (gm < 0) {
+            roots.push(bisect(ts[i - 1], tm, fa), bisect(tm, ts[i + 1], sign * gm));
+        } else {
+            const {d1, d2} = source.at(tm);
+            const c = curvatureAt(d1, d2, source.scale);
+            const dk = c.kind === 'regular' ? Math.abs(d * c.kappa) : 0;
+            if (gm <= TANGENT_CUSP_TOLERANCE * (1 + dk)) roots.push(tm);
+        }
+    }
+    roots.sort((p, q) => p - q);
+    const range = ts.length > 1 ? Math.abs(ts[ts.length - 1] - ts[0]) : 0;
+    const merged: number[] = [];
+    for (const r of roots) {
+        if (merged.length > 0 && r - merged[merged.length - 1] <= CUSP_MERGE_FRACTION * range) continue;
+        merged.push(r);
+    }
+    return merged;
 }
 
 /** Centre of curvature r + N/kappa; undefined (not infinite) where |kappa| * scale <= KAPPA_EPS. */
