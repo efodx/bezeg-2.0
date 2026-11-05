@@ -23,7 +23,7 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-B1-2a' | F2a | `curve-curvature` graph: `BezierCurveGraph` subclass with owned overlay (frame \(T,N\), osculating circle or line, readouts), parabola preset, tangency residual test, disposal test | CG-1 | done ([evidence](../../reviews/curve-geometry/cg-b1-2a-prime-graph.md); browser check in 2b) |
 | CG-B1-2b | F2b | Register both Demonstrations (route, catalog, factories) | `G-REG`, 2a, 2a' | done (`2a6e9c4`, `lesson: false`); fix: the \(t\) slider moved to its own Edit group, since structured editing does not render `getGraphCommands` |
 | CG-B1-3 | F3 | L1 and L2 scenes + one-shot text | 2b | done (`85da034e`, `09ef1a32`); smoke rows pass sl+en incl. 390×844 |
-| CG-B1-4 | F4 | Chapter `curve-geometry` (L1, L2 sections) with guided examples | 3 | planned |
+| CG-B1-4 | F4 | Chapter `curve-geometry` (L1, L2 sections) with guided examples | 3 | done (handler 43; Sonnet worker, handler prose review): chapter after `parametrization`, intro plus two sections. The lessons moved from `parametrization/uniform-timing` and `bezier-curves/geometric-properties`, which had no prose about them. **Breaking:** the interim example ids `lesson.parametrization.uniform-timing.curve-parametric` and `lesson.bezier-curves.geometric-properties.curve-curvature` no longer resolve; the lessons now open from the new chapter. Routes and Presets are unchanged |
 | CG-B1-5 | F5 | Preview clips and example cards | 4 | planned |
 | CG-B1-6 | F6 | Batch 1 gate incl. L2 dragging measurement | 5 | planned |
 | CG-B2-1 | F2a | Comb measurement (32/64/128/256 teeth, spline join drag) and comb drawing ADR | B1 shipped, `G-CURVE` | planned |

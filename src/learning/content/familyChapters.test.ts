@@ -93,13 +93,13 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('publishes twenty-one bilingual chapters with stable section anchors and substantial prose', () => {
+    test('publishes twenty-two bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'projective-conics', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series', 'probability',
+            'foundations', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'curve-geometry', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'projective-conics', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series', 'probability',
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' || chapter.id === 'fourier-series' ? 2 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' || chapter.id === 'fourier-series' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);

@@ -110,9 +110,9 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'voronoi': {chapterId: 'triangulations-voronoi', sectionId: 'voronoi'},
     // The chapter's own section for degenerate sites: cocircular and collinear points (lesson B5).
     'voronoi-degenerate': {chapterId: 'triangulations-voronoi', sectionId: 'voronoi-degenerate'},
-    // Interim owners until a Curve geometry chapter exists: trace versus parameter belongs with parametrization, curvature with the geometric properties of a curve.
-    'curve-parametric': {chapterId: 'parametrization', sectionId: 'uniform-timing'},
-    'curve-curvature': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    // The Geometry of curves chapter owns the parametric and polar curves and the curvature lessons (CG-B1-4).
+    'curve-parametric': {chapterId: 'curve-geometry', sectionId: 'curve-parametric'},
+    'curve-curvature': {chapterId: 'curve-geometry', sectionId: 'curve-curvature'},
     // The Sweep-line algorithms chapter owns the interval sweep and segment intersection lessons (batch S1).
     'interval-sweep': {chapterId: 'sweep-algorithms', sectionId: 'interval-sweep'},
     'interp-lagrange': {chapterId: 'interpolation', sectionId: 'lagrange'},

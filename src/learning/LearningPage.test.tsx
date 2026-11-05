@@ -25,9 +25,8 @@ beforeEach(() => {
     Element.prototype.scrollIntoView = vi.fn();
 });
 
-// Families registered before their chapter exists. Each family's F4 chapter slice removes its entry
-// (docs/tasks/curve-geometry/README.md CG-B1-4, docs/tasks/interpolation-approximation/README.md).
-const FAMILY_CHAPTER_PENDING: readonly string[] = ['/bezeg-2.0/curve-geometry'];
+// Families registered before their chapter exists. Each family's F4 chapter slice removes its entry; none is pending now.
+const FAMILY_CHAPTER_PENDING: readonly string[] = [];
 
 test('Learn contains every family chapter and keeps guided activities inside chapters', () => {
     const {container} = render(<MemoryRouter><LearningPage/></MemoryRouter>);
@@ -36,10 +35,10 @@ test('Learn contains every family chapter and keeps guided activities inside cha
     expect(learningChapters.some(chapter => FAMILY_CHAPTER_PENDING.includes(chapter.family))).toBe(false);
     // A family may own several chapters (maps: linear and complex).
     expect([...new Set(learningChapters.map(chapter => chapter.family))].sort()).toEqual(familiesWithChapters.sort());
-    expect(container.querySelectorAll('.learning-family')).toHaveLength(22);
-    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(22);
+    expect(container.querySelectorAll('.learning-family')).toHaveLength(23);
+    expect(container.querySelectorAll('.learning-topic-heading')).toHaveLength(23);
     // Every chapter has a thumbnail: the B-spline posters landed with BS-A-5b.
-    expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(22);
+    expect(container.querySelectorAll('.learning-thumb img[loading="lazy"]')).toHaveLength(23);
     expect(learningStrands.flatMap(strand => strand.chapters)).toEqual(learningChapters.map(chapter => chapter.id));
     expect(container.querySelectorAll('.learning-step')).toHaveLength(0);
     for (const chapter of learningChapters) {

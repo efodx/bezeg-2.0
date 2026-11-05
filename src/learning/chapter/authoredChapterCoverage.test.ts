@@ -18,7 +18,7 @@ test('both published languages place every audited home exactly once in its owni
             {id: 'bezier-curves', sections: bezierChapter[language].sections},
             ...familyChapters,
         ];
-        expect(chapters).toHaveLength(22);
+        expect(chapters).toHaveLength(23);
         const allReferences: string[] = [];
         for (const chapter of chapters) {
             for (const section of chapter.sections) {
@@ -38,6 +38,7 @@ test('both published languages place every audited home exactly once in its owni
                     ...(chapter.id === 'sweep-algorithms' && section.id !== 'sweep-idea' ? [`sweep-algorithms.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'numerical-methods' && section.id !== 'numerical-idea' ? [`numerical-methods.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'b-splines' && section.id !== 'bspline-idea' ? [`b-splines.${section.id}.${section.id}`] : []),
+                    ...(chapter.id === 'curve-geometry' && section.id !== 'curve-geometry-idea' ? [`curve-geometry.${section.id}.${section.id}`] : []),
                     ...(chapter.id === 'interpolation' && section.id !== 'through-or-near' ? [`interpolation.${section.id}.${interpolationDemonstrations[section.id]}`] : []),
                     ...(chapter.id === 'probability' && section.id !== 'area-and-approximation' ? [`probability.${section.id}.${probabilityDemonstrations[section.id]}`] : []),
                     ...(chapter.id === 'projective-conics' && section.id !== 'projective-idea' ? [`projective-conics.${section.id}.${section.id}`] : []),
@@ -53,7 +54,7 @@ test('both published languages place every audited home exactly once in its owni
                 allReferences.push(...references);
             }
         }
-        expect(allReferences).toHaveLength(122);
-        expect(new Set(allReferences).size).toBe(122);
+        expect(allReferences).toHaveLength(124);
+        expect(new Set(allReferences).size).toBe(124);
     }
 });
