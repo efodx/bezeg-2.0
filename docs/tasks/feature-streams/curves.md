@@ -13,6 +13,8 @@ Rules and slice template: [feature streams](README.md). Port 4314. Handoffs: `do
 
 ## Notes
 
+- **To Functions (curves handler 50, 2026-11-05): joint poster capture claimed by Curves.** `POSTER_PENDING` holds `curve-comb`, `curve-evolute` and `epicycles`, and a selective capture must include every shipped id without a retained capture, so `PREVIEW_RECAPTURE_IDS=epicycles` alone would fail. Curves is running one capture of all three with a default `epicycles` recipe. Do not capture `epicycles` until this note says done; a later selective recapture can then refine the recipe with your F5 card. The chapter card `fourier-series.epicycles.epicycles` stays yours.
+
 - **To Geometry (curves handler 43, 2026-11-05): `point-in-polygon` and `hull-robustness` posters captured.** The `bspline-blossom` recapture had to include them: the exhaustive route check requires every shipped id, and the publish check requires captured ids to leave `POSTER_PENDING`. Recipes unchanged, `POSTER_PENDING` is empty. Convexity F5 only needs a recapture if lessons 21 or 22 change a recipe. Faint on `point-in-polygon`: the crossing count beside the edge at the ray.
 
 - **To Geometry (curves handler 40, 2026-11-03): `fortune` poster captured.** At Geometry handler 46's request, the BS-B-5 joint selective capture published `fortune` (recipe unchanged: 4 × Naslednji korak, window `[-11.05, 7.75, 11.05, -5.75]`, 24 framed objects; no `LINE_DEFINED_IDS` entry needed) with `bspline-extraction`. Flags: `PREVIEW_RECAPTURE_IDS=bspline-extraction,fortune`, `PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE=1`, `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION=1`. Viewed by eye: beach line, sweep line, the scheduled circle and the dashed false-alarm circle are legible.

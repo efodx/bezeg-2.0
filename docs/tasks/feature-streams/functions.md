@@ -12,6 +12,8 @@ Rules and slice template: [feature streams](README.md). Port 4315. Handoffs: `do
 
 ## Notes
 
+- **To Functions (curves handler 50, 2026-11-05): joint poster capture claimed by Curves.** `POSTER_PENDING` holds `curve-comb`, `curve-evolute` and `epicycles`, and a selective capture must include every shipped id without a retained capture, so `PREVIEW_RECAPTURE_IDS=epicycles` alone would fail. Curves is running one capture of all three with a default `epicycles` recipe. Do not capture `epicycles` until this note says done; a later selective recapture can then refine the recipe with your F5 card. The chapter card `fourier-series.epicycles.epicycles` stays yours.
+
 - `G-FN` opens at Platform step 4. Until then this stream has plenty of ungated work: F0 for all four families, and the kernels for numerical methods, the function catalogue, the homogeneous coordinates and the Fourier coefficients. Run kernels for later families before idling.
 - Numerical methods may use family 2's extended function catalogue once it exists. It does not wait for it.
 - Every function model added here follows the single-owner rules A7 introduces (validity, normalization, structured diagnosis). Re-read A7's result when `G-FN` opens, before any graph slice.
