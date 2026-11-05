@@ -7,6 +7,7 @@ import {
 } from "../../compgeo/curvePairSubdivision";
 import {PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
 import type {HullPoint} from "../../compgeo/hullSeparation";
+import {Preset} from "../base/presets/Presets";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -32,17 +33,33 @@ export interface BezierHullsGraphState extends PointSetGraphState {
     step: number;
 }
 
-/** How a drawn piece looks (the outline keeps the curve's dash unless `dash` is given). */
+/**
+ * How a group of drawn pieces looks. Every group keeps its curve's dash (A solid, B dashed), so the two curves differ by more
+ * than colour at every step; the groups differ in fill, stroke width and opacity.
+ */
 type PieceLook = Record<string, unknown>;
 const OUTLINE_WIDTH = 2.5;
 /** Split step: a candidate is an outline with no fill. */
 const CANDIDATE_LOOK: PieceLook = {fillOpacity: 0, strokeOpacity: 1, strokeWidth: OUTLINE_WIDTH};
 /** Split step: the parent whose halves are the candidates, a thin outline. */
 const PARENT_LOOK: PieceLook = {fillOpacity: 0, strokeOpacity: 0.7, strokeWidth: 1};
-/** Discard step: a piece in a kept pair is filled and solid. */
-const KEPT_LOOK: PieceLook = {fillOpacity: 0.25, strokeOpacity: 1, strokeWidth: OUTLINE_WIDTH, dash: 0};
-/** Discard step: a piece in no kept pair is faded and dashed (not by colour alone). */
-const FADED_LOOK: PieceLook = {fillOpacity: 0, strokeOpacity: 0.3, strokeWidth: 1.5, dash: 3};
+/** Discard step: a piece in a kept pair is filled, full strength and thick. */
+const KEPT_LOOK: PieceLook = {fillOpacity: 0.25, strokeOpacity: 1, strokeWidth: OUTLINE_WIDTH};
+/** Discard step: a piece in no kept pair is faded and thin with no fill (not by colour alone); 0.5 stays legible when projected. */
+const FADED_LOOK: PieceLook = {fillOpacity: 0, strokeOpacity: 0.5, strokeWidth: 1.5};
+/** The control polygons of the pieces: the base look of a control polygon, fainter for the faded pieces. */
+const CONTROL_LOOK: PieceLook = {strokeOpacity: 0.7, strokeWidth: 1.5};
+const FADED_CONTROL_LOOK: PieceLook = {strokeOpacity: 0.35, strokeWidth: 1};
+
+/** The groups a step draws, per curve: one JSXGraph curve each for the hull rings and one for the control polygons. */
+export type PieceGroup = "candidate" | "parent" | "kept" | "faded";
+const GROUP_LOOKS: Record<PieceGroup, PieceLook> = {candidate: CANDIDATE_LOOK, parent: PARENT_LOOK, kept: KEPT_LOOK, faded: FADED_LOOK};
+const GROUP_CONTROL_LOOKS: Record<PieceGroup, PieceLook | undefined> = {candidate: CONTROL_LOOK, parent: undefined, kept: CONTROL_LOOK, faded: FADED_CONTROL_LOOK};
+/** Board object names of the grouped curves: `pieceHullA-kept`, `pieceControlB-faded`. */
+export const pieceHullName = (name: CurveName, group: PieceGroup) => `pieceHull${name}-${group}`;
+export const pieceControlName = (name: CurveName, group: PieceGroup) => `pieceControl${name}-${group}`;
+
+type BoardPoint = {x: number; y: number};
 
 function stepOf(value: unknown): number | undefined {
     return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : undefined;
@@ -247,6 +264,13 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
         return state;
     }
 
+    /** A Preset that names no step (or an invalid one) shows step 0, never the step the graph happened to be at. */
+    override importPreset(preset: Preset): void {
+        const named = preset.graphState && "step" in preset.graphState ? stepOf(preset.graphState.step) : undefined;
+        if (named === undefined) this.setState(this.patch({step: 0}));
+        super.importPreset(preset);
+    }
+
     /** An imported model keeps the step that the Preset's `graphState` just set, clamped to the new run; playback is paused. */
     override importPresetData(data: PointSetModel): void {
         const model = serializePointSetModel(data);
@@ -259,7 +283,7 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
-        const stored = "step" in merged ? stepOf(merged.step) : undefined;
+        const stored = graphState && "step" in graphState ? stepOf(graphState.step) : undefined;
         const state: BezierHullsGraphState = {...merged, step: Math.min(stored ?? 0, this.runFor(merged.model.points).length - 1)};
         return state;
     }
@@ -299,44 +323,68 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
         return this.inputsMemo;
     }
 
+    /**
+     * A fixed set of JSXGraph curves instead of one object per piece: per curve (A, B) and look, one curve for the hull rings and
+     * one for the control polygons, the pieces of the group separated by NaN breaks (a PenUp in the SVG path, so a filled curve
+     * fills each ring on its own). Each hull ring repeats its first vertex to close it; a segment hull is the 3-vertex ring
+     * there and back, a point hull two equal vertices (a dot, with round caps). Empty groups are not drawn.
+     * At step 0 the whole-curve hull and control polygon are the `hull` and `control` overlays' own, so they are not drawn twice.
+     */
     protected override drawOverlay(id: CurvePairOverlayId | BezierHullsOverlayId | "grid", model: PointSetModel): JXG.GeometryElement[] {
         if (id !== "pieces") return super.drawOverlay(id, model);
         const {a, b, degree} = this.curvePairNets(model);
         const run = this.runFor(model.points);
         const state = curvePairStateAt(run, Math.min(this.step, run.length - 1));
-        const withControl = this.overlayShown("control");
+        const start = state.depth === 0;
+        const withHull = !(start && this.overlayShown("hull"));
+        const withControl = this.overlayShown("control") && !start;
         const split = state.phase === "split";
         return ([["A", a, 0], ["B", b, 1]] as const).flatMap(([name, net, curve]) => {
             const candidates = unique(state.candidates.map(pair => pair[curve]));
             const kept = new Set(state.kept.map(pair => pair[curve]));
             const pieces = curvePieces(net, state.depth);
-            const parentDepth = state.depth - 1;
+            const groups: Record<PieceGroup, {piece: readonly HullPoint[]; depth: number}[]> = {candidate: [], parent: [], kept: [], faded: []};
+            for (const i of candidates) groups[split ? "candidate" : kept.has(i) ? "kept" : "faded"].push({piece: pieces[i], depth: state.depth});
             // A split step shows the pieces about to be tested inside the pieces they halve.
-            const parents = split ? unique(candidates.map(i => i >> 1)) : [];
-            const parentPieces = split ? curvePieces(net, parentDepth) : [];
-            return [
-                ...parents.flatMap(i => this.drawPieceHull(parentPieces[i], parentDepth, degree, name, model, `parent${name}${i}`, PARENT_LOOK)),
-                ...candidates.flatMap(i => [
-                    ...this.drawPieceHull(pieces[i], state.depth, degree, name, model, `piece${name}${i}`,
-                        split ? CANDIDATE_LOOK : kept.has(i) ? KEPT_LOOK : FADED_LOOK),
-                    ...(withControl ? [this.drawPieceControl(pieces[i], name, model, `pieceControl${name}${i}`)] : []),
-                ]),
-            ];
+            if (split) {
+                const parentPieces = curvePieces(net, state.depth - 1);
+                for (const i of unique(candidates.map(c => c >> 1))) groups.parent.push({piece: parentPieces[i], depth: state.depth - 1});
+            }
+            return (Object.keys(groups) as PieceGroup[]).flatMap(group => {
+                const members = groups[group];
+                if (members.length === 0) return [];
+                const style = this.curveStyle(name);
+                const common = {strokeColor: style.strokeColor, dash: style.dash, highlight: false, fixed: true, withLabel: false};
+                const drawn: JXG.GeometryElement[] = [];
+                if (withHull) {
+                    const rings = members.map(({piece, depth}) => this.hullRing(piece, depth, degree, model));
+                    drawn.push(this.curveOfRings(rings, {...common, ...GROUP_LOOKS[group], fillColor: style.strokeColor, linecap: "round", layer: 2,
+                        name: pieceHullName(name, group)}));
+                }
+                const controlLook = GROUP_CONTROL_LOOKS[group];
+                if (withControl && controlLook) {
+                    const rings = members.map(({piece}) => piece.map(p => this.toBoard(p, model)));
+                    drawn.push(this.curveOfRings(rings, {...common, ...controlLook, layer: 3, name: pieceControlName(name, group)}));
+                }
+                return drawn;
+            });
         });
     }
 
-    /** The hull of one piece (dyadic grid units), exact through `pieceHull`, in board units; `look` sets fill, opacity, dash and width. */
-    private drawPieceHull(piece: readonly HullPoint[], depth: number, degree: number, name: CurveName, model: PointSetModel,
-                          objectName: string, look: PieceLook): JXG.GeometryElement[] {
-        const style = this.curveStyle(name);
-        const outline = {strokeColor: style.strokeColor, dash: style.dash, highlight: false, fixed: true, ...look};
-        // A polygon takes the fill at the top and the outline in `borders`; a two-vertex hull is one curve and takes the top level.
-        return this.drawHull(pieceHull(piece, depth, degree).map(i => piece[i]), name, model, {...look, name: objectName, borders: outline});
+    /** The closed ring of one piece's hull in board units, exact through `pieceHull`; a point hull is its vertex twice. */
+    private hullRing(piece: readonly HullPoint[], depth: number, degree: number, model: PointSetModel): BoardPoint[] {
+        const corners = pieceHull(piece, depth, degree).map(i => this.toBoard(piece[i], model));
+        return corners.length === 1 ? [corners[0], corners[0]] : [...corners, corners[0]];
     }
 
-    private drawPieceControl(piece: readonly HullPoint[], name: CurveName, model: PointSetModel, objectName: string): JXG.GeometryElement {
-        const polygon = this.drawControlPolygon(piece, name, model);
-        polygon.setAttribute({name: objectName});
-        return polygon;
+    /** One curve through several polylines, separated by NaN breaks (no trailing break). */
+    private curveOfRings(rings: readonly BoardPoint[][], attributes: Record<string, unknown>): JXG.GeometryElement {
+        const xs: number[] = [];
+        const ys: number[] = [];
+        rings.forEach((ring, k) => {
+            if (k > 0) { xs.push(NaN); ys.push(NaN); }
+            for (const p of ring) { xs.push(p.x); ys.push(p.y); }
+        });
+        return this.board.create("curve", [xs, ys], attributes) as JXG.GeometryElement;
     }
 }

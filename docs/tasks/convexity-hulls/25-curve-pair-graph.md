@@ -1,6 +1,6 @@
 # 25 — Pair-of-curves graph (Batch 3, F2a)
 
-Status: planned 2026-11-05 (geometry handler 52). Source: spec [A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons) (graph, acceptance 5), [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md) (the D2 clipping graph reuses it). Kind: F2a, engineering + UI/accessibility review. Depends on 24. Templates: `HullTraceGraph.tsx`, `traceLessonActions.ts`, task [18](18-point-in-polygon-graph.md).
+Status: built 2026-11-05 (geometry handler 53, Sonnet high workers, slices 25a and 25b; planned by 52); engineering and UI review found no blocker and its three low findings were repaired in 26b. Source: spec [A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons) (graph, acceptance 5), [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md) (the D2 clipping graph reuses it). Kind: F2a, engineering + UI/accessibility review. Depends on 24. Templates: `HullTraceGraph.tsx`, `traceLessonActions.ts`, task [18](18-point-in-polygon-graph.md).
 
 **Why a point-set subclass and not `BaseBezierCurveGraph`.** `PointSetGraph` already provides the snapped drag, arrow keys, the numeric list, overlay ownership and Preset parsing. `HullTraceGraph` gives the playback pattern, and D2 needs that same playback. The curve graph's editing operations (add, join, subdivide, elevate) would all have to be disabled, and its points are not grid points, which the exact drawn hulls need.
 
@@ -13,7 +13,7 @@ Two classes under `src/graphs/compgeo/`:
    - It draws both curves and the overlays `control` (control polygons) and `hull` (the hull of each whole curve). Overlay objects use fixed data from the model, as the base's overlay contract requires.
 2. **`BezierHullsGraph extends CurvePairGraph`**, A6's playback. State adds `step`. It holds a memoized `curvePairRun`, Next step, Play, Pause and Reset through `IterationController`, and `registerTraceCommands`. Any model change, drag included, recomputes the run, returns to step 0 and pauses (acceptance 5). A scene change, figure capture and unmount pause; unmount disposes the controller.
 
-**Drawing a step.** The `pieces` overlay draws each piece's hull from `pieceHull`, mapped to board units through the grid step, together with each piece's control polygon when `control` is on.
+**Drawing a step.** The `pieces` overlay draws each piece's hull from `pieceHull`, mapped to board units through the grid step, together with each piece's control polygon when `control` is on. Since task 26's measurement, pieces are a fixed set of JSXGraph curves with `NaN` breaks, one per curve and look, not one polygon per piece ([measurement](../../reviews/convexity-hulls/26-measure.md)).
 
 - At a `split` step, candidates are outlined and unfilled, and the parent's hull stays as a thin outline, so "two smaller hulls inside the first" is visible.
 - At a `discard` step, pieces in a kept pair are filled and solid. Pieces in no kept pair are faded and dashed, so colour is not the only signal.
