@@ -54,4 +54,16 @@ describe('bspline Preset collection', () => {
         expect(rendered[1]).not.toBe(rendered[0]);
         expect(rendered[1]).not.toMatch(/\{value\d\}/);
     });
+
+    it('checks the shape of the stored blossom arguments, with the reason in Slovenian and English', () => {
+        expect(bsplinePresetCollection.checkGraphState!({args: [0, 0.5, 1]})).toBeUndefined();
+        for (const args of [0.5, [0, '1'], [0, Infinity]]) {
+            const reason = bsplinePresetCollection.checkGraphState!({args})!;
+            expect(reason.key).toBe('invalid_value');
+            expect(renderMessage(reason)).toBe('neveljavna vrednost args');
+            setLanguage('en');
+            expect(renderMessage(reason)).toBe('invalid value args');
+            setLanguage('sl');
+        }
+    });
 });

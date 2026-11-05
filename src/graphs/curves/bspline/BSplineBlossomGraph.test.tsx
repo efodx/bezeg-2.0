@@ -213,6 +213,9 @@ describe('L6 acceptance 4: only degree 2 and 3', () => {
             try { act(() => graph.importPresetData(data)); } catch (e) { error = e; }
             expect(error).toBeInstanceOf(LocalizedError);
             expect((error as LocalizedError).message).toBe(`cvetenje je na voljo za stopnji 2 in 3, krivulja pa ima stopnjo ${data.degree}`);
+            setLanguage('en');
+            expect((error as LocalizedError).message).toBe(`blossoms are offered for degree 2 and 3 only, but the curve has degree ${data.degree}`);
+            setLanguage('sl');
             expect(graph.exportPresetData()).toEqual(before);
         }
         expect(graph.state.degree).toBe(2);
