@@ -1,6 +1,6 @@
 # 25 — Pair-of-curves graph (Batch 3, F2a)
 
-Status: built 2026-11-05 (geometry handler 53, Sonnet high workers, slices 25a and 25b; planned by 52); engineering and UI review found no blocker and its three low findings were repaired in 26b. Source: spec [A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons) (graph, acceptance 5), [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md) (the D2 clipping graph reuses it). Kind: F2a, engineering + UI/accessibility review. Depends on 24. Templates: `HullTraceGraph.tsx`, `traceLessonActions.ts`, task [18](18-point-in-polygon-graph.md).
+Status: accepted 2026-11-05 (geometry handler 53, Sonnet high workers, slices 25a and 25b; planned by 52); engineering and UI review found no blocker and its three low findings were repaired in 26b. Source: spec [A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons) (graph, acceptance 5), [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md) (the D2 clipping graph reuses it). Kind: F2a, engineering + UI/accessibility review. Depends on 24. Templates: `HullTraceGraph.tsx`, `traceLessonActions.ts`, task [18](18-point-in-polygon-graph.md).
 
 **Why a point-set subclass and not `BaseBezierCurveGraph`.** `PointSetGraph` already provides the snapped drag, arrow keys, the numeric list, overlay ownership and Preset parsing. `HullTraceGraph` gives the playback pattern, and D2 needs that same playback. The curve graph's editing operations (add, join, subdivide, elevate) would all have to be disabled, and its points are not grid points, which the exact drawn hulls need.
 
@@ -16,7 +16,7 @@ Two classes under `src/graphs/compgeo/`:
 **Drawing a step.** The `pieces` overlay draws each piece's hull from `pieceHull`, mapped to board units through the grid step, together with each piece's control polygon when `control` is on. Since task 26's measurement, pieces are a fixed set of JSXGraph curves with `NaN` breaks, one per curve and look, not one polygon per piece ([measurement](../../reviews/convexity-hulls/26-measure.md)).
 
 - At a `split` step, candidates are outlined and unfilled, and the parent's hull stays as a thin outline, so "two smaller hulls inside the first" is visible.
-- At a `discard` step, pieces in a kept pair are filled and solid. Pieces in no kept pair are faded and dashed, so colour is not the only signal.
+- At a `discard` step, pieces in a kept pair are filled and solid. Pieces in no kept pair are faded, thin and unfilled, so colour is not the only signal; each curve keeps its own dash. Kept pieces are drawn above and wider than the curve, and past step 0 the whole-curve hull is an unfilled faint outline, so a depth 4 sliver stays visible (handler 53, seen in the route smoke).
 
 Use the `POINT_SET_OVERLAY_NAMES` entry `hull` for the whole hull and add `control` and `pieces`.
 

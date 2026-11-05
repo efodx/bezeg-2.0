@@ -239,6 +239,22 @@ test('the whole-curve hull of step 0 is drawn by the pieces overlay only when th
     });
 });
 
+test('past step 0 the whole-curve hulls lose their fill and fade to context; hiding pieces or Reset brings them back', () => {
+    const graph = new Observed();
+    mount(graph);
+    const polygons = () => objects(graph).filter(o => o.elType === 'polygon') as unknown as {visProp: {fillopacity: number}}[];
+    const fills = () => polygons().map(p => p.visProp.fillopacity);
+    expect(fills()).toEqual([0.12, 0.12]);
+    stepTo(graph, 2);
+    expect(fills()).toEqual([0, 0]);
+    act(() => graph.setOverlay('pieces', false));
+    expect(fills()).toEqual([0.12, 0.12]);
+    act(() => graph.setOverlay('pieces', true));
+    expect(fills()).toEqual([0, 0]);
+    act(() => graph.resetTrace());
+    expect(fills()).toEqual([0.12, 0.12]);
+});
+
 test('a hull that is a segment or a point stays visible as a ring of two or three vertices', () => {
     const graph = new Observed();
     mount(graph);
@@ -279,6 +295,9 @@ test('discard steps: kept pieces are filled and thick, faded ones thin, unfilled
                 // kept pieces of B stay dashed, so A and B differ by more than colour on discard steps
                 expect(look(c)).toMatchObject({stroke: 1, dash});
                 expect(look(c).fill).toBeGreaterThan(0);
+                // a depth 4 piece is a sliver along the curve: it must sit above the curve's stroke and be wider than it
+                expect(look(c).width).toBeGreaterThan(3);
+                expect((c as unknown as {visProp: {layer: number}}).visProp.layer).toBeGreaterThan(5);
             }
             for (const c of groupCurve(graph, 'Hull', curve, 'faded')) {
                 sawFaded = true;

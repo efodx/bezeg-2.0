@@ -1,6 +1,6 @@
 # 26 — Readout, Presets and the depth 4 measurement (Batch 3, F2a)
 
-Status: planned 2026-11-05 (geometry handler 52). Source: spec [A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons), [performance plan](../../performance-plan.md). Kind: F2a, engineering + UI/accessibility review. Depends on 25.
+Status: accepted 2026-11-05 (geometry handler 53; planned by 52). Fallback taken: the last step fell from 114 ms and 382 objects to 9.3 ms and 66 ([measurement](../../reviews/convexity-hulls/26-measure.md)). The readout's live text is a hidden `role="status"` paragraph, silent during Play, as in `HullTraceControls`. Source: spec [A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons), [performance plan](../../performance-plan.md). Kind: F2a, engineering + UI/accessibility review. Depends on 25.
 
 1. **Readout and controls.** `BezierHullsControls.tsx` holds Next step, Play/Pause and Reset, and a readout outside the board (`role="status"`, one line per item):
    - the depth;

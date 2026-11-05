@@ -1,6 +1,6 @@
 # 27 — Batch 3 registration (Batch 3, F2b)
 
-Status: planned 2026-11-05 (geometry handler 52). Template: [20](20-batch2-registration.md). Kind: F2b, engineering review. Depends on 26.
+Status: accepted 2026-11-05 (geometry handler 53; planned by 52), poster pending: `bezier-hulls` is in `POSTER_PENDING` with a recipe at the depth 3 verdict (window ratio 1.636). Title "Ovojnice Bézierovih krivulj". Focused gate passed at `ced32616`; route smoke at the same revision (`27-smoke/`), with the look repair rechecked by screenshot. Template: [20](20-batch2-registration.md). Kind: F2b, engineering review. Depends on 26.
 
 | Id | Path | Graph | Preset key |
 | --- | --- | --- | --- |

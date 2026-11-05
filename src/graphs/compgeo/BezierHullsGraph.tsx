@@ -37,13 +37,18 @@ export interface BezierHullsGraphState extends PointSetGraphState {
  * than colour at every step; the groups differ in fill, stroke width and opacity.
  */
 type PieceLook = Record<string, unknown>;
-const OUTLINE_WIDTH = 2.5;
+/** The stroke of a kept piece: wider than the curve, so a depth 4 piece, a sliver along the curve, still shows. */
+const KEPT_WIDTH = 6;
+/** Hull rings of these looks sit above the curves (layer 5): at depth 3 and 4 they would otherwise hide under the curve's stroke. */
+const ABOVE_CURVE_LAYER = 6;
+/** Past step 0 the whole-curve hull is context, a faint outline with no fill, so the pieces carry the picture. */
+const WHOLE_HULL_CONTEXT = {fillOpacity: 0, borders: {strokeOpacity: 0.35, strokeWidth: 1, highlight: false, fixed: true}};
 /** Split step: a candidate is an outline with no fill. */
-const CANDIDATE_LOOK: PieceLook = {fillOpacity: 0, strokeOpacity: 1, strokeWidth: OUTLINE_WIDTH};
+const CANDIDATE_LOOK: PieceLook = {fillOpacity: 0, strokeOpacity: 1, strokeWidth: 3.5, layer: ABOVE_CURVE_LAYER};
 /** Split step: the parent whose halves are the candidates, a thin outline. */
 const PARENT_LOOK: PieceLook = {fillOpacity: 0, strokeOpacity: 0.7, strokeWidth: 1};
 /** Discard step: a piece in a kept pair is filled, full strength and thick. */
-const KEPT_LOOK: PieceLook = {fillOpacity: 0.25, strokeOpacity: 1, strokeWidth: OUTLINE_WIDTH};
+const KEPT_LOOK: PieceLook = {fillOpacity: 0.25, strokeOpacity: 1, strokeWidth: KEPT_WIDTH, layer: ABOVE_CURVE_LAYER};
 /** Discard step: a piece in no kept pair is faded and thin with no fill (not by colour alone); 0.5 stays legible when projected. */
 const FADED_LOOK: PieceLook = {fillOpacity: 0, strokeOpacity: 0.5, strokeWidth: 1.5};
 /** The control polygons of the pieces: the base look of a control polygon, fainter for the faded pieces. */
@@ -325,7 +330,18 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
      * there and back, a point hull two equal vertices (a dot, with round caps). Empty groups are not drawn.
      * At step 0 the whole-curve hull and control polygon are the `hull` and `control` overlays' own, so they are not drawn twice.
      */
+    /** The two whole-curve hulls as faint outlines; each border keeps its curve's colour and dash. */
+    private drawContextHulls(model: PointSetModel): JXG.GeometryElement[] {
+        const {a, b, degree} = this.curvePairNets(model);
+        return ([["A", a], ["B", b]] as const).flatMap(([name, net]) => {
+            const {strokeColor, dash} = this.curveStyle(name);
+            const attributes = {...WHOLE_HULL_CONTEXT, borders: {...WHOLE_HULL_CONTEXT.borders, strokeColor, dash}};
+            return this.drawHull(pieceHull(net, 0, degree).map(i => net[i]), name, model, attributes);
+        });
+    }
+
     protected override drawOverlay(id: CurvePairOverlayId | BezierHullsOverlayId | "grid", model: PointSetModel): JXG.GeometryElement[] {
+        if (id === "hull" && this.step > 0 && this.overlayShown("pieces")) return this.drawContextHulls(model);
         if (id !== "pieces") return super.drawOverlay(id, model);
         const {a, b, degree} = this.curvePairNets(model);
         const run = this.runFor(model.points);
@@ -353,7 +369,7 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
                 const drawn: JXG.GeometryElement[] = [];
                 if (withHull) {
                     const rings = members.map(({piece, depth}) => this.hullRing(piece, depth, degree, model));
-                    drawn.push(this.curveOfRings(rings, {...common, ...GROUP_LOOKS[group], fillColor: style.strokeColor, linecap: "round", layer: 2,
+                    drawn.push(this.curveOfRings(rings, {...common, layer: 2, ...GROUP_LOOKS[group], fillColor: style.strokeColor, linecap: "round",
                         name: pieceHullName(name, group)}));
                 }
                 const controlLook = GROUP_CONTROL_LOOKS[group];

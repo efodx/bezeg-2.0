@@ -65,9 +65,9 @@ Planned 2026-11-05 (geometry handler 52). Kernel [11](11-hull-separation.md) was
 | # | Task | Kind | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | 24 | [Curve pair subdivision model](24-curve-pair-model.md) | F1 | 11 | accepted 2026-11-05 |
-| 25 | [Pair-of-curves graph](25-curve-pair-graph.md) | F2a | 24 | planned |
-| 26 | [Readout, Presets and the depth 4 measurement](26-curve-pair-readout.md) | F2a | 25 | planned |
-| 27 | [Batch 3 registration](27-batch3-registration.md): `bezier-hulls` | F2b | 26 | planned |
+| 25 | [Pair-of-curves graph](25-curve-pair-graph.md) | F2a | 24 | accepted 2026-11-05 |
+| 26 | [Readout, Presets and the depth 4 measurement](26-curve-pair-readout.md) | F2a | 25 | accepted 2026-11-05 |
+| 27 | [Batch 3 registration](27-batch3-registration.md): `bezier-hulls` | F2b | 26 | accepted 2026-11-05, poster pending |
 | 28 | [Lesson A6 scene, wiring and chapter section](28-lesson-bezier-hulls.md) | F3, F4 | 27 | planned |
 | 29 | [Lesson A6 tests and gates](29-lesson-bezier-hulls-tests.md) | F3 | 28 | planned |
 | — | F5 poster; F6 acceptance | F5–F6 | 29 | planned |

@@ -2422,7 +2422,7 @@ export const sl = {
     "hullrobust_keyboard_note": "Celica se izbere s klikom, s puščičnimi tipkami na grafu ali s poljema i in j. Točk na tem zemljevidu ni mogoče vleči.",
     // Bezier hulls graph readout (convexity task 26).
     "bezierhulls_controls_label": "Predvajanje subdivizije",
-    "bezierhulls_playback_note": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba kontrolne točke vrne prikaz na začetek in ustavi predvajanje. Zapolnjena ovojnica s polnim robom: par ostane; tanka črtkana ovojnica: par je zavržen.",
+    "bezierhulls_playback_note": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba kontrolne točke vrne prikaz na začetek in ustavi predvajanje. Debela zapolnjena ovojnica: par ostane; tanka ovojnica brez polnila: par je zavržen.",
     "bezierhulls_depth": "Globina subdivizije: {value0} od {value1}",
     "bezierhulls_candidates": "Pari odsekov za preizkus: {value0}. Odločitve še ni: ovojnice so šele na vrsti.",
     "bezierhulls_kept": "Ostane parov odsekov: {value0} od {value1}",
