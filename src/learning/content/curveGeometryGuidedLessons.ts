@@ -993,7 +993,7 @@ const offsetLesson: GuidedLesson = {
                 'The parabola is back, now at \\(d=-1\\), with the cusps and the graph of the speed factor \\(1+d\\kappa\\). The factor is \\(0\\) at \\(x=\\pm0.38321\\). There the cusps of the offset are at the points \\((\\mp0.2251,\\ 0.9406)\\), which lie on the evolute \\(E(x)=(-4x^3,3x^2+\\tfrac12)\\). The graph of the factor crosses the horizontal axis there. Only local cusps are shown.',
             ),
             formulaIds: ['offset-speed'],
-            frames: [frame('offset-cusps-plot-explanation', 'explanation'), frame('offset-cusps-plot-observation', 'observation')],
+            frames: [frame('offset-cusps-plot-explanation', 'explanation'), frame('offset-cusps-plot-calculation', 'calculation'), frame('offset-cusps-plot-observation', 'observation')],
             observationPrompt: text('Poišči presečišči grafa z vodoravno osjo in ju primerjaj z osmi vzporednice.', 'Find where the graph crosses the horizontal axis and compare these points with the cusps of the offset.'),
             expectedObservations: [text('Izpis navaja dve osti, graf faktorja \\(1+d\\kappa\\) pa seka vodoravno os v obeh.', 'The readout lists two cusps and the graph of the factor \\(1+d\\kappa\\) crosses the horizontal axis at both.')],
             workedExampleId: 'offset-parabola-example',
