@@ -37,7 +37,8 @@ function withoutMath(source: string) {
 // point-in-polygon joined the convexity chapter with its A3 lesson and section (convexity task 21).
 // hull-robustness joined the convexity chapter with its A5 lesson and section (convexity task 22).
 // bezier-hulls joined the convexity chapter with its A6 lesson and section (convexity task 28); curve-evolute with its L4 lesson and section (CG-B2-4); curve-offset with its L5 lesson and section (CG-B3-3); epicycles with its F5 lesson and section (Fourier 06 F3, F4).
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons'];
+// curve-envelope awaits its lesson L6 and chapter section (CG-B3-4).
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'curve-envelope'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 

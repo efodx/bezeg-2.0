@@ -6,6 +6,7 @@ import {COMB_MAX_COUNT, COMB_MIN_COUNT} from "../../bezeg/impl/curve/curvature";
 import {COMB_GAIN_MAX, COMB_GAIN_MIN} from "./comb/curveComb";
 import {OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "./object/JXGPHBezierCurve";
 import {OFFSET_SAMPLES_MAX, OFFSET_SAMPLES_MIN} from "./offset/curveOffset";
+import {ENVELOPE_LINES_MAX, ENVELOPE_LINES_MIN} from "./envelope/curveEnvelope";
 
 /**
  * One stored curve: control points, with weights (rational), the PH generating point and hodograph points, or spline
@@ -161,6 +162,19 @@ export const curveOffsetPresetCollection = curveCollection("curve-offset", {
     },
 });
 
+/** The envelope Demonstration's collection (lesson L6): a Bézier curve of any degree, with the envelope display state. */
+export const curveEnvelopePresetCollection = curveCollection("curve-envelope", {
+    type: "JSXBezierCurve",
+    graphState: ({envelopeT, envelopeLineCount, envelopeLinesShown, envelopeCurveShown, envelopeTouchShown}) => {
+        if (envelopeT !== undefined && !(isFiniteNumber(envelopeT) && envelopeT >= 0 && envelopeT <= 1)) return message("invalid_parameter", {value0: "envelopeT"});
+        if (envelopeLineCount !== undefined && !(isIntegerAtLeast(envelopeLineCount, ENVELOPE_LINES_MIN) && envelopeLineCount <= ENVELOPE_LINES_MAX)) return message("invalid_parameter", {value0: "envelopeLineCount"});
+        if (envelopeLinesShown !== undefined && typeof envelopeLinesShown !== "boolean") return message("invalid_option", {value0: "envelopeLinesShown"});
+        if (envelopeCurveShown !== undefined && typeof envelopeCurveShown !== "boolean") return message("invalid_option", {value0: "envelopeCurveShown"});
+        if (envelopeTouchShown !== undefined && typeof envelopeTouchShown !== "boolean") return message("invalid_option", {value0: "envelopeTouchShown"});
+        return undefined;
+    },
+});
+
 /**
  * The Preset collections of the curve Demonstrations, by Demonstration id. Collections of one curve type share their
  * rules; a collection differs only in its key, and PH collections in their degree.
@@ -195,6 +209,7 @@ export const curvePresetCollections = {
     "curve-comb": curveCombPresetCollection,
     "curve-evolute": evoluteCurvePresetCollection,
     "curve-offset": curveOffsetPresetCollection,
+    "curve-envelope": curveEnvelopePresetCollection,
 } as const;
 
 /**
