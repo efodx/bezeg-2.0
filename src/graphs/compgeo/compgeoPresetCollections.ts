@@ -1,6 +1,8 @@
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {PresetCollection} from "../base/presets/PresetCollection";
+import {bezierHullsPresetCollection} from "./bezierHullsPresetCollection";
 import {bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
+import {CURVE_PAIR_OVERLAY_IDS} from "./curvePairPresetCollection";
 import {degenerateCollection} from "./degenerateSitesPresets";
 import {delaunayCollection} from "./delaunayPresetCollection";
 import {earClippingCollection} from "./earClippingPresetCollection";
@@ -38,7 +40,13 @@ export const hullTraceCollection: PresetCollection<PointSetModel> = hullTracePre
 /** The robustness graph shows the hull trace's overlays and stores its own mode, rule and cell fields. */
 export const hullRobustnessCollection: PresetCollection<PointSetModel> = hullRobustnessPresetCollection(HULL_TRACE_OVERLAY_IDS);
 
+/** The Bezier hulls graph's overlays: the curve pair's own and the piece hulls (convexity task 27). */
+export const BEZIER_HULLS_OVERLAY_IDS = [...CURVE_PAIR_OVERLAY_IDS, "pieces"] as const;
+
+/** The Bezier hulls graph's collection, key `compgeo-bezier-hulls`: the curve pair model plus the validated `step`. */
+export const bezierHullsCollection: PresetCollection<PointSetModel> = bezierHullsPresetCollection(BEZIER_HULLS_OVERLAY_IDS);
+
 export const compgeoPresetCollections = [orientationPresetCollection, polygonAreaPresetCollection, hullTraceCollection,
-    pointInPolygonPresetCollection, hullRobustnessCollection,
+    pointInPolygonPresetCollection, hullRobustnessCollection, bezierHullsCollection,
     earClippingCollection, intervalSweepCollection, bentleyOttmannCollection, triangulationCollection, delaunayCollection,
     monotonePartitionCollection, monotoneTriangulationCollection, voronoiCollection, degenerateCollection, fortuneCollection] as const;

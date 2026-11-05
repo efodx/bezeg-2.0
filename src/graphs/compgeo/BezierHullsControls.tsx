@@ -44,6 +44,7 @@ export function BezierHullsControls(props: BezierHullsControlsProps) {
     const playUnavailable = atEnd && !playing;
     const resetUnavailable = step === 0 && !playing;
     const lines = bezierHullsReadout(state).lines;
+    const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: Math.max(length, 1)});
     return <>
         <div className="inspector-group">
             <div className="inspector-playback" role="group" aria-label={t("bezierhulls_controls_label")}>
@@ -56,9 +57,12 @@ export function BezierHullsControls(props: BezierHullsControlsProps) {
             </div>
             <p className="inspector-help">{t("bezierhulls_playback_note")}</p>
         </div>
-        <div className="inspector-group" role="status" aria-live={playing ? "off" : "polite"} data-bezier-hulls="readout">
-            <p className="inspector-help" data-bezier-hulls="step">{t("hulltrace_step_counter", {value0: step + 1, value1: Math.max(length, 1)})}</p>
+        <div className="inspector-group" data-bezier-hulls="readout">
+            <p className="inspector-help" data-bezier-hulls="step">{stepText}</p>
             {lines.map(line => <p key={line.kind} className="inspector-help" data-bezier-hulls={line.kind}>{lineText(t, line)}</p>)}
         </div>
+        {/* Silent while Play runs (a tick each interval would flood a screen reader); announces the readout once on Pause or at the end. */}
+        <p className="visually-hidden" role="status" aria-live="polite" data-bezier-hulls-live="">
+            {playing ? "" : [stepText, ...lines.map(line => lineText(t, line))].map(text => /[.!?]$/.test(text) ? text : `${text}.`).join(" ")}</p>
     </>;
 }

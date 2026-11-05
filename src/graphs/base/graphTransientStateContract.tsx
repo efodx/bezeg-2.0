@@ -70,6 +70,7 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'convex-hull': ['model'],
     'point-in-polygon': ['model'],
     'hull-robustness': ['model'],
+    'bezier-hulls': ['model'],
     'ear-clipping': ['model'],
     'point-set-triangulation': ['model', 'triangles', 'previous'],
     'delaunay': ['model', 'triangles', 'previous'],

@@ -12,9 +12,10 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
-import {CURVE_PAIR_OVERLAY_IDS, CurveName, CurvePairGraph, CurvePairOverlayId} from "./CurvePairGraph";
+import {CurveName, CurvePairGraph, CurvePairOverlayId} from "./CurvePairGraph";
 import {BezierHullsControlActions, BezierHullsControls} from "./BezierHullsControls";
-import {bezierHullsPresetCollection} from "./bezierHullsPresetCollection";
+import {parseBezierHullsStep} from "./bezierHullsPresetCollection";
+import {BEZIER_HULLS_OVERLAY_IDS, bezierHullsCollection} from "./compgeoPresetCollections";
 import {PointSetGraphState} from "./PointSetGraph";
 import {registerTraceCommands} from "./traceLessonActions";
 
@@ -24,9 +25,7 @@ export const BEZIER_HULLS_STEP_INTERVAL_MS = 400;
 const MAX_PLAYBACK_STEPS = 100000;
 
 export type BezierHullsOverlayId = "pieces";
-export const BEZIER_HULLS_OVERLAY_IDS = [...CURVE_PAIR_OVERLAY_IDS, "pieces"] as const;
-
-const BEZIER_HULLS_COLLECTION = bezierHullsPresetCollection(BEZIER_HULLS_OVERLAY_IDS);
+export {BEZIER_HULLS_OVERLAY_IDS};
 
 /** The saved configuration beyond the points: the step index. Playback status is never state. */
 export interface BezierHullsGraphState extends PointSetGraphState {
@@ -60,10 +59,6 @@ export const pieceHullName = (name: CurveName, group: PieceGroup) => `pieceHull$
 export const pieceControlName = (name: CurveName, group: PieceGroup) => `pieceControl${name}-${group}`;
 
 type BoardPoint = {x: number; y: number};
-
-function stepOf(value: unknown): number | undefined {
-    return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : undefined;
-}
 
 const unique = (values: readonly number[]): number[] => [...new Set(values)];
 
@@ -120,7 +115,7 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
 
     /** The step index, clamped to the current run (a stale stored index never leaves it). */
     get step(): number {
-        const stored = "step" in this.state ? stepOf(this.state.step) : undefined;
+        const stored = "step" in this.state ? parseBezierHullsStep(this.state.step) : undefined;
         return Math.min(stored ?? 0, this.run().length - 1);
     }
 
@@ -255,7 +250,7 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
     // ---- Presets -------------------------------------------------------------------------------------------------
 
     override presetCollection(): PresetCollection<PointSetModel> {
-        return BEZIER_HULLS_COLLECTION;
+        return bezierHullsCollection;
     }
 
     /** The saved scene state, with the step clamped to the run of the saved points. */
@@ -266,7 +261,7 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
 
     /** A Preset that names no step (or an invalid one) shows step 0, never the step the graph happened to be at. */
     override importPreset(preset: Preset): void {
-        const named = preset.graphState && "step" in preset.graphState ? stepOf(preset.graphState.step) : undefined;
+        const named = preset.graphState && "step" in preset.graphState ? parseBezierHullsStep(preset.graphState.step) : undefined;
         if (named === undefined) this.setState(this.patch({step: 0}));
         super.importPreset(preset);
     }
@@ -274,7 +269,7 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
     /** An imported model keeps the step that the Preset's `graphState` just set, clamped to the new run; playback is paused. */
     override importPresetData(data: PointSetModel): void {
         const model = serializePointSetModel(data);
-        const stored = "step" in this.state ? stepOf(this.state.step) : undefined;
+        const stored = "step" in this.state ? parseBezierHullsStep(this.state.step) : undefined;
         const step = Math.min(stored ?? 0, this.runFor(model.points).length - 1);
         this.setState(this.patch({model, step}));
         this.controller.reset(step);
@@ -283,7 +278,7 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
         const merged = super.figurePresetGraphState(graphState);
-        const stored = graphState && "step" in graphState ? stepOf(graphState.step) : undefined;
+        const stored = graphState && "step" in graphState ? parseBezierHullsStep(graphState.step) : undefined;
         const state: BezierHullsGraphState = {...merged, step: Math.min(stored ?? 0, this.runFor(merged.model.points).length - 1)};
         return state;
     }

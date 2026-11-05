@@ -1,4 +1,4 @@
-import {t, message} from "../../localization";
+import {t} from "../../localization";
 import {bezierAt, splitCurvePair} from "../../compgeo/curvePairNets";
 import {pieceHull} from "../../compgeo/curvePairSubdivision";
 import {SWEEP_COORD_LIMIT} from "../../compgeo/sweep/limits";
@@ -7,9 +7,9 @@ import type {GridPoint} from "../../compgeo/grid";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
-import {pointSetPresetCollection} from "./pointSetPresetCollection";
+import {CURVE_PAIR_OVERLAY_IDS, CURVE_PAIR_PRESET_KEY, curvePairPresetCollection, isCurvePairModel} from "./curvePairPresetCollection";
+export {CURVE_PAIR_OVERLAY_IDS, CURVE_PAIR_PRESET_KEY, curvePairPresetCollection, isCurvePairModel};
 
-export const CURVE_PAIR_PRESET_KEY = "compgeo-curve-pair";
 
 /** The crossing pair of task 24: two quadratics that meet twice. Net A, then net B. */
 export const CURVE_PAIR_CROSSING: PointSetModel = {
@@ -21,31 +21,11 @@ export const CURVE_PAIR_CROSSING: PointSetModel = {
 export const CURVE_PAIR_SAMPLES = 96;
 
 export type CurvePairOverlayId = "control" | "hull";
-export const CURVE_PAIR_OVERLAY_IDS = ["grid", "control", "hull"] as const;
 
 /** Which of the two curves: A is solid, B is dashed, so colour is not the only difference. */
 export type CurveName = "A" | "B";
 
-/** True when `model` is a pair of Bezier nets of degree 2 or 3 in points mode: 6 or 8 points. */
-export function isCurvePairModel(model: PointSetModel): boolean {
-    return model.mode === "points" && !model.closed && splitCurvePair(model.points) !== undefined;
-}
 
-/**
- * The Preset collection of a curve pair graph: the point-set checks (grid coordinates within 2^10) plus the shape of the pair.
- * Not yet listed in `compgeoPresetCollections` (task 27 registers the route that uses it).
- */
-export function curvePairPresetCollection(overlayIds: readonly string[], options: PointSetOptions = {}): PresetCollection<PointSetModel> {
-    const base = pointSetPresetCollection(CURVE_PAIR_PRESET_KEY, overlayIds, options);
-    return Object.freeze({
-        ...base,
-        check(data: unknown) {
-            const checked = base.check(data);
-            if ("data" in checked && !isCurvePairModel(checked.data)) return {rejection: message("curvepair_invalid_point_count")};
-            return checked;
-        },
-    });
-}
 
 const CURVE_PAIR_COLLECTION = curvePairPresetCollection(CURVE_PAIR_OVERLAY_IDS, {pointLimit: 8, coordinateLimit: SWEEP_COORD_LIMIT});
 

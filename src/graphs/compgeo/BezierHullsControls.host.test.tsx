@@ -24,7 +24,7 @@ const OFFSET = model([[0, 0], [4, 8], [8, 0], [0, 9], [4, 1], [8, 9]], -1);
 const load = (graph: BezierHullsGraph, next: PointSetModel) => act(() => { graph.loadModel(next); });
 const click = (action: string) => act(() => { fireEvent.click(document.querySelector(`button[data-action="${action}"]`)!); });
 const lines = () => [...document.querySelectorAll('[data-bezier-hulls="readout"] p')].map(p => p.textContent);
-const readout = () => document.querySelector('[data-bezier-hulls="readout"]')!;
+const live = () => document.querySelector('[data-bezier-hulls-live]')!;
 /** A saved graph state with fields beyond the base type, like a file that was read. */
 const saveState = (fields: object) => ({initialized: true, ...fields});
 const nextTo = (target: number, graph: BezierHullsGraph) => { while (graph.step < target) click('next-step'); };
@@ -32,8 +32,8 @@ const nextTo = (target: number, graph: BezierHullsGraph) => { while (graph.step 
 test('the readout is a status region outside the board with one line per item, at a verdict, a split and the depth 4 end (Slovenian)', () => {
     const graph = new BezierHullsGraph();
     mount(graph);
-    expect(readout().getAttribute('role')).toBe('status');
-    expect(readout().closest('.jxgbox, [data-board]')).toBeNull();
+    expect(live().getAttribute('role')).toBe('status');
+    expect(document.querySelector('[data-bezier-hulls="readout"]')!.closest('.jxgbox, [data-board]')).toBeNull();
     expect(lines()).toEqual(['Korak 1 od 9', 'Globina subdivizije: 0 od 4', 'Ostane parov odsekov: 1 od 1', 'Preizkušenih parov: 1, zavrženih: 0']);
     click('next-step');
     expect(lines()).toEqual(['Korak 2 od 9', 'Globina subdivizije: 1 od 4', 'Pari odsekov za preizkus: 4. Odločitve še ni: ovojnice so šele na vrsti.']);
@@ -55,6 +55,9 @@ test('the empty end says the curves do not meet, certified with a safety margin;
         'Noben par ne ostane: krivulji se ne sekata. Ločenost ovojnic je potrjena z varnostno rezervo.',
     ]);
     expect(document.querySelector('[data-bezier-hulls="remaining"]')).toBeNull();
+    act(() => { setLanguage('en'); });
+    expect(lines().at(-1)).toMatch(/do not meet.*safety margin/);
+    expect(lines().join(' ')).not.toMatch(/exact/i);
 });
 
 test('the readout follows a language switch, a model change and a scene change', async () => {
@@ -87,17 +90,20 @@ test('the buttons stay focusable at the end (aria-disabled), Reset returns to st
     const graph = new BezierHullsGraph();
     mount(graph);
     nextTo(8, graph);
-    const next = document.querySelector('button[data-action="next-step"]')!;
+    const next = document.querySelector<HTMLButtonElement>('button[data-action="next-step"]')!;
     expect([next.getAttribute('aria-disabled'), next.hasAttribute('disabled')]).toEqual(['true', false]);
+    next.focus();
     click('next-step');
     expect(graph.step).toBe(8);
+    expect(document.activeElement).toBe(next);
     click('reset');
     expect(lines()[0]).toBe('Korak 1 od 9');
     click('play-pause');
     expect(document.querySelector('button[data-action="play-pause"]')!.textContent).toBe('Premor');
-    expect(readout().getAttribute('aria-live')).toBe('off');
+    expect([live().getAttribute('role'), live().textContent]).toEqual(['status', '']);
     click('play-pause');
-    expect(readout().getAttribute('aria-live')).toBe('polite');
+    expect(live().textContent).toContain(lines()[0]);
+    expect(live().textContent).toContain(lines()[1]);
 });
 
 test('a Preset round trip keeps the model (including the half grid) and the step; a stale step clamps', async () => {

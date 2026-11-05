@@ -2,7 +2,7 @@ import {message, Message} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {SWEEP_COORD_LIMIT} from "../../compgeo/sweep/limits";
 import {isRecord, PresetCollection, PresetDataCheck} from "../base/presets/PresetCollection";
-import {curvePairPresetCollection} from "./CurvePairGraph";
+import {curvePairPresetCollection} from "./curvePairPresetCollection";
 
 /** The file contract key of this graph's own collection: its `graphState` carries `step`, which the Curves D2 graph's does not. */
 export const BEZIER_HULLS_PRESET_KEY = "compgeo-bezier-hulls";

@@ -3,6 +3,7 @@ import {PolygonAreaGraph} from './compgeo/PolygonAreaGraph';
 import {HullTraceGraph} from './compgeo/HullTraceGraph';
 import {PointInPolygonGraph} from './compgeo/PointInPolygonGraph';
 import {HullRobustnessGraph} from './compgeo/HullRobustnessGraph';
+import {BezierHullsGraph} from './compgeo/BezierHullsGraph';
 import {EarClippingGraph} from './compgeo/EarClippingGraph';
 import {TriangulationGraph} from './compgeo/TriangulationGraph';
 import {DelaunayGraph} from './compgeo/DelaunayGraph';
@@ -207,6 +208,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'convex-hull': () => new HullTraceGraph(),
     'point-in-polygon': () => new PointInPolygonGraph(),
     'hull-robustness': () => new HullRobustnessGraph(),
+    'bezier-hulls': () => new BezierHullsGraph(),
     'ear-clipping': () => new EarClippingGraph(),
     'point-set-triangulation': () => new TriangulationGraph(),
     'delaunay': () => new DelaunayGraph(),

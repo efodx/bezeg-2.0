@@ -151,5 +151,5 @@ test.skipIf(!process.env.BEZEG_PERF)('cubic pair at the worst case: curvePairRun
     }
     out.push(`isolated: 32 hull polygons create median=${fixed(median(polygons))}ms; 2 NaN-break curves (32 rings) create+update median=${fixed(median(curves))}ms`);
     writeFileSync(PERF_OUT, out.join('\n') + '\n');
-    expect(median(perStep[run.length - 1])).toBeLessThan(1000);
+    expect(median(perStep[run.length - 1])).toBeLessThan(100);
 });
