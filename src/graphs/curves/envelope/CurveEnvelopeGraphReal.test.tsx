@@ -272,10 +272,16 @@ describe('collinear and coincident controls', () => {
     test('a drag lands on the line only to a pixel, which still counts; three pixels off does not', () => {
         const {graph, view} = mount();
         try {
-            const pixel = 1 / graph.liveBoard().unitX;
+            const board = graph.liveBoard();
+            Object.assign(board, {canvasWidth: 400, canvasHeight: 400, unitX: 100, unitY: 100});
+            const pixel = 1 / 100;
             act(() => graph.movePoint(1, [0.5 + 0.5 * pixel, 0.5]));
             expect(graph.envelope()!.collinear()).toBe(true);
             act(() => graph.movePoint(1, [0.5 + 5 * pixel, 0.5]));
+            expect(graph.envelope()!.collinear()).toBe(false);
+            Object.assign(board, {canvasWidth: 0, canvasHeight: 0});
+            expect(graph.envelope()!.collinear()).toBe(false);
+            act(() => graph.movePoint(1, [0.5 + 0.5 * pixel, 0.5]));
             expect(graph.envelope()!.collinear()).toBe(false);
         } finally { view.unmount(); }
     });

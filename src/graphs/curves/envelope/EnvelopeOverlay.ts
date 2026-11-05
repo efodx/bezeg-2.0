@@ -65,10 +65,11 @@ export class EnvelopeOverlay {
         return rows ? tangentSegment(rows, this.settings.t()) : undefined;
     }
 
-    /** Collinear to within one screen pixel: a drag cannot land closer, and at that distance the curve looks like the segment. */
+    /** Collinear to within one screen pixel: a drag cannot land closer, and at that distance the curve looks like the segment. A board without a size has no pixel. */
     collinear(): boolean {
         const rows = this.settings.rows();
-        const pixel = 1 / Math.max(1e-9, Math.min(this.board.unitX, this.board.unitY));
+        const unit = Math.min(this.board.unitX, this.board.unitY);
+        const pixel = this.board.canvasWidth > 0 && this.board.canvasHeight > 0 && unit > 0 ? 1 / unit : 0;
         return rows !== undefined && isCollinear(rows, pixel);
     }
 
