@@ -172,9 +172,10 @@ export const CUSP_MERGE_FRACTION = 1e-7;
 /**
  * Parameters where 1 + d*kappa vanishes between regular samples `ts`, sorted. Sign changes between consecutive samples
  * are refined by bisection. A tangential zero (a double root, where f touches 0 without changing sign) is found as an
- * interior local minimum of |f| between three same-signed regular samples, refined by golden section and accepted when
- * |f| <= TANGENT_CUSP_TOLERANCE * (1 + |d*kappa|); if the refined minimum has crossed zero, the two roots are bisected.
- * Intervals touching a singular sample are skipped. Roots within CUSP_MERGE_FRACTION of the range are merged.
+ * local minimum of |f| between same-signed regular samples (three of them, or an end sample lower than its neighbour),
+ * refined by golden section and accepted when |f| <= TANGENT_CUSP_TOLERANCE * (1 + |d*kappa|); if the refined minimum has
+ * crossed zero, the two roots are bisected. Each bracket holds one dip: two dips closer than two sample steps are not
+ * told apart. Intervals touching a singular sample are skipped. Roots within CUSP_MERGE_FRACTION of the range are merged.
  */
 export function cuspParameters(source: DerivativeSource, ts: ReadonlyArray<number>, d: number): number[] {
     const factor = (t: number): number | undefined => {
@@ -211,21 +212,16 @@ export function cuspParameters(source: DerivativeSource, ts: ReadonlyArray<numbe
             roots.push(bisect(ts[i - 1], ts[i], prevF));
         }
     }
-    // Tangential zeros: strict local minimum of |f| over three same-signed regular samples.
-    for (let i = 1; i + 1 < ts.length; i++) {
-        const fa = fs[i - 1];
-        const fb = fs[i];
-        const fc = fs[i + 1];
-        if (fa === undefined || fb === undefined || fc === undefined || fb === 0) continue;
-        const sign = fb < 0 ? -1 : 1;
-        if (fa * sign <= 0 || fc * sign <= 0) continue;
-        if (!(fb * sign <= fa * sign && fb * sign <= fc * sign && (fb * sign < fa * sign || fb * sign < fc * sign))) continue;
+    // A zero on the first sample has no earlier interval to report it.
+    if (fs[0] === 0) roots.push(ts[0]);
+    /** Refines the minimum of |f| between samples `a` and `b`, which are regular with one sign, and keeps what it finds. */
+    const refineDip = (a: number, b: number, sign: number) => {
         const g = (t: number): number => {
             const v = factor(t);
             return v === undefined ? Infinity : sign * v;
         };
-        let lo = ts[i - 1];
-        let hi = ts[i + 1];
+        let lo = ts[a];
+        let hi = ts[b];
         const inv = (Math.sqrt(5) - 1) / 2;
         let x1 = hi - inv * (hi - lo);
         let x2 = lo + inv * (hi - lo);
@@ -244,15 +240,37 @@ export function cuspParameters(source: DerivativeSource, ts: ReadonlyArray<numbe
         }
         const tm = (lo + hi) / 2;
         const gm = g(tm);
-        if (!Number.isFinite(gm)) continue;
+        if (!Number.isFinite(gm)) return;
         if (gm < 0) {
-            roots.push(bisect(ts[i - 1], tm, fa), bisect(tm, ts[i + 1], sign * gm));
+            roots.push(bisect(ts[a], tm, fs[a] as number), bisect(tm, ts[b], sign * gm));
         } else {
             const {d1, d2} = source.at(tm);
             const c = curvatureAt(d1, d2, source.scale);
             const dk = c.kind === 'regular' ? Math.abs(d * c.kappa) : 0;
             if (gm <= TANGENT_CUSP_TOLERANCE * (1 + dk)) roots.push(tm);
         }
+    };
+    // Tangential zeros: strict local minimum of |f| over three same-signed regular samples.
+    for (let i = 1; i + 1 < ts.length; i++) {
+        const fa = fs[i - 1];
+        const fb = fs[i];
+        const fc = fs[i + 1];
+        if (fa === undefined || fb === undefined || fc === undefined || fb === 0) continue;
+        const sign = fb < 0 ? -1 : 1;
+        if (fa * sign <= 0 || fc * sign <= 0) continue;
+        if (!(fb * sign <= fa * sign && fb * sign <= fc * sign && (fb * sign < fa * sign || fb * sign < fc * sign))) continue;
+        refineDip(i - 1, i + 1, sign);
+    }
+    // The end intervals have no such triple: a dip there leaves the end sample lower than its neighbour.
+    const refineEnd = (end: number, neighbour: number) => {
+        const fe = fs[end];
+        const fn = fs[neighbour];
+        if (fe === undefined || fn === undefined || fe === 0 || fe * fn <= 0 || Math.abs(fe) > Math.abs(fn)) return;
+        refineDip(Math.min(end, neighbour), Math.max(end, neighbour), fe < 0 ? -1 : 1);
+    };
+    if (ts.length >= 2) {
+        refineEnd(0, 1);
+        refineEnd(ts.length - 1, ts.length - 2);
     }
     roots.sort((p, q) => p - q);
     const range = ts.length > 1 ? Math.abs(ts[ts.length - 1] - ts[0]) : 0;

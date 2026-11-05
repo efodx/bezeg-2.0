@@ -30,7 +30,7 @@ describe("sample constants", () => {
 });
 
 describe("offsetCusps on the parabola", () => {
-    // 64, 100 and 128 do not sample t = 1/2 (i / (n - 1) with n - 1 odd); 65, 129 and 513-1 grids do.
+    // 64, 100, 128 and 512 do not sample t = 1/2 (i / (n - 1) with n - 1 odd), so only they reach the tangential search; 65 and 129 do sample it.
     for (const samples of [64, 100, 128, 65, 129, 512]) {
         it(`d = -1/2: one tangential cusp at x = 0, point (0, 1/2), ${samples} samples`, () => {
             const cusps = offsetCusps(PARABOLA, -0.5, samples);
@@ -88,6 +88,42 @@ describe("offsetCusps on the parabola", () => {
         const ts = Array.from({length: 128}, (_, i) => i / 127);
         const r = cuspParameters(source, ts, -0.5);
         expect(r).toHaveLength(1);
+    });
+});
+
+describe("cuspParameters in the end intervals", () => {
+    /** r(t) = (t, (t - t0)^2): the vertex, where kappa = 2 is largest, is at t = t0, so d = -1/2 touches zero there. */
+    const vertexAt = (t0: number) => polynomialBezierSource([[0, t0 * t0], [0.5, t0 * t0 - t0], [1, (1 - t0) * (1 - t0)]]);
+    const grid = (n: number) => Array.from({length: n}, (_, i) => i / (n - 1));
+
+    it.each([0.001, 0.003, 0.997, 0.999])("finds a tangential cusp at t = %d inside an end interval", t0 => {
+        const roots = cuspParameters(vertexAt(t0), grid(128), -0.5);
+        expect(roots).toHaveLength(1);
+        expect(Math.abs(roots[0] - t0)).toBeLessThan(1e-6);
+    });
+
+    it.each([0.002, 0.998])("finds both close roots of a dip at t = %d inside an end interval", t0 => {
+        const d = -0.5 * (1 + 1e-6);
+        const roots = cuspParameters(vertexAt(t0), grid(128), d);
+        expect(roots).toHaveLength(2);
+        expect(roots[0]).toBeLessThan(t0);
+        expect(roots[1]).toBeGreaterThan(t0);
+        for (const t of roots) {
+            const {d1, d2} = vertexAt(t0).at(t);
+            const c = curvatureAt(d1, d2, 1);
+            expect(c.kind === 'regular' && Math.abs(1 + d * c.kappa)).toBeLessThan(1e-6);
+        }
+    });
+
+    it.each([0, 1])("finds a cusp exactly on the end sample t = %d", t0 => {
+        const roots = cuspParameters(vertexAt(t0), grid(128), -0.5);
+        expect(roots).toHaveLength(1);
+        expect(Math.abs(roots[0] - t0)).toBeLessThan(1e-6);
+    });
+
+    it("reports no cusp for a near miss in an end interval, or when the end sample is merely the lowest", () => {
+        expect(cuspParameters(vertexAt(0.001), grid(128), -0.49)).toEqual([]);
+        expect(cuspParameters(vertexAt(-0.5), grid(128), -0.5)).toEqual([]);
     });
 });
 
