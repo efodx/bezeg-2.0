@@ -344,3 +344,49 @@ test('the curvature state flags are accepted by the Preset scene-state check', (
         h.mounted.view.unmount();
     }
 });
+
+test('only the first parametric step hides the trace; every other step, a step back and Reset set it whole or hide it again as the step says', () => {
+    const h = parametric();
+    try {
+        const lesson = curveGeometryGuidedLessons.find(l => l.demonstrationId === 'curve-parametric')!;
+        const flag = () => h.graph.state.traceFull;
+        expect(flag()).toBe(true);
+        for (const step of lesson.steps) {
+            h.scene(step);
+            expect(flag(), step.id).toBe(step.id !== 'parametric-roll');
+        }
+        h.scene(lesson.steps[0]);
+        expect(flag()).toBe(false);
+        h.scene(lesson.steps[1]);
+        expect(flag()).toBe(true);
+        h.scene(lesson.steps[0]);
+        act(() => { void h.graph.reset(); });
+        expect(flag()).toBe(true);
+        h.scene(lesson.steps[0]);
+        act(() => { h.graph.importPresetData({curve: 'cycloid', radius: 1, parameter: 0}); });
+        expect(flag()).toBe(true);
+        expect(Object.keys(h.graph.exportPresetData())).not.toContain('traceFull');
+    } finally {
+        h.mounted.view.unmount();
+    }
+});
+
+test('a real lesson session hides the trace on step 1 only: forward, back and closing restore the whole trace', () => {
+    const h = parametric();
+    try {
+        const lesson = getLessonForDemonstration('curve-parametric')!;
+        const session = new LessonSession(lesson, h.capabilities);
+        act(() => session.start());
+        expect(h.graph.state.traceFull).toBe(false);
+        for (let guard = 0; session.snapshot().stepIndex === 0 && guard < 10; guard++) act(() => session.next());
+        expect(session.snapshot().stepIndex).toBe(1);
+        expect(h.graph.state.traceFull).toBe(true);
+        for (let guard = 0; session.snapshot().stepIndex === 1 && guard < 10; guard++) act(() => session.back());
+        expect(session.snapshot().stepIndex).toBe(0);
+        expect(h.graph.state.traceFull).toBe(false);
+        act(() => session.close());
+        expect(h.graph.state.traceFull).toBe(true);
+    } finally {
+        h.mounted.view.unmount();
+    }
+});

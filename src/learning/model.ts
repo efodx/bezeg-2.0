@@ -113,7 +113,7 @@ export const FUNCTION_CHOICE_VALUES: Readonly<Record<FunctionChoiceName, readonl
 export const FUNCTION_CHOICE_NAMES = Object.keys(functionChoiceValues) as FunctionChoiceName[];
 
 /** The curve overlays a lesson can show or hide on a curve demonstration. `curvature-frame` (T and N) and `curvature-circle` (the osculating circle or line) belong to CurvatureBezierCurveGraph only. */
-export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle'] as const;
+export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle', 'parametric-trace-full'] as const;
 export type CurveVisibilityTarget = typeof CURVE_VISIBILITY_TARGETS[number];
 
 /** The visibility switches a lesson can address on a surface (patch) demonstration. */

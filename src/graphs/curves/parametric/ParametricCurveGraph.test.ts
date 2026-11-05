@@ -108,7 +108,7 @@ describe('scene construction failure', () => {
             return create(...args);
         });
         const before = liveSubscriptions.count;
-        expect(() => new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => 0, fontSize: () => 16}))
+        expect(() => new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => 0, traceFull: () => true, fontSize: () => 16}))
             .toThrow('board failure');
         expect(board.objectsList).toEqual([]);
         expect(liveSubscriptions.count).toBe(before);
@@ -188,7 +188,7 @@ describe('owned scene', () => {
 
     test('scene dispose is idempotent', () => {
         const board = fakeBoard();
-        const scene = new ParametricScene({board, curve: 'rose', radius: () => 1, parameter: () => 0.3, fontSize: () => 14});
+        const scene = new ParametricScene({board, curve: 'rose', radius: () => 1, parameter: () => 0.3, traceFull: () => true, fontSize: () => 14});
         scene.dispose();
         scene.dispose();
         expect(board.removeObject).toHaveBeenCalledTimes(1);
@@ -197,7 +197,7 @@ describe('owned scene', () => {
 
     test('a language change redraws while alive, not after dispose, and the readout follows the language', () => {
         const board = fakeBoard();
-        const scene = new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => Math.PI / 2, fontSize: () => 14});
+        const scene = new ParametricScene({board, curve: 'cycloid', radius: () => 1, parameter: () => Math.PI / 2, traceFull: () => true, fontSize: () => 14});
         setLanguage('sl');
         const sl = scene.readoutText();
         board.update.mockClear();
@@ -212,7 +212,7 @@ describe('owned scene', () => {
 
 describe('readouts', () => {
     const readout = (curve: any, radius: number, parameter: number) => {
-        const scene = new ParametricScene({board: fakeBoard(), curve, radius: () => radius, parameter: () => parameter, fontSize: () => 14});
+        const scene = new ParametricScene({board: fakeBoard(), curve, radius: () => radius, parameter: () => parameter, traceFull: () => true, fontSize: () => 14});
         setLanguage('en');
         const text = scene.readoutText();
         scene.dispose();

@@ -16,12 +16,13 @@ const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({
 const PI = Math.PI;
 type CatalogueCurve = 'cycloid' | 'cardioid' | 'rose' | 'spiral';
 /** A scene of the parametric graph: the catalogue curve (and the cycloid radius), then the parameter shown. */
-const parametricScene = (id: string, curve: CatalogueCurve, parameter: number, sl: string, en: string, radius?: number): LessonScene => ({
+const parametricScene = (id: string, curve: CatalogueCurve, parameter: number, sl: string, en: string, radius?: number, hideTrace = false): LessonScene => ({
     id,
     basedOn: 'demonstration-default',
     actions: [
         {kind: 'parametric-curve', curve, ...(radius === undefined ? {} : {radius})},
         {kind: 'parameter', name: 't', value: parameter},
+        ...(hideTrace ? [{kind: 'curve-visibility', target: 'parametric-trace-full', visible: false} as const] : []),
     ],
     expectedState: text(sl, en),
 });
@@ -109,7 +110,7 @@ const parametricLesson: GuidedLesson = {
             expectedObservations: [text('Označena točka opiše lok cikloide: dvigne se do višine \\(2\\) in se vrne na os \\(x\\) v točki \\((2\\pi,0)\\).', 'The marked point traces an arch of the cycloid: it rises to the height \\(2\\) and returns to the \\(x\\) axis at the point \\((2\\pi,0)\\).')],
             scene: parametricScene('parametric-roll-start', 'cycloid', 0,
                 'Kotaleči se krog s polmerom \\(1\\) je pri \\(t=0\\); označena točka je v izhodišču, kjer je hitrost enaka \\(0\\).',
-                'The rolling circle of radius \\(1\\) is at \\(t=0\\); the marked point is at the origin, where the velocity is \\(0\\).', 1),
+                'The rolling circle of radius \\(1\\) is at \\(t=0\\); the marked point is at the origin, where the velocity is \\(0\\).', 1, true),
         },
         {
             id: 'parametric-velocity', order: 2,

@@ -1848,6 +1848,8 @@ const parametricGeometry = {
     minFrames: 15, // 2 frames per step, 3 on step 3 (calculation)
     stepProbe: async (page, ctx, step, label) => {
         await expect(boardText(page, PARAMETRIC_READOUTS[step - 1]).first(), `parametric readout at ${label}`).toBeVisible();
+        // Step 1 asks for a prediction: no trace is drawn before Play; every later step shows the whole curve.
+        await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `parametric trace at ${label}`}).toBe(step === 1 ? 0 : 1);
     },
 };
 const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s];

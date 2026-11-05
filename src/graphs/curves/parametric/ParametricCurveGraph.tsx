@@ -21,6 +21,8 @@ export interface ParametricGraphState extends BaseGraphState {
     radius: number;
     /** The t (cycloid) or theta (polar curves) at which the point and velocity are drawn. */
     parameter: number;
+    /** Lesson-scene state only (never a Preset field): false draws the trace from the domain start to the parameter. */
+    traceFull: boolean;
 }
 
 /**
@@ -74,7 +76,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
     }
 
     override getInitialState(): ParametricGraphState {
-        return {initialized: false, ...DEFAULT_PARAMETRIC_PRESET};
+        return {initialized: false, ...DEFAULT_PARAMETRIC_PRESET, traceFull: true};
     }
 
     override presetCollection() {
@@ -93,7 +95,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
     /** Scene imports (Preset, checkpoint, figure batch) rebuild the scene: the old elements go, one new set arrives. */
     override importPresetData(data: ParametricPresetData) {
         this.stopRoll();
-        this.setState({curve: data.curve, radius: data.radius, parameter: data.parameter});
+        this.setState({curve: data.curve, radius: data.radius, parameter: data.parameter, traceFull: true});
         this.ensureScene();
     }
 
@@ -114,7 +116,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
      */
     protected override lessonDefaultState(): ParametricGraphState {
         const {curve, radius, parameter} = this.state;
-        return {initialized: true, curve, radius, parameter};
+        return {initialized: true, curve, radius, parameter, traceFull: true};
     }
 
     /** A lesson scene starts from the default curve; its view is fitted like a fresh mount, since the previous scene may have shown another curve. */
@@ -141,6 +143,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
             curve: this.state.curve,
             radius: () => this.state.radius,
             parameter: () => clampParameter(this.state, this.state.parameter),
+            traceFull: () => this.state.traceFull,
             fontSize: () => this.displaySettings.fontSize,
         });
     }
@@ -176,7 +179,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
     setCurve(curve: ParametricCurveId) {
         if (!isParametricCurveId(curve) || curve === this.state.curve) return;
         this.stopRoll();
-        this.setState({curve, parameter: PARAMETRIC_CATALOGUE[curve].domain[0]});
+        this.setState({curve, parameter: PARAMETRIC_CATALOGUE[curve].domain[0], traceFull: true});
         this.ensureScene();
         this.fitToCurve();
     }
@@ -238,6 +241,7 @@ export class ParametricCurveGraph extends BaseGraph<ParametricGraphState, Parame
             }
             this.setParameter(action.value);
         });
+        registry.onDiscriminated('curve-visibility', 'parametric-trace-full', action => this.setState({traceFull: action.visible}));
         registry.onDiscriminated('animation', PARAMETRIC_ROLL_ANIMATION_ID, action => this.rollCommand(action.command), {
             supports: action => ROLL_LESSON_COMMANDS.includes(action.command),
         });

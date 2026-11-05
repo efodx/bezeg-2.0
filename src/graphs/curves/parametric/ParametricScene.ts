@@ -12,6 +12,8 @@ interface SceneSettings {
     /** Read lazily on every draw, so a change of radius or parameter needs no listener and no rebuild. */
     radius: () => number;
     parameter: () => number;
+    /** False draws the trace only from the domain start to the parameter (a lesson prediction step). */
+    traceFull: () => boolean;
     fontSize: () => number;
 }
 
@@ -78,8 +80,9 @@ export class ParametricScene {
         this.create('curve', [
             (u: number) => sourceOf(this.selection()).at(u).point[0],
             (u: number) => sourceOf(this.selection()).at(u).point[1],
-            t0, t1,
-        ], {fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5});
+            t0, () => this.settings.traceFull() ? t1 : this.settings.parameter(),
+        ], {visible: () => this.settings.traceFull() || this.settings.parameter() > t0,
+            fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5});
 
         const origin = this.create<Point>('point', [0, 0], auxiliary);
         const marker = this.create<Point>('point', [() => current().point[0], () => current().point[1]], {
