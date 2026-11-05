@@ -373,6 +373,11 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         return `P${index + 1}`;
     }
 
+    /** The name of point `index` in the inspector's list and its accessible names; undefined keeps "P1" and the number. The curve pair uses its board names. */
+    protected pointLabel(): ((index: number) => string) | undefined {
+        return undefined;
+    }
+
     /** The overlay ids this graph offers, in switch order. A subclass spreads `super.overlayIds()` and adds its own. */
     protected overlayIds(): readonly (Overlay | PointSetBaseOverlayId)[] {
         return ["grid"];
@@ -824,7 +829,7 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     protected override workspaceEdit(): React.ReactNode {
         return <PointSetControls showModeToggle={this.showsModeToggle()} showClosedToggle={this.showsClosedToggle()} fixedCount={this.fixesPointCount()} allowsSegments={this.allowsSegments()} allowsIntervals={this.allowsIntervals()} pending={this.pending}
-                                 segmentLimit={this.segmentLimit} intervalLimit={this.intervalLimit} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
+                                 segmentLimit={this.segmentLimit} intervalLimit={this.intervalLimit} pointLabel={this.pointLabel()} model={this.model} selected={this.selected} addMode={this.addModeOn} notice={this.noticeValue}
                                  pointLimit={this.pointLimit} coordinateLimit={this.coordinateLimit} simplicity={this.simplicity()}
                                  overlays={this.overlayIds().map(id => ({id, label: this.overlayLabel(id), shown: this.overlayShown(id)}))}
                                  actions={this.actions}/>;

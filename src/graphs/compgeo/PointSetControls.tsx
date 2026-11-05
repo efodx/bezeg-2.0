@@ -54,6 +54,8 @@ export interface PointSetControlsProps {
     allowsIntervals?: boolean;
     /** Intervals mode: the most intervals. */
     intervalLimit?: number;
+    /** The name of point `index` in the point list, its accessible names and the selection line. Default "P" and the 1-based number. */
+    pointLabel?: (index: number) => string;
 }
 
 /** A whole-number field that keeps what is being typed and commits every valid integer. */
@@ -157,6 +159,9 @@ function IntervalList(props: {model: PointSetModel, selected: number | undefined
  * "Selected point: N", simplicity is a sentence).
  */
 export function PointSetControls(props: PointSetControlsProps) {
+    /** The visible row label, and the name in sentences and accessible names: the graph's own label, else "P1" and the number 1. */
+    const shortName = (index: number) => props.pointLabel ? props.pointLabel(index) : `P${index + 1}`;
+    const pointName = (index: number) => props.pointLabel ? props.pointLabel(index) : index + 1;
     const t = useT();
     const {language} = useLanguage();
     const {model, selected, actions, notice} = props;
@@ -198,7 +203,7 @@ export function PointSetControls(props: PointSetControlsProps) {
                 : t("pointset_point_count", {value0: model.points.length, value1: props.pointLimit})}</p>}
             <p className="inspector-help" data-pointset-selection>{selected === undefined ? t("pointset_no_selection")
                 : segments ? t("pointset_selected_segment", {value0: (selected >> 1) + 1})
-                : intervals ? t("pointset_selected_interval", {value0: intervalLetter(selected >> 1)}) : t("pointset_selected_point", {value0: selected + 1})}</p>
+                : intervals ? t("pointset_selected_interval", {value0: intervalLetter(selected >> 1)}) : t("pointset_selected_point", {value0: pointName(selected)})}</p>
             {paired && <p className="inspector-help" role="status" data-pointset-pending={props.pending ? "" : undefined}>
                 {props.pending ? (intervals ? t("pointset_interval_pending", {value0: props.pending.x})
                     : t("pointset_segment_pending", {value0: props.pending.x, value1: props.pending.y})) : ""}</p>}
@@ -212,10 +217,10 @@ export function PointSetControls(props: PointSetControlsProps) {
             <ol className="pointset-list">
                 {model.points.map((point, i) => <li key={i} className="pointset-row" data-selected={selected === i}>
                     <button type="button" className={button} aria-pressed={selected === i} onClick={() => actions.select(selected === i ? undefined : i)}>
-                        <span aria-hidden="true">P{i + 1}</span><span className="visually-hidden">{t("pointset_select_point", {value0: i + 1})}</span>
+                        <span aria-hidden="true">{shortName(i)}</span><span className="visually-hidden">{t("pointset_select_point", {value0: pointName(i)})}</span>
                     </button>
-                    <IntegerField label={t("pointset_point_x", {value0: i + 1})} value={point.x} onCommit={x => actions.movePoint(i, {x, y: point.y})}/>
-                    <IntegerField label={t("pointset_point_y", {value0: i + 1})} value={point.y} onCommit={y => actions.movePoint(i, {x: point.x, y})}/>
+                    <IntegerField label={t("pointset_point_x", {value0: pointName(i)})} value={point.x} onCommit={x => actions.movePoint(i, {x, y: point.y})}/>
+                    <IntegerField label={t("pointset_point_y", {value0: pointName(i)})} value={point.y} onCommit={y => actions.movePoint(i, {x: point.x, y})}/>
                 </li>)}
             </ol>
             {!fixed && <form className="pointset-add" onSubmit={event => {event.preventDefault(); actions.addPoint({x: newX, y: newY});}}>

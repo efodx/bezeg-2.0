@@ -115,6 +115,11 @@ export class CurvePairGraph<Extra extends string = never> extends PointSetGraph<
         return index < half ? `A_${index}` : `B_${index - half}`;
     }
 
+    /** The inspector rows and their accessible names read A_0, A_1, ... B_2 like the board labels. */
+    protected override pointLabel(): (index: number) => string {
+        return index => this.pointName(index);
+    }
+
     // ---- Drawing -------------------------------------------------------------------------------------------------
 
     /** Nets A and B of the model, and the degree. */
@@ -145,7 +150,7 @@ export class CurvePairGraph<Extra extends string = never> extends PointSetGraph<
         });
     }
 
-    protected override overlayIds() {
+    protected override overlayIds(): readonly (CurvePairOverlayId | Extra | "grid")[] {
         return CURVE_PAIR_OVERLAY_IDS;
     }
 

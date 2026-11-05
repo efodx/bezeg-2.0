@@ -2176,6 +2176,7 @@ export const sl = {
     "pointset_invalid_interval_rows": "v načinu intervalov mora imeti k-ti interval obe krajišči na višini y = k + 1; popravi y v datoteki",
     "pointset_count_fixed": "Število točk določa stopnja krivulje: točk ni mogoče dodajati, odstranjevati ali izbrisati. Točko raje povleci ali uredi njene koordinate.",
     "curvepair_invalid_point_count": "dve krivulji iste stopnje potrebujeta po 3 ali 4 kontrolne točke, torej 6 ali 8 točk v načinu točk; popravi število točk v datoteki",
+    "bezierhulls_overlay_pieces": "Ovojnice odsekov",
     "intervalsweep_controls_label": "Predvajanje pometanja",
     "intervalsweep_next_step": "Naslednji korak",
     "intervalsweep_playback_note": "Predvajanje naredi en korak naenkrat in se ustavi ob koncu. Sprememba intervalov vrne prikaz na začetek in ustavi predvajanje. Pometalna premica je navpična; odprti intervali so odebeljeni, interval trenutnega dogodka je najdebelejši, par, ki se prekriva, je povezan s črtkano modro črto. Črtkan odebeljen interval je interval trenutnega dogodka, dokler ni odprt (tik pred vstopom ali po izstopu).",
