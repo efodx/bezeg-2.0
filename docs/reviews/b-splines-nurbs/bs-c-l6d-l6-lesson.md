@@ -6,7 +6,7 @@ Source: [task plan](../../tasks/b-splines-nurbs/README.md), [spec L6](../../spec
 
 - New lesson action `blossom` (`src/learning/model.ts`): `set-degree`, `set-segment`, `set-args`, `set-bezier`, `reset`. `BSplineBlossomGraph` handles it in `applyBlossomAction` with its own setters (`setDegree`, `setSegment`, `setArgument`, `setShowBezier`, `resetToDefaults`). An unsupported degree, an empty or unknown segment, a wrong argument count, an argument off the domain or a non-boolean flag throws.
 - L6 guided lesson `src/learning/content/bsplineBlossomGuidedLessons.ts`, six steps on the L2 example: (1) predict \(f(0,1)=(1,2)\); (2) \(f(\tfrac14,\tfrac34)=(1,1.625)\) by two interpolations; (3) \(f(\tfrac12,\tfrac12)=(1,1.5)=C(\tfrac12)\); (4) the swapped pair \((\tfrac34,\tfrac14)\) gives the same point; (5) Bézier points \((0,0),(1,2),(2,2)\) of \([0,1)\); (6) free exploration. Outside the segment the text claims no inequality (the default curve is one parabola).
-- The `b-splines` chapter gains its sixth section `bspline-blossom`; preview copy (106/113), coverage (120), notation registration, smoke row; `lesson: false`, the `CHAPTER_LINK_PENDING` entry and the lesson opt-out removed. No route or Preset changed.
+- The `b-splines` chapter gains its sixth section `bspline-blossom`; preview copy (107/114 after the rebase onto conic-focal), coverage (121), notation registration, smoke row; `lesson: false`, the `CHAPTER_LINK_PENDING` entry and the lesson opt-out removed. No route or Preset changed.
 
 ## Checks
 
