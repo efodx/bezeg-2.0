@@ -1,6 +1,6 @@
 # 23 — Chapter sections for A3 and A5 (Batch 2, F4)
 
-Status: planned 2026-11-03 (geometry handler 48). Source: spec [Solution](../../specs/convexity-hulls-lessons.md#solution) (six lessons in order), template [15](15-chapter.md). Kind: F4. Depends on 21 and 22.
+Status: A3 section done with task 21 (geometry handler 50, 2026-11-05); the A5 section goes with task 22 for the same reason: a lesson cannot launch without its section. Planned 2026-11-03 (geometry handler 48). Source: spec [Solution](../../specs/convexity-hulls-lessons.md#solution) (six lessons in order), template [15](15-chapter.md). Kind: F4. Depends on 21 and 22.
 
 1. In `convexityChapter.ts`, add a section for A3 (between A2 and A4) and one for A5 (after A4). Each section owns its lesson through `chapterOwnedLessons`, has short bridging prose (one-shot text) and links to its new Demonstration. Existing section ids and anchors stay unchanged.
 2. Tests: the chapter's lesson-ownership and order tests, the chapter-link list, and `lessonMathNotation.test.ts` unchanged. If `CHAPTER_LINK_PENDING` changed concurrently, merge it as a union and recount.

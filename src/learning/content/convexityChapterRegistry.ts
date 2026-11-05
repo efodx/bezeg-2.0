@@ -11,13 +11,14 @@ export {CONVEXITY_CHAPTER_ID};
 const sectionDemonstrations = {
     orientation: 'orientation',
     'polygon-area': 'polygon-area',
+    'point-in-polygon': 'point-in-polygon',
     'convex-hull': 'convex-hull',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type ConvexitySectionId = keyof typeof sectionDemonstrations;
 
 /**
- * Section-owned activities (spec A1, A2, A4). The lesson text stays in compgeoGuidedLessons.ts; the getters read it lazily because
+ * Section-owned activities (spec A1, A2, A3, A4). The lesson text stays in compgeoGuidedLessons.ts; the getters read it lazily because
  * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
  */
 export const convexityGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(

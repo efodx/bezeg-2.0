@@ -99,8 +99,7 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     orientation: {chapterId: 'convexity-hulls', sectionId: 'orientation'},
     'polygon-area': {chapterId: 'convexity-hulls', sectionId: 'polygon-area'},
     'convex-hull': {chapterId: 'convexity-hulls', sectionId: 'convex-hull'},
-    // Interim owner: the point-in-polygon lesson (A3) has no chapter section yet; convexity task 23 gives it its own section and moves this entry.
-    'point-in-polygon': {chapterId: 'convexity-hulls', sectionId: 'convex-hull'},
+    'point-in-polygon': {chapterId: 'convexity-hulls', sectionId: 'point-in-polygon'},
     // The Triangulations and Voronoi chapter owns the ear clipping lesson (batch T1).
     'ear-clipping': {chapterId: 'triangulations-voronoi', sectionId: 'ear-clipping'},
     // The chapter's own section for counting the triangles of a point-set triangulation (lesson B2).
