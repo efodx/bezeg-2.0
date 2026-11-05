@@ -93,6 +93,8 @@ import preview_inversion from './images/demonstrations/catalog/inversion.png';
 import preview_orientation from './images/demonstrations/catalog/orientation.png';
 import preview_polygon_area from './images/demonstrations/catalog/polygon-area.png';
 import preview_convex_hull from './images/demonstrations/catalog/convex-hull.png';
+import preview_point_in_polygon from './images/demonstrations/catalog/point-in-polygon.png';
+import preview_hull_robustness from './images/demonstrations/catalog/hull-robustness.png';
 import preview_ear_clipping from './images/demonstrations/catalog/ear-clipping.png';
 import preview_point_set_triangulation from './images/demonstrations/catalog/point-set-triangulation.png';
 import preview_delaunay from './images/demonstrations/catalog/delaunay.png';
@@ -202,6 +204,8 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'orientation': preview_orientation,
     'polygon-area': preview_polygon_area,
     'convex-hull': preview_convex_hull,
+    'point-in-polygon': preview_point_in_polygon,
+    'hull-robustness': preview_hull_robustness,
     'ear-clipping': preview_ear_clipping,
     'point-set-triangulation': preview_point_set_triangulation,
     'delaunay': preview_delaunay,
