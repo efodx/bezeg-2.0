@@ -1,6 +1,6 @@
 # 24 — Curve pair subdivision model (Batch 3, F1)
 
-Status: built 2026-11-05 (geometry handler 52, Sonnet high worker), mathematical review pending; not on `master` yet ([handoff 52](../../reviews/feature-streams/geometry/handler-handoff-52.md)). Planned by handler 52. Source: spec [A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons) (numbers, acceptance 1–3), [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md), [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md) (D2 reuses this model). Kind: F1, mathematical review. Depends on 11. Consumers: the A6 graph and the Curves D2 graph.
+Status: accepted 2026-11-05 (built by handler 52's Sonnet high worker; mathematical review by handler 53: no defect, crossing, near-miss and cubic rows recomputed exactly to depth 5, `pieceHull` degenerate cases, the fold, and hierarchical against all-pairs under the margin cleared). Planned by handler 52. Source: spec [A6](../../specs/convexity-hulls-lessons.md#a6-back-to-bézier-hulls-of-control-polygons) (numbers, acceptance 1–3), [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md), [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md) (D2 reuses this model). Kind: F1, mathematical review. Depends on 11. Consumers: the A6 graph and the Curves D2 graph.
 
 Pure TypeScript in `src/compgeo/curvePairSubdivision.ts`. No React, JSXGraph, localization or graph state.
 

@@ -127,7 +127,8 @@ export function curvePairStateAt(trace: CurvePairTrace, index: number): CurvePai
 /**
  * Vertex indices (into `piece`) of the piece's convex hull in order, from the lexicographically smallest point.
  * A collinear or repeated piece gives a segment (2 indices) or a point (1). The piece is scaled by 2^(degree * depth)
- * to integers and the exact monotone chain is used.
+ * to integers and the exact monotone chain is used. `depth` and `degree` only set that scale: a depth that is too high goes
+ * unnoticed (uniform scaling keeps the indices valid), and one that is too low throws only if a point stays non-integer.
  */
 export function pieceHull(piece: readonly HullPoint[], depth: number, degree: number): number[] {
     assertDepth(depth);
