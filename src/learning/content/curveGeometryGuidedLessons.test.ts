@@ -1,5 +1,6 @@
 import {act} from '@testing-library/react';
-import {sceneActions} from '../runtime/lessonCatalog';
+import {getLessonForDemonstration, sceneActions} from '../runtime/lessonCatalog';
+import {LessonSession} from '../runtime/LessonSession';
 import {curveGeometryGuidedLessons} from './curveGeometryGuidedLessons';
 import type {LessonAction} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
@@ -236,6 +237,51 @@ test('the roll animation returns to t = 0 with no pending frame on a step change
         expect(h.graph.state.parameter).toBe(0);
         expect(frames.pending()).toBe(1);
         expect(() => h.apply(roll('next-step'))).toThrow();
+    } finally {
+        h.mounted.view.unmount();
+        frames.restore();
+    }
+});
+
+test('a real lesson session stops a roll started away from t = 0 on a step change and on closing the lesson', () => {
+    const frames = countFrames();
+    const h = parametric();
+    try {
+        const lesson = getLessonForDemonstration('curve-parametric')!;
+        const second = lesson.steps[1];
+        const authored = second.scene!.actions.find(action => action.kind === 'parameter');
+        // The step after the roll sets its own parameter (pi/2), so the step change is told apart from a stop by the roll flag and the frame.
+        expect(authored).toMatchObject({value: PI / 2});
+
+        const session = new LessonSession(lesson, h.capabilities);
+        h.apply({kind: 'parameter', name: 't', value: 1});
+        act(() => session.start());
+        expect(h.graph.state.parameter).toBe(0);
+        // Start the roll away from 0: a stop that did not reset would leave this value.
+        h.apply({kind: 'parameter', name: 't', value: 1}, roll('play'));
+        expect(h.graph.rolling).toBe(true);
+        expect(h.graph.state.parameter).toBe(1);
+        expect(frames.pending()).toBe(1);
+
+        // Step 0 may have several frames: each advance stops the roll; the step change is the one that crosses to step 1.
+        for (let guard = 0; session.snapshot().stepIndex === 0 && guard < 10; guard++) {
+            if (!h.graph.rolling) h.apply({kind: 'parameter', name: 't', value: 1}, roll('play'));
+            act(() => session.next());
+            expect(h.graph.rolling).toBe(false);
+            expect(frames.pending()).toBe(0);
+        }
+        expect(session.snapshot().stepIndex).toBe(1);
+        expect(h.graph.state.parameter).toBeCloseTo(PI / 2, 12);
+
+        // Leaving: roll again from the middle of the domain, then close.
+        h.apply(roll('play'));
+        expect(h.graph.rolling).toBe(true);
+        expect(frames.pending()).toBe(1);
+        act(() => session.close());
+        expect(h.graph.rolling).toBe(false);
+        expect(frames.pending()).toBe(0);
+        // Closing restores the checkpoint taken at the start: the user's own t (1), not 0.
+        expect(h.graph.state.parameter).toBe(1);
     } finally {
         h.mounted.view.unmount();
         frames.restore();
