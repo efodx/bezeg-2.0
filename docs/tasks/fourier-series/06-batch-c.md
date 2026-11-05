@@ -11,4 +11,5 @@ e0\) only, closed drawing of the loop and whole trace, the error labelled as sam
 3. Presets: loop, \(N\), parametrization; all validated.
    *Done with F2a:* `epicyclePresetCollection`, not yet in the Demonstration map.
    *F2b stopped 2026-11-05, owner decision needed:* drags on the real route miss the ADR 0040 threshold (p95 33 to 50 ms, about 30 % of drag frames over 25 ms); see [Cause of the drag miss](../../reviews/fourier-series/06-epicycle-measurement.md#cause-of-the-drag-miss). The route is not on master.
+   *Owner decision 2026-11-05:* relax the threshold for drags ([ADR 0040](../../adr/0040-epicycle-rendering.md#drag-threshold-owner-decision-2026-11-05): p95 at most 50.1 ms, no frame over 100 ms, any \(N\)). All seven cases meet the threshold in force ([re-measurement](../../reviews/fourier-series/06-epicycle-measurement.md#re-measurement-under-the-relaxed-threshold)); sustained 60 Hz pointer input and the classroom device stay unmeasured.
 4. **F2b–F6:** as in task 04, for lesson F5. The prose says that coefficients depend on the parametrization and the start, and calls the trace an illustration.

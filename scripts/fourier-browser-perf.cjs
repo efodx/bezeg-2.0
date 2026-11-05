@@ -21,6 +21,8 @@ const cases = [
     {name: 'epicycles: playback 5 s, N=50', kind: 'eplay'},
     {name: 'epicycles: N sweep 1 to 50 to 1', kind: 'esweep'},
     {name: 'epicycles: vertex drag, uneven, N=50, 1920 px', kind: 'edrag', handle: 'vertex', width: 1920, height: 1080},
+    {name: 'epicycles: vertex drag, uneven, N=5', kind: 'edrag', handle: 'vertex', n: 5},
+    {name: 'epicycles: cubic control drag, uneven, N=5', kind: 'edrag', handle: 'control', n: 5},
 ].filter(c => !process.env.PERF_ONLY || c.name.includes(process.env.PERF_ONLY));
 const EPICYCLES = 'analysis/epicycles', EXAMPLE = /^(Primer|Example)$/, PLAY = /^(Predvajaj|Play)$/;
 const pct = (s, q) => s[Math.min(s.length - 1, Math.floor(q * s.length))];
@@ -54,7 +56,7 @@ async function runOnce(browser, c) {
         if (c.kind.startsWith('e')) {
             await page.getByLabel(EXAMPLE).first().selectOption('uneven');
             await page.waitForTimeout(300);
-            await setNumber(page, NLABEL, 50); await page.waitForTimeout(500);
+            await setNumber(page, NLABEL, c.n || 50); await page.waitForTimeout(500);
         }
         if (c.kind === 'eplay') {
             await startSampling(page);

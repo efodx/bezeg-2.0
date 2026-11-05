@@ -68,3 +68,33 @@ The three drag cases miss the ADR 0040 threshold; playback and the \(N\) sweep p
 | Whole drag recompute | 28.17 | 33.66 |
 
 A frame has 16.7 ms, so the coefficients alone exceed it. `coefficientsFromFunction` evaluates \(z(t)\) by de Casteljau twice per node, for each of the 101 frequencies, over breakpoints refined for that \(k\). ADR 0034 §3 called the coefficient update cheap, and the ADR 0040 harness computed 16 nodes per span without that refinement, so neither saw this cost. The host's update cadence and React table were not isolated; the Node stages are a lower bound for the browser.
+
+## Re-measurement under the relaxed threshold
+
+The owner relaxed the drag threshold on 2026-11-05 ([ADR 0040](../../adr/0040-epicycle-rendering.md#drag-threshold-owner-decision-2026-11-05)): p95 at most 50.1 ms and no frame over 100 ms for drags at any \(N\); playback and \(N\) changes keep p95 at most 16.8 ms and no frame over 25 ms. No application code changed. Measured 2026-11-05 as in the host re-check (`just build`, `just preview 4330`, revision d9eaa453 plus two new \(N=5\) cases in `scripts/fourier-browser-perf.cjs`, dirty; `PREVIEW_BASE_URL=http://127.0.0.1:4330/bezeg-2.0`, `PERF_ONLY=epicycles`).
+
+| Case | median ms | p95 ms | max ms | frames >25 ms per run | samples per run | Threshold in force |
+|---|---|---|---|---|---|---|
+| 1 vertex drag, N=50 | 16.7 | 33.4 | 83.4 | 145/145/145 | 500/498/487 | met (relaxed) |
+| 2 cubic control drag, N=50 | 16.7 | 33.4 | 66.6 | 145/145/145 | 489/468/456 | met (relaxed) |
+| 3 playback 5 s, N=50 | 16.7 | 16.7 | 16.8 | 0/0/0 | 302/302/302 | met (strict) |
+| 4 N sweep 1 to 50 to 1 | 16.7 | 16.8 | 16.8 | 0/0/0 | 268/270/276 | met (strict) |
+| 5 vertex drag, N=50, 1920 px | 16.7 | 33.4 | 66.7 | 145/144/145 | 483/480/475 | met (relaxed) |
+| 6 vertex drag, N=5 | 16.7 | 16.8 | 49.9 | 6/6/15 | 502/502/504 | met (relaxed) |
+| 7 cubic control drag, N=5 | 16.7 | 16.8 | 50.0 | 1/3/1 | 487/497/482 | met (relaxed) |
+
+The p95 of cases 1 and 5 is 33.4 ms here against 50.0 ms in the host re-check, with no code change, so these values move by a display frame between runs. The p95 limit therefore has between no margin and one frame of margin, and the maximum (83.4 ms) has about one.
+
+**Move rate.** The 150 moves took about 8 s, about 18 moves a second, because each `page.mouse.move` round trip outlasts the nominal 13 ms step. At \(N=50\) about one frame per move is over 25 ms. With `PERF_DRAG_MS=150`, which leaves almost no wait, the harness reaches about 25 moves a second:
+
+| Case, `PERF_DRAG_MS=150` | median ms | p95 ms | max ms | frames >25 ms per run | samples per run |
+|---|---|---|---|---|---|
+| Vertex drag, N=50 | 16.7 | 33.4 | 66.7 | 143/144/143 | 372/361/363 |
+| Cubic control drag, N=50 | 16.7 | 33.4 | 50.0 | 143/143/144 | 339/345/336 |
+| Vertex drag, N=50, 1920 px | 16.7 | 33.4 | 50.1 | 143/144/144 | 356/363/351 |
+| Vertex drag, N=5 | 16.7 | 16.7 | 50.0 | 6/1/3 | 379/380/373 |
+| Cubic control drag, N=5 | 16.7 | 16.8 | 50.0 | 4/1/5 | 374/372/372 |
+
+All five meet the relaxed threshold. A real pointer can deliver one move per frame, about 60 a second, which Playwright did not reach, so frames at \(N=50\) may be slower in sustained use than these tables show. The classroom device is also still unmeasured.
+
+**Correction to the cause.** Handler handoff 37 said a drag at \(N=5\) costs the same as at 50, because `analyzeEpicycle` always computes up to `EPICYCLE_MAX_N`. The code does that, but the frames differ by at least a factor of 10 (1 to 15 frames over 25 ms per run against about 145). So the coefficients alone do not explain the miss in the browser: the work that grows with \(N\) (the trace, chain, circles and table) is the likely reason a move runs past the frame, and the Node stage times above do not transfer directly. This run did not isolate those stages.
