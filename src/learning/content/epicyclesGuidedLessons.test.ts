@@ -161,7 +161,7 @@ const coefficientsOf = (id: string) => {
 };
 
 // ---- The real graph -----------------------------------------------------------------------------------------------------------------------
-interface EpicycleHost {model: EpicycleModel; time: number; playing: boolean}
+interface EpicycleHost {model: EpicycleModel; time: number; playing: boolean; play(): void}
 function mount() {
     const graph = createGraph('epicycles');
     const mounted = mountGraph(graph);
@@ -228,6 +228,22 @@ test('every scene also works straight after any other scene, without restoring t
         for (const id of [...ids.slice().reverse(), ...ids, ...ids.slice(4), ...ids.slice(0, 4)]) {
             m.chained(stepOf(id));
             expectSceneState(m, id);
+        }
+    } finally {
+        m.mounted.view.unmount();
+    }
+}, REAL_GRAPH_TEST_TIMEOUT);
+
+test('a scene stops a running animation, entered with or without restoring the checkpoint', () => {
+    const m = mount();
+    try {
+        for (const id of Object.keys(SCENES)) {
+            for (const apply of [m.scene, m.chained]) {
+                act(() => m.host.play());
+                expect(m.host.playing, id).toBe(true);
+                apply(stepOf(id));
+                expectSceneState(m, id);
+            }
         }
     } finally {
         m.mounted.view.unmount();
