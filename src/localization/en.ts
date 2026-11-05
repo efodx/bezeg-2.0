@@ -2421,6 +2421,16 @@ export const en: Record<keyof typeof sl, string> = {
     "hullrobust_setup": "Each cell is orient(p, q, r) for q = (12, 12), r = (24, 24) and p = (0.5 + i·2⁻⁵³, 0.5 + j·2⁻⁵³).",
     "hullrobust_legend": "Marks: a cross means sign +, a bar −, a ring 0. A dark frame around a cell in the inexact map means its sign differs from the exact one.",
     "hullrobust_keyboard_note": "Select a cell by clicking it, with the arrow keys on the graph, or with the fields i and j. No point on this map can be dragged.",
+    // Bezier hulls graph readout (convexity task 26).
+    "bezierhulls_controls_label": "Subdivision playback",
+    "bezierhulls_playback_note": "Playback takes one step at a time and stops at the end. Changing a control point returns to the start and stops playback. Filled hull with a solid edge: the pair remains; thin dashed hull: the pair is discarded.",
+    "bezierhulls_depth": "Subdivision depth: {value0} of {value1}",
+    "bezierhulls_candidates": "Piece pairs to test: {value0}. No verdict yet: the hulls are still to be tested.",
+    "bezierhulls_kept": "Piece pairs that remain: {value0} of {value1}",
+    "bezierhulls_tests": "Pairs tested: {value0}, discarded: {value1}",
+    "bezierhulls_empty": "No pair remains: the curves do not meet. The hulls are certified apart with a safety margin.",
+    "bezierhulls_remaining": "The pairs that remain may or may not meet: overlapping hulls prove nothing, and subdivision stops at the deepest depth.",
+    "bezierhulls_invalid_step": "the field step must be a nonnegative integer (the step index); fix the value in the file",
     // Ear clipping graph (triangulation task 07).
     "earclip_overlay_trace": "Ear test and clipped triangles",
     "earclip_overlay_reflex": "Reflex vertices",

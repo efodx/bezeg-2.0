@@ -335,6 +335,6 @@ test('the pieces overlay has its own switch and Preset key; the inspector rows r
     expect(document.querySelector('[data-pointset-selection]')?.textContent).toBe('Izbrana točka: B_1');
     act(() => { setLanguage('en'); });
     expect(document.querySelector('.pointset-row:nth-child(3) button .visually-hidden')?.textContent).toBe('Select point A_2');
-    expect(graph.presetCollection().key).toBe('compgeo-curve-pair');
+    expect(graph.presetCollection().key).toBe('compgeo-bezier-hulls');
     expect(graph.presetCollection().checkGraphState?.({initialized: true, overlays: {pieces: true}})).toBeUndefined();
 });

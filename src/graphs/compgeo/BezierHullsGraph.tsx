@@ -1,3 +1,4 @@
+import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
@@ -10,8 +11,9 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
-import {SWEEP_COORD_LIMIT} from "../../compgeo/sweep/limits";
-import {CURVE_PAIR_OVERLAY_IDS, CurveName, CurvePairGraph, CurvePairOverlayId, curvePairPresetCollection} from "./CurvePairGraph";
+import {CURVE_PAIR_OVERLAY_IDS, CurveName, CurvePairGraph, CurvePairOverlayId} from "./CurvePairGraph";
+import {BezierHullsControlActions, BezierHullsControls} from "./BezierHullsControls";
+import {bezierHullsPresetCollection} from "./bezierHullsPresetCollection";
 import {PointSetGraphState} from "./PointSetGraph";
 import {registerTraceCommands} from "./traceLessonActions";
 
@@ -23,7 +25,7 @@ const MAX_PLAYBACK_STEPS = 100000;
 export type BezierHullsOverlayId = "pieces";
 export const BEZIER_HULLS_OVERLAY_IDS = [...CURVE_PAIR_OVERLAY_IDS, "pieces"] as const;
 
-const BEZIER_HULLS_COLLECTION = curvePairPresetCollection(BEZIER_HULLS_OVERLAY_IDS, {pointLimit: 8, coordinateLimit: SWEEP_COORD_LIMIT});
+const BEZIER_HULLS_COLLECTION = bezierHullsPresetCollection(BEZIER_HULLS_OVERLAY_IDS);
 
 /** The saved configuration beyond the points: the step index. Playback status is never state. */
 export interface BezierHullsGraphState extends PointSetGraphState {
@@ -260,6 +262,22 @@ export class BezierHullsGraph extends CurvePairGraph<BezierHullsOverlayId> {
         const stored = "step" in merged ? stepOf(merged.step) : undefined;
         const state: BezierHullsGraphState = {...merged, step: Math.min(stored ?? 0, this.runFor(merged.model.points).length - 1)};
         return state;
+    }
+
+    // ---- Inspector -----------------------------------------------------------------------------------------------
+
+    private readonly controlActions: BezierHullsControlActions = {
+        nextStep: () => this.nextStep(),
+        playPause: () => { if (this.isPlaying) this.pause(); else this.play(); },
+        reset: () => this.resetTrace(),
+    };
+
+    protected override workspaceEdit(): React.ReactNode {
+        return <>
+            <BezierHullsControls state={this.pairState} step={this.step} length={this.run().length} playing={this.isPlaying}
+                                 actions={this.controlActions}/>
+            {super.workspaceEdit()}
+        </>;
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
