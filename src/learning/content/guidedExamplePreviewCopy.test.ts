@@ -25,7 +25,7 @@ describe('guided example preview copy', () => {
         expect(missingLessonCopy).toEqual([]);
         expect(Object.keys(guidedActivityPreviewCopyById)).toHaveLength(6);
         expect(missingActivityCopy).toEqual([]);
-        expect(allCopy).toHaveLength(119);
+        expect(allCopy).toHaveLength(120);
 
         for (const item of allCopy) {
             for (const language of ['sl', 'en'] as const) {
