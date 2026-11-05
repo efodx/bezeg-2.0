@@ -19,7 +19,7 @@ function withExample(sectionId: CurveGeometrySectionId, section: FamilyChapterSe
     return {...section, orderedContent: content};
 }
 
-/** Curve geometry batches 1 and 2: L1 parametric and polar curves, L2 curvature and the osculating circle, L3 the curvature comb and spline joins and L4 the evolute. Later lessons (offsets) are not released and are not mentioned. */
+/** Curve geometry batches 1 to 3: L1 parametric and polar curves, L2 curvature and the osculating circle, L3 the curvature comb and spline joins, L4 the evolute and L5 offset curves. */
 export const curveGeometryChapter: FamilyChapter = {
     id: CURVE_GEOMETRY_CHAPTER_ID,
     family: '/bezeg-2.0/curve-geometry',
@@ -115,6 +115,21 @@ export const curveGeometryChapter: FamilyChapter = {
                      'The derivative of the evolute has the direction of the normal of the curve, so the normals are tangents of the evolute. Where \\(\\kappa\\) has a local extremum the curve has a vertex, the derivative of the evolute is \\(0\\) there and the evolute has a cusp. For the parabola this is the point \\((0,\\tfrac12)\\) above the vertex \\((0,0)\\).'),
                 text('Na prevoju je \\(\\kappa=0\\): krivinska krožnica je premica, njeno središče je neskončno daleč in točke evolute ni. Sled se tam prekine.',
                      'At an inflection \\(\\kappa=0\\): the osculating circle is a line, its centre is infinitely far away and there is no point of the evolute. The trace breaks there.'),
+            ],
+        }),
+        withExample('curve-offset', {
+            id: 'curve-offset',
+            demonstrationIds: ['curve-offset'],
+            investigationPrompts: {'curve-offset': text('Napovej, kje leži vzporednica parabole pri \\(d=-\\tfrac14\\), nato povečuj \\(|d|\\), dokler ne nastane ost. Vklopi osti in graf faktorja hitrosti ter primerjaj ničli z osmi.', 'Predict where the offset of the parabola lies at \\(d=-\\tfrac14\\), then increase \\(|d|\\) until a cusp forms. Switch on the cusps and the graph of the speed factor and compare its zeros with the cusps.')},
+            title: text('Vzporedne krivulje', 'Offset curves'),
+            formula: String.raw`O_d(t)=r(t)+d\,N(t),\qquad O_d^{\prime}(t)=(1+d\kappa)\,\lvert r^{\prime}(t)\rvert\,T(t)`,
+            paragraphs: [
+                text('Cilj razdelka: znaš razložiti, zakaj vzporednica Bézierove krivulje v splošnem ni Bézierova krivulja, in poiskati njene osti. Vzporednica na razdalji \\(d\\) je krivulja \\(O_d(t)=r(t)+d\,N(t)\\), kjer je \\(N\\) desna enotska normala; negativna in pozitivna \\(d\\) ležita na nasprotnih straneh krivulje.',
+                     'Goal of the section: you can explain why the offset of a Bézier curve is in general not a Bézier curve, and find its cusps. The offset at the distance \\(d\\) is the curve \\(O_d(t)=r(t)+d\,N(t)\\), where \\(N\\) is the unit right normal; negative and positive \\(d\\) lie on opposite sides of the curve.'),
+                text('Hitrost vzporednice je \\((1+d\\kappa)\\) krat hitrost krivulje, zato je vzporednica regularna, dokler je \\(1+d\\kappa\\ne0\\). Pri \\(d=-\\tfrac1\\kappa\\) dobi ost, in ta točka je središče krivinske krožnice, torej točka evolute. Pri paraboli \\(y=x^2\\) je prva ost pri \\(d=-\\tfrac12\\) v točki \\((0,\\tfrac12)\\), pri \\(d=-1\\) pa sta dve, pri \\(x=\\pm0{,}38321\\).',
+                     'The speed of the offset is \\((1+d\\kappa)\\) times the speed of the curve, so the offset is regular as long as \\(1+d\\kappa\\ne0\\). At \\(d=-\\tfrac1\\kappa\\) it gets a cusp, and that point is the centre of the osculating circle, so a point of the evolute. For the parabola \\(y=x^2\\) the first cusp is at \\(d=-\\tfrac12\\) at the point \\((0,\\tfrac12)\\), and at \\(d=-1\\) there are two, at \\(x=\\pm0.38321\\).'),
+                text('Narisana vzporednica je vzorčena, zato je približna; vzporednica PH krivulje je točna racionalna krivulja. Slika prikazuje le lokalne osti, globalnih samopresekov vzporednice ne iščemo.',
+                     'The drawn offset is sampled, so it is approximate; the offset of a PH curve is an exact rational curve. The picture shows local cusps only, global self-intersections of the offset are not solved.'),
             ],
         }),
     ],

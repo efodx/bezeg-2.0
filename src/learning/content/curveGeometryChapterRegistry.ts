@@ -13,6 +13,7 @@ const sectionDemonstrations = {
     'curve-curvature': 'curve-curvature',
     'curve-comb': 'curve-comb',
     'curve-evolute': 'curve-evolute',
+    'curve-offset': 'curve-offset',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type CurveGeometrySectionId = keyof typeof sectionDemonstrations;

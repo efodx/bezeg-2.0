@@ -1927,6 +1927,19 @@ const curveEvolute = {
     },
 };
 
+// Offset: the board readout names the distance d of each step (steps 1, 3 and 4 d = -1/2, steps 2 and 6 d = -1/4, step 5 d = -1).
+const OFFSET_READOUTS = [/d = [-−]0[.,]5\b/, /d = [-−]0[.,]25\b/, /d = [-−]0[.,]5\b/, /d = [-−]0[.,]5\b/, /d = [-−]1\b/, /d = [-−]0[.,]25\b/];
+const curveOffset = {
+    id: 'curve-offset',
+    path: `${BASE}/curve-geometry/offset`,
+    titles: {sl: 'Vzporedne krivulje', en: 'Offset curves'},
+    steps: 6,
+    minFrames: 13, // 2 frames per step, 3 on step 5 (calculation)
+    stepProbe: async (page, ctx, step, label) => {
+        await expect(boardText(page, OFFSET_READOUTS[step - 1]).first(), `offset readout at ${label}`).toBeVisible();
+    },
+};
+
 // Interval sweep: the trace step shown per lesson step 1..7 (start, start, third entering event, e entered, done, done, the second sample's start); the number is language independent.
 const INTERVAL_STEPS = ['1', '1', '7', '21', '26', '26', '1'];
 const intervalSweep = {
@@ -2366,7 +2379,7 @@ const epicycles = {
 };
 
 const LESSONS = [bezierHulls, bsplineBlossom, conicFocal, bsplineNurbs, fortune, bsplineExtraction, bsplineInsertion, voronoi, voronoiDegenerate, monotoneTriangulation, monotonePartition, probabilityDensity, probabilityBinomialNormal, probabilityClt, probabilitySummary, probabilityCorrelation, interpolationLeastSquares, interpolationRunge, bsplineDeBoor, bsplineBasis, segmentIntersections, rootFinding, quadrature, eulerMethod, projectiveCrossRatio, projectivePascal, projectivePolePolar, projectiveFivePoint, projectiveThreeViews, fourierSeries, fourierCoefficients, epicycles, functionTransformation, functionInverse, polynomialZeros, rationalFunction, geometricSeries, interpolationSubdivision, interpolationHermite, interpolationLagrange, intervalSweep, parametricGeometry, curvatureGeometry, earClipping, pointSetTriangulation, delaunay, convexHull, pointInPolygon, hullRobustness, orientation, polygonArea, bezierPilot, decasteljauPilot, affinePilot, elevationPilot, rationalPilot, rationalDecasteljauPilot, phCubicPilot, phQuinticPilot, ...patchRows, coonsPatch, bernstein,rationalElevation, weighted, uniformPh, subdivision, repeatedSubdivision, rationalSubdivision, extrapolation, rationalExtrapolation,
-    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute];
+    alternativeDeCasteljau, farin, circle, splineCn, splineC1, splineC2, splineG1, splineG1Symmetric, splineParameterization, linear, exponential, trigonometric, continuity, derivative, definiteIntegral, areaBetween, arcLength, bisection, meanValue, accumulation, darboux, extrema, convexity, taylor, sequence, uniformConvergence, complexMultiplication, fixedPoint, linearMap, complexReciprocal, complexRoots, triangleCentres, inscribedAngle, eulerLine, simsonLine, inversionLesson, curvatureComb, curveEvolute, curveOffset];
 // Exit/re-entry runs on one row per restoration mechanism; src/learning/runtime/lessonRestorationContract.tsx covers every lesson.
 const EXIT_SAMPLE = new Set(['linear-function', 'repeated-subdivision', 'farin', 'spline-c1', 'ph-cubic', 'decasteljau', 'bisection']);
 

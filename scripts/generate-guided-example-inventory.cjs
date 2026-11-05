@@ -606,6 +606,7 @@ function curveGeometryExpectedFor(id, step) {
     }
     if (id.endsWith('.curve-comb')) return curveCombExpectedFor(id, actions);
     if (id.endsWith('.curve-evolute')) return curveEvoluteExpectedFor(id, actions);
+    if (id.endsWith('.curve-offset')) return curveOffsetExpectedFor(id, actions);
     assert.ok(id.endsWith('.curve-curvature'), `${id}: no authored Curve geometry first frame`);
     assertOnlyActions(id, actions, [['parameter', /^t$/], ['curve-visibility', /^curvature-(frame|circle)$/]], 'curveGeometryExpectedFor');
     assert.equal(sceneValue(id, actions, 'parameter', 't'), 0.5, `${id}: only t = 0.5 is authored`);
@@ -645,6 +646,23 @@ function curveEvoluteExpectedFor(id, actions) {
     const shown = target => actions.filter(item => item.kind === 'curve-visibility' && item.target === target).map(item => item.visible);
     assert.deepEqual([shown('evolute-normal'), shown('curvature-frame'), shown('curvature-circle')], [[false], [false], [true]], `${id}: normal and frame hidden, circle shown`);
     return {types: {curve: 1, circle: 1, point: 6}, curveCount: 1, points: [[-1, 1], [0, -1], [1, 1], [0.5, 0.25], [-0.5, 1.25]]};
+}
+
+/**
+ * L5 (offset, the straight segment (-1,0), (0,0), (1,0) as a quadratic Bezier at d = -1/2, sampled offset shown, cusps and speed plot hidden):
+ * the curve, its three control points and the sampled offset curve (the line y = 1/2 from x = -1 to x = 1, drawn dashed). The cusp markers
+ * and the speed plot are hidden, so they add nothing. The counts follow the curve-offset graph's board objects and are checked by the
+ * capture of the card (CG-B3-5), not by a browser run of this slice.
+ */
+function curveOffsetExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['offset-distance', /^$/], ['offset-samples', /^$/], ['curve-visibility', /^offset-(trace|cusps|speed-plot)$/]], 'curveOffsetExpectedFor');
+    const distance = actions.filter(item => item.kind === 'offset-distance');
+    assert.ok(distance.length === 1 && distance[0].value === -0.5, `${id}: only d = -1/2 is authored`);
+    const shown = target => actions.filter(item => item.kind === 'curve-visibility' && item.target === target).map(item => item.visible);
+    assert.deepEqual([shown('offset-trace'), shown('offset-cusps'), shown('offset-speed-plot')], [[true], [false], [false]], `${id}: the offset shown, cusps and speed plot hidden`);
+    const prepared = actions.filter(item => item.kind === 'prepared-scene');
+    assert.deepEqual(prepared.length === 1 ? prepared[0].curve?.points : undefined, [[-1, 0], [0, 0], [1, 0]], `${id}: only the segment (-1,0), (0,0), (1,0) is authored`);
+    return {types: {curve: 2, point: 3}, curveCount: 2, points: [[-1, 0], [0, 0], [1, 0]]};
 }
 
 /**

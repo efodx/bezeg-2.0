@@ -1,9 +1,9 @@
 /**
  * Guided lessons of the Curve geometry family (docs/specs/curve-geometry-lessons.md): L1, parametric and polar curves, L2,
- * curvature and the osculating circle, L3, the curvature comb and spline joins, and L4, the evolute. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"):
+ * curvature and the osculating circle, L3, the curvature comb and spline joins, L4, the evolute, and L5, offset curves. The text is a one-shot draft (docs/specs/new-lesson-families.md, "One-shot lesson text"):
  * every value it quotes is the readout of the scene it belongs to, and `curveGeometryGuidedLessons.test.ts` checks that against
  * the real graphs. Scenes use the `parametric-curve`, `parameter` (`t`), `curve-visibility` (`curvature-frame`,
- * `curvature-circle`, `curvature-comb`, `evolute-normal`), `comb-curve`, `comb-gain`, `spline-beta`, `evolute-trace` and `parametric-roll` animation actions.
+ * `curvature-circle`, `curvature-comb`, `evolute-normal`), `comb-curve`, `comb-gain`, `spline-beta`, `evolute-trace` and `parametric-roll` animation actions; L5 adds `offset-curve`, `offset-distance`, `offset-samples` and the `offset-trace`, `offset-cusps` and `offset-speed-plot` overlays.
  */
 import type {EvoluteTraceMode, LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
@@ -836,4 +836,200 @@ const evoluteLesson: GuidedLesson = {
     unresolvedQuestions: [],
 };
 
-export const curveGeometryGuidedLessons: readonly GuidedLesson[] = [parametricLesson, curvatureLesson, combLesson, evoluteLesson];
+// ---- L5: offset curves --------------------------------------------------------------------------------------------------
+
+/** A straight segment as a quadratic Bezier curve: its offset is a parallel segment (step 1). */
+export const OFFSET_SEGMENT: LessonCurveFixture = {points: [[-1, 0], [0, 0], [1, 0]]};
+/** The window of the parabola and the segment, the same as the route's own window for the Bezier curve. */
+export const OFFSET_VIEW: LessonViewBox = [-2.6, 2.2, 2.6, -1.6];
+
+/**
+ * A scene of the curve-offset graph. The offset distance, the sample count and the three switches are always set, so the scenes do not
+ * depend on each other; the PH curve is chosen with the `offset-curve` action, which also moves the board to its window.
+ */
+const offsetScene = (
+    id: string, curve: LessonCurveFixture | 'ph' | undefined, distance: number,
+    shown: {cusps: boolean; plot: boolean}, samples: number, sl: string, en: string,
+): LessonScene => {
+    const actions: LessonAction[] = [
+        ...(curve === 'ph' ? [{kind: 'offset-curve', curve: 'ph'} as const] : []),
+        {kind: 'offset-distance', value: distance}, {kind: 'offset-samples', value: samples},
+        {kind: 'curve-visibility', target: 'offset-trace', visible: true},
+        {kind: 'curve-visibility', target: 'offset-cusps', visible: shown.cusps},
+        {kind: 'curve-visibility', target: 'offset-speed-plot', visible: shown.plot},
+    ];
+    const expectedState = text(sl, en);
+    if (curve === 'ph') return {id, basedOn: 'demonstration-default', actions, expectedState};
+    if (curve === undefined) return {id, basedOn: 'demonstration-default', view: OFFSET_VIEW, actions, expectedState};
+    return {id, basedOn: 'lesson-fixture', curve, view: OFFSET_VIEW, actions, expectedState};
+};
+
+const offsetLesson: GuidedLesson = {
+    demonstrationId: 'curve-offset',
+    title: text('Vzporedne krivulje', 'Offset curves'),
+    summary: text(
+        'Vzporednica krivulje na razdalji \\(d\\) v splošnem ni Bézierova krivulja; zato obstajajo PH krivulje. Regularna je, dokler je \\(1+d\\kappa\\ne0\\), ost pa dobi tam, kjer je \\(d=-\\tfrac1\\kappa\\), in ta točka leži na evoluti.',
+        'The offset of a curve at the distance \\(d\\) is in general not a Bézier curve, which is why PH curves exist. It is regular as long as \\(1+d\\kappa\\ne0\\) and gets a cusp where \\(d=-\\tfrac1\\kappa\\), and that point lies on the evolute.',
+    ),
+    prerequisites: [
+        text('Potrebni sta lekciji o ukrivljenosti in o evoluti: vzporednica je povezana s središčem krivinske krožnice.', 'The lessons on curvature and on the evolute are needed: the offset is tied to the centre of the osculating circle.'),
+        text('Priporočeno je poznavanje PH krivulj, ker je njihova vzporednica točna.', 'Knowing PH curves helps, because their offset is exact.'),
+    ],
+    learningGoals: [
+        text('Napoveš, kako izgleda vzporednica daljice in krožnega loka.', 'Predict what the offset of a segment and of a circular arc looks like.'),
+        text('Veš, da je vzporednica Bézierove krivulje v splošnem le približno narisana in ni Bézierova krivulja.', 'Know that the offset of a Bézier curve is in general only drawn approximately and is not a Bézier curve.'),
+        text('Z \\(1+d\\kappa=0\\) poiščeš osti vzporednice in jih povežeš z evoluto.', 'Use \\(1+d\\kappa=0\\) to find the cusps of the offset and connect them with the evolute.'),
+        text('Ločiš približno vzorčeno vzporednico od točne vzporednice PH krivulje.', 'Tell the approximate sampled offset from the exact offset of a PH curve.'),
+    ],
+    formulaBlocks: [
+        {
+            id: 'offset-point',
+            latex: 'O_d(t)=r(t)+d\\,N(t),\\qquad N=\\frac{(y^{\\prime},\\,-x^{\\prime})}{\\sqrt{x^{\\prime2}+y^{\\prime2}}}',
+            notation: text(
+                '\\(r=(x,y)\\) je krivulja, \\(N\\) desna enotska normala in \\(d\\) razdalja; negativna in pozitivna vrednost ležita na nasprotnih straneh krivulje.',
+                '\\(r=(x,y)\\) is the curve, \\(N\\) the unit right normal and \\(d\\) the distance; negative and positive values lie on opposite sides of the curve.',
+            ),
+            explanation: text(
+                'Razdalja \\(d\\) se meri vzdolž desne normale. Pri \\(d<0\\) je vzporednica na levi strani krivulje, torej na strani središča krivinske krožnice, če se krivulja ukrivlja v levo, kot parabola od leve proti desni. Narisana vzporednica je vzorčena: točke \\(O_d(t)\\) so izračunane in povezane z lomljenko, zato je približna.',
+                'The distance \\(d\\) is measured along the right normal. For \\(d<0\\) the offset is on the left of the curve, that is on the side of the centre of the osculating circle when the curve bends to the left, like the parabola traversed from left to right. The drawn offset is sampled: the points \\(O_d(t)\\) are computed and joined by a polyline, so it is approximate.',
+            ),
+        },
+        {
+            id: 'offset-speed',
+            latex: 'O_d^{\\prime}(t)=\\bigl(1+d\\kappa\\bigr)\\,\\lvert r^{\\prime}(t)\\rvert\\,T(t)',
+            notation: text(
+                '\\(T\\) je enotska tangenta, \\(\\kappa\\) ukrivljenost s predznakom (pozitivna pri zavijanju v levo) in \\(1+d\\kappa\\) faktor hitrosti vzporednice.',
+                '\\(T\\) is the unit tangent, \\(\\kappa\\) the signed curvature (positive when turning left) and \\(1+d\\kappa\\) the speed factor of the offset.',
+            ),
+            explanation: text(
+                'Vzporednica ima isto tangento kot krivulja, hitrost pa je pomnožena z \\(1+d\\kappa\\). Pri \\(1+d\\kappa=0\\), to je \\(d=-\\tfrac1\\kappa=-R\\), je hitrost enaka \\(0\\) in vzporednica ima ost. Točka vzporednice je tedaj \\(r-R\\,N\\), središče krivinske krožnice, torej točka evolute. Slika prikazuje le lokalne osti; globalnih samopresekov vzporednice ne iščemo.',
+                'The offset has the same tangent as the curve and its speed is multiplied by \\(1+d\\kappa\\). At \\(1+d\\kappa=0\\), that is \\(d=-\\tfrac1\\kappa=-R\\), the speed is \\(0\\) and the offset has a cusp. The point of the offset is then \\(r-R\\,N\\), the centre of the osculating circle, so a point of the evolute. The picture shows local cusps only; global self-intersections of the offset are not solved.',
+            ),
+        },
+    ],
+    workedExamples: [
+        {
+            id: 'offset-parabola-example',
+            title: text('Ost vzporednice parabole', 'A cusp of the offset of the parabola'),
+            calculationLatex: '\\kappa(x)=\\frac{2}{(1+4x^2)^{3/2}},\\quad 1+d\\kappa=0,\\ d=-1:\\quad (1+4x^2)^{3/2}=2,\\quad x=\\pm0.38321',
+            resultLatex: 'O_{-1}=(\\mp0.2251,\\ 0.9406)',
+            check: text(
+                'Točka \\(E(x)=(-4x^3,3x^2+\\tfrac12)\\) evolute pri \\(x=\\pm0{,}38321\\) je \\((\\mp0{,}2251;\\ 0{,}9406)\\), torej vzporednica tam leži na evoluti.',
+                'The point \\(E(x)=(-4x^3,3x^2+\\tfrac12)\\) of the evolute at \\(x=\\pm0.38321\\) is \\((\\mp0.2251,\\ 0.9406)\\), so the offset lies on the evolute there.',
+            ),
+        },
+    ],
+    steps: [
+        {
+            id: 'offset-predict', order: 1,
+            title: text('Napoved: vzporednica daljice', 'Predict: the offset of a segment'),
+            purpose: text('Napovedati, kako izgleda vzporednica daljice in krožnega loka.', 'Predicting what the offset of a segment and of a circular arc looks like.'),
+            explanation: text(
+                'Preden se lotiš parabole, napovej: vzporednica daljice je daljica, vzporednica krožnega loka s polmerom \\(R\\) pa koncentričen lok s polmerom \\(R+d\\) ali \\(R-d\\), odvisno od strani. Na sliki je daljica od \\((-1,0)\\) do \\((1,0)\\) in njena vzporednica pri \\(d=-\\tfrac12\\): vzporedna daljica na višini \\(y=\\tfrac12\\). Za krožni lok slike ni, ker ga kvadratna Bézierova krivulja ne zapiše točno; ostane pri napovedi v besedah. Razdalja \\(d\\) se meri vzdolž desne normale, zato negativna \\(d\\) leži zgoraj.',
+                'Before turning to the parabola, predict: the offset of a segment is a segment, and the offset of a circular arc of radius \\(R\\) is a concentric arc of radius \\(R+d\\) or \\(R-d\\), depending on the side. The picture shows the segment from \\((-1,0)\\) to \\((1,0)\\) and its offset at \\(d=-\\tfrac12\\): a parallel segment at the height \\(y=\\tfrac12\\). There is no picture of a circular arc, because a quadratic Bézier curve cannot write it exactly; it stays a prediction in words. The distance \\(d\\) is measured along the right normal, so a negative \\(d\\) lies above.',
+            ),
+            formulaIds: ['offset-point'],
+            frames: [frame('offset-predict-explanation', 'explanation'), frame('offset-predict-observation', 'observation')],
+            observationPrompt: text('Napovej, kam bo padla vzporednica parabole, nato pojdi na naslednji korak.', 'Predict where the offset of the parabola will fall, then go to the next step.'),
+            expectedObservations: [text('Vzporednica daljice je daljica iste dolžine na razdalji \\(\\tfrac12\\).', 'The offset of a segment is a segment of the same length at the distance \\(\\tfrac12\\).')],
+            scene: offsetScene('offset-segment', OFFSET_SEGMENT, -0.5, {cusps: false, plot: false}, 128,
+                'Daljica od \\((-1,0)\\) do \\((1,0)\\) in njena vzorčena vzporednica pri \\(d=-\\tfrac12\\).',
+                'The segment from \\((-1,0)\\) to \\((1,0)\\) and its sampled offset at \\(d=-\\tfrac12\\).'),
+        },
+        {
+            id: 'offset-small', order: 2,
+            title: text('Majhna razdalja', 'A small distance'),
+            purpose: text('Videti vzorčeno vzporednico parabole pri majhnem \\(|d|\\).', 'Seeing the sampled offset of the parabola at a small \\(|d|\\).'),
+            explanation: text(
+                'Parabola \\(y=x^2\\) ima pri \\(d=-\\tfrac14\\) gladko vzporednico nad seboj. Črtkana črta je vzorčena, zato je približna, in v splošnem ni Bézierova krivulja: izračunane točke so povezane z lomljenko. Pri majhnem \\(|d|\\) je \\(1+d\\kappa>0\\) povsod, zato je vzporednica regularna in brez osti.',
+                'The parabola \\(y=x^2\\) has a smooth offset above it at \\(d=-\\tfrac14\\). The dashed line is sampled, so it is approximate, and in general it is not a Bézier curve: the computed points are joined by a polyline. For a small \\(|d|\\) we have \\(1+d\\kappa>0\\) everywhere, so the offset is regular and has no cusps.',
+            ),
+            formulaIds: ['offset-point', 'offset-speed'],
+            frames: [frame('offset-small-explanation', 'explanation'), frame('offset-small-observation', 'observation')],
+            observationPrompt: text('Premakni drsnik razdalje \\(d\\) malo levo in desno.', 'Move the distance slider \\(d\\) a little to the left and to the right.'),
+            expectedObservations: [text('Izpis pove, da vzporednica nima osti in da je črtkana vzporednica približna.', 'The readout says that the offset has no cusps and that the dashed offset is approximate.')],
+            scene: offsetScene('offset-parabola-small', undefined, -0.25, {cusps: true, plot: false}, 128,
+                'Parabola in njena vzorčena vzporednica pri \\(d=-\\tfrac14\\); osti ni.',
+                'The parabola and its sampled offset at \\(d=-\\tfrac14\\); there are no cusps.'),
+        },
+        {
+            id: 'offset-first-cusp', order: 3,
+            title: text('Prva ost', 'The first cusp'),
+            purpose: text('Povečati \\(|d|\\) do praga, pri katerem vzporednica dobi ost.', 'Increasing \\(|d|\\) to the threshold at which the offset gets a cusp.'),
+            explanation: text(
+                'Pri \\(d=-\\tfrac12\\) vzporednica prvič dobi ost. Teme parabole \\((0,0)\\) ima ukrivljenost \\(\\kappa=2\\), zato je tam \\(1+d\\kappa=1-\\tfrac12\\cdot2=0\\). Ost je v točki \\((0,\\tfrac12)\\), to je središče krivinske krožnice v temenu.',
+                'At \\(d=-\\tfrac12\\) the offset gets a cusp for the first time. The vertex \\((0,0)\\) of the parabola has the curvature \\(\\kappa=2\\), so there \\(1+d\\kappa=1-\\tfrac12\\cdot2=0\\). The cusp is at the point \\((0,\\tfrac12)\\), the centre of the osculating circle at the vertex.',
+            ),
+            formulaIds: ['offset-speed'],
+            frames: [frame('offset-first-cusp-explanation', 'explanation'), frame('offset-first-cusp-observation', 'observation')],
+            observationPrompt: text('Počasi večaj \\(|d|\\) od \\(\\tfrac14\\) do \\(\\tfrac12\\) in opazuj, kje nastane ost.', 'Slowly increase \\(|d|\\) from \\(\\tfrac14\\) to \\(\\tfrac12\\) and watch where the cusp forms.'),
+            expectedObservations: [text('Ost nastane na osi parabole pri \\(x=0\\); pri večjem \\(|d|\\) se razcepi v dve osti.', 'The cusp forms on the axis of the parabola at \\(x=0\\); for a larger \\(|d|\\) it splits into two cusps.')],
+            scene: offsetScene('offset-parabola-first-cusp', undefined, -0.5, {cusps: true, plot: false}, 128,
+                'Parabola in vzporednica pri \\(d=-\\tfrac12\\); ost v \\((0,\\tfrac12)\\).',
+                'The parabola and the offset at \\(d=-\\tfrac12\\); a cusp at \\((0,\\tfrac12)\\).'),
+        },
+        {
+            id: 'offset-ph', order: 4,
+            title: text('Točna vzporednica PH krivulje', 'The exact offset of a PH curve'),
+            purpose: text('Primerjati približno vzorčeno vzporednico s točno vzporednico PH krivulje.', 'Comparing the approximate sampled offset with the exact offset of a PH curve.'),
+            explanation: text(
+                'Kubična PH krivulja ima točno racionalno vzporednico: polna črta je točna, črtkana vzorčena pa približna. Obe sta pri \\(d=-\\tfrac12\\) na isti strani in se skoraj prekrivata. PH krivulja je na tej sliki stalna, zato je ne moreš vleči; za parabolo se vrni z izbirnikom krivulje.',
+                'A cubic PH curve has an exact rational offset: the solid line is exact and the dashed sampled one is approximate. At \\(d=-\\tfrac12\\) both lie on the same side and they almost coincide. The PH curve is fixed on this picture, so you cannot drag it; go back to the parabola with the curve selector.',
+            ),
+            formulaIds: ['offset-point'],
+            frames: [frame('offset-ph-explanation', 'explanation'), frame('offset-ph-observation', 'observation')],
+            observationPrompt: text('Preklopi izbirnik krivulje nazaj na parabolo in znova na PH krivuljo.', 'Switch the curve selector back to the parabola and to the PH curve again.'),
+            expectedObservations: [text('Točna in vzorčena vzporednica se skoraj prekrivata; izpis pove, da je polna črta točna, črtkana pa približna.', 'The exact and the sampled offset almost coincide; the readout says that the solid line is exact and the dashed one approximate.')],
+            scene: offsetScene('offset-ph-exact', 'ph', -0.5, {cusps: false, plot: false}, 128,
+                'Kubična PH krivulja s točno (polno) in vzorčeno (črtkano) vzporednico pri \\(d=-\\tfrac12\\).',
+                'The cubic PH curve with the exact (solid) and the sampled (dashed) offset at \\(d=-\\tfrac12\\).'),
+        },
+        {
+            id: 'offset-cusps-plot', order: 5,
+            title: text('Osti in faktor hitrosti', 'Cusps and the speed factor'),
+            purpose: text('Osti vzporednice povezati z ničlami \\(1+d\\kappa\\) in z evoluto.', 'Connecting the cusps of the offset with the zeros of \\(1+d\\kappa\\) and with the evolute.'),
+            explanation: text(
+                'Spet je parabola, zdaj pri \\(d=-1\\), z osmi in grafom faktorja hitrosti \\(1+d\\kappa\\). Faktor je enak \\(0\\) pri \\(x=\\pm0{,}38321\\). Tam sta osti vzporednice v točkah \\((\\mp0{,}2251;\\ 0{,}9406)\\), ki ležita na evoluti \\(E(x)=(-4x^3,3x^2+\\tfrac12)\\). Graf faktorja tam seka vodoravno os. Prikazane so le lokalne osti.',
+                'The parabola is back, now at \\(d=-1\\), with the cusps and the graph of the speed factor \\(1+d\\kappa\\). The factor is \\(0\\) at \\(x=\\pm0.38321\\). There the cusps of the offset are at the points \\((\\mp0.2251,\\ 0.9406)\\), which lie on the evolute \\(E(x)=(-4x^3,3x^2+\\tfrac12)\\). The graph of the factor crosses the horizontal axis there. Only local cusps are shown.',
+            ),
+            formulaIds: ['offset-speed'],
+            frames: [frame('offset-cusps-plot-explanation', 'explanation'), frame('offset-cusps-plot-observation', 'observation')],
+            observationPrompt: text('Poišči presečišči grafa z vodoravno osjo in ju primerjaj z osmi vzporednice.', 'Find where the graph crosses the horizontal axis and compare these points with the cusps of the offset.'),
+            expectedObservations: [text('Izpis navaja dve osti, graf faktorja \\(1+d\\kappa\\) pa seka vodoravno os v obeh.', 'The readout lists two cusps and the graph of the factor \\(1+d\\kappa\\) crosses the horizontal axis at both.')],
+            workedExampleId: 'offset-parabola-example',
+            scene: offsetScene('offset-parabola-cusps', undefined, -1, {cusps: true, plot: true}, 128,
+                'Parabola in vzporednica pri \\(d=-1\\): dve osti pri \\(x=\\pm0{,}38321\\) in graf faktorja hitrosti.',
+                'The parabola and the offset at \\(d=-1\\): two cusps at \\(x=\\pm0.38321\\) and the graph of the speed factor.'),
+        },
+        {
+            id: 'offset-explore', order: 6,
+            title: text('Prosto raziskovanje', 'Free exploration'),
+            purpose: text('Samostojno spreminjati razdaljo, število vzorcev in krivuljo.', 'Changing the distance, the sample count and the curve on your own.'),
+            explanation: text(
+                'Spet je parabola pri \\(d=-\\tfrac14\\) s \\(128\\) vzorci, z osmi in grafom faktorja. Spreminjaj \\(d\\), število vzorcev in kontrolne točke ter opazuj, kako število vzorcev vpliva na gladkost približne vzporednice. Pozitiven \\(d\\) pomeni drugo stran krivulje.',
+                'The parabola is back at \\(d=-\\tfrac14\\) with \\(128\\) samples, with the cusps and the graph of the factor. Change \\(d\\), the sample count and the control points, and watch how the sample count affects the smoothness of the approximate offset. A positive \\(d\\) means the other side of the curve.',
+            ),
+            formulaIds: ['offset-point', 'offset-speed'],
+            frames: [frame('offset-explore-explanation', 'explanation'), frame('offset-explore-observation', 'observation')],
+            observationPrompt: text('Zmanjšaj število vzorcev na najmanjšo vrednost in poišči vogale lomljenke.', 'Reduce the sample count to its smallest value and look for the corners of the polyline.'),
+            expectedObservations: [text('Pri majhnem številu vzorcev je vzporednica vidno lomljena; osti so lokalne, globalnih samopresekov ne iščemo.', 'With few samples the offset is visibly polygonal; the cusps are local and global self-intersections are not solved.')],
+            scene: offsetScene('offset-explore-start', undefined, -0.25, {cusps: true, plot: true}, 128,
+                'Parabola z vzporednico pri \\(d=-\\tfrac14\\), s \\(128\\) vzorci, osmi in grafom faktorja; vse je prosto za raziskovanje.',
+                'The parabola with the offset at \\(d=-\\tfrac14\\), \\(128\\) samples, the cusps and the graph of the factor; everything is free to explore.'),
+        },
+    ],
+    sources: [
+        {
+            id: 'bezeg-offset-implementation',
+            citation: 'Bezeg source: src/graphs/curves/offset/curveOffset.ts, OffsetOverlay.ts and CurveOffsetGraph.tsx.',
+            implementationCorrespondence: 'The sampled offset, the cusps and the speed factor come from curveOffset.ts. A lesson scene chooses the curve with offset-curve, the distance with offset-distance, the sample count with offset-samples and the overlays with the curve-visibility actions offset-trace, offset-cusps and offset-speed-plot. The exact offset of the PH curve is the existing phOffsetRational. Quoted values are checked against the real graph; the spec names no curriculum source for offsets.',
+        },
+    ],
+    edgeCases: [
+        text('Globalni samopresek vzporednice (del vzporednice, ki preseka drug del) ni rešen; slika kaže le lokalne osti.', 'A global self-intersection of the offset (a part of the offset crossing another part) is not solved; the picture shows local cusps only.'),
+        text('Pri \\(r\\,^{\\prime}=0\\) ukrivljenost ni določena, zato vzporednica tam ni določena.', 'Where \\(r\\,^{\\prime}=0\\) the curvature is not defined, so the offset is not defined there.'),
+    ],
+    unresolvedQuestions: [],
+};
+
+export const curveGeometryGuidedLessons: readonly GuidedLesson[] = [parametricLesson, curvatureLesson, combLesson, evoluteLesson, offsetLesson];
