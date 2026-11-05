@@ -17,6 +17,7 @@ import {schoolFunctionGraphsPreviewCopy} from '../content/schoolFunctionGraphsPr
 import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
 import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
 import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
+import {mathAltText} from './mathAltText';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
     eager: true,
@@ -125,7 +126,7 @@ export function resolveGuidedExamplePreview(
     const copy = copyFor(id, demonstrationId);
     const src = getPatchGuidedExamplePreviewSource(id) ?? chapterOwnedPreview(id)?.src ?? imageUrls[`/src/images/learning/examples/${id}.png`];
     if (!copy || !src) return undefined;
-    return {src, alt: copy.alt[language], caption: copy.caption[language]};
+    return {src, alt: mathAltText(copy.alt[language]), caption: copy.caption[language]};
 }
 
 /** Stable keys that must have copy and captured media before the published inventory is complete. */
