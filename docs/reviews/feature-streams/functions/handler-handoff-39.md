@@ -6,6 +6,10 @@ Handler 39 (Opus 5.5, `--permission-mode auto`, `--effort medium`) wrote this no
 - Worktree `.claude/worktrees/stream-functions`, branch `stream-functions`.
 - `origin/stream-functions` has diverged, so never force-push it; push to `master` only, as a fast-forward.
 
+## Outcome
+
+Released after this note was written. The owner confirmed the push, the commits were rebased onto `d8799baa`, `just check` and `just smoke-lesson` passed in full at `71b827ea`, and CI run 42056227787 is green on it. The State, Next and Checks sections below describe the earlier blocked state; the gaps under "Report these to the owner" still stand.
+
 ## State
 
 - **Remote `master`:** `2b8005cf`. It has F2b and Curves' joint posters, including the `epicycles` poster.

@@ -1932,4 +1932,4 @@ Handoff — smoke/UI: five-route checklist with stable handler-owned production 
 - Reviews: mathematical 11 tool calls, 46k tokens, 112 s, no finding, every value reproduced by its own script. Engineering 16 tool calls, 52k tokens, 125 s, no defect, two weak tests repaired by the handler, one mutation check.
 - Smoke: 35 tool calls, 62k tokens, 13.7 minutes. No failures. Reported a play lock that came from not pressing the observe button; the handler traced it in the code.
 - Integration failures, all from rebases: a conflict resolution dropped `epicycles` from `LESSONS` (lint caught it), three counts, two stale `import.meta.glob` cache failures (environment). Three full check runs.
-- Outcome: blocked at the push. The permission layer refused the fast-forward to `master`; hosted CI not run. Coverage gaps in handoff 39.
+- Outcome: accepted after an owner wait. The permission layer refused the fast-forward to `master` until the owner confirmed it; master moved by four commits meanwhile, so a fourth full check ran (1020 s, passed). CI run 42056227787 green on `71b827ea`. Coverage gaps in handoff 39.
