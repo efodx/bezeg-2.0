@@ -1933,3 +1933,12 @@ Handoff — smoke/UI: five-route checklist with stable handler-owned production 
 - Smoke: 35 tool calls, 62k tokens, 13.7 minutes. No failures. Reported a play lock that came from not pressing the observe button; the handler traced it in the code.
 - Integration failures, all from rebases: a conflict resolution dropped `epicycles` from `LESSONS` (lint caught it), three counts, two stale `import.meta.glob` cache failures (environment). Three full check runs.
 - Outcome: accepted after an owner wait. The permission layer refused the fast-forward to `master` until the owner confirmed it; master moved by four commits meanwhile, so a fourth full check ran (1020 s, passed). CI run 42056227787 green on `71b827ea`. Coverage gaps in handoff 39.
+
+### 2026-11-05 curves handlers 52 and 53: CG-B3-2a and 2b
+
+- Mathematical review of the kernel, Sonnet: 9 tool calls, 1 medium finding, fixed by the handler, two low.
+- Graph worker: 41 tool calls. Accepted with handler fixes to caption length, naming, the hidden-offset caption, a stale plot and a missing class.
+- Test worker: 36 tool calls, first pass accepted, 8 mutations each failed a test.
+- Engineering and UI review, Sonnet: 12 tool calls, 38k tokens, 62 s. No high or medium finding, two low notes. It ran no mutations, so handler 52's record answers that concern.
+- Smoke, Sonnet: 26 tool calls, 64k tokens, 5 minutes. One real failure no jsdom test could reach, the caption at 390×844, and it caught that the handoff's "the base point drags" was false. The handler confirmed that with a mouse drag on both routes.
+- Outcome: accepted after one handler fix. A foreground `just check` survived the memory reaper once memory was free; the harness moved it to the background at 600 s and it kept running.
