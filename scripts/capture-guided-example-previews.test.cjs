@@ -185,6 +185,14 @@ test('tightens only the worked parabola capture frame and retains shared spline 
     assert.equal(captureRecipeForEntry({id: 'splines.continuity-levels.spline-c1'}, recipe), recipe);
 });
 
+test('a curve geometry card fits its own lesson scene instead of the poster window of its demonstration', () => {
+    const recipe = {id: 'curve-comb', framing: {kind: 'coordinate-window', window: [-8, 4.9, 8, -4.9]}, actions: []};
+    for (const id of ['curve-geometry.curve-comb.curve-comb', 'curve-geometry.curve-evolute.curve-evolute', 'curve-geometry.curve-envelope.curve-envelope'])
+        assert.deepEqual(captureRecipeForEntry({id}, recipe).framing, {kind: 'finite-geometry-fit'});
+    assert.deepEqual(recipe.framing, {kind: 'coordinate-window', window: [-8, 4.9, 8, -4.9]});
+    assert.equal(captureRecipeForEntry({id: 'projective-conics.projective-pascal.projective-pascal'}, recipe), recipe);
+});
+
 test('presentation fingerprint changes when a framing entry or a presentation helper changes', () => {
     const shared = {recipeFraming: [{id: 'spline-c1', framing: {kind: 'coordinate-window', window: [-4.6, 4.2, 4.6, -4.2]}}],
         entryFraming: [{id: 'worked', framing: {kind: 'finite-geometry-fit'}}]};
@@ -270,7 +278,9 @@ test('numerical, school, fourier, projective and curve-geometry capture families
         'curve-geometry': [{id: 'curve-geometry.curve-parametric.curve-parametric', path: '/bezeg-2.0/curve-geometry/parametric?example=lesson.curve-geometry.curve-parametric.curve-parametric'},
             {id: 'curve-geometry.curve-curvature.curve-curvature', path: '/bezeg-2.0/curve-geometry/curvature?example=lesson.curve-geometry.curve-curvature.curve-curvature'},
             {id: 'curve-geometry.curve-comb.curve-comb', path: '/bezeg-2.0/curve-geometry/comb?example=lesson.curve-geometry.curve-comb.curve-comb'},
-            {id: 'curve-geometry.curve-evolute.curve-evolute', path: '/bezeg-2.0/curve-geometry/evolute?example=lesson.curve-geometry.curve-evolute.curve-evolute'}],
+            {id: 'curve-geometry.curve-evolute.curve-evolute', path: '/bezeg-2.0/curve-geometry/evolute?example=lesson.curve-geometry.curve-evolute.curve-evolute'},
+            {id: 'curve-geometry.curve-offset.curve-offset', path: '/bezeg-2.0/curve-geometry/offset?example=lesson.curve-geometry.curve-offset.curve-offset'},
+            {id: 'curve-geometry.curve-envelope.curve-envelope', path: '/bezeg-2.0/curve-geometry/envelope?example=lesson.curve-geometry.curve-envelope.curve-envelope'}],
     };
     const root = path.resolve(__dirname, '..');
     for (const [family, list] of Object.entries(entries)) {
@@ -298,7 +308,7 @@ test('numerical, school, fourier, projective and curve-geometry capture families
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][2], path: '/bezeg-2.0/analysis/epicyclesx'}], 'fourier-series'), /requires a fourier-series inventory/);
     for (const path of ['/bezeg-2.0/projective/cross-ratiox', '/bezeg-2.0/projective', '/bezeg-2.0/projective/conics', '/bezeg-2.0/pascal', '/bezeg-2.0/projective/five-pointx', '/bezeg-2.0/projective/tangent'])
         assert.throws(() => assertInventoryFamily([{...entries['projective-conics'][0], path}], 'projective-conics'), /requires a projective-conics inventory/);
-    for (const path of ['/bezeg-2.0/curve-geometry/parametricx', '/bezeg-2.0/curve-geometry/curvaturex', '/bezeg-2.0/curve-geometry/combx', '/bezeg-2.0/curve-geometry/evolutes', '/bezeg-2.0/curve-geometry', '/bezeg-2.0/curve-geometry/other', '/bezeg-2.0/parametric'])
+    for (const path of ['/bezeg-2.0/curve-geometry/parametricx', '/bezeg-2.0/curve-geometry/curvaturex', '/bezeg-2.0/curve-geometry/combx', '/bezeg-2.0/curve-geometry/evolutes', '/bezeg-2.0/curve-geometry/offsets', '/bezeg-2.0/curve-geometry/envelopes', '/bezeg-2.0/curve-geometry', '/bezeg-2.0/curve-geometry/other', '/bezeg-2.0/parametric'])
         assert.throws(() => assertInventoryFamily([{...entries['curve-geometry'][0], path}], 'curve-geometry'), /requires a curve-geometry inventory/);
 });
 

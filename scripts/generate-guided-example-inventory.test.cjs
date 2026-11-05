@@ -375,6 +375,23 @@ test('curve geometry expectations are authored from the cycloid and the cubic', 
     assert.throws(() => curveGeometryExpectedFor(evoId, sceneOf(evoScene.map(item => item.name === 't' ? {...item, value: 0.5} : item))), /only t = 0.75 is authored/);
     assert.throws(() => curveGeometryExpectedFor(evoId, sceneOf(evoScene.map(item => item.mode ? {...item, mode: 'full'} : item))), /trace must be hidden/);
     assert.throws(() => curveGeometryExpectedFor(evoId, sceneOf(evoScene.map(item => item.target === 'evolute-normal' ? {...item, visible: true} : item))), /normal and frame hidden/);
+    // L5 offset (the segment at d = -1/2, the offset shown) and L6 envelope (four lines, the curve and the touching point hidden).
+    const offId = 'curve-geometry.curve-offset.curve-offset', envId = 'curve-geometry.curve-envelope.curve-envelope';
+    const offScene = [{...fixture, curve: {points: [[-1, 0], [0, 0], [1, 0]]}}, {kind: 'offset-distance', value: -0.5}, {kind: 'offset-samples', value: 128},
+        {kind: 'curve-visibility', target: 'offset-trace', visible: true}, {kind: 'curve-visibility', target: 'offset-cusps', visible: false}, {kind: 'curve-visibility', target: 'offset-speed-plot', visible: false}];
+    const envScene = [{...fixture, curve: {points: [[1, 0], [0, 0], [0, 1]]}}, {kind: 'envelope-t', value: 0.5}, {kind: 'envelope-lines', value: 4},
+        {kind: 'curve-visibility', target: 'envelope-lines', visible: true}, {kind: 'curve-visibility', target: 'envelope-curve', visible: false}, {kind: 'curve-visibility', target: 'envelope-touch', visible: false}];
+    const l5 = curveGeometryExpectedFor(offId, sceneOf(offScene));
+    assert.deepEqual(l5, {types: {curve: 2, point: 3}, curveCount: 2, points: [[-1, 0], [0, 0], [1, 0]]});
+    const l6 = curveGeometryExpectedFor(envId, sceneOf(envScene));
+    assert.deepEqual(l6, {types: {curve: 1, point: 3}, curveCount: 1, points: [[1, 0], [0, 0], [0, 1]]});
+    assert.doesNotThrow(() => { assertExpectation(offId, l5); assertExpectation(envId, l6); });
+    assert.throws(() => curveGeometryExpectedFor(offId, sceneOf(offScene.map(item => item.kind === 'offset-distance' ? {...item, value: -1} : item))), /only d = -1\/2 is authored/);
+    assert.throws(() => curveGeometryExpectedFor(offId, sceneOf(offScene.map(item => item.target === 'offset-cusps' ? {...item, visible: true} : item))), /cusps and speed plot hidden/);
+    assert.throws(() => curveGeometryExpectedFor(offId, sceneOf(offScene.map(item => item.curve ? {...item, curve: {points: [[0, 0], [1, 1], [2, 0]]}} : item))), /only the segment/);
+    assert.throws(() => curveGeometryExpectedFor(envId, sceneOf(envScene.map(item => item.kind === 'envelope-lines' ? {...item, value: 8} : item))), /only four lines are authored/);
+    assert.throws(() => curveGeometryExpectedFor(envId, sceneOf(envScene.map(item => item.target === 'envelope-curve' ? {...item, visible: true} : item))), /curve and the touching point hidden/);
+    assert.throws(() => curveGeometryExpectedFor(envId, sceneOf(envScene.map(item => item.curve ? {...item, curve: {points: [[0, 0], [1, 1], [2, 0]]}} : item))), /only the controls/);
     assert.ok(chapterInventories['curve-geometry']);
 });
 

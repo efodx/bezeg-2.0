@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
+  "sourceRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
+    "revision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
     "dirty": true,
-    "inputs": "2008596ffe8e47834e3d221549d5fbeb686ae40f7a4c90417809882770240f90",
-    "output": "634fd33a4a7e155379ebd0bc7fbf499127adc276e172d8b9670596a5f71de01c"
+    "inputs": "305c149af047a3842a2e747f33c94bfde56442172898fa9b8c906ebad6597c75",
+    "output": "72345ba5d2a2b1a11d13d7a1ae70da761f11e983e84992a262ab4e9d97026ca0"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4314/bezeg-2.0/",
-    "stampRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
+    "stampRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
     "stampDirty": true,
-    "localOutputHash": "634fd33a4a7e155379ebd0bc7fbf499127adc276e172d8b9670596a5f71de01c",
+    "localOutputHash": "72345ba5d2a2b1a11d13d7a1ae70da761f11e983e84992a262ab4e9d97026ca0",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-HoshbFkk.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-HoshbFkk.js",
-        "sha256": "5125e582fbbd9af3cd106e84d370a481d535d1c7f6eea383cf9e3eb0736842c2",
+        "name": "index-CK5eTn8s.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-CK5eTn8s.js",
+        "sha256": "9f84cea675180eed10e07431fa3288d4cd2c5f495ca532867dbe1768dfa49435",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BCs2F0GO.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/jsx-runtime-BCs2F0GO.js",
-        "sha256": "d9867a01001140a824955b2990d67c4e03d1d56501c6399157f894c967a54509",
+        "name": "jsx-runtime-vHwmxC7u.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/jsx-runtime-vHwmxC7u.js",
+        "sha256": "a74eee18efa970d51cb5cf9bcad0a6b3ab2d6bff383a0506c4f5e84a3a9e5756",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Cz79A4-n.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/react-dom-Cz79A4-n.js",
-        "sha256": "2f2eb900847de8de910882aeccb9a42f2bc2ea79658da22b1e523bb2af719131",
+        "name": "react-dom-BTDomSGs.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/react-dom-BTDomSGs.js",
+        "sha256": "4deacaa5a04bf4afae2f6323b957cdbd553a88899c27bbd133f06886177767f9",
         "matchesLocalBuild": true
       },
       {
@@ -55,16 +55,18 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "6387611a1c1094b933848252be34ef51f5682635c1917695fcef6d664b4871bb",
+    "inventory": "85b19f755f8d6fbdf5b3347326f943114e594d7fe24e86ca10d6e375cbcb691d",
     "entries": {
       "curve-geometry.curve-parametric.curve-parametric": "86c17ca5dd26ab1a8f99b92b3b61ce4944ef73eb05d49f357df10b752d50a9b9",
       "curve-geometry.curve-curvature.curve-curvature": "c95deb6850364c779d23c0931a278729e9fc57be411b598f59a151e7aa8e3bfe",
       "curve-geometry.curve-comb.curve-comb": "7ec3fd1b6c30a2dce569082b7bd71be5fae52c162a5a4f50b2689747439059a2",
-      "curve-geometry.curve-evolute.curve-evolute": "aa167bb33f6e23f2e4bbefbd80ba83eeca0d07ff58e304ea8a9bc0413bcd68d3"
+      "curve-geometry.curve-evolute.curve-evolute": "aa167bb33f6e23f2e4bbefbd80ba83eeca0d07ff58e304ea8a9bc0413bcd68d3",
+      "curve-geometry.curve-offset.curve-offset": "cf836d267bc87ba5c0f0f6008d280ac0ca3e5b54daa2b5e4159aa53729068d79",
+      "curve-geometry.curve-envelope.curve-envelope": "c07f066caa6359aa706fcce518995fe1cf786c58eecd556d6d715ebe7a9e7463"
     },
-    "presentation": "c312634e2a0d931c18dc047a2aec4660665ff2da441ddd92765461c091c25f92",
-    "buildOutput": "634fd33a4a7e155379ebd0bc7fbf499127adc276e172d8b9670596a5f71de01c",
-    "buildInputs": "2008596ffe8e47834e3d221549d5fbeb686ae40f7a4c90417809882770240f90"
+    "presentation": "db6ec52a35adb0965614042caed7f4d69013bd118fa7056c723a436fc1215e08",
+    "buildOutput": "72345ba5d2a2b1a11d13d7a1ae70da761f11e983e84992a262ab4e9d97026ca0",
+    "buildInputs": "305c149af047a3842a2e747f33c94bfde56442172898fa9b8c906ebad6597c75"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -107,6 +109,20 @@
       {
         "id": "curve-geometry.curve-evolute.curve-evolute",
         "demonstrationId": "curve-evolute",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "curve-geometry.curve-offset.curve-offset",
+        "demonstrationId": "curve-offset",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "curve-geometry.curve-envelope.curve-envelope",
+        "demonstrationId": "curve-envelope",
         "framing": {
           "kind": "finite-geometry-fit"
         }
@@ -198,8 +214,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
-        "sourceRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
+        "buildRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
+        "sourceRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
         "pageErrors": []
       }
     },
@@ -318,8 +334,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
-        "sourceRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
+        "buildRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
+        "sourceRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
         "pageErrors": []
       }
     },
@@ -436,8 +452,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
-        "sourceRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
+        "buildRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
+        "sourceRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
         "pageErrors": []
       }
     },
@@ -563,8 +579,275 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
-        "sourceRevision": "699b085a7bfbe9cedac81882e693e9c41b68eb44",
+        "buildRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
+        "sourceRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "curve-geometry.curve-offset.curve-offset",
+      "demonstrationId": "curve-offset",
+      "path": "/bezeg-2.0/curve-geometry/offset?example=lesson.curve-geometry.curve-offset.curve-offset",
+      "sceneFingerprint": "e915842e00bfcbd261375732de88b23a7168fb8ee5e6c0d5c1e5e9a653ff146f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"offset-segment\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-1,0],[0,0],[1,0]]},\"view\":[-3,3.4,3,-1.2]}",
+        "offset-distance: {\"kind\":\"offset-distance\",\"value\":-0.5}",
+        "offset-samples: {\"kind\":\"offset-samples\",\"value\":128}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"offset-trace\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"offset-cusps\",\"visible\":false}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"offset-speed-plot\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "curve-geometry.curve-offset.curve-offset.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "5e47035a7c835f559b11c4b03f96e3cda9240d8df9d067a5a50f0fe6c0c782d9",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "point": 3,
+          "curve": 2,
+          "text": 4
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              -1,
+              0.5
+            ],
+            [
+              -0.992126,
+              0.5
+            ],
+            [
+              -0.984252,
+              0.5
+            ]
+          ],
+          [
+            [
+              -1,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:-1,0",
+          "point:0,0",
+          "point:1,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "point": 3,
+            "curve": 2,
+            "text": 4
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                -1,
+                0.5
+              ],
+              [
+                -0.992126,
+                0.5
+              ],
+              [
+                -0.984252,
+                0.5
+              ]
+            ],
+            [
+              [
+                -1,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:-1,0",
+            "point:0,0",
+            "point:1,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 3,
+          "curve": 2,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
+        "sourceRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "curve-geometry.curve-envelope.curve-envelope",
+      "demonstrationId": "curve-envelope",
+      "path": "/bezeg-2.0/curve-geometry/envelope?example=lesson.curve-geometry.curve-envelope.curve-envelope",
+      "sceneFingerprint": "61d6542eaa43de2d36a41058fba327a78b9f04d93580b04ce01e73652bdab12a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"envelope-few-lines\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[1,0],[0,0],[0,1]]},\"view\":[-1.7,2.4,2.7,-0.3]}",
+        "envelope-t: {\"kind\":\"envelope-t\",\"value\":0.5}",
+        "envelope-lines: {\"kind\":\"envelope-lines\",\"value\":4}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"envelope-lines\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"envelope-curve\",\"visible\":false}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"envelope-touch\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "curve-geometry.curve-envelope.curve-envelope.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "8a6b85782351c836547a4b9b20698fb95fbe5fdad803bd35254146fb5ec0d462",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "point": 3,
+          "segment": 2,
+          "curve": 1,
+          "text": 3
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              0.8,
+              0
+            ],
+            [
+              0.4,
+              0.1
+            ],
+            [
+              0,
+              0.2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:1,0",
+          "point:0,0",
+          "point:0,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 32,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "point": 3,
+            "segment": 2,
+            "curve": 1,
+            "text": 3
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                0.8,
+                0
+              ],
+              [
+                0.4,
+                0.1
+              ],
+              [
+                0,
+                0.2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:1,0",
+            "point:0,0",
+            "point:0,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 3,
+          "segment": 2,
+          "curve": 1,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
+        "sourceRevision": "2206721386191950af5d406dfeb6ec34ac69c9cb",
         "pageErrors": []
       }
     }

@@ -652,8 +652,7 @@ function curveEvoluteExpectedFor(id, actions) {
 /**
  * L5 (offset, the straight segment (-1,0), (0,0), (1,0) as a quadratic Bezier at d = -1/2, sampled offset shown, cusps and speed plot hidden):
  * the curve, its three control points and the sampled offset curve (the line y = 1/2 from x = -1 to x = 1, drawn dashed). The cusp markers
- * and the speed plot are hidden, so they add nothing. The counts follow the curve-offset graph's board objects and are checked by the
- * capture of the card (CG-B3-5), not by a browser run of this slice.
+ * and the speed plot are hidden, so they add nothing.
  */
 function curveOffsetExpectedFor(id, actions) {
     assertOnlyActions(id, actions, [['offset-distance', /^$/], ['offset-samples', /^$/], ['curve-visibility', /^offset-(trace|cusps|speed-plot)$/]], 'curveOffsetExpectedFor');
@@ -668,8 +667,7 @@ function curveOffsetExpectedFor(id, actions) {
 
 /**
  * L6 (envelope, the controls (1,0), (0,0), (0,1), four lines, the curve and the touching point hidden): the control polygon's three points
- * and four lines. The Bezier curve is hidden, so it adds nothing. The counts follow the curve-envelope graph's board objects and are checked
- * by the capture of the card (CG-B3-5), not by a browser run of this slice.
+ * and the family, which is one curve element holding all four lines. The Bezier curve and the highlighted line are hidden, so they add nothing.
  */
 function curveEnvelopeExpectedFor(id, actions) {
     assertOnlyActions(id, actions, [['envelope-t', /^$/], ['envelope-lines', /^$/], ['curve-visibility', /^envelope-(lines|curve|touch)$/]], 'curveEnvelopeExpectedFor');
@@ -679,7 +677,7 @@ function curveEnvelopeExpectedFor(id, actions) {
     assert.deepEqual([shown('envelope-lines'), shown('envelope-curve'), shown('envelope-touch')], [[true], [false], [false]], `${id}: the lines shown, the curve and the touching point hidden`);
     const prepared = actions.filter(item => item.kind === 'prepared-scene');
     assert.deepEqual(prepared.length === 1 ? prepared[0].curve?.points : undefined, [[1, 0], [0, 0], [0, 1]], `${id}: only the controls (1,0), (0,0), (0,1) are authored`);
-    return {types: {segment: 4, point: 3}, curveCount: 0, points: [[1, 0], [0, 0], [0, 1]]};
+    return {types: {curve: 1, point: 3}, curveCount: 1, points: [[1, 0], [0, 0], [0, 1]]};
 }
 
 /**

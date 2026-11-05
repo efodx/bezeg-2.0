@@ -25,10 +25,12 @@ const deviceScaleFactor = 2;
 const workedParabolaId = 'splines.worked-join.spline-c1.parabola-derivatives';
 
 function captureRecipeForEntry(entry, recipe) {
-    if (entry.id !== workedParabolaId) return recipe;
+    if (entry.id !== workedParabolaId && !entry.id.startsWith('curve-geometry.')) return recipe;
     // The shared spline-c1 catalog window is useful for its broad construction view,
     // but this authored worked parabola has a much smaller exact fixture view.
-    // Fit its own finite scene with equal unit scales and leave the shared recipe intact.
+    // Curve geometry posters likewise frame another scene than the lesson opening a card shows:
+    // the comb poster's window, chosen for the C1 spline, leaves the card's cubic a fifth of the frame.
+    // Fit the card's own finite scene with equal unit scales and leave the shared recipe intact.
     return {...recipe, framing: {kind: 'finite-geometry-fit'}};
 }
 
@@ -58,7 +60,7 @@ const chapterFamilies = {
     'school-function-graphs': {label: 'school-function-graphs', idPrefix: 'school-function-graphs.', route: /^\/bezeg-2\.0\/functions\/(?:transformations|inverse|polynomial-zeros|rational-functions|geometric-series|conics)(?:\/|$)/, routeText: '/bezeg-2.0/functions/transformations, /inverse, /polynomial-zeros, /rational-functions, /geometric-series or /conics'},
     'fourier-series': {label: 'fourier-series', idPrefix: 'fourier-series.', route: /^\/bezeg-2\.0\/analysis\/(?:fourier-(?:series|coefficients)|epicycles)(?:\/|$)/, routeText: '/bezeg-2.0/analysis/fourier-series, /bezeg-2.0/analysis/fourier-coefficients or /bezeg-2.0/analysis/epicycles'},
     'projective-conics': {label: 'projective-conics', idPrefix: 'projective-conics.', route: /^\/bezeg-2\.0\/projective\/(?:cross-ratio|pascal|pole-polar|five-point|three-views)(?:\/|$)/, routeText: '/bezeg-2.0/projective/cross-ratio, /pascal, /pole-polar, /five-point or /three-views'},
-    'curve-geometry': {label: 'curve-geometry', idPrefix: 'curve-geometry.', route: /^\/bezeg-2\.0\/curve-geometry\/(?:parametric|curvature|comb|evolute)(?:\/|$)/, routeText: '/bezeg-2.0/curve-geometry/parametric, /curvature, /comb or /evolute'},
+    'curve-geometry': {label: 'curve-geometry', idPrefix: 'curve-geometry.', route: /^\/bezeg-2\.0\/curve-geometry\/(?:parametric|curvature|comb|evolute|offset|envelope)(?:\/|$)/, routeText: '/bezeg-2.0/curve-geometry/parametric, /curvature, /comb, /evolute, /offset or /envelope'},
 };
 
 function parseArgs(argv) {

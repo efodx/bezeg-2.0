@@ -167,6 +167,84 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "curve-geometry.curve-offset.curve-offset",
+      "demonstrationId": "curve-offset",
+      "path": "/bezeg-2.0/curve-geometry/offset?example=lesson.curve-geometry.curve-offset.curve-offset",
+      "sceneFingerprint": "e915842e00bfcbd261375732de88b23a7168fb8ee5e6c0d5c1e5e9a653ff146f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"offset-segment\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[-1,0],[0,0],[1,0]]},\"view\":[-3,3.4,3,-1.2]}",
+        "offset-distance: {\"kind\":\"offset-distance\",\"value\":-0.5}",
+        "offset-samples: {\"kind\":\"offset-samples\",\"value\":128}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"offset-trace\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"offset-cusps\",\"visible\":false}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"offset-speed-plot\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 3
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "curve-geometry.curve-envelope.curve-envelope",
+      "demonstrationId": "curve-envelope",
+      "path": "/bezeg-2.0/curve-geometry/envelope?example=lesson.curve-geometry.curve-envelope.curve-envelope",
+      "sceneFingerprint": "61d6542eaa43de2d36a41058fba327a78b9f04d93580b04ce01e73652bdab12a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"envelope-few-lines\",\"source\":\"lesson-fixture\",\"curve\":{\"points\":[[1,0],[0,0],[0,1]]},\"view\":[-1.7,2.4,2.7,-0.3]}",
+        "envelope-t: {\"kind\":\"envelope-t\",\"value\":0.5}",
+        "envelope-lines: {\"kind\":\"envelope-lines\",\"value\":4}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"envelope-lines\",\"visible\":true}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"envelope-curve\",\"visible\":false}",
+        "curve-visibility: {\"kind\":\"curve-visibility\",\"target\":\"envelope-touch\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 3
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }
