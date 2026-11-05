@@ -53,5 +53,24 @@ Planned 2026-11-03 (geometry handler 48). The A5 "free double" board is a fixed 
 | 23 | [Chapter sections for A3 and A5](23-batch2-chapter.md) | F4 | 21, 22 | accepted 2026-11-05 (handler 51) |
 | — | F5 posters; F6 acceptance | F5–F6 | 23 | accepted 2026-11-05 (handler 51, [record](../../reviews/feature-streams/geometry/f6-convexity-batch2-acceptance.md)) |
 
-## Later batches (task files written when the previous batch is accepted)
+## Batch 3 (A6)
+
+Planned 2026-11-05 (geometry handler 52). Kernel [11](11-hull-separation.md) was accepted 2026-10-31. Curves D2 waits on tasks 24 and 25: [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md) has clipping reuse this model and graph.
+
+- **Graph base:** a `PointSetGraph` subclass, not a curve graph (reasons in [25](25-curve-pair-graph.md)). Both curves have the same degree, 2 or 3.
+- **Drawn hulls** are exact: pieces of a grid net are dyadic, so they scale to integers for the monotone chain. No off-grid hull is built.
+- **Default example kept:** the lesson explains the \(8\) pairs (crossings at shared piece endpoints), as the spec allows.
+- **Caveat example:** a near-miss pair found by search and certified exactly (task [24](24-curve-pair-model.md)). A visible gap cannot survive to depth 4, because a piece's hull is too thin there.
+
+| # | Task | Kind | Depends on | Status |
+| --- | --- | --- | --- | --- |
+| 24 | [Curve pair subdivision model](24-curve-pair-model.md) | F1 | 11 | planned |
+| 25 | [Pair-of-curves graph](25-curve-pair-graph.md) | F2a | 24 | planned |
+| 26 | [Readout, Presets and the depth 4 measurement](26-curve-pair-readout.md) | F2a | 25 | planned |
+| 27 | [Batch 3 registration](27-batch3-registration.md): `bezier-hulls` | F2b | 26 | planned |
+| 28 | [Lesson A6 scene, wiring and chapter section](28-lesson-bezier-hulls.md) | F3, F4 | 27 | planned |
+| 29 | [Lesson A6 tests and gates](29-lesson-bezier-hulls-tests.md) | F3 | 28 | planned |
+| — | F5 poster; F6 acceptance | F5–F6 | 29 | planned |
+
+## Earlier notes on Batch 3
 - **Batch 3 (A6):** kernel [11 conservative hull separation](11-hull-separation.md) (F1, accepted 2026-10-31 after math review; [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md); not gated, written early because the Curves D2 graph needs it); the pair-of-curves view (measure at depth 4); F2b, F3, F4, F5, F6.
