@@ -76,6 +76,8 @@ The catalog publishes its reviewed poster set and 51 silent four-second WebM cli
 | Computational geometry | `/compgeo/orientation` | Orientation of three grid points: exact value, turn word and collinear case (`OrientationGraph`, a `PointSetGraph` subclass) |
 | Computational geometry | `/compgeo/polygon-area` | Signed polygon area by the shoelace formula, lattice counts and Pick's theorem; a self-intersecting polygon shows the signed sum without Pick (`PolygonAreaGraph`) |
 | Computational geometry | `/compgeo/convex-hull` | Convex hull by the slow edge test, monotone chain and gift wrapping, stepped trace with orientation-test counts (`HullTraceGraph`) |
+| Computational geometry | `/compgeo/point-in-polygon` | Point in polygon by ray casting and the winding number: crossing count with a half-open rule for vertices on the ray, the boundary case, and a pentagram where the even–odd and nonzero rules disagree (`PointInPolygonGraph`) |
+| Computational geometry | `/compgeo/hull-robustness` | What collinear points, duplicates and inexact doubles do to a hull: the monotone chain under either pop rule and duplicate rule, and the Kettner sign map, inexact beside exact (`HullRobustnessGraph`) |
 | Computational geometry | `/compgeo/ear-clipping` | Ear clipping, three-colouring and the art gallery bound (`EarClippingGraph`) |
 | Computational geometry | `/compgeo/point-set-triangulation` | Triangulating a point set: triangle list, edge flips and angle readout (`TriangulationGraph`) |
 | Computational geometry | `/compgeo/delaunay` | Delaunay triangulation by Lawson flips with the incircle test and circumcircle overlay (`DelaunayGraph`) |

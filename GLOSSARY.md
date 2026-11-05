@@ -37,6 +37,12 @@ The shoelace sum \(\tfrac12\sum(x_iy_{i+1}-x_{i+1}y_i)\) of a polygon: positive 
 **Convex hull**:
 The smallest convex polygon containing a point set. The hull Demonstration builds it by three algorithms (the slow edge test, the monotone chain and gift wrapping) that must return the same vertices; a point on a hull edge is on the boundary but not a vertex.
 
+**Winding number** (*ovojno število*):
+How many times a closed polygon turns around a query point, counted with sign. It decides inside or outside by the nonzero rule. Not defined for a point on the boundary, which is reported as on the boundary.
+
+**Even–odd rule** (*sodo-liho pravilo*):
+A point is inside when a ray from it crosses the polygon an odd number of times. A half-open rule settles a ray through a vertex, so the answer matches that of a nearby ray. For a simple polygon it agrees with the nonzero rule; for a self-intersecting one the two can disagree.
+
 **Ear**:
 Three consecutive polygon vertices whose turn is strictly convex and whose triangle contains no other vertex; ear clipping removes one ear per step until a triangle remains.
 
