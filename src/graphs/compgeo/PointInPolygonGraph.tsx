@@ -367,8 +367,9 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
                 name: "ray-crossing", withLabel: false, face: "o", size: 4, fillColor: GraphPalette.primaryCurve, strokeColor: GraphPalette.primaryCurve,
                 highlight: false, fixed: true, showInfobox: false, layer: 5,
             }) as JXG.GeometryElement);
-            objects.push(board.create("text", [x, () => q.y + (14 + 14 * level) / board.unitY, String(crossing.number)], {
-                anchorX: "middle", anchorY: "middle", fontSize: 13, strokeColor: GraphPalette.label, highlight: false, fixed: true,
+            // Beside the crossing, not above it: a vertical edge runs through the point straight above it.
+            objects.push(board.create("text", [() => x + 8 / board.unitX, () => q.y + (14 + 14 * level) / board.unitY, String(crossing.number)], {
+                anchorX: "left", anchorY: "middle", fontSize: 13, strokeColor: GraphPalette.label, highlight: false, fixed: true,
                 layer: 8, display: "html", name: "ray-number", cssStyle: "pointer-events:none;",
             }) as JXG.GeometryElement);
         }
