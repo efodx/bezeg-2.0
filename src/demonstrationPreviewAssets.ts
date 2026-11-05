@@ -32,6 +32,8 @@ import preview_curve_parametric from './images/demonstrations/catalog/curve-para
 import preview_curve_curvature from './images/demonstrations/catalog/curve-curvature.png';
 import preview_curve_comb from './images/demonstrations/catalog/curve-comb.png';
 import preview_curve_evolute from './images/demonstrations/catalog/curve-evolute.png';
+import preview_curve_offset from './images/demonstrations/catalog/curve-offset.png';
+import preview_curve_envelope from './images/demonstrations/catalog/curve-envelope.png';
 import preview_interp_lagrange from './images/demonstrations/catalog/interp-lagrange.png';
 import preview_interp_hermite from './images/demonstrations/catalog/interp-hermite.png';
 import preview_interp_runge from './images/demonstrations/catalog/interp-runge.png';
@@ -147,6 +149,8 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'curve-curvature': preview_curve_curvature,
     'curve-comb': preview_curve_comb,
     'curve-evolute': preview_curve_evolute,
+    'curve-offset': preview_curve_offset,
+    'curve-envelope': preview_curve_envelope,
     'interp-lagrange': preview_interp_lagrange,
     'interp-hermite': preview_interp_hermite,
     'interp-runge': preview_interp_runge,
