@@ -1612,6 +1612,8 @@ export const en: Record<keyof typeof sl, string> = {
     "fourier_readout_overshoot_limit": "Overshoot in the limit N → ∞",
     "fourier_series_title": "Fourier series",
     "fourier_coefficients_title": "Fourier coefficients",
+    "epicycles_title": "Epicycles",
+    "prompt_epicycles": "Drag the loop, raise N and press play. How do the circles add up to the curve?",
     "prompt_fourier_coefficients": "Drag the shape handle and watch the coefficient bars. Compare how fast the coefficients decay for three functions: what does the smoothness of a function say about their decay?",
     "prompt_fourier_series": "Choose a wave example and the number of harmonics N, and predict how close the partial sum Sₙ will be to f; then change N. What happens at the jump as N grows?",
     "fourier_note": "The peak is computed from the formula x = π/(N + 1), not read off the picture. The overshoot at a jump is the Gibbs phenomenon, not a drawing or rounding error. The sign — means the peak does not exceed the upper limit.",

@@ -443,6 +443,7 @@ export const functionPresetCollections = {
     "uniform-convergence": functionCollection("uniform-convergence", parseUniformConvergenceModel, diagnoseUniformConvergence),
     "fourier-series": functionCollection("fourier-series", parseFourierSeriesModel, diagnoseFourierSeries),
     "fourier-coefficients": fourierCoefficientsCollection(),
+    epicycles: epicyclePresetCollection,
     "interp-runge": functionCollection("interp-runge", parseRungeModel, diagnoseRunge),
     "interp-least-squares": leastSquaresCollection(),
     "prob-density": functionCollection("prob-density", parseDensityAreaModel, diagnoseDensityArea),

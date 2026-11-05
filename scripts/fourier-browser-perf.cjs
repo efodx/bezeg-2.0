@@ -15,14 +15,22 @@ const cases = [
     {name: 'handle drag, jump, K=16, overlay on', kind: 'drag', layout: 'jump', k: 16},
     {name: 'decay N sweep 1 to 101, log scale', kind: 'sweep'},
     {name: 'handle drag, abs, K=16, 1920 px', kind: 'drag', layout: 'abs', k: 16, width: 1920, height: 1080},
-];
+    // Epicycles host re-check (fourier-series 06 F2b, ADR 0040): uneven example, N=50, on analysis/epicycles.
+    {name: 'epicycles: vertex drag, uneven, N=50', kind: 'edrag', handle: 'vertex'},
+    {name: 'epicycles: cubic control drag, uneven, N=50', kind: 'edrag', handle: 'control'},
+    {name: 'epicycles: playback 5 s, N=50', kind: 'eplay'},
+    {name: 'epicycles: N sweep 1 to 50 to 1', kind: 'esweep'},
+    {name: 'epicycles: vertex drag, uneven, N=50, 1920 px', kind: 'edrag', handle: 'vertex', width: 1920, height: 1080},
+].filter(c => !process.env.PERF_ONLY || c.name.includes(process.env.PERF_ONLY));
+const EPICYCLES = 'analysis/epicycles', EXAMPLE = /^(Primer|Example)$/, PLAY = /^(Predvajaj|Play)$/;
 const pct = (s, q) => s[Math.min(s.length - 1, Math.floor(q * s.length))];
 const median = xs => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
-const readBoard = () => {
+const readBoard = (handle) => {
     const bd = Object.values(window.JXG.boards)[0];
     bd.containerObj.scrollIntoView({block: 'center'});
     const r = bd.containerObj.getBoundingClientRect();
-    const pts = Object.values(bd.objects).filter(o => o.elType === 'point' && o.visProp.visible !== false && o.visPropCalc.visible && !o.visProp.fixed);
+    const pts = Object.values(bd.objects).filter(o => o.elType === 'point' && o.visProp.visible !== false && o.visPropCalc.visible && !o.visProp.fixed
+        && (!handle || (handle === 'vertex') === (o.visProp.face === 'o' || o.visProp.face === 'circle')));
     return {rect: [r.x, r.y], size: [r.width, r.height], pts: pts.map(o => [o.coords.scrCoords[1], o.coords.scrCoords[2]])};
 };
 const startSampling = page => page.evaluate(() => {
@@ -39,15 +47,37 @@ async function runOnce(browser, c) {
         const page = await context.newPage();
         const errors = [];
         page.on('pageerror', e => errors.push(String(e)));
-        await page.goto(`${baseUrl}/${ROUTE}`, {waitUntil: 'load'});
+        await page.goto(`${baseUrl}/${c.kind.startsWith('e') ? EPICYCLES : ROUTE}`, {waitUntil: 'load'});
         await page.waitForFunction(() => window.JXG && Object.values(window.JXG.boards).length > 0, null, {timeout: 20000});
         await page.waitForTimeout(2000);
         let iv;
-        if (c.kind === 'drag') {
-            if (c.layout !== 'abs') { await page.getByLabel(LAYOUT).first().selectOption(c.layout); await page.waitForTimeout(500); }
-            if (c.k !== 16) { await setNumber(page, K, c.k); await page.waitForTimeout(500); }
-            await page.evaluate(readBoard); await page.waitForTimeout(600);
-            const s = await page.evaluate(readBoard);
+        if (c.kind.startsWith('e')) {
+            await page.getByLabel(EXAMPLE).first().selectOption('uneven');
+            await page.waitForTimeout(300);
+            await setNumber(page, NLABEL, 50); await page.waitForTimeout(500);
+        }
+        if (c.kind === 'eplay') {
+            await startSampling(page);
+            const t0 = await page.evaluate(() => performance.now());
+            await page.getByRole('button', {name: PLAY}).first().click();
+            await page.waitForTimeout(5000);
+            const t1 = await page.evaluate(() => performance.now());
+            const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
+            iv = intervals(stamps, t0, t1);
+        } else if (c.kind === 'esweep') {
+            await setNumber(page, NLABEL, 1); await page.waitForTimeout(300);
+            await startSampling(page);
+            const t0 = await page.evaluate(() => performance.now());
+            for (let n = 1; n <= 50; n++) { await setNumber(page, NLABEL, n); await page.waitForTimeout(20); }
+            for (let n = 49; n >= 1; n--) { await setNumber(page, NLABEL, n); await page.waitForTimeout(20); }
+            const t1 = await page.evaluate(() => performance.now());
+            const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
+            iv = intervals(stamps, t0, t1);
+        } else if (c.kind === 'drag' || c.kind === 'edrag') {
+            if (c.kind === 'drag' && c.layout !== 'abs') { await page.getByLabel(LAYOUT).first().selectOption(c.layout); await page.waitForTimeout(500); }
+            if (c.kind === 'drag' && c.k !== 16) { await setNumber(page, K, c.k); await page.waitForTimeout(500); }
+            await page.evaluate(readBoard, c.handle); await page.waitForTimeout(600);
+            const s = await page.evaluate(readBoard, c.handle);
             if (!s.pts.length) throw new Error('no draggable point found');
             const [ox, oy] = s.rect, [px, py] = s.pts[0];
             const span = s.size[1] * 0.2;
@@ -57,7 +87,7 @@ async function runOnce(browser, c) {
             await page.mouse.down();
             const t0 = await page.evaluate(() => performance.now());
             for (let i = 1; i <= steps; i++) { const [x, y] = pathAt(i / steps); await page.mouse.move(ox + x, oy + y); await page.waitForTimeout(dragMs / steps);
-                if (i === Math.round(steps / 4)) { const m = await page.evaluate(readBoard); if (!m.pts.some((q, j) => s.pts[j] && Math.abs(q[1] - s.pts[j][1]) > 10)) throw new Error('drag moved nothing'); } }
+                if (i === Math.round(steps / 4)) { const m = await page.evaluate(readBoard, c.handle); if (!m.pts.some((q, j) => s.pts[j] && Math.abs(q[1] - s.pts[j][1]) > 10)) throw new Error('drag moved nothing'); } }
             const t1 = await page.evaluate(() => performance.now());
             await page.mouse.up();
             const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
@@ -73,7 +103,7 @@ async function runOnce(browser, c) {
             const stamps = await page.evaluate(() => { window.__perf.on = false; return window.__perf.stamps; });
             iv = intervals(stamps, t0, t1);
         }
-        const samples = c.kind === 'drag' ? iv.slice(WARMUP) : iv;
+        const samples = c.kind === 'drag' || c.kind === 'edrag' ? iv.slice(WARMUP) : iv;
         if (samples.length < MIN_SAMPLES) throw new Error(`only ${samples.length} frame samples`);
         if (errors.length) throw new Error(`page errors: ${errors.join('; ')}`);
         const sorted = [...samples].sort((a, b) => a - b);

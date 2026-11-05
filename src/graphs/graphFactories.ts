@@ -65,6 +65,7 @@ import { GeometricSeriesGraph } from './functions/GeometricSeriesGraph';
 import { ConicFocalGraph } from './functions/ConicFocalGraph';
 import { FourierSeriesGraph } from './functions/FourierSeriesGraph';
 import { FourierCoefficientsGraph } from './functions/FourierCoefficientsGraph';
+import { EpicycleGraph } from './functions/EpicycleGraph';
 import { MeanValueGraph } from './functions/MeanValueGraph';
 import { AccumulationGraph } from './functions/AccumulationGraph';
 import { DarbouxGraph } from './functions/DarbouxGraph';
@@ -193,6 +194,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'uniform-convergence': () => new UniformConvergenceGraph(),
     'fourier-series': () => new FourierSeriesGraph(),
     'fourier-coefficients': () => new FourierCoefficientsGraph(),
+    'epicycles': () => new EpicycleGraph(),
     'fixed-point': () => new FixedPointGraph(),
     'prob-density': () => new DensityAreaGraph(),
     'prob-binomial-normal': () => new BinomialNormalGraph(),

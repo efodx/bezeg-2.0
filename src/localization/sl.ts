@@ -1611,6 +1611,8 @@ export const sl = {
     "fourier_readout_overshoot_limit": "Preseg v limiti N → ∞",
     "fourier_series_title": "Fourierova vrsta",
     "fourier_coefficients_title": "Fourierovi koeficienti",
+    "epicycles_title": "Epicikli",
+    "prompt_epicycles": "Premikaj zanko, povečaj število členov N in pritisni predvajanje. Kako se krožnice sestavijo v krivuljo?",
     "prompt_fourier_coefficients": "Premikaj oblikovni ročaj in opazuj stolpce koeficientov. Primerjaj, kako hitro padajo koeficienti pri treh funkcijah: kaj pove gladkost funkcije o njihovem padanju?",
     "prompt_fourier_series": "Izberi primer vala in število harmonikov N ter napovej, kako blizu bo delna vsota Sₙ funkciji f; nato spremeni N. Kaj se dogaja ob skoku, ko N raste?",
     "fourier_note": "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite.",
