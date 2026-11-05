@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -251,6 +251,29 @@ test('fourier coefficients expectation is authored from the jump layout breakpoi
     assert.throws(() => fourierCoefficientsExpectedFor('f', scene({h0: 0})), /only the handles/);
     assert.throws(() => fourierCoefficientsExpectedFor('f', scene({overlay: false})), /overlay must be on/);
     assert.throws(() => fourierCoefficientsExpectedFor('f', fnStep([{kind: 'function-visibility', target: 'band', visible: true}])), /only sets/);
+});
+
+test('epicycles expectation is authored from the circle definition', () => {
+    const scene = (extra = {}) => fnStep([fnChoice('epicycle-example', extra.example ?? 'circle'), fnChoice('epicycle-parametrization', extra.parametrization ?? 'equal'),
+        fnParam('epicycle-n', extra.N ?? 1), fnParam('epicycle-time', extra.time ?? 0)]);
+    const expected = epicyclesExpectedFor('f', scene());
+    const k = (4 / 3) * (Math.SQRT2 - 1);
+    assert.deepEqual(expected.types, {curve: 5, point: 12});
+    assert.equal(expected.curveCount, 5);
+    assert.equal(expected.points.length, 12);
+    assert.deepEqual(expected.points.slice(0, 4), [[1, 0], [0, 1], [-1, 0], [0, -1]]);
+    assert.deepEqual(expected.points.slice(4, 6), [[1, k], [k, 1]]);
+    assert.deepEqual(expected.points.slice(6, 8), [[-k, 1], [-1, k]]);
+    assert.deepEqual(expected.points.slice(8, 10), [[-1, -k], [-k, -1]]);
+    assert.deepEqual(expected.points.slice(10), [[k, -1], [1, -k]]);
+    assert.ok(Math.abs(k - 0.5522847498) < 1e-9);
+    assert.deepEqual(chapterInventories['fourier-series'].expectedFor('fourier-series.epicycles.epicycles', scene()), expected);
+    assert.throws(() => chapterInventories['fourier-series'].expectedFor('fourier-series.fourier-series.fourier-series', scene()), /extend fourierExpectedFor/);
+    assert.throws(() => epicyclesExpectedFor('f', scene({example: 'diamond'})), /only the circle/);
+    assert.throws(() => epicyclesExpectedFor('f', scene({parametrization: 'chord'})), /only the equal/);
+    assert.throws(() => epicyclesExpectedFor('f', scene({N: 3})), /only N = 1/);
+    assert.throws(() => epicyclesExpectedFor('f', scene({time: Math.PI / 2})), /only t = 0/);
+    assert.throws(() => epicyclesExpectedFor('f', fnStep([fnParam('epicycle-control-0-1-x', 1)])), /only sets/);
 });
 
 const pcStep = (operation, exampleId, extra = []) => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'},

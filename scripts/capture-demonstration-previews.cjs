@@ -774,7 +774,9 @@ async function main() {
         return;
     }
     captures.sort((a,b)=>demonstrations.findIndex(d=>d.id===a.id)-demonstrations.findIndex(d=>d.id===b.id));
-    assert.deepEqual(captures.map(capture => capture.id), demonstrations.map(demonstration => demonstration.id),
+    // A selective recapture retains only captured posters, so ids still in POSTER_PENDING are not expected unless named.
+    const expectedCaptures = demonstrations.filter(demonstration => !recaptureIds || demonstration.hasPoster || recaptureIds.includes(demonstration.id));
+    assert.deepEqual(captures.map(capture => capture.id), expectedCaptures.map(demonstration => demonstration.id),
         'Capture order and exhaustive route metadata no longer match');
     const activePreviewFiles = new Set(captures.map(capture => capture.file));
     fs.readdirSync(output).filter(fileName => fileName.endsWith('.png') && !activePreviewFiles.has(fileName))

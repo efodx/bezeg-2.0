@@ -19,4 +19,10 @@ export const fourierPreviewCopy = {
         'Pri \\(x=1{,}57\\) je \\(S_1=1{,}27324\\) nad vrednostjo vala \\(1\\); en sam sinus ne ujame vodoravnih delov vala.',
         'At \\(x=1.57\\) we have \\(S_1=1.27324\\), above the value \\(1\\) of the wave; a single sine does not catch the flat parts of the wave.',
     ),
+    'fourier-series.epicycles.epicycles': copy(
+        'Sklenjena krivulja iz štirih kubičnih lokov, ki sledi enotski krožnici, s štirimi krajišči, osmimi kontrolnimi točkami, krogom polmera \\(|c_1|\\), roko in sledjo za \\(N=1\\).',
+        'A closed curve of four cubic spans that follows the unit circle, with four end points, eight control points, a circle of radius \\(|c_1|\\), its arm and the trace for \\(N=1\\).',
+        'Pri \\(N=1\\) in \\(t=0\\) je polmer kroga \\(|c_1|=1{,}0001\\); sled se od krivulje razlikuje za največ \\(0{,}00735\\) na vzorčnih točkah.',
+        'For \\(N=1\\) and \\(t=0\\) the radius of the circle is \\(|c_1|=1.0001\\); the trace differs from the curve by at most \\(0.00735\\) at the sample points.',
+    ),
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

@@ -122,6 +122,81 @@
         "kind": "start"
       },
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "fourier-series.epicycles.epicycles",
+      "demonstrationId": "epicycles",
+      "path": "/bezeg-2.0/analysis/epicycles?example=lesson.fourier-series.epicycles.epicycles",
+      "sceneFingerprint": "b0725d4833ea7eaf59ca3ddee7decb095819a4503612fc2409a0ba8a638df8ec",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"epi-loop-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"epi-loop-scene\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"epicycle-example\",\"value\":\"circle\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"epicycle-parametrization\",\"value\":\"equal\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"epicycle-n\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"epicycle-time\",\"value\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 5,
+          "point": 12
+        },
+        "curveCount": 5,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0.5522847498307935
+          ],
+          [
+            0.5522847498307935,
+            1
+          ],
+          [
+            -0.5522847498307935,
+            1
+          ],
+          [
+            -1,
+            0.5522847498307935
+          ],
+          [
+            -1,
+            -0.5522847498307935
+          ],
+          [
+            -0.5522847498307935,
+            -1
+          ],
+          [
+            0.5522847498307935,
+            -1
+          ],
+          [
+            1,
+            -0.5522847498307935
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     }
   ]
 }

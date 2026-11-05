@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
+  "sourceRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
+    "revision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
     "dirty": true,
-    "inputs": "e06c570dffcb81b6343be2044e55ab75b76453c92915190a0f61352631052f01",
-    "output": "7e7e52ec7958e7f9bc84896e54e318b05b446a4c380ab497d69b9ff724cdb62b"
+    "inputs": "b6927a8041887d535454440c08fd8550b8947f1fbfc438067d527919e0a9e2d1",
+    "output": "fd80cf1199528ca71ef99d14a9af725580bff4ded420e96fe22b20397a121089"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
-    "stampRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
+    "stampRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
     "stampDirty": true,
-    "localOutputHash": "7e7e52ec7958e7f9bc84896e54e318b05b446a4c380ab497d69b9ff724cdb62b",
+    "localOutputHash": "fd80cf1199528ca71ef99d14a9af725580bff4ded420e96fe22b20397a121089",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-Cqzziq_E.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-Cqzziq_E.js",
-        "sha256": "0c9734081427b1904e5bf63bf441e1663fead61e6f8819b13ba1f6fe3580ea30",
+        "name": "index-BDPCPaoh.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BDPCPaoh.js",
+        "sha256": "2591db238f758bf80ffb2fecb77f71faaf5ec00865e47bf7277c87306d58a7d7",
         "matchesLocalBuild": true
       },
       {
@@ -31,21 +31,21 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-CpAt6tlg.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-CpAt6tlg.js",
-        "sha256": "d7494d455de722de9533553e397ba7803cb641b4faac50e2a3eedc9d05084601",
+        "name": "jsx-runtime-BCs2F0GO.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-BCs2F0GO.js",
+        "sha256": "d9867a01001140a824955b2990d67c4e03d1d56501c6399157f894c967a54509",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-MaYMC5mJ.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-MaYMC5mJ.js",
-        "sha256": "9451964250693bfa45f2c080b29ac15b63f9a2e88ac5575a3e5b28ed02be3d9b",
+        "name": "react-dom-Cz79A4-n.js",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-Cz79A4-n.js",
+        "sha256": "2f2eb900847de8de910882aeccb9a42f2bc2ea79658da22b1e523bb2af719131",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-BaMZB5Fy.css",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BaMZB5Fy.css",
-        "sha256": "bae643a297d5885e35dc68f252ac298fc5cd08ac7952ed15ca8f6fb80d6272fc",
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
         "matchesLocalBuild": true
       }
     ]
@@ -55,14 +55,15 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "fb2efd416d8f46496273ae823ee6ca3e6168b540a9c9fc106149ee26ef3e9048",
+    "inventory": "1b343dffd0584aec4f69b38907bab6ee26e74328619241c20e554db6be199a0f",
     "entries": {
       "fourier-series.fourier-series.fourier-series": "5110b6d8a5e2135526cd238ba707e6afca621e30b0122da160a8e17fb524e020",
-      "fourier-series.fourier-coefficients.fourier-coefficients": "a01b7bdadf703c1ef93063da050820489b7a2b0cb12f68c17a2f5377fdac89ab"
+      "fourier-series.fourier-coefficients.fourier-coefficients": "a01b7bdadf703c1ef93063da050820489b7a2b0cb12f68c17a2f5377fdac89ab",
+      "fourier-series.epicycles.epicycles": "115aa39a4fda0ce2451da7b65bb8524800805bc70850f75e47f10910fa732bff"
     },
-    "presentation": "837458cfc79026dc9ec60d5abbcdefcfa5b3d96baded63fac6e6288fb5750f5e",
-    "buildOutput": "7e7e52ec7958e7f9bc84896e54e318b05b446a4c380ab497d69b9ff724cdb62b",
-    "buildInputs": "e06c570dffcb81b6343be2044e55ab75b76453c92915190a0f61352631052f01"
+    "presentation": "e0fd3a28e2e46ffb30e279ee26b87aa086669db9605e5aacc5cd728a61994bba",
+    "buildOutput": "fd80cf1199528ca71ef99d14a9af725580bff4ded420e96fe22b20397a121089",
+    "buildInputs": "b6927a8041887d535454440c08fd8550b8947f1fbfc438067d527919e0a9e2d1"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -100,10 +101,23 @@
         "framing": {
           "kind": "coordinate-window",
           "window": [
-            -7.2,
-            3.6,
-            7.2,
-            -2
+            -6.2,
+            3.8,
+            6.2,
+            -3.8
+          ]
+        }
+      },
+      {
+        "id": "fourier-series.epicycles.epicycles",
+        "demonstrationId": "epicycles",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.45,
+            1.5,
+            2.45,
+            -1.5
           ]
         }
       }
@@ -380,8 +394,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
-        "sourceRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
+        "buildRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
+        "sourceRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
         "pageErrors": []
       }
     },
@@ -416,13 +430,13 @@
       "file": "fourier-series.fourier-coefficients.fourier-coefficients.png",
       "width": 840,
       "height": 520,
-      "sha256": "3bcdbf3e5f25ef61e2a757f388d12179217d3f79add4da077b1fb82e3e898cb9",
+      "sha256": "a4e44411a85cd0f19c93304ec02876170a4505a9c6b92e6ea1db35c257a727c6",
       "scene": {
-        "visibleElementCount": 30,
+        "visibleElementCount": 32,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 12,
+          "label": 14,
           "curve": 5,
           "segment": 2,
           "point": 7
@@ -629,7 +643,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 12,
+          "label": 14,
           "curve": 5,
           "segment": 2,
           "point": 7
@@ -638,8 +652,259 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
-        "sourceRevision": "a18874a9d815cff6bfea7c9838249e44e14e39dd",
+        "buildRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
+        "sourceRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "fourier-series.epicycles.epicycles",
+      "demonstrationId": "epicycles",
+      "path": "/bezeg-2.0/analysis/epicycles?example=lesson.fourier-series.epicycles.epicycles",
+      "sceneFingerprint": "b0725d4833ea7eaf59ca3ddee7decb095819a4503612fc2409a0ba8a638df8ec",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"epi-loop-scene\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"epi-loop-scene\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"epicycle-example\",\"value\":\"circle\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"epicycle-parametrization\",\"value\":\"equal\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"epicycle-n\",\"value\":1}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"epicycle-time\",\"value\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "fourier-series.epicycles.epicycles.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "04ffceabb7fa01d8dbe0ea74555ac0939dd51e20d10f7c0f608a77995dd7e13a",
+      "scene": {
+        "visibleElementCount": 31,
+        "visibleElementTypes": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 10,
+          "curve": 5,
+          "point": 12
+        },
+        "visiblePointCount": 12,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.999997,
+              0.001656
+            ],
+            [
+              0.999995,
+              0.003312
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              0.276142
+            ],
+            [
+              1,
+              0.552285
+            ]
+          ],
+          [
+            [
+              1.000126,
+              0
+            ],
+            [
+              0.995848,
+              0.065271
+            ],
+            [
+              0.99157,
+              0.130543
+            ]
+          ],
+          [
+            [
+              1.000126,
+              0
+            ],
+            [
+              1.000124,
+              0.001571
+            ],
+            [
+              1.000121,
+              0.003142
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:1,0",
+          "point:0,1",
+          "point:-1,0",
+          "point:0,-1",
+          "point:1,0.5522847498307935",
+          "point:0.5522847498307935,1",
+          "point:-0.5522847498307935,1",
+          "point:-1,0.5522847498307935",
+          "point:-1,-0.5522847498307935",
+          "point:-0.5522847498307935,-1",
+          "point:0.5522847498307935,-1",
+          "point:1,-0.5522847498307935"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 16,
+            "curve": 5,
+            "point": 12
+          },
+          "visiblePointCount": 12,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.999997,
+                0.001656
+              ],
+              [
+                0.999995,
+                0.003312
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                0.276142
+              ],
+              [
+                1,
+                0.552285
+              ]
+            ],
+            [
+              [
+                1.000126,
+                0
+              ],
+              [
+                0.995848,
+                0.065271
+              ],
+              [
+                0.99157,
+                0.130543
+              ]
+            ],
+            [
+              [
+                1.000126,
+                0
+              ],
+              [
+                1.000124,
+                0.001571
+              ],
+              [
+                1.000121,
+                0.003142
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:1,0",
+            "point:0,1",
+            "point:-1,0",
+            "point:0,-1",
+            "point:1,0.5522847498307935",
+            "point:0.5522847498307935,1",
+            "point:-0.5522847498307935,1",
+            "point:-1,0.5522847498307935",
+            "point:-1,-0.5522847498307935",
+            "point:-0.5522847498307935,-1",
+            "point:0.5522847498307935,-1",
+            "point:1,-0.5522847498307935"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "axis": 2,
+          "ticks": 2,
+          "label": 10,
+          "curve": 5,
+          "point": 12
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
+        "sourceRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
         "pageErrors": []
       }
     }

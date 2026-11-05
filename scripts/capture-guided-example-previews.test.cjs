@@ -259,7 +259,8 @@ test('numerical, school, fourier, projective and curve-geometry capture families
             {id: 'school-function-graphs.geometric-series.geometric-series', path: '/bezeg-2.0/functions/geometric-series?example=lesson.school-function-graphs.geometric-series.geometric-series'},
             {id: 'school-function-graphs.conic-focal.conic-focal', path: '/bezeg-2.0/functions/conics?example=lesson.school-function-graphs.conic-focal.conic-focal'}],
         'fourier-series': [{id: 'fourier-series.fourier-series.fourier-series', path: '/bezeg-2.0/analysis/fourier-series?example=lesson.fourier-series.fourier-series.fourier-series'},
-            {id: 'fourier-series.fourier-coefficients.fourier-coefficients', path: '/bezeg-2.0/analysis/fourier-coefficients?example=lesson.fourier-series.fourier-coefficients.fourier-coefficients'}],
+            {id: 'fourier-series.fourier-coefficients.fourier-coefficients', path: '/bezeg-2.0/analysis/fourier-coefficients?example=lesson.fourier-series.fourier-coefficients.fourier-coefficients'},
+            {id: 'fourier-series.epicycles.epicycles', path: '/bezeg-2.0/analysis/epicycles?example=lesson.fourier-series.epicycles.epicycles'}],
         'projective-conics': [
             {id: 'projective-conics.projective-cross-ratio.projective-cross-ratio', path: '/bezeg-2.0/projective/cross-ratio?example=lesson.projective-conics.projective-cross-ratio.projective-cross-ratio'},
             {id: 'projective-conics.projective-pascal.projective-pascal', path: '/bezeg-2.0/projective/pascal?example=lesson.projective-conics.projective-pascal.projective-pascal'},
@@ -294,6 +295,7 @@ test('numerical, school, fourier, projective and curve-geometry capture families
     assert.throws(() => assertInventoryFamily([{...entries['school-function-graphs'][0], path: '/bezeg-2.0/functions/derivative'}], 'school-function-graphs'), /requires a school-function-graphs inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][0], path: '/bezeg-2.0/analysis/fourier-seriesx'}], 'fourier-series'), /requires a fourier-series inventory/);
     assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][1], path: '/bezeg-2.0/analysis/fourier-coefficientsx'}], 'fourier-series'), /requires a fourier-series inventory/);
+    assert.throws(() => assertInventoryFamily([{...entries['fourier-series'][2], path: '/bezeg-2.0/analysis/epicyclesx'}], 'fourier-series'), /requires a fourier-series inventory/);
     for (const path of ['/bezeg-2.0/projective/cross-ratiox', '/bezeg-2.0/projective', '/bezeg-2.0/projective/conics', '/bezeg-2.0/pascal', '/bezeg-2.0/projective/five-pointx', '/bezeg-2.0/projective/tangent'])
         assert.throws(() => assertInventoryFamily([{...entries['projective-conics'][0], path}], 'projective-conics'), /requires a projective-conics inventory/);
     for (const path of ['/bezeg-2.0/curve-geometry/parametricx', '/bezeg-2.0/curve-geometry/curvaturex', '/bezeg-2.0/curve-geometry/combx', '/bezeg-2.0/curve-geometry/evolutes', '/bezeg-2.0/curve-geometry', '/bezeg-2.0/curve-geometry/other', '/bezeg-2.0/parametric'])

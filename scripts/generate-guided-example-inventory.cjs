@@ -233,7 +233,7 @@ const chapterInventories = {
         module: '/src/learning/content/fourierChapterRegistry.ts',
         registryExport: 'fourierGuidedExampleRegistry',
         pathExport: 'fourierGuidedExamplePath',
-        expectedFor: (id, step) => (id.endsWith('.fourier-coefficients') ? fourierCoefficientsExpectedFor : fourierExpectedFor)(id, step),
+        expectedFor: (id, step) => (id.endsWith('.fourier-coefficients') ? fourierCoefficientsExpectedFor : id.endsWith('.epicycles') ? epicyclesExpectedFor : fourierExpectedFor)(id, step),
     },
     'projective-conics': {
         module: '/src/learning/content/projectiveConicsChapterRegistry.ts',
@@ -647,6 +647,28 @@ function curveEvoluteExpectedFor(id, actions) {
     return {types: {curve: 1, circle: 1, point: 6}, curveCount: 1, points: [[-1, 1], [0, -1], [1, 1], [0.5, 0.25], [-0.5, 1.25]]};
 }
 
+/**
+ * First-frame expectation of the epicycles lesson (example circle, equal parametrization, N = 1, t = 0). The circle is four cubic spans
+ * through (1, 0), (0, 1), (-1, 0), (0, -1) whose handles lie at distance kappa = (4/3)(sqrt 2 - 1) along the tangent at each end vertex:
+ * span i from a to b has handles a + kappa (-a.y, a.x) and b - kappa (-b.y, b.x). Curves, bottom to top: the control polygon, the loop,
+ * the circles, the arm chain, the trace. Points: the four vertex handles and the eight control handles (no segment, no other point).
+ */
+function epicyclesExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    assertOnlyActions(id, actions, [['function-choice', /^epicycle-(example|parametrization)$/], ['function-parameter', /^epicycle-(n|time)$/]], 'epicyclesExpectedFor');
+    assert.equal(sceneValue(id, actions, 'function-choice', 'epicycle-example'), 'circle', `${id}: only the circle example is authored`);
+    assert.equal(sceneValue(id, actions, 'function-choice', 'epicycle-parametrization'), 'equal', `${id}: only the equal parametrization is authored`);
+    assert.equal(sceneValue(id, actions, 'function-parameter', 'epicycle-n'), 1, `${id}: only N = 1 is authored`);
+    assert.equal(sceneValue(id, actions, 'function-parameter', 'epicycle-time'), 0, `${id}: only t = 0 is authored`);
+    const kappa = (4 / 3) * (Math.SQRT2 - 1);
+    const vertices = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+    const controls = vertices.flatMap(([ax, ay], i) => {
+        const [bx, by] = vertices[(i + 1) % 4];
+        return [[ax - kappa * ay, ay + kappa * ax], [bx + kappa * by, by - kappa * bx]];
+    });
+    return {types: {curve: 5, point: 12}, curveCount: 5, points: [...vertices, ...controls]};
+}
+
 /** Fails unless the opening scene is the prepared scene plus exactly one projective load-example action for the named example. */
 function projectiveOpening(id, actions, operation, exampleId) {
     const loads = actions.filter(item => item.kind === 'projective');
@@ -839,4 +861,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation};

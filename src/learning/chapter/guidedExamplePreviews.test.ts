@@ -220,7 +220,7 @@ const functionsCards: readonly FunctionsCard[] = [
             'school-function-graphs.geometric-series.geometric-series', 'school-function-graphs.polynomial-zeros.polynomial-zeros',
             'school-function-graphs.rational-function.rational-function'],
         counts: [[1, 3], [2, 2], [2, 2], [0, 0], [1, 2], [1, 4]]},
-    {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.fourier-coefficients.fourier-coefficients', 'fourier-series.fourier-series.fourier-series'], counts: [[5, 7], [6, 7]]},
+    {chapterId: 'fourier-series', copy: fourierPreviewCopy, ids: ['fourier-series.epicycles.epicycles', 'fourier-series.fourier-coefficients.fourier-coefficients', 'fourier-series.fourier-series.fourier-series'], counts: [[5, 12], [5, 7], [6, 7]]},
     {chapterId: 'projective-conics', copy: projectiveConicsPreviewCopy,
         ids: ['projective-conics.projective-cross-ratio.projective-cross-ratio', 'projective-conics.projective-five-point.projective-five-point',
             'projective-conics.projective-pascal.projective-pascal', 'projective-conics.projective-pole-polar.projective-pole-polar',
