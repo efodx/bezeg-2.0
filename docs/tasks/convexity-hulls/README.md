@@ -50,8 +50,8 @@ Planned 2026-11-03 (geometry handler 48). The A5 "free double" board is a fixed 
 | 20 | [Batch 2 registration](20-batch2-registration.md): `point-in-polygon`, `hull-robustness` | F2b | 18, 19, `G-REG` | planned |
 | 21 | [Lesson A3 point in polygon](21-lesson-point-in-polygon.md) | F3 | 20 | accepted 2026-11-05 (handler 50) |
 | 22 | [Lesson A5 degenerate cases and robustness](22-lesson-hull-robustness.md) | F3 | 20, 21 | accepted 2026-11-05 (handler 51) |
-| 23 | [Chapter sections for A3 and A5](23-batch2-chapter.md) | F4 | 21, 22 | both sections done with 21 and 22; chapter smoke next |
-| — | F5 posters; F6 acceptance | F5–F6 | 23 | planned |
+| 23 | [Chapter sections for A3 and A5](23-batch2-chapter.md) | F4 | 21, 22 | accepted 2026-11-05 (handler 51) |
+| — | F5 posters; F6 acceptance | F5–F6 | 23 | accepted 2026-11-05 (handler 51, [record](../../reviews/feature-streams/geometry/f6-convexity-batch2-acceptance.md)) |
 
 ## Later batches (task files written when the previous batch is accepted)
 - **Batch 3 (A6):** kernel [11 conservative hull separation](11-hull-separation.md) (F1, accepted 2026-10-31 after math review; [ADR 0036](../../adr/0036-conservative-hull-separation-for-off-grid-bezier-pieces.md); not gated, written early because the Curves D2 graph needs it); the pair-of-curves view (measure at depth 4); F2b, F3, F4, F5, F6.
