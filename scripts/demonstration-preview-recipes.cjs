@@ -45,7 +45,7 @@ const targets = {
     'bspline-insertion': ['Cubic B-spline with the double knot u = 2, its control polygon and the curvature comb with the jump at the double knot', [field('Primer', 'cubic', 'select')], [-0.9, 3.4, 6.9, -1.4]],
     'bspline-extraction': ['Default quadratic B-spline with its control polygon and the Bezier pieces drawn in separate colours with the piece readout', [], [-0.35, 2.55, 4.8, -0.6]],
     'bspline-nurbs': ['Default NURBS circle: nine control points on the control square with corner weights sqrt(2)/2, the unit-circle overlay off, and the radial-error readout', [], [-2.37, 1.45, 2.37, -1.45]],
-    'bspline-blossom': ['Default quadratic blossom on the L2 example: arguments a = 0, b = 1/2, the two interpolation levels to f(0, 1/2) = (0.5, 1), the control polygon and the curve', [], [-0.45, 2.6, 4.45, -0.4]],
+    'bspline-blossom': ['Default quadratic blossom on the L2 example: arguments a = 0, b = 1/2, the two interpolation levels to f(0, 1/2) = (0.5, 1), the Bezier polygon of the segment and the curve', [], [-0.45, 2.6, 4.45, -0.4]],
     'linear-function': ['Unchanged line with its slope triangle', [], [-0.8, 6.5, 3, -1.5]],
     'exponential-function': ['Original growth region and reference points', [], [-1.5, 5, 2.5, -0.6]],
     'trigonometric-functions': ['One recognizable sine cycle and coordinate context', [], [-0.6, 1.8, 6.8, -1.8]],

@@ -14,6 +14,7 @@ import {ControlPoint, knotsForCount} from "./bsplineDeBoorModel";
 import {
     assertBlossomCurve, BLOSSOM_ARG_STEP, BLOSSOM_DEFAULT_ARGS, BLOSSOM_DEGREES, BlossomSnapshot, blossomDomain, blossomPresetData, blossomSegments,
     blossomSnapshot, CurveCheck, curveCheck, defaultBlossomData, snapArgument,
+    blossomArgumentText,
 } from "./bsplineBlossomModel";
 
 export interface BSplineBlossomState extends BaseGraphState {
@@ -246,13 +247,12 @@ export class BSplineBlossomGraph extends BaseGraph<BSplineBlossomState, BSplineP
         const {degree, knots, segment, args} = this.state;
         const language = currentLanguage();
         const num = (v: number) => formatNumber(v, language, 3);
-        const list = (values: readonly number[]) => values.map(num).join(', ');
         const used = args.slice(0, degree);
         const snap = this.snapshot();
         if (!snap) return [];
         const lines: JSX.Element[] = [
-            <p key="value" data-blossom-readout="value">{t("bsl_value", {value0: list(used), value1: num(snap.value[0]), value2: num(snap.value[1])})}</p>,
-            <p key="reversed" data-blossom-readout="reversed">{t("bsl_reversed", {value0: list([...used].reverse()), value1: num(snap.reversed[0]), value2: num(snap.reversed[1])})}</p>,
+            <p key="value" data-blossom-readout="value">{t("bsl_value", {value0: blossomArgumentText(used), value1: num(snap.value[0]), value2: num(snap.value[1])})}</p>,
+            <p key="reversed" data-blossom-readout="reversed">{t("bsl_reversed", {value0: blossomArgumentText([...used].reverse()), value1: num(snap.reversed[0]), value2: num(snap.reversed[1])})}</p>,
             <p key="symmetry" data-blossom-readout="symmetry">{t("bsl_symmetry", {value0: snap.deviation === 0 ? '0' : snap.deviation.toExponential(2)})}</p>,
             <p key="bezier" data-blossom-readout="bezier">{t("bsl_bezier_points", {value0: snap.bezier.map(p => this.pointText(p)).join("   ")})}</p>,
         ];

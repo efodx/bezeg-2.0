@@ -322,7 +322,7 @@ export const sl = {
     "bsl_reversed": "Obrnjen vrstni red: f({value0}) = ({value1}; {value2})",
     "bsl_symmetry": "Razlika zaradi vrstnega reda argumentov (največja po vseh vrstnih redih): {value0}",
     "bsl_bezier_points": "Bézierove točke odseka: {value0}",
-    "bsl_curve_equal": "Vsi argumenti so enaki {value0} in ta točka leži v odseku: f({value0}, …) je točka krivulje C({value0}) = ({value1}; {value2}).",
+    "bsl_curve_equal": "Vsi argumenti so enaki {value0} in ta točka leži v odseku: f({value0}; …) je točka krivulje C({value0}) = ({value1}; {value2}).",
     "bsl_curve_break": "Vsi argumenti so enaki {value0}, ta točka leži v odseku, a je krivulja v njej pretrgana: C({value0}) = ({value1}; {value2}) ni vrednost f.",
     "bsl_curve_extended": "Vsi argumenti so enaki {value0}, ta točka pa leži zunaj odseka [{value3}, {value4}]: polinom odseka je tam razširjen in f se razlikuje od točke krivulje C({value0}) = ({value1}; {value2}).",
     "bsl_curve_coincides": "Vsi argumenti so enaki {value0}, ta točka pa leži zunaj odseka [{value3}, {value4}]: polinom odseka je tam razširjen, a f je vseeno enaka točki krivulje C({value0}) = ({value1}; {value2}), ker sosednji odsek tu leži na istem polinomu.",

@@ -99,7 +99,7 @@ describe('L6 acceptance 1: the listed values match the kernel, as drawn', () => 
         const scene = graph.sceneOf();
         expect(scene.levelElements(1)).toHaveLength(2);
         expect(scene.levelElements(2)).toHaveLength(1);
-        expect(scene.labelText()).toBe('f(0, 0,5)');
+        expect(scene.labelText()).toBe('f(0; 0,5)');
         near(graph.snapshot()!.levels[1].flat(), [scene.levelElements(1)[0].X(), scene.levelElements(1)[0].Y(), scene.levelElements(1)[1].X(), scene.levelElements(1)[1].Y()]);
         view.unmount();
     });
@@ -331,12 +331,24 @@ describe('disposal', () => {
 describe('language', () => {
     test('the readouts and controls follow a language switch', () => {
         const {graph, view} = mount();
-        expect(readout('reversed')).toMatch(/^Obrnjen vrstni red: f\(0,5, 0\) = \(0,5; 1\)/);
+        expect(readout('reversed')).toMatch(/^Obrnjen vrstni red: f\(0,5; 0\) = \(0,5; 1\)/);
         act(() => setLanguage('en'));
         expect(readout('reversed')).toMatch(/^Reversed order: f\(0\.5, 0\) = \(0\.5, 1\)/);
         expect(readout('symmetry')).toContain('Difference caused by the order');
         expect(screen.getByRole('button', {name: 'Back to the default'})).toBeTruthy();
         expect(graph.sceneOf().labelText()).toBe('f(0, 0.5)');
+        view.unmount();
+    });
+
+    test('Slovenian separates the arguments with a semicolon, so a decimal comma cannot read as a further argument', () => {
+        const {graph, view} = mount();
+        act(() => { graph.setDegree(3); graph.setArgument(0, 0.25); graph.setArgument(1, 0.5); graph.setArgument(2, 1); });
+        expect(graph.sceneOf().labelText()).toBe('f(0,25; 0,5; 1)');
+        expect(readout('value')).toMatch(/^f\(0,25; 0,5; 1\) = /);
+        act(() => { graph.setDegree(2); graph.setArgument(0, 0.5); graph.setArgument(1, 0.5); });
+        expect(readout('curve')).toContain('f(0,5; …)');
+        act(() => setLanguage('en'));
+        expect(readout('curve')).toContain('f(0.5, …)');
         view.unmount();
     });
 

@@ -1,11 +1,10 @@
 import type {Board, GeometryElement, Point, Segment, Text} from "jsxgraph";
-import {currentLanguage, onLanguageChange} from "../../../localization";
-import {formatNumber} from "../../../analysis/format";
+import {onLanguageChange} from "../../../localization";
 import {PointImpl} from "../../../bezeg/impl/point/point-impl";
 import {JXGBSplineCurve} from "../object/JXGBSplineCurve";
 import {constructionLevelColor, constructionLevelDash, GraphPalette} from "../../styles/GraphPalette";
 import type {ControlPoint} from "./bsplineDeBoorModel";
-import {BlossomSnapshot, blossomSnapshot} from "./bsplineBlossomModel";
+import {blossomArgumentText, BlossomSnapshot, blossomSnapshot} from "./bsplineBlossomModel";
 
 interface SceneSettings {
     board: Board;
@@ -133,8 +132,7 @@ export class BSplineBlossomScene {
 
     /** "f(a, b)" with the current arguments, in the language's number format. */
     labelText(): string {
-        const language = currentLanguage();
-        return `f(${this.settings.args().slice(0, this.degree).map(a => formatNumber(a, language, 3)).join(', ')})`;
+        return `f(${blossomArgumentText(this.settings.args().slice(0, this.degree))})`;
     }
 
     /** Brings the model curve in line with the state (a typed point, a Preset that kept the shape). */

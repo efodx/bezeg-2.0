@@ -1,4 +1,5 @@
-import {LocalizedError, message} from "../../../localization";
+import {formatNumber} from "../../../analysis/format";
+import {currentLanguage, LocalizedError, message} from "../../../localization";
 import {blossom, domain, evaluate} from "../../../bezeg/impl/curve/bspline";
 import type {BSplinePresetData} from "./bsplinePresetCollection";
 import {DEFAULT_BASIS_DEGREE, DEFAULT_BASIS_KNOTS} from "./bsplineBasisModel";
@@ -12,6 +13,12 @@ export const BLOSSOM_DEFAULT_SEGMENT = 2;
 export const BLOSSOM_DEFAULT_ARGS: readonly number[] = Object.freeze([0, 0.5, 1]);
 /** The slider step of an argument; arguments are rounded so a step lands exactly on a knot. */
 export const BLOSSOM_ARG_STEP = 0.01;
+/** The arguments of f as text. Slovenian writes a decimal comma, so its arguments are separated like its coordinates, by a semicolon. */
+export function blossomArgumentText(args: readonly number[]): string {
+    const language = currentLanguage();
+    return args.map(a => formatNumber(a, language, 3)).join(language === 'sl' ? '; ' : ', ');
+}
+
 /** Largest distance for which f(t, ..., t) counts as equal to the curve point. */
 const EQUAL_TOLERANCE = 1e-9;
 
