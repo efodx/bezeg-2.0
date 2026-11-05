@@ -4,7 +4,7 @@
  */
 import {preflightPresetImport} from "../base/presets/PresetImport";
 import {LocalizedError, Message} from "../../localization";
-import {curveCombPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections} from "./curvePresetCollections";
+import {curveCombPresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections} from "./curvePresetCollections";
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -126,6 +126,30 @@ describe("the comb Demonstration's scene state", () => {
         [{combCount: 7}, "invalid_parameter", "combCount"],
         [{combCount: 257}, "invalid_parameter", "combCount"],
         [{combCount: 64.5}, "invalid_parameter", "combCount"],
+    ])("rejects %j", (state, key, field) => {
+        expect(check(state)).toEqual({key, params: {value0: field}});
+    });
+});
+
+describe("the offset Demonstration's scene state", () => {
+    const check = (state: unknown) => curveOffsetPresetCollection.checkGraphState?.(state);
+
+    test("accepts its bounds and a state without the fields", () => {
+        expect(curveOffsetPresetCollection.checkGraphState).toBeDefined();
+        expect(check({offsetD: -3, offsetSamples: 64, offsetShown: true, offsetCuspsShown: false, offsetSpeedPlotShown: true})).toBeUndefined();
+        expect(check({offsetD: 3, offsetSamples: 512})).toBeUndefined();
+        expect(check({})).toBeUndefined();
+    });
+
+    test.each([
+        [{offsetD: 3.5}, "invalid_parameter", "offsetD"],
+        [{offsetD: "1"}, "invalid_parameter", "offsetD"],
+        [{offsetSamples: 63}, "invalid_parameter", "offsetSamples"],
+        [{offsetSamples: 513}, "invalid_parameter", "offsetSamples"],
+        [{offsetSamples: 100.5}, "invalid_parameter", "offsetSamples"],
+        [{offsetShown: 1}, "invalid_option", "offsetShown"],
+        [{offsetCuspsShown: "no"}, "invalid_option", "offsetCuspsShown"],
+        [{offsetSpeedPlotShown: 0}, "invalid_option", "offsetSpeedPlotShown"],
     ])("rejects %j", (state, key, field) => {
         expect(check(state)).toEqual({key, params: {value0: field}});
     });

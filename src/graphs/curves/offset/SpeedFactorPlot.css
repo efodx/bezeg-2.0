@@ -1,0 +1,8 @@
+.speed-factor-plot { margin: 0; }
+.speed-factor-plot figcaption { color: var(--workspace-ink); font-size: .9rem; font-weight: 700; }
+.speed-factor-plot-svg { width: 100%; height: auto; background: var(--workspace-panel); border: 1px solid var(--workspace-rule); border-radius: 4px; }
+.speed-factor-plot-axis { stroke: var(--workspace-ink-soft); stroke-width: 1; }
+.speed-factor-plot-zero { stroke: var(--workspace-ink); stroke-width: 1; stroke-dasharray: 4 3; }
+.speed-factor-plot-label { fill: var(--workspace-ink-soft); }
+.speed-factor-plot-curve { fill: none; stroke: var(--workspace-ink); stroke-width: 2; }
+.speed-factor-plot-cusps { fill: none; stroke: var(--workspace-ink-soft); stroke-width: 2; }

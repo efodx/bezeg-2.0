@@ -116,8 +116,8 @@ export const FUNCTION_CHOICE_NAMES = Object.keys(functionChoiceValues) as Functi
 export const EVOLUTE_TRACE_MODES = ['hidden', 'to-parameter', 'full'] as const;
 export type EvoluteTraceMode = typeof EVOLUTE_TRACE_MODES[number];
 
-/** The curve overlays a lesson can show or hide on a curve demonstration. `curvature-frame` (T and N) and `curvature-circle` (the osculating circle or line) belong to CurvatureBezierCurveGraph only; `curvature-comb` (the curvature comb) to CurveCombGraph only; `evolute-normal` (the normal line at the parameter) to CurveEvoluteGraph. */
-export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle', 'curvature-comb', 'evolute-normal', 'parametric-trace-full'] as const;
+/** The curve overlays a lesson can show or hide on a curve demonstration. `curvature-frame` (T and N) and `curvature-circle` (the osculating circle or line) belong to CurvatureBezierCurveGraph only; `curvature-comb` (the curvature comb) to CurveCombGraph only; `evolute-normal` (the normal line at the parameter) to CurveEvoluteGraph; `offset-trace` (the sampled offset), `offset-cusps` (its cusp markers) and `offset-speed-plot` (the 1 + d*kappa plot) to CurveOffsetGraph. Not to be confused with `offset-curve`, which is the PH graph's exact offset. */
+export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle', 'curvature-comb', 'evolute-normal', 'offset-trace', 'offset-cusps', 'offset-speed-plot', 'parametric-trace-full'] as const;
 export type CurveVisibilityTarget = typeof CURVE_VISIBILITY_TARGETS[number];
 
 /** The visibility switches a lesson can address on a surface (patch) demonstration. */
@@ -421,6 +421,12 @@ export type LessonAction =
     | {readonly kind: 'comb-gain'; readonly value: number}
     /** CurveCombGraph's tooth count (an integer within COMB_MIN_COUNT..COMB_MAX_COUNT). */
     | {readonly kind: 'comb-count'; readonly value: number}
+    /** CurveOffsetGraph's curve: replaces the scene with the default of that kind (the parabola, or the cubic PH curve). The offset state is kept. */
+    | {readonly kind: 'offset-curve'; readonly curve: 'bezier' | 'ph'}
+    /** CurveOffsetGraph's signed offset distance d (within OFFSET_DISTANCE_MIN..MAX). */
+    | {readonly kind: 'offset-distance'; readonly value: number}
+    /** CurveOffsetGraph's sample count of the sampled offset (an integer within OFFSET_SAMPLES_MIN..MAX). */
+    | {readonly kind: 'offset-samples'; readonly value: number}
     /** Spline graphs' point-label display switch. */
     | {readonly kind: 'spline-label-points'; readonly visible: boolean}
     /** Spline graphs' fixed-point display switch; `hidden` is true to hide them. */
