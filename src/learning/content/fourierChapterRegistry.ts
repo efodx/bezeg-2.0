@@ -7,16 +7,17 @@ import {FOURIER_CHAPTER_ID} from './fourierChapterId';
 
 export {FOURIER_CHAPTER_ID};
 
-/** Section id to the Demonstration whose reviewed lesson (fourierSeriesGuidedLessons.ts) the section owns. The opening section owns none. One Demonstration has one lesson, so the fourier-series section owns F1 and F3 together and the fourier-coefficients section owns F2 and F4 (fourierCoefficientsGuidedLessons.ts). */
+/** Section id to the Demonstration whose reviewed lesson (fourierSeriesGuidedLessons.ts) the section owns. The opening section owns none. One Demonstration has one lesson, so the fourier-series section owns F1 and F3 together, the fourier-coefficients section owns F2 and F4 (fourierCoefficientsGuidedLessons.ts) and the epicycles section owns F5 (epicyclesGuidedLessons.ts). */
 const sectionDemonstrations = {
     'fourier-series': 'fourier-series',
     'fourier-coefficients': 'fourier-coefficients',
+    epicycles: 'epicycles',
 } as const satisfies Record<string, DemonstrationId>;
 
 export type FourierSectionId = keyof typeof sectionDemonstrations;
 
 /**
- * Section-owned activity (spec F1 to F4). The lesson text stays in fourierSeriesGuidedLessons.ts; the getters read it lazily because
+ * Section-owned activity (spec F1 to F5). The lesson text stays in the per-lesson files named above; the getters read it lazily because
  * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
  */
 export const fourierGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(

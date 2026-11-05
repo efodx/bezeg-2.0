@@ -36,8 +36,8 @@ function withoutMath(source: string) {
 // conic-focal joined the school function graphs chapter with its S6 lesson and section (07 F3 Part B).
 // point-in-polygon joined the convexity chapter with its A3 lesson and section (convexity task 21).
 // hull-robustness joined the convexity chapter with its A5 lesson and section (convexity task 22).
-// bezier-hulls joined the convexity chapter with its A6 lesson and section (convexity task 28); curve-evolute with its L4 lesson and section (CG-B2-4).
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'epicycles'];
+// bezier-hulls joined the convexity chapter with its A6 lesson and section (convexity task 28); curve-evolute with its L4 lesson and section (CG-B2-4); epicycles with its F5 lesson and section (Fourier 06 F3, F4).
+const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
@@ -100,7 +100,7 @@ describe('family reading chapters', () => {
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' || chapter.id === 'fourier-series' ? 2 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'fourier-series' ? 4 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);

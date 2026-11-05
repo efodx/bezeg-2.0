@@ -12,19 +12,21 @@ import {numericalChapter} from './numericalChapter';
 
 const ID = 'fourier-series';
 const CID = 'fourier-coefficients';
+const EID = 'epicycles';
+const epicyclesProseOf = (language: 'sl' | 'en') => fourierChapter.sections[3].paragraphs.map(p => p[language]).join(' ') + fourierChapter.sections[3].formula;
 const coefficientsProseOf = (language: 'sl' | 'en') => fourierChapter.sections[2].paragraphs.map(p => p[language]).join(' ') + fourierChapter.sections[2].formula;
 const proseOf = (language: 'sl' | 'en') => fourierChapter.sections[1].paragraphs.map(p => p[language]).join(' ') + fourierChapter.sections[1].formula;
 
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter is registered last in the Analysis family with an opening and two lesson sections', () => {
+    test('the chapter is registered last in the Analysis family with an opening and three lesson sections', () => {
         expect(fourierChapter.id).toBe(FOURIER_CHAPTER_ID);
         expect(FOURIER_CHAPTER_ID).toBe('fourier-series');
         expect(fourierChapter.title).toEqual({sl: 'Fourierove vrste', en: 'Fourier series'});
         expect(fourierChapter.family).toBe('analysis');
-        expect(fourierChapter.sections.map(section => section.id)).toEqual(['fourier-idea', ID, CID]);
-        expect(Object.keys(fourierGuidedExampleRegistry)).toEqual([ID, CID]);
+        expect(fourierChapter.sections.map(section => section.id)).toEqual(['fourier-idea', ID, CID, EID]);
+        expect(Object.keys(fourierGuidedExampleRegistry)).toEqual([ID, CID, EID]);
         expect(familyChapters.findIndex(chapter => chapter.id === FOURIER_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === numericalChapter.id) + 1);
         expect(familyChapters.at(-2)!.id).toBe(FOURIER_CHAPTER_ID); // the probability chapter follows it at the end of the functions strand
@@ -32,11 +34,8 @@ describe('chapter structure and registration', () => {
         expect(fourierChapter.sections[1].demonstrationIds).toEqual([ID]);
         expect(fourierChapter.sections[2].demonstrationIds).toEqual([CID]);
         expect(Object.keys(fourierChapter.sections[2].investigationPrompts ?? {})).toEqual([CID]);
-    });
-
-    test('epicycles and closed curves are not advertised', () => {
-        const everything = JSON.stringify({...fourierChapter, title: undefined}).toLowerCase();
-        for (const word of ['epicikl', 'epicycle', 'zaprt', 'closed curve']) expect(everything).not.toContain(word);
+        expect(fourierChapter.sections[3].demonstrationIds).toEqual([EID]);
+        expect(Object.keys(fourierChapter.sections[3].investigationPrompts ?? {})).toEqual([EID]);
     });
 
     test('there are no figures, the text is bilingual and the example link closes the lesson section', () => {
@@ -57,6 +56,11 @@ describe('chapter structure and registration', () => {
         expect(coefficients.orderedContent!.filter(item => item.kind === 'formula').length).toBe(1);
         expect(coefficients.paragraphs.length).toBeGreaterThanOrEqual(3);
         expect(coefficients.paragraphs.length).toBeLessThanOrEqual(4);
+        const epicycles = registered.sections[3];
+        expect(epicycles.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: `${FOURIER_CHAPTER_ID}.${EID}.${EID}`});
+        expect(epicycles.orderedContent!.filter(item => item.kind === 'formula').length).toBe(1);
+        expect(epicycles.paragraphs.length).toBeGreaterThanOrEqual(3);
+        expect(epicycles.paragraphs.length).toBeLessThanOrEqual(4);
     });
 
     test('hypotheses, sources and the illustration caveat are stated in both languages', () => {
@@ -163,6 +167,88 @@ describe('chapter structure and registration', () => {
         expect(resolveGuidedExample(`?learn=1&learnChapter=${FOURIER_CHAPTER_ID}&learnSection=fourier-idea`, CID)?.lesson).toBeUndefined();
         expect(getChapterGuidedExamples(FOURIER_CHAPTER_ID, CID).map(link => link.path)).toEqual([fourierGuidedExamplePath(CID)]);
         expect(guidedLessonReturnPath(getGuidedLessonOwner(CID)!)).toBe(`/bezeg-2.0/learn/${FOURIER_CHAPTER_ID}#${CID}`);
+    });
+
+    test('the epicycles section states its theorem, hypotheses and caveats in both languages', () => {
+        const facts = {
+            sl: ['Cilj razdelka', 'epicikel', 'vrtečih se', 'parametrizacij', 'sled', 'Izrek', 'ne dokazano', 'Zygmund', 'ilustracija', 'ne dokaz', 'odsekoma zvezno odvedljiva', '\\tilde c_k=e^{ik\\tau}c_k', 'Polmeri \\(|c_k|\\)'],
+            en: ['Learning outcome', 'epicycle', 'rotating', 'parametrization', 'trace', 'Theorem', 'not proved', 'Zygmund', 'illustration', 'not a proof', 'piecewise continuously differentiable', '\\tilde c_k=e^{ik\\tau}c_k', 'The radii \\(|c_k|\\)'],
+        };
+        for (const language of ['sl', 'en'] as const) {
+            const prose = epicyclesProseOf(language);
+            for (const fact of facts[language]) expect(prose, `${language}: ${fact}`).toContain(fact);
+            expect(prose).not.toMatch(/\d,\d\d/); // a decimal comma is written {,} in Slovenian; the interval [0,2\pi) is not a decimal
+            if (language === 'en') expect(prose).not.toContain('{,}');
+        }
+        expect(fourierChapter.sections[3].formula).toBe(String.raw`c_k=\frac1{2\pi}\int_0^{2\pi}z(t)\,e^{-ikt}\,dt,\qquad S_N(t)=\sum_{k=-N}^{N}c_k\,e^{ikt}`);
+        expect(fourierChapter.sections[3].formula).not.toMatch(/\\text|\\\(/);
+        const everything = JSON.stringify(fourierChapter.sections[3]);
+        expect(everything).not.toContain('"figure');
+        expect(everything).not.toContain('highlight');
+    });
+
+    test('the quoted diamond numbers are recomputed by quadrature and a closed form, not by the app kernel', () => {
+        // The diamond through 1, i, -1, -i: four straight spans, each of parameter length pi/2.
+        const vertices: [number, number][] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+        const n = 4000, h = (Math.PI / 2) / n;
+        const c = (k: number): [number, number] => {
+            let re = 0, im = 0;
+            for (let s = 0; s < 4; s++) {
+                const [x0, y0] = vertices[s], [x1, y1] = vertices[(s + 1) % 4];
+                for (let i = 0; i <= n; i++) {
+                    const u = i / n, t = s * Math.PI / 2 + i * h, w = (i === 0 || i === n ? 1 : i % 2 ? 4 : 2) * h / 3;
+                    const x = x0 + (x1 - x0) * u, y = y0 + (y1 - y0) * u;
+                    re += w * (x * Math.cos(k * t) + y * Math.sin(k * t)); // real part of z e^{-ikt}
+                    im += w * (y * Math.cos(k * t) - x * Math.sin(k * t)); // imaginary part
+                }
+            }
+            return [re / (2 * Math.PI), im / (2 * Math.PI)];
+        };
+        for (const k of [-7, -3, 1, 5, 9]) {
+            const [re, im] = c(k);
+            expect(re, `c_${k}`).toBeCloseTo(8 / (Math.PI ** 2 * k * k), 9);
+            expect(im, `c_${k}`).toBeCloseTo(0, 9);
+        }
+        for (const k of [0, 2, 3, 4]) expect(Math.hypot(...c(k)), `c_${k}`).toBeLessThan(1e-9);
+        expect((8 / Math.PI ** 2).toFixed(6)).toBe('0.810569');
+        // The start shift: z(t + tau) has the coefficients exp(i k tau) c_k, checked at k = 1 for tau = 0.7 by a midpoint rule.
+        const tau = 0.7, m = 40000, dt = 2 * Math.PI / m;
+        const z = (t: number): [number, number] => {
+            const u = (((t % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) / (Math.PI / 2), s = Math.min(3, Math.floor(u)), f = u - s;
+            const [x0, y0] = vertices[s], [x1, y1] = vertices[(s + 1) % 4];
+            return [x0 + (x1 - x0) * f, y0 + (y1 - y0) * f];
+        };
+        let sre = 0, sim = 0;
+        for (let i = 0; i < m; i++) {
+            const t = (i + 0.5) * dt, [x, y] = z(t + tau);
+            sre += (x * Math.cos(t) + y * Math.sin(t)) * dt;
+            sim += (y * Math.cos(t) - x * Math.sin(t)) * dt;
+        }
+        expect(sre / (2 * Math.PI)).toBeCloseTo(8 / Math.PI ** 2 * Math.cos(tau), 5);
+        expect(sim / (2 * Math.PI)).toBeCloseTo(8 / Math.PI ** 2 * Math.sin(tau), 5);
+        const sl = epicyclesProseOf('sl'), en = epicyclesProseOf('en');
+        expect(sl).toContain('0{,}810569');
+        expect(en).toContain('0.810569');
+        for (const text of [sl, en]) expect(text).toContain('8/(\\pi^2k^2)');
+    });
+
+    test('the epicycles lesson resolves from its own section by example id and by learn launch', () => {
+        expect(getGuidedLessonOwners(EID)).toEqual([{chapterId: FOURIER_CHAPTER_ID, sectionId: EID}]);
+        expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, EID)).toEqual([EID]);
+        expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, 'fourier-idea')).toEqual([]);
+        const lesson = fourierGuidedExampleRegistry[EID];
+        expect(lesson.demonstrationId).toBe(EID);
+        expect(lesson.steps.length).toBe(9);
+        for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
+            expect(field.sl.length).toBeGreaterThan(2);
+            expect(field.en.length).toBeGreaterThan(2);
+        }
+        expect(resolveGuidedExample(`?example=lesson.${FOURIER_CHAPTER_ID}.${EID}.${EID}`, EID)?.lesson).toBe(lesson);
+        expect(resolveGuidedExample(`?learn=1&learnChapter=${FOURIER_CHAPTER_ID}&learnSection=${EID}`, EID)?.lesson).toBe(lesson);
+        expect(resolveGuidedExample(`?learn=1&learnChapter=${FOURIER_CHAPTER_ID}&learnSection=fourier-idea`, EID)?.lesson).toBeUndefined();
+        expect(getChapterGuidedExamples(FOURIER_CHAPTER_ID, EID).map(link => link.path)).toEqual([fourierGuidedExamplePath(EID)]);
+        expect(guidedLessonLaunchPath(EID)).toContain(`learnChapter=${FOURIER_CHAPTER_ID}&learnSection=${EID}`);
+        expect(guidedLessonReturnPath(getGuidedLessonOwner(EID)!)).toBe(`/bezeg-2.0/learn/${FOURIER_CHAPTER_ID}#${EID}`);
     });
 
     test('the lesson resolves, owns its section and keeps both languages complete', () => {

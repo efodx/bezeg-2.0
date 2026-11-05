@@ -58,6 +58,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'fourier-series': {chapterId: 'fourier-series', sectionId: 'fourier-series'},
     // Fourier coefficients F2 and F4: its own section of the Fourier series chapter.
     'fourier-coefficients': {chapterId: 'fourier-series', sectionId: 'fourier-coefficients'},
+    // Epicycles F5: its own section of the Fourier series chapter.
+    epicycles: {chapterId: 'fourier-series', sectionId: 'epicycles'},
     continuity: {chapterId: 'functions-and-calculus', sectionId: 'continuity'},
     derivative: {chapterId: 'functions-and-calculus', sectionId: 'derivatives'},
     'definite-integral': {chapterId: 'functions-and-calculus', sectionId: 'integrals'},
