@@ -273,6 +273,14 @@ describe('refused edits', () => {
         expect(status('refused')).toBeUndefined();
     });
 
+    test('an import that keeps the same model still clears a refusal notice from the screen', () => {
+        const {graph} = mount();
+        for (const index of [0, 1, 2, 3, 4]) typeHeight(index, 0);
+        expect(status('refused')).toMatch(/Vsaj ena višina mora ostati večja od 0/);
+        act(() => { graph.importPresetData(graph.modelNow()); });
+        expect(status('refused')).toBeUndefined();
+    });
+
     test('a negative height is clamped to 0 by the model, an oversized one is refused', () => {
         const {graph} = mount();
         act(() => { graph.callSetHeight(0, -3); });
@@ -328,6 +336,49 @@ describe('Presets', () => {
         expect(() => preflightPresetImport(fileWith(data))).toThrow(expected);
         expect(() => preflightPresetImport(fileWith(data))).not.toThrow(/neveljavni podatki funkcije|invalid function data/);
         expect(localStorage.length).toBe(0);
+    });
+});
+
+describe('lifecycle', () => {
+    test('StrictMode mounts, unmounts and mounts again: playback works on the remounted board and nothing runs after the final unmount', () => {
+        const frames = manualScheduler();
+        const graph = new ObservedCltGraph(frames.scheduler);
+        const view = render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
+        expect(graph.state.initialized).toBe(true);
+        const baseline = graph.ownedObjects();
+        click('Predvajaj');
+        expect(graph.playing()).toBe(true);
+        act(() => { frames.frame(0); frames.frame(CLT_STEP_INTERVAL_MS); });
+        expect(graph.modelNow().n).toBe(2);
+        expect(graph.ownedObjects()).toBe(baseline);
+        view.unmount();
+        expect(frames.callbacks.size).toBe(0);
+        expect(graph.playing()).toBe(false);
+        expect(frames.frame(CLT_STEP_INTERVAL_MS)).toBe(false);
+    });
+
+    test('a Play click handled while the graph unmounts leaves no running playback', () => {
+        const {graph, frames, unmount} = mount();
+        act(() => {
+            fireEvent.click(button('Predvajaj'));
+            unmount();
+        });
+        expect(graph.playing()).toBe(false);
+        expect(frames.callbacks.size).toBe(0);
+    });
+
+    test('the pause a figure export runs first holds the current n, and no frame moves it afterwards', () => {
+        const {graph, frames} = mount();
+        click('Predvajaj');
+        act(() => { frames.frame(0); frames.frame(CLT_STEP_INTERVAL_MS); });
+        const shown = graph.modelNow();
+        expect(shown.n).toBe(2);
+        act(() => { graph.pausePlayback(); });
+        expect(graph.playing()).toBe(false);
+        expect(frames.callbacks.size).toBe(0);
+        expect(frames.frame(CLT_STEP_INTERVAL_MS)).toBe(false);
+        expect(graph.modelNow()).toEqual(shown);
+        expect(screen.getByRole('button', {name: 'Predvajaj'})).toBeInTheDocument();
     });
 });
 
