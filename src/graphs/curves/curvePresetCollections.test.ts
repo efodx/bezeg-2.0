@@ -4,7 +4,7 @@
  */
 import {preflightPresetImport} from "../base/presets/PresetImport";
 import {LocalizedError, Message} from "../../localization";
-import {curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections} from "./curvePresetCollections";
+import {arcLengthParamPresetCollection, curveCombPresetCollection, curveEnvelopePresetCollection, curveOffsetPresetCollection, curvePresetCollections, evoluteCurvePresetCollection, legacyCurvePresetCollections, reductionPresetCollection} from "./curvePresetCollections";
 beforeEach(() => localStorage.clear());
 
 const preflightRejection = (key: string, data: unknown): Message | undefined => {
@@ -179,3 +179,79 @@ describe("the offset Demonstration's scene state", () => {
         expect(check(state)).toEqual({key, params: {value0: field}});
     });
 });
+
+describe("the degree reduction Demonstration's collection", () => {
+    const check = (state: unknown) => reductionPresetCollection.checkGraphState?.(state);
+    const cubic = (points: number[][], state?: Record<string, unknown>) => [["JSXBezierCurve", {points, state}]];
+    const FOUR = [[0, 0], [1, 3], [3, 3], [4, 0]];
+    const STATE = {subdivisionT: 0.5, decasteljauT: 0.5, extrapolationT: 1.2};
+
+    test("accepts either mode and the display switches", () => {
+        expect(check({reductionMode: "fixed", reductionShown: true, reductionElevationShown: false})).toBeUndefined();
+        expect(check({reductionMode: "free", reductionShown: false, reductionElevationShown: true})).toBeUndefined();
+        expect(check({})).toBeUndefined();
+    });
+
+    test.each([
+        [{reductionMode: "exact"}, "invalid_option", "reductionMode"],
+        [{reductionMode: 1}, "invalid_option", "reductionMode"],
+        [{reductionShown: 1}, "invalid_option", "reductionShown"],
+        [{reductionElevationShown: "no"}, "invalid_option", "reductionElevationShown"],
+    ])("rejects %j", (state, key, field) => {
+        expect(check(state)).toEqual({key, params: {value0: field}});
+    });
+
+    test("is registered by id and accepts a cubic of four points", () => {
+        expect(curvePresetCollections.reduction).toBe(reductionPresetCollection);
+        expect(reductionPresetCollection.key).toBe("reduction");
+        expect(reductionPresetCollection.check(cubic(FOUR, STATE))).toHaveProperty("data");
+    });
+
+    test.each([[[[0, 0], [2, 4], [4, 0]]], [[[0, 0], [1, 1], [2, 1], [3, 0], [4, 0]]]])("rejects a curve of %j points with an actionable message", points => {
+        expect(reductionPresetCollection.check(cubic(points, STATE))).toEqual({rejection: {key: "reduction_preset_needs_four_points", params: {}}});
+    });
+
+    test("the file importer rejects a quadratic", () => {
+        expect(preflightRejection("reduction", cubic([[0, 0], [2, 4], [4, 0]], STATE))).toEqual({key: "reduction_preset_needs_four_points", params: {}});
+        expect(localStorage.length).toBe(0);
+    });
+});
+
+describe("the arc-length parametrization Demonstration's scene state", () => {
+    const check = (state: unknown) => arcLengthParamPresetCollection.checkGraphState?.(state);
+    const display = {showingJxgPoints: true, showingControlPolygon: false, showingConvexHull: false, showingDecasteljauScheme: false,
+        subdivisionT: .5, decasteljauT: .5, extrapolationT: 1.2};
+
+    test("is registered by id under its file key and accepts its bounds and a state without the fields", () => {
+        expect(curvePresetCollections["arc-length-param"]).toBe(arcLengthParamPresetCollection);
+        expect(arcLengthParamPresetCollection.key).toBe("arc-length-param");
+        expect(check({arcPieces: 2, arcEqualTShown: false, arcEqualArcShown: true, arcSpeedPlotShown: false, arcMoverMode: "arc", arcMoverPosition: 1})).toBeUndefined();
+        expect(check({arcPieces: 64, arcMoverMode: "parameter", arcMoverPosition: 0})).toBeUndefined();
+        expect(check({})).toBeUndefined();
+    });
+
+    test.each([
+        [{arcPieces: 1}, "invalid_parameter", "arcPieces"],
+        [{arcPieces: 65}, "invalid_parameter", "arcPieces"],
+        [{arcPieces: 8.5}, "invalid_parameter", "arcPieces"],
+        [{arcEqualTShown: 1}, "invalid_option", "arcEqualTShown"],
+        [{arcEqualArcShown: "yes"}, "invalid_option", "arcEqualArcShown"],
+        [{arcSpeedPlotShown: null}, "invalid_value", "arcSpeedPlotShown"],
+        [{arcMoverMode: "both"}, "invalid_option", "arcMoverMode"],
+        [{arcMoverPosition: 1.01}, "invalid_parameter", "arcMoverPosition"],
+        [{arcMoverPosition: "0.5"}, "invalid_parameter", "arcMoverPosition"],
+    ])("rejects %j", (state, key, field) => {
+        expect(check(state)).toEqual({key, params: {value0: field}});
+    });
+
+    test.each([
+        ["the cubic Q", [["JSXBezierCurve", {points: [[0, 0], [1, 3], [3, 3], [4, 0]], state: display}]]],
+        ["the PH cubic", [["JSXPHBezierCurve", {points: [[-4.2, -2]], hodographs: [[-3.5, -1.7], [-2.6, 1.7]], state: {...display, offsetCurveNumber: 1, d: .2, showOffsetCurve: false, showOffsetCurveControlPoints: false}}]]],
+        ["the cusp cubic", [["JSXBezierCurve", {points: [[0, 0], [1, 2], [0, 1], [1, 1]], state: display}]]],
+    ])("accepts the preset of %s and rejects another curve type", (_name, data) => {
+        expect(arcLengthParamPresetCollection.check(data)).toEqual({data});
+        expect(preflightRejection("arc-length-param", data)).toBeUndefined();
+        expect(arcLengthParamPresetCollection.check([["JSXRationalBezierCurve", {points: [[0, 0], [1, 1]], weights: [1, 1]}]])).toHaveProperty("rejection");
+    });
+});
+

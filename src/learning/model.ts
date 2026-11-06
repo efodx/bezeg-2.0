@@ -117,7 +117,7 @@ export const EVOLUTE_TRACE_MODES = ['hidden', 'to-parameter', 'full'] as const;
 export type EvoluteTraceMode = typeof EVOLUTE_TRACE_MODES[number];
 
 /** The curve overlays a lesson can show or hide on a curve demonstration. `curvature-frame` (T and N) and `curvature-circle` (the osculating circle or line) belong to CurvatureBezierCurveGraph only; `curvature-comb` (the curvature comb) to CurveCombGraph only; `evolute-normal` (the normal line at the parameter) to CurveEvoluteGraph; `offset-trace` (the sampled offset), `offset-cusps` (its cusp markers) and `offset-speed-plot` (the 1 + d*kappa plot) to CurveOffsetGraph; `envelope-lines` (the family of de Casteljau lines), `envelope-curve` (the Bezier curve itself) and `envelope-touch` (the highlighted line and its touching point) to CurveEnvelopeGraph. Not to be confused with `offset-curve`, which is the PH graph's exact offset. */
-export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle', 'curvature-comb', 'evolute-normal', 'offset-trace', 'offset-cusps', 'offset-speed-plot', 'envelope-lines', 'envelope-curve', 'envelope-touch', 'parametric-trace-full'] as const;
+export const CURVE_VISIBILITY_TARGETS = ['control-polygon', 'convex-hull', 'decasteljau-scheme', 'decasteljau-full-curve', 'ph-control-polygon', 'offset-curve', 'weights', 'curvature-frame', 'curvature-circle', 'curvature-comb', 'evolute-normal', 'offset-trace', 'offset-cusps', 'offset-speed-plot', 'envelope-lines', 'envelope-curve', 'envelope-touch', 'reduction-quadratic', 'reduction-elevation', 'parametric-trace-full', 'arc-equal-t', 'arc-equal-arc', 'arc-speed-plot'] as const;
 export type CurveVisibilityTarget = typeof CURVE_VISIBILITY_TARGETS[number];
 
 /** The visibility switches a lesson can address on a surface (patch) demonstration. */
@@ -431,6 +431,21 @@ export type LessonAction =
     | {readonly kind: 'envelope-t'; readonly value: number}
     /** CurveEnvelopeGraph's number of de Casteljau lines (an integer within 1..200). */
     | {readonly kind: 'envelope-lines'; readonly value: number}
+    /** DegreeReductionGraph's mode: end points kept (`fixed`) or free (L2-best quadratic in both). The visibility targets `reduction-quadratic` (the reduced curve and its control points) and `reduction-elevation` (its elevated net) belong to this graph only. */
+    | {readonly kind: 'reduction-mode'; readonly mode: 'fixed' | 'free'}
+    /** DegreeReductionGraph's four cubic control points, set together (exactly four finite pairs). */
+    | {readonly kind: 'reduction-points'; readonly points: readonly (readonly [number, number])[]}
+    /** ArcLengthParametrizationGraph's curve: replaces the scene with the default of that kind (the cubic Q, or the PH cubic). The arc state is kept. The visibility targets `arc-equal-t` (equal steps in t), `arc-equal-arc` (equal arcs) and `arc-speed-plot` belong to this graph only. */
+    | {readonly kind: 'arc-curve'; readonly curve: 'bezier' | 'ph'}
+    /** ArcLengthParametrizationGraph's number of pieces N (an integer within 2..64). */
+    | {readonly kind: 'arc-pieces'; readonly value: number}
+    /** ArcLengthParametrizationGraph's mover: the position is a fraction of the parameter or of the length L. */
+    | {readonly kind: 'arc-mover-mode'; readonly mode: 'parameter' | 'arc'}
+    /** ArcLengthParametrizationGraph's mover position (a number within 0..1). */
+    | {readonly kind: 'arc-mover-position'; readonly value: number}
+    /** ArcLengthParametrizationGraph's playback of the mover. */
+    | {readonly kind: 'arc-play'}
+    | {readonly kind: 'arc-pause'}
     /** Spline graphs' point-label display switch. */
     | {readonly kind: 'spline-label-points'; readonly visible: boolean}
     /** Spline graphs' fixed-point display switch; `hidden` is true to hide them. */

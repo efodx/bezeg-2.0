@@ -7,6 +7,7 @@ import {COMB_GAIN_MAX, COMB_GAIN_MIN} from "./comb/curveComb";
 import {OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "./object/JXGPHBezierCurve";
 import {OFFSET_SAMPLES_MAX, OFFSET_SAMPLES_MIN} from "./offset/curveOffset";
 import {ENVELOPE_LINES_MAX, ENVELOPE_LINES_MIN} from "./envelope/curveEnvelope";
+import {ARC_MOVER_MODES, ARC_PIECES_MAX, ARC_PIECES_MIN} from "./arclength/arcLengthModel";
 
 /**
  * One stored curve: control points, with weights (rational), the PH generating point and hodograph points, or spline
@@ -85,6 +86,8 @@ interface CurveCollectionRules {
     readonly type: CurveTypeName | readonly CurveTypeName[];
     /** A PH collection holds exactly one curve with this many hodograph control points (2: cubic, 3: quintic). */
     readonly hodographs?: 2 | 3;
+    /** Every curve has exactly this many control points (the degree reduction Demonstration's cubic). */
+    readonly pointCount?: number;
     /** The scene is described by its scene state alone, so a Preset may hold no curves. */
     readonly allowEmpty?: boolean;
     /** Rules for the fields this Demonstration adds to the scene state, on top of {@link checkSceneState}. */
@@ -101,6 +104,7 @@ function curveCollection(key: string, rules: CurveCollectionRules): PresetCollec
         if (!rules.allowEmpty && data.length === 0) return message("preset_has_no_curve");
         const accepted: readonly CurveTypeName[] = typeof rules.type === "string" ? [rules.type] : rules.type;
         if (data.some(entry => !accepted.includes(entry[0]))) return message("curve_type_does_not_match_collection", {value0: `preset-${key}`});
+        if (rules.pointCount !== undefined && data.some(entry => entry[1].points.length !== rules.pointCount)) return message("reduction_preset_needs_four_points");
         if (rules.hodographs !== undefined && (data.length !== 1 || data[0][1].hodographs.length !== rules.hodographs)) {
             return message("ph_preset_has_an_incorrect_degree_or_number_of_curves");
         }
@@ -175,6 +179,32 @@ export const curveEnvelopePresetCollection = curveCollection("curve-envelope", {
     },
 });
 
+/** The degree reduction Demonstration's collection (advanced lesson D1): a cubic Bézier curve (exactly four points) with the reduction mode and display state. */
+export const reductionPresetCollection = curveCollection("reduction", {
+    type: "JSXBezierCurve",
+    pointCount: 4,
+    graphState: ({reductionMode, reductionShown, reductionElevationShown}) => {
+        if (reductionMode !== undefined && reductionMode !== "fixed" && reductionMode !== "free") return message("invalid_option", {value0: "reductionMode"});
+        if (reductionShown !== undefined && typeof reductionShown !== "boolean") return message("invalid_option", {value0: "reductionShown"});
+        if (reductionElevationShown !== undefined && typeof reductionElevationShown !== "boolean") return message("invalid_option", {value0: "reductionElevationShown"});
+        return undefined;
+    },
+});
+
+/** The arc-length parametrization Demonstration's collection (lesson D3): a Bézier curve or a PH curve, with the display state of the marks, the speed plot and the moving point. */
+export const arcLengthParamPresetCollection = curveCollection("arc-length-param", {
+    type: ["JSXBezierCurve", "JSXPHBezierCurve"],
+    graphState: ({arcPieces, arcEqualTShown, arcEqualArcShown, arcSpeedPlotShown, arcMoverMode, arcMoverPosition}) => {
+        if (arcPieces !== undefined && !(isIntegerAtLeast(arcPieces, ARC_PIECES_MIN) && arcPieces <= ARC_PIECES_MAX)) return message("invalid_parameter", {value0: "arcPieces"});
+        if (arcEqualTShown !== undefined && typeof arcEqualTShown !== "boolean") return message("invalid_option", {value0: "arcEqualTShown"});
+        if (arcEqualArcShown !== undefined && typeof arcEqualArcShown !== "boolean") return message("invalid_option", {value0: "arcEqualArcShown"});
+        if (arcSpeedPlotShown !== undefined && typeof arcSpeedPlotShown !== "boolean") return message("invalid_option", {value0: "arcSpeedPlotShown"});
+        if (arcMoverMode !== undefined && !ARC_MOVER_MODES.some(mode => mode === arcMoverMode)) return message("invalid_option", {value0: "arcMoverMode"});
+        if (arcMoverPosition !== undefined && !(isFiniteNumber(arcMoverPosition) && arcMoverPosition >= 0 && arcMoverPosition <= 1)) return message("invalid_parameter", {value0: "arcMoverPosition"});
+        return undefined;
+    },
+});
+
 /**
  * The Preset collections of the curve Demonstrations, by Demonstration id. Collections of one curve type share their
  * rules; a collection differs only in its key, and PH collections in their degree.
@@ -210,6 +240,8 @@ export const curvePresetCollections = {
     "curve-evolute": evoluteCurvePresetCollection,
     "curve-offset": curveOffsetPresetCollection,
     "curve-envelope": curveEnvelopePresetCollection,
+    "arc-length-param": arcLengthParamPresetCollection,
+    reduction: reductionPresetCollection,
 } as const;
 
 /**
