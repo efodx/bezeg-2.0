@@ -1,0 +1,710 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": false,
+  "buildStamp": {
+    "version": 1,
+    "revision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+    "dirty": true,
+    "inputs": "6678df17d92847555c640aeb11b5a49b1070fa9fb12211a340d29127310951b9",
+    "output": "292a814d03dab10179432467e2cdbb4288b1b4a6cda9e9ae8b6aeffb2205d905"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
+    "stampRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+    "stampDirty": true,
+    "localOutputHash": "292a814d03dab10179432467e2cdbb4288b1b4a6cda9e9ae8b6aeffb2205d905",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-BL7FRvx0.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-BL7FRvx0.js",
+        "sha256": "0a77ab5c476c6094d1cc2364e162fe6f602df038dc16f388acce4655ee2ab885",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-4xiZKs1O.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
+        "sha256": "d279c0065714d2d01b0f65e5df5c25389eb6e69c216552fa617f2f8abba29535",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-Cnfm82p2.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
+        "sha256": "fc70869aa362c71417e1a66b90887ad467182d981e6fc9b1eb91261d97fa7edb",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "127443fd5f9009110e50e949e7caf59a81109ddcee71efc9108d46572df752c3",
+    "entries": {
+      "triangle-geometry.notable-points.triangle-centres": "f85a81e272850539fd2d4673ba6b5b73b752d984254c609217613a9c56b884bb",
+      "triangle-geometry.inscribed-angle.inscribed-angle": "613ee30b1213438e534d38fe75ef11bed7e8d460b5923c03049fbb2d028c38d3",
+      "triangle-geometry.euler-line.euler-line": "5fdbdbeca599050a2d2560bf0a645bf56952b16c92fa530177dca672febe781a",
+      "triangle-geometry.simson-line.simson-line": "c2fbeb4c3d781b1b598b7385d0d07a37ce70815d340bd68732184cec2457b4e5",
+      "triangle-geometry.inversion.inversion": "014bdde0caedaaf71ea570969b0d57166e7682226cf9802e95302709307204fe"
+    },
+    "presentation": "25d397d9d74f89763769460da628a182dfed1adf91570958f58bc168e8f6c6bf",
+    "buildOutput": "292a814d03dab10179432467e2cdbb4288b1b4a6cda9e9ae8b6aeffb2205d905",
+    "buildInputs": "6678df17d92847555c640aeb11b5a49b1070fa9fb12211a340d29127310951b9"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "triangle-geometry.notable-points.triangle-centres",
+        "demonstrationId": "triangle-centres",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -3.55,
+            5.81,
+            10.55,
+            -2.81
+          ]
+        }
+      },
+      {
+        "id": "triangle-geometry.inscribed-angle.inscribed-angle",
+        "demonstrationId": "inscribed-angle",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -3.55,
+            5.81,
+            10.55,
+            -2.81
+          ]
+        }
+      },
+      {
+        "id": "triangle-geometry.euler-line.euler-line",
+        "demonstrationId": "euler-line",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -3.55,
+            5.81,
+            10.55,
+            -2.81
+          ]
+        }
+      },
+      {
+        "id": "triangle-geometry.simson-line.simson-line",
+        "demonstrationId": "simson-line",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -6.8,
+            6.6,
+            8.6,
+            -2.81
+          ]
+        }
+      },
+      {
+        "id": "triangle-geometry.inversion.inversion",
+        "demonstrationId": "inversion",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "triangle-geometry.notable-points.triangle-centres",
+      "demonstrationId": "triangle-centres",
+      "path": "/bezeg-2.0/triangle-centres?example=lesson.triangle-geometry.notable-points.triangle-centres",
+      "sceneFingerprint": "cf1d49c1a842766f3f2c757f66bc92e2331d42583d3121e4921e5c5d6967b6f3",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"triangle-centres-centroid\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangle\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"centroid\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"circumcentre\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"incentre\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"orthocentre\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangle-geometry.notable-points.triangle-centres.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "b5e11a240d6fb9daae71e168243692d31048c739637b590f081c07c8cc90704b",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "text": 1,
+          "point": 4,
+          "segment": 6
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:7,0",
+          "point:2,5"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 36,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "text": 1,
+            "point": 4,
+            "segment": 6
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:7,0",
+            "point:2,5"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "text": 1,
+          "point": 4,
+          "segment": 6
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "sourceRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "triangle-geometry.inscribed-angle.inscribed-angle",
+      "demonstrationId": "inscribed-angle",
+      "path": "/bezeg-2.0/inscribed-angle?example=lesson.triangle-geometry.inscribed-angle.inscribed-angle",
+      "sceneFingerprint": "3e6e4dc920748a526aebe90ecb5780879d8bac4b408bad74e7ee199bf1745715",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"inscribed-angle-chord\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"radii\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"angles\",\"visible\":true}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":90}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangle-geometry.inscribed-angle.inscribed-angle.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "a30efb632ed61984a797482870bcd185df2fa22734c48e14cbf67ec977e0551d",
+      "scene": {
+        "visibleElementCount": 15,
+        "visibleElementTypes": {
+          "text": 1,
+          "point": 5,
+          "segment": 5,
+          "curve": 3,
+          "circle": 1
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              3.077033,
+              5
+            ],
+            [
+              2.945185,
+              5.516357
+            ],
+            [
+              2.581923,
+              5.906292
+            ]
+          ],
+          [
+            [
+              4.642366,
+              1.5
+            ],
+            [
+              4.50252,
+              2.047679
+            ],
+            [
+              4.117223,
+              2.461268
+            ]
+          ],
+          [
+            [
+              4.771592,
+              5.307887
+            ],
+            [
+              4.615927,
+              5.91752
+            ],
+            [
+              4.187044,
+              6.377894
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:circle",
+          "type:segment",
+          "type:curve",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:7,0",
+          "point:2,5"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 41,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "text": 1,
+            "point": 5,
+            "segment": 5,
+            "curve": 3,
+            "circle": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                3.077033,
+                5
+              ],
+              [
+                2.945185,
+                5.516357
+              ],
+              [
+                2.581923,
+                5.906292
+              ]
+            ],
+            [
+              [
+                4.642366,
+                1.5
+              ],
+              [
+                4.50252,
+                2.047679
+              ],
+              [
+                4.117223,
+                2.461268
+              ]
+            ],
+            [
+              [
+                4.771592,
+                5.307887
+              ],
+              [
+                4.615927,
+                5.91752
+              ],
+              [
+                4.187044,
+                6.377894
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:circle",
+            "type:segment",
+            "type:curve",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:7,0",
+            "point:2,5"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "text": 1,
+          "point": 5,
+          "segment": 5,
+          "curve": 3,
+          "circle": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "sourceRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "triangle-geometry.euler-line.euler-line",
+      "demonstrationId": "euler-line",
+      "path": "/bezeg-2.0/euler-line?example=lesson.triangle-geometry.euler-line.euler-line",
+      "sceneFingerprint": "80a217a0b87fc5bf18f1d868912f0940dfe6756ba4e167bf92d5d93b621d90d5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"euler-line-centres\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangle\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"centres\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"line\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"circle\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"ninepoints\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"circumcircle\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangle-geometry.euler-line.euler-line.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "f860b26a057059bc7688ad9676aef1c7116af566bbb6d1e4e0a5a60985bba844",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "text": 1,
+          "point": 6,
+          "segment": 3
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:7,0",
+          "point:2,5"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 23,
+            "text": 1,
+            "point": 6,
+            "segment": 3
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:7,0",
+            "point:2,5"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "text": 1,
+          "point": 6,
+          "segment": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "sourceRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "triangle-geometry.simson-line.simson-line",
+      "demonstrationId": "simson-line",
+      "path": "/bezeg-2.0/simson-line?example=lesson.triangle-geometry.simson-line.simson-line",
+      "sceneFingerprint": "01502c90bfb1e9a833b41fe9bfa170fbb321f47b1db7fbd39c7c40ea9ed2008d",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"simson-line-circle\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangle\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"sidelines\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"circumcircle\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"perpendiculars\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"simson\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"pedal\",\"visible\":false}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":250}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangle-geometry.simson-line.simson-line.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d42e117033e8273929de73ee1b31ece6dcc586a5017d4e9d14ba22613ca579a2",
+      "scene": {
+        "visibleElementCount": 16,
+        "visibleElementTypes": {
+          "text": 1,
+          "point": 8,
+          "segment": 3,
+          "line": 3,
+          "circle": 1
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:line",
+          "type:circle",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:7,0",
+          "point:2,5"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 43,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 23,
+            "text": 1,
+            "point": 8,
+            "segment": 3,
+            "line": 3,
+            "circle": 1
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:line",
+            "type:circle",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:7,0",
+            "point:2,5"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "text": 1,
+          "point": 8,
+          "segment": 3,
+          "line": 3,
+          "circle": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "sourceRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "triangle-geometry.inversion.inversion",
+      "demonstrationId": "inversion",
+      "path": "/bezeg-2.0/inversion?example=lesson.triangle-geometry.inversion.inversion",
+      "sceneFingerprint": "647b87efab3a616e574193f72c6eb28e0837ee245a01f0f71de39a37b7471b30",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"inversion-power\",\"source\":\"demonstration-default\"}",
+        "inversion: {\"kind\":\"inversion\",\"operation\":\"load-example\",\"exampleId\":\"power\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"inversion-circle\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"rays\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"image\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"secant\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"tangent\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"angle-tangents\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangle-geometry.inversion.inversion.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6d5d420cc8912d7d0a1191c3d47bc0be0feec326cbf73e3b85a7a800c28e2be3",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "text": 1,
+          "point": 5,
+          "line": 1,
+          "circle": 1
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:circle",
+          "type:line",
+          "type:text",
+          "curve-count",
+          "point:0,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "text": 1,
+            "point": 5,
+            "line": 1,
+            "circle": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:circle",
+            "type:line",
+            "type:text",
+            "curve-count",
+            "point:0,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "text": 1,
+          "point": 5,
+          "line": 1,
+          "circle": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "sourceRevision": "9a739b2b81566defaeb622a989422b731e4e0a0a",
+        "pageErrors": []
+      }
+    }
+  ]
+}

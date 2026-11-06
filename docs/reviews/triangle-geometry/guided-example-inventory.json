@@ -1,0 +1,204 @@
+{
+  "examples": [
+    {
+      "id": "triangle-geometry.notable-points.triangle-centres",
+      "demonstrationId": "triangle-centres",
+      "path": "/bezeg-2.0/triangle-centres?example=lesson.triangle-geometry.notable-points.triangle-centres",
+      "sceneFingerprint": "cf1d49c1a842766f3f2c757f66bc92e2331d42583d3121e4921e5c5d6967b6f3",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"triangle-centres-centroid\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangle\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"centroid\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"circumcentre\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"incentre\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"orthocentre\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 4,
+          "segment": 6,
+          "text": 1
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            2,
+            5
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "triangle-geometry.inscribed-angle.inscribed-angle",
+      "demonstrationId": "inscribed-angle",
+      "path": "/bezeg-2.0/inscribed-angle?example=lesson.triangle-geometry.inscribed-angle.inscribed-angle",
+      "sceneFingerprint": "3e6e4dc920748a526aebe90ecb5780879d8bac4b408bad74e7ee199bf1745715",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"inscribed-angle-chord\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"radii\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"angles\",\"visible\":true}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":90}"
+      ],
+      "expected": {
+        "types": {
+          "point": 5,
+          "circle": 1,
+          "segment": 5,
+          "curve": 3,
+          "text": 1
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            2,
+            5
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "triangle-geometry.euler-line.euler-line",
+      "demonstrationId": "euler-line",
+      "path": "/bezeg-2.0/euler-line?example=lesson.triangle-geometry.euler-line.euler-line",
+      "sceneFingerprint": "80a217a0b87fc5bf18f1d868912f0940dfe6756ba4e167bf92d5d93b621d90d5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"euler-line-centres\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangle\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"centres\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"line\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"circle\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"ninepoints\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"circumcircle\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 6,
+          "segment": 3,
+          "text": 1
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            2,
+            5
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "triangle-geometry.simson-line.simson-line",
+      "demonstrationId": "simson-line",
+      "path": "/bezeg-2.0/simson-line?example=lesson.triangle-geometry.simson-line.simson-line",
+      "sceneFingerprint": "01502c90bfb1e9a833b41fe9bfa170fbb321f47b1db7fbd39c7c40ea9ed2008d",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"simson-line-circle\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangle\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"sidelines\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"circumcircle\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"perpendiculars\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"simson\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"pedal\",\"visible\":false}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":250}"
+      ],
+      "expected": {
+        "types": {
+          "point": 8,
+          "segment": 3,
+          "line": 3,
+          "circle": 1,
+          "text": 1
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            2,
+            5
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "triangle-geometry.inversion.inversion",
+      "demonstrationId": "inversion",
+      "path": "/bezeg-2.0/inversion?example=lesson.triangle-geometry.inversion.inversion",
+      "sceneFingerprint": "647b87efab3a616e574193f72c6eb28e0837ee245a01f0f71de39a37b7471b30",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"inversion-power\",\"source\":\"demonstration-default\"}",
+        "inversion: {\"kind\":\"inversion\",\"operation\":\"load-example\",\"exampleId\":\"power\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"inversion-circle\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"rays\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"image\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"secant\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"tangent\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"angle-tangents\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 5,
+          "circle": 1,
+          "line": 1,
+          "text": 1
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

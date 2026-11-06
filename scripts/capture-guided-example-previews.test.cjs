@@ -204,6 +204,12 @@ test('the degenerate Voronoi card fits its opening sites instead of the Trapez p
     assert.equal(captureRecipeForEntry({id: 'triangulations-voronoi.voronoi.voronoi'}, recipe), recipe);
 });
 
+test('the inversion power card fits its own circle instead of the poster window of the inversion demonstration', () => {
+    const recipe = {id: 'inversion', framing: {kind: 'start'}, actions: []};
+    assert.deepEqual(captureRecipeForEntry({id: 'triangle-geometry.inversion.inversion'}, recipe).framing, {kind: 'finite-geometry-fit'});
+    assert.equal(captureRecipeForEntry({id: 'triangle-geometry.simson-line.simson-line'}, recipe), recipe);
+});
+
 test('a curve geometry card fits its own lesson scene instead of the poster window of its demonstration', () => {
     const recipe = {id: 'curve-comb', framing: {kind: 'coordinate-window', window: [-8, 4.9, 8, -4.9]}, actions: []};
     for (const id of ['curve-geometry.curve-comb.curve-comb', 'curve-geometry.curve-evolute.curve-evolute', 'curve-geometry.curve-envelope.curve-envelope'])

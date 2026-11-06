@@ -38,5 +38,25 @@ Images (viewed):
 
 Checks: `node --test` both script files 41/41 passed; `just typecheck` passed; lessonMathNotation passes; `guidedExamplePreviews.test.ts` fails only on the sweep row (manifest missing, because of fortune).
 
+## 3. triangle-geometry (5 cards) - captured and viewed, all five
+
+Done: generator `triangleGeometryExpectedFor` and five per-lesson functions (graph sources named in comments) with a test, capture `chapterFamilies` entry, `trianglePreviewCopy.ts`, registry entry, `functionsCards` row, `docs/commands.md`, inventory and manifest.
+
+Capture: all five captured (840x520) and passed every authored expectation on the first run, so no expectation was corrected. Authored counts (visible elements): notable-points point 4, segment 6, text 1 (three vertices plus G; three sides plus three medians; chip); inscribed-angle point 5, circle 1, segment 5, curve 3, text 1; euler-line point 6, segment 3, text 1; simson-line point 8, segment 3, line 3, circle 1, text 1 (the feet exist whatever the perpendiculars overlay says); inversion point 5, circle 1, line 1, text 1 (P, O, theta handle, A, B).
+
+Crop and recipe: the inversion card was cropped on the first capture (circle about (5,0) with radius 3 ran off the right edge, B=(8,0) outside the frame). Fixed with a `captureRecipeForEntry` id (`triangle-geometry.inversion.inversion` fits its own finite geometry) and a test; no validator rule was changed. Recaptured, circle and both secant points in frame.
+
+Observed failures: `functionsCards` triangle row failed with "triangle-geometry.notable-points.triangle-centres/sl: expected undefined to be truthy" (copy not yet registered) before it passed; the new capture test failed with the inversion id removed from `captureRecipeForEntry`; two generator test cases first failed on the wrong error message, because an extra action is rejected before the later assertion.
+
+Images (viewed):
+- notable-points: acute triangle, three dashed medians meeting at an x mark, chip "Vrsta trikotnika: ostrokotni"; no letter labels on the board. OK.
+- inscribed-angle: circle, chord AB, orange angle mark at C, dashed green marks at P and a blue dashed central arc at O; chip "APB = 66,8; ACB = 66,8; sredisccni kot = 133,6"; letters not drawn. P (green) sits at the top of the circle. OK.
+- euler-line: triangle with a square (H), an x (G) and a plus (O) near each other inside; no line drawn; chip "Eulerjeva premica: O, G in H so kolinearne". The caption says the line is not drawn yet. OK.
+- simson-line: triangle, three dashed side lines, circle with x centre, green P below AB, three green squares for the feet (one on AB, one on BC, one beyond CA); no perpendiculars; chip "Nozisca D, E, F: kolinearna". Circle fully in frame. OK.
+- inversion: P orange at the origin, circle with dark centre dot, grey secant along the x-axis, A and B at the circle, small theta handle dot between P-side intersection and the centre; chip "Potenca = 16". OK after the recrop.
+- Board labels vs captions: the chips say the points or feet are collinear while the line is not drawn; the captions report that as the board text and state the line is absent.
+
+Checks: `node --test` both script files 44/44; `just unit --no-fsModuleCache` `guidedExamplePreviews.test.ts` and `lessonMathNotation.test.ts` passed; `just typecheck` passed. Preview (PID 34132) stopped, port 3012 closed.
+
 ## Process
 No server or browser is running: the previews (earlier child PID 20872; sweep run child PID 36096, parent 20100) were stopped by PID and port 3012 is closed. The Dump/capture helpers live in `C:\tmp\h`, outside the repo.

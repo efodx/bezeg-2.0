@@ -17,6 +17,7 @@ import {advancedBezierPreviewCopy} from '../content/advancedBezierPreviewCopy';
 import {convexityPreviewCopy} from '../content/convexityPreviewCopy';
 import {triangulationPreviewCopy} from '../content/triangulationPreviewCopy';
 import {sweepPreviewCopy} from '../content/sweepPreviewCopy';
+import {trianglePreviewCopy} from '../content/trianglePreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -251,6 +252,10 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['sweep-algorithms.fortune.fortune', 'sweep-algorithms.interval-sweep.interval-sweep', 'sweep-algorithms.monotone-partition.monotone-partition',
             'sweep-algorithms.monotone-triangulation.monotone-triangulation', 'sweep-algorithms.segment-intersections.segment-intersections'],
         counts: [[1, 4], [2, 10], [1, 6], [5, 11], [0, 8]]},
+    {chapterId: 'triangle-geometry', copy: trianglePreviewCopy,
+        ids: ['triangle-geometry.euler-line.euler-line', 'triangle-geometry.inscribed-angle.inscribed-angle', 'triangle-geometry.inversion.inversion',
+            'triangle-geometry.notable-points.triangle-centres', 'triangle-geometry.simson-line.simson-line'],
+        counts: [[0, 6], [3, 5], [0, 5], [0, 4], [0, 8]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

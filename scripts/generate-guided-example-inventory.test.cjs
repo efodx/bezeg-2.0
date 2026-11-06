@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -572,4 +572,35 @@ test('sweep expectations are authored from the graphs: intervals, segments, poly
     assert.throws(() => sweepExpectedFor('s.fortune.fortune', psStep([psPoints(sites), psOp('set-trace-step', {step: 0}), psOverlay('grid', false)])), /only uses point-set/);
     assert.throws(() => sweepExpectedFor('s.unknown.unknown', psStep([psPoints(sites)])), /no authored Sweep algorithms/);
     assert.ok(chapterInventories['sweep-algorithms']);
+});
+
+test('triangle geometry expectations are authored from the graphs: centroid, inscribed angle, Euler centres, Simson feet and the power secant', () => {
+    const all = (names, shown) => names.map(name => psOverlay(name, shown.includes(name)));
+    const notable = ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre'];
+    const lesson = [[0, 0], [7, 0], [2, 5]];
+    assert.deepEqual(triangleGeometryExpectedFor('t.notable-points.triangle-centres', psStep(all(notable, ['triangle', 'centroid']))),
+        {types: {point: 4, segment: 6, text: 1}, curveCount: 0, points: lesson});
+    assert.throws(() => triangleGeometryExpectedFor('t.notable-points.triangle-centres', psStep(all(notable, ['triangle']))), /centroid must be shown/);
+    assert.throws(() => triangleGeometryExpectedFor('t.notable-points.triangle-centres', psStep([...all(notable, ['triangle', 'centroid']), psPoints(lesson)])), /only sets the overlays/);
+    const inscribed = ['radii', 'angles'];
+    const glider = value => ({kind: 'parameter', name: 't', value});
+    assert.deepEqual(triangleGeometryExpectedFor('t.inscribed-angle.inscribed-angle', psStep([...all(inscribed, ['angles']), glider(90)])),
+        {types: {point: 5, circle: 1, segment: 5, curve: 3, text: 1}, curveCount: 3, points: lesson});
+    assert.throws(() => triangleGeometryExpectedFor('t.inscribed-angle.inscribed-angle', psStep([...all(inscribed, ['angles']), glider(60)])), /90 degrees/);
+    const euler = ['triangle', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle'];
+    assert.deepEqual(triangleGeometryExpectedFor('t.euler-line.euler-line', psStep(all(euler, ['triangle', 'centres']))),
+        {types: {point: 6, segment: 3, text: 1}, curveCount: 0, points: lesson});
+    assert.throws(() => triangleGeometryExpectedFor('t.euler-line.euler-line', psStep(all(euler, ['triangle', 'centres', 'line']))), /line must be hidden/);
+    const simson = ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson', 'pedal'];
+    assert.deepEqual(triangleGeometryExpectedFor('t.simson-line.simson-line', psStep([...all(simson, ['triangle', 'sidelines', 'circumcircle']), glider(250)])),
+        {types: {point: 8, segment: 3, line: 3, circle: 1, text: 1}, curveCount: 0, points: lesson});
+    assert.throws(() => triangleGeometryExpectedFor('t.simson-line.simson-line', psStep([...all(simson, ['triangle', 'sidelines', 'circumcircle']), glider(150)])), /250 degrees/);
+    const inversion = ['inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents'];
+    const power = {kind: 'inversion', operation: 'load-example', exampleId: 'power'};
+    assert.deepEqual(triangleGeometryExpectedFor('t.inversion.inversion', psStep([power, ...all(inversion, ['secant'])])),
+        {types: {point: 5, circle: 1, line: 1, text: 1}, curveCount: 0, points: [[0, 0]]});
+    assert.throws(() => triangleGeometryExpectedFor('t.inversion.inversion', psStep([{...power, exampleId: 'angle'}, ...all(inversion, ['secant'])])), /only sets the overlays/);
+    assert.throws(() => triangleGeometryExpectedFor('t.inversion.inversion', psStep([power, {kind: 'inversion', operation: 'set-theta', degrees: 20}, ...all(inversion, ['secant'])])), /only sets the overlays/);
+    assert.throws(() => triangleGeometryExpectedFor('t.unknown.unknown', psStep([])), /no authored Triangle geometry/);
+    assert.ok(chapterInventories['triangle-geometry']);
 });

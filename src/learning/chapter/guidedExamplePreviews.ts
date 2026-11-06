@@ -21,6 +21,7 @@ import {advancedBezierPreviewCopy} from '../content/advancedBezierPreviewCopy';
 import {convexityPreviewCopy} from '../content/convexityPreviewCopy';
 import {triangulationPreviewCopy} from '../content/triangulationPreviewCopy';
 import {sweepPreviewCopy} from '../content/sweepPreviewCopy';
+import {trianglePreviewCopy} from '../content/trianglePreviewCopy';
 import {mathAltText} from './mathAltText';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
@@ -58,6 +59,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     'convexity-hulls': convexityPreviewCopy,
     'triangulations-voronoi': triangulationPreviewCopy,
     'sweep-algorithms': sweepPreviewCopy,
+    'triangle-geometry': trianglePreviewCopy,
 };
 
 function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {

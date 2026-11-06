@@ -265,6 +265,12 @@ const chapterInventories = {
         pathExport: 'sweepGuidedExamplePath',
         expectedFor: sweepExpectedFor,
     },
+    'triangle-geometry': {
+        module: '/src/learning/content/triangleGeometryChapterRegistry.ts',
+        registryExport: 'triangleGeometryGuidedExampleRegistry',
+        pathExport: 'triangleGeometryGuidedExamplePath',
+        expectedFor: triangleGeometryExpectedFor,
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleRegistry',
@@ -1259,6 +1265,97 @@ function sweepExpectedFor(id, step) {
     return author(id, step.scene.actions);
 }
 
+// ---- Triangle geometry chapter (triangle-geometry): five lessons, keyed by the demonstration in the example id.
+
+const TRIANGLE_LESSON_POINTS = [[0, 0], [7, 0], [2, 5]];
+
+/** Asserts the opening scene shows exactly the overlays `shown` out of `all`, each set explicitly (the graph's own default is not relied on). */
+function assertOverlays(id, actions, all, shown) {
+    for (const overlay of all) {
+        assert.equal(pointSetOverlay(actions, overlay, undefined), shown.includes(overlay), `${id}: overlay ${overlay} must be ${shown.includes(overlay) ? 'shown' : 'hidden'}`);
+    }
+}
+
+/** Asserts the opening scene keeps the graph's default lesson triangle (no `set-points`) and returns its vertices. */
+function defaultTriangle(id, actions) {
+    assert.ok(!actions.some(item => item.kind === 'point-set' && item.operation === 'set-points'), `${id}: only the default triangle is authored`);
+    return TRIANGLE_LESSON_POINTS;
+}
+
+/** The one `parameter` action of the opening scene named `name`. */
+function parameterValue(id, actions, name) {
+    const found = actions.filter(item => item.kind === 'parameter' && item.name === name);
+    assert.equal(found.length, 1, `${id}: opening scene must set parameter ${name} exactly once`);
+    return found[0].value;
+}
+
+const triangleOps = (id, actions, overlays, extra = []) => {
+    for (const item of actions) {
+        assert.ok(item.kind === 'prepared-scene' || (item.kind === 'point-set' && item.operation === 'set-overlay' && overlays.includes(item.overlay))
+            || extra.some(test => test(item)), `${id}: the authored first-frame expectation assumes an opening scene that only sets the overlays ${overlays.join(', ')}${extra.length ? ' and its listed extra actions' : ''}; extend the expectation before changing it`);
+    }
+};
+
+// Authored from src/graphs/compgeo/NotablePointsGraph.tsx (drawTriangle: three segments; drawCentre centroid: three median segments and the
+// centroid point; ensureChip: one html text) and PointSetGraph.tsx (points mode: one board point per vertex), not from a capture.
+function notablePointsExpectedFor(id, actions) {
+    const overlays = ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre'];
+    triangleOps(id, actions, overlays);
+    assertOverlays(id, actions, overlays, ['triangle', 'centroid']);
+    return {types: {point: 4, segment: 6, text: 1}, curveCount: 0, points: defaultTriangle(id, actions)};
+}
+
+// Authored from src/graphs/compgeo/InscribedAngleGraph.tsx (createScene: the circle, the chord segment, the centre O and the glider P as
+// points; drawAngles: the sides CA, CB, PA, PB as segments and the marks at C, P and O as three curves; ensureChip: one html text) and
+// PointSetGraph.tsx (one board point per vertex), at glider angle 90 degrees, not from a capture.
+function inscribedAngleExpectedFor(id, actions) {
+    const overlays = ['radii', 'angles'];
+    triangleOps(id, actions, overlays, [item => item.kind === 'parameter' && item.name === 't']);
+    assertOverlays(id, actions, overlays, ['angles']);
+    assert.equal(parameterValue(id, actions, 't'), 90, `${id}: only the glider at 90 degrees is authored`);
+    return {types: {point: 5, circle: 1, segment: 5, curve: 3, text: 1}, curveCount: 3, points: defaultTriangle(id, actions)};
+}
+
+// Authored from src/graphs/compgeo/EulerLineGraph.tsx (drawTriangle: three segments; marker: the points H, G and O; ensureChip: one html text)
+// and PointSetGraph.tsx (one board point per vertex), not from a capture.
+function eulerLineExpectedFor(id, actions) {
+    const overlays = ['triangle', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle'];
+    triangleOps(id, actions, overlays);
+    assertOverlays(id, actions, overlays, ['triangle', 'centres']);
+    return {types: {point: 6, segment: 3, text: 1}, curveCount: 0, points: defaultTriangle(id, actions)};
+}
+
+// Authored from src/graphs/compgeo/SimsonLineGraph.tsx (createScene: the feet D, E, F and the glider P as points, all inside the view at 250
+// degrees; drawTriangle: three segments; drawSideLines: three lines; drawCircumcircle: the circle and its centre O; ensureChip: one html
+// text) and PointSetGraph.tsx (one board point per vertex), not from a capture. The feet exist whatever the perpendiculars overlay says.
+function simsonLineExpectedFor(id, actions) {
+    const overlays = ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson', 'pedal'];
+    triangleOps(id, actions, overlays, [item => item.kind === 'parameter' && item.name === 't']);
+    assertOverlays(id, actions, overlays, ['triangle', 'sidelines', 'circumcircle']);
+    assert.equal(parameterValue(id, actions, 't'), 250, `${id}: only the glider at 250 degrees is authored`);
+    return {types: {point: 8, segment: 3, line: 3, circle: 1, text: 1}, curveCount: 0, points: defaultTriangle(id, actions)};
+}
+
+// Authored from src/graphs/compgeo/InversionGraph.tsx (createFigure focus power: the power circle; handlesFor power: handles O and theta;
+// drawSecant: the secant line and the points A and B, the circle centre (5,0) and radius 3 meeting the direction 0 in two points;
+// ensureChip: one html text) and PointSetGraph.tsx (the one vertex P at the origin), after load-example power, not from a capture.
+function inversionExpectedFor(id, actions) {
+    const overlays = ['inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents'];
+    triangleOps(id, actions, overlays, [item => item.kind === 'inversion' && item.operation === 'load-example' && item.exampleId === 'power']);
+    assert.equal(actions.filter(item => item.kind === 'inversion' && item.operation === 'load-example').length, 1, `${id}: only the power example is authored`);
+    assertOverlays(id, actions, overlays, ['secant']);
+    return {types: {point: 5, circle: 1, line: 1, text: 1}, curveCount: 0, points: [[0, 0]]};
+}
+
+/** First-frame expectation of a Triangle geometry lesson (the five lessons of the chapter, keyed by the demonstration in the example id). */
+function triangleGeometryExpectedFor(id, step) {
+    const byDemonstration = {'triangle-centres': notablePointsExpectedFor, 'inscribed-angle': inscribedAngleExpectedFor, 'euler-line': eulerLineExpectedFor,
+        'simson-line': simsonLineExpectedFor, inversion: inversionExpectedFor};
+    const author = Object.hasOwn(byDemonstration, id.split('.').at(-1)) ? byDemonstration[id.split('.').at(-1)] : undefined;
+    assert.ok(author, `${id}: no authored Triangle geometry first frame`);
+    return author(id, step.scene.actions);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1311,4 +1408,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, assertExpectation};

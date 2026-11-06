@@ -24,15 +24,17 @@ const viewport = {width: 1440, height: 920};
 const deviceScaleFactor = 2;
 const workedParabolaId = 'splines.worked-join.spline-c1.parabola-derivatives';
 const degenerateVoronoiId = 'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate';
+const inversionPowerId = 'triangle-geometry.inversion.inversion';
 const fortuneCardId = 'sweep-algorithms.fortune.fortune';
 
 function captureRecipeForEntry(entry, recipe) {
-    if (entry.id !== workedParabolaId && entry.id !== degenerateVoronoiId && !entry.id.startsWith('curve-geometry.')) return recipe;
+    if (entry.id !== workedParabolaId && entry.id !== degenerateVoronoiId && entry.id !== inversionPowerId && !entry.id.startsWith('curve-geometry.')) return recipe;
     // The shared spline-c1 catalog window is useful for its broad construction view,
     // but this authored worked parabola has a much smaller exact fixture view.
     // Curve geometry posters likewise frame another scene than the lesson opening a card shows:
     // the comb poster's window, chosen for the C1 spline, leaves the card's cubic a fifth of the frame.
     // The degenerate Voronoi poster frames the Trapez example, which leaves the lesson's opening site (1,-5) off the card.
+    // The inversion power poster window leaves the circle's far intersection (8,0) off the card.
     // Fit the card's own finite scene with equal unit scales and leave the shared recipe intact.
     return {...recipe, framing: {kind: 'finite-geometry-fit'}};
 }
@@ -69,6 +71,7 @@ const chapterFamilies = {
     'convexity-hulls': {label: 'convexity-hulls', idPrefix: 'convexity-hulls.', route: /^\/bezeg-2\.0\/compgeo\/(?:orientation|polygon-area|point-in-polygon|convex-hull|hull-robustness|bezier-hulls)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/orientation, /polygon-area, /point-in-polygon, /convex-hull, /hull-robustness or /bezier-hulls'},
     'triangulations-voronoi': {label: 'triangulations-voronoi', idPrefix: 'triangulations-voronoi.', route: /^\/bezeg-2\.0\/compgeo\/(?:ear-clipping|point-set-triangulation|delaunay|voronoi|voronoi-degenerate)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/ear-clipping, /point-set-triangulation, /delaunay, /voronoi or /voronoi-degenerate'},
     'sweep-algorithms': {label: 'sweep-algorithms', idPrefix: 'sweep-algorithms.', route: /^\/bezeg-2\.0\/compgeo\/(?:interval-sweep|segment-intersections|monotone-partition|monotone-triangulation|fortune)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/interval-sweep, /segment-intersections, /monotone-partition, /monotone-triangulation or /fortune'},
+    'triangle-geometry': {label: 'triangle-geometry', idPrefix: 'triangle-geometry.', route: /^\/bezeg-2\.0\/(?:triangle-centres|inscribed-angle|euler-line|simson-line|inversion)(?:\/|$)/, routeText: '/bezeg-2.0/triangle-centres, /inscribed-angle, /euler-line, /simson-line or /inversion'},
 };
 
 function parseArgs(argv) {
