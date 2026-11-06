@@ -11,6 +11,8 @@ import preview_subdivision from './images/demonstrations/catalog/subdivision.png
 import preview_repeated_subdivision from './images/demonstrations/catalog/repeated-subdivision.png';
 import preview_extrapolation from './images/demonstrations/catalog/extrapolation.png';
 import preview_elevation from './images/demonstrations/catalog/elevation.png';
+import preview_reduction from './images/demonstrations/catalog/reduction.png';
+import preview_arc_length_param from './images/demonstrations/catalog/arc-length-param.png';
 import preview_rational from './images/demonstrations/catalog/rational.png';
 import preview_rational_decasteljau from './images/demonstrations/catalog/rational-decasteljau.png';
 import preview_rational_elevation from './images/demonstrations/catalog/rational-elevation.png';
@@ -128,6 +130,8 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'repeated-subdivision': preview_repeated_subdivision,
     'extrapolation': preview_extrapolation,
     'elevation': preview_elevation,
+    'reduction': preview_reduction,
+    'arc-length-param': preview_arc_length_param,
     'rational': preview_rational,
     'rational-decasteljau': preview_rational_decasteljau,
     'rational-elevation': preview_rational_elevation,
