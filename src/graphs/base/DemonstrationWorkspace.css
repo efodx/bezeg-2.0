@@ -186,7 +186,10 @@
 .workspace-inspector .btn-secondary { background: var(--workspace-ink-soft); }
 .workspace-inspector .btn-group { flex-wrap: wrap; }
 .workspace-inspector .form-check { min-height: 36px; padding-top: 4px; }
-.slider-label { display: flex; justify-content: space-between; gap: 12px; }
+/* The label's zero basis keeps it wrapping beside the field; the field drops to its own line only when the label's longest word no longer fits next to it (large text). */
+.slider-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; }
+.slider-label > label { flex: 1 1 0; max-width: 100%; overflow-wrap: break-word; }
+.slider-label > .number-input, .slider-label > output { margin-left: auto; }
 .slider-range { display: flex; justify-content: space-between; color: var(--workspace-ink-soft); font-size: .72rem; }
 .point-coordinate-editor {
     margin-top: 14px;

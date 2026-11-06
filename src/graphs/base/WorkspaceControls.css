@@ -49,6 +49,8 @@
 .workspace-inspector .btn-group > .btn:first-child { border-radius:2px 0 0 2px !important; }
 .workspace-inspector .btn-group > .btn:last-child { border-radius:0 2px 2px 0 !important; }
 /* Inspector fields share one height (40px, 44px on touch and phones) and one focus ring; labels wrap rather than clip. */
+/* Plain fields keep the browser's default width, which grows with the text. The label counts too: Bootstrap makes it inline-block, so it shrinks to fit and its field's percentage would not bind. */
+.workspace-inspector label, .workspace-inspector input, .workspace-inspector select { max-width:100%; }
 .workspace-inspector .form-select, .workspace-inspector .form-control, .workspace-inspector .number-input input[type="number"] { min-height:40px; }
 .workspace-inspector .form-select { padding-top:5px; padding-bottom:5px; font-size:.85rem; border:1px solid var(--workspace-rule); border-radius:2px; background-color:var(--workspace-panel); color:var(--workspace-ink); }
 .workspace-inspector .form-select:focus-visible, .workspace-inspector .form-control:focus-visible, .workspace-inspector .number-input input[type="number"]:focus-visible { outline:3px solid #577cc3; outline-offset:2px; }

@@ -294,6 +294,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         return super.getGraphCommands().concat(
             <div key="mode"><ChoiceSelect label={t("hermite_mode")} value={mode}
                                           options={[{value: 'catmull-rom', text: t("hermite_mode_catmull")}, {value: 'hermite', text: t("hermite_mode_hermite")}]}
+                                          help={t("hermite_mode_help")}
                                           onChange={value => { if (isHermiteMode(value)) this.setMode(value); }}/></div>,
             <div key="rule"><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
                                           options={[{value: 'uniform', text: t("interp_rule_uniform")}, {value: 'chord', text: t("interp_rule_chord")}]}
