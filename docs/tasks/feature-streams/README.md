@@ -115,7 +115,7 @@ Gate rows in the provider's stream file read exactly `open` or `closed`.
 
 On a new computer, set up first with [the new-PC setup prompt](new-pc-setup.md). It recreates the stream worktrees and calibrates the test slots.
 
-Run the supervisor from the main checkout, after `git pull`, and leave its window open:
+Run the supervisor from the main checkout and leave its window open. It pulls `master` once at startup, fast-forward only:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\feature-streams\streams.ps1
@@ -123,12 +123,14 @@ powershell -ExecutionPolicy Bypass -File tools\feature-streams\streams.ps1
 
 It is a plain script, not a model. It does no code checks and costs no tokens while it waits.
 
-1. It starts each stream that is `not started` and has no live session, in the order Platform, Learn UI, Geometry, Functions, Curves, Maps, 90 seconds apart. Order matters only for load: gates enforce the real dependencies.
-2. Every 10 minutes it fetches `origin/master`, reads each stream's `Run state` and the gate tables, and:
+1. It reads the streams from `origin/master`: every `*.md` file in this folder with a `Run state:` line is a stream, and `complete` streams are left out. It starts each stream that is `not started` and has no live session, in file name order, 90 seconds apart. Order matters only for load: gates enforce the real dependencies.
+2. Every 10 minutes it fetches `origin/master`, rereads the stream files, including each stream's `Run state` and the gate tables, and:
    - relaunches a `waiting on …` stream once all its gates are `open` and it has no live session;
    - relaunches an `active` stream that has had no live session for two consecutive polls (a crash or a failed successor launch), at most three times per stream per supervisor run. On the supervisor's first poll it starts such a stream at once, so a restarted supervisor resumes stopped streams without waiting 10 minutes;
    - prints `stopped:` streams for the owner and never relaunches them.
-3. It exits when every stream is `complete` or `stopped`.
+3. When every stream is `complete` or `stopped`, it keeps running and checks every 30 minutes (`-IdleMinutes`). With `-Only` it exits instead.
+
+**Adding a stream.** Push `docs/tasks/feature-streams/<id>.md` to `master` with `Run state: not started` on line 2. A running supervisor starts it at its next poll, within 30 minutes, with no script change, so push the file only when the stream should really start. A new gate needs no registration either: its provider's file holds a table row with the gate in backticks and `open` or `closed` in the next cell. To reopen a `complete` stream, set it to `active`.
 
 **Resources.** A background session does not exit when its turn ends: it stays `idle`/`done` and keeps about 0.7 GB until stopped. On 2026-11-01 seven superseded handlers held 4.6 GB of a 16 GB machine, and Curves stopped after low memory killed its unit suite. So every poll the supervisor:
 

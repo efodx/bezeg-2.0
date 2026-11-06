@@ -3,9 +3,15 @@
   Supervisor for the Bezeg feature streams (docs/tasks/feature-streams/README.md).
 
 .DESCRIPTION
-  Plain script, no model. Starts each stream's first handler session, then polls
-  origin/master and relaunches a stream only when it is waiting on gates that are
-  now open, or when an active stream has lost its session. An active stream with no
+  Plain script, no model. Reads the streams from origin/master: every Markdown file
+  in docs/tasks/feature-streams with a `Run state:` line is a stream, and complete
+  streams are left out of the supervised list. Starts each stream's first handler
+  session, then polls origin/master and relaunches a stream only when it is waiting
+  on gates that are now open, or when an active stream has lost its session.
+
+  Pushing a new stream file to master is enough to start it: the script keeps running
+  when nothing is left to supervise and checks every -IdleMinutes. With -Only it exits
+  instead once the named streams are complete or stopped. An active stream with no
   session starts on the supervisor's first poll; later polls wait for two misses so
   that a handoff in progress is not mistaken for a crash. It never reads or checks
   code. Handlers launch their own successors at context handoffs.
@@ -16,7 +22,7 @@
   conversation; `claude attach <id>` still opens it. New streams start only while
   fewer than -MaxLive handlers run and at least -MinFreeGB of memory is free.
 
-  Run from the main checkout after `git pull`:
+  Run from the main checkout. It pulls master once at startup, fast-forward only:
     powershell -ExecutionPolicy Bypass -File tools\feature-streams\streams.ps1
   Stop finished handler sessions once, without launching anything:
     powershell -ExecutionPolicy Bypass -File tools\feature-streams\streams.ps1 -ReapOnly
@@ -28,6 +34,7 @@ param(
     [ValidateSet('low', 'medium', 'high', 'xhigh', 'max')]
     [string]$Effort = 'medium',
     [int]$IntervalMinutes = 10,
+    [double]$IdleMinutes = 30,
     [int]$StaggerSeconds = 90,
     [int]$MaxRestarts = 3,
     [int]$MaxLive = 3,
@@ -40,12 +47,14 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $Repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$AllStreams = @('platform', 'learn-ui', 'geometry', 'functions', 'curves', 'maps')
-$Order = $AllStreams
-if ($Only.Count -gt 0) { $Order = $Order | Where-Object { $Only -contains $_ } }
+$StreamDir = 'docs/tasks/feature-streams'
 
-# Gate -> stream file that records it.
-$GateOwner = @{ 'G-REG' = 'platform'; 'G-CURVE' = 'platform'; 'G-FN' = 'platform'; 'G-CG' = 'geometry'; 'G-HL' = 'learn-ui' }
+# Refreshed from $Ref on every poll. $AllStreams keeps complete streams, because their finished handlers
+# are still recognized and stopped by name. $Order is what the supervisor acts on.
+$RunStates = [ordered]@{}
+$AllStreams = @()
+$Order = @()
+
 $EndedStates = @('done', 'failed', 'error', 'stopped', 'exited', 'killed', 'cancelled')
 $GraceMinutes = 30
 
@@ -139,16 +148,8 @@ function Stop-FinishedHandlers($sessions, [int]$requiredPolls) {
     $script:donePolls = $seen
 }
 
-if ($ReapOnly) {
-    $sessions = Get-Sessions
-    if ($null -eq $sessions) { exit 1 }
-    Stop-FinishedHandlers $sessions 1
-    Log ("free memory {0} GB" -f (Get-FreeGB))
-    exit 0
-}
-
 function Get-StreamText([string]$id) {
-    $text = & git -C $Repo show "${Ref}:docs/tasks/feature-streams/$id.md" 2>$null
+    $text = & git -C $Repo show "${Ref}:$StreamDir/$id.md" 2>$null
     if ($LASTEXITCODE -ne 0) { return $null }
     return ($text -join "`n")
 }
@@ -160,14 +161,52 @@ function Get-RunState([string]$text) {
     return 'unknown'
 }
 
-function Test-GateOpen([string]$gate) {
-    $owner = $GateOwner[$gate]
-    if ($null -eq $owner) { Log "unknown gate $gate"; return $false }
-    $text = Get-StreamText $owner
-    if ($null -eq $text) { return $false }
-    $m = [regex]::Match($text, '`' + [regex]::Escape($gate) + '`[^|\n]*\|\s*(open|closed)')
-    return ($m.Success -and $m.Groups[1].Value -eq 'open')
+# Rereads the streams from $Ref. On a Git failure the previous list stands until the next poll.
+function Update-Streams {
+    $files = @(& git -C $Repo ls-tree --name-only $Ref "$StreamDir/")
+    if ($LASTEXITCODE -ne 0) { Log "could not list streams on $Ref; keeping the previous list"; return }
+    $states = [ordered]@{}
+    foreach ($file in $files) {
+        if ($file -notlike '*.md') { continue }
+        $id = [IO.Path]::GetFileNameWithoutExtension($file)
+        $state = Get-RunState (Get-StreamText $id)
+        if (@('missing', 'unknown') -notcontains $state) { $states[$id] = $state }
+    }
+    $script:RunStates = $states
+    $script:AllStreams = @($states.Keys)
+    $script:Order = @($states.Keys | Where-Object { $states[$_] -ne 'complete' -and ($Only.Count -eq 0 -or $Only -contains $_) })
 }
+
+# The row that says open or closed sits in the providing stream's file; other streams only name the gate.
+function Test-GateOpen([string]$gate) {
+    foreach ($id in $AllStreams) {
+        $text = Get-StreamText $id
+        if ($null -eq $text) { continue }
+        $m = [regex]::Match($text, '`' + [regex]::Escape($gate) + '`[^|\n]*\|\s*(open|closed)')
+        if ($m.Success) { return ($m.Groups[1].Value -eq 'open') }
+    }
+    Log "unknown gate $gate"
+    return $false
+}
+
+# Saves the manual `git pull` before a run. Later polls read $Ref directly, so they never touch the checkout.
+function Update-Checkout {
+    $branch = (& git -C $Repo rev-parse --abbrev-ref HEAD)
+    $target = $Ref -replace '^origin/', ''
+    if ($branch -ne $target) { Log "checkout is on $branch, not $target; not pulling"; return }
+    & git -C $Repo pull -q --ff-only origin $target
+    if ($LASTEXITCODE -ne 0) { Log 'git pull failed; continuing with the checkout as it is' }
+}
+
+if ($ReapOnly) {
+    Update-Streams
+    $sessions = Get-Sessions
+    if ($null -eq $sessions) { exit 1 }
+    Stop-FinishedHandlers $sessions 1
+    Log ("free memory {0} GB" -f (Get-FreeGB))
+    exit 0
+}
+
 
 # Number of live handler sessions for a stream ('*' for every stream).
 function Get-LiveCount($sessions, [string]$id) {
@@ -214,11 +253,18 @@ function In-Grace([string]$id) {
     return ((Get-Date) - $lastLaunch[$id]).TotalMinutes -lt $GraceMinutes
 }
 
+if (-not $DryRun) { Update-Checkout }
 $firstPoll = $true
-Log "supervising: $($Order -join ', ') (model $Model, effort $Effort, mode $PermissionMode, every $IntervalMinutes min, at most $MaxLive live, launch above $MinFreeGB GB free)"
+$supervised = $null
+Log "settings: model $Model, effort $Effort, mode $PermissionMode, every $IntervalMinutes min ($IdleMinutes when idle), at most $MaxLive live, launch above $MinFreeGB GB free"
 while ($true) {
     & git -C $Repo fetch -q origin
     if ($LASTEXITCODE -ne 0) { Log 'git fetch failed; retrying next poll' }
+    Update-Streams
+    if (($Order -join ',') -ne $supervised) {
+        $supervised = $Order -join ','
+        if ($Order.Count -gt 0) { Log "supervising: $($Order -join ', ')" } else { Log 'no streams to supervise' }
+    }
 
     $sessions = Get-Sessions
     if ($null -ne $sessions) {
@@ -226,12 +272,11 @@ while ($true) {
         $liveTotal = Get-LiveCount $sessions '*'
     }
 
-    $finished = 0
+    $stopped = 0
     $launchedThisPoll = $false
     foreach ($id in $Order) {
-        $state = Get-RunState (Get-StreamText $id)
-        if ($state -eq 'complete') { $finished++; continue }
-        if ($state -like 'stopped*') { Log "$id is $state  <- needs you; set 'Run state: active' and relaunch"; $finished++; continue }
+        $state = $RunStates[$id]
+        if ($state -like 'stopped*') { Log "$id is $state  <- needs you; set 'Run state: active' and relaunch"; $stopped++; continue }
         if (In-Grace $id) { continue }
 
         if ($null -eq $sessions) { continue }
@@ -270,8 +315,9 @@ while ($true) {
         }
     }
 
-    if ($finished -eq $Order.Count) { Log 'every stream is complete or stopped; exiting'; break }
+    $idle = $stopped -eq $Order.Count
+    if ($idle -and $Only.Count -gt 0) { Log 'every named stream is complete or stopped; exiting'; break }
     if ($Once) { break }
     $firstPoll = $false
-    Start-Sleep -Seconds ($IntervalMinutes * 60)
+    Start-Sleep -Seconds ($(if ($idle) { $IdleMinutes } else { $IntervalMinutes }) * 60)
 }
