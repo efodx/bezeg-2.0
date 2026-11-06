@@ -690,7 +690,7 @@ const motionSpecs = {
                 .map(s => ({v: s.Value(), p1: {x: s.point1.X(), y: s.point1.Y()}, p2: {x: s.point2.X(), y: s.point2.Y()}}))
                 .sort((a, b) => a.p1.x - b.p1.x || a.p1.y - b.p1.y);
             const weights = [];
-            objects.filter(o => o.elType === 'text' && /^\$\$w_\{\d\}=/.test(o.plaintext || '')).forEach(o => {
+            objects.filter(o => ['text', 'smartlabel'].includes(o.elType) && /^\$\$w_\{\d\}=/.test(o.plaintext || '')).forEach(o => {
                 weights[Number(/w_\{(\d)\}/.exec(o.plaintext)[1])] = o.plaintext;
             });
             const curve = objects.find(o => o.elType === 'curve');
