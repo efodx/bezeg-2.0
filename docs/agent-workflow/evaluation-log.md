@@ -2025,3 +2025,13 @@ Implementation, class M, estimated M. Scope: D2 graph, controls and inset, no ro
 - Brief error: it said `discard` payloads hold post-event ranges; the kernel emits pre-clip ranges. The worker flagged it and no change was needed.
 - Integration failure, handler-caused: `32556619` was pushed after focused checks only and failed `PresetCatalog.test.tsx` on hosted CI; `deploy` was skipped. Repair: one key in `PENDING_ROUTE_KEYS`. A handler copy edit then failed one pinned assertion in `just check`.
 - Handler reached 175k at turn 35. Coverage gap: no browser pass, as no route exists yet.
+
+### 2026-11-06: AB-B-2b (curves handler 64)
+
+Registration, class S, estimated S. Handler Opus medium; `bezeg-smoke` Sonnet and `bezeg-worker` Sonnet medium, brief handoff-v12. Registration stayed with the handler: twelve small list edits, tightly coupled.
+
+- Smoke worker: 34 calls, 48k tokens, 11 minutes. All ten checks passed; the three open questions were answered with observed values. Its counts match the kernel record.
+- Measurement worker: 40 calls, 61k tokens, 11 minutes. Done in one pass. The two workers ran one after the other so that the timings had the machine to themselves.
+- Brief error: the measurement brief's scope omitted `docs/commands.md`, which its return section asked for. Fixed before dispatch.
+- Handler check: the report's board update figures do not cover the grid-snapped run; recorded in the measurement note.
+- `just check` ran before the commit, as handoff 63 asked: 11 905 tests passed.

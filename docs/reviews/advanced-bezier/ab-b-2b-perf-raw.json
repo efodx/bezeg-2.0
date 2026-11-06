@@ -1,0 +1,334 @@
+{
+ "chromium": "156.0.8078.4",
+ "runs": 3,
+ "runsThrottled": 3,
+ "steps": 150,
+ "dragMs": 2000,
+ "viewport": "1440x900",
+ "rows": [
+  {
+   "name": "crossing pair, 1e-6",
+   "runs": 3,
+   "median": 16.699999999999818,
+   "p95": 16.799999999999272,
+   "dropped": [
+    0,
+    0,
+    0
+   ],
+   "updateMedian": 0.5,
+   "updateP95": 0.800000011920929,
+   "raw": [
+    {
+     "samples": 290,
+     "median": 16.699999999999818,
+     "p95": 16.799999999999272,
+     "max": 16.800000000000182,
+     "dropped": 0,
+     "updates": 272,
+     "updateMedian": 0.7000000476837158,
+     "updateP95": 1.4000000357627869,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 26",
+     "runAfter": "Korak 1 od 25"
+    },
+    {
+     "samples": 272,
+     "median": 16.699999999999818,
+     "p95": 16.700000000000728,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 270,
+     "updateMedian": 0.5,
+     "updateP95": 0.800000011920929,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 26",
+     "runAfter": "Korak 1 od 25"
+    },
+    {
+     "samples": 270,
+     "median": 16.699999999999818,
+     "p95": 16.799999999999272,
+     "max": 16.800000000000182,
+     "dropped": 0,
+     "updates": 268,
+     "updateMedian": 0.5,
+     "updateP95": 0.800000011920929,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 26",
+     "runAfter": "Korak 1 od 25"
+    }
+   ]
+  },
+  {
+   "name": "crossing pair, 1e-6 | CPU/4",
+   "runs": 3,
+   "median": 16.699999999999818,
+   "p95": 16.800000000000182,
+   "dropped": [
+    6,
+    6,
+    6
+   ],
+   "updateMedian": 3.399999976158142,
+   "updateP95": 5.800000011920929,
+   "raw": [
+    {
+     "samples": 404,
+     "median": 16.699999999999818,
+     "p95": 16.799999999999272,
+     "max": 100,
+     "dropped": 6,
+     "updates": 274,
+     "updateMedian": 4.199999988079071,
+     "updateP95": 8.5,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 26",
+     "runAfter": "Korak 1 od 25"
+    },
+    {
+     "samples": 362,
+     "median": 16.699999999999818,
+     "p95": 16.800000000000182,
+     "max": 50,
+     "dropped": 6,
+     "updates": 274,
+     "updateMedian": 3.399999976158142,
+     "updateP95": 5.800000011920929,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 26",
+     "runAfter": "Korak 1 od 25"
+    },
+    {
+     "samples": 352,
+     "median": 16.699999999999818,
+     "p95": 16.800000000000182,
+     "max": 66.69999999999982,
+     "dropped": 6,
+     "updates": 274,
+     "updateMedian": 3.399999976158142,
+     "updateP95": 5.800000011920929,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 26",
+     "runAfter": "Korak 1 od 25"
+    }
+   ]
+  },
+  {
+   "name": "tangent pair, 1e-10",
+   "runs": 3,
+   "median": 16.69999999999891,
+   "p95": 16.799999999999272,
+   "dropped": [
+    0,
+    0,
+    0
+   ],
+   "updateMedian": 0.5,
+   "updateP95": 0.800000011920929,
+   "raw": [
+    {
+     "samples": 300,
+     "median": 16.69999999999891,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 390,
+     "updateMedian": 0.699999988079071,
+     "updateP95": 1.399999976158142,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 505",
+     "runAfter": "Korak 1 od 35"
+    },
+    {
+     "samples": 282,
+     "median": 16.69999999999891,
+     "p95": 16.700000000000728,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 384,
+     "updateMedian": 0.5,
+     "updateP95": 0.800000011920929,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 505",
+     "runAfter": "Korak 1 od 35"
+    },
+    {
+     "samples": 286,
+     "median": 16.69999999999891,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 388,
+     "updateMedian": 0.5,
+     "updateP95": 0.800000011920929,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 505",
+     "runAfter": "Korak 1 od 35"
+    }
+   ]
+  },
+  {
+   "name": "tangent pair, 1e-10 | CPU/4",
+   "runs": 3,
+   "median": 16.69999999999891,
+   "p95": 16.799999999999272,
+   "dropped": [
+    7,
+    6,
+    6
+   ],
+   "updateMedian": 3.300000011920929,
+   "updateP95": 5.600000023841858,
+   "raw": [
+    {
+     "samples": 406,
+     "median": 16.69999999999891,
+     "p95": 16.799999999999272,
+     "max": 116.59999999999945,
+     "dropped": 7,
+     "updates": 392,
+     "updateMedian": 3.300000011920929,
+     "updateP95": 7.5,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 505",
+     "runAfter": "Korak 1 od 35"
+    },
+    {
+     "samples": 396,
+     "median": 16.69999999999891,
+     "p95": 16.799999999999272,
+     "max": 66.60000000000036,
+     "dropped": 6,
+     "updates": 392,
+     "updateMedian": 3.399999976158142,
+     "updateP95": 5.600000023841858,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 505",
+     "runAfter": "Korak 1 od 35"
+    },
+    {
+     "samples": 383,
+     "median": 16.69999999999891,
+     "p95": 16.799999999999272,
+     "max": 66.70000000000073,
+     "dropped": 6,
+     "updates": 392,
+     "updateMedian": 3.300000011920929,
+     "updateP95": 5.5,
+     "moved": 1.4142135623730951,
+     "runBefore": "Korak 1 od 505",
+     "runAfter": "Korak 1 od 35"
+    }
+   ]
+  },
+  {
+   "name": "cubic pair (3 crossings), 1e-10",
+   "runs": 3,
+   "median": 16.69999999999891,
+   "p95": 16.700000000000728,
+   "dropped": [
+    0,
+    0,
+    0
+   ],
+   "updateMedian": 0.699999988079071,
+   "updateP95": 1.100000023841858,
+   "raw": [
+    {
+     "samples": 289,
+     "median": 16.69999999999891,
+     "p95": 16.700000000000728,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 430,
+     "updateMedian": 0.6000000238418579,
+     "updateP95": 1.100000023841858,
+     "moved": 2.8284271247461903,
+     "runBefore": "Korak 1 od 46",
+     "runAfter": "Korak 1 od 51"
+    },
+    {
+     "samples": 295,
+     "median": 16.69999999999891,
+     "p95": 16.700000000000728,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 432,
+     "updateMedian": 0.699999988079071,
+     "updateP95": 1.100000023841858,
+     "moved": 2.8284271247461903,
+     "runBefore": "Korak 1 od 46",
+     "runAfter": "Korak 1 od 51"
+    },
+    {
+     "samples": 297,
+     "median": 16.69999999999891,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 432,
+     "updateMedian": 0.699999988079071,
+     "updateP95": 1.199999988079071,
+     "moved": 2.8284271247461903,
+     "runBefore": "Korak 1 od 46",
+     "runAfter": "Korak 1 od 51"
+    }
+   ]
+  },
+  {
+   "name": "cubic pair (3 crossings), 1e-10 | CPU/4",
+   "runs": 3,
+   "median": 16.69999999999891,
+   "p95": 16.80000000000109,
+   "dropped": [
+    13,
+    14,
+    14
+   ],
+   "updateMedian": 4,
+   "updateP95": 7,
+   "raw": [
+    {
+     "samples": 429,
+     "median": 16.69999999999891,
+     "p95": 16.80000000000109,
+     "max": 66.70000000000073,
+     "dropped": 13,
+     "updates": 434,
+     "updateMedian": 4,
+     "updateP95": 7,
+     "moved": 2.8284271247461903,
+     "runBefore": "Korak 1 od 46",
+     "runAfter": "Korak 1 od 51"
+    },
+    {
+     "samples": 414,
+     "median": 16.69999999999891,
+     "p95": 16.80000000000109,
+     "max": 83.39999999999964,
+     "dropped": 14,
+     "updates": 434,
+     "updateMedian": 3.899999976158142,
+     "updateP95": 7.100000023841858,
+     "moved": 2.8284271247461903,
+     "runBefore": "Korak 1 od 46",
+     "runAfter": "Korak 1 od 51"
+    },
+    {
+     "samples": 418,
+     "median": 16.69999999999891,
+     "p95": 16.800000000000182,
+     "max": 66.70000000000073,
+     "dropped": 14,
+     "updates": 434,
+     "updateMedian": 4,
+     "updateP95": 6.800000011920929,
+     "moved": 2.8284271247461903,
+     "runBefore": "Korak 1 od 46",
+     "runAfter": "Korak 1 od 51"
+    }
+   ]
+  }
+ ]
+}
