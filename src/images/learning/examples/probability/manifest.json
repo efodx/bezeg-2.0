@@ -1,0 +1,846 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+    "dirty": true,
+    "inputs": "32483430cb051712b5ab225efa3fc215a4f3cd602fd53c4c77edc826abe9b465",
+    "output": "fb0777c2f24d83ac52f902a6e46a1f1f8c4baecff9b02a1df778947b088f8c82"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
+    "stampRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+    "stampDirty": true,
+    "localOutputHash": "fb0777c2f24d83ac52f902a6e46a1f1f8c4baecff9b02a1df778947b088f8c82",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-CAmlwqRR.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-CAmlwqRR.js",
+        "sha256": "1361010796085d3eb03074a1a863bdd7fb92226761f0689f133d909ba5cbddd7",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-4xiZKs1O.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
+        "sha256": "d279c0065714d2d01b0f65e5df5c25389eb6e69c216552fa617f2f8abba29535",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-Cnfm82p2.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
+        "sha256": "fc70869aa362c71417e1a66b90887ad467182d981e6fc9b1eb91261d97fa7edb",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "c2b1ab0cba79517451f9d890de9aaa4c4072ad8ebf400dd777c407bf7a70714e",
+    "entries": {
+      "probability.density.prob-density": "516b58b509ac595e798d50a79a329044d24b9d03a06c74ba5c315be047ee9fb7",
+      "probability.binomial-normal.prob-binomial-normal": "6e893a02f0319726e69a068fdc53d28c980a45d5faa743ea8fbe89b79ba723f4",
+      "probability.clt.prob-clt": "92121fc35ffa145f46aa43abaf1ea410db17de6b2525af2abcf78532ada9ccc6",
+      "probability.summary.prob-summary": "413b985549715949f6b7a199ef73c304adeac91391fc2e08ad8223e9bcecb523",
+      "probability.correlation.prob-correlation": "a34d86087e3c321e27c53d8a3ae625003f55246bbd74853678c0e412c28798ee"
+    },
+    "presentation": "09414613eafd0b005535dbea475ec6c60898a7a6666aaf8e6ce8251d06a0d00a",
+    "buildOutput": "fb0777c2f24d83ac52f902a6e46a1f1f8c4baecff9b02a1df778947b088f8c82",
+    "buildInputs": "32483430cb051712b5ab225efa3fc215a4f3cd602fd53c4c77edc826abe9b465"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "probability.density.prob-density",
+        "demonstrationId": "prob-density",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4,
+            0.5,
+            4,
+            -0.08
+          ]
+        }
+      },
+      {
+        "id": "probability.binomial-normal.prob-binomial-normal",
+        "demonstrationId": "prob-binomial-normal",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.5,
+            0.2,
+            21.5,
+            -0.03
+          ]
+        }
+      },
+      {
+        "id": "probability.clt.prob-clt",
+        "demonstrationId": "prob-clt",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -3.6,
+            0.47,
+            3.6,
+            -0.03
+          ]
+        }
+      },
+      {
+        "id": "probability.summary.prob-summary",
+        "demonstrationId": "prob-summary",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            1,
+            4,
+            11,
+            -2
+          ]
+        }
+      },
+      {
+        "id": "probability.correlation.prob-correlation",
+        "demonstrationId": "prob-correlation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1,
+            9,
+            4.5,
+            -0.5
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "probability.density.prob-density",
+      "demonstrationId": "prob-density",
+      "path": "/bezeg-2.0/probability/density?example=lesson.probability.density.prob-density",
+      "sceneFingerprint": "86de7554a1cb070ecfa9b7a893fb81e97d80b25b24074f6fc0b57cf0ddb7f51c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"density-total-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"density-total-start\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"density-example\",\"value\":\"standard\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"density-a\",\"value\":-4}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"density-b\",\"value\":4}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "probability.density.prob-density.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "8d9bb6767c6d2f9b7edfffe0b12085009b7ebca64c794200f0b322ef0c32385c",
+      "scene": {
+        "visibleElementCount": 5,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 2,
+          "text": 1
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [
+          [
+            [
+              -4,
+              0
+            ],
+            [
+              -4,
+              0.000067
+            ],
+            [
+              -4,
+              0.000134
+            ]
+          ],
+          [
+            [
+              0,
+              0.398942
+            ],
+            [
+              0.5,
+              0.352065
+            ],
+            [
+              1,
+              0.241971
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:text",
+          "curve-count",
+          "point:-4,0",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "curve": 2,
+            "point": 2,
+            "text": 1
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [
+            [
+              [
+                -4,
+                0
+              ],
+              [
+                -4,
+                0.000067
+              ],
+              [
+                -4,
+                0.000134
+              ]
+            ],
+            [
+              [
+                0,
+                0.398942
+              ],
+              [
+                0.5,
+                0.352065
+              ],
+              [
+                1,
+                0.241971
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:text",
+            "curve-count",
+            "point:-4,0",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 2,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "sourceRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "probability.binomial-normal.prob-binomial-normal",
+      "demonstrationId": "prob-binomial-normal",
+      "path": "/bezeg-2.0/probability/binomial-normal?example=lesson.probability.binomial-normal.prob-binomial-normal",
+      "sceneFingerprint": "11fd0dd25c348a7c2d5d288c50f199269e247b129de3d2c71a0e5859503e98a8",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"binomial-bars-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"binomial-bars-start\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"binomial-normal-example\",\"value\":\"fair20\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"binomial-k\",\"value\":10}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "probability.binomial-normal.prob-binomial-normal.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "b523f989387a4310348291d8f4c8c79165a453b21a2856c9b9d7074fefe56bb2",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "curve": 4,
+          "point": 1,
+          "text": 1
+        },
+        "visiblePointCount": 1,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.5,
+              0
+            ],
+            [
+              -0.5,
+              0
+            ],
+            [
+              -0.5,
+              0.000001
+            ]
+          ],
+          [
+            [
+              -0.5,
+              0
+            ],
+            [
+              -0.5,
+              0
+            ],
+            [
+              -0.5,
+              0.000001
+            ]
+          ],
+          [
+            [
+              -7.888544,
+              0
+            ],
+            [
+              -7.888544,
+              0
+            ],
+            [
+              -7.888544,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0.000008
+            ],
+            [
+              0.5,
+              0.000021
+            ],
+            [
+              1,
+              0.000054
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:text",
+          "curve-count",
+          "point:10,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 20,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 10,
+            "curve": 4,
+            "point": 1,
+            "text": 1
+          },
+          "visiblePointCount": 1,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.5,
+                0
+              ],
+              [
+                -0.5,
+                0
+              ],
+              [
+                -0.5,
+                0.000001
+              ]
+            ],
+            [
+              [
+                -0.5,
+                0
+              ],
+              [
+                -0.5,
+                0
+              ],
+              [
+                -0.5,
+                0.000001
+              ]
+            ],
+            [
+              [
+                -7.888544,
+                0
+              ],
+              [
+                -7.888544,
+                0
+              ],
+              [
+                -7.888544,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0.000008
+              ],
+              [
+                0.5,
+                0.000021
+              ],
+              [
+                1,
+                0.000054
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:text",
+            "curve-count",
+            "point:10,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 4,
+          "point": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "sourceRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "probability.clt.prob-clt",
+      "demonstrationId": "prob-clt",
+      "path": "/bezeg-2.0/probability/clt?example=lesson.probability.clt.prob-clt",
+      "sceneFingerprint": "a48c923d44de5423fd24eaf6bb77cc00419099190aca7a0d90d3cac1804b9d5b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"clt-base-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"clt-base-start\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"clt-example\",\"value\":\"uniform\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "probability.clt.prob-clt.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "9a7ead13a2518396fc282ca7077546974da4879f84118ce9e746c191c88e2521",
+      "scene": {
+        "visibleElementCount": 2,
+        "visibleElementTypes": {
+          "curve": 2
+        },
+        "visiblePointCount": 0,
+        "sampledVisibleCurves": [
+          [
+            [
+              -1.731878,
+              0.288704
+            ],
+            [
+              -1.714559,
+              0.288704
+            ],
+            [
+              -1.69724,
+              0.288704
+            ]
+          ],
+          [
+            [
+              -6,
+              0
+            ],
+            [
+              -5.99,
+              0
+            ],
+            [
+              -5.98,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "curve-count",
+          "curve-samples"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 22,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "text": 1
+          },
+          "visiblePointCount": 0,
+          "sampledVisibleCurves": [
+            [
+              [
+                -1.731878,
+                0.288704
+              ],
+              [
+                -1.714559,
+                0.288704
+              ],
+              [
+                -1.69724,
+                0.288704
+              ]
+            ],
+            [
+              [
+                -6,
+                0
+              ],
+              [
+                -5.99,
+                0
+              ],
+              [
+                -5.98,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "curve-count",
+            "curve-samples"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "sourceRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "probability.summary.prob-summary",
+      "demonstrationId": "prob-summary",
+      "path": "/bezeg-2.0/probability/summary?example=lesson.probability.summary.prob-summary",
+      "sceneFingerprint": "202a1b7fe1f7d0d9f18583fc6a770b457c29a5e566354621b9b5946fff5fdbd0",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"summary-markers-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"summary-markers-start\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"summary-box-plot\",\"visible\":false}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"summary-sigma-band\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "probability.summary.prob-summary.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "eea3942c67f6d0330af76dd1262f7c2f5a78c49a83e00e4734b55f74690726c9",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "point": 9,
+          "text": 3
+        },
+        "visiblePointCount": 9,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:text",
+          "curve-count",
+          "point:5.8571429,-0.5",
+          "point:6,-0.95",
+          "point:4,0",
+          "point:5,0",
+          "point:5,0.35",
+          "point:6,0",
+          "point:6,0.35",
+          "point:7,0",
+          "point:8,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 25,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 9,
+            "point": 9,
+            "text": 3
+          },
+          "visiblePointCount": 9,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:text",
+            "curve-count",
+            "point:5.8571429,-0.5",
+            "point:6,-0.95",
+            "point:4,0",
+            "point:5,0",
+            "point:5,0.35",
+            "point:6,0",
+            "point:6,0.35",
+            "point:7,0",
+            "point:8,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 3,
+        "finalLabelCount": 3,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 9,
+          "text": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "sourceRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "probability.correlation.prob-correlation",
+      "demonstrationId": "prob-correlation",
+      "path": "/bezeg-2.0/probability/correlation?example=lesson.probability.correlation.prob-correlation",
+      "sceneFingerprint": "f8bc64ad5d70cfb154aaa91c1aaba17f2ae9bfbabe0b8d4212f03ffda092d0e5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"correlation-scatter-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"correlation-scatter-start\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"correlation-residuals\",\"visible\":false}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"correlation-x-on-y\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "probability.correlation.prob-correlation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d61009e645c8901b27173426ee14570b7b4e69e5d8805ea1a68b7cf553919945",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "curve": 1,
+          "text": 2,
+          "point": 4
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -1.5,
+              -0.45
+            ],
+            [
+              1.5,
+              2.25
+            ],
+            [
+              4.5,
+              4.95
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "type:text",
+          "curve-count",
+          "point:0,1",
+          "point:1,2",
+          "point:2,2",
+          "point:3,4"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 21,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 10,
+            "curve": 1,
+            "text": 2,
+            "point": 4
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -1.5,
+                -0.45
+              ],
+              [
+                1.5,
+                2.25
+              ],
+              [
+                4.5,
+                4.95
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "type:text",
+            "curve-count",
+            "point:0,1",
+            "point:1,2",
+            "point:2,2",
+            "point:3,4"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 2,
+        "finalLabelCount": 2,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 1,
+          "text": 2,
+          "point": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "sourceRevision": "f90ebe8a6d60c70a76f99df5c652d1953bb369b2",
+        "pageErrors": []
+      }
+    }
+  ]
+}

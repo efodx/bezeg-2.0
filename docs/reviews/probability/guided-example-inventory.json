@@ -1,0 +1,210 @@
+{
+  "examples": [
+    {
+      "id": "probability.density.prob-density",
+      "demonstrationId": "prob-density",
+      "path": "/bezeg-2.0/probability/density?example=lesson.probability.density.prob-density",
+      "sceneFingerprint": "86de7554a1cb070ecfa9b7a893fb81e97d80b25b24074f6fc0b57cf0ddb7f51c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"density-total-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"density-total-start\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"density-example\",\"value\":\"standard\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"density-a\",\"value\":-4}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"density-b\",\"value\":4}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 2,
+          "text": 1
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            -4,
+            0
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "probability.binomial-normal.prob-binomial-normal",
+      "demonstrationId": "prob-binomial-normal",
+      "path": "/bezeg-2.0/probability/binomial-normal?example=lesson.probability.binomial-normal.prob-binomial-normal",
+      "sceneFingerprint": "11fd0dd25c348a7c2d5d288c50f199269e247b129de3d2c71a0e5859503e98a8",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"binomial-bars-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"binomial-bars-start\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"binomial-normal-example\",\"value\":\"fair20\"}",
+        "function-parameter: {\"kind\":\"function-parameter\",\"name\":\"binomial-k\",\"value\":10}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 4,
+          "point": 1,
+          "text": 1
+        },
+        "curveCount": 4,
+        "points": [
+          [
+            10,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "probability.clt.prob-clt",
+      "demonstrationId": "prob-clt",
+      "path": "/bezeg-2.0/probability/clt?example=lesson.probability.clt.prob-clt",
+      "sceneFingerprint": "a48c923d44de5423fd24eaf6bb77cc00419099190aca7a0d90d3cac1804b9d5b",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"clt-base-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"clt-base-start\",\"source\":\"demonstration-default\"}",
+        "function-choice: {\"kind\":\"function-choice\",\"name\":\"clt-example\",\"value\":\"uniform\"}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2
+        },
+        "curveCount": 2,
+        "points": [],
+        "curves": [
+          [
+            [
+              -6,
+              0
+            ],
+            [
+              -5.99,
+              0
+            ],
+            [
+              -5.98,
+              0
+            ]
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "probability.summary.prob-summary",
+      "demonstrationId": "prob-summary",
+      "path": "/bezeg-2.0/probability/summary?example=lesson.probability.summary.prob-summary",
+      "sceneFingerprint": "202a1b7fe1f7d0d9f18583fc6a770b457c29a5e566354621b9b5946fff5fdbd0",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"summary-markers-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"summary-markers-start\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"summary-box-plot\",\"visible\":false}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"summary-sigma-band\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 9,
+          "text": 3
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            5.8571429,
+            -0.5
+          ],
+          [
+            6,
+            -0.95
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            0.35
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            6,
+            0.35
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "probability.correlation.prob-correlation",
+      "demonstrationId": "prob-correlation",
+      "path": "/bezeg-2.0/probability/correlation?example=lesson.probability.correlation.prob-correlation",
+      "sceneFingerprint": "f8bc64ad5d70cfb154aaa91c1aaba17f2ae9bfbabe0b8d4212f03ffda092d0e5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"correlation-scatter-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"correlation-scatter-start\",\"source\":\"demonstration-default\"}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"correlation-residuals\",\"visible\":false}",
+        "function-visibility: {\"kind\":\"function-visibility\",\"target\":\"correlation-x-on-y\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 4,
+          "curve": 1,
+          "text": 2
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}
