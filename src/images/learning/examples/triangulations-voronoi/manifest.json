@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+  "sourceRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "554a670f894be39ecd0b865a63e269c03bc42be6",
-    "dirty": true,
-    "inputs": "353692a19d5ac6517caf640f6b44e36383cac3e371907f747bed027c24099e6d",
-    "output": "33dc88800a23451fc4e80e7e1918ed97f3cddaab900a718fe7334311c95c3f6e"
+    "revision": "6544c99d49362658254da2dfa2991fca3b86275a",
+    "dirty": false,
+    "inputs": "d529af85183f8afc0665871574702ebdd9cb12a0cf6380610898f51cafea52e6",
+    "output": "836d8eac243705f598cc333f59920c59251604b93c6bcace68b3575acd2790a4"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
-    "stampRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
-    "stampDirty": true,
-    "localOutputHash": "33dc88800a23451fc4e80e7e1918ed97f3cddaab900a718fe7334311c95c3f6e",
+    "shellUrl": "http://127.0.0.1:4173/bezeg-2.0/",
+    "stampRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
+    "stampDirty": false,
+    "localOutputHash": "836d8eac243705f598cc333f59920c59251604b93c6bcace68b3575acd2790a4",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-CRClWJZb.js",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-CRClWJZb.js",
-        "sha256": "fc21389f08d36277df2e31fbd4e4486636403a8fe237add6adad1982bbc5c140",
+        "name": "index-DLm8HgFb.js",
+        "url": "http://127.0.0.1:4173/bezeg-2.0/assets/index-DLm8HgFb.js",
+        "sha256": "2ad63242f91e2d45a7c974bd0be1d43dc579310acefb2ea9e6db651465699bd8",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4173/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
         "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
         "matchesLocalBuild": true
       },
       {
         "name": "jsx-runtime-4xiZKs1O.js",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
+        "url": "http://127.0.0.1:4173/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
         "sha256": "d279c0065714d2d01b0f65e5df5c25389eb6e69c216552fa617f2f8abba29535",
         "matchesLocalBuild": true
       },
       {
         "name": "react-dom-Cnfm82p2.js",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
+        "url": "http://127.0.0.1:4173/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
         "sha256": "fc70869aa362c71417e1a66b90887ad467182d981e6fc9b1eb91261d97fa7edb",
         "matchesLocalBuild": true
       },
       {
         "name": "index-COlNNAaK.css",
-        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-COlNNAaK.css",
+        "url": "http://127.0.0.1:4173/bezeg-2.0/assets/index-COlNNAaK.css",
         "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4173/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -63,9 +63,9 @@
       "triangulations-voronoi.voronoi.voronoi": "f8a85ce9a84d27a4925abe15e2ddfca5af2047a1c41102f013cb95276dc36eb0",
       "triangulations-voronoi.voronoi-degenerate.voronoi-degenerate": "62eebfe94c61b3a1ec6a96063a60f25b228a724a36052df65a6ae01d7554f1da"
     },
-    "presentation": "2f568a8486737a2e3f593b068c3cea56df2a5b292fa28acf608337d66bc5f95b",
-    "buildOutput": "33dc88800a23451fc4e80e7e1918ed97f3cddaab900a718fe7334311c95c3f6e",
-    "buildInputs": "353692a19d5ac6517caf640f6b44e36383cac3e371907f747bed027c24099e6d"
+    "presentation": "7dd2285108bed8b22ae939df333db74248a494b8d69b3ae3bd449ea433c5909d",
+    "buildOutput": "836d8eac243705f598cc333f59920c59251604b93c6bcace68b3575acd2790a4",
+    "buildInputs": "d529af85183f8afc0665871574702ebdd9cb12a0cf6380610898f51cafea52e6"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -231,8 +231,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
-        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "buildRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
+        "sourceRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
         "pageErrors": []
       }
     },
@@ -318,8 +318,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
-        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "buildRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
+        "sourceRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
         "pageErrors": []
       }
     },
@@ -585,8 +585,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
-        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "buildRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
+        "sourceRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
         "pageErrors": []
       }
     },
@@ -676,8 +676,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
-        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "buildRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
+        "sourceRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
         "pageErrors": []
       }
     },
@@ -760,8 +760,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
-        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "buildRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
+        "sourceRevision": "6544c99d49362658254da2dfa2991fca3b86275a",
         "pageErrors": []
       }
     }
