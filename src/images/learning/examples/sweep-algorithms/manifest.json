@@ -1,0 +1,896 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+    "dirty": true,
+    "inputs": "62c212444474e0ae61beff2c01d19d5ebca0c305634a41bc8adaf33171b5d236",
+    "output": "516f4c6ce13630c0d5d21e9e129cb73a5e6186e19c3d598f801ae192218b2b9c"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
+    "stampRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+    "stampDirty": true,
+    "localOutputHash": "516f4c6ce13630c0d5d21e9e129cb73a5e6186e19c3d598f801ae192218b2b9c",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-DMx3JgWs.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-DMx3JgWs.js",
+        "sha256": "3e5d418575702379f07b9a7c92978bf3d631a7c7ce5db7ece9d7f826f2dbd201",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-4xiZKs1O.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
+        "sha256": "d279c0065714d2d01b0f65e5df5c25389eb6e69c216552fa617f2f8abba29535",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-Cnfm82p2.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
+        "sha256": "fc70869aa362c71417e1a66b90887ad467182d981e6fc9b1eb91261d97fa7edb",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "416a0499d6fad36533944092bd3baed202f96b35465083ff3e496ec0eaf631b9",
+    "entries": {
+      "sweep-algorithms.interval-sweep.interval-sweep": "eae2b8e33570fdcd86ffe74cd38e2c8b8d90dd5d2e5a60439b7007a882b258ba",
+      "sweep-algorithms.segment-intersections.segment-intersections": "f295f20130b21b3693505538972575fbdbdba9e7cea2490cf24dabf2b6542019",
+      "sweep-algorithms.monotone-partition.monotone-partition": "19bab937fa290cbf1ee4ec05772f724bbd4b12a8b3a865e5b3eab15ac2e35a00",
+      "sweep-algorithms.monotone-triangulation.monotone-triangulation": "3cca6933e50c95b907bae79d704362192bdb7d82082358025b826fe88f9aba32",
+      "sweep-algorithms.fortune.fortune": "d8af614cba1d3a69661656ab8089da4bd33e7968024edc61444506d7abda9643"
+    },
+    "presentation": "53cb958e3e109ee4be982a6c9b9a666622b5495f0b88cb7a97a8c7c6588b86fd",
+    "buildOutput": "516f4c6ce13630c0d5d21e9e129cb73a5e6186e19c3d598f801ae192218b2b9c",
+    "buildInputs": "62c212444474e0ae61beff2c01d19d5ebca0c305634a41bc8adaf33171b5d236"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "sweep-algorithms.interval-sweep.interval-sweep",
+        "demonstrationId": "interval-sweep",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1,
+            6,
+            11,
+            0
+          ]
+        }
+      },
+      {
+        "id": "sweep-algorithms.segment-intersections.segment-intersections",
+        "demonstrationId": "segment-intersections",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.8,
+            5.8,
+            6.8,
+            -1.8
+          ]
+        }
+      },
+      {
+        "id": "sweep-algorithms.monotone-partition.monotone-partition",
+        "demonstrationId": "monotone-partition",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.18,
+            9,
+            14.18,
+            -1
+          ]
+        }
+      },
+      {
+        "id": "sweep-algorithms.monotone-triangulation.monotone-triangulation",
+        "demonstrationId": "monotone-triangulation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.68,
+            9,
+            15.68,
+            -1
+          ]
+        }
+      },
+      {
+        "id": "sweep-algorithms.fortune.fortune",
+        "demonstrationId": "fortune",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -11.05,
+            7.75,
+            11.05,
+            -5.75
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "sweep-algorithms.interval-sweep.interval-sweep",
+      "demonstrationId": "interval-sweep",
+      "path": "/bezeg-2.0/compgeo/interval-sweep?example=lesson.sweep-algorithms.interval-sweep.interval-sweep",
+      "sceneFingerprint": "46749d6f4475cb03203623095556f5b5106a036ba1676b79e7d96f8e20877a94",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"intervalsweep-intervals\",\"source\":\"demonstration-default\",\"view\":[-1,6,11,0]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"intervals\",\"points\":[[0,1],[4,1],[2,2],[7,2],[3,3],[5,3],[6,4],[9,4],[8,5],[10,5]]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "sweep-algorithms.interval-sweep.interval-sweep.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "2168f7851add746511b6031df5e4e8c1b366cebaccf16c439c49fae3b10127b6",
+      "scene": {
+        "visibleElementCount": 22,
+        "visibleElementTypes": {
+          "point": 10,
+          "segment": 5,
+          "text": 5,
+          "curve": 2
+        },
+        "visiblePointCount": 10,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              6
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              4,
+              1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:text",
+          "type:curve",
+          "curve-count",
+          "point:0,1",
+          "point:4,1",
+          "point:2,2",
+          "point:7,2",
+          "point:3,3",
+          "point:5,3",
+          "point:6,4",
+          "point:9,4",
+          "point:8,5",
+          "point:10,5"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 47,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 21,
+            "point": 10,
+            "segment": 5,
+            "text": 5,
+            "curve": 2
+          },
+          "visiblePointCount": 10,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                6
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                4,
+                1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:text",
+            "type:curve",
+            "curve-count",
+            "point:0,1",
+            "point:4,1",
+            "point:2,2",
+            "point:7,2",
+            "point:3,3",
+            "point:5,3",
+            "point:6,4",
+            "point:9,4",
+            "point:8,5",
+            "point:10,5"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 5,
+        "finalLabelCount": 5,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 10,
+          "segment": 5,
+          "text": 5,
+          "curve": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "sourceRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "sweep-algorithms.segment-intersections.segment-intersections",
+      "demonstrationId": "segment-intersections",
+      "path": "/bezeg-2.0/compgeo/segment-intersections?example=lesson.sweep-algorithms.segment-intersections.segment-intersections",
+      "sceneFingerprint": "6836778a7b89a17e01e4e175d8007beb1289b9351cee741b34dd83f0b9ff886e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"segint-segments\",\"source\":\"demonstration-default\",\"view\":[-1,6,7,-2]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"segments\",\"points\":[[0,0],[6,4],[0,4],[6,0],[1,-1],[2,5],[4,5],[5,-1]]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "sweep-algorithms.segment-intersections.segment-intersections.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "14f3358b077dd099a69970c9e03202b70c9caaedbd0280a9a9ad12fea0bd64d7",
+      "scene": {
+        "visibleElementCount": 16,
+        "visibleElementTypes": {
+          "point": 8,
+          "segment": 4,
+          "text": 4
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:6,4",
+          "point:0,4",
+          "point:6,0",
+          "point:1,-1",
+          "point:2,5",
+          "point:4,5",
+          "point:5,-1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 43,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 23,
+            "point": 8,
+            "segment": 4,
+            "text": 4
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:6,4",
+            "point:0,4",
+            "point:6,0",
+            "point:1,-1",
+            "point:2,5",
+            "point:4,5",
+            "point:5,-1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 8,
+          "segment": 4,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "sourceRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "sweep-algorithms.monotone-partition.monotone-partition",
+      "demonstrationId": "monotone-partition",
+      "path": "/bezeg-2.0/compgeo/monotone-partition?example=lesson.sweep-algorithms.monotone-partition.monotone-partition",
+      "sceneFingerprint": "e76955bb3c0d628c1e44503a604b66c8423ff5ba2efa0d8b85b3c0f03f5b4248",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"monpart-polygon\",\"source\":\"demonstration-default\",\"view\":[-1,9,13,-1]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[0,0],[4,3],[8,0],[12,8],[8,5],[4,8]]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "sweep-algorithms.monotone-partition.monotone-partition.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "485985b5ed08d350198b39f6bcdc039b8b7808e88c09b8a2d58481ac5c1fcddc",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "point": 6,
+          "segment": 6,
+          "curve": 1
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              -1,
+              9
+            ],
+            [
+              6,
+              9
+            ],
+            [
+              13,
+              9
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:curve",
+          "curve-count",
+          "point:0,0",
+          "point:4,3",
+          "point:8,0",
+          "point:12,8",
+          "point:8,5",
+          "point:4,8"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 41,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 24,
+            "point": 6,
+            "segment": 6,
+            "curve": 1
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                -1,
+                9
+              ],
+              [
+                6,
+                9
+              ],
+              [
+                13,
+                9
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:curve",
+            "curve-count",
+            "point:0,0",
+            "point:4,3",
+            "point:8,0",
+            "point:12,8",
+            "point:8,5",
+            "point:4,8"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "segment": 6,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "sourceRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "sweep-algorithms.monotone-triangulation.monotone-triangulation",
+      "demonstrationId": "monotone-triangulation",
+      "path": "/bezeg-2.0/compgeo/monotone-triangulation?example=lesson.sweep-algorithms.monotone-triangulation.monotone-triangulation",
+      "sceneFingerprint": "28254c13b1e7b30424d08f1f097d64201b83fa6f7f7d1cf9df30d3d2f5cca765",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"montri-piece\",\"source\":\"demonstration-default\",\"view\":[-1,9,13,-1]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[0,0],[4,3],[8,0],[12,8],[8,5],[4,8]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-trace-step\",\"step\":15}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "sweep-algorithms.monotone-triangulation.monotone-triangulation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "c9455f3bf66185708bb71943e2f07db1985a38b75bc7406c4e495027d869e923",
+      "scene": {
+        "visibleElementCount": 31,
+        "visibleElementTypes": {
+          "point": 11,
+          "segment": 10,
+          "polygon": 1,
+          "curve": 5,
+          "text": 4
+        },
+        "visiblePointCount": 11,
+        "sampledVisibleCurves": [
+          [
+            [
+              -1,
+              8
+            ],
+            [
+              6,
+              8
+            ],
+            [
+              13,
+              8
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              1.5
+            ],
+            [
+              4,
+              3
+            ]
+          ],
+          [
+            [
+              4,
+              3
+            ],
+            [
+              6,
+              4
+            ],
+            [
+              8,
+              5
+            ]
+          ],
+          [
+            [
+              4,
+              8
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              8,
+              5
+            ],
+            [
+              6,
+              6.5
+            ],
+            [
+              4,
+              8
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:curve",
+          "type:text",
+          "type:polygon",
+          "curve-count",
+          "point:0,0",
+          "point:4,3",
+          "point:8,0",
+          "point:12,8",
+          "point:8,5",
+          "point:4,8"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 59,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 24,
+            "point": 11,
+            "segment": 10,
+            "polygon": 1,
+            "curve": 5,
+            "text": 4
+          },
+          "visiblePointCount": 11,
+          "sampledVisibleCurves": [
+            [
+              [
+                -1,
+                8
+              ],
+              [
+                6,
+                8
+              ],
+              [
+                13,
+                8
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                1.5
+              ],
+              [
+                4,
+                3
+              ]
+            ],
+            [
+              [
+                4,
+                3
+              ],
+              [
+                6,
+                4
+              ],
+              [
+                8,
+                5
+              ]
+            ],
+            [
+              [
+                4,
+                8
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                8,
+                5
+              ],
+              [
+                6,
+                6.5
+              ],
+              [
+                4,
+                8
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:curve",
+            "type:text",
+            "type:polygon",
+            "curve-count",
+            "point:0,0",
+            "point:4,3",
+            "point:8,0",
+            "point:12,8",
+            "point:8,5",
+            "point:4,8"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 11,
+          "segment": 10,
+          "polygon": 1,
+          "curve": 5,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "sourceRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "sweep-algorithms.fortune.fortune",
+      "demonstrationId": "fortune",
+      "path": "/bezeg-2.0/compgeo/fortune?example=lesson.sweep-algorithms.fortune.fortune",
+      "sceneFingerprint": "15136e74206119a17909a3f65c2d5565dd72cb96cee51f510b3dcb122545140f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"fortune-sites\",\"source\":\"demonstration-default\",\"view\":[-9,9,9,-7]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,5],[-4,3],[4,3],[0,-3]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-trace-step\",\"step\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "sweep-algorithms.fortune.fortune.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "449b0a03f387109b2aa4f823251227e13c5eff7e50c5feccac8edecfbb56250d",
+      "scene": {
+        "visibleElementCount": 5,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 1
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -13,
+              8
+            ],
+            [
+              0,
+              8
+            ],
+            [
+              13,
+              8
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "curve-count",
+          "point:0,5",
+          "point:-4,3",
+          "point:4,3",
+          "point:0,-3"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 28,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "point": 4,
+            "curve": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -15,
+                10
+              ],
+              [
+                0,
+                10
+              ],
+              [
+                15,
+                10
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "curve-count",
+            "point:0,5",
+            "point:-4,3",
+            "point:4,3",
+            "point:0,-3"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "sourceRevision": "67d84752cfc4317a5c31c3c7e38ba0a4ac145d10",
+        "pageErrors": []
+      }
+    }
+  ]
+}

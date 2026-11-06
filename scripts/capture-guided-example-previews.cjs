@@ -24,6 +24,7 @@ const viewport = {width: 1440, height: 920};
 const deviceScaleFactor = 2;
 const workedParabolaId = 'splines.worked-join.spline-c1.parabola-derivatives';
 const degenerateVoronoiId = 'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate';
+const fortuneCardId = 'sweep-algorithms.fortune.fortune';
 
 function captureRecipeForEntry(entry, recipe) {
     if (entry.id !== workedParabolaId && entry.id !== degenerateVoronoiId && !entry.id.startsWith('curve-geometry.')) return recipe;
@@ -67,6 +68,7 @@ const chapterFamilies = {
     'curve-geometry': {label: 'curve-geometry', idPrefix: 'curve-geometry.', route: /^\/bezeg-2\.0\/curve-geometry\/(?:parametric|curvature|comb|evolute|offset|envelope)(?:\/|$)/, routeText: '/bezeg-2.0/curve-geometry/parametric, /curvature, /comb, /evolute, /offset or /envelope'},
     'convexity-hulls': {label: 'convexity-hulls', idPrefix: 'convexity-hulls.', route: /^\/bezeg-2\.0\/compgeo\/(?:orientation|polygon-area|point-in-polygon|convex-hull|hull-robustness|bezier-hulls)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/orientation, /polygon-area, /point-in-polygon, /convex-hull, /hull-robustness or /bezier-hulls'},
     'triangulations-voronoi': {label: 'triangulations-voronoi', idPrefix: 'triangulations-voronoi.', route: /^\/bezeg-2\.0\/compgeo\/(?:ear-clipping|point-set-triangulation|delaunay|voronoi|voronoi-degenerate)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/ear-clipping, /point-set-triangulation, /delaunay, /voronoi or /voronoi-degenerate'},
+    'sweep-algorithms': {label: 'sweep-algorithms', idPrefix: 'sweep-algorithms.', route: /^\/bezeg-2\.0\/compgeo\/(?:interval-sweep|segment-intersections|monotone-partition|monotone-triangulation|fortune)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/interval-sweep, /segment-intersections, /monotone-partition, /monotone-triangulation or /fortune'},
 };
 
 function parseArgs(argv) {
@@ -226,6 +228,15 @@ function isViewportSpanningHorizontalCurve(samples, box) {
     return samples.every(([x, y], index) => Math.abs(x - expectedX[index]) <= 1e-5 && Math.abs(y - samples[0][1]) <= 1e-6);
 }
 
+/**
+ * Fortune's sweep line before its first event is drawn at the top of the view's grid box (`lineY: level ?? maxY`), so its height and ends follow
+ * the camera. What the opening scene means is only that the line is above every site, so that is what must hold on both sides of the presentation.
+ */
+function isOpeningSweepLine(samples, points) {
+    const y = samples[0][1];
+    return samples.every(sample => Math.abs(sample[1] - y) <= 1e-6) && points.length > 0 && points.every(point => point[1] < y);
+}
+
 function isCameraScaledCurve(before, after, initialUnitScale, presentedUnitScale) {
     if (!Array.isArray(initialUnitScale) || !Array.isArray(presentedUnitScale)
         || initialUnitScale.length !== 2 || presentedUnitScale.length !== 2
@@ -279,6 +290,7 @@ function assertPresentationGeometryStable(initial, presented, exampleId = 'captu
         const cameraDrivenHorizontal = isViewportSpanningHorizontalCurve(before, initial.boundingBox)
             && isViewportSpanningHorizontalCurve(after, presented.boundingBox)
             && before.every((point, sample) => Math.abs(point[1] - after[sample][1]) <= 1e-6);
+        const openingSweepLine = exampleId === fortuneCardId && isOpeningSweepLine(before, initial.points) && isOpeningSweepLine(after, presented.points);
         const cameraScaledConstruction = isCameraScaledCurve(before, after, initial.unitScale, presented.unitScale);
         const beforeData = initial.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(before));
         // Pair by board id: two curves with identical samples (a graph and its coinciding ghost) may swap places in the sorted order.
@@ -286,7 +298,7 @@ function assertPresentationGeometryStable(initial, presented, exampleId = 'captu
             ?? presented.curveData?.find(curve => JSON.stringify(curve.samples) === JSON.stringify(after));
         const sameFunctionOnOverlap = isSameGraphOnOverlap(beforeData, afterData, initial.boundingBox && presented.boundingBox ? [initial.boundingBox, presented.boundingBox] : undefined);
         const viewportField = isViewportGeneratedInWindow(beforeData, afterData, presented.boundingBox);
-        if (!cameraDrivenHorizontal && !cameraScaledConstruction && !sameFunctionOnOverlap && !viewportField) {
+        if (!cameraDrivenHorizontal && !openingSweepLine && !cameraScaledConstruction && !sameFunctionOnOverlap && !viewportField) {
             throw new Error(`${exampleId}: capture presentation changed curve geometry at index ${index}; before=${JSON.stringify(before)}; after=${JSON.stringify(after)}; unitScale=${JSON.stringify(initial.unitScale)}->${JSON.stringify(presented.unitScale)}; boundingBox=${JSON.stringify(initial.boundingBox)}->${JSON.stringify(presented.boundingBox)}`);
         }
     }

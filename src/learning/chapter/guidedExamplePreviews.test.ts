@@ -16,6 +16,7 @@ import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
 import {advancedBezierPreviewCopy} from '../content/advancedBezierPreviewCopy';
 import {convexityPreviewCopy} from '../content/convexityPreviewCopy';
 import {triangulationPreviewCopy} from '../content/triangulationPreviewCopy';
+import {sweepPreviewCopy} from '../content/sweepPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -246,6 +247,10 @@ const functionsCards: readonly FunctionsCard[] = [
             'triangulations-voronoi.point-set-triangulation.point-set-triangulation', 'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate',
             'triangulations-voronoi.voronoi.voronoi'],
         counts: [[6, 4], [0, 6], [0, 7], [0, 5], [0, 8]]},
+    {chapterId: 'sweep-algorithms', copy: sweepPreviewCopy,
+        ids: ['sweep-algorithms.fortune.fortune', 'sweep-algorithms.interval-sweep.interval-sweep', 'sweep-algorithms.monotone-partition.monotone-partition',
+            'sweep-algorithms.monotone-triangulation.monotone-triangulation', 'sweep-algorithms.segment-intersections.segment-intersections'],
+        counts: [[1, 4], [2, 10], [1, 6], [5, 11], [0, 8]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {
