@@ -12,6 +12,9 @@ import {
     ADVANCED_BEZIER_CHAPTER_ID, advancedBezierGuidedExamplePath, advancedBezierGuidedExampleRegistry,
 } from './advancedBezierChapterRegistry';
 import {familyChapters} from './familyChapters';
+import {guidedLessonPreviewCopyByDemonstration} from './guidedExamplePreviewCopy';
+import {sl as slCatalog} from '../../localization/sl';
+import {en as enCatalog} from '../../localization/en';
 
 const IDS = ['reduction', 'bezier-clipping', 'arc-length-param', 'patch-coons'] as const;
 const everything = (language: 'sl' | 'en') => [
@@ -168,5 +171,30 @@ describe('chapter structure and registration', () => {
             expect(resolveGuidedExample(`?example=lesson.bezier-curves.geometric-properties.${id}`, id)?.lesson).toBeUndefined();
         }
         expect(getChapterGuidedExamples(ADVANCED_BEZIER_CHAPTER_ID, 'advanced-bezier-idea')).toEqual([]);
+    });
+});
+
+describe('the Coons section states what is a choice and names only controls the route has', () => {
+    const section = advancedBezierChapter.sections.find(candidate => candidate.id === 'patch-coons')!;
+    const card = guidedLessonPreviewCopyByDemonstration['patch-coons'];
+    const prompt = (language: 'sl' | 'en') => section.investigationPrompts!['patch-coons'][language];
+    const sectionText = (language: 'sl' | 'en') => [...section.paragraphs.map(p => p[language]), prompt(language), card.alt[language], card.caption[language]].join(' ');
+
+    test.each(['sl', 'en'] as const)('%s: no twist wording in the paragraphs, the prompt or the card', language => {
+        expect(sectionText(language).toLowerCase()).not.toMatch(/twist|zasuk/);
+    });
+
+    test('the blend is one of many and the edges alone do not determine the interior', () => {
+        expect(sectionText('sl')).toContain('ena izmed mnogih');
+        expect(sectionText('sl')).toContain('robovi sami ne določajo notranjosti');
+        expect(sectionText('en')).toContain('one of many');
+        expect(sectionText('en')).toContain('the edges alone do not determine the interior');
+    });
+
+    test('the investigation prompt names the Surface and Linked corners controls and no control the route lacks', () => {
+        expect(prompt('sl')).not.toContain('izklopiš odštevalni');
+        expect(prompt('en')).not.toContain('switch off the subtracted');
+        for (const label of [slCatalog.coons_shown, slCatalog.coons_linked_corners]) expect(prompt('sl')).toContain(label);
+        for (const label of [enCatalog.coons_shown, enCatalog.coons_linked_corners]) expect(prompt('en')).toContain(label);
     });
 });

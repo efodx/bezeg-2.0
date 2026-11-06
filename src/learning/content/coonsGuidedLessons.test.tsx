@@ -76,7 +76,11 @@ describe('the numbers the lesson quotes are the kernel values', () => {
         const all = [...B.c0, ...B.c1, ...B.d0, ...B.d1];
         expect(all).toHaveLength(16);
         expect(new Set(all.map(p => p.join(','))).size).toBe(12);
-        for (const l of language) for (const text of ['16', '4', '12']) expect(prose(stepOf('coons-boundaries'), l)).toContain(text);
+        const counts = {
+            sl: ['Vsaka ima \\(4\\) kontrolne točke, skupaj \\(16\\), vendar si vsak vogal delita dve krivulji', 'Prav je \\(16-4=12\\)'],
+            en: ['Each has \\(4\\) control points, \\(16\\) in all, but every corner is shared by two curves', 'It is \\(16-4=12\\)'],
+        };
+        for (const l of language) for (const sentence of counts[l]) expect(prose(stepOf('coons-boundaries'), l)).toContain(sentence);
     });
 
     test('steps 2 and 3: the centres of the ruled surfaces are 0.375 high and the other edges are missed', () => {
@@ -94,6 +98,13 @@ describe('the numbers the lesson quotes are the kernel values', () => {
             const c = prose(stepOf('coons-ruled-c'), l), d = prose(stepOf('coons-ruled-d'), l);
             for (const text of ['1.5', '0', '1.5', '3', '-0.75', '0.375', '0.75'].map(x => num(Number(x), l))) expect(c).toContain(text);
             for (const text of ['0', '1.5', '3', '0.75', '0.375'].map(x => num(Number(x), l))) expect(d).toContain(text);
+            // The misses, pinned as the sentences that quote them: height 0 against the edge's own height.
+            const misses = {
+                sl: {c: 'pri \\(u=1\\) ima v sredini višino \\(0\\), \\(d_1\\) pa \\(0{,}75\\)', d: 'je na višini \\(0\\), \\(c_0\\) pa na \\(1{,}5\\)'},
+                en: {c: 'at \\(u=1\\) it has height \\(0\\) in the middle, while \\(d_1\\) has \\(0.75\\)', d: 'it is at height \\(0\\), while \\(c_0\\) is at \\(1.5\\)'},
+            };
+            expect(c).toContain(misses[l].c);
+            expect(d).toContain(misses[l].d);
         }
     });
 
