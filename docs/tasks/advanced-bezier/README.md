@@ -39,6 +39,28 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 - The cap and the depth limit are honored. The trace fold reproduces the final state.
 - Each guard has an observed mutation failure, including a removed margin and a compounding sub-net.
 
+## Batch A plan: D1 and D3 (handler 58, 2026-11-06)
+
+`G-CURVE` and `G-REG` are open. The D1 and D3 graphs share no code, so they run as parallel slices. Graph code lives in its own folder, one Preset collection and one locale block each.
+
+**D1 `reduction`** (`src/graphs/curves/reduction/`, on `BaseBezierCurveGraph`, the `ElevationGraph` pattern):
+
+- The curve is a cubic and stays one: no degree change, and a Preset with another point count is rejected with an actionable error. The spec's steps need elevation only as a starting position, so step 1 opens on the elevated quadratic \((0,0),(	frac43,	frac83),(	frac83,	frac83),(4,0)\), which is also the graph's first Preset.
+- State: `reductionMode` (`fixed` or `free`, stored), `reductionShown` (quadratic and its control points), `reductionElevationShown` (the elevated net). Presets store the control points and the mode.
+- Readouts: third difference, reducibility with its tolerance, maximum error, \(L^2\) error and control-point bound, each from the AB-1a kernel. Maximum error shows at most 4 decimals (it is sampled).
+
+**D3 `arc-length-param`** (`src/graphs/curves/arclength/`, on `BaseCurveGraph`, the `CurveOffsetGraph` two-kind pattern):
+
+- Kinds `bezier` (default cubic \(Q\)) and `ph` (the spec's PH cubic), read from the live curve as in `CurveOffsetGraph`. The PH curve is fixed, as on the offset route.
+- State: `arcPieces` \(N\), `arcEqualTShown`, `arcEqualArcShown`, `arcSpeedPlotShown`, `arcMoverMode` (`parameter` or `arc`).
+- A moving point with Play and Pause, advanced by a frame loop the graph owns and disposes. A slider gives the same position by hand. Under reduced motion Play does not animate.
+- The speed plot is an inspector SVG written imperatively, as `SpeedFactorPlot` does, so a drag renders no React.
+- Readouts: \(L\) with its quadrature setting; for PH the exact \(s(1)\), labelled exact; the chord and polygon bracket; both chord ratios; the polyline error at \(N\), labelled an illustration; the cusp status.
+
+**Terms.** The spec's table as written; *naravna parametrizacija* in the route title, *nižanje stopnje* for D1 (one-shot rule).
+
+**Order.** 2a and 2c in parallel, then 2b and 2d registration (`lesson: false`), then 3a and 3b lessons, then the chapter, media and gate. Family 5's chapter owns D1, D3 and D4 from AB-A-4, and D2 joins with Batch B. D4's lesson moves from its interim owner there.
+
 ## Slices
 
 | Id | Kind | Content | Depends on | Status |
@@ -48,7 +70,15 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-1b | F1 | `arc-length.ts` on the curvature kernel's hodograph, PH oracle tests, D3 numbers | CG-1 | done ([evidence](../../reviews/advanced-bezier/ab-1b-kernel.md)); D3 graph splits panels at cusps |
 | AB-1c | F1 | `coons.ts` with the bicubic-net identity test | — | done ([evidence](../../reviews/advanced-bezier/ab-1c-kernel.md)); B averages mismatched corners |
 | AB-1d | F1 | `bezier-clipping.ts` ([plan](#ab-1d-plan-bezier-clippingts-handler-9-2026-10-31)) | `G-CG` | done ([evidence](../../reviews/advanced-bezier/ab-1d-kernel.md)); hull overlap waits for convexity A6 |
-| AB-A-* | F2a–F6 | D1 reduction, D3 arc length | `G-CURVE`, `G-REG`, AB-1a, AB-1b | planned |
+| AB-A-2a | F2a | D1 `reduction` graph, overlay, readouts, Preset collection, lesson action targets; no route | AB-1a | in progress |
+| AB-A-2b | F2b | D1 registration `/bezeg-2.0/bezier/reduction`, `lesson: false`, recipe not run | AB-A-2a | planned |
+| AB-A-2c | F2a | D3 `arc-length-param` graph, marks, speed plot, moving point, readouts, Preset collection, lesson action targets; no route | AB-1b | in progress |
+| AB-A-2d | F2b | D3 registration `/bezeg-2.0/bezier/arc-length`, `lesson: false`, recipe not run | AB-A-2c | planned |
+| AB-A-3a | F3 | D1 guided lesson (seven steps) | AB-A-2b | planned |
+| AB-A-3b | F3 | D3 guided lesson (seven steps) | AB-A-2d | planned |
+| AB-A-4 | F4 | Chapter `advanced-bezier` owning D1, D3 and D4 | AB-A-3a, AB-A-3b | planned |
+| AB-A-5 | F5 | Cards and posters of `reduction`, `arc-length-param`, `patch-coons` if pending | AB-A-4 | planned |
+| AB-A-6 | F6 | Batch A gate | AB-A-5 | planned |
 | AB-B-* | F2a–F6 | D2 Bézier clipping | Batch A, `G-CG`, AB-1d, convexity A6 (separating-axis test, pair-of-curves graph) | planned |
 | AB-C-* (rest) | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
 | AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | done ([evidence](../../reviews/advanced-bezier/ab-c-2a-graph.md)) |
