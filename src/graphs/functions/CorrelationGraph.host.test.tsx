@@ -1,7 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {CorrelationGraph} from './CorrelationGraph';
+import {CorrelationGraph, lineLabelPlacement} from './CorrelationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
 import {LocalizedError, setLanguage} from '../../localization';
@@ -107,6 +107,44 @@ describe('tick labels', () => {
         const labels = fractional(tickTexts(graph));
         expect(labels.length).toBeGreaterThan(1);
         expect(new Set(labels).size).toBe(labels.length);
+    });
+});
+
+describe('line labels', () => {
+    const view = {right: 10, width: 4};
+    const rising = [0, 0, 10, 5] as const;
+    const falling = [0, 5, 10, 0] as const;
+    const steeper = [0, -2, 10, 8] as const;
+    const steeperFalling = [0, 7, 10, -3] as const;
+
+    test('a lone line: above when rising, below when falling, ending at its point', () => {
+        expect(lineLabelPlacement(rising, undefined, true, view)).toEqual({x: 8.5, y: 4.25, anchorX: 'right', anchorY: 'bottom'});
+        expect(lineLabelPlacement(falling, undefined, true, view)).toEqual({x: 8.5, y: 0.75, anchorX: 'right', anchorY: 'top'});
+    });
+
+    test('the direction a line is stored in does not move its label', () => {
+        expect(lineLabelPlacement([10, 0, 0, 5], undefined, true, view)).toEqual(lineLabelPlacement(falling, undefined, true, view));
+    });
+
+    test('two rising lines: the upper label above, the lower label below and clear of the right edge', () => {
+        expect(lineLabelPlacement(steeper, rising, false, view)).toMatchObject({x: 8.5, anchorX: 'right', anchorY: 'bottom'});
+        const lower = lineLabelPlacement(rising, steeper, true, view);
+        expect(lower).toEqual({x: 6, y: 3, anchorX: 'left', anchorY: 'top'});
+        expect(lower.x + view.width).toBeLessThanOrEqual(view.right);
+    });
+
+    test('two falling lines: the lower label below, the upper label above and clear of the right edge', () => {
+        expect(lineLabelPlacement(steeperFalling, falling, false, view)).toMatchObject({x: 8.5, anchorX: 'right', anchorY: 'top'});
+        expect(lineLabelPlacement(falling, steeperFalling, true, view)).toEqual({x: 6, y: 2, anchorX: 'left', anchorY: 'bottom'});
+    });
+
+    test('coinciding lines (r = 1) put one label on each side', () => {
+        expect(lineLabelPlacement(rising, rising, true, view).anchorY).toBe('bottom');
+        expect(lineLabelPlacement(rising, rising, false, view).anchorY).toBe('top');
+    });
+
+    test('a label wider than the line stays on the line', () => {
+        expect(lineLabelPlacement([8, 4, 10, 5], [8, 6, 10, 9], true, view)).toMatchObject({x: 8, y: 4, anchorX: 'left'});
     });
 });
 

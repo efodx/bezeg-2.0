@@ -20,6 +20,48 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
+type ViewLine = readonly [number, number, number, number];
+
+export interface LineLabelPlacement {
+    x: number;
+    y: number;
+    anchorX: "left" | "right";
+    anchorY: "top" | "bottom";
+}
+
+/** The gap kept between a line label and the view's right edge. */
+const LINE_LABEL_MARGIN_PX = 12;
+
+/** The label's point as a share of the line's width across the view, from the left. */
+const LINE_LABEL_ALONG = 0.85;
+
+function yOnLine([xa, ya, xb, yb]: ViewLine, x: number): number {
+    return xb === xa ? ya : ya + (x - xa) / (xb - xa) * (yb - ya);
+}
+
+/**
+ * Where a line's label goes: near the line's right end, on the side no line runs through. With two lines that is outside the
+ * wedge they open (the upper line's label above it, the lower line's below it, `wins` deciding when they coincide); alone, the
+ * side where a right-anchored label clears its line. Text that has to run to the right of its point moves back along the line
+ * by its `width`, so it stays in view.
+ */
+export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, wins: boolean, view: {right: number; width: number}): LineLabelPlacement {
+    const ordered: ViewLine = line[0] <= line[2] ? line : [line[2], line[3], line[0], line[1]];
+    const [xa, ya, xb, yb] = ordered;
+    const x = xa + LINE_LABEL_ALONG * (xb - xa);
+    const rising = yb >= ya;
+    let above = rising;
+    if (other) {
+        const here = yOnLine(ordered, x), there = yOnLine(other, x);
+        above = here === there ? wins : here > there;
+    }
+    const anchorY = above ? "bottom" : "top";
+    if (above === rising) return {x, y: yOnLine(ordered, x), anchorX: "right", anchorY};
+    const moved = Math.max(xa, Math.min(x, view.right - view.width));
+    return {x: moved, y: yOnLine(ordered, moved), anchorX: "left", anchorY};
+}
+
+
 /**
  * Correlation and the regression line (lesson P5): up to 20 draggable points, the y-on-x regression line, vertical residual
  * segments and an optional x-on-y line. The model is `{points, residuals, xOnY}` (`src/analysis/correlationModel`); r, both
@@ -215,8 +257,10 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
             residuals.dataY = ys;
         };
 
-        // The two lines, each a two-point curve across the view, with a label near the right (y on x) or top (x on y) end.
-        const line = (pick: () => readonly [number, number, number, number] | undefined, color: string, dash: number, label: () => string) => {
+        // The two lines, each a two-point curve across the view, with a label near its right end.
+        const yOnX = () => view().yOnXLine;
+        const xOnY = () => model().xOnY ? view().xOnYLine : undefined;
+        const line = (pick: () => ViewLine | undefined, other: () => ViewLine | undefined, wins: boolean, color: string, dash: number, label: () => string) => {
             const curve = this.own(board.create("curve", [[], []], {
                 strokeColor: color, strokeWidth: this.displayStrokeWidth, dash, fillOpacity: 0, highlight: false, fixed: true,
                 visible: () => pick() !== undefined,
@@ -226,16 +270,21 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
                 curve.dataX = l ? [l[0], l[2]] : [];
                 curve.dataY = l ? [l[1], l[3]] : [];
             };
-            const along = (axis: 0 | 1) => () => {
+            // Filled once the text exists: JSXGraph reads the placement while creating it.
+            const drawn: {text?: {size?: number[]}} = {};
+            const placement = (): LineLabelPlacement | undefined => {
                 const l = pick();
-                return l ? l[axis] + 0.85 * (l[axis + 2] - l[axis]) : 0;
+                if (!l) return undefined;
+                const width = ((drawn.text?.size?.[0] ?? 0) + LINE_LABEL_MARGIN_PX) / board.unitX;
+                return lineLabelPlacement(l, other(), wins, {right: board.getBoundingBox()[2], width});
             };
-            this.own(board.create("text", [along(0), along(1), label], {
-                anchorX: "right", anchorY: "bottom", fixed: true, highlight: false, color, fontSize: 15, visible: () => pick() !== undefined,
-            }));
+            drawn.text = this.own(board.create("text", [() => placement()?.x ?? 0, () => placement()?.y ?? 0, label], {
+                anchorX: () => placement()?.anchorX ?? "right", anchorY: () => placement()?.anchorY ?? "bottom",
+                fixed: true, highlight: false, color, fontSize: 15, visible: () => pick() !== undefined,
+            })) as unknown as {size?: number[]};
         };
-        line(() => view().yOnXLine, GraphPalette.primaryCurve, 0, () => t("prob_correlation_board_line_y"));
-        line(() => model().xOnY ? view().xOnYLine : undefined, GraphPalette.comparisonCurve, 3, () => t("prob_correlation_board_line_x"));
+        line(yOnX, xOnY, true, GraphPalette.primaryCurve, 0, () => t("prob_correlation_board_line_y"));
+        line(xOnY, yOnX, false, GraphPalette.comparisonCurve, 3, () => t("prob_correlation_board_line_x"));
 
         // The draggable points.
         this.pointObjects = [];
