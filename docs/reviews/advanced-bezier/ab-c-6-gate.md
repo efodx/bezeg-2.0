@@ -50,7 +50,7 @@ Production preview of `ad350c50`, clean, by `bezeg-smoke` Sonnet. Provenance fro
 ## Carried polish
 
 - Closed by handler 69: the patch opens fitted to the host (`8efbdc15`, about 416×305 at 1440×900, tensor and triangular too), and the shared slider boxes stay in the panel at 200% text (`c53f5a18`). The "Orodja za ta graf" eyebrow showed no overflow in the sweep.
-- Unlinked, a press at a shared corner takes the topmost end point. The typed \(z\) field holds a raw float after a drag.
+- Closed by handler 74: the linked corners help says a press at overlapping end points takes the top one and how to choose the other (`3a190db6`); the typed \(z\) field rounds after a drag (`1da0fc5e`).
 - Closed by handler 74: step 6 says the corner moves all four interior points (`3a190db6`).
 - Closing a lesson leaves `learnChapter` and `learnSection` in the URL. Harmless on every route seen; shared workspace code, not D4's.
 
