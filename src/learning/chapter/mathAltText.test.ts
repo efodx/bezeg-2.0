@@ -25,6 +25,7 @@ describe('mathAltText', () => {
         ['\\(L\\colon y=2\\)', 'L: y=2'],
         ["\\(y'=y\\)", "y'=y"],
         ['\\(x^n\\)', 'x^n'],
+        ['\\(\\theta=0\\)', 'θ=0'],
         ['No math here.', 'No math here.'],
     ])('turns %s into plain text', (source, expected) => {
         expect(mathAltText(source)).toBe(expected);
