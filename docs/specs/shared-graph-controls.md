@@ -1,6 +1,6 @@
 # Shared graph controls
 
-**Status:** draft for owner confirmation, 2026-11-06. The owner approved covering all panels; the catalogue and the decisions below are not yet confirmed. No task files exist.
+**Status:** draft, 2026-11-07. The owner approved all panels and confirmed the decisions below; a second audit is extending the catalogue. No task files exist.
 
 Widens [workstream 1 of lesson-authoring architecture](lesson-authoring-architecture.md#1-shared-inspector-controls), which stops after two panels. Its numeric event table, boolean variants, test fixture and lint rule still apply, except where this spec changes them. Builds on [demonstration controls UX](demonstration-controls-ux.md) and [playback button reasons](playback-button-reasons.md).
 
@@ -38,15 +38,15 @@ Seven read-only Haiku audits covered the 134 control files on 2026-11-06 at `0bf
 
 ## Likely exceptions
 
-To be confirmed one by one in task 0: 2×2 matrix entry, knot vectors, zeros with multiplicity, segment and interval rows (they edit pairs), Pascal stepping along a conic, and affine transform buttons.
+To be confirmed one by one in task 0: 2×2 matrix entry, knot vectors, the multiplicity field of zeros, segment and interval rows (they edit pairs), Pascal stepping along a conic, and affine transform buttons.
 
-## Decisions for the owner
+## Owner decisions — confirmed 2026-11-07
 
-1. **Where a new point lands.** Recommended: one unit right of the last point, or left at the limit, unless the user clicks the board. A domain with its own rule, such as zeros, is an exception.
-2. **Commit timing.** Recommended: typed fields commit on Enter or blur, and sliders, steppers and drags apply immediately. This replaces the workstream 1 rule that preserves each field's current policy, and it changes how typing into a slider's number field feels.
-3. **Out-of-range input.** Recommended: typed values are refused with a message and never clamped. A drag stops at the limit without a message.
-4. **Examples.** Recommended: always a select, because button rows grow with the example count.
-5. **Local Reset buttons.** Recommended: remove them where the host Reset gives the same result, and keep one only as a named exception.
+1. **Where a new point lands.** Explicit coordinates always win: a lesson action, typed entry or board click adds exactly there. Without coordinates, the graph's own placement rule applies if it has one. Otherwise the shared default applies: one unit right of the last point, or left at the limit. Every add command accepts coordinates, so lessons can use them. Zeros keep their first-free-position rule as a placement rule, not an exception.
+2. **Commit timing.** Typed fields commit on Enter or blur. Sliders, steppers and drags apply immediately. This replaces the workstream 1 rule that preserves each field's current policy.
+3. **Out-of-range input.** Typed values are refused with a message and never clamped. A drag stops at the limit without a message.
+4. **Examples.** Always a select.
+5. **Local Reset buttons.** Removed where the host Reset gives the same result. One stays only as a named exception.
 
 ## Acceptance
 
