@@ -2052,3 +2052,11 @@ Test repair and review, class S. `bezeg-worker` Sonnet medium and `bezeg-reviewe
 - Reviewer: 18 calls, 58k tokens, 3 minutes. Re-derived every quoted number, traced the keep margin (the question handoff 64 left open), and found that a tolerance change leaves the student at step 0 with a prompt that did not say to press Play. Unit tests and the browser walk could not see that.
 - Handler: repaired the two text findings itself. The first `smoke-lesson` refused a stale build and my wrapper reported exit 0; read the log, not the wrapper's status.
 - `just check` took 24.5 minutes with the machine shared.
+
+### 2026-11-06: AB-B-4 (curves handler 65)
+
+Chapter section, class S. Handler-only, no worker: one section and tightly coupled wiring. Accepted; [record](../reviews/advanced-bezier/ab-b-4-chapter.md).
+
+- The suites named the consumers: coverage count, preview `pending`, and a refused prerequisite link to a later chapter.
+- One mutation first "passed" because `sed` matched nothing after the shell collapsed backslashes; the diff check exposed it, and it failed correctly when redone.
+- Handler reached 175k during `just check`, so AB-B-5 goes to handler 66. `just check` took 25 minutes.
