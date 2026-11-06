@@ -99,8 +99,9 @@ describe('chapter structure and registration', () => {
 });
 
 describe('quoted numbers equal the analysis kernels', () => {
-    const quoted = (language: 'sl' | 'en', values: readonly string[]) => {
-        const body = everything(language);
+    const quoted = (language: 'sl' | 'en', values: readonly string[], sectionId?: string) => {
+        const section = interpolationChapter.sections.find(item => item.id === sectionId);
+        const body = sectionId ? section!.paragraphs.map(paragraph => paragraph[language]).join(' ') : everything(language);
         for (const value of values) {
             const written = language === 'sl' ? value.split('.').join('{,}') : value;
             expect(body, `${language}: ${value}`).toContain(written);
@@ -147,8 +148,12 @@ describe('quoted numbers equal the analysis kernels', () => {
         const middle = hermitePoint(catmullRomSegments(P, 'uniform')[1], 0.5);
         near(middle, [2, 2.8125]);
         near(middle, lagrangeCurvePoint(P, [0, 1, 2, 3], 1.5).point);
-        quoted('sl', ['(1.5;\\,1.5)', '(1.5;\\,-1)', '2.8125']);
-        quoted('en', ['(1.5,\\,1.5)', '(1.5,\\,-1)', '2.8125']);
+        quoted('sl', ['(1.5;\\,1.5)', '(1.5;\\,-1)', '2.8125'], 'hermite');
+        quoted('en', ['(1.5,\\,1.5)', '(1.5,\\,-1)', '2.8125'], 'hermite');
+        const uneven: Point2[] = [[0, 0], [8, 0], [9, 0], [9, 8]];
+        expect(Number(hermitePoint(catmullRomSegments(uneven, 'uniform')[1], 2 / 3)[1].toFixed(3))).toBe(-0.593);
+        expect(Number(hermitePoint(catmullRomSegments(uneven, 'chord')[1], 2 / 3)[1].toFixed(3))).toBe(-0.132);
+        for (const language of ['sl', 'en'] as const) quoted(language, ['(8,0)', '(9,8)', '-\\tfrac{16}{27}', '-0.593', '-\\tfrac{32}{243}', '-0.132'], 'hermite');
     });
 
     test('I4: the best line, the quadratic and cubic fits and the outlier case', () => {
@@ -163,8 +168,8 @@ describe('quoted numbers equal the analysis kernels', () => {
         const outlier = fitLine([[0, 1], [1, 2], [2, 2], [3, 8]]);
         near([outlier.slope, outlier.intercept], [2.1, 0.1]);
         expect(outlier.residualSumOfSquares).toBeCloseTo(8.7, 12);
-        quoted('sl', ['0.9x+0.9', '0.7', '0.45', '2.1x+0.1', '8.7', '-0.7', '0.4']);
-        quoted('en', ['0.9x+0.9', '0.7', '0.45', '2.1x+0.1', '8.7', '-0.7', '0.4']);
+        quoted('sl', ['0.9x+0.9', '0.7', '0.45', '2.1x+0.1', '8.7', '-0.7', '0.4'], 'least-squares');
+        quoted('en', ['0.9x+0.9', '0.7', '0.45', '2.1x+0.1', '8.7', '-0.7', '0.4'], 'least-squares');
     });
 
     test('I5: Chaikin and four-point points on the edge p1p2 and the vertex counts of closed polygons', () => {

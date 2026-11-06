@@ -3382,7 +3382,7 @@ export const en: Record<keyof typeof sl, string> = {
     "interp_runge_title": "Runge's phenomenon and Chebyshev nodes",
     "interp_subdivision_title": "Subdivision curves",
     "prompt_interp_lagrange": "Move the interpolation points and compare the Lagrange polynomial with the Bézier curve over the same points. Which curve passes through the points and which only follows them approximately?",
-    "prompt_interp_hermite": "Change the tangents at the interpolation points and compare the Hermite curve with the Catmull-Rom spline. How does a tangent affect the shape of the curve?",
+    "prompt_interp_hermite": "Under Curve type choose the Hermite curve and drag a tangent handle, then switch back to the Catmull-Rom spline and compare. How does a tangent affect the shape of the curve?",
     "prompt_interp_subdivision": "Increase the number of subdivision steps and compare the Chaikin rule with the four-point rule. Which curve passes through the starting points?",
     "prompt_interp_runge": "Raise the degree of the interpolating polynomial with equispaced nodes and watch the error near the ends. Then switch to Chebyshev nodes. What happens to the error?",
     "coons_shown_heading": "Shown surface",

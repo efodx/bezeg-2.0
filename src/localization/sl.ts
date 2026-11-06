@@ -3381,7 +3381,7 @@ export const sl = {
     "interp_runge_title": "Rungejev pojav in Čebiševe točke",
     "interp_subdivision_title": "Subdivizijske krivulje",
     "prompt_interp_lagrange": "Premikaj interpolacijske točke in primerjaj Lagrangeev polinom z Bézierovo krivuljo čez iste točke. Katera krivulja gre skozi točke in katera jim sledi le približno?",
-    "prompt_interp_hermite": "Spreminjaj tangente v interpolacijskih točkah in primerjaj Hermiteovo krivuljo s Catmull-Romovim zlepkom. Kako tangenta vpliva na obliko krivulje?",
+    "prompt_interp_hermite": "Pri možnosti Vrsta krivulje izberi Hermiteovo krivuljo in premakni tangentni ročaj, nato preklopi nazaj na Catmull-Romov zlepek in primerjaj. Kako tangenta vpliva na obliko krivulje?",
     "prompt_interp_subdivision": "Povečuj število korakov delitve in primerjaj Chaikinovo pravilo s štiritočkovnim. Katera krivulja gre skozi začetne točke?",
     "prompt_interp_runge": "Povečuj stopnjo interpolacijskega polinoma pri enakomerno razporejenih točkah in opazuj napako ob krajiščih. Nato razporedi točke po Čebiševu. Kaj se zgodi z napako?",
     "coons_shown_heading": "Prikazana ploskev",

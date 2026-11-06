@@ -158,4 +158,35 @@ describe('Catmull-Rom chains', () => {
         expect(() => catmullRomSegments([[0, 0]])).toThrow(RangeError);
         expect(() => catmullRomTangents(DEFAULT, 'uniform', Number.NaN)).toThrow(RangeError);
     });
+
+    describe('uneven data (I3 acceptance 2): (0,0), (8,0), (9,0), (9,8)', () => {
+        const UNEVEN: Point2[] = [[0, 0], [8, 0], [9, 0], [9, 8]];
+        const middle = (rule: 'uniform' | 'chord') => catmullRomSegments(UNEVEN, rule)[1];
+        const samples = (segment: HermiteSegment, n = 400) => Array.from({length: n + 1}, (_, i) => hermitePoint(segment, i / n));
+        const side = (p: readonly number[], q: readonly number[], r: readonly number[]) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+        const crossesItself = (line: readonly (readonly number[])[]) => line.some((a, i) => i + 1 < line.length && line.slice(i + 2, -1).some((c, k) => {
+            const b = line[i + 1];
+            const d = line[i + 3 + k];
+            return side(a, b, c) * side(a, b, d) < 0 && side(c, d, a) * side(c, d, b) < 0;
+        }));
+
+        it('uniform parameters loop on the short middle piece and dip to -16/27', () => {
+            const piece = middle('uniform');
+            expect(crossesItself(samples(piece))).toBe(true);
+            // y(u) = m1y (u^3 - u^2) with m1y = 4, lowest at u = 2/3.
+            near(piece.m1[1], 4);
+            near(hermitePoint(piece, 2 / 3)[1], -16 / 27);
+            expect(Math.min(...samples(piece).map(p => p[1]))).toBeGreaterThanOrEqual(-16 / 27 - 1e-12);
+        });
+
+        it('chord-length parameters give no loop and dip only to -32/243', () => {
+            const piece = middle('chord');
+            expect(crossesItself(samples(piece))).toBe(false);
+            // x increases along the whole piece, so it cannot cross itself.
+            for (let i = 0; i <= 400; i++) expect(hermiteDerivative(piece, i / 400)[0]).toBeGreaterThan(0);
+            near(piece.m1[1], 8 / 9);
+            near(hermitePoint(piece, 2 / 3)[1], -32 / 243);
+            expect(Math.min(...samples(piece).map(p => p[1]))).toBeGreaterThanOrEqual(-32 / 243 - 1e-12);
+        });
+    });
 });

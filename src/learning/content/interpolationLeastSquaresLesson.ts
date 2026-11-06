@@ -79,7 +79,7 @@ export const leastSquaresLesson: GuidedLesson = {
             ),
             formulaIds: ['normal-equations'],
             frames: [frame('lsq-predict-explanation', 'explanation'), frame('lsq-predict-observation', 'observation')],
-            observationPrompt: text('Pred razkritjem se odloči: ali bo najboljša premica nad ali pod ravnino \\(y=2\\) pri \\(x=3\\), in kolikšen naj bo naklon?', 'Before the reveal decide: will the best line be above or below the level \\(y=2\\) at \\(x=3\\), and roughly what slope should it have?'),
+            observationPrompt: text('Pred razkritjem se odloči: ali bo najboljša premica nad ali pod premico \\(y=2\\) pri \\(x=3\\), in kolikšen naj bo naklon?', 'Before the reveal decide: will the best line be above or below the level \\(y=2\\) at \\(x=3\\), and roughly what slope should it have?'),
             expectedObservations: [text('Najboljša premica ima naklon \\(0{,}9\\) in teče nad vodoravno premico pri \\(x=3\\); kvadrati ostankov so največji pri točki \\((2,2)\\).', 'The best line has slope \\(0.9\\) and runs above the horizontal line at \\(x=3\\); the squares of the residuals are largest at the point \\((2,2)\\).')],
             scene: lsqScene('lsq-predict-start', {degree: 1, squares: false, normalEquations: false, manual: [0, 2]},
                 'Podatki \\((0,1)\\), \\((1,2)\\), \\((2,2)\\), \\((3,4)\\) in vodoravna ročna premica \\(y=2\\); najboljša premica in kvadrati ostankov še niso prikazani.',
