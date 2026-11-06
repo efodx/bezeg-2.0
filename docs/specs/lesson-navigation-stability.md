@@ -1,6 +1,6 @@
 # Stable guided lesson navigation
 
-Status: design proposal, 2026-11-07. Application implementation is outside this exploration. Source: the owner's two browser comments on the B-spline blossom guided example and the image comparison in Codex chat `01a1b334-019f-7781-91c9-7f7719bc02cd`. The exploratory images remain in the conversation; no image has been selected as a project asset.
+Status: compact-toolbar direction selected by the owner, 2026-11-07. Application implementation is outside this exploration. Source: the owner's two browser comments on the B-spline blossom guided example, image comparison, and follow-up choosing A with shorter navigation labels in Codex chat `01a1b334-019f-7781-91c9-7f7719bc02cd`. The exploratory images remain in the conversation; no image has been selected as a project asset.
 
 ## Problem and existing behavior
 
@@ -10,7 +10,7 @@ The current panel has natural height with a maximum height. Navigation follows t
 
 Relevant constraints are the [lean movable overlay](lesson-panel-visual-refinement.md#lean-movable-overlay--2026-10-31), [compact lesson controls](lesson-mobile-controls.md), and [product guardrails](../guardrails.md). Keep the cream/green identity, graph prominence, draggable placement, bilingual labels, and existing scene, focus, and hide/reopen behavior.
 
-## Proposed direction: compact toolbar
+## Selected direction: compact toolbar
 
 Move the existing progress and Previous/Next group together into a stable toolbar immediately after the lesson identity and chapter line, before the frame's reading content. Keep one navigation group. The text below it retains natural height up to the available space; long content scrolls within that region. Short observation frames can therefore expose more of the graph.
 
@@ -18,13 +18,18 @@ Keep **Skrij** in the same header position for every frame where instructions ca
 
 The stable region must include progress, which currently travels with navigation. Frame-specific actions and observation disclosures remain available with their content. Do not duplicate navigation at the bottom.
 
+### Short navigation labels
+
+The owner requested **Nazaj** and **Naprej** instead of repeating the frame noun in each button. English counterparts are **Back** and **Next**. The refined mockup pairs these words with small left/right arrows. This keeps the action explicit at low space cost; arrow-only navigation was considered but is not the recommendation. Arrows are decorative to assistive technology. Full accessible names may explain the frame action but must include the visible word, for example **Nazaj: prejšnji okvir** and **Naprej: naslednji okvir**. Preserve an explicit completion action on the last frame.
+
 ### Alternative shown
 
-A fixed-height card with a fixed bottom footer also stabilizes navigation and preserves the familiar content-then-navigation order. It reserves blank space on short frames and covers more of the graph. The compact toolbar is recommended because it retains the lean overlay's natural height. This recommendation has not yet been selected by the owner for implementation.
+A fixed-height card with a fixed bottom footer also stabilizes navigation and preserves the familiar content-then-navigation order. It reserves blank space on short frames and covers more of the graph. The owner selected the compact toolbar, which retains the lean overlay's natural height.
 
 ## Acceptance for a future implementation
 
 - At an unchanged viewport and panel position, Previous/Next retain their screen coordinates across long and short frames, steps, frame kinds, formula typesetting, and observation disclosure expansion. Reserve enough button width for the final-frame label as well.
+- Use the short visible labels **Nazaj** / **Naprej** and **Back** / **Next**, with small directional arrows. Keep accessible names consistent with the visible words and frame action; hide decorative arrows from assistive technology. Keep the existing disabled first-frame Back state.
 - Keep the header and toolbar anchored after a manual drag. Bound the reading region by the remaining visible graph/viewport space rather than allowing longer content to push the panel anchor elsewhere. Viewport resizing and intentional dragging may reposition controls.
 - Long content remains scrollable and all controls remain reachable. Short frames retain a compact body. Support 320px width, enlarged text, short landscape, desktop, Slovenian, and English without clipped labels or horizontal page overflow; action targets remain at least 44px tall.
 - **Skrij** is present in the header consistently, including observation frames. It hides the panel, unlocks graph editing, and preserves the current scene. Reopening preserves the frame and existing reading-position/focus behavior. Escape and graph-background hiding retain their current behavior.
@@ -34,6 +39,6 @@ A fixed-height card with a fixed bottom footer also stabilizes navigation and pr
 
 ## Evidence and verification boundary
 
-The handler inspected the two supplied screenshots, the panel CSS and runtime handlers, the incumbent design context, and the relevant specifications. An independent read-only layout assessment supported the compact toolbar. A generated four-state image comparison shows long and short frames for each option; it is a layout illustration, not authoritative lesson mathematics or a runtime test.
+The handler inspected the two supplied screenshots, the panel CSS and runtime handlers, the incumbent design context, and the relevant specifications. An independent read-only layout assessment supported the compact toolbar. A generated four-state image comparison shows long and short frames for each option. After the owner selected A and requested shorter labels, a second two-state image showed the compact toolbar with **← Nazaj** and **Naprej →**. Both are layout illustrations, not authoritative lesson mathematics or runtime tests.
 
 No application code was changed or browser interaction tested during this exploration. Implementation would require runtime/workspace regression checks, localization typecheck and build if copy changes, and browser smoke through the project's smoke-tester workflow for the affected shared lesson runtime. Browser checks must measure navigation coordinates as well as exercise hide, graph editing, reopen, dragging, keyboard access, disclosures, and long-content scrolling.
