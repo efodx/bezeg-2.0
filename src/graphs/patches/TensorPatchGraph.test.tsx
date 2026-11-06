@@ -15,6 +15,7 @@ afterEach(() => setLanguage("sl"));
 class ExposedGraph extends TensorPatchGraph {
     figureState() { return this.figurePresetGraphState(); }
     replaceScene() { this.syncReplacedScene(); }
+    restoreDefaultScene() { this.prepareLessonDefaultScene(); }
 }
 
 function mount(view = new FakeSurfaceView()) {
@@ -278,5 +279,50 @@ describe("view lifecycle", () => {
         act(() => failed.graph.replaceScene());
         expect(failed.graph.state.surfaceUnavailable).toBe(true);
         warn.mockRestore();
+    });
+});
+
+describe("opening camera", () => {
+    const sizeHost = (width: number, height: number) => {
+        const w = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(width);
+        const h = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(height);
+        return () => { w.mockRestore(); h.mockRestore(); };
+    };
+
+    it("a plain open frames the scene like resetView for the measured host", () => {
+        const restore = sizeHost(1200, 600);
+        try {
+            const {graph} = mount();
+            const opened = graph.state.camera;
+            act(() => graph.resetView());
+            expect(graph.state.camera).toEqual(opened);
+        } finally { restore(); }
+    });
+
+    it("an imported Preset and the lesson default scene keep their exact camera", () => {
+        const restore = sizeHost(1200, 600);
+        try {
+            const {graph} = mount();
+            const camera = {az: 1.1, el: 0.3, distance: 13, projection: "perspective" as const, target: [0, 0, 0] as [number, number, number]};
+            const data = JSON.parse(JSON.stringify(graph.defaultPreset()));
+            data[0][1].state.camera = camera;
+            act(() => graph.importPresetData(data));
+            expect(graph.state.camera).toEqual(camera);
+            act(() => graph.restoreDefaultScene());
+            expect(graph.state.camera).toEqual(graph.defaultPreset()[0]![1].state!.camera);
+        } finally { restore(); }
+    });
+
+    it("a host without a size keeps the Preset camera, finite", () => {
+        const restore = sizeHost(0, 0);
+        try {
+            const {graph} = mount();
+            const opened = graph.state.camera;
+            const sized = sizeHost(1200, 600);
+            act(() => graph.resetView());
+            sized();
+            expect(opened).not.toEqual(graph.state.camera);
+            expect([opened.az, opened.el, opened.distance, ...opened.target].every(Number.isFinite)).toBe(true);
+        } finally { restore(); }
     });
 });

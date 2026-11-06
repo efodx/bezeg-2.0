@@ -247,3 +247,49 @@ describe("language", () => {
         expect(container.textContent).toContain("1.333");
     });
 });
+
+describe("opening camera", () => {
+    const presetCamera = (graph: ExposedGraph) => graph.defaultPreset()[0]![1].state!.camera;
+    const sizeHost = (width: number, height: number) => {
+        const w = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(width);
+        const h = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(height);
+        return () => { w.mockRestore(); h.mockRestore(); };
+    };
+
+    it("a plain open frames the scene like resetView for the measured host, keeping the authored az/el", () => {
+        const restore = sizeHost(1200, 600);
+        try {
+            const {graph, view} = mount();
+            const opened = graph.state.camera;
+            act(() => graph.resetView());
+            expect(opened).toEqual(graph.state.camera);
+            expect(view.last.camera).toEqual(opened);
+            expect(opened).toMatchObject({az: -0.9, el: 0.5});
+            expect(opened.distance).not.toBe(presetCamera(graph)!.distance);
+        } finally { restore(); }
+    });
+
+    it("a host without a size keeps the Preset camera, with no NaN", () => {
+        const restore = sizeHost(0, 0);
+        try {
+            const {graph} = mount();
+            const camera = graph.state.camera;
+            expect(camera).toEqual(presetCamera(graph));
+            expect([camera.az, camera.el, camera.distance, ...camera.target].every(Number.isFinite)).toBe(true);
+        } finally { restore(); }
+    });
+
+    it("an imported Preset and the lesson default scene keep their exact camera", () => {
+        const restore = sizeHost(1200, 600);
+        try {
+            const {graph} = mount();
+            const preset = graph.exportPreset();
+            const camera = {az: 1.1, el: 0.3, distance: 13, projection: "perspective" as const, target: [0, 0, 0] as [number, number, number]};
+            (preset.data as any)[0][1].state.camera = camera;
+            act(() => graph.importPreset(JSON.parse(JSON.stringify(preset))));
+            expect(graph.state.camera).toEqual(camera);
+            act(() => graph.restoreDefaultScene());
+            expect(graph.state.camera).toEqual(presetCamera(graph));
+        } finally { restore(); }
+    });
+});

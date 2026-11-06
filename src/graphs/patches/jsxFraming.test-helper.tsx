@@ -33,6 +33,7 @@ interface FittingGraph {
     resetView(): void;
     applyCameraPreset(name: CameraPresetName): void;
     importPresetData(data: PatchCollectionPresetData): void;
+    defaultPreset(): PatchCollectionPresetData;
 }
 
 function sizeHost(host: HTMLElement, viewport: FramingViewport): void {
@@ -63,6 +64,8 @@ export function collectFramingCases(): FramingCase[] {
         const view = surfaceViewOf(graph)!;
         const fitting = graph as unknown as FittingGraph;
         const tag = (preset: string, what: string): string => `${source.label}/${preset}/${what}`;
+        // A plain open is fitted to the host; the default Preset's own (stored) camera is what this case measures.
+        act(() => fitting.importPresetData(fitting.defaultPreset()));
         cases.push({name: tag('default', 'stored'), scene: last(view), viewports: FRAMING_VIEWPORTS});
         source.presets.forEach((preset, index) => {
             act(() => fitting.importPresetData(preset.data()));

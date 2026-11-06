@@ -243,6 +243,36 @@ abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extend
         this.requestRender();
     }
 
+    /** The authored az/el again, fitted to everything the view shows for the host's current shape. */
+    abstract resetView(): void;
+
+    /**
+     * A plain open (no selected Preset) frames the scene like `resetView` does for the real host, once. A host that
+     * has no size yet (jsdom, a hidden tab) keeps the Preset's camera. Lesson default scenes are not refitted.
+     */
+    override mount(container: HTMLElement): void {
+        const opening = !this.graphSession?.isAlive;
+        super.mount(container);
+        if (opening) this.fitDefaultScene();
+    }
+
+    /** Fits to the host when the scene is the default one (no selected Preset) and the host has a size. */
+    private fitDefaultScene(): void {
+        const host = this.host;
+        if (host && this.selectedPresetId === "" && host.clientWidth > 0 && host.clientHeight > 0) this.resetView();
+    }
+
+    /** Reset to the default scene is fitted like a fresh open; a selected Preset keeps its own camera. */
+    override reset(): Promise<void> {
+        return super.reset().then(() => this.fitDefaultScene());
+    }
+
+    /** The default-scene figure (a Preset without data) shows the fitted default scene like a fresh open. */
+    protected override importFigurePresetData(preset: Preset): void {
+        super.importFigurePresetData(preset);
+        if (preset.data === undefined || preset.data === null) this.fitDefaultScene();
+    }
+
     /** The host element's width / height, or 1 before layout. */
     protected hostAspect(): number {
         const width = this.host?.clientWidth ?? 0, height = this.host?.clientHeight ?? 0;

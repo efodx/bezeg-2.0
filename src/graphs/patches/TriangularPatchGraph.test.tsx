@@ -370,3 +370,34 @@ describe("view lifecycle", () => {
         expect(state.initialized).toBe(true);
     });
 });
+
+describe("opening camera", () => {
+    const sizeHost = (width: number, height: number) => {
+        const w = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(width);
+        const h = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(height);
+        return () => { w.mockRestore(); h.mockRestore(); };
+    };
+
+    it("a plain open frames the scene like resetView for the measured host", () => {
+        const restore = sizeHost(1200, 600);
+        try {
+            const {graph} = mount();
+            const opened = graph.state.camera;
+            act(() => graph.resetView());
+            expect(graph.state.camera).toEqual(opened);
+        } finally { restore(); }
+    });
+
+    it("a host without a size keeps the Preset camera, finite", () => {
+        const restore = sizeHost(0, 0);
+        try {
+            const {graph} = mount();
+            const opened = graph.state.camera;
+            const sized = sizeHost(1200, 600);
+            act(() => graph.resetView());
+            sized();
+            expect(opened).not.toEqual(graph.state.camera);
+            expect([opened.az, opened.el, opened.distance, ...opened.target].every(Number.isFinite)).toBe(true);
+        } finally { restore(); }
+    });
+});
