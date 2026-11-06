@@ -4,5 +4,6 @@ import {guidedLessonPreviewCopyByDemonstration as lessonCopy, type GuidedExample
 export const advancedBezierPreviewCopy = {
     'advanced-bezier.reduction.reduction': lessonCopy.reduction,
     'advanced-bezier.arc-length-param.arc-length-param': lessonCopy['arc-length-param'],
+    'advanced-bezier.bezier-clipping.bezier-clipping': lessonCopy['bezier-clipping'],
     'advanced-bezier.patch-coons.patch-coons': lessonCopy['patch-coons'],
 } as const satisfies Record<string, GuidedExamplePreviewCopy>;

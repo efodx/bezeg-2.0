@@ -54,7 +54,7 @@ function presentationFingerprint({recipeFraming = [], entryFraming = [], helpers
 /** Chapter-owned destinations: a subdirectory under the examples root, the chapter's id prefix and its route. A family may mix board and surface entries: each entry dispatches on its Demonstration's view. */
 const chapterFamilies = {
     // Before patches: its Coons entry is also on a patches route, and the first match names the family a retained run must use.
-    'advanced-bezier': {label: 'advanced-bezier', idPrefix: 'advanced-bezier.', route: /^\/bezeg-2\.0\/(?:bezier\/(?:reduction|arc-length)|patches\/coons)(?:\/|$)/, routeText: '/bezeg-2.0/bezier/reduction, /bezeg-2.0/bezier/arc-length or /bezeg-2.0/patches/coons'},
+    'advanced-bezier': {label: 'advanced-bezier', idPrefix: 'advanced-bezier.', route: /^\/bezeg-2\.0\/(?:bezier\/(?:reduction|arc-length|clipping)|patches\/coons)(?:\/|$)/, routeText: '/bezeg-2.0/bezier/reduction, /bezeg-2.0/bezier/arc-length, /bezeg-2.0/bezier/clipping or /bezeg-2.0/patches/coons'},
     patches: {label: 'patch', idPrefix: 'bezier-patches.', route: /^\/bezeg-2\.0\/patches(?:\/|$)/, routeText: '/bezeg-2.0/patches'},
     'linear-maps': {label: 'linear-maps', idPrefix: 'linear-maps.', route: /^\/bezeg-2\.0\/linear-map(?:\/|$)/, routeText: '/bezeg-2.0/linear-map'},
     'complex-maps': {label: 'complex-maps', idPrefix: 'complex-maps.', route: /^\/bezeg-2\.0\/complex-(?:reciprocal|roots)(?:\/|$)/, routeText: '/bezeg-2.0/complex-reciprocal or /bezeg-2.0/complex-roots'},

@@ -47,6 +47,62 @@
       "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
     },
     {
+      "id": "advanced-bezier.bezier-clipping.bezier-clipping",
+      "demonstrationId": "bezier-clipping",
+      "path": "/bezeg-2.0/bezier/clipping?example=lesson.advanced-bezier.bezier-clipping.bezier-clipping",
+      "sceneFingerprint": "c126a979e1e283cf4d0114b077628c8543fd7820f21ef683ca6a5381a6fb1b0f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"clipping-hulls-scene\",\"source\":\"demonstration-default\",\"view\":[-1.5,9.5,5.5,-1.5]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"load-model\",\"points\":[[0,0],[2,4],[4,0],[0,3],[2,-1],[4,3]],\"gridStepExponent\":0}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-clip-tolerance\",\"exponent\":6}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"control\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"hull\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"fatLine\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"kept\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"discarded\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-trace-step\",\"step\":0}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 4,
+          "point": 6,
+          "polygon": 2,
+          "segment": 6
+        },
+        "curveCount": 4,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            2,
+            -1
+          ],
+          [
+            4,
+            3
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
       "id": "advanced-bezier.arc-length-param.arc-length-param",
       "demonstrationId": "arc-length-param",
       "path": "/bezeg-2.0/bezier/arc-length?example=lesson.advanced-bezier.arc-length-param.arc-length-param",

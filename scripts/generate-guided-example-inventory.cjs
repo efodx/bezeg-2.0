@@ -923,10 +923,27 @@ function coonsExpectedFor(id, actions) {
         geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
 }
 
+/** D2 first frame: the crossing pair A, B at step 0 of the run, with control polygons and hulls and no clipping overlay. */
+function bezierClippingExpectedFor(id, actions) {
+    const pair = [[0, 0], [2, 4], [4, 0], [0, 3], [2, -1], [4, 3]];
+    const overlay = (name, visible) => ({kind: 'point-set', operation: 'set-overlay', overlay: name, visible});
+    assert.deepEqual(actions.filter(item => item.kind !== 'prepared-scene'), [
+        {kind: 'point-set', operation: 'load-model', points: pair, gridStepExponent: 0},
+        {kind: 'point-set', operation: 'set-clip-tolerance', exponent: 6},
+        overlay('control', true), overlay('hull', true), overlay('fatLine', false), overlay('kept', false), overlay('discarded', false),
+        {kind: 'point-set', operation: 'set-trace-step', step: 0},
+    ], `${id}: only the crossing pair at step 0 with control polygons and hulls is authored`);
+    const prepared = actions.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length > 0 && prepared.every(item => item.source === 'demonstration-default'), `${id}: the scene must start from the Demonstration default`);
+    // The curves A and B and their control polygons are curves; each hull is a triangle, drawn as one polygon with three border segments.
+    return {types: {curve: 4, point: 6, polygon: 2, segment: 6}, curveCount: 4, points: pair};
+}
+
 function advancedBezierExpectedFor(id, step) {
     const actions = step.scene.actions;
     if (id.endsWith('.reduction')) return reductionExpectedFor(id, actions);
     if (id.endsWith('.arc-length-param')) return arcLengthExpectedFor(id, actions);
+    if (id.endsWith('.bezier-clipping')) return bezierClippingExpectedFor(id, actions);
     assert.ok(id.endsWith('.patch-coons'), `${id}: no authored Advanced Bézier first frame`);
     return coonsExpectedFor(id, actions);
 }

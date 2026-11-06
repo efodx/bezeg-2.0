@@ -277,6 +277,7 @@ test('numerical, school, fourier, projective and curve-geometry capture families
             {id: 'projective-conics.projective-three-views.projective-three-views', path: '/bezeg-2.0/projective/three-views?example=lesson.projective-conics.projective-three-views.projective-three-views'}],
         'advanced-bezier': [{id: 'advanced-bezier.reduction.reduction', path: '/bezeg-2.0/bezier/reduction?example=lesson.advanced-bezier.reduction.reduction'},
             {id: 'advanced-bezier.arc-length-param.arc-length-param', path: '/bezeg-2.0/bezier/arc-length?example=lesson.advanced-bezier.arc-length-param.arc-length-param'},
+            {id: 'advanced-bezier.bezier-clipping.bezier-clipping', path: '/bezeg-2.0/bezier/clipping?example=lesson.advanced-bezier.bezier-clipping.bezier-clipping'},
             {id: 'advanced-bezier.patch-coons.patch-coons', path: '/bezeg-2.0/patches/coons?example=lesson.advanced-bezier.patch-coons.patch-coons'}],
         'curve-geometry': [{id: 'curve-geometry.curve-parametric.curve-parametric', path: '/bezeg-2.0/curve-geometry/parametric?example=lesson.curve-geometry.curve-parametric.curve-parametric'},
             {id: 'curve-geometry.curve-curvature.curve-curvature', path: '/bezeg-2.0/curve-geometry/curvature?example=lesson.curve-geometry.curve-curvature.curve-curvature'},
@@ -313,7 +314,7 @@ test('numerical, school, fourier, projective and curve-geometry capture families
         assert.throws(() => assertInventoryFamily([{...entries['projective-conics'][0], path}], 'projective-conics'), /requires a projective-conics inventory/);
     for (const path of ['/bezeg-2.0/curve-geometry/parametricx', '/bezeg-2.0/curve-geometry/curvaturex', '/bezeg-2.0/curve-geometry/combx', '/bezeg-2.0/curve-geometry/evolutes', '/bezeg-2.0/curve-geometry/offsets', '/bezeg-2.0/curve-geometry/envelopes', '/bezeg-2.0/curve-geometry', '/bezeg-2.0/curve-geometry/other', '/bezeg-2.0/parametric'])
         assert.throws(() => assertInventoryFamily([{...entries['curve-geometry'][0], path}], 'curve-geometry'), /requires a curve-geometry inventory/);
-    for (const path of ['/bezeg-2.0/bezier/reductions', '/bezeg-2.0/bezier/arc-lengths', '/bezeg-2.0/patches/coonsx', '/bezeg-2.0/bezier', '/bezeg-2.0/patches/tensor', '/bezeg-2.0/reduction'])
+    for (const path of ['/bezeg-2.0/bezier/reductions', '/bezeg-2.0/bezier/arc-lengths', '/bezeg-2.0/bezier/clippings', '/bezeg-2.0/patches/coonsx', '/bezeg-2.0/bezier', '/bezeg-2.0/patches/tensor', '/bezeg-2.0/reduction'])
         assert.throws(() => assertInventoryFamily([{...entries['advanced-bezier'][0], path}], 'advanced-bezier'), /requires a advanced-bezier inventory/);
 });
 

@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+  "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
-    "dirty": false,
-    "inputs": "d55dfc3db143a169c41565e520c74661569c4dbfa237b3a86619a76a567f21e3",
-    "output": "9b1c801ab68e49be1849c7532aaf9d3f2db40391a07312b909b10b25512ce57f"
+    "revision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+    "dirty": true,
+    "inputs": "4e96717e7ed4f741561ec4fde467c166dbff8e26ef17bc55d9dbb96d999eb5f4",
+    "output": "08960db0e79406d3c5caea28dcadb2fbb869159ce3e4a231ca4525925e8b085e"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4314/bezeg-2.0/",
-    "stampRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
-    "stampDirty": false,
-    "localOutputHash": "9b1c801ab68e49be1849c7532aaf9d3f2db40391a07312b909b10b25512ce57f",
+    "stampRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+    "stampDirty": true,
+    "localOutputHash": "08960db0e79406d3c5caea28dcadb2fbb869159ce3e4a231ca4525925e8b085e",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BdA09wcX.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-BdA09wcX.js",
-        "sha256": "4618d9a871dbbbffccc4ba2a449213bd8d2a30d436fc301d9337b2e5c533d96c",
+        "name": "index-C_5T80BB.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-C_5T80BB.js",
+        "sha256": "ec3e847f7874d4f47ed34e22d186b849f22b086d3d97302415d44ed15ea1a38e",
         "matchesLocalBuild": true
       },
       {
@@ -31,15 +31,15 @@
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BKvd0Vl5.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/jsx-runtime-BKvd0Vl5.js",
-        "sha256": "0ddd08cc5284655530c2de088704c09b1066f0c2797a3241ca3a857f5bf5287b",
+        "name": "jsx-runtime-D4TpdOpM.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/jsx-runtime-D4TpdOpM.js",
+        "sha256": "a050d57f3d4882be1a73f584f1ee9efffbdd33062e9ff568fc12a27f2f25c2b9",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-31m6zbxw.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/react-dom-31m6zbxw.js",
-        "sha256": "705cb00bee992d9fda55599149173622e6df7ed1358c498368caad3a5fcd7417",
+        "name": "react-dom-Bi6b9n_6.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/react-dom-Bi6b9n_6.js",
+        "sha256": "71d9b9ff338b30ae346b0e57381cb6c9b387773dc039e64aa79d618e93405a00",
         "matchesLocalBuild": true
       },
       {
@@ -55,15 +55,16 @@
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "6a68ab873a895ea7cdbf40d7c2a94a8cd4a979163cd67def59e3c5b7ccf6a2dd",
+    "inventory": "b6922a3ddbcbb714417d2e3cc54e3892292eb6ea49f13245214eae311b6029a4",
     "entries": {
       "advanced-bezier.reduction.reduction": "cff21cbf1b29f5a89b393d1a0c28c2b14847d5a53e2ade391ffe757069e587c1",
+      "advanced-bezier.bezier-clipping.bezier-clipping": "4ae1d40957ac78d75d8920b53ca258c55a3fc2f4296c687db1bf8fef7ed293cf",
       "advanced-bezier.arc-length-param.arc-length-param": "bdf04bb8bb7449da76ce97fab97838a605695a187cfea8d722711aa6eda9334a",
       "advanced-bezier.patch-coons.patch-coons": "ef89ac6201b4321a79921e4e5e72635be46995a6f38f65203372ceee7a364406"
     },
-    "presentation": "4614b2f475fa186a068f517e7fce377eb0038eba48a972348d726be91b1bb5f9",
-    "buildOutput": "9b1c801ab68e49be1849c7532aaf9d3f2db40391a07312b909b10b25512ce57f",
-    "buildInputs": "d55dfc3db143a169c41565e520c74661569c4dbfa237b3a86619a76a567f21e3"
+    "presentation": "da97f0d98ce4323fbc5baff8c17e04d35c43ab0b8a79c545b11b9d125bd4d0c7",
+    "buildOutput": "08960db0e79406d3c5caea28dcadb2fbb869159ce3e4a231ca4525925e8b085e",
+    "buildInputs": "4e96717e7ed4f741561ec4fde467c166dbff8e26ef17bc55d9dbb96d999eb5f4"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -87,6 +88,19 @@
         "demonstrationId": "reduction",
         "framing": {
           "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "advanced-bezier.bezier-clipping.bezier-clipping",
+        "demonstrationId": "bezier-clipping",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.58,
+            4.3,
+            6.58,
+            -1.3
+          ]
         }
       },
       {
@@ -291,8 +305,226 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
-        "sourceRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+        "buildRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "advanced-bezier.bezier-clipping.bezier-clipping",
+      "demonstrationId": "bezier-clipping",
+      "path": "/bezeg-2.0/bezier/clipping?example=lesson.advanced-bezier.bezier-clipping.bezier-clipping",
+      "sceneFingerprint": "c126a979e1e283cf4d0114b077628c8543fd7820f21ef683ca6a5381a6fb1b0f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"clipping-hulls-scene\",\"source\":\"demonstration-default\",\"view\":[-1.5,9.5,5.5,-1.5]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"load-model\",\"points\":[[0,0],[2,4],[4,0],[0,3],[2,-1],[4,3]],\"gridStepExponent\":0}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-clip-tolerance\",\"exponent\":6}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"control\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"hull\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"fatLine\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"kept\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"discarded\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-trace-step\",\"step\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "advanced-bezier.bezier-clipping.bezier-clipping.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "0c174b556e8fd24168725280142b64cdfa452b9c057a91747593ee052ddd43f4",
+      "scene": {
+        "visibleElementCount": 18,
+        "visibleElementTypes": {
+          "point": 6,
+          "curve": 4,
+          "segment": 6,
+          "polygon": 2
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.020833,
+              0.041233
+            ],
+            [
+              0.041667,
+              0.082465
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          [
+            [
+              0,
+              3
+            ],
+            [
+              0.020833,
+              2.958767
+            ],
+            [
+              0.041667,
+              2.917535
+            ]
+          ],
+          [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              -1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:polygon",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:2,4",
+          "point:4,0",
+          "point:0,3",
+          "point:2,-1",
+          "point:4,3"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 44,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "point": 6,
+            "curve": 4,
+            "segment": 6,
+            "polygon": 2
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.020833,
+                0.041233
+              ],
+              [
+                0.041667,
+                0.082465
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                4
+              ]
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              [
+                0.020833,
+                2.958767
+              ],
+              [
+                0.041667,
+                2.917535
+              ]
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                -1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:polygon",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:2,4",
+            "point:4,0",
+            "point:0,3",
+            "point:2,-1",
+            "point:4,3"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "curve": 4,
+          "segment": 6,
+          "polygon": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
         "pageErrors": []
       }
     },
@@ -428,8 +660,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
-        "sourceRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+        "buildRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
         "pageErrors": []
       }
     },
@@ -723,8 +955,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
-        "sourceRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+        "buildRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
+        "sourceRevision": "79e832e110b2316e17e78b032478d6fd3ca25ae9",
         "pageErrors": []
       }
     }

@@ -34,6 +34,19 @@ test('advanced Bezier first frames are authored independently, and the Coons net
     assert.deepEqual(d4.surface.owners.map(owner => [owner.id, owner.kind]), [['tensor-patch-0', 'tensor']]);
     assert.throws(() => advancedBezierExpectedFor(coonsId, sceneOf(coons.map(item => item.shown ? {...item, shown: 'lc'} : item))), /only S of the unmoved/);
     assert.throws(() => advancedBezierExpectedFor(coonsId, sceneOf([...coons, {kind: 'coons', operation: 'move-point', name: 'c0', index: 1, xyz: [1, 0, 3]}])), /only S of the unmoved/);
+    const clippingId = 'advanced-bezier.bezier-clipping.bezier-clipping';
+    const clippingPair = [[0, 0], [2, 4], [4, 0], [0, 3], [2, -1], [4, 3]];
+    const clippingOverlay = (overlay, visible) => ({kind: 'point-set', operation: 'set-overlay', overlay, visible});
+    const clipping = [prepared, {kind: 'point-set', operation: 'load-model', points: clippingPair, gridStepExponent: 0}, {kind: 'point-set', operation: 'set-clip-tolerance', exponent: 6},
+        clippingOverlay('control', true), clippingOverlay('hull', true), clippingOverlay('fatLine', false), clippingOverlay('kept', false), clippingOverlay('discarded', false),
+        {kind: 'point-set', operation: 'set-trace-step', step: 0}];
+    const d2 = advancedBezierExpectedFor(clippingId, sceneOf(clipping));
+    assert.deepEqual(d2.types, {curve: 4, point: 6, polygon: 2, segment: 6});
+    assert.deepEqual(d2.points, clippingPair);
+    assert.throws(() => advancedBezierExpectedFor(clippingId, sceneOf(clipping.map(item => item.operation === 'set-trace-step' ? {...item, step: 4} : item))), /only the crossing pair/);
+    assert.throws(() => advancedBezierExpectedFor(clippingId, sceneOf(clipping.map(item => item.overlay === 'fatLine' ? {...item, visible: true} : item))), /only the crossing pair/);
+    assert.throws(() => advancedBezierExpectedFor(clippingId, sceneOf(clipping.map(item => item.operation === 'load-model' ? {...item, points: [...clippingPair.slice(0, 3), [0, 4], [2, 0], [4, 4]]} : item))), /only the crossing pair/);
+    assert.throws(() => advancedBezierExpectedFor(clippingId, sceneOf(clipping.slice(1))), /must start from the Demonstration default/);
     const fixture = {m: 3, n: 3, net: coonsNetRows(coonsBoundaries)};
     const bezier = (net, t) => [0, 1, 2].map(axis => (1 - t) ** 3 * net[0][axis] + 3 * (1 - t) ** 2 * t * net[1][axis] + 3 * (1 - t) * t ** 2 * net[2][axis] + t ** 3 * net[3][axis]);
     for (const s of [0, 0.25, 0.5, 1]) {
