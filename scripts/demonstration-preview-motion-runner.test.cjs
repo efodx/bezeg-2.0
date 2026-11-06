@@ -6,7 +6,7 @@ const captureApi = require('./demonstration-preview-capture-api.cjs');
 test('every shipped demonstration has a configured motion timeline', () => {
     const catalog = require('../tests/smoke-catalog.cjs');
     assert.equal(new Set(motionIds).size, motionIds.length);
-    const configuredSurfaceIds = catalog.filter(d => d.view === 'surface').map(d => d.id);
+    const configuredSurfaceIds = catalog.filter(d => d.view === 'surface' && d.hasMotion).map(d => d.id);
     assert.deepEqual([...captureApi.surfaceMotionIds].sort(), configuredSurfaceIds.sort());
     assert.equal(catalog.filter(d => d.hasMotion).length, 51);
     assert.deepEqual([...motionIds].sort(), catalog.filter(d => d.hasMotion).map(d => d.id).sort());

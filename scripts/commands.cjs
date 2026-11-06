@@ -415,7 +415,7 @@ async function executeCommand(command, rawArgs = [], options = {}) {
     const build = () => npmStep('build');
     const unit = argv => ({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', ...argv]});
     const smokeBuilt = argv => npmStep('test:smoke:built', argv);
-    if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/commands.test.cjs')]}]);
+    if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/commands.test.cjs'), path.join(root, 'scripts/demonstration-preview-motion-runner.test.cjs')]}]);
     if (command === 'unit') return run('unit', [unit(args)]);
     if (command === 'typecheck') return run('typecheck', [tsc()]);
     if (command === 'lint') return run('lint', [lint(args)]);

@@ -10,6 +10,9 @@ on:
       - tools/agent-usage/claude_budget_hook*.py
       - tools/agent-eval/**
       - scripts/project-skills.test.cjs
+      - scripts/demonstration-preview-motion*.cjs
+      - scripts/patch-surface-motion.cjs
+      - tests/smoke-catalog.cjs
       - .agents/skills/**
       - .claude/skills/**
       - .github/workflows/developer-tools.yml
@@ -25,6 +28,9 @@ on:
       - tools/agent-usage/claude_budget_hook*.py
       - tools/agent-eval/**
       - scripts/project-skills.test.cjs
+      - scripts/demonstration-preview-motion*.cjs
+      - scripts/patch-surface-motion.cjs
+      - tests/smoke-catalog.cjs
       - .agents/skills/**
       - .claude/skills/**
       - .github/workflows/developer-tools.yml

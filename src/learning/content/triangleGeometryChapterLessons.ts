@@ -366,7 +366,7 @@ export const inversionLesson: LessonDefinition = {
             words('Prosto raziskovanje in središče', 'Free exploration and the centre'),
             words('Prikazano je vse. Premakni točko \\(X\\), središče \\(C\\) ali polmer \\(r\\), preklopi fokus in izberi druge primere. Točka \\(X=C\\) nima slike: plošča to pove, ne da bi narisala točko. Točke blizu \\(C\\) imajo slike zelo daleč; tiste nad mejo risanja so označene z »predaleč za risanje«. Vsak položaj je primer izrekov, ne njihov dokaz.',
                 'Everything is shown. Move the point \\(X\\), the centre \\(C\\) or the radius \\(r\\), switch the focus and choose other examples. The point \\(X=C\\) has no image: the panel says so without drawing a point. Points near \\(C\\) have images very far away; those beyond the drawing limit are marked "too far to draw". Each position is an instance of the theorems, not a proof.'),
-            words('Pelji \\(X\\) proti središču \\(C\\) in opazuj, kam gre slika \\(X^{\\prime}\\).', 'Take \\(X\\) towards the centre \\(C\\) and watch where the image \\(X^{\\prime}\\) goes.'),
+            words('Točka \\(X\\) je zdaj v središču \\(C\\) in nima slike. Odmakni jo od \\(C\\), nato jo spet približaj in opazuj, kam gre slika \\(X^{\\prime}\\).', 'The point \\(X\\) now sits at the centre \\(C\\) and has no image. Move it away from \\(C\\), then bring it close again and watch where the image \\(X^{\\prime}\\) goes.'),
             ['inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents'], [inversionExampleAction('point'), inversionX(0, 0)]),
     ],
 };
