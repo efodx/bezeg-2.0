@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -461,4 +461,54 @@ test('a missing or empty chapter-owned expectation fails', () => {
     assert.throws(() => assertExpectation('x', {...good, curveCount: -1}), /curveCount must be a nonnegative integer/);
     assert.doesNotThrow(() => assertExpectation('x', {...good, curveCount: 0}));
     assert.throws(() => assertExpectation('x', {...good, points: []}), /expected.points must be nonempty/);
+});
+
+const psStep = actions => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'demonstration-default'}, ...actions]}});
+const psPoints = (points, mode = 'points', closed) => ({kind: 'point-set', operation: 'set-points', mode, ...(closed === undefined ? {} : {closed}), points});
+const psOverlay = (overlay, visible) => ({kind: 'point-set', operation: 'set-overlay', overlay, visible});
+const psOp = (operation, extra) => ({kind: 'point-set', operation, ...extra});
+const psNext = () => ({kind: 'animation', animationId: 'algorithm-trace', command: 'next-step'});
+
+test('convexity expectations are authored from the graphs: orientation line, area fan, notched pentagon and query point', () => {
+    const line = [psPoints([[0, 0], [4, 0]]), psOverlay('turn', true), psOverlay('values', true)];
+    assert.deepEqual(convexityExpectedFor('c.orientation.orientation', psStep(line)), {types: {point: 2, line: 1}, curveCount: 0, points: [[0, 0], [4, 0]]});
+    assert.throws(() => convexityExpectedFor('c.orientation.orientation', psStep([psPoints([[0, 0], [4, 0], [3, 2]]), psOverlay('turn', true)])), /only the two-point line/);
+    assert.throws(() => convexityExpectedFor('c.orientation.orientation', psStep([...line, psOp('set-algorithm', {algorithm: 'gift-wrapping'})])), /only uses point-set/);
+    assert.throws(() => convexityExpectedFor('c.orientation.orientation', psStep([line[0], psOverlay('turn', false)])), /turn overlay/);
+    const pentagon = [[-1, 3], [0, 0], [4, 0], [5, 3], [2, 5]];
+    const fan = [psPoints(pentagon, 'polygon', true), psOverlay('fan', true), psOverlay('lattice', false), psOverlay('values', false)];
+    // Five vertices: five edges, two diagonals from v0, three nonzero fan triangles.
+    assert.deepEqual(convexityExpectedFor('c.polygon-area.polygon-area', psStep(fan)), {types: {point: 5, segment: 5, curve: 2, polygon: 3}, curveCount: 2, points: pentagon});
+    // A fan triangle of area zero is not drawn: v0, v1, v2 collinear leaves two filled triangles.
+    assert.equal(convexityExpectedFor('c.polygon-area.polygon-area', psStep([psPoints([[0, 0], [1, 0], [2, 0], [2, 2], [0, 2]], 'polygon', true), ...fan.slice(1)])).types.polygon, 2);
+    assert.throws(() => convexityExpectedFor('c.polygon-area.polygon-area', psStep([fan[0], psOverlay('fan', true), psOverlay('lattice', true), psOverlay('values', false)])), /without lattice markers/);
+    assert.throws(() => convexityExpectedFor('c.polygon-area.polygon-area', psStep([psPoints(pentagon, 'points'), ...fan.slice(1)])), /closed polygon/);
+    const pip = [psOp('set-polygon', {polygon: 'notched'}), psOp('set-query-point', {point: [3, 1]}), psOverlay('ray', false), psOverlay('winding', false), psOverlay('values', true)];
+    assert.deepEqual(convexityExpectedFor('c.point-in-polygon.point-in-polygon', psStep(pip)),
+        {types: {point: 6, segment: 5}, curveCount: 0, points: [[0, 0], [6, 0], [6, 4], [3, 2], [0, 4], [3, 1]]});
+    assert.throws(() => convexityExpectedFor('c.point-in-polygon.point-in-polygon', psStep([psOp('set-polygon', {polygon: 'pentagram'}), ...pip.slice(1)])), /only the notched/);
+    assert.throws(() => convexityExpectedFor('c.point-in-polygon.point-in-polygon', psStep([...pip.slice(0, 2), psOverlay('ray', true)])), /without the ray/);
+    assert.throws(() => convexityExpectedFor('c.point-in-polygon.point-in-polygon', psStep(pip.slice(1))), /exactly once/);
+});
+
+test('convexity expectations are authored from the traces: slow edge test step 0, chain end, curve pair hulls', () => {
+    const slow = [psOp('set-algorithm', {algorithm: 'slow-edge-test'}), psOverlay('trace', true), psOverlay('hull', true)];
+    assert.deepEqual(convexityExpectedFor('c.convex-hull.convex-hull', psStep(slow)).types, {point: 9, curve: 2});
+    assert.throws(() => convexityExpectedFor('c.convex-hull.convex-hull', psStep([psOp('set-algorithm', {algorithm: 'gift-wrapping'}), ...slow.slice(1)])), /only the slow edge test/);
+    assert.throws(() => convexityExpectedFor('c.convex-hull.convex-hull', psStep([...slow, psNext()])), /only uses point-set/);
+    const chain = [psOp('set-mode', {mode: 'chain'}), psOp('set-pop-rule', {rule: 'right'}), psOp('set-duplicates', {duplicates: 'merge'}), psPoints([[0, 0], [2, 0], [4, 0]]),
+        psOverlay('trace', true), psOverlay('hull', true), ...Array.from({length: 11}, psNext)];
+    assert.deepEqual(convexityExpectedFor('c.hull-robustness.hull-robustness', psStep(chain)),
+        {types: {point: 3, curve: 2, polygon: 1, segment: 4}, curveCount: 2, points: [[0, 0], [2, 0], [4, 0]]});
+    assert.throws(() => convexityExpectedFor('c.hull-robustness.hull-robustness', psStep(chain.slice(0, -1))), /exactly 11 next steps/);
+    assert.throws(() => convexityExpectedFor('c.hull-robustness.hull-robustness', psStep([psOp('set-pop-rule', {rule: 'non-left'}), ...chain.filter(item => item.operation !== 'set-pop-rule')])), /right pop rule/);
+    assert.throws(() => convexityExpectedFor('c.hull-robustness.hull-robustness', psStep([...chain, {kind: 'animation', animationId: 'algorithm-trace', command: 'play'}])), /only uses point-set/);
+    const net = [[0, 0], [2, 4], [4, 0], [0, 3], [2, -1], [4, 3]];
+    const hulls = [psPoints(net), psOverlay('control', true), psOverlay('hull', true), psOverlay('pieces', false), psOp('set-trace-step', {step: 0})];
+    assert.deepEqual(convexityExpectedFor('c.bezier-hulls.bezier-hulls', psStep(hulls)), {types: {point: 6, curve: 4, polygon: 2, segment: 6}, curveCount: 4, points: net});
+    assert.throws(() => convexityExpectedFor('c.bezier-hulls.bezier-hulls', psStep([...hulls.slice(0, 3), psOverlay('pieces', true), hulls[4]])), /without the pieces/);
+    assert.throws(() => convexityExpectedFor('c.bezier-hulls.bezier-hulls', psStep([psPoints([[0, 0], [1, 1], [2, 2], [0, 3], [2, -1], [4, 3]]), ...hulls.slice(1)])), /triangle hull/);
+    assert.throws(() => convexityExpectedFor('c.bezier-hulls.bezier-hulls', psStep([hulls[0], hulls[1], hulls[2], hulls[3], psOp('set-trace-step', {step: 2})])), /only trace step 0/);
+    assert.throws(() => convexityExpectedFor('c.unknown.unknown', psStep(hulls)), /no authored Convexity/);
+    assert.ok(chapterInventories['convexity-hulls']);
 });

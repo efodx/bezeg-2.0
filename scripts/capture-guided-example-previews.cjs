@@ -63,6 +63,7 @@ const chapterFamilies = {
     'fourier-series': {label: 'fourier-series', idPrefix: 'fourier-series.', route: /^\/bezeg-2\.0\/analysis\/(?:fourier-(?:series|coefficients)|epicycles)(?:\/|$)/, routeText: '/bezeg-2.0/analysis/fourier-series, /bezeg-2.0/analysis/fourier-coefficients or /bezeg-2.0/analysis/epicycles'},
     'projective-conics': {label: 'projective-conics', idPrefix: 'projective-conics.', route: /^\/bezeg-2\.0\/projective\/(?:cross-ratio|pascal|pole-polar|five-point|three-views)(?:\/|$)/, routeText: '/bezeg-2.0/projective/cross-ratio, /pascal, /pole-polar, /five-point or /three-views'},
     'curve-geometry': {label: 'curve-geometry', idPrefix: 'curve-geometry.', route: /^\/bezeg-2\.0\/curve-geometry\/(?:parametric|curvature|comb|evolute|offset|envelope)(?:\/|$)/, routeText: '/bezeg-2.0/curve-geometry/parametric, /curvature, /comb, /evolute, /offset or /envelope'},
+    'convexity-hulls': {label: 'convexity-hulls', idPrefix: 'convexity-hulls.', route: /^\/bezeg-2\.0\/compgeo\/(?:orientation|polygon-area|point-in-polygon|convex-hull|hull-robustness|bezier-hulls)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/orientation, /polygon-area, /point-in-polygon, /convex-hull, /hull-robustness or /bezier-hulls'},
 };
 
 function parseArgs(argv) {

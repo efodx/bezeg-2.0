@@ -1,0 +1,1031 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+    "dirty": true,
+    "inputs": "f861e6d1e49a53cc1617513fad334d95080eb5e9a07880facb84ce01d95f3e0b",
+    "output": "bc96ceb41ef0c30a2e824a62dbe02c456b45d7504671115e8306e2354a07d712"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
+    "stampRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+    "stampDirty": true,
+    "localOutputHash": "bc96ceb41ef0c30a2e824a62dbe02c456b45d7504671115e8306e2354a07d712",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-BQsRbQta.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-BQsRbQta.js",
+        "sha256": "d4a6c8234df594d995da8f03f645e1717a85729229d2188617bc5d0f8a472684",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-4xiZKs1O.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
+        "sha256": "d279c0065714d2d01b0f65e5df5c25389eb6e69c216552fa617f2f8abba29535",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-Cnfm82p2.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
+        "sha256": "fc70869aa362c71417e1a66b90887ad467182d981e6fc9b1eb91261d97fa7edb",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "8fc34421e3c25164aad732c40e2cc9e42aa33e3a7ad623d7bbecff655bf5d57f",
+    "entries": {
+      "convexity-hulls.orientation.orientation": "5b711e23c91e79292c851d9f450a846b306abb0a3ad416dd6b5dbc2d7f5321a1",
+      "convexity-hulls.polygon-area.polygon-area": "3485c529f45b6fbe980e00777850d6f025011c2c619a91b3b011971e51802a55",
+      "convexity-hulls.point-in-polygon.point-in-polygon": "0e5b54d289cc885a16b0df4bc1ddfdd67e3af19c27631ef86c1d62382db9ee00",
+      "convexity-hulls.convex-hull.convex-hull": "3ccf81fd0d5607ddebf8a3e5df9bc361ce961084fbfe1e14ab82e2d9ffcb3748",
+      "convexity-hulls.hull-robustness.hull-robustness": "72c3f03ce40c8e56787bad779715ee9a5b64ab0dc8a744b1e4ad43ab379b1f85",
+      "convexity-hulls.bezier-hulls.bezier-hulls": "50709684b91c03ae53d7918bb071b259401aaefd4cb0603ca3a76ebae42585ec"
+    },
+    "presentation": "598dfdd256e1a4181d5a81d1feb1289ab4c0d5e0a756e54b95a17a553af7d92b",
+    "buildOutput": "bc96ceb41ef0c30a2e824a62dbe02c456b45d7504671115e8306e2354a07d712",
+    "buildInputs": "f861e6d1e49a53cc1617513fad334d95080eb5e9a07880facb84ce01d95f3e0b"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "convexity-hulls.orientation.orientation",
+        "demonstrationId": "orientation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.2,
+            3.6,
+            5.6,
+            -1.2
+          ]
+        }
+      },
+      {
+        "id": "convexity-hulls.polygon-area.polygon-area",
+        "demonstrationId": "polygon-area",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.6,
+            6.4,
+            6.6,
+            -1.4
+          ]
+        }
+      },
+      {
+        "id": "convexity-hulls.point-in-polygon.point-in-polygon",
+        "demonstrationId": "point-in-polygon",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.4,
+            4.69,
+            7.4,
+            -0.69
+          ]
+        }
+      },
+      {
+        "id": "convexity-hulls.convex-hull.convex-hull",
+        "demonstrationId": "convex-hull",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.6,
+            6.4,
+            6.6,
+            -1.4
+          ]
+        }
+      },
+      {
+        "id": "convexity-hulls.hull-robustness.hull-robustness",
+        "demonstrationId": "hull-robustness",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.9,
+            5.5,
+            6.9,
+            -0.5
+          ]
+        }
+      },
+      {
+        "id": "convexity-hulls.bezier-hulls.bezier-hulls",
+        "demonstrationId": "bezier-hulls",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.58,
+            4.3,
+            6.58,
+            -1.3
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "convexity-hulls.orientation.orientation",
+      "demonstrationId": "orientation",
+      "path": "/bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation",
+      "sceneFingerprint": "d5df8d2d7ed29ef6205028b78deefdbb21fc187eafaeb230a1fdfdd573bf65f8",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"orientation-line\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[4,0]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"turn\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"values\",\"visible\":true}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "convexity-hulls.orientation.orientation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "220b2147fca33fdfb452d3bbcbfa9891d2d3cba653d955e1da728497f0987132",
+      "scene": {
+        "visibleElementCount": 3,
+        "visibleElementTypes": {
+          "point": 2,
+          "line": 1
+        },
+        "visiblePointCount": 2,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:line",
+          "curve-count",
+          "point:0,0",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 25,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "point": 2,
+            "line": 1
+          },
+          "visiblePointCount": 2,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:line",
+            "curve-count",
+            "point:0,0",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 2,
+          "line": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "sourceRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "convexity-hulls.polygon-area.polygon-area",
+      "demonstrationId": "polygon-area",
+      "path": "/bezeg-2.0/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area",
+      "sceneFingerprint": "5db33f5905ee567f50925bc0e86c95172e0c212ffc16b5c0fe2f592b7e6cb472",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"area-fan\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[-1,3],[0,0],[4,0],[5,3],[2,5]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"fan\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"lattice\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"values\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "convexity-hulls.polygon-area.polygon-area.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "c1bdb70801261894707b11537e0c8acf18e7c2f8fc75ebdc45779355e737e388",
+      "scene": {
+        "visibleElementCount": 15,
+        "visibleElementTypes": {
+          "point": 5,
+          "segment": 5,
+          "curve": 2,
+          "polygon": 3
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              -1,
+              3
+            ],
+            [
+              1.5,
+              1.5
+            ],
+            [
+              4,
+              0
+            ]
+          ],
+          [
+            [
+              -1,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              5,
+              3
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "type:curve",
+          "type:polygon",
+          "curve-count",
+          "point:-1,3",
+          "point:0,0",
+          "point:4,0",
+          "point:5,3",
+          "point:2,5"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 41,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "point": 5,
+            "segment": 5,
+            "curve": 2,
+            "polygon": 3
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                -1,
+                3
+              ],
+              [
+                1.5,
+                1.5
+              ],
+              [
+                4,
+                0
+              ]
+            ],
+            [
+              [
+                -1,
+                3
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                5,
+                3
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "type:curve",
+            "type:polygon",
+            "curve-count",
+            "point:-1,3",
+            "point:0,0",
+            "point:4,0",
+            "point:5,3",
+            "point:2,5"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5,
+          "segment": 5,
+          "curve": 2,
+          "polygon": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "sourceRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "convexity-hulls.point-in-polygon.point-in-polygon",
+      "demonstrationId": "point-in-polygon",
+      "path": "/bezeg-2.0/compgeo/point-in-polygon?example=lesson.convexity-hulls.point-in-polygon.point-in-polygon",
+      "sceneFingerprint": "c3f60afb5f3205533bc5fe108f51944ad2fa24b063f577974ce4b2c4c33b51f1",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"pip-drag\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-polygon\",\"polygon\":\"notched\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-query-point\",\"point\":[3,1]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"ray\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"winding\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"values\",\"visible\":true}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "convexity-hulls.point-in-polygon.point-in-polygon.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "7a3d1f363972c956e4809c8cab56ed6e25dcb2457f4ae5093913745a50292ab1",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "point": 6,
+          "segment": 5
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:6,0",
+          "point:6,4",
+          "point:3,2",
+          "point:0,4",
+          "point:3,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "point": 6,
+            "segment": 5
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:6,0",
+            "point:6,4",
+            "point:3,2",
+            "point:0,4",
+            "point:3,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "segment": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "sourceRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "convexity-hulls.convex-hull.convex-hull",
+      "demonstrationId": "convex-hull",
+      "path": "/bezeg-2.0/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull",
+      "sceneFingerprint": "20d7d77e606ddedb36c8684c5f8c4eb4b4a157234aefdc2bebf147fb3c033748",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hull-slow-intro\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-algorithm\",\"algorithm\":\"slow-edge-test\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"trace\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"hull\",\"visible\":true}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "convexity-hulls.convex-hull.convex-hull.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "5eb6a33ef29d01de982a88b37755e757022ab64529b4e87e7670835ee6c510ab",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "point": 9,
+          "curve": 2
+        },
+        "visiblePointCount": 9,
+        "sampledVisibleCurves": [
+          [
+            [
+              2,
+              2
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              4,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "curve-count",
+          "point:2,2",
+          "point:4,0",
+          "point:0,0",
+          "point:5,3",
+          "point:2,5",
+          "point:-1,3",
+          "point:3,1",
+          "point:2,0",
+          "point:1,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 41,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 26,
+            "point": 9,
+            "curve": 2
+          },
+          "visiblePointCount": 9,
+          "sampledVisibleCurves": [
+            [
+              [
+                2,
+                2
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "curve-count",
+            "point:2,2",
+            "point:4,0",
+            "point:0,0",
+            "point:5,3",
+            "point:2,5",
+            "point:-1,3",
+            "point:3,1",
+            "point:2,0",
+            "point:1,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 9,
+          "curve": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "sourceRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "convexity-hulls.hull-robustness.hull-robustness",
+      "demonstrationId": "hull-robustness",
+      "path": "/bezeg-2.0/compgeo/hull-robustness?example=lesson.convexity-hulls.hull-robustness.hull-robustness",
+      "sceneFingerprint": "843a88c38e4634e3fdf115ee4994f2c1722909228768e1d48a9e4046feabc04a",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"robust-collinear\",\"source\":\"demonstration-default\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-mode\",\"mode\":\"chain\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-pop-rule\",\"rule\":\"right\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-duplicates\",\"duplicates\":\"merge\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[2,0],[4,0]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"trace\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"hull\",\"visible\":true}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}",
+        "animation: {\"kind\":\"animation\",\"animationId\":\"algorithm-trace\",\"command\":\"next-step\"}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "convexity-hulls.hull-robustness.hull-robustness.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "09f1ee11ffd4315a206b183b516c42658f02e9772ea1e18743b8a62211ecf5f2",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "point": 3,
+          "curve": 2,
+          "segment": 4,
+          "polygon": 1
+        },
+        "visiblePointCount": 3,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          [
+            [
+              4,
+              0
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "type:polygon",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:2,0",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 20,
+            "point": 3,
+            "curve": 2,
+            "segment": 4,
+            "polygon": 1
+          },
+          "visiblePointCount": 3,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            [
+              [
+                4,
+                0
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "type:polygon",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:2,0",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 3,
+          "curve": 2,
+          "segment": 4,
+          "polygon": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "sourceRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "convexity-hulls.bezier-hulls.bezier-hulls",
+      "demonstrationId": "bezier-hulls",
+      "path": "/bezeg-2.0/compgeo/bezier-hulls?example=lesson.convexity-hulls.bezier-hulls.bezier-hulls",
+      "sceneFingerprint": "da32f221480eea461f72a8e2184c2b6b35cf363c29636fb1171c8c5a51e0ddde",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bh-hull\",\"source\":\"demonstration-default\",\"view\":[-1,6.5,9,-2]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[2,4],[4,0],[0,3],[2,-1],[4,3]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"control\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"hull\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"pieces\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-trace-step\",\"step\":0}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "convexity-hulls.bezier-hulls.bezier-hulls.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "257033a609d0af7aa887987f0560f05c0bc440ac83992a8c2c3d31bc585d2721",
+      "scene": {
+        "visibleElementCount": 18,
+        "visibleElementTypes": {
+          "point": 6,
+          "curve": 4,
+          "segment": 6,
+          "polygon": 2
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.020833,
+              0.041233
+            ],
+            [
+              0.041667,
+              0.082465
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          [
+            [
+              0,
+              3
+            ],
+            [
+              0.020833,
+              2.958767
+            ],
+            [
+              0.041667,
+              2.917535
+            ]
+          ],
+          [
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              -1
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "type:polygon",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:2,4",
+          "point:4,0",
+          "point:0,3",
+          "point:2,-1",
+          "point:4,3"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 45,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 23,
+            "point": 6,
+            "curve": 4,
+            "segment": 6,
+            "polygon": 2
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.020833,
+                0.041233
+              ],
+              [
+                0.041667,
+                0.082465
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                4
+              ]
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              [
+                0.020833,
+                2.958767
+              ],
+              [
+                0.041667,
+                2.917535
+              ]
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                -1
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "type:polygon",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:2,4",
+            "point:4,0",
+            "point:0,3",
+            "point:2,-1",
+            "point:4,3"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "curve": 4,
+          "segment": 6,
+          "polygon": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "sourceRevision": "0bf7348e16677671e9a6c2cf1593c2a2457f5819",
+        "pageErrors": []
+      }
+    }
+  ]
+}

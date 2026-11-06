@@ -247,6 +247,12 @@ const chapterInventories = {
         pathExport: 'curveGeometryGuidedExamplePath',
         expectedFor: curveGeometryExpectedFor,
     },
+    'convexity-hulls': {
+        module: '/src/learning/content/convexityChapterRegistry.ts',
+        registryExport: 'convexityGuidedExampleRegistry',
+        pathExport: 'convexityGuidedExamplePath',
+        expectedFor: convexityExpectedFor,
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleRegistry',
@@ -948,6 +954,121 @@ function advancedBezierExpectedFor(id, step) {
     return coonsExpectedFor(id, actions);
 }
 
+// ---- Point-set chapters (convexity-hulls, triangulations-voronoi, sweep-algorithms): shared readers of the opening scene's point-set actions.
+
+/** Fails when the opening scene holds an action outside the allowed point-set operations (or `animation` commands): the authored expectation assumes the first frame sets only those. */
+function assertOnlyPointSetOps(id, actions, operations, extend, animations = []) {
+    for (const item of actions) {
+        const ok = item.kind === 'prepared-scene' || (item.kind === 'point-set' && operations.includes(item.operation))
+            || (item.kind === 'animation' && animations.includes(item.command));
+        assert.ok(ok, `${id}: the authored first-frame expectation assumes an opening scene that only uses point-set ${operations.join(', ')}${animations.length ? ` and animation ${animations.join(', ')}` : ''}; extend ${extend}`);
+    }
+}
+
+/** The one `point-set` action of `operation` in an opening scene; a missing or repeated one is an error. */
+function pointSetAction(id, actions, operation) {
+    const found = actions.filter(item => item.kind === 'point-set' && item.operation === operation);
+    assert.equal(found.length, 1, `${id}: opening scene must run point-set ${operation} exactly once`);
+    return found[0];
+}
+
+/** Whether the opening scene leaves the overlay shown: the last `set-overlay` for it, else the graph's initial state `initial`. */
+function pointSetOverlay(actions, overlay, initial) {
+    const set = actions.filter(item => item.kind === 'point-set' && item.operation === 'set-overlay' && item.overlay === overlay);
+    return set.length ? set.at(-1).visible : initial;
+}
+
+const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+
+// Authored from src/graphs/compgeo/OrientationGraph.tsx (drawOverlay "turn": the dashed line through p and q, the shaded triangle and
+// its two sides only with a third point) and PointSetGraph.tsx (one board point per model point), not from a capture.
+function orientationExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-overlay'], 'orientationExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.ok(set.mode === 'points' && set.points.length === 2, `${id}: only the two-point line (no third point, so no triangle) is authored`);
+    assert.ok(pointSetOverlay(actions, 'turn', true), `${id}: the turn overlay (the line through p and q) must be shown`);
+    return {types: {point: 2, line: 1}, curveCount: 0, points: set.points};
+}
+
+// Authored from src/graphs/compgeo/PolygonAreaGraph.tsx (drawFan: diagonals from v0 to v2..v(n-2) as curves, one filled triangle per
+// nonzero fan area; lattice markers and area labels only when their overlay is shown) and PointSetGraph.tsx (polygon mode: n points, n edge segments).
+function polygonAreaExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-overlay'], 'polygonAreaExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    const n = set.points.length;
+    assert.ok(set.mode === 'polygon' && set.closed === true && n >= 3, `${id}: only a closed polygon is authored`);
+    assert.ok(pointSetOverlay(actions, 'fan', true), `${id}: the fan overlay must be shown`);
+    assert.ok(!pointSetOverlay(actions, 'lattice', true) && !pointSetOverlay(actions, 'values', true), `${id}: only the fan without lattice markers and values is authored`);
+    const triangles = set.points.slice(2).filter((point, k) => cross(set.points[0], set.points[k + 1], point) !== 0).length;
+    return {types: {point: n, segment: n, curve: n - 3, polygon: triangles}, curveCount: n - 3, points: set.points};
+}
+
+// Authored from src/compgeo/pointInPolygon.ts (NOTCHED_PENTAGON) and src/graphs/compgeo/PointInPolygonGraph.tsx (the query point q, the
+// ray and winding overlays; values draw nothing), not from a capture.
+const notchedPentagon = [[0, 0], [6, 0], [6, 4], [3, 2], [0, 4]];
+function pointInPolygonExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-polygon', 'set-query-point', 'set-overlay'], 'pointInPolygonExpectedFor');
+    assert.equal(pointSetAction(id, actions, 'set-polygon').polygon, 'notched', `${id}: only the notched pentagon is authored`);
+    const query = pointSetAction(id, actions, 'set-query-point').point;
+    assert.ok(Array.isArray(query) && query.length === 2, `${id}: the query point must be a coordinate pair`);
+    assert.ok(!pointSetOverlay(actions, 'ray', true) && !pointSetOverlay(actions, 'winding', false), `${id}: only the opening without the ray and the winding overlay is authored`);
+    return {types: {point: 6, segment: 5}, curveCount: 0, points: [...notchedPentagon, query]};
+}
+
+// Authored from src/graphs/compgeo/HullTraceGraph.tsx (sample 1, the trace overlay draws accepted paths and probes as curves, the hull
+// only once done) and src/compgeo/slowHull.ts (event 0 tests the ordered pair (0, 1) against the witnesses in index order), not from a capture.
+const hullSample1 = [[2, 2], [4, 0], [0, 0], [5, 3], [2, 5], [-1, 3], [3, 1], [2, 0], [1, 1]];
+function convexHullExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-algorithm', 'set-overlay'], 'convexHullExpectedFor');
+    assert.equal(pointSetAction(id, actions, 'set-algorithm').algorithm, 'slow-edge-test', `${id}: only the slow edge test is authored`);
+    assert.ok(pointSetOverlay(actions, 'trace', true), `${id}: the trace overlay must be shown`);
+    // Step 0 is the first ordered pair (p0, p1): a reject draws the pair and the first witness as two probes, an accept the pair as an
+    // accepted edge plus the probe, so two curves either way. The hull is drawn only when the trace is done.
+    const witness = hullSample1.findIndex((point, k) => k > 1 && cross(hullSample1[0], hullSample1[1], point) < 0);
+    assert.ok(witness > 1, `${id}: the first pair of sample 1 must be rejected by a witness`);
+    return {types: {point: 9, curve: 2}, curveCount: 2, points: hullSample1};
+}
+
+// Authored from src/compgeo/monotoneChain.ts (event order; the right rule pops only on a right turn) and HullTraceGraph.tsx (done: the
+// accepted lower and upper chains as two curves and the hull outline as one polygon with four visible borders). The three collinear points
+// 0, 1, 2 give 12 events (lower: phase, accept 0, accept 1, test, accept 2; upper: phase, accept 2, accept 1, test, accept 0; output; done);
+// 11 next steps end on the done event, with hull [0, 1, 2, 1].
+function hullRobustnessExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-mode', 'set-pop-rule', 'set-duplicates', 'set-points', 'set-overlay'], 'hullRobustnessExpectedFor', ['next-step']);
+    assert.equal(pointSetAction(id, actions, 'set-mode').mode, 'chain', `${id}: only the chain view is authored`);
+    assert.equal(pointSetAction(id, actions, 'set-pop-rule').rule, 'right', `${id}: only the right pop rule is authored`);
+    assert.equal(pointSetAction(id, actions, 'set-duplicates').duplicates, 'merge', `${id}: only merged duplicates are authored`);
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.deepEqual(set.points, [[0, 0], [2, 0], [4, 0]], `${id}: only the three collinear points are authored`);
+    assert.ok(pointSetOverlay(actions, 'trace', true) && pointSetOverlay(actions, 'hull', true), `${id}: trace and hull overlays must be shown`);
+    assert.equal(actions.filter(item => item.kind === 'animation').length, 11, `${id}: the authored trace end needs exactly 11 next steps`);
+    return {types: {point: 3, curve: 2, polygon: 1, segment: 4}, curveCount: 2, points: set.points};
+}
+
+// Authored from src/graphs/compgeo/CurvePairGraph.tsx (two sampled Bezier curves; the control overlay one polyline per net; the hull
+// overlay one filled polygon with three visible borders per non-degenerate net) and BezierHullsGraph.tsx (the pieces overlay draws nothing when hidden).
+function bezierHullsExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-overlay', 'set-trace-step'], 'bezierHullsExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.ok(set.mode === 'points' && set.points.length === 6, `${id}: only two quadratic nets are authored`);
+    assert.equal(pointSetAction(id, actions, 'set-trace-step').step, 0, `${id}: only trace step 0 is authored`);
+    assert.ok(pointSetOverlay(actions, 'control', true) && pointSetOverlay(actions, 'hull', true) && !pointSetOverlay(actions, 'pieces', true),
+        `${id}: only control polygons and hulls without the pieces are authored`);
+    const nets = [set.points.slice(0, 3), set.points.slice(3)];
+    assert.ok(nets.every(net => cross(...net) !== 0), `${id}: each net must span a triangle hull`);
+    return {types: {point: 6, curve: 4, polygon: 2, segment: 6}, curveCount: 4, points: set.points};
+}
+
+/** First-frame expectation of a Convexity and hulls lesson (the six lessons of the chapter, keyed by the demonstration in the example id). */
+function convexityExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    const byDemonstration = {orientation: orientationExpectedFor, 'polygon-area': polygonAreaExpectedFor, 'point-in-polygon': pointInPolygonExpectedFor,
+        'convex-hull': convexHullExpectedFor, 'hull-robustness': hullRobustnessExpectedFor, 'bezier-hulls': bezierHullsExpectedFor};
+    const author = Object.hasOwn(byDemonstration, id.split('.').at(-1)) ? byDemonstration[id.split('.').at(-1)] : undefined;
+    assert.ok(author, `${id}: no authored Convexity and hulls first frame`);
+    return author(id, actions);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1000,4 +1121,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, assertExpectation};
