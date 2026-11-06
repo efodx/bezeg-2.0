@@ -3974,6 +3974,8 @@ export const sl = {
     "prompt_reduction": "Premikaj kontrolne točke in opazuj tretjo diferenco. Kdaj je nižanje točno? Kje je napaka največja?",
     "arcparam_title": "Naravna parametrizacija",
     "prompt_arcparam": "Primerjaj točke pri enakih korakih v t s točkami na enakih ločnih dolžinah. Kje se prve zgostijo in zakaj?",
+    "bezierclipping_title": "Presečišča z Bézierovim rezanjem",
+    "prompt_bezierclipping": "Pritiskaj Naslednji korak in opazuj, kako se živi obsegi ožijo. Kaj se zgodi, ko krivulji razmakneš, a se konveksni ovojnici še prekrivata?",
     "arcparam_curve_bezier": "Bézierova krivulja (kubična)",
     "arcparam_curve_ph": "PH krivulja (kubična)",
     "arcparam_help": "Enaki koraki v parametru t niso enaki koraki po krivulji. Ločno dolžino s(t) izračunamo numerično in jo obrnemo, da dobimo točke na enakih ločnih razdaljah (naravna parametrizacija).",

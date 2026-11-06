@@ -71,6 +71,7 @@ const PRESET_DATA_STATE_KEYS: Partial<Record<DemonstrationId, readonly string[]>
     'point-in-polygon': ['model'],
     'hull-robustness': ['model'],
     'bezier-hulls': ['model'],
+    'bezier-clipping': ['model'],
     'ear-clipping': ['model'],
     'point-set-triangulation': ['model', 'triangles', 'previous'],
     'delaunay': ['model', 'triangles', 'previous'],

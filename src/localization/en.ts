@@ -3975,6 +3975,8 @@ export const en: Record<keyof typeof sl, string> = {
     "prompt_reduction": "Move the control points and watch the third difference. When is the reduction exact? Where is the error largest?",
     "arcparam_title": "Arc-length parametrization",
     "prompt_arcparam": "Compare points at equal steps in t with points at equal arc lengths. Where do the first crowd together, and why?",
+    "bezierclipping_title": "Intersections by Bézier clipping",
+    "prompt_bezierclipping": "Press Next step and watch the live ranges shrink. What happens when you pull the curves apart while their convex hulls still overlap?",
     "arcparam_curve_bezier": "Bézier curve (cubic)",
     "arcparam_curve_ph": "PH curve (cubic)",
     "arcparam_help": "Equal steps in the parameter t are not equal steps along the curve. The arc length s(t) is tabulated and inverted to place points at equal distances (arc-length parametrization).",

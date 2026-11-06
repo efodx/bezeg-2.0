@@ -36,7 +36,8 @@ function withoutMath(source: string) {
 // hull-robustness joined the convexity chapter with its A5 lesson and section (convexity task 22).
 // bezier-hulls joined the convexity chapter with its A6 lesson and section (convexity task 28); curve-evolute with its L4 lesson and section (CG-B2-4); curve-offset with its L5 lesson and section (CG-B3-3); curve-envelope with its L6 lesson and section (CG-B3-4); epicycles with its F5 lesson and section (Fourier 06 F3, F4).
 // patch-coons, reduction and arc-length-param joined the advanced-bezier chapter with AB-A-4.
-const CHAPTER_LINK_PENDING: readonly string[] = [];
+// bezier-clipping awaits its lesson and chapter section (AB-B-3, AB-B-4).
+const CHAPTER_LINK_PENDING: readonly string[] = ['bezier-clipping'];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 

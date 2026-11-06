@@ -3,6 +3,7 @@ import {PolygonAreaGraph} from './compgeo/PolygonAreaGraph';
 import {HullTraceGraph} from './compgeo/HullTraceGraph';
 import {PointInPolygonGraph} from './compgeo/PointInPolygonGraph';
 import {HullRobustnessGraph} from './compgeo/HullRobustnessGraph';
+import {BezierClippingGraph} from './compgeo/BezierClippingGraph';
 import {BezierHullsGraph} from './compgeo/BezierHullsGraph';
 import {EarClippingGraph} from './compgeo/EarClippingGraph';
 import {TriangulationGraph} from './compgeo/TriangulationGraph';
@@ -139,6 +140,7 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'elevation': () => new ElevationGraph(),
     'reduction': () => new DegreeReductionGraph(),
     'arc-length-param': () => new ArcLengthParametrizationGraph(),
+    'bezier-clipping': () => new BezierClippingGraph(),
     'rational': () => new RationalBezierCurveGraph(),
     'rational-decasteljau': () => new RationalDecasteljauGraph(),
     'rational-elevation': () => new RationalElevationGraph(),

@@ -17,6 +17,7 @@ const expected = [
     ['bezier/elevation', '/bezeg-2.0/bezier', 'degree_elevation', 'degree_elevation', 'prompt_elevation'],
     ['bezier/reduction', '/bezeg-2.0/bezier', 'reduction_title', 'reduction_title', 'prompt_reduction'],
     ['bezier/arc-length', '/bezeg-2.0/bezier', 'arcparam_title', 'arcparam_title', 'prompt_arcparam'],
+    ['bezier/clipping', '/bezeg-2.0/bezier', 'bezierclipping_title', 'bezierclipping_title', 'prompt_bezierclipping'],
     ['rational/base', '/bezeg-2.0/rational', 'rational_bezier_curve', 'rational_bezier_curve', 'change_the_settings_and_observe_their_effect_on_the_graph'],
     ['rational/rational-decasteljau', '/bezeg-2.0/rational', 'rational_de_casteljau', 'rational_de_casteljau', 'prompt_decasteljau'],
     ['rational/rational-elevation', '/bezeg-2.0/rational', 'degree_elevation', 'degree_elevation', 'prompt_elevation'],
@@ -131,7 +132,7 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     const messages = language === 'sl' ? sl : en;
     const catalog = getDemonstrationCatalog();
     expect(catalog.demonstrations.map(entry => entry.path)).toEqual(expected.map(([path]) => `/bezeg-2.0/${path}`));
-    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(117);
+    expect(new Set(catalog.demonstrations.map(entry => entry.id)).size).toBe(118);
     for (const [path, family, title, heading, prompt] of expected) {
         const demonstration = findDemonstration(`/bezeg-2.0/${path}`)!;
         expect(demonstration.family).toBe(family);
@@ -147,7 +148,7 @@ test.each(['sl', 'en'] as const)('preserves every Demonstration in %s', language
     expect(catalog.families.map(family => family.title)).toEqual([
         messages.basics, messages.bezier_curves, messages.rational_bezier_curves, messages.splines, messages.ph_curves, messages.parametrizations, messages.curve_geometry, messages.interpolation_and_approximation, messages.b_splines, messages.bezier_patches, messages.functions_and_calculus, messages.analysis, messages.probability_and_statistics, messages.maps_of_the_plane, messages.plane_geometry, messages.computational_geometry, messages.projective_conics,
     ]);
-    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 10, 7, 5, 2, 3, 6, 5, 6, 7, 14, 16, 5, 3, 5, 16, 5]);
+    expect(catalog.families.map(family => family.demonstrations.length)).toEqual([2, 11, 7, 5, 2, 3, 6, 5, 6, 7, 14, 16, 5, 3, 5, 16, 5]);
     expect(catalog.families.flatMap(family => family.demonstrations)).toEqual(catalog.demonstrations);
     expect(catalog.starting.map(entry => [entry.demonstration.path, entry.title, entry.description, entry.caption])).toEqual([
         ['/bezeg-2.0/bezier/curve', messages.bezier_curve_209, messages.example_bezier, messages.points_to_shape],
@@ -178,7 +179,7 @@ test('queries resolve the current language and do not expose shared mutable meta
     expect(getDemonstrationCatalog().families[0].title).toBe(en.basics);
     expect(previous.families[0].title).toBe(sl.basics);
     previous.demonstrations.splice(0);
-    expect(getDemonstrationCatalog().demonstrations).toHaveLength(117);
+    expect(getDemonstrationCatalog().demonstrations).toHaveLength(118);
 });
 
 test('a surface definition has no pan or zoom actions and every catalog entry keeps the board view', () => {
