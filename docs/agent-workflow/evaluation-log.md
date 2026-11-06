@@ -2006,3 +2006,11 @@ Dispatch: review before push, then parallel test and chapter workers on disjoint
 
 - Handler only: tooling and one copy line were tightly coupled to the captures, so no worker ran. The soft threshold fired at 176k in 23 turns, mostly from reading the stream table and capture scripts whole.
 - One failed capture (Coons camera): the authored camera came from the catalog recipe, and the lesson opens on the default Preset's fit. The capture's evidence check caught it.
+
+### Curves handler 62: AB-A-6 Batch A gate (2026-11-06)
+
+- Gate, class S, handler plus three workers. Handler Opus medium. The soft threshold fired at 176k in 42 turns.
+- Audit, `bezeg-reviewer` Sonnet: 13 calls, 39k tokens, 2 minutes. Useful map of 60 rows, but classified by test titles and its totals did not add up. The handler's spot reads held for the main rows and corrected two: one "real session" was a checkpoint restore, and a "partly" was pinned in a test.
+- Smoke, `bezeg-smoke` Sonnet: 42 calls, 88k tokens, 12 minutes. Found the one real defect, the colour-only pair in D1. Its two reported failures were the brief's fault: the handler took an expected behaviour from a code comment, and did not say where `/ph/cubic`'s handles are.
+- Recheck, `bezeg-smoke` Haiku: 23 calls, 55k tokens, 5 minutes. All four rechecks clear, with observed values.
+- Handler: repair, recapture and records. One extraction script wasted two turns: the worker's report is not in its transcript as plain text.

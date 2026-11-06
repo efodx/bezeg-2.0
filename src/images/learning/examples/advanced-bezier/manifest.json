@@ -1,27 +1,27 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
+  "sourceRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
-    "dirty": true,
-    "inputs": "7938f0bf4d46955e2796fe0af5dd3a0d6e762fc116c2a402e8d697ee75620c0c",
-    "output": "cf212f8760bfb4838195b58e88746c8a6c0e0a6a0d795799ddf056d2f8836190"
+    "revision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+    "dirty": false,
+    "inputs": "d55dfc3db143a169c41565e520c74661569c4dbfa237b3a86619a76a567f21e3",
+    "output": "9b1c801ab68e49be1849c7532aaf9d3f2db40391a07312b909b10b25512ce57f"
   },
   "servedBuild": {
     "shellUrl": "http://127.0.0.1:4314/bezeg-2.0/",
-    "stampRevision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
-    "stampDirty": true,
-    "localOutputHash": "cf212f8760bfb4838195b58e88746c8a6c0e0a6a0d795799ddf056d2f8836190",
+    "stampRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+    "stampDirty": false,
+    "localOutputHash": "9b1c801ab68e49be1849c7532aaf9d3f2db40391a07312b909b10b25512ce57f",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-D-2G0H6u.js",
-        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-D-2G0H6u.js",
-        "sha256": "18b84da67dff590485b1dac753f938f50fb7eb99c9aaa01785d677c6d0045948",
+        "name": "index-BdA09wcX.js",
+        "url": "http://127.0.0.1:4314/bezeg-2.0/assets/index-BdA09wcX.js",
+        "sha256": "4618d9a871dbbbffccc4ba2a449213bd8d2a30d436fc301d9337b2e5c533d96c",
         "matchesLocalBuild": true
       },
       {
@@ -62,8 +62,8 @@
       "advanced-bezier.patch-coons.patch-coons": "ef89ac6201b4321a79921e4e5e72635be46995a6f38f65203372ceee7a364406"
     },
     "presentation": "4614b2f475fa186a068f517e7fce377eb0038eba48a972348d726be91b1bb5f9",
-    "buildOutput": "cf212f8760bfb4838195b58e88746c8a6c0e0a6a0d795799ddf056d2f8836190",
-    "buildInputs": "7938f0bf4d46955e2796fe0af5dd3a0d6e762fc116c2a402e8d697ee75620c0c"
+    "buildOutput": "9b1c801ab68e49be1849c7532aaf9d3f2db40391a07312b909b10b25512ce57f",
+    "buildInputs": "d55dfc3db143a169c41565e520c74661569c4dbfa237b3a86619a76a567f21e3"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -135,7 +135,7 @@
       "file": "advanced-bezier.reduction.reduction.png",
       "width": 840,
       "height": 520,
-      "sha256": "8cf7982b12a8b839ca0cb0ac8eea25710e68353f40190b1338f2c076df100e68",
+      "sha256": "379ae104eb999cfbaa26d198197a8908567a3858ef4ee4b0c7e87b471648dff5",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
@@ -291,8 +291,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
-        "sourceRevision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
+        "buildRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+        "sourceRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
         "pageErrors": []
       }
     },
@@ -428,8 +428,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
-        "sourceRevision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
+        "buildRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+        "sourceRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
         "pageErrors": []
       }
     },
@@ -723,8 +723,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
-        "sourceRevision": "33eb9915f4a1b93539060b0d7e7e07b1f0d42006",
+        "buildRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
+        "sourceRevision": "f0f0b6154764e03af1a8203ceca6b3b37291c4f8",
         "pageErrors": []
       }
     }

@@ -96,7 +96,7 @@ Convexity A6 is on `master`: `hullsSeparated` (`src/compgeo/hullSeparation.ts`) 
 | AB-A-3b | F3 | D3 guided lesson (seven steps) | AB-A-2d | done ([record](../../reviews/advanced-bezier/ab-a-3-lessons.md)) |
 | AB-A-4 | F4 | Chapter `advanced-bezier` owning D1, D3 and D4 | AB-A-3a, AB-A-3b | done ([record](../../reviews/advanced-bezier/ab-a-4-chapter.md)) |
 | AB-A-5 | F5 | Cards and posters of `reduction`, `arc-length-param`, `patch-coons` if pending | AB-A-4 | done ([record](../../reviews/advanced-bezier/ab-a-5-media.md)) |
-| AB-A-6 | F6 | Batch A gate | AB-A-5 | planned |
+| AB-A-6 | F6 | Batch A gate | AB-A-5 | done, **Batch A released** (handler 62): [gate record](../../reviews/advanced-bezier/ab-a-6-gate.md), [audit](../../reviews/advanced-bezier/ab-a-6-criterion-audit.md) |
 | AB-B-1 | F2a | `TraceCurvePairGraph` lifted from `BezierHullsGraph`, behaviour unchanged | Batch A | planned |
 | AB-B-2a | F2a | D2 `bezier-clipping` graph, overlays, inset, table, status, tolerance, Presets, lesson action targets; no route | AB-B-1, AB-1d | planned |
 | AB-B-2b | F2b | D2 registration `/bezeg-2.0/bezier/clipping`, `lesson: false`, recipe not run, drag measurement | AB-B-2a | planned |
