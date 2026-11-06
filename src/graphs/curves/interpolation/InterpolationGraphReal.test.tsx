@@ -2,6 +2,7 @@ import React from 'react';
 import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import InterpolationGraph from './InterpolationGraph';
+import {setLanguage} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
 import {insideHull} from './interpolationModel';
 import {interpolationPresetCollection} from './interpolationPresetCollection';
@@ -13,6 +14,8 @@ beforeAll(() => {
     window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
         addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
 });
+
+afterEach(() => setLanguage('sl'));
 
 class ObservedInterpolationGraph extends InterpolationGraph {
     liveBoard() { return this.board; }
@@ -264,6 +267,63 @@ describe('InterpolationGraph on a real board', () => {
         expect(hull.dataX.length).toBe(5);
         expect([hull.dataX[0], hull.dataY[0]]).toEqual([hull.dataX[4], hull.dataY[4]]);
         expect(new Set(hull.dataX.map((x: number, i: number) => `${x},${hull.dataY[i]}`)).size).toBe(4);
+        view.unmount();
+    });
+    test('the board readout text follows the language, with the language decimal separator', () => {
+        const {graph, view} = mount();
+        try {
+            graph.importPresetData({points: [[0, 0], [1.5, 2], [3, 3.25], [4, 0]], parameterRule: 'chord', showHull: false, showBezier: true, showBasis: false, t: 0.37});
+            const readout = () => {
+                graph.liveBoard().update();
+                const texts = graph.ownedElements().filter((e: any) => e.elType === 'text') as any[];
+                expect(texts.length).toBe(1);
+                return texts[0].plaintext as string;
+            };
+            act(() => setLanguage('sl'));
+            const sl = readout();
+            act(() => setLanguage('en'));
+            const en = readout();
+            expect(sl.length).toBeGreaterThan(0);
+            expect(en.length).toBeGreaterThan(0);
+            expect(en).not.toBe(sl);
+            expect(sl).toMatch(/\d,\d/);
+            expect(sl).not.toMatch(/\d\.\d/);
+            expect(en).toMatch(/\d\.\d/);
+            expect(en).not.toMatch(/\d,\d{2}/);
+            act(() => setLanguage('sl'));
+            expect(readout()).toBe(sl);
+        } finally { view.unmount(); }
+    });
+
+    test('the board readout gives way on a phone board, where it would cover the curve', () => {
+        const {graph, view} = mount();
+        try {
+            const board = graph.liveBoard() as any;
+            const text = graph.ownedElements().find((e: any) => e.elType === 'text') as any;
+            board.canvasWidth = 390;
+            board.update();
+            expect(text.evalVisProp('visible')).toBe(false);
+            board.canvasWidth = 900;
+            board.update();
+            expect(text.evalVisProp('visible')).toBe(true);
+        } finally { view.unmount(); }
+    });
+
+    test('twelve uniform nodes: the drawn Lagrange curve keeps node values and the line x = t, which a monomial solve would lose', () => {
+        const {graph, view} = mount();
+        const ys = [3, -2, 5, 0.5, -4, 2, 6, -1, 4, -3, 1, 7];
+        graph.importPresetData({points: ys.map((y, i) => [i, y] as [number, number]), parameterRule: 'uniform', showHull: false, showBezier: false, showBasis: false, t: 0.5});
+        const {lagrange} = curves(graph);
+        ys.forEach((y, i) => {
+            expect(Math.abs(lagrange.X(i) - i)).toBeLessThanOrEqual(1e-12);
+            expect(Math.abs(lagrange.Y(i) - y)).toBeLessThanOrEqual(1e-12);
+        });
+        for (let u = 0.13; u < 11; u += 0.97) expect(Math.abs(lagrange.X(u) - u)).toBeLessThanOrEqual(1e-9);
+        // Between nodes the curve must agree with exact Newton divided differences (a monomial solve is off by orders of magnitude here).
+        const coef = [...ys];
+        for (let j = 1; j < 12; j++) for (let i = 11; i >= j; i--) coef[i] = (coef[i] - coef[i - 1]) / j;
+        const horner = (u: number) => { let v = coef[11]; for (let k = 10; k >= 0; k--) v = v * (u - k) + coef[k]; return v; };
+        for (const u of [0.5, 3.3, 7.7, 10.9]) expect(lagrange.Y(u)).toBeCloseTo(horner(u), 8);
         view.unmount();
     });
 }, 30000);

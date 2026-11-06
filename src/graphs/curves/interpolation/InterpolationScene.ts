@@ -139,12 +139,13 @@ export class InterpolationScene {
         });
 
         const box = () => this.board.getBoundingBox();
+        // A phone board has no room for these lines: they would cover the top of the curve. The inspector shows the same readout.
         this.create<Text>('text', [
             () => box()[0] + 0.02 * (box()[2] - box()[0]),
             () => box()[1] - 0.02 * (box()[1] - box()[3]),
             () => readoutLines(this.settings.points(), this.settings.rule(), this.settings.position(), this.settings.showBezier(), currentLanguage()).join("\n"),
         ], {anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
-            strokeColor: GraphPalette.label});
+            strokeColor: GraphPalette.label, visible: () => this.board.canvasWidth >= 480});
 
         // Board text is recomputed only on board update, which a language change does not trigger.
         this.stopLanguageUpdates = onLanguageChange(() => {
