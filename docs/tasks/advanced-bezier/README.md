@@ -110,4 +110,4 @@ Convexity A6 is on `master`: `hullsSeparated` (`src/compgeo/hullSeparation.ts`) 
 | AB-C-4 | F4 | D4 section in chapter `advanced-bezier` | AB-C-3 | done with AB-A-4 ([record](../../reviews/advanced-bezier/ab-a-4-chapter.md)) |
 | AB-C-5 | F5 | Card and poster of `patch-coons` | AB-C-4 | done with AB-A-5 ([record](../../reviews/advanced-bezier/ab-a-5-media.md)) |
 | AB-C-P | F2b | D4 drag measurement the batch gate asks for, on the shipped route | AB-C-3 | done (handler 67; [measurement](../../reviews/advanced-bezier/ab-c-p-perf.md)) |
-| AB-C-6 | F6 | Batch C gate: criterion audit, the browser checks AB-C-2a left for registration (drag, relink, shown surface, keyboard order, 200% text, SL/EN live switch), checks | AB-C-P | held (handler 67): [gate record](../../reviews/advanced-bezier/ab-c-6-gate.md); every check passed, F3 (closing the lesson) is open |
+| AB-C-6 | F6 | Batch C gate: criterion audit, the browser checks AB-C-2a left for registration (drag, relink, shown surface, keyboard order, 200% text, SL/EN live switch), checks | AB-C-P | done (handler 68): [gate](../../reviews/advanced-bezier/ab-c-6-gate.md), **Batch C released** |

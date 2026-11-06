@@ -1,12 +1,18 @@
 # AB-C-6: Batch C gate
 
-**Held: every check passed except one open question, [F3](#open-f3-closing-the-lesson).** Batch C (D4 `patch-coons`) is not released until F3 is settled. Handler 67, 2026-11-06. Audit: [criterion audit](ab-c-6-criterion-audit.md). Browser: [report](ab-c-6-smoke.md), [brief](ab-c-6-smoke-brief.md). Measurement: [AB-C-P](ab-c-p-perf.md). Spec condition "surface-view ADR recorded": [ADR 0019](../../adr/0019-jsxgraph-surface-view.md), accepted, with the Coons path in [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md).
+**Passed: Batch C released (D4 `patch-coons`); family 5 complete.** Handler 67 ran the gate and held it on F3; handler 68 settled F3, 2026-11-06. No product code changed for F3. Audit: [criterion audit](ab-c-6-criterion-audit.md). Browser: [report](ab-c-6-smoke.md), [brief](ab-c-6-smoke-brief.md). Measurement: [AB-C-P](ab-c-p-perf.md). Spec condition "surface-view ADR recorded": [ADR 0019](../../adr/0019-jsxgraph-surface-view.md), accepted, with the Coons path in [ADR 0028](../../adr/0028-advanced-bezier-objectives-and-owners.md).
 
-## Open: F3, closing the lesson
+## Settled: F3, closing the lesson
 
-The browser pass set shown \(B\), dragged `c0-1`, walked the lesson and closed it. The route showed the default scene, not that state, and the URL kept `?learn=1&learnChapter=…&learnSection=patch-coons`. The handler could not tell from the scripts whether the lesson was opened in the page or by a new page load. A new load starts from the default scene, so it would explain this with no defect. D2's gate saw its state return.
+**No defect.** The browser pass had seen the default scene after closing the lesson, with its state lost. The recheck ([report](ab-c-6-f3-smoke.md), [brief](ab-c-6-f3-brief.md), production preview of `44da1664`, `bezeg-smoke` Haiku) separated the two ways in:
 
-**To settle:** on the route, change the scene, open the lesson from the page without a navigation, close it, and read the scene. If it does not return, this is a defect of restore on exit; fix it with a test. If it returns, record that and release.
+| Way in | Scene before | Scene after closing |
+| --- | --- | --- |
+| *Spoznaj to demonstracijo*, walked to the end, closed | \(B\), `c0-1` moved | The same, readout identical, no reload |
+| The same button, two frames, closed through *Zapusti in povrni graf* | \(B\), `c0-1` moved | The same, readout identical, no reload |
+| New page load of the `?learn=1` URL | Default, as the load discards the scene | Default |
+
+The third row is what the gate pass saw. Covered: \(B\) and `c0-1` only. The closing URL keeps `learnChapter` and `learnSection` (`onClose` removes only `learn`), so the gate's first reading of it was not exact; see the polish below.
 
 ## Audit gaps
 
@@ -47,6 +53,7 @@ Production preview of `ad350c50`, clean, by `bezeg-smoke` Sonnet. Provenance fro
 - The shared slider boxes and the "Orodja za ta graf" eyebrow at 200% text.
 - Unlinked, a press at a shared corner takes the topmost end point. The typed \(z\) field holds a raw float after a drag.
 - Step 6's text does not mention that the interior net changes with the corner.
+- Closing a lesson leaves `learnChapter` and `learnSection` in the URL. Harmless on every route seen; shared workspace code, not D4's.
 
 ## Checks
 
