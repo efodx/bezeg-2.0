@@ -20,6 +20,7 @@ import {sweepPreviewCopy} from '../content/sweepPreviewCopy';
 import {trianglePreviewCopy} from '../content/trianglePreviewCopy';
 import {interpolationPreviewCopy} from '../content/interpolationPreviewCopy';
 import {probabilityPreviewCopy} from '../content/probabilityPreviewCopy';
+import {bsplinePreviewCopy} from '../content/bsplinePreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -266,6 +267,10 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['probability.binomial-normal.prob-binomial-normal', 'probability.clt.prob-clt', 'probability.correlation.prob-correlation',
             'probability.density.prob-density', 'probability.summary.prob-summary'],
         counts: [[4, 1], [2, 0], [1, 4], [2, 2], [0, 9]]},
+    {chapterId: 'b-splines', copy: bsplinePreviewCopy,
+        ids: ['b-splines.bspline-basis.bspline-basis', 'b-splines.bspline-blossom.bspline-blossom', 'b-splines.bspline-deboor.bspline-deboor',
+            'b-splines.bspline-extraction.bspline-extraction', 'b-splines.bspline-insertion.bspline-insertion', 'b-splines.bspline-nurbs.bspline-nurbs'],
+        counts: [[3, 8], [1, 7], [1, 7], [5, 4], [3, 4], [2, 10]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

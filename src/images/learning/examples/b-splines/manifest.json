@@ -1,0 +1,1137 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+    "dirty": true,
+    "inputs": "1d07f2ba03589f2ffaa29ba932d5d67bb157a75497e5f08271154a7884cc006e",
+    "output": "f561cda5f5d51ca29b112d57fe50f7e89a919c32e3410b7f67db99538b48fe13"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
+    "stampRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+    "stampDirty": true,
+    "localOutputHash": "f561cda5f5d51ca29b112d57fe50f7e89a919c32e3410b7f67db99538b48fe13",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-M-ENQDwn.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-M-ENQDwn.js",
+        "sha256": "6ec1b5552fb6ce97784a366e3ea8c72421a2601625b47d22ec2a7fdc9a4ffe80",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-4xiZKs1O.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
+        "sha256": "d279c0065714d2d01b0f65e5df5c25389eb6e69c216552fa617f2f8abba29535",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-Cnfm82p2.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
+        "sha256": "fc70869aa362c71417e1a66b90887ad467182d981e6fc9b1eb91261d97fa7edb",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "5577d1be4f360fb8299d09d4bcf8ef098203c06fb03182c04e9654eb418893bb",
+    "entries": {
+      "b-splines.bspline-basis.bspline-basis": "b64a25e3ee8f021f0d70c86d656299331d1dc82985efad81df48ee261419dc59",
+      "b-splines.bspline-deboor.bspline-deboor": "22792d3875c46e1e910a7b0d5fa5224c4d3ee941bcebb3e75c9936a6ee330d2d",
+      "b-splines.bspline-insertion.bspline-insertion": "96c354e786a02e8046383467e65aa81beb7fad3006fc0c4f93aedb576705b5a8",
+      "b-splines.bspline-extraction.bspline-extraction": "0b3ed49527a0bc1b0a83e4661b79ca7484375ccd4914d5f0f2769c41c00e7208",
+      "b-splines.bspline-nurbs.bspline-nurbs": "fa4d2ab517fc3dc9fff1e26034f223fbd33a05fece5a81a36bbfae0daf3e804f",
+      "b-splines.bspline-blossom.bspline-blossom": "d1e5b6724f45237a67793ee2a95a06b7aa3dfca009c8c8a90f13452eede2cc16"
+    },
+    "presentation": "fe7fb3665bc91478eced1d459662a35db0dbcc4081517f2d0471a321083b249f",
+    "buildOutput": "f561cda5f5d51ca29b112d57fe50f7e89a919c32e3410b7f67db99538b48fe13",
+    "buildInputs": "1d07f2ba03589f2ffaa29ba932d5d67bb157a75497e5f08271154a7884cc006e"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "b-splines.bspline-basis.bspline-basis",
+        "demonstrationId": "bspline-basis",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.35,
+            1.15,
+            2.35,
+            -0.6
+          ]
+        }
+      },
+      {
+        "id": "b-splines.bspline-deboor.bspline-deboor",
+        "demonstrationId": "bspline-deboor",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.45,
+            2.6,
+            4.45,
+            -0.4
+          ]
+        }
+      },
+      {
+        "id": "b-splines.bspline-insertion.bspline-insertion",
+        "demonstrationId": "bspline-insertion",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.9,
+            3.4,
+            6.9,
+            -1.4
+          ]
+        }
+      },
+      {
+        "id": "b-splines.bspline-extraction.bspline-extraction",
+        "demonstrationId": "bspline-extraction",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.35,
+            2.55,
+            4.8,
+            -0.6
+          ]
+        }
+      },
+      {
+        "id": "b-splines.bspline-nurbs.bspline-nurbs",
+        "demonstrationId": "bspline-nurbs",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2.37,
+            1.45,
+            2.37,
+            -1.45
+          ]
+        }
+      },
+      {
+        "id": "b-splines.bspline-blossom.bspline-blossom",
+        "demonstrationId": "bspline-blossom",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.45,
+            2.6,
+            4.45,
+            -0.4
+          ]
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "b-splines.bspline-basis.bspline-basis",
+      "demonstrationId": "bspline-basis",
+      "path": "/bezeg-2.0/bspline/basis?example=lesson.b-splines.bspline-basis.bspline-basis",
+      "sceneFingerprint": "0789503968805a09501d83396d900eba23fd8ffc88a4c3f144a7f62a43a5e644",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-basis-hat-degree-1\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":1,\"knots\":[0,0,1,2,2],\"points\":[[0,0],[1,0],[2,0]]},\"view\":[-0.24,1.65,2.24,-0.55]}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":1}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "b-splines.bspline-basis.bspline-basis.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "32a7edaf64d109ddad7bfa945d8aef609d5400941216b9642680c2f904c94b42",
+      "scene": {
+        "visibleElementCount": 16,
+        "visibleElementTypes": {
+          "curve": 3,
+          "segment": 1,
+          "point": 8,
+          "text": 4
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.0025,
+              0.0025
+            ],
+            [
+              0.005,
+              0.005
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.0025,
+              0
+            ],
+            [
+              0.005,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0.0025,
+              0.9975
+            ],
+            [
+              0.005,
+              0.995
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:1,0",
+          "point:1,1",
+          "point:0,-0.1",
+          "point:0,-0.17",
+          "point:1,-0.1",
+          "point:2,-0.1",
+          "point:2,-0.17"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 43,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "curve": 3,
+            "segment": 1,
+            "point": 8,
+            "text": 5
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.0025,
+                0.0025
+              ],
+              [
+                0.005,
+                0.005
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.0025,
+                0
+              ],
+              [
+                0.005,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0.0025,
+                0.9975
+              ],
+              [
+                0.005,
+                0.995
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:1,0",
+            "point:1,1",
+            "point:0,-0.1",
+            "point:0,-0.17",
+            "point:1,-0.1",
+            "point:2,-0.1",
+            "point:2,-0.17"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 4,
+        "finalLabelCount": 4,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 3,
+          "segment": 1,
+          "point": 8,
+          "text": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "sourceRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "b-splines.bspline-deboor.bspline-deboor",
+      "demonstrationId": "bspline-deboor",
+      "path": "/bezeg-2.0/bspline/deboor?example=lesson.b-splines.bspline-deboor.bspline-deboor",
+      "sceneFingerprint": "a98f122991c9fe73a3e4728951b24069aabb414faa910b8226a09ef89cf60851",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-deboor-predict-half\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,1,2,2,2],\"points\":[[0,0],[1,2],[3,2],[4,0]]},\"view\":[-1.5,3.5,5.5,-1.5]}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "b-splines.bspline-deboor.bspline-deboor.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "1cce944401d18f3ed63134e448e8851d2f2999e09be04a30727689bb2d1bf699",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "point": 7,
+          "curve": 1,
+          "segment": 2
+        },
+        "visiblePointCount": 7,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              1.5
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:1,2",
+          "point:3,2",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "point": 7,
+            "curve": 1,
+            "segment": 2,
+            "text": 1
+          },
+          "visiblePointCount": 7,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1.5
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:1,2",
+            "point:3,2",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 7,
+          "curve": 1,
+          "segment": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "sourceRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "b-splines.bspline-insertion.bspline-insertion",
+      "demonstrationId": "bspline-insertion",
+      "path": "/bezeg-2.0/bspline/insertion?example=lesson.b-splines.bspline-insertion.bspline-insertion",
+      "sceneFingerprint": "891e9f91194f9a413120749c2b13fca96868d21b99b763d0f45eb24b1f40caed",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-insertion-predict-start\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,1,2,2,2],\"points\":[[0,0],[1,2],[3,2],[4,0]]},\"view\":[-1.5,3.5,6.5,-1.5]}",
+        "knot-insertion: {\"kind\":\"knot-insertion\",\"operation\":\"set-comb\",\"visible\":true}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "b-splines.bspline-insertion.bspline-insertion.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "cf03a05247092875df2d084107007ec52df1e0e99d2c775d39481fe74c1c6dd3",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 3
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              -0.04,
+              0.02
+            ],
+            [
+              -0.015526,
+              0.071487
+            ],
+            [
+              0.008948,
+              0.122973
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              -0.02,
+              0.01
+            ],
+            [
+              -0.04,
+              0.02
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              1.5
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:1,2",
+          "point:3,2",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 23,
+            "point": 4,
+            "curve": 3
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                -0.04,
+                0.02
+              ],
+              [
+                -0.015526,
+                0.071487
+              ],
+              [
+                0.008948,
+                0.122973
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                -0.02,
+                0.01
+              ],
+              [
+                -0.04,
+                0.02
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1.5
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:1,2",
+            "point:3,2",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 3
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "sourceRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "b-splines.bspline-extraction.bspline-extraction",
+      "demonstrationId": "bspline-extraction",
+      "path": "/bezeg-2.0/bspline/extraction?example=lesson.b-splines.bspline-extraction.bspline-extraction",
+      "sceneFingerprint": "b320f88e507606e7055b27d52cc0f734b67371f64b0aaea7ff20a4bccc36e7c0",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-extraction-predict-start\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,1,2,2,2],\"points\":[[0,0],[1,2],[3,2],[4,0]]},\"view\":[-1.5,4.5,6.5,-1.5]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "b-splines.bspline-extraction.bspline-extraction.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "36c7f69ea506747dc3545a72e43e14225ff3267d2271170bc0e32ce20bc02839",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 5
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.025,
+              0.049375
+            ],
+            [
+              0.05,
+              0.09875
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              1.5
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          [
+            [
+              2,
+              2
+            ],
+            [
+              2.025,
+              1.999375
+            ],
+            [
+              2.05,
+              1.99875
+            ]
+          ],
+          [
+            [
+              2,
+              2
+            ],
+            [
+              2.5,
+              2
+            ],
+            [
+              3,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:1,2",
+          "point:3,2",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "point": 4,
+            "curve": 5
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.025,
+                0.049375
+              ],
+              [
+                0.05,
+                0.09875
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1.5
+              ],
+              [
+                2,
+                2
+              ]
+            ],
+            [
+              [
+                2,
+                2
+              ],
+              [
+                2.025,
+                1.999375
+              ],
+              [
+                2.05,
+                1.99875
+              ]
+            ],
+            [
+              [
+                2,
+                2
+              ],
+              [
+                2.5,
+                2
+              ],
+              [
+                3,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:1,2",
+            "point:3,2",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "sourceRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "b-splines.bspline-nurbs.bspline-nurbs",
+      "demonstrationId": "bspline-nurbs",
+      "path": "/bezeg-2.0/bspline/nurbs?example=lesson.b-splines.bspline-nurbs.bspline-nurbs",
+      "sceneFingerprint": "21753c7ad64d9e823767375c895db4934872bf8fd14844e0b42b402e296c8d74",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-nurbs-predict-unit\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,0.25,0.25,0.5,0.5,0.75,0.75,1,1,1],\"points\":[[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]],\"weights\":[1,1,1,1,1,1,1,1,1]},\"view\":[-2,2,2,-2]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "b-splines.bspline-nurbs.bspline-nurbs.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "5a5c83bd7cebaec0d7dea19d534419382c2e6d408e8089b64148a2b9b575d5c4",
+      "scene": {
+        "visibleElementCount": 12,
+        "visibleElementTypes": {
+          "point": 10,
+          "curve": 2
+        },
+        "visiblePointCount": 10,
+        "sampledVisibleCurves": [
+          [
+            [
+              1,
+              0
+            ],
+            [
+              -1,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              0.877583,
+              0.479426
+            ],
+            [
+              0.540302,
+              0.841471
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "curve-count",
+          "point:1,0",
+          "point:1,1",
+          "point:0,1",
+          "point:-1,1",
+          "point:-1,0",
+          "point:-1,-1",
+          "point:0,-1",
+          "point:1,-1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 39,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 23,
+            "point": 10,
+            "curve": 2
+          },
+          "visiblePointCount": 10,
+          "sampledVisibleCurves": [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0.877583,
+                0.479426
+              ],
+              [
+                0.540302,
+                0.841471
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "curve-count",
+            "point:1,0",
+            "point:1,1",
+            "point:0,1",
+            "point:-1,1",
+            "point:-1,0",
+            "point:-1,-1",
+            "point:0,-1",
+            "point:1,-1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 10,
+          "curve": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "sourceRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "b-splines.bspline-blossom.bspline-blossom",
+      "demonstrationId": "bspline-blossom",
+      "path": "/bezeg-2.0/bspline/blossom?example=lesson.b-splines.bspline-blossom.bspline-blossom",
+      "sceneFingerprint": "bf80b0f4b6e40b5b1ea3bfb5561538dc06ac1c0aa3f1d3fb783884190a2c42d5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-blossom-predict-controls\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,1,2,2,2],\"points\":[[0,0],[1,2],[3,2],[4,0]]},\"view\":[-1.5,3.5,5.5,-1.5]}",
+        "blossom: {\"kind\":\"blossom\",\"operation\":\"set-bezier\",\"visible\":false}",
+        "blossom: {\"kind\":\"blossom\",\"operation\":\"set-args\",\"args\":[0,1]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "b-splines.bspline-blossom.bspline-blossom.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "6439a9374fb393ca62c841359c66d25e35763ceb50c9b7c9670940415476a4db",
+      "scene": {
+        "visibleElementCount": 10,
+        "visibleElementTypes": {
+          "point": 7,
+          "curve": 1,
+          "segment": 1,
+          "text": 1
+        },
+        "visiblePointCount": 7,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              1.5
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:curve",
+          "type:point",
+          "type:segment",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:1,2",
+          "point:3,2",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 36,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "point": 7,
+            "curve": 1,
+            "segment": 1,
+            "text": 1
+          },
+          "visiblePointCount": 7,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1.5
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:curve",
+            "type:point",
+            "type:segment",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:1,2",
+            "point:3,2",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 7,
+          "curve": 1,
+          "segment": 1,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "sourceRevision": "64ced70fc8ad0589ad18b2dbc42ae970192c0c13",
+        "pageErrors": []
+      }
+    }
+  ]
+}
