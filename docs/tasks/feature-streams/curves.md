@@ -1,5 +1,5 @@
 # Stream: Curves
-Run state: active
+Run state: complete
 
 Rules and slice template: [feature streams](README.md). Port 4314. Handoffs: `docs/reviews/feature-streams/curves/`. Each family creates `docs/tasks/<family>/` in F0 and records slice status there. This file holds one status line per family.
 
@@ -12,6 +12,8 @@ Rules and slice template: [feature streams](README.md). Port 4314. Handoffs: `do
 | 5 | Advanced Bézier topics | [advanced-bezier-lessons.md](../../specs/advanced-bezier-lessons.md) | `G-CG` (hull tests in Bézier clipping); family 1's curvature and arc-length work; Coons patch uses the JSXGraph surface view (its spec's surface-view ADR) | F0 done; [tasks](../advanced-bezier/README.md); AB-1a, AB-1b, AB-1c, AB-1d kernels and AB-C-2a (D4 Coons graph) done; D2 graph unblocked (`CurvePairGraph` on `master`), starts after Batch A; D4 `patch-coons` registered (`2a6e9c4`); D4 lesson AB-C-3 done (handler 18); Batch A planned (AB-A-2a..6); AB-A-2a D1 and AB-A-2c D3 graphs done (handler 58); AB-A-2b, AB-A-2d registration and first browser check done, D1 and D3 lessons reviewed and on `master`, AB-A-4 chapter done (handler 60); AB-A-5 cards and posters done (handler 61); AB-A-6 gate passed, Batch A released (handler 62); Batch B planned (AB-B-1..6), not started; Batch B: AB-B-1, AB-B-2a1 and AB-B-2a2 done (handler 63); AB-B-2b registered `bezier-clipping` (`lesson: false`, poster pending), browser pass and drag measurement done (handler 64); AB-B-3 lesson and AB-B-4 chapter section done (handler 65); AB-B-5 card and poster done, AB-B-6 gate passed, **Batch B released** (handler 66); D4 drag measured, AB-C-6 gate held on F3 (handler 67); F3 settled with no defect, AB-C-6 passed, **Batch C released** (handler 68): **family 5 complete** |
 
 ## Notes
+
+- **Done (curves handler 74, 2026-11-06): stream closed.** All five families are complete and the low-priority list is empty; only owner decisions remain. See [handoff 74](../../reviews/feature-streams/curves/handler-handoff-74.md).
 
 - **For the owner (curves handler 54, 2026-11-05): worked examples that never show.** The Functions stream closed the same day, so this has no handler until the owner reopens it. Explanation frames do not carry `workedExample`, so a step's example appears only in a `calculation` frame. Steps in 17 lessons list `workedExampleId` with no such frame, so the authored example is unreachable: `function-transformation`, `function-inverse`, `polynomial-zeros`, `rational-function`, `geometric-series`, `conic-focal`, `root-finding`, `quadrature`, `euler-method`, `fourier-series`, `fourier-coefficients`, `epicycles` and the five `projective-*` lessons. Some of these steps repeat the result in their explanation, so the loss varies. To fix a lesson, add the frame and update its smoke row's `minFrames`, then remove its id from `WORKED_EXAMPLE_NOT_SHOWN` in `lessonCatalog.test.ts`; if the example is not wanted, drop `workedExampleId` instead.
 
