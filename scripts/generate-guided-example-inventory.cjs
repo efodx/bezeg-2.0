@@ -271,6 +271,12 @@ const chapterInventories = {
         pathExport: 'triangleGeometryGuidedExamplePath',
         expectedFor: triangleGeometryExpectedFor,
     },
+    interpolation: {
+        module: '/src/learning/content/interpolationChapterRegistry.ts',
+        registryExport: 'interpolationGuidedExampleRegistry',
+        pathExport: 'interpolationGuidedExamplePath',
+        expectedFor: interpolationExpectedFor,
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleRegistry',
@@ -1356,6 +1362,112 @@ function triangleGeometryExpectedFor(id, step) {
     return author(id, step.scene.actions);
 }
 
+// ---- Interpolation chapter (interpolation): five lessons, keyed by the section in the example id.
+
+const INTERPOLATION_POINTS = [[0, 0], [1, 2], [3, 3], [4, 0]];
+
+/** Asserts every action of the opening scene is the prepared scene or one of `kind` with an operation in `operations` (an `extra` test may allow more). */
+function interpolationOps(id, actions, kind, operations, extra = () => false) {
+    for (const item of actions) {
+        assert.ok(item.kind === 'prepared-scene' || (item.kind === kind && operations.includes(item.operation)) || extra(item),
+            `${id}: the authored first-frame expectation assumes an opening scene that only uses ${kind} ${operations.join(', ')}; extend the expectation before changing it`);
+    }
+}
+
+/** The last action of `kind` and `operation` (matching `test`) in the opening scene, or undefined. */
+const lastOp = (actions, kind, operation, test = () => true) => actions.filter(item => item.kind === kind && item.operation === operation && test(item)).at(-1);
+
+/** The value the opening scene gives `operation` through `field`; it must be set exactly once. */
+function onceOp(id, actions, kind, operation, field) {
+    const found = actions.filter(item => item.kind === kind && item.operation === operation);
+    assert.equal(found.length, 1, `${id}: opening scene must run ${kind} ${operation} exactly once`);
+    return found[0][field];
+}
+
+/** Whether an overlay is shown: it must be set explicitly (the graph's own default is not relied on). */
+function interpolationOverlay(id, actions, kind, overlay) {
+    const set = lastOp(actions, kind, 'set-overlay', item => item.overlay === overlay);
+    assert.ok(set, `${id}: opening scene must set the ${overlay} overlay`);
+    return set.visible;
+}
+
+// Authored from src/graphs/curves/interpolation/InterpolationScene.ts (build: the hull and Bezier curves only while shown, the Lagrange curve
+// always; the Lagrange marker always and the Bezier marker only while shown; one board point per data point; the readout text only on a board at least
+// 480 CSS px wide, which the 420 px wide card board is not, so no text) and the default data of interpolationModel.ts, not from a capture. The marker sits at the Lagrange point of the parameter
+// t = s (n - 1) with the uniform parameters 0..n-1, computed here from the Lagrange formula.
+function lagrangeExpectedFor(id, actions) {
+    interpolationOps(id, actions, 'interpolation', ['set-rule', 'set-overlay'], item => item.kind === 'parameter' && item.name === 't');
+    assert.equal(lastOp(actions, 'interpolation', 'set-rule')?.rule, 'uniform', `${id}: only the uniform parameter rule is authored`);
+    for (const overlay of ['hull', 'bezier', 'basis']) assert.equal(interpolationOverlay(id, actions, 'interpolation', overlay), false, `${id}: only the plain Lagrange curve is authored (${overlay} must be hidden)`);
+    const position = actions.filter(item => item.kind === 'parameter' && item.name === 't');
+    assert.equal(position.length, 1, `${id}: opening scene must set the position s exactly once`);
+    const points = INTERPOLATION_POINTS;
+    const t = position[0].value * (points.length - 1);
+    const basis = points.map((_, j) => points.reduce((product, _other, k) => k === j ? product : product * (t - k) / (j - k), 1));
+    const marker = [0, 1].map(axis => Number(points.reduce((sum, point, j) => sum + basis[j] * point[axis], 0).toFixed(7)));
+    return {types: {point: 5, curve: 1}, curveCount: 1, points: [...points, marker]};
+}
+
+// Authored from src/graphs/functions/RungeInterpolationGraph.tsx (createScene: the faint f and the polynomial p always, the error curve only
+// while shown, the semicircle curves only while shown; one node marker per node 0..degree; the grid-maximum marker only with the error curve;
+// one caption block, which no function-graph first frame counts as a text object) and src/analysis/interpolation.ts (equispaced nodes on [-1, 1]), not from a capture.
+function rungeExpectedFor(id, actions) {
+    interpolationOps(id, actions, 'runge', ['set-function', 'set-degree', 'set-rule', 'set-overlay']);
+    assert.equal(onceOp(id, actions, 'runge', 'set-function', 'function'), 'runge', `${id}: only the Runge function is authored`);
+    assert.equal(onceOp(id, actions, 'runge', 'set-rule', 'rule'), 'equispaced', `${id}: only equally spaced nodes are authored`);
+    const degree = onceOp(id, actions, 'runge', 'set-degree', 'value');
+    assert.ok(Number.isInteger(degree) && degree >= 1, `${id}: the degree must be a positive integer`);
+    for (const overlay of ['error', 'semicircle']) assert.equal(interpolationOverlay(id, actions, 'runge', overlay), false, `${id}: only the plain polynomial is authored (${overlay} must be hidden)`);
+    const nodes = Array.from({length: degree + 1}, (_, j) => -1 + 2 * j / degree);
+    return {types: {point: degree + 1, curve: 2}, curveCount: 2, points: nodes.map(x => [Number(x.toFixed(7)), Number((1 / (1 + 25 * x * x)).toFixed(7))])};
+}
+
+// Authored from src/graphs/curves/hermite/HermiteScene.ts (build: the control polygons and handles only with the Bezier overlay; the curve
+// always; one data point, one tangent tip and one arrow per point while the tangents are shown; one status text) and the default Hermite preset
+// of hermiteModel.ts (tangents m_i, tip at P_i + m_i), not from a capture. The tip of P0 lands on P1.
+function hermiteExpectedFor(id, actions) {
+    interpolationOps(id, actions, 'hermite', ['set-mode', 'set-rule', 'set-tension', 'set-overlay']);
+    assert.equal(onceOp(id, actions, 'hermite', 'set-mode', 'mode'), 'hermite', `${id}: only the Hermite mode (global tangents, the stored defaults) is authored`);
+    assert.equal(interpolationOverlay(id, actions, 'hermite', 'tangents'), true, `${id}: the tangents must be shown`);
+    assert.equal(interpolationOverlay(id, actions, 'hermite', 'bezier'), false, `${id}: the Bezier overlay must be hidden`);
+    const tangents = [[1, 2], [1.5, 1.5], [1.5, -1], [1, -3]];
+    const tips = INTERPOLATION_POINTS.map((p, i) => [p[0] + tangents[i][0], p[1] + tangents[i][1]]);
+    return {types: {point: 8, curve: 1, arrow: 4, text: 1}, curveCount: 1, points: [...INTERPOLATION_POINTS, ...tips]};
+}
+
+// Authored from src/graphs/functions/LeastSquaresGraph.tsx (createScene: a point per datum, the squares only while shown, the dashed residual
+// curve whenever a line is drawn, the best-fit functiongraph only without a manual line, the manual functiongraph only with it, which JSXGraph types as a curve; one caption
+// caption block, which no function-graph first frame counts as a text object) and DEFAULT_LEAST_SQUARES_POINTS of leastSquaresModel.ts, not from a capture.
+function leastSquaresExpectedFor(id, actions) {
+    interpolationOps(id, actions, 'lsq', ['set-degree', 'set-line', 'set-mode', 'set-overlay']);
+    assert.equal(onceOp(id, actions, 'lsq', 'set-mode', 'mode'), 'manual', `${id}: only the manual line is authored`);
+    assert.equal(onceOp(id, actions, 'lsq', 'set-degree', 'value'), 1, `${id}: only degree 1 is authored`);
+    const line = actions.filter(item => item.kind === 'lsq' && item.operation === 'set-line');
+    assert.ok(line.length === 1 && line[0].slope === 0 && line[0].intercept === 2, `${id}: only the horizontal manual line y = 2 is authored`);
+    for (const overlay of ['squares', 'normal-equations']) assert.equal(interpolationOverlay(id, actions, 'lsq', overlay), false, `${id}: ${overlay} must be hidden`);
+    return {types: {point: 4, curve: 2}, curveCount: 2, points: [[0, 1], [1, 2], [2, 2], [3, 4]]};
+}
+
+// Authored from src/graphs/curves/subdivisionCurves/SubdivisionScene.ts (build: the limit curve only while shown with Chaikin; the original
+// polygon and the current stage always; one pooled vertex per stage vertex, which at round 0 are the four data points again; one data point per
+// vertex; one status text), not from a capture.
+function subdivisionExpectedFor(id, actions) {
+    interpolationOps(id, actions, 'subdivision', ['set-rule', 'set-closed', 'set-overlay']);
+    assert.equal(onceOp(id, actions, 'subdivision', 'set-rule', 'rule'), 'chaikin', `${id}: only the Chaikin rule is authored`);
+    assert.equal(onceOp(id, actions, 'subdivision', 'set-closed', 'closed'), false, `${id}: only the open polygon is authored`);
+    assert.equal(interpolationOverlay(id, actions, 'subdivision', 'limit'), false, `${id}: the limit overlay must be hidden`);
+    return {types: {point: 8, curve: 2, text: 1}, curveCount: 2, points: [...INTERPOLATION_POINTS, ...INTERPOLATION_POINTS]};
+}
+
+/** First-frame expectation of an Interpolation lesson (the five sections of the chapter, keyed by the section in the example id). */
+function interpolationExpectedFor(id, step) {
+    const bySection = {lagrange: lagrangeExpectedFor, runge: rungeExpectedFor, hermite: hermiteExpectedFor, 'least-squares': leastSquaresExpectedFor, subdivision: subdivisionExpectedFor};
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
+    assert.ok(author, `${id}: no authored Interpolation first frame`);
+    return author(id, step.scene.actions);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1408,4 +1520,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, assertExpectation};

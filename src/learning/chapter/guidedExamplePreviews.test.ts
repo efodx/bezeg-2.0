@@ -18,6 +18,7 @@ import {convexityPreviewCopy} from '../content/convexityPreviewCopy';
 import {triangulationPreviewCopy} from '../content/triangulationPreviewCopy';
 import {sweepPreviewCopy} from '../content/sweepPreviewCopy';
 import {trianglePreviewCopy} from '../content/trianglePreviewCopy';
+import {interpolationPreviewCopy} from '../content/interpolationPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -256,6 +257,10 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['triangle-geometry.euler-line.euler-line', 'triangle-geometry.inscribed-angle.inscribed-angle', 'triangle-geometry.inversion.inversion',
             'triangle-geometry.notable-points.triangle-centres', 'triangle-geometry.simson-line.simson-line'],
         counts: [[0, 6], [3, 5], [0, 5], [0, 4], [0, 8]]},
+    {chapterId: 'interpolation', copy: interpolationPreviewCopy,
+        ids: ['interpolation.hermite.interp-hermite', 'interpolation.lagrange.interp-lagrange', 'interpolation.least-squares.interp-least-squares',
+            'interpolation.runge.interp-runge', 'interpolation.subdivision.interp-subdivision'],
+        counts: [[1, 8], [1, 5], [2, 4], [2, 7], [2, 8]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

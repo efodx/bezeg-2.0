@@ -60,3 +60,22 @@ Checks: `node --test` both script files 44/44; `just unit --no-fsModuleCache` `g
 
 ## Process
 No server or browser is running: the previews (earlier child PID 20872; sweep run child PID 36096, parent 20100) were stopped by PID and port 3012 is closed. The Dump/capture helpers live in `C:\tmp\h`, outside the repo.
+
+## 4. interpolation (5 cards) - captured and viewed, all five
+
+Done: generator `interpolationExpectedFor` with five per-section authors (graph sources named in comments) and a test, `chapterInventories` and `chapterFamilies` entries, `interpolationPreviewCopy.ts`, registry entry, `functionsCards` row, `docs/commands.md`, inventory and manifest. The lazy registry getters load fine through the generator's `ssrLoadModule`; no loader change. No `captureRecipeForEntry` change was needed (no crop).
+
+Corrected expectations (found by capture, then explained from the source):
+- lagrange: authored `text: 1` was wrong. `InterpolationScene.ts` shows the readout only when `board.canvasWidth >= 480`, and the card board is 420 CSS px wide, so no text. Now no text.
+- runge and least-squares: authored `text: 1` was wrong; the caption block of `BaseFunctionGraph.caption` was not counted as a visible `text` at capture (the existing quadrature comment says the same). Text removed from both; types are not asserted for it.
+- least-squares: authored `curve: 1, functiongraph: 1` was wrong. JSXGraph types the manual `functiongraph` as `curve` here (observed by a board dump), so `curve: 2`, `curveCount: 2`.
+- `functionsCards` counts are `[curveCount, points]`; my first row had them reversed and failed with `[1,8] ... to deeply equal [+0,8]`.
+
+Images (viewed, 840x520, no axes, no point labels on any board):
+- lagrange: one green arc through four small dark dots (the end dots at the bottom corners, two above), one larger green dot on the arc between dots 2 and 3 at (2; 2,8125). No hull, no Bezier, no text. OK.
+- runge: faint bluish bell curve f, green polynomial through seven green dots on f; bumps above f at both ends and dips below it between nodes; all in frame (no far peaks). No text. OK.
+- hermite: green curve; dark dots at (0,0), (3,3), (4,0); (1,2) is orange because the tip of the P0 arrow covers it; four orange arrows ending in orange dots (1,2), (2,5;3,5), (4,5;2), (5;-3); top-left text "Hermiteova krivulja z izbranimi tangentami". OK.
+- least-squares: full-width horizontal blue line y=2, four orange dots (0,1) below, (1,2) and (2,2) on it, (3,4) above; two brown dashed residuals (lengths 1 and 2, measured 80 and 193 px). No text. OK.
+- subdivision: open polygon, four dark dots, three green edges (dashed original polygon coincides), text "Chaikinovo pravilo, korak 0 od 6, 4 oglišč". OK.
+
+Checks: `node --test` both script files 45/45; `just unit --no-fsModuleCache` `guidedExamplePreviews.test.ts` and `lessonMathNotation.test.ts` passed (the row failed first on the reversed counts); `just typecheck` passed. Preview stopped, port 3012 closed.
