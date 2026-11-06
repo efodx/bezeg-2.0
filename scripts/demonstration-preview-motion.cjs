@@ -1466,7 +1466,7 @@ function encode(framesDirectory, output, fps = 24, crf = 10, sample = {x: 0, y: 
     const ffmpeg = process.env.PREVIEW_FFMPEG || 'ffmpeg';
     const ffprobe = process.env.PREVIEW_FFPROBE || 'ffprobe';
     const inputPattern = path.join(framesDirectory,'%03d.png');
-    const settings = ['-y','-loglevel','error','-framerate',String(fps),'-i',inputPattern,'-an','-c:v','libvpx-vp9','-crf',String(crf),'-b:v','0','-pix_fmt','gbrp','-colorspace','rgb','-color_primaries','bt709','-color_trc','iec61966-2-1','-color_range','pc','-row-mt','1',output];
+    const settings = ['-y','-loglevel','error','-framerate',String(fps),'-i',inputPattern,'-an','-vf','setparams=range=pc:color_primaries=bt709:color_trc=iec61966-2-1:colorspace=gbr','-c:v','libvpx-vp9','-crf',String(crf),'-b:v','0','-pix_fmt','gbrp','-colorspace','rgb','-color_primaries','bt709','-color_trc','iec61966-2-1','-color_range','pc','-row-mt','1',output];
     execFileSync(ffmpeg,settings,{timeout:120000});
     const probe = JSON.parse(execFileSync(ffprobe,['-v','error','-show_streams','-show_format','-of','json',output],{encoding:'utf8'}));
     const video = probe.streams.find(s => s.codec_type === 'video');
