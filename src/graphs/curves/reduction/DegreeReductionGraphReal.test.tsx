@@ -1,3 +1,4 @@
+import {GraphPalette} from "../../styles/GraphPalette";
 import React from 'react';
 import {act, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
@@ -80,6 +81,21 @@ describe('DegreeReductionGraph scene', () => {
         try {
             for (const key of ['add_point', 'delete_point', 'elevate_degree']) expect(screen.queryByText(t(key as 'add_point'))).toBeNull();
             expect(graph.getGraphCommands()).toHaveLength(0);
+        } finally { view.unmount(); }
+    });
+
+    test('the reduced curve is told from the curve by its dash, not by colour alone', () => {
+        const {graph, view} = mount();
+        try {
+            useP(graph);
+            type Drawn = {elType: string; visProp: {strokecolor: unknown; strokewidth: unknown; dash: unknown; visible: unknown}};
+            const curves = (graph as unknown as {board: {objectsList: Drawn[]}}).board.objectsList.filter(object => object.elType === 'curve');
+            const reduced = curves.filter(curve => curve.visProp.strokecolor === GraphPalette.comparisonCurve && curve.visProp.strokewidth === 2);
+            const solid = curves.filter(curve => curve.visProp.strokecolor === GraphPalette.primaryCurve);
+            expect(reduced).toHaveLength(1);
+            expect(solid.length).toBeGreaterThan(0);
+            expect(reduced[0].visProp.dash).toBeGreaterThan(0);
+            for (const curve of solid) expect(curve.visProp.dash).toBe(0);
         } finally { view.unmount(); }
     });
 

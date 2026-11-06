@@ -146,7 +146,7 @@ export class ReductionOverlay {
         const elevated = () => this.settings.elevationShown();
         const empty = {x: [] as number[], y: [] as number[]};
 
-        this.dataCurve({strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, visible: reduced}, () => {
+        this.dataCurve({strokeColor: GraphPalette.comparisonCurve, strokeWidth: 2, dash: 3, visible: reduced}, () => {
             const r = reduced() ? this.result() : undefined;
             return r ? quadraticSamples(r.quadratic) : empty;
         });
