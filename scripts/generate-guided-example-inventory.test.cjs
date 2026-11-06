@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -511,4 +511,37 @@ test('convexity expectations are authored from the traces: slow edge test step 0
     assert.throws(() => convexityExpectedFor('c.bezier-hulls.bezier-hulls', psStep([hulls[0], hulls[1], hulls[2], hulls[3], psOp('set-trace-step', {step: 2})])), /only trace step 0/);
     assert.throws(() => convexityExpectedFor('c.unknown.unknown', psStep(hulls)), /no authored Convexity/);
     assert.ok(chapterInventories['convexity-hulls']);
+});
+
+test('triangulation expectations are authored from the graphs: ear polygon, point set, named triangulation, sites and query point', () => {
+    const quad = [[0, 0], [4, 0], [5, 3], [0, 2]];
+    const notched = [[0, 0], [6, 0], [6, 4], [3, 2], [0, 4]];
+    const ear = [psPoints(notched, 'polygon', true), psOverlay('trace', true), psOverlay('reflex', true), psOverlay('triangulation', false), psOverlay('colouring', false), psOverlay('guards', false)];
+    // Five vertices, five edges, one reflex vertex (3, 2) drawn as an extra marker point; the trace draws nothing at step 0.
+    assert.deepEqual(triangulationExpectedFor('t.ear-clipping.ear-clipping', psStep(ear)), {types: {point: 6, segment: 5}, curveCount: 0, points: notched});
+    assert.throws(() => triangulationExpectedFor('t.ear-clipping.ear-clipping', psStep([ear[0], psOverlay('trace', true), psOverlay('reflex', true), psOverlay('guards', true)])), /without the triangulation, colouring and guard/);
+    assert.throws(() => triangulationExpectedFor('t.ear-clipping.ear-clipping', psStep([...ear, psNext()])), /only uses point-set/);
+    assert.throws(() => triangulationExpectedFor('t.ear-clipping.ear-clipping', psStep([psPoints(notched, 'points'), ...ear.slice(1)])), /closed polygon/);
+    const seven = [[0, 0], [8, 0], [9, 6], [4, 8], [-1, 5], [3, 3], [6, 3]];
+    const set = [psPoints(seven), psOverlay('triangulation', false), psOverlay('edges', false), psOverlay('angles', false)];
+    assert.deepEqual(triangulationExpectedFor('t.point-set-triangulation.point-set-triangulation', psStep(set)), {types: {point: 7}, curveCount: 0, points: seven});
+    assert.throws(() => triangulationExpectedFor('t.point-set-triangulation.point-set-triangulation', psStep([set[0], psOverlay('triangulation', true)])), /without triangulation/);
+    const del = [psPoints(quad), psOverlay('triangulation', true), psOverlay('edges', false), psOverlay('angles', false), psOp('set-triangulation', {triangles: [[0, 1, 2], [0, 2, 3]]})];
+    // Five edges, two triangle polygons and the diagonal 0-2, which is illegal (point 3 is inside the circle of 0, 1, 2): one extra dashed curve and one label.
+    assert.deepEqual(triangulationExpectedFor('t.delaunay.delaunay', psStep(del)), {types: {point: 4, curve: 6, polygon: 2, text: 1}, curveCount: 6, points: quad});
+    // The other diagonal 1-3 is the Delaunay one: five curves and no label.
+    assert.deepEqual(triangulationExpectedFor('t.delaunay.delaunay', psStep([...del.slice(0, 4), psOp('set-triangulation', {triangles: [[0, 1, 3], [1, 2, 3]]})])).types, {point: 4, curve: 5, polygon: 2});
+    assert.throws(() => triangulationExpectedFor('t.delaunay.delaunay', psStep(del.slice(0, 4))), /exactly once/);
+    assert.throws(() => triangulationExpectedFor('t.delaunay.delaunay', psStep([...del.slice(0, 2), psOverlay('edges', true), ...del.slice(3)])), /without edge and angle/);
+    const vor = [psPoints(seven), psOverlay('grid', false), psOverlay('diagram', false), psOverlay('delaunay', false), psOp('select-site', {site: null}), psOp('set-query-point', {point: [-2, 1]})];
+    assert.deepEqual(triangulationExpectedFor('t.voronoi.voronoi', psStep(vor)), {types: {point: 8}, curveCount: 0, points: [...seven, [-2, 1]]});
+    assert.throws(() => triangulationExpectedFor('t.voronoi.voronoi', psStep([...vor.slice(0, 4), psOp('select-site', {site: 2}), vor[5]])), /without a selected site/);
+    assert.throws(() => triangulationExpectedFor('t.voronoi.voronoi', psStep([vor[0], psOverlay('diagram', true), ...vor.slice(3)])), /without diagram and Delaunay/);
+    assert.throws(() => triangulationExpectedFor('t.voronoi.voronoi', psStep(vor.slice(0, 5))), /exactly once/);
+    const degenerate = [psOp('set-mode', {mode: 'sites'}), psPoints([[5, 0], [3, 4], [-4, 3], [1, -5]]), psOverlay('grid', false), psOverlay('diagram', false), psOverlay('delaunay', false)];
+    assert.deepEqual(triangulationExpectedFor('t.voronoi-degenerate.voronoi-degenerate', psStep(degenerate)),
+        {types: {point: 5}, curveCount: 0, points: [[5, 0], [3, 4], [-4, 3], [1, -5], [4, 2]]});
+    assert.throws(() => triangulationExpectedFor('t.voronoi-degenerate.voronoi-degenerate', psStep([psOp('set-mode', {mode: 'four-point'}), ...degenerate.slice(1)])), /only the sites mode/);
+    assert.throws(() => triangulationExpectedFor('t.unknown.unknown', psStep(del)), /no authored Triangulations and Voronoi/);
+    assert.ok(chapterInventories['triangulations-voronoi']);
 });

@@ -1,0 +1,255 @@
+{
+  "examples": [
+    {
+      "id": "triangulations-voronoi.ear-clipping.ear-clipping",
+      "demonstrationId": "ear-clipping",
+      "path": "/bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+      "sceneFingerprint": "1c2ab54235f73395ee936e9875b0fae13b3bdd8f0551c81865a11bf04891329e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"earclip-polygon\",\"source\":\"demonstration-default\",\"view\":[-1.5,5.5,7.5,-1.5]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[0,0],[6,0],[6,4],[3,2],[0,4]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"trace\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"reflex\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangulation\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"colouring\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"guards\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 6,
+          "segment": 5
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            0,
+            4
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+      "demonstrationId": "point-set-triangulation",
+      "path": "/bezeg-2.0/compgeo/point-set-triangulation?example=lesson.triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+      "sceneFingerprint": "71bbac2c3b011acda9e3f273aa804460b72163c923dd4cbbc05f90d570f917fe",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tri-points\",\"source\":\"demonstration-default\",\"view\":[-2.5,9.5,10.5,-1.5]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[8,0],[9,6],[4,8],[-1,5],[3,3],[6,3]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangulation\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"edges\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"angles\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 7
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            9,
+            6
+          ],
+          [
+            4,
+            8
+          ],
+          [
+            -1,
+            5
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            6,
+            3
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "triangulations-voronoi.delaunay.delaunay",
+      "demonstrationId": "delaunay",
+      "path": "/bezeg-2.0/compgeo/delaunay?example=lesson.triangulations-voronoi.delaunay.delaunay",
+      "sceneFingerprint": "cae0817ec3cc69a1a22d175989e6c4a4d1f0001032b0a0dc18271289ebd79746",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"del-quad\",\"source\":\"demonstration-default\",\"view\":[-2,6,7,-1.5]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[4,0],[5,3],[0,2]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangulation\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"edges\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"angles\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-triangulation\",\"triangles\":[[0,1,2],[0,2,3]]}"
+      ],
+      "expected": {
+        "types": {
+          "point": 4,
+          "curve": 6,
+          "polygon": 2,
+          "text": 1
+        },
+        "curveCount": 6,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            5,
+            3
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "triangulations-voronoi.voronoi.voronoi",
+      "demonstrationId": "voronoi",
+      "path": "/bezeg-2.0/compgeo/voronoi?example=lesson.triangulations-voronoi.voronoi.voronoi",
+      "sceneFingerprint": "9899f5598620e76854e3055626e837e0eb4e7fcdb401bcf8431bc4871879d21c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"vor-sites\",\"source\":\"demonstration-default\",\"view\":[-3,10,12,-3]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[8,0],[9,6],[4,8],[-1,5],[3,3],[6,3]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"grid\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"diagram\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"select-site\",\"site\":null}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-query-point\",\"point\":[-2,1]}"
+      ],
+      "expected": {
+        "types": {
+          "point": 8
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            9,
+            6
+          ],
+          [
+            4,
+            8
+          ],
+          [
+            -1,
+            5
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            6,
+            3
+          ],
+          [
+            -2,
+            1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "triangulations-voronoi.voronoi-degenerate.voronoi-degenerate",
+      "demonstrationId": "voronoi-degenerate",
+      "path": "/bezeg-2.0/compgeo/voronoi-degenerate?example=lesson.triangulations-voronoi.voronoi-degenerate.voronoi-degenerate",
+      "sceneFingerprint": "1b321cf76dcd1b3ed3c61f0a73f0f1ac495cbe5123c8e1e517a510299cfc6f6e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"deg-near\",\"source\":\"demonstration-default\",\"view\":[-8,8,8,-8]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-mode\",\"mode\":\"sites\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[5,0],[3,4],[-4,3],[1,-5]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"grid\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"diagram\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 5
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            5,
+            0
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            -4,
+            3
+          ],
+          [
+            1,
+            -5
+          ],
+          [
+            4,
+            2
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}
