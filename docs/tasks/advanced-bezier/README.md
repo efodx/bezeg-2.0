@@ -45,7 +45,7 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 
 **D1 `reduction`** (`src/graphs/curves/reduction/`, on `BaseBezierCurveGraph`, the `ElevationGraph` pattern):
 
-- The curve is a cubic and stays one: no degree change, and a Preset with another point count is rejected with an actionable error. The spec's steps need elevation only as a starting position, so step 1 opens on the elevated quadratic \((0,0),(	frac43,	frac83),(	frac83,	frac83),(4,0)\), which is also the graph's first Preset.
+- The curve is a cubic and stays one: no degree change, and a Preset with another point count is rejected with an actionable error. The spec's steps need elevation only as a starting position, so step 1 opens on the elevated quadratic \((0,0),(	frac43,	frac83),(	frac83,	frac83),(4,0)\), which is also the graph's default scene. Built-in Presets do not exist, so \(P\) and \(P_2\) arrive through lesson scenes.
 - State: `reductionMode` (`fixed` or `free`, stored), `reductionShown` (quadratic and its control points), `reductionElevationShown` (the elevated net). Presets store the control points and the mode.
 - Readouts: third difference, reducibility with its tolerance, maximum error, \(L^2\) error and control-point bound, each from the AB-1a kernel. Maximum error shows at most 4 decimals (it is sampled).
 
@@ -70,9 +70,9 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-1b | F1 | `arc-length.ts` on the curvature kernel's hodograph, PH oracle tests, D3 numbers | CG-1 | done ([evidence](../../reviews/advanced-bezier/ab-1b-kernel.md)); D3 graph splits panels at cusps |
 | AB-1c | F1 | `coons.ts` with the bicubic-net identity test | — | done ([evidence](../../reviews/advanced-bezier/ab-1c-kernel.md)); B averages mismatched corners |
 | AB-1d | F1 | `bezier-clipping.ts` ([plan](#ab-1d-plan-bezier-clippingts-handler-9-2026-10-31)) | `G-CG` | done ([evidence](../../reviews/advanced-bezier/ab-1d-kernel.md)); hull overlap waits for convexity A6 |
-| AB-A-2a | F2a | D1 `reduction` graph, overlay, readouts, Preset collection, lesson action targets; no route | AB-1a | in progress |
+| AB-A-2a | F2a | D1 `reduction` graph, overlay, readouts, Preset collection, lesson action targets; no route | AB-1a | done ([evidence](../../reviews/advanced-bezier/ab-a-2-graphs.md)); browser check with registration |
 | AB-A-2b | F2b | D1 registration `/bezeg-2.0/bezier/reduction`, `lesson: false`, recipe not run | AB-A-2a | planned |
-| AB-A-2c | F2a | D3 `arc-length-param` graph, marks, speed plot, moving point, readouts, Preset collection, lesson action targets; no route | AB-1b | in progress |
+| AB-A-2c | F2a | D3 `arc-length-param` graph, marks, speed plot, moving point, readouts, Preset collection, lesson action targets; no route | AB-1b | done ([evidence](../../reviews/advanced-bezier/ab-a-2-graphs.md)); browser check with registration |
 | AB-A-2d | F2b | D3 registration `/bezeg-2.0/bezier/arc-length`, `lesson: false`, recipe not run | AB-A-2c | planned |
 | AB-A-3a | F3 | D1 guided lesson (seven steps) | AB-A-2b | planned |
 | AB-A-3b | F3 | D3 guided lesson (seven steps) | AB-A-2d | planned |

@@ -1970,3 +1970,12 @@ CG-B3-6 Batch 3 gate (curves handler 57, 2026-11-06), M, handler-led with two re
 - Math review, Sonnet: 5 tool calls, 24k tokens, 32 seconds. Derived the L5 numbers before reading tests and found no discrepancy. It named what it had not verified, which made the record's limits easy to write.
 - Smoke, Sonnet: 43 tool calls, 98k tokens, 16 minutes, 11 rows. Reported one failure and one suspicious toggle; neither reproduced when the handler reran them against the live board. Its 390 px collinear row searched for the note by pointer position and did not reconcile a residual that was inside one pixel. Read a smoke failure against the code before accepting it, and ask for the coordinates the board reports, not only the pointer's.
 - Handler: the layer repair, poster, records and the CI shard change. Reading hosted CI first, as the handoff asked, is what exposed a cancelled run that had silently skipped deploy; a run's `cancelled` state needs its jobs read, not only its conclusion.
+
+## 2026-11-06, curves handler 58: AB-A-2a and AB-A-2c graphs
+
+Brief `handoff-v12`, workers `bezeg-worker` Sonnet `medium`, dispatched 01:20Z, two in parallel on disjoint folders with shared collection and locale files.
+
+- D1 worker: 62 tool calls, 133k tokens, 16 minutes. Complete, four mutations. Its long caption line needed a handler repair.
+- D3 worker: 56 tool calls, 144k tokens, 11 minutes, stopped by `HANDOFF` at 135k with tests unrun. A slice this size (graph, overlay, plot, frame loop, readouts) exceeds one worker: split it next time. A fresh worker finished it in 21 calls and 34k tokens, and found a default Preset the validator rejected.
+- Review, Sonnet: 15 calls, 47k tokens, under two minutes. Four accepted findings, none high.
+- Repair worker: 27 calls, 71k tokens. **It overwrote two uncommitted files by reusing `/tmp` backup names** another worker had left, and rewrote them from what it had read; it reported this itself. The handler compared the rewrite with the reviewed versions from the transcripts and found only intended changes. Lessons: commit a checkpoint before a repair pass, and name a private scratch path in every brief.
