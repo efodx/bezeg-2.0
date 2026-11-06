@@ -1,0 +1,769 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": true,
+  "buildStamp": {
+    "version": 1,
+    "revision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+    "dirty": true,
+    "inputs": "353692a19d5ac6517caf640f6b44e36383cac3e371907f747bed027c24099e6d",
+    "output": "33dc88800a23451fc4e80e7e1918ed97f3cddaab900a718fe7334311c95c3f6e"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
+    "stampRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+    "stampDirty": true,
+    "localOutputHash": "33dc88800a23451fc4e80e7e1918ed97f3cddaab900a718fe7334311c95c3f6e",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-CRClWJZb.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-CRClWJZb.js",
+        "sha256": "fc21389f08d36277df2e31fbd4e4486636403a8fe237add6adad1982bbc5c140",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-4xiZKs1O.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
+        "sha256": "d279c0065714d2d01b0f65e5df5c25389eb6e69c216552fa617f2f8abba29535",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-Cnfm82p2.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
+        "sha256": "fc70869aa362c71417e1a66b90887ad467182d981e6fc9b1eb91261d97fa7edb",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "5a5877df81a28c8f88db3d507ae9684672ee21143d30cd4821f2b3dd3651c8ce",
+    "entries": {
+      "triangulations-voronoi.ear-clipping.ear-clipping": "c7fa30994dc711cdaeef41154ac52d477780ef9d921574e16d12b6269db845b2",
+      "triangulations-voronoi.point-set-triangulation.point-set-triangulation": "72f7a222a272ea6ac7e5d5dcb9cdcd9905ebc9a292466c1545f4c9ef276a5552",
+      "triangulations-voronoi.delaunay.delaunay": "287b66981aa6aae691de593a8e426efacfefc7c76eeef9a76e85689e2c4a939e",
+      "triangulations-voronoi.voronoi.voronoi": "f8a85ce9a84d27a4925abe15e2ddfca5af2047a1c41102f013cb95276dc36eb0",
+      "triangulations-voronoi.voronoi-degenerate.voronoi-degenerate": "62eebfe94c61b3a1ec6a96063a60f25b228a724a36052df65a6ae01d7554f1da"
+    },
+    "presentation": "2f568a8486737a2e3f593b068c3cea56df2a5b292fa28acf608337d66bc5f95b",
+    "buildOutput": "33dc88800a23451fc4e80e7e1918ed97f3cddaab900a718fe7334311c95c3f6e",
+    "buildInputs": "353692a19d5ac6517caf640f6b44e36383cac3e371907f747bed027c24099e6d"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "triangulations-voronoi.ear-clipping.ear-clipping",
+        "demonstrationId": "ear-clipping",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -0.8,
+            4.8,
+            6.8,
+            -0.8
+          ]
+        }
+      },
+      {
+        "id": "triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+        "demonstrationId": "point-set-triangulation",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -4.18,
+            9,
+            12.18,
+            -1
+          ]
+        }
+      },
+      {
+        "id": "triangulations-voronoi.delaunay.delaunay",
+        "demonstrationId": "delaunay",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -2,
+            4.78,
+            6,
+            -0.11
+          ]
+        }
+      },
+      {
+        "id": "triangulations-voronoi.voronoi.voronoi",
+        "demonstrationId": "voronoi",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -5.16,
+            9.2,
+            13.16,
+            -2
+          ]
+        }
+      },
+      {
+        "id": "triangulations-voronoi.voronoi-degenerate.voronoi-degenerate",
+        "demonstrationId": "voronoi-degenerate",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "triangulations-voronoi.ear-clipping.ear-clipping",
+      "demonstrationId": "ear-clipping",
+      "path": "/bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping",
+      "sceneFingerprint": "1c2ab54235f73395ee936e9875b0fae13b3bdd8f0551c81865a11bf04891329e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"earclip-polygon\",\"source\":\"demonstration-default\",\"view\":[-1.5,5.5,7.5,-1.5]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[0,0],[6,0],[6,4],[3,2],[0,4]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"trace\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"reflex\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangulation\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"colouring\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"guards\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangulations-voronoi.ear-clipping.ear-clipping.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "f5546e3e3084c2a514085988f24374a94a808d58549e5bef812b0c082b51dbb3",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "point": 6,
+          "segment": 5
+        },
+        "visiblePointCount": 6,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "type:segment",
+          "curve-count",
+          "point:0,0",
+          "point:6,0",
+          "point:6,4",
+          "point:3,2",
+          "point:0,4"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 33,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "point": 6,
+            "segment": 5
+          },
+          "visiblePointCount": 6,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "type:segment",
+            "curve-count",
+            "point:0,0",
+            "point:6,0",
+            "point:6,4",
+            "point:3,2",
+            "point:0,4"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 6,
+          "segment": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+      "demonstrationId": "point-set-triangulation",
+      "path": "/bezeg-2.0/compgeo/point-set-triangulation?example=lesson.triangulations-voronoi.point-set-triangulation.point-set-triangulation",
+      "sceneFingerprint": "71bbac2c3b011acda9e3f273aa804460b72163c923dd4cbbc05f90d570f917fe",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"tri-points\",\"source\":\"demonstration-default\",\"view\":[-2.5,9.5,10.5,-1.5]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[8,0],[9,6],[4,8],[-1,5],[3,3],[6,3]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangulation\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"edges\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"angles\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangulations-voronoi.point-set-triangulation.point-set-triangulation.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "b51a65139dbce483bb97adc8da920a3d1e17c2124e82694089d32a9b444453cb",
+      "scene": {
+        "visibleElementCount": 7,
+        "visibleElementTypes": {
+          "point": 7
+        },
+        "visiblePointCount": 7,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:8,0",
+          "point:9,6",
+          "point:4,8",
+          "point:-1,5",
+          "point:3,3",
+          "point:6,3"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 34,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 23,
+            "point": 7
+          },
+          "visiblePointCount": 7,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:8,0",
+            "point:9,6",
+            "point:4,8",
+            "point:-1,5",
+            "point:3,3",
+            "point:6,3"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "triangulations-voronoi.delaunay.delaunay",
+      "demonstrationId": "delaunay",
+      "path": "/bezeg-2.0/compgeo/delaunay?example=lesson.triangulations-voronoi.delaunay.delaunay",
+      "sceneFingerprint": "cae0817ec3cc69a1a22d175989e6c4a4d1f0001032b0a0dc18271289ebd79746",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"del-quad\",\"source\":\"demonstration-default\",\"view\":[-2,6,7,-1.5]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[4,0],[5,3],[0,2]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"triangulation\",\"visible\":true}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"edges\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"angles\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-triangulation\",\"triangles\":[[0,1,2],[0,2,3]]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangulations-voronoi.delaunay.delaunay.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "d83a627d279cf3d04463d3bdab3eca0f283ba00e27e49694a1f2faf89a2997a8",
+      "scene": {
+        "visibleElementCount": 13,
+        "visibleElementTypes": {
+          "point": 4,
+          "curve": 6,
+          "text": 1,
+          "polygon": 2
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              4,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2.5,
+              1.5
+            ],
+            [
+              5,
+              3
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2.5,
+              1.5
+            ],
+            [
+              5,
+              3
+            ]
+          ],
+          [
+            [
+              4,
+              0
+            ],
+            [
+              4.5,
+              1.5
+            ],
+            [
+              5,
+              3
+            ]
+          ],
+          [
+            [
+              5,
+              3
+            ],
+            [
+              2.5,
+              2.5
+            ],
+            [
+              0,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "type:polygon",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:4,0",
+          "point:5,3",
+          "point:0,2"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 35,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "point": 4,
+            "curve": 6,
+            "text": 1,
+            "polygon": 2
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2.5,
+                1.5
+              ],
+              [
+                5,
+                3
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2.5,
+                1.5
+              ],
+              [
+                5,
+                3
+              ]
+            ],
+            [
+              [
+                4,
+                0
+              ],
+              [
+                4.5,
+                1.5
+              ],
+              [
+                5,
+                3
+              ]
+            ],
+            [
+              [
+                5,
+                3
+              ],
+              [
+                2.5,
+                2.5
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "type:polygon",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:4,0",
+            "point:5,3",
+            "point:0,2"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 4,
+          "curve": 6,
+          "text": 1,
+          "polygon": 2
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "triangulations-voronoi.voronoi.voronoi",
+      "demonstrationId": "voronoi",
+      "path": "/bezeg-2.0/compgeo/voronoi?example=lesson.triangulations-voronoi.voronoi.voronoi",
+      "sceneFingerprint": "9899f5598620e76854e3055626e837e0eb4e7fcdb401bcf8431bc4871879d21c",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"vor-sites\",\"source\":\"demonstration-default\",\"view\":[-3,10,12,-3]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,0],[8,0],[9,6],[4,8],[-1,5],[3,3],[6,3]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"grid\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"diagram\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"select-site\",\"site\":null}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-query-point\",\"point\":[-2,1]}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangulations-voronoi.voronoi.voronoi.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "80e77dc08ddff1ff76264023e1d07cf234d207236d881ff5d818503f871fe1d2",
+      "scene": {
+        "visibleElementCount": 8,
+        "visibleElementTypes": {
+          "point": 8
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "curve-count",
+          "point:0,0",
+          "point:8,0",
+          "point:9,6",
+          "point:4,8",
+          "point:-1,5",
+          "point:3,3",
+          "point:6,3",
+          "point:-2,1"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 38,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 26,
+            "point": 8
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "curve-count",
+            "point:0,0",
+            "point:8,0",
+            "point:9,6",
+            "point:4,8",
+            "point:-1,5",
+            "point:3,3",
+            "point:6,3",
+            "point:-2,1"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 8
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "triangulations-voronoi.voronoi-degenerate.voronoi-degenerate",
+      "demonstrationId": "voronoi-degenerate",
+      "path": "/bezeg-2.0/compgeo/voronoi-degenerate?example=lesson.triangulations-voronoi.voronoi-degenerate.voronoi-degenerate",
+      "sceneFingerprint": "1b321cf76dcd1b3ed3c61f0a73f0f1ac495cbe5123c8e1e517a510299cfc6f6e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"deg-near\",\"source\":\"demonstration-default\",\"view\":[-8,8,8,-8]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-mode\",\"mode\":\"sites\"}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[5,0],[3,4],[-4,3],[1,-5]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"grid\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"diagram\",\"visible\":false}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-overlay\",\"overlay\":\"delaunay\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "triangulations-voronoi.voronoi-degenerate.voronoi-degenerate.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "683b1c2035b6a06c429e5890b889ea06ac93ed504ecd474a00840b94a444462e",
+      "scene": {
+        "visibleElementCount": 5,
+        "visibleElementTypes": {
+          "point": 5
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [],
+        "checks": [
+          "type:point",
+          "curve-count",
+          "point:5,0",
+          "point:3,4",
+          "point:-4,3",
+          "point:1,-5",
+          "point:4,2"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 27,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "point": 5
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [],
+          "checks": [
+            "type:point",
+            "curve-count",
+            "point:5,0",
+            "point:3,4",
+            "point:-4,3",
+            "point:1,-5",
+            "point:4,2"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "point": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "sourceRevision": "554a670f894be39ecd0b865a63e269c03bc42be6",
+        "pageErrors": []
+      }
+    }
+  ]
+}

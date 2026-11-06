@@ -253,6 +253,12 @@ const chapterInventories = {
         pathExport: 'convexityGuidedExamplePath',
         expectedFor: convexityExpectedFor,
     },
+    'triangulations-voronoi': {
+        module: '/src/learning/content/triangulationChapterRegistry.ts',
+        registryExport: 'triangulationGuidedExampleRegistry',
+        pathExport: 'triangulationGuidedExamplePath',
+        expectedFor: triangulationExpectedFor,
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleRegistry',
@@ -1069,6 +1075,108 @@ function convexityExpectedFor(id, step) {
     return author(id, actions);
 }
 
+// ---- Triangulations and Voronoi chapter (triangulations-voronoi): five lessons, keyed by the demonstration in the example id.
+
+/** Reflex vertices of a simple polygon: the turn at the vertex opposes the polygon's orientation. */
+function reflexVertices(points) {
+    const n = points.length;
+    const area2 = points.reduce((sum, p, i) => sum + (p[0] * points[(i + 1) % n][1] - points[(i + 1) % n][0] * p[1]), 0);
+    return points.map((p, i) => i).filter(i => cross(points[(i + n - 1) % n], points[i], points[(i + 1) % n]) * Math.sign(area2) < 0);
+}
+
+// Authored from src/graphs/compgeo/EarClippingGraph.tsx (drawOverlay: the trace overlay draws nothing at step 0, where earClippingRun's
+// state has no triangle and no candidate; the reflex overlay one diamond marker point per reflex vertex; the triangulation, colouring and
+// guard overlays only at done) and PointSetGraph.tsx (polygon mode: n points, n edge segments), not from a capture.
+function earClippingExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-overlay'], 'earClippingExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    const n = set.points.length;
+    assert.ok(set.mode === 'polygon' && set.closed === true && n >= 3, `${id}: only a closed polygon is authored`);
+    assert.ok(pointSetOverlay(actions, 'trace', true) && pointSetOverlay(actions, 'reflex', true), `${id}: trace and reflex overlays must be shown`);
+    assert.ok(!pointSetOverlay(actions, 'triangulation', false) && !pointSetOverlay(actions, 'colouring', false) && !pointSetOverlay(actions, 'guards', false),
+        `${id}: only the opening without the triangulation, colouring and guard overlays is authored`);
+    return {types: {point: n + reflexVertices(set.points).length, segment: n}, curveCount: 0, points: set.points};
+}
+
+// Authored from src/graphs/compgeo/TriangulationGraph.tsx (drawOverlay: nothing without the triangulation overlay, no edge selected) and
+// PointSetGraph.tsx (points mode: one board point per model point, no segments), not from a capture.
+function pointSetTriangulationExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-overlay'], 'pointSetTriangulationExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.ok(set.mode === 'points' && set.points.length >= 3, `${id}: only a point set is authored`);
+    assert.ok(!pointSetOverlay(actions, 'triangulation', true) && !pointSetOverlay(actions, 'edges', false) && !pointSetOverlay(actions, 'angles', false),
+        `${id}: only the opening without triangulation, edge and angle overlays is authored`);
+    return {types: {point: set.points.length}, curveCount: 0, points: set.points};
+}
+
+/** Whether the edge a-b of the triangles (a, b, c) and (b, a, d) is illegal: d lies strictly inside the circle through a, b and c. */
+function illegalEdgeInCircle(points, a, b, c, d) {
+    const orient = cross(points[a], points[b], points[c]) > 0 ? 1 : -1;
+    const [u, v, w] = [a, b, c].map(i => [points[i][0] - points[d][0], points[i][1] - points[d][1]]).map(([x, y]) => [x, y, x * x + y * y]);
+    const det = u[0] * (v[1] * w[2] - v[2] * w[1]) - u[1] * (v[0] * w[2] - v[2] * w[0]) + u[2] * (v[0] * w[1] - v[1] * w[0]);
+    return det * orient > 0;
+}
+
+// Authored from src/graphs/compgeo/DelaunayGraph.tsx (drawTriangulation: the TriangulationGraph edge curves, a dashed curve and a text label
+// over each illegal edge at the step, the test quadrilateral only for an edge under test; drawExtras: one polygon per triangle with its
+// borders hidden), delaunayRun.ts (step 0 is phase-start, no edge under test) and compgeo/triangulation.ts (edges are the distinct triangle sides).
+function delaunayExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-overlay', 'set-triangulation'], 'delaunayExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    const {points} = set;
+    const {triangles} = pointSetAction(id, actions, 'set-triangulation');
+    assert.ok(set.mode === 'points' && Array.isArray(triangles) && triangles.length > 0, `${id}: only a named triangulation of a point set is authored`);
+    assert.ok(pointSetOverlay(actions, 'triangulation', true) && !pointSetOverlay(actions, 'edges', false) && !pointSetOverlay(actions, 'angles', false),
+        `${id}: only the triangulation without edge and angle overlays is authored`);
+    const sides = new Map();
+    for (const tri of triangles) tri.forEach((v, k) => {
+        const w = tri[(k + 1) % 3];
+        const key = `${Math.min(v, w)}-${Math.max(v, w)}`;
+        sides.set(key, [...(sides.get(key) || []), [v, w, tri[(k + 2) % 3]]]);
+    });
+    // An interior edge is shared by two triangles; with the apexes c and d it is illegal when d is inside the circle of the other triangle.
+    let illegal = 0;
+    for (const shared of sides.values()) {
+        if (shared.length !== 2) continue;
+        const [[a, b, c], [, , d]] = shared;
+        if (illegalEdgeInCircle(points, a, b, c, d)) illegal += 1;
+    }
+    return {types: {point: points.length, curve: sides.size + illegal, polygon: triangles.length, ...(illegal ? {text: illegal} : {})}, curveCount: sides.size + illegal, points};
+}
+
+// Authored from src/graphs/compgeo/VoronoiGraph.tsx (syncScene: the query point is always one square board point; the diagram, Delaunay
+// overlay and the selected-site construction draw nothing while hidden or with no site) and PointSetGraph.tsx (one board point per site).
+function voronoiExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-overlay', 'select-site', 'set-query-point'], 'voronoiExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.ok(set.mode === 'points' && set.points.length >= 3, `${id}: only a site set is authored`);
+    assert.equal(pointSetAction(id, actions, 'select-site').site, null, `${id}: only the opening without a selected site is authored`);
+    assert.ok(!pointSetOverlay(actions, 'diagram', true) && !pointSetOverlay(actions, 'delaunay', true), `${id}: only the opening without diagram and Delaunay overlays is authored`);
+    const query = pointSetAction(id, actions, 'set-query-point').point;
+    assert.ok(Array.isArray(query) && query.length === 2, `${id}: the query point must be a coordinate pair`);
+    return {types: {point: set.points.length + 1}, curveCount: 0, points: [...set.points, query]};
+}
+
+// Same board as above, in the sites mode of the degenerate-sites lesson (src/graphs/compgeo/DegenerateSitesGraph.tsx adds no drawing); the
+// opening scene sets no query point, so the query stays at VORONOI_DEFAULT_QUERY (4, 2) of voronoiPresetCollection.ts.
+function voronoiDegenerateExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-mode', 'set-points', 'set-overlay'], 'voronoiDegenerateExpectedFor');
+    assert.equal(pointSetAction(id, actions, 'set-mode').mode, 'sites', `${id}: only the sites mode is authored`);
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.ok(set.mode === 'points' && set.points.length >= 3, `${id}: only a site set is authored`);
+    assert.ok(!pointSetOverlay(actions, 'diagram', true) && !pointSetOverlay(actions, 'delaunay', true), `${id}: only the opening without diagram and Delaunay overlays is authored`);
+    return {types: {point: set.points.length + 1}, curveCount: 0, points: [...set.points, [4, 2]]};
+}
+
+/** First-frame expectation of a Triangulations and Voronoi lesson (the five lessons of the chapter, keyed by the demonstration in the example id). */
+function triangulationExpectedFor(id, step) {
+    const byDemonstration = {'ear-clipping': earClippingExpectedFor, 'point-set-triangulation': pointSetTriangulationExpectedFor, delaunay: delaunayExpectedFor,
+        voronoi: voronoiExpectedFor, 'voronoi-degenerate': voronoiDegenerateExpectedFor};
+    const author = Object.hasOwn(byDemonstration, id.split('.').at(-1)) ? byDemonstration[id.split('.').at(-1)] : undefined;
+    assert.ok(author, `${id}: no authored Triangulations and Voronoi first frame`);
+    return author(id, step.scene.actions);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1121,4 +1229,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, assertExpectation};

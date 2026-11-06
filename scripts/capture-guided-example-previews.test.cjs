@@ -185,6 +185,13 @@ test('tightens only the worked parabola capture frame and retains shared spline 
     assert.equal(captureRecipeForEntry({id: 'splines.continuity-levels.spline-c1'}, recipe), recipe);
 });
 
+test('the degenerate Voronoi card fits its opening sites instead of the Trapez poster window', () => {
+    const recipe = {id: 'voronoi-degenerate', framing: {kind: 'coordinate-window', window: [-2.5, 6.4, 10.5, -1.4]}, actions: []};
+    const id = 'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate';
+    assert.deepEqual(captureRecipeForEntry({id}, recipe).framing, {kind: 'finite-geometry-fit'});
+    assert.equal(captureRecipeForEntry({id: 'triangulations-voronoi.voronoi.voronoi'}, recipe), recipe);
+});
+
 test('a curve geometry card fits its own lesson scene instead of the poster window of its demonstration', () => {
     const recipe = {id: 'curve-comb', framing: {kind: 'coordinate-window', window: [-8, 4.9, 8, -4.9]}, actions: []};
     for (const id of ['curve-geometry.curve-comb.curve-comb', 'curve-geometry.curve-evolute.curve-evolute', 'curve-geometry.curve-envelope.curve-envelope'])
@@ -291,6 +298,11 @@ test('numerical, school, fourier, projective and curve-geometry capture families
             {id: 'convexity-hulls.convex-hull.convex-hull', path: '/bezeg-2.0/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull'},
             {id: 'convexity-hulls.hull-robustness.hull-robustness', path: '/bezeg-2.0/compgeo/hull-robustness?example=lesson.convexity-hulls.hull-robustness.hull-robustness'},
             {id: 'convexity-hulls.bezier-hulls.bezier-hulls', path: '/bezeg-2.0/compgeo/bezier-hulls?example=lesson.convexity-hulls.bezier-hulls.bezier-hulls'}],
+        'triangulations-voronoi': [{id: 'triangulations-voronoi.ear-clipping.ear-clipping', path: '/bezeg-2.0/compgeo/ear-clipping?example=lesson.triangulations-voronoi.ear-clipping.ear-clipping'},
+            {id: 'triangulations-voronoi.point-set-triangulation.point-set-triangulation', path: '/bezeg-2.0/compgeo/point-set-triangulation?example=lesson.triangulations-voronoi.point-set-triangulation.point-set-triangulation'},
+            {id: 'triangulations-voronoi.delaunay.delaunay', path: '/bezeg-2.0/compgeo/delaunay?example=lesson.triangulations-voronoi.delaunay.delaunay'},
+            {id: 'triangulations-voronoi.voronoi.voronoi', path: '/bezeg-2.0/compgeo/voronoi?example=lesson.triangulations-voronoi.voronoi.voronoi'},
+            {id: 'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate', path: '/bezeg-2.0/compgeo/voronoi-degenerate?example=lesson.triangulations-voronoi.voronoi-degenerate.voronoi-degenerate'}],
     };
     const root = path.resolve(__dirname, '..');
     for (const [family, list] of Object.entries(entries)) {
@@ -322,6 +334,8 @@ test('numerical, school, fourier, projective and curve-geometry capture families
         assert.throws(() => assertInventoryFamily([{...entries['curve-geometry'][0], path}], 'curve-geometry'), /requires a curve-geometry inventory/);
     for (const path of ['/bezeg-2.0/compgeo/orientationx', '/bezeg-2.0/compgeo', '/bezeg-2.0/compgeo/convex-hulls', '/bezeg-2.0/compgeo/ear-clipping', '/bezeg-2.0/compgeo/delaunay', '/bezeg-2.0/orientation'])
         assert.throws(() => assertInventoryFamily([{...entries['convexity-hulls'][0], path}], 'convexity-hulls'), /requires a convexity-hulls inventory/);
+    for (const path of ['/bezeg-2.0/compgeo/ear-clippingx', '/bezeg-2.0/compgeo', '/bezeg-2.0/compgeo/voronoi-degenerates', '/bezeg-2.0/compgeo/orientation', '/bezeg-2.0/compgeo/fortune', '/bezeg-2.0/voronoi'])
+        assert.throws(() => assertInventoryFamily([{...entries['triangulations-voronoi'][0], path}], 'triangulations-voronoi'), /requires a triangulations-voronoi inventory/);
     for (const path of ['/bezeg-2.0/bezier/reductions', '/bezeg-2.0/bezier/arc-lengths', '/bezeg-2.0/bezier/clippings', '/bezeg-2.0/patches/coonsx', '/bezeg-2.0/bezier', '/bezeg-2.0/patches/tensor', '/bezeg-2.0/reduction'])
         assert.throws(() => assertInventoryFamily([{...entries['advanced-bezier'][0], path}], 'advanced-bezier'), /requires a advanced-bezier inventory/);
 });

@@ -15,6 +15,7 @@ import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCop
 import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
 import {advancedBezierPreviewCopy} from '../content/advancedBezierPreviewCopy';
 import {convexityPreviewCopy} from '../content/convexityPreviewCopy';
+import {triangulationPreviewCopy} from '../content/triangulationPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -240,6 +241,11 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['convexity-hulls.bezier-hulls.bezier-hulls', 'convexity-hulls.convex-hull.convex-hull', 'convexity-hulls.hull-robustness.hull-robustness',
             'convexity-hulls.orientation.orientation', 'convexity-hulls.point-in-polygon.point-in-polygon', 'convexity-hulls.polygon-area.polygon-area'],
         counts: [[4, 6], [2, 9], [2, 3], [0, 2], [0, 6], [2, 5]]},
+    {chapterId: 'triangulations-voronoi', copy: triangulationPreviewCopy,
+        ids: ['triangulations-voronoi.delaunay.delaunay', 'triangulations-voronoi.ear-clipping.ear-clipping',
+            'triangulations-voronoi.point-set-triangulation.point-set-triangulation', 'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate',
+            'triangulations-voronoi.voronoi.voronoi'],
+        counts: [[6, 4], [0, 6], [0, 7], [0, 5], [0, 8]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {
