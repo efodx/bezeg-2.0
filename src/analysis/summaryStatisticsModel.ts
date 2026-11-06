@@ -226,7 +226,8 @@ export const SUMMARY_VIEW_MARGIN = 1;
 
 /**
  * A deterministic view [left, top, right, bottom] covering all values with a margin of SUMMARY_VIEW_MARGIN, at least
- * SUMMARY_VIEW_MIN_WIDTH wide (centred on the data), shifted and then clamped into [-1, 41].
+ * SUMMARY_VIEW_MIN_WIDTH wide (centred on the data), shifted and then clamped into [-1, 41]. It widens to any fence past
+ * that fit. Both quartile rules count, so switching the rule or the box plot never needs a refit.
  */
 export function fitSummaryView(values: readonly number[]): SummaryBounds {
     const lo = Math.min(...values);
@@ -242,6 +243,12 @@ export function fitSummaryView(values: readonly number[]): SummaryBounds {
     if (right > 41) {
         left -= right - 41;
         right = 41;
+    }
+    for (const rule of ['inclusive', 'exclusive'] as const) {
+        const summary = fiveNumberSummary(values, rule);
+        if (summary.status !== 'ok') continue;
+        left = Math.min(left, summary.lowerFence - SUMMARY_VIEW_MARGIN);
+        right = Math.max(right, summary.upperFence + SUMMARY_VIEW_MARGIN);
     }
     return [Math.max(-1, left), SUMMARY_VIEW_TOP, Math.min(41, right), SUMMARY_VIEW_BOTTOM];
 }

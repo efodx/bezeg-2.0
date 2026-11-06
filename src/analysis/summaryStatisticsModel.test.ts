@@ -5,6 +5,7 @@ import {
     SUMMARY_EXAMPLE_IDS, SUMMARY_EXAMPLES, SUMMARY_VALUES_MAX, summaryExampleOf, summaryStatisticsView,
 } from './summaryStatisticsModel';
 import type {SummaryModel} from './summaryStatisticsModel';
+import {fiveNumberSummary} from './descriptiveStatistics';
 import type {BoxPlotAvailable} from './descriptiveStatistics';
 
 const withValues = (values: number[], rest: Partial<SummaryModel> = {}): SummaryModel => ({...DEFAULT_SUMMARY_MODEL, values, ...rest});
@@ -290,6 +291,15 @@ describe('import', () => {
 });
 
 describe('fitted view', () => {
+    it('widens to show a fence that lies past the values, under either quartile rule', () => {
+        // Exclusive quartiles 5 and 7 put the lower fence at 2, one below the left edge the values alone would give.
+        const values = [4, 5, 5, 6, 6, 7, 30];
+        const summary = fiveNumberSummary(values, 'exclusive');
+        if (summary.status !== 'ok') throw new Error('The example has enough values.');
+        expect(summary.lowerFence).toBe(2);
+        expect(fitSummaryView(values)).toEqual([1, 4, 31, -2]);
+    });
+
     it('is at least 10 wide, covers the values with a margin and uses the documented vertical extent', () => {
         expect(fitSummaryView([4, 5, 5, 6, 6, 7, 8])).toEqual([1, 4, 11, -2]);
         const wide = fitSummaryView([10, 30]);
