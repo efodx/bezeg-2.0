@@ -8,6 +8,7 @@ import {Attributes} from "../../attributes/Attributes";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {reductionPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
 import {LiveReadout, SettledReadout} from "../LiveReadout";
+import {ReadoutDetails, ReadoutDetailsController} from "../ReadoutDetails";
 import type {ReductionMode} from "../../../bezeg/impl/kernels/degree-reduction";
 import {ReductionOverlay} from "./ReductionOverlay";
 
@@ -58,6 +59,7 @@ class DegreeReductionGraph extends BaseBezierCurveGraph<DegreeReductionStates> {
     private drawn?: { mode: ReductionMode, shown: boolean, elevation: boolean };
     /** Owned by the graph so it survives overlay recreation on scene import. */
     private readonly liveReadout = new SettledReadout();
+    private readonly details = new ReadoutDetailsController();
 
     override getInitialState(): DegreeReductionStates {
         return {...super.getInitialState(), reductionMode: 'fixed', reductionShown: true, reductionElevationShown: false};
@@ -134,6 +136,7 @@ class DegreeReductionGraph extends BaseBezierCurveGraph<DegreeReductionStates> {
             elevationShown: () => this.effectiveElevationShown(),
             fontSize: () => this.displaySettings.fontSize,
             onReadout: text => this.liveReadout.report(text),
+            details: this.details,
         });
     }
 
@@ -221,6 +224,7 @@ class DegreeReductionGraph extends BaseBezierCurveGraph<DegreeReductionStates> {
             <OnOffSwitch label={t("reduction_shown")} checked={this.effectiveShown()} onChange={checked => this.setReductionShown(checked)}/>
             <OnOffSwitch label={t("reduction_elevation_shown")} checked={this.effectiveElevationShown()}
                          onChange={checked => this.setReductionElevationShown(checked)}/>
+            <ReadoutDetails controller={this.details} label={t("reduction_details_aria")} testId="reduction-details"/>
             <p className="inspector-help">{t("reduction_help_approximation")}</p>
             <p className="inspector-help">{t("reduction_help_tolerance")}</p>
         </div>;

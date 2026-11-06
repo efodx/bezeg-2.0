@@ -392,6 +392,19 @@ describe('the board caption and the details list', () => {
         } finally { view.unmount(); }
     });
 
+    test('the disabled slider follows the moving point at a low rate, not on every frame', () => {
+        const {graph, view} = mount();
+        try {
+            act(() => graph.play());
+            graph.clock.tick(0);
+            graph.clock.tick(100);
+            expect(Number(rangeSlider().value)).toBe(0);
+            graph.clock.tick(ARC_TRAVERSAL_MS / 2);
+            expect(Number(rangeSlider().value)).toBeCloseTo(0.5, 2);
+            act(() => graph.pause());
+        } finally { view.unmount(); }
+    });
+
     test('a mode change during playback keeps the live position', () => {
         const {graph, view} = mount();
         try {

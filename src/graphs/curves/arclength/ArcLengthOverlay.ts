@@ -5,7 +5,7 @@ import {GAUSS_LEGENDRE_ORDER, TABLE_SUBINTERVALS, speedAt} from "../../../bezeg/
 import {GraphPalette} from "../../styles/GraphPalette";
 import {ARC_PIECES_MAX, ArcLengthModel, ArcMoverMode, buildArcLengthModel, moverArcLength, moverParameter} from "./arcLengthModel";
 import type {ArcSpeedPlotController} from "./ArcSpeedPlot";
-import type {ArcDetailsController} from "./ArcDetails";
+import type {ReadoutDetailsController} from "../ReadoutDetails";
 
 /** The caption lines on the board: the mover, L, the exact value (PH) and the cusp or zero-length status; each one short. */
 const CAPTION_LINES = 4;
@@ -28,7 +28,7 @@ interface ArcSettings {
     exactLength: () => number | undefined;
     fontSize: () => number;
     plot?: ArcSpeedPlotController;
-    details?: ArcDetailsController;
+    details?: ReadoutDetailsController;
     onReadout?: (text: string) => void;
 }
 

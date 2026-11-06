@@ -12,7 +12,7 @@ import {LiveReadout, SettledReadout} from "../LiveReadout";
 import {JXGPHBezierCurve} from "../object/JXGPHBezierCurve";
 import {ARC_MOVER_MODES, ARC_PIECES_DEFAULT, ARC_PIECES_MAX, ARC_PIECES_MIN, ArcMoverMode} from "./arcLengthModel";
 import {ArcLengthOverlay} from "./ArcLengthOverlay";
-import {ArcDetails, ArcDetailsController} from "./ArcDetails";
+import {ReadoutDetails, ReadoutDetailsController} from "../ReadoutDetails";
 import {ArcSpeedPlot, ArcSpeedPlotController} from "./ArcSpeedPlot";
 
 export type ArcCurveKind = 'bezier' | 'ph';
@@ -24,6 +24,8 @@ export type {ArcMoverMode};
 export const ARC_Q_POINTS: number[][] = [[0, 0], [1, 3], [3, 3], [4, 0]];
 /** The time one traversal of the mover takes (position 0 to 1) while playing, in milliseconds. */
 export const ARC_TRAVERSAL_MS = 6000;
+/** How often the inspector re-renders during playback, so the position slider follows the point. */
+const ARC_SLIDER_SYNC_MS = 250;
 
 const KIND_VIEW: Readonly<Record<ArcCurveKind, [number, number, number, number]>> = {
     bezier: [-1.5, 6.2, 5.5, -1.4],
@@ -86,19 +88,21 @@ function curveLabel(kind: ArcCurveKind): string {
  * is shown beside it.
  *
  * Playback: the graph owns one frame loop. It advances a live position by the elapsed time and redraws the board directly;
- * no graph state is written per frame, so no React render happens. `arcMoverPosition` is committed when playback pauses.
+ * no graph state is written per frame. `arcMoverPosition` is committed when playback pauses. The inspector renders every
+ * {@link ARC_SLIDER_SYNC_MS} so the disabled position slider follows the point without a React render per frame.
  * A press on the board (a drag), Reset, a scene import, an undo that changes the mover, and unmount stop the loop. The
- * position slider is disabled while playing, since it would not follow the frames.
+ * position slider is disabled while playing, since the frame loop owns the position.
  */
 class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
     private overlay?: ArcLengthOverlay;
     private drawn?: { pieces: number, equalT: boolean, equalArc: boolean, mode: ArcMoverMode };
     private readonly liveReadout = new SettledReadout();
     private readonly plot = new ArcSpeedPlotController();
-    private readonly details = new ArcDetailsController();
+    private readonly details = new ReadoutDetailsController();
     private driver?: AnimationDriver;
     private playing = false;
     private livePosition = 0;
+    private sinceSliderSync = 0;
 
     curveKind(): ArcCurveKind {
         return this.phCurve() ? 'ph' : 'bezier';
@@ -189,7 +193,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
     /** The plot controller, for tests. */
     speedPlot(): ArcSpeedPlotController { return this.plot; }
     /** The details controller, for tests. */
-    detailsList(): ArcDetailsController { return this.details; }
+    detailsList(): ReadoutDetailsController { return this.details; }
     isPlaying(): boolean { return this.playing; }
 
     private ensureOverlay() {
@@ -263,6 +267,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
         if (this.playing || this.reducedMotion() || !this.board || !this.graphSession?.isAlive) return;
         const start = this.effectivePosition();
         this.livePosition = start >= 1 ? 0 : start;
+        this.sinceSliderSync = 0;
         this.playing = true;
         this.driver = new AnimationDriver(delta => this.advance(delta), this.animationScheduler());
         this.driver.play();
@@ -280,6 +285,11 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
         const next = this.livePosition + delta / ARC_TRAVERSAL_MS;
         this.livePosition = next >= 1 ? next - Math.floor(next) : next;
         this.board.update();
+        this.sinceSliderSync += delta;
+        if (this.sinceSliderSync >= ARC_SLIDER_SYNC_MS) {
+            this.sinceSliderSync = 0;
+            this.refreshWorkspace();
+        }
     }
 
     private stopPlayback(commit: boolean) {
@@ -397,7 +407,7 @@ class ArcLengthParametrizationGraph extends BaseCurveGraph<ArcLengthStates> {
             <OnOffSwitch label={t("arcparam_speed_plot_shown")} checked={this.state.arcSpeedPlotShown}
                          onChange={checked => this.setArcSpeedPlotShown(checked)}/>
             {this.state.arcSpeedPlotShown && <ArcSpeedPlot controller={this.plot} fontSize={this.displaySettings.fontSize}/>}
-            <ArcDetails controller={this.details}/>
+            <ReadoutDetails controller={this.details} label={t("arcparam_details_aria")} testId="arc-details"/>
         </div>;
     }
 }

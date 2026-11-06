@@ -1,12 +1,11 @@
 import React, {useEffect, useRef} from "react";
-import {useT} from "../../../localization";
 
 /**
- * The imperative link between the board overlay and the details list, as {@link ArcSpeedPlotController}: the graph owns one,
+ * The imperative link between a board overlay and an inspector details list: the graph owns one,
  * the overlay pushes the long readout lines, and the mounted `<ul>` gets `<li>` text written directly, so a drag renders no
  * React. A push with unchanged text writes nothing.
  */
-export class ArcDetailsController {
+export class ReadoutDetailsController {
     private list?: HTMLUListElement;
     private lines: readonly string[] = [];
 
@@ -36,11 +35,10 @@ export class ArcDetailsController {
     }
 }
 
-/** The long readouts of the arc-length demonstration; its items are written by the controller, not by React. */
-export function ArcDetails(props: { controller: ArcDetailsController }) {
-    const t = useT();
+/** The long readouts of a demonstration; its items are written by the controller, not by React. */
+export function ReadoutDetails(props: { controller: ReadoutDetailsController; label: string; testId: string }) {
     const list = useRef<HTMLUListElement>(null);
-    const {controller} = props;
+    const {controller, label, testId} = props;
     useEffect(() => (list.current ? controller.register(list.current) : undefined), [controller]);
-    return <ul className="inspector-help" aria-label={t("arcparam_details_aria")} data-testid="arc-details" ref={list}/>;
+    return <ul className="inspector-help" aria-label={label} data-testid={testId} ref={list}/>;
 }

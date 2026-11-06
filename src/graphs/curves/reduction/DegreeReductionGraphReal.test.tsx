@@ -32,6 +32,7 @@ class Probe extends DegreeReductionGraph {
     netPoints() { return this.owned().filter(e => e.elType === 'point').slice(3).map(p => [p.X!(), p.Y!()]); }
     captions() { return this.owned().filter(e => e.elType === 'text').map(e => e.plaintext ?? '').filter(Boolean); }
     published(): string { return this['liveReadout'].getSnapshot(); }
+    detailLines(): readonly string[] { return this['details'].lastLines(); }
     movePoint(index: number, to: number[]) {
         const point = this.getFirstJxgCurve().getJxgPoints()[index];
         point.moveTo(to, 0);
@@ -100,15 +101,27 @@ describe('DegreeReductionGraph scene', () => {
         try {
             useP(graph);
             expect(graph.captions()).toContain(t('reduction_readout_max_error', {value0: '0,0962'}));
-            expect(graph.captions()).toContain(t('reduction_readout_l2_error', {value0: '0,069007'}));
-            expect(graph.captions().some(line => /^Tretja diferenca: \(.2; 0\)$/.test(line))).toBe(true);
+            expect(graph.detailLines()).toContain(t('reduction_readout_l2_error', {value0: '0,069007'}));
+            expect(graph.detailLines().some(line => /^Tretja diferenca: \(.2; 0\)$/.test(line))).toBe(true);
             expect(graph.captions()).toContain(t('reduction_readout_not_reducible'));
             act(() => graph.setReductionMode('free'));
             expect(graph.captions()).toContain(t('reduction_readout_max_error', {value0: '0,1'}));
-            expect(graph.captions()).toContain(t('reduction_readout_l2_error', {value0: '0,037796'}));
-            expect(graph.captions()).toContain(t('reduction_readout_bound', {value0: '0,3'}));
+            expect(graph.detailLines()).toContain(t('reduction_readout_l2_error', {value0: '0,037796'}));
+            expect(graph.detailLines()).toContain(t('reduction_readout_bound', {value0: '0,3'}));
             act(() => setLanguage('en'));
-            expect(graph.captions()).toContain(t('reduction_readout_l2_error', {value0: '0.037796'}));
+            expect(graph.detailLines()).toContain(t('reduction_readout_l2_error', {value0: '0.037796'}));
+        } finally { view.unmount(); }
+    });
+
+    test('the board carries two lines and the inspector list all five readouts', () => {
+        const {graph, view} = mount();
+        try {
+            useP(graph);
+            expect(graph.captions()).toEqual([t('reduction_readout_not_reducible'), t('reduction_readout_max_error', {value0: '0,0962'})]);
+            const list = document.querySelector('[data-testid="reduction-details"]') as HTMLUListElement;
+            const items = Array.from(list.children).map(item => item.textContent);
+            expect(items).toHaveLength(5);
+            expect(items).toEqual([...graph.detailLines()]);
         } finally { view.unmount(); }
     });
 

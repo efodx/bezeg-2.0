@@ -1,3 +1,4 @@
+import type {ReadoutDetailsController} from "../ReadoutDetails";
 import type {Board, GeometryElement, Point, Text} from "jsxgraph";
 import {currentLanguage, onLanguageChange, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
@@ -8,8 +9,8 @@ import {
 
 /** Points per drawn curve: the quadratic is smooth at this density at classroom sizes. */
 export const REDUCTION_CURVE_SAMPLES = 100;
-/** Caption lines on the board: third difference, reducibility, maximum error, L2 error, control-point bound. */
-const CAPTION_LINES = 5;
+/** Caption lines on the board: reducibility and maximum error. The other readouts would cover the curve on a phone, so they stay in the inspector. */
+const CAPTION_LINES = 2;
 
 type Rows = ReadonlyArray<ReadonlyArray<number>>;
 
@@ -23,6 +24,8 @@ interface ReductionSettings {
     fontSize: () => number;
     /** Called with the readout text on every board update that draws it (for a live region). */
     onReadout?: (text: string) => void;
+    /** Receives every readout line for the inspector list. */
+    details?: ReadoutDetailsController;
 }
 
 /** Everything one reduction of the current cubic yields; computed once per change of control points or mode. */
@@ -93,7 +96,7 @@ export class ReductionOverlay {
         return result;
     }
 
-    /** The caption lines (the same text feeds the live region). Empty without a four-point curve. */
+    /** Every readout line; feeds the live region and the inspector list. Empty without a four-point curve. */
     readoutLines(): string[] {
         const r = this.result();
         if (!r) return [];
@@ -110,6 +113,11 @@ export class ReductionOverlay {
 
     readoutText(): string {
         return this.readoutLines().join(" ");
+    }
+
+    /** The board lines: reducibility and maximum error. */
+    private captionLines(): string[] {
+        return this.readoutLines().slice(1, 1 + CAPTION_LINES);
     }
 
     private create<E extends GeometryElement>(type: string, parents: unknown[], attributes: Record<string, unknown>): E {
@@ -165,8 +173,11 @@ export class ReductionOverlay {
                 () => box()[0] + 0.02 * (box()[2] - box()[0]),
                 () => box()[1] - 0.02 * (box()[1] - box()[3]) - k * lineHeight(),
                 () => {
-                    if (k === 0) this.settings.onReadout?.(this.readoutText());
-                    return this.readoutLines()[k] ?? "";
+                    if (k === 0) {
+                        this.settings.onReadout?.(this.readoutText());
+                        this.settings.details?.push(this.readoutLines());
+                    }
+                    return this.captionLines()[k] ?? "";
                 },
             ], {
                 anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false,
