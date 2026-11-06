@@ -2001,3 +2001,8 @@ Dispatch: review before push, then parallel test and chapter workers on disjoint
 - Chapter worker, Sonnet: 43 calls, 112k tokens, 12 minutes. Complete against the `64d27a5f` template. Wrote "nepolinomska kubična krivulja" in Slovenian while the English said non-PH; the handler's reading caught it.
 - Chapter review, Sonnet: 19 calls, 59k tokens, 2 minutes. No blocker; found that old `?example=` ids stop resolving.
 - Handler: one strand-placement change reverted (a test requires strands in chapter order), and one script stopped by a console encoding error after writing half its files.
+
+### Curves handler 61: AB-A-5 cards and posters (2026-11-06)
+
+- Handler only: tooling and one copy line were tightly coupled to the captures, so no worker ran. The soft threshold fired at 176k in 23 turns, mostly from reading the stream table and capture scripts whole.
+- One failed capture (Coons camera): the authored camera came from the catalog recipe, and the lesson opens on the default Preset's fit. The capture's evidence check caught it.
