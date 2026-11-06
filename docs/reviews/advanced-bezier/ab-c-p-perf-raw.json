@@ -1,0 +1,442 @@
+{
+ "chromium": "156.0.8078.4",
+ "runs": 3,
+ "runsThrottled": 3,
+ "steps": 150,
+ "dragMs": 2000,
+ "viewport": "1440x900",
+ "rows": [
+  {
+   "name": "1 coons c0-1 inner",
+   "runs": 3,
+   "median": 16.699999999999818,
+   "p95": 16.799999999999272,
+   "dropped": [
+    0,
+    0,
+    22
+   ],
+   "updateMedian": 2.699999988079071,
+   "updateP95": 5.099999964237213,
+   "raw": [
+    {
+     "samples": 410,
+     "median": 16.699999999999818,
+     "p95": 16.700000000000728,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 303,
+     "updateMedian": 2.699999988079071,
+     "updateP95": 5.099999964237213,
+     "movedPx": 100.80514272595427,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    },
+    {
+     "samples": 365,
+     "median": 16.699999999999818,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 302,
+     "updateMedian": 2.199999988079071,
+     "updateP95": 2.800000011920929,
+     "movedPx": 100.80514272595427,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    },
+    {
+     "samples": 599,
+     "median": 16.699999999999818,
+     "p95": 16.800000000000182,
+     "max": 1016.6000000000004,
+     "dropped": 22,
+     "updates": 303,
+     "updateMedian": 3.199999988079071,
+     "updateP95": 5.300000011920929,
+     "movedPx": 100.80514272595427,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    }
+   ]
+  },
+  {
+   "name": "1 coons c0-1 inner | CPU/4",
+   "runs": 3,
+   "median": 16.700000000000728,
+   "p95": 66.69999999999982,
+   "dropped": [
+    146,
+    145,
+    146
+   ],
+   "updateMedian": 11.700000047683716,
+   "updateP95": 19.5,
+   "raw": [
+    {
+     "samples": 515,
+     "median": 16.700000000000728,
+     "p95": 66.69999999999982,
+     "max": 116.69999999999982,
+     "dropped": 146,
+     "updates": 303,
+     "updateMedian": 11.699999988079071,
+     "updateP95": 19.5,
+     "movedPx": 100.80514272595427,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    },
+    {
+     "samples": 504,
+     "median": 16.700000000000728,
+     "p95": 66.69999999999982,
+     "max": 66.80000000000109,
+     "dropped": 145,
+     "updates": 303,
+     "updateMedian": 11.700000047683716,
+     "updateP95": 15.100000023841858,
+     "movedPx": 100.80514272595427,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    },
+    {
+     "samples": 511,
+     "median": 16.700000000000728,
+     "p95": 116.59999999999854,
+     "max": 133.3000000000011,
+     "dropped": 146,
+     "updates": 303,
+     "updateMedian": 15.299999952316284,
+     "updateP95": 27.19999998807907,
+     "movedPx": 100.80514272595427,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    }
+   ]
+  },
+  {
+   "name": "2 coons linked corner c0-3",
+   "runs": 3,
+   "median": 16.699999999999818,
+   "p95": 16.799999999999272,
+   "dropped": [
+    0,
+    0,
+    0
+   ],
+   "updateMedian": 2.199999988079071,
+   "updateP95": 2.900000035762787,
+   "raw": [
+    {
+     "samples": 367,
+     "median": 16.699999999999818,
+     "p95": 16.700000000000728,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 302,
+     "updateMedian": 2.199999988079071,
+     "updateP95": 2.900000035762787,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    },
+    {
+     "samples": 362,
+     "median": 16.699999999999818,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 303,
+     "updateMedian": 2.199999988079071,
+     "updateP95": 2.800000011920929,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    },
+    {
+     "samples": 425,
+     "median": 16.699999999999818,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 303,
+     "updateMedian": 2.900000035762787,
+     "updateP95": 5.199999988079071,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    }
+   ]
+  },
+  {
+   "name": "2 coons linked corner c0-3 | CPU/4",
+   "runs": 3,
+   "median": 16.700000000000728,
+   "p95": 66.70000000000073,
+   "dropped": [
+    145,
+    146,
+    148
+   ],
+   "updateMedian": 11.699999988079071,
+   "updateP95": 15.699999988079071,
+   "raw": [
+    {
+     "samples": 500,
+     "median": 16.700000000000728,
+     "p95": 66.70000000000073,
+     "max": 83.40000000000146,
+     "dropped": 145,
+     "updates": 303,
+     "updateMedian": 11.699999988079071,
+     "updateP95": 15.699999988079071,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    },
+    {
+     "samples": 507,
+     "median": 16.700000000000728,
+     "p95": 66.70000000000073,
+     "max": 83.29999999999927,
+     "dropped": 146,
+     "updates": 303,
+     "updateMedian": 11.699999988079071,
+     "updateP95": 15.599999964237213,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    },
+    {
+     "samples": 519,
+     "median": 16.700000000000728,
+     "p95": 116.69999999999982,
+     "max": 200,
+     "dropped": 148,
+     "updates": 303,
+     "updateMedian": 16.599999964237213,
+     "updateP95": 29.600000023841858,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "met"
+    }
+   ]
+  },
+  {
+   "name": "3 coons unlinked end c0-3",
+   "runs": 3,
+   "median": 16.69999999999891,
+   "p95": 16.799999999999272,
+   "dropped": [
+    0,
+    0,
+    0
+   ],
+   "updateMedian": 2.5,
+   "updateP95": 3.300000011920929,
+   "raw": [
+    {
+     "samples": 366,
+     "median": 16.69999999999891,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 303,
+     "updateMedian": 2.5,
+     "updateP95": 3.300000011920929,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "mismatch"
+    },
+    {
+     "samples": 363,
+     "median": 16.69999999999891,
+     "p95": 16.700000000000728,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 302,
+     "updateMedian": 2.4500000178813934,
+     "updateP95": 3.100000023841858,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "mismatch"
+    },
+    {
+     "samples": 436,
+     "median": 16.69999999999891,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 303,
+     "updateMedian": 3.199999988079071,
+     "updateP95": 5.699999988079071,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "mismatch"
+    }
+   ]
+  },
+  {
+   "name": "3 coons unlinked end c0-3 | CPU/4",
+   "runs": 3,
+   "median": 16.700000000000728,
+   "p95": 66.70000000000073,
+   "dropped": [
+    145,
+    146,
+    145
+   ],
+   "updateMedian": 13.699999988079071,
+   "updateP95": 18,
+   "raw": [
+    {
+     "samples": 498,
+     "median": 16.700000000000728,
+     "p95": 66.70000000000073,
+     "max": 83.39999999999964,
+     "dropped": 145,
+     "updates": 303,
+     "updateMedian": 13.100000023841858,
+     "updateP95": 16.80000001192093,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "mismatch"
+    },
+    {
+     "samples": 490,
+     "median": 16.700000000000728,
+     "p95": 66.70000000000073,
+     "max": 83.40000000000146,
+     "dropped": 146,
+     "updates": 303,
+     "updateMedian": 13.699999988079071,
+     "updateP95": 18,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "mismatch"
+    },
+    {
+     "samples": 513,
+     "median": 16.700000000000728,
+     "p95": 116.70000000000073,
+     "max": 150,
+     "dropped": 145,
+     "updates": 303,
+     "updateMedian": 18.299999952316284,
+     "updateP95": 33,
+     "movedPx": 100.80514272595418,
+     "meshPaths": 326,
+     "statusAfter": "mismatch"
+    }
+   ]
+  },
+  {
+   "name": "4 tensor p-1-1 (reference)",
+   "runs": 3,
+   "median": 16.699999999999818,
+   "p95": 16.799999999999272,
+   "dropped": [
+    0,
+    0,
+    5
+   ],
+   "updateMedian": 2.3499999940395355,
+   "updateP95": 3,
+   "raw": [
+    {
+     "samples": 399,
+     "median": 16.699999999999818,
+     "p95": 16.799999999999272,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 304,
+     "updateMedian": 2.2999999821186066,
+     "updateP95": 2.899999976158142,
+     "movedPx": 100.80514272595421,
+     "meshPaths": 326,
+     "statusAfter": null
+    },
+    {
+     "samples": 397,
+     "median": 16.699999999999818,
+     "p95": 16.700000000000728,
+     "max": 16.80000000000109,
+     "dropped": 0,
+     "updates": 304,
+     "updateMedian": 2.3499999940395355,
+     "updateP95": 3,
+     "movedPx": 100.80514272595421,
+     "meshPaths": 326,
+     "statusAfter": null
+    },
+    {
+     "samples": 461,
+     "median": 16.699999999999818,
+     "p95": 16.799999999999272,
+     "max": 33.30000000000109,
+     "dropped": 5,
+     "updates": 304,
+     "updateMedian": 3,
+     "updateP95": 5.199999988079071,
+     "movedPx": 100.80514272595421,
+     "meshPaths": 326,
+     "statusAfter": null
+    }
+   ]
+  },
+  {
+   "name": "4 tensor p-1-1 (reference) | CPU/4",
+   "runs": 3,
+   "median": 16.700000000000728,
+   "p95": 100,
+   "dropped": [
+    145,
+    146,
+    147
+   ],
+   "updateMedian": 13.300000011920929,
+   "updateP95": 19.600000023841858,
+   "raw": [
+    {
+     "samples": 514,
+     "median": 16.700000000000728,
+     "p95": 83.39999999999964,
+     "max": 100.10000000000036,
+     "dropped": 145,
+     "updates": 304,
+     "updateMedian": 12.300000011920929,
+     "updateP95": 16.899999976158142,
+     "movedPx": 100.80514272595421,
+     "meshPaths": 326,
+     "statusAfter": null
+    },
+    {
+     "samples": 507,
+     "median": 16.700000000000728,
+     "p95": 100,
+     "max": 133.29999999999927,
+     "dropped": 146,
+     "updates": 304,
+     "updateMedian": 13.300000011920929,
+     "updateP95": 19.600000023841858,
+     "movedPx": 100.80514272595421,
+     "meshPaths": 326,
+     "statusAfter": null
+    },
+    {
+     "samples": 527,
+     "median": 16.700000000000728,
+     "p95": 133.39999999999782,
+     "max": 183.39999999999782,
+     "dropped": 147,
+     "updates": 304,
+     "updateMedian": 16.549999982118607,
+     "updateP95": 27.700000047683716,
+     "movedPx": 100.80514272595421,
+     "meshPaths": 326,
+     "statusAfter": null
+    }
+   ]
+  }
+ ]
+}

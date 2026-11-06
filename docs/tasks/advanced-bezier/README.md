@@ -105,6 +105,9 @@ Convexity A6 is on `master`: `hullsSeparated` (`src/compgeo/hullSeparation.ts`) 
 | AB-B-4 | F4 | D2 section in chapter `advanced-bezier` | AB-B-3 | done ([record](../../reviews/advanced-bezier/ab-b-4-chapter.md)) |
 | AB-B-5 | F5 | Card and poster of `bezier-clipping` | AB-B-4 | done ([record](../../reviews/advanced-bezier/ab-b-5-media.md)) |
 | AB-B-6 | F6 | Batch B gate | AB-B-5 | done, **Batch B released** (handler 66): [gate record](../../reviews/advanced-bezier/ab-b-6-gate.md), [audit](../../reviews/advanced-bezier/ab-b-6-criterion-audit.md) |
-| AB-C-* (rest) | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
 | AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | done ([evidence](../../reviews/advanced-bezier/ab-c-2a-graph.md)) |
 | AB-C-3 | F3 | D4 guided lesson (seven steps), `coons` lesson action kind, registration with interim owner `bezier-curves/geometric-properties`, smoke row | AB-C-2a | done ([evidence](../../reviews/advanced-bezier/ab-c-3-lesson.md)); chapter link stays with F4 |
+| AB-C-4 | F4 | D4 section in chapter `advanced-bezier` | AB-C-3 | done with AB-A-4 ([record](../../reviews/advanced-bezier/ab-a-4-chapter.md)) |
+| AB-C-5 | F5 | Card and poster of `patch-coons` | AB-C-4 | done with AB-A-5 ([record](../../reviews/advanced-bezier/ab-a-5-media.md)) |
+| AB-C-P | F2b | D4 drag measurement the batch gate asks for, on the shipped route | AB-C-3 | done (handler 67; [measurement](../../reviews/advanced-bezier/ab-c-p-perf.md)) |
+| AB-C-6 | F6 | Batch C gate: criterion audit, the browser checks AB-C-2a left for registration (drag, relink, shown surface, keyboard order, 200% text, SL/EN live switch), checks | AB-C-P | planned (handler 67) |
