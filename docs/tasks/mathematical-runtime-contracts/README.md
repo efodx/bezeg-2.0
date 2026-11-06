@@ -1,6 +1,6 @@
 # Mathematical runtime contracts task queue
 
-Status: planned, 2026-11-03. Source and canonical acceptance criteria: [specification](../../specs/mathematical-runtime-contracts.md). These tasks implement the five additional recommendations requested by the owner after the recent-commit review. Application implementation has not started.
+Status: scheduled, 2026-11-07. The [Contracts stream](../feature-streams/contracts.md) runs tasks 1, 5 and 4, in that order; the [Controls stream](../feature-streams/controls.md) runs tasks 2 and 3. Source and canonical acceptance criteria: [specification](../../specs/mathematical-runtime-contracts.md). These tasks implement the five additional recommendations requested by the owner after the recent-commit review.
 
 | Priority | Task | Status | Dependency / ownership |
 | --- | --- | --- | --- |
