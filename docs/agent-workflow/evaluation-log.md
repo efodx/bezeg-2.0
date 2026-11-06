@@ -1988,3 +1988,16 @@ Brief `handoff-v12`. Registration and browser repairs stayed with the handler (s
 - D1 worker: 41 calls, 119k tokens, 20 minutes. Complete, three mutations. Adapted to a mid-run caption change by message.
 - D3 worker: 48 calls, 125k tokens, 20 minutes. Complete, four mutations and a whitelist test. Reported 16 frames for 15, which the smoke floor caught.
 - Handler: three scripted-edit slips of its own (mixed line endings, a heredoc's escapes, an import inside a multi-line import), each caught at once. No review yet: the handler reached its threshold first and left the lessons off `master`.
+
+### 2026-11-06, curves handler 60: D1 and D3 review, AB-A-4 chapter (M, handler Opus medium)
+
+Dispatch: review before push, then parallel test and chapter workers on disjoint files. Seven workers, brief `handoff-v12`, at most three at once. Accepted: `2f7346db`, `a6df91f7`. `just check` not run on these commits; hosted CI covers them.
+
+- Engineering review, Sonnet: 20 calls, 51k tokens, 2 minutes. No blocker; named the D3 cases that became tests.
+- Mathematics review, Sonnet: 16 calls, 55k tokens, 2 minutes. No wrong number; found two false general statements in one-shot prose, so a truth check of prose still paid.
+- Smoke, Sonnet: 12 calls, 35k tokens, 3 minutes. Repairs confirmed. Its walk took frames for steps, stopped at frame 7 and failed the board checks; the screenshots, not the report, showed why.
+- Smoke, Haiku: 20 calls, 62k tokens, 5 minutes. All frames, with the status line and buttons named in the brief. Its "covered" result was the transparent `guided-lesson-graph-catcher`: `elementFromPoint` needs that overlay excluded.
+- Test worker, Sonnet: 38 calls, 60k tokens, 17 minutes. Complete, mutations per test. Reported that one requested test would be vacuous rather than writing it.
+- Chapter worker, Sonnet: 43 calls, 112k tokens, 12 minutes. Complete against the `64d27a5f` template. Wrote "nepolinomska kubična krivulja" in Slovenian while the English said non-PH; the handler's reading caught it.
+- Chapter review, Sonnet: 19 calls, 59k tokens, 2 minutes. No blocker; found that old `?example=` ids stop resolving.
+- Handler: one strand-placement change reverted (a test requires strands in chapter order), and one script stopped by a console encoding error after writing half its files.
