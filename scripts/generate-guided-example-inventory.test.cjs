@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -678,4 +678,35 @@ test('probability expectations are authored from the graphs: density ends, the b
     assert.throws(() => probabilityExpectedFor('p.correlation.prob-correlation', psStep([...correlation().scene.actions.slice(1), choice('correlation-example', 'outlier')])), /only sets/);
     assert.throws(() => probabilityExpectedFor('p.unknown.unknown', psStep([])), /no authored Probability/);
     assert.ok(chapterInventories.probability);
+});
+
+test('b-spline expectations are authored from the graphs: the hat basis, the de Boor rings, the comb curves, the pieces, the NURBS circle and the blossom triangle', () => {
+    const quad = {degree: 2, knots: [0, 0, 0, 1, 2, 2, 2], points: [[0, 0], [1, 2], [3, 2], [4, 0]]};
+    const hat = {degree: 1, knots: [0, 0, 1, 2, 2], points: [[0, 0], [1, 0], [2, 0]]};
+    const nurbs = {degree: 2, knots: [0, 0, 0, 0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 1, 1, 1], weights: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+        points: [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0]]};
+    const bs = (curve, ...actions) => step({scene: {actions: [{kind: 'prepared-scene', sceneId: 'x', source: 'lesson-fixture', curve}, ...actions]}});
+    const t = value => ({kind: 'parameter', name: 't', value});
+    const comb = visible => ({kind: 'knot-insertion', operation: 'set-comb', visible});
+    const bezier = visible => ({kind: 'blossom', operation: 'set-bezier', visible});
+    const args = values => ({kind: 'blossom', operation: 'set-args', args: values});
+    assert.deepEqual(bsplineExpectedFor('b.bspline-basis.bspline-basis', bs(hat, t(1))), {types: {curve: 3, point: 8, segment: 1}, curveCount: 3,
+        points: [[1, 0], [1, 1], [0, -0.1], [0, -0.17], [1, -0.1], [2, -0.1], [2, -0.17]]});
+    assert.throws(() => bsplineExpectedFor('b.bspline-basis.bspline-basis', bs(hat, t(0.5))), /only the slider at t = 1/);
+    assert.throws(() => bsplineExpectedFor('b.bspline-basis.bspline-basis', bs(quad, t(1))), /only the authored degree/);
+    assert.deepEqual(bsplineExpectedFor('b.bspline-deboor.bspline-deboor', bs(quad, t(0.5))), {types: {curve: 1, point: 7, segment: 2}, curveCount: 1, points: quad.points});
+    assert.throws(() => bsplineExpectedFor('b.bspline-deboor.bspline-deboor', bs(quad, t(1.5))), /only the slider at t = 1\/2/);
+    assert.throws(() => bsplineExpectedFor('b.bspline-deboor.bspline-deboor', bs(quad, t(0.5), {kind: 'animation', animationId: 'deboor', command: 'next-step'})), /only sets/);
+    assert.deepEqual(bsplineExpectedFor('b.bspline-insertion.bspline-insertion', bs(quad, comb(true))), {types: {curve: 3, point: 4}, curveCount: 3, points: quad.points});
+    assert.throws(() => bsplineExpectedFor('b.bspline-insertion.bspline-insertion', bs(quad, comb(false))), /only the comb shown/);
+    assert.throws(() => bsplineExpectedFor('b.bspline-insertion.bspline-insertion', bs(quad, comb(true), {kind: 'knot-insertion', operation: 'insert', value: 0.5})), /only the comb shown/);
+    assert.deepEqual(bsplineExpectedFor('b.bspline-extraction.bspline-extraction', bs(quad)), {types: {curve: 5, point: 4}, curveCount: 5, points: quad.points});
+    assert.throws(() => bsplineExpectedFor('b.bspline-extraction.bspline-extraction', bs(quad, {kind: 'bezier-extraction', operation: 'move-point'})), /only sets/);
+    assert.deepEqual(bsplineExpectedFor('b.bspline-nurbs.bspline-nurbs', bs(nurbs)), {types: {curve: 2, point: 10}, curveCount: 2, points: nurbs.points.slice(0, 8)});
+    assert.throws(() => bsplineExpectedFor('b.bspline-nurbs.bspline-nurbs', bs({...nurbs, weights: [1, 1, 1, 1, 2, 1, 1, 1, 1]})), /only the unit weights/);
+    assert.deepEqual(bsplineExpectedFor('b.bspline-blossom.bspline-blossom', bs(quad, bezier(false), args([0, 1]))), {types: {curve: 1, point: 7, segment: 1, text: 1}, curveCount: 1, points: quad.points});
+    assert.throws(() => bsplineExpectedFor('b.bspline-blossom.bspline-blossom', bs(quad, bezier(true), args([0, 1]))), /only the hidden Bezier/);
+    assert.throws(() => bsplineExpectedFor('b.bspline-blossom.bspline-blossom', bs(quad, bezier(false), args([1, 1]))), /only the hidden Bezier/);
+    assert.throws(() => bsplineExpectedFor('b.unknown.unknown', bs(quad)), /no authored B-spline/);
+    assert.ok(chapterInventories['b-splines']);
 });

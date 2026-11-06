@@ -283,6 +283,12 @@ const chapterInventories = {
         pathExport: 'probabilityGuidedExamplePath',
         expectedFor: probabilityExpectedFor,
     },
+    'b-splines': {
+        module: '/src/learning/content/bsplineChapterRegistry.ts',
+        registryExport: 'bsplineGuidedExampleRegistry',
+        pathExport: 'bsplineGuidedExamplePath',
+        expectedFor: bsplineExpectedFor,
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleRegistry',
@@ -1550,6 +1556,96 @@ function probabilityExpectedFor(id, step) {
     return author(id, step.scene.actions);
 }
 
+// ---- B-splines chapter (b-splines): six lessons, keyed by the section in the example id. Every scene is a `lesson-fixture` scene: the curve fixture is
+// the whole opening scene, plus the few actions each section allows. Nothing is random.
+
+/** The opening scene's fixture; it must be the one the expectation was authored for. */
+function bsplineFixture(id, step, degree, knots, points) {
+    const prepared = step.scene.actions.find(item => item.kind === 'prepared-scene');
+    const curve = prepared && prepared.curve;
+    assert.ok(curve, `${id}: the opening scene must be a lesson-fixture scene`);
+    assert.deepEqual([curve.degree, curve.knots, curve.points], [degree, knots, points], `${id}: only the authored degree, knot vector and control points are expected`);
+    return curve;
+}
+
+const BSPLINE_QUADRATIC = [2, [0, 0, 0, 1, 2, 2, 2], [[0, 0], [1, 2], [3, 2], [4, 0]]];
+
+// Authored from src/graphs/curves/bspline/BSplineBasisScene.ts (build: one curve per basis function, 5 - 1 - 1 = 3 for the knots (0,0,1,2,2) of degree 1; one segment from the
+// slider foot to the top, whose two end points are invisible; one dot per function at the slider t, heights N0 = 0, N1 = 1, N2 = 0 at t = 1; one diamond marker per knot at
+// (knot, -0.1) with repeated knots stacking down by 0.07; a value text under the first marker of each run of equal knots (0, 1, 2), a domain note under 65 characters, and the
+// readout, a fifth text that the first-frame check sees at 5 but that the presentation step then hides for exceeding 65 characters, leaving 4; the check runs on both, so no text count is
+// asserted). The view is not normalized by default.
+function bsplineBasisExpectedFor(id, step) {
+    assertOnlyActions(id, step.scene.actions, [['parameter', /^t$/]], 'bsplineBasisExpectedFor');
+    bsplineFixture(id, step, 1, [0, 0, 1, 2, 2], [[0, 0], [1, 0], [2, 0]]);
+    assert.equal(sceneValue(id, step.scene.actions, 'parameter', 't'), 1, `${id}: only the slider at t = 1 is authored`);
+    return {types: {curve: 3, point: 8, segment: 1}, curveCount: 3,
+        points: [[1, 0], [1, 1], [0, -0.1], [0, -0.17], [1, -0.1], [2, -0.1], [2, -0.17]]};
+}
+
+// Authored from src/graphs/curves/bspline/DeBoorScene.ts (build: at level r there are k + 1 - r points, so degree 2 gives three rings at level 0, the active control points of the span
+// [u2, u3), and two segments between them; the higher levels only once revealed; the readout text is seen by the first-frame check but hidden by the presentation step, so no text count is asserted) and the curve layer of JXGBSplineCurve (the curve and its four control
+// points; the control polygon and hull are not shown), not from a capture. The opening scene reveals no level: the lesson has no next-step action. A first draft counted four rings and three segments.
+function bsplineDeBoorExpectedFor(id, step) {
+    assertOnlyActions(id, step.scene.actions, [['parameter', /^t$/]], 'bsplineDeBoorExpectedFor');
+    const [degree, knots, points] = BSPLINE_QUADRATIC;
+    bsplineFixture(id, step, degree, knots, points);
+    assert.equal(sceneValue(id, step.scene.actions, 'parameter', 't'), 0.5, `${id}: only the slider at t = 1/2 is authored`);
+    return {types: {curve: 1, point: 7, segment: 2}, curveCount: 1, points};
+}
+
+// Authored from src/graphs/curves/bspline/BSplineInsertionScene.ts (build: no ghost before an insertion; the comb adds the teeth and the envelope as two curves while shown) and
+// the curve layer of JXGBSplineCurve (the curve and its four control points), not from a capture. The opening scene shows the comb and inserts no knot.
+function bsplineInsertionExpectedFor(id, step) {
+    assertOnlyActions(id, step.scene.actions, [['knot-insertion', /^$/]], 'bsplineInsertionExpectedFor');
+    const [degree, knots, points] = BSPLINE_QUADRATIC;
+    bsplineFixture(id, step, degree, knots, points);
+    const operations = step.scene.actions.filter(item => item.kind === 'knot-insertion');
+    assert.deepEqual(operations.map(item => [item.operation, item.visible]), [['set-comb', true]], `${id}: only the comb shown, with no knot inserted, is authored`);
+    return {types: {curve: 3, point: 4}, curveCount: 3, points};
+}
+
+// Authored from src/graphs/curves/bspline/BSplineExtractionScene.ts (build: per piece one dashed Bezier polygon curve and one Bezier curve; the knots (0,0,0,1,2,2,2) of degree 2 have
+// two distinct spans, so two pieces) and the curve layer of JXGBSplineCurve (the curve under the pieces and its four control points), not from a capture.
+function bsplineExtractionExpectedFor(id, step) {
+    assertOnlyActions(id, step.scene.actions, [], 'bsplineExtractionExpectedFor');
+    const [degree, knots, points] = BSPLINE_QUADRATIC;
+    bsplineFixture(id, step, degree, knots, points);
+    return {types: {curve: 5, point: 4}, curveCount: 5, points};
+}
+
+// Authored from src/graphs/curves/bspline/BSplineNurbsScene.ts (build: the dashed unit circle while shown, the marker at C(t) for the default t = 1/16) and the curve layer of JXGBSplineCurve
+// (the curve and its nine control points, the first and last both at (1, 0)), not from a capture.
+function bsplineNurbsExpectedFor(id, step) {
+    assertOnlyActions(id, step.scene.actions, [], 'bsplineNurbsExpectedFor');
+    const prepared = step.scene.actions.find(item => item.kind === 'prepared-scene');
+    const circle = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0]];
+    bsplineFixture(id, step, 2, [0, 0, 0, 0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 1, 1, 1], circle);
+    assert.deepEqual(prepared.curve.weights, [1, 1, 1, 1, 1, 1, 1, 1, 1], `${id}: only the unit weights are authored`);
+    return {types: {curve: 2, point: 10}, curveCount: 2, points: circle.slice(0, 8)};
+}
+
+// Authored from src/graphs/curves/bspline/BSplineBlossomScene.ts (build: the Bezier markers and their polygon only while shown; the triangle of the arguments (0, 1) for degree 2 as 2 + 1
+// points and one segment; one label text f(0;1), under 65 characters) and the curve layer of JXGBSplineCurve (the curve and its four control points), not from a capture.
+function bsplineBlossomExpectedFor(id, step) {
+    assertOnlyActions(id, step.scene.actions, [['blossom', /^$/]], 'bsplineBlossomExpectedFor');
+    const [degree, knots, points] = BSPLINE_QUADRATIC;
+    bsplineFixture(id, step, degree, knots, points);
+    const operations = step.scene.actions.filter(item => item.kind === 'blossom');
+    assert.deepEqual(operations.map(item => [item.operation, item.visible ?? item.args]), [['set-bezier', false], ['set-args', [0, 1]]], `${id}: only the hidden Bezier points and the arguments (0, 1) are authored`);
+    return {types: {curve: 1, point: 7, segment: 1, text: 1}, curveCount: 1, points};
+}
+
+/** First-frame expectation of a B-splines lesson (the six sections of the chapter, keyed by the section in the example id). */
+function bsplineExpectedFor(id, step) {
+    const bySection = {'bspline-basis': bsplineBasisExpectedFor, 'bspline-deboor': bsplineDeBoorExpectedFor, 'bspline-insertion': bsplineInsertionExpectedFor,
+        'bspline-extraction': bsplineExtractionExpectedFor, 'bspline-nurbs': bsplineNurbsExpectedFor, 'bspline-blossom': bsplineBlossomExpectedFor};
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
+    assert.ok(author, `${id}: no authored B-spline first frame`);
+    return author(id, step);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1602,4 +1698,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, bsplineExpectedFor, assertExpectation};

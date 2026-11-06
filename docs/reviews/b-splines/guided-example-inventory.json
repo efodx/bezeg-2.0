@@ -1,0 +1,269 @@
+{
+  "examples": [
+    {
+      "id": "b-splines.bspline-basis.bspline-basis",
+      "demonstrationId": "bspline-basis",
+      "path": "/bezeg-2.0/bspline/basis?example=lesson.b-splines.bspline-basis.bspline-basis",
+      "sceneFingerprint": "0789503968805a09501d83396d900eba23fd8ffc88a4c3f144a7f62a43a5e644",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-basis-hat-degree-1\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":1,\"knots\":[0,0,1,2,2],\"points\":[[0,0],[1,0],[2,0]]},\"view\":[-0.24,1.65,2.24,-0.55]}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":1}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "point": 8,
+          "segment": 1
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            -0.1
+          ],
+          [
+            0,
+            -0.17
+          ],
+          [
+            1,
+            -0.1
+          ],
+          [
+            2,
+            -0.1
+          ],
+          [
+            2,
+            -0.17
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "b-splines.bspline-deboor.bspline-deboor",
+      "demonstrationId": "bspline-deboor",
+      "path": "/bezeg-2.0/bspline/deboor?example=lesson.b-splines.bspline-deboor.bspline-deboor",
+      "sceneFingerprint": "a98f122991c9fe73a3e4728951b24069aabb414faa910b8226a09ef89cf60851",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-deboor-predict-half\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,1,2,2,2],\"points\":[[0,0],[1,2],[3,2],[4,0]]},\"view\":[-1.5,3.5,5.5,-1.5]}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 7,
+          "segment": 2
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "b-splines.bspline-insertion.bspline-insertion",
+      "demonstrationId": "bspline-insertion",
+      "path": "/bezeg-2.0/bspline/insertion?example=lesson.b-splines.bspline-insertion.bspline-insertion",
+      "sceneFingerprint": "891e9f91194f9a413120749c2b13fca96868d21b99b763d0f45eb24b1f40caed",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-insertion-predict-start\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,1,2,2,2],\"points\":[[0,0],[1,2],[3,2],[4,0]]},\"view\":[-1.5,3.5,6.5,-1.5]}",
+        "knot-insertion: {\"kind\":\"knot-insertion\",\"operation\":\"set-comb\",\"visible\":true}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 3,
+          "point": 4
+        },
+        "curveCount": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "b-splines.bspline-extraction.bspline-extraction",
+      "demonstrationId": "bspline-extraction",
+      "path": "/bezeg-2.0/bspline/extraction?example=lesson.b-splines.bspline-extraction.bspline-extraction",
+      "sceneFingerprint": "b320f88e507606e7055b27d52cc0f734b67371f64b0aaea7ff20a4bccc36e7c0",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-extraction-predict-start\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,1,2,2,2],\"points\":[[0,0],[1,2],[3,2],[4,0]]},\"view\":[-1.5,4.5,6.5,-1.5]}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 5,
+          "point": 4
+        },
+        "curveCount": 5,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "b-splines.bspline-nurbs.bspline-nurbs",
+      "demonstrationId": "bspline-nurbs",
+      "path": "/bezeg-2.0/bspline/nurbs?example=lesson.b-splines.bspline-nurbs.bspline-nurbs",
+      "sceneFingerprint": "21753c7ad64d9e823767375c895db4934872bf8fd14844e0b42b402e296c8d74",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-nurbs-predict-unit\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,0.25,0.25,0.5,0.5,0.75,0.75,1,1,1],\"points\":[[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]],\"weights\":[1,1,1,1,1,1,1,1,1]},\"view\":[-2,2,2,-2]}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 2,
+          "point": 10
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            -1,
+            -1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "b-splines.bspline-blossom.bspline-blossom",
+      "demonstrationId": "bspline-blossom",
+      "path": "/bezeg-2.0/bspline/blossom?example=lesson.b-splines.bspline-blossom.bspline-blossom",
+      "sceneFingerprint": "bf80b0f4b6e40b5b1ea3bfb5561538dc06ac1c0aa3f1d3fb783884190a2c42d5",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"bspline-blossom-predict-controls\",\"source\":\"lesson-fixture\",\"curve\":{\"degree\":2,\"knots\":[0,0,0,1,2,2,2],\"points\":[[0,0],[1,2],[3,2],[4,0]]},\"view\":[-1.5,3.5,5.5,-1.5]}",
+        "blossom: {\"kind\":\"blossom\",\"operation\":\"set-bezier\",\"visible\":false}",
+        "blossom: {\"kind\":\"blossom\",\"operation\":\"set-args\",\"args\":[0,1]}"
+      ],
+      "expected": {
+        "types": {
+          "curve": 1,
+          "point": 7,
+          "segment": 1,
+          "text": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

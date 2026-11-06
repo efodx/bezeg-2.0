@@ -73,6 +73,7 @@ const chapterFamilies = {
     'sweep-algorithms': {label: 'sweep-algorithms', idPrefix: 'sweep-algorithms.', route: /^\/bezeg-2\.0\/compgeo\/(?:interval-sweep|segment-intersections|monotone-partition|monotone-triangulation|fortune)(?:\/|$)/, routeText: '/bezeg-2.0/compgeo/interval-sweep, /segment-intersections, /monotone-partition, /monotone-triangulation or /fortune'},
     interpolation: {label: 'interpolation', idPrefix: 'interpolation.', route: /^\/bezeg-2\.0\/interpolation\/(?:lagrange|hermite|runge|least-squares|subdivision)(?:\/|$)/, routeText: '/bezeg-2.0/interpolation/lagrange, /hermite, /runge, /least-squares or /subdivision'},
     probability: {label: 'probability', idPrefix: 'probability.', route: /^\/bezeg-2\.0\/probability\/(?:density|binomial-normal|clt|summary|correlation)(?:\/|$)/, routeText: '/bezeg-2.0/probability/density, /binomial-normal, /clt, /summary or /correlation'},
+    'b-splines': {label: 'b-splines', idPrefix: 'b-splines.', route: /^\/bezeg-2\.0\/bspline\/(?:basis|deboor|insertion|extraction|nurbs|blossom)(?:\/|$)/, routeText: '/bezeg-2.0/bspline/basis, /deboor, /insertion, /extraction, /nurbs or /blossom'},
     'triangle-geometry': {label: 'triangle-geometry', idPrefix: 'triangle-geometry.', route: /^\/bezeg-2\.0\/(?:triangle-centres|inscribed-angle|euler-line|simson-line|inversion)(?:\/|$)/, routeText: '/bezeg-2.0/triangle-centres, /inscribed-angle, /euler-line, /simson-line or /inversion'},
 };
 
