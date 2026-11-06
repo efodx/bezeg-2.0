@@ -29,11 +29,11 @@ Headless Chromium 156 on a Ryzen 5 7600 at 1280×720 and 1920×1080; the classro
 ## Alternatives
 
 - **Individual objects per circle and arm (a).** Simplest to style per term, but 342 objects at \(N=50\), and rebuilding them on each N change fails the threshold. Pre-creating the objects and toggling visibility was not measured and keeps a per-update visit of every object.
-- **Arm chain as one curve with the first 5 circles as JSXGraph circles (b1).** Cheapest (1 to 3 ms) and passes, but the picture shows 5 of up to 100 circles, which hides the epicycle idea of the lesson. Kept as the fallback if b2 draws badly on the target device.
+- **Arm chain as one curve with the first 5 circles as JSXGraph circles (b1).** Cheapest (1 to 3 ms) and passes, but the picture shows 5 of up to 100 circles, which hides the epicycle idea of the lesson. Kept as the fallback if b2 draws badly.
 - **An overlay canvas or SVG layer.** Not measured: the native curves already meet the threshold, and an overlay would need its own resize, high-DPI, disposal and scene-capture handling.
 
 ## Consequences
 
 - No new dependency and no overlay lifecycle. A fixed small object set means the scene tests can assert a created and disposed count independent of \(N\).
 - A curve cannot carry per-circle styling, so all circles share one stroke, and highlighting one term needs an additional object.
-- The measurement is a lower bound for the target device and the React host, and it moved anchors only. F2a re-checks the drag of control points and the host's update cadence; F6 re-checks interactivity on the classroom device. If it misses the threshold in force, the relaxed one for drags, stop and report to the owner (06 Batch C rule).
+- The measurement is a lower bound for slower devices and the React host, and it moved anchors only. F2a re-checks the drag of control points and the host's update cadence. If it misses the threshold in force, the relaxed one for drags, stop and report to the owner (06 Batch C rule). The owner removed the classroom device check on 2026-11-06.

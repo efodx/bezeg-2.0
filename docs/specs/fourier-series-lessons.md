@@ -73,7 +73,7 @@ Conventions: functions are \(2\pi\)-periodic, defined on \([-\pi,\pi)\); the rea
   2. Unit test of the pitfall: the unsplit rule differs from the exact value by more than \(10^{-2}\) for the jump example, so the test fails if the kernel stops splitting.
   3. Handles are constrained so that breakpoints are strictly increasing and the shape is periodic-consistent (or the seam value is shown); a degenerate drag is rejected visibly.
   4. Parseval partial sums for the square wave \(\sum_{\mathrm{odd}\,k\le N}16/(\pi k)^2\) are \(1.62114\), \(1.80127\), \(1.93261\), \(1.99205\) for \(N=1,3,11,101\), approaching \(\tfrac1\pi\int f^2=2\) (checked); the identity itself is stated as a theorem (Parseval; cited, not opened).
-  5. Dragging stays interactive on the target device per the measured thresholds recorded for this lesson; a Preset stores the handles and \(K\); malformed data are rejected; Slovenian and English complete.
+  5. Dragging stays interactive per the measured thresholds recorded for this lesson; a Preset stores the handles and \(K\); malformed data are rejected; Slovenian and English complete.
 
 ### F3. The Gibbs phenomenon
 

@@ -27,4 +27,4 @@ Headless Chromium 156 on a Ryzen 5 7600 at 1280×720 and 1920×1080; the classro
 
 - No new dependency and no overlay lifecycle. The field is one board object, so tests assert one created and one disposed field object.
 - Grid sizes up to the kernel cap are affordable. 41×29 nodes exceed `EULER_FIELD_MAX = 40` (a per-direction cap in `src/analysis/odeEuler.ts`); F2a decides whether the cap counts cells or nodes.
-- The measurement is a lower bound for the target device and the React host. F6 re-checks interactivity there, especially zoom and pan at 1920×1080, where every approach showed a few frames over 25 ms in the harness. If the target device misses the threshold, stop and report to the owner (07 Batch C rule).
+- The measurement is a lower bound for slower devices and the React host. F6 re-checks interactivity on the real route, especially zoom and pan at 1920×1080, where every approach showed a few frames over 25 ms in the harness. If it misses the threshold, stop and report to the owner (07 Batch C rule). The owner removed the classroom device check on 2026-11-06.

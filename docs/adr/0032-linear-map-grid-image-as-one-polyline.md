@@ -34,4 +34,4 @@ A drag move must fit one 60 Hz frame (16.7 ms) including paint. On the desktop r
 
 ## Open gap
 
-The target classroom device, touch input, integrated GPUs, Firefox and Safari, and high-refresh displays were not measured. Repeat the benchmark on the classroom device in F6 (task 07 acceptance). If `board.update` p95 exceeds 16.7 ms there, revisit this decision before release.
+The target classroom device, touch input, integrated GPUs, Firefox and Safari, and high-refresh displays were not measured. The owner removed the classroom device check on 2026-11-06, so this decision rests on the desktop measurement.

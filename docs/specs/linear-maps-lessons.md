@@ -189,7 +189,7 @@ Final wording and its sources are recorded in the implementing change.
 - Preset tests: save/reopen, export/import, malformed or out-of-range entries, an old preset format absent (new collection only).
 - Lesson/content tests: step counts, both languages in lockstep, `lessonMathNotation.test.ts` unchanged and passing, `tsc --noEmit` after localization changes.
 - Browser: a smoke row per lesson (default scene, handle drag, numeric entry, singular and complex cases, restore, catalog link, refresh, narrow viewport, keyboard, touch alternatives); the existing `/bezier/affine` route is smoke checked once in Batch C.
-- Performance (ADR 4): a drag moves two handles and updates 26 image grid lines, the unit square, up to one ellipse (about 100 sampled points or a few arcs) and the Bézier fixture. Before choosing a drawing approach, measure on the target classroom device with [the performance plan](../performance-plan.md): per-line JSXGraph elements against one polyline curve, with and without the ellipse; record frame times and the threshold used. Do not replace JSXGraph on this evidence alone.
+- Performance (ADR 4): a drag moves two handles and updates 26 image grid lines, the unit square, up to one ellipse (about 100 sampled points or a few arcs) and the Bézier fixture. Before choosing a drawing approach, measure with [the performance plan](../performance-plan.md): per-line JSXGraph elements against one polyline curve, with and without the ellipse; record frame times and the threshold used. Do not replace JSXGraph on this evidence alone.
 
 ### Batch-wide acceptance gate
 

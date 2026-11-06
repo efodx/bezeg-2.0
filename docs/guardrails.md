@@ -19,6 +19,7 @@ These constraints reflect the owner's planning answers on 2026-10-08. The implem
 - Implemented, available drafts count as released unless a concrete missing requirement prevents completion. Track known defects, missing functionality and verification gaps by name; a draft label or absent general sign-off alone does not prevent release. The lesson availability list describes supported released lessons, not a separate owner-approval queue.
 - Physical-device, actual-projector and classroom/student-observation reviews are optional follow-up evidence, not release/completion gates. No separate deferral approval is needed. Preserve historical coverage limits without describing unperformed tests as passes. Browser-based responsive, keyboard/touch and accessibility checks appropriate to the change remain required, as do mathematical correctness, automated checks and concrete acceptance criteria.
 - This decision supersedes conflicting language/content-approval, physical-device, projector, classroom and draft-release wording in older specs, tasks and reviews. A specific assistive-technology defect or unverified acceptance requirement remains a follow-up; the decision does not declare an accessibility evaluation passed.
+- On 2026-11-06 the owner removed the remaining classroom device checks from ADRs, specs and tasks. Performance gates are measured on the desktop reference. Do not add a device check back as a gate.
 
 ## Mathematical behavior
 

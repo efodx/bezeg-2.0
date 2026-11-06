@@ -92,7 +92,7 @@ Examples are implementation defaults; equivalents may replace them if the learni
   2. At the crossing of the lines through \(0\) the readout says the angle is doubled or the map is not conformal there, and the tangent of the image is stated as undefined (\(f'=0\)); no NaN is displayed.
   3. The sampled polyline of every drawn parabola lies within the stated tolerance of the closed form (test over a set of lines).
   4. Image runs are split at non-finite values; no segment is drawn across a gap.
-  5. A drag of \(z\) and a grid-density change are interactive on the classroom device per the [performance plan](../performance-plan.md); sampling is measured with 11 and 21 lines per direction before the density options are fixed.
+  5. A drag of \(z\) and a grid-density change are interactive per the [performance plan](../performance-plan.md); sampling is measured with 11 and 21 lines per direction before the density options are fixed.
   6. Slovenian and English complete.
 
 ### M4. Möbius maps

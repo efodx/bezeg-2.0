@@ -112,7 +112,7 @@ Examples are implementation defaults; equivalents may replace them if the learni
   2. The field slope at a sample point equals \(F(x,y)\) in a unit test; the Euler step equals \(y_k+hF(x_k,y_k)\) exactly in rational arithmetic for \(h=0.5\).
   3. The window and the initial point are constrained so that no non-finite values appear; a divergent run (an optional \(y'=y^2\) example from \(y(0)=1\) blows up at \(x=1\)) stops with a visible status instead of drawing off-screen segments. The blow-up example is optional.
   4. The prose says the field is a picture of one equation, that existence and uniqueness need hypotheses not checked here, and that a polyline is not a solution.
-  5. Dragging the initial point or changing \(h\) stays interactive on the target device, per the measured thresholds recorded for this lesson (see Testing Decisions); the chosen approach is recorded in an ADR.
+  5. Dragging the initial point or changing \(h\) stays interactive, per the measured thresholds recorded for this lesson (see Testing Decisions); the chosen approach is recorded in an ADR.
   6. Reset, Preset round trip, scene capture/restore and disposal of all generated field objects pass the lifecycle tests.
   7. Slovenian and English complete.
 
@@ -156,7 +156,7 @@ Final wording, sources and the table entry are recorded in the implementing chan
 - Lesson/content tests: step counts, both languages in lockstep, `lessonMathNotation.test.ts` unchanged and passing (undelimited formula fields, `{,}` for decimals in Slovenian), `tsc --noEmit` after localization changes.
 - Playback tests with the injectable scheduler: Next step equals a playback tick, pause on edit, no callback after disposal.
 - Browser: a smoke row per lesson (default scene, controls, reveal, restore, catalog link, refresh, narrow viewport, keyboard, touch alternatives). Run the full checklist only if shared catalogue or lesson runtime changes.
-- Performance (N5): before choosing an approach, measure on the target classroom device with [the performance plan](../performance-plan.md): drag the initial point and the step slider with e.g. \(21\times15\) and \(41\times29\) field grids, comparing per-segment JSXGraph objects against one polyline-array curve, an overlay canvas or SVG, and a cheaper coarse grid; record frame times and the threshold used. The ADR cites the measurement. Do not replace JSXGraph on this evidence alone.
+- Performance (N5): before choosing an approach, measure with [the performance plan](../performance-plan.md): drag the initial point and the step slider with e.g. \(21\times15\) and \(41\times29\) field grids, comparing per-segment JSXGraph objects against one polyline-array curve, an overlay canvas or SVG, and a cheaper coarse grid; record frame times and the threshold used. The ADR cites the measurement. Do not replace JSXGraph on this evidence alone.
 
 ### Batch-wide acceptance gate
 
