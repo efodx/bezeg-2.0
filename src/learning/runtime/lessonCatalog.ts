@@ -154,6 +154,7 @@ function frameForStep(
             kind: frame.kind,
             title: step.title,
             prompt: step.observationPrompt,
+            expectedObservations: step.expectedObservations.length > 0 ? step.expectedObservations : undefined,
             animation: step.animation ? {animationId: step.animation.animationId} : undefined,
         };
     }

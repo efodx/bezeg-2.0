@@ -374,6 +374,11 @@ export function GuidedLesson(props: {
         props.onClose();
     };
 
+    const expectedObservations = frame.kind === 'observation' && frame.expectedObservations && frame.expectedObservations.length > 0
+        && <details className="guided-lesson-expected" key={`expected-${frame.id}`}>
+            <summary>{t('guided_lesson_expected_observations')}</summary>
+            {frame.expectedObservations.map((text, index) => <p key={index}>{localized(text, language)}</p>)}
+        </details>;
     const animationControls = frame.animation && <div className="guided-lesson-animation-controls" role="group" aria-label={t('guided_lesson_animation_controls')}>
         {(['play', 'pause', 'replay'] as const).map(command => <button type="button" key={command} onClick={() => refresh(() => animateFrame(command))}>
             <AnimationIcon command={command}/>{t(command)}
@@ -480,11 +485,13 @@ export function GuidedLesson(props: {
                 <div className="guided-lesson-notation" role="region" tabIndex={0} aria-label={t('guided_lesson_formula_region')}>{localized(frame.workedExample.result, language)}</div>
                 <p>{localized(frame.workedExample.check, language)}</p>
             </div>}
+            {expectedObservations}
         </div>}
         {!isComplete && isExploring && <div className="guided-lesson-exploration" key={frame.id}>
             <strong>{localized(frame.title, language)}</strong>
             {frame.prompt && <p>{localized(frame.prompt, language)}</p>}
             {animationControls}
+            {expectedObservations}
         </div>}
         {isComplete && <p>{t('guided_lesson_free_exploration')}</p>}
         </div>

@@ -728,3 +728,43 @@ test('a startup error stays visible and follows a language switch', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('The point t must be a number between 0 and 1.');
     act(() => setLanguage('sl'));
 });
+
+describe('expected observations disclosure', () => {
+    const withExpected = (expected?: {expectedObservations: {sl: string; en: string}[]}): LessonDefinition => ({
+        ...observationFirstLesson,
+        id: 'expected-observations-test',
+        steps: [{...observationFirstLesson.steps[0], frames: [
+            {id: 'obs', kind: 'observation', title: {sl: 'Opazovanje', en: 'Observation'}, prompt: {sl: 'Opazuj', en: 'Observe'}, ...expected},
+        ]}],
+    });
+    const expectedFrame = {expectedObservations: [{sl: 'Točka \\(P_0\\) miruje.', en: 'The point \\(P_0\\) stays.'}]};
+
+    test('is closed by default, native summary, and typeset while closed', async () => {
+        setLanguage('sl');
+        render(<GuidedLesson lesson={withExpected(expectedFrame)} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const summary = screen.getByText('Kaj bi morali opaziti');
+        const details = summary.closest('details')!;
+        expect(summary.tagName).toBe('SUMMARY');
+        expect(details.open).toBe(false);
+        expect(details).toHaveTextContent('\\(P_0\\) miruje');
+        await waitFor(() => expect((window as Window & {MathJax?: {typesetPromise: Mock}}).MathJax?.typesetPromise).toHaveBeenCalled());
+        details.open = true;
+        expect(details.open).toBe(true);
+    });
+
+    test('is absent when the step has no expected observations', () => {
+        setLanguage('sl');
+        render(<GuidedLesson lesson={withExpected()} capabilities={capabilities()} onClose={vi.fn()}/>);
+        expect(screen.queryByText('Kaj bi morali opaziti')).not.toBeInTheDocument();
+    });
+
+    test('is localized in English', () => {
+        setLanguage('en');
+        try {
+            render(<GuidedLesson lesson={withExpected(expectedFrame)} capabilities={capabilities()} onClose={vi.fn()}/>);
+            expect(screen.getByText('What you should notice').closest('details')!.open).toBe(false);
+        } finally {
+            act(() => setLanguage('sl'));
+        }
+    });
+});

@@ -133,6 +133,10 @@
 .guided-lesson-worked-example h4 { margin:0 0 6px; font-size:.8125rem; font-weight:700; }
 .guided-lesson-worked-example .guided-lesson-notation { background:#e9eedf; }
 .guided-lesson-worked-example p { margin:8px 0 0; }
+.guided-lesson-expected { margin:12px 0 0; padding:8px 12px; border-radius:8px; background:#f5f7ef; }
+.guided-lesson-expected summary { cursor:pointer; font-weight:600; }
+.guided-lesson-expected summary:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+.guided-lesson-expected p { margin:8px 0 0; line-height:1.55; }
 .guided-lesson-exploration { animation: guided-lesson-frame-in .18s ease-out; }
 .guided-lesson-exploration strong { display:block; font-size:1.125rem; line-height:1.25; text-wrap:balance; }
 .guided-lesson-exploration p { margin:6px 0 0; color:var(--bezeg-shell-ink-secondary, #526152); line-height:1.55; }

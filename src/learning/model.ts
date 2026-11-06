@@ -581,6 +581,8 @@ export interface LessonFrame {
     readonly notation?: readonly LocalizedText[];
     readonly workedExample?: LessonWorkedExample;
     readonly prompt?: LocalizedText;
+    /** Self-check text shown in a closed disclosure on observation frames. */
+    readonly expectedObservations?: readonly LocalizedText[];
     readonly animation?: LessonAnimation;
     readonly action?: LessonStepAction;
 }
