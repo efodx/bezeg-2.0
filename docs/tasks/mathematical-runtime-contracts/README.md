@@ -10,7 +10,7 @@ Status: planned, 2026-11-03. Source and canonical acceptance criteria: [specific
 | 4 | [One live function model authority](04-live-function-model.md) | Pending | After task 1; serialize base/subclass migration and coordinate persistence-owner edits. |
 | 5 | [Typed conic variants and solver outcomes](05-typed-conic-outcomes.md) | Pending | Independent; own analytical/projective conic types and their consumers. |
 
-Keep one status here per task. Store any implementation evidence beside this index and link it from the completed task; decisions and acceptance changes belong in the specification. The existing [lesson-authoring architecture](../../specs/lesson-authoring-architecture.md) remains a separate queue.
+Tasks 2 and 3 are run by the [`controls` stream](../feature-streams/controls.md), step 3. Keep one status here per task. Store any implementation evidence beside this index and link it from the completed task; decisions and acceptance changes belong in the specification. The existing [lesson-authoring architecture](../../specs/lesson-authoring-architecture.md) remains a separate queue.
 
 Tasks 1, 2 and 5 can be assigned independently when their files and test resources are disjoint. Task 4 may overlap function graph consumers touched by tasks 1 or 5; complete or serialize those edits. Workers implement bounded slices and return evidence without further delegation or Git operations; the handler owns review, integration, acceptance, commits and pushes. Large migrations may use sequential worker slices under the same task, with one shared-interface owner and no duplicate completion ledgers.
 

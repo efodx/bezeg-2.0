@@ -55,7 +55,7 @@ A second audit on 2026-11-07 took five angles: readouts, board interaction, cont
 
 ## Likely exceptions
 
-To be confirmed one by one in task 0: 2×2 matrix entry, knot vectors, the multiplicity field of zeros, segment and interval rows (they edit pairs), Pascal stepping along a conic, affine transform buttons, patch control-point choice by index (a net needs two indices and has too many points for a C14 row; one shared chooser replaces the three `NO_INDEX` copies and Coons's `NO_SELECTION`), and `stepOutOfBand` on the derivative `h` slider (a domain rule the graph applies, so `Slider` stays).
+To be decided one by one in task 0: 2×2 matrix entry, knot vectors, the multiplicity field of zeros, segment and interval rows (they edit pairs), Pascal stepping along a conic, affine transform buttons, patch control-point choice by index (a net needs two indices and has too many points for a C14 row; one shared chooser replaces the three `NO_INDEX` copies and Coons's `NO_SELECTION`), and `stepOutOfBand` on the derivative `h` slider (a domain rule the graph applies, so `Slider` stays).
 
 Not catalogued: degree elevation, split at a value, linked corners, join continuity and Reverse order. Each is a one-family domain action built from shared parts, so only C6 and C7 apply to them.
 
@@ -73,10 +73,14 @@ Not catalogued: degree elevation, split at a value, linked corners, join continu
 10. **Degree chooser.** `CountSetter` for every degree. All option lists checked are consecutive integers, and a degree is a count, so C5 already covers it. The B-spline and patch selects change.
 11. **Keyboard on curve and function boards.** No arrow-key nudges there. The typed list, already labelled for keyboard editing in `PointCoordinateEditor`, stays the keyboard path; adding nudges would need a selection model on those boards. Task 0 confirms that every draggable point has a typed path.
 
+## Delegated decisions
+
+On 2026-11-07 the owner handed every further decision in this work to the handlers: no confirmation is needed, and the owner asks for a change later if a result is unwelcome. The handler decides exceptions, Reset removals and any new question, and records each here or in *Likely exceptions* with its reason and the alternative it rejected, so the choice is easy to find and reverse.
+
 ## Acceptance
 
 1. Every capability in the catalogue has one shared control, or a named exception with its reason.
-2. Lint fails on a raw input, range, select or stepper in graph code outside the exemption list, and the list shrinks to the confirmed exceptions.
+2. Lint fails on a raw input, range, select or stepper in graph code outside the exemption list, and the list shrinks to the recorded exceptions.
 3. Two graphs offering a capability pass the same shared behaviour test: placement, limit, refusal, commit, Escape, keyboard and Reset.
 4. No control is unavailable or refuses without a stated reason.
 5. Workstream 1's I1–I5 hold for every migrated panel, in both languages.
@@ -85,7 +89,7 @@ Not catalogued: degree elevation, split at a value, linked corners, join continu
 
 ## Order
 
-1. **Task 0:** finish the inventory per panel, and confirm exceptions. Read-only.
+1. **Task 0:** finish the inventory per panel, and decide exceptions. Read-only.
 2. **Foundation:** workstream 1 inputs, the protocols in C6–C8, the keymap in C17, the channels in C21–C23, the formats in C28, the fixture and the lint rule with every current bypass exempted, so new graphs comply from then on.
 3. **Shared controls:** C1–C5, C14, C16, C18 and C19, piloted on PointSet, Interpolation and the curve workspace.
 4. **Family sweeps,** one per family, shrinking the exemptions: compgeo, projective, functions, curves, patches. Run after [contracts task 3](../tasks/mathematical-runtime-contracts/03-shared-trace-playback.md), which touches the same panels and owns the playback policy C24 uses.
@@ -94,7 +98,7 @@ Not catalogued: degree elevation, split at a value, linked corners, join continu
 
 ## User impact
 
-Some controls move, gain reasons or change commit timing. No route changes are planned, and no stored Preset changes. Any local Reset removal is recorded here when confirmed. The second audit adds these visible changes: PointSet and Correlation drags lose their limit notice; Monotone steps count from 1; Delaunay and Triangulation angles lose trailing zeros; NURBS and Bisection show tiny values as `·10⁻⁷`; B-spline and patch degree selects become steppers; LinearMap refuses out-of-range entries; and the curve graphs stop refitting after an add that stays in view, which can change lesson views.
+Some controls move, gain reasons or change commit timing. No route changes are planned, and no stored Preset changes. Each local Reset removal is recorded here when decided. The second audit adds these visible changes: PointSet and Correlation drags lose their limit notice; Monotone steps count from 1; Delaunay and Triangulation angles lose trailing zeros; NURBS and Bisection show tiny values as `·10⁻⁷`; B-spline and patch degree selects become steppers; LinearMap refuses out-of-range entries; and the curve graphs stop refitting after an add that stays in view, which can change lesson views.
 
 ## Evidence notes
 

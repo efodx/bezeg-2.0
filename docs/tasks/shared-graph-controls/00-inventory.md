@@ -4,7 +4,7 @@ Source: [shared graph controls](../../specs/shared-graph-controls.md), Order ste
 
 ## Work
 
-Write `inventory.md` in this folder: one row per panel under `src/graphs` and `src/learning/playground`, naming for each capability C1–C30 whether it uses a shared control, a local version or a proposed exception. The two audits are a sample; the [second audit's reports](../../reviews/shared-graph-controls/) carry false and imprecise rows, so check each claim against source and prefer the spec where they differ.
+Write `inventory.md` in this folder: one row per panel under `src/graphs` and `src/learning/playground`, naming for each capability C1–C30 whether it uses a shared control, a local version or an exception. The two audits are a sample; the [second audit's reports](../../reviews/shared-graph-controls/) carry false and imprecise rows, so check each claim against source and prefer the spec where they differ.
 
 Settle these open items:
 
@@ -19,13 +19,13 @@ Settle these open items:
 
 ## Acceptance
 
-- Every panel has a row, and every capability a shared-control target or a proposed exception with its technical or mathematical reason.
+- Every panel has a row, and every capability a shared-control target or a decided exception with its technical or mathematical reason.
 - Items 1–8 each have an answer with evidence, or a named reason they could not be answered.
-- The spec's *Likely exceptions* section lists each proposal, and its *User impact* lists each proposed Reset removal.
+- The spec's *Likely exceptions* section lists each decided exception with its reason, and its *User impact* lists each Reset removal.
 
-## Stop
+## Decide
 
-The owner confirms exceptions and Reset removals. End this task by setting `Run state: stopped: task 0 exceptions need the owner` and listing the proposals with a recommendation. Start nothing further until the owner answers.
+The handler decides exceptions and Reset removals under the spec's [delegated decisions](../../specs/shared-graph-controls.md#delegated-decisions), then continues to task 1 without waiting.
 
 ## Checks
 

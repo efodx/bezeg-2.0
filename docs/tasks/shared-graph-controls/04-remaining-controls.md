@@ -6,7 +6,7 @@ Source: [shared graph controls](../../specs/shared-graph-controls.md), Order ste
 
 Separate slices:
 
-1. **Reset and view (C9, C20).** Remove the local Reset buttons the owner confirmed in task 0. Host Fit with bounds through `fitView`, one view Reset label, one camera panel.
+1. **Reset and view (C9, C20).** Remove the local Reset buttons decided in task 0. Host Fit with bounds through `fitView`, one view Reset label, one camera panel.
 2. **Choosers (C10, C25, C26).** Examples are always a select with one `custom` rule (decision 4). Modes follow decision 9, and degrees decision 10.
 3. **Display and sliders (C11, C13).** `OnOffSwitch`, one Reveal button, and `Slider` with an optional exact field.
 4. **Playback (C12, C24).** `PlaybackButtons` everywhere, on the policy from contracts task 3, with one pause-on-edit rule. Write no second helper.
@@ -15,7 +15,7 @@ Separate slices:
 
 ## Acceptance
 
-- All seven acceptance criteria in the spec hold, and the exemption list holds only confirmed exceptions.
+- All seven acceptance criteria in the spec hold, and the exemption list holds only recorded exceptions.
 - The spec's User impact records every Reset removal and visible change.
 - `docs/` guidance on controls matches the result.
 

@@ -1,6 +1,6 @@
 # 1. Foundation
 
-Source: [shared graph controls](../../specs/shared-graph-controls.md), Order step 2, and [workstream 1](../../specs/lesson-authoring-architecture.md#1-shared-inspector-controls), where this spec does not change it. Depends on: task 0 confirmed by the owner.
+Source: [shared graph controls](../../specs/shared-graph-controls.md), Order step 2, and [workstream 1](../../specs/lesson-authoring-architecture.md#1-shared-inspector-controls), where this spec does not change it. Depends on: task 0.
 
 ## Work
 
