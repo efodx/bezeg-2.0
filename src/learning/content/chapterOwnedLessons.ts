@@ -9,6 +9,7 @@ import {FOURIER_CHAPTER_ID} from './fourierChapterId';
 import {PROJECTIVE_CONICS_CHAPTER_ID} from './projectiveConicsChapterId';
 import {BSPLINE_CHAPTER_ID} from './bsplineChapterId';
 import {CURVE_GEOMETRY_CHAPTER_ID} from './curveGeometryChapterId';
+import {ADVANCED_BEZIER_CHAPTER_ID} from './advancedBezierChapterId';
 import {INTERPOLATION_CHAPTER_ID} from './interpolationChapterId';
 import {PROBABILITY_CHAPTER_ID} from './probabilityChapterId';
 import {SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID} from './schoolFunctionGraphsChapterId';
@@ -20,6 +21,7 @@ import {fourierGuidedExampleRegistry, fourierGuidedExamplePath} from './fourierC
 import {projectiveConicsGuidedExampleRegistry, projectiveConicsGuidedExamplePath} from './projectiveConicsChapterRegistry';
 import {bsplineGuidedExampleRegistry, bsplineGuidedExamplePath} from './bsplineChapterRegistry';
 import {curveGeometryGuidedExampleRegistry, curveGeometryGuidedExamplePath} from './curveGeometryChapterRegistry';
+import {advancedBezierGuidedExampleRegistry, advancedBezierGuidedExamplePath} from './advancedBezierChapterRegistry';
 import {interpolationGuidedExampleRegistry, interpolationGuidedExamplePath} from './interpolationChapterRegistry';
 import {probabilityGuidedExampleRegistry, probabilityGuidedExamplePath} from './probabilityChapterRegistry';
 import {schoolFunctionGraphsGuidedExampleRegistry, schoolFunctionGraphsGuidedExamplePath} from './schoolFunctionGraphsChapterRegistry';
@@ -58,6 +60,7 @@ export const chapterOwnedLessons: Readonly<Record<string, ChapterOwnedLessons>> 
     [FOURIER_CHAPTER_ID]: ownedLessons(() => fourierGuidedExampleRegistry, sectionId => fourierGuidedExamplePath(sectionId)),
     [BSPLINE_CHAPTER_ID]: ownedLessons(() => bsplineGuidedExampleRegistry, sectionId => bsplineGuidedExamplePath(sectionId)),
     [CURVE_GEOMETRY_CHAPTER_ID]: ownedLessons(() => curveGeometryGuidedExampleRegistry, sectionId => curveGeometryGuidedExamplePath(sectionId)),
+    [ADVANCED_BEZIER_CHAPTER_ID]: ownedLessons(() => advancedBezierGuidedExampleRegistry, sectionId => advancedBezierGuidedExamplePath(sectionId)),
     [INTERPOLATION_CHAPTER_ID]: ownedLessons(() => interpolationGuidedExampleRegistry, sectionId => interpolationGuidedExamplePath(sectionId)),
     [PROBABILITY_CHAPTER_ID]: ownedLessons(() => probabilityGuidedExampleRegistry, sectionId => probabilityGuidedExamplePath(sectionId)),
     [SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID]: ownedLessons(() => schoolFunctionGraphsGuidedExampleRegistry, sectionId => schoolFunctionGraphsGuidedExamplePath(sectionId)),

@@ -27,9 +27,7 @@ function withoutMath(source: string) {
     return outside;
 }
 
-// Registered before their reading chapter exists. Computational geometry is released in batches: ear clipping and the
-// sweep Demonstrations belong to the triangulation and sweep chapters, which do not exist yet. The Coons patch joins the
-// patches chapter in its advanced Bézier F4 slice (docs/tasks/advanced-bezier/README.md), which removes it here.
+// Registered before their reading chapter exists. Each family's chapter slice removes its entry; none is pending now.
 // bspline-extraction joined the b-splines chapter with its L4 lesson and section (BS-B-3b).
 // bspline-nurbs joined the b-splines chapter with its L5 lesson and section (BS-C-3).
 // bspline-blossom joined the b-splines chapter with its L6 lesson and section (BS-C-L6d).
@@ -37,8 +35,8 @@ function withoutMath(source: string) {
 // point-in-polygon joined the convexity chapter with its A3 lesson and section (convexity task 21).
 // hull-robustness joined the convexity chapter with its A5 lesson and section (convexity task 22).
 // bezier-hulls joined the convexity chapter with its A6 lesson and section (convexity task 28); curve-evolute with its L4 lesson and section (CG-B2-4); curve-offset with its L5 lesson and section (CG-B3-3); curve-envelope with its L6 lesson and section (CG-B3-4); epicycles with its F5 lesson and section (Fourier 06 F3, F4).
-// reduction and arc-length-param await their lessons and the advanced-bezier chapter (AB-A-3, AB-A-4).
-const CHAPTER_LINK_PENDING: readonly string[] = ['patch-coons', 'reduction', 'arc-length-param'];
+// patch-coons, reduction and arc-length-param joined the advanced-bezier chapter with AB-A-4.
+const CHAPTER_LINK_PENDING: readonly string[] = [];
 
 const wordCount = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
 
@@ -95,13 +93,13 @@ describe('family reading chapters', () => {
         }
     });
 
-    test('publishes twenty-two bilingual chapters with stable section anchors and substantial prose', () => {
+    test('publishes twenty-three bilingual chapters with stable section anchors and substantial prose', () => {
         expect(familyChapters.map(chapter => chapter.id)).toEqual([
-            'foundations', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'curve-geometry', 'bezier-patches', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'projective-conics', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series', 'probability',
+            'foundations', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'curve-geometry', 'bezier-patches', 'advanced-bezier', 'linear-maps', 'complex-maps', 'convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms', 'triangle-geometry', 'projective-conics', 'functions-and-calculus', 'school-function-graphs', 'analysis', 'numerical-methods', 'fourier-series', 'probability',
         ]);
         for (const chapter of familyChapters) {
             // The linear maps chapter has exactly the two sections of its two activities (docs/specs/linear-maps-lessons.md).
-            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'fourier-series' ? 4 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' ? 2 : 5);
+            expect(chapter.sections.length).toBeGreaterThanOrEqual(['linear-maps', 'complex-maps'].includes(chapter.id) ? 2 : chapter.id === 'triangle-geometry' ? 5 : chapter.id === 'b-splines' ? 3 : chapter.id === 'projective-conics' ? 4 : chapter.id === 'convexity-hulls' ? 4 : chapter.id === 'triangulations-voronoi' ? 2 : chapter.id === 'sweep-algorithms' || chapter.id === 'probability' ? 3 : chapter.id === 'curve-geometry' ? 3 : chapter.id === 'advanced-bezier' ? 4 : chapter.id === 'fourier-series' ? 4 : chapter.id === 'numerical-methods' || chapter.id === 'school-function-graphs' ? 2 : 5);
             // The patches chapter has eleven sections by spec (docs/specs/bezier-patches.md); every other chapter keeps the cap.
             expect(chapter.sections.length).toBeLessThanOrEqual(chapter.id === 'bezier-patches' ? 11 : 8);
             expect(new Set(chapter.sections.map(section => section.id)).size).toBe(chapter.sections.length);
@@ -131,14 +129,17 @@ describe('family reading chapters', () => {
 
     test('links every existing demonstration from its matching family chapters', () => {
         const demonstrations = getDemonstrationCatalog().demonstrations;
-        const families = new Set(familyChapters.map(chapter => chapter.family));
+        // The advanced Bezier chapter spans the bezier and patches families (reduction, arc length, Coons patch); advancedBezierChapter.test.ts checks its links.
+        const checked = familyChapters.filter(chapter => chapter.id !== 'advanced-bezier');
+        const families = new Set(checked.map(chapter => chapter.family));
         for (const family of families) {
-            const ids = familyChapters.filter(chapter => chapter.family === family)
-                .flatMap(chapter => chapter.sections.flatMap(section => section.demonstrationIds ?? []));
+            // A section's Demonstrations count for the family they belong to, so the Coons patch of the advanced chapter counts for patches.
+            const ids = familyChapters.flatMap(chapter => chapter.sections.flatMap(section => section.demonstrationIds ?? []))
+                .filter(id => demonstrations.find(demo => demo.id === id)?.family === family);
             const expected = demonstrations.filter(demo => demo.family === family && !CHAPTER_LINK_PENDING.includes(demo.id)).map(demo => demo.id).sort();
             expect([...new Set(ids)].sort()).toEqual(expected);
         }
-        for (const chapter of familyChapters) {
+        for (const chapter of checked) {
             for (const section of chapter.sections) {
                 for (const id of section.demonstrationIds ?? []) {
                     expect(demonstrations.find(demo => demo.id === id)?.family).toBe(chapter.family);

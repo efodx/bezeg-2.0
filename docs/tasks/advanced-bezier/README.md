@@ -76,7 +76,7 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-A-2d | F2b | D3 registration `/bezeg-2.0/bezier/arc-length`, `lesson: false`, recipe not run | AB-A-2c | done (handler 59, `just check`) |
 | AB-A-3a | F3 | D1 guided lesson (seven steps) | AB-A-2b | done ([record](../../reviews/advanced-bezier/ab-a-3-lessons.md)) |
 | AB-A-3b | F3 | D3 guided lesson (seven steps) | AB-A-2d | done ([record](../../reviews/advanced-bezier/ab-a-3-lessons.md)) |
-| AB-A-4 | F4 | Chapter `advanced-bezier` owning D1, D3 and D4 | AB-A-3a, AB-A-3b | planned |
+| AB-A-4 | F4 | Chapter `advanced-bezier` owning D1, D3 and D4 | AB-A-3a, AB-A-3b | done ([record](../../reviews/advanced-bezier/ab-a-4-chapter.md)) |
 | AB-A-5 | F5 | Cards and posters of `reduction`, `arc-length-param`, `patch-coons` if pending | AB-A-4 | planned |
 | AB-A-6 | F6 | Batch A gate | AB-A-5 | planned |
 | AB-B-* | F2a–F6 | D2 Bézier clipping | Batch A, `G-CG`, AB-1d, convexity A6 (separating-axis test, pair-of-curves graph) | planned |

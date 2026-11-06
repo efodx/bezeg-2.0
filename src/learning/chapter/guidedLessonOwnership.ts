@@ -141,13 +141,10 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'patch-subdivision': {chapterId: 'bezier-patches', sectionId: 'tensor-subdivision'},
     'patch-joins': {chapterId: 'bezier-patches', sectionId: 'tensor-joins'},
     'patch-triangular': {chapterId: 'bezier-patches', sectionId: 'triangular-patches'},
-    // Interim owner until the advanced-Bezier F4 slice links the Coons lesson into the Bezier patches chapter (patch-coons stays in
-    // CHAPTER_LINK_PENDING). bezier-patches is chapter-owned, so ?learn=1 resolves only lessons in its registry: owning patch-coons
-    // there before the link would open no lesson. The lesson builds on the Bezier curves' boundary control points.
-    'patch-coons': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    // Interim owners, as patch-coons, until the advanced-bezier chapter owns them (AB-A-4).
-    'reduction': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
-    'arc-length-param': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    // The Advanced Bezier topics chapter owns the reduction, arc-length parametrization and Coons patch lessons (AB-A-4).
+    'patch-coons': {chapterId: 'advanced-bezier', sectionId: 'patch-coons'},
+    'reduction': {chapterId: 'advanced-bezier', sectionId: 'reduction'},
+    'arc-length-param': {chapterId: 'advanced-bezier', sectionId: 'arc-length-param'},
     'bspline-basis': {chapterId: 'b-splines', sectionId: 'bspline-basis'},
     'bspline-deboor': {chapterId: 'b-splines', sectionId: 'bspline-deboor'},
     'bspline-insertion': {chapterId: 'b-splines', sectionId: 'bspline-insertion'},

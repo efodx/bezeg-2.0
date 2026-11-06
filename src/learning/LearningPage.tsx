@@ -32,6 +32,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
     probability: {demonstration: 'prob-density', alt: {sl: 'Standardna normalna krivulja s pobarvano ploščino med −1 in 1 ter izpisom verjetnosti.', en: 'The standard normal curve with the area between −1 and 1 shaded and a probability readout.'}},
     interpolation: {demonstration: 'interp-lagrange', alt: {sl: 'Lagrangeev polinom skozi štiri točke, ki zapusti ovojnico točk, in Bézierjeva krivulja, ki ostane v njej.', en: 'A Lagrange polynomial through four points leaving their hull, and a Bézier curve staying inside it.'}},
     'curve-geometry': {demonstration: 'curve-parametric', alt: {sl: 'Krog, ki se kotali po osi x, z označeno točko in cikloido, ki jo ta točka opiše.', en: 'A circle rolling along the x axis, with a marked point and the cycloid that point traces.'}},
+    'advanced-bezier': {demonstration: 'patch-coons', alt: {sl: 'Coonsova ploskev, sestavljena iz štirih robnih krivulj, v tridimenzionalnem pogledu.', en: 'A Coons patch built from four boundary curves, in the three-dimensional view.'}},
     'b-splines': {demonstration: 'bspline-basis', alt: {sl: 'Bazne funkcije kvadratnega B-zlepka z vozelnim vektorjem, ki je pritrjen na krajiščih.', en: 'The basis functions of a quadratic B-spline with a knot vector clamped at the ends.'}},
     analysis: {demonstration: 'bisection', alt: {sl: 'Graf kvadratne funkcije z intervalom in razpoloviščem pri bisekcijski metodi.', en: 'A quadratic graph with an interval and midpoint for the bisection method.'}},
 };
@@ -39,7 +40,7 @@ const topicPreviews: Record<string, {demonstration: DemonstrationId; alt: Locali
 // Strands group the suggested order; together they list every chapter exactly once.
 export const learningStrands: readonly {id: string; title: LocalizedText; chapters: readonly string[]}[] = [
     {id: 'curves', title: {sl: 'Krivulje', en: 'Curves'}, chapters: ['foundations', 'bezier-curves', 'rational-curves', 'splines', 'b-splines', 'interpolation', 'ph-curves', 'parametrization', 'curve-geometry']},
-    {id: 'surfaces', title: {sl: 'Ploskve', en: 'Surfaces'}, chapters: ['bezier-patches']},
+    {id: 'surfaces', title: {sl: 'Ploskve in napredne teme', en: 'Surfaces and advanced topics'}, chapters: ['bezier-patches', 'advanced-bezier']},
     {id: 'maps', title: {sl: 'Preslikave ravnine', en: 'Maps of the plane'}, chapters: ['linear-maps', 'complex-maps']},
     {id: 'computational-geometry', title: {sl: 'Računska geometrija', en: 'Computational geometry'}, chapters: ['convexity-hulls', 'triangulations-voronoi', 'sweep-algorithms']},
     {id: 'plane-geometry', title: {sl: 'Geometrija ravnine', en: 'Plane geometry'}, chapters: ['triangle-geometry', 'projective-conics']},
