@@ -277,6 +277,12 @@ const chapterInventories = {
         pathExport: 'interpolationGuidedExamplePath',
         expectedFor: interpolationExpectedFor,
     },
+    probability: {
+        module: '/src/learning/content/probabilityChapterRegistry.ts',
+        registryExport: 'probabilityGuidedExampleRegistry',
+        pathExport: 'probabilityGuidedExamplePath',
+        expectedFor: probabilityExpectedFor,
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleRegistry',
@@ -1410,7 +1416,7 @@ function lagrangeExpectedFor(id, actions) {
 
 // Authored from src/graphs/functions/RungeInterpolationGraph.tsx (createScene: the faint f and the polynomial p always, the error curve only
 // while shown, the semicircle curves only while shown; one node marker per node 0..degree; the grid-maximum marker only with the error curve;
-// one caption block, which no function-graph first frame counts as a text object) and src/analysis/interpolation.ts (equispaced nodes on [-1, 1]), not from a capture.
+// one caption block, which the card capture hides because its text exceeds the 65 characters capture-demonstration-previews.cjs allows) and src/analysis/interpolation.ts (equispaced nodes on [-1, 1]), not from a capture.
 function rungeExpectedFor(id, actions) {
     interpolationOps(id, actions, 'runge', ['set-function', 'set-degree', 'set-rule', 'set-overlay']);
     assert.equal(onceOp(id, actions, 'runge', 'set-function', 'function'), 'runge', `${id}: only the Runge function is authored`);
@@ -1437,7 +1443,7 @@ function hermiteExpectedFor(id, actions) {
 
 // Authored from src/graphs/functions/LeastSquaresGraph.tsx (createScene: a point per datum, the squares only while shown, the dashed residual
 // curve whenever a line is drawn, the best-fit functiongraph only without a manual line, the manual functiongraph only with it, which JSXGraph types as a curve; one caption
-// caption block, which no function-graph first frame counts as a text object) and DEFAULT_LEAST_SQUARES_POINTS of leastSquaresModel.ts, not from a capture.
+// caption block, which the card capture hides because its text exceeds the 65 characters capture-demonstration-previews.cjs allows) and DEFAULT_LEAST_SQUARES_POINTS of leastSquaresModel.ts, not from a capture.
 function leastSquaresExpectedFor(id, actions) {
     interpolationOps(id, actions, 'lsq', ['set-degree', 'set-line', 'set-mode', 'set-overlay']);
     assert.equal(onceOp(id, actions, 'lsq', 'set-mode', 'mode'), 'manual', `${id}: only the manual line is authored`);
@@ -1465,6 +1471,82 @@ function interpolationExpectedFor(id, step) {
     const section = id.split('.')[1];
     const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
     assert.ok(author, `${id}: no authored Interpolation first frame`);
+    return author(id, step.scene.actions);
+}
+
+// ---- Probability chapter (probability): five lessons, keyed by the section in the example id.
+
+/** Whether the opening scene sets `target` visible or hidden; it must be set exactly once. */
+function probabilityVisibility(id, actions, target) {
+    const found = actions.filter(item => item.kind === 'function-visibility' && item.target === target);
+    assert.equal(found.length, 1, `${id}: opening scene must set the ${target} visibility exactly once`);
+    return found[0].visible;
+}
+
+// Authored from src/graphs/functions/DensityAreaGraph.tsx (createScene: the shaded area as one curve, the density as one functiongraph, which JSXGraph types as a curve,
+// and the two ends a and b as points on the x-axis; the three caption lines are one caption block, which BaseFunctionGraph.caption creates as one JSXGraph text) and DEFAULT_DENSITY_AREA_MODEL of
+// densityAreaModel.ts (mu 0, sigma 1), not from a capture. The ends are the a and b the opening scene sets.
+function densityExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^density-example$/], ['function-parameter', /^density-[ab]$/]], 'probabilityExpectedFor');
+    assert.equal(sceneValue(id, actions, 'function-choice', 'density-example'), 'standard', `${id}: only the standard normal example is authored`);
+    const [a, b] = ['a', 'b'].map(name => sceneValue(id, actions, 'function-parameter', `density-${name}`));
+    assert.ok(Number.isFinite(a) && Number.isFinite(b), `${id}: the bounds must be finite`);
+    return {types: {curve: 2, point: 2, text: 1}, curveCount: 2, points: [[a, 0], [b, 0]]};
+}
+
+// Authored from src/graphs/functions/BinomialNormalGraph.tsx (createScene: the shaded bars of P(X <= k), the normal area, the bar outline and the normal density are four
+// curves; the Poisson bars are a fifth curve that stays empty and so invisible while the overlay is off; the point k on the axis; the caption is one block, one JSXGraph text) and
+// BINOMIAL_NORMAL_EXAMPLES of binomialNormalModel.ts (fair20 is B(20, 1/2)), not from a capture. The point k sits at (k, 0).
+function binomialExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^binomial-normal-example$/], ['function-parameter', /^binomial-k$/]], 'probabilityExpectedFor');
+    assert.equal(sceneValue(id, actions, 'function-choice', 'binomial-normal-example'), 'fair20', `${id}: only the fair20 example is authored`);
+    const k = sceneValue(id, actions, 'function-parameter', 'binomial-k');
+    assert.ok(Number.isInteger(k) && k >= 0 && k <= 20, `${id}: k must be a whole number from 0 to n = 20`);
+    return {types: {curve: 4, point: 1, text: 1}, curveCount: 4, points: [[k, 0]]};
+}
+
+// Authored from src/graphs/functions/CltGraph.tsx (createScene: the dashed standard normal and the standardized sum are two curves; no point; the
+// caption is one block, one JSXGraph text, which the card capture hides because the text of its two lines (title with n and the Kolmogorov distance line, about 100
+// characters in Slovenian) exceeds the 65 characters capture-demonstration-previews.cjs allows, so no text is expected; the density, binomial and correlation captions stay under it) and CLT_EXAMPLES of cltModel.ts (uniform is the default, n = 1, CDF hidden), not from a capture. The scene is deterministic: no random sampling.
+// No point is drawn, so the one authored curve is the dashed standard normal: its data run over CLT_WINDOW = [-6, 6] in steps of CLT_NORMAL_STEP = 0.02 and a JSXGraph
+// data curve interpolates linearly in the index, so t = 0, 0.5, 1 gives the first two grid abscissas -6, -5.99, -5.98 with the density 6e-9, 1e-8, 2e-8, which rounds to 0 at 6 decimals.
+function cltExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-choice', /^clt-example$/]], 'probabilityExpectedFor');
+    assert.equal(sceneValue(id, actions, 'function-choice', 'clt-example'), 'uniform', `${id}: only the uniform example (n = 1, density) is authored`);
+    return {types: {curve: 2}, curveCount: 2, points: [], curves: [[[-6, 0], [-5.99, 0], [-5.98, 0]]]};
+}
+
+// Authored from src/graphs/functions/SummaryStatisticsGraph.tsx (createScene: the sigma band, the box plot and the fences are curves that are visible only while shown;
+// the outlier diamonds only with the box plot; the mean triangle and the median square each with a text, and the caption block is a third text; one draggable dot per value, tied values stacking up by
+// SUMMARY_STACK_STEP = 0.35) and DEFAULT_SUMMARY_MODEL of summaryStatisticsModel.ts (the school data 4, 5, 5, 6, 6, 7, 8), not from a capture. The mean 41/7 sits at height
+// MEAN_Y = -0.5 and the median 6 at MEDIAN_Y = -0.95.
+function summaryExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-visibility', /^summary-(box-plot|sigma-band)$/]], 'probabilityExpectedFor');
+    for (const target of ['summary-box-plot', 'summary-sigma-band']) {
+        assert.equal(probabilityVisibility(id, actions, target), false, `${id}: only the plain dots and markers are authored (${target} must be hidden)`);
+    }
+    const values = [4, 5, 5, 6, 6, 7, 8];
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const stack = values.map((value, index) => [value, Number((0.35 * values.slice(0, index).filter(other => other === value).length).toFixed(7))]);
+    return {types: {point: 2 + values.length, text: 3}, curveCount: 0, points: [[Number(mean.toFixed(7)), -0.5], [6, -0.95], ...stack]};
+}
+
+// Authored from src/graphs/functions/CorrelationGraph.tsx (createScene: the residual curve only while residuals are shown, the line of y on x as one curve with a text label,
+// the line of x on y only while shown; one draggable point per data point; the caption is one block, a second text) and CORRELATION_EXAMPLES.default of correlationModel.ts, not from a capture.
+function correlationExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['function-visibility', /^correlation-(residuals|x-on-y)$/]], 'probabilityExpectedFor');
+    for (const target of ['correlation-residuals', 'correlation-x-on-y']) {
+        assert.equal(probabilityVisibility(id, actions, target), false, `${id}: only the plain scatter with the line of y on x is authored (${target} must be hidden)`);
+    }
+    return {types: {point: 4, curve: 1, text: 2}, curveCount: 1, points: [[0, 1], [1, 2], [2, 2], [3, 4]]};
+}
+
+/** First-frame expectation of a Probability lesson (the five sections of the chapter, keyed by the section in the example id). */
+function probabilityExpectedFor(id, step) {
+    const bySection = {density: densityExpectedFor, 'binomial-normal': binomialExpectedFor, clt: cltExpectedFor, summary: summaryExpectedFor, correlation: correlationExpectedFor};
+    const section = id.split('.')[1];
+    const author = Object.hasOwn(bySection, section) ? bySection[section] : undefined;
+    assert.ok(author, `${id}: no authored Probability first frame`);
     return author(id, step.scene.actions);
 }
 
@@ -1520,4 +1602,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, assertExpectation};

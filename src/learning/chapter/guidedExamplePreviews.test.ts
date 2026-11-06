@@ -19,6 +19,7 @@ import {triangulationPreviewCopy} from '../content/triangulationPreviewCopy';
 import {sweepPreviewCopy} from '../content/sweepPreviewCopy';
 import {trianglePreviewCopy} from '../content/trianglePreviewCopy';
 import {interpolationPreviewCopy} from '../content/interpolationPreviewCopy';
+import {probabilityPreviewCopy} from '../content/probabilityPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -261,6 +262,10 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['interpolation.hermite.interp-hermite', 'interpolation.lagrange.interp-lagrange', 'interpolation.least-squares.interp-least-squares',
             'interpolation.runge.interp-runge', 'interpolation.subdivision.interp-subdivision'],
         counts: [[1, 8], [1, 5], [2, 4], [2, 7], [2, 8]]},
+    {chapterId: 'probability', copy: probabilityPreviewCopy,
+        ids: ['probability.binomial-normal.prob-binomial-normal', 'probability.clt.prob-clt', 'probability.correlation.prob-correlation',
+            'probability.density.prob-density', 'probability.summary.prob-summary'],
+        counts: [[4, 1], [2, 0], [1, 4], [2, 2], [0, 9]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

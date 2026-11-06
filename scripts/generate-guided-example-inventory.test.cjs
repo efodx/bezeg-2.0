@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, probabilityExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -646,4 +646,36 @@ test('interpolation expectations are authored from the graphs: the Lagrange mark
     assert.throws(() => interpolationExpectedFor('i.subdivision.interp-subdivision', psStep([...subdivision().scene.actions.slice(1), {kind: 'animation', animationId: 'interp-subdivision-rounds', command: 'next-step'}])), /only uses subdivision/);
     assert.throws(() => interpolationExpectedFor('i.unknown.unknown', psStep([])), /no authored Interpolation/);
     assert.ok(chapterInventories.interpolation);
+});
+
+test('probability expectations are authored from the graphs: density ends, the binomial threshold, the CLT curves, the stacked dots and the scatter', () => {
+    const choice = (name, value) => ({kind: 'function-choice', name, value});
+    const param = (name, value) => ({kind: 'function-parameter', name, value});
+    const shown = (target, visible) => ({kind: 'function-visibility', target, visible});
+    const density = (example = 'standard', a = -1.5, b = 0.5) => psStep([choice('density-example', example), param('density-a', a), param('density-b', b)]);
+    assert.deepEqual(probabilityExpectedFor('p.density.prob-density', density()), {types: {curve: 2, point: 2, text: 1}, curveCount: 2, points: [[-1.5, 0], [0.5, 0]]});
+    assert.throws(() => probabilityExpectedFor('p.density.prob-density', density('iq')), /only the standard normal/);
+    assert.throws(() => probabilityExpectedFor('p.density.prob-density', psStep([choice('density-example', 'standard'), param('density-a', 0), param('density-b', 1), param('density-mu', 1)])), /only sets/);
+    const binomial = (example = 'fair20', k = 10) => psStep([choice('binomial-normal-example', example), param('binomial-k', k)]);
+    assert.deepEqual(probabilityExpectedFor('p.binomial-normal.prob-binomial-normal', binomial()), {types: {curve: 4, point: 1, text: 1}, curveCount: 4, points: [[10, 0]]});
+    assert.throws(() => probabilityExpectedFor('p.binomial-normal.prob-binomial-normal', binomial('fair100')), /only the fair20/);
+    assert.throws(() => probabilityExpectedFor('p.binomial-normal.prob-binomial-normal', binomial('fair20', 2.5)), /whole number/);
+    assert.throws(() => probabilityExpectedFor('p.binomial-normal.prob-binomial-normal', psStep([choice('binomial-normal-example', 'fair20'), shown('poisson-bars', true)])), /only sets/);
+    assert.deepEqual(probabilityExpectedFor('p.clt.prob-clt', psStep([choice('clt-example', 'uniform')])), {types: {curve: 2}, curveCount: 2, points: [], curves: [[[-6, 0], [-5.99, 0], [-5.98, 0]]]});
+    assert.throws(() => probabilityExpectedFor('p.clt.prob-clt', psStep([choice('clt-example', 'skewed')])), /only the uniform/);
+    assert.throws(() => probabilityExpectedFor('p.clt.prob-clt', psStep([choice('clt-example', 'uniform'), {kind: 'animation', animationId: 'clt-sum', command: 'next-step'}])), /only sets/);
+    const summary = (box = false, band = false) => psStep([shown('summary-box-plot', box), shown('summary-sigma-band', band)]);
+    assert.deepEqual(probabilityExpectedFor('p.summary.prob-summary', summary()), {types: {point: 9, text: 3}, curveCount: 0,
+        points: [[5.8571429, -0.5], [6, -0.95], [4, 0], [5, 0], [5, 0.35], [6, 0], [6, 0.35], [7, 0], [8, 0]]});
+    assert.throws(() => probabilityExpectedFor('p.summary.prob-summary', summary(true)), /summary-box-plot must be hidden/);
+    assert.throws(() => probabilityExpectedFor('p.summary.prob-summary', summary(false, true)), /summary-sigma-band must be hidden/);
+    assert.throws(() => probabilityExpectedFor('p.summary.prob-summary', psStep([shown('summary-box-plot', false)])), /sigma-band visibility exactly once/);
+    assert.throws(() => probabilityExpectedFor('p.summary.prob-summary', psStep([...summary().scene.actions.slice(1), {kind: 'summary', operation: 'set-value', index: 6, value: 30}])), /only sets/);
+    const correlation = (residuals = false, xOnY = false) => psStep([shown('correlation-residuals', residuals), shown('correlation-x-on-y', xOnY)]);
+    assert.deepEqual(probabilityExpectedFor('p.correlation.prob-correlation', correlation()), {types: {point: 4, curve: 1, text: 2}, curveCount: 1, points: [[0, 1], [1, 2], [2, 2], [3, 4]]});
+    assert.throws(() => probabilityExpectedFor('p.correlation.prob-correlation', correlation(true)), /correlation-residuals must be hidden/);
+    assert.throws(() => probabilityExpectedFor('p.correlation.prob-correlation', correlation(false, true)), /correlation-x-on-y must be hidden/);
+    assert.throws(() => probabilityExpectedFor('p.correlation.prob-correlation', psStep([...correlation().scene.actions.slice(1), choice('correlation-example', 'outlier')])), /only sets/);
+    assert.throws(() => probabilityExpectedFor('p.unknown.unknown', psStep([])), /no authored Probability/);
+    assert.ok(chapterInventories.probability);
 });

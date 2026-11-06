@@ -67,7 +67,7 @@ Done: generator `interpolationExpectedFor` with five per-section authors (graph 
 
 Corrected expectations (found by capture, then explained from the source):
 - lagrange: authored `text: 1` was wrong. `InterpolationScene.ts` shows the readout only when `board.canvasWidth >= 480`, and the card board is 420 CSS px wide, so no text. Now no text.
-- runge and least-squares: authored `text: 1` was wrong; the caption block of `BaseFunctionGraph.caption` was not counted as a visible `text` at capture (the existing quadrature comment says the same). Text removed from both; types are not asserted for it.
+- runge and least-squares: authored `text: 1` was wrong; the caption block of `BaseFunctionGraph.caption` was not counted as a visible `text` at capture (the existing quadrature comment says the same). Text removed from both; types are not asserted for it. Handler correction: this reason is wrong. The caption is a text; the capture hides it because its text exceeds 65 characters (`capture-demonstration-previews.cjs:207`). The counts stand; the generator comments were corrected with the probability chapter.
 - least-squares: authored `curve: 1, functiongraph: 1` was wrong. JSXGraph types the manual `functiongraph` as `curve` here (observed by a board dump), so `curve: 2`, `curveCount: 2`.
 - `functionsCards` counts are `[curveCount, points]`; my first row had them reversed and failed with `[1,8] ... to deeply equal [+0,8]`.
 
@@ -79,3 +79,23 @@ Images (viewed, 840x520, no axes, no point labels on any board):
 - subdivision: open polygon, four dark dots, three green edges (dashed original polygon coincides), text "Chaikinovo pravilo, korak 0 od 6, 4 oglišč". OK.
 
 Checks: `node --test` both script files 45/45; `just unit --no-fsModuleCache` `guidedExamplePreviews.test.ts` and `lessonMathNotation.test.ts` passed (the row failed first on the reversed counts); `just typecheck` passed. Preview stopped, port 3012 closed.
+
+## 5. probability (5 cards) - captured and viewed, all five
+
+Done: generator `probabilityExpectedFor` and `chapterInventories.probability` (scripts/generate-guided-example-inventory.cjs, comments name the graph sources), test in the `.test.cjs`, `--family probability` in the capture script, inventory `docs/reviews/probability/guided-example-inventory.json`, all 5 PNGs and manifest captured (preview on 3012, stopped, port closed), copy `src/learning/content/probabilityPreviewCopy.ts` registered in `guidedExamplePreviews.ts`. `node --test` of both script files: 46 pass (before the last CLT comment/text edit; not rerun).
+
+NOT done: the `functionsCards` row in `guidedExamplePreviews.test.ts` (ids in alphabetical order: binomial-normal, clt, correlation, density, summary; the second number of `counts` is the alt/fact count I did not derive), `just unit` and `just typecheck` (never run; copy and registry unchecked by tsc, lessonMathNotation not run), docs/commands.md line 54, a re-capture after the final inventory regeneration (only the CLT `text` expectation changed; scene fingerprints are identical).
+
+Capture command: `PREVIEW_BASE_URL=http://127.0.0.1:3012/bezeg-2.0 node scripts/capture-guided-example-previews.cjs docs/reviews/probability/guided-example-inventory.json --family probability` (the family flag goes AFTER the inventory path).
+
+Determinism: all five deterministic (no Math.random or crypto in the five graphs or their analysis models; CLT is a convolution; scenes are the lesson's first steps with fixed values).
+
+Corrections to the brief/authored counts: (1) the caption block IS a visible `text` object on the card (density 1, binomial 1, summary 3 = caption + mean label + median label, correlation 2 = caption + line label) because BaseFunctionGraph.caption creates one JSXGraph text; (2) CLT has 0 texts: capture-demonstration-previews.cjs:208 hides any text over 65 characters and the two-line CLT caption exceeds it (density/binomial/correlation captions are 52-60 characters). Authored CLT expectation omits `text` and uses `points: []` plus one curve check (the dashed normal, data from x = -6 step 0.02, samples -6/-5.99/-5.98 with y 0), because `assertExpectation` needs points or curves.
+
+Per image (all viewed): density: green bell, grey-green fill, flat green tail along the axis to both edges, two orange handles at x = -4 and 4 (unlabelled), caption "X ~ N(0; 1^2)" and "Ploscina ... 99,99 %" (99,99 verified: P(|Z|<4) = 0.99994, and the lesson says 99,99). binomial: touching outlined bars, bars 0..10 shaded blue-grey (shade ends at the 10.5 edge), green normal curve, one orange handle at k = 10 under the tallest bar, three caption lines; verified mean 10, sigma sqrt(5) = 2.236, P(X<=10) = 0.5881 against the lesson. clt: dashed red-brown standard normal plus a blue flat segment at 0.2887 from -sqrt3 to sqrt3 (sampled start -1.7319, 0.288704, matches 1/(2 sqrt3)), height ratio 0.72 of the normal peak; no caption, no points. summary: 7 orange draggable dots (row 4,5,6,7,8; second row above 5 and 6), blue triangle "sredina" at 41/7 slightly left of the column at 6, brown square "mediana" at 6, caption "Stevilo vrednosti: 7", no box plot or band. correlation: 4 orange draggable dots, green y-on-x line across the board, label "regresijska premica za y", caption with r = 0,92338 (verified by hand: Sxy 4.5, Sxx 5, Syy 4.75, r = 0.92338); the first two points sit just above the line, the third below, the fourth above.
+
+Copy: written for all five, Slovenian number agreement checked (sedem oranznih krogcev, stirje oranzni krogci, dva krogca). The CLT alt was corrected from "half height" to "about three quarters (0.72 of the peak)". Not re-reviewed after that edit.
+
+Observed failures during work: `--family` placement error; summary `text` 3 != 2; CLT `text` 0 != 1; missing `points: []` for CLT. No observed failure yet for the `functionsCards` row (not added).
+
+Handler completion, replacing the "NOT done" list above: the worker stopped at its budget. The handler added the `functionsCards` row (`counts` are `[curveCount, points.length]`, not an alt count), the `docs/commands.md` line and the corrected reason for hidden captions. The row failed with ENOENT with the inventory moved aside. After the final inventory the chapter was recaptured: all five PNGs were byte-identical. Two false alt claims were fixed: the regression line does not span the whole board, and the CLT curve flattens above the bottom edge, not on it. Numbers recomputed by hand: \(\sigma=\sqrt5\), \(r=4.5/\sqrt{23.75}\), line \(y=0.9x+0.9\), \(1/(2\sqrt3)\), mean \(41/7\).
