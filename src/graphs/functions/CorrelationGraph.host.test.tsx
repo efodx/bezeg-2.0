@@ -7,7 +7,8 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGr
 import {LocalizedError, setLanguage} from '../../localization';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
 import {
-    CORRELATION_EXAMPLES, CORRELATION_POINTS_MAX, DEFAULT_CORRELATION_MODEL, fitCorrelationView,
+    CORRELATION_EXAMPLE_IDS, CORRELATION_EXAMPLES, CORRELATION_POINTS_MAX, correlationView, DEFAULT_CORRELATION_MODEL,
+    fitCorrelationView,
 } from '../../analysis/correlationModel';
 import {functionPresetCollections} from './functionPresetCollections';
 import {DomainError} from './BaseFunctionGraph';
@@ -111,7 +112,7 @@ describe('tick labels', () => {
 });
 
 describe('line labels', () => {
-    const view = {right: 10, width: 4};
+    const view = {left: 0, right: 10, top: 10, bottom: -10, width: 4, height: 0.5, clearX: 0.1, clearY: 0.1, points: []};
     const rising = [0, 0, 10, 5] as const;
     const falling = [0, 5, 10, 0] as const;
     const steeper = [0, -2, 10, 8] as const;
@@ -141,6 +142,46 @@ describe('line labels', () => {
     test('coinciding lines (r = 1) put one label on each side', () => {
         expect(lineLabelPlacement(rising, rising, true, view).anchorY).toBe('bottom');
         expect(lineLabelPlacement(rising, rising, false, view).anchorY).toBe('top');
+    });
+
+    test('a label steps back along its line to clear a point it would cover', () => {
+        const placed = lineLabelPlacement(rising, undefined, true, {...view, points: [[7, 4.5]]});
+        expect(placed).toEqual({x: 7.5, y: 3.75, anchorX: 'right', anchorY: 'bottom'});
+    });
+
+    test('a point beyond the label does not move it', () => {
+        expect(lineLabelPlacement(rising, undefined, true, {...view, points: [[9.5, 4.4], [7, 2]]})).toMatchObject({x: 8.5});
+    });
+
+    test('a label that would pass the top of the view steps back along its line', () => {
+        expect(lineLabelPlacement(rising, undefined, true, {...view, top: 4.5})).toMatchObject({x: 7.5, y: 3.75, anchorY: 'bottom'});
+    });
+
+    test('with no clear position the label keeps its place near the end of the line', () => {
+        expect(lineLabelPlacement(rising, undefined, true, {...view, top: 1})).toMatchObject({x: 8.5, y: 4.25});
+    });
+
+    test('the shipped examples keep every label in view and off every point', () => {
+        for (const id of CORRELATION_EXAMPLE_IDS) {
+            const points = CORRELATION_EXAMPLES[id];
+            const [left, top, right, bottom] = fitCorrelationView(points);
+            const line = correlationView({...DEFAULT_CORRELATION_MODEL, points}).yOnXLine;
+            if (!line) continue;
+            const size = {width: (right - left) * 0.17, height: (top - bottom) * 0.045};
+            const clear = {clearX: (right - left) * 0.01, clearY: (top - bottom) * 0.012};
+            const placed = lineLabelPlacement(line, undefined, true, {left, top, right, bottom, ...size, ...clear, points});
+            const from = placed.anchorX === 'right' ? placed.x - size.width : placed.x;
+            const low = placed.anchorY === 'bottom' ? placed.y : placed.y - size.height;
+            expect(from, id).toBeGreaterThanOrEqual(left);
+            expect(from + size.width, id).toBeLessThanOrEqual(right);
+            expect(low, id).toBeGreaterThanOrEqual(bottom);
+            expect(low + size.height, id).toBeLessThanOrEqual(top);
+            for (const [x, y] of points) {
+                const inside = x > from - clear.clearX && x < from + size.width + clear.clearX
+                    && y > low - clear.clearY && y < low + size.height + clear.clearY;
+                expect(inside, `${id} covers ${x},${y}`).toBe(false);
+            }
+        }
     });
 
     test('a label wider than the line stays on the line', () => {

@@ -11,7 +11,7 @@ import {formatLineEquation, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {CORRELATION_MIN_POINTS} from "../../analysis/correlation";
 import {
     addCorrelationPoint, chooseCorrelationExample, CORRELATION_COORDINATE_LIMIT, CORRELATION_EXAMPLE_IDS, CORRELATION_POINTS_MAX,
-    CORRELATION_POINTS_MIN, correlationExampleOf, CorrelationEdit, CorrelationModel, correlationView, CorrelationView,
+    CORRELATION_POINTS_MIN, correlationExampleOf, CorrelationEdit, CorrelationModel, CorrelationPoint, correlationView, CorrelationView,
     DEFAULT_CORRELATION_MODEL, fitCorrelationView, isCorrelationExampleId, moveCorrelationPoint, removeCorrelationPoint,
     setCorrelationResiduals, setCorrelationXOnY,
 } from "../../analysis/correlationModel";
@@ -31,24 +31,33 @@ export interface LineLabelPlacement {
 
 /** The gap kept between a line label and the view's right edge. */
 const LINE_LABEL_MARGIN_PX = 12;
+/** The gap kept between a line label and the edge of a point marker. */
+const LINE_LABEL_POINT_GAP_PX = 3;
 
-/** The label's point as a share of the line's width across the view, from the left. */
-const LINE_LABEL_ALONG = 0.85;
+/** Where a label may sit along its line, as a share of the line's width from the left, in the order they are tried. */
+const LINE_LABEL_ALONG = [0.85, 0.75, 0.65, 0.55, 0.45];
+
+/** The board a line label has to fit on, in user units: the view, the label's size, and the points it keeps clear of. */
+export interface LineLabelView {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    width: number;
+    height: number;
+    /** The distance kept between the label and a point's centre. */
+    clearX: number;
+    clearY: number;
+    points: readonly CorrelationPoint[];
+}
 
 function yOnLine([xa, ya, xb, yb]: ViewLine, x: number): number {
     return xb === xa ? ya : ya + (x - xa) / (xb - xa) * (yb - ya);
 }
 
-/**
- * Where a line's label goes: near the line's right end, on the side no line runs through. With two lines that is outside the
- * wedge they open (the upper line's label above it, the lower line's below it, `wins` deciding when they coincide); alone, the
- * side where a right-anchored label clears its line. Text that has to run to the right of its point moves back along the line
- * by its `width`, so it stays in view.
- */
-export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, wins: boolean, view: {right: number; width: number}): LineLabelPlacement {
-    const ordered: ViewLine = line[0] <= line[2] ? line : [line[2], line[3], line[0], line[1]];
+function placeAlong(along: number, ordered: ViewLine, other: ViewLine | undefined, wins: boolean, view: LineLabelView): LineLabelPlacement {
     const [xa, ya, xb, yb] = ordered;
-    const x = xa + LINE_LABEL_ALONG * (xb - xa);
+    const x = xa + along * (xb - xa);
     const rising = yb >= ya;
     let above = rising;
     if (other) {
@@ -59,6 +68,28 @@ export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, 
     if (above === rising) return {x, y: yOnLine(ordered, x), anchorX: "right", anchorY};
     const moved = Math.max(xa, Math.min(x, view.right - view.width));
     return {x: moved, y: yOnLine(ordered, moved), anchorX: "left", anchorY};
+}
+
+function labelIsClear({x, y, anchorX, anchorY}: LineLabelPlacement, view: LineLabelView): boolean {
+    const left = anchorX === "right" ? x - view.width : x;
+    const bottom = anchorY === "bottom" ? y : y - view.height;
+    const right = left + view.width, top = bottom + view.height;
+    if (left < view.left || right > view.right || bottom < view.bottom || top > view.top) return false;
+    return !view.points.some(([px, py]) => px > left - view.clearX && px < right + view.clearX
+        && py > bottom - view.clearY && py < top + view.clearY);
+}
+
+/**
+ * Where a line's label goes: near the line's right end, on the side no line runs through. With two lines that is outside the
+ * wedge they open (the upper line's label above it, the lower line's below it, `wins` deciding when they coincide); alone, the
+ * side where a right-anchored label clears its line. Text that has to run to the right of its point moves back along the line
+ * by its `width`, so it stays in view. A label that would leave the view or cover a point steps back along the line; if no
+ * position is clear it keeps the first one. It stops before the left part of the board, which holds the caption.
+ */
+export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, wins: boolean, view: LineLabelView): LineLabelPlacement {
+    const ordered: ViewLine = line[0] <= line[2] ? line : [line[2], line[3], line[0], line[1]];
+    const placements = LINE_LABEL_ALONG.map(along => placeAlong(along, ordered, other, wins, view));
+    return placements.find(placement => labelIsClear(placement, view)) ?? placements[0];
 }
 
 
@@ -275,8 +306,15 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
             const placement = (): LineLabelPlacement | undefined => {
                 const l = pick();
                 if (!l) return undefined;
-                const width = ((drawn.text?.size?.[0] ?? 0) + LINE_LABEL_MARGIN_PX) / board.unitX;
-                return lineLabelPlacement(l, other(), wins, {right: board.getBoundingBox()[2], width});
+                const [left, top, right, bottom] = board.getBoundingBox();
+                const clearPx = Math.max(4, this.displaySettings.pointSize) + LINE_LABEL_POINT_GAP_PX;
+                return lineLabelPlacement(l, other(), wins, {
+                    left, top, right, bottom,
+                    width: ((drawn.text?.size?.[0] ?? 0) + LINE_LABEL_MARGIN_PX) / board.unitX,
+                    height: (drawn.text?.size?.[1] ?? 0) / board.unitY,
+                    clearX: clearPx / board.unitX, clearY: clearPx / board.unitY,
+                    points: model().points,
+                });
             };
             drawn.text = this.own(board.create("text", [() => placement()?.x ?? 0, () => placement()?.y ?? 0, label], {
                 anchorX: () => placement()?.anchorX ?? "right", anchorY: () => placement()?.anchorY ?? "bottom",
