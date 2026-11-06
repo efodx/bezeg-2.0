@@ -170,11 +170,14 @@ export type CorrelationBounds = readonly [left: number, top: number, right: numb
 
 export const CORRELATION_VIEW_MARGIN = 1;
 export const CORRELATION_VIEW_MIN_SPAN = 6;
+/** The share of the view, from its top-left corner, kept for the board's caption. */
+export const CORRELATION_CAPTION_CORNER = {width: 0.5, height: 0.2} as const;
 
 /**
  * A deterministic view [left, top, right, bottom] covering all points: each axis spans the data range plus
  * CORRELATION_VIEW_MARGIN on both sides, at least CORRELATION_VIEW_MIN_SPAN wide, centred on the data range. Not clamped:
- * the data are already within +-the coordinate limit.
+ * the data are already within +-the coordinate limit. A point in CORRELATION_CAPTION_CORNER raises the top until it clears
+ * that corner, so the caption does not cover it; raising the top only moves the other points further from the corner.
  */
 export function fitCorrelationView(points: readonly CorrelationPoint[]): CorrelationBounds {
     const span = (values: number[]): [number, number] => {
@@ -185,8 +188,11 @@ export function fitCorrelationView(points: readonly CorrelationPoint[]): Correla
         return [centre - half, centre + half];
     };
     const [left, right] = span(points.map(p => p[0]));
-    const [bottom, top] = span(points.map(p => p[1]));
-    return [left, top, right, bottom];
+    const [bottom, fittedTop] = span(points.map(p => p[1]));
+    const {width, height} = CORRELATION_CAPTION_CORNER;
+    const cornerRight = left + width * (right - left);
+    const clearingTops = points.filter(p => p[0] < cornerRight).map(p => (p[1] - height * bottom) / (1 - height));
+    return [left, Math.max(fittedTop, ...clearingTops), right, bottom];
 }
 
 export interface ResidualSegment {

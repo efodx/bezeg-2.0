@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {
     addCorrelationPoint, checkCorrelationModel, chooseCorrelationExample, CORRELATION_COORDINATE_LIMIT,
     CORRELATION_EXAMPLE_IDS, CORRELATION_EXAMPLES, CORRELATION_POINTS_MAX, CORRELATION_POINTS_MIN, correlationExampleOf,
-    correlationView, DEFAULT_CORRELATION_MODEL, fitCorrelationView, moveCorrelationPoint, parseCorrelationModel,
+    CORRELATION_CAPTION_CORNER, correlationView, DEFAULT_CORRELATION_MODEL, fitCorrelationView, moveCorrelationPoint, parseCorrelationModel,
     removeCorrelationPoint, setCorrelationResiduals, setCorrelationXOnY,
 } from './correlationModel';
 import type {CorrelationExampleId, CorrelationModel, CorrelationPoint} from './correlationModel';
@@ -180,7 +180,25 @@ describe('correlation model: view', () => {
             expect(right - left).toBeGreaterThanOrEqual(6);
             expect(top - bottom).toBeGreaterThanOrEqual(6);
         }
-        expect(fitCorrelationView([[0, 0], [20, -20]])).toEqual([-1, 1, 21, -21]);
+        expect(fitCorrelationView([[0, 0], [20, 20]])).toEqual([-1, 21, 21, -1]);
+    });
+
+    it('leaves the corner of the board that holds the caption free of points', () => {
+        const inCaption = (points: readonly (readonly [number, number])[]) => {
+            const [left, top, right, bottom] = fitCorrelationView(points);
+            return points.filter(([x, y]) => (x - left) / (right - left) < CORRELATION_CAPTION_CORNER.width
+                && (top - y) / (top - bottom) < CORRELATION_CAPTION_CORNER.height - 1e-9);
+        };
+        for (const id of CORRELATION_EXAMPLE_IDS) expect(inCaption(CORRELATION_EXAMPLES[id]), id).toEqual([]);
+        expect(inCaption([[0, 0], [20, -20]])).toEqual([]);
+    });
+
+    it('raises only the top of the view, and only when a point sits in that corner', () => {
+        const [left, top, right, bottom] = fitCorrelationView(CORRELATION_EXAMPLES['parabola']);
+        expect([left, right, bottom]).toEqual([-4, 4, -1]);
+        expect(top).toBeCloseTo(11.5, 9);
+        expect(fitCorrelationView(CORRELATION_EXAMPLES['default'])).toEqual([-1.5, 5.5, 4.5, -0.5]);
+        expect(fitCorrelationView(CORRELATION_EXAMPLES['ring'])).toEqual([-4, 4, 4, -4]);
     });
 });
 
