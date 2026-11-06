@@ -23,6 +23,7 @@ The owner waived the session-usage limit behind the workflow's three-worker cap 
 | Curves | [curves.md](curves.md) | Geometry of curves → B-splines and NURBS → interpolation and approximation → distributions/CLT/correlation → advanced Bézier topics | 4314 | — |
 | Functions | [functions.md](functions.md) | Numerical methods → function graphs for the matura → projective conics → Fourier series | 4315 | — |
 | Maps | [maps.md](maps.md) | Linear maps → complex maps → triangle geometry and inversion | 4316 | — |
+| Controls | [controls.md](controls.md) | Shared graph controls, tasks 0–4 → phone playback | 4317 | — |
 
 Chains follow the [family dependencies](../../specs/new-lesson-families.md#dependencies-and-order): each family's prerequisites sit earlier in its own stream or behind a gate.
 

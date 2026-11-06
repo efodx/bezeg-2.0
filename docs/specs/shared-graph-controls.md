@@ -1,6 +1,6 @@
 # Shared graph controls
 
-**Status:** draft, 2026-11-07. The owner approved all panels and confirmed C1–C15 and decisions 1–5. C16–C30, the extended rows and decisions 6–11 come from the second audit and await the owner's confirmation. No task files exist.
+**Status:** scheduled, 2026-11-07. The owner approved all panels and confirmed C1–C30 and decisions 1–11. Tasks: [shared graph controls queue](../tasks/shared-graph-controls/README.md), run by the [`controls` stream](../tasks/feature-streams/controls.md).
 
 Widens [workstream 1 of lesson-authoring architecture](lesson-authoring-architecture.md#1-shared-inspector-controls), which stops after two panels. Its numeric event table, boolean variants, test fixture and lint rule still apply, except where this spec changes them. Builds on [demonstration controls UX](demonstration-controls-ux.md) and [playback button reasons](playback-button-reasons.md).
 
@@ -45,7 +45,7 @@ A second audit on 2026-11-07 took five angles: readouts, board interaction, cont
 | C21 | Live announcements | `LiveReadout` with a 500 ms settle (curves), a hand-written hidden paragraph per step (compgeo), a visible status group that re-reads every line (functions). "Silent during Play" is written six times, and Sequence and De Boor have no such gate. `controlsSignature` skips only curve readouts | `LiveReadout` for every graph readout, with one mute-during-Play rule and one marker the test harness reads |
 | C22 | Notice storage | Private `notice` with `setNotice` copied in CLT, Correlation and Summary statistics; `rejectionValue` (Epicycle); state enums (Interpolation, Subdivision); `noticeValue` (PointSet); `EntryNotice` (LinearMap); a subscribe store (zeros). Refusals inside a status group are read with all its lines | One notice channel, shown alone. It carries the C7 message and clears on accept |
 | C23 | Refusal guards | `ignoreOutOfDomain` discards the reason at about 185 call sites; `guarded()` shows it in three graphs; curve `editPoint` returns a string. Add at the maximum and remove at the minimum return silently on Interpolation, Hermite, open Subdivision and Least squares. The curve minimum lives in four places. Epicycle keeps a stale refusal after an accepted no-op. Lesson actions skip the guard, though `model.ts` promises a message for Correlation | One guard for inspector and lesson paths. Models return the refusal, the guard shows it, and accepted edits clear it |
-| C24 | Playback wiring | Delaunay, EarClipping and HullTrace define the same `nextStep`, `play` and `pause` with `exportBusy` and `atEnd` guards; about eight more graphs use `exportBusy`. Subdivision pauses on every accepted edit, Epicycle only on a changed model | One playback helper with one pause-on-edit rule |
+| C24 | Playback wiring | Delaunay, EarClipping and HullTrace define the same `nextStep`, `play` and `pause` with `exportBusy` and `atEnd` guards; about eight more graphs use `exportBusy`. Subdivision pauses on every accepted edit, Epicycle only on a changed model | The shared policy from [contracts task 3](../tasks/mathematical-runtime-contracts/03-shared-trace-playback.md), with no second helper, and one pause-on-edit rule |
 | C25 | Mode chooser | Unnamed `workspace-modes` buttons, `role=group` rows, raw selects (Simson mode, Inversion focus and source kind, tolerance in Bezier clipping) and `ChoiceSelect`. Six nouns name it. Conic choice is a pressed row in Pascal and PolePolar, a select in ConicFocal | One rule (decision 9) and one group noun per kind |
 | C26 | Degree chooser | Hand stepper with `NumberInput` (Taylor, Runge), `NumberInput` (ComplexRoots), `CountSetter` (CnSpline, Least squares), `ChoiceSelect` (B-spline Basis, Blossom, De Boor; Tensor, Triangular and join patches, with `DEGREES` copied three times) | `CountSetter` (decision 10) |
 | C27 | Readout blocks | `data-readout` is a label and value pair in functions and a sentence in compgeo. Lists use `dl`, `ul` with `aria-label`, or `ul` under a heading. Headings are styled three ways. Help is sometimes `role=note`. Epicycle's scroll table is a focusable region, Bezier clipping's is not. Monotone counts steps from 0, the others from 1 | One readout list, heading, help element and table wrapper, and one 1-based `StepCounter` |
@@ -66,15 +66,12 @@ Not catalogued: degree elevation, split at a value, linked corners, join continu
 3. **Out-of-range input.** Typed values are refused with a message and never clamped. A drag stops at the limit without a message.
 4. **Examples.** Always a select.
 5. **Local Reset buttons.** Removed where the host Reset gives the same result. One stays only as a named exception.
-
-## Proposed decisions — awaiting the owner
-
-6. **View after an edit.** Recommended: an added or typed point that lands outside the view refits it; a point inside never moves the view; a drag never refits. Objects the graph derives (triangle centres, Simson feet) keep the outside-the-view report. This changes the always-refit add on the curve graphs and adds a refit to PointSet and Least squares.
-7. **Keyboard limits and drag refusals.** Recommended: an arrow or Shift step behaves like a drag, stopping at the limit without a message. Decision 3's silence covers coordinate limits only: a drag or step refused by a mathematical rule, such as Interpolation's repeated parameter, keeps its stated reason. An axis a point cannot move on does nothing and needs no message.
-8. **Typed values off the grid.** `LinearMapGraph` clamps and snaps typed entries with a notice, and the clamping contradicts decision 3. Correlation snaps silently and Simson's integer fields ignore the entry. Recommended: outside the range is refused, including on LinearMap; in range but off the grid snaps to the grid with a short notice, everywhere.
-9. **Mode chooser.** Recommended: board tools such as Add and Delete stay a named pressed-button group, because the active tool must stay visible from a projector. Every other mode is a `ChoiceSelect`, including conic type.
-10. **Degree chooser.** Recommended: `CountSetter` for every degree. All option lists checked are consecutive integers, and a degree is a count, so C5 already covers it. The B-spline and patch selects change.
-11. **Keyboard on curve and function boards.** Recommended: no arrow-key nudges there. The typed list, already labelled for keyboard editing in `PointCoordinateEditor`, stays the keyboard path; adding nudges would need a selection model on those boards. Task 0 confirms that every draggable point has a typed path.
+6. **View after an edit.** An added or typed point that lands outside the view refits it; a point inside never moves the view; a drag never refits. Objects the graph derives (triangle centres, Simson feet) keep the outside-the-view report. This changes the always-refit add on the curve graphs and adds a refit to PointSet and Least squares.
+7. **Keyboard limits and drag refusals.** An arrow or Shift step behaves like a drag, stopping at the limit without a message. Decision 3's silence covers coordinate limits only: a drag or step refused by a mathematical rule, such as Interpolation's repeated parameter, keeps its stated reason. An axis a point cannot move on does nothing and needs no message.
+8. **Typed values off the grid.** `LinearMapGraph` clamps and snaps typed entries with a notice, and the clamping contradicts decision 3. Correlation snaps silently and Simson's integer fields ignore the entry. Outside the range is refused, including on LinearMap; in range but off the grid snaps to the grid with a short notice, everywhere.
+9. **Mode chooser.** Board tools such as Add and Delete stay a named pressed-button group, because the active tool must stay visible from a projector. Every other mode is a `ChoiceSelect`, including conic type.
+10. **Degree chooser.** `CountSetter` for every degree. All option lists checked are consecutive integers, and a degree is a count, so C5 already covers it. The B-spline and patch selects change.
+11. **Keyboard on curve and function boards.** No arrow-key nudges there. The typed list, already labelled for keyboard editing in `PointCoordinateEditor`, stays the keyboard path; adding nudges would need a selection model on those boards. Task 0 confirms that every draggable point has a typed path.
 
 ## Acceptance
 
@@ -91,13 +88,13 @@ Not catalogued: degree elevation, split at a value, linked corners, join continu
 1. **Task 0:** finish the inventory per panel, and confirm exceptions. Read-only.
 2. **Foundation:** workstream 1 inputs, the protocols in C6–C8, the keymap in C17, the channels in C21–C23, the formats in C28, the fixture and the lint rule with every current bypass exempted, so new graphs comply from then on.
 3. **Shared controls:** C1–C5, C14, C16, C18 and C19, piloted on PointSet, Interpolation and the curve workspace.
-4. **Family sweeps,** one per family, shrinking the exemptions: compgeo, projective, functions, curves, patches. Run after contracts task 3, which likely touches the same panels.
+4. **Family sweeps,** one per family, shrinking the exemptions: compgeo, projective, functions, curves, patches. Run after [contracts task 3](../tasks/mathematical-runtime-contracts/03-shared-trace-playback.md), which touches the same panels and owns the playback policy C24 uses.
 5. **C9–C13, C15, C20, C24–C27, C29 and C30.**
 6. **Phone playback** ([spec](mobile-graph-playback.md), approved 2026-11-06), once C12 and C24 settle the playback control.
 
 ## User impact
 
-Some controls move, gain reasons or change commit timing. No route changes are planned, and no stored Preset changes. Any local Reset removal is recorded here when confirmed. If confirmed, the second audit adds these visible changes: PointSet and Correlation drags lose their limit notice; Monotone steps count from 1; Delaunay and Triangulation angles lose trailing zeros; NURBS and Bisection show tiny values as `·10⁻⁷`; B-spline and patch degree selects become steppers; LinearMap refuses out-of-range entries; and the curve graphs stop refitting after an add that stays in view, which can change lesson views.
+Some controls move, gain reasons or change commit timing. No route changes are planned, and no stored Preset changes. Any local Reset removal is recorded here when confirmed. The second audit adds these visible changes: PointSet and Correlation drags lose their limit notice; Monotone steps count from 1; Delaunay and Triangulation angles lose trailing zeros; NURBS and Bisection show tiny values as `·10⁻⁷`; B-spline and patch degree selects become steppers; LinearMap refuses out-of-range entries; and the curve graphs stop refitting after an add that stays in view, which can change lesson views.
 
 ## Evidence notes
 
