@@ -145,6 +145,8 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     'patch-coons': {chapterId: 'advanced-bezier', sectionId: 'patch-coons'},
     'reduction': {chapterId: 'advanced-bezier', sectionId: 'reduction'},
     'arc-length-param': {chapterId: 'advanced-bezier', sectionId: 'arc-length-param'},
+    // Interim owner until the advanced-bezier chapter has a clipping section (AB-B-4); the id stays in CHAPTER_LINK_PENDING.
+    'bezier-clipping': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'bspline-basis': {chapterId: 'b-splines', sectionId: 'bspline-basis'},
     'bspline-deboor': {chapterId: 'b-splines', sectionId: 'bspline-deboor'},
     'bspline-insertion': {chapterId: 'b-splines', sectionId: 'bspline-insertion'},

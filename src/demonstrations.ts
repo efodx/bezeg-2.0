@@ -47,7 +47,7 @@ const definitions = [
     {id: 'elevation', path: '/bezeg-2.0/bezier/elevation', family: '/bezeg-2.0/bezier', title: 'degree_elevation', prompts: ['prompt_elevation', 'prompt_compare']},
     {id: 'reduction', path: '/bezeg-2.0/bezier/reduction', family: '/bezeg-2.0/bezier', title: 'reduction_title', prompts: ['prompt_reduction', 'prompt_compare']},
     {id: 'arc-length-param', path: '/bezeg-2.0/bezier/arc-length', family: '/bezeg-2.0/bezier', title: 'arcparam_title', prompts: ['prompt_arcparam', 'prompt_compare']},
-    {id: 'bezier-clipping', path: '/bezeg-2.0/bezier/clipping', family: '/bezeg-2.0/bezier', title: 'bezierclipping_title', prompts: ['prompt_bezierclipping', 'prompt_compare'], lesson: false},
+    {id: 'bezier-clipping', path: '/bezeg-2.0/bezier/clipping', family: '/bezeg-2.0/bezier', title: 'bezierclipping_title', prompts: ['prompt_bezierclipping', 'prompt_compare']},
     {id: 'rational', path: '/bezeg-2.0/rational/base', family: '/bezeg-2.0/rational', title: 'rational_bezier_curve', prompts: ['change_the_settings_and_observe_their_effect_on_the_graph', 'prompt_compare']},
     {id: 'rational-decasteljau', path: '/bezeg-2.0/rational/rational-decasteljau', family: '/bezeg-2.0/rational', title: 'rational_de_casteljau', prompts: ['prompt_decasteljau', 'prompt_compare']},
     {id: 'rational-elevation', path: '/bezeg-2.0/rational/rational-elevation', family: '/bezeg-2.0/rational', title: 'degree_elevation', prompts: ['prompt_elevation', 'prompt_compare']},
