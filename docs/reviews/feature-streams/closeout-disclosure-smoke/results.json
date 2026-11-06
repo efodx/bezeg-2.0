@@ -1,0 +1,270 @@
+{
+  "sl": [
+    {
+      "check": "C1 arrival",
+      "status": "Passed",
+      "ev": {
+        "htmlLang": "sl",
+        "selLang": "sl",
+        "present": 1,
+        "open": false,
+        "pVisible": false,
+        "summary": "Kaj bi morali opaziti"
+      }
+    },
+    {
+      "check": "C2 keyboard",
+      "status": "Passed",
+      "ev": {
+        "tabPresses": 4,
+        "focusStyle": {
+          "outlineStyle": "solid",
+          "outlineWidth": "2px",
+          "focusVisible": true
+        },
+        "states": {
+          "start": false,
+          "enter": true,
+          "space1": false,
+          "space2": true
+        },
+        "screenshot": "C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-closeout/docs/reviews/feature-streams/closeout-disclosure-smoke/sl-1-focus.png"
+      }
+    },
+    {
+      "check": "C3 math step1",
+      "status": "Passed",
+      "ev": {
+        "paragraphs": [
+          {
+            "text": "Vse uteži so 1 in konstrukcija je navadna; končna točka je (0,0).",
+            "hasRawDelim": false,
+            "mjx": 2,
+            "merror": 0,
+            "boxes": [
+              [
+                8,
+                22
+              ],
+              [
+                38,
+                22
+              ]
+            ]
+          }
+        ],
+        "geom": {
+          "detailsW": 512,
+          "detailsH": 69,
+          "mjxOutsideDetails": 0,
+          "pOverlaps": 0,
+          "detailsScrollX": false
+        },
+        "screenshot": "C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-closeout/docs/reviews/feature-streams/closeout-disclosure-smoke/sl-1-open.png"
+      }
+    },
+    {
+      "check": "C4 step2",
+      "status": "Passed",
+      "ev": {
+        "framesClicked": 3,
+        "closedOnArrival": true,
+        "pVisibleClosed": false,
+        "summary": "Kaj bi morali opaziti",
+        "openAfterEnter": true,
+        "paragraphs": [
+          {
+            "text": "Zadnja koordinata se spremeni že v prvi vrstici (32); konstrukcija se konča z eno homogeno točko.",
+            "hasRawDelim": false,
+            "mjx": 1,
+            "merror": 0,
+            "boxes": [
+              [
+                13,
+                22
+              ]
+            ]
+          }
+        ],
+        "geom": {
+          "detailsW": 512,
+          "detailsH": 92,
+          "mjxOutsideDetails": 0,
+          "pOverlaps": 0,
+          "detailsScrollX": false
+        },
+        "screenshot": "C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-closeout/docs/reviews/feature-streams/closeout-disclosure-smoke/sl-2-open.png"
+      }
+    },
+    {
+      "check": "C4b back to step1",
+      "status": "Passed",
+      "ev": {
+        "backClicks": 4,
+        "summary": "Kaj bi morali opaziti",
+        "open": true,
+        "paragraphs": [
+          {
+            "text": "Vse uteži so 1 in konstrukcija je navadna; končna točka je (0,0).",
+            "hasRawDelim": false,
+            "mjx": 2,
+            "merror": 0,
+            "boxes": [
+              [
+                8,
+                22
+              ],
+              [
+                38,
+                22
+              ]
+            ]
+          }
+        ],
+        "geom": {
+          "detailsW": 512,
+          "detailsH": 69,
+          "mjxOutsideDetails": 0,
+          "pOverlaps": 0,
+          "detailsScrollX": false
+        },
+        "screenshot": "C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-closeout/docs/reviews/feature-streams/closeout-disclosure-smoke/sl-1-back-open.png"
+      }
+    }
+  ],
+  "sl_errors": [],
+  "en": [
+    {
+      "check": "C1 arrival",
+      "status": "Passed",
+      "ev": {
+        "htmlLang": "en",
+        "selLang": "en",
+        "present": 1,
+        "open": false,
+        "pVisible": false,
+        "summary": "What you should notice"
+      }
+    },
+    {
+      "check": "C2 keyboard",
+      "status": "Passed",
+      "ev": {
+        "tabPresses": 4,
+        "focusStyle": {
+          "outlineStyle": "solid",
+          "outlineWidth": "2px",
+          "focusVisible": true
+        },
+        "states": {
+          "start": false,
+          "enter": true,
+          "space1": false,
+          "space2": true
+        },
+        "screenshot": "C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-closeout/docs/reviews/feature-streams/closeout-disclosure-smoke/en-1-focus.png"
+      }
+    },
+    {
+      "check": "C3 math step1",
+      "status": "Passed",
+      "ev": {
+        "paragraphs": [
+          {
+            "text": "All weights are 1 and the construction is ordinary; the final point is (0,0).",
+            "hasRawDelim": false,
+            "mjx": 2,
+            "merror": 0,
+            "boxes": [
+              [
+                8,
+                22
+              ],
+              [
+                38,
+                22
+              ]
+            ]
+          }
+        ],
+        "geom": {
+          "detailsW": 512,
+          "detailsH": 69,
+          "mjxOutsideDetails": 0,
+          "pOverlaps": 0,
+          "detailsScrollX": false
+        },
+        "screenshot": "C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-closeout/docs/reviews/feature-streams/closeout-disclosure-smoke/en-1-open.png"
+      }
+    },
+    {
+      "check": "C4 step2",
+      "status": "Passed",
+      "ev": {
+        "framesClicked": 3,
+        "closedOnArrival": true,
+        "pVisibleClosed": false,
+        "summary": "What you should notice",
+        "openAfterEnter": true,
+        "paragraphs": [
+          {
+            "text": "The last coordinate changes already in the first row (32); the construction ends in one homogeneous point.",
+            "hasRawDelim": false,
+            "mjx": 1,
+            "merror": 0,
+            "boxes": [
+              [
+                13,
+                22
+              ]
+            ]
+          }
+        ],
+        "geom": {
+          "detailsW": 512,
+          "detailsH": 92,
+          "mjxOutsideDetails": 0,
+          "pOverlaps": 0,
+          "detailsScrollX": false
+        },
+        "screenshot": "C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-closeout/docs/reviews/feature-streams/closeout-disclosure-smoke/en-2-open.png"
+      }
+    },
+    {
+      "check": "C4b back to step1",
+      "status": "Passed",
+      "ev": {
+        "backClicks": 4,
+        "summary": "What you should notice",
+        "open": true,
+        "paragraphs": [
+          {
+            "text": "All weights are 1 and the construction is ordinary; the final point is (0,0).",
+            "hasRawDelim": false,
+            "mjx": 2,
+            "merror": 0,
+            "boxes": [
+              [
+                8,
+                22
+              ],
+              [
+                38,
+                22
+              ]
+            ]
+          }
+        ],
+        "geom": {
+          "detailsW": 512,
+          "detailsH": 69,
+          "mjxOutsideDetails": 0,
+          "pOverlaps": 0,
+          "detailsScrollX": false
+        },
+        "screenshot": "C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/stream-closeout/docs/reviews/feature-streams/closeout-disclosure-smoke/en-1-back-open.png"
+      }
+    }
+  ],
+  "en_errors": []
+}
