@@ -36,6 +36,8 @@ Cheap family metadata has no executable graph/content dependencies. Runtime fami
 
 ## 1. Shared inspector controls
 
+The owner widened this workstream to all panels on 2026-11-06. [Shared graph controls](shared-graph-controls.md) is the draft scope and takes precedence where the two differ.
+
 ### Existing seam and target
 
 `src/inputs/{OnOffSwitch,NumberInput,Slider,ChoiceSelect}.tsx` already provide shared inputs. Raw fields in `PointSetControls.tsx:58-76,181-184` and `ThreeViewsControls.tsx:35-57` bypass them; numeric drafts also recur in FivePoint and PolePolar panels. Switch appearance depends on ancestors in `WorkspaceControls.css:65-72,147-158` and `FunctionReadout.css:24-30`.
