@@ -1,6 +1,6 @@
 # CG-B3-6: Batch 3 gate
 
-Handler 57, 2026-11-06. Code at `fe1c0dc9` (layer repair) and `82ee0a7d` (poster). Audit: [criterion audit](cg-b3-6-criterion-audit.md). This record takes each of its gaps in turn.
+**Passed: Batch 3 released, family 1 complete.** Handler 57, 2026-11-06. Code at `fe1c0dc9` (layer repair) and `82ee0a7d` (poster). Audit: [criterion audit](cg-b3-6-criterion-audit.md). This record takes each of its gaps in turn.
 
 ## Layer repair
 
@@ -73,11 +73,11 @@ None blocks release. Each stays as it is unless noted.
 | `smoke-lesson curve-offset curve-envelope` | Same | 4 of 4: the Slovenian desktop and English 390 px walks of both lessons |
 | Browser pass above | `82ee0a7d`, clean | Passed, with the dispositions above |
 | Mutation | | Removing `layer: 4` failed the new drawing-order test |
-| Hosted CI | HOSTED_PLACEHOLDER | HOSTED_RESULT |
+| Hosted CI | `f705b486` | Success, run 42141125109, deploy included |
 
 ## Hosted CI: unit shard over its limit
 
-Run 42134860406 for `705b76f8` ended `cancelled`, and **deploy was skipped**, so `e92f9f44` and `8146bef0` did not reach Pages with it. No test failed: `unit (1)` reached its 15-minute job limit. Shard 1 took 9.3, 13.7, 12.8 and 14.7 minutes on the four runs before it, so the suite had outgrown two shards and a rerun would only have been luck. The workflow now runs three unit shards with the limit unchanged, so a hang still fails. `PartSequencer` takes the count from the configuration, and the `smoke` job reads the matrix result, so neither changed.
+Run 42134860406 for `705b76f8` ended `cancelled`, and **deploy was skipped**, so `e92f9f44` and `8146bef0` did not reach Pages with it. No test failed: `unit (1)` reached its 15-minute job limit. Shard 1 took 9.3, 13.7, 12.8 and 14.7 minutes on the four runs before it, so the suite had outgrown two shards and a rerun would only have been luck. The workflow now runs three unit shards with the limit unchanged, so a hang still fails. `PartSequencer` takes the count from the configuration, and the `smoke` job reads the matrix result, so neither changed. On `f705b486` the shards took 12.3, 8.0 and 6.5 minutes. Shard 1 is still the longest, because the `*.partN.test.*` files fall on it unevenly.
 
 ## Not covered
 

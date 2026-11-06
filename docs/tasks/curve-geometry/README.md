@@ -41,4 +41,4 @@ The spec's lesson contracts, defaults and acceptance criteria are the task accep
 | CG-B3-4a | F2a, F2b | `curve-envelope` graph and registration (`lesson: false`) | B2 shipped | done, reviewed, smoked and measured ([evidence](../../reviews/curve-geometry/cg-b3-4a-graph.md)) |
 | CG-B3-4b | F3 | L6 lesson and chapter section | B3-4a | done, reviewed, tested and smoked ([evidence](../../reviews/curve-geometry/cg-b3-4b-lesson.md)) |
 | CG-B3-5 | F5 | Cards and posters for `curve-offset` and `curve-envelope`, joint capture | B3-4b | done (handler 56): [evidence](../../reviews/curve-geometry/cg-b3-5-media.md) |
-| CG-B3-6 | F6 | Batch 3 gate | B3-5 | planned |
+| CG-B3-6 | F6 | Batch 3 gate | B3-5 | done, **Batch 3 released** (handler 57): [gate record](../../reviews/curve-geometry/cg-b3-6-gate.md), [audit](../../reviews/curve-geometry/cg-b3-6-criterion-audit.md) |
