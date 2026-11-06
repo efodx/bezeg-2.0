@@ -24,7 +24,7 @@ const targets = {
     'rational-elevation': ['Original rational cubic with weights; exact one-degree elevation is shown in motion', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.3, 5, -3.5]],
     'rational-extrapolation': ['Rational curve at the interval boundary t=1, with its control polygon and weights', [field('Parameter ekstrapolacije t', 1), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.5, 4.5, -4]],
     'rational-subdivision': ['Original rational curve at t=0.5 with supporting polygons and weights before one exact Subdiviziraj action', [field('Parameter subdivizije t', 0.5), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-6.6, 2.8, 6.6, -5.2]],
-    farin: ['Original unequal weights divide the control edges at Farin points', [polygon, toggle('Farinove Točke'), toggle('Uteži')]],
+    farin: ['Original unequal weights divide the control edges at Farin points', [polygon, toggle('Farinove Točke'), toggle('Uteži')], [-7.1, 3.3, 7.1, -5.2]],
     circle: ['Complete three-arc circle with supporting polygons', [polygon, {...polygon,index:1}, {...polygon,index:2}]],
     'spline-cn': ['Original spline and supporting join polygons', [polygon]],
     'spline-c1': ['Central join, midpoint construction and supporting polygon', [polygon], [-4.6, 4.2, 4.6, -4.2]],
@@ -85,7 +85,7 @@ const targets = {
     // where the standardized sum is visibly close to, but not yet on, the normal curve.
     'prob-clt': ['Skewed base density at n = 3: the standardized sum approaching the standard normal curve', [field('Primer', 'skewed', 'select'), field('Število seštevancev n', 3)], [-3.6, 0.47, 3.6, -0.03]],
     'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with mean and median markers and the box plot (school rule)', [], [1, 4, 11, -2]],
-    'prob-correlation': ['Default points (0,1), (1,2), (2,2), (3,4) with the regression line y = 0.9x + 0.9 and the residuals', [], [-1.5, 5.5, 4.5, -0.5]],
+    'prob-correlation': ['Outlier example points (0,1), (1,2), (2,2), (3,8) with the regression line and the long residuals', [field('Primer', 'outlier', 'select')], [-1, 9, 4.5, -0.5]],
     'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
     // The default circle is a single epicycle, so the poster takes the Romb example and three Povečaj N za 1 steps (N = 3): the chain circles with the tip and the approximating curve.
     epicycles: ['Romb example with three Povečaj N za 1 steps: the chain of two circles, the tip and the rounded-rhombus curve through the four vertices', [field('Primer', 'diamond', 'select'), button('Povečaj N za 1', 3)]],
