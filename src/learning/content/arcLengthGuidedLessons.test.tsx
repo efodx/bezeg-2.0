@@ -1,7 +1,8 @@
 import {act} from '@testing-library/react';
 import {sceneActions} from '../runtime/lessonCatalog';
+import {LessonSession} from '../runtime/LessonSession';
 import {arcLengthGuidedLessons} from './arcLengthGuidedLessons';
-import type {LessonAction} from '../model';
+import type {LessonAction, LessonDefinition} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
 import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import type ArcLengthParametrizationGraph from '../../graphs/curves/arclength/ArcLengthParametrizationGraph';
@@ -375,4 +376,97 @@ test('every decimal number in the lesson text is a verified value', () => {
     for (const textValue of texts) for (const match of textValue.matchAll(/-?\d+(?:\{,\}|\.)\d+/g)) found.add(match[0].replace('{,}', ',').replace('.', ','));
     expect([...found].filter(value => !VERIFIED_DECIMALS.has(value))).toEqual([]);
     expect(found.size).toBeGreaterThan(25);
+});
+
+// ---- A real session and playback: a lesson never leaves the mover running ---------------------------------------------------
+
+const definition = (): LessonDefinition => ({
+    id: 'arc-guided', demonstrationId: 'arc-length-param', title: lesson.title, summary: lesson.summary,
+    steps: lesson.steps.map(step => ({
+        id: step.id, title: step.title, body: step.explanation, notation: [], prompt: step.observationPrompt,
+        scene: {actions: actionsOf(step)},
+    })),
+});
+
+/** Starts a real session and walks it to `stepId`. */
+function sessionAt(h: ReturnType<typeof mount>, stepId: string) {
+    const session = new LessonSession(definition(), h.capabilities);
+    act(() => session.start());
+    const target = lesson.steps.findIndex(step => step.id === stepId);
+    for (let guard = 0; session.snapshot().stepIndex < target && guard < 40; guard++) act(() => session.next());
+    expect(session.snapshot().stepIndex).toBe(target);
+    return session;
+}
+
+describe('a real session never leaves playback running', () => {
+    test('Play on the opening-state step (position 0, parameter mode), then next and back, ends playback', () => {
+        const h = mount();
+        try {
+            const session = sessionAt(h, 'arc-explore');
+            expect(h.graph.state).toMatchObject({arcMoverPosition: 0, arcMoverMode: 'parameter'});
+            act(() => h.graph.play());
+            expect(h.graph.isPlaying()).toBe(true);
+            act(() => session.back());
+            expect(h.graph.isPlaying()).toBe(false);
+            expect(session.snapshot().stepIndex).toBe(lesson.steps.length - 2);
+            // Play on the step before it (also position 0, parameter mode), then forward onto the last step.
+            expect(h.graph.state).toMatchObject({arcMoverPosition: 0, arcMoverMode: 'parameter'});
+            act(() => h.graph.play());
+            expect(h.graph.isPlaying()).toBe(true);
+            for (let guard = 0; session.snapshot().stepIndex < lesson.steps.length - 1 && guard < 40; guard++) act(() => session.next());
+            expect(h.graph.isPlaying()).toBe(false);
+        } finally {
+            h.mounted.view.unmount();
+        }
+    });
+
+    test('Play on the opening-state step, then close: not playing and the opening state is back', () => {
+        const h = mount();
+        try {
+            const state = {...h.graph.state};
+            const session = sessionAt(h, 'arc-explore');
+            act(() => h.graph.play());
+            expect(h.graph.isPlaying()).toBe(true);
+            act(() => session.close());
+            expect(h.graph.isPlaying()).toBe(false);
+            expect(h.graph.state).toMatchObject(state);
+        } finally {
+            h.mounted.view.unmount();
+        }
+    });
+
+    test('Play in a Q scene, then moving on to the PH step: not playing, mover at 0.3', () => {
+        const h = mount();
+        try {
+            for (const from of ['arc-constant-t', 'arc-speed-graph', 'arc-table', 'arc-equal-arcs']) {
+                const session = sessionAt(h, from);
+                act(() => h.graph.play());
+                expect(h.graph.isPlaying(), from).toBe(true);
+                const ph = lesson.steps.findIndex(step => step.id === 'arc-ph-exact');
+                for (let guard = 0; session.snapshot().stepIndex < ph && guard < 40; guard++) act(() => session.next());
+                expect(session.snapshot().stepIndex, from).toBe(ph);
+                expect(h.graph.isPlaying(), from).toBe(false);
+                expect(h.graph.state.arcMoverPosition, from).toBe(0.3);
+                act(() => session.close());
+                expect(h.graph.isPlaying(), from).toBe(false);
+            }
+        } finally {
+            h.mounted.view.unmount();
+        }
+    });
+
+    test('every scene ends with playback stopped, even when applied on top of a running mover', () => {
+        const h = mount();
+        try {
+            for (const step of lesson.steps) {
+                h.scene(step);
+                act(() => h.graph.play());
+                expect(h.graph.isPlaying(), `${step.id} running`).toBe(true);
+                h.run(step);
+                expect(h.graph.isPlaying(), `${step.id} after its actions`).toBe(false);
+            }
+        } finally {
+            h.mounted.view.unmount();
+        }
+    });
 });

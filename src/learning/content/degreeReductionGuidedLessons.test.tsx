@@ -446,3 +446,33 @@ test('a real session walks the steps, goes back, and closing returns state, cont
         h.mounted.view.unmount();
     }
 });
+
+/** Every decimal number the lesson prints is one the checks above verified, so one mistyped copy of a value cannot hide behind a correct one. */
+const VERIFIED_DECIMALS = new Set([
+    '4.5', '0.0962', '0.069007', '0.3333', // fixed P: q1 = (2; 4.5), maximum error, L2, bound 1/3
+    '-0.1', '4.1', '0.1', '0.037796', // free P: moved end points, maximum error, L2
+    '0.5853', '0.41975', '2.0276', // P2 fixed: maximum error, L2, bound
+]);
+
+test('every decimal number in the lesson text is a verified value, in both languages', () => {
+    // The end points of the free reduced quadratic and q1 come from the kernel-checked contract, not from the prose.
+    expect(FREE_P_Q[0][0]).toBeCloseTo(-0.1, 9);
+    expect(FREE_P_Q[2][0]).toBeCloseTo(4.1, 9);
+    expect(FREE_P_Q[1][1]).toBe(4.5);
+    expect(FIXED_P_Q[1][1]).toBe(4.5);
+    const texts: Record<Language, string[]> = {sl: [], en: []};
+    const collect = (value: unknown, language?: Language): void => {
+        if (typeof value === 'string') { if (language) texts[language].push(value); }
+        else if (Array.isArray(value)) value.forEach(item => collect(item, language));
+        else if (value && typeof value === 'object') {
+            for (const [key, item] of Object.entries(value)) collect(item, key === 'sl' || key === 'en' ? key : language);
+        }
+    };
+    collect(lesson);
+    for (const l of LANGUAGES) {
+        const found = new Set<string>();
+        for (const text of texts[l]) for (const match of text.matchAll(/-?\d+(?:\{,\}|\.)\d+/g)) found.add(match[0].replace('{,}', '.'));
+        expect([...found].filter(value => !VERIFIED_DECIMALS.has(value)), l).toEqual([]);
+        expect(found.size, l).toBeGreaterThan(8);
+    }
+});

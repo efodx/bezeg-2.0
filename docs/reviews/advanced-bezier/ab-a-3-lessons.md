@@ -1,6 +1,6 @@
 # AB-A-3a, AB-A-3b: D1 and D3 guided lessons
 
-Curves handler 59, 2026-11-06. Spec: [advanced-bezier-lessons.md](../../specs/advanced-bezier-lessons.md) D1 and D3. Lesson text is [one-shot](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31). **Status: tests and browser walks pass; review pending.**
+Curves handler 59, 2026-11-06. Spec: [advanced-bezier-lessons.md](../../specs/advanced-bezier-lessons.md) D1 and D3. Lesson text is [one-shot](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31). **Status: accepted (curves handler 60).**
 
 ## Changes
 
@@ -22,10 +22,26 @@ The smoke rows assert D1's mode per step and that D3's Play stays unpressed. The
 
 `just check` did not run on this commit; hosted CI covers the push.
 
-## Open items
+## Review (curves handler 60)
 
-- No engineering or mathematics review yet.
-- D1 step 2 is a prediction, but the board caption already says *Ni nižljiva*. The caption has no off switch.
-- D1's number check is "contains": changing one of several copies of `0{,}069007` in a step failed no test. D3 added a whitelist test for the same gap; D1 has none.
-- Neither test runs the real wired adapter: D1 builds a minimal `LessonDefinition`, and D3's close test uses `restoreState`, because the lessons were unwired when written.
-- Preview copy was written by the handler, without a poster to compare against (AB-A-5).
+Engineering and mathematics review (`bezeg-reviewer` Sonnet) of `d2d86252`: no blocker. Every quoted number was recomputed and holds, as do the PH claims and the straight-line proof.
+
+- **Fixed, mathematics.** "No arc-length parametrization" became "no polynomial one". "The optimum is never exact" now excepts a zero third difference. The chord ratio is attributed to arcs bending differently, not to chords being shorter. "Only case" is scoped to the lesson.
+- **Fixed, tests.** D1 has a decimal whitelist (one mistyped copy now fails, in both languages). D3 has four real-`LessonSession` playback tests: frame moves, close, the jump to PH, and re-applied actions. Each failed under mutation of `ArcLengthParametrizationGraph.tsx`; the stops are redundant, so only removing several together fails a test.
+- **Left.** `arc-pause` is behaviourally redundant, so the "pauses last" test reads the action list only. D1 step 2 still has the caption *Ni nižljiva* beside its prediction; the caption has no off switch. Preview copy waits for AB-A-5.
+
+## Browser (`d2d86252`, both viewports, Slovenian)
+
+| Check | Result |
+| --- | --- |
+| D1's two lines and details list, 390 px | Passed; curve clear of the lines |
+| D3 slider during Play, 390 and 1440 px | Passed; 0 to 0,169, held after Pause |
+| D3 input inside its panel, 1440 px | Passed |
+| All frames, after *Opazuj na grafu* | Passed: curve in view and uncovered on all 16 and 15 frames; the panel returns by its tab |
+| Console, horizontal scroll | Clean |
+
+**The handoff's question does not hold on phones.** The lesson panel covers the board at 390 px for every lesson, compact frames included, so no view can keep the curve clear; *Opazuj na grafu* is the way to the board.
+
+**D1's tall view is kept.** On desktop it holds the curve below the compact panel at 180×90 to 180×135 px in a 1002×594 board (18% of the width). A tighter view gains about 20% and risks the taller panels. At 390 px the same view leaves the curve 86 px wide after Observe: small but readable, on the polish list.
+
+The smoke's "covered before Observe" results were a false alarm: the hit element is the transparent `guided-lesson-graph-catcher`, and the screenshots show the curve clear on desktop.

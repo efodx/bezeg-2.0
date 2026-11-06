@@ -74,8 +74,8 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-A-2b | F2b | D1 registration `/bezeg-2.0/bezier/reduction`, `lesson: false`, recipe not run | AB-A-2a | done (handler 59, `just check`) |
 | AB-A-2c | F2a | D3 `arc-length-param` graph, marks, speed plot, moving point, readouts, Preset collection, lesson action targets; no route | AB-1b | done ([evidence](../../reviews/advanced-bezier/ab-a-2-graphs.md)); browser check with registration |
 | AB-A-2d | F2b | D3 registration `/bezeg-2.0/bezier/arc-length`, `lesson: false`, recipe not run | AB-A-2c | done (handler 59, `just check`) |
-| AB-A-3a | F3 | D1 guided lesson (seven steps) | AB-A-2b | planned |
-| AB-A-3b | F3 | D3 guided lesson (seven steps) | AB-A-2d | planned |
+| AB-A-3a | F3 | D1 guided lesson (seven steps) | AB-A-2b | done ([record](../../reviews/advanced-bezier/ab-a-3-lessons.md)) |
+| AB-A-3b | F3 | D3 guided lesson (seven steps) | AB-A-2d | done ([record](../../reviews/advanced-bezier/ab-a-3-lessons.md)) |
 | AB-A-4 | F4 | Chapter `advanced-bezier` owning D1, D3 and D4 | AB-A-3a, AB-A-3b | planned |
 | AB-A-5 | F5 | Cards and posters of `reduction`, `arc-length-param`, `patch-coons` if pending | AB-A-4 | planned |
 | AB-A-6 | F6 | Batch A gate | AB-A-5 | planned |
