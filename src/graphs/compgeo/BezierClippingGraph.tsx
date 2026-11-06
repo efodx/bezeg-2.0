@@ -1,3 +1,4 @@
+import React from "react";
 import {t} from "../../localization";
 import {clipBezierPair, ClipPoint, ClipRange, ClipState, clipFold, ClipTrace, INITIAL_CLIP_STATE, subNet} from "../../bezeg/impl/kernels/bezier-clipping";
 import type {LessonAction} from "../../learning/model";
@@ -14,6 +15,8 @@ import {PointSetGraphState} from "./PointSetGraph";
 import {aliveRanges, ClippingStepView, clippingStepView, discardedRanges, fatLineStrip} from "./bezierClippingView";
 import {DEFAULT_CLIP_TOLERANCE_EXPONENT, parseClipToleranceExponent} from "./bezierClippingPresetCollection";
 import {BEZIER_CLIPPING_OVERLAY_IDS, bezierClippingCollection} from "./compgeoPresetCollections";
+import {BezierClippingControls} from "./BezierClippingControls";
+import {ClipDistancePlotController} from "./ClipDistancePlot";
 import {TRACE_STEP_INTERVAL_MS, TraceCurvePairGraph, TraceCurvePairGraphState} from "./TraceCurvePairGraph";
 
 /** Time between two playback steps, shared with every traced curve pair. */
@@ -45,12 +48,14 @@ export const FAT_LINE_BAND_NAME = "fatLineBand";
 export const FAT_LINE_EDGES_NAME = "fatLineEdges";
 
 /**
- * Bezier clipping (advanced Bezier D2, AB-B-2a1): the core of the graph, without route, controls or inset. Two Bezier curves are
+ * Bezier clipping (advanced Bezier D2, AB-B-2a1/2a2): the graph and its inspector (tolerance select, playback, status, interval
+ * table and the distance inset), without a route. Two Bezier curves are
  * intersected by `clipBezierPair` (kernel `bezier-clipping`); the step, playback and disposal are `TraceCurvePairGraph`; the
  * drawn state is always the fold of the run (`clipState`). The run is recomputed only when the points or the tolerance
  * exponent change, and either change returns to step 0 and pauses.
  *
- * Reads for the next slice: `step`, `run()` (the trace), `clipState`, `isPlaying`, `clipToleranceExponent`, `tolerance`,
+ * The inset (`ClipDistancePlotController`) is fed from `syncScene`, which runs on every state change (step, drag, tolerance), so
+ * no React renders for a drag. Reads: `step`, `run()` (the trace), `clipState`, `isPlaying`, `clipToleranceExponent`, `tolerance`,
  * `stepView` (the fat line, distance control points, band and clipped range of the shown step, or null), `hullsApart`; actions
  * `nextStep()`, `play()`, `pause()`, `resetTrace()`, `setClipTolerance(exponent)`.
  *
@@ -62,6 +67,7 @@ export class BezierClippingGraph extends TraceCurvePairGraph<BezierClippingOverl
     private clipStateMemo?: {trace: ClipTrace; step: number; tolerance: number; state: ClipState};
     private stepViewMemo?: {trace: ClipTrace; step: number; tolerance: number; view: ClippingStepView | null};
     private apartMemo?: {points: PointSetModel["points"]; apart: boolean};
+    private readonly inset = new ClipDistancePlotController();
 
     // ---- State ---------------------------------------------------------------------------------------------------
 
@@ -214,6 +220,25 @@ export class BezierClippingGraph extends TraceCurvePairGraph<BezierClippingOverl
         const named = graphState && "clipToleranceExponent" in graphState ? parseClipToleranceExponent(graphState.clipToleranceExponent) : undefined;
         const withTolerance: BaseGraphState & {clipToleranceExponent: number} = {...graphState, initialized: true, clipToleranceExponent: named ?? DEFAULT_CLIP_TOLERANCE_EXPONENT};
         return super.figurePresetGraphState(withTolerance);
+    }
+
+    // ---- Inspector -----------------------------------------------------------------------------------------------
+
+    protected override workspaceEdit(): React.ReactNode {
+        return <>
+            <BezierClippingControls state={this.clipState} step={this.step} length={this.run().length} playing={this.isPlaying}
+                                    hullsApart={this.hullsApart} toleranceExponent={this.clipToleranceExponent}
+                                    onTolerance={exponent => { this.setClipTolerance(exponent); }} actions={this.traceActions}
+                                    inset={this.inset} fontSize={this.displaySettings.fontSize}/>
+            {super.workspaceEdit()}
+        </>;
+    }
+
+    /** The scene sync runs after every state change, so the inset follows the step, the points and the tolerance. */
+    protected override syncScene(): void {
+        super.syncScene();
+        // Not yet built while the base class is being constructed.
+        if (this.inset) this.inset.push(this.stepView);
     }
 
     // ---- Overlays ------------------------------------------------------------------------------------------------
