@@ -13,6 +13,7 @@ import preview_extrapolation from './images/demonstrations/catalog/extrapolation
 import preview_elevation from './images/demonstrations/catalog/elevation.png';
 import preview_reduction from './images/demonstrations/catalog/reduction.png';
 import preview_arc_length_param from './images/demonstrations/catalog/arc-length-param.png';
+import preview_bezier_clipping from './images/demonstrations/catalog/bezier-clipping.png';
 import preview_rational from './images/demonstrations/catalog/rational.png';
 import preview_rational_decasteljau from './images/demonstrations/catalog/rational-decasteljau.png';
 import preview_rational_elevation from './images/demonstrations/catalog/rational-elevation.png';
@@ -132,6 +133,7 @@ export const demonstrationPreviewAssets: Partial<Record<DemonstrationId, string>
     'elevation': preview_elevation,
     'reduction': preview_reduction,
     'arc-length-param': preview_arc_length_param,
+    'bezier-clipping': preview_bezier_clipping,
     'rational': preview_rational,
     'rational-decasteljau': preview_rational_decasteljau,
     'rational-elevation': preview_rational_elevation,

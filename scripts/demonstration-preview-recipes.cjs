@@ -18,7 +18,7 @@ const targets = {
     elevation: ['Original cubic polygon; exact one-degree elevation is shown in motion', [toggle('Pokaži nove točke na kontrolnem poligonu', false), polygon], [-5, 4.3, 5, -3.5]],
     reduction: ['Default elevated quadratic with its reduced curve and elevated net', [toggle('Pokaži zvišano mrežo kvadratne krivulje')]],
     'arc-length-param': ['Default cubic with equal-t and equal-arc points on the curve', []],
-    'bezier-clipping': ['Default crossing pair of quadratic Bezier curves after four clips: the fat line around the clipping curve, the kept ranges thick and the discarded ranges faded', [button('Naslednji korak', 4)], [-2.58, 4.3, 6.58, -1.3]],
+    'bezier-clipping': ['Default crossing pair of quadratic Bezier curves after four clips: the fat line around the clipping curve, the kept ranges thick and the discarded ranges faded; hulls and control polygons off, as in the lesson', [toggle('Kontrolni poligoni', false), toggle('Konveksna ovojnica', false), button('Naslednji korak', 4)], [-2.58, 4.3, 6.58, -1.3]],
     rational: ['Unselected rational curve at w₁=2, with four fixed controls and the supporting polygon', [polygon, button('Krivulja1'), toggle('Uteži'), field('Vrednost uteži', 2, 'number'), button('Prekliči izbiro')]],
     'rational-decasteljau': ['Weighted interpolation levels and R(t) at t=0.5', [field('Parameter t', 0.5)]],
     'rational-elevation': ['Original rational cubic with weights; exact one-degree elevation is shown in motion', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.3, 5, -3.5]],
