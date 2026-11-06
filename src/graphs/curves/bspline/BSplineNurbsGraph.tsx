@@ -149,7 +149,14 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
 
     protected override syncReplacedScene(): void {
         super.syncReplacedScene();
-        this.scene?.sync();
+        this.syncScene();
+    }
+
+    /** Shows the state on the board: a scene that cannot show it by `sync` (other degree, knots or point count) is rebuilt. */
+    private syncScene() {
+        const {degree, knots, points} = this.state;
+        if (this.scene && !this.scene.fits(degree, knots, points.length)) this.ensureScene();
+        else this.scene?.sync();
     }
 
     protected override disposeFigureScene(): void {
@@ -163,9 +170,7 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
 
     protected override onStateChange(prevState: Readonly<BSplineNurbsState>) {
         if (prevState === this.state || !this.board) return;
-        const {state} = this;
-        if (this.scene && !this.scene.fits(state.degree, state.points.length)) this.ensureScene();
-        else this.scene?.sync();
+        this.syncScene();
         this.boardUpdate();
     }
 

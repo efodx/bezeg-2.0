@@ -255,6 +255,15 @@ describe('presets', () => {
         view.unmount();
     });
 
+    test('an import that changes only the knots draws the new knots', () => {
+        const {graph, view} = mount();
+        const data = {degree: 2, points: [[0, 0], [1, 1], [2, 0], [3, 1]] as [number, number][], weights: [1, 1, 1, 1]};
+        act(() => graph.importPresetData({...data, knots: [0, 0, 0, 0.5, 1, 1, 1]}));
+        act(() => graph.importPresetData({...data, knots: [0, 0, 0, 0.25, 1, 1, 1]}));
+        expect(graph.sceneOf().curve.getCurve().getKnots()).toEqual([0, 0, 0, 0.25, 1, 1, 1]);
+        view.unmount();
+    });
+
     test('mounting and importing each build one scene: no scene is built only to be thrown away', () => {
         const dispose = vi.spyOn(BSplineNurbsScene.prototype, 'dispose');
         const {graph, view} = mount();

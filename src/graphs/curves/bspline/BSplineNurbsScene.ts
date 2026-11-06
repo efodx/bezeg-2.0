@@ -49,8 +49,11 @@ export class BSplineNurbsScene {
     circleElement(): GeometryElement | undefined { return this.circle; }
     markerElement(): Point | undefined { return this.marker; }
 
-    fits(degree: number, pointCount: number): boolean {
-        return degree === this.degree && pointCount === this.pointCount;
+    /** Whether a scene built for these values can show them by `sync`: the curve takes its degree and knots only when built. */
+    fits(degree: number, knots: readonly number[], pointCount: number): boolean {
+        const current = this.curve.getCurve().getKnots();
+        return degree === this.degree && pointCount === this.pointCount
+            && knots.length === current.length && knots.every((knot, i) => knot === current[i]);
     }
 
     private create<E extends GeometryElement>(type: string, parents: unknown[], attributes: Record<string, unknown>): E {
