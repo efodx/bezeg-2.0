@@ -177,7 +177,7 @@ describe('chapter structure and registration', () => {
 describe('the Coons section states what is a choice and names only controls the route has', () => {
     const section = advancedBezierChapter.sections.find(candidate => candidate.id === 'patch-coons')!;
     const card = guidedLessonPreviewCopyByDemonstration['patch-coons'];
-    const prompt = (language: 'sl' | 'en') => section.investigationPrompts!['patch-coons'][language];
+    const prompt = (language: 'sl' | 'en') => section.investigationPrompts!['patch-coons']![language];
     const sectionText = (language: 'sl' | 'en') => [...section.paragraphs.map(p => p[language]), prompt(language), card.alt[language], card.caption[language]].join(' ');
 
     test.each(['sl', 'en'] as const)('%s: no twist wording in the paragraphs, the prompt or the card', language => {
