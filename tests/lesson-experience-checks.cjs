@@ -32,6 +32,21 @@ module.exports = function registerExperienceChecks() {
             expect(await h.progress(page)).toBe(progress);
             expect(await reading.evaluate(el => el.scrollTop)).toBeCloseTo(before, 0);
         });
+        test('at 390 px the collapsed lesson tab leaves the top of the board free', async ({page}) => {
+            await page.setViewportSize({width: 390, height: 844});
+            await h.useLanguage(page, 'en');
+            await page.goto('/bezeg-2.0/bezier/reduction?learn=1', {waitUntil: 'domcontentloaded'});
+            const panel = h.lessonPanel(page);
+            await expect(panel).toBeVisible();
+            const observe = panel.locator('.guided-lesson-observe');
+            for (let frame = 0; frame < 8 && await observe.count() === 0; frame += 1) await h.nextButton(page).click();
+            await observe.click();
+            await expect(h.reopenButton(page)).toBeVisible();
+            // Board captions start at its top left corner, right where the tab sits.
+            const tab = await h.reopenButton(page).boundingBox();
+            const board = await page.locator('#jgbox').boundingBox();
+            expect(board.y, 'the board starts below the tab').toBeGreaterThanOrEqual(tab.y + tab.height);
+        });
         for (const language of ['sl', 'en']) {
             for (const view of [
                 {name: 'desktop', width: 1440, height: 1000},

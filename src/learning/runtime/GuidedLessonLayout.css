@@ -50,6 +50,11 @@
         pointer-events: none;
     }
 
+    /* The collapsed tab reaches about 30px into the graph cell here, over board captions; the board starts below it in every lesson mode. */
+    .demonstration-workspace.lesson-open .workspace-graph {
+        padding-top: 36px;
+    }
+
     .demonstration-workspace.is-presenting.lesson-open {
         grid-template-areas: "heading" "graph" "inspector";
     }
