@@ -2035,3 +2035,11 @@ Registration, class S, estimated S. Handler Opus medium; `bezeg-smoke` Sonnet an
 - Brief error: the measurement brief's scope omitted `docs/commands.md`, which its return section asked for. Fixed before dispatch.
 - Handler check: the report's board update figures do not cover the grid-snapped run; recorded in the measurement note.
 - `just check` ran before the commit, as handoff 63 asked: 11 905 tests passed.
+
+### 2026-11-06: AB-B-3, first worker (curves handler 64)
+
+Implementation, class M, estimated M. `bezeg-worker` Sonnet medium, brief handoff-v12. Partial.
+
+- 46 calls, 149k tokens, 10 minutes. Reached the 135k watcher at turn 38 with the lesson, wiring and 12 tests written and 4 tests failing. A lesson and its tests in one slice was too much, as with AB-B-2a1; its partial note was usable.
+- Brief error, handler-caused: "all near 0,5" for the 28 unresolved pairs came from the eight visible table rows. The worker's test caught it and its note called the failure test-side. The handler read the kernel's output and found two wide pairs, and a result that misses the root by about 5e-7.
+- Handler reached 175k at turn 47, so the slice goes to handler 65.
