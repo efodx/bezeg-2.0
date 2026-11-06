@@ -198,11 +198,13 @@ function Start-Stream([string]$id, [string]$reason) {
                   "then run docs/tasks/feature-streams/$id.md under AGENTS.md and docs/tasks/feature-streams/README.md. " +
                   "Set 'Run state: active' and push it before dispatching work."
     }
-    $prompt += " Launch successors with: --agent claude --model $Model --permission-mode $PermissionMode --effort $Effort."
+    # A stream worktree that has not rebased since the handler agent landed cannot resolve it yet.
+    $agent = if (Test-Path (Join-Path $cwd '.claude/agents/bezeg-handler.md')) { 'bezeg-handler' } else { 'claude' }
+    $prompt += " Launch successors with: --agent bezeg-handler --model $Model --permission-mode $PermissionMode --effort $Effort."
     if ($DryRun) { Log "DRY RUN would start '$name' in $cwd ($reason): $prompt"; return }
     Log "starting '$name' in $cwd ($reason)"
     Push-Location $cwd
-    try { & claude --bg -n $name --agent claude --model $Model --permission-mode $PermissionMode --effort $Effort $prompt }
+    try { & claude --bg -n $name --agent $agent --model $Model --permission-mode $PermissionMode --effort $Effort $prompt }
     finally { Pop-Location }
     $lastLaunch[$id] = Get-Date
 }

@@ -90,11 +90,11 @@ If a stream sees its heavy runs waiting for more than about 10 minutes repeatedl
 
 Every stream handler, every session:
 
-1. At start, run `python tools/agent-usage/claude_worker_watch.py --self --until 150000` in the background (see [handler context budget](../../agent-workflow.md#handler-context-budget-claude)). Read the stream file, the latest handoff note and `git status`. Rebase the stream branch onto `origin/master`.
-2. Take the next slice whose dependencies and gate are met. Write a `handoff-v12` brief, dispatch it, and start the worker watcher.
+1. At start, read the latest handoff note, the [handler card](../../agent-workflow/handler-card.md), your stream file's status lines and `git status`. Rebase the stream branch onto `origin/master`. The [budget hook](../../agent-workflow.md#handler-context-budget-claude) signals thresholds, so start no watcher.
+2. Take the next slice whose dependencies and gate are met. Write a `handoff-v13` brief and dispatch it.
 3. Accept: diff against acceptance, observed pre-change failure of new tests, [review routing](../../agent-workflow.md#review-routing), focused `just` checks, and smoke where the change alters a route, control, lesson or rendering path.
 4. Commit with explicit paths, fetch, rebase onto `origin/master`, recheck, `git push origin HEAD:master`. Update the stream file's status in the same push.
-5. At the soft threshold, finish integrating and write the handoff note. At `--until 215000` (Opus) or `190000`, launch the successor from the stream worktree: `claude --bg -n "<id> handler <n+1>" --agent claude --model <own model> --permission-mode <own mode> --effort <own effort> "Continue docs/tasks/feature-streams/<id>.md from docs/reviews/feature-streams/<id>/handler-handoff-<n>.md under AGENTS.md."` Confirm the successor appears in `claude agents --json`, then stop everything this session started (watchers, Monitors, preview servers, workers) and end the turn. A finished session stays resident at about 0.7 GB until the supervisor stops it.
+5. On `BUDGET SOFT`, finish integrating and write the handoff note. On `BUDGET HANDOFF`, or once integration is done, launch the successor from the stream worktree: `claude --bg -n "<id> handler <n+1>" --agent bezeg-handler --model <own model> --permission-mode <own mode> --effort <own effort> "Continue docs/tasks/feature-streams/<id>.md from docs/reviews/feature-streams/<id>/handler-handoff-<n>.md under AGENTS.md."` Confirm the successor appears in `claude agents --json`, then stop everything this session started (Monitors, preview servers, workers) and end the turn. A finished session stays resident at about 0.7 GB until the supervisor stops it.
 6. When the stream's last feature is accepted, write a final note and launch nothing.
 
 **Run state.** The second line of each stream file is `Run state: <value>`. The supervisor script reads it from `origin/master`, so keep it exact and push every change:

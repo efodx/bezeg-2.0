@@ -2070,3 +2070,7 @@ Card, poster and Batch B gate, class M. Handler kept the media slice (tightly co
 - Handler first viewed the never-run poster recipe and changed it; no test could have shown the crowded picture.
 - Environment: a stale Vitest glob cache failed the preview test, as documented. A handler command chained `git commit` after the failing test; the commit was local and the test then passed.
 - Handler reached 175k during the gate, so Batch C goes to handler 67. `just check` took 24 minutes.
+
+### 2026-11-06 handler context efficiency (handler-only, S/M tooling and docs)
+
+Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec](../specs/handler-context-efficiency.md), [evidence](handler-cost-2026-11-06.md)). Workers 0: the hook, agent and docs are tightly coupled. Handler Opus, medium, auto. Accepted: `--bg` startup 20,048 against 48,127; `bezeg-worker` stopped on a hook `HANDOFF` and wrote its note; handler obeyed `BUDGET SOFT`; six hook unit tests pass. One finding before acceptance: a worker ignored the hook note as untrusted tool output until the agent definitions named the hook as authoritative. Coverage gaps: `BUDGET HANDOFF` is unit tested only; a full stream handler has not yet run under `bezeg-handler`, and the trial remains open. Context: this handler reached the 175k soft threshold during final docs.
