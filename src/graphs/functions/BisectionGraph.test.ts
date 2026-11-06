@@ -7,6 +7,7 @@ import {onLanguageChange, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DomainError} from './BaseFunctionGraph';
+import {buttonActions, playbackButton} from "./playbackElementTree";
 
 // The export itself is not under test: only that it pauses the iteration before it captures the board.
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
@@ -107,8 +108,8 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
-    return {found, next: button('next-step'), play: button('play-pause'), reset: button('reset')};
+    const button = (action: string) => playbackButton(found, action);
+    return {found, actions: buttonActions(found), next: button('next-step'), play: button('play-pause'), reset: button('reset')};
 };
 const rows = (graph: any) => Object.fromEntries((graph.renderReadout().props.children[0].props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
 
@@ -455,7 +456,7 @@ test('controls: example select, endpoint inputs, Next step, Play/Pause and Reset
     expect(first.found.NumberInput).toHaveLength(2);
     expect(first.found.NumberInput.map((input: any) => [input.props.min, input.props.max, input.props.value])).toEqual([[-4, 4, 1], [-4, 4, 2]]);
     expect(first.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Levo krajišče a', 'Desno krajišče b']);
-    expect(first.found.button.map((button: any) => button.props['data-action'])).toEqual(['next-step', 'play-pause', 'reset']);
+    expect(first.actions).toEqual(['next-step', 'play-pause', 'reset']);
     expect(first.next.props['aria-disabled']).toBe(false);
     expect(first.play.props['aria-disabled']).toBe(false);
     expect(first.reset.props['aria-disabled']).toBe(true);
@@ -481,7 +482,7 @@ test('controls: example select, endpoint inputs, Next step, Play/Pause and Reset
     expect(english.next.props.children).toBe('Next step');
     expect(english.reset.props.children).toBe('Reset iteration');
     expect(english.play.props.children).toBe('Play');
-    expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Iteration controls')).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).PlaybackButtons.some((element: any) => element.props.groupLabel === 'Iteration controls')).toBe(true);
 });
 
 test('presets save the model with the step, reopen paused at that step and never start playback', () => {

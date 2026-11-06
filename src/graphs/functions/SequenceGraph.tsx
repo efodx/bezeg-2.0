@@ -20,6 +20,7 @@ import {sequenceEditMessage} from "./sequenceMessages";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 /**
  * Time between two playback steps. One term per interval, never more than one per frame, whatever the display refresh rate
@@ -345,9 +346,6 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
         const language = currentLanguage();
         const playing = this.controller.isPlaying();
         const canAdvance = canAdvanceSequence(state);
-        const nextUnavailable = !canAdvance || playing;
-        const playUnavailable = !canAdvance && !playing;
-        const resetUnavailable = state.terms <= 1 && !playing;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("sequence_example_label")} value={state.example} help={t("sequence_example_help")}
@@ -367,16 +365,10 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
                 <p className="inspector-help">{t("sequence_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
-                    unavailable at the last term or when Play starts must not drop keyboard focus to the page body. */}
-                <div className="demo-actions inspector-playback" role="group" aria-label={t("sequence_iteration_controls")}>
-                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                            onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("sequence_next_step")}</button>
-                    <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                            onClick={() => { if (!playUnavailable) { if (playing) this.pauseIteration(); else this.play(); } }}>{playing ? t("pause") : t("play")}</button>
-                    <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                            onClick={() => { if (!resetUnavailable) this.resetIteration(); }}>{t("sequence_reset")}</button>
-                </div>
+                <PlaybackButtons groupLabel={t("sequence_iteration_controls")} className="demo-actions" nextLabel={t("sequence_next_step")} resetLabel={t("sequence_reset")} playing={playing}
+                                 onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
+                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
+                                 {...playbackBlocks({atStart: state.terms <= 1, atEnd: !canAdvance, playing})}/>
                 <p className="inspector-help">{t("sequence_playback_note", {value0: SEQUENCE_MAX_TERMS})}</p>
             </div>
         </>;

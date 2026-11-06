@@ -5,6 +5,7 @@ import type {ClipRange, ClipState} from "../../bezeg/impl/kernels/bezier-clippin
 import {bezierClippingReadout, BezierClippingStatus, ClipTableRow} from "./bezierClippingReadout";
 import {ClipDistancePlot, ClipDistancePlotController} from "./ClipDistancePlot";
 import type {TraceControlActions} from "./TraceCurvePairGraph";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface BezierClippingControlsProps {
     /** What the shown step knows (the graph's `clipState`). */
@@ -68,8 +69,6 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
     const {language} = useLanguage();
     const {state, step, length, playing, actions} = props;
     const atEnd = step >= length - 1;
-    const playUnavailable = atEnd && !playing;
-    const resetUnavailable = step === 0 && !playing;
     const readout = bezierClippingReadout(state, props.hullsApart);
     const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: Math.max(length, 1)});
     const status = statusText(t, readout.status);
@@ -88,14 +87,9 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
             <p className="inspector-help">{t("bezierclipping_tolerance_help")}</p>
         </div>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("bezierclipping_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={atEnd}
-                        onClick={() => { if (!atEnd) actions.nextStep(); }}>{t("hulltrace_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                        onClick={() => { if (!playUnavailable) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                        onClick={() => { if (!resetUnavailable) actions.reset(); }}>{t("reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("bezierclipping_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
+                             onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
+                             {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("bezierclipping_playback_note")}</p>
         </div>
         <div className="inspector-group" data-bezier-clipping="readout">

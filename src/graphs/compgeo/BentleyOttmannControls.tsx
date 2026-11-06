@@ -7,6 +7,7 @@ import {
     type BentleyOttmannEventInfo, type BentleyOttmannRun, type BentleyOttmannView, rationalText, segmentName,
 } from "./bentleyOttmannRun";
 import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface BentleyOttmannControlActions {
     nextStep(): void;
@@ -104,9 +105,6 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
     const {run, step, playing, exponent, actions, children} = props;
     const refusal = refusalText(t, run);
     const atEnd = step >= run.length - 1;
-    const nextUnavailable = atEnd;
-    const playUnavailable = atEnd && !playing;
-    const resetUnavailable = step === 0 && !playing;
     const point = (p: RationalPoint) => pointText(p, exponent, language);
     const event = run.event(step);
     const view = run.view(step);
@@ -119,14 +117,9 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
         : undefined;
     return <>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("bentleyottmann_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                        onClick={() => { if (!nextUnavailable) actions.nextStep(); }}>{t("bentleyottmann_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                        onClick={() => { if (!playUnavailable) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                        onClick={() => { if (!resetUnavailable) actions.reset(); }}>{t("reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("bentleyottmann_controls_label")} nextLabel={t("bentleyottmann_next_step")} playing={playing}
+                             onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
+                             {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("bentleyottmann_playback_note")}</p>
             <p className="inspector-help" data-bentley-ottmann="order-rule">{t("bentleyottmann_order_rule")}</p>
         </div>

@@ -7,6 +7,7 @@ import {
 import {vertexName} from "./monotonePartitionRun";
 import type {TriangulationEventInfo, TriangulationRun} from "./monotoneTriangulationRun";
 import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface MonotoneTriangulationControlActions {
     nextStep(): void;
@@ -71,9 +72,6 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
     const refusal = refusalText(t, run);
     const traced = refusal === undefined && run.length > 0;
     const atEnd = step >= run.length - 1;
-    const nextUnavailable = !traced || atEnd;
-    const playUnavailable = !traced || (atEnd && !playing);
-    const resetUnavailable = step === 0 && !playing;
     const piece = run.pieceAt(step);
     const tri = piece === null ? undefined : run.triangulationView(step);
     const triEvent = piece === null ? undefined : run.triangulationEvent(step);
@@ -99,14 +97,9 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
     const counts = tri?.done ? run.counts : null;
     return <>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("monotonetri_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                        onClick={() => { if (!nextUnavailable) actions.nextStep(); }}>{t("monotonepartition_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                        onClick={() => { if (!playUnavailable) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                        onClick={() => { if (!resetUnavailable) actions.reset(); }}>{t("reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("monotonetri_controls_label")} nextLabel={t("monotonepartition_next_step")} playing={playing}
+                             onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
+                             {...playbackBlocks({ready: traced, atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("monotonetri_playback_note")}</p>
             <p className="inspector-help" data-monotone-triangulation="order-rule">{t("monotonepartition_order_rule")}</p>
         </div>

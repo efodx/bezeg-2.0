@@ -17,6 +17,7 @@ import {
 } from "./subdivisionModel";
 import {subdivisionPresetCollection} from "./subdivisionPresetCollection";
 import {SubdivisionScene} from "./SubdivisionScene";
+import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
 
 export interface SubdivisionGraphState extends BaseGraphState {
     points: readonly Row[];
@@ -336,9 +337,6 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
         const {points, closed, rule, round, showLimit, notice} = this.state;
         const playing = this.controller.isPlaying();
         const complete = this.isComplete();
-        const nextUnavailable = complete || playing;
-        const playUnavailable = complete && !playing;
-        const resetUnavailable = !playing && round === 0 && this.isStartPolygon();
         return super.getGraphCommands().concat(
             <div key="rule"><ChoiceSelect label={t("subdiv_rule")} value={rule}
                                           options={[{value: 'chaikin', text: t("subdiv_rule_chaikin")}, {value: 'four-point', text: t("subdiv_rule_four_point")}]}
@@ -352,16 +350,11 @@ export class SubdivisionCurveGraph extends BaseGraph<SubdivisionGraphState, Subd
             <div key="limit"><OnOffSwitch checked={showLimit} label={t("subdiv_show_limit")} disabled={rule !== 'chaikin'}
                                           onChange={checked => this.setShowLimit(checked)}/>
                 {rule !== 'chaikin' ? <p className="inspector-help">{t("subdiv_limit_disabled")}</p> : null}</div>,
-            // An unavailable control stays focusable (aria-disabled, not disabled), as in the other iterations.
             <div key="playback" className="inspector-group">
-                <div className="inspector-playback" role="group" aria-label={t("subdiv_controls")}>
-                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                            onClick={() => { if (!nextUnavailable) this.nextStep(); }}>{t("subdiv_next_step")}</button>
-                    <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                            onClick={() => { if (!playUnavailable) { if (playing) this.pause(); else this.play(); } }}>{playing ? t("pause") : t("play")}</button>
-                    <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                            onClick={() => { if (!resetUnavailable) this.resetRounds(); }}>{t("subdiv_reset")}</button>
-                </div>
+                <PlaybackButtons groupLabel={t("subdiv_controls")} nextLabel={t("subdiv_next_step")} resetLabel={t("subdiv_reset")} playing={playing}
+                                 onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
+                                 onReset={() => this.resetRounds()}
+                                 {...playbackBlocks({atStart: round === 0 && this.isStartPolygon(), atEnd: complete, playing})}/>
                 <p className="inspector-help">{t("subdiv_playback_note", {value0: MAX_SUBDIVISION_ROUNDS})}</p>
             </div>,
             <div key="status" className="inspector-group" role="status" aria-live="polite">

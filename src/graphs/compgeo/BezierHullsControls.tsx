@@ -2,6 +2,7 @@ import React from "react";
 import {useT} from "../../localization";
 import type {CurvePairState} from "../../compgeo/curvePairSubdivision";
 import {BezierHullsLine, bezierHullsReadout} from "./bezierHullsReadout";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface BezierHullsControlActions {
     nextStep(): void;
@@ -41,20 +42,13 @@ export function BezierHullsControls(props: BezierHullsControlsProps) {
     const t = useT();
     const {state, step, length, playing, actions} = props;
     const atEnd = step >= length - 1;
-    const playUnavailable = atEnd && !playing;
-    const resetUnavailable = step === 0 && !playing;
     const lines = bezierHullsReadout(state).lines;
     const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: Math.max(length, 1)});
     return <>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("bezierhulls_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={atEnd}
-                        onClick={() => { if (!atEnd) actions.nextStep(); }}>{t("hulltrace_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                        onClick={() => { if (!playUnavailable) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                        onClick={() => { if (!resetUnavailable) actions.reset(); }}>{t("reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("bezierhulls_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
+                             onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
+                             {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("bezierhulls_playback_note")}</p>
         </div>
         <div className="inspector-group" data-bezier-hulls="readout">

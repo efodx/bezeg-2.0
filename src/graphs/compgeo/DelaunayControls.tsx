@@ -1,6 +1,7 @@
 import React from "react";
 import {currentLanguage, useT} from "../../localization";
 import type {LawsonNote} from "../../compgeo/delaunay";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface DelaunayControlActions {
     nextStep(): void;
@@ -101,9 +102,6 @@ export function DelaunayControls(props: DelaunayControlsProps) {
     const {status, playing, actions} = props;
     const traced = status !== undefined;
     const atEnd = traced && status.step >= status.length - 1;
-    const nextUnavailable = !traced || atEnd;
-    const playUnavailable = !traced || (atEnd && !playing);
-    const resetUnavailable = !traced || (status.step === 0 && !playing);
     const stepText = traced ? t("hulltrace_step_counter", {value0: status.step + 1, value1: status.length}) : undefined;
     const noteSentence = traced ? noteText(t, status.note) : undefined;
     const detail = status?.test
@@ -131,14 +129,9 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             </div>
         </div>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("del_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                        onClick={() => { if (!nextUnavailable) actions.nextStep(); }}>{t("hulltrace_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                        onClick={() => { if (!playUnavailable) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                        onClick={() => { if (!resetUnavailable) actions.reset(); }}>{t("reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("del_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
+                             onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
+                             {...playbackBlocks({ready: traced, atStart: traced && status.step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("del_playback_note")}</p>
         </div>
         {status && <div className="inspector-group" data-delaunay-status="">

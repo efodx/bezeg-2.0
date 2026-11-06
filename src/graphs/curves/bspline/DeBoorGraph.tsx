@@ -18,6 +18,7 @@ import {
     appendedPoint, ControlPoint, DEBOOR_ANIMATION_ID, DEBOOR_DEFAULT_T, DEBOOR_MAX_LEVELS, DEBOOR_MAX_POINTS, DEBOOR_STEP_INTERVAL_MS, clampParameter,
     assertDrawableCurve, deBoorPresetData, defaultDeBoorData, knotsForCount,
 } from "./bsplineDeBoorModel";
+import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
 
 export {DEBOOR_ANIMATION_ID} from "./bsplineDeBoorModel";
 
@@ -323,7 +324,6 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         const {degree, knots, points, t: position, level} = this.state;
         const [start, end] = this.scene ? this.scene.domain() : [knots[degree], knots[knots.length - degree - 1]];
         const playing = this.playing;
-        const nextUnavailable = !this.canAdvance;
         const status = t("bsd_levels_status", {value0: level, value1: degree});
         return super.getGraphCommands().concat(
             <div key="degree"><ChoiceSelect label={t("bsb_degree")} value={String(degree)}
@@ -335,16 +335,11 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
                 <p className="inspector-help">{t("bsd_point_count_help")}</p></div>,
             <div key="position"><Slider min={start} max={end} step={0.01} value={Math.min(end, Math.max(start, position))}
                                         customText={t("bsb_slider_t")} help={t("bsd_slider_help")} onChange={value => this.setT(value)}/></div>,
-            // An unavailable control stays focusable (aria-disabled, not disabled), as in the other iterations.
             <div key="playback" className="inspector-group">
-                <div className="inspector-playback" role="group" aria-label={t("bsd_controls")}>
-                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable || playing}
-                            onClick={() => { if (!nextUnavailable && !playing) this.nextStep(); }}>{t("bsd_next_level")}</button>
-                    <button type="button" data-action="play-pause" onClick={() => { if (playing) this.pause(); else this.play(); }}>
-                        {playing ? t("pause") : t("play")}</button>
-                    <button type="button" data-action="reset" aria-disabled={!playing && level === 0}
-                            onClick={() => { if (playing || level !== 0) this.resetLevels(); }}>{t("bsd_reset_levels")}</button>
-                </div>
+                <PlaybackButtons groupLabel={t("bsd_controls")} nextLabel={t("bsd_next_level")} resetLabel={t("bsd_reset_levels")} playing={playing}
+                                 onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
+                                 onReset={() => this.resetLevels()}
+                                 {...playbackBlocks({atStart: level === 0, atEnd: !this.canAdvance, playing})} playBlock={undefined}/>
                 <p className="inspector-help" role="status" aria-live="polite" data-deboor-status="levels">{status}</p>
             </div>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,

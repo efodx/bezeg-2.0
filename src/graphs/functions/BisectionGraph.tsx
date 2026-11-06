@@ -15,6 +15,7 @@ import {bisectionEditMessage} from "./bisectionMessages";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 /**
  * Time between two playback steps. One step per interval, never more than one per frame, whatever the display refresh
@@ -273,9 +274,6 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         const history = this.historyOf({example, a, b, step});
         const playing = this.controller.isPlaying();
         const canAdvance = history.termination === undefined;
-        const nextUnavailable = !canAdvance || playing;
-        const playUnavailable = !canAdvance && !playing;
-        const resetUnavailable = step === 0 && !playing;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("bisection_example_label")} value={example} help={t("bisection_example_help")}
@@ -290,16 +288,10 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
                 <p className="inspector-help">{t("bisection_bounds_help")}</p>
             </div>
             <div className="inspector-group">
-                {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
-                    unavailable at termination or when Play starts must not drop keyboard focus to the page body. */}
-                <div className="bisection-actions inspector-playback" role="group" aria-label={t("bisection_iteration_controls")}>
-                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                            onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("bisection_next_step")}</button>
-                    <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                            onClick={() => { if (!playUnavailable) { if (playing) this.pauseIteration(); else this.play(); } }}>{playing ? t("pause") : t("play")}</button>
-                    <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                            onClick={() => { if (!resetUnavailable) this.resetIteration(); }}>{t("bisection_reset")}</button>
-                </div>
+                <PlaybackButtons groupLabel={t("bisection_iteration_controls")} className="bisection-actions" nextLabel={t("bisection_next_step")} resetLabel={t("bisection_reset")} playing={playing}
+                                 onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
+                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
+                                 {...playbackBlocks({atStart: step === 0, atEnd: !canAdvance, playing})}/>
                 <p className="inspector-help">{t("bisection_playback_note")}</p>
             </div>
         </>;

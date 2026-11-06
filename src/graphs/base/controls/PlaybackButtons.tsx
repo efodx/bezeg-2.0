@@ -43,6 +43,8 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
     readonly onNext: () => void;
     readonly onPlayPause: () => void;
     readonly onReset: () => void;
+    /** Further buttons of the same group, after the three. */
+    readonly children?: React.ReactNode;
 }
 
 /**
@@ -51,7 +53,7 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
  * title, in its description, and in the status line once pressed.
  */
 export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, playing, nextBlock, playBlock, resetBlock,
-                                    onNext, onPlayPause, onReset}: PlaybackButtonsProps) {
+                                    onNext, onPlayPause, onReset, children}: PlaybackButtonsProps) {
     const t = useT();
     const id = useId();
     const [pressed, setPressed] = useState<PlaybackAction>();
@@ -76,6 +78,7 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
                             setPressed(block ? action : undefined);
                             if (!block) run();
                         }}>{label}</button>)}
+            {children}
             {buttons.map(({action, block}) => block && <span key={action} id={`${id}-${action}`} hidden>{reasons[block]}</span>)}
         </div>
         <div role="status" aria-live="polite">

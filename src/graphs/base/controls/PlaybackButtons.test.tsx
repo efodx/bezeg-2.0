@@ -83,6 +83,14 @@ describe('PlaybackButtons', () => {
         expect(reasonLine()).toBeNull();
     });
 
+    test('a further button joins the group after the three', () => {
+        render(<PlaybackButtons groupLabel="Iteration" nextLabel="Next" playing={false} onNext={() => {}} onPlayPause={() => {}} onReset={() => {}}>
+            <button type="button" data-action="reset-view">View</button>
+        </PlaybackButtons>);
+        const group = screen.getByRole('group', {name: 'Iteration'});
+        expect([...group.querySelectorAll('button')].map(element => element.dataset.action)).toEqual(['next-step', 'play-pause', 'reset', 'reset-view']);
+    });
+
     test('the group keeps its label, and play turns into pause', () => {
         render(buttons({}, {}, true));
         expect(screen.getByRole('group', {name: 'Iteration'}).className).toBe('inspector-playback');

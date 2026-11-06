@@ -4,6 +4,7 @@ import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {GridPoint} from "../../compgeo/grid";
 import {HULL_ALGORITHMS, HullAlgorithm, HullEventInfo, HullNote, parseHullAlgorithm} from "./hullTraceRun";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface HullTraceControlActions {
     setAlgorithm(algorithm: HullAlgorithm): void;
@@ -73,9 +74,6 @@ export function HullTraceControls(props: HullTraceControlsProps) {
     const {language} = useLanguage();
     const {algorithm, step, length, playing, event, points, gridStepExponent, totals, actions, fixedAlgorithm, collinearKept} = props;
     const atEnd = step >= length - 1;
-    const nextUnavailable = atEnd;
-    const playUnavailable = atEnd && !playing;
-    const resetUnavailable = step === 0 && !playing;
     const scale = 2 ** gridStepExponent;
     const num = (value: number) => formatNumber(value, language, 4);
     const at = (index: number) => {
@@ -106,14 +104,9 @@ export function HullTraceControls(props: HullTraceControlsProps) {
                           help={algorithm === "slow-edge-test" ? t("hulltrace_slow_note", {value0: length}) : undefined}/>
         </div>}
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("hulltrace_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                        onClick={() => { if (!nextUnavailable) actions.nextStep(); }}>{t("hulltrace_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                        onClick={() => { if (!playUnavailable) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                        onClick={() => { if (!resetUnavailable) actions.reset(); }}>{t("reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("hulltrace_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
+                             onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
+                             {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("hulltrace_playback_note")}</p>
         </div>
         <div className="inspector-group" data-hull-trace-status="">

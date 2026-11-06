@@ -8,6 +8,7 @@ import {currentLanguage, onLanguageChange, setLanguage} from '../../localization
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
 import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
+import {buttonActions, playbackButton} from "./playbackElementTree";
 
 // The export itself is not under test: only that it pauses the iteration before it captures the board.
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
@@ -120,10 +121,10 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => playbackButton(found, action);
     const [inputEpsilon, inputLimit, inputThreshold] = found.NumberInput;
     return {
-        found, inputEpsilon, inputLimit, inputThreshold, select: found.ChoiceSelect[0],
+        found, actions: buttonActions(found), inputEpsilon, inputLimit, inputThreshold, select: found.ChoiceSelect[0],
         next: button('next-step'), play: button('play-pause'), reset: button('reset'), toggle: button('toggle-sequence-certificate'),
     };
 };
@@ -585,7 +586,7 @@ test('controls: example select, three number fields, Next step, Play/Pause, Rese
     expect(first.select.props.options.map((option: any) => option.text)).toEqual(['aₙ = 1/n', 'aₙ = (−1)ⁿ/n', 'aₙ = (−1)ⁿ', 'aₙ = n']);
     expect(first.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Širina pasu ε', 'Kandidat za limito L', 'Prag N']);
     expect(first.found.NumberInput.map((input: any) => input.props.value)).toEqual([0.1, 0, 5]);
-    expect(first.found.button.map((button: any) => button.props['data-action'])).toEqual(['next-step', 'play-pause', 'reset', 'toggle-sequence-certificate']);
+    expect(first.actions).toEqual(['next-step', 'play-pause', 'reset', 'toggle-sequence-certificate']);
     expect(first.next.props['aria-disabled']).toBe(false);
     expect(first.play.props['aria-disabled']).toBe(false);
     expect(first.reset.props['aria-disabled']).toBe(true);
@@ -618,7 +619,7 @@ test('controls: example select, three number fields, Next step, Play/Pause, Rese
     expect(english.play.props.children).toBe('Play');
     expect(english.toggle.props.children).toBe('Hide certificate');
     expect(english.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Band width ε', 'Candidate limit L', 'Threshold N']);
-    expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Term controls')).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).PlaybackButtons.some((element: any) => element.props.groupLabel === 'Term controls')).toBe(true);
 });
 
 test('presets save the model with the terms and the reveal, reopen paused and never start playback', () => {

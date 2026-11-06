@@ -7,6 +7,7 @@ import {defaultFixedPointModel, FixedPointModel} from '../../analysis/fixedPoint
 import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
+import {buttonActions, playbackButton} from "./playbackElementTree";
 
 // The export itself is not under test: only that it pauses the iteration before it captures the board.
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
@@ -129,10 +130,10 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect([graph.renderControls(), graph.renderReveals()]);
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
+    const button = (action: string) => playbackButton(found, action);
     const [inputX0, inputDigits] = found.NumberInput;
     return {
-        found, inputX0, inputDigits, select: found.ChoiceSelect[0],
+        found, actions: buttonActions(found), inputX0, inputDigits, select: found.ChoiceSelect[0],
         next: button('next-step'), play: button('play-pause'), reset: button('reset'), toggle: button('toggle-fixed-point-bound'),
     };
 };
@@ -592,7 +593,7 @@ test('controls: example select, two number fields, Next step, Play/Pause, Reset 
     expect(first.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Začetek x₀', 'Natančnost d (prag 10⁻ᵈ)']);
     expect(first.found.NumberInput.map((input: any) => input.props.value)).toEqual([0, 3]);
     expect(first.found.NumberInput.map((input: any) => input.props.step)).toEqual([0.01, 1]);
-    expect(first.found.button.map((button: any) => button.props['data-action'])).toEqual(['next-step', 'play-pause', 'reset', 'toggle-fixed-point-bound']);
+    expect(first.actions).toEqual(['next-step', 'play-pause', 'reset', 'toggle-fixed-point-bound']);
     expect(first.next.props['aria-disabled']).toBe(false);
     expect(first.play.props['aria-disabled']).toBe(false);
     expect(first.reset.props['aria-disabled']).toBe(true);
@@ -625,7 +626,7 @@ test('controls: example select, two number fields, Next step, Play/Pause, Reset 
     expect(english.play.props.children).toBe('Play');
     expect(english.toggle.props.children).toBe('Hide error bound');
     expect(english.found.NumberInput.map((input: any) => input.props.label)).toEqual(['Start x₀', 'Tolerance digits d (threshold 10⁻ᵈ)']);
-    expect(collect([graph.renderControls(), graph.renderReveals()]).div.some((element: any) => element.props.role === 'group' && element.props['aria-label'] === 'Iteration controls')).toBe(true);
+    expect(collect([graph.renderControls(), graph.renderReveals()]).PlaybackButtons.some((element: any) => element.props.groupLabel === 'Iteration controls')).toBe(true);
     // the interval of the start follows the example
     apply(graph, choice('cosine'));
     expect(controls(graph).inputX0.props.max).toBe(1);

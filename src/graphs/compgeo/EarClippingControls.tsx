@@ -2,6 +2,7 @@ import React from "react";
 import {useT} from "../../localization";
 import {EarEventInfo, EarRefusal, EarSummary} from "./earClippingRun";
 import type {EarClippingNote} from "../../compgeo/earClipping";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface EarClippingControlActions {
     nextStep(): void;
@@ -53,9 +54,6 @@ export function EarClippingControls(props: EarClippingControlsProps) {
     const {refusal, reversed, step, length, playing, event, trianglesSoFar, summary, actions} = props;
     const traced = refusal === undefined && length > 0;
     const atEnd = step >= length - 1;
-    const nextUnavailable = !traced || atEnd;
-    const playUnavailable = !traced || (atEnd && !playing);
-    const resetUnavailable = step === 0 && !playing;
     let detail: string | undefined;
     if (event && event.points.length === 3 && event.kind === "test") {
         const [previous, apex, next] = event.points;
@@ -80,14 +78,9 @@ export function EarClippingControls(props: EarClippingControlsProps) {
             </div>
         </div>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("earclip_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                        onClick={() => { if (!nextUnavailable) actions.nextStep(); }}>{t("hulltrace_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                        onClick={() => { if (!playUnavailable) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                        onClick={() => { if (!resetUnavailable) actions.reset(); }}>{t("reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("earclip_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
+                             onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
+                             {...playbackBlocks({ready: traced, atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("earclip_playback_note")}</p>
         </div>
         <div className="inspector-group" data-ear-clipping-status="">

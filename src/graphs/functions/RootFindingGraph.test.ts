@@ -6,6 +6,7 @@ import {setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {RootFindingModel} from '../../analysis/rootFindingModel';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
+import {buttonActions, playbackButton} from "./playbackElementTree";
 
 // The export itself is not under test: only that it pauses the iteration before it captures the board.
 vi.mock('../base/export/FigureCapture', () => ({downloadSVG: vi.fn(() => Promise.resolve()), downloadPNG: vi.fn(() => Promise.resolve())}));
@@ -95,8 +96,8 @@ function collect(node: any, found: Record<string, any[]> = {}) {
 }
 const controls = (graph: any) => {
     const found = collect(graph.renderControls());
-    const button = (action: string) => found.button.find((element: any) => element.props['data-action'] === action);
-    return {found, next: button('next-step'), play: button('play-pause'), reset: button('reset')};
+    const button = (action: string) => playbackButton(found, action);
+    return {found, actions: buttonActions(found), next: button('next-step'), play: button('play-pause'), reset: button('reset')};
 };
 const rows = (graph: any) => Object.fromEntries((collect(graph.renderReadout()).FunctionReadout[0].props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
 const tableRows = (graph: any) => collect(graph.renderReadout()).tr?.filter((row: any) => row.props['data-iterate-row'] !== undefined) ?? [];

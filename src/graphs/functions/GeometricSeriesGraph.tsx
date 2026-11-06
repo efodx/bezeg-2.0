@@ -17,6 +17,7 @@ import {geometricSeriesEditMessage} from "./geometricSeriesMessages";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 /** Time between two playback steps: one term per interval, never more than one per frame (see ADR 0012). */
 export const SERIES_STEP_INTERVAL_MS = 500;
@@ -254,9 +255,6 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         const language = currentLanguage();
         const playing = this.controller.isPlaying();
         const canAdvance = canAdvanceSeries(state);
-        const nextUnavailable = !canAdvance || playing;
-        const playUnavailable = !canAdvance && !playing;
-        const resetUnavailable = state.terms <= SERIES_TERMS_MIN && !playing;
         const example = seriesExampleOf(state);
         const options = SERIES_EXAMPLE_IDS.map(id => ({value: id as string, text: exampleText(id)}));
         const rangeHint = (min: number, max: number) => ({value0: formatNumber(min, language), value1: formatNumber(max, language)});
@@ -282,16 +280,10 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
                 <p className="inspector-help">{t("series_fields_help")}</p>
             </div>
             <div className="inspector-group">
-                {/* An unavailable control stays focusable (aria-disabled, not disabled): a focused button that becomes
-                    unavailable at the last term or when Play starts must not drop keyboard focus to the page body. */}
-                <div className="demo-actions inspector-playback" role="group" aria-label={t("series_iteration_controls")}>
-                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                            onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("series_next_step")}</button>
-                    <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                            onClick={() => { if (!playUnavailable) { if (playing) this.pauseIteration(); else this.play(); } }}>{playing ? t("pause") : t("play")}</button>
-                    <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                            onClick={() => { if (!resetUnavailable) this.resetIteration(); }}>{t("series_reset")}</button>
-                </div>
+                <PlaybackButtons groupLabel={t("series_iteration_controls")} className="demo-actions" nextLabel={t("series_next_step")} resetLabel={t("series_reset")} playing={playing}
+                                 onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
+                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
+                                 {...playbackBlocks({atStart: state.terms <= SERIES_TERMS_MIN, atEnd: !canAdvance, playing})}/>
                 <p className="inspector-help">{t("series_playback_note", {value0: SERIES_TERMS_MAX})}</p>
             </div>
         </>;

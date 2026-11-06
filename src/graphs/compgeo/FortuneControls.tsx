@@ -7,6 +7,7 @@ import {heightText, siteName, siteNames, type FortuneNote, type FortuneRun} from
 import type {FortuneView} from "./fortuneGeometry";
 import "./SweepSideLists.css";
 import {FORTUNE_EXAMPLE_IDS, type FortuneExampleId} from "./fortunePresetCollection";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface FortuneControlActions {
     nextStep(): void;
@@ -179,15 +180,12 @@ export function FortuneControls(props: FortuneControlsProps) {
     if (announced.key !== announceKey) { heard = {key: announceKey, text: announcement}; setAnnounced(heard); }
     return <>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("fortune_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={atEnd || !result}
-                        onClick={() => { if (!atEnd && result) actions.nextStep(); }}>{t("fortune_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={(atEnd && !playing) || !result}
-                        onClick={() => { if (!((atEnd && !playing) || !result)) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={(step === 0 && !playing) || !result}
-                        onClick={() => { if (!((step === 0 && !playing) || !result)) { setNonce(n => n + 1); actions.reset(); } }}>{t("reset")}</button>
+            <PlaybackButtons groupLabel={t("fortune_controls_label")} nextLabel={t("fortune_next_step")} playing={playing}
+                             {...playbackBlocks({ready: Boolean(result), atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}
+                             onNext={actions.nextStep} onPlayPause={actions.playPause}
+                             onReset={() => { setNonce(n => n + 1); actions.reset(); }}>
                 <button type="button" data-action="reset-view" onClick={actions.resetView}>{t("fortune_view_reset")}</button>
-            </div>
+            </PlaybackButtons>
             <p className="inspector-help">{t("fortune_playback_note")}</p>
         </div>
         <div className="inspector-group" role="group" aria-label={t("fortune_examples_group")} data-fortune="examples">

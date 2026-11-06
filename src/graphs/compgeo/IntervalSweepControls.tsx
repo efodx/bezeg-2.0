@@ -6,6 +6,7 @@ import {intervalLetter} from "../../compgeo/pointSetModel";
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_INTERVALS} from "../../compgeo/sweep/limits";
 import type {IntervalPair} from "../../compgeo/sweep/intervalSweep";
 import type {IntervalEventInfo, IntervalRun, IntervalView} from "./intervalSweepRun";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface IntervalSweepControlActions {
     nextStep(): void;
@@ -71,9 +72,6 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
     const {run, step, playing, scale, actions, children} = props;
     const refusal = refusalText(t, run);
     const atEnd = step >= run.length - 1;
-    const nextUnavailable = atEnd;
-    const playUnavailable = atEnd && !playing;
-    const resetUnavailable = step === 0 && !playing;
     const num = (value: number) => formatNumber(value * scale, language, 4);
     const event = run.event(step);
     const view = run.view(step);
@@ -89,14 +87,9 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
     const comparison = view.done ? t("intervalsweep_comparison", {value0: view.pairs.length, value1: (n * (n - 1)) / 2}) : undefined;
     return <>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("intervalsweep_controls_label")}>
-                <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                        onClick={() => { if (!nextUnavailable) actions.nextStep(); }}>{t("intervalsweep_next_step")}</button>
-                <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                        onClick={() => { if (!playUnavailable) actions.playPause(); }}>{playing ? t("pause") : t("play")}</button>
-                <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                        onClick={() => { if (!resetUnavailable) actions.reset(); }}>{t("reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("intervalsweep_controls_label")} nextLabel={t("intervalsweep_next_step")} playing={playing}
+                             onNext={() => actions.nextStep()} onPlayPause={() => actions.playPause()} onReset={() => actions.reset()}
+                             {...playbackBlocks({atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}/>
             <p className="inspector-help">{t("intervalsweep_playback_note")}</p>
             <p className="inspector-help" data-interval-sweep="tie-rule">{t("intervalsweep_tie_rule")}</p>
         </div>

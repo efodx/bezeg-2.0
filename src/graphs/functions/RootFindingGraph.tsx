@@ -19,6 +19,7 @@ import {formatPrecise} from "./BisectionGraph";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 /** Time between two playback steps: one step per interval, never more than one per frame (ADR 0012), as for bisection. */
 export const ROOT_FINDING_STEP_INTERVAL_MS = 600;
@@ -263,9 +264,6 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         const history = this.historyOf({method, example, x0, x1, step});
         const playing = this.controller.isPlaying();
         const canAdvance = history.termination === "running";
-        const nextUnavailable = !canAdvance || playing;
-        const playUnavailable = !canAdvance && !playing;
-        const resetUnavailable = step === 0 && !playing;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("root_finding_method_label")} value={method} help={t("root_finding_method_help")}
@@ -283,15 +281,10 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
                 <p className="inspector-help">{t("root_finding_starts_help")}</p>
             </div>
             <div className="inspector-group">
-                {/* An unavailable control stays focusable (aria-disabled, not disabled), as in the bisection controls. */}
-                <div className="bisection-actions inspector-playback" role="group" aria-label={t("root_finding_iteration_controls")}>
-                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                            onClick={() => { if (!nextUnavailable) this.ignoreOutOfDomain(() => this.nextStep()); }}>{t("root_finding_next_step")}</button>
-                    <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                            onClick={() => { if (!playUnavailable) { if (playing) this.pauseIteration(); else this.play(); } }}>{playing ? t("pause") : t("play")}</button>
-                    <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                            onClick={() => { if (!resetUnavailable) this.resetIteration(); }}>{t("root_finding_reset")}</button>
-                </div>
+                <PlaybackButtons groupLabel={t("root_finding_iteration_controls")} className="bisection-actions" nextLabel={t("root_finding_next_step")} resetLabel={t("root_finding_reset")} playing={playing}
+                                 onNext={() => this.ignoreOutOfDomain(() => this.nextStep())}
+                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }} onReset={() => this.resetIteration()}
+                                 {...playbackBlocks({atStart: step === 0, atEnd: !canAdvance, playing})}/>
                 <p className="inspector-help">{t("root_finding_playback_note")}</p>
             </div>
         </>;
