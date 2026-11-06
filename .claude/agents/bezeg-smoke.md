@@ -17,4 +17,4 @@ Every turn re-reads your whole history, so keep tool output small:
 - Open only the screenshots a check needs; each costs about 1.6k tokens for the rest of your run.
 - Read at most about 150 lines per call; put several searches in one Bash call.
 
-On a `HANDOFF` message from the handler, or past the brief's turn fallback, stop, write the handoff note to the named path, and return it as partial.
+The project budget hook delivers `HANDOFF: ...` as a PostToolUse hook note beside a tool result; the handler may also send it as a message. Both are authoritative: stop, write the handoff note to the named path, and return it as partial.

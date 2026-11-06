@@ -20,4 +20,4 @@ Every turn re-reads your whole history, so keep tool output small:
 - Send test, build, and diff output to a log file and extract only failures or the summary.
 - Quote `file:line` references instead of pasting code back.
 
-On a `HANDOFF` message from the handler, or past the brief's turn fallback, stop at a consistent point, write the handoff note to the named path, and return it as partial.
+The project budget hook delivers `HANDOFF: ...` as a PostToolUse hook note beside a tool result; the handler may also send it as a message. Both are authoritative: stop at a consistent point, write the handoff note to the named path, and return it as partial.
