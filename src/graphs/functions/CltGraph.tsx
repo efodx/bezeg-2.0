@@ -3,7 +3,8 @@ import {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGra
 import IterativeFunctionGraph from "./IterativeFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
 import Slider from "../../inputs/Slider";
-import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, Message, message, renderMessage, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
@@ -237,9 +238,6 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         ];
         const playing = this.controller.isPlaying();
         const atMax = state.n >= CLT_N_MAX;
-        const nextUnavailable = atMax || playing;
-        const playUnavailable = atMax && !playing;
-        const resetUnavailable = state.n === 1 && !playing;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("prob_clt_example_label")} value={example ?? "custom"} help={t("prob_clt_example_help")} options={options}
@@ -248,15 +246,12 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
             <div className="inspector-group">
                 <Slider customText={t("prob_clt_n_label")} min={1} max={CLT_N_MAX} step={1} value={state.n}
                         rejectedHint={t("prob_clt_n_rejected", {value0: CLT_N_MAX})} onChange={next => this.guarded(() => this.setN(next))}/>
-                {/* An unavailable control stays focusable (aria-disabled): a focused button must not lose focus when it becomes unavailable. */}
-                <div className="bisection-actions inspector-playback" role="group" aria-label={t("prob_clt_iteration_controls")}>
-                    <button type="button" data-action="next-step" aria-disabled={nextUnavailable}
-                            onClick={() => { if (!nextUnavailable) this.guarded(() => this.nextStep()); }}>{t("prob_clt_next_step")}</button>
-                    <button type="button" data-action="play-pause" aria-disabled={playUnavailable}
-                            onClick={() => { if (!playUnavailable) { if (playing) this.pauseIteration(); else this.play(); } }}>{playing ? t("pause") : t("play")}</button>
-                    <button type="button" data-action="reset" aria-disabled={resetUnavailable}
-                            onClick={() => { if (!resetUnavailable) this.resetIteration(); }}>{t("prob_clt_reset")}</button>
-                </div>
+                <PlaybackButtons groupLabel={t("prob_clt_iteration_controls")} className="bisection-actions" playing={playing}
+                                 nextLabel={t("prob_clt_next_step")} resetLabel={t("prob_clt_reset")}
+                                 {...playbackBlocks({atStart: state.n === 1, atEnd: atMax, playing})}
+                                 onNext={() => this.guarded(() => this.nextStep())}
+                                 onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }}
+                                 onReset={() => this.resetIteration()}/>
                 <p className="inspector-help">{t("prob_clt_playback_note")}</p>
             </div>
             <div className="inspector-group">
