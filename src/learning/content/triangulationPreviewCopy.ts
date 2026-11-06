@@ -26,13 +26,13 @@ export const triangulationPreviewCopy = {
         'The quadrilateral is cut into two triangles by the diagonal from the point \\((0,0)\\) to the point \\((5,3)\\), which is marked as an illegal edge; the edge has not been flipped yet.',
     ),
     'triangulations-voronoi.voronoi.voronoi': copy(
-        'Sedem mest \\((0,0)\\), \\((8,0)\\), \\((9,6)\\), \\((4,8)\\), \\((-1,5)\\), \\((3,3)\\) in \\((6,3)\\) ter kvadratna točka poizvedbe \\((-2,1)\\); diagrama ni.',
+        'Sedem mest \\((0,0)\\), \\((8,0)\\), \\((9,6)\\), \\((4,8)\\), \\((-1,5)\\), \\((3,3)\\) in \\((6,3)\\) ter točka poizvedbe v obliki kvadrata \\((-2,1)\\); diagrama ni.',
         'Seven sites \\((0,0)\\), \\((8,0)\\), \\((9,6)\\), \\((4,8)\\), \\((-1,5)\\), \\((3,3)\\) and \\((6,3)\\) and a square query point \\((-2,1)\\); no diagram is drawn.',
         'Sedem mest in točka poizvedbe, ki jo lahko premikaš; celic in simetral še ni.',
         'Seven sites and a query point that can be dragged; no cells or bisectors are shown yet.',
     ),
     'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate': copy(
-        'Štiri mesta \\((5,0)\\), \\((3,4)\\), \\((-4,3)\\), \\((1,-5)\\) in kvadratna točka poizvedbe \\((4,2)\\); diagrama in triangulacije ni.',
+        'Štiri mesta \\((5,0)\\), \\((3,4)\\), \\((-4,3)\\), \\((1,-5)\\) in točka poizvedbe v obliki kvadrata \\((4,2)\\); diagrama in triangulacije ni.',
         'Four sites \\((5,0)\\), \\((3,4)\\), \\((-4,3)\\), \\((1,-5)\\) and a square query point \\((4,2)\\); no diagram or triangulation is drawn.',
         'Štiri mesta, ki ležijo skoraj na isti krožnici; diagram in Delaunayeva triangulacija sta skrita.',
         'Four sites lying close to one circle; the diagram and the Delaunay triangulation are hidden.',

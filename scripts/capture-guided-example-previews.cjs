@@ -1,6 +1,6 @@
 // Capture guided-example card media from a complete generated inventory: the exact prepared start scene, or the
 // authored highlight recipe state (frame + learner-equivalent steps) when the entry carries a highlight recipe.
-// node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter] [--family patches|linear-maps|complex-maps]
+// node scripts/capture-guided-example-previews.cjs path/to/guided-example-inventory.json [--id curve-parameter] [--family <a key of chapterFamilies>]
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -41,7 +41,7 @@ function captureRecipeForEntry(entry, recipe) {
 
 function presentationHelpers() {
     return [presentBoard, inspectBoard, captureSurfaceExample, resizeSurfaceCaptureHost, prepareSurfaceCaptureFrame,
-        isViewportSpanningHorizontalCurve, isCameraScaledCurve,
+        isViewportSpanningHorizontalCurve, isCameraScaledCurve, isOpeningSweepLine, isViewportGeneratedInWindow,
         isSameGraphOnOverlap, assertPresentationGeometryStable, hideGuidedLessonOverlay, captureRecipeForEntry,
         reachFrame, applyHighlightRecipe, readPublishedSurfaceEvidence, validateSurfaceEvidence, verifySurfaceHighlight, assertSurfaceRecipeSteps];
 }

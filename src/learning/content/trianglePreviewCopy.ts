@@ -10,7 +10,7 @@ export const trianglePreviewCopy = {
     'triangle-geometry.notable-points.triangle-centres': copy(
         'Trikotnik z oglišči \\((0,0)\\), \\((7,0)\\) in \\((2,5)\\) ter njegove tri težiščnice, ki se sekajo znotraj trikotnika.',
         'The triangle with the vertices \\((0,0)\\), \\((7,0)\\) and \\((2,5)\\) and its three medians, which meet inside the triangle.',
-        'Trikotnik s tremi težiščnicami; težišče je njihovo presečišče. Napis na plošči pravi, da je trikotnik ostrokotni.',
+        'Trikotnik s tremi težiščnicami; težišče je njihovo presečišče. Napis na plošči pravi, da je trikotnik ostrokoten.',
         'The triangle with its three medians; the centroid is where they meet. The text on the board says the triangle is acute.',
     ),
     'triangle-geometry.inscribed-angle.inscribed-angle': copy(
@@ -26,8 +26,8 @@ export const trianglePreviewCopy = {
         'The points \\(H\\) (square), \\(G\\) (cross \\(\\times\\)) and \\(O\\) (plus sign \\(+\\)); the line through them is not drawn yet. The text on the board says they are collinear.',
     ),
     'triangle-geometry.simson-line.simson-line': copy(
-        'Trikotnik z oglišči \\((0,0)\\), \\((7,0)\\) in \\((2,5)\\), nosilke njegovih stranic, očrtana krožnica s središčem \\(O\\), točka \\(P\\) na krožnici pod stranico \\(AB\\) in tri nožišča \\(D\\), \\(E\\), \\(F\\).',
-        'The triangle with the vertices \\((0,0)\\), \\((7,0)\\) and \\((2,5)\\), the lines carrying its sides, the circumcircle with centre \\(O\\), the point \\(P\\) on the circle below the side \\(AB\\) and the three feet \\(D\\), \\(E\\), \\(F\\).',
+        'Trikotnik z oglišči \\((0,0)\\), \\((7,0)\\) in \\((2,5)\\), nosilke njegovih stranic, očrtana krožnica s središčem \\(O\\), točka \\(P\\) na krožnici pod stranico \\(AB\\) in tri nožišča.',
+        'The triangle with the vertices \\((0,0)\\), \\((7,0)\\) and \\((2,5)\\), the lines carrying its sides, the circumcircle with centre \\(O\\), the point \\(P\\) on the circle below the side \\(AB\\) and the three feet.',
         'Nožišča so označena s kvadratki; pravokotnic in premice skoznje še ni. Napis na plošči pravi, da so nožišča kolinearna.',
         'The feet are marked by small squares; the perpendiculars and the line through the feet are not drawn yet. The text on the board says the feet are collinear.',
     ),

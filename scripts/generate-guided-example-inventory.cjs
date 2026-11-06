@@ -386,7 +386,7 @@ const quadratureRules = ['trapezoid', 'simpson'];
 
 /**
  * First-frame expectation of the Numerical methods quadrature lesson (N4): the filled shapes of the rule (one curve) and the graph of f
- * (one functiongraph), and the two bound points (a, 0) and (b, 0) on the axis; the caption texts do not count. Every one of the five model
+ * (one functiongraph), and the two bound points (a, 0) and (b, 0) on the axis; the caption texts are not asserted, as the expectation lists no `text` key. Every one of the five model
  * values must be set exactly once by the opening scene, with a valid rule, function, a < b and n (even for Simpson, never rounded).
  */
 function quadratureExpectedFor(id, actions) {
