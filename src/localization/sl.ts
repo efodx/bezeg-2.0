@@ -3398,7 +3398,7 @@ export const sl = {
     "coons_shown_s": "Coonsova ploskev S = Lc + Ld − B",
     "coons_corners_heading": "Vogali",
     "coons_linked_corners": "Povezani vogali",
-    "coons_linked_help": "Vklopljeno: vsak vogal si delita obe robni krivulji in se premakneta skupaj. Izklopljeno: vsako krajišče se premika samo zase in vogal lahko pretrgaš. Ob ponovnem vklopu se vsak par krajišč premakne na svoje povprečje.",
+    "coons_linked_help": "Vklopljeno: vsak vogal si delita obe robni krivulji in se premakneta skupaj. Izklopljeno: vsako krajišče se premika samo zase in vogal lahko pretrgaš. Dokler krajišči ležita eno na drugem, pritisk prime zgornje; drugo izberi s poljema Robna krivulja in Kontrolna točka. Ob ponovnem vklopu se vsak par krajišč premakne na svoje povprečje.",
     "coons_point_heading": "Točke robnih krivulj",
     "coons_boundary": "Robna krivulja",
     "coons_index": "Kontrolna točka",

@@ -209,6 +209,30 @@ describe('step 6: a broken corner', () => {
         }
     });
 
+    test('the gap moves all four interior net points through B alone: by 1/9, 1/18, 2/9, 1/9 downward, as the prose says', () => {
+        const m = mount();
+        try {
+            m.scene(stepOf('coons-break-corner'));
+            const before = coonsBicubicNet(defaultCoonsBoundaries() as Record<'c0' | 'c1' | 'd0' | 'd1', Vec3[]>);
+            const after = coonsBicubicNet(m.graph.state.boundaries as Record<'c0' | 'c1' | 'd0' | 'd1', Vec3[]>);
+            // B rises by 1/2 at the corner (u, v) = (1, 0), with the bilinear weight (i/3)(1 - j/3); Lc and Ld keep their interior.
+            for (const [i, j] of [[1, 1], [1, 2], [2, 1], [2, 2]]) {
+                close(after[i][j], [before[i][j][0], before[i][j][1], before[i][j][2] - 0.5 * (i / 3) * (1 - j / 3)]);
+            }
+            expect(before[2][1][2] - after[2][1][2]).toBeCloseTo(2 / 9, 12);
+            expect(before[1][2][2] - after[1][2][2]).toBeCloseTo(1 / 18, 12);
+        } finally {
+            m.mounted.view.unmount();
+        }
+        for (const l of ['sl', 'en'] as const) {
+            const p = prose(stepOf('coons-break-corner'), l);
+            expect(p).toContain('\\(P_{21}\\)');
+            expect(p).toContain('\\(\\tfrac29\\)');
+            expect(p).toContain('\\(P_{12}\\)');
+            expect(p).toContain('\\(\\tfrac1{18}\\)');
+        }
+    });
+
     test('the prose gives the gap and the miss and claims no interpolation at the broken corner', () => {
         const step = stepOf('coons-break-corner');
         const sl = prose(step, 'sl'), en = prose(step, 'en');

@@ -3399,7 +3399,7 @@ export const en: Record<keyof typeof sl, string> = {
     "coons_shown_s": "Coons patch S = Lc + Ld − B",
     "coons_corners_heading": "Corners",
     "coons_linked_corners": "Linked corners",
-    "coons_linked_help": "On: both boundary curves share each corner and the two end points move together. Off: each end point moves alone, so you can break a corner. Turning it on again moves each pair of end points to its average.",
+    "coons_linked_help": "On: both boundary curves share each corner and the two end points move together. Off: each end point moves alone, so you can break a corner. While two end points overlap, a press takes the top one; choose the other with Boundary curve and Control point. Turning it on again moves each pair of end points to its average.",
     "coons_point_heading": "Boundary control points",
     "coons_boundary": "Boundary curve",
     "coons_index": "Control point",
