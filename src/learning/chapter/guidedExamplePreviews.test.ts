@@ -234,7 +234,8 @@ const functionsCards: readonly FunctionsCard[] = [
     // patch-coons is a surface card: its count row is its one rendered owner and no board points.
     {chapterId: 'advanced-bezier', copy: advancedBezierPreviewCopy,
         ids: ['advanced-bezier.arc-length-param.arc-length-param', 'advanced-bezier.patch-coons.patch-coons', 'advanced-bezier.reduction.reduction'],
-        counts: [[1, 14], [1, 0], [3, 11]]},
+        counts: [[1, 14], [1, 0], [3, 11]],
+        pending: ['advanced-bezier.bezier-clipping.bezier-clipping']}, // Its card arrives with AB-B-5.
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

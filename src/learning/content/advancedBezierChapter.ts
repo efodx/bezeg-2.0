@@ -20,8 +20,8 @@ function withExample(sectionId: AdvancedBezierSectionId, section: FamilyChapterS
 }
 
 /**
- * Advanced Bezier topics (docs/specs/advanced-bezier-lessons.md): D1 degree reduction, D3 arc-length parametrization and D4 the Coons patch.
- * D2 (Bezier clipping) joins when it is released. The chapter spans the Bezier and patches Demonstration families, so the
+ * Advanced Bezier topics (docs/specs/advanced-bezier-lessons.md): D1 degree reduction, D2 Bezier clipping, D3 arc-length parametrization
+ * and D4 the Coons patch. The chapter spans the Bezier and patches Demonstration families, so the
  * family-link check of familyChapters.test.ts exempts it; its own test checks the links.
  */
 export const advancedBezierChapter: FamilyChapter = {
@@ -29,12 +29,12 @@ export const advancedBezierChapter: FamilyChapter = {
     family: '/bezeg-2.0/bezier',
     title: text('Napredne Bézierjeve teme', 'Advanced Bézier topics'),
     purpose: text(
-        `Poglavje za študente, ki Bézierjeve krivulje in krpe že poznajo, odgovori na tri naslednja vprašanja. Ali lahko stopnjo krivulje spet znižamo in kaj pomeni »najboljša« kvadratna krivulja, kadar to ni mogoče natančno? Zakaj enaki koraki parametra niso enaki koraki po krivulji in kako razmik po loku izmerimo? Kako štiri robne krivulje zapolnimo s ploskvijo? Povsod je pomembno, katero normo, kateri približek in katero omejitev uporabimo: rezultat ni edini mogoč.`,
-        `A chapter for students who already know Bézier curves and patches. It answers three further questions. Can the degree of a curve be lowered again, and what does the "best" quadratic mean when that cannot be done exactly? Why are equal steps of the parameter not equal steps along the curve, and how is the distance along the curve measured? How are four boundary curves filled with a surface? Throughout, it matters which norm, which approximation and which constraint is used: the result is not the only possible one.`,
+        `Poglavje za študente, ki Bézierjeve krivulje in krpe že poznajo, odgovori na štiri naslednja vprašanja. Ali lahko stopnjo krivulje spet znižamo in kaj pomeni »najboljša« kvadratna krivulja, kadar to ni mogoče natančno? Kako poiščemo presečišča dveh krivulj z zavračanjem obsegov parametra in kaj nam pove končen tek? Zakaj enaki koraki parametra niso enaki koraki po krivulji in kako razmik po loku izmerimo? Kako štiri robne krivulje zapolnimo s ploskvijo? Povsod je pomembno, katero normo, kateri približek in katero omejitev uporabimo: rezultat ni edini mogoč.`,
+        `A chapter for students who already know Bézier curves and patches. It answers four further questions. Can the degree of a curve be lowered again, and what does the "best" quadratic mean when that cannot be done exactly? How are the intersections of two curves found by discarding parameter ranges, and what does a finite run tell us? Why are equal steps of the parameter not equal steps along the curve, and how is the distance along the curve measured? How are four boundary curves filled with a surface? Throughout, it matters which norm, which approximation and which constraint is used: the result is not the only possible one.`,
     ),
     prerequisites: text(
-        `Bézierjeve krivulje (kontrolne točke, višanje stopnje), parametrizacija in hitrost kot dolžina odvoda, PH-krivulje z natančno dolžino loka ter tenzorska Bézierjeva krpa. Dovolj je, da znaš odvajati polinomsko krivuljo po komponentah.`,
-        `Bézier curves (control points, degree elevation), parametrization and speed as the length of the derivative, PH curves with their exact arc length, and the tensor-product Bézier patch. It is enough to be able to differentiate a polynomial curve componentwise.`,
+        `Bézierjeve krivulje (kontrolne točke, višanje stopnje), parametrizacija in hitrost kot dolžina odvoda, PH-krivulje z natančno dolžino loka, konveksna ovojnica kontrolnih točk ter tenzorska Bézierjeva krpa. Dovolj je, da znaš odvajati polinomsko krivuljo po komponentah.`,
+        `Bézier curves (control points, degree elevation), parametrization and speed as the length of the derivative, PH curves with their exact arc length, the convex hull of the control points, and the tensor-product Bézier patch. It is enough to be able to differentiate a polynomial curve componentwise.`,
     ),
     prerequisiteLinks: [
         {path: '/bezeg-2.0/learn/bezier-curves', title: text('Bézierjeve krivulje', 'Bézier curves')},
@@ -48,8 +48,8 @@ export const advancedBezierChapter: FamilyChapter = {
             title: text('Kaj je pri naprednih temah drugače', 'What differs in the advanced topics'),
             paragraphs: [
                 text(
-                    `Cilj razdelka: znaš povedati, zakaj pri vseh treh temah ne iščemo ene same pravilne rešitve, ampak rešitev ob jasno povedanih predpostavkah. Višanje stopnje je natančno: ista krivulja dobi eno kontrolno točko več. Obratna smer, nižanje stopnje, je v splošnem le približek. Dolžina loka je integral hitrosti, ki ga običajno izračunamo numerično, zato ima natančnost, ki jo povemo. Coonsova ploskev je ena izmed mnogih ploskev z danimi robovi.`,
-                    `Goal of the section: you can say why in all three topics we do not look for a single correct answer but for an answer under clearly stated assumptions. Degree elevation is exact: the same curve gets one more control point. The reverse, degree reduction, is in general only an approximation. Arc length is the integral of the speed, which we usually compute numerically, so it has an accuracy that we state. The Coons patch is one of many surfaces with the given boundaries.`,
+                    `Cilj razdelka: znaš povedati, zakaj pri vseh štirih temah ne iščemo ene same pravilne rešitve, ampak rešitev ob jasno povedanih predpostavkah. Višanje stopnje je natančno: ista krivulja dobi eno kontrolno točko več. Obratna smer, nižanje stopnje, je v splošnem le približek. Bézierovo rezanje se ustavi pri izbrani toleranci, ki je pravilo za ustavitev. Dolžina loka je integral hitrosti, ki ga običajno izračunamo numerično, zato ima natančnost, ki jo povemo. Coonsova ploskev je ena izmed mnogih ploskev z danimi robovi.`,
+                    `Goal of the section: you can say why in all four topics we do not look for a single correct answer but for an answer under clearly stated assumptions. Degree elevation is exact: the same curve gets one more control point. The reverse, degree reduction, is in general only an approximation. Bézier clipping stops at a chosen tolerance, which is a stopping rule. Arc length is the integral of the speed, which we usually compute numerically, so it has an accuracy that we state. The Coons patch is one of many surfaces with the given boundaries.`,
                 ),
                 text(
                     `Slike v lekcijah prikazujejo primere in so ponazoritve, ne dokazi. Tam, kjer prikazana številka izhaja iz vzorčenja ali iz tolerance, je to tudi zapisano. Vsak razdelek se konča s pripravljeno dejavnostjo, ki jo odpreš na grafu in z njo preveriš navedene vrednosti.`,
@@ -78,6 +78,30 @@ export const advancedBezierChapter: FamilyChapter = {
                 text(
                     `»Najboljša« torej pomeni najboljša za izbrano normo in omejitev; drugačna izbira, na primer najmanjša največja napaka ali ohranitev tangent, lahko da drugo kvadratno krivuljo. Optimum nikoli ni natančen, razen če je tretja diferenca nič. Pri računanju »nižljivo« pomeni, da je tretja diferenca pod toleranco \\(10^{-9}\\) glede na merilo kontrolnih točk. Meja iz kontrolnih točk je vsaj tako velika kot vzorčena največja napaka.`,
                     `"Best" therefore means best for the chosen norm and constraint; a different choice, for example the smallest maximum error or preserving the tangents, can give a different quadratic. The optimum is never exact unless the third difference is zero. In the computation, "reducible" means that the third difference is below a tolerance of \\(10^{-9}\\) relative to the scale of the control points. The bound from the control points is at least as large as the sampled maximum error.`,
+                ),
+            ],
+        }),
+        withExample('bezier-clipping', {
+            id: 'bezier-clipping',
+            demonstrationIds: ['bezier-clipping'],
+            investigationPrompts: {'bezier-clipping': text(
+                `Napovej, ali se krivulji sekata, ko se njuni ovojnici prekrivata. Nato korak za korakom spremljaj, kateri del obsega rez zavrže, in primerjaj število rezov pri presečišču in pri dotiku.`,
+                `Predict whether the curves meet when their hulls overlap. Then follow step by step which part of the range a clip discards, and compare the clip count at a crossing and at a tangency.`,
+            )},
+            title: text('Presečišča z Bézierovim rezanjem', 'Intersections by Bézier clipping'),
+            formula: String.raw`d(t)=\mathbf{n}\cdot\bigl(A(t)-\mathbf{b}_0\bigr)`,
+            paragraphs: [
+                text(
+                    `Cilj razdelka: znaš pojasniti, kako Bézierovo rezanje išče presečišča dveh krivulj, in povedati, kaj njegov rezultat pomeni. Debela premica krivulje \\(B\\) je pas okoli njene tetive, v katerem krivulja leži. Razdalja \\(d(t)\\) krivulje \\(A\\) od te tetive je polinom, zato njegov graf leži v konveksni ovojnici svojih kontrolnih točk. Kjer je ta ovojnica zunaj pasu, krivulja \\(A\\) ne more sekati krivulje \\(B\\), zato tisti del obsega parametra zavržemo. Nato krivulji zamenjata vlogi. Kadar rez obsega ne skrči dovolj, par razdelimo in nadaljujemo z obema polovicama.`,
+                    `Goal of the section: you can explain how Bézier clipping looks for the intersections of two curves and say what its result means. The fat line of the curve \\(B\\) is a strip around its chord in which the curve lies. The distance \\(d(t)\\) of the curve \\(A\\) from that chord is a polynomial, so its graph lies in the convex hull of its control points. Where this hull is outside the strip, the curve \\(A\\) cannot meet the curve \\(B\\), so we discard that part of the parameter range. Then the curves swap roles. When a clip does not shrink the range enough, we split the pair and continue with both halves.`,
+                ),
+                text(
+                    `Krivulji \\(A=(0,0),(2,4),(4,0)\\) in \\(B=(0,3),(2,-1),(4,3)\\) se sekata v točkah \\((1;\\,1{,}5)\\) in \\((3;\\,1{,}5)\\), pri \\(t=0{,}25\\) in \\(t=0{,}75\\) na obeh krivuljah. Pri toleranci \\(10^{-3}\\) je rezov \\(17\\), pri \\(10^{-6}\\) pa \\(21\\). Krivulja \\(B=(0,4),(2,0),(4,4)\\) se krivulje \\(A\\) dotika v točki \\((2,2)\\): navpična razlika \\(16(t-\\tfrac12)^2\\) ima dvojno ničlo. Rezanje je tu počasno, \\(53\\) rezov pri \\(10^{-3}\\) in \\(113\\) pri \\(10^{-6}\\), pri \\(10^{-10}\\) pa se ustavi ob meji \\(200\\) rezov z \\(28\\) nerešenimi pari.`,
+                    `The curves \\(A=(0,0),(2,4),(4,0)\\) and \\(B=(0,3),(2,-1),(4,3)\\) cross at the points \\((1,\\,1.5)\\) and \\((3,\\,1.5)\\), at \\(t=0.25\\) and \\(t=0.75\\) on both curves. With the tolerance \\(10^{-3}\\) there are \\(17\\) clips, with \\(10^{-6}\\) there are \\(21\\). The curve \\(B=(0,4),(2,0),(4,4)\\) touches the curve \\(A\\) at the point \\((2,2)\\): the vertical gap \\(16(t-\\tfrac12)^2\\) has a double root. Clipping is slow here, \\(53\\) clips with \\(10^{-3}\\) and \\(113\\) with \\(10^{-6}\\), and with \\(10^{-10}\\) it stops at the limit of \\(200\\) clips with \\(28\\) unresolved pairs.`,
+                ),
+                text(
+                    `Krivulja \\(B=(0;\\,4{,}5),(2;\\,0{,}5),(4;\\,4{,}5)\\) leži nad \\(A\\), navpična razlika je vsaj \\(0{,}5\\), kontrolni ovojnici pa se prekrivata. Rezanje pri toleranci \\(10^{-6}\\) po \\(17\\) rezih zavrže vse obsege. Prekrivanje ovojnic je torej potreben, ne zadosten pogoj. Toleranca je pravilo za ustavitev: ozek obseg ne dokaže, da v njem res leži presečišče, in stanje meja ne pove ničesar v nobeno smer. Končni tek ponazarja, ne dokazuje.`,
+                    `The curve \\(B=(0,\\,4.5),(2,\\,0.5),(4,\\,4.5)\\) lies above \\(A\\), the vertical gap is at least \\(0.5\\), and yet the control hulls overlap. With the tolerance \\(10^{-6}\\) clipping discards every range after \\(17\\) clips. Overlapping hulls are therefore necessary, not sufficient. The tolerance is a stopping rule: a narrow range does not prove that an intersection lies in it, and the status limit says nothing either way. A finite run illustrates and does not prove.`,
                 ),
             ],
         }),

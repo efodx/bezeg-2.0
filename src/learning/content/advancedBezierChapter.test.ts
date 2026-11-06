@@ -1,3 +1,4 @@
+import {clipBezierPair, type ClipPoint} from '../../bezeg/impl/kernels/bezier-clipping';
 import {setLanguage} from '../../localization';
 import {getDemonstrationCatalog} from '../../demonstrations';
 import {getChapterGuidedExamples, resolveGuidedExample} from '../chapter/guidedExamples';
@@ -12,7 +13,7 @@ import {
 } from './advancedBezierChapterRegistry';
 import {familyChapters} from './familyChapters';
 
-const IDS = ['reduction', 'arc-length-param', 'patch-coons'] as const;
+const IDS = ['reduction', 'bezier-clipping', 'arc-length-param', 'patch-coons'] as const;
 const everything = (language: 'sl' | 'en') => [
     advancedBezierChapter.purpose, advancedBezierChapter.prerequisites,
     ...advancedBezierChapter.sections.flatMap(section => [section.title, ...section.paragraphs]),
@@ -21,7 +22,7 @@ const everything = (language: 'sl' | 'en') => [
 beforeEach(() => setLanguage('sl'));
 
 describe('chapter structure and registration', () => {
-    test('the chapter follows the patches chapter with an opening and three lesson sections', () => {
+    test('the chapter follows the patches chapter with an opening and four lesson sections', () => {
         expect(advancedBezierChapter.id).toBe(ADVANCED_BEZIER_CHAPTER_ID);
         expect(advancedBezierChapter.title).toEqual({sl: 'Napredne Bézierjeve teme', en: 'Advanced Bézier topics'});
         expect(advancedBezierChapter.sections.map(section => section.id)).toEqual(['advanced-bezier-idea', ...IDS]);
@@ -40,10 +41,11 @@ describe('chapter structure and registration', () => {
         expect(advancedBezierChapter.sections.slice(1).map(section => section.demonstrationIds)).toEqual(IDS.map(id => [id]));
     });
 
-    test('the section demonstrations exist: two in the Bezier family and the Coons patch in the patches family', () => {
+    test('the section demonstrations exist: three in the Bezier family and the Coons patch in the patches family', () => {
         const demonstrations = getDemonstrationCatalog().demonstrations;
         expect(advancedBezierChapter.family).toBe('/bezeg-2.0/bezier');
         expect(demonstrations.find(demo => demo.id === 'reduction')?.family).toBe('/bezeg-2.0/bezier');
+        expect(demonstrations.find(demo => demo.id === 'bezier-clipping')?.family).toBe('/bezeg-2.0/bezier');
         expect(demonstrations.find(demo => demo.id === 'arc-length-param')?.family).toBe('/bezeg-2.0/bezier');
         expect(demonstrations.find(demo => demo.id === 'patch-coons')?.family).toBe('/bezeg-2.0/patches');
     });
@@ -58,8 +60,8 @@ describe('chapter structure and registration', () => {
 
     test('the terms are in both languages', () => {
         const terms = {
-            sl: ['nižanje stopnje', 'naravna parametrizacija', 'parametrizacija z ločno dolžino', 'coonsova ploskev', 'tretja diferenca', 'mešanje'],
-            en: ['degree reduction', 'arc-length parametrization', 'coons patch', 'third difference', 'blend'],
+            sl: ['nižanje stopnje', 'naravna parametrizacija', 'parametrizacija z ločno dolžino', 'coonsova ploskev', 'tretja diferenca', 'mešanje', 'bézierovo rezanje', 'debela premica'],
+            en: ['degree reduction', 'arc-length parametrization', 'coons patch', 'third difference', 'blend', 'bézier clipping', 'fat line'],
         };
         for (const language of ['sl', 'en'] as const) {
             const body = everything(language).toLowerCase();
@@ -113,10 +115,25 @@ describe('chapter structure and registration', () => {
         for (const quoted of ['(-2,\\,0)', '\\sqrt3/18', '0.069007', '0.037796', '(2,\\,4.5)', '(1.5,\\,1.5,\\,0.75)', '(1,1,\\tfrac43)', '(1,2,\\tfrac13)', '(2,1,\\tfrac53)', '(2,2,\\tfrac23)', '31/3', '6.390976', '8.32456']) expect(en, quoted).toContain(quoted);
     });
 
+    test('the quoted clipping numbers equal a direct kernel run, in both languages', () => {
+        const A: ClipPoint[] = [[0, 0], [2, 4], [4, 0]];
+        const crossing: ClipPoint[] = [[0, 3], [2, -1], [4, 3]], tangent: ClipPoint[] = [[0, 4], [2, 0], [4, 4]], offset: ClipPoint[] = [[0, 4.5], [2, 0.5], [4, 4.5]];
+        const run = (b: ClipPoint[], k: number) => clipBezierPair(A, b, {tolerance: 10 ** -k});
+        const counts: [ClipPoint[], number, number][] = [[crossing, 3, 17], [crossing, 6, 21], [tangent, 3, 53], [tangent, 6, 113], [tangent, 10, 200], [offset, 6, 17]];
+        for (const [b, k, clips] of counts) expect(run(b, k).clipCount, `10^-${k}`).toBe(clips);
+        expect(run(tangent, 10).unresolved).toHaveLength(28);
+        expect(run(offset, 6).results).toHaveLength(0);
+        const section = advancedBezierChapter.sections.find(item => item.id === 'bezier-clipping')!;
+        for (const language of ['sl', 'en'] as const) {
+            const body = section.paragraphs.map(item => item[language]).join(' ');
+            for (const number of ['17', '21', '53', '113', '200', '28']) expect(body, `${language}: ${number}`).toContain(`\\(${number}\\)`);
+        }
+    });
+
     test('the claims keep their scope: sampled, tolerance, not unique, polynomial only, illustration', () => {
         const sl = everything('sl'), en = everything('en');
-        for (const phrase of ['vzorčena', '10^{-9}', 'nikoli ni natančen, razen če je tretja diferenca nič', 'nima polinomske naravne parametrizacije', 'ne dokaz', 'ena izmed mnogih']) expect(sl, phrase).toContain(phrase);
-        for (const phrase of ['sampled', '10^{-9}', 'never exact unless the third difference is zero', 'no polynomial arc-length parametrization', 'not a proof', 'one of many']) expect(en, phrase).toContain(phrase);
+        for (const phrase of ['vzorčena', '10^{-9}', 'nikoli ni natančen, razen če je tretja diferenca nič', 'nima polinomske naravne parametrizacije', 'ne dokaz', 'ena izmed mnogih', 'potreben, ne zadosten pogoj', 'pravilo za ustavitev', 'ponazarja, ne dokazuje']) expect(sl, phrase).toContain(phrase);
+        for (const phrase of ['sampled', '10^{-9}', 'never exact unless the third difference is zero', 'no polynomial arc-length parametrization', 'not a proof', 'one of many', 'necessary, not sufficient', 'stopping rule', 'illustrates and does not prove']) expect(en, phrase).toContain(phrase);
     });
 
     test('the lessons resolve, own their sections and keep both languages complete', () => {
