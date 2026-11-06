@@ -238,6 +238,16 @@ test('presentation fingerprint includes resize behavior', () => {
     assert.notEqual(baseline, changed);
 });
 
+test('presentation fingerprint includes the sweep line and generated field checks', () => {
+    const helpers = presentationHelpers();
+    for (const name of ['isOpeningSweepLine', 'isViewportGeneratedInWindow']) {
+        assert.ok(helpers.some(helper => helper.name === name), `${name} is not a presentation helper`);
+        const baseline = presentationFingerprint({helpers});
+        const changed = presentationFingerprint({helpers: helpers.map(helper => helper.name === name ? () => 'changed' : helper)});
+        assert.notEqual(baseline, changed);
+    }
+});
+
 test('surface capture resizes before rejecting an out-of-frame projected point', async () => {
     const attrs = {
         'data-surface-framing': JSON.stringify({width: 700, height: 400,

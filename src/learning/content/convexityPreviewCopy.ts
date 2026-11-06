@@ -32,10 +32,10 @@ export const convexityPreviewCopy = {
         'The slow edge test is at its first ordered pair of points; there are no accepted edges and no hull yet.',
     ),
     'convexity-hulls.hull-robustness.hull-robustness': copy(
-        'Tri kolinearne točke \\((0,0)\\), \\((2,0)\\) in \\((4,0)\\) na osi \\(x\\) z obema verigama in obrisom ovojnice.',
-        'The three collinear points \\((0,0)\\), \\((2,0)\\) and \\((4,0)\\) on the \\(x\\)-axis, with both chains and the outline of the hull.',
-        'Monotona veriga s pravilom \\(<\\) je končala delo na treh točkah z \\(D=0\\); na grafu sta verigi in izpisana ovojnica.',
-        'The monotone chain with the rule \\(<\\) has finished on three points with \\(D=0\\); the graph shows the chains and the output hull.',
+        'Tri kolinearne točke \\((0,0)\\), \\((2,0)\\) in \\((4,0)\\) na osi \\(x\\); obe verigi in obris ovojnice sovpadajo na eni daljici, ki je narisana kot ena temna črta skozi vse tri točke.',
+        'The three collinear points \\((0,0)\\), \\((2,0)\\) and \\((4,0)\\) on the \\(x\\)-axis; both chains and the outline of the hull coincide on one segment, drawn as one dark stroke through all three points.',
+        'Monotona veriga s pravilom \\(<\\) je končala delo na treh točkah z \\(D=0\\); verigi in izpisana ovojnica sovpadajo na eni daljici.',
+        'The monotone chain with the rule \\(<\\) has finished on three points with \\(D=0\\); the chains and the output hull coincide on one segment.',
     ),
     'convexity-hulls.bezier-hulls.bezier-hulls': copy(
         'Kvadratni Bézierjevi krivulji \\(A\\) (polna črta) s kontrolnimi točkami \\((0,0)\\), \\((2,4)\\), \\((4,0)\\) in \\(B\\) (črtkana črta) s kontrolnimi točkami \\((0,3)\\), \\((2,-1)\\), \\((4,3)\\), vsaka s kontrolnim poligonom in ovojnico kontrolnih točk.',
