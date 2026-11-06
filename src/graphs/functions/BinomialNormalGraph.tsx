@@ -149,7 +149,7 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
 
         // Layers, lowest first: shaded bars, normal area, bar outlines, normal density, Poisson bars, then the point k.
         this.signedFill(barColor, () => this.shadedOf(this.model));
-        this.signedFill(GraphPalette.comparisonCurve, () => this.normalAreaOf(this.model), {dash: 2});
+        this.signedFill(GraphPalette.comparisonCurve, () => this.normalAreaOf(this.model));
 
         const polyline = (color: string, data: () => { x: number[]; y: number[] }, width: () => number) => {
             const curve = this.own(board.create("curve", [[], []], {
@@ -262,7 +262,7 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
             {id: "bars", color: GraphPalette.additionalCurves[0], label: t("prob_binomial_legend_bars"), kind: "line"},
             {id: "shaded", color: GraphPalette.additionalCurves[0], label: t("prob_binomial_legend_shaded"), kind: "area"},
             {id: "normal", color: GraphPalette.primaryCurve, label: t("prob_binomial_legend_normal"), kind: "line"},
-            {id: "normal-area", color: GraphPalette.comparisonCurve, label: t("prob_binomial_legend_normal_area"), kind: "dashed"},
+            {id: "normal-area", color: GraphPalette.comparisonCurve, label: t("prob_binomial_legend_normal_area"), kind: "area"},
             {id: "poisson", color: GraphPalette.additionalCurves[1], label: t("prob_binomial_legend_poisson"), kind: "line"},
         ]}/>;
     }

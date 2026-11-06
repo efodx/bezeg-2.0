@@ -229,6 +229,9 @@ export function binomialNormalDensity(model: BinomialNormalModel): (x: number) =
 /** Bars with a mass above this always lie inside the fitted view. */
 export const FIT_MASS_MIN = 1e-6;
 
+/** The view's top over the peak: a peak near the left edge (a rare event) stays clear of the board caption. */
+export const FIT_TOP_FACTOR = 1.4;
+
 export function fitBinomialNormalView(model: BinomialNormalModel): [number, number, number, number] {
     const {n, p} = model;
     const mu = binomialMean(n, p);
@@ -256,5 +259,5 @@ export function fitBinomialNormalView(model: BinomialNormalModel): [number, numb
     }
     const left = Math.max(-1, first - 1);
     const right = Math.min(n + 1, last + 1);
-    return [left, 1.25 * peak, right, -0.2 * peak];
+    return [left, FIT_TOP_FACTOR * peak, right, -0.2 * peak];
 }

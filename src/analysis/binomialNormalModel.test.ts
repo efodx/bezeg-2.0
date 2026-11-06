@@ -1,10 +1,10 @@
 import {
     barsPolyline, BINOMIAL_NORMAL_EXAMPLE_IDS, BINOMIAL_NORMAL_EXAMPLES, BINOMIAL_NORMAL_N_MAX, binomialBars, binomialNormalDensity,
     binomialNormalExampleOf, BinomialNormalModel, binomialNormalView, binomialShadedBars, checkBinomialNormalModel,
-    chooseBinomialNormalExample, DEFAULT_BINOMIAL_NORMAL_MODEL, fitBinomialNormalView, poissonBars, setBinomialFlag, setBinomialK,
+    chooseBinomialNormalExample, DEFAULT_BINOMIAL_NORMAL_MODEL, FIT_TOP_FACTOR, fitBinomialNormalView, poissonBars, setBinomialFlag, setBinomialK,
     setBinomialN, setBinomialP,
 } from './binomialNormalModel';
-import {binomialMasses, poissonCdf} from './distributions';
+import {binomialMasses, normalPdf, poissonCdf} from './distributions';
 
 const model = (n: number, p: number, k: number, correction = true, poisson = false): BinomialNormalModel => ({n, p, k, correction, poisson});
 /** The area of width-w bars drawn as four points each: sum of width * height. */
@@ -235,9 +235,16 @@ describe('fitBinomialNormalView', () => {
         expect(right).toBeLessThanOrEqual(m.n + 1);
     });
 
+    test('the rare example leaves a quarter of the height above the normal peak, clear of the board caption', () => {
+        const m = BINOMIAL_NORMAL_EXAMPLES.rare;
+        const [, top, , bottom] = fitBinomialNormalView(m);
+        const peak = Math.max(...binomialMasses(m.n, m.p), normalPdf(m.n * m.p, m.n * m.p, Math.sqrt(m.n * m.p * (1 - m.p))));
+        expect((top - peak) / (top - bottom)).toBeGreaterThanOrEqual(0.24);
+    });
+
     test('for B(1, 1e-9) the normal peak may leave the view', () => {
         const top = fitBinomialNormalView(model(1, 1e-9, 0))[1];
-        expect(top).toBeLessThanOrEqual(1.25 * 1.5 * Math.max(...binomialMasses(1, 1e-9)));
+        expect(top).toBeLessThanOrEqual(FIT_TOP_FACTOR * 1.5 * Math.max(...binomialMasses(1, 1e-9)));
         expect(top).toBeGreaterThan(1);
     });
 });
