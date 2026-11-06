@@ -104,7 +104,7 @@ Convexity A6 is on `master`: `hullsSeparated` (`src/compgeo/hullSeparation.ts`) 
 | AB-B-3 | F3 | D2 guided lesson (eight steps) | AB-B-2b | done ([record](../../reviews/advanced-bezier/ab-b-3-lesson.md)) |
 | AB-B-4 | F4 | D2 section in chapter `advanced-bezier` | AB-B-3 | done ([record](../../reviews/advanced-bezier/ab-b-4-chapter.md)) |
 | AB-B-5 | F5 | Card and poster of `bezier-clipping` | AB-B-4 | done ([record](../../reviews/advanced-bezier/ab-b-5-media.md)) |
-| AB-B-6 | F6 | Batch B gate | AB-B-5 | planned |
+| AB-B-6 | F6 | Batch B gate | AB-B-5 | done, **Batch B released** (handler 66): [gate record](../../reviews/advanced-bezier/ab-b-6-gate.md), [audit](../../reviews/advanced-bezier/ab-b-6-criterion-audit.md) |
 | AB-C-* (rest) | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
 | AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | done ([evidence](../../reviews/advanced-bezier/ab-c-2a-graph.md)) |
 | AB-C-3 | F3 | D4 guided lesson (seven steps), `coons` lesson action kind, registration with interim owner `bezier-curves/geometric-properties`, smoke row | AB-C-2a | done ([evidence](../../reviews/advanced-bezier/ab-c-3-lesson.md)); chapter link stays with F4 |

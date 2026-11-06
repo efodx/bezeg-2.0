@@ -2060,3 +2060,13 @@ Chapter section, class S. Handler-only, no worker: one section and tightly coupl
 - The suites named the consumers: coverage count, preview `pending`, and a refused prerequisite link to a later chapter.
 - One mutation first "passed" because `sed` matched nothing after the shell collapsed backslashes; the diff check exposed it, and it failed correctly when redone.
 - Handler reached 175k during `just check`, so AB-B-5 goes to handler 66. `just check` took 25 minutes.
+
+### 2026-11-06: AB-B-5 and AB-B-6 (curves handler 66)
+
+Card, poster and Batch B gate, class M. Handler kept the media slice (tightly coupled to capture order); 2 workers for the gate: `bezeg-reviewer` Sonnet (criterion audit, 13 tools, 43k tokens), `bezeg-smoke` Sonnet (browser pass, 69 tools, 130k tokens, 17 minutes). Accepted; [gate](../reviews/advanced-bezier/ab-b-6-gate.md).
+
+- Brief handoff-v12 both times. The audit brief asked it to be critical of named criteria and to read test bodies; it found one real gap (a sentence not asserted), and one claim that a mutation disproved (margin test "vacuous"). A read-only auditor cannot run the mutation, so the handler must.
+- The smoke brief named the tolerance reset as a known trap and asked for the wrong path as well; 13 of 13 passed, and the worker separated polish from failures without help. It stayed under its budget at 130k.
+- Handler first viewed the never-run poster recipe and changed it; no test could have shown the crowded picture.
+- Environment: a stale Vitest glob cache failed the preview test, as documented. A handler command chained `git commit` after the failing test; the commit was local and the test then passed.
+- Handler reached 175k during the gate, so Batch C goes to handler 67. `just check` took 24 minutes.

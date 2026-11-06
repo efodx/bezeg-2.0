@@ -118,6 +118,10 @@ test('the prose says: tolerance is a stopping rule not a proof, overlap is neces
     expect(all('en')).toContain('not a proof');
     expect(all('en')).toContain('necessary, not sufficient');
     expect(all('en')).toContain('proves nothing');
+    // The clip limit is expected near a tangency and for coincident segments (acceptance 3).
+    const edgeCases = (l: Language) => (lesson.edgeCases ?? []).map(item => item[l]).join(' ');
+    expect(edgeCases('sl')).toContain('Pri dotiku in sovpadajočih odsekih rezanje doseže mejo rezov');
+    expect(edgeCases('en')).toContain('At a tangency and for coincident segments clipping reaches the clip limit');
     // Degrees above 3 are not offered: said once, in the free exploration step.
     expect(prose(stepOf('clipping-explore'), 'sl')).toContain('Stopnje nad \\(3\\) niso na voljo');
     expect(prose(stepOf('clipping-explore'), 'en')).toContain('Degrees above \\(3\\) are not offered');
