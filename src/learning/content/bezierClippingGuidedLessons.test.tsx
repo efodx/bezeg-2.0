@@ -7,7 +7,7 @@ import {
 import type {LessonAction, LessonDefinition} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
 import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
-import type {BezierClippingGraph} from '../../graphs/compgeo/BezierClippingGraph';
+import {BEZIER_CLIPPING_STEP_INTERVAL_MS, type BezierClippingGraph} from '../../graphs/compgeo/BezierClippingGraph';
 import {bezierClippingReadout, widestAliveWidth} from '../../graphs/compgeo/bezierClippingReadout';
 import {setLanguage} from '../../localization';
 import {fitBoundingBox} from '../../graphs/base/fitBoundingBox';
@@ -216,6 +216,9 @@ test('the crossing, tangent and offset numbers the text quotes are the graph\'s:
         expect([c6.clipCount, c6.status, c6.step + 1, c6.length], 'crossing 1e-6, step 26 of 26').toEqual([21, 'found', 26, 26]);
         expect([t3.clipCount, t3.status, t3.results.length], 'tangent 1e-3').toEqual([53, 'found', 1]);
         expect([t6.clipCount, t6.status, t6.results.length], 'tangent 1e-6').toEqual([113, 'found', 1]);
+        // Step 6 asks for a Play to the end of the run, so it names the short tangent run: under half a minute, not the 54 s of 10^-6.
+        expect(t3.length * BEZIER_CLIPPING_STEP_INTERVAL_MS, 'tangent 1e-3 playback').toBeLessThan(30_000);
+        for (const l of ['sl', 'en'] as const) expect(stepOf('clipping-tangent').observationPrompt[l]).toContain('\\(10^{-3}\\)');
         expect([t10.clipCount, t10.status, t10.results.length, t10.unresolved.length], 'tangent 1e-10').toEqual([200, 'limit', 1, 28]);
         expect([o6.clipCount, o6.status, o6.results.length], 'offset 1e-6').toEqual([17, 'empty', 0]);
         expect((t6.clipCount / c6.clipCount).toFixed(1)).toBe('5.4');
