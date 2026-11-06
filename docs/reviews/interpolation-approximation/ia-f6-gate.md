@@ -1,6 +1,6 @@
 # IA-F6: family 3 gate
 
-**Passed locally; hosted CI of this push is not yet read.** Family 3 (I1 to I5) closes when that run succeeds. Handler 68, 2026-11-06. Audit: [criterion audit](ia-f6-criterion-audit.md). Browser: [report](ia-f6-smoke.md), [brief](ia-f6-smoke-brief.md).
+**Passed.** Family 3 (I1 to I5) is complete: hosted CI run 42213547468 on `5fd09b9f` succeeded (handler 69). Gate run by handler 68, 2026-11-06. Audit: [criterion audit](ia-f6-criterion-audit.md). Browser: [report](ia-f6-smoke.md), [brief](ia-f6-smoke-brief.md).
 
 ## Audit gaps
 
@@ -10,7 +10,7 @@
 | G2, I4 chapter prompt | Not displayed; corrected, `a8c66fa8`. The route prompt was already true |
 | G3, I3 acceptance 2 | Closed, `a8c66fa8`, `1f93be07`: the example below is in the chapter and the lesson's free step, with kernel and prose tests |
 | G4, weak pins | Closed for I3 and I4, `a8c66fa8`: the pins read their own section |
-| G5, G6 | Carried, low. No real-board test of I1's board text after a language change; nothing fails if the plotted curve moves to a monomial solve |
+| G5, G6 | Closed by handler 69, `6d73fb78`: real-board tests of I1's readout language and of barycentric evaluation at twelve nodes, each failed by a mutation |
 
 **Chapter prompts are displayed nowhere.** A script read the chapter, both routes and both `?explore=` URLs on a production build: neither I3 nor I4 `investigationPrompts` string appeared. Chapter cards show the lesson's first observation prompt, and `?explore=` opens the route. The code still reads the strings, so they stay true.
 
@@ -50,8 +50,7 @@ Production preview of `a8c66fa8`, clean, by `bezeg-smoke` Sonnet. No page error,
 
 ## Carried polish
 
-- At 200% text the shared slider value box passes the panel on `lagrange` (page 412 against 390 at phone width; at 1440 it passes the panel without page overflow). The same box is in [AB-C-6's polish](../advanced-bezier/ab-c-6-gate.md#carried-polish).
-- *Vrsta krivulje* truncates its value at 200% text ("Catmull-Romov").
+- Closed by handler 69, `c53f5a18`: the slider value box, and the *Vrsta krivulje* value at normal size. A closed native select still truncates long values at 200% text.
 - I1's chapter string does not name the hull toggle (not displayed).
 
 ## Checks
@@ -60,7 +59,7 @@ Production preview of `a8c66fa8`, clean, by `bezeg-smoke` Sonnet. No page error,
 | --- | --- | --- |
 | `just check` | `1f93be07`, clean | Exit 0, 1093 s, build passed |
 | `just smoke-lesson` for the five lessons | `a8c66fa8` | Passed |
-| Hosted CI | This push | **Not yet read** |
+| Hosted CI | `5fd09b9f` | Success: run 42213547468, all 12 jobs read |
 | Hosted CI | `44da1664` | Success: run 42206706487. Conclusion read, not each job. Closes handoff 67's item |
 
 ## Not covered

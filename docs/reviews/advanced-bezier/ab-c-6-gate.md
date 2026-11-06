@@ -49,8 +49,7 @@ Production preview of `ad350c50`, clean, by `bezeg-smoke` Sonnet. Provenance fro
 
 ## Carried polish
 
-- The patch opens at 196×128 px at 1440×900, and 97×64 at 390; *Ponastavi pogled* gives 411×301. The fitted view is not used on opening (tensor has the same pattern).
-- The shared slider boxes and the "Orodja za ta graf" eyebrow at 200% text.
+- Closed by handler 69: the patch opens fitted to the host (`8efbdc15`, about 416×305 at 1440×900, tensor and triangular too), and the shared slider boxes stay in the panel at 200% text (`c53f5a18`). The "Orodja za ta graf" eyebrow showed no overflow in the sweep.
 - Unlinked, a press at a shared corner takes the topmost end point. The typed \(z\) field holds a raw float after a drag.
 - Step 6's text does not mention that the interior net changes with the corner.
 - Closing a lesson leaves `learnChapter` and `learnSection` in the URL. Harmless on every route seen; shared workspace code, not D4's.
