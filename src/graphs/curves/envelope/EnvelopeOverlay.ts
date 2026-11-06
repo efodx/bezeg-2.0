@@ -117,7 +117,8 @@ export class EnvelopeOverlay {
 
     private build() {
         const board = this.board;
-        this.dataCurve({strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1, visible: () => this.settings.linesShown()},
+        // Under the Bezier curve (layer 5), so at 200 lines the curve stays drawn on top of the family; above the control polygon's layer 3.
+        this.dataCurve({strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1, layer: 4, visible: () => this.settings.linesShown()},
             () => this.settings.linesShown() ? this.family() : NONE);
 
         this.dataCurve({strokeColor: GraphPalette.comparisonCurve, strokeWidth: 3, visible: () => this.settings.touchShown()}, () => {

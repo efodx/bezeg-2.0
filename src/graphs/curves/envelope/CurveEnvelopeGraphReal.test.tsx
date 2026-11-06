@@ -35,7 +35,7 @@ beforeEach(() => localStorage.clear());
 afterEach(() => setLanguage('sl'));
 
 type BoardObject = GeometryElement & {
-    plaintext?: string; dataX?: number[]; dataY?: number[]; X?: () => number; Y?: () => number; visProp: { visible: boolean | (() => boolean) };
+    plaintext?: string; dataX?: number[]; dataY?: number[]; X?: () => number; Y?: () => number; visProp: { visible: boolean | (() => boolean); layer: number };
 };
 
 class Probe extends CurveEnvelopeGraph {
@@ -48,6 +48,7 @@ class Probe extends CurveEnvelopeGraph {
     captions() { return this.owned().filter(element => element.elType === 'text').map(element => element.plaintext ?? '').filter(Boolean); }
     published(): string { return this['liveReadout'].getSnapshot(); }
     curveVisible(): boolean { return this.getFirstJxgCurve().getJxgCurve().visProp.visible as boolean; }
+    curveLayer(): number { return this.getFirstJxgCurve().getJxgCurve().visProp.layer as number; }
     /** A lesson step on a hidden curve: its scene shows the curve again, and its action hides it, all in one batch. */
     sceneThenHide() {
         this.setEnvelopeCurveShown(true);
@@ -121,6 +122,16 @@ describe('mounting and the opening scene', () => {
             expectTouchIsDeCasteljau(graph, 0.5);
             expect(Math.sqrt(graph.touch().X!()) + Math.sqrt(graph.touch().Y!())).toBeCloseTo(1, 9);
             expect(graph.captions()).toEqual([t('envelope_readout_lines', {value0: '16'}), t('envelope_readout_t', {value0: '0,5'})]);
+        } finally { view.unmount(); }
+    });
+});
+
+describe('drawing order', () => {
+    test('the family lies under the Bezier curve and the highlighted segment, so a full family does not cover the curve', () => {
+        const {graph, view} = mount();
+        try {
+            expect(graph.family().visProp.layer).toBeLessThan(graph.curveLayer());
+            expect(graph.highlight().visProp.layer).toBeGreaterThanOrEqual(graph.curveLayer());
         } finally { view.unmount(); }
     });
 });
