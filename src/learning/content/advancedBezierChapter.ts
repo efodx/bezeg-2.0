@@ -133,8 +133,8 @@ export const advancedBezierChapter: FamilyChapter = {
             id: 'patch-coons',
             demonstrationIds: ['patch-coons'],
             investigationPrompts: {'patch-coons': text(
-                `Napovej, kaj se zgodi v središču ploskve, če izklopiš odštevalni člen \\(B\\). Nato premakni eno krajišče robne krivulje stran od sosednje in preveri, ali ploskev še interpolira vse robove.`,
-                `Predict what happens at the centre of the surface if you switch off the subtracted term \\(B\\). Then move one corner of a boundary curve away from its neighbour and check whether the surface still interpolates all the edges.`,
+                `Napovej, katere robne krivulje doseže vsaka od premonosnih ploskev \\(L_c\\) in \\(L_d\\), nato ju izberi v polju Ploskev in primerjaj s ploskvijo \\(S\\). Potem izklopi Povezani vogali, premakni eno krajišče robne krivulje stran od sosednje in preveri, ali ploskev še interpolira vse robove.`,
+                `Predict which boundary curves each ruled surface \\(L_c\\) and \\(L_d\\) reaches, then choose them in the Surface field and compare with \\(S\\). Next turn off Linked corners, move one end point of a boundary curve away from its neighbour and check whether the surface still interpolates all the edges.`,
             )},
             title: text('Coonsova ploskev', 'Coons patch'),
             formula: String.raw`S(u,v)=L_c(u,v)+L_d(u,v)-B(u,v)`,
