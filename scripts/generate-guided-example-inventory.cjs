@@ -259,6 +259,12 @@ const chapterInventories = {
         pathExport: 'triangulationGuidedExamplePath',
         expectedFor: triangulationExpectedFor,
     },
+    'sweep-algorithms': {
+        module: '/src/learning/content/sweepChapterRegistry.ts',
+        registryExport: 'sweepGuidedExampleRegistry',
+        pathExport: 'sweepGuidedExamplePath',
+        expectedFor: sweepExpectedFor,
+    },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
         registryExport: 'advancedBezierGuidedExampleRegistry',
@@ -1177,6 +1183,82 @@ function triangulationExpectedFor(id, step) {
     return author(id, step.scene.actions);
 }
 
+// ---- Sweep algorithms chapter (sweep-algorithms): five lessons, keyed by the demonstration in the example id.
+
+/** The optional `set-trace-step` of an opening scene: the step it shows, 0 (the graph's initial step) when the scene sets none. */
+function sweepTraceStep(id, actions) {
+    const found = actions.filter(item => item.kind === 'point-set' && item.operation === 'set-trace-step');
+    assert.ok(found.length <= 1, `${id}: opening scene must run point-set set-trace-step at most once`);
+    return found.length ? found[0].step : 0;
+}
+
+// Authored from src/graphs/compgeo/IntervalSweepGraph.tsx with intervalSweepRun.view(0) (sweep position at x 0, current interval 0, nothing
+// open: the sweep line plus the dashed idle current-interval curve, two curves) and PointSetGraph.tsx (intervals mode: one board point per
+// endpoint, one segment and one text label per pair), not from a capture.
+function intervalSweepExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-trace-step'], 'intervalSweepExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.ok(set.mode === 'intervals' && set.points.length >= 2 && set.points.length % 2 === 0, `${id}: only an interval set is authored`);
+    assert.equal(sweepTraceStep(id, actions), 0, `${id}: only the sweep at its first step is authored`);
+    const pairs = set.points.length / 2;
+    return {types: {point: set.points.length, segment: pairs, text: pairs, curve: 2}, curveCount: 2, points: set.points};
+}
+
+// Authored from src/graphs/compgeo/BentleyOttmannGraph.tsx with bentleyOttmannRun.view(0) (no sweep position, so the overlay draws nothing)
+// and PointSetGraph.tsx (segments mode: one board point per endpoint, one segment and one text label per pair), not from a capture.
+function segmentIntersectionsExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-trace-step'], 'segmentIntersectionsExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.ok(set.mode === 'segments' && set.points.length >= 2 && set.points.length % 2 === 0, `${id}: only a segment set is authored`);
+    assert.equal(sweepTraceStep(id, actions), 0, `${id}: only the sweep at its first step is authored`);
+    const pairs = set.points.length / 2;
+    return {types: {point: set.points.length, segment: pairs, text: pairs}, curveCount: 0, points: set.points};
+}
+
+// Authored from src/graphs/compgeo/MonotonePartitionGraph.tsx with its run view(0) (no vertex handled, empty status, nothing processed: only
+// the sweep-line curve above the polygon) and PointSetGraph.tsx (polygon mode: n points, n edge segments), not from a capture.
+function monotonePartitionExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-trace-step'], 'monotonePartitionExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    const n = set.points.length;
+    assert.ok(set.mode === 'polygon' && set.closed === true && n >= 3, `${id}: only a closed polygon is authored`);
+    assert.equal(sweepTraceStep(id, actions), 0, `${id}: only the sweep at its first step is authored`);
+    return {types: {point: n, segment: n, curve: 1}, curveCount: 1, points: set.points};
+}
+
+// Authored from src/graphs/compgeo/MonotoneTriangulationGraph.tsx (lines 63-160) at triangulationView(15) of the lesson polygon: piece 0 with
+// the cycle [5, 0, 1, 4], the earlier diagonal [1, 4], vertex 5 current, an empty stack, no test and no triangle. Drawn: the 6 polygon points,
+// 4 chain markers and the ring on the current vertex; the 3 piece edges, the diagonal and the sweep line as curves; 4 labels; 1 piece polygon;
+// the 6 polygon edges and the 4 borders of the piece polygon as segments. A hand count, kept only for the lesson polygon.
+function monotoneTriangulationExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-trace-step'], 'monotoneTriangulationExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    const lessonPolygon = [[0, 0], [4, 3], [8, 0], [12, 8], [8, 5], [4, 8]];
+    assert.ok(set.mode === 'polygon' && set.closed === true && JSON.stringify(set.points) === JSON.stringify(lessonPolygon), `${id}: only the lesson polygon is authored`);
+    assert.equal(sweepTraceStep(id, actions), 15, `${id}: only step 15 of the triangulation trace is authored`);
+    return {types: {point: 11, segment: 10, curve: 5, text: 4, polygon: 1}, curveCount: 5, points: set.points};
+}
+
+// Authored from src/graphs/compgeo/FortuneGraph.tsx (syncFortune) and fortuneDrawing.ts (update at run.view(0): the sweep line and the
+// beach line curve, which has no arc at step 0 and so has no samples to draw, leaving the sweep line as the one curve; no breakpoint, trace, circle, vertex or current-event object) and PointSetGraph.tsx
+// (points mode: one board point per site), not from a capture.
+function fortuneExpectedFor(id, actions) {
+    assertOnlyPointSetOps(id, actions, ['set-points', 'set-trace-step'], 'fortuneExpectedFor');
+    const set = pointSetAction(id, actions, 'set-points');
+    assert.ok(set.mode === 'points' && set.points.length >= 2, `${id}: only a site set is authored`);
+    assert.equal(sweepTraceStep(id, actions), 0, `${id}: only the queued first step is authored`);
+    return {types: {point: set.points.length, curve: 1}, curveCount: 1, points: set.points};
+}
+
+/** First-frame expectation of a Sweep algorithms lesson (the five lessons of the chapter, keyed by the demonstration in the example id). */
+function sweepExpectedFor(id, step) {
+    const byDemonstration = {'interval-sweep': intervalSweepExpectedFor, 'segment-intersections': segmentIntersectionsExpectedFor,
+        'monotone-partition': monotonePartitionExpectedFor, 'monotone-triangulation': monotoneTriangulationExpectedFor, fortune: fortuneExpectedFor};
+    const author = Object.hasOwn(byDemonstration, id.split('.').at(-1)) ? byDemonstration[id.split('.').at(-1)] : undefined;
+    assert.ok(author, `${id}: no authored Sweep algorithms first frame`);
+    return author(id, step.scene.actions);
+}
+
 async function generateChapterInventory(chapterId) {
     const config = Object.hasOwn(chapterInventories, chapterId) ? chapterInventories[chapterId] : undefined;
     assert.ok(config, `Unknown chapter-owned chapter "${chapterId}"; supported: ${Object.keys(chapterInventories).join(', ')}`);
@@ -1229,4 +1311,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, assertExpectation};

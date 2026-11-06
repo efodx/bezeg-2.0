@@ -1,0 +1,264 @@
+{
+  "examples": [
+    {
+      "id": "sweep-algorithms.interval-sweep.interval-sweep",
+      "demonstrationId": "interval-sweep",
+      "path": "/bezeg-2.0/compgeo/interval-sweep?example=lesson.sweep-algorithms.interval-sweep.interval-sweep",
+      "sceneFingerprint": "46749d6f4475cb03203623095556f5b5106a036ba1676b79e7d96f8e20877a94",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"intervalsweep-intervals\",\"source\":\"demonstration-default\",\"view\":[-1,6,11,0]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"intervals\",\"points\":[[0,1],[4,1],[2,2],[7,2],[3,3],[5,3],[6,4],[9,4],[8,5],[10,5]]}"
+      ],
+      "expected": {
+        "types": {
+          "point": 10,
+          "segment": 5,
+          "text": 5,
+          "curve": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0,
+            1
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            5,
+            3
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            10,
+            5
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "sweep-algorithms.segment-intersections.segment-intersections",
+      "demonstrationId": "segment-intersections",
+      "path": "/bezeg-2.0/compgeo/segment-intersections?example=lesson.sweep-algorithms.segment-intersections.segment-intersections",
+      "sceneFingerprint": "6836778a7b89a17e01e4e175d8007beb1289b9351cee741b34dd83f0b9ff886e",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"segint-segments\",\"source\":\"demonstration-default\",\"view\":[-1,6,7,-2]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"segments\",\"points\":[[0,0],[6,4],[0,4],[6,0],[1,-1],[2,5],[4,5],[5,-1]]}"
+      ],
+      "expected": {
+        "types": {
+          "point": 8,
+          "segment": 4,
+          "text": 4
+        },
+        "curveCount": 0,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            5,
+            -1
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "sweep-algorithms.monotone-partition.monotone-partition",
+      "demonstrationId": "monotone-partition",
+      "path": "/bezeg-2.0/compgeo/monotone-partition?example=lesson.sweep-algorithms.monotone-partition.monotone-partition",
+      "sceneFingerprint": "e76955bb3c0d628c1e44503a604b66c8423ff5ba2efa0d8b85b3c0f03f5b4248",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"monpart-polygon\",\"source\":\"demonstration-default\",\"view\":[-1,9,13,-1]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[0,0],[4,3],[8,0],[12,8],[8,5],[4,8]]}"
+      ],
+      "expected": {
+        "types": {
+          "point": 6,
+          "segment": 6,
+          "curve": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            12,
+            8
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            4,
+            8
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "sweep-algorithms.monotone-triangulation.monotone-triangulation",
+      "demonstrationId": "monotone-triangulation",
+      "path": "/bezeg-2.0/compgeo/monotone-triangulation?example=lesson.sweep-algorithms.monotone-triangulation.monotone-triangulation",
+      "sceneFingerprint": "28254c13b1e7b30424d08f1f097d64201b83fa6f7f7d1cf9df30d3d2f5cca765",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"montri-piece\",\"source\":\"demonstration-default\",\"view\":[-1,9,13,-1]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"polygon\",\"closed\":true,\"points\":[[0,0],[4,3],[8,0],[12,8],[8,5],[4,8]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-trace-step\",\"step\":15}"
+      ],
+      "expected": {
+        "types": {
+          "point": 11,
+          "segment": 10,
+          "curve": 5,
+          "text": 4,
+          "polygon": 1
+        },
+        "curveCount": 5,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            12,
+            8
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            4,
+            8
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "sweep-algorithms.fortune.fortune",
+      "demonstrationId": "fortune",
+      "path": "/bezeg-2.0/compgeo/fortune?example=lesson.sweep-algorithms.fortune.fortune",
+      "sceneFingerprint": "15136e74206119a17909a3f65c2d5565dd72cb96cee51f510b3dcb122545140f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"fortune-sites\",\"source\":\"demonstration-default\",\"view\":[-9,9,9,-7]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-points\",\"mode\":\"points\",\"points\":[[0,5],[-4,3],[4,3],[0,-3]]}",
+        "point-set: {\"kind\":\"point-set\",\"operation\":\"set-trace-step\",\"step\":0}"
+      ],
+      "expected": {
+        "types": {
+          "point": 4,
+          "curve": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            5
+          ],
+          [
+            -4,
+            3
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            0,
+            -3
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

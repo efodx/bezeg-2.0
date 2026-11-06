@@ -185,6 +185,18 @@ test('tightens only the worked parabola capture frame and retains shared spline 
     assert.equal(captureRecipeForEntry({id: 'splines.continuity-levels.spline-c1'}, recipe), recipe);
 });
 
+test('only the Fortune card may let its opening sweep line follow the view, and only above every site', () => {
+    const id = 'sweep-algorithms.fortune.fortune';
+    const sites = [[0, 5], [-4, 3], [4, 3], [0, -3]];
+    const state = (y, half, box, points = sites) => ({points, curves: [[[-half, y], [0, y], [half, y]]], boundingBox: box, unitScale: [31.6875, 31.6875]});
+    const before = state(10, 15, [-15.81, 10.58, 15.81, -8.58]);
+    const after = (y, points) => state(y, 13, [-14.14, 9.64, 14.14, -7.64], points);
+    assert.doesNotThrow(() => assertPresentationGeometryStable(before, after(8), id));
+    assert.throws(() => assertPresentationGeometryStable(before, after(8), 'sweep-algorithms.monotone-partition.monotone-partition'), /changed curve geometry/);
+    assert.throws(() => assertPresentationGeometryStable(before, after(4), id), /changed curve geometry/);
+    assert.throws(() => assertPresentationGeometryStable(before, after(8, [[0, 5], [-4, 3], [4, 3], [0, -2]]), id), /changed point geometry/);
+});
+
 test('the degenerate Voronoi card fits its opening sites instead of the Trapez poster window', () => {
     const recipe = {id: 'voronoi-degenerate', framing: {kind: 'coordinate-window', window: [-2.5, 6.4, 10.5, -1.4]}, actions: []};
     const id = 'triangulations-voronoi.voronoi-degenerate.voronoi-degenerate';

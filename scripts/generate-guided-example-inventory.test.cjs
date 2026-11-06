@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -544,4 +544,32 @@ test('triangulation expectations are authored from the graphs: ear polygon, poin
     assert.throws(() => triangulationExpectedFor('t.voronoi-degenerate.voronoi-degenerate', psStep([psOp('set-mode', {mode: 'four-point'}), ...degenerate.slice(1)])), /only the sites mode/);
     assert.throws(() => triangulationExpectedFor('t.unknown.unknown', psStep(del)), /no authored Triangulations and Voronoi/);
     assert.ok(chapterInventories['triangulations-voronoi']);
+});
+
+test('sweep expectations are authored from the graphs: intervals, segments, polygon, the piece at step 15 and sites', () => {
+    const intervals = [[0, 1], [4, 1], [2, 2], [7, 2]];
+    // Two intervals: four endpoints, two segments, two labels, and the sweep line with its idle current-interval curve at step 0.
+    assert.deepEqual(sweepExpectedFor('s.interval-sweep.interval-sweep', psStep([psPoints(intervals, 'intervals')])),
+        {types: {point: 4, segment: 2, text: 2, curve: 2}, curveCount: 2, points: intervals});
+    assert.throws(() => sweepExpectedFor('s.interval-sweep.interval-sweep', psStep([psPoints(intervals, 'segments')])), /only an interval set/);
+    assert.throws(() => sweepExpectedFor('s.interval-sweep.interval-sweep', psStep([psPoints(intervals, 'intervals'), psOp('set-trace-step', {step: 3})])), /first step/);
+    const segments = [[0, 0], [6, 4], [0, 4], [6, 0]];
+    assert.deepEqual(sweepExpectedFor('s.segment-intersections.segment-intersections', psStep([psPoints(segments, 'segments')])),
+        {types: {point: 4, segment: 2, text: 2}, curveCount: 0, points: segments});
+    assert.throws(() => sweepExpectedFor('s.segment-intersections.segment-intersections', psStep([psPoints(segments, 'segments'), psNext()])), /only uses point-set/);
+    assert.throws(() => sweepExpectedFor('s.segment-intersections.segment-intersections', psStep([])), /exactly once/);
+    const polygon = [[0, 0], [4, 3], [8, 0], [12, 8], [8, 5], [4, 8]];
+    assert.deepEqual(sweepExpectedFor('s.monotone-partition.monotone-partition', psStep([psPoints(polygon, 'polygon', true)])),
+        {types: {point: 6, segment: 6, curve: 1}, curveCount: 1, points: polygon});
+    assert.throws(() => sweepExpectedFor('s.monotone-partition.monotone-partition', psStep([psPoints(polygon, 'polygon', false)])), /closed polygon/);
+    assert.deepEqual(sweepExpectedFor('s.monotone-triangulation.monotone-triangulation', psStep([psPoints(polygon, 'polygon', true), psOp('set-trace-step', {step: 15})])),
+        {types: {point: 11, segment: 10, curve: 5, text: 4, polygon: 1}, curveCount: 5, points: polygon});
+    assert.throws(() => sweepExpectedFor('s.monotone-triangulation.monotone-triangulation', psStep([psPoints(polygon, 'polygon', true), psOp('set-trace-step', {step: 0})])), /only step 15/);
+    assert.throws(() => sweepExpectedFor('s.monotone-triangulation.monotone-triangulation', psStep([psPoints(polygon.slice(0, 5), 'polygon', true), psOp('set-trace-step', {step: 15})])), /lesson polygon/);
+    const sites = [[0, 5], [-4, 3], [4, 3], [0, -3]];
+    assert.deepEqual(sweepExpectedFor('s.fortune.fortune', psStep([psPoints(sites), psOp('set-trace-step', {step: 0})])), {types: {point: 4, curve: 1}, curveCount: 1, points: sites});
+    assert.throws(() => sweepExpectedFor('s.fortune.fortune', psStep([psPoints(sites), psOp('set-trace-step', {step: 7})])), /queued first step/);
+    assert.throws(() => sweepExpectedFor('s.fortune.fortune', psStep([psPoints(sites), psOp('set-trace-step', {step: 0}), psOverlay('grid', false)])), /only uses point-set/);
+    assert.throws(() => sweepExpectedFor('s.unknown.unknown', psStep([psPoints(sites)])), /no authored Sweep algorithms/);
+    assert.ok(chapterInventories['sweep-algorithms']);
 });
