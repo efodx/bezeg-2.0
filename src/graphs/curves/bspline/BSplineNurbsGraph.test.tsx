@@ -8,6 +8,7 @@ import {GraphHost} from '../../base/GraphHost';
 import {LocalizedError, renderMessage, setLanguage} from '../../../localization';
 import {BSplinePresetData, bsplinePresetCollection} from './bsplinePresetCollection';
 import {angleDegrees, maxRadialError, nurbsExample, nurbsPointAt} from './bsplineNurbsModel';
+import {BSplineNurbsScene} from './BSplineNurbsScene';
 
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
 vi.mock('../../../localization', async importOriginal => {
@@ -251,6 +252,22 @@ describe('presets', () => {
         act(() => graph.importPresetData(data));
         expect(graph.state.weights).toEqual(Array(9).fill(1));
         expect(graph.state.example).toBe('unit');
+        view.unmount();
+    });
+
+    test('mounting and importing each build one scene: no scene is built only to be thrown away', () => {
+        const dispose = vi.spyOn(BSplineNurbsScene.prototype, 'dispose');
+        const {graph, view} = mount();
+        expect(dispose).not.toHaveBeenCalled();
+        const smaller = {degree: 2, knots: [0, 0, 0, 1, 1, 1], points: [[0, 0], [1, 1], [2, 0]] as [number, number][], weights: [1, 2, 1]};
+        act(() => graph.importPresetData(smaller));
+        expect(dispose).toHaveBeenCalledTimes(1);
+        expect(graph.sceneOf().curve.getCurve().getWeights()).toEqual([1, 2, 1]);
+        dispose.mockClear();
+        act(() => graph.importPresetData({...smaller, weights: [1, 3, 1]}));
+        expect(dispose).not.toHaveBeenCalled();
+        expect(graph.sceneOf().curve.getCurve().getWeights()).toEqual([1, 3, 1]);
+        dispose.mockRestore();
         view.unmount();
     });
 

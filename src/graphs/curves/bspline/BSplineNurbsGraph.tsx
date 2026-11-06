@@ -110,7 +110,6 @@ export class BSplineNurbsGraph extends BaseGraph<BSplineNurbsState, BSplinePrese
         const same = NURBS_EXAMPLE_IDS.find(id => JSON.stringify(presetOf(nurbsExample(id))) === JSON.stringify(presetOf(origin)));
         const [start, end] = domain(origin.knots, origin.degree, origin.points.length - 1);
         this.setState({...copyNurbs(origin), origin, example: same ?? 'custom', refusal: null, t: Math.min(end, Math.max(start, this.state.t))});
-        this.ensureScene();
     }
 
     /** The just-imported data wins over the mount-time defaults and over a stale stored state. */
