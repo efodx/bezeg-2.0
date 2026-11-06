@@ -61,6 +61,24 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 
 **Order.** 2a and 2c in parallel, then 2b and 2d registration (`lesson: false`), then 3a and 3b lessons, then the chapter, media and gate. Family 5's chapter owns D1, D3 and D4 from AB-A-4, and D2 joins with Batch B. D4's lesson moves from its interim owner there.
 
+## Batch B plan: D2 (handler 62, 2026-11-06)
+
+Convexity A6 is on `master`: `hullsSeparated` (`src/compgeo/hullSeparation.ts`) takes real control points and `CurvePairGraph` is the base class. The Geometry stream is complete, so its files are free to change.
+
+**One lifecycle, not two.** `BezierHullsGraph` holds about 200 lines of step state, `IterationController` wiring, Preset step handling and disposal that D2 needs unchanged. AB-B-1 lifts them into a `TraceCurvePairGraph` between `CurvePairGraph` and `BezierHullsGraph`, behaviour unchanged and its tests untouched. Copying them would leave two versions of the code that has to stop playback on every path.
+
+**D2 `bezier-clipping`** (`src/graphs/compgeo/BezierClippingGraph.tsx`, its own key in `compgeoPresetCollections.ts` as Geometry handler 53 asks, route `/bezeg-2.0/bezier/clipping`):
+
+- State: the model, `step`, and `clipToleranceExponent`, an integer \(3\) to \(10\) for \(10^{-k}\), default \(6\). The spec's tolerance field is a select of these eight values, so no invalid entry exists. Presets store all three; another degree than 2 or 3 is refused by `CurvePairGraph`.
+- The run is `clipBezierPair` of the two nets at that tolerance, with the kernel's cap and depth, recomputed only when the points or the tolerance change. Any such change returns the step to 0 and pauses (acceptance 7). The drawn state is always the fold of the trace, with the tolerance passed to `clipFold`.
+- Overlays: `fatLine` (the band around the clipping curve's current sub-net, from `bezierFatLine`), `kept` (the alive ranges of both curves, thick) and `discarded` (faded). A range is drawn from `subNet` of the original net. A and B stay solid and dashed, so colour is never the only difference.
+- The distance inset is an inspector SVG written imperatively, as `ArcSpeedPlot` does: the points `distanceControlPoints`, their hull, the band, the clipped range. A drag renders no React.
+- The interval table lists the alive pairs and the results with both ranges, and stays bounded: at most eight rows and a "further \(n\)" row, as a limit run has many pieces.
+- Status: `overlapping` before the first clip when `hullsSeparated` finds no separation, `separated` when it does, then the kernel's `running`, `found`, `empty`, `limit`. The readout gives the clip count and the widest alive width.
+- The offset pair \(B=(0,4.5),(2,0.5),(4,4.5)\) needs `gridStepExponent` \(-1\). A lesson action loads a whole model, so the numbers on screen are the spec's; the doubled-grid twin of `bezier-hulls` is not used.
+
+**Slices** are in the table below. The lesson uses the term table's *Bézierovo rezanje* and *debela premica*, one-shot.
+
 ## Slices
 
 | Id | Kind | Content | Depends on | Status |
@@ -79,7 +97,13 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-A-4 | F4 | Chapter `advanced-bezier` owning D1, D3 and D4 | AB-A-3a, AB-A-3b | done ([record](../../reviews/advanced-bezier/ab-a-4-chapter.md)) |
 | AB-A-5 | F5 | Cards and posters of `reduction`, `arc-length-param`, `patch-coons` if pending | AB-A-4 | done ([record](../../reviews/advanced-bezier/ab-a-5-media.md)) |
 | AB-A-6 | F6 | Batch A gate | AB-A-5 | planned |
-| AB-B-* | F2a–F6 | D2 Bézier clipping | Batch A, `G-CG`, AB-1d, convexity A6 (separating-axis test, pair-of-curves graph) | planned |
+| AB-B-1 | F2a | `TraceCurvePairGraph` lifted from `BezierHullsGraph`, behaviour unchanged | Batch A | planned |
+| AB-B-2a | F2a | D2 `bezier-clipping` graph, overlays, inset, table, status, tolerance, Presets, lesson action targets; no route | AB-B-1, AB-1d | planned |
+| AB-B-2b | F2b | D2 registration `/bezeg-2.0/bezier/clipping`, `lesson: false`, recipe not run, drag measurement | AB-B-2a | planned |
+| AB-B-3 | F3 | D2 guided lesson (eight steps) | AB-B-2b | planned |
+| AB-B-4 | F4 | D2 section in chapter `advanced-bezier` | AB-B-3 | planned |
+| AB-B-5 | F5 | Card and poster of `bezier-clipping` | AB-B-4 | planned |
+| AB-B-6 | F6 | Batch B gate | AB-B-5 | planned |
 | AB-C-* (rest) | F2a–F6 | D4 Coons patch | Batch A, AB-1c | planned |
 | AB-C-2a | F2a | `patch-coons` graph on `BaseSurfaceGraph`: editable cubic boundaries, linked corners, shown surface \(L_c/L_d/B/S\), interior-net readout, corner status, Presets; no route | AB-1c | done ([evidence](../../reviews/advanced-bezier/ab-c-2a-graph.md)) |
 | AB-C-3 | F3 | D4 guided lesson (seven steps), `coons` lesson action kind, registration with interim owner `bezier-curves/geometric-properties`, smoke row | AB-C-2a | done ([evidence](../../reviews/advanced-bezier/ab-c-3-lesson.md)); chapter link stays with F4 |
