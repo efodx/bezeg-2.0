@@ -17,6 +17,7 @@ import {schoolFunctionGraphsPreviewCopy} from '../content/schoolFunctionGraphsPr
 import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
 import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
 import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
+import {advancedBezierPreviewCopy} from '../content/advancedBezierPreviewCopy';
 import {mathAltText} from './mathAltText';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
@@ -39,7 +40,7 @@ const chapterImageUrls = import.meta.glob<string>('/src/images/learning/examples
 });
 
 /**
- * Chapter-owned example cards (board-based chapters other than patches): per-example copy keyed by example id, with
+ * Chapter-owned example cards (chapters other than patches): per-example copy keyed by example id, with
  * images in `src/images/learning/examples/<chapterId>/`. A later chapter adds one entry and one glob above.
  */
 export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<Record<string, GuidedExamplePreviewCopy>>>> = {
@@ -50,6 +51,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     'fourier-series': fourierPreviewCopy,
     'projective-conics': projectiveConicsPreviewCopy,
     'curve-geometry': curveGeometryPreviewCopy,
+    'advanced-bezier': advancedBezierPreviewCopy,
 };
 
 function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {

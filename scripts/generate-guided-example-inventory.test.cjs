@@ -4,6 +4,49 @@ const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, comp
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
+test('advanced Bezier first frames are authored independently, and the Coons net reproduces the blend and the boundaries', () => {
+    const {advancedBezierExpectedFor, coonsBoundaries, coonsNetRows} = require('./generate-guided-example-inventory.cjs');
+    const {evaluateTensor} = require('./patch-guided-example-expectations.cjs');
+    const prepared = {kind: 'prepared-scene', sceneId: 'first', source: 'demonstration-default'};
+    const sceneOf = actions => ({id: 'first', scene: {actions}, frames: []});
+    const reductionId = 'advanced-bezier.reduction.reduction', arcId = 'advanced-bezier.arc-length-param.arc-length-param', coonsId = 'advanced-bezier.patch-coons.patch-coons';
+    const reduction = [prepared, {kind: 'reduction-points', points: [[0, 0], [4 / 3, 8 / 3], [8 / 3, 8 / 3], [4, 0]]}, {kind: 'reduction-mode', mode: 'fixed'},
+        {kind: 'curve-visibility', target: 'reduction-quadratic', visible: true}, {kind: 'curve-visibility', target: 'reduction-elevation', visible: true}];
+    const d1 = advancedBezierExpectedFor(reductionId, sceneOf(reduction));
+    assert.deepEqual(d1.types, {curve: 3, point: 11});
+    assert.deepEqual(d1.points.at(-1), [2, 4]);
+    assert.throws(() => advancedBezierExpectedFor(reductionId, sceneOf(reduction.map(item => item.mode ? {...item, mode: 'free'} : item))), /only fixed end points/);
+    assert.throws(() => advancedBezierExpectedFor(reductionId, sceneOf(reduction.map(item => item.points ? {...item, points: [[0, 0], [1, 3], [3, 3], [4, 0]]} : item))), /only the elevated quadratic/);
+    assert.throws(() => advancedBezierExpectedFor(reductionId, sceneOf(reduction.map(item => item.target === 'reduction-elevation' ? {...item, visible: false} : item))), /must be shown/);
+    const arc = [prepared, {kind: 'arc-curve', curve: 'bezier'}, {kind: 'arc-pieces', value: 8}, {kind: 'curve-visibility', target: 'arc-equal-t', visible: true},
+        {kind: 'curve-visibility', target: 'arc-equal-arc', visible: false}, {kind: 'curve-visibility', target: 'arc-speed-plot', visible: false},
+        {kind: 'arc-mover-mode', mode: 'parameter'}, {kind: 'arc-mover-position', value: 0.25}, {kind: 'arc-pause'}];
+    const d3 = advancedBezierExpectedFor(arcId, sceneOf(arc));
+    assert.deepEqual(d3.types, {curve: 1, point: 14});
+    assert.equal(d3.points.length, 11);
+    // Q(1/4) = (29/32, 27/16) and Q(1/2) = (2, 9/4) by hand.
+    assert.deepEqual(d3.points[5], [29 / 32, 27 / 16]);
+    assert.deepEqual(d3.points[7], [2, 9 / 4]);
+    assert.throws(() => advancedBezierExpectedFor(arcId, sceneOf(arc.map(item => item.target === 'arc-equal-arc' ? {...item, visible: true} : item))), /only the equal-t points/);
+    assert.throws(() => advancedBezierExpectedFor(arcId, sceneOf(arc.map(item => item.kind === 'arc-pieces' ? {...item, value: 4} : item))), /only N = 8/);
+    const coons = [prepared, prepared, {kind: 'coons', operation: 'set-linked-corners', linked: true}, {kind: 'coons', operation: 'set-shown', shown: 's'}];
+    const d4 = advancedBezierExpectedFor(coonsId, sceneOf(coons));
+    assert.deepEqual(d4.surface.owners.map(owner => [owner.id, owner.kind]), [['tensor-patch-0', 'tensor']]);
+    assert.throws(() => advancedBezierExpectedFor(coonsId, sceneOf(coons.map(item => item.shown ? {...item, shown: 'lc'} : item))), /only S of the unmoved/);
+    assert.throws(() => advancedBezierExpectedFor(coonsId, sceneOf([...coons, {kind: 'coons', operation: 'move-point', name: 'c0', index: 1, xyz: [1, 0, 3]}])), /only S of the unmoved/);
+    const fixture = {m: 3, n: 3, net: coonsNetRows(coonsBoundaries)};
+    const bezier = (net, t) => [0, 1, 2].map(axis => (1 - t) ** 3 * net[0][axis] + 3 * (1 - t) ** 2 * t * net[1][axis] + 3 * (1 - t) * t ** 2 * net[2][axis] + t ** 3 * net[3][axis]);
+    for (const s of [0, 0.25, 0.5, 1]) {
+        const near = (actual, expected) => actual.forEach((value, axis) => assert.ok(Math.abs(value - expected[axis]) < 1e-12));
+        near(evaluateTensor(fixture, s, 0), bezier(coonsBoundaries.c0, s));
+        near(evaluateTensor(fixture, s, 1), bezier(coonsBoundaries.c1, s));
+        near(evaluateTensor(fixture, 0, s), bezier(coonsBoundaries.d0, s));
+        near(evaluateTensor(fixture, 1, s), bezier(coonsBoundaries.d1, s));
+    }
+    // The lesson's worked centre: z(S(1/2, 1/2)) = 0.375 + 0.375 - 0.
+    assert.ok(Math.abs(evaluateTensor(fixture, 0.5, 0.5)[2] - 0.75) < 1e-12);
+});
+
 test('scene fingerprint covers the prepared actions and first frame and rejects an empty preparation', () => {
     const base = step();
     assert.match(fingerprintFor('bezier', base), /^[a-f0-9]{64}$/);

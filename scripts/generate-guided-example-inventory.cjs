@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {validateControlStep} = require('./guided-example-control-steps.cjs');
 const {validateInventory, validateRecipe, recipeFingerprint} = require('./guided-example-preview-api.cjs');
-const {generatePatchGuidedExampleInventory} = require('./patch-guided-example-expectations.cjs');
+const {expectedSamples, generatePatchGuidedExampleInventory} = require('./patch-guided-example-expectations.cjs');
 
 const root = path.resolve(__dirname, '..');
 const defaultOutput = 'docs/reviews/illustrated-chapter-examples/capture-inventory.json';
@@ -246,6 +246,12 @@ const chapterInventories = {
         registryExport: 'curveGeometryGuidedExampleRegistry',
         pathExport: 'curveGeometryGuidedExamplePath',
         expectedFor: curveGeometryExpectedFor,
+    },
+    'advanced-bezier': {
+        module: '/src/learning/content/advancedBezierChapterRegistry.ts',
+        registryExport: 'advancedBezierGuidedExampleRegistry',
+        pathExport: 'advancedBezierGuidedExamplePath',
+        expectedFor: advancedBezierExpectedFor,
     },
 };
 
@@ -834,12 +840,95 @@ function projectiveConicsExpectedFor(id, step) {
 /** A chapter-owned entry must carry real expectations; a missing or empty one is a generation error. */
 function assertExpectation(id, expected) {
     assert.ok(expected && typeof expected === 'object', `${id}: chapter-owned example needs authored expected checks`);
+    // A surface first frame is checked by its camera and rendered owners, which validateInventory checks; it has no board elements.
+    if (expected.surface) return;
     assert.ok(expected.types && Object.keys(expected.types).length > 0, `${id}: expected.types must be nonempty`);
     assert.ok(Number.isInteger(expected.curveCount) && expected.curveCount >= 0, `${id}: expected.curveCount must be a nonnegative integer (0 for a lesson that draws no curve)`);
     // A first frame of segments only (no point, no curve) is checked by its exact visible segment count.
     const segmentsOnly = expected.curveCount === 0 && expected.types.segment > 0 && Array.isArray(expected.points) && expected.points.length === 0 && expected.curves === undefined;
     assert.ok(segmentsOnly || (Array.isArray(expected.points) && (expected.points.length > 0 || (Array.isArray(expected.curves) && expected.curves.length > 0))),
         `${id}: expected.points must be nonempty (or, for a lesson whose first frame shows no point, expected.curves)`);
+}
+
+/** D1 first frame, step 1 of the lesson: the elevated quadratic (0,0), (2,4), (4,0) with the reduced curve and the elevated net shown. */
+function reductionExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['reduction-points', /^$/], ['reduction-mode', /^$/], ['curve-visibility', /^reduction-(quadratic|elevation)$/]], 'reductionExpectedFor');
+    const cubic = [[0, 0], [4 / 3, 8 / 3], [8 / 3, 8 / 3], [4, 0]];
+    const scene = actions.filter(item => item.kind === 'reduction-points');
+    assert.deepEqual(scene.length === 1 ? scene[0].points : undefined, cubic, `${id}: only the elevated quadratic is authored`);
+    const mode = actions.filter(item => item.kind === 'reduction-mode');
+    assert.ok(mode.length === 1 && mode[0].mode === 'fixed', `${id}: only fixed end points are authored`);
+    for (const target of ['reduction-quadratic', 'reduction-elevation']) {
+        const shown = actions.filter(item => item.kind === 'curve-visibility' && item.target === target);
+        assert.ok(shown.length === 1 && shown[0].visible === true, `${id}: the ${target} must be shown`);
+    }
+    // The cubic, the reduced quadratic and the elevated polygon; 4 + 3 + 4 points. The elevated net lies on the cubic's points, and the quadratic adds only (2,4).
+    return {types: {curve: 3, point: 11}, curveCount: 3, points: [...cubic, [2, 4]]};
+}
+
+/** D3 first frame: Q with control points (0,0), (1,3), (3,3), (4,0), its N + 1 = 9 equal-t points and the mover at t = 1/4; equal-arc points and the speed plot hidden. */
+function arcLengthExpectedFor(id, actions) {
+    assertOnlyActions(id, actions, [['arc-curve', /^$/], ['arc-pieces', /^$/], ['arc-mover-mode', /^$/], ['arc-mover-position', /^$/], ['arc-pause', /^$/],
+        ['curve-visibility', /^arc-(equal-t|equal-arc|speed-plot)$/]], 'arcLengthExpectedFor');
+    const one = kind => {
+        const found = actions.filter(item => item.kind === kind);
+        assert.equal(found.length, 1, `${id}: opening scene must have exactly one ${kind}`);
+        return found[0];
+    };
+    assert.equal(one('arc-curve').curve, 'bezier', `${id}: only the cubic Q is authored`);
+    assert.equal(one('arc-pieces').value, 8, `${id}: only N = 8 is authored`);
+    assert.equal(one('arc-mover-mode').mode, 'parameter', `${id}: only the mover in t is authored`);
+    assert.equal(one('arc-mover-position').value, 0.25, `${id}: only t = 1/4 is authored`);
+    const visible = target => actions.filter(item => item.kind === 'curve-visibility' && item.target === target).map(item => item.visible);
+    assert.deepEqual([visible('arc-equal-t'), visible('arc-equal-arc'), visible('arc-speed-plot')], [[true], [false], [false]],
+        `${id}: only the equal-t points are shown`);
+    const control = [[0, 0], [1, 3], [3, 3], [4, 0]];
+    // Q(t) in Bernstein form, so the equal-t points do not come from the app's evaluation.
+    const q = t => [0, 1].map(axis => (1 - t) ** 3 * control[0][axis] + 3 * (1 - t) ** 2 * t * control[1][axis] + 3 * (1 - t) * t ** 2 * control[2][axis] + t ** 3 * control[3][axis]);
+    const interior = Array.from({length: 7}, (_, index) => q((index + 1) / 8));
+    // 4 control points, 9 equal-t points and the mover. The t = 0 and t = 1 points lie on the end points and the mover on the t = 1/4 point, so 11 positions are distinct.
+    return {types: {curve: 1, point: 14}, curveCount: 1, points: [...control, ...interior]};
+}
+
+/** The default boundaries of D4 (src/graphs/patches/coonsScene.ts): c0 and c1 run along u at v = 0 and 1, d0 and d1 along v at u = 0 and 1. */
+const coonsBoundaries = {
+    c0: [[0, 0, 0], [1, 0, 2], [2, 0, 2], [3, 0, 0]],
+    c1: [[0, 3, 0], [1, 3, -1], [2, 3, -1], [3, 3, 0]],
+    d0: [[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]],
+    d1: [[3, 0, 0], [3, 1, 1], [3, 2, 1], [3, 3, 0]],
+};
+
+/** The bicubic net P_ij = Lc_ij + Ld_ij - B_ij from the spec's formula, written out here so the surface check does not read the app's kernel. */
+function coonsNetRows({c0, c1, d0, d1}) {
+    const rows = [];
+    for (let i = 0; i <= 3; i++) for (let j = 0; j <= 3; j++) {
+        const u = i / 3, v = j / 3;
+        const [x, y, z] = [0, 1, 2].map(axis => (1 - v) * c0[i][axis] + v * c1[i][axis] + (1 - u) * d0[j][axis] + u * d1[j][axis]
+            - ((1 - u) * (1 - v) * c0[0][axis] + u * (1 - v) * c0[3][axis] + (1 - u) * v * c1[0][axis] + u * v * c1[3][axis]));
+        rows.push({x, y, z});
+    }
+    return rows;
+}
+
+/** D4 first frame: the Coons patch S of the default boundaries with linked corners, in the camera of the default Preset, fitted at the Preset aspect 0.45 (the catalog recipe refits to the frame instead). */
+function coonsExpectedFor(id, actions) {
+    assert.deepEqual(actions.filter(item => item.kind !== 'prepared-scene').map(({kind, operation, linked, shown}) => ({kind, operation, linked, shown})), [
+        {kind: 'coons', operation: 'set-linked-corners', linked: true, shown: undefined},
+        {kind: 'coons', operation: 'set-shown', linked: undefined, shown: 's'},
+    ], `${id}: only S of the unmoved default boundaries with linked corners is authored`);
+    const prepared = actions.filter(item => item.kind === 'prepared-scene');
+    assert.ok(prepared.length > 0 && prepared.every(item => item.source === 'demonstration-default' && !item.curve), `${id}: the scene must start from the Demonstration default`);
+    return {surface: {camera: {az: -0.9, el: 0.5, distance: 18.324962732834443, target: [1.5, 1.5, 0.5]},
+        owners: [{id: 'tensor-patch-0', kind: 'tensor', geometrySamples: expectedSamples({kind: 'tensor', m: 3, n: 3, net: coonsNetRows(coonsBoundaries)})}],
+        geometryTolerance: 1e-6, cameraTolerance: 1e-6}};
+}
+
+function advancedBezierExpectedFor(id, step) {
+    const actions = step.scene.actions;
+    if (id.endsWith('.reduction')) return reductionExpectedFor(id, actions);
+    if (id.endsWith('.arc-length-param')) return arcLengthExpectedFor(id, actions);
+    assert.ok(id.endsWith('.patch-coons'), `${id}: no authored Advanced Bézier first frame`);
+    return coonsExpectedFor(id, actions);
 }
 
 async function generateChapterInventory(chapterId) {
@@ -894,4 +983,4 @@ if (require.main === module) main().catch(error => {
     process.exitCode = 1;
 });
 
-module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation};
+module.exports = {resolveRecipe, resolvePatchRecipe, withRecipe, fingerprintFor, readableActions, expectedFor, generateInventory, generatePatchInventory, generateChapterInventory, chapterInventories, advancedBezierExpectedFor, coonsNetRows, coonsBoundaries, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, assertExpectation};

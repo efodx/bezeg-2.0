@@ -13,6 +13,7 @@ import {schoolFunctionGraphsPreviewCopy} from '../content/schoolFunctionGraphsPr
 import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
 import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
 import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
+import {advancedBezierPreviewCopy} from '../content/advancedBezierPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -230,6 +231,10 @@ const functionsCards: readonly FunctionsCard[] = [
         ids: ['curve-geometry.curve-comb.curve-comb', 'curve-geometry.curve-curvature.curve-curvature', 'curve-geometry.curve-envelope.curve-envelope',
             'curve-geometry.curve-evolute.curve-evolute', 'curve-geometry.curve-offset.curve-offset', 'curve-geometry.curve-parametric.curve-parametric'],
         counts: [[1, 4], [1, 5], [1, 3], [1, 6], [2, 3], [0, 2]]},
+    // patch-coons is a surface card: its count row is its one rendered owner and no board points.
+    {chapterId: 'advanced-bezier', copy: advancedBezierPreviewCopy,
+        ids: ['advanced-bezier.arc-length-param.arc-length-param', 'advanced-bezier.patch-coons.patch-coons', 'advanced-bezier.reduction.reduction'],
+        counts: [[1, 14], [1, 0], [3, 11]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {
@@ -245,7 +250,7 @@ for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of function
         const ids = homes.map(home => home.id).sort();
         expect(ids).toEqual([...expectedIds]);
         expect(Object.keys(copy).sort()).toEqual(ids);
-        const inventory: {examples: (InventoryEntry & {expected: {types: object; curveCount: number; points: unknown[]; curves?: unknown[]}})[]} = JSON.parse(
+        const inventory: {examples: (InventoryEntry & {expected: {types?: object; curveCount?: number; points?: unknown[]; curves?: unknown[]; surface?: {owners: unknown[]}}})[]} = JSON.parse(
             readFileSync(resolve('docs/reviews', chapterId, 'guided-example-inventory.json'), 'utf8'));
         const manifest: {captures: Capture[]} = JSON.parse(readFileSync(resolve(destination, 'manifest.json'), 'utf8'));
         expect(inventory.examples.map(entry => entry.id).sort()).toEqual(ids);
@@ -261,14 +266,17 @@ for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of function
             if (!step) throw new Error(`${home.id}: missing prepared example`);
             expect(entry).toMatchObject({id: home.id, path: home.path, recipe: {kind: 'start'}});
             expect(entry.actions).toEqual(step.scene?.actions.map(action => `${action.kind}: ${JSON.stringify(action)}`));
-            expect(entry.expected.curveCount).toBeGreaterThanOrEqual(0);
-            // A first frame with no visible point (K5 at c = 2) is checked by its authored curve samples instead, and the S5 bars
-            // (segments only) by their authored segment count.
-            expect(entry.expected.points.length + (entry.expected.curves?.length ?? 0)
-                + Object.values(entry.expected.types as Record<string, number>).reduce((sum, count) => sum + count, 0)).toBeGreaterThan(0);
+            const surface = entry.expected.surface !== undefined;
+            if (!surface) {
+                expect(entry.expected.curveCount).toBeGreaterThanOrEqual(0);
+                // A first frame with no visible point (K5 at c = 2) is checked by its authored curve samples instead, and the S5 bars
+                // (segments only) by their authored segment count.
+                expect((entry.expected.points?.length ?? 0) + (entry.expected.curves?.length ?? 0)
+                    + Object.values(entry.expected.types as Record<string, number>).reduce((sum, count) => sum + count, 0)).toBeGreaterThan(0);
+            }
             expect(capture).toMatchObject({file: `${home.id}.png`, width: 840, height: 520, path: home.path,
                 initialFrame: {firstFrame: true, backNavigationDisabled: true},
-                framing: {boardOnly: true, guidedLessonOverlayHidden: true}, captureEvidence: {servedBuildVerified: true, pageErrors: []}});
+                framing: {...(surface ? {surfaceHostOnly: true} : {boardOnly: true}), guidedLessonOverlayHidden: true}, captureEvidence: {servedBuildVerified: true, pageErrors: []}});
             const png = readFileSync(resolve(destination, capture.file));
             expect(createHash('sha256').update(png).digest('hex')).toBe(capture.sha256);
             for (const language of ['sl', 'en'] as const) {
@@ -278,9 +286,10 @@ for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of function
                 expect(preview?.caption.trim()).toBeTruthy();
             }
         }
-        // Authored first-frame sizes: curves, then points of the distinct expected point list.
+        // Authored first-frame sizes: curves and board points, or the rendered owners of a surface.
         expect(ids.map(id => {
             const expected = inventory.examples.find(entry => entry.id === id)?.expected;
+            if (expected?.surface) return [expected.surface.owners.length, 0];
             return [expected?.curveCount, (expected?.types as Record<string, number>).point ?? 0];
         })).toEqual(counts.map(([curves, points]) => [curves, points]));
     });
