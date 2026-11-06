@@ -98,6 +98,8 @@ import CurveEvoluteGraph from './curves/bezier/CurveEvoluteGraph';
 import CurveCombGraph from './curves/comb/CurveCombGraph';
 import CurveOffsetGraph from './curves/offset/CurveOffsetGraph';
 import CurveEnvelopeGraph from './curves/envelope/CurveEnvelopeGraph';
+import DegreeReductionGraph from './curves/reduction/DegreeReductionGraph';
+import ArcLengthParametrizationGraph from './curves/arclength/ArcLengthParametrizationGraph';
 import RungeInterpolationGraph from './functions/RungeInterpolationGraph';
 import LeastSquaresGraph from './functions/LeastSquaresGraph';
 import InterpolationGraph from './curves/interpolation/InterpolationGraph';
@@ -135,6 +137,8 @@ export const graphFactories: Record<DemonstrationId, () => BaseGraph<BaseGraphSt
     'repeated-subdivision': () => new SubdivisionGraph(),
     'extrapolation': () => new ExtrapolationGraph(),
     'elevation': () => new ElevationGraph(),
+    'reduction': () => new DegreeReductionGraph(),
+    'arc-length-param': () => new ArcLengthParametrizationGraph(),
     'rational': () => new RationalBezierCurveGraph(),
     'rational-decasteljau': () => new RationalDecasteljauGraph(),
     'rational-elevation': () => new RationalElevationGraph(),
