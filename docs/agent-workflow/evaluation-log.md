@@ -2014,3 +2014,14 @@ Dispatch: review before push, then parallel test and chapter workers on disjoint
 - Smoke, `bezeg-smoke` Sonnet: 42 calls, 88k tokens, 12 minutes. Found the one real defect, the colour-only pair in D1. Its two reported failures were the brief's fault: the handler took an expected behaviour from a code comment, and did not say where `/ph/cubic`'s handles are.
 - Recheck, `bezeg-smoke` Haiku: 23 calls, 55k tokens, 5 minutes. All four rechecks clear, with observed values.
 - Handler: repair, recapture and records. One extraction script wasted two turns: the worker's report is not in its transcript as plain text.
+
+### 2026-11-06: AB-B-1, AB-B-2a1, AB-B-2a2 (curves handler 63)
+
+Implementation, class M, estimated M. Scope: D2 graph, controls and inset, no route. Handler Opus medium; three `bezeg-worker` Sonnet medium, brief handoff-v12. AB-B-1 stayed with the handler: tightly coupled, and the class was already read.
+
+- AB-B-2a1 core worker: 43 calls, 142k tokens, 10 minutes. Reached the 135k watcher at turn 35 with core and view tests done, host tests unwritten. The brief packed a graph and all its host tests into one slice, which was too much. Its partial note was usable.
+- AB-B-2a1 test worker: 39 calls, 85k tokens, 13 minutes. From the note: 20 host tests, no source defect, four mutations observed. One mutation is caught by the view test alone.
+- AB-B-2a2 worker: 35 calls, 103k tokens, 10 minutes. Done in one pass, three mutations observed.
+- Brief error: it said `discard` payloads hold post-event ranges; the kernel emits pre-clip ranges. The worker flagged it and no change was needed.
+- Integration failure, handler-caused: `32556619` was pushed after focused checks only and failed `PresetCatalog.test.tsx` on hosted CI; `deploy` was skipped. Repair: one key in `PENDING_ROUTE_KEYS`. A handler copy edit then failed one pinned assertion in `just check`.
+- Handler reached 175k at turn 35. Coverage gap: no browser pass, as no route exists yet.

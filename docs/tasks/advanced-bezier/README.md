@@ -99,7 +99,7 @@ Convexity A6 is on `master`: `hullsSeparated` (`src/compgeo/hullSeparation.ts`) 
 | AB-A-6 | F6 | Batch A gate | AB-A-5 | done, **Batch A released** (handler 62): [gate record](../../reviews/advanced-bezier/ab-a-6-gate.md), [audit](../../reviews/advanced-bezier/ab-a-6-criterion-audit.md) |
 | AB-B-1 | F2a | `TraceCurvePairGraph` lifted from `BezierHullsGraph`, behaviour unchanged | Batch A | done (handler 63; hulls host, perf, Preset and lesson tests untouched and passing; the run memo also keys on `runSettingsKey` for D2's tolerance) |
 | AB-B-2a1 | F2a | D2 `bezier-clipping` graph core: state, run, overlays, step view, Presets, lesson action targets; no route | AB-B-1, AB-1d | done ([evidence](../../reviews/advanced-bezier/ab-b-2a1-graph.md)) |
-| AB-B-2a2 | F2a | D2 controls: playback, tolerance select, status and readout, interval table, distance inset | AB-B-2a1 | planned |
+| AB-B-2a2 | F2a | D2 controls: playback, tolerance select, status and readout, interval table, distance inset | AB-B-2a1 | done ([evidence](../../reviews/advanced-bezier/ab-b-2a2-controls.md)) |
 | AB-B-2b | F2b | D2 registration `/bezeg-2.0/bezier/clipping`, `lesson: false`, recipe not run, drag measurement | AB-B-2a2 | planned |
 | AB-B-3 | F3 | D2 guided lesson (eight steps) | AB-B-2b | planned |
 | AB-B-4 | F4 | D2 section in chapter `advanced-bezier` | AB-B-3 | planned |
