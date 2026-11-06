@@ -1,0 +1,39 @@
+# Stable guided lesson navigation
+
+Status: design proposal, 2026-11-07. Application implementation is outside this exploration. Source: the owner's two browser comments on the B-spline blossom guided example and the image comparison in Codex chat `01a1b334-019f-7781-91c9-7f7719bc02cd`. The exploratory images remain in the conversation; no image has been selected as a project asset.
+
+## Problem and existing behavior
+
+The owner wants to read successive frames without moving the pointer to find **Naslednji okvir**, and wants the observation action consolidated into the existing **Skrij** control.
+
+The current panel has natural height with a maximum height. Navigation follows the reading region in its footer, so a short observation frame raises the buttons relative to a long explanation. Both the observation button and the hide button already call `hideOverlay`; observation frames suppress the header hide button and show **Opazuj na grafu** below navigation instead.
+
+Relevant constraints are the [lean movable overlay](lesson-panel-visual-refinement.md#lean-movable-overlay--2026-10-31), [compact lesson controls](lesson-mobile-controls.md), and [product guardrails](../guardrails.md). Keep the cream/green identity, graph prominence, draggable placement, bilingual labels, and existing scene, focus, and hide/reopen behavior.
+
+## Proposed direction: compact toolbar
+
+Move the existing progress and Previous/Next group together into a stable toolbar immediately after the lesson identity and chapter line, before the frame's reading content. Keep one navigation group. The text below it retains natural height up to the available space; long content scrolls within that region. Short observation frames can therefore expose more of the graph.
+
+Keep **Skrij** in the same header position for every frame where instructions can be hidden. Remove the separate **Opazuj na grafu** button. **Skrij** performs the existing hide-and-unlock action without advancing the frame or resetting the graph. Reopening returns to the same frame and retains the existing reading-position and focus contract. **Končaj** remains the separate exit action.
+
+The stable region must include progress, which currently travels with navigation. Frame-specific actions and observation disclosures remain available with their content. Do not duplicate navigation at the bottom.
+
+### Alternative shown
+
+A fixed-height card with a fixed bottom footer also stabilizes navigation and preserves the familiar content-then-navigation order. It reserves blank space on short frames and covers more of the graph. The compact toolbar is recommended because it retains the lean overlay's natural height. This recommendation has not yet been selected by the owner for implementation.
+
+## Acceptance for a future implementation
+
+- At an unchanged viewport and panel position, Previous/Next retain their screen coordinates across long and short frames, steps, frame kinds, formula typesetting, and observation disclosure expansion. Reserve enough button width for the final-frame label as well.
+- Keep the header and toolbar anchored after a manual drag. Bound the reading region by the remaining visible graph/viewport space rather than allowing longer content to push the panel anchor elsewhere. Viewport resizing and intentional dragging may reposition controls.
+- Long content remains scrollable and all controls remain reachable. Short frames retain a compact body. Support 320px width, enlarged text, short landscape, desktop, Slovenian, and English without clipped labels or horizontal page overflow; action targets remain at least 44px tall.
+- **Skrij** is present in the header consistently, including observation frames. It hides the panel, unlocks graph editing, and preserves the current scene. Reopening preserves the frame and existing reading-position/focus behavior. Escape and graph-background hiding retain their current behavior.
+- Remove the duplicate observation CTA and update lesson prose that explicitly tells readers to press **Opazuj na grafu**, including its English counterpart. Update guided-example replay helpers and tests that locate the old action. Keep action instructions accurate in both languages.
+- Keep frame-specific actions, playback controls, expected-observation disclosures, and the separate exit flow usable. Preserve keyboard and screen-reader order and announcements.
+- Do not change mathematics, routes, preset data, or persisted placement.
+
+## Evidence and verification boundary
+
+The handler inspected the two supplied screenshots, the panel CSS and runtime handlers, the incumbent design context, and the relevant specifications. An independent read-only layout assessment supported the compact toolbar. A generated four-state image comparison shows long and short frames for each option; it is a layout illustration, not authoritative lesson mathematics or a runtime test.
+
+No application code was changed or browser interaction tested during this exploration. Implementation would require runtime/workspace regression checks, localization typecheck and build if copy changes, and browser smoke through the project's smoke-tester workflow for the affected shared lesson runtime. Browser checks must measure navigation coordinates as well as exercise hide, graph editing, reopen, dragging, keyboard access, disclosures, and long-content scrolling.
