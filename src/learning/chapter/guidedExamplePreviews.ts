@@ -22,6 +22,7 @@ import {convexityPreviewCopy} from '../content/convexityPreviewCopy';
 import {triangulationPreviewCopy} from '../content/triangulationPreviewCopy';
 import {sweepPreviewCopy} from '../content/sweepPreviewCopy';
 import {trianglePreviewCopy} from '../content/trianglePreviewCopy';
+import {interpolationPreviewCopy} from '../content/interpolationPreviewCopy';
 import {mathAltText} from './mathAltText';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
@@ -60,6 +61,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     'triangulations-voronoi': triangulationPreviewCopy,
     'sweep-algorithms': sweepPreviewCopy,
     'triangle-geometry': trianglePreviewCopy,
+    interpolation: interpolationPreviewCopy,
 };
 
 function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {

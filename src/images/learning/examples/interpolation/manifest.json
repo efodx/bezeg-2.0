@@ -1,0 +1,852 @@
+{
+  "version": 1,
+  "generator": "scripts/capture-guided-example-previews.cjs",
+  "sourceRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+  "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
+  "sourceStateDirty": false,
+  "buildStamp": {
+    "version": 1,
+    "revision": "9734df0745815313f997471055d39d2fa64fc0b2",
+    "dirty": true,
+    "inputs": "0b00552d26d8595b95ce70acdddda192f1deed0630fd1fb153e857ddc97aa97e",
+    "output": "c9dfe900b427daf69541a4472da0d622fe3bfd619fd3bdf6c134de3a8e8f4b0e"
+  },
+  "servedBuild": {
+    "shellUrl": "http://127.0.0.1:3012/bezeg-2.0/",
+    "stampRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+    "stampDirty": true,
+    "localOutputHash": "c9dfe900b427daf69541a4472da0d622fe3bfd619fd3bdf6c134de3a8e8f4b0e",
+    "localOutputHashVerified": true,
+    "bundles": [
+      {
+        "name": "index-Cm2RuLw2.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-Cm2RuLw2.js",
+        "sha256": "4d849319ef7127a63d7774b075267c9b908bf93e98492fb01c40c5755d1273b1",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "jsx-runtime-4xiZKs1O.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/jsx-runtime-4xiZKs1O.js",
+        "sha256": "d279c0065714d2d01b0f65e5df5c25389eb6e69c216552fa617f2f8abba29535",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "react-dom-Cnfm82p2.js",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/react-dom-Cnfm82p2.js",
+        "sha256": "fc70869aa362c71417e1a66b90887ad467182d981e6fc9b1eb91261d97fa7edb",
+        "matchesLocalBuild": true
+      },
+      {
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:3012/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
+        "matchesLocalBuild": true
+      }
+    ]
+  },
+  "appBaseUrl": "http://127.0.0.1:3012/bezeg-2.0",
+  "browserVersion": "156.0.8078.4",
+  "locale": "sl-SI",
+  "colorScheme": "light",
+  "fingerprints": {
+    "inventory": "bea45b56756f42c659a1b23597241784e7c8e297633277e0209253a20cadecfc",
+    "entries": {
+      "interpolation.lagrange.interp-lagrange": "38a3c515f9d4ad6d5f6a11f4d7ea6dc14901fe21edcc7da744e541a9fc214cbf",
+      "interpolation.runge.interp-runge": "d4b3576df23a0a2f1b618e0179a7d8096ecbe61bd8a9f389922f45e16a61a9f4",
+      "interpolation.hermite.interp-hermite": "c4840f5d797aa7a9499e194fc2d56828753fe001d11cd975501e1ebb4eb69c9a",
+      "interpolation.least-squares.interp-least-squares": "f47221694b5358aede411119b4f84d94042fa46625af088fee0861474c9b3c0c",
+      "interpolation.subdivision.interp-subdivision": "c465edb3710c1b1011e390cb05adbd13adfe3c05b742f5dd714c230a4320cfd1"
+    },
+    "presentation": "43ae3f7c6eaa521e147ac58b3ac2024de1b133227397dc664ab9f51fcf298200",
+    "buildOutput": "c9dfe900b427daf69541a4472da0d622fe3bfd619fd3bdf6c134de3a8e8f4b0e",
+    "buildInputs": "0b00552d26d8595b95ce70acdddda192f1deed0630fd1fb153e857ddc97aa97e"
+  },
+  "capture": {
+    "cleanContextPerExample": true,
+    "capturedHostOnly": true,
+    "frame": {
+      "width": 420,
+      "height": 260
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 920
+    },
+    "deviceScaleFactor": 2,
+    "sceneSource": "exact canonical /bezeg-2.0 route and ?example query in a clean context; start recipes change no controls or actions, highlight recipes reach their frame and apply their steps through the lesson navigation and frame action buttons",
+    "initialFrame": "first guided-lesson frame with previous disabled and stable prepared board across 250 ms",
+    "guidedLessonOverlay": "capture-only visibility hidden before framing; first frame and scene remain untouched",
+    "presentation": "JSXGraph uses presentBoard; surface routes resize only the host and validate the authored camera and rendered owner geometry",
+    "entryFraming": [
+      {
+        "id": "interpolation.lagrange.interp-lagrange",
+        "demonstrationId": "interp-lagrange",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "interpolation.runge.interp-runge",
+        "demonstrationId": "interp-runge",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.8,
+            2.1,
+            1.8,
+            -0.1
+          ]
+        }
+      },
+      {
+        "id": "interpolation.hermite.interp-hermite",
+        "demonstrationId": "interp-hermite",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      },
+      {
+        "id": "interpolation.least-squares.interp-least-squares",
+        "demonstrationId": "interp-least-squares",
+        "framing": {
+          "kind": "coordinate-window",
+          "window": [
+            -1.2,
+            4.6,
+            5.7,
+            0.4
+          ]
+        }
+      },
+      {
+        "id": "interpolation.subdivision.interp-subdivision",
+        "demonstrationId": "interp-subdivision",
+        "framing": {
+          "kind": "finite-geometry-fit"
+        }
+      }
+    ]
+  },
+  "captures": [
+    {
+      "id": "interpolation.lagrange.interp-lagrange",
+      "demonstrationId": "interp-lagrange",
+      "path": "/bezeg-2.0/interpolation/lagrange?example=lesson.interpolation.lagrange.interp-lagrange",
+      "sceneFingerprint": "a0ecf3cfb97662205dc997710c2d92c33d7c7fbc104acb62accc7c270bd9411f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"interp-predict-hull-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"interp-predict-hull-start\",\"source\":\"demonstration-default\"}",
+        "interpolation: {\"kind\":\"interpolation\",\"operation\":\"set-rule\",\"rule\":\"uniform\"}",
+        "interpolation: {\"kind\":\"interpolation\",\"operation\":\"set-overlay\",\"overlay\":\"hull\",\"visible\":false}",
+        "interpolation: {\"kind\":\"interpolation\",\"operation\":\"set-overlay\",\"overlay\":\"bezier\",\"visible\":false}",
+        "interpolation: {\"kind\":\"interpolation\",\"operation\":\"set-overlay\",\"overlay\":\"basis\",\"visible\":false}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "interpolation.lagrange.interp-lagrange.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "ee46b8d8c8db3f8a0546ae49ec9d6b651ca91d2c9192977feeda65adca3aa30b",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "curve": 1,
+          "point": 5
+        },
+        "visiblePointCount": 5,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.25,
+              0.9375
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "curve-count",
+          "point:0,0",
+          "point:1,2",
+          "point:3,3",
+          "point:4,0",
+          "point:2,2.8125"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 30,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 19,
+            "curve": 1,
+            "point": 5,
+            "text": 1
+          },
+          "visiblePointCount": 5,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.25,
+                0.9375
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "curve-count",
+            "point:0,0",
+            "point:1,2",
+            "point:3,3",
+            "point:4,0",
+            "point:2,2.8125"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 1,
+          "point": 5
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "sourceRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "interpolation.runge.interp-runge",
+      "demonstrationId": "interp-runge",
+      "path": "/bezeg-2.0/interpolation/runge?example=lesson.interpolation.runge.interp-runge",
+      "sceneFingerprint": "56987ef5a1de364ff591f51253f221c257e2c91a40e08156bc1b99d9ed5f4198",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"runge-predict-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"runge-predict-start\",\"source\":\"demonstration-default\"}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-function\",\"function\":\"runge\"}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-degree\",\"value\":6}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-rule\",\"rule\":\"equispaced\"}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-overlay\",\"overlay\":\"error\",\"visible\":false}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-overlay\",\"overlay\":\"semicircle\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "interpolation.runge.interp-runge.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "10f4067d6cbd43a5e8e48f329d766437fa99259c83afaf724cb3c63d2aff0403",
+      "scene": {
+        "visibleElementCount": 9,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 7
+        },
+        "visiblePointCount": 7,
+        "sampledVisibleCurves": [
+          [
+            [
+              -1,
+              0.038462
+            ],
+            [
+              -0.999,
+              0.038536
+            ],
+            [
+              -0.998,
+              0.03861
+            ]
+          ],
+          [
+            [
+              -1,
+              0.038462
+            ],
+            [
+              -0.999,
+              0.05085
+            ],
+            [
+              -0.998,
+              0.063238
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "curve-count",
+          "point:-1,0.0384615",
+          "point:-0.6666667,0.0825688",
+          "point:-0.3333333,0.2647059",
+          "point:0,1",
+          "point:0.3333333,0.2647059",
+          "point:0.6666667,0.0825688",
+          "point:1,0.0384615"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 40,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 26,
+            "curve": 2,
+            "point": 7,
+            "text": 1
+          },
+          "visiblePointCount": 7,
+          "sampledVisibleCurves": [
+            [
+              [
+                -1,
+                0.038462
+              ],
+              [
+                -0.999,
+                0.038536
+              ],
+              [
+                -0.998,
+                0.03861
+              ]
+            ],
+            [
+              [
+                -1,
+                0.038462
+              ],
+              [
+                -0.999,
+                0.05085
+              ],
+              [
+                -0.998,
+                0.063238
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "curve-count",
+            "point:-1,0.0384615",
+            "point:-0.6666667,0.0825688",
+            "point:-0.3333333,0.2647059",
+            "point:0,1",
+            "point:0.3333333,0.2647059",
+            "point:0.6666667,0.0825688",
+            "point:1,0.0384615"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 7
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "sourceRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "interpolation.hermite.interp-hermite",
+      "demonstrationId": "interp-hermite",
+      "path": "/bezeg-2.0/interpolation/hermite?example=lesson.interpolation.hermite.interp-hermite",
+      "sceneFingerprint": "3beac241414a5d4b79d773a5bcce763bb499297421016821d616695c55b7e1b1",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hermite-predict-segment-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hermite-predict-segment-start\",\"source\":\"demonstration-default\"}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-rule\",\"rule\":\"uniform\"}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-tension\",\"value\":1}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-mode\",\"mode\":\"hermite\"}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-overlay\",\"overlay\":\"tangents\",\"visible\":true}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-overlay\",\"overlay\":\"bezier\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "interpolation.hermite.interp-hermite.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "fca99803ec167fb099d7e38c0d4ed958d49b73ab823a3a92e9c88c3295f0f20b",
+      "scene": {
+        "visibleElementCount": 14,
+        "visibleElementTypes": {
+          "curve": 1,
+          "point": 8,
+          "arrow": 4,
+          "text": 1
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.4375,
+              1.0625
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "type:arrow",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:1,2",
+          "point:3,3",
+          "point:4,0",
+          "point:1,2",
+          "point:2.5,3.5",
+          "point:4.5,2",
+          "point:5,-3"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 36,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 18,
+            "curve": 1,
+            "point": 8,
+            "arrow": 4,
+            "text": 1
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.4375,
+                1.0625
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "type:arrow",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:1,2",
+            "point:3,3",
+            "point:4,0",
+            "point:1,2",
+            "point:2.5,3.5",
+            "point:4.5,2",
+            "point:5,-3"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 1,
+          "point": 8,
+          "arrow": 4,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "sourceRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "interpolation.least-squares.interp-least-squares",
+      "demonstrationId": "interp-least-squares",
+      "path": "/bezeg-2.0/interpolation/least-squares?example=lesson.interpolation.least-squares.interp-least-squares",
+      "sceneFingerprint": "558c086c89f96fb41fe703b4741ca3c8f2aa49de4f5f8c0595c467a105f529ae",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"lsq-predict-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"lsq-predict-start\",\"source\":\"demonstration-default\"}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-degree\",\"value\":1}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-line\",\"slope\":0,\"intercept\":2}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-mode\",\"mode\":\"manual\"}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-overlay\",\"overlay\":\"squares\",\"visible\":false}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-overlay\",\"overlay\":\"normal-equations\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "interpolation.least-squares.interp-least-squares.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "49db909d4c6b5a4d38a344ea23acc5e7651511b5513059d15d5ed69aea2c5e93",
+      "scene": {
+        "visibleElementCount": 6,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 4
+        },
+        "visiblePointCount": 4,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              1.5
+            ],
+            [
+              0,
+              2
+            ]
+          ],
+          [
+            [
+              0,
+              2
+            ],
+            [
+              0.5,
+              2
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "curve-count",
+          "point:0,1",
+          "point:1,2",
+          "point:2,2",
+          "point:3,4"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 26,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 15,
+            "curve": 2,
+            "point": 4,
+            "text": 1
+          },
+          "visiblePointCount": 4,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                1.5
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            [
+              [
+                0,
+                2
+              ],
+              [
+                0.5,
+                2
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "curve-count",
+            "point:0,1",
+            "point:1,2",
+            "point:2,2",
+            "point:3,4"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": false,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 4
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "sourceRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "pageErrors": []
+      }
+    },
+    {
+      "id": "interpolation.subdivision.interp-subdivision",
+      "demonstrationId": "interp-subdivision",
+      "path": "/bezeg-2.0/interpolation/subdivision?example=lesson.interpolation.subdivision.interp-subdivision",
+      "sceneFingerprint": "02c32b6b5cb38058e8830d5b468cf6e3c36928ca8a0e2bdbd3bb8daab6801ea0",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"subdivision-predict-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"subdivision-predict-start\",\"source\":\"demonstration-default\"}",
+        "subdivision: {\"kind\":\"subdivision\",\"operation\":\"set-rule\",\"rule\":\"chaikin\"}",
+        "subdivision: {\"kind\":\"subdivision\",\"operation\":\"set-closed\",\"closed\":false}",
+        "subdivision: {\"kind\":\"subdivision\",\"operation\":\"set-overlay\",\"overlay\":\"limit\",\"visible\":false}"
+      ],
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e",
+      "file": "interpolation.subdivision.interp-subdivision.png",
+      "width": 840,
+      "height": 520,
+      "sha256": "4635cb534ad2f3fa6902e61dd3935c6c9894b8cad5f2d0692a50447491f42f03",
+      "scene": {
+        "visibleElementCount": 11,
+        "visibleElementTypes": {
+          "curve": 2,
+          "point": 8,
+          "text": 1
+        },
+        "visiblePointCount": 8,
+        "sampledVisibleCurves": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        ],
+        "checks": [
+          "type:point",
+          "type:curve",
+          "type:text",
+          "curve-count",
+          "point:0,0",
+          "point:1,2",
+          "point:3,3",
+          "point:4,0",
+          "point:0,0",
+          "point:1,2",
+          "point:3,3",
+          "point:4,0"
+        ]
+      },
+      "initialFrame": {
+        "firstFrame": true,
+        "backNavigationDisabled": true,
+        "stableAcrossMs": 250,
+        "preparedBoardEvidence": {
+          "visibleElementCount": 37,
+          "visibleElementTypes": {
+            "axis": 2,
+            "ticks": 2,
+            "label": 22,
+            "curve": 2,
+            "point": 8,
+            "text": 1
+          },
+          "visiblePointCount": 8,
+          "sampledVisibleCurves": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0.5,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          ],
+          "checks": [
+            "type:point",
+            "type:curve",
+            "type:text",
+            "curve-count",
+            "point:0,0",
+            "point:1,2",
+            "point:3,3",
+            "point:4,0",
+            "point:0,0",
+            "point:1,2",
+            "point:3,3",
+            "point:4,0"
+          ]
+        }
+      },
+      "framing": {
+        "boardOnly": true,
+        "width": 420,
+        "height": 260,
+        "scale": 2,
+        "equalUserUnits": true,
+        "renderedLabelCount": 1,
+        "finalLabelCount": 1,
+        "guidedLessonOverlayHidden": true,
+        "visibleElementTypesAfterPresentation": {
+          "curve": 2,
+          "point": 8,
+          "text": 1
+        }
+      },
+      "captureEvidence": {
+        "browserVersion": "156.0.8078.4",
+        "servedBuildVerified": true,
+        "buildRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "sourceRevision": "9734df0745815313f997471055d39d2fa64fc0b2",
+        "pageErrors": []
+      }
+    }
+  ]
+}

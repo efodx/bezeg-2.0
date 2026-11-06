@@ -1,0 +1,273 @@
+{
+  "examples": [
+    {
+      "id": "interpolation.lagrange.interp-lagrange",
+      "demonstrationId": "interp-lagrange",
+      "path": "/bezeg-2.0/interpolation/lagrange?example=lesson.interpolation.lagrange.interp-lagrange",
+      "sceneFingerprint": "a0ecf3cfb97662205dc997710c2d92c33d7c7fbc104acb62accc7c270bd9411f",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"interp-predict-hull-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"interp-predict-hull-start\",\"source\":\"demonstration-default\"}",
+        "interpolation: {\"kind\":\"interpolation\",\"operation\":\"set-rule\",\"rule\":\"uniform\"}",
+        "interpolation: {\"kind\":\"interpolation\",\"operation\":\"set-overlay\",\"overlay\":\"hull\",\"visible\":false}",
+        "interpolation: {\"kind\":\"interpolation\",\"operation\":\"set-overlay\",\"overlay\":\"bezier\",\"visible\":false}",
+        "interpolation: {\"kind\":\"interpolation\",\"operation\":\"set-overlay\",\"overlay\":\"basis\",\"visible\":false}",
+        "parameter: {\"kind\":\"parameter\",\"name\":\"t\",\"value\":0.5}"
+      ],
+      "expected": {
+        "types": {
+          "point": 5,
+          "curve": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            2,
+            2.8125
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "interpolation.runge.interp-runge",
+      "demonstrationId": "interp-runge",
+      "path": "/bezeg-2.0/interpolation/runge?example=lesson.interpolation.runge.interp-runge",
+      "sceneFingerprint": "56987ef5a1de364ff591f51253f221c257e2c91a40e08156bc1b99d9ed5f4198",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"runge-predict-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"runge-predict-start\",\"source\":\"demonstration-default\"}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-function\",\"function\":\"runge\"}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-degree\",\"value\":6}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-rule\",\"rule\":\"equispaced\"}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-overlay\",\"overlay\":\"error\",\"visible\":false}",
+        "runge: {\"kind\":\"runge\",\"operation\":\"set-overlay\",\"overlay\":\"semicircle\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 7,
+          "curve": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            -1,
+            0.0384615
+          ],
+          [
+            -0.6666667,
+            0.0825688
+          ],
+          [
+            -0.3333333,
+            0.2647059
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0.3333333,
+            0.2647059
+          ],
+          [
+            0.6666667,
+            0.0825688
+          ],
+          [
+            1,
+            0.0384615
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "interpolation.hermite.interp-hermite",
+      "demonstrationId": "interp-hermite",
+      "path": "/bezeg-2.0/interpolation/hermite?example=lesson.interpolation.hermite.interp-hermite",
+      "sceneFingerprint": "3beac241414a5d4b79d773a5bcce763bb499297421016821d616695c55b7e1b1",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hermite-predict-segment-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"hermite-predict-segment-start\",\"source\":\"demonstration-default\"}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-rule\",\"rule\":\"uniform\"}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-tension\",\"value\":1}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-mode\",\"mode\":\"hermite\"}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-overlay\",\"overlay\":\"tangents\",\"visible\":true}",
+        "hermite: {\"kind\":\"hermite\",\"operation\":\"set-overlay\",\"overlay\":\"bezier\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 8,
+          "curve": 1,
+          "arrow": 4,
+          "text": 1
+        },
+        "curveCount": 1,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2.5,
+            3.5
+          ],
+          [
+            4.5,
+            2
+          ],
+          [
+            5,
+            -3
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "interpolation.least-squares.interp-least-squares",
+      "demonstrationId": "interp-least-squares",
+      "path": "/bezeg-2.0/interpolation/least-squares?example=lesson.interpolation.least-squares.interp-least-squares",
+      "sceneFingerprint": "558c086c89f96fb41fe703b4741ca3c8f2aa49de4f5f8c0595c467a105f529ae",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"lsq-predict-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"lsq-predict-start\",\"source\":\"demonstration-default\"}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-degree\",\"value\":1}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-line\",\"slope\":0,\"intercept\":2}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-mode\",\"mode\":\"manual\"}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-overlay\",\"overlay\":\"squares\",\"visible\":false}",
+        "lsq: {\"kind\":\"lsq\",\"operation\":\"set-overlay\",\"overlay\":\"normal-equations\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 4,
+          "curve": 2
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    },
+    {
+      "id": "interpolation.subdivision.interp-subdivision",
+      "demonstrationId": "interp-subdivision",
+      "path": "/bezeg-2.0/interpolation/subdivision?example=lesson.interpolation.subdivision.interp-subdivision",
+      "sceneFingerprint": "02c32b6b5cb38058e8830d5b468cf6e3c36928ca8a0e2bdbd3bb8daab6801ea0",
+      "actions": [
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"subdivision-predict-start\",\"source\":\"demonstration-default\"}",
+        "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"subdivision-predict-start\",\"source\":\"demonstration-default\"}",
+        "subdivision: {\"kind\":\"subdivision\",\"operation\":\"set-rule\",\"rule\":\"chaikin\"}",
+        "subdivision: {\"kind\":\"subdivision\",\"operation\":\"set-closed\",\"closed\":false}",
+        "subdivision: {\"kind\":\"subdivision\",\"operation\":\"set-overlay\",\"overlay\":\"limit\",\"visible\":false}"
+      ],
+      "expected": {
+        "types": {
+          "point": 8,
+          "curve": 2,
+          "text": 1
+        },
+        "curveCount": 2,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "recipe": {
+        "kind": "start"
+      },
+      "recipeFingerprint": "8e2715783eec3073a5492d65f3411015eb33a5bd12848332850959820544cb3e"
+    }
+  ]
+}

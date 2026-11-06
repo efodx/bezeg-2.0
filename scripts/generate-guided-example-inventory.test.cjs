@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
+const {fingerprintFor, readableActions, expectedFor, linearMapsExpectedFor, complexMapsExpectedFor, numericalExpectedFor, schoolFunctionGraphsExpectedFor, fourierExpectedFor, fourierCoefficientsExpectedFor, epicyclesExpectedFor, projectiveConicsExpectedFor, curveGeometryExpectedFor, convexityExpectedFor, triangulationExpectedFor, sweepExpectedFor, triangleGeometryExpectedFor, interpolationExpectedFor, assertExpectation, chapterInventories} = require('./generate-guided-example-inventory.cjs');
 
 const step = (overrides = {}) => ({id: 'initial', scene: {actions: [{kind: 'parameter', name: 't', value: 0.5}]}, frames: [{id: 'opening', kind: 'observation'}], ...overrides});
 
@@ -603,4 +603,47 @@ test('triangle geometry expectations are authored from the graphs: centroid, ins
     assert.throws(() => triangleGeometryExpectedFor('t.inversion.inversion', psStep([power, {kind: 'inversion', operation: 'set-theta', degrees: 20}, ...all(inversion, ['secant'])])), /only sets the overlays/);
     assert.throws(() => triangleGeometryExpectedFor('t.unknown.unknown', psStep([])), /no authored Triangle geometry/);
     assert.ok(chapterInventories['triangle-geometry']);
+});
+
+test('interpolation expectations are authored from the graphs: the Lagrange marker, Runge nodes, Hermite tips, the manual residuals and the Chaikin polygon', () => {
+    const op = (kind, operation, extra) => ({kind, operation, ...extra});
+    const overlays = (kind, names, shown) => names.map(name => op(kind, 'set-overlay', {overlay: name, visible: shown.includes(name)}));
+    const lagrange = (shown = [], position = 0.5, rule = 'uniform') => psStep([op('interpolation', 'set-rule', {rule}), ...overlays('interpolation', ['hull', 'bezier', 'basis'], shown), {kind: 'parameter', name: 't', value: position}]);
+    assert.deepEqual(interpolationExpectedFor('i.lagrange.interp-lagrange', lagrange()),
+        {types: {point: 5, curve: 1}, curveCount: 1, points: [[0, 0], [1, 2], [3, 3], [4, 0], [2, 2.8125]]});
+    assert.deepEqual(interpolationExpectedFor('i.lagrange.interp-lagrange', lagrange([], 0)).points.at(-1), [0, 0]);
+    assert.throws(() => interpolationExpectedFor('i.lagrange.interp-lagrange', lagrange(['hull'])), /hull must be hidden/);
+    assert.throws(() => interpolationExpectedFor('i.lagrange.interp-lagrange', lagrange([], 0.5, 'chordal')), /uniform parameter rule/);
+    assert.throws(() => interpolationExpectedFor('i.lagrange.interp-lagrange', psStep([...lagrange().scene.actions.slice(1), op('interpolation', 'add-point')])), /only uses interpolation/);
+    const runge = (degree = 6, rule = 'equispaced', shown = [], functionId = 'runge') => psStep([op('runge', 'set-function', {function: functionId}), op('runge', 'set-degree', {value: degree}),
+        op('runge', 'set-rule', {rule}), ...overlays('runge', ['error', 'semicircle'], shown)]);
+    const rungeNodes = interpolationExpectedFor('i.runge.interp-runge', runge());
+    assert.deepEqual({...rungeNodes, points: undefined}, {types: {point: 7, curve: 2}, curveCount: 2, points: undefined});
+    assert.deepEqual(rungeNodes.points.map(p => p[0]), [-1, -0.6666667, -0.3333333, 0, 0.3333333, 0.6666667, 1]);
+    assert.deepEqual([rungeNodes.points[0][1], rungeNodes.points[3][1]], [Number((1 / 26).toFixed(7)), 1]);
+    assert.throws(() => interpolationExpectedFor('i.runge.interp-runge', runge(6, 'chebyshev')), /equally spaced/);
+    assert.throws(() => interpolationExpectedFor('i.runge.interp-runge', runge(6, 'equispaced', ['error'])), /error must be hidden/);
+    assert.throws(() => interpolationExpectedFor('i.runge.interp-runge', runge(6, 'equispaced', [], 'abs')), /only the Runge function/);
+    const hermite = (mode = 'hermite', shown = ['tangents']) => psStep([op('hermite', 'set-rule', {rule: 'uniform'}), op('hermite', 'set-tension', {value: 1}), op('hermite', 'set-mode', {mode}),
+        ...overlays('hermite', ['tangents', 'bezier'], shown)]);
+    assert.deepEqual(interpolationExpectedFor('i.hermite.interp-hermite', hermite()),
+        {types: {point: 8, curve: 1, arrow: 4, text: 1}, curveCount: 1, points: [[0, 0], [1, 2], [3, 3], [4, 0], [1, 2], [2.5, 3.5], [4.5, 2], [5, -3]]});
+    assert.throws(() => interpolationExpectedFor('i.hermite.interp-hermite', hermite('catmull-rom')), /only the Hermite mode/);
+    assert.throws(() => interpolationExpectedFor('i.hermite.interp-hermite', hermite('hermite', ['tangents', 'bezier'])), /Bezier overlay must be hidden/);
+    const lsq = (shown = [], line = {slope: 0, intercept: 2}, degree = 1) => psStep([op('lsq', 'set-degree', {value: degree}), op('lsq', 'set-line', line), op('lsq', 'set-mode', {mode: 'manual'}),
+        ...overlays('lsq', ['squares', 'normal-equations'], shown)]);
+    assert.deepEqual(interpolationExpectedFor('i.least-squares.interp-least-squares', lsq()),
+        {types: {point: 4, curve: 2}, curveCount: 2, points: [[0, 1], [1, 2], [2, 2], [3, 4]]});
+    assert.throws(() => interpolationExpectedFor('i.least-squares.interp-least-squares', lsq(['squares'])), /squares must be hidden/);
+    assert.throws(() => interpolationExpectedFor('i.least-squares.interp-least-squares', lsq([], {slope: 1, intercept: 1})), /y = 2/);
+    assert.throws(() => interpolationExpectedFor('i.least-squares.interp-least-squares', psStep([op('lsq', 'set-point', {index: 3, x: 3, y: 8}), ...lsq().scene.actions.slice(1)])), /only uses lsq/);
+    const subdivision = (rule = 'chaikin', closed = false, shown = []) => psStep([op('subdivision', 'set-rule', {rule}), op('subdivision', 'set-closed', {closed}), ...overlays('subdivision', ['limit'], shown)]);
+    assert.deepEqual(interpolationExpectedFor('i.subdivision.interp-subdivision', subdivision()),
+        {types: {point: 8, curve: 2, text: 1}, curveCount: 2, points: [[0, 0], [1, 2], [3, 3], [4, 0], [0, 0], [1, 2], [3, 3], [4, 0]]});
+    assert.throws(() => interpolationExpectedFor('i.subdivision.interp-subdivision', subdivision('four-point')), /only the Chaikin rule/);
+    assert.throws(() => interpolationExpectedFor('i.subdivision.interp-subdivision', subdivision('chaikin', true)), /only the open polygon/);
+    assert.throws(() => interpolationExpectedFor('i.subdivision.interp-subdivision', subdivision('chaikin', false, ['limit'])), /limit overlay must be hidden/);
+    assert.throws(() => interpolationExpectedFor('i.subdivision.interp-subdivision', psStep([...subdivision().scene.actions.slice(1), {kind: 'animation', animationId: 'interp-subdivision-rounds', command: 'next-step'}])), /only uses subdivision/);
+    assert.throws(() => interpolationExpectedFor('i.unknown.unknown', psStep([])), /no authored Interpolation/);
+    assert.ok(chapterInventories.interpolation);
 });
