@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
+  "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": true,
+  "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
-    "dirty": true,
-    "inputs": "b6927a8041887d535454440c08fd8550b8947f1fbfc438067d527919e0a9e2d1",
-    "output": "fd80cf1199528ca71ef99d14a9af725580bff4ded420e96fe22b20397a121089"
+    "revision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+    "dirty": false,
+    "inputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac",
+    "output": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4315/bezeg-2.0/",
-    "stampRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
-    "stampDirty": true,
-    "localOutputHash": "fd80cf1199528ca71ef99d14a9af725580bff4ded420e96fe22b20397a121089",
+    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
+    "stampRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+    "stampDirty": false,
+    "localOutputHash": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BDPCPaoh.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-BDPCPaoh.js",
-        "sha256": "2591db238f758bf80ffb2fecb77f71faaf5ec00865e47bf7277c87306d58a7d7",
+        "name": "index-f4U2AncR.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-f4U2AncR.js",
+        "sha256": "96e74ce8f759b5c17a6ef53ade0a08847896e6a0205f8cafdcf5bbbb909bffc7",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
         "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-BCs2F0GO.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/jsx-runtime-BCs2F0GO.js",
-        "sha256": "d9867a01001140a824955b2990d67c4e03d1d56501c6399157f894c967a54509",
+        "name": "jsx-runtime-BQFi9_r6.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-BQFi9_r6.js",
+        "sha256": "6f83720af4df0a2f1235bd2d5c47887a8fdec1aba948e257cc14296731338928",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-Cz79A4-n.js",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/react-dom-Cz79A4-n.js",
-        "sha256": "2f2eb900847de8de910882aeccb9a42f2bc2ea79658da22b1e523bb2af719131",
+        "name": "react-dom-DmajdlBW.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-DmajdlBW.js",
+        "sha256": "68c10443b205a8b010280741ce99c56b6ed547afdc45e9284f2ea53b88306795",
         "matchesLocalBuild": true
       },
       {
         "name": "index-COlNNAaK.css",
-        "url": "http://127.0.0.1:4315/bezeg-2.0/assets/index-COlNNAaK.css",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-COlNNAaK.css",
         "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4315/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -61,9 +61,9 @@
       "fourier-series.fourier-coefficients.fourier-coefficients": "a01b7bdadf703c1ef93063da050820489b7a2b0cb12f68c17a2f5377fdac89ab",
       "fourier-series.epicycles.epicycles": "115aa39a4fda0ce2451da7b65bb8524800805bc70850f75e47f10910fa732bff"
     },
-    "presentation": "e0fd3a28e2e46ffb30e279ee26b87aa086669db9605e5aacc5cd728a61994bba",
-    "buildOutput": "fd80cf1199528ca71ef99d14a9af725580bff4ded420e96fe22b20397a121089",
-    "buildInputs": "b6927a8041887d535454440c08fd8550b8947f1fbfc438067d527919e0a9e2d1"
+    "presentation": "1f24908a285186c87c78fe6e2095d211d1d14130c487db9c7f12c3fb4f1ccdbc",
+    "buildOutput": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
+    "buildInputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -112,13 +112,7 @@
         "id": "fourier-series.epicycles.epicycles",
         "demonstrationId": "epicycles",
         "framing": {
-          "kind": "coordinate-window",
-          "window": [
-            -2.45,
-            1.5,
-            2.45,
-            -1.5
-          ]
+          "kind": "finite-geometry-fit"
         }
       }
     ]
@@ -394,8 +388,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
-        "sourceRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
+        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
         "pageErrors": []
       }
     },
@@ -652,8 +646,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
-        "sourceRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
+        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
         "pageErrors": []
       }
     },
@@ -677,13 +671,13 @@
       "file": "fourier-series.epicycles.epicycles.png",
       "width": 840,
       "height": 520,
-      "sha256": "04ffceabb7fa01d8dbe0ea74555ac0939dd51e20d10f7c0f608a77995dd7e13a",
+      "sha256": "b733e7a6eb9933d3d88dade6b57c49476c251fbf38f4c61c167fc13f7cc7c3f3",
       "scene": {
-        "visibleElementCount": 31,
+        "visibleElementCount": 33,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 10,
+          "label": 12,
           "curve": 5,
           "point": 12
         },
@@ -888,14 +882,14 @@
         "width": 420,
         "height": 260,
         "scale": 2,
-        "equalUserUnits": false,
+        "equalUserUnits": true,
         "renderedLabelCount": 0,
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 10,
+          "label": 12,
           "curve": 5,
           "point": 12
         }
@@ -903,8 +897,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
-        "sourceRevision": "e08b6457cbf34285bd428527c9a00662d2a504b3",
+        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
         "pageErrors": []
       }
     }

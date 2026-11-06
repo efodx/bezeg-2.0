@@ -1,56 +1,56 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "ac6bd191ec25a9c31c7af393e56563632c816974",
+  "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
   "sourceStateDirty": false,
   "buildStamp": {
     "version": 1,
-    "revision": "ac6bd191ec25a9c31c7af393e56563632c816974",
+    "revision": "c3671955f958c2174602d41c199ba9dff836ff7a",
     "dirty": false,
-    "inputs": "61b525f9ee134bdfe211ee08a4302f5889eacb43027bb011db11b18c02e09e72",
-    "output": "86e49b547492a1efce65ca1c2a82fbe487dc7e025c891493914503bbe03e35c2"
+    "inputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac",
+    "output": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b"
   },
   "servedBuild": {
-    "shellUrl": "http://localhost:4316/bezeg-2.0/",
-    "stampRevision": "ac6bd191ec25a9c31c7af393e56563632c816974",
+    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
+    "stampRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
     "stampDirty": false,
-    "localOutputHash": "86e49b547492a1efce65ca1c2a82fbe487dc7e025c891493914503bbe03e35c2",
+    "localOutputHash": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-BLXmtD5x.js",
-        "url": "http://localhost:4316/bezeg-2.0/assets/index-BLXmtD5x.js",
-        "sha256": "cb41eccdce63dfaeca949a7c96e4bd81b127b9bc205347cdf5b5fdb142635d7a",
+        "name": "index-f4U2AncR.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-f4U2AncR.js",
+        "sha256": "96e74ce8f759b5c17a6ef53ade0a08847896e6a0205f8cafdcf5bbbb909bffc7",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-W7wSyTde.js",
-        "url": "http://localhost:4316/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-W7wSyTde.js",
         "sha256": "ba03c472dc22425d3172a1d58a7f5ffe871faaf8f2c94eb503882fa17fc78d48",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-Dk8ht2V_.js",
-        "url": "http://localhost:4316/bezeg-2.0/assets/jsx-runtime-Dk8ht2V_.js",
-        "sha256": "885ee1a856c91fb6c6ebf24abb4ea68e57a3da48cce67cf16c4559a978499ad2",
+        "name": "jsx-runtime-BQFi9_r6.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-BQFi9_r6.js",
+        "sha256": "6f83720af4df0a2f1235bd2d5c47887a8fdec1aba948e257cc14296731338928",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-CoiKAjtJ.js",
-        "url": "http://localhost:4316/bezeg-2.0/assets/react-dom-CoiKAjtJ.js",
-        "sha256": "2557bda4e05b7895ded6c444690efdce5b1dd0e5c25d0d703179278d35fc6238",
+        "name": "react-dom-DmajdlBW.js",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-DmajdlBW.js",
+        "sha256": "68c10443b205a8b010280741ce99c56b6ed547afdc45e9284f2ea53b88306795",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-BaMZB5Fy.css",
-        "url": "http://localhost:4316/bezeg-2.0/assets/index-BaMZB5Fy.css",
-        "sha256": "bae643a297d5885e35dc68f252ac298fc5cd08ac7952ed15ca8f6fb80d6272fc",
+        "name": "index-COlNNAaK.css",
+        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-COlNNAaK.css",
+        "sha256": "994f6bebec97f20ec00e3de90c231397d46c1e946bc2489891db621a76bba8ad",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://localhost:4316/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
@@ -60,9 +60,9 @@
       "linear-maps.matrix-and-image.linear-map": "955d261c633c09b8251ef6c4928a83d0c263ba016d11f25fc19de817ed840c57",
       "linear-maps.determinant-area.linear-map": "62e39beea43f6354cad85ea0c7635113356d9558ddf185ba67ae3d6cabf2ee10"
     },
-    "presentation": "3fc67a1e7615f0b18a231077f2deb6d110b37d12118146306fc474da347a7e1d",
-    "buildOutput": "86e49b547492a1efce65ca1c2a82fbe487dc7e025c891493914503bbe03e35c2",
-    "buildInputs": "61b525f9ee134bdfe211ee08a4302f5889eacb43027bb011db11b18c02e09e72"
+    "presentation": "77bde587ded50b9ecb129ce2761c684de054dee7cc9a8cdecccfd23dfa966842",
+    "buildOutput": "e44241177e821803866cdb13217d6095efe2754a68dcfb3c16cb7c460e9ad02b",
+    "buildInputs": "477c6a2efc461c3a8dcb2c40a5bb46c3bf8ae3e2c6c0720cc23425d22fb446ac"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -127,7 +127,7 @@
       "file": "linear-maps.matrix-and-image.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "7162ccd9d177d0f00bbe7ee312bb79e692f58861768914a9d1bba8edd489d5f1",
+      "sha256": "e8f93fe0fd5e23a0bfb932c456d58be26bd75c8222088b27a226dde0a517d1a0",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -269,11 +269,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 51,
+          "visibleElementCount": 50,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 30,
+            "label": 29,
             "curve": 8,
             "point": 8,
             "text": 1
@@ -426,8 +426,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "ac6bd191ec25a9c31c7af393e56563632c816974",
-        "sourceRevision": "ac6bd191ec25a9c31c7af393e56563632c816974",
+        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
         "pageErrors": []
       }
     },
@@ -448,7 +448,7 @@
       "file": "linear-maps.determinant-area.linear-map.png",
       "width": 840,
       "height": 520,
-      "sha256": "bf41a7b7a5ce2a0a4944ee1d1fd0979d3fde6e4792ee8b7dc694812b4c74be99",
+      "sha256": "594c3c255c61cdf13e5a4fc0a67421e1c5e19040e12d2c8cbeb43646820ee367",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -590,11 +590,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 51,
+          "visibleElementCount": 50,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 30,
+            "label": 29,
             "curve": 8,
             "point": 8,
             "text": 1
@@ -747,8 +747,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "ac6bd191ec25a9c31c7af393e56563632c816974",
-        "sourceRevision": "ac6bd191ec25a9c31c7af393e56563632c816974",
+        "buildRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
+        "sourceRevision": "c3671955f958c2174602d41c199ba9dff836ff7a",
         "pageErrors": []
       }
     }
