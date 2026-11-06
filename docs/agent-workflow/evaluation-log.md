@@ -2043,3 +2043,12 @@ Implementation, class M, estimated M. `bezeg-worker` Sonnet medium, brief handof
 - 46 calls, 149k tokens, 10 minutes. Reached the 135k watcher at turn 38 with the lesson, wiring and 12 tests written and 4 tests failing. A lesson and its tests in one slice was too much, as with AB-B-2a1; its partial note was usable.
 - Brief error, handler-caused: "all near 0,5" for the 28 unresolved pairs came from the eight visible table rows. The worker's test caught it and its note called the failure test-side. The handler read the kernel's output and found two wide pairs, and a result that misses the root by about 5e-7.
 - Handler reached 175k at turn 47, so the slice goes to handler 65.
+
+### 2026-11-06: AB-B-3, completion (curves handler 65)
+
+Test repair and review, class S. `bezeg-worker` Sonnet medium and `bezeg-reviewer` Sonnet, brief handoff-v12. Accepted; [record](../reviews/advanced-bezier/ab-b-3-lesson.md).
+
+- Worker: 30 calls, 50k tokens, 10 minutes. Fresh start from the partial note, handler rewrote the false prose first, so the worker asserted the real shape instead of loosening. All four failures closed, four mutations observed.
+- Reviewer: 18 calls, 58k tokens, 3 minutes. Re-derived every quoted number, traced the keep margin (the question handoff 64 left open), and found that a tolerance change leaves the student at step 0 with a prompt that did not say to press Play. Unit tests and the browser walk could not see that.
+- Handler: repaired the two text findings itself. The first `smoke-lesson` refused a stale build and my wrapper reported exit 0; read the log, not the wrapper's status.
+- `just check` took 24.5 minutes with the machine shared.
