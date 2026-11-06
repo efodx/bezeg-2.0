@@ -28,7 +28,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 // ---------------------------------------------------------------------------------------------------------------- S1
@@ -201,7 +205,6 @@ const transformationLesson: GuidedLesson = {
                 'The base \\(x^2\\), \\(a=-2\\), \\(b=\\tfrac12\\), \\(c=3\\), \\(d=1\\): \\(y=-2\\bigl(\\tfrac12(x-3)\\bigr)^2+1\\). The vertex is at \\((3,1)\\). The value at \\(x=5\\) is \\(-1\\). The point \\((2,4)\\) goes to \\((2/\\tfrac12+3,\\;-2\\cdot4+1)=(7,-7)\\). The order: \\(x\\) minus \\(c\\), times \\(b\\), square, times \\(a\\), plus \\(d\\).',
             ),
             formulaIds: ['transform-rule', 'transform-point-map'],
-            workedExampleId: 'transform-default-point',
             observationPrompt: text('Izračunaj sliko točke \\((1,1)\\) po pravilu in preveri na grafu.', 'Compute the image of the point \\((1,1)\\) by the rule and check it on the graph.'),
             expectedObservations: [text('Slika \\((2,4)\\) je \\((7,-7)\\), teme \\((3,1)\\), vrednost pri \\(x=5\\) je \\(-1\\).', 'The image of \\((2,4)\\) is \\((7,-7)\\), the vertex \\((3,1)\\), and the value at \\(x=5\\) is \\(-1\\).')],
             scene: transformScene('transform-combine-scene', 'square', -2, 0.5, 3, 1, 2,
@@ -415,7 +418,6 @@ const inverseLesson: GuidedLesson = {
                 'For the base \\(a=2\\) we have \\(2^3=8\\), so \\(\\log_28=3\\): the points \\(P=(3,8)\\) and \\(P\'=(8,3)\\) are mirror images. The slope of \\(2^x\\) at \\(P\\) is \\(8\\ln2\\approx5.5452\\), of \\(\\log_2\\) at \\(P\'\\) it is \\(1/(8\\ln2)\\approx0.18034\\); the product is \\(1\\). The base slider covers \\(0.2\\le a\\le5\\); \\(a=1\\) is missing because \\(1^x\\) is constant.',
             ),
             formulaIds: ['inverse-logarithm', 'inverse-slopes'],
-            workedExampleId: 'inverse-two-slopes',
             observationPrompt: text('Premakni osnovo in opazuj, kako se oba grafa skupaj spreminjata, medtem ko ostaneta zrcalna.', 'Move the base and watch how both graphs change together while staying mirror images.'),
             expectedObservations: [text('Pri \\(a=2\\) je \\(P=(3,8)\\), \\(P\'=(8,3)\\) in smerna koeficienta sta \\(5{,}5452\\) in \\(0{,}18034\\).', 'At \\(a=2\\) we have \\(P=(3,8)\\), \\(P\'=(8,3)\\) and the slopes are \\(5.5452\\) and \\(0.18034\\).')],
             scene: inverseScene('inverse-base-two', 'exp', 2, 3, true, true,
@@ -431,7 +433,6 @@ const inverseLesson: GuidedLesson = {
                 'For the base \\(e\\), \\(P=(1,e)\\) and \\(P\'=(e,1)\\) are mirror points. The slope of \\(e^x\\) at \\(P\\) is \\(e\\approx2.71828\\), of \\(\\ln\\) at \\(P\'\\) it is \\(1/e\\approx0.36788\\). The function \\(e^x\\) takes only values \\(y>0\\) and has the horizontal asymptote \\(y=0\\), so \\(\\ln x\\) is defined for \\(x>0\\), with the vertical asymptote \\(x=0\\).',
             ),
             formulaIds: ['inverse-logarithm'],
-            workedExampleId: 'inverse-natural-slopes',
             observationPrompt: text('Poišči asimptoti obeh grafov in preveri, da se zrcalita druga v drugo.', 'Find the asymptotes of both graphs and check that they mirror each other.'),
             expectedObservations: [text('Asimptoti \\(y=0\\) in \\(x=0\\) sta zrcalni; smerna koeficienta sta \\(e\\) in \\(0{,}36788\\).', 'The asymptotes \\(y=0\\) and \\(x=0\\) are mirror images; the slopes are \\(e\\) and \\(0.36788\\).')],
             scene: inverseScene('inverse-natural-log', 'natural', 2, 1, true, true,

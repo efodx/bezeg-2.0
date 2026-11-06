@@ -192,18 +192,11 @@ test('every active demonstration route has an available lesson unless it opts ou
     expect(ids.filter(id => !LESSON_DEMONSTRATION_IDS.includes(id) && isGuidedLessonAvailable(id))).toEqual([]);
 });
 
-// These lessons list a worked example on steps with no calculation frame, so the learner never sees it (curves handler 54, open for the owner). Remove an id once its lesson is fixed; do not add one.
-const WORKED_EXAMPLE_NOT_SHOWN = [
-    'function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series', 'conic-focal',
-    'root-finding', 'quadrature', 'euler-method', 'fourier-series', 'fourier-coefficients', 'epicycles',
-    'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'projective-five-point', 'projective-three-views',
-];
-
 test('a step with a worked example has a frame that shows it', () => {
     const unshown = GUIDED_LESSON_AVAILABLE_IDS.filter(id => getLessonForDemonstration(id)!.steps.some(step =>
         // A step without authored frames gets one from the runtime, which shows its example; authored frames show it only as a calculation.
         step.workedExample && step.frames && !step.frames.some(frame => frame.kind === 'calculation')));
-    expect(unshown).toEqual(WORKED_EXAMPLE_NOT_SHOWN);
+    expect(unshown).toEqual([]);
 });
 
 describe('typed scene actions', () => {

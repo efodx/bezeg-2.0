@@ -43,7 +43,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 const fourierLesson: GuidedLesson = {
@@ -105,7 +109,7 @@ const fourierLesson: GuidedLesson = {
         {
             id: 'square-three-terms',
             title: text('Dva člena pri \\(x=1{,}57\\)', 'Two terms at \\(x=1.57\\)'),
-            calculationLatex: 'S_3(1.57)=\\frac4\\pi\\left(\\sin 1.57+\\frac{\\sin 4.71}{3}\\right)',
+            calculationLatex: 'S_3(1{,}57)=\\frac4\\pi\\left(\\sin 1{,}57+\\frac{\\sin 4{,}71}{3}\\right)',
             resultLatex: '0{,}84883',
             check: text(
                 'Pri \\(x=1{,}57\\) je \\(\\sin x\\approx1\\) in \\(\\sin 3x\\approx-1\\), zato je \\(S_1\\approx\\tfrac4\\pi=1{,}27324\\) in \\(S_3\\approx\\tfrac4\\pi\\left(1-\\tfrac13\\right)=0{,}84883\\). Tretji člen \\(\\tfrac15\\) vsoto spet dvigne.',
@@ -115,7 +119,7 @@ const fourierLesson: GuidedLesson = {
         {
             id: 'gibbs-peak-eleven',
             title: text('Vrh pri \\(N=11\\)', 'The peak at \\(N=11\\)'),
-            calculationLatex: 'x=\\frac{\\pi}{12}\\approx0.2618,\\qquad S_{11}(x)=\\frac4\\pi\\left(\\sin x+\\frac{\\sin 3x}{3}+\\dots+\\frac{\\sin 11x}{11}\\right)',
+            calculationLatex: 'x=\\frac{\\pi}{12}\\approx0{,}2618,\\qquad S_{11}(x)=\\frac4\\pi\\left(\\sin x+\\frac{\\sin 3x}{3}+\\dots+\\frac{\\sin 11x}{11}\\right)',
             resultLatex: '1{,}18130',
             check: text(
                 'Vrh \\(S_{11}\\) je pri \\(x=\\pi/12\\approx0{,}2618\\) z vrednostjo \\(1{,}18130\\), preseg \\(0{,}18130\\) nad vrednostjo \\(1\\) je \\(9{,}07\\,\\%\\) skoka \\(2\\). Pri \\(N=101\\) je vrh \\(1{,}17901\\) pri \\(x=0{,}0308\\), pri \\(N=1001\\) pa \\(1{,}17898\\) pri \\(x=0{,}00314\\).',

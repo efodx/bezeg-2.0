@@ -28,7 +28,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 // ---------------------------------------------------------------------------------------------------------------- S3
@@ -410,7 +414,6 @@ const rationalLesson: GuidedLesson = {
                 'From \\(x^2-1=(x-2)(x+2)+3\\) we get \\(f(x)=x+2+\\frac{3}{x-2}\\). The oblique asymptote is \\(y=x+2\\), and the difference between the graph and it is the term \\(\\frac{r(x)}{q(x)}=\\frac{3}{x-2}\\). At \\(x=10\\) this term is \\(\\frac38=0.375\\) and \\(f(10)=12.375=12+0.375\\). The slider for \\(x\\) is at \\(10\\) and can only move towards smaller values. Drag it towards the pole \\(2\\): the term \\(\\frac{3}{x-2}\\) grows. Moving it back towards \\(10\\), the term shrinks and the graph approaches the asymptote. At \\(x=2\\), at the pole, there is no term.',
             ),
             formulaIds: ['rat-division'],
-            workedExampleId: 'rat-division-value',
             observationPrompt: text('Premakni drsnik za \\(x\\) z \\(10\\) proti polu \\(2\\) in nazaj proti \\(10\\) ter opazuj, kako se spreminja razdalja do asimptote.', 'Move the slider for \\(x\\) from \\(10\\) towards the pole \\(2\\) and back towards \\(10\\), and watch how the distance to the asymptote changes.'),
             expectedObservations: [text('Pri \\(x=10\\) je razlika do asimptote \\(0{,}375\\); bolj ko se \\(x\\) oddaljuje od pola \\(2\\), manjši je člen \\(\\frac{3}{x-2}\\) po absolutni vrednosti.', 'At \\(x=10\\) the difference from the asymptote is \\(0.375\\); the farther \\(x\\) is from the pole \\(2\\), the smaller the term \\(\\frac{3}{x-2}\\) is in absolute value.')],
             scene: rationalScene('rat-remainder-probe', 'oblique', [], 10,

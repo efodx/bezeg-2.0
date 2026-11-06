@@ -84,7 +84,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 const coefficientsLesson: GuidedLesson = {
@@ -167,7 +171,7 @@ const coefficientsLesson: GuidedLesson = {
         },
         {
             id: 'jump-b1',
-            title: text('Koeficient \\(b_1\\) skoka pri \\(x=1\\)', 'The coefficient \\(b_1\\) of the jump at \\(x=1\\)'),
+            title: text('Prvi primer: koeficient \\(b_1\\) skoka pri \\(x=1\\)', 'The first case: the coefficient \\(b_1\\) of the jump at \\(x=1\\)'),
             calculationLatex: 'b_1=\\frac1\\pi\\Bigl[-\\bigl(F(1)-F(-\\pi)\\bigr)+\\bigl(F(\\pi)-F(1)\\bigr)\\Bigr],\\qquad F(x)=-\\cos x',
             resultLatex: '0{,}98059',
             check: text(
@@ -186,7 +190,6 @@ const coefficientsLesson: GuidedLesson = {
                 'The graph shows the jump \\(f=\\mathrm{sgn}(x-1)\\), the harmonic \\(\\sin x\\) (dotted) and their product, shaded by sign. The coefficient \\(b_1\\) is the signed area of this product divided by \\(\\pi\\). The jump is at \\(x=1\\), not in the middle: to its left \\(f=-1\\), to its right \\(f=1\\). On \\((-\\pi,0)\\) we have \\(\\sin x<0\\) and \\(f=-1\\), on \\((1,\\pi)\\) we have \\(\\sin x>0\\) and \\(f=1\\), so the product is positive on these parts. The graph shows the value of \\(b_1\\) once you check your prediction.',
             ),
             formulaIds: ['coefficient-projection'],
-            workedExampleId: 'jump-b1',
             observationPrompt: text('Pred razkritjem napovedi, ali je \\(b_1\\) pozitiven; nato preberi vrednost in primerjaj pozitivno in negativno osenčeno območje.', 'Before the reveal predict whether \\(b_1\\) is positive; then read the value and compare the positively and negatively shaded regions.'),
             expectedObservations: [text('\\(b_1=0{,}98059>0\\): pozitivno osenčeno območje je večje od negativnega.', '\\(b_1=0.98059>0\\): the positively shaded region is larger than the negative one.')],
             scene: projection('coef-overlap-scene', 'jump', JUMP_HANDLES, 'b', 1,

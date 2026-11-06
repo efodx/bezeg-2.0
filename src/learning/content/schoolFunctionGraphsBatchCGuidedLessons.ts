@@ -27,7 +27,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 // ---------------------------------------------------------------------------------------------------------------- S5
@@ -148,7 +152,6 @@ const seriesLesson: GuidedLesson = {
                 'Five terms are shown: \\(S_5=S_4+aq^4=1.875+0.0625=1.9375\\). The closed form gives the same without adding: \\(S_5=\\dfrac{1-(1/2)^5}{1-1/2}=\\dfrac{31}{16}=1.9375\\). Next step and Play reveal one term at a time; playback stops at the cap of \\(50\\) terms.',
             ),
             formulaIds: ['series-partial-sum'],
-            workedExampleId: 'series-default-sum',
             observationPrompt: text('Pritiskaj Naslednji korak in opazuj, kako se višina novega debelega stolpca razlikuje od prejšnjega.', 'Keep pressing Next step and watch how the height of each new thick bar differs from the previous one.'),
             expectedObservations: [text('Vsak novi debeli stolpec je višji za vrednost novega člena, ta pa se z vsakim korakom razpolovi: \\(S_5=1{,}9375\\).', 'Each new thick bar is higher by the value of the new term, which halves at every step: \\(S_5=1.9375\\).')],
             scene: seriesScene('series-reveal-five', 'default', 5, 0,
@@ -322,7 +325,7 @@ const conicLesson: GuidedLesson = {
         {
             id: 'conic-ellipse-ratio',
             title: text('Razmerje na elipsi \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\) v točki \\(P=(0,3)\\)', 'The ratio on the ellipse \\(\\tfrac{x^2}{25}+\\tfrac{y^2}9=1\\) at \\(P=(0,3)\\)'),
-            calculationLatex: '\\frac{|PF|}{|Pd|}=\\frac5{6.25}',
+            calculationLatex: '\\frac{|PF|}{|Pd|}=\\frac5{6{,}25}',
             resultLatex: '\\frac45',
             check: text(
                 'Tu je \\(a=5\\), \\(b=3\\), \\(c=\\sqrt{25-9}=4\\), gorišče \\(F=(4,0)\\), vodnica \\(x=\\dfrac{a^2}c=6{,}25\\). Je \\(|PF|=\\sqrt{16+9}=5\\) in \\(|Pd|=6{,}25-0=6{,}25\\), torej \\(\\dfrac5{6{,}25}=0{,}8=\\dfrac ca=\\varepsilon\\). Drugo gorišče \\((-4,0)\\) da \\(|PF_2|=5\\) in vsoto \\(10=2a\\).',
@@ -332,7 +335,7 @@ const conicLesson: GuidedLesson = {
         {
             id: 'conic-hyperbola-ratio',
             title: text('Hiperbola \\(\\tfrac{x^2}9-\\tfrac{y^2}{16}=1\\) v točki \\(P=(6,\\sqrt{48})\\)', 'The hyperbola \\(\\tfrac{x^2}9-\\tfrac{y^2}{16}=1\\) at \\(P=(6,\\sqrt{48})\\)'),
-            calculationLatex: '\\frac{|PF|}{|Pd|}=\\frac7{4.2}',
+            calculationLatex: '\\frac{|PF|}{|Pd|}=\\frac7{4{,}2}',
             resultLatex: '\\frac53',
             check: text(
                 'Tu je \\(a=3\\), \\(b=4\\), \\(c=5\\), \\(F=(5,0)\\), \\(F_2=(-5,0)\\), vodnica \\(x=\\dfrac{a^2}c=1{,}8\\). Je \\(|PF|=\\sqrt{1+48}=7\\), \\(|Pd|=6-1{,}8=4{,}2\\) in \\(\\dfrac7{4{,}2}=\\dfrac53=\\varepsilon\\). Drugo gorišče da \\(|PF_2|=\\sqrt{121+48}=13\\), razlika pa je \\(13-7=6=2a\\).',
@@ -343,7 +346,7 @@ const conicLesson: GuidedLesson = {
             id: 'conic-quarter-ellipse-bezier',
             title: text('Četrtina elipse kot racionalna Bézierjeva krivulja', 'A quarter ellipse as a rational Bézier curve'),
             calculationLatex: 'R\\bigl(\\tfrac12\\bigr)=\\frac{P_0+\\sqrt2\\,P_1+P_2}{2+\\sqrt2}',
-            resultLatex: '(3.5355,\\;2.1213)',
+            resultLatex: '(3{,}5355;\\ 2{,}1213)',
             check: text(
                 'Kontrolne točke so \\((5,0)\\), \\((5,3)\\), \\((0,3)\\) z utežmi \\(1\\), \\(\\tfrac{\\sqrt2}2\\), \\(1\\). Pri \\(t=\\tfrac12\\) je imenovalec \\(2+\\sqrt2\\), števec pa \\((5+5\\sqrt2,\\ 3+3\\sqrt2)\\), torej \\(R=(3{,}5355;\\ 2{,}1213)\\). Preverimo: \\(\\tfrac{3{,}5355^2}{25}+\\tfrac{2{,}1213^2}9=0{,}5+0{,}5=1\\).',
                 'The control points are \\((5,0)\\), \\((5,3)\\), \\((0,3)\\) with the weights \\(1\\), \\(\\tfrac{\\sqrt2}2\\), \\(1\\). At \\(t=\\tfrac12\\) the denominator is \\(2+\\sqrt2\\) and the numerator \\((5+5\\sqrt2,\\ 3+3\\sqrt2)\\), so \\(R=(3.5355,\\ 2.1213)\\). Check: \\(\\tfrac{3.5355^2}{25}+\\tfrac{2.1213^2}9=0.5+0.5=1\\).',

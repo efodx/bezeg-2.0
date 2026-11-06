@@ -29,7 +29,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frameOf(`${content.id}-explanation`, 'explanation'), frameOf(`${content.id}-observation`, 'observation')],
+    frames: [
+        frameOf(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frameOf(`${content.id}-calculation`, 'calculation')] : []),
+        frameOf(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 type FivePointSceneOperation = Extract<LessonAction, {kind: 'projective'; operation: 'five-point-set-end' | 'five-point-set-third' | 'five-point-place'}>;
@@ -101,8 +105,8 @@ export const fivePointLesson: GuidedLesson = {
             calculationLatex: '\\lambda=\\sqrt2-1,\\quad w=\\frac{\\lambda}{1-\\lambda}',
             resultLatex: 'w=\\frac{\\sqrt2}2',
             check: text(
-                'Središče tetive \\(P_0P_2\\) je \\(M=(\\tfrac52,\\tfrac32)\\). Točka loka pri \\(t=\\tfrac12\\) leži na daljici od \\(M\\) do \\(P_1=(5,3)\\) v razmerju \\(\\lambda=\\sqrt2-1\\), zato je \\(w=\\tfrac{\\lambda}{1-\\lambda}=\\tfrac{\\sqrt2-1}{2-\\sqrt2}=\\tfrac1{\\sqrt2}=\\tfrac{\\sqrt2}2\\).',
-                'The midpoint of the chord \\(P_0P_2\\) is \\(M=(\\tfrac52,\\tfrac32)\\). The arc point at \\(t=\\tfrac12\\) lies on the segment from \\(M\\) to \\(P_1=(5,3)\\) at the ratio \\(\\lambda=\\sqrt2-1\\), so \\(w=\\tfrac{\\lambda}{1-\\lambda}=\\tfrac{\\sqrt2-1}{2-\\sqrt2}=\\tfrac1{\\sqrt2}=\\tfrac{\\sqrt2}2\\).',
+                'Središče tetive \\(P_0P_2\\) je \\(M=(\\tfrac52,\\tfrac32)\\). Tretja točka \\(D\\) je točka loka pri \\(t=\\tfrac12\\); leži na daljici od \\(M\\) do \\(P_1=(5,3)\\), njen delež od \\(M\\) proti \\(P_1\\) pa je \\(\\lambda=\\sqrt2-1\\), zato je \\(w=\\tfrac{\\lambda}{1-\\lambda}=\\tfrac{\\sqrt2-1}{2-\\sqrt2}=\\tfrac1{\\sqrt2}=\\tfrac{\\sqrt2}2\\).',
+                'The midpoint of the chord \\(P_0P_2\\) is \\(M=(\\tfrac52,\\tfrac32)\\). The third point \\(D\\) is the arc point at \\(t=\\tfrac12\\); it lies on the segment from \\(M\\) to \\(P_1=(5,3)\\), and its fraction of the way from \\(M\\) towards \\(P_1\\) is \\(\\lambda=\\sqrt2-1\\), so \\(w=\\tfrac{\\lambda}{1-\\lambda}=\\tfrac{\\sqrt2-1}{2-\\sqrt2}=\\tfrac1{\\sqrt2}=\\tfrac{\\sqrt2}2\\).',
             ),
         },
     ],

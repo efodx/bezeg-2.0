@@ -2087,7 +2087,7 @@ const rootFinding = {
     path: `${BASE}/analysis/root-finding`,
     titles: {sl: 'Tangentna (Newtonova) in sekantna metoda', en: "Newton's method and the secant method"},
     steps: 20,
-    minFrames: 40, // at least 2 frames per step (steps with a worked example add a calculation frame)
+    minFrames: 45, // 2 frames per step plus a calculation frame for each of 5 worked-example steps
     offscreenSteps: [11], // x1 = 12.2 lies far right of the window on purpose
     stepProbe: async (page, ctx, step, label) => {
         await expect(boardText(page, new RegExp(`(korak|step) ${ROOT_FINDING_STEP_COUNTS[step - 1]},`)).first(), `root-finding step count at ${label}`).toBeVisible();
@@ -2104,7 +2104,7 @@ const quadrature = {
     path: `${BASE}/analysis/quadrature`,
     titles: {sl: 'Trapezno in Simpsonovo pravilo', en: 'The trapezoid and Simpson rules'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step (steps with a worked example add a calculation frame)
+    minFrames: 16, // 2 frames per step plus a calculation frame for each of 2 worked-example steps
 };
 
 // Numerical methods N5 (Euler): the readout panel shows the steps, the approximation, the exact value and the errors of each scene; the real-graph test of
@@ -2114,7 +2114,7 @@ const eulerMethod = {
     path: `${BASE}/analysis/euler-method`,
     titles: {sl: 'Polje smeri in Eulerjeva metoda', en: "Direction field and Euler's method"},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step (steps with a worked example add a calculation frame)
+    minFrames: 16, // 2 frames per step plus a calculation frame for each of 2 worked-example steps
 };
 
 // School function graphs S1 (graph transformations) and S2 (inverse functions and the logarithm); the real-graph test of
@@ -2124,42 +2124,42 @@ const functionTransformation = {
     path: `${BASE}/functions/transformations`,
     titles: {sl: 'Preoblikovanje grafov funkcij', en: 'Graph transformations'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 15, // 2 frames per step plus a calculation frame for each of 1 worked-example steps
 };
 const functionInverse = {
     id: 'function-inverse',
     path: `${BASE}/functions/inverse`,
     titles: {sl: 'Inverzne funkcije in logaritem', en: 'Inverse functions and the logarithm'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 15, // 2 frames per step plus a calculation frame for each of 1 worked-example steps
 };
 const polynomialZeros = {
     id: 'polynomial-zeros',
     path: `${BASE}/functions/polynomial-zeros`,
     titles: {sl: 'Ničle polinoma in večkratnost', en: 'Polynomial zeros and multiplicity'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 16, // 2 frames per step plus a calculation frame for each of 2 worked-example steps
 };
 const rationalFunction = {
     id: 'rational-function',
     path: `${BASE}/functions/rational-functions`,
     titles: {sl: 'Racionalne funkcije: ničle, poli, luknje in asimptote', en: 'Rational functions: zeros, poles, holes, asymptotes'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 15, // 2 frames per step plus a calculation frame for each of 1 worked-example steps
 };
 const geometricSeries = {
     id: 'geometric-series',
     path: `${BASE}/functions/geometric-series`,
     titles: {sl: 'Geometrijska vrsta in delne vsote', en: 'Geometric series and partial sums'},
     steps: 8,
-    minFrames: 16, // at least 2 frames per step
+    minFrames: 17, // 2 frames per step plus a calculation frame for each of 1 worked-example steps
 };
 const conicFocal = {
     id: 'conic-focal',
     path: `${BASE}/functions/conics`,
     titles: {sl: 'Stožnice: gorišče, vodnica, ekscentričnost in most do Bézierja', en: 'Conics: focus, directrix, eccentricity and the Bézier bridge'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 17, // 2 frames per step plus a calculation frame for each of 3 worked-example steps
 };
 
 // Coons patch: the shown-surface select and the corner status differ along the lesson. Per step 1..7: S, Lc, Ld, S, S, S (one corner moved, linked corners off), S.
@@ -2183,7 +2183,7 @@ const fourierSeries = {
     path: `${BASE}/analysis/fourier-series`,
     titles: {sl: 'Fourierova vrsta: delne vsote in Gibbsov pojav', en: 'Fourier series: partial sums and the Gibbs phenomenon'},
     steps: 13,
-    minFrames: 26, // at least 2 frames per step
+    minFrames: 28, // 2 frames per step plus a calculation frame for each of 2 worked-example steps
 };
 
 // Fourier coefficients F2 and F4: the real-graph test of fourierCoefficientsGuidedLessons.test.ts checks every scene state, so this row carries no hooks.
@@ -2192,7 +2192,7 @@ const fourierCoefficients = {
     path: `${BASE}/analysis/fourier-coefficients`,
     titles: {sl: 'Fourierovi koeficienti: projekcije in pojemanje', en: 'Fourier coefficients: projections and decay'},
     steps: 14,
-    minFrames: 28, // at least 2 frames per step
+    minFrames: 30, // 2 frames per step plus a calculation frame for each of 2 worked-example steps
 };
 
 // Projective conics K1 (cross-ratio); the real-graph test of projectiveConicsGuidedLessons.test.ts checks every scene state, so this row carries no hooks.
@@ -2201,7 +2201,7 @@ const projectiveCrossRatio = {
     path: `${BASE}/projective/cross-ratio`,
     titles: {sl: 'Dvorazmerje', en: 'Cross-ratio'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 16, // 2 frames per step plus a calculation frame for each of 2 worked-example steps
 };
 
 // B-spline basis L1: the real-graph test of bsplineBasisGuidedLessons.test.tsx checks every scene state, so this row carries no hooks.
@@ -2219,7 +2219,7 @@ const projectivePascal = {
     path: `${BASE}/projective/pascal`,
     titles: {sl: 'Pascalov izrek', en: "Pascal's theorem"},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 16, // 2 frames per step plus a calculation frame for each of 2 worked-example steps
 };
 
 // Projective conics K3 (pole and polar); the real-graph test of projectivePoleLesson.test.ts checks every scene state, so this row carries no hooks.
@@ -2228,7 +2228,7 @@ const projectivePolePolar = {
     path: `${BASE}/projective/pole-polar`,
     titles: {sl: 'Pol in polara', en: 'Pole and polar'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 15, // 2 frames per step plus a calculation frame for each of 1 worked-example steps
 };
 
 // B-spline de Boor L2: bsplineDeBoorGuidedLessons.test.tsx checks every scene state on the real graph, so this row carries no hooks.
@@ -2282,7 +2282,7 @@ const projectiveFivePoint = {
     path: `${BASE}/projective/five-point`,
     titles: {sl: 'Stožnica skozi pet točk', en: 'A conic through five points'},
     steps: 9,
-    minFrames: 18, // at least 2 frames per step
+    minFrames: 19, // 2 frames per step plus a calculation frame for each of 1 worked-example steps
 };
 
 // Projective conics K5 (one conic, three views); projectiveThreeViewsLesson.test.ts checks every scene state on the real graph, so this row carries no hooks.
@@ -2291,7 +2291,7 @@ const projectiveThreeViews = {
     path: `${BASE}/projective/three-views`,
     titles: {sl: 'Ena stožnica, trije pogledi', en: 'One conic, three views'},
     steps: 7,
-    minFrames: 14, // at least 2 frames per step
+    minFrames: 15, // 2 frames per step plus a calculation frame for each of 1 worked-example steps
 };
 
 // Probability P1 (density and probability as area): the area-percent readout per lesson step 1..6 (the interval -4 to 4, the bounds -1.5 and 0.5, mu +- sigma, N(1; 1.5^2) with mu +- sigma, N(100; 15^2) with 85 and 130, the default); language independent once the decimal comma is normalised.
@@ -2388,7 +2388,7 @@ const epicycles = {
     path: `${BASE}/analysis/epicycles`,
     titles: {sl: 'Epicikli: sklenjena krivulja kot vsota vrtečih se krogov', en: 'Epicycles: a closed curve as a sum of rotating circles'},
     steps: 9,
-    minFrames: 18, // at least 2 frames per step
+    minFrames: 19, // 2 frames per step plus a calculation frame for each of 1 worked-example steps
 };
 
 // Degree reduction: the end-point mode per step 1..7; only step 5 frees the end points.

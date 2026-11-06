@@ -29,7 +29,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frameOf(`${content.id}-explanation`, 'explanation'), frameOf(`${content.id}-observation`, 'observation')],
+    frames: [
+        frameOf(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frameOf(`${content.id}-calculation`, 'calculation')] : []),
+        frameOf(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 /**

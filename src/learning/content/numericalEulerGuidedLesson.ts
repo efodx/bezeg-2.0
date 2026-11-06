@@ -53,7 +53,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 const eulerLesson: GuidedLesson = {
@@ -115,8 +119,8 @@ const eulerLesson: GuidedLesson = {
             calculationLatex: 'y_2=y_1+h\\,F(x_1,y_1)=1{,}5+0{,}5\\cdot1{,}5=2{,}25',
             resultLatex: '2{,}25',
             check: text(
-                'V točki \\((0{,}5;\\,1{,}5)\\) je naklon \\(F=1{,}5\\), drugi korak pa gre do \\(y_2=1{,}5+0{,}5\\cdot1{,}5=2{,}25\\). Natančna rešitev \\(e^x\\) je pri \\(x=1\\) enaka \\(e\\approx2{,}7183\\).',
-                'At the point \\((0.5,\\,1.5)\\) the slope is \\(F=1.5\\), and the second step goes to \\(y_2=1.5+0.5\\cdot1.5=2.25\\). The exact solution \\(e^x\\) is \\(e\\approx2.7183\\) at \\(x=1\\).',
+                'V točki \\((0{,}5;\\,1{,}5)\\) je naklon \\(F=1{,}5\\), drugi korak pa gre do \\(y_2=1{,}5+0{,}5\\cdot1{,}5=2{,}25\\). Ali je to pod ali nad pravo vrednostjo, presodi iz polja.',
+                'At the point \\((0.5,\\,1.5)\\) the slope is \\(F=1.5\\), and the second step goes to \\(y_2=1.5+0.5\\cdot1.5=2.25\\). Whether this is below or above the true value, decide from the field.',
             ),
         },
     ],

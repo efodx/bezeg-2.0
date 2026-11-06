@@ -92,6 +92,13 @@ const lessonSets: readonly (readonly [string, readonly {demonstrationId: string}
 
 const TEX_FIELDS = new Set(['latex', 'calculationLatex', 'resultLatex']);
 const SKIPPED_KEYS = new Set(['sources']);
+// Lessons whose shared latex fields already write decimals as {,} like their Slovenian prose. Other lessons still hold decimal points
+// there (repeated-subdivision, curve-offset, ph-quintic, ph-cubic, uniform-parameterization, spline-parameterization); add an id once fixed.
+const DECIMAL_COMMA_LATEX_LESSONS = new Set([
+    'function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series', 'conic-focal',
+    'root-finding', 'quadrature', 'euler-method', 'fourier-series', 'fourier-coefficients', 'epicycles',
+    'projective-cross-ratio', 'projective-pascal', 'projective-pole-polar', 'projective-five-point', 'projective-three-views',
+]);
 
 function collectLocalized(value: unknown, path: string, out: {path: string; lang: string; text: string}[]): void {
     if (Array.isArray(value)) {
@@ -191,6 +198,7 @@ function findings(): string[] {
             const tex: {path: string; text: string}[] = [];
             collectTex(lesson, '', tex);
             for (const {path, text} of tex) {
+                if (DECIMAL_COMMA_LATEX_LESSONS.has(lesson.demonstrationId) && /\d\.\d/.test(text)) result.push(`${where} ${path} decimal point in a latex field shared by both languages (use {,}): ${text}`);
                 if (/\\[()[\]]/.test(text)) result.push(`${where} ${path} contains math delimiters (added by lessonCatalog): ${text}`);
             }
         }

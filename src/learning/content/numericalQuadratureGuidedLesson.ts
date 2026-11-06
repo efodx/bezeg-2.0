@@ -51,7 +51,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
+    ],
 });
 
 const quadratureLesson: GuidedLesson = {
@@ -110,7 +114,7 @@ const quadratureLesson: GuidedLesson = {
         },
         {
             id: 'simpson-two',
-            title: text('Simpsonovo pravilo za \\(\\sin x\\) na \\([0,\\pi]\\), \\(n=2\\)', 'The Simpson rule for \\(\\sin x\\) on \\([0,\\pi]\\), \\(n=2\\)'),
+            title: text('Osnova za razmerje napak: Simpsonovo pravilo za \\(\\sin x\\) na \\([0,\\pi]\\), \\(n=2\\)', 'Baseline for the ratio of the errors: the Simpson rule for \\(\\sin x\\) on \\([0,\\pi]\\), \\(n=2\\)'),
             calculationLatex: 'S_2=\\frac{\\pi/2}{3}\\left(0+4\\cdot1+0\\right)=\\frac{2\\pi}3',
             resultLatex: '2{,}0944',
             check: text(

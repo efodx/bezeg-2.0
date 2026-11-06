@@ -65,7 +65,11 @@ interface StepContent {
 
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
+    ],
     animation: {animationId: 'root-finding'},
 });
 
@@ -258,7 +262,6 @@ const rootFindingLesson: GuidedLesson = {
                 'The graph shows \\(f(x)=x^3-2x+2\\) and the start \\(x_0=0\\), no step has been taken yet. Here \\(f(0)=2\\) and \\(f\'(0)=-2\\). Predict \\(x_1\\), then \\(x_2\\): where does the iteration go and does it approach the only real root near \\(-1.7693\\)?',
             ),
             formulaIds: ['newton-cycle'],
-            workedExampleId: 'newton-two-cycle',
             observationPrompt: text('Izračunaj \\(x_1\\) in \\(x_2\\) na papirju, preden pritisneš Naslednji korak.', 'Compute \\(x_1\\) and \\(x_2\\) on paper before you press Next step.'),
             expectedObservations: [text('Pri \\(x_0=0\\) je \\(f(0)=2\\) in korak še ni narejen.', 'At \\(x_0=0\\) we have \\(f(0)=2\\) and no step has been taken yet.')],
             scene: newtonScene('newton-fail-predict-start', 'cubic-two-cycle', 0, 0,
