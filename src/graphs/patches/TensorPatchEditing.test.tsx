@@ -315,7 +315,7 @@ describe("JSX surface view", () => {
         }
         if (selected) {
             const [i, j] = selected, name = `P${sub(i)}${sub(j)}`;
-            expect([input(`${name} x`).value, input(`${name} y`).value, input(`${name} z`).value]).toEqual(jsx.shown(`p-${i}-${j}`).map(String));
+            expect([input(`${name} x`).value, input(`${name} y`).value, input(`${name} z`).value]).toEqual(jsx.shown(`p-${i}-${j}`).map(value => String(Number(value.toFixed(4)))));
         }
     }
 

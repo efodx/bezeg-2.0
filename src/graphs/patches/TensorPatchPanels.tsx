@@ -86,6 +86,8 @@ const NO_INDEX = "";
 export function PointEditor({name, xyz, onApply}: {name: string; xyz: Xyz; onApply: (xyz: Xyz) => void}) {
     const t = useT();
     const [error, setError] = useState(false);
+    // A drag leaves long decimals. The field rounds them; an axis left as shown keeps its exact value on Apply.
+    const shown = xyz.map(value => Number(value.toFixed(4)));
     return <div className="point-coordinate-editor patch-point-editor"><form className="point-coordinate-form" onSubmit={event => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -96,12 +98,13 @@ export function PointEditor({name, xyz, onApply}: {name: string; xyz: Xyz; onApp
             return;
         }
         setError(false);
-        onApply([next[0], next[1], next[2]]);
+        const [x, y, z] = next.map((value, k) => value === shown[k] ? xyz[k] : value);
+        onApply([x, y, z]);
     }}>
         <fieldset className="point-coordinate-row"><legend><span className="point-coordinate-name" aria-hidden="true">{name}</span><span className="visually-hidden">{name}</span></legend>
             <div className="point-coordinate-values patch-xyz-values">
                 {AXES.map((axis, k) => <label key={axis}><span className="point-coordinate-axis" aria-hidden="true">{axis}</span>
-                    <input aria-label={`${name} ${axis}`} name={axis} type="number" step="any" required defaultValue={xyz[k]}/></label>)}
+                    <input aria-label={`${name} ${axis}`} name={axis} type="number" step="any" required defaultValue={shown[k]}/></label>)}
             </div>
         </fieldset>
         <button className="point-coordinate-submit" type="submit">{t("apply_coordinates")}</button>

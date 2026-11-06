@@ -233,7 +233,7 @@ describe("JSX surface view", () => {
         if (selected) {
             const name = `P${selected.map(sub).join("")}`;
             expect([input(`${name} x`).value, input(`${name} y`).value, input(`${name} z`).value])
-                .toEqual(jsx.shown(triangularPointId(...selected)).map(String));
+                .toEqual(jsx.shown(triangularPointId(...selected)).map(value => String(Number(value.toFixed(4)))));
         }
     }
 
