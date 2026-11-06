@@ -199,6 +199,8 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     if (!board) throw new Error('Could not find the route-owned JSXGraph board');
 
                     const keepCoordinateContext = options.keepCoordinateContext;
+                    // The rational weight labels are JSXGraph smartlabels, a text with its own elType.
+                    const isLabel = object => ['text', 'smartlabel'].includes(object.elType);
                     // Point names collide at card size. Hide only their route-owned label DOM.
                     Object.values(board.objects || {}).filter(o => o.elType === 'point' && o.label?.rendNode).forEach(o => o.label.rendNode.style.setProperty('display', 'none', 'important'));
                     if (options.window) Object.values(board.objects || {}).filter(o => o.elType === 'text').forEach(o => {
@@ -358,7 +360,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                         const currentOriginY = board.origin.scrCoords[2];
                         // Axis/tick labels are viewport context, not scene annotations; exclude them
                         // from fitting so the edge ticks do not recursively move the coordinate frame.
-                        const labelNodes = contentObjects.filter(object => object.elType === 'text' && isVisible(object))
+                        const labelNodes = contentObjects.filter(object => isLabel(object) && isVisible(object))
                             .map(object => object.rendNode);
                         labelNodes.forEach(node => {
                             const rect = node.getBoundingClientRect();
@@ -452,14 +454,14 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                     }
                     const keptWeightRects = [];
                     const omittedAnnotations = [];
-                    contentObjects.filter(o => o.elType === 'text' && isVisible(o) && String(o.visProp?.cssclass).includes('smart-label-point2')).forEach(o => {
+                    contentObjects.filter(o => isLabel(o) && isVisible(o) && String(o.visProp?.cssclass).includes('smart-label-point2')).forEach(o => {
                         const r = o.rendNode.getBoundingClientRect();
                         if (keptWeightRects.some(k => r.left < k.right + 5 && r.right > k.left - 5 && r.top < k.bottom + 5 && r.bottom > k.top - 5)) {
                             omittedAnnotations.push({id:o.id,text:o.rendNode.textContent,reason:'weight-label-overlap'});
                             o.rendNode.style.setProperty('display','none','important');
                         } else keptWeightRects.push(r);
                     });
-                    const finalLabels = contentObjects.filter(object => object.elType === 'text' && isVisible(object));
+                    const finalLabels = contentObjects.filter(object => isLabel(object) && isVisible(object));
                     finalLabels.forEach(label => {
                         if (options.window) return;
                         const rect = label.rendNode.getBoundingClientRect();
@@ -493,7 +495,7 @@ async function presentBoard(boardLocator, demonstration, recipe, configuration =
                         omittedAnnotations,
                         selectedConclusions: Object.values(board.objects).filter(o=>o.elType==='text'&&o.rendNode&&getComputedStyle(o.rendNode).display!=='none').flatMap(o=>[...o.rendNode.children].filter(e=>/globalni min|konveksna na|konkavna na|brez trditve/.test(e.textContent)&&getComputedStyle(e).display!=='none').map(e=>({text:e.textContent,clipPath:getComputedStyle(o.rendNode).clipPath,withinFrame:e.getBoundingClientRect().bottom<=container.getBoundingClientRect().bottom&&e.getBoundingClientRect().top>=container.getBoundingClientRect().top}))),
                         outOfFrameElements,
-                        renderedLabelCount: contentObjects.filter(object => object.elType === 'text' && isVisible(object)).length,
+                        renderedLabelCount: contentObjects.filter(object => isLabel(object) && isVisible(object)).length,
                         mathJaxLabelCount: container.querySelectorAll('mjx-container').length,
                         axesAndGrid: keepCoordinateContext ? 'retain' : 'hide',
                         boundsPolicy: 'finite visible objects and point coordinates; excludes axes, ticks, and grid; up to three text-aware refits; coordinate-route curves may extend beyond the viewport',
