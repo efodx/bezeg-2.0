@@ -14,6 +14,7 @@ import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
 import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
 import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
 import {advancedBezierPreviewCopy} from '../content/advancedBezierPreviewCopy';
+import {convexityPreviewCopy} from '../content/convexityPreviewCopy';
 
 interface InventoryEntry {
     id: string;
@@ -235,6 +236,10 @@ const functionsCards: readonly FunctionsCard[] = [
     {chapterId: 'advanced-bezier', copy: advancedBezierPreviewCopy,
         ids: ['advanced-bezier.arc-length-param.arc-length-param', 'advanced-bezier.bezier-clipping.bezier-clipping', 'advanced-bezier.patch-coons.patch-coons', 'advanced-bezier.reduction.reduction'],
         counts: [[1, 14], [4, 6], [1, 0], [3, 11]]},
+    {chapterId: 'convexity-hulls', copy: convexityPreviewCopy,
+        ids: ['convexity-hulls.bezier-hulls.bezier-hulls', 'convexity-hulls.convex-hull.convex-hull', 'convexity-hulls.hull-robustness.hull-robustness',
+            'convexity-hulls.orientation.orientation', 'convexity-hulls.point-in-polygon.point-in-polygon', 'convexity-hulls.polygon-area.polygon-area'],
+        counts: [[4, 6], [2, 9], [2, 3], [0, 2], [0, 6], [2, 5]]},
 ];
 
 for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of functionsCards) {

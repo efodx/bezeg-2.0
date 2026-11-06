@@ -285,6 +285,12 @@ test('numerical, school, fourier, projective and curve-geometry capture families
             {id: 'curve-geometry.curve-evolute.curve-evolute', path: '/bezeg-2.0/curve-geometry/evolute?example=lesson.curve-geometry.curve-evolute.curve-evolute'},
             {id: 'curve-geometry.curve-offset.curve-offset', path: '/bezeg-2.0/curve-geometry/offset?example=lesson.curve-geometry.curve-offset.curve-offset'},
             {id: 'curve-geometry.curve-envelope.curve-envelope', path: '/bezeg-2.0/curve-geometry/envelope?example=lesson.curve-geometry.curve-envelope.curve-envelope'}],
+        'convexity-hulls': [{id: 'convexity-hulls.orientation.orientation', path: '/bezeg-2.0/compgeo/orientation?example=lesson.convexity-hulls.orientation.orientation'},
+            {id: 'convexity-hulls.polygon-area.polygon-area', path: '/bezeg-2.0/compgeo/polygon-area?example=lesson.convexity-hulls.polygon-area.polygon-area'},
+            {id: 'convexity-hulls.point-in-polygon.point-in-polygon', path: '/bezeg-2.0/compgeo/point-in-polygon?example=lesson.convexity-hulls.point-in-polygon.point-in-polygon'},
+            {id: 'convexity-hulls.convex-hull.convex-hull', path: '/bezeg-2.0/compgeo/convex-hull?example=lesson.convexity-hulls.convex-hull.convex-hull'},
+            {id: 'convexity-hulls.hull-robustness.hull-robustness', path: '/bezeg-2.0/compgeo/hull-robustness?example=lesson.convexity-hulls.hull-robustness.hull-robustness'},
+            {id: 'convexity-hulls.bezier-hulls.bezier-hulls', path: '/bezeg-2.0/compgeo/bezier-hulls?example=lesson.convexity-hulls.bezier-hulls.bezier-hulls'}],
     };
     const root = path.resolve(__dirname, '..');
     for (const [family, list] of Object.entries(entries)) {
@@ -314,6 +320,8 @@ test('numerical, school, fourier, projective and curve-geometry capture families
         assert.throws(() => assertInventoryFamily([{...entries['projective-conics'][0], path}], 'projective-conics'), /requires a projective-conics inventory/);
     for (const path of ['/bezeg-2.0/curve-geometry/parametricx', '/bezeg-2.0/curve-geometry/curvaturex', '/bezeg-2.0/curve-geometry/combx', '/bezeg-2.0/curve-geometry/evolutes', '/bezeg-2.0/curve-geometry/offsets', '/bezeg-2.0/curve-geometry/envelopes', '/bezeg-2.0/curve-geometry', '/bezeg-2.0/curve-geometry/other', '/bezeg-2.0/parametric'])
         assert.throws(() => assertInventoryFamily([{...entries['curve-geometry'][0], path}], 'curve-geometry'), /requires a curve-geometry inventory/);
+    for (const path of ['/bezeg-2.0/compgeo/orientationx', '/bezeg-2.0/compgeo', '/bezeg-2.0/compgeo/convex-hulls', '/bezeg-2.0/compgeo/ear-clipping', '/bezeg-2.0/compgeo/delaunay', '/bezeg-2.0/orientation'])
+        assert.throws(() => assertInventoryFamily([{...entries['convexity-hulls'][0], path}], 'convexity-hulls'), /requires a convexity-hulls inventory/);
     for (const path of ['/bezeg-2.0/bezier/reductions', '/bezeg-2.0/bezier/arc-lengths', '/bezeg-2.0/bezier/clippings', '/bezeg-2.0/patches/coonsx', '/bezeg-2.0/bezier', '/bezeg-2.0/patches/tensor', '/bezeg-2.0/reduction'])
         assert.throws(() => assertInventoryFamily([{...entries['advanced-bezier'][0], path}], 'advanced-bezier'), /requires a advanced-bezier inventory/);
 });

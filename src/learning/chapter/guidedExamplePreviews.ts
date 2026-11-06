@@ -18,6 +18,7 @@ import {fourierPreviewCopy} from '../content/fourierPreviewCopy';
 import {projectiveConicsPreviewCopy} from '../content/projectiveConicsPreviewCopy';
 import {curveGeometryPreviewCopy} from '../content/curveGeometryPreviewCopy';
 import {advancedBezierPreviewCopy} from '../content/advancedBezierPreviewCopy';
+import {convexityPreviewCopy} from '../content/convexityPreviewCopy';
 import {mathAltText} from './mathAltText';
 
 const imageUrls = import.meta.glob<string>('/src/images/learning/examples/*.png', {
@@ -52,6 +53,7 @@ export const CHAPTER_GUIDED_EXAMPLE_PREVIEWS: Readonly<Record<string, Readonly<R
     'projective-conics': projectiveConicsPreviewCopy,
     'curve-geometry': curveGeometryPreviewCopy,
     'advanced-bezier': advancedBezierPreviewCopy,
+    'convexity-hulls': convexityPreviewCopy,
 };
 
 function chapterOwnedPreview(id: string): {copy: GuidedExamplePreviewCopy; src: string | undefined} | undefined {
