@@ -19,6 +19,11 @@ export function formatNumber(value: number, language: NumberLanguage, maxDecimal
     return negative ? `${MINUS_SIGN}${text}` : text;
 }
 
+/** Text a library already formatted (rounding, exponent) with the language's decimal separator: `0.25` is `0,25` in Slovenian. */
+export function withDecimalSeparator(text: string, language: NumberLanguage): string {
+    return language === 'sl' ? text.replace('.', ',') : text;
+}
+
 /** The line y = slope x + intercept as text ("y = 0.5x + 1.5", "y = x − 0.25", "y = 0"), rounded like `formatNumber`. */
 export function formatLineEquation(line: {readonly slope: number; readonly intercept: number}, language: NumberLanguage, maxDecimals = 2): string {
     const slope = formatNumber(line.slope, language, maxDecimals);

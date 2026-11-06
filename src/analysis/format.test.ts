@@ -1,4 +1,4 @@
-import {formatSignificant} from './format';
+import {formatSignificant, withDecimalSeparator} from './format';
 
 test('significant-digit formatting keeps plain decimals in the readable range and exponents outside it', () => {
     expect(formatSignificant(0.000226, 'en')).toBe('0.000226');
@@ -18,4 +18,12 @@ test('floating-point noise and non-finite values never leak: below 1e-12 shows 0
     expect(formatSignificant(1e-11, 'en')).toBe('1·10⁻¹¹');
     expect(formatSignificant(NaN, 'en')).toBe('—');
     expect(formatSignificant(Infinity, 'sl')).toBe('—');
+});
+
+test('already formatted text takes the language decimal separator and nothing else changes', () => {
+    expect(withDecimalSeparator('0.25', 'sl')).toBe('0,25');
+    expect(withDecimalSeparator('−1.5', 'sl')).toBe('−1,5');
+    expect(withDecimalSeparator('1.234e-7', 'sl')).toBe('1,234e-7');
+    expect(withDecimalSeparator('12', 'sl')).toBe('12');
+    expect(withDecimalSeparator('0.25', 'en')).toBe('0.25');
 });

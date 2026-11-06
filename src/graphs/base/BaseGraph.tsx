@@ -1,4 +1,4 @@
-import {Message, renderMessage, t} from "../../localization";
+import {Message, onLanguageChange, renderMessage, t} from "../../localization";
 import React from 'react';
 
 
@@ -807,6 +807,8 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             showNavigation: false,
             defaultAxes: this.defaultAxesAttributes(),
         });
+        // Tick labels use the language's decimal separator and are rebuilt only by a full update.
+        session.registerCleanup(onLanguageChange(() => this.board?.fullUpdate()));
     }
 
     /**

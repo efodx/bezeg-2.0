@@ -79,6 +79,37 @@ const typePoint = (i: number, x: number, y: number) => {
     typeIn(new RegExp(`^Točka ${i}, y$`), y);
 };
 
+/** The y axis tick labels as drawn, after a view whose tick step is a fraction. */
+const tickTexts = (graph: ObservedCorrelationGraph) => {
+    const axis = (graph.liveBoard() as unknown as {defaultAxes: {y: {defaultTicks: {labels: {plaintext: string}[]}}}}).defaultAxes.y;
+    return axis.defaultTicks.labels.map(label => label.plaintext);
+};
+
+describe('tick labels', () => {
+    const zoom = (graph: ObservedCorrelationGraph, half: number) => act(() => { graph.liveBoard().setBoundingBox([-half, half, half, -half], false); });
+    const fractional = (labels: string[]) => labels.filter(label => /[.,]/.test(label));
+
+    test('a Slovenian board writes tick decimals with a comma, and a language switch redraws them', () => {
+        const {graph} = mount();
+        zoom(graph, 0.5);
+        expect(fractional(tickTexts(graph)).length).toBeGreaterThan(0);
+        expect(tickTexts(graph).join(' ')).not.toContain('.');
+        act(() => setLanguage('en'));
+        expect(fractional(tickTexts(graph)).length).toBeGreaterThan(0);
+        expect(tickTexts(graph).join(' ')).not.toContain(',');
+        act(() => setLanguage('sl'));
+        expect(tickTexts(graph).join(' ')).not.toContain('.');
+    });
+
+    test('a deep zoom keeps ticks apart: labels are not rounded to a few places', () => {
+        const {graph} = mount();
+        zoom(graph, 0.002);
+        const labels = fractional(tickTexts(graph));
+        expect(labels.length).toBeGreaterThan(1);
+        expect(new Set(labels).size).toBe(labels.length);
+    });
+});
+
 describe('defaults and examples', () => {
     test('defaults: r 0,92338, r² 0,852632, line y = 0,9x + 0,9, SSres 0,7, slope identity 0,9, no x-on-y row', () => {
         const {graph} = mount();

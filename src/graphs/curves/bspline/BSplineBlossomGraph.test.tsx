@@ -324,7 +324,7 @@ describe('disposal', () => {
         expect(first.some(element => board.objectsList.includes(element))).toBe(false);
         const second = owned();
         expect(second.every(element => board.objectsList.includes(element))).toBe(true);
-        expect(liveSubscriptions.count).toBe(before + 1);
+        expect(liveSubscriptions.count).toBe(before + 2); // The board's own, for its tick labels, and the scene's.
         view.unmount();
         expect(second.some(element => board.objectsList.includes(element))).toBe(false);
         expect(liveSubscriptions.count).toBe(before);

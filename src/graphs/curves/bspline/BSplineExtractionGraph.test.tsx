@@ -299,7 +299,7 @@ describe('disposal', () => {
         const second = owned();
         expect(second.length).toBeGreaterThanOrEqual(2 * 3 + 7);
         expect(second.every(element => board.objectsList.includes(element))).toBe(true);
-        expect(liveSubscriptions.count).toBe(before);
+        expect(liveSubscriptions.count).toBe(before + 1); // The board's own, for its tick labels; the scene holds none.
         view.unmount();
         expect(second.some(element => board.objectsList.includes(element))).toBe(false);
         expect(liveSubscriptions.count).toBe(before);
