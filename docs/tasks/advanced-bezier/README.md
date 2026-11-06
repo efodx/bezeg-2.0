@@ -71,9 +71,9 @@ The spec's concept contracts and acceptance criteria are the task acceptance. Ev
 | AB-1c | F1 | `coons.ts` with the bicubic-net identity test | — | done ([evidence](../../reviews/advanced-bezier/ab-1c-kernel.md)); B averages mismatched corners |
 | AB-1d | F1 | `bezier-clipping.ts` ([plan](#ab-1d-plan-bezier-clippingts-handler-9-2026-10-31)) | `G-CG` | done ([evidence](../../reviews/advanced-bezier/ab-1d-kernel.md)); hull overlap waits for convexity A6 |
 | AB-A-2a | F2a | D1 `reduction` graph, overlay, readouts, Preset collection, lesson action targets; no route | AB-1a | done ([evidence](../../reviews/advanced-bezier/ab-a-2-graphs.md)); browser check with registration |
-| AB-A-2b | F2b | D1 registration `/bezeg-2.0/bezier/reduction`, `lesson: false`, recipe not run | AB-A-2a | planned |
+| AB-A-2b | F2b | D1 registration `/bezeg-2.0/bezier/reduction`, `lesson: false`, recipe not run | AB-A-2a | done (handler 59, `just check`) |
 | AB-A-2c | F2a | D3 `arc-length-param` graph, marks, speed plot, moving point, readouts, Preset collection, lesson action targets; no route | AB-1b | done ([evidence](../../reviews/advanced-bezier/ab-a-2-graphs.md)); browser check with registration |
-| AB-A-2d | F2b | D3 registration `/bezeg-2.0/bezier/arc-length`, `lesson: false`, recipe not run | AB-A-2c | planned |
+| AB-A-2d | F2b | D3 registration `/bezeg-2.0/bezier/arc-length`, `lesson: false`, recipe not run | AB-A-2c | done (handler 59, `just check`) |
 | AB-A-3a | F3 | D1 guided lesson (seven steps) | AB-A-2b | planned |
 | AB-A-3b | F3 | D3 guided lesson (seven steps) | AB-A-2d | planned |
 | AB-A-4 | F4 | Chapter `advanced-bezier` owning D1, D3 and D4 | AB-A-3a, AB-A-3b | planned |

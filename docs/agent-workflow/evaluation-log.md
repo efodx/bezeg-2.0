@@ -1979,3 +1979,12 @@ Brief `handoff-v12`, workers `bezeg-worker` Sonnet `medium`, dispatched 01:20Z, 
 - D3 worker: 56 tool calls, 144k tokens, 11 minutes, stopped by `HANDOFF` at 135k with tests unrun. A slice this size (graph, overlay, plot, frame loop, readouts) exceeds one worker: split it next time. A fresh worker finished it in 21 calls and 34k tokens, and found a default Preset the validator rejected.
 - Review, Sonnet: 15 calls, 47k tokens, under two minutes. Four accepted findings, none high.
 - Repair worker: 27 calls, 71k tokens. **It overwrote two uncommitted files by reusing `/tmp` backup names** another worker had left, and rewrote them from what it had read; it reported this itself. The handler compared the rewrite with the reviewed versions from the transcripts and found only intended changes. Lessons: commit a checkpoint before a repair pass, and name a private scratch path in every brief.
+
+## 2026-11-06, curves handler 59: AB-A-2b, AB-A-2d registration, AB-A-3a, AB-A-3b lessons
+
+Brief `handoff-v12`. Registration and browser repairs stayed with the handler (small, coupled). Workers `bezeg-worker` Sonnet `medium`, dispatched 02:27Z, two in parallel writing only their own lesson and test files; the handler did all shared wiring once.
+
+- Smoke, Sonnet: 32 calls, 61k tokens, 7 minutes, first run of two routes. Found the two real defects; its 40-character caption check passed a five-line block that still covered the curve, so a line budget needs a block budget too.
+- D1 worker: 41 calls, 119k tokens, 20 minutes. Complete, three mutations. Adapted to a mid-run caption change by message.
+- D3 worker: 48 calls, 125k tokens, 20 minutes. Complete, four mutations and a whitelist test. Reported 16 frames for 15, which the smoke floor caught.
+- Handler: three scripted-edit slips of its own (mixed line endings, a heredoc's escapes, an import inside a multi-line import), each caught at once. No review yet: the handler reached its threshold first and left the lessons off `master`.
