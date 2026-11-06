@@ -1,5 +1,6 @@
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {PresetCollection} from "../base/presets/PresetCollection";
+import {bezierClippingPresetCollection} from "./bezierClippingPresetCollection";
 import {bezierHullsPresetCollection} from "./bezierHullsPresetCollection";
 import {bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
 import {CURVE_PAIR_OVERLAY_IDS} from "./curvePairPresetCollection";
@@ -46,7 +47,13 @@ export const BEZIER_HULLS_OVERLAY_IDS = [...CURVE_PAIR_OVERLAY_IDS, "pieces"] as
 /** The Bezier hulls graph's collection, key `compgeo-bezier-hulls`: the curve pair model plus the validated `step`. */
 export const bezierHullsCollection: PresetCollection<PointSetModel> = bezierHullsPresetCollection(BEZIER_HULLS_OVERLAY_IDS);
 
+/** The Bezier clipping graph's overlays: the curve pair's own, the fat line and the kept and discarded parts (advanced Bezier D2). */
+export const BEZIER_CLIPPING_OVERLAY_IDS = [...CURVE_PAIR_OVERLAY_IDS, "fatLine", "kept", "discarded"] as const;
+
+/** The Bezier clipping graph's collection, key `compgeo-bezier-clipping`: the curve pair model plus the validated `step` and tolerance. */
+export const bezierClippingCollection: PresetCollection<PointSetModel> = bezierClippingPresetCollection(BEZIER_CLIPPING_OVERLAY_IDS);
+
 export const compgeoPresetCollections = [orientationPresetCollection, polygonAreaPresetCollection, hullTraceCollection,
-    pointInPolygonPresetCollection, hullRobustnessCollection, bezierHullsCollection,
+    pointInPolygonPresetCollection, hullRobustnessCollection, bezierHullsCollection, bezierClippingCollection,
     earClippingCollection, intervalSweepCollection, bentleyOttmannCollection, triangulationCollection, delaunayCollection,
     monotonePartitionCollection, monotoneTriangulationCollection, voronoiCollection, degenerateCollection, fortuneCollection] as const;

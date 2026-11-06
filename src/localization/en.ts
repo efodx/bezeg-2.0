@@ -2205,6 +2205,9 @@ export const en: Record<keyof typeof sl, string> = {
     "pointset_count_fixed": "The number of points is set by the curve degree: points cannot be added, removed or cleared. Drag a point or edit its coordinates instead.",
     "curvepair_invalid_point_count": "two curves of the same degree need 3 or 4 control points each, so 6 or 8 points in points mode; fix the number of points in the file",
     "bezierhulls_overlay_pieces": "Piece hulls",
+    "bezierclipping_overlay_fatline": "Fat line",
+    "bezierclipping_overlay_kept": "Kept parts of the curves",
+    "bezierclipping_overlay_discarded": "Discarded parts of the curves",
     "intervalsweep_controls_label": "Sweep playback",
     "intervalsweep_next_step": "Next step",
     "intervalsweep_playback_note": "Playback takes one step at a time and stops at the end. Changing the intervals returns to the start and stops playback. The sweep line is vertical; open intervals are thickened, the interval of the current event is thickest, and a reported pair is joined by a dashed blue line. A dashed thick interval is the interval of the current event while it is not open (just before it enters or after it leaves).",
@@ -2458,6 +2461,7 @@ export const en: Record<keyof typeof sl, string> = {
     "bezierhulls_empty": "No pair remains: the curves do not meet. The hulls are certified apart with a safety margin.",
     "bezierhulls_remaining": "The pairs that remain may or may not meet: overlapping hulls prove nothing, and subdivision stops at the deepest depth.",
     "bezierhulls_invalid_step": "the field step must be a nonnegative integer (the step index); fix the value in the file",
+    "bezierclipping_invalid_tolerance": "the field clipToleranceExponent must be a whole number from 3 to 10 (the tolerance is 10 to the power -k); fix the value in the file",
     // Ear clipping graph (triangulation task 07).
     "earclip_overlay_trace": "Ear test and clipped triangles",
     "earclip_overlay_reflex": "Reflex vertices",

@@ -64,6 +64,15 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
     } else if (operation === 'set-trace-step') {
         const step = (data as Record<string, unknown>).step;
         if (step !== 'end' && !(typeof step === 'number' && isFinite(step))) throw new Error('A point-set set-trace-step action needs a finite number or "end" as step.');
+    } else if (operation === 'load-model') {
+        const {gridStepExponent} = data as Record<string, unknown>;
+        if (!Array.isArray(points) || !points.every(p => Array.isArray(p) && p.length === 2 && isFinite(p[0]) && isFinite(p[1]))) {
+            throw new Error('A point-set load-model action needs a list of [x, y] pairs of finite numbers.');
+        }
+        if (typeof gridStepExponent !== 'number' || !Number.isInteger(gridStepExponent)) throw new Error('A point-set load-model action needs an integer gridStepExponent.');
+    } else if (operation === 'set-clip-tolerance') {
+        const exponent = (data as Record<string, unknown>).exponent;
+        if (typeof exponent !== 'number' || !isFinite(exponent)) throw new Error('A point-set set-clip-tolerance action needs a finite number as exponent.');
     } else if (operation === 'set-triangulation') {
         const triangles = (data as Record<string, unknown>).triangles;
         if (!Array.isArray(triangles) || !triangles.every(isIndexList(3))) throw new Error('A point-set set-triangulation action needs a list of triangles, each a list of three integer point indices (0 or more).');
@@ -104,7 +113,7 @@ function checkAuthoredAction(action: LessonAction): LessonAction {
         const cell = (v: unknown): boolean => typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= 63;
         if (!cell(i) || !cell(j)) throw new Error('A point-set select-cell action needs integer cell coordinates i and j from 0 to 63.');
     } else {
-        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction, set-query-point, set-polygon, set-mode, set-pop-rule, set-duplicates, set-panel or select-cell.');
+        throw new Error('A point-set action needs the operation set-points, set-overlay, set-algorithm, set-trace-step, load-model, set-clip-tolerance, set-triangulation, flip-edge, select-edge, select-triangle, select-site, set-construction, set-query-point, set-polygon, set-mode, set-pop-rule, set-duplicates, set-panel or select-cell.');
     }
     return action;
 }
