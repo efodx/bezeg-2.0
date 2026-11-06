@@ -145,6 +145,9 @@ export const guidedLessonOwners: Readonly<Record<GuidedLessonDemonstrationId, Gu
     // CHAPTER_LINK_PENDING). bezier-patches is chapter-owned, so ?learn=1 resolves only lessons in its registry: owning patch-coons
     // there before the link would open no lesson. The lesson builds on the Bezier curves' boundary control points.
     'patch-coons': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    // Interim owners, as patch-coons, until the advanced-bezier chapter owns them (AB-A-4).
+    'reduction': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
+    'arc-length-param': {chapterId: 'bezier-curves', sectionId: 'geometric-properties'},
     'bspline-basis': {chapterId: 'b-splines', sectionId: 'bspline-basis'},
     'bspline-deboor': {chapterId: 'b-splines', sectionId: 'bspline-deboor'},
     'bspline-insertion': {chapterId: 'b-splines', sectionId: 'bspline-insertion'},
