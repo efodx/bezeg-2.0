@@ -65,7 +65,7 @@ jobs:
       fail-fast: false
       matrix:
         # The PartSequencer in vite.config.mts spreads the *.partN.test.* files over the shards.
-        shard: [1, 2]
+        shard: [1, 2, 3]
     concurrency:
       group: browser-smoke-${{ github.event.pull_request.number || github.ref }}-unit-${{ matrix.shard }}
       cancel-in-progress: true
@@ -76,8 +76,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Run unit tests (shard ${{ matrix.shard }}/2)
-        run: npm test -- --shard=${{ matrix.shard }}/2
+      - name: Run unit tests (shard ${{ matrix.shard }}/3)
+        run: npm test -- --shard=${{ matrix.shard }}/3
         env:
           CI: 'true'
 
