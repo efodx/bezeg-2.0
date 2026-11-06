@@ -1964,3 +1964,9 @@ CG-B3-4b L6 lesson (curves handler 55, 2026-11-06):
 - Test worker, Sonnet: 26 tool calls, 89k tokens, 13 minutes. First pass accepted, 10 mutations, no defect found.
 - Review, Sonnet: 18 tool calls, 46k tokens, 2 minutes. One medium finding, real and missed by every test: English prose naming Slovenian controls.
 - Smoke, Sonnet: 28 tool calls, 66k tokens, 10 minutes. All checks passed, and it called the worst visual problem minor. The handler opened one screenshot and saw the curve at an eighth of the board width. Two of its flags were artefacts of its own script. Read at least one screenshot yourself; a brief that says "keep it low" needs an upper bound on empty space too.
+
+CG-B3-6 Batch 3 gate (curves handler 57, 2026-11-06), M, handler-led with two read-only or browser workers:
+
+- Math review, Sonnet: 5 tool calls, 24k tokens, 32 seconds. Derived the L5 numbers before reading tests and found no discrepancy. It named what it had not verified, which made the record's limits easy to write.
+- Smoke, Sonnet: 43 tool calls, 98k tokens, 16 minutes, 11 rows. Reported one failure and one suspicious toggle; neither reproduced when the handler reran them against the live board. Its 390 px collinear row searched for the note by pointer position and did not reconcile a residual that was inside one pixel. Read a smoke failure against the code before accepting it, and ask for the coordinates the board reports, not only the pointer's.
+- Handler: the layer repair, poster, records and the CI shard change. Reading hosted CI first, as the handoff asked, is what exposed a cancelled run that had silently skipped deploy; a run's `cancelled` state needs its jobs read, not only its conclusion.
