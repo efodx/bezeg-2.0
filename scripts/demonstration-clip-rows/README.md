@@ -22,6 +22,10 @@ Copy accessible labels and point names from `docs/reviews/feature-streams/clips/
 - An integer or coarse control that cannot follow a smooth schedule (it moves in whole steps, so 71 moving frames would repeat or leap): `discrete-exact-steps` with a `discreteReason`. The driver presses the named button to each checkpoint's cumulative count on a fresh example scene and reads the value back at every checkpoint.
 - Keep the path inside the start camera: the camera is fitted to the start state and never changes.
 
+## Check a row before capture
+
+`node scripts/demonstration-clip-rows/_check.cjs <row file name without .cjs>` needs no browser. It confirms that the quote is exact lesson text somewhere under `src/learning`, and that the example, control and path agree with the route probe. It cannot tell whether the quote comes from this Demonstration's lesson, so it prints the file: check that yourself.
+
 ## Capture
 
 Start the production preview, then capture one clip at a time:

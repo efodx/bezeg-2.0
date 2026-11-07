@@ -1,3 +1,5 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {createMotionEvidenceValidator, motionSpecs, motionIds} = require('./demonstration-preview-motion.cjs').testSupport;
@@ -5,15 +7,17 @@ const captureApi = require('./demonstration-preview-capture-api.cjs');
 const {rowIds} = require('./demonstration-clip-rows/index.cjs');
 // The 51 clips that predate clip rows; the exact counts below are these plus the row ids.
 const legacyMotionCount = 51;
+// A row may land before its clip; its Demonstration stays in MOTION_PENDING until capture.
+const pendingIds = new Set(Array.from(fs.readFileSync(path.join(__dirname, '../src/demonstrationMotionPending.ts'), 'utf8').matchAll(/\{id: '([^']+)'/g), match => match[1]));
 
 test('every shipped demonstration has a configured motion timeline', () => {
     const catalog = require('../tests/smoke-catalog.cjs');
     assert.equal(new Set(motionIds).size, motionIds.length);
     const configuredSurfaceIds = catalog.filter(d => d.view === 'surface' && d.hasMotion && !rowIds.includes(d.id)).map(d => d.id);
     assert.deepEqual([...captureApi.surfaceMotionIds].sort(), configuredSurfaceIds.sort());
-    assert.equal(catalog.filter(d => d.hasMotion).length, legacyMotionCount + rowIds.length);
+    assert.equal(catalog.filter(d => d.hasMotion).length, legacyMotionCount + rowIds.filter(id => !pendingIds.has(id)).length);
     assert.equal(motionIds.filter(id => !rowIds.includes(id)).length, legacyMotionCount);
-    assert.deepEqual([...motionIds].sort(), catalog.filter(d => d.hasMotion).map(d => d.id).sort());
+    assert.deepEqual(motionIds.filter(id => !pendingIds.has(id)).sort(), catalog.filter(d => d.hasMotion).map(d => d.id).sort());
     for (const [id, spec] of Object.entries(motionSpecs).filter(([, spec]) => spec.recipeAligned)) {
         assert.equal(typeof spec.schedule?.kind, 'string', `${id} needs a manifest schedule`);
         assert.ok(spec.invariants?.length, `${id} needs documented mathematical invariants`);

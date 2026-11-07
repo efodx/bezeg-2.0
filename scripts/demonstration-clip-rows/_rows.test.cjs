@@ -149,3 +149,31 @@ test('R5: a row id must be a Demonstration with a recipe and its control must su
     assert.throws(() => validateRowAgainstRecipes({...clone(drag), id: 'patch-coons'}, recipes), /row patch-coons: control.kind "point" does not suit the surface view/);
     assert.throws(() => validateRowAgainstRecipes({...clone(surface), id: 'reduction'}, recipes), /row reduction: control.kind "surface-point" does not suit the board view/);
 });
+
+test('the row checker rejects what capture would only find later', () => {
+    const {checkRow} = require('./_check.cjs');
+    const lessons = [{file: 'lesson.ts', text: 'Premakni drsnik.'}];
+    const entry = {
+        exampleCandidates: [{exampleId: 'family.demo.demo'}],
+        controls: [
+            {kind: 'slider', name: 'Razdalja d', min: '-3', max: '3', value: '-0.5', disabled: false},
+            {kind: 'slider', name: 'Napetost', min: '0', max: '2', value: '1', disabled: true},
+            {kind: 'button', name: 'Povečaj', disabled: false},
+        ],
+        draggablePoints: [{name: '$$p_{1}$$', x: 1, y: 2}],
+    };
+    const row = {exampleId: 'family.demo.demo', lessonQuote: 'Premakni drsnik.', control: {kind: 'slider', label: 'Razdalja d'}, path: [-0.5, 0, -0.5]};
+    const problems = change => checkRow({...row, ...change}, entry, lessons).problems.join('\n');
+    assert.equal(problems({}), '');
+    assert.match(problems({lessonQuote: 'Premakni drsnik levo.'}), /not exact lesson text/);
+    assert.match(problems({exampleId: 'family.other.other'}), /is not an example of/);
+    assert.match(problems({control: {kind: 'slider', label: 'Neznano'}}), /no slider or number control/);
+    assert.match(problems({control: {kind: 'slider', label: 'Napetost'}, path: [1, 1.5, 1]}), /is disabled/);
+    assert.match(problems({path: [-0.5, 4, -0.5]}), /leaves the range/);
+    assert.match(problems({path: [0, 1, 0]}), /must start at the scene value/);
+    assert.match(problems({control: {kind: 'point', name: 'q'}, path: [[1, 2], [1, 3], [1, 2]]}), /no draggable point/);
+    assert.match(problems({control: {kind: 'point', name: 'p_{1}'}, path: [[1.5, 2], [1, 3], [1.5, 2]]}), /must start at the point/);
+    assert.equal(problems({control: {kind: 'point', name: 'p_{1}'}, path: [[1.01, 2], [1, 3], [1.01, 2]]}), '');
+    assert.match(problems({control: {kind: 'stepper', label: 'Zmanjšaj'}, path: [0, 1, 0]}), /no enabled button/);
+    assert.match(checkRow(row, undefined, lessons).problems.join('\n'), /not in route-probe/);
+});
