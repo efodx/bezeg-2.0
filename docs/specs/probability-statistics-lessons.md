@@ -178,7 +178,7 @@ Final wording, sources and the table entry are recorded in the implementing chan
 
 1. Each Demonstration opens directly and after refresh, with its chapter-owned guided activity and a static preview.
 2. The concept contract above is met with checked examples and honest guarantees (instances, tolerances and conventions named).
-3. Both languages, accessible inputs, projection readability, restore on exit, stopped-by-default playback, Presets and figure export pass.
+3. Both languages, accessible inputs, restore on exit, stopped-by-default playback, Presets and figure export pass. Verify the free-exploration graph and teaching controls in Presentation mode.
 4. Existing routes, Presets and chapters behave as before.
 5. TypeScript, unit and content tests, production build, smoke checks and mathematics review pass; commit and push follow the repository workflow.
 

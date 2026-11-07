@@ -14,7 +14,7 @@ The Taylor review observed these behaviors on desktop and at 390×844. It also i
 
 ## Solution
 
-Keep a calm, opaque reading surface with visible progress and conventional horizontal navigation. On desktop and projection, only the prose region scrolls; essential controls remain outside it. On narrow screens, prose uses document scrolling with compact persistent actions, eliminating a second vertical reading scrollbar.
+Keep a calm, opaque reading surface with visible progress and conventional horizontal navigation for independent study. At desktop widths, the prose region scrolls while essential controls stay outside it. On narrow screens, prose uses document scrolling with compact persistent actions, eliminating a second vertical reading scrollbar.
 
 Preserve the deliberate reading-to-graph handoff. Observe/Hide releases the graph, the workspace lesson tab reopens the same instructions, and Continue advances. Confirm an explicit early exit, explain restoration and unsaved progress, and let learners safely continue instead. Completion still retains the final scene for exploration.
 
@@ -51,7 +51,7 @@ Once shared interactions work, shorten and refocus Taylor's opening frames while
 27. As a student entering a lesson from a Chapter activity, I want return and scene ownership to remain coherent, so that the activity and lesson do not overwrite each other unexpectedly.
 28. As a Slovenian-speaking student, I want clear Slovenian controls and explanations, so that I can learn in the app's default language.
 29. As an English-speaking student, I want equivalent controls and content, so that language selection does not change the lesson's meaning.
-30. As an educator projecting a lesson, I want readable prose and predictable graph access in Presentation mode, so that I can guide a class.
+30. As a student working independently, I want predictable access to the graph after reading a prompt, so I can try the construction at my own pace.
 31. As a student sensitive to motion, I want reduced-motion behavior and no automatic playback, so that the lesson remains comfortable to use.
 32. As a Taylor learner, I want an opening question and the minimum prerequisite notation before the detailed explanation, so that I understand the purpose of the experiment.
 33. As a Taylor learner, I want focused frames that retain necessary definitions and assumptions, so that shorter reading does not weaken the mathematics.
@@ -72,7 +72,7 @@ Once shared interactions work, shorten and refocus Taylor's opening frames while
 ### Reading layout and navigation
 
 - Replace vertical navigation rails with horizontal text buttons. Suggested reviewed labels are Prejšnji okvir / Previous frame, Naslednji okvir / Next frame, and Zaključi učno pot / Complete lesson at the end.
-- Desktop/projection uses a compact header, independently scrolling content body, and persistent footer. Header actions include Hide and Exit; footer actions include progress and Previous/Next. Observation actions remain reachable in the persistent action region. Avoid duplicate equivalent forward actions in the same view.
+- The desktop layout uses a compact header, independently scrolling content body, and persistent footer. Header actions include Hide and Exit. Footer actions include progress and Previous/Next. Observation actions remain reachable in the persistent action region. Avoid duplicate equivalent forward actions in the same view.
 - Narrow reading uses normal document flow and page scrolling for prose. A compact persistent toolbar keeps progress, navigation, hide, and exit reachable. Reserve enough space that it cannot cover final content, formulas, or focused controls. No independent vertical scrollbar on the narrow Lesson overlay.
 - Use the existing elderflower palette with an opaque reading background. Restore normal graph appearance and useful graph space when instructions hide. The narrow reading surface may occupy the graph cell's natural height while the board remains mounted and non-interactive behind it.
 - Hide/Observe removes reading chrome from exploration and retains the workspace lesson tab and separate Continue action outside the plot, including Presentation mode. The graph must remain reachable without obscured task controls.
@@ -114,16 +114,16 @@ Once shared interactions work, shorten and refocus Taylor's opening frames while
 - **Behavioral coverage:** verify top/middle/bottom action reachability, new-frame scroll reset, same-frame reading restoration, first/last-frame boundaries, one-step advancement, focus visibility, bilingual labels, and hide → edit graph → reopen → continue. Assert scene/view preservation and board identity, not merely CSS classes or callback counts.
 - **Exit coverage:** both early-exit entry points, cancel/Escape preserving state, safe initial focus, dialog focus containment, background isolation, repeated requests, animation pause, exactly-once checkpoint restoration, restore errors, completion retaining the final scene, route disposal, and return to a Chapter activity.
 - **Browser prior art:** extend the existing data-driven guided-lesson smoke suite and shared observation-flow checks. Keep every lesson represented in its table. Update existing exit assertions to confirm explicitly; do not bypass the new UI. CSS/unit assertions cannot establish actual scroll ownership or pointer reachability.
-- **Responsive matrix:** record desktop/projection-sized, 390×844, short-landscape, and 200%-text views in both languages after settled math typesetting. At top/middle/bottom verify progress and essential actions are visible and operable, no sticky region covers content/focus, narrow prose has one vertical scroll owner, and essential touch targets are reachable.
+- **Responsive matrix.** Record desktop, wide Presentation layout (1920×1080), 390×844, short-landscape, and 200%-text browser views in both languages after settled math typesetting. At top, middle, and bottom verify action and progress visibility, focus visibility, one vertical scroll owner for narrow prose, and reachable touch targets. These are lesson layout checks. Classroom legibility applies to the graph and teaching controls in free exploration. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).
 - **Representative flows:** complete Taylor, plus a short lesson, formula-heavy lesson, animated lesson, Presentation mode, and a lesson inside a Chapter activity. Check keyboard-only operation, screen-reader names/progress announcements, reduced motion, pause/reopen, repeated entry/exit, board/listener cleanup, direct lesson URLs, and preservation of unrelated URL context.
 - **Mathematics and content:** review the Taylor before/after outline, supported scenes, claims, reveal order, and degree/error observations. Run existing content and notation checks without weakening them. No numerical algorithms change; check observed values against existing mathematical behavior.
 - **Commands:** start with the command inventory and follow the repository command guide. Run focused integration/content tests, type checking, production build, the guided-lesson smoke suite, and the full browser checklist for the shared UI change. Localization changes require the explicit TypeScript and production-build checks mandated by the project.
 - **Review:** use the smoke-testing skill if available and report any absence with actual alternative coverage. Review the shared change in parallel for engineering and UI/accessibility; add mathematical review for the content slice. Record passed, failed, blocked, and skipped evidence, build provenance, language, viewport, and remaining limitations.
-- **Learning evidence:** observe a small formative student/educator sample reading, advancing, experimenting, reopening, canceling exit, and exiting deliberately. Record hesitation, accidental navigation, and understanding of error versus estimate. Small samples do not establish a general success rate. Browser emulation does not close physical-touch or projector review.
+- **Optional learning evidence.** A formative observation can record how students working independently read, advance, experiment, reopen instructions, and exit. Record hesitation, accidental navigation, and understanding of error versus estimate.
 
 ## Out of Scope
 
-Persistent Lesson progress; resume after confirmed exit or reload; accounts, backend, or cross-device state; quizzes or assessment; a new authoring system; mathematical algorithm or renderer changes; new graph capabilities; Preset migrations; route redesign; browser unload warnings; new Study chapters; catalog-wide content rewriting; declaring existing draft lessons classroom-ready.
+Persistent Lesson progress; resume after confirmed exit or reload; accounts, backend, or cross-device state; quizzes or assessment; a new authoring system; mathematical algorithm or renderer changes; new graph capabilities; Preset migrations; route redesign; browser unload warnings; new Study chapters; catalog-wide content rewriting.
 
 ## Further Notes
 
@@ -133,7 +133,7 @@ Persistent Lesson progress; resume after confirmed exit or reload; accounts, bac
 2. **Shared reading shell:** implement persistent horizontal controls, opaque reading, responsive scrolling, and focus/reading-position behavior without content or scene-semantic changes. Gate on the integration tests, responsive acceptance matrix, and graph-access round trip.
 3. **Exit protection:** add confirmation to both entry points. Gate on the exit event table, scene restoration, completion, error handling, and chapter-context checks.
 4. **Taylor pilot:** refocus bilingual frames after the shared UI works. Gate on mathematical/content review, complete bilingual and narrow lesson walks, and preserved prediction/reveal order.
-5. **Review and rollout:** resolve shared regressions, collect formative evidence, and document remaining physical-device/classroom gates. Extend content work only after per-lesson evidence warrants it.
+5. **Review and rollout.** Resolve shared regressions and document remaining verification gaps. Extend content work when per-lesson evidence warrants it.
 
 Commit independently reviewable slices. Follow the delegation workflow before dispatching bounded implementation work; the handler owns scope, verification, review, commits, and publication. Create implementation task files only when work is intended to proceed.
 
@@ -141,6 +141,6 @@ The [existing overlay ADR](../adr/0003-frame-based-graph-anchored-lesson-overlay
 
 User-visible changes are horizontal navigation, persistent actions, opaque reading, narrow page scrolling, early-exit confirmation, and Taylor frame pacing. Frame counts may change; there is no stored-progress migration. Record the reason and user impact in implementation evidence. Rescope any discovered requirement to alter routes or scene semantics before implementing it.
 
-This specification is the repository-local equivalent of a ready-for-agent issue. Project instructions require repository-local planning with no external issue tracker, so no external issue or triage label is created. Testing seams were explicitly confirmed by the owner. Publishing the specification does not implement the feature or close UX/content/classroom review gates.
+The owner confirmed the testing seams above. The linked implementation evidence records the result and coverage limits.
 
 The original specification publication was documentation-only. Implementation evidence now records application/browser checks separately from remaining formative and physical-device gates. The source report's unknown deployed revision and limited sampling remain evidence constraints; the implementation baseline uses a known local production revision.

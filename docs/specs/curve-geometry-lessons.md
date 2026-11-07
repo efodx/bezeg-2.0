@@ -99,7 +99,7 @@ Common to all lessons: prerequisites link existing chapters (basics, splines, PH
 - As a student I move along a curve and read its curvature and osculating circle, so that "bending" gets a number and a picture.
 - As an educator I show a comb at a spline join, so that C1 versus C2 is visible to the class.
 - As a student I see an offset form cusps exactly where my prediction says, so that \(1+d\kappa=0\) is not just a formula.
-- As an educator in a classroom I use the same Demonstration freely after the guide.
+- As an educator, I open the ordinary Demonstration and use its graph and controls to teach the same mathematical idea in my own way.
 
 ## Implementation Decisions
 

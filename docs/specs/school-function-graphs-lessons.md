@@ -155,7 +155,7 @@ Defaults may be replaced by equivalent examples that keep the learning goal and 
 
 1. Each Demonstration opens directly and after refresh from its family with its lesson and preview.
 2. Its contract above holds with checked examples and honest guarantees.
-3. SL/EN, accessible inputs, projection readability, scene restore, Presets and figure export pass.
+3. SL/EN, accessible inputs, scene restore, Presets and figure export pass. Verify the free-exploration graph and teaching controls in Presentation mode.
 4. Existing routes and Presets behave as before; regression tests pass.
 5. Reviews and evidence are recorded before the handler commits and pushes.
 

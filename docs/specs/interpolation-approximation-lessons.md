@@ -162,7 +162,7 @@ Final wording is recorded in the implementing change.
 
 1. Each Demonstration opens directly and after refresh, with its guided activity and a static preview.
 2. Concept contracts are met with checked examples and honest guarantees.
-3. Both languages, accessible inputs, projection readability, restore on exit, stopped-by-default playback, Presets and figure export pass.
+3. Both languages, accessible inputs, restore on exit, stopped-by-default playback, Presets and figure export pass. Verify the free-exploration graph and teaching controls in Presentation mode.
 4. Existing routes, Presets and chapters behave as before.
 5. TypeScript, unit and content tests, production build, smoke checks and mathematics review pass; commit and push follow the repository workflow.
 

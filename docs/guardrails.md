@@ -7,11 +7,19 @@ These constraints reflect the owner's planning answers on 2026-10-08. The implem
 - Guided examples belong to chapter sections. Every graph activity launched from Learn uses one instructional surface and session, whether it contains a short prompt or a longer sequence. Completion leaves the graph editable and offers Continue in chapter; midway return restores the owning section's reading position and focus. Catalog guidance uses the same chapter-owned experience, while independent graph exploration remains available. See the [owner's correction](specs/chapter-owned-guided-learning.md), which supersedes the parallel entry model in earlier learning specifications.
 
 - Optimize for learning and teaching curve concepts. Keep the graph central and make the effect of each control understandable.
-- Support desktop and projection first, while keeping essential workflows usable with touch and keyboard on narrow screens.
+- Prioritize desktop, with essential touch and keyboard workflows on narrow screens. Presentation mode supports classroom projection of the free-exploration graph.
 - Keep Slovenian as the default app language. Plan English support; use English for contributor documentation.
 - Preserve the elderflower identity while modernizing the workspace toward clear, grouped controls and a calm visual style.
 - Keep the app static and client-only: no backend, accounts, or server database. Local presets and file exchange are allowed. See [ADR 0001](adr/0001-static-client-only-app.md).
 - Bounded, optional Guided lessons support selected demonstrations. The owner extended the future direction on 2026-10-16 to self-contained conceptual learning with motivation and family-specific prerequisites, starting with higher concepts. The accepted [standalone learning specification](specs/standalone-learning.md) adds readable chapters and graph activities sharing the existing Demonstrations, while preserving independent catalog/graph entry. Its publication authorizes the specification and reference pictures, not application implementation or a complete curriculum rollout. Practice exercises, assessment, an authoring system, and a cross-device progress service remain out of scope. The current runtime contract remains in the [guided lessons spec](specs/guided-lessons.md).
+
+### Independent study and classroom teaching
+
+Guided lessons are self-paced activities for students working independently, including at home. Verify reading, navigation, and graph interaction at representative browser widths and text sizes.
+
+Teachers use the ordinary Demonstration in free exploration to teach the same mathematical idea in their own way. They can set up a relevant example with a built-in choice, ordinary controls, or a loadable Preset, then manipulate or step the key construction without opening guided instruction. In Presentation mode the graph should be readable and the teaching controls reachable. Classroom coverage concerns the mathematical idea and construction. The lesson's prose, exact steps, framing, and reveal sequence serve independent study.
+
+This scope supersedes classroom-readiness criteria for guided instruction in earlier specifications, decisions, and evidence. The release policy below defines optional evidence and the browser, accessibility, and mathematical checks that apply.
 
 ## Release policy — owner decision, 2026-10-24
 
@@ -49,10 +57,10 @@ Before changing stored data, keep representative old samples for review and avoi
 | Geometry / evaluation | Numeric examples and property checks for affected operations |
 | Dragging / controls | Representative interaction review, including selected mode and applicable input methods |
 | Rendering optimization | Same-scene before/after measurements and correct settled geometry |
-| Visual design | Representative normal, narrow-screen, and projection views; keyboard/touch access |
+| Visual design | Representative desktop and narrow browser views with keyboard and touch access. For teaching workflows, verify the free-exploration graph and its controls in Presentation mode. |
 | Build / routing / hosting | Production asset loading, direct deep links, refresh, query/hash preservation, navigation, and unknown-route behavior |
 | Persistence / export | Save/reopen, file exchange, invalid import handling, and exported figure review |
-| Guided lessons | Content/source review, supported graph actions, scene restore, keyboard/touch flow, language counterparts, animation cancellation, and mathematical checks |
+| Guided lessons | Content and source review, supported graph actions, scene restore, responsive reading and interaction, keyboard and touch flow, language counterparts, animation cancellation, and mathematical checks |
 
 Scale verification to the change. Cosmetic documentation edits do not require a full app suite. Choose checks that can catch real errors rather than mirroring implementation details.
 

@@ -200,7 +200,7 @@ Examples are implementation defaults; equivalents may replace them if the learni
 
 1. Each Demonstration opens directly and after refresh, with its chapter-owned guided activity and a static preview.
 2. The concept contract above is met with checked examples; every "always" claim is a theorem with a source and the drag is labelled an illustration.
-3. Both languages, accessible inputs, projection readability, restore on exit, Presets and figure export pass.
+3. Both languages, accessible inputs, restore on exit, Presets and figure export pass. Verify the free-exploration graph and teaching controls in Presentation mode.
 4. Existing routes and stored Presets behave as before.
 5. TypeScript, unit and content tests, production build, smoke checks and mathematics review pass; commit and push follow the repository workflow.
 

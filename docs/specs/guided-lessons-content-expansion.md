@@ -100,7 +100,7 @@ Checks:
 
 ## Cohort B implementation contract
 
-Cohort B adds `bernstein` (contract above) and `rational-elevation`. Like Cohort A, a route may join the allowlist as a draft once route-level criteria 1–4 and 6 pass; criterion 5's owner language review and classroom review stay recorded as pending until completed.
+Cohort B adds `bernstein` (contract above) and `rational-elevation`. The route-level criteria below apply to both cohorts.
 
 ### `bernstein` clarifications
 
@@ -234,12 +234,11 @@ Before adding a route to `GUIDED_LESSON_AVAILABLE_IDS`:
 2. Graph tests verify each new action, default-scene preparation, operation bounds, and the relevant mathematical invariant.
 3. Runtime tests verify catalog identity, prepared-scene adaptation, checkpoint restoration, and unsupported-action rollback.
 4. The route is browser-smoke-tested through a direct `?learn=1` deep link, next/back/close flow, and a return to normal exploration.
-5. The route is reviewed in Slovenian and English, at desktop/projection width and a narrow layout, with keyboard focus and touch-sized controls checked.
-6. Documentation records the route, lesson status, action seam, and any remaining owner or classroom-review question.
+5. The lesson is reviewed in Slovenian and English at desktop and narrow browser widths, with keyboard focus and touch-sized controls checked. The free-exploration graph supports the same idea through ordinary controls or a relevant Preset, with readable output and reachable teaching controls in Presentation mode. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).
+6. Documentation records the route, lesson status, action seam, and any remaining concrete gaps.
 
 ## Explicit non-goals
 
 - Do not expose a generic “learn” link for every graph.
 - Do not teach an operation before its graph-owned action and disposal behavior are tested.
 - Do not silently change routes, Preset identifiers, imported data, or stored browser presets.
-- Do not call a draft classroom-ready until mathematical, language, accessibility, and device review is complete.

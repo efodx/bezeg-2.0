@@ -50,7 +50,8 @@ Suggested order: numerical methods, convexity and hulls, and curve geometry firs
 
 ## Shared constraints
 
-- Static, client-only hosting; desktop and classroom projection first, with essential touch and keyboard workflows.
+- Static, client-only hosting. Prioritize desktop and retain essential touch and keyboard workflows.
+- Guided lessons serve independent study. A teacher can use ordinary controls, built-in choices, or a Preset to set up and teach the same mathematical idea in the Demonstration's free exploration. Verify graph legibility and teaching controls in Presentation mode. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).
 - Slovenian default with English in lockstep; lesson math notation follows `lessonMathNotation.test.ts`.
 - Graph constructions, kernels and readouts are independently checked. A picture may carry an argument only when its construction establishes the claim; otherwise it is labelled an illustration.
 - Geometry predicates that decide discrete outcomes (orientation, incircle, intersection order) must not silently give wrong answers on dragged points: use exact arithmetic on snapped inputs or robust predicates, and never present a tolerance as exact.

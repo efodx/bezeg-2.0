@@ -6,6 +6,8 @@ status: accepted
 
 Agreed with the owner on 2026-10-09 as part of the bounded guided-lessons plan. See the [guided lessons spec](../specs/guided-lessons.md).
 
+The graph capability decision stands. Later owner policy supersedes the historical classroom-ready release wording below. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching), [release policy](../guardrails.md#release-policy--owner-decision-2026-10-24).
+
 ## Context
 
 Bezeg has 26 route-backed graph demonstrations and short localized prompts, but no reusable model for explaining mathematics, preparing a graph scene, or guiding a learner through several steps. The graphs are React class components backed by mutable JSXGraph boards; geometry and cache invalidation belong to the graph/math layers, while browser-local Presets store user configurations.

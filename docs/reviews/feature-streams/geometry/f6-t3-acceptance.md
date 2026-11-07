@@ -31,7 +31,7 @@ Handler: geometry handler 42 (Opus 5.5), 2026-11-03. Spec: [triangulations and V
 
 ## Gaps and notes
 
-- **Closed (handler 43): Gate 3 projection readability, B4.4 marker legibility.** Captures at 1280×720 of V steps 4 and 5 and D step 3, in three modes, all viewed (`f6-t3-smoke/g3-*.png`, script `g3.mjs`):
+- **Closed (handler 43): Gate 3 projection readability, B4.4 marker legibility.** Captures at 1280×720 of V steps 4 and 5 and D step 3, in three modes, all viewed (`f6-t3-smoke/g3-*.png`, script `g3.mjs`). The card observations record the historical lesson review and can inform independent-study layout checks at that viewport. The marker defect and fix apply to the graph, including ordinary zoom and pan. [Independent study and classroom teaching](../../../guardrails.md#independent-study-and-classroom-teaching).
   - **Card hidden ("Skrij"):** legible. The diagram, P labels, vertices, the V5 circumcircle and the D3 degree-4 diamond are all visible. The V5 circle's lowest part runs past the 720 px fold (the page scrolls).
   - **Card dragged:** the grip keeps the card inside the 848 px board (x 351–895), so it still covers the centre.
   - **Presentation mode ("Predstavitveni način"):** the board widens to 1158 px, but the card stays centred over it.

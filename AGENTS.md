@@ -14,7 +14,7 @@ Before editing, read only the spec or document covering the area you change. [do
 
 - Bezeg is an educational curve app for students and educators.
 - Keep it static and client-only: no backend, accounts, or server database. Browser-local presets and file import/export are supported.
-- Prioritize desktop and classroom projection, with essential touch and keyboard workflows on smaller screens.
+- Prioritize desktop and essential touch and keyboard workflows on smaller screens. For Guided lessons and classroom graph workflows, follow [independent study and classroom teaching](docs/guardrails.md#independent-study-and-classroom-teaching).
 - Slovenian is the default app language. English support is planned; contributor documentation is in English. New Slovenian terms: research and decide them yourself by [choosing new terms](docs/localization.md#choosing-new-terms); new lesson families write [one-shot lesson text](docs/specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31) instead.
 - Keep the graph prominent, make controls understandable, and retain the elderflower identity.
 - Breaking changes are allowed. Record their reason and user impact, including any change to routes or stored presets.

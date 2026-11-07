@@ -165,7 +165,7 @@ All lessons use the draggable point-set/polygon graph and the step-trace model f
 
 1. Every listed Demonstration opens from its family directly and after refresh, with its lesson and a static preview.
 2. The concept contracts hold with the numbers above and honest guarantees.
-3. Both languages, accessible inputs, projection readability, scene restore, stopped-by-default playback, Presets and figure export pass.
+3. Both languages, accessible inputs, scene restore, stopped-by-default playback, Presets and figure export pass. Verify the free-exploration graph and teaching controls in Presentation mode.
 4. Existing routes and Presets behave as before; shared runtime changes pass regression tests.
 5. Verification evidence is recorded; commit and push follow the repository workflow.
 

@@ -2,7 +2,7 @@
 
 **Status:** runtime and available pilots released. The [2026-10-24 owner policy](../guardrails.md#release-policy--owner-decision-2026-10-24) removes separate language and physical-device/projector/classroom approval gates; concrete missing checks and UX findings remain follow-ups. This policy supersedes conflicting historical release criteria below.
 **Agreed:** 2026-10-09
-**Owner direction:** guide students through selected mathematical demonstrations without turning Bezeg into a course platform.
+**Owner direction** — guide students studying independently through selected mathematical demonstrations.
 
 ## Problem
 
@@ -12,7 +12,7 @@ This feature must preserve the graph-centered workspace, existing routes, browse
 
 ## Product decision
 
-Attach an optional, short, self-paced **Guided lesson** to selected existing **Demonstrations**. A lesson is an ordered sequence of **Lesson steps**. A step may explain a concept, show notation, prepare a **Lesson scene**, invite a graph action or observation, and hand the learner back to free exploration.
+Attach an optional, short, self-paced **Guided lesson** to selected existing **Demonstrations**. A lesson is an ordered sequence of **Lesson steps**. A step may explain a concept, show notation, prepare a **Lesson scene**, invite a graph action or observation, and hand the learner back to free exploration. In class, a teacher uses the ordinary Demonstration to teach the same idea through their own setup and sequence. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).
 
 The first release is a small pilot for:
 
@@ -20,7 +20,7 @@ The first release is a small pilot for:
 - De Casteljau construction (`decasteljau`), and
 - the cubic PH curve (`ph-cubic`).
 
-The feature should be reusable across all 26 demonstrations, but no other demonstration is promised classroom-ready by this plan.
+The original pilot targeted a reusable runtime across the 26 Demonstrations in the catalog at the time. Later lessons have their own scope and acceptance criteria.
 
 ## Learner experience
 
@@ -34,7 +34,7 @@ The feature should be reusable across all 26 demonstrations, but no other demons
 
 On entry, the lesson captures the current in-memory graph state. Lesson scenes are temporary and do not write local-storage presets. Explicit early exit pauses playback and opens confirmation explaining restoration and unsaved progress. Cancel or Escape dismisses only that confirmation; confirmed exit restores the captured state before closing. Completion retains the final scene. Moving backward or forward re-applies the target frame's declared scene. No lesson progress or animation position is persisted.
 
-Desktop and projection layouts keep the graph prominent once exploration begins. Narrow layouts keep the content-first reading order and retain keyboard and touch access to the lesson controls.
+Desktop layouts keep the graph prominent once exploration begins. Narrow layouts keep the content-first reading order and retain keyboard and touch access to the lesson controls.
 
 ## Domain model
 
@@ -111,7 +111,7 @@ Historical cohort findings and exact residual coverage limits are consolidated i
 - Focused verification of the framed runtime and pilot content: 5 suites and 24 tests passed.
 - Production build succeeds with existing lint/autoprefixer warnings.
 - Full suite: 15 suites and 86 tests passed; the remaining failure is the pre-existing starter `src/App.test.tsx`, which renders `App` without a router and still expects “learn react”.
-- Browser, projection, touch, classroom, and owner/subject-matter review remain follow-up evidence.
+- The pilot evidence above predates later browser and touch checks. Historical projection, classroom, and subject-matter review limits are recorded in the linked implementation history.
 
 ## Scope exclusions
 
@@ -145,7 +145,6 @@ Historical cohort findings and exact residual coverage limits are consolidated i
 - Each lesson has Slovenian final copy and an English counterpart.
 - Worked examples and expected observations match the graph's actual prepared scene.
 - Edge cases and invalid states are handled explicitly; rational or degenerate states are not silently presented as valid.
-- Owner or subject-matter review is recorded before the pilot is called classroom-ready.
 
 ## Verification plan
 

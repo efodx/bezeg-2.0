@@ -183,7 +183,7 @@ Final wording and sources are recorded in the implementing change.
 
 1. Each Demonstration opens directly and after refresh, with its chapter-owned guided activity and a static preview.
 2. The concept contract above is met with checked examples and honest guarantees.
-3. Both languages, accessible inputs, projection readability, restore on exit, Presets and figure export pass.
+3. Both languages, accessible inputs, restore on exit, Presets and figure export pass. Verify the free-exploration graph and teaching controls in Presentation mode.
 4. Existing routes, Presets and the complex multiplication lesson behave as before.
 5. TypeScript, unit and content tests, production build, smoke checks and mathematics review pass; commit and push follow the repository workflow.
 

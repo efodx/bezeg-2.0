@@ -63,7 +63,7 @@ Each row must eventually gain: a reviewed lesson ID or an explicit no-fit decisi
 - The Learn entry lists supported released lesson IDs. Available implemented drafts count as released; unsupported or no-fit routes retain their existing exploration experience. Separate owner review is not an availability gate.
 - Each released lesson has bounded linear frames, complete Slovenian and English copy, source-backed mathematics, supported scenes, and no hidden control simulation.
 - Each released scene has construction-specific or numerical checks and restores the pre-lesson in-memory state without changing Presets.
-- Each cohort passes desktop, projection, narrow-screen, keyboard, touch, localization, animation, route-transition, and repeated entry/exit review.
+- Each cohort passes desktop and narrow browser, keyboard, touch, localization, animation, route-transition, and repeated entry/exit review. Verify classroom projection on the free-exploration graph and its teaching controls. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).
 - Existing routes, Preset identifiers, import/export formats, and graph algorithms remain unchanged.
 
 ## Verification evidence

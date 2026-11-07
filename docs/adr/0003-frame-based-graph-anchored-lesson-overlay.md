@@ -6,6 +6,8 @@ status: accepted
 
 Agreed with the owner on 2026-10-09 as a refinement of the bounded Guided lesson plan. Guided lessons will use a graph-anchored overlay that keeps the graph visible, presents each conceptual step through bounded Explanation and Observation frames, and uses explicit transitions rather than a scrollable lesson document.
 
+The frame decision stands. The projection rationale below is historical. Current classroom teaching uses the free-exploration graph in Presentation mode. [Independent study and classroom teaching](../guardrails.md#independent-study-and-classroom-teaching).
+
 ## Decision
 
 1. Keep the existing conceptual lesson steps and add frames within them. An Explanation frame introduces one idea or formula; an Observation frame gives the learner a graph-focused action or prompt; an optional Calculation frame handles dense worked examples.
