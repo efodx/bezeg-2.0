@@ -1,6 +1,7 @@
 import React, {useEffect, useId, useRef, useState} from "react";
 import {currentLanguage, useT} from "../localization";
 import {formatNumber} from "../analysis/format";
+import {stepKeyDelta} from "./stepKeys";
 import "./NumberInput.css";
 
 interface NumberInputProps {
@@ -26,14 +27,8 @@ interface NumberInputProps {
     rejectedHint?: string;
     /** Id of an element that explains the field (for example why it is disabled); joined with the hint in aria-describedby. */
     describedBy?: string;
-    /**
-     * When the typed value is applied: on every change (default) or only on Enter and when the field loses focus ("confirm"), for a
-     * value the model rewrites as soon as it is applied (for example a polar input snapped to a grid), which would otherwise replace
-     * the text under the user's hands. The arrow keys and any change that is not typing apply at once in both modes.
-     * After Enter the field shows the model value again, so a value the model snapped back to the unchanged prop does not leave the
-     * typed text behind.
-     */
-    applyOn?: "input" | "confirm";
+    /** The change of Shift with an arrow, PageUp and PageDown; defaults to ten steps. */
+    bigStep?: number;
 }
 
 type Language = ReturnType<typeof currentLanguage>;
@@ -64,7 +59,6 @@ export function NumberInput(props: NumberInputProps) {
     const t = useT();
     const language = currentLanguage();
     const {value, decimals = 2, min, max, step, integer} = props;
-    const confirm = props.applyOn === "confirm";
     const id = useId();
     const hintId = `${id}-hint`;
     const [draft, setDraft] = useState(show(value, decimals, language));
@@ -92,6 +86,23 @@ export function NumberInput(props: NumberInputProps) {
         setHint(accepted ? undefined : "rejected");
         return accepted;
     };
+    /**
+     * The one commit for Enter and blur. An untouched field, or a draft equal to the shown model text, writes nothing (the shown text is
+     * rounded, so committing it would round the model); any other valid edited draft is committed. Returns whether a commit was accepted.
+     */
+    const confirmDraft = (): boolean => {
+        if (!edited.current || draft.trim() === show(value, decimals, language)) {
+            edited.current = false;
+            setHint(undefined);
+            return false;
+        }
+        const typed = parseDecimal(draft);
+        if (!Number.isFinite(typed)) return false;
+        // A refused value stays an open edit, so that blur explains it again.
+        const accepted = commit(typed);
+        if (accepted) edited.current = false;
+        return accepted;
+    };
     const hintText = hint === "range" && min !== undefined && max !== undefined
         ? t("number_range_hint", {value0: formatNumber(min, language), value1: formatNumber(max, language)})
         : hint ? props.rejectedHint ?? t("number_rejected_hint") : undefined;
@@ -103,62 +114,42 @@ export function NumberInput(props: NumberInputProps) {
                aria-invalid={hintText ? true : undefined}
                aria-describedby={[hintText ? hintId : undefined, props.describedBy].filter(Boolean).join(" ") || undefined}
                onChange={event => {
+                   // Every change only edits the draft; Enter or blur commits it.
                    setDraft(event.target.value);
-                   // Typing, pasting and undo carry an inputType; any other change applies at once.
-                   const inputType = (event.nativeEvent as InputEvent).inputType;
-                   const typing = typeof inputType === "string" && /^(insert|delete|history)/.test(inputType);
-                   if (confirm && typing) {
-                       edited.current = true;
-                       setHint(undefined);
-                       return;
-                   }
-                   const parsed = parseDecimal(event.target.value);
-                   if (!Number.isFinite(parsed)) {
-                       setHint(undefined);
-                       return;
-                   }
-                   commit(parsed);
+                   edited.current = true;
+                   setHint(undefined);
                }}
                onKeyDown={event => {
                    // A lone text field inside a form (the slider's) would otherwise submit it and reload the page.
-                   if (event.key === "Enter" && !confirm) {
+                   if (event.key === "Enter") {
                        event.preventDefault();
-                       return;
-                   }
-                   if (confirm && event.key === "Enter") {
-                       event.preventDefault();
-                       if (!edited.current) return;
-                       const typed = parseDecimal(draft);
                        // An accepted value the model snapped back to the unchanged prop would leave the typed text behind: show the model value.
-                       if (Number.isFinite(typed) && commit(typed)) {
-                           edited.current = false;
-                           setDraft(show(value, decimals, language));
-                       }
+                       if (confirmDraft()) setDraft(show(value, decimals, language));
                        return;
                    }
-                   if ((event.key !== "ArrowUp" && event.key !== "ArrowDown") || !step || props.disabled) return;
+                   if (event.key === "Escape") {
+                       edited.current = false;
+                       setHint(undefined);
+                       setDraft(show(value, decimals, language));
+                       return;
+                   }
+                   const delta = step ? stepKeyDelta(event, step, props.bigStep) : undefined;
+                   if (delta === undefined || props.disabled) return;
                    event.preventDefault();
                    const typed = parseDecimal(draft);
                    const current = Number.isFinite(typed) ? typed : value ?? 0;
-                   let next = Math.round((current + (event.key === "ArrowUp" ? step : -step)) * 1e9) / 1e9 + 0;
+                   let next = Math.round((current + delta) * 1e9) / 1e9 + 0;
                    if (min !== undefined) next = Math.max(min, next);
                    if (max !== undefined) next = Math.min(max, next);
+                   edited.current = false;
                    setDraft(show(next, Math.max(decimals, 6), language));
                    commit(next);
                }}
                onBlur={() => {
-                   if (confirm) {
-                       const typed = parseDecimal(draft);
-                       const changed = edited.current && Number.isFinite(typed) && (value === undefined || Math.abs(typed - value) >= 10 ** -(decimals + 1));
-                       edited.current = false;
-                       // A refusal stays explained after the field reverts to the model value.
-                       if (changed) commit(typed);
-                       else setHint(undefined);
-                       setDraft(show(value, decimals, language));
-                       return;
-                   }
+                   // A refusal stays explained after the field reverts to the model value.
+                   confirmDraft();
+                   edited.current = false;
                    setDraft(show(value, decimals, language));
-                   setHint(undefined);
                }}/>
         {hintText && <p id={hintId} className="number-input-hint" role="status">{hintText}</p>}
     </div>;

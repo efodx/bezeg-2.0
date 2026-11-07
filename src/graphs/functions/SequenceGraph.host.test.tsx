@@ -5,6 +5,7 @@ import {SequenceGraph, SEQUENCE_STEP_INTERVAL_MS} from './SequenceGraph';
 import {GraphHost} from '../base/GraphHost';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -87,27 +88,27 @@ test('a real board shows the terms: Next step, Play and Pause, Reset, the fields
 
     // the labelled field takes N; an out-of-range or non-integer value is refused with a hint
     const inputN = screen.getByLabelText('Prag N') as HTMLInputElement;
-    act(() => { fireEvent.change(inputN, {target: {value: '11'}}); });
+    act(() => { enterNumber(inputN, '11'); });
     expect(graph.modelNow()).toMatchObject({threshold: 11, terms: 12, certificateVisible: true});
     expect(readout('certificate')).toBe('N deluje');
     expect(readout('bound')).toBe('1/11 = 0,0909');
-    act(() => { fireEvent.change(inputN, {target: {value: '1001'}}); });
+    act(() => { enterNumber(inputN, '1001'); });
     expect(graph.modelNow().threshold).toBe(11);
     expect(screen.getByText('Vnesi vrednost med 1 in 1000.')).toBeInTheDocument();
-    act(() => { fireEvent.change(inputN, {target: {value: '2.5'}}); });
+    act(() => { enterNumber(inputN, '2.5'); });
     expect(graph.modelNow().threshold).toBe(11);
     expect(screen.getByText('Prag N mora biti celo število med 1 in 1000.')).toBeInTheDocument();
 
     // epsilon takes grid values only
     const inputEpsilon = screen.getByLabelText('Širina pasu ε') as HTMLInputElement;
-    act(() => { fireEvent.change(inputEpsilon, {target: {value: '0.05'}}); });
+    act(() => { enterNumber(inputEpsilon, '0.05'); });
     expect(graph.modelNow()).toMatchObject({epsilon: 0.05, threshold: 11});
     expect(readout('certificate')).toBe('N ne deluje');
     expect(readout('n-min')).toBe('21');
-    act(() => { fireEvent.change(inputEpsilon, {target: {value: '0.055'}}); });
+    act(() => { enterNumber(inputEpsilon, '0.055'); });
     expect(graph.modelNow().epsilon).toBe(0.05);
     expect(screen.getByText('Širina pasu ε mora biti večkratnik števila 0,01 med 0,01 in 2.')).toBeInTheDocument();
-    act(() => { fireEvent.change(inputEpsilon, {target: {value: '0.1'}}); });
+    act(() => { enterNumber(inputEpsilon, '0.1'); });
 
     // Play shows Pause, runs the shared transition at the frame interval and stops when paused
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'})); });
@@ -123,7 +124,7 @@ test('a real board shows the terms: Next step, Play and Pause, Reset, the fields
     // an edit through the real input pauses playback
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'})); });
     expect(graph.playing()).toBe(true);
-    act(() => { fireEvent.change(inputEpsilon, {target: {value: '0.2'}}); });
+    act(() => { enterNumber(inputEpsilon, '0.2'); });
     expect(graph.playing()).toBe(false);
     expect(frames.callbacks.size).toBe(0);
     expect(readout('terms')).toBe('13');
@@ -135,10 +136,10 @@ test('a real board shows the terms: Next step, Play and Pause, Reset, the fields
     act(() => { fireEvent.change(select, {target: {value: 'alternating-sign'}}); });
     expect(graph.modelNow()).toEqual({example: 'alternating-sign', epsilon: 0.5, limit: 0, threshold: 5, terms: 1, certificateVisible: false});
     expect(boardObjects(graph)).toBe(baseline);
-    act(() => { fireEvent.change(screen.getByLabelText('Širina pasu ε'), {target: {value: '1.5'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Širina pasu ε'), '1.5'); });
     act(() => { fireEvent.click(toggle()); });
     expect(statusIds()).toEqual(['epsilon-satisfied']);
-    act(() => { fireEvent.change(screen.getByLabelText('Širina pasu ε'), {target: {value: '0.5'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Širina pasu ε'), '0.5'); });
     expect(statusIds()).toEqual(['oscillating']);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
     expect(boardObjects(graph)).toBe(baseline);

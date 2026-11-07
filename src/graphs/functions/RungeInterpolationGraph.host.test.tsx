@@ -9,6 +9,7 @@ import {DomainError} from './BaseFunctionGraph';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
 import {DEFAULT_RUNGE_MODEL} from '../../analysis/rungeInterpolationModel';
 import {RUNGE_TABLE} from '../../analysis/interpolation';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
 beforeAll(installBoardShims);
@@ -47,7 +48,7 @@ const mount = () => {
     expect(graph.state.initialized).toBe(true);
     return {graph, ...view};
 };
-const setDegree = (value: number) => act(() => { fireEvent.change(degreeInput(), {target: {value: String(value)}}); });
+const setDegree = (value: number) => act(() => { enterNumber(degreeInput(), String(value)); });
 const setRule = (value: string) => act(() => { fireEvent.change(ruleSelect(), {target: {value}}); });
 const numeric = (text: string | null | undefined) => Number(String(text).replace(',', '.').replace('−', '-'));
 

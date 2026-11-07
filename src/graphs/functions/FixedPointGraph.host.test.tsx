@@ -5,6 +5,7 @@ import {FixedPointGraph, FIXED_POINT_STEP_INTERVAL_MS} from './FixedPointGraph';
 import {GraphHost} from '../base/GraphHost';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -88,21 +89,21 @@ test('a real board shows the cobweb: Next step, Play and Pause, Reset, the field
 
     // the labelled fields take x0 on the 0.01 grid and the tolerance digits; other values are refused with a hint
     const inputX0 = screen.getByLabelText('Začetek x₀') as HTMLInputElement;
-    act(() => { fireEvent.change(inputX0, {target: {value: '0.5'}}); });
+    act(() => { enterNumber(inputX0, '0.5'); });
     expect(graph.modelNow()).toMatchObject({x0: 0.5, step: 0, boundVisible: true});
     expect(readout('step')).toBe('0');
-    act(() => { fireEvent.change(inputX0, {target: {value: '2.5'}}); });
+    act(() => { enterNumber(inputX0, '2.5'); });
     expect(graph.modelNow().x0).toBe(0.5);
     expect(screen.getByText('Vnesi vrednost med 0 in 2.')).toBeInTheDocument();
-    act(() => { fireEvent.change(inputX0, {target: {value: '0.555'}}); });
+    act(() => { enterNumber(inputX0, '0.555'); });
     expect(graph.modelNow().x0).toBe(0.5);
     expect(screen.getByText('Začetek x₀ mora biti večkratnik števila 0,01 med 0 in 2.')).toBeInTheDocument();
-    act(() => { fireEvent.change(inputX0, {target: {value: '0'}}); });
+    act(() => { enterNumber(inputX0, '0'); });
     const inputDigits = screen.getByLabelText('Natančnost d (prag 10⁻ᵈ)') as HTMLInputElement;
-    act(() => { fireEvent.change(inputDigits, {target: {value: '2.5'}}); });
+    act(() => { enterNumber(inputDigits, '2.5'); });
     expect(graph.modelNow().digits).toBe(3);
     expect(screen.getByText('Število d mora biti celo število med 1 in 8.')).toBeInTheDocument();
-    act(() => { fireEvent.change(inputDigits, {target: {value: '2'}}); });
+    act(() => { enterNumber(inputDigits, '2'); });
     expect(graph.modelNow().digits).toBe(2);
     expect(readout('tolerance')).toBe('10⁻²');
 
@@ -120,7 +121,7 @@ test('a real board shows the cobweb: Next step, Play and Pause, Reset, the field
     // an edit through the real input pauses playback and returns to step 0
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'})); });
     expect(graph.playing()).toBe(true);
-    act(() => { fireEvent.change(inputDigits, {target: {value: '3'}}); });
+    act(() => { enterNumber(inputDigits, '3'); });
     expect(graph.playing()).toBe(false);
     expect(frames.callbacks.size).toBe(0);
     expect(readout('step')).toBe('0');

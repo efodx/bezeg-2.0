@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {EulerGraph} from './EulerGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -73,7 +74,7 @@ const mount = () => {
     return {graph, view};
 };
 const slider = () => screen.getByRole('slider') as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { fireEvent.change(screen.getByLabelText(label), {target: {value}}); });
+const type = (label: string, value: string) => act(() => { enterNumber(screen.getByLabelText(label), value); });
 const click = (name: string) => act(() => { fireEvent.click(screen.getByRole('button', {name})); });
 const texts = (graph: ObservedEulerGraph) => graph.liveBoard().objectsList.filter((object: any) => object.elType === 'text').map((text: any) => String(text.plaintext)).join('|');
 const dragTo = (graph: ObservedEulerGraph, x: number, y: number) => {
@@ -93,13 +94,13 @@ test('the default scene is the lesson example with exactly one field curve, and 
     expect(readout('ratio')).toBe('1,53');
     const baseline = boardObjects(graph);
 
-    act(() => { fireEvent.change(slider(), {target: {value: '2'}}); });
+    act(() => { enterNumber(slider(), '2'); });
     expect(graph.modelNow().step).toBe(0.25);
     expect(readout('value')).toBe('2,4414');
     expect(readout('error')).toBe('0,2769');
     expect(readout('double-error')).toBe('0,4683');
     expect(readout('ratio')).toBe('1,69');
-    act(() => { fireEvent.change(slider(), {target: {value: '3'}}); });
+    act(() => { enterNumber(slider(), '3'); });
     expect(readout('value')).toBe('2,5658');
     expect(readout('ratio')).toBe('1,82');
     expect(boardObjects(graph)).toBe(baseline);
@@ -155,7 +156,7 @@ test('a view change regenerates the field, a drag or a step change does not', ()
     const {graph} = mount();
     const stub = vi.spyOn(graph.liveBoard(), 'getBoundingBox');
     const builds = graph.builds();
-    act(() => { fireEvent.change(slider(), {target: {value: '2'}}); });
+    act(() => { enterNumber(slider(), '2'); });
     dragTo(graph, 0, 0.5);
     expect(graph.builds()).toBe(builds);
     const before = graph.fieldCurves()[0].dataX.slice();
@@ -182,10 +183,10 @@ test('the example switch keeps the other fields, changes the equation and the nu
     expect(graph.modelNow()).toMatchObject({example: 'linear-relaxation', x0: 0, y0: 1, step: 0.5, xEnd: 1});
     expect(readout('value')).toBe('0,5');
     expect(readout('error')).toBe('0,2358');
-    act(() => { fireEvent.change(slider(), {target: {value: '2'}}); });
+    act(() => { enterNumber(slider(), '2'); });
     expect(readout('value')).toBe('0,6328');
     expect(readout('error')).toBe('0,1029');
-    act(() => { fireEvent.change(slider(), {target: {value: '3'}}); });
+    act(() => { enterNumber(slider(), '3'); });
     expect(readout('value')).toBe('0,6872');
     expect(readout('error')).toBe('0,04854');
     expect(graph.fieldCurves()).toHaveLength(1);
@@ -216,7 +217,7 @@ test('with end x = x0 the single-node polyline is hidden and returns with the fi
 
 test('Next step reveals the polyline one step at a time and Show all restores it', () => {
     const {graph} = mount();
-    act(() => { fireEvent.change(slider(), {target: {value: '3'}}); });
+    act(() => { enterNumber(slider(), '3'); });
     expect(graph.polyline().dataX).toHaveLength(9);
     click('Naslednji korak');
     expect(graph.modelNow().revealed).toBe(1);
@@ -313,7 +314,7 @@ test('StrictMode does not duplicate board objects or the field curve', () => {
     giveView(graph);
     const baseline = boardObjects(graph);
     expect(graph.fieldCurves()).toHaveLength(1);
-    act(() => { fireEvent.change(slider(), {target: {value: '2'}}); });
+    act(() => { enterNumber(slider(), '2'); });
     expect(boardObjects(graph)).toBe(baseline);
     view.unmount();
     expect(graph.ownedObjects()).toBe(0);

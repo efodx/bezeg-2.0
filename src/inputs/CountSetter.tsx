@@ -14,6 +14,8 @@ interface CountSetterProps {
     onMinus: () => void;
     /** When given, the middle is an editable integer field that calls `onSet` with the typed whole number; otherwise it shows `n` read-only. */
     onSet?: (value: number) => void;
+    /** The change of Shift with an arrow, PageUp and PageDown in the field; defaults to ten. */
+    bigStep?: number;
     min?: number | (() => number);
     max?: number | (() => number);
 }
@@ -45,7 +47,7 @@ export function CountSetter(props: CountSetterProps) {
             <Button aria-label={t("decrease_count")} className="count-setter-button" onClick={onMinus} disabled={atMin}>−</Button>
             {props.onSet
                 ? <NumberInput label={props.label ?? t("current_count", {value0: formatNumber(n, language, 0)})} hideLabel compact
-                               value={n} min={min} max={max} step={1} decimals={0} integer applyOn="confirm"
+                               value={n} min={min} max={max} step={1} bigStep={props.bigStep} decimals={0} integer
                                onChange={value => props.onSet?.(value)}/>
                 : <output className="count-setter-value" aria-label={t("current_count", {value0: formatNumber(n, language, 0)})}>
                     {formatNumber(n, language, 0)}</output>}

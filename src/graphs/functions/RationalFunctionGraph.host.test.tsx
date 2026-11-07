@@ -7,6 +7,7 @@ import {setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {DEFAULT_RATIONAL_FUNCTION_MODEL, rationalExampleModel} from '../../analysis/rationalFunctionModel';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -90,7 +91,7 @@ test('a numerator zero dragged onto a denominator zero makes a hole and says so;
 
 test('typed values make a hole through the fields, an example switch and the probe slider follow', () => {
     const graph = mount();
-    act(() => { fireEvent.change(field('Števec: Ničla 2: položaj x'), {target: {value: '2'}}); });
+    act(() => { enterNumber(field('Števec: Ničla 2: položaj x'), '2'); });
     expect(graph.modelNow().numerator[1].z).toBe(2);
     expect(readout('holes')).toMatch(/luknja/);
     expect(graph.glidersNow().numerator[1].X()).toBeCloseTo(2, 9);
@@ -102,7 +103,7 @@ test('typed values make a hole through the fields, an example switch and the pro
     act(() => { fireEvent.change(screen.getByLabelText('Primer'), {target: {value: 'horizontal'}}); });
     expect(readout('asymptote')).toMatch(/vodoravna asimptota/);
     const probe = document.querySelector('input[type="range"]') as HTMLInputElement;
-    act(() => { fireEvent.change(probe, {target: {value: '5'}}); });
+    act(() => { enterNumber(probe, '5'); });
     expect(graph.modelNow().probe).toBe(5);
 });
 

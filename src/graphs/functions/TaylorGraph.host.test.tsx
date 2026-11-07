@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {TaylorGraph} from './TaylorGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -54,18 +55,18 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     expect(graph.modelNow()).toMatchObject({degree: 3});
     expect(readout('polynomial')).toBe('2,6667');
     const inputDegree = screen.getByLabelText('Stopnja n') as HTMLInputElement;
-    act(() => { fireEvent.change(inputDegree, {target: {value: '6'}}); });
+    act(() => { enterNumber(inputDegree, '6'); });
     expect(graph.modelNow()).toMatchObject({degree: 6});
     expect(readout('polynomial')).toBe('2,7181');
-    act(() => { fireEvent.change(inputDegree, {target: {value: '2.5'}}); });
+    act(() => { enterNumber(inputDegree, '2.5'); });
     expect(graph.modelNow()).toMatchObject({degree: 6});
-    act(() => { fireEvent.change(inputDegree, {target: {value: '0'}}); });
+    act(() => { enterNumber(inputDegree, '0'); });
     expect(decrease().disabled).toBe(true);
     expect(decrease().getAttribute('aria-describedby')).toBe('taylor-degree-help');
     expect(document.getElementById('taylor-degree-help')?.textContent).toMatch(/najmanjša/);
-    act(() => { fireEvent.change(inputDegree, {target: {value: '10'}}); });
+    act(() => { enterNumber(inputDegree, '10'); });
     expect(increase().disabled).toBe(true);
-    act(() => { fireEvent.change(inputDegree, {target: {value: '6'}}); });
+    act(() => { enterNumber(inputDegree, '6'); });
 
     // Show error bound is a native button whose label names its state; it reveals the bound with its assumption
     const toggle = () => screen.getByRole('button', {name: /oceno napake/}) as HTMLButtonElement;
@@ -80,9 +81,9 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
 
     // x through the labelled field keeps the reveal; an out-of-range value is refused with the range
     const inputX = screen.getByLabelText('Točka x') as HTMLInputElement;
-    act(() => { fireEvent.change(inputX, {target: {value: '2'}}); });
+    act(() => { enterNumber(inputX, '2'); });
     expect(graph.modelNow()).toMatchObject({x: 2, boundVisible: true});
-    act(() => { fireEvent.change(inputX, {target: {value: '9'}}); });
+    act(() => { enterNumber(inputX, '9'); });
     expect(graph.modelNow()).toMatchObject({x: 2});
     expect(screen.getByText('Vnesi vrednost med −3 in 3.')).toBeInTheDocument();
 
@@ -104,7 +105,7 @@ test('a real board shows f and T_n: the fields, the degree buttons, the example 
     // 1/(1 - x) shows whether x is inside the convergence interval, in words
     act(() => { fireEvent.change(select, {target: {value: 'geometric'}}); });
     expect(statusIds()).toEqual(['hidden', 'inside-convergence']);
-    act(() => { fireEvent.change(screen.getByLabelText('Točka x'), {target: {value: '-1.5'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Točka x'), '-1.5'); });
     expect(statusIds()).toEqual(['hidden', 'outside-convergence']);
     expect(readout('convergence')).toMatch(/zunaj/);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);

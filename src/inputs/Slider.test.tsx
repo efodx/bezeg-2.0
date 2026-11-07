@@ -1,6 +1,7 @@
 import React from 'react';
 import {fireEvent, render, screen} from '@testing-library/react';
 import Slider from './Slider';
+import {enterNumber} from './testEntry';
 
 test('the slider has a labelled number field that commits in-range values and the range input agrees with it', () => {
     const onChange = vi.fn();
@@ -12,6 +13,8 @@ test('the slider has a labelled number field that commits in-range values and th
     expect(range).toHaveAttribute('aria-valuetext', '0,5');
 
     fireEvent.input(field, {target: {value: '0,25'}, inputType: 'insertText'});
+    expect(onChange).not.toHaveBeenCalled();
+    fireEvent.keyDown(field, {key: 'Enter'});
     expect(onChange).toHaveBeenLastCalledWith(0.25);
 
     // an external change (dragging, a lesson scene) updates both the range input and the field
@@ -23,7 +26,7 @@ test('the slider has a labelled number field that commits in-range values and th
 test('a typed value outside the range is explained and not committed', () => {
     const onChange = vi.fn();
     render(<Slider customText="t" min={0} max={1} value={0.5} onChange={onChange}/>);
-    fireEvent.change(screen.getByRole('spinbutton'), {target: {value: '2'}});
+    enterNumber(screen.getByRole('spinbutton'), '2');
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med 0 in 1.');
 });
@@ -46,4 +49,19 @@ test('Enter in the slider number field does not submit the surrounding form', ()
     render(<Slider customText="t" min={0} max={1} value={0.5} onChange={() => undefined}/>);
     const notPrevented = fireEvent.keyDown(screen.getByRole('spinbutton', {name: 't, vrednost'}), {key: 'Enter'});
     expect(notPrevented).toBe(false);
+});
+
+test('Shift with an arrow, PageUp and PageDown move the range by the big step (ten steps unless bigStep is set); a plain arrow is left to the browser', () => {
+    const onChange = vi.fn();
+    const {rerender} = render(<Slider customText="t" min={0} max={100} step={1} value={50} onChange={onChange}/>);
+    const range = screen.getByLabelText('t') as HTMLInputElement;
+    expect(fireEvent.keyDown(range, {key: 'ArrowRight'})).toBe(true);
+    expect(onChange).not.toHaveBeenCalled();
+    fireEvent.keyDown(range, {key: 'ArrowRight', shiftKey: true});
+    expect(onChange).toHaveBeenLastCalledWith(60);
+    fireEvent.keyDown(range, {key: 'PageDown'});
+    expect(onChange).toHaveBeenLastCalledWith(40);
+    rerender(<Slider customText="t" min={0} max={100} step={1} bigStep={25} value={90} onChange={onChange}/>);
+    fireEvent.keyDown(range, {key: 'PageUp'});
+    expect(onChange).toHaveBeenLastCalledWith(100);
 });

@@ -373,7 +373,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         const exampleOptions: LinearMapExampleChoice[] = [...EXAMPLE_IDS_OFFERED];
         if (!exampleOptions.includes(state.exampleId)) exampleOptions.push(state.exampleId);
         const entry = (row: Row, column: Column) => (
-            <NumberInput label={this.entryLabel(row, column)} value={state.matrix[row][column]} step={MATRIX_ENTRY_STEP} decimals={2} applyOn="confirm"
+            <NumberInput label={this.entryLabel(row, column)} value={state.matrix[row][column]} step={MATRIX_ENTRY_STEP} decimals={2}
                          describedBy="linear-map-entries-help linear-map-notice"
                          onChange={next => this.ignoreOutOfDomain(() => this.setEntryFromInput(row, column, next))}/>
         );

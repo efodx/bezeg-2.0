@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {QuadratureGraph} from './QuadratureGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -54,14 +55,14 @@ test('the default scene shows the lesson example and the readouts follow n by ke
     expect(readout('ratio')).toBe('4,66');
     const baseline = boardObjects(graph);
 
-    act(() => { fireEvent.change(range(), {target: {value: '4'}}); });
+    act(() => { enterNumber(range(), '4'); });
     expect(graph.modelNow().n).toBe(4);
     expect(readout('error')).toBe('0,1039');
     expect(readout('half-error')).toBe('0,4292');
     expect(readout('ratio')).toBe('4,13');
 
     const field = screen.getByLabelText('Število podintervalov n') as HTMLInputElement;
-    act(() => { fireEvent.change(field, {target: {value: '8'}}); });
+    act(() => { enterNumber(field, '8'); });
     expect(graph.modelNow().n).toBe(8);
     expect(readout('error')).toBe('0,02577');
     expect(readout('ratio')).toBe('4,03');
@@ -72,7 +73,7 @@ test('the default scene shows the lesson example and the readouts follow n by ke
 
 test('Simpson: odd n is refused, a switch from odd n is adjusted with a stated message, and the steps are even', () => {
     const {graph} = mount();
-    act(() => { fireEvent.change(screen.getByLabelText('Število podintervalov n'), {target: {value: '5'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Število podintervalov n'), '5'); });
     expect(graph.modelNow().n).toBe(5);
     expect(readout('ratio')).toBe('ni');
     expect(statusIds()).toEqual(['trapezoid', 'no-half']);
@@ -84,11 +85,11 @@ test('Simpson: odd n is refused, a switch from odd n is adjusted with a stated m
     expect(range().min).toBe('2');
 
     // an odd n typed for Simpson is rejected and the model stays
-    act(() => { fireEvent.change(screen.getByLabelText('Število podintervalov n, vrednost'), {target: {value: '7'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Število podintervalov n, vrednost'), '7'); });
     expect(graph.modelNow().n).toBe(6);
     expect(screen.getByText('Pri Simpsonovem pravilu mora biti n sodo število od 2 do 150.')).toBeInTheDocument();
     // the next edit clears the adjustment note; an even n is applied
-    act(() => { fireEvent.change(screen.getByLabelText('Število podintervalov n'), {target: {value: '8'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Število podintervalov n'), '8'); });
     expect(graph.modelNow().n).toBe(8);
     expect(document.querySelector('[data-quadrature-status="adjusted"]')).toBeNull();
     expect(readout('error')).toBe('0,0002692');
@@ -160,7 +161,7 @@ test('Reset and Preset import clear the odd-to-even adjustment line', () => {
     const adjusted = () => document.querySelector('[data-quadrature-status="adjusted"]');
     const makeAdjustment = () => {
         act(() => { fireEvent.change(screen.getByLabelText('Pravilo'), {target: {value: 'trapezoid'}}); });
-        act(() => { fireEvent.change(screen.getByLabelText('Število podintervalov n'), {target: {value: '5'}}); });
+        act(() => { enterNumber(screen.getByLabelText('Število podintervalov n'), '5'); });
         act(() => { fireEvent.change(screen.getByLabelText('Pravilo'), {target: {value: 'simpson'}}); });
         expect(adjusted()).not.toBeNull();
     };

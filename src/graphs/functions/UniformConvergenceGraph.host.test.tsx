@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {UniformConvergenceGraph} from './UniformConvergenceGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -53,19 +54,19 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     act(() => { fireEvent.click(increase()); });
     expect(graph.modelNow()).toMatchObject({n: 6});
     const inputN = field(/^Indeks n$/);
-    act(() => { fireEvent.change(inputN, {target: {value: '11'}}); });
+    act(() => { enterNumber(inputN, '11'); });
     expect(graph.modelNow()).toMatchObject({n: 11});
-    act(() => { fireEvent.change(inputN, {target: {value: '2.5'}}); });
+    act(() => { enterNumber(inputN, '2.5'); });
     expect(graph.modelNow()).toMatchObject({n: 11});
-    act(() => { fireEvent.change(inputN, {target: {value: '1'}}); });
+    act(() => { enterNumber(inputN, '1'); });
     expect(decrease().getAttribute('aria-disabled')).toBe('true');
     expect(decrease().disabled).toBe(false);
     expect(document.getElementById('uniform-n-help')?.textContent).toMatch(/najmanjši/);
-    act(() => { fireEvent.change(inputN, {target: {value: '50'}}); });
+    act(() => { enterNumber(inputN, '50'); });
     expect(increase().getAttribute('aria-disabled')).toBe('true');
     act(() => { fireEvent.click(increase()); });
     expect(graph.modelNow()).toMatchObject({n: 50});
-    act(() => { fireEvent.change(inputN, {target: {value: '11'}}); });
+    act(() => { enterNumber(inputN, '11'); });
 
     // Show supremum names its state and reveals the supremum, whether it is attained and the shared N
     const toggle = () => screen.getByRole('button', {name: /supremum/}) as HTMLButtonElement;
@@ -81,16 +82,16 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
 
     // r below the chosen point is refused, with the reason in the hint; moving x first then allows it
     const inputR = field(/^Konec območja r/);
-    act(() => { fireEvent.change(inputR, {target: {value: '0.4'}}); });
+    act(() => { enterNumber(inputR, '0.4'); });
     expect(graph.modelNow()).toMatchObject({r: 0.8, x: 0.5});
     expect(screen.getByText(/Najprej premakni točko x/)).toBeInTheDocument();
-    act(() => { fireEvent.change(field(/^Točka x$/), {target: {value: '0.3'}}); });
-    act(() => { fireEvent.change(inputR, {target: {value: '0.45'}}); });
+    act(() => { enterNumber(field(/^Točka x$/), '0.3'); });
+    act(() => { enterNumber(inputR, '0.45'); });
     expect(graph.modelNow()).toMatchObject({r: 0.45, x: 0.3, supremumVisible: true});
     // a real off-grid value is refused, a grid value accepted; the board does not gain objects
-    act(() => { fireEvent.change(field(/^Točka x$/), {target: {value: '0.305'}}); });
+    act(() => { enterNumber(field(/^Točka x$/), '0.305'); });
     expect(graph.modelNow()).toMatchObject({x: 0.3});
-    act(() => { fireEvent.change(field(/^Toleranca ε$/), {target: {value: '0.05'}}); });
+    act(() => { enterNumber(field(/^Toleranca ε$/), '0.05'); });
     expect(graph.modelNow()).toMatchObject({epsilon: 0.05});
 
     // choosing the other example loads its model and hides the supremum
@@ -101,7 +102,7 @@ test('a real board shows f_n and its limit: the fields, the n buttons, the examp
     expect(readout('supremum')).toBe('0,2');
     expect(readout('shared-n')).toBe('11');
     act(() => { fireEvent.change(select, {target: {value: 'power'}}); });
-    act(() => { fireEvent.change(inputR, {target: {value: '1'}}); });
+    act(() => { enterNumber(inputR, '1'); });
     act(() => { fireEvent.click(toggle()); });
     expect(readout('supremum-attained')).toMatch(/^ne;/);
     expect(readout('shared-n')).toBe('ne obstaja');

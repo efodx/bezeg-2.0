@@ -8,6 +8,7 @@ import {DomainError} from './BaseFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {DEFAULT_FUNCTION_TRANSFORMATION_MODEL} from '../../analysis/functionTransformationModel';
 import {transformRuleText} from './functionTransformationMessages';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -83,7 +84,7 @@ test('fields move the image, a base change keeps the parameters, b = 0 is refuse
     const graph = mount();
     const baseline = boardObjects(graph);
 
-    act(() => { fireEvent.change(field('Vodoravni premik c'), {target: {value: '1,5'}}); });
+    act(() => { enterNumber(field('Vodoravni premik c'), '1,5'); });
     expect(graph.modelNow()).toMatchObject({c: 1.5});
     expect(readout('image-point')).toBe('(5,5; −7)');
     near(graph.markers().image, [5.5, -7]);
@@ -95,13 +96,13 @@ test('fields move the image, a base change keeps the parameters, b = 0 is refuse
     near(graph.markers().base, [2, 8]);
 
     // b = 0 is refused: the model and the board stay, the field explains the rule
-    act(() => { fireEvent.change(field('Vodoravna raztegnitev b'), {target: {value: '0'}}); });
+    act(() => { enterNumber(field('Vodoravna raztegnitev b'), '0'); });
     expect(graph.modelNow()).toMatchObject({b: 0.5});
     expect(screen.getByText('Vrednost b ne sme biti 0 in mora biti med −10 in 10.')).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/must not be 0/);
 
     // a negative b mirrors about x = c: the image abscissa is c - |u/b|
-    act(() => { fireEvent.change(field('Vodoravna raztegnitev b'), {target: {value: '-0,5'}}); });
+    act(() => { enterNumber(field('Vodoravna raztegnitev b'), '-0,5'); });
     expect(graph.modelNow()).toMatchObject({b: -0.5});
     expect(readout('image-point')).toBe('(−2,5; −15)');
     expect(steps()).toContain('scale-inside');
@@ -109,7 +110,7 @@ test('fields move the image, a base change keeps the parameters, b = 0 is refuse
 
     // a point outside the base domain withdraws the markers instead of showing NaN
     act(() => { fireEvent.change(screen.getByLabelText('Osnovna funkcija f'), {target: {value: 'sqrt'}}); });
-    act(() => { fireEvent.change(field('Označena točka u'), {target: {value: '-1'}}); });
+    act(() => { enterNumber(field('Označena točka u'), '-1'); });
     expect(graph.modelNow()).toMatchObject({base: 'sqrt', u: -1});
     expect(readout('image-point')).toMatch(/ni definirana/);
     expect(graph.markers()).toEqual({base: undefined, image: undefined});
@@ -170,7 +171,7 @@ test('Reset, a restored Preset and the ghost toggle restore every field, the con
 
 test('both languages: labels, steps and number format follow a live language switch', () => {
     const graph = mount();
-    act(() => { fireEvent.change(field('Vodoravna raztegnitev b'), {target: {value: '-0,5'}}); });
+    act(() => { enterNumber(field('Vodoravna raztegnitev b'), '-0,5'); });
     expect(graph.modelNow().b).toBe(-0.5);
     expect(readout('rule')).toBe('y = −2 f(−0,5(x − 3)) + 1');
     act(() => { setLanguage('en'); });

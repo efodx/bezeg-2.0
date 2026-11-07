@@ -5,6 +5,7 @@ import {RootFindingGraph, ROOT_FINDING_STEP_INTERVAL_MS} from './RootFindingGrap
 import {GraphHost} from '../base/GraphHost';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -78,7 +79,7 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset, the me
 
     // a start edit through the real input restarts the history; Reset keeps the model
     const inputX0 = screen.getByLabelText('Začetni približek x₀') as HTMLInputElement;
-    act(() => { fireEvent.change(inputX0, {target: {value: '0.5'}}); });
+    act(() => { enterNumber(inputX0, '0.5'); });
     expect(graph.modelNow()).toEqual({method: 'newton', example: 'square-minus-two', x0: 0.5, x1: 2, step: 0});
     expect(statusId()).toBe('ready');
     act(() => { fireEvent.click(nextButton()); });

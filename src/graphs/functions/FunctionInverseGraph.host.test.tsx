@@ -8,6 +8,7 @@ import {DomainError} from './BaseFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {DEFAULT_FUNCTION_INVERSE_MODEL} from '../../analysis/functionInverseModel';
 import {installBoardShims} from '../base/realGraphTestHarness';
+import {enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 
@@ -109,7 +110,7 @@ test('restrictions: 2^x, e^x and the base a = 1 refusal with an actionable messa
     const baseline = boardObjects(graph);
 
     act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value: 'exp'}}); });
-    act(() => { fireEvent.change(field('Točka P: abscisa x₀'), {target: {value: '3'}}); });
+    act(() => { enterNumber(field('Točka P: abscisa x₀'), '3'); });
     expect(graph.modelNow()).toMatchObject({restriction: 'exp', base: 2, x0: 3});
     expect(readout('point')).toBe('(3; 8)');
     expect(readout('mirror')).toBe('(8; 3)');
@@ -120,18 +121,18 @@ test('restrictions: 2^x, e^x and the base a = 1 refusal with an actionable messa
     near(graph.markers().mirror, [8, 3]);
 
     // a = 1 is refused, not clamped: the model, the field and the board stay, and the field explains the rule
-    act(() => { fireEvent.change(field('Osnova a'), {target: {value: '1'}}); });
+    act(() => { enterNumber(field('Osnova a'), '1'); });
     expect(graph.modelNow().base).toBe(2);
     expect(screen.getByText('Osnova a mora biti med 0,2 in 5 in ne sme biti 1.')).toBeInTheDocument();
     near(graph.markers().p, [3, 8]);
     // a = 3 would put P at (3, 27), outside the view: x0 moves to the end of the new range, log_3 8 rounded down to 1.8
-    act(() => { fireEvent.change(field('Osnova a'), {target: {value: '3'}}); });
+    act(() => { enterNumber(field('Osnova a'), '3'); });
     expect(graph.modelNow()).toMatchObject({base: 3, x0: 1.8});
     expect(field('Točka P: abscisa x₀').value).toBe('1,8');
     expect(readout('point')).toBe('(1,8; 7,2247)');
 
     act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value: 'natural'}}); });
-    act(() => { fireEvent.change(field('Točka P: abscisa x₀'), {target: {value: '1'}}); });
+    act(() => { enterNumber(field('Točka P: abscisa x₀'), '1'); });
     expect(screen.queryByLabelText('Osnova a')).toBeNull();
     expect(readout('point')).toBe('(1; 2,7183)');
     expect(readout('forward-slope')).toBe('2,7183');
@@ -142,7 +143,7 @@ test('restrictions: 2^x, e^x and the base a = 1 refusal with an actionable messa
 
 test('at x0 = 0 on x^2 the inverse tangent is vertical: drawn vertical, no slope number, no product', () => {
     const graph = mount();
-    act(() => { fireEvent.change(field('Točka P: abscisa x₀'), {target: {value: '0'}}); });
+    act(() => { enterNumber(field('Točka P: abscisa x₀'), '0'); });
     expect(readout('forward-slope')).toBe('0');
     expect(readout('inverse-slope')).toBe(VERTICAL_SL);
     expect(readout('inverse-slope')).not.toMatch(/\d/);
@@ -156,7 +157,7 @@ test('at x0 = 0 on x^2 the inverse tangent is vertical: drawn vertical, no slope
 
 test('an x0 outside the restriction is refused (x < 0 on x^2), and dragging P moves it along f on the grid', () => {
     const graph = mount();
-    act(() => { fireEvent.change(field('Točka P: abscisa x₀'), {target: {value: '-1'}}); });
+    act(() => { enterNumber(field('Točka P: abscisa x₀'), '-1'); });
     expect(graph.modelNow().x0).toBe(2);
     expect(screen.getByText('Vnesi vrednost med 0 in 2,8.')).toBeInTheDocument();
 
@@ -199,7 +200,7 @@ test('the drawn graphs follow f and its inverse, and P and P\' stay inside the d
     checkCurves(x => x * x, Math.sqrt);
 
     const restriction = (value: string) => act(() => { fireEvent.change(screen.getByLabelText('Zožitev z inverzno funkcijo'), {target: {value}}); });
-    const set = (label: string, value: string) => act(() => { fireEvent.change(field(label), {target: {value}}); });
+    const set = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
     const x0Field = 'Točka P: abscisa x₀';
     set(x0Field, '2,8');
     expect(inView(graph.markers().p) && inView(graph.markers().mirror)).toBe(true);
@@ -274,7 +275,7 @@ test('Reset, a restored Preset and the language switch restore every field, the 
     expect(graph.inverseCurveVisible()).toBe(true);
     expect(boardObjects(graph)).toBe(baseline);
 
-    act(() => { fireEvent.change(field('Point P: abscissa x₀'), {target: {value: '0'}}); });
+    act(() => { enterNumber(field('Point P: abscissa x₀'), '0'); });
     expect(readout('inverse-slope')).toBe('the tangent is vertical, the slope is undefined');
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });

@@ -1,15 +1,16 @@
 import React from 'react';
 import {fireEvent, render, screen} from '@testing-library/react';
 import {NumberInput, parseDecimal} from './NumberInput';
+import {blurNumber, enterNumber} from './testEntry';
 import {setLanguage} from '../localization';
 import {FunctionReadout} from '../graphs/functions/FunctionReadout';
 
-/** Typing (or pasting) into the field: an input event that carries an inputType, unlike the native spinner. */
-const type = (input: HTMLInputElement, value: string) => fireEvent.input(input, {target: {value}, inputType: 'insertText'});
+/** Typing (or pasting) into the field: an input event that carries an inputType,. */
+const type = (input: HTMLElement, value: string) => fireEvent.input(input, {target: {value}, inputType: 'insertText'});
 
-test('applyOn="confirm" never commits the rounded display of an untouched value on blur or Enter', () => {
+test('never commits the rounded display of an untouched value on blur or Enter', () => {
     const onChange = vi.fn();
-    render(<NumberInput label="r" value={0.123456} decimals={4} applyOn="confirm" onChange={onChange}/>);
+    render(<NumberInput label="r" value={0.123456} decimals={4} onChange={onChange}/>);
     const input = screen.getByLabelText('r') as HTMLInputElement;
     expect(input.value).toBe('0,1235');
     fireEvent.focus(input);
@@ -26,10 +27,10 @@ test('commits only finite in-range numbers, keeps partial typing, and follows th
     const {rerender} = render(<NumberInput label="k" value={2} min={-10} max={10} onChange={onChange}/>);
     const input = screen.getByLabelText('k') as HTMLInputElement;
     expect(input.value).toBe('2');
-    fireEvent.change(input, {target: {value: '3.5'}});
+    enterNumber(input, '3.5');
     expect(onChange).toHaveBeenLastCalledWith(3.5);
-    fireEvent.change(input, {target: {value: '99'}});
-    fireEvent.change(input, {target: {value: ''}});
+    enterNumber(input, '99');
+    enterNumber(input, '');
     expect(onChange).toHaveBeenCalledTimes(1);
     rerender(<NumberInput label="k" value={-1.25} min={-10} max={10} onChange={onChange}/>);
     expect(input.value).toBe('−1,25');
@@ -43,15 +44,15 @@ test('arrow keys step by the step prop and clamp to the range; typed values are 
     render(<NumberInput label="x" value={1} min={-4} max={4} step={0.01} onChange={onChange}/>);
     const input = screen.getByLabelText('x') as HTMLInputElement;
     expect(input.type).toBe('text');
-    fireEvent.change(input, {target: {value: '1.005'}});
-    expect(onChange).toHaveBeenLastCalledWith(1.005);
+    type(input, '1.005');
+    expect(onChange).not.toHaveBeenCalled();
     expect(input).toHaveAttribute('role', 'spinbutton');
     fireEvent.keyDown(input, {key: 'ArrowUp'});
     expect(onChange).toHaveBeenLastCalledWith(1.015);
     fireEvent.keyDown(input, {key: 'ArrowDown'});
     fireEvent.keyDown(input, {key: 'ArrowDown'});
     expect(onChange).toHaveBeenLastCalledWith(0.995);
-    fireEvent.change(input, {target: {value: '3.999'}});
+    type(input, '3.999');
     fireEvent.keyDown(input, {key: 'ArrowUp'});
     expect(onChange).toHaveBeenLastCalledWith(4);
 });
@@ -60,25 +61,25 @@ test('a value outside the range or rejected by the model is explained, in the cu
     const onChange = vi.fn(() => true);
     render(<NumberInput label="x" value={1} min={-4} max={4} onChange={onChange}/>);
     const input = screen.getByLabelText('x') as HTMLInputElement;
-    fireEvent.change(input, {target: {value: '7'}});
+    enterNumber(input, '7');
     expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med −4 in 4.');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(onChange).not.toHaveBeenCalled();
-    fireEvent.change(input, {target: {value: '2'}});
+    enterNumber(input, '2');
     expect(screen.queryByRole('status')).toBeNull();
     expect(onChange).toHaveBeenCalledWith(2);
 });
 
 test('a value the model rejects shows the rejection hint', () => {
     render(<NumberInput label="x" value={1} onChange={() => false}/>);
-    fireEvent.change(screen.getByLabelText('x'), {target: {value: '5'}});
+    enterNumber(screen.getByLabelText('x'), '5');
     expect(screen.getByRole('status')).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
 });
 
 test('a model rejection can carry its own reason instead of the generic hint', () => {
     render(<NumberInput label="x" value={1} rejectedHint="x must stay below y." onChange={() => false}/>);
     const input = screen.getByLabelText('x');
-    fireEvent.change(input, {target: {value: '5'}});
+    enterNumber(input, '5');
     expect(screen.getByRole('status')).toHaveTextContent('x must stay below y.');
     expect(input.getAttribute('aria-describedby')).toBe(screen.getByRole('status').id);
 });
@@ -90,9 +91,9 @@ test('the readout shows labelled values and an optional note', () => {
     expect(screen.getByRole('note')).toHaveTextContent('Opomba');
 });
 
-test('applyOn="confirm" keeps what is typed until Enter or blur, then applies it once and explains a refusal', () => {
+test('keeps what is typed until Enter or blur, then applies it once and explains a refusal', () => {
     const onChange = vi.fn((value: number) => value < 5);
-    render(<NumberInput label="r" value={1} applyOn="confirm" onChange={onChange}/>);
+    render(<NumberInput label="r" value={1} onChange={onChange}/>);
     const input = screen.getByLabelText('r') as HTMLInputElement;
     type(input, '1.');
     type(input, '1.5');
@@ -114,17 +115,18 @@ test('applyOn="confirm" keeps what is typed until Enter or blur, then applies it
     expect(onChange).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole('status')).toBeNull();
     // the arrow keys step at once
-    render(<NumberInput label="s" value={1} step={0.5} applyOn="confirm" onChange={onChange}/>);
+    render(<NumberInput label="s" value={1} step={0.5} onChange={onChange}/>);
     fireEvent.keyDown(screen.getByLabelText('s'), {key: 'ArrowUp'});
     expect(onChange).toHaveBeenLastCalledWith(1.5);
 });
 
-test('applyOn="confirm" applies a native spinner step at once, but keeps typing and pasting until Enter', () => {
+test('every change, whatever its input type, only edits the draft until Enter', () => {
     const onChange = vi.fn();
-    render(<NumberInput label="r" value={1} applyOn="confirm" onChange={onChange}/>);
+    render(<NumberInput label="r" value={1} onChange={onChange}/>);
     const input = screen.getByLabelText('r') as HTMLInputElement;
-    // the spinner dispatches an input event without an inputType (here the plain change event of the test library does the same)
     fireEvent.change(input, {target: {value: '2'}});
+    expect(onChange).not.toHaveBeenCalled();
+    fireEvent.keyDown(input, {key: 'Enter'});
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenLastCalledWith(2);
     type(input, '3');
@@ -133,9 +135,26 @@ test('applyOn="confirm" applies a native spinner step at once, but keeps typing 
     expect(onChange).toHaveBeenCalledTimes(1);
 });
 
-test('applyOn="confirm" shows the model value again after Enter when the model snapped the typed value back to the unchanged one', () => {
+test('a small real edit below the display precision commits on blur and on Enter, but an untouched or display-equal draft writes nothing', () => {
+    const onChange = vi.fn();
+    const {unmount} = render(<NumberInput label="q" value={1} decimals={2} onChange={onChange}/>);
+    blurNumber(screen.getByLabelText('q'), '1.0004');
+    expect(onChange).toHaveBeenLastCalledWith(1.0004);
+    unmount();
+    onChange.mockClear();
+    render(<NumberInput label="q" value={1} decimals={2} onChange={onChange}/>);
+    enterNumber(screen.getByLabelText('q'), '1.0004');
+    expect(onChange).toHaveBeenLastCalledWith(1.0004);
+    onChange.mockClear();
+    const field = screen.getByLabelText('q');
+    enterNumber(field, '1');
+    blurNumber(field, '1');
+    expect(onChange).not.toHaveBeenCalled();
+});
+
+test('shows the model value again after Enter when the model snapped the typed value back to the unchanged one', () => {
     const onChange = vi.fn(() => true);
-    render(<NumberInput label="r" value={1} applyOn="confirm" onChange={onChange}/>);
+    render(<NumberInput label="r" value={1} onChange={onChange}/>);
     const input = screen.getByLabelText('r') as HTMLInputElement;
     type(input, '1.01');
     expect(input.value).toBe('1.01');
@@ -145,7 +164,7 @@ test('applyOn="confirm" shows the model value again after Enter when the model s
     expect(input.value).toBe('1');
     // a refused value keeps the typed text so that it can be corrected
     const refuse = vi.fn(() => false);
-    render(<NumberInput label="q" value={1} applyOn="confirm" onChange={refuse}/>);
+    render(<NumberInput label="q" value={1} onChange={refuse}/>);
     const other = screen.getByLabelText('q') as HTMLInputElement;
     type(other, '7');
     fireEvent.keyDown(other, {key: 'Enter'});
@@ -174,10 +193,9 @@ describe('decimal entry', () => {
         render(<NumberInput label="k" value={1} min={-4} max={4} onChange={onChange}/>);
         const input = screen.getByLabelText('k') as HTMLInputElement;
         expect(input.value).toBe('1');
-        type(input, '1,5');
+        enterNumber(input, '1,5');
         expect(onChange).toHaveBeenLastCalledWith(1.5);
-        expect(input.value).toBe('1,5');
-        type(input, '1.25');
+        enterNumber(input, '1.25');
         expect(onChange).toHaveBeenLastCalledWith(1.25);
     });
 
@@ -186,7 +204,7 @@ describe('decimal entry', () => {
         const onChange = vi.fn();
         const {rerender} = render(<NumberInput label="k" value={1} min={-4} max={4} onChange={onChange}/>);
         const input = screen.getByLabelText('k') as HTMLInputElement;
-        type(input, '-2.5');
+        enterNumber(input, '-2.5');
         expect(onChange).toHaveBeenLastCalledWith(-2.5);
         rerender(<NumberInput label="k" value={-0.75} min={-4} max={4} onChange={onChange}/>);
         expect(input.value).toBe('−0.75');
@@ -196,7 +214,7 @@ describe('decimal entry', () => {
         const onChange = vi.fn();
         render(<NumberInput label="k" value={2} onChange={onChange}/>);
         const input = screen.getByLabelText('k') as HTMLInputElement;
-        fireEvent.change(input, {target: {value: '1,'}});
+        enterNumber(input, '1,');
         expect(onChange).not.toHaveBeenCalled();
         expect(input.value).toBe('1,');
         expect(screen.queryByRole('status')).toBeNull();
@@ -224,10 +242,76 @@ describe('decimal entry', () => {
         const onChange = vi.fn();
         render(<NumberInput label="n" value={3} min={1} max={9} integer decimals={0} onChange={onChange}/>);
         const input = screen.getByLabelText('n');
-        fireEvent.change(input, {target: {value: '2,5'}});
+        enterNumber(input, '2,5');
         expect(onChange).not.toHaveBeenCalled();
         expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med 1 in 9.');
-        fireEvent.change(input, {target: {value: '5'}});
+        enterNumber(input, '5');
         expect(onChange).toHaveBeenLastCalledWith(5);
+    });
+});
+
+describe('one commit rule: typed values commit on Enter or blur only', () => {
+    afterEach(() => setLanguage('sl'));
+
+    test('typing never commits per keystroke; Escape drops the draft and shows the model value', () => {
+        const onChange = vi.fn();
+        render(<NumberInput label="r" value={2} onChange={onChange}/>);
+        const input = screen.getByLabelText('r') as HTMLInputElement;
+        type(input, '3');
+        type(input, '35');
+        expect(onChange).not.toHaveBeenCalled();
+        fireEvent.keyDown(input, {key: 'Escape'});
+        expect(input.value).toBe('2');
+        fireEvent.blur(input);
+        expect(onChange).not.toHaveBeenCalled();
+    });
+
+    test('an unrelated rerender keeps the draft; an authoritative replacement or Reset replaces it, and the model value stays the one the caller holds', () => {
+        let model = 2;
+        const onChange = vi.fn((value: number) => { model = value; });
+        const {rerender} = render(<NumberInput label="r" value={model} onChange={onChange}/>);
+        const input = screen.getByLabelText('r') as HTMLInputElement;
+        type(input, '7');
+        rerender(<NumberInput label="r" value={model} onChange={onChange}/>);
+        expect(input.value).toBe('7');
+        expect(model).toBe(2);
+        // Reset-style replacement while a draft is open: the field shows the replacement and blur does not commit the stale draft
+        rerender(<NumberInput label="r" value={5} onChange={onChange}/>);
+        expect(input.value).toBe('5');
+        fireEvent.blur(input);
+        expect(onChange).not.toHaveBeenCalled();
+        expect(input.value).toBe('5');
+        expect(model).toBe(2);
+    });
+
+    test('a language change with an open draft shows the model value in the new convention and commits nothing', () => {
+        const onChange = vi.fn();
+        const {rerender} = render(<NumberInput label="r" value={1.5} onChange={onChange}/>);
+        const input = screen.getByLabelText('r') as HTMLInputElement;
+        type(input, '9');
+        setLanguage('en');
+        rerender(<NumberInput label="r" value={1.5} onChange={onChange}/>);
+        expect(input.value).toBe('1.5');
+        fireEvent.blur(input);
+        expect(onChange).not.toHaveBeenCalled();
+    });
+
+    test('arrows, Shift with an arrow, PageUp and PageDown step at once; the big step defaults to ten steps and a prop sets it', () => {
+        const onChange = vi.fn();
+        render(<NumberInput label="x" value={1} min={-20} max={20} step={0.5} onChange={onChange}/>);
+        const input = screen.getByLabelText('x');
+        fireEvent.keyDown(input, {key: 'ArrowUp'});
+        expect(onChange).toHaveBeenLastCalledWith(1.5);
+        fireEvent.keyDown(input, {key: 'ArrowUp', shiftKey: true});
+        expect(onChange).toHaveBeenLastCalledWith(6.5);
+        fireEvent.keyDown(input, {key: 'PageDown'});
+        expect(onChange).toHaveBeenLastCalledWith(1.5);
+        fireEvent.keyDown(input, {key: 'PageUp'});
+        expect(onChange).toHaveBeenLastCalledWith(6.5);
+        render(<NumberInput label="y" value={0} min={-20} max={3} step={1} bigStep={2} onChange={onChange}/>);
+        fireEvent.keyDown(screen.getByLabelText('y'), {key: 'PageUp'});
+        expect(onChange).toHaveBeenLastCalledWith(2);
+        fireEvent.keyDown(screen.getByLabelText('y'), {key: 'ArrowDown', shiftKey: true});
+        expect(onChange).toHaveBeenLastCalledWith(0);
     });
 });

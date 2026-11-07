@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {ComplexMultiplicationGraph} from './ComplexMultiplicationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -61,15 +62,15 @@ test('a real board shows z, w and zw: the fields, the polar fields, the example 
     expect(screen.getByRole('button', {name: 'Skrij argumente'})).toBeInTheDocument();
 
     // Cartesian fields: a grid value is applied, an off-grid value is refused with the reason
-    act(() => { fireEvent.change(field('Re w'), {target: {value: '1'}}); });
+    act(() => { enterNumber(field('Re w'), '1'); });
     expect(graph.modelNow()).toMatchObject({wRe: 1, wIm: 1});
     expect(readout('product')).toBe('2i');
-    act(() => { fireEvent.change(field('Im w'), {target: {value: '0.123'}}); });
+    act(() => { enterNumber(field('Im w'), '0.123'); });
     expect(graph.modelNow()).toMatchObject({wIm: 1});
     expect(screen.getByText('Vrednost mora biti večkratnik števila 0,05 med −2 in 2.')).toBeInTheDocument();
-    act(() => { fireEvent.change(field('Im w'), {target: {value: '2.5'}}); });
+    act(() => { enterNumber(field('Im w'), '2.5'); });
     expect(graph.modelNow()).toMatchObject({wIm: 1});
-    act(() => { fireEvent.change(field('Im z'), {target: {value: '-1'}}); });
+    act(() => { enterNumber(field('Im z'), '-1'); });
     expect(graph.modelNow()).toMatchObject({zIm: -1});
     // (1 - i)(1 + i) = 2: a real product has no imaginary part
     expect(readout('product')).toBe('2');

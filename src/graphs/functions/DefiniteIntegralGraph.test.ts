@@ -1,10 +1,11 @@
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, render, screen} from '@testing-library/react';
 import {DefiniteIntegralGraph} from './DefiniteIntegralGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {onLanguageChange, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {GraphPalette} from '../styles/GraphPalette';
+import {enterNumber} from '../../inputs/testEntry';
 
 const BOX = [-1.5, 4.5, 5.5, -1];
 const SIN_BOX = [-0.8, 3.1, 7.1, -3.1];
@@ -556,9 +557,9 @@ test('the n slider shows an integer number field that commits typed whole number
     render(found.Slider[0]);
     const field = screen.getByRole('spinbutton') as HTMLInputElement;
     expect(field.value).toBe('4');
-    act(() => { fireEvent.change(field, {target: {value: '12'}}); });
+    act(() => { enterNumber(field, '12'); });
     expect(graph.model.n).toBe(12);
-    act(() => { fireEvent.change(field, {target: {value: '2.5'}}); });
+    act(() => { enterNumber(field, '2.5'); });
     expect(graph.model.n).toBe(12);
 });
 

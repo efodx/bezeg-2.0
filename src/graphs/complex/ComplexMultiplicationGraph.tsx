@@ -410,10 +410,10 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
             </div>
             <div className="inspector-group">
                 <div className="function-points-grid complex-w-grid">
-                    <NumberInput label={t("complex_w_modulus_label")} value={view.wModulus} min={0} max={COMPLEX_MAX_OPERAND_MODULUS} step={0.05} decimals={4} applyOn="confirm"
+                    <NumberInput label={t("complex_w_modulus_label")} value={view.wModulus} min={0} max={COMPLEX_MAX_OPERAND_MODULUS} step={0.05} decimals={4}
                                  rejectedHint={t("complex_modulus_rejected_hint", {value0: formatNumber(COMPLEX_MAX_OPERAND_MODULUS, language, 2)})}
                                  onChange={next => this.ignoreOutOfDomain(() => this.setWModulus(next))}/>
-                    <NumberInput label={t("complex_w_argument_label")} value={view.wArgument} min={-MAX_TYPED_ARGUMENT} max={MAX_TYPED_ARGUMENT} step={0.1} decimals={4} applyOn="confirm"
+                    <NumberInput label={t("complex_w_argument_label")} value={view.wArgument} min={-MAX_TYPED_ARGUMENT} max={MAX_TYPED_ARGUMENT} step={0.1} decimals={4}
                                  disabled={wZero} describedBy="complex-w-argument-help"
                                  rejectedHint={t("complex_argument_rejected_hint", {
                                      value0: formatNumber(-MAX_TYPED_ARGUMENT, language, 2), value1: formatNumber(MAX_TYPED_ARGUMENT, language, 2),
