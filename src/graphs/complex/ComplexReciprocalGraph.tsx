@@ -146,7 +146,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
         });
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     /** Commits the next model of an edit, or throws the localized reason the model refused it. */
     private applyEdit(edit: ComplexReciprocalEdit, options: { syncScene?: boolean } = {}): void {
@@ -415,7 +415,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const coordinate = (label: string, value: number, apply: (value: number) => void) => (
             <NumberInput label={label} value={value} min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
                          rejectedHint={t("complex_coordinate_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => apply(next))}/>
@@ -448,7 +448,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
     }
 
     protected override renderReveals(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const toggle = (action: string, shown: boolean, show: string, hide: string, set: (visible: boolean) => void) => (
             <button type="button" data-action={action} data-revealed={shown} onClick={() => set(!shown)}>{shown ? hide : show}</button>
         );
@@ -490,7 +490,7 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const language = this.language();
         const view = this.viewOf(model);
         const {reciprocalVisible: recip, quotientVisible: quot, circleVisible: circle} = model;
