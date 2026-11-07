@@ -593,6 +593,7 @@ const linear = {
     },
     prepareUserState: async page => {
         await linearField(page, 'x₂').fill('3');
+        await linearField(page, 'x₂').press('Enter');
         await expect.poll(() => linearEquation(page)).toBe('y = 1.33x + 1');
         return await boardStats(page);
     },
@@ -893,6 +894,7 @@ const bisection = {
         await page.locator('[data-action="next-step"]').click();
         await expect.poll(() => bisectionReadout(page, 'step')).toBe('1');
         await page.getByLabel(/Right endpoint b|Desno kraji/).fill('3');
+        await page.getByLabel(/Right endpoint b|Desno kraji/).press('Enter');
         await expect.poll(() => bisectionReadout(page, 'step'), {message: 'an endpoint edit restarts the iteration'}).toBe('0');
         await page.locator('[data-action="next-step"]').click();
         await expect.poll(() => bisectionReadout(page, 'mid')).toBe('2');

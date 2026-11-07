@@ -38,6 +38,7 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     await expect.poll(async () => (await boardSnapshot(page)).objects).toBeGreaterThan(0);
 
     await page.getByLabel('Degree n', {exact: true}).fill('7');
+    await page.getByLabel('Degree n', {exact: true}).press('Enter');
     await expect.poll(() => readout(page, 'degree')).toBe('7');
     await page.locator('[data-action="toggle-taylor-bound"]').click();
     await expect.poll(() => boundStatuses(page)).toEqual(['revealed']);
@@ -59,6 +60,7 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     await expect(page.getByLabel('Degree n', {exact: true})).toBeEnabled();
 
     await page.getByLabel('Degree n', {exact: true}).fill('8');
+    await page.getByLabel('Degree n', {exact: true}).press('Enter');
     await expect.poll(() => readout(page, 'degree')).toBe('8');
     const editedBoard = await boardSnapshot(page);
     expect(editedBoard.id, 'same board after hiding instructions').toBe(beforeHide.id);
