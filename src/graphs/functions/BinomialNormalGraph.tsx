@@ -68,7 +68,7 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
         return this.memoView(model, () => binomialNormalView(model));
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model, never the flat projection) ------------------------------
 
     private accepted(edit: BinomialNormalEdit): BinomialNormalModel {
         if (!edit.ok) throw new DomainError(binomialNormalEditMessage(edit.issue));
@@ -194,7 +194,7 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const example = binomialNormalExampleOf(state);
         const options = [
             {value: "fair20", text: t("prob_binomial_example_fair20")},
@@ -233,7 +233,7 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const probability = (value: number) => binomialProbability(value, language);

@@ -35,7 +35,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         return [-6, 8, 6, -4];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model, never the flat projection) ------------------------------
 
     private currentLine() {
         const {x1, y1, x2, y2} = this.model;
@@ -166,7 +166,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {x1, y1, x2, y2} = this.state;
+        const {x1, y1, x2, y2} = this.model;
         const line = lineThroughPoints({x: x1, y: y1}, {x: x2, y: y2});
         const coordinate = (name: CoordinateName, label: string, value: number) =>
             <NumberInput label={label} value={value} min={-LINEAR_COORDINATE_LIMIT} max={LINEAR_COORDINATE_LIMIT} step={LINEAR_SNAP_SIZE}
@@ -195,7 +195,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const {x1, y1, x2, y2} = this.state;
+        const {x1, y1, x2, y2} = this.model;
         const language = currentLanguage();
         const line = lineThroughPoints({x: x1, y: y1}, {x: x2, y: y2});
         const triangle = slopeTriangle({x: x1, y: y1}, {x: x2, y: y2});
