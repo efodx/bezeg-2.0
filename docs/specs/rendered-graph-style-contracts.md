@@ -1,6 +1,6 @@
 # Rendered graph style contracts
 
-Status: proposed implementation specification, 2026-10-12. The owner confirmed the testing boundaries: the real JSXGraph SVG renderer and figures downloaded through the existing export controls. This specification does not authorize implementation.
+Status: scheduled 2026-11-07 in [Controls](../tasks/feature-streams/controls.md) step 3a, by the owner. Proposed 2026-10-12. The owner confirmed the testing boundaries: the real JSXGraph SVG renderer and figures downloaded through the existing export controls.
 
 ## Problem Statement
 

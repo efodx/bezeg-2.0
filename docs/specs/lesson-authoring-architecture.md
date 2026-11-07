@@ -1,6 +1,6 @@
 # Lesson-authoring architecture
 
-**Status:** planned, lead-reviewed on 2026-11-03; application implementation is unstarted and is not authorized by this planning task. This is the canonical specification for five bounded workstreams. No implementation task files are created yet.
+**Status:** scheduled, 2026-11-07; application implementation is unstarted. The owner authorized workstreams 2, 3 and 4 on 2026-11-07, after workstream 5 was approved for [Controls](../tasks/feature-streams/controls.md) step 7 and workstream 1 joined [shared graph controls](shared-graph-controls.md). Workstream 2 runs in [Contracts](../tasks/feature-streams/contracts.md) step 4, workstream 4 in Controls step 8 and workstream 3 in Controls step 9. Each stream writes its task file from this spec first. This is the canonical specification for five bounded workstreams.
 
 Source: [architecture review of the lesson-family expansion](../reviews/lesson-authoring-architecture-2026-11-03.md), inspected against `d18dc06c9a0c7c1c756e19dc5963839969c6cb7b` and rechecked against `619cd657` during Git integration. The review's findings refer to its pinned historical snapshot; the planning review checked the current seams below, including the newly registered Blossom route. [ADR 0039](../adr/0039-lesson-authoring-module-ownership.md) records the architectural decisions and alternatives. The final section records substantive corrections to three unaccepted worker proposals.
 
@@ -200,7 +200,7 @@ Complete-envelope checking is independent of this two-graph projection pilot and
 
 ## Workstream order and integration ownership
 
-Recommended implementation order is controls, complete persisted validation, lesson lookup, registration, then the owned-scene pilot; the two-graph projection pilot can follow validation independently. This is sequencing guidance, not authorization to implement all five together.
+Recommended implementation order is controls, complete persisted validation, lesson lookup, registration, then the owned-scene pilot; the two-graph projection pilot can follow validation independently. This is sequencing guidance, not authorization to implement all five together. As scheduled, workstream 2 may finish before workstream 5, because neither depends on the other; workstream 3 still follows both. Workstream 3 sits in Controls rather than Contracts so that Contracts need not wait for Controls step 7.
 
 | Workstream | First proof and completion scope | Dependency / shared edit owner |
 | --- | --- | --- |

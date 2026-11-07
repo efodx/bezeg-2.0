@@ -53,6 +53,7 @@ Spec: [guided-example-highlights.md](../../specs/guided-example-highlights.md); 
 
 ## Notes from other streams
 
+- **Moved to [Controls step 5a](controls.md) on 2026-11-07,** as this stream is closed; the findings below stay here as its source.
 - **From Geometry (handler 43, 2026-11-03): shared lesson-runtime findings from the T3 F6 smoke.** They occur in every guided lesson, not only in Voronoi. Evidence: [f6-t3-smoke.md](../../reviews/feature-streams/geometry/f6-t3-smoke.md) (checks 4, 6 and 7) and `f6-t3-smoke/g3-*.png`.
   1. **Next loses focus.** On every step or frame change, `GuidedLesson.tsx:323` (`lessonRef.current?.focus(...)`) moves focus to the lesson `section`. After Enter on "Naslednji okvir", a second Enter does nothing, so a keyboard user must Tab back to Next on every frame. Expected: focus stays on Next while Next is enabled, or moves to the first control of the new frame. Screen-reader users still need the frame change announced.
   2. **Exit focus from a chapter-launched lesson.** "Končaj vodeni primer" → "Zapusti in povrni graf" lands on `/compgeo/voronoi`, with focus on "Spoznaj to demonstracijo". The chapter's activity link that launched the lesson is not restored. The return-link path passes. Evidence: `f7-exit.json`.

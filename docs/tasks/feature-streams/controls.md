@@ -11,10 +11,14 @@ Owner of the [shared graph controls queue](../shared-graph-controls/README.md) (
 | 1 | [Foundation](../shared-graph-controls/01-foundation.md) | New graphs comply from here on | pending |
 | 2 | [Shared point controls](../shared-graph-controls/02-shared-point-controls.md) | Pilots: PointSet, Interpolation, curve workspace | pending |
 | 3 | [Contracts task 2](../mathematical-runtime-contracts/02-correlated-trace-types.md), then [task 3](../mathematical-runtime-contracts/03-shared-trace-playback.md) | Taken into this stream 2026-11-07: the sweeps edit the same panels and C24 uses this policy. Update their status in the [contracts queue](../mathematical-runtime-contracts/README.md) | pending |
+| 3a | [Rendered graph style contracts](../../specs/rendered-graph-style-contracts.md) | Added 2026-11-07. Write its task file from the spec first. Before the sweeps, so they run with the appearance checks in place | pending |
 | 4 | [Family sweeps](../shared-graph-controls/03-family-sweeps.md) | After step 3 | pending |
 | 5 | [Remaining controls](../shared-graph-controls/04-remaining-controls.md) | Closeout of the spec's acceptance | pending |
+| 5a | [Lesson panel findings](learn-ui.md#notes-from-other-streams) | Added 2026-11-07. Geometry's three findings: Next loses focus, exit focus from a chapter-launched lesson, the card covers the board at 1280×720. Start only when Codex's [stable lesson navigation](../../specs/lesson-navigation-stability.md) is on `origin/master`, because it is rewriting `GuidedLesson.tsx` and its CSS; until then skip this step and return to it. Recheck each finding on current `master` first and fix only what remains | pending |
 | 6 | [Phone playback](../mobile-graph-playback/graph-adjacent-controls.md) | Approved 2026-11-06. Before starting, check on `origin/master` that no other session has taken it | pending |
-| 7 | [Lesson-authoring workstream 5](../../specs/lesson-authoring-architecture.md#5-persisted-scene-validation-and-projection) | Approved once this scope settled. Write its task file from the spec first. Last, so it shares no `BaseGraph.tsx` seam with the steps above | pending |
+| 7 | [Lesson-authoring workstream 5](../../specs/lesson-authoring-architecture.md#5-persisted-scene-validation-and-projection) | Approved once this scope settled. Write its task file from the spec first. Last of the steps above, so it shares no `BaseGraph.tsx` seam with them | pending |
+| 8 | [Lesson-authoring workstream 4](../../specs/lesson-authoring-architecture.md#4-owned-standalone-scenes) | Added 2026-11-07. Blossom and NURBS only. Write its task file from the spec first. After step 7: the two must not change `BaseGraph` replacement hooks at the same time | pending |
+| 9 | [Lesson-authoring workstream 3](../../specs/lesson-authoring-architecture.md#3-feature-local-registration) | Added 2026-11-07. Projective conics pilot, then stop. Write its task file from the spec first. After step 7, whose collections it references, and after [Contracts step 4](contracts.md), whose owner identities it consumes | pending |
 
 ## Decisions
 
