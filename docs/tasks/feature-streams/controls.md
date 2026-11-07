@@ -7,7 +7,7 @@ Owner of the [shared graph controls queue](../shared-graph-controls/README.md) (
 
 | Step | Task | Notes | Status |
 | --- | --- | --- | --- |
-| 0 | [Inventory](../shared-graph-controls/00-inventory.md) | Read-only. The handler decides exceptions and Reset removals | pending |
+| 0 | [Inventory](../shared-graph-controls/00-inventory.md) | Read-only. The handler decides exceptions and Reset removals | accepted 2026-11-07: [inventory](../shared-graph-controls/inventory.md), [evidence](../shared-graph-controls/00-inventory.evidence.md) |
 | 1 | [Foundation](../shared-graph-controls/01-foundation.md) | New graphs comply from here on | pending |
 | 2 | [Shared point controls](../shared-graph-controls/02-shared-point-controls.md) | Pilots: PointSet, Interpolation, curve workspace | pending |
 | 3 | [Contracts task 2](../mathematical-runtime-contracts/02-correlated-trace-types.md), then [task 3](../mathematical-runtime-contracts/03-shared-trace-playback.md) | Taken into this stream 2026-11-07: the sweeps edit the same panels and C24 uses this policy. Update their status in the [contracts queue](../mathematical-runtime-contracts/README.md) | pending |
@@ -27,3 +27,9 @@ The owner handed all decisions in this stream to its handlers on 2026-11-07: ask
 ## Shared files
 
 Steps 1 and 2 change shared inputs and `BaseGraph.tsx`-level seams, so push each slice promptly. Steps 3 and 4 touch `sl.ts` and `en.ts`; follow the [shared-file rules](README.md#shared-files).
+
+## Notes
+
+- **Port:** on 2026-11-07 Codex's `lesson-navigation-prototype` dev server held 4317 with `--strictPort`. Check the port before a preview. If it is taken, use a free port outside 4311–4317 and leave that server running.
+- **`node_modules`:** this worktree uses its own `npm ci`, following [new-pc-setup](new-pc-setup.md). The [README](README.md#shared-files) still describes a shared junction, which that guide forbids; this stream does not edit the README.
+- **Worker sizing:** inventory parts of about 10k lines reached the worker budget. Keep read-heavy slices smaller.
