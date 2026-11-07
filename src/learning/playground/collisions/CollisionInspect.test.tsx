@@ -74,7 +74,7 @@ describe('step-through', () => {
     expect(screen.queryByTestId('inspect-active')).toBeNull()
     for (let k = 0; k < t.events.length; k++) fireEvent.click(next())
     expect(next().disabled).toBe(true)
-    expect(eventText()).toContain(`Konec pometanja: ${t.candidates.length} kandidatnih parov, ${t.boxTests} preizkusov škatel.`)
+    expect(eventText()).toContain(`Konec pometanja: ${t.candidates.length} kandidatnih parov, ${t.boxTests} preizkusov pravokotnikov.`)
   })
 
   it('draws every decided pair at the end: passing pairs solid, y-rejected pairs dashed', () => {

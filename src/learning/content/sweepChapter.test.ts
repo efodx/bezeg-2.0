@@ -41,7 +41,8 @@ describe('chapter structure and registration', () => {
         for (const field of fields) { expect(field.sl.length).toBeGreaterThan(20); expect(field.en.length).toBeGreaterThan(20); }
         const titles = [...sweepChapter.prerequisiteLinks!.map(link => link.title), ...sweepChapter.sections.map(section => section.title)];
         for (const title of titles) { expect(title.sl.length).toBeGreaterThan(5); expect(title.en.length).toBeGreaterThan(5); }
-        expect(sweepChapter.sections[0].orderedContent).toBeUndefined();
+        expect(sweepChapter.sections[0].orderedContent!.at(-1)).toEqual({kind: 'playground', playground: 'collisions', mode: 'run'});
+        expect(sweepChapter.sections[0].orderedContent!.some(item => item.kind === 'example')).toBe(false);
         expect(sweepChapter.sections[2].paragraphs.map(p => p.sl).join(' ')).toContain('Pometanje intervalov');
         expect(sweepChapter.sections[2].paragraphs.map(p => p.en).join(' ')).toContain('Interval sweep');
         expect(sweepChapter.sections[4].paragraphs.map(p => p.sl).join(' ')).toContain('Razdelitev na monotone večkotnike');
@@ -71,7 +72,13 @@ describe('chapter structure and registration', () => {
         IDS.forEach((id, index) => {
             const section = registered.sections[index + 1];
             expect(section.id).toBe(id);
-            expect(section.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: `sweep-algorithms.${id}.${id}`});
+            const example = {kind: 'example', exampleId: `sweep-algorithms.${id}.${id}`};
+            // The interval sweep section continues after its example with the collision playground's Look underneath passage.
+            if (id === 'interval-sweep') {
+                const content = section.orderedContent!;
+                expect(content.findLast(item => item.kind === 'example')).toEqual(example);
+                expect(content.at(-2)).toEqual({kind: 'playground', playground: 'collisions', mode: 'inspect'});
+            } else expect(section.orderedContent!.at(-1)).toEqual(example);
             expect(section.orderedContent!.some(item => item.kind === 'formula')).toBe(true);
             for (const language of ['sl', 'en'] as const) {
                 const prose = section.paragraphs.map(p => p[language]).join(' ') + (section.formula ?? '');

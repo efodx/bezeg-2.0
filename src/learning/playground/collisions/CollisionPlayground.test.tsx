@@ -157,7 +157,7 @@ describe('readouts', () => {
   it('render the counters of the newest snapshot, with the pair formula only for naive', () => {
     render(<CollisionPlayground initialMethod="naive" initialCount={1000}/>)
     emit(snap({count: 1000, method: 'naive', counters: {boxTests: 499500, candidates: 3, narrowTests: 3, touchingPairs: 2}, simSpeed: 9, stepMs: 12.3}))
-    expect(digits(readoutValue(/Preizkusi škatel/))).toBe('499500')
+    expect(digits(readoutValue(/Preizkusi pravokotnikov/))).toBe('499500')
     expect(digits(readoutValue(/Vsi pari/))).toBe('499500')
     expect(readoutValue(/Stikajoči/)).toBe('2')
     expect(readoutValue(/Čas koraka/)).toContain('12,3')
@@ -170,13 +170,13 @@ describe('readouts', () => {
   it('update at most 4 times per second', () => {
     render(<CollisionPlayground/>)
     emit(snap({counters: {boxTests: 1, candidates: 0, narrowTests: 0, touchingPairs: 0}}))
-    expect(readoutValue(/Preizkusi škatel/)).toBe('1')
+    expect(readoutValue(/Preizkusi pravokotnikov/)).toBe('1')
     emit(snap({counters: {boxTests: 2, candidates: 0, narrowTests: 0, touchingPairs: 0}}))
     act(() => { vi.advanceTimersByTime(100) })
     emit(snap({counters: {boxTests: 3, candidates: 0, narrowTests: 0, touchingPairs: 0}}))
-    expect(readoutValue(/Preizkusi škatel/)).toBe('1')
+    expect(readoutValue(/Preizkusi pravokotnikov/)).toBe('1')
     act(() => { vi.advanceTimersByTime(READOUT_INTERVAL_MS) })
-    expect(readoutValue(/Preizkusi škatel/)).toBe('3')
+    expect(readoutValue(/Preizkusi pravokotnikov/)).toBe('3')
   })
 })
 

@@ -57,7 +57,7 @@ The narrow phase becomes *box → hull separating-axis test → pieces separatin
 
 - `setCount` is limited per method and device class. The naive limit is the largest \(n\) whose naive step stays at or below 250 ms on the reference low-end profile (desktop Chromium with 4× CPU throttling, 390×844). That is slow enough to see and short enough that switching back responds within a quarter of a second.
 - The sweep limit is where a sweep step reaches 8 ms on the same profile, capped at 5 000.
-- **Measured limits (CP3, 2026-11-07): 4 000 (naive) and 5 000 (sweep).** On the throttled profile the naive median step was 106 ms at \(n=3000\) and 317 ms at \(n=5000\); it grows as \(n^2\), so 250 ms falls near \(npprox4400\), rounded down to 4 000. Sweep stayed at 2.8 ms (p90 4.1 ms) at \(n=5000\), so the 5 000 cap applies. Naive at 5 000 runs at about 5 % simulation speed throttled and 29 % on desktop, so the comparison still shows. Chromium cannot throttle a worker target through CDP, so the throttled column ran the same `stepWorld` on the page's main thread (desktop worker and main thread agree within 10 %). Raw tables: [performance results](../bezier-performance-results.md#collision-playground-step-cost--2026-11-07).
+- **Measured limits (CP3, 2026-11-07): 4 000 (naive) and 5 000 (sweep).** On the throttled profile the naive median step was 106 ms at \(n=3000\) and 317 ms at \(n=5000\); it grows as \(n^2\), so 250 ms falls near \(n\approx4400\), rounded down to 4 000. Sweep stayed at 2.8 ms (p90 4.1 ms) at \(n=5000\), so the 5 000 cap applies. Naive at 5 000 runs at about 5 % simulation speed throttled and 29 % on desktop, so the comparison still shows. Chromium cannot throttle a worker target through CDP, so the throttled column ran the same `stepWorld` on the page's main thread (desktop worker and main thread agree within 10 %). Raw tables: [performance results](../bezier-performance-results.md#collision-playground-step-cost--2026-11-07).
 - Lowering \(n\) or switching method is always available.
 
 **Stops when unwatched.**
@@ -103,21 +103,23 @@ The narrow phase becomes *box → hull separating-axis test → pieces separatin
 - **Batch C** adds a block and prose in the convexity chapter's `convex-hull` section (hull as a proxy) and links from `hull-robustness`/`bezier-hulls` as fits. The exact sections are decided in CP9.
 - **Routes and data.** No route, Demonstration, lesson, Preset or stored-data change. Batch B persists nothing. No breaking change.
 
-## Terms (proposals, settled in CP6 by [choosing new terms](../localization.md#choosing-new-terms))
+## Terms (settled in CP6 by [choosing new terms](../localization.md#choosing-new-terms))
 
-| Slovenian (proposal) | English |
-| --- | --- |
-| trk; zaznavanje trkov | collision; collision detection |
-| preizkus vseh parov | testing every pair (naive) |
-| pometanje in obrezovanje | sweep and prune |
-| groba faza / natančna faza | broad phase / narrow phase |
-| očrtani pravokotnik (škatla) | bounding box |
-| kandidatni par | candidate pair |
-| počasni posnetek; hitrost simulacije | slow motion; simulation speed |
-| test ločilne osi | separating-axis test |
-| razdelitev na konveksne dele | convex decomposition |
+Searched `src/localization/sl.ts`, `src/learning/content/`, `GLOSSARY.md` and the localization terms table on 2026-11-07. No term of this feature existed there, so no established usage was overridden; one proposal changed because of a clash inside the repository. External sources (UL FMF/FRI pages, RUL theses, Termania) were not consulted in this pass: the terms below are the transparent standard wording and may be replaced if the owner prefers another.
 
-Reuse *pometalna premica*, *stanje*, *interval* and *konveksna ovojnica* from the sweep and convexity chapters.
+| Slovenian | English | Basis |
+| --- | --- | --- |
+| trk; zaznavanje trkov | collision; collision detection | Standard computer-graphics wording; no repository term. |
+| preizkus vseh parov | testing every pair (naive) | Transparent description; matches the sweep chapter's "preizkus vseh parov". |
+| pometanje in obrezovanje | sweep and prune | Literal gloss of the English name on *pometalna premica* from the sweep chapter. English given on first mention in prose. |
+| groba faza / natančna faza | broad phase / narrow phase | Standard literal translation; English gloss on first mention. |
+| očrtani pravokotnik | bounding box | Changed from "očrtani pravokotnik (škatla)": *škatla* already means the probability chapter's box with balls, so the UI no longer says *škatla*. *Očrtani* follows *očrtana krožnica*. The UI says *preizkus pravokotnikov* for box test. |
+| kandidatni par | candidate pair | Transparent; no repository term. |
+| hitrost simulacije | simulation speed | Used in the UI. "Počasni posnetek" is not used. |
+| test ločilne osi | separating-axis test | Batch C, not yet used. |
+| razdelitev na konveksne dele | convex decomposition | Batch C, not yet used. |
+
+Reused unchanged: *pometalna premica*, *stanje*, *interval* and *konveksna ovojnica* from the sweep and convexity chapters.
 
 ## Module boundaries
 

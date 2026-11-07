@@ -1,5 +1,5 @@
 import type {LocalizedText} from '../model';
-import type {OrderedChapterContent} from '../chapter/orderedContent';
+import type {OrderedChapterContent, PlaygroundContent} from '../chapter/orderedContent';
 import type {FamilyChapter, FamilyChapterSection} from './familyChapters';
 import {
     SWEEP_CHAPTER_ID, sweepGuidedExampleDemonstration, type SweepSectionId,
@@ -9,15 +9,42 @@ import {
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 
 /** Reading material first, then the prepared activity at the section end. */
-function withExample(sectionId: SweepSectionId, section: FamilyChapterSection): FamilyChapterSection {
+function withExample(sectionId: SweepSectionId, section: FamilyChapterSection, after: readonly (OrderedChapterContent<LocalizedText> | PlaygroundContent)[] = []): FamilyChapterSection {
     const demonstrationId = sweepGuidedExampleDemonstration(sectionId);
-    const content: OrderedChapterContent<LocalizedText>[] = [
+    const content: (OrderedChapterContent<LocalizedText> | PlaygroundContent)[] = [
         ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
         ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
         {kind: 'example', exampleId: `${SWEEP_CHAPTER_ID}.${sectionId}.${demonstrationId}`},
+        ...after,
     ];
     return {...section, orderedContent: content};
 }
+
+/** Collision playground (CP6): one invitation sentence, then the run block, after the section's reading. */
+function withRunPlayground(section: FamilyChapterSection): FamilyChapterSection {
+    return {
+        ...section,
+        orderedContent: [
+            ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
+            {kind: 'paragraph', text: text('Preizkusi sam: v spodnji simulaciji povečaj število objektov in opazuj, kaj se zgodi s preizkusom vseh parov.', 'Try it yourself: in the simulation below, raise the number of objects and watch what happens to testing every pair.')},
+            {kind: 'playground', playground: 'collisions', mode: 'run'},
+        ],
+    };
+}
+
+/** The Look underneath passage after the interval-sweep guided example: box shadows, the pair count, broad then exact test, engine structures. */
+const intervalSweepInspect: readonly (OrderedChapterContent<LocalizedText> | PlaygroundContent)[] = [
+    {kind: 'paragraph', text: text(
+        'Pod površje: sence kot intervali. Pri iskanju trkov vsak objekt zaprejo v očrtani pravokotnik, ki ima stranice vzporedne z osema. Senca takega pravokotnika na osi \\(x\\) je interval, zato je pometanje intervalov iz prejšnjega zgleda že prva polovica iskanja trkov. Pravokotnika se prekrivata natanko tedaj, ko se prekrivata njuni senci na obeh oseh.',
+        'Look underneath: shadows as intervals. Collision detection wraps each object in a bounding box with its sides parallel to the axes. The shadow of such a box on the \\(x\\)-axis is an interval, so the interval sweep of the example above is already the first half of collision detection. Two boxes overlap exactly when their shadows overlap on both axes.')},
+    {kind: 'paragraph', text: text(
+        'Za \\(n\\) objektov je parov \\(\\binom n2\\), preizkus vseh parov pa jih pregleda vse. Pometanje po osi \\(x\\) (angl. sweep and prune, pometanje in obrezovanje) preizkusi le pare iz stanja, nato pa pri teh parih preveri še senco na osi \\(y\\). Tako dobimo kandidatne pare. To je groba faza (angl. broad phase); natančna faza (angl. narrow phase) bi nato na pravih oblikah preverila, ali se objekta res dotikata, česar ta prikaz ne računa.',
+        'For \\(n\\) objects there are \\(\\binom n2\\) pairs, and testing every pair checks them all. Sweeping along the \\(x\\)-axis (sweep and prune) tests only pairs from the state, and for those pairs it then also checks the shadow on the \\(y\\)-axis. This gives the candidate pairs. That is the broad phase; a narrow phase would then check the real shapes for an actual touch, which this view does not compute.')},
+    {kind: 'playground', playground: 'collisions', mode: 'inspect'},
+    {kind: 'paragraph', text: text(
+        'Pravi simulatorji uporabljajo tudi mreže in drevesa očrtanih pravokotnikov. Ideja je ista: hitro in poceni zavreči večino parov, preden se začne zahtevnejši natančen preizkus.',
+        'Real engines also use grids and trees of bounding boxes. The idea is the same: discard most pairs quickly and cheaply before the costly exact test begins.')},
+];
 
 /** Batches S1 to S3 of the sweep spec: only the released lessons (C1 to C5) are mentioned; later lessons are not. */
 export const sweepChapter: FamilyChapter = {
@@ -30,14 +57,14 @@ export const sweepChapter: FamilyChapter = {
         {path: '/bezeg-2.0/learn/triangulations-voronoi#ear-clipping', title: text('Triangulacije: rezanje ušes', 'Triangulations: ear clipping')},
         {path: '/bezeg-2.0/learn/triangulations-voronoi#voronoi', title: text('Triangulacije: Voronojev diagram in dualnost', 'Triangulations: the Voronoi diagram and duality')}],
     sections: [
-        {
+        withRunPlayground({
             id: 'sweep-idea',
             title: text('Ideja pometanja', 'The idea of sweeping'),
             paragraphs: [
                 text('Cilj razdelka: razumeš, kaj pomeni pometanje ravnine. Pometalna premica je vodoravna premica, ki se pomika navzdol po ravnini in se ustavi samo pri dogodkih, to so točke, kjer se kaj spremeni. Dogodke hrani vrsta dogodkov, razvrščena po padajoči koordinati \\(y\\); pri enaki \\(y\\) je prej tisti z manjšo koordinato \\(x\\). To je edina smer, ki jo uporabljamo v vsem poglavju.', 'Learning outcome: you understand what it means to sweep the plane. The sweep line is a horizontal line moving downwards over the plane that stops only at events, the points where something changes. The events are kept in an event queue, ordered by decreasing \\(y\\); at equal \\(y\\) the one with smaller \\(x\\) comes first. This is the one direction used throughout the chapter.'),
                 text('Med dvema dogodkoma se nič ne spremeni, zato računalnik premice ne spremlja neprekinjeno. Pomni samo stanje pometalne premice, to je urejen seznam predmetov, ki jih premica trenutno seka, in ga ob vsakem dogodku popravi. Prvi razdelek to pokaže na intervalih, drugi na daljicah v ravnini.', 'Nothing changes between two events, so the computer does not follow the line continuously. It keeps only the status of the sweep line, an ordered list of the objects the line currently crosses, and updates it at each event. The first section shows this on intervals, the second on segments in the plane.'),
             ],
-        },
+        }),
         withExample('interval-sweep', {
             id: 'interval-sweep',
             demonstrationIds: ['interval-sweep'],
@@ -49,7 +76,7 @@ export const sweepChapter: FamilyChapter = {
                 text('Zgled: \\(a=[0,4]\\), \\(b=[2,7]\\), \\(c=[3,5]\\), \\(d=[6,9]\\), \\(e=[8,10]\\). Po desetih dogodkih je število odprtih intervalov \\(1,2,3,2,1,2,1,2,1,0\\), največ \\(3\\) na \\([3,4]\\). Ko interval vstopi, ga poročamo v paru z vsakim odprtim: najdemo pet parov \\(ab, ac, bc, bd, de\\).', 'Example: \\(a=[0,4]\\), \\(b=[2,7]\\), \\(c=[3,5]\\), \\(d=[6,9]\\), \\(e=[8,10]\\). After the ten events the number of open intervals is \\(1,2,3,2,1,2,1,2,1,0\\), at most \\(3\\) on \\([3,4]\\). When an interval enters, it is reported with each open one: we find five pairs \\(ab, ac, bc, bd, de\\).'),
                 text('Kako to uporabiš: preizkus vseh parov bi zahteval \\(\\binom n2\\) preizkusov, pri petih intervalih \\(10\\), pometanje pa pare poroča sproti, ko intervali vstopajo. Isto idejo zasukamo: dogodki so točke ravnine, stanje pa urejen seznam predmetov, ki jih premica seka.', 'How to use it: testing all pairs would take \\(\\binom n2\\) tests, \\(10\\) for five intervals, while the sweep reports pairs as intervals enter. The same idea rotated: the events are points of the plane and the status is an ordered list of the objects the line crosses.'),
             ],
-        }),
+        }, intervalSweepInspect),
         withExample('segment-intersections', {
             id: 'segment-intersections',
             demonstrationIds: ['segment-intersections'],

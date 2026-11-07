@@ -30,7 +30,7 @@ Publish batches separately. Do not expose unimplemented Demonstrations or advert
 
 ### Placement
 
-Use the **Računska geometrija / Computational geometry** Demonstration family proposed in the convexity spec ([placement](convexity-hulls-lessons.md#placement), awaiting the owner) and one Learn chapter registered in [familyChapters.ts](../../src/learning/content/familyChapters.ts). If the owner declines, follow the placement chosen there.
+Use the **Računska geometrija / Computational geometry** Demonstration family proposed in the convexity spec ([placement](convexity-hulls-lessons.md#placement), awaiting the owner) and one Learn chapter registered in [familyChapters.ts](../../src/learning/content/familyChapters.ts). If the owner declines, follow the placement chosen there. The chapter also embeds the collision playground's run block in *sweep-idea* and its *Look underneath* block at the end of *interval-sweep* ([collision playground](collision-playground.md#chapter-integration)).
 
 ### Slovenian and English terms (proposals)
 
