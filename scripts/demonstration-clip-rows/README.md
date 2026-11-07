@@ -73,6 +73,7 @@ Every message names its row id. Both the state check and the pixel check are rep
 | `the app did not respond to the control at frame N` | The input changed but the board did not. Check the control label and whether the scene reacts to it; do not add an allowance. |
 | `row ...: the id is not a Demonstration with a capture recipe`, `control.kind ... does not suit` | Fix the row id or the control kind for the Demonstration's view. |
 | `only N distinct frames, need 24` | The input changes too little to see; widen the path (discrete rows need one image per distinct press count). |
+| `point ... left the fixed camera` on a `fineGrid` row, with coordinates hundreds of times too large | The graph analyses grid coordinates as board units, so the rescale moves its overlays. Fix the graph to convert with `gridToBoard` (app code, its own commit); do not drop `fineGrid`. |
 | `first frame differs from recipe poster` | The poster differs from the example start scene; recapture it with `just clip <id>`. |
 | `no CRF up to 34 fits 300 KiB` | See "Oversized or unreadable clips". |
 
