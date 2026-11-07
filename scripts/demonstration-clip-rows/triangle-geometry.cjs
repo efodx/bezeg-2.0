@@ -24,9 +24,9 @@ module.exports = [
         fineGrid: -8,
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'P3'},
-        // Board coordinates. C (P3) moves 1 right and back (1 encodes at about 253 KB; longer drags exceed 300 KiB), so the Euler line turns while HG and GO are read.
+        // Board coordinates. C (P3) moves 1 right and back (1 encodes at about 253 KB; longer drags exceed 300 KiB), so the Euler line turns. The poster shows no HG or GO readout, so the quote is the step about the line's direction.
         path: [[2, 5], [3, 5], [2, 5]],
-        lessonQuote: 'Povleci \\(C\\) (P3) na nekaj mest in vsakič preveri odčitka \\(HG\\) in \\(GO\\).',
+        lessonQuote: 'Povleci \\(C\\) za en korak levo ali desno: kaj se zgodi s smerjo premice?',
         discreteReason: null,
     },
     {

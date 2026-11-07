@@ -60,6 +60,9 @@ import motion_polygon_area from './images/demonstrations/catalog/polygon-area.we
 import motion_triangle_centres from './images/demonstrations/catalog/triangle-centres.webm?no-inline';
 import motion_euler_line from './images/demonstrations/catalog/euler-line.webm?no-inline';
 import motion_simson_line from './images/demonstrations/catalog/simson-line.webm?no-inline';
+import motion_interp_lagrange from './images/demonstrations/catalog/interp-lagrange.webm?no-inline';
+import motion_interp_least_squares from './images/demonstrations/catalog/interp-least-squares.webm?no-inline';
+import motion_interp_subdivision from './images/demonstrations/catalog/interp-subdivision.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -123,4 +126,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'triangle-centres': {src: motion_triangle_centres, type: 'video/webm', duration: 4},
     'euler-line': {src: motion_euler_line, type: 'video/webm', duration: 4},
     'simson-line': {src: motion_simson_line, type: 'video/webm', duration: 4},
+    'interp-lagrange': {src: motion_interp_lagrange, type: 'video/webm', duration: 4},
+    'interp-least-squares': {src: motion_interp_least_squares, type: 'video/webm', duration: 4},
+    'interp-subdivision': {src: motion_interp_subdivision, type: 'video/webm', duration: 4},
 };
