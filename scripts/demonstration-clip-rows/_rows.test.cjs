@@ -188,3 +188,14 @@ test('the row checker rejects what capture would only find later', () => {
     assert.match(problems({control: {kind: 'stepper', label: 'Zmanjšaj'}, path: [0, 1, 0]}), /no enabled button/);
     assert.match(checkRow(row, undefined, lessons).problems.join('\n'), /not in route-probe/);
 });
+
+test('a sweep on a coarse control needs a distinct frame per scheduled value, never fewer than 16', () => {
+    const {minimumDistinctFrames} = require('../demonstration-preview-motion.cjs').testSupport;
+    const sweep = (path, step) => ({motion: 'parameter-sweep', path, control: {kind: 'number', step}});
+    assert.equal(minimumDistinctFrames(sweep([-1, -0.7, -1, -1.3, -1], 0.01)), 24);
+    assert.equal(minimumDistinctFrames(sweep([2, 4, -1.5, 2], 0.25)), 23);
+    assert.equal(minimumDistinctFrames(sweep([0, 7, -13, 0], 1)), 21);
+    assert.equal(minimumDistinctFrames(sweep([1, 1.5, 1], 0.05)), 16);
+    assert.equal(minimumDistinctFrames({motion: 'discrete-exact-steps', path: [0, 2, 4, 2, 0]}), 3);
+    assert.equal(minimumDistinctFrames({motion: 'pointer-drag', path: [[0, 0], [1, 1], [0, 0]]}), 24);
+});

@@ -61,6 +61,18 @@ function sweepValue(i, spec) {
     const eased = (1 - Math.cos(Math.PI * local)) / 2;
     return snapToStep(waypoints[leg] + (waypoints[leg + 1] - waypoints[leg]) * eased, step, origin);
 }
+/**
+ * Distinct frames a row clip must show. A discrete clip shows one image per distinct press count. A smooth clip needs 24,
+ * except a sweep whose control grid gives fewer values on the path (quarter or whole steps inside the camera): it needs
+ * one image per scheduled value, and never fewer than 16 (docs/specs/lesson-guided-catalog-clips.md, handler decisions).
+ */
+function minimumDistinctFrames(row) {
+    if (row.motion === 'discrete-exact-steps') return new Set(row.path).size;
+    if (row.motion !== 'parameter-sweep') return 24;
+    const spec = {sweep: {waypoints: row.path, step: row.control.step}};
+    const values = new Set(Array.from({length: frameCount}, (_, i) => sweepValue(i, spec).toFixed(9))).size;
+    return Math.max(16, Math.min(24, values));
+}
 // Catalog 'square' function f(x) = x² (src/analysis/functions.ts) and its derivative, used by the derivative invariants.
 const squareValue = x => x * x;
 // Slovenian decimal text as formatNumber(value, 'sl', 2) renders it (trailing zeros trimmed, comma separator).
@@ -1357,9 +1369,8 @@ function assertRowEvidence(motion) {
     assert.equal(last.capture.sha256, first.capture.sha256, `${motion.id}: the last frame differs from the first (the loop does not close)`);
     // Hold frames repeat one image; a clip whose input visibly changes nothing is not a clip.
     const distinct = new Set(motion.samples.map(sample => sample.capture.sha256)).size;
-    // A discrete clip shows one image per distinct press count; a smooth clip needs motion in at least 24 frames.
     const discrete = row.motion === 'discrete-exact-steps';
-    const minimumDistinct = discrete ? new Set(row.path).size : 24;
+    const minimumDistinct = minimumDistinctFrames(row);
     assert.ok(distinct >= minimumDistinct, `${motion.id}: only ${distinct} distinct frames, need ${minimumDistinct}; the input changes too little to see`);
     if (row.motion === 'parameter-sweep') {
         motion.samples.forEach((sample, i) => {
@@ -1904,7 +1915,7 @@ const testSupport = Object.freeze({
     surfaceMotionFixtures: patchSurfaceMotion.ownerFixtures,
     assertSurfaceMotionEvidence: patchSurfaceMotion.assertSurfaceMotionEvidence,
     motionSpecs: Object.freeze({...motionSpecs}),
-    sweepValue, snapToStep, g1ComputedPoints, assertG1Join, phaseAsPiText, phiReadoutText,
+    sweepValue, minimumDistinctFrames, snapToStep, g1ComputedPoints, assertG1Join, phaseAsPiText, phiReadoutText,
     alphaParameterizationValue, weightedParameterizationMarkers, deCasteljauLevels,
     bernsteinPoint, bernsteinDerivativePoint, phOffsetRadii, phOffsetWaypoints, phOffsetSweepCheck,
     rationalPoint, farinEffectiveWeights, farinWeightText, farinValue, farinPoint,
