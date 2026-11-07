@@ -170,8 +170,8 @@ test('a multi-action lesson scene runs in one synchronous sequence; a rejected v
         {kind: 'function-visibility', target: 'polynomial-derivative', visible: true},
     ] as LessonAction[]) act(() => graph.lesson(action));
     expect(graph.modelNow()).toEqual({k: -0.5, zeros: [{z: -4, m: 1}, {z: -1, m: 2}, {z: 3, m: 2}], derivativeVisible: true});
-    expect(graph.state.derivativeVisible).toBe(true);
-    expect(graph.state.zeros).toEqual(graph.modelNow().zeros);
+    expect(graph.modelNow().derivativeVisible).toBe(true);
+    expect(graph.modelNow().zeros).toEqual([{z: -4, m: 1}, {z: -1, m: 2}, {z: 3, m: 2}]);
     act(() => graph.lesson({kind: 'function-parameter', name: 'poly-zero-1', value: -1} as LessonAction));
     expect(graph.modelNow().zeros).toEqual([{z: -1, m: 3}, {z: 3, m: 2}]);
 

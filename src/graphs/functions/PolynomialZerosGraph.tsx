@@ -55,7 +55,7 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
         return [-6, 8, 6, -8];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     /** Applies an edit: the notice follows the outcome (a merge is announced, a refused zero list rule is explained) and a refusal throws. */
     private applyEdit(edit: PolynomialZerosEdit, options: { syncScene?: boolean } = {}): void {
@@ -265,17 +265,12 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): PolynomialZerosModel {
-        const {k, zeros, derivativeVisible} = this.state;
-        return {k, zeros, derivativeVisible};
-    }
-
     private exampleText(id: PolynomialExampleId): string {
         return polynomialProductText(polynomialSpecOf(polynomialExampleModel(id)), currentLanguage());
     }
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.model;
         const current = exampleOfPolynomial(state);
         const options = [
             ...(current === undefined ? [{value: "custom", text: t("polynomial_zeros_example_custom")}] : []),
@@ -308,13 +303,13 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
     protected override renderLegend(): React.ReactNode {
         return <FunctionLegend items={[
             {id: "curve", color: GraphPalette.primaryCurve, label: t("polynomial_zeros_legend_curve"), kind: "line"},
-            ...(this.state.derivativeVisible ? [{id: "derivative", color: GraphPalette.referenceCurve, label: t("polynomial_zeros_legend_derivative"), kind: "dashed-line" as const}] : []),
+            ...(this.model.derivativeVisible ? [{id: "derivative", color: GraphPalette.referenceCurve, label: t("polynomial_zeros_legend_derivative"), kind: "dashed-line" as const}] : []),
             {id: "zero", color: GraphPalette.constructionAccent, label: t("polynomial_zeros_legend_zero"), kind: "dot"},
         ]}/>;
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const facts = polynomialFacts(model);
         const language = currentLanguage();
         const sum = facts.spec.zeros.length === 0 ? "0" : facts.spec.zeros.map(zero => zero.m).join(" + ");

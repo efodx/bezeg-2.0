@@ -67,7 +67,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
         return [...CONIC_VIEW_BOX];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     private viewOf(model: ConicFocalModel): ConicFocalView {
         return this.memoView(model, () => conicFocalView(model));
@@ -237,7 +237,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const view = this.viewOf(state);
         const language = currentLanguage();
         const example = conicExampleOf(state);
@@ -291,7 +291,7 @@ export class ConicFocalGraph extends BaseFunctionGraph<ConicFocalModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const rows = [

@@ -208,7 +208,7 @@ test('a multi-action lesson scene runs in one synchronous sequence; a rejected v
         {kind: 'function-visibility', target: 'reference', visible: false},
     ] as LessonAction[]) act(() => graph.lesson(action));
     expect(graph.modelNow()).toEqual({base: 'cube', a: 3, b: -1, c: -2, d: 0.5, ghostVisible: false, u: 1});
-    expect(graph.state.ghostVisible).toBe(false);
+    expect(graph.modelNow().ghostVisible).toBe(false);
     const before = graph.modelNow();
     expect(() => graph.lesson({kind: 'function-parameter', name: 'transform-b', value: 0})).toThrow(DomainError);
     expect(() => graph.lesson({kind: 'function-parameter', name: 'transform-a', value: 11})).toThrow(DomainError);
