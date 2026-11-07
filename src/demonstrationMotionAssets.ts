@@ -88,6 +88,8 @@ import motion_complex_roots from './images/demonstrations/catalog/complex-roots.
 import motion_projective_pole_polar from './images/demonstrations/catalog/projective-pole-polar.webm?no-inline';
 import motion_projective_five_point from './images/demonstrations/catalog/projective-five-point.webm?no-inline';
 import motion_projective_three_views from './images/demonstrations/catalog/projective-three-views.webm?no-inline';
+import motion_projective_cross_ratio from './images/demonstrations/catalog/projective-cross-ratio.webm?no-inline';
+import motion_point_set_triangulation from './images/demonstrations/catalog/point-set-triangulation.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -179,4 +181,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'projective-pole-polar': {src: motion_projective_pole_polar, type: 'video/webm', duration: 4},
     'projective-five-point': {src: motion_projective_five_point, type: 'video/webm', duration: 4},
     'projective-three-views': {src: motion_projective_three_views, type: 'video/webm', duration: 4},
+    'projective-cross-ratio': {src: motion_projective_cross_ratio, type: 'video/webm', duration: 4},
+    'point-set-triangulation': {src: motion_point_set_triangulation, type: 'video/webm', duration: 4},
 };

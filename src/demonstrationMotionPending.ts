@@ -28,7 +28,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'hull-robustness', reason: NOT_CAPTURED},
     {id: 'bezier-hulls', reason: NOT_CAPTURED},
     {id: 'ear-clipping', reason: NOT_CAPTURED},
-    {id: 'point-set-triangulation', reason: NOT_CAPTURED},
     {id: 'delaunay', reason: NOT_CAPTURED},
     {id: 'voronoi', reason: NOT_CAPTURED},
     {id: 'voronoi-degenerate', reason: NOT_CAPTURED},
@@ -37,6 +36,5 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'monotone-partition', reason: NOT_CAPTURED},
     {id: 'monotone-triangulation', reason: NOT_CAPTURED},
     {id: 'fortune', reason: NOT_CAPTURED},
-    {id: 'projective-cross-ratio', reason: NOT_CAPTURED},
     {id: 'projective-pascal', reason: NOT_CAPTURED},
 ];

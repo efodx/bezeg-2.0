@@ -27,4 +27,13 @@ module.exports = [
         lessonQuote: 'Napovej vrsto slike krožnice, ko je premica \\(L\\) zunaj nje, nato jo drsi do dotika in čez.',
         discreteReason: null,
     },
+    {
+        id: 'projective-cross-ratio',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Točka O: x', step: 1},
+        // The poster keeps the defaults: centre O = (0, 5), the first line y = 0 with A, B, C, D at 0, 1, 3, 4, the second line through M = (0, 1) and N = (2, 2). Whole-number fields only. O is above the second line for x below 8 (x = 8 puts it on the line), and no ray is parallel to it for x from -13 to 7.
+        path: [0, 7, -13, 0],
+        lessonQuote: 'Premakni središče in opazuj, kako se slike premikajo in odčitek ostane enak.',
+        discreteReason: null,
+    },
 ];
