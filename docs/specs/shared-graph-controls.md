@@ -14,7 +14,7 @@ A special control is a last resort. It is allowed only where a technical or math
 
 ## Audit
 
-Seven read-only Haiku audits covered the 134 control files on 2026-11-06 at `0bf7348e`. All stopped early at their budget, so this catalogue is a strong sample and not a complete inventory. The handler checked the claims marked in the [evidence notes](#evidence-notes) against source. Task 0 completes the inventory.
+Seven read-only Haiku audits covered the 134 control files on 2026-11-06 at `0bf7348e`. All stopped early at their budget, so this catalogue is a strong sample and not a complete inventory. The handler checked the claims marked in the [evidence notes](#evidence-notes) against source. The [inventory](../tasks/shared-graph-controls/inventory.md) completes it.
 
 A second audit on 2026-11-07 took five angles: readouts, board interaction, control logic and lesson commands, unread panels, and wording and layout. All five stopped partial. The handler spot-checked their main claims against source and dropped or corrected the rows listed in the [evidence notes](#evidence-notes). Its reports are in [`docs/reviews/shared-graph-controls/`](../reviews/shared-graph-controls/); where a report and this spec differ, this spec is the checked version.
 
@@ -55,9 +55,35 @@ A second audit on 2026-11-07 took five angles: readouts, board interaction, cont
 
 ## Likely exceptions
 
-To be decided one by one in task 0: 2×2 matrix entry, knot vectors, the multiplicity field of zeros, segment and interval rows (they edit pairs), Pascal stepping along a conic, affine transform buttons, patch control-point choice by index (a net needs two indices and has too many points for a C14 row; one shared chooser replaces the three `NO_INDEX` copies and Coons's `NO_SELECTION`), and `stepOutOfBand` on the derivative `h` slider (a domain rule the graph applies, so `Slider` stays).
+Decided in task 0 on 2026-11-07; evidence in the [inventory](../tasks/shared-graph-controls/inventory.md). Each entry names the shared control it would otherwise use. The lint exemption list carries the same reasons.
 
-Not catalogued: degree elevation, split at a value, linked corners, join continuity and Reverse order. Each is a one-family domain action built from shared parts, so only C6 and C7 apply to them.
+| Exception | Instead of | Reason |
+| --- | --- | --- |
+| Knot vectors (`KnotEditor`) | C4 | A knot edit must keep the vector ordered, so each row depends on its neighbours |
+| Multiplicity field of zeros | C4 | Each entry pairs a position with a multiplicity of 1–3. The list otherwise uses the C1, C2 and C4 parts, and first-free placement stays a placement rule (decision 1) |
+| Segment and interval rows | C4 | Each row edits a pair of endpoints |
+| Pascal stepping along a conic | C16 | A step moves along a direction table and wraps; it is not a coordinate step |
+| Affine transform buttons | C1, C4 | They act on the whole curve, not on one point |
+| Patch control-point choice by index | C14 | A net needs two or three indices and has up to 25 points. One shared chooser replaces the three `NO_INDEX` copies and Coons's `NO_SELECTION` |
+| `stepOutOfBand` on the derivative `h` slider | C13 | `h` cannot be zero, so the graph skips a dead band. `Slider` stays |
+| Surface camera panel with Reset view | C20 | Surface demonstrations have no host Fit, and the camera is orbit angles, not a bounding box. One shared camera panel replaces the three copies |
+| Epicycle Play and time slider | C12 | Time runs continuously and does not stop at a step. Revisit in task 4: if a second graph needs a continuous run, extend `PlaybackButtons` instead |
+| FourierSeries "zoom to peak" | C20 | The peak window is a domain-chosen view, not a fit to the drawing. Its "whole view" button goes if task 4 confirms it equals Fit |
+| Drawing playground toolbar | C1–C3 | It has its own anchor model: handle types, a cap of 32, undo history and no grid. C6 and C16 still apply |
+| Rational "Reset weight" | C9 | It restores one weight, which the host Reset cannot do |
+| LinearMap "Reset to the identity" | C9 | It is a domain action on the matrix: mode, display switches, test angle and view stay |
+| "Reset example" on Voronoi, B-spline Extraction, Insertion and Nurbs | C9 | It returns to the example now chosen, while the host Reset returns to the default or Preset. One label and one key, owned by the example chooser (C10) |
+| TensorJoin "Back to the two patches" | C9 | It leaves the capstone mode, so it is not a Reset |
+
+Not exceptions, though audits or task 0 suggested them:
+
+- **2×2 matrix entry:** LinearMap's four entries are already `NumberInput`.
+- **Cyclic angle fields** (Simson, InscribedAngle, Inversion): `Slider`'s exact field gains a cyclic property that wraps a value. Decision 3's refusal does not apply to a cyclic value.
+- **Query points** (PointInPolygon, Voronoi): the point list gains a single-point form with no add or remove.
+- **Complex argument at `w = 0`:** it stays unavailable because the argument of zero is undefined, under the C6 protocol.
+- **Board tools:** decision 9 already keeps them a named pressed-button group.
+
+Not catalogued: degree elevation, split at a value, linked corners, join continuity, Reverse order, and Triangulation edge select and Flip. Each is a one-family domain action built from shared parts, so only C6 and C7 apply to them.
 
 ## Owner decisions — confirmed 2026-11-07
 
@@ -76,6 +102,18 @@ Not catalogued: degree elevation, split at a value, linked corners, join continu
 ## Delegated decisions
 
 On 2026-11-07 the owner handed every further decision in this work to the handlers: no confirmation is needed, and the owner asks for a change later if a result is unwelcome. The handler decides exceptions, Reset removals and any new question, and records each here or in *Likely exceptions* with its reason and the alternative it rejected, so the choice is easy to find and reverse.
+
+### Decided in task 0 — 2026-11-07
+
+Each entry gives the choice, its reason and the rejected alternative.
+
+1. **Reset removals (decision 5).** Remove the local Reset on FunctionInverse, FunctionTransformation, PolynomialZeros, RationalFunction and Blossom. They restore the default model, which is the host result with no Preset selected. With a Preset selected they ignore it, and returning to the Preset is the better result. Rejected: keeping them for the case where they differ, since that difference is the defect. Run-scoped resets are not removed: De Boor "Back to level 0", Voronoi "Reset construction" and SubdivisionCurve "Reset polygon" become the playback Reset (C9).
+2. **Show all and view Reset (C20).** Remove Show all from Notable, where it equals Fit, and from EulerLine, where it does not: EulerLine overrides `fitView` to add H, G, O and N when shown, so Fit frames everything Show all did and the nine-point markers too. Voronoi and Fortune "Reset view" go the same way, with `fitView` returning the frame or run box. Rejected: keeping them as exceptions, because `fitView` is an existing seam (`HullRobustnessGraph`, `BSplineBasisGraph`) and the target is host Fit only.
+3. **Off-grid typed values (decision 8).** "Everywhere" includes the function models and the three complex panels, which refuse off-grid values today. The snap and its notice belong to the shared field, which rounds to the graph's grid before calling the model. Models keep refusing off-grid values, so imported Presets and lesson actions are still checked. Rejected: making the models round, which would weaken "reject, never clamp" (`gridValue`, `BaseFunctionGraph.tsx`) and accept malformed imports.
+4. **Typed paths (decision 11).** Task 0 could not confirm that every draggable point has a typed path: most curve boards have none. Those boards gain the shared point list (C4), in the curves sweep. Decision 11's "no arrow nudges" stands. A keyboard-operable control that fully sets a point with one degree of freedom counts as its path, so ConicFocal P keeps its φ slider, with the optional exact field (C13). Rejected: arrow nudges, which need the selection model decision 11 ruled out, and accepting the gap, which leaves those boards without a keyboard path.
+5. **What counts as outside the view (decision 6).** The test uses what the graph frames, including Hermite tangent tips. Otherwise the second add in `hermite-locality-six` leaves an arrow clipped by about 0.05. Rejected: testing the point alone, which is the literal wording but clips a visible object.
+6. **Refused lesson actions (C23).** A lesson action refused by the model stays a thrown `DomainError`. The session restores its checkpoint and the lesson shows the reason with Close. A refused authored action is a content defect, and a loud failure finds it. The guard's single refusal message still applies. Rejected: refusing quietly and continuing, which would show a scene that does not match its text.
+7. **Drag refusals (decisions 3 and 7).** Beyond PointSet and Correlation, all PointSet subclasses, Summary statistics and the PointInPolygon and Voronoi query points lose their limit notice. The opposite gap closes too: `axisPoint` and B-spline knot-marker drags refused by a mathematical rule are silent today and gain a stated reason.
 
 ## Acceptance
 
@@ -99,6 +137,16 @@ On 2026-11-07 the owner handed every further decision in this work to the handle
 ## User impact
 
 Some controls move, gain reasons or change commit timing. No route changes are planned, and no stored Preset changes. Each local Reset removal is recorded here when decided. The second audit adds these visible changes: PointSet and Correlation drags lose their limit notice; Monotone steps count from 1; Delaunay and Triangulation angles lose trailing zeros; NURBS and Bisection show tiny values as `·10⁻⁷`; B-spline and patch degree selects become steppers; LinearMap refuses out-of-range entries; and the curve graphs stop refitting after an add that stays in view, which can change lesson views.
+
+Decided in task 0:
+
+- **Local Resets removed:** FunctionInverse, FunctionTransformation, PolynomialZeros, RationalFunction and B-spline Blossom. Use the host Reset. It also restores the view, which those buttons left alone, and returns to a selected Preset.
+- **Other buttons removed:** Show all on Notable and EulerLine, and "Reset view" on Voronoi and Fortune. Use the host Fit.
+- **Relabelled:** De Boor "Back to level 0", Voronoi "Reset construction" and SubdivisionCurve "Reset polygon" become the playback Reset. "Back to the example" becomes "Reset example".
+- **Typed values:** function and complex fields snap an off-grid value with a notice instead of refusing it.
+- **New controls:** curve boards without a typed list gain one.
+- **Lesson views:** `interp-fifth-point-added` and `hermite-locality-six` no longer refit as they do today. The first keeps its earlier view; the second refits only at its second add, to a different box.
+- **Limit notices:** drags on every PointSet graph, Summary statistics and the query points stop silently at the limit.
 
 ## Evidence notes
 
@@ -127,4 +175,15 @@ Second audit, checked by the handler. Confirmed unless listed here:
 
 The 12 commits on `origin/master` at this check touch none of `src/graphs`, `src/inputs`, `src/localization` or `src/learning/model.ts`, so the citations also hold there.
 
-Counts are from text search, so treat them as approximate. Not audited in full: about 15 function graph bodies, Coons and Triangular patch behaviour, focus order, zoom and pan keys, selection hit-testing, patch surface drag, and `src/learning/playground`.
+Task 0 corrections, checked against source or a running build, 2026-11-07. Where these differ from the catalogue above, these hold:
+
+- **C5:** the hand stepper is in FourierSeries. Epicycle's −1/+1 sits beside a `Slider`.
+- **C8:** the per-keystroke list also includes `IntegerField`, `CoordinateField` and `StepField` in PointSet and the projective graphs.
+- **C9:** most local Reset counts were comments; the [inventory](../tasks/shared-graph-controls/inventory.md) lists the real buttons.
+- **C18:** FivePoint, PolePolar and ThreeViews also clamp silently, and the movable-point cursor is also missing on LinearFunction P1 and P2 and the FourierCoefficients and Epicycle handles.
+- **C21:** "Silent while Play runs" is written in 10 files, not six, all in compgeo. No function graph gates on Play. De Boor's readout changed on each level during Play in a running build. Sequence is ungated too; its live text stayed static with the certificate hidden, and the shown state was not run. This was DOM observation, not screen-reader speech.
+- **C23:** a Correlation add at the cap in a lesson does reach the learner: `applyActions` restores the checkpoint and rethrows, and `GuidedLesson` shows the reason with only Close. This closes the earlier note that the runner's handling was not traced.
+- **C27:** both Monotone counters were observed starting at 0 (`Korak 0 od 14`), and Delaunay at 1.
+- **PH:** the start point is not draggable, read from code, which contradicts line 15 of [the PH overlay spec](ph-arc-length-and-elevation-overlay.md). Decision 11 covers draggable points, so no typed path is needed. The curves sweep confirms this in a browser and corrects whichever is wrong.
+
+Counts are from text search, so treat them as approximate. Task 0 covered the areas the audits left out.

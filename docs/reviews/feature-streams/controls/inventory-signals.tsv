@@ -1,0 +1,149 @@
+lines	file	signals
+434	src/graphs/base/BaseCurveGraph.tsx	aria-pressed=3 disabled==1 OnOffSwitch=3 PointCoordinateEditor=3 
+1126	src/graphs/base/BaseGraph.tsx	Reset=1 
+142	src/graphs/base/controls/BezierCurveControls.tsx	aria-pressed=2 Slider=6 
+52	src/graphs/base/controls/CurveDisplayControls.tsx	OnOffSwitch=6 
+85	src/graphs/base/controls/PhBezierCurveControls.tsx	CountSetter=4 disabled==1 OnOffSwitch=5 Slider=3 
+88	src/graphs/base/controls/PlaybackButtons.tsx	aria-disabled=2 PlaybackButtons=3 Reset=4 
+54	src/graphs/base/controls/RationalBezierCurveControls.tsx	NumberInput=3 OnOffSwitch=3 
+90	src/graphs/base/CurveWorkspaceControls.tsx	aria-pressed=3 OnOffSwitch=3 Slider=6 
+270	src/graphs/base/DemonstrationWorkspace.tsx	aria-disabled=2 aria-pressed=2 disabled==2 
+68	src/graphs/base/PointCoordinateEditor.tsx	<input=4 disabled==1 PointCoordinateEditor=1 
+51	src/graphs/base/PresetImportDialog.tsx	disabled==2 
+258	src/graphs/base/PresetSelector.tsx	disabled==9 Reset=6 
+216	src/graphs/base/realGraphTestHarness.tsx	aria-pressed=3 
+8	src/graphs/base/ResetButton.tsx	disabled==1 Reset=4 
+30	src/graphs/base/SaveImage.tsx	disabled==2 
+10	src/graphs/base/SizeRange.tsx	Slider=3 
+243	src/graphs/bernstein/BernsteinGraph.tsx	CountSetter=3 OnOffSwitch=3 
+190	src/graphs/compgeo/BentleyOttmannControls.tsx	aria-disabled=1 PlaybackButtons=3 Reset=2 
+429	src/graphs/compgeo/BentleyOttmannGraph.tsx	Reset=1 
+128	src/graphs/compgeo/BezierClippingControls.tsx	<select=1 aria-disabled=1 PlaybackButtons=3 Reset=2 
+62	src/graphs/compgeo/BezierHullsControls.tsx	aria-disabled=1 PlaybackButtons=3 Reset=2 
+171	src/graphs/compgeo/DelaunayControls.tsx	aria-disabled=2 aria-pressed=1 PlaybackButtons=3 Reset=2 
+110	src/graphs/compgeo/EarClippingControls.tsx	aria-disabled=1 PlaybackButtons=3 Reset=2 
+80	src/graphs/compgeo/EulerLinePanel.tsx	<select=1 
+213	src/graphs/compgeo/FortuneControls.tsx	aria-disabled=1 PlaybackButtons=4 Reset=3 
+450	src/graphs/compgeo/FortuneGraph.tsx	Reset=1 
+155	src/graphs/compgeo/HullRobustnessControls.tsx	ChoiceSelect=6 NumberInput=4 
+528	src/graphs/compgeo/HullRobustnessGraph.tsx	Reset=2 
+129	src/graphs/compgeo/HullTraceControls.tsx	aria-disabled=1 ChoiceSelect=3 PlaybackButtons=3 Reset=2 
+109	src/graphs/compgeo/InscribedAnglePanel.tsx	<input=2 <select=1 onKeyDown=1 Reset=1 type="range"=1 
+165	src/graphs/compgeo/IntervalSweepControls.tsx	aria-disabled=1 PlaybackButtons=3 Reset=2 
+406	src/graphs/compgeo/IntervalSweepGraph.tsx	Reset=1 
+233	src/graphs/compgeo/InversionPanel.tsx	<input=3 <select=3 aria-pressed=1 onKeyDown=3 type="range"=1 
+174	src/graphs/compgeo/MonotonePartitionControls.tsx	aria-disabled=1 PlaybackButtons=3 Reset=2 
+187	src/graphs/compgeo/MonotoneTriangulationControls.tsx	PlaybackButtons=3 Reset=2 
+68	src/graphs/compgeo/NotablePointsPanel.tsx	<select=1 
+523	src/graphs/compgeo/PointInPolygonGraph.tsx	<input=1 aria-pressed=1 
+233	src/graphs/compgeo/PointSetControls.tsx	<input=3 aria-pressed=5 disabled==2 Reset=1 
+837	src/graphs/compgeo/PointSetGraph.tsx	onKeyDown=3 
+179	src/graphs/compgeo/PolygonAreaGraph.tsx	disabled==2 
+189	src/graphs/compgeo/SimsonLinePanel.tsx	<input=4 <select=2 onKeyDown=1 type="range"=2 
+121	src/graphs/compgeo/TriangulationControls.tsx	<select=1 aria-disabled=1 disabled==1 
+267	src/graphs/compgeo/VoronoiControls.tsx	<input=2 aria-disabled=4 aria-pressed=4 onKeyDown=2 Reset=3 
+859	src/graphs/compgeo/VoronoiGraph.tsx	Reset=4 
+500	src/graphs/complex/ComplexMultiplicationGraph.tsx	ChoiceSelect=3 disabled==1 ignoreOutOfDomain=5 NumberInput=5 
+528	src/graphs/complex/ComplexReciprocalGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=6 NumberInput=4 
+410	src/graphs/complex/ComplexRootsGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=5 NumberInput=4 Reset=1 
+415	src/graphs/curves/arclength/ArcLengthParametrizationGraph.tsx	aria-pressed=1 ChoiceSelect=4 disabled==2 LiveReadout=3 OnOffSwitch=5 Reset=2 Slider=9 
+187	src/graphs/curves/bezier/CurvatureBezierCurveGraph.tsx	LiveReadout=3 Slider=5 
+136	src/graphs/curves/bezier/CurveEvoluteGraph.tsx	ChoiceSelect=3 OnOffSwitch=3 
+59	src/graphs/curves/bezier/DecasteljauAnimationControls.tsx	disabled==3 Slider=4 
+257	src/graphs/curves/bezier/DecasteljauGraph.tsx	OnOffSwitch=3 
+110	src/graphs/curves/bezier/ElevationGraph.tsx	OnOffSwitch=3 
+93	src/graphs/curves/bezier/ExtrapolationGraph.tsx	Slider=4 
+156	src/graphs/curves/bezier/SubdivisionGraph.tsx	OnOffSwitch=4 Reset=1 
+177	src/graphs/curves/bezier/SubdivisionGraph1.tsx	OnOffSwitch=3 Slider=4 
+267	src/graphs/curves/bspline/BSplineBasisGraph.tsx	ChoiceSelect=3 OnOffSwitch=4 Slider=3 
+302	src/graphs/curves/bspline/BSplineBlossomGraph.tsx	ChoiceSelect=4 OnOffSwitch=3 Slider=3 
+272	src/graphs/curves/bspline/BSplineExtractionGraph.tsx	ChoiceSelect=3 Reset=6 
+290	src/graphs/curves/bspline/BSplineInsertionGraph.tsx	ChoiceSelect=3 NumberInput=3 OnOffSwitch=3 Reset=7 
+312	src/graphs/curves/bspline/BSplineNurbsGraph.tsx	ChoiceSelect=3 NumberInput=3 OnOffSwitch=3 Reset=6 Slider=3 
+350	src/graphs/curves/bspline/DeBoorGraph.tsx	ChoiceSelect=3 CountSetter=3 PlaybackButtons=3 Reset=1 Slider=3 
+54	src/graphs/curves/bspline/KnotEditor.tsx	NumberInput=4 Reset=1 
+302	src/graphs/curves/comb/CurveCombGraph.tsx	ChoiceSelect=3 LiveReadout=3 OnOffSwitch=5 Slider=5 
+255	src/graphs/curves/envelope/CurveEnvelopeGraph.tsx	LiveReadout=3 OnOffSwitch=5 Slider=4 
+322	src/graphs/curves/hermite/HermiteGraph.tsx	ChoiceSelect=4 CountSetter=3 disabled==1 OnOffSwitch=4 PointListInput=4 Slider=3 
+290	src/graphs/curves/interpolation/InterpolationGraph.tsx	ChoiceSelect=3 CountSetter=3 OnOffSwitch=5 PointListInput=3 Slider=3 
+64	src/graphs/curves/LiveReadout.tsx	LiveReadout=1 
+337	src/graphs/curves/offset/CurveOffsetGraph.tsx	ChoiceSelect=3 LiveReadout=3 OnOffSwitch=5 Slider=4 
+296	src/graphs/curves/parametric/ParametricCurveGraph.tsx	ChoiceSelect=3 Slider=4 
+169	src/graphs/curves/parametrisations/AlphaParamBezierCurveGraph.tsx	Slider=8 
+165	src/graphs/curves/parametrisations/SplineAlphaParametrizationGraph.tsx	Slider=8 
+204	src/graphs/curves/parametrisations/UniformParamBezierCurveGraph.tsx	ChoiceSelect=3 Slider=4 
+269	src/graphs/curves/ph/BasePhBezierCurveGraph.tsx	OnOffSwitch=3 PointCoordinateEditor=4 
+162	src/graphs/curves/ph/CubicPhBezierCurveGraph.tsx	OnOffSwitch=3 
+106	src/graphs/curves/rational/FarinPointsCurveGraph.tsx	OnOffSwitch=5 
+86	src/graphs/curves/rational/RationalBezierCurveCircleGraphN.tsx	CountSetter=4 
+97	src/graphs/curves/rational/RationalExtrapolationGraph.tsx	Slider=4 
+234	src/graphs/curves/reduction/DegreeReductionGraph.tsx	ChoiceSelect=3 LiveReadout=3 OnOffSwitch=4 
+71	src/graphs/curves/spline/BaseSplineCurveGraph.tsx	OnOffSwitch=4 
+85	src/graphs/curves/spline/CnSplineGraph.tsx	CountSetter=6 Reset=1 
+72	src/graphs/curves/spline/G1SplineGraph.tsx	Slider=4 
+65	src/graphs/curves/spline/G1SymmetricSplineGraph.tsx	Slider=3 
+377	src/graphs/curves/subdivisionCurves/SubdivisionCurveGraph.tsx	ChoiceSelect=3 CountSetter=3 disabled==1 OnOffSwitch=4 PlaybackButtons=3 PointListInput=3 Reset=4 
+384	src/graphs/functions/AccumulationGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=3 NumberInput=4 
+194	src/graphs/functions/ArcLengthGraph.tsx	ignoreOutOfDomain=3 NumberInput=4 Slider=3 
+240	src/graphs/functions/AreaBetweenCurvesGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=3 NumberInput=4 
+613	src/graphs/functions/BaseFunctionGraph.tsx	ignoreOutOfDomain=3 Slider=1 
+294	src/graphs/functions/BinomialNormalGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=6 NumberInput=4 OnOffSwitch=4 Slider=4 
+361	src/graphs/functions/BisectionGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=4 NumberInput=4 PlaybackButtons=3 Reset=1 
+304	src/graphs/functions/CltGraph.tsx	ChoiceSelect=3 guarded(=6 OnOffSwitch=3 PlaybackButtons=3 Reset=2 Slider=4 
+321	src/graphs/functions/ConicFocalGraph.tsx	aria-disabled=2 ChoiceSelect=3 disabled==1 ignoreOutOfDomain=8 OnOffSwitch=3 Slider=6 
+153	src/graphs/functions/ContinuityGraph.tsx	ignoreOutOfDomain=1 Slider=5 
+445	src/graphs/functions/ConvexityGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=4 NumberInput=5 
+454	src/graphs/functions/CorrelationGraph.tsx	ChoiceSelect=3 CountSetter=3 guarded(=6 OnOffSwitch=4 PointListInput=3 Reset=1 
+355	src/graphs/functions/DarbouxGraph.tsx	ChoiceSelect=3 disabled==1 ignoreOutOfDomain=5 NumberInput=5 
+240	src/graphs/functions/DefiniteIntegralGraph.tsx	ChoiceSelect=4 ignoreOutOfDomain=5 NumberInput=4 Slider=3 
+211	src/graphs/functions/DensityAreaGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=4 NumberInput=4 Slider=4 
+187	src/graphs/functions/DerivativeGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=3 NumberInput=3 OnOffSwitch=3 Slider=5 
+629	src/graphs/functions/EpicycleGraph.tsx	ChoiceSelect=4 disabled==2 NumberInput=3 onKeyDown=1 Slider=4 
+370	src/graphs/functions/EulerGraph.tsx	aria-disabled=3 ChoiceSelect=3 ignoreOutOfDomain=7 NumberInput=5 OnOffSwitch=3 Slider=3 
+125	src/graphs/functions/ExponentialFunctionGraph.tsx	ignoreOutOfDomain=1 OnOffSwitch=3 Slider=5 
+448	src/graphs/functions/ExtremaGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=3 NumberInput=4 
+489	src/graphs/functions/FixedPointGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=4 NumberInput=4 PlaybackButtons=3 Reset=1 
+536	src/graphs/functions/FourierCoefficientsGraph.tsx	ChoiceSelect=7 ignoreOutOfDomain=11 NumberInput=6 onKeyDown=1 OnOffSwitch=3 
+420	src/graphs/functions/FourierSeriesGraph.tsx	aria-disabled=3 ChoiceSelect=3 ignoreOutOfDomain=6 NumberInput=5 
+330	src/graphs/functions/FunctionInverseGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=4 NumberInput=4 
+285	src/graphs/functions/FunctionTransformationGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=4 NumberInput=4 
+325	src/graphs/functions/GeometricSeriesGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=6 NumberInput=4 PlaybackButtons=3 Reset=1 Slider=4 
+348	src/graphs/functions/LeastSquaresGraph.tsx	CountSetter=4 ignoreOutOfDomain=8 OnOffSwitch=5 PointListInput=3 Reset=1 Slider=4 
+215	src/graphs/functions/LinearFunctionGraph.tsx	disabled==2 ignoreOutOfDomain=3 NumberInput=5 
+403	src/graphs/functions/MeanValueGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=5 NumberInput=5 
+334	src/graphs/functions/PolynomialZerosGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=7 NumberInput=3 
+292	src/graphs/functions/QuadratureGraph.tsx	ChoiceSelect=4 ignoreOutOfDomain=5 NumberInput=4 Slider=3 
+545	src/graphs/functions/RationalFunctionGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=8 NumberInput=3 Slider=3 
+361	src/graphs/functions/RootFindingGraph.tsx	ChoiceSelect=4 ignoreOutOfDomain=5 NumberInput=4 PlaybackButtons=3 Reset=1 
+277	src/graphs/functions/RungeInterpolationGraph.tsx	aria-disabled=3 ChoiceSelect=4 disabled==1 ignoreOutOfDomain=5 NumberInput=3 OnOffSwitch=4 
+477	src/graphs/functions/SequenceGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=5 NumberInput=5 PlaybackButtons=3 Reset=1 
+450	src/graphs/functions/SummaryStatisticsGraph.tsx	aria-disabled=1 ChoiceSelect=5 guarded(=8 OnOffSwitch=4 Reset=1 ValueListInput=3 
+433	src/graphs/functions/TaylorGraph.tsx	ChoiceSelect=3 disabled==3 ignoreOutOfDomain=6 NumberInput=5 
+208	src/graphs/functions/TrigonometricFunctionsGraph.tsx	ChoiceSelect=3 ignoreOutOfDomain=5 OnOffSwitch=3 Slider=10 
+468	src/graphs/functions/UniformConvergenceGraph.tsx	aria-disabled=3 ChoiceSelect=3 ignoreOutOfDomain=7 NumberInput=6 
+106	src/graphs/functions/ZeroListEditor.tsx	ChoiceSelect=3 disabled==1 NumberInput=3 
+467	src/graphs/linear/LinearMapGraph.tsx	aria-pressed=1 ChoiceSelect=4 ignoreOutOfDomain=4 NumberInput=3 Reset=2 
+399	src/graphs/patches/BaseSurfaceGraph.tsx	Reset=1 
+145	src/graphs/patches/CoonsPatchPanels.tsx	ChoiceSelect=5 OnOffSwitch=6 PointEditor=2 Slider=4 
+23	src/graphs/patches/TensorDeCasteljauPanels.tsx	ChoiceSelect=3 OnOffSwitch=3 
+64	src/graphs/patches/TensorDerivativesPanels.tsx	OnOffSwitch=5 
+328	src/graphs/patches/TensorJoinGraph.tsx	Reset=1 
+173	src/graphs/patches/TensorJoinPanels.tsx	ChoiceSelect=7 disabled==1 PointEditor=2 Slider=4 
+438	src/graphs/patches/TensorPatchGraph.tsx	Reset=1 
+208	src/graphs/patches/TensorPatchPanels.tsx	<input=1 ChoiceSelect=8 OnOffSwitch=7 PointEditor=2 Slider=6 
+210	src/graphs/patches/TensorSubdivisionGraph.tsx	Reset=3 
+74	src/graphs/patches/TensorSubdivisionPanels.tsx	ChoiceSelect=3 disabled==1 OnOffSwitch=3 Slider=3 
+418	src/graphs/patches/TriangularPatchGraph.tsx	Reset=1 
+169	src/graphs/patches/TriangularPatchPanels.tsx	ChoiceSelect=6 OnOffSwitch=10 PointEditor=2 Slider=6 
+99	src/graphs/projective/CrossRatioControls.tsx	<input=1 aria-pressed=2 
+424	src/graphs/projective/CrossRatioGraph.tsx	onKeyDown=3 Reset=2 
+131	src/graphs/projective/FivePointControls.tsx	<input=2 <select=3 aria-pressed=2 
+554	src/graphs/projective/FivePointGraph.tsx	onKeyDown=3 Reset=1 
+90	src/graphs/projective/PascalControls.tsx	aria-pressed=4 
+501	src/graphs/projective/PascalGraph.tsx	onKeyDown=3 Reset=2 
+121	src/graphs/projective/PolePolarControls.tsx	<input=1 aria-pressed=5 
+501	src/graphs/projective/PolePolarGraph.tsx	onKeyDown=3 Reset=2 
+62	src/graphs/projective/ThreeViewsControls.tsx	<input=3 disabled==1 Reset=2 type="range"=2 
+389	src/graphs/projective/ThreeViewsGraph.tsx	onKeyDown=3 Reset=1 
+410	src/learning/playground/DrawingPlayground.tsx	aria-pressed=2 disabled==7 onKeyDown=5 
+157	src/learning/playground/LookUnderneath.tsx	<input=1 disabled==2 Slider=3 
