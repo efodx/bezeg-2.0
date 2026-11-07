@@ -13,7 +13,7 @@
 | Lesson L6, step 6 | Reword so it does not promise the note on a narrow board | The text claimed something a narrow board omits |
 | D10, D4, D6, D12 card choices | Keep | Reviewed, and nothing found against them |
 | Learn strand *Ploskve in napredne teme* | Keep, including the `?example=` break recorded in [AB-A-4](../reviews/advanced-bezier/ab-a-4-chapter.md#breaking-change) | Already released; a rename back would break links again |
-| Example card images in the seven chapters without any | Capture, if the chapter has guided example cards | Other chapters have them, so the gap is inconsistent |
+| Example card images in the seven chapters without any | Capture, if the chapter has guided example cards. **Done** 2026-11-07: 37 cards on `master`, deployed from `39084ff0` | Other chapters have them, so the gap is inconsistent |
 | English card images | Defer | Images carry little text; the cost is a second capture of every card |
 | Weak-device performance budget | Defer | Nothing to measure on now that the device check is gone |
 | Phone-only lesson view, board-visible first frame | Reject for now | Shared layout changes for a small gain; [handoff 74](../reviews/feature-streams/curves/handler-handoff-74.md) records the workarounds |
