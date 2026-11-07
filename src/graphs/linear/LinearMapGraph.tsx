@@ -132,7 +132,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         });
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     /** Writes one entry from typed input: snaps to 1/4, clamps to [-4, 4] and records the message. */
     protected setEntryFromInput(row: Row, column: Column, input: number): void {
@@ -369,7 +369,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const exampleOptions: LinearMapExampleChoice[] = [...EXAMPLE_IDS_OFFERED];
         if (!exampleOptions.includes(state.exampleId)) exampleOptions.push(state.exampleId);
         const entry = (row: Row, column: Column) => (
@@ -439,7 +439,7 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const [[a, b], [c, d]] = view.matrix;
         const rows = [

@@ -137,7 +137,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
         });
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     /** Commits the next model of an edit, or throws the localized reason the model refused it. */
     private applyEdit(edit: ComplexEdit, options: { syncScene?: boolean } = {}): void {
@@ -385,7 +385,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const language = this.language();
         const view = this.viewOf(state);
         const wZero = isZero(view.w);
@@ -428,7 +428,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
     }
 
     protected override renderReveals(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         return <>
             <div className="demo-actions" role="group" aria-label={t("complex_actions_label")}>
                 <button type="button" data-action="toggle-complex-product" data-revealed={state.productVisible}
@@ -470,7 +470,7 @@ export class ComplexMultiplicationGraph extends BaseFunctionGraph<ComplexModel> 
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const language = this.language();
         const view = this.viewOf(model);
         const shown = model.productVisible;
