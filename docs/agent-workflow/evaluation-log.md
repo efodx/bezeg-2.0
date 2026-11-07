@@ -2135,3 +2135,16 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Timing: dispatch clock not captured, so no total elapsed time is claimed. Worker durations as reported: part 1 25 min, part 2 34 min, part 3 42 min, part 4 49 min, part 3b 41 min, smoke 6 min, with parts overlapping. Record written 2026-11-07T02:19Z.
 - Usage (worker totals as reported): part 1 126,637; part 2 146,369; part 3 156,379; part 4 147,097; part 3b 155,427; smoke 47,372 tokens.
 - Handoff evidence: the file-based shared brief plus signal table let every part finish its file before the budget stopped it, unlike the two earlier audits. Judgment: parts of about 10k lines were still too large for one worker; part 1, at 13.6k lines of one family, finished, so size alone does not explain it. Handbacks compress findings, so check a surprising claim against the part file before acting on it.
+
+## 2026-11-07 — clips steps 1 and 2: route probe and capture path (clips stream, handler 1)
+
+- Class/size: implementation / L; a probe of 67 scenes, then a generic row-driven capture path proved on three clips. Source: [spec](../specs/lesson-guided-catalog-clips.md).
+- Dispatch: eight workers, all Sonnet medium, at most two at once. Seven `bezeg-worker` (probe, research, slices A–D, repairs) and one `bezeg-reviewer`. Brief `handoff-v13`.
+- Outcome: accepted. 54 clips, 64 pending, three proof clips within the contract, 51 existing records identical.
+- Checks/gaps: `just tooling-test` 61 tests, 60 pass, 1 skipped; typecheck, lint, the pending-list unit test and the motion smoke pass. The over-mask guard was seen failing only with a lowered constant, because no real scene reaches 25 percent. The `curve-offset` sheet was viewed by the worker, not the handler.
+- Repairs: handler rejected a pixel threshold raised from 3 to 6, which would have caught none of the recorded cuts. Review found a sweep state check reading the slider's own value and a surface tolerance about 2,000 times the real deviation; both fixed.
+- Report accuracy: the probe report said 66 Demonstrations had points (61) and that none lacked a working control, while 19 proved only a view setting. Recounting from the JSON caught both.
+- Handler errors: a process filter missed `serve-smoke-build.cjs`, so the preview survived one stop attempt. The worktree guard refused two compound git commands; neither had run.
+- Timing: dispatch clock not captured, so no total is claimed. Worker durations as reported: probe 41 min, research 17, A 16, B 19, C 31, D 33, review 3, repairs 36.
+- Usage (worker totals as reported): probe 88,922; research 146,950; A 141,656; B 80,894; C 142,992; D 117,647; review 60,028; repairs 79,348; total 858,437 tokens for the path and three clips.
+- Handoff evidence: three of the first four step 2 workers stopped on the budget signal, the first with no code. Splitting by file ownership and pointing at a verified note worked; "do not re-verify" and an ordered list kept later workers on task. Judgment: a coupled tooling slice over a 1,800-line runner does not fit one worker, and a line such as "any limit change goes to the handler" belongs in the first brief, not the fourth.

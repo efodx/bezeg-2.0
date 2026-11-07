@@ -51,6 +51,13 @@ The owner asked on 2026-10-18 for motion on every preview unless there is a conc
 7. The 51 existing clips keep their files and motion records.
 8. `docs/capabilities.md`, `docs/current-architecture.md` and `docs/commands.md` describe the new capture path, row file and clip count. The [family template](../tasks/feature-streams/README.md#family-template) is read by new families, so `docs/specs/new-lesson-families.md` or the new-Demonstration guidance points at rows if a new family would otherwise miss them.
 
+## Handler decisions (2026-11-07)
+
+- **Jump check has two parts.** The pixel check of acceptance 3 catches gross teleports, but a whole-frame mean difference saturates on dense scenes: real cuts there scored 1.14–2.47 while the worst smooth clip scored 2.628, so no threshold separates them ([calibration](../reviews/feature-streams/clips/slice-b-note.md)). Row clips therefore also check state: each frame's observed control value or point position must match a schedule with no large step. Rejected: a lower pixel threshold, which fails real smooth clips, and a tiled pixel metric, which saturates the same way when a dense scene fills its tiles.
+- **The pixel check ignores board text and keeps threshold 3.** A readout that flips, such as "Točno nižljiva" to "Ni nižljiva" in `reduction`, is meant to change abruptly, and it reached 5.11 on smooth raw frames. Rejected: raising the threshold to 6, because all five cuts the check caught at 3 scored 3.45–5.16, so it would catch none of them.
+- **`just clip` does not assert verified presentation.** `PREVIEW_RECAPTURE_VERIFIED_PRESENTATION` stays an explicit operator flag and row data stays out of the fingerprint, so routine clips pass without it. Rejected: setting it in the recipe, which would disable the guard for every clip.
+- **`patch-coons` is a corner drag.** Its lesson says to drag a corner and never mentions the camera, so an orbit would not be lesson-guided. It is the only surface view among the 67, so the row driver does not build `surface-orbit`; the schema keeps the value for the existing clips' mode. Surface drags must hold the poster's camera exactly.
+
 ## Out of scope
 
 Changing lessons or lesson text, new runtime controls for learners, player changes, and replacing the 51 existing clips.
