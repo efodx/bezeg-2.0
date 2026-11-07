@@ -8,7 +8,6 @@ Rows a worker wrote that failed their capture. Each is kept here verbatim so a l
 | interp-runge | `point jxgBoard1P114 left the fixed camera at checkpoint 1`: raising the degree from 10 overshoots | A smaller first step, or a decision on off-camera points |
 | rational-function | `point jxgBoard1P55 left the fixed camera at frame 0`: a poster point already lies outside the camera | Find P55 (probably an asymptote or hole marker) and decide whether the check should skip off-board helpers |
 | geometric-series | `the app did not respond to the control at frame 16`: the poster shows one term, which does not depend on q | A row on a control the poster scene draws, or a recipe showing more terms |
-| conic-focal | `point jxgBoard1P44 left the fixed camera at frame 16`: the lesson pushes eps past 1, where the second focus leaves any camera | Owner decision on off-camera points for this row, or a quote that stays below 1 |
 | bspline-extraction | `the last frame differs from the first (the loop does not close)`; the quote is about a cubic, the poster is quadratic | Find why the release misses the start (snapping?) and pick a quote for the quadratic |
 | bspline-nurbs | `the scene starts at 0.063, but the row path starts at 0.0625`: the slider rounds the poster's 1/16 | Compare the full-precision slider value, or move the recipe's t to a 0.001 multiple |
 | root-finding | `the last frame differs from the first (the loop does not close)` on the x0 number field | Check how the field formats the returning value |

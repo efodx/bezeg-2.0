@@ -97,6 +97,7 @@ import motion_interval_sweep from './images/demonstrations/catalog/interval-swee
 import motion_segment_intersections from './images/demonstrations/catalog/segment-intersections.webm?no-inline';
 import motion_monotone_partition from './images/demonstrations/catalog/monotone-partition.webm?no-inline';
 import motion_monotone_triangulation from './images/demonstrations/catalog/monotone-triangulation.webm?no-inline';
+import motion_conic_focal from './images/demonstrations/catalog/conic-focal.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -197,4 +198,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'segment-intersections': {src: motion_segment_intersections, type: 'video/webm', duration: 4},
     'monotone-partition': {src: motion_monotone_partition, type: 'video/webm', duration: 4},
     'monotone-triangulation': {src: motion_monotone_triangulation, type: 'video/webm', duration: 4},
+    'conic-focal': {src: motion_conic_focal, type: 'video/webm', duration: 4},
 };

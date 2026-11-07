@@ -27,4 +27,15 @@ module.exports = [
         lessonQuote: 'Povleci enojno ničlo in preveri, da graf vedno seka os \\(x\\) v njej.',
         discreteReason: null,
     },
+    {
+        id: 'conic-focal',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Numerična ekscentričnost ε', step: 0.05},
+        // The poster scene is the ellipse with eps=0.8, l=1.8. eps goes across 1 to 1.6 (hyperbola) and back, then down to 0.2 and back.
+        path: [0.8, 1.6, 0.8, 0.2, 0.8],
+        lessonQuote: 'Z drsnikom pelji \\(\\varepsilon\\) čez \\(1\\) in opazuj, kaj se zgodi z drugim goriščem in z vejami krivulje.',
+        discreteReason: null,
+        // Spec decision "conic-focal keeps the lesson's crossing of eps = 1" (handler 5).
+        offCamera: {points: ['$$F_2$$', '$$P$$'], reason: 'As eps approaches 1 the second focus runs off to infinity and returns from the other side, and P, held at its polar angle phi, runs off with the branch where 1 + eps cos(phi) nears 0; that crossing is what the lesson teaches.'},
+    },
 ];

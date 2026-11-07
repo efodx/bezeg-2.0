@@ -7,7 +7,7 @@ const path = require('node:path');
 const test = require('node:test');
 const {validateRow, validateRows, validateRowAgainstRecipes} = require('./_schema.cjs');
 const {assessPathSteps, SCHEDULE_STEP_LIMIT} = require('./_jump.cjs');
-const {assessRowState, SURFACE_TOLERANCE, boardDragTolerance} = require('./_driver.cjs');
+const {assessRowState, SURFACE_TOLERANCE, boardDragTolerance, pointsOutsideCamera} = require('./_driver.cjs');
 const {rows, rowsById} = require('./index.cjs');
 const {assertMotionEvidence} = require('../demonstration-preview-motion.cjs').testSupport;
 
@@ -206,4 +206,18 @@ test('a sweep on a coarse control needs a distinct frame per scheduled value, ne
     assert.equal(minimumDistinctFrames(sweep([1, 1.5, 1], 0.05)), 16);
     assert.equal(minimumDistinctFrames({motion: 'discrete-exact-steps', path: [0, 2, 4, 2, 0]}), 3);
     assert.equal(minimumDistinctFrames({motion: 'pointer-drag', path: [[0, 0], [1, 1], [0, 0]]}), 24);
+});
+
+test('offCamera names derived board points that may leave the camera, with a reason', () => {
+    const exempt = {...clone(sweep), offCamera: {points: ['$$F_2$$'], reason: 'The second focus leaves for infinity as eps crosses 1.'}};
+    assert.doesNotThrow(() => validateRow(exempt));
+    rejects(row => { row.offCamera.reason = ' '; }, exempt, /offCamera\.reason/);
+    rejects(row => { row.offCamera.points = []; }, exempt, /offCamera\.points/);
+    rejects(row => { row.offCamera.extra = 1; }, exempt, /offCamera has exactly/);
+    rejects(row => { row.control = {kind: 'surface-point', name: 'P'}; row.path = [[0, 0], [1, 1], [0, 0]]; row.motion = 'pointer-drag'; }, exempt, /offCamera applies to board rows/);
+    // Only the named point is exempt; any other point outside the camera is still reported.
+    const box = [-1, 1, 1, -1];
+    const points = [{id: 'a', name: '$$F_2$$', x: 50, y: 0}, {id: 'b', name: '$$P$$', x: 0, y: 0}, {id: 'c', name: '$$F$$', x: 0, y: -3}];
+    assert.deepEqual(pointsOutsideCamera(exempt, points, box).map(p => p.id), ['c']);
+    assert.deepEqual(pointsOutsideCamera(sweep, points, box).map(p => p.id), ['a', 'c']);
 });

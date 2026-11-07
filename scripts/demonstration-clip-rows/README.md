@@ -13,6 +13,7 @@ One row describes one lesson-guided Demonstration clip. A row file is any `*.cjs
 | `lessonQuote` | The lesson sentence the motion comes from |
 | `discreteReason` | `null`, except for `discrete-exact-steps`, where it says why smooth motion is impossible |
 | `fineGrid` | Optional integer -8 to -1, only for a `pointer-drag` row on a board point. See "Fine grid" |
+| `offCamera` | Optional `{points, reason}` for a board row: JSXGraph names of derived points the lesson's motion takes out of view (for example `$$F_2$$` as a conic crosses ε = 1), and why. Every other point stays checked against the camera. Failure messages print each point's name |
 
 Copy accessible labels and point names from `docs/reviews/feature-streams/clips/route-probe.json`. Look at the three rows in this folder (`curve-geometry.cjs`, `bezier.cjs`, `patches.cjs`) as models.
 

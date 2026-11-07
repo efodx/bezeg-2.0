@@ -17,7 +17,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'bspline-nurbs', reason: NOT_CAPTURED},
     {id: 'rational-function', reason: NOT_CAPTURED},
     {id: 'geometric-series', reason: NOT_CAPTURED},
-    {id: 'conic-focal', reason: NOT_CAPTURED},
     {id: 'root-finding', reason: NOT_CAPTURED},
     {id: 'fourier-coefficients', reason: NOT_CAPTURED},
     {id: 'epicycles', reason: NOT_CAPTURED},

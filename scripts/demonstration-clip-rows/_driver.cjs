@@ -193,7 +193,7 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
             const state = await kit.boardSnapshot(page);
             fixedBox ||= state.box;
             kit.assertCamera(state.box, fixedBox, 'Camera changed between checkpoints');
-            for (const p of state.points) assert.ok(p.x >= fixedBox[0] && p.x <= fixedBox[2] && p.y <= fixedBox[1] && p.y >= fixedBox[3], `${row.id}: point ${p.id} left the fixed camera at checkpoint ${k}`);
+            for (const p of pointsOutsideCamera(row, state.points, fixedBox)) assert.fail(`${row.id}: point ${p.id} (${p.name}) left the fixed camera at checkpoint ${k}`);
             const capture = await shoot(kit, page, path.join(directory, frameName(frame)));
             for (let h = 0; h < holds[k]; h++) {
                 const name = frameName(frame + h);
@@ -218,6 +218,10 @@ async function readTraceStep(page, row) {
     const [, step, length] = values[0].match(/(\d+) od (\d+)/);
     return {step: Number(step), length: Number(length)};
 }
+
+/** Points outside the camera box [left, top, right, bottom], except the derived points a row's offCamera names. */
+const pointsOutsideCamera = (row, points, box) => points.filter(p => !(row.offCamera?.points || []).includes(p.name)
+    && !(p.x >= box[0] && p.x <= box[2] && p.y <= box[1] && p.y >= box[3]));
 
 async function presentFixed(page, d, boardPresent, camera) {
     const recipe = recipes[d.id];
@@ -255,7 +259,7 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
         const state = await kit.boardSnapshot(page);
         kit.assertCamera(state.box, fixedBox, 'Camera changed between sweep frames');
         for (const [id, width] of state.strokesById) { if (known.has(id)) assert.equal(width, known.get(id), `${row.id}: stroke width changed for ${id}`); else known.set(id, width); }
-        for (const p of state.points) assert.ok(p.x >= fixedBox[0] && p.x <= fixedBox[2] && p.y <= fixedBox[1] && p.y >= fixedBox[3], `${row.id}: point ${p.id} left the fixed camera at frame ${i}`);
+        for (const p of pointsOutsideCamera(row, state.points, fixedBox)) assert.fail(`${row.id}: point ${p.id} (${p.name}) left the fixed camera at frame ${i}`);
         const capture = await shoot(kit, page, path.join(directory, frameName(i)));
         samples.push({index: i, time: i / 24, target, actual: {input: value, steps}, capture, cameraBox: state.box,
             points: state.points.map(({id, name, x, y, draggable}) => ({id, name, x, y, draggable})), strokeWidths: state.strokeWidths,
@@ -291,7 +295,7 @@ async function dragBoard(page, d, row, directory, presentBoard, kit) {
         const actual = state.points.find(p => p.id === start.id);
         const others = state.points.filter(p => p.id !== start.id && initial.points.some(q => q.id === p.id && q.draggable));
         for (const p of others) { const q = initial.points.find(q => q.id === p.id); assert.ok(Math.hypot(p.x - q.x, p.y - q.y) < 1e-9, `${row.id}: control ${p.id} moved at frame ${i}`); }
-        for (const p of state.points) assert.ok(p.x >= fixedBox[0] && p.x <= fixedBox[2] && p.y <= fixedBox[1] && p.y >= fixedBox[3], `${row.id}: point ${p.id} left the fixed camera at frame ${i}`);
+        for (const p of pointsOutsideCamera(row, state.points, fixedBox)) assert.fail(`${row.id}: point ${p.id} (${p.name}) left the fixed camera at frame ${i}`);
         const capture = await shoot(kit, page, path.join(directory, frameName(i)));
         samples.push({index: i, time: i / 24, target: {x: target[0], y: target[1]}, scheduled: {x: target[0], y: target[1]}, actual: {id: start.id, x: actual.x, y: actual.y},
             start: {x: start.x, y: start.y}, capture, cameraBox: state.box, points: state.points, strokeWidths: state.strokeWidths,
@@ -357,4 +361,4 @@ async function clearSurfaceSelection(page, row) {
     await select.selectOption('');
 }
 
-module.exports = {captureRow, assessRowState, discreteHolds, pathAt, PRESS, RELEASE, SURFACE_TOLERANCE, boardDragTolerance};
+module.exports = {pointsOutsideCamera, captureRow, assessRowState, discreteHolds, pathAt, PRESS, RELEASE, SURFACE_TOLERANCE, boardDragTolerance};

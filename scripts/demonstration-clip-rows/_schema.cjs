@@ -3,8 +3,8 @@
 const assert = require('node:assert/strict');
 
 const rowFields = ['id', 'motion', 'control', 'path', 'lessonQuote', 'discreteReason'];
-// Optional, pointer-drag on a board only: see README.md (fine grid).
-const optionalRowFields = ['fineGrid'];
+// Optional: fineGrid (pointer-drag on a board only) and offCamera (board rows); see README.md.
+const optionalRowFields = ['fineGrid', 'offCamera'];
 const motions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps', 'surface-orbit'];
 // Motions the driver can capture today. The other two are accepted by the schema so a row can name them, but the driver refuses them.
 const drivenMotions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps'];
@@ -24,6 +24,14 @@ function validateRow(row, where = 'row') {
         assert.ok(Number.isInteger(row.fineGrid) && row.fineGrid >= -8 && row.fineGrid <= -1, `${name}: fineGrid must be an integer from -8 to -1 (the grid step becomes 2^fineGrid board units)`);
         assert.equal(row.motion, 'pointer-drag', `${name}: fineGrid only applies to a pointer-drag row`);
         assert.equal(row.control.kind, 'point', `${name}: fineGrid only applies to a board point, not a surface point`);
+    }
+    if (row.offCamera !== undefined) {
+        const exempt = row.offCamera;
+        assert.ok(exempt && typeof exempt === 'object' && !Array.isArray(exempt), `${name}: offCamera must be an object {points, reason}`);
+        assert.deepEqual(Object.keys(exempt).sort(), ['points', 'reason'], `${name}: offCamera has exactly the fields points and reason`);
+        assert.ok(Array.isArray(exempt.points) && exempt.points.length && exempt.points.every(p => typeof p === 'string' && p.trim()), `${name}: offCamera.points names the derived board points (JSXGraph names, e.g. "$$F_2$$") that may leave the camera`);
+        assert.ok(typeof exempt.reason === 'string' && exempt.reason.trim(), `${name}: offCamera.reason says why the lesson's motion takes these points out of view`);
+        assert.notEqual(row.control.kind, 'surface-point', `${name}: offCamera applies to board rows only`);
     }
     if (row.motion === 'discrete-exact-steps') assert.ok(typeof row.discreteReason === 'string' && row.discreteReason.trim(), `${name}: a discrete clip must say why smooth motion is impossible in discreteReason`);
     else assert.equal(row.discreteReason, null, `${name}: discreteReason must be null unless the motion is discrete-exact-steps`);
