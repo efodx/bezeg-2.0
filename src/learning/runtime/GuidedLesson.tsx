@@ -44,13 +44,6 @@ function GripIcon() {
     </svg>;
 }
 
-function NavigationArrow(props: {direction: 'back' | 'next'}) {
-    const path = props.direction === 'back' ? 'M10.5 3.5 5.5 8l5 4.5M6 8h7' : 'm5.5 3.5 5 4.5-5 4.5M7 8h7';
-    return <svg className="guided-lesson-navigation-arrow" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false">
-        <path d={path} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>;
-}
-
 const ARROW_KEYS = 'ArrowUp ArrowDown ArrowLeft ArrowRight';
 
 export function GuidedLesson(props: {
@@ -540,10 +533,10 @@ export function GuidedLesson(props: {
         </div>
         <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
             <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => refresh(() => session.back())}>
-                <NavigationArrow direction="back"/>{t('guided_lesson_previous_frame_short')}
+                {t('guided_lesson_previous_frame_short')}
             </button>
             <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => refresh(() => session.next())}>
-                {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}<NavigationArrow direction="next"/>
+                {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}
             </button>
         </nav>
     </div>;

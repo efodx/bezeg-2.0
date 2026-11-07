@@ -181,7 +181,6 @@
 }
 @container (max-width: 17rem) {
     .guided-lesson .guided-lesson-navigation button { gap:0; padding-inline:6px; }
-    .guided-lesson-navigation-arrow { display:none; }
 }
 @media(max-width:700px), (max-height:520px) {
     .guided-lesson { width:calc(100% - 20px); margin:10px; border-radius:8px; padding:4px 12px 0; }
