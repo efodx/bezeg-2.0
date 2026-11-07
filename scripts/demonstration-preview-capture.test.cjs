@@ -30,6 +30,17 @@ test('camera provenance canonicalizes only numerical roundoff and rejects a real
     assert.throws(()=>alignMotionCameras(captures,[{id:'test',camera:[-1.001,2,3,-4]}]),/cameras differ/);
     assert.throws(()=>alignMotionCameras(captures,[{id:'test',camera:[NaN,2,3,-4]}]),/cameras differ/);
 });
+test('a row poster checks what its guided example scene draws',()=>{
+    const pt=(x,y)=>({x,y}),vertices=[pt(0,0),pt(7,0),pt(2,5)],base={curves:0,readouts:{},reveals:{},controls:[]};
+    const euler={...base,lines:3,points:[...vertices,pt(2,2),pt(3,5/3),pt(3.5,1.5)]};
+    assert.doesNotThrow(()=>assertOutcomeEvidence('euler-line',euler,{exampleScene:true}));
+    assert.throws(()=>assertOutcomeEvidence('euler-line',euler),/Missing exact point/);
+    assert.throws(()=>assertOutcomeEvidence('euler-line',{...euler,points:euler.points.slice(0,5)},{exampleScene:true}),/vertex, H, G or O/);
+    const centres={...base,lines:3,points:[...vertices,pt(3,5/3)]};
+    assert.doesNotThrow(()=>assertOutcomeEvidence('triangle-centres',centres,{exampleScene:true}));
+    assert.throws(()=>assertOutcomeEvidence('triangle-centres',centres),/centre G, O or H/);
+    assert.throws(()=>assertOutcomeEvidence('triangle-centres',{...centres,points:vertices},{exampleScene:true}),/centre G, O or H/);
+});
 test('surface outcome evidence requires a drawn SVG surface view',()=>{
     const camera={az:-0.9,el:0.5,distance:8.2,target:[0,0,1.25]};
     const base={view:'surface',surfaceView:'board2d',svg:{width:360,height:220},drawables:12,readouts:{},controls:[],camera,controlPointCount:recipes["patch-tensor"].framing.controlPointCount??16};

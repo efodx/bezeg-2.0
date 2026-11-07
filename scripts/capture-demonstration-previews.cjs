@@ -682,7 +682,7 @@ async function main() {
                 });
 
                 const recipe = recipes[demonstration.id];
-                const evidence = await applyRecipe(page, row ? {...recipe, actions: []} : recipe);
+                const evidence = await applyRecipe(page, row ? {...recipe, actions: []} : recipe, {exampleScene: Boolean(row)});
 
                 await page.waitForFunction(() => window.MathJax?.startup?.promise, {timeout: 30_000});
                 await page.evaluate(async () => {
