@@ -85,6 +85,9 @@ import motion_prob_binomial_normal from './images/demonstrations/catalog/prob-bi
 import motion_prob_summary from './images/demonstrations/catalog/prob-summary.webm?no-inline';
 import motion_complex_reciprocal from './images/demonstrations/catalog/complex-reciprocal.webm?no-inline';
 import motion_complex_roots from './images/demonstrations/catalog/complex-roots.webm?no-inline';
+import motion_projective_pole_polar from './images/demonstrations/catalog/projective-pole-polar.webm?no-inline';
+import motion_projective_five_point from './images/demonstrations/catalog/projective-five-point.webm?no-inline';
+import motion_projective_three_views from './images/demonstrations/catalog/projective-three-views.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -173,4 +176,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'prob-summary': {src: motion_prob_summary, type: 'video/webm', duration: 4},
     'complex-reciprocal': {src: motion_complex_reciprocal, type: 'video/webm', duration: 4},
     'complex-roots': {src: motion_complex_roots, type: 'video/webm', duration: 4},
+    'projective-pole-polar': {src: motion_projective_pole_polar, type: 'video/webm', duration: 4},
+    'projective-five-point': {src: motion_projective_five_point, type: 'video/webm', duration: 4},
+    'projective-three-views': {src: motion_projective_three_views, type: 'video/webm', duration: 4},
 };

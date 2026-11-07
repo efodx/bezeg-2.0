@@ -39,7 +39,4 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'fortune', reason: NOT_CAPTURED},
     {id: 'projective-cross-ratio', reason: NOT_CAPTURED},
     {id: 'projective-pascal', reason: NOT_CAPTURED},
-    {id: 'projective-pole-polar', reason: NOT_CAPTURED},
-    {id: 'projective-five-point', reason: NOT_CAPTURED},
-    {id: 'projective-three-views', reason: NOT_CAPTURED},
 ];
