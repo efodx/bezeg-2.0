@@ -13,6 +13,9 @@ Rows a worker wrote that failed their capture. Each is kept here verbatim so a l
 | bspline-nurbs | `the scene starts at 0.063, but the row path starts at 0.0625`: the slider rounds the poster's 1/16 | Compare the full-precision slider value, or move the recipe's t to a 0.001 multiple |
 | root-finding | `the last frame differs from the first (the loop does not close)` on the x0 number field | Check how the field formats the returning value |
 | epicycles | `control "Krajišče 1, koordinata x" stays hidden in every inspector tab` in the poster scene | Pick a control the poster scene shows |
+| linear-map | preflight (handler 5): `only 23 distinct frames, need 24` on `a₁: x` | Matrix entries are quarter steps in −4..4 and the camera starts at x = −1.6, so one entry gives 23 values at most; a drag snaps to the same grid. Needs a looser frame count for this row or a recipe camera that fits more of the range |
+| projective-cross-ratio | preflight (handler 5): `only 21 distinct frames, need 24` on `Točka O: x` | The fields take whole numbers, and O degenerates at x = 8 (on the second line) or leaves the camera; same decision as linear-map |
+| projective-pascal | preflight (handler 5): state check, 0.149 from the schedule on a drag of B along the ellipse | The drag snaps to a table of line directions; the steppers need a selected point and show no value. Needs a driver path that follows the snapped table, or a held decision |
 
 Not written: `bspline-insertion` (only the Vstavi vozel button changes the picture), `fourier-coefficients` (its handle field is not in the route probe; a suggested row is in a comment in `scripts/demonstration-clip-rows/analysis.cjs`), `inversion` (integer controls only).
 
@@ -140,6 +143,48 @@ Not written: `bspline-insertion` (only the Vstavi vozel button changes the pictu
         // Start vertex 1 = (1, 0): the rhombus example shares the circle's four vertices (route-probe; the recipe adds N = 4 steps only). Drags snap to a grid (EpicycleGraph.tsx:376), so the vertex's number field is swept; the camera is +-3.2, so 1 -> 2.3 stays in view.
         path: [1, 1.65, 2.3, 1.65, 1],
         lessonQuote: 'Povleci točko in poglej, kateri krogi se spremenijo ter kdaj napaka postane vidna.',
+        discreteReason: null,
+    },
+```
+
+`linear-map`:
+
+```js
+    {
+        id: 'linear-map',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'a₁: x', step: 0.25},
+        // The recipe selects example A ("basis-default"): the column handles start at a1 = (2, 1) and a2 = (-1, 1) (recipe check). Entries are multiples of 1/4 between -4 and 4; with a1 = (x, 1) the determinant is x + 1 and the handle stays inside the recipe camera (x from -1.6) for x from -1.5 to 4. A pointer drag on the handle fails the state check (it snaps to the 1/4 grid).
+        path: [2, 4, -1.5, 2],
+        lessonQuote: 'Povleci \\(a_1\\) drugam in preberi nov \\(A(1,1)\\).',
+        discreteReason: null,
+    },
+```
+
+`projective-cross-ratio`:
+
+```js
+    {
+        id: 'projective-cross-ratio',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Točka O: x', step: 1},
+        // The poster keeps the defaults: centre O = (0, 5), the first line y = 0 with A, B, C, D at 0, 1, 3, 4, the second line through M = (0, 1) and N = (2, 2). Whole-number fields only. O is above the second line for x below 8 (x = 8 puts it on the line), and no ray is parallel to it for x from -13 to 7.
+        path: [0, 7, -13, 0],
+        lessonQuote: 'Premakni središče in opazuj, kako se slike premikajo in odčitek ostane enak.',
+        discreteReason: null,
+    },
+```
+
+`projective-pascal`:
+
+```js
+    {
+        id: 'projective-pascal',
+        motion: 'pointer-drag',
+        control: {kind: 'point', name: 'B'},
+        // The poster keeps the default ellipse x^2/25 + y^2/9 = 1 with B = (3, 2.4). A drag snaps B to the nearest direction from the base point (-5, 0), so the waypoints follow the ellipse: the point with chord slope m from (-5, 0) has x = (45 - 125 m^2)/(9 + 25 m^2), for m from 0.30 to 0.55.
+        path: [[3, 2.4], [2.4611, 2.6114], [1.9231, 2.7692], [1.4, 2.88], [0.9016, 2.9508], [0.434, 2.9887], [0.9016, 2.9508], [1.4, 2.88], [1.9231, 2.7692], [2.4611, 2.6114], [3, 2.4]],
+        lessonQuote: 'Premakni točko po stožnici in preveri, ali ostanejo kolinearna',
         discreteReason: null,
     },
 ```
