@@ -80,3 +80,8 @@ When the graph area is at least about twice the reading card’s desktop width, 
 - The framing adjustment runs with guided scene setup. Advancing within a scene, hiding and reopening, or moving the card leaves the view steady. Re-entering a scene does not accumulate shifts.
 - Exit restores the pre-lesson view and state. Completion retains the final construction and respects learner camera changes. The card and tab keep their existing drag, clamp and focus behavior.
 - Verify bisection on wide and narrow boards, a 2D lesson with an authored view, a surface lesson, and lesson exit back to exploration. Use the existing lesson smoke suite for the shared runtime.
+
+### Ultrawide spacing
+
+- Keep the half-card pan up to three card widths of plot space. Taper it linearly to zero by four card widths so the lesson card and construction stay closer on ultrawide displays.
+- Measure the plot rather than the browser window. At desktop and ultrawide sizes, verify that only the guided pan changes and that the plot scale, card home and free-exploration view stay the same.

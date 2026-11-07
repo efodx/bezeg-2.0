@@ -468,8 +468,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         const {width: boardWidth} = JXG.getDimensions(this.board.container, document);
         const width = parseFloat(String(boardWidth));
         if (!Number.isFinite(width) || width <= 0) return;
+        // Keep the half-card pan through three card widths and taper it to zero by four.
+        const panPixels = Math.max(0, Math.min(cardWidth, 4 * cardWidth - width)) / 2;
+        if (panPixels === 0) return;
         const [left, top, right, bottom] = this.board.getBoundingBox();
-        const dx = (right - left) * (cardWidth / 2 / width);
+        const dx = (right - left) * (panPixels / width);
         this.board.setBoundingBox([left - dx, top, right - dx, bottom], false);
     }
 
