@@ -602,14 +602,15 @@ test('the view is memoised by the model values: a copy of the model (the inspect
 test('Edit order: the reveal area (lower and upper sums) sits between the controls and the readout it reveals', () => {
     const graph = makeGraph();
     const children = (graph.workspaceEdit() as any).props.children;
-    expect(children).toHaveLength(4);
+    expect(children).toHaveLength(5);
     expect(children[0].props?.className).toBeUndefined(); // controls
     expect(children[1].props.className).toBe('inspector-reveals');
     const [heading, reveals] = React.Children.toArray(children[1].props.children) as any[];
     expect(heading.props.className).toBe('inspector-reveals-title');
     expect(reveals.props.children[0].props.className).toBe('darboux-actions');
     expect(children[2].props.className).toBeUndefined(); // readout
-    expect(children[3].type.name).toBe('FunctionLegend');
+    expect(children[3].type.name).toBe('RefusalNotice');
+    expect(children[4].type.name).toBe('FunctionLegend');
 });
 
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {

@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest';
 import {
-    BASIS_SAMPLES, draggedKnots, editedKnots, isClamped, knotProblem, parameterView, readoutAt, rebuiltKnots, sampleBasis, snapKnot,
+    BASIS_SAMPLES, dragKnotEdit, draggedKnots, editedKnots, isClamped, knotProblem, parameterView, readoutAt, rebuiltKnots, sampleBasis, snapKnot,
 } from './bsplineBasisModel';
 import {renderMessage} from '../../../localization';
 
@@ -47,6 +47,14 @@ describe('dragging and typing', () => {
         expect(draggedKnots(knots, 2, 3, 0)).toBeUndefined();
         expect(draggedKnots([0, 0, 0, 1, 1, 1], 2, 3, 0)).toBeUndefined();
         expect(draggedKnots([0, 0, 0, 1, 1, 1], 2, 3, 0.5)).toEqual([0, 0, 0, 0.5, 1, 1]);
+    });
+
+    test('a drag gives the reason for an invalid vector and nothing for a clamp or no change', () => {
+        const refused = dragKnotEdit([0, 0, 0, 1, 1, 1], 2, 3, 0);
+        expect(refused && 'rejection' in refused && refused.rejection.key).toBe('bspline_knots_multiplicity_too_high');
+        expect(dragKnotEdit(knots, 2, 4, 99)).toEqual({knots: [0, 0, 0, 1, 3, 3, 4, 4, 4]});
+        expect(dragKnotEdit(knots, 2, 4, 2)).toBeUndefined();
+        expect(dragKnotEdit(knots, 2, 4, Number.NaN)).toBeUndefined();
     });
 
     test('a typed value is checked by the kernel with the vector n and gives the localized reason', () => {

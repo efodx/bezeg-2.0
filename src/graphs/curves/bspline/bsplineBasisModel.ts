@@ -59,17 +59,26 @@ const isValid = (knots: readonly number[], degree: number): boolean => {
 
 /**
  * The vector after dragging knot `index` towards `value`: snapped to the grid, kept within the limit and clamped between its
- * neighbours (it can reach but never pass them, so the order is never changed). Undefined when nothing changes or the result
- * would not be a valid vector (for example a multiplicity above k + 1 or an empty domain).
+ * neighbours (it can reach but never pass them, so the order is never changed). The clamp and "nothing changes" are silent
+ * (undefined); a result that is not a valid vector (for example a multiplicity above k + 1 or an empty domain) carries the reason.
  */
-export function draggedKnots(knots: readonly number[], degree: number, index: number, value: number): number[] | undefined {
+export function dragKnotEdit(knots: readonly number[], degree: number, index: number, value: number): KnotEdit | undefined {
     if (!Number.isInteger(index) || index < 0 || index >= knots.length || !Number.isFinite(value)) return undefined;
     const low = index > 0 ? knots[index - 1] : -KNOT_LIMIT;
     const high = index < knots.length - 1 ? knots[index + 1] : KNOT_LIMIT;
     const next = Math.min(high, Math.max(low, snapKnot(value)));
     if (next === knots[index]) return undefined;
     const candidate = knots.map((knot, i) => i === index ? next : knot);
-    return isValid(candidate, degree) ? candidate : undefined;
+    const n = lastIndexOf(candidate, degree);
+    if (n < degree) return {rejection: knotRejectionMessage("wrong_length", candidate, degree, degree)};
+    const check = validateKnotVector(candidate, degree, n);
+    return check.ok ? {knots: candidate} : {rejection: knotRejectionMessage(check.reason, candidate, degree, n)};
+}
+
+/** The dragged vector, or undefined when nothing changes or the result is not valid (`dragKnotEdit` gives the reason). */
+export function draggedKnots(knots: readonly number[], degree: number, index: number, value: number): number[] | undefined {
+    const edit = dragKnotEdit(knots, degree, index, value);
+    return edit !== undefined && 'knots' in edit ? edit.knots : undefined;
 }
 
 export type KnotEdit = {knots: number[]} | {rejection: Message};

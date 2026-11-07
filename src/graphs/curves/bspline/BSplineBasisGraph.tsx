@@ -1,5 +1,6 @@
 import React from "react";
 import {currentLanguage, LocalizedError, message, renderMessage, t} from "../../../localization";
+import {RefusalChannel, RefusalNotice} from "../../../inputs/RefusalChannel";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
@@ -12,7 +13,7 @@ import {BSplineBasisScene} from "./BSplineBasisScene";
 import {KnotEditor} from "./KnotEditor";
 import {
     BASIS_MAX_DEGREE, BASIS_MIN_DEGREE, basisPresetData, basisViewBox, clampToDomain, DEFAULT_BASIS_DEGREE, DEFAULT_BASIS_KNOTS,
-    DEFAULT_BASIS_T, domainNote, draggedKnots, editedKnots, isClamped, knotProblem, lastIndexOf, parameterView, placeholderPoints, readoutLines, rebuiltKnots,
+    DEFAULT_BASIS_T, domainNote, dragKnotEdit, editedKnots, isClamped, knotProblem, lastIndexOf, parameterView, placeholderPoints, readoutLines, rebuiltKnots,
 } from "./bsplineBasisModel";
 
 export interface BSplineBasisGraphState extends BaseGraphState {
@@ -37,6 +38,8 @@ const initialData = (): Omit<BSplineBasisGraphState, 'initialized'> =>
  */
 export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSplinePresetData> {
     private scene?: BSplineBasisScene;
+    /** The reason the last refused knot drag or typed value gave; cleared by an accepted one. */
+    private readonly refusals = new RefusalChannel(() => this.requestRender());
 
     override getInitialState(): BSplineBasisGraphState {
         return {initialized: false, ...initialData()};
@@ -208,11 +211,19 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         this.setState({t: clampToDomain(knots, degree, parameterView(knots, degree, normalized).toRaw(shown))});
     }
 
-    /** A drag of knot `index` towards a raw value: snapped, clamped between its neighbours; a result that is not valid is ignored. */
+    /**
+     * A drag of knot `index` towards a raw value: snapped, clamped between its neighbours (silent); a result that is not valid is
+     * ignored and its reason shown (repeated drag frames do not announce it again). Returns whether the knots changed.
+     */
     dragKnot(index: number, raw: number): boolean {
-        const next = draggedKnots(this.state.knots, this.state.degree, index, raw);
-        if (!next) return false;
-        this.setState({knots: next});
+        const edit = dragKnotEdit(this.state.knots, this.state.degree, index, raw);
+        if (edit === undefined) return false;
+        if ('rejection' in edit) {
+            this.refusals.refuse(edit.rejection);
+            return false;
+        }
+        this.refusals.clear();
+        this.setState({knots: edit.knots});
         return true;
     }
 
@@ -224,6 +235,7 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
         if (!Number.isInteger(index) || index < 0 || index >= this.state.knots.length) return undefined;
         const edit = editedKnots(this.state.knots, this.state.degree, index, value);
         if ('rejection' in edit) return renderMessage(edit.rejection);
+        this.refusals.clear();
         this.setState({knots: edit.knots});
         if (this.board) {
             const [left, , right] = this.board.getBoundingBox();
@@ -259,6 +271,7 @@ export class BSplineBasisGraph extends BaseGraph<BSplineBasisGraphState, BSpline
                 {!problem && <p>{domainNote(knots, degree, normalized, language)}</p>}
             </div>,
             ...(problem ? [<div key="notice" role="alert" className="inspector-help">{t("bsb_invalid_notice", {value0: renderMessage(problem)})}</div>] : []),
+            <RefusalNotice key="refusal" channel={this.refusals}/>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );
     }

@@ -228,6 +228,32 @@ describe('knot dragging', () => {
         view.unmount();
     });
 
+    test('a refused drag states the rule, a neighbour clamp is silent and an accepted drag or typed edit clears the reason', () => {
+        const {graph, view} = mount();
+        const notice = () => document.querySelectorAll('[data-refusal-notice]');
+        const noticeText = () => notice()[0]?.textContent;
+        act(() => graph.importPresetData(six()));
+        expect(notice()).toHaveLength(1);
+        act(() => dragMarker(graph, 4, 2)); // no change: silent
+        expect(noticeText()).toBe('');
+        act(() => dragMarker(graph, 4, 1));
+        expect(noticeText()).toBe('');
+        act(() => dragMarker(graph, 3, 0)); // multiplicity 4 > k + 1
+        expect(noticeText()).toContain('največ 3-krat');
+        act(() => dragMarker(graph, 3, 0)); // the next frame repeats it: one notice, same text
+        expect(notice()).toHaveLength(1);
+        expect(noticeText()).toContain('največ 3-krat');
+        act(() => dragMarker(graph, 4, 2)); // accepted
+        expect(noticeText()).toBe('');
+        act(() => dragMarker(graph, 3, 0)); // refused again
+        expect(noticeText()).toContain('največ 3-krat');
+        act(() => { graph.editKnot(5, 3.5); });
+        expect(noticeText()).toBe('');
+        act(() => dragMarker(graph, 4, 9)); // clamped between the neighbours: silent
+        expect(noticeText()).toBe('');
+        view.unmount();
+    });
+
     test('markers are locked while the domain is shown on [0, 1] and stay in step with the state afterwards', () => {
         const {graph, view} = mount();
         act(() => graph.setNormalized(true));

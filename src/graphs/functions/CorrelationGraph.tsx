@@ -6,7 +6,6 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {PointListInput} from "../../inputs/PointListInput";
-import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {guard} from "../base/controls/guard";
 import {currentLanguage, renderMessage, t} from "../../localization";
 import {formatLineEquation, NOT_A_NUMBER_TEXT} from "../../analysis/format";
@@ -113,8 +112,6 @@ export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, 
  */
 export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
     protected pointObjects: JXG.Point[] = [];
-    /** The reason the last refused edit gave; shown alone in its notice region until an edit is accepted. */
-    private readonly refusals = new RefusalChannel(() => this.requestRender());
 
     override presetCollection() {
         return functionPresetCollections["prob-correlation"];
@@ -422,7 +419,6 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         if (view.status !== "ok") statuses.push({id: view.status, text: statusText[view.status]()});
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_correlation_note")}/>
-            <RefusalNotice channel={this.refusals}/>
             <div className="inspector-group" role="status" aria-live="polite">
                 {statuses.map(status => <p key={status.id} className="inspector-help" data-prob-correlation-status={status.id}>{status.text}</p>)}
             </div>

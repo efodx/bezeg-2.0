@@ -2293,3 +2293,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - CP6: one `bezeg-worker` (Sonnet `medium`), about 75 min with test queueing. Part 1 (shared runtime) was accepted on `just unit src/learning` (779 s, passed), tsc, lint and build, and pushed alone. Part 2 (chapter content, terms, docs) is held by the containment stop condition. The worker kept the two parts in disjoint files as briefed, which made the split commit cheap.
 - CP7 script: one `bezeg-worker` (Sonnet `medium`), parallel with CP6, serving a copy of `build/` to avoid the other worker's rebuilds. It measured every criterion except the hidden tab (headless keeps `document.hidden` false). A follow-up baseline request showed the mobile 4× miss with the playground paused. The worker's second report was refused by the harness (one report per result), so the handler read the result file.
 - Usage (reported totals): CP6 worker 89,298; CP7 script worker 91,478 tokens. The handler reached BUDGET SOFT after CP5 plus these two integrations.
+## 2026-11-07 — shared controls slice 2b, drag refusal reasons (controls stream, handler 3)
+
+- Class/size: implementation / S–M; base function-graph refusal channel, `axisPoint` and B-spline knot-marker reasons, lesson-path test. Source: [task 1](../tasks/shared-graph-controls/01-foundation.md).
+- Dispatch: one `bezeg-worker` (Sonnet medium). No subagent review: diff about 100 source lines, reviewed by the handler. Brief `handoff-v13` with settled decisions E-a–E-d, the 2a transition-timing lesson, and a warning about the one-live-region test.
+- Outcome: accepted with two handler additions (edit-order tests; clear on import). Decision 17 in the spec.
+- Checks/gaps: worker: focused units, `check-changed` (2 order-test failures outside its paths, correctly reported, not edited), build, smoke (`curve-ownership`, lessons `quadrature`, `bspline-basis`, `prob-correlation`), 11 mutations. Handler: focused units, one mutation, `check-changed`. Gaps: no shipped graph can reach a refused `axisPoint` drag, so that path is tested through a subclass only; no presenting screenshot (the inspector is hidden while presenting).
+- Repairs: none to the worker's code; the handler found the missing clear on import while reading the diff.
+- Usage (as reported): worker 130,688 tokens, 76 min.

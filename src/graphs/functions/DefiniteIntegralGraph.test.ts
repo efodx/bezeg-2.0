@@ -561,7 +561,7 @@ test('the n slider shows an integer number field that commits typed whole number
 test('Edit order: controls, then the readout, then the legend (no reveal area when the graph has no reveals)', () => {
     const graph = makeGraph();
     const children = (graph.workspaceEdit() as any).props.children;
-    expect(children.map((child: any) => child?.type?.name ?? (child ? 'controls' : null))).toEqual(['controls', null, 'FunctionReadout', 'FunctionLegend']);
+    expect(children.map((child: any) => child?.type?.name ?? (child ? 'controls' : null))).toEqual(['controls', null, 'FunctionReadout', 'RefusalNotice', 'FunctionLegend']);
 });
 
 test('the refusals of a lesson action are localized in Slovenian and English', () => {

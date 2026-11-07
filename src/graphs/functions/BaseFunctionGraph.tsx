@@ -9,6 +9,7 @@ import {formatNumber} from "../../analysis/format";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {GraphPalette} from "../styles/GraphPalette";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 
 /**
  * Shared foundation of the function and calculus demonstrations (ADR 0007).
@@ -141,6 +142,8 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     /** True only between an import that carried a board view and the `initialize()` that must not override it. */
     private boardStateImported = false;
     private captionLines: CaptionLine[] = [];
+    /** The one refusal a function graph shows in its inspector (a refused drag of an axis point; subclasses may refuse through it too). */
+    protected readonly refusals = new RefusalChannel(() => this.requestRender());
     private lastLanguage: Language = currentLanguage();
     private viewMemo?: { key: readonly unknown[]; view: unknown };
 
@@ -266,6 +269,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     /** Shows a model: the default model, a checkpoint's, or a stored one the Preset collection checked (`storedPresetData`). */
     override importPresetData(data: M): void {
+        this.refusals.clear();
         this.commitModel({...data});
     }
 
@@ -457,6 +461,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
                 {reveals}
             </div>}
             {this.renderReadout()}
+            <RefusalNotice channel={this.refusals}/>
             {this.renderLegend()}
         </div>;
     }
@@ -570,9 +575,17 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
                 ...(config.color === undefined ? {} : {fillColor: config.color, highlightFillColor: config.color}),
             },
             write: x => {
-                const accepted = this.ignoreOutOfDomain(() => config.write(x));
-                if (!accepted) this.syncSceneToModel();
-                return accepted;
+                try {
+                    config.write(x);
+                } catch (error) {
+                    if (!(error instanceof DomainError)) throw error;
+                    // Drag frames repeat the same refusal: not announced again.
+                    this.refusals.refuse(error.reason ?? error.message);
+                    this.syncSceneToModel();
+                    return false;
+                }
+                this.refusals.clear();
+                return true;
             },
         });
     }
