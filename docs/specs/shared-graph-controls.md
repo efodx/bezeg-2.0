@@ -115,6 +115,14 @@ Each entry gives the choice, its reason and the rejected alternative.
 6. **Refused lesson actions (C23).** A lesson action refused by the model stays a thrown `DomainError`. The session restores its checkpoint and the lesson shows the reason with Close. A refused authored action is a content defect, and a loud failure finds it. The guard's single refusal message still applies. Rejected: refusing quietly and continuing, which would show a scene that does not match its text.
 7. **Drag refusals (decisions 3 and 7).** Beyond PointSet and Correlation, all PointSet subclasses, Summary statistics and the PointInPolygon and Voronoi query points lose their limit notice. The opposite gap closes too: `axisPoint` and B-spline knot-marker drags refused by a mathematical rule are silent today and gain a stated reason.
 
+### Decided in task 1 — 2026-11-07
+
+8. **Unparseable drafts (slice 1a).** Enter or blur on a draft that is not a number shows the range hint, or the general hint without limits, and commits nothing; typing alone stays silent. Reason: with Enter or blur as the only commit, a silent Enter reads as a dead key. Rejected: keeping the silent revert, which was harmless only while every keystroke committed.
+9. **Retyping the shown text (slice 1a).** A draft equal to the field's displayed text writes nothing, even when the model holds more digits. Reason: the field looks the same either way, and a write would change the model invisibly. Rejected: committing every edited draft.
+10. **Boolean variants (slice 1b).** `BooleanField` is one native checkbox in a switch or a checkbox look, with no added role, because the switch had none and a visual variant does not justify a different protocol. `OnOffSwitch` stays as its switch variant, so its 48 callers did not change. Rejected: migrating every caller now, which only renames.
+11. **Number keyboard (slice 1b).** `inputMode="decimal"` only when a field cannot go negative; otherwise `text`. Reason: iOS decimal keypads may lack a minus sign. Rejected: a decimal keypad everywhere, which can make negative values impossible to type on a phone.
+12. **High contrast (slice 1b).** Under forced colours the boolean field falls back to the system checkbox, so a switch looks like a checkbox there. Reason: forced colours drop the custom track colours, and the on state lost its thumb. Rejected: recolouring the custom track with system colours, whose SVG thumbs forced colours do not recolour.
+
 ## Acceptance
 
 1. Every capability in the catalogue has one shared control, or a named exception with its reason.
@@ -146,6 +154,8 @@ Decided in task 0:
 - **Typed values:** function and complex fields snap an off-grid value with a notice instead of refusing it.
 - **New controls:** curve boards without a typed list gain one.
 - **Lesson views:** `interp-fifth-point-added` and `hermite-locality-six` no longer refit as they do today. The first keeps its earlier view; the second refits only at its second add, to a different box.
+- **Typed fields (task 1):** a typed number applies on Enter or when the field is left, no longer on each keystroke. A value that is not a number is explained instead of ignored. Phones show a full keyboard for fields that accept negative values.
+- **Switches (task 1):** switches in workspace tools lists take the Display tab's look, and show as plain checkboxes in Windows high-contrast mode.
 - **Limit notices:** drags on every PointSet graph, Summary statistics and the query points stop silently at the limit.
 
 ## Evidence notes

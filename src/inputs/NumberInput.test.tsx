@@ -337,3 +337,34 @@ describe('one commit rule: typed values commit on Enter or blur only', () => {
         expect(onChange).toHaveBeenLastCalledWith(0);
     });
 });
+
+test('the decimal keypad is requested only for fields that cannot go negative', () => {
+    const noop = () => undefined;
+    const {rerender} = render(<NumberInput label="r" value={1} min={0} max={5} onChange={noop}/>);
+    const mode = () => (screen.getByLabelText('r') as HTMLInputElement).getAttribute('inputmode');
+    expect(mode()).toBe('decimal');
+    rerender(<NumberInput label="r" value={1} min={0} max={5} integer onChange={noop}/>);
+    expect(mode()).toBe('decimal');
+    rerender(<NumberInput label="r" value={1} min={2} onChange={noop}/>);
+    expect(mode()).toBe('decimal');
+    rerender(<NumberInput label="r" value={1} min={-1} max={5} onChange={noop}/>);
+    expect(mode()).toBe('text');
+    rerender(<NumberInput label="r" value={1} min={-3} integer onChange={noop}/>);
+    expect(mode()).toBe('text');
+    rerender(<NumberInput label="r" value={1} max={5} onChange={noop}/>);
+    expect(mode()).toBe('text');
+    rerender(<NumberInput label="r" value={1} onChange={noop}/>);
+    expect(mode()).toBe('text');
+});
+
+test('help, describedBy and the error hint all describe the field and the name stays the label', () => {
+    render(<div><p id="why">Zakaj</p>
+        <NumberInput label="r" value={1} min={0} max={5} help="Polmer kroga" describedBy="why" onChange={() => undefined}/></div>);
+    const input = screen.getByRole('spinbutton', {name: 'r'});
+    expect(input).toHaveAccessibleDescription('Polmer kroga Zakaj');
+    type(input, '9');
+    fireEvent.keyDown(input, {key: 'Enter'});
+    expect(input.getAttribute('aria-describedby')!.split(' ')).toHaveLength(3);
+    expect(input).toHaveAccessibleDescription(/Polmer kroga Zakaj$/);
+    expect(screen.getByText('Polmer kroga')).toHaveClass('number-input-help');
+});

@@ -2,6 +2,7 @@ import React, {useEffect, useId, useRef, useState} from "react";
 import {currentLanguage, useT} from "../localization";
 import {formatNumber} from "../analysis/format";
 import {stepKeyDelta} from "./stepKeys";
+import {joinIds} from "./describedBy";
 import "./NumberInput.css";
 
 interface NumberInputProps {
@@ -27,6 +28,8 @@ interface NumberInputProps {
     rejectedHint?: string;
     /** Id of an element that explains the field (for example why it is disabled); joined with the hint in aria-describedby. */
     describedBy?: string;
+    /** A short explanation shown under the field and linked by aria-describedby. */
+    help?: string;
     /** The change of Shift with an arrow, PageUp and PageDown; defaults to ten steps. */
     bigStep?: number;
 }
@@ -50,6 +53,9 @@ const show = (value: number | undefined, decimals: number, language: Language) =
 type Hint = "range" | "rejected" | "invalid" | undefined;
 
 /**
+ * The decimal keypad of a phone may have no minus sign, so it is requested only for fields that cannot go negative (a lower bound of
+ * zero or more); other fields get the plain text keyboard.
+ *
  * A text field for a decimal number (decimal comma in Slovenian, decimal point in English; both are accepted when typed). It keeps
  * what the user is typing (for example "-" or "1,") until it parses to a finite number inside [min, max], and follows the model value
  * when it changes elsewhere (dragging, lesson scenes, language changes). A value outside the range, a non-integer for an integer
@@ -61,6 +67,7 @@ export function NumberInput(props: NumberInputProps) {
     const {value, decimals = 2, min, max, step, integer} = props;
     const id = useId();
     const hintId = `${id}-hint`;
+    const helpId = `${id}-help`;
     const [draft, setDraft] = useState(show(value, decimals, language));
     const [hint, setHint] = useState<Hint>(undefined);
     const lastLanguage = useRef<Language>(language);
@@ -112,11 +119,11 @@ export function NumberInput(props: NumberInputProps) {
         : hint ? props.rejectedHint ?? t("number_rejected_hint") : undefined;
     return <div className={props.compact ? "number-input number-input-compact" : "number-input"}>
         <label htmlFor={id} className={props.hideLabel ? "visually-hidden" : undefined}>{props.label}</label>
-        <input id={id} type="text" inputMode="decimal" autoComplete="off" role="spinbutton" value={draft} disabled={props.disabled}
+        <input id={id} type="text" inputMode={min !== undefined && min >= 0 ? "decimal" : "text"} autoComplete="off" role="spinbutton" value={draft} disabled={props.disabled}
                aria-valuemin={min} aria-valuemax={max}
                aria-valuenow={value !== undefined && Number.isFinite(value) ? value : undefined}
                aria-invalid={hintText ? true : undefined}
-               aria-describedby={[hintText ? hintId : undefined, props.describedBy].filter(Boolean).join(" ") || undefined}
+               aria-describedby={joinIds(hintText && hintId, props.help && helpId, props.describedBy)}
                onChange={event => {
                    // Every change only edits the draft; Enter or blur commits it.
                    setDraft(event.target.value);
@@ -155,6 +162,7 @@ export function NumberInput(props: NumberInputProps) {
                    edited.current = false;
                    setDraft(show(value, decimals, language));
                }}/>
+        {props.help && <p id={helpId} className="number-input-help">{props.help}</p>}
         {hintText && <p id={hintId} className="number-input-hint" role="status">{hintText}</p>}
     </div>;
 }

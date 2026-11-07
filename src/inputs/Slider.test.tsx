@@ -65,3 +65,11 @@ test('Shift with an arrow, PageUp and PageDown move the range by the big step (t
     fireEvent.keyDown(range, {key: 'PageUp'});
     expect(onChange).toHaveBeenLastCalledWith(100);
 });
+
+test('the slider has its own presentation class and lists its range summary and help in aria-describedby', () => {
+    const {container} = render(<Slider customText="Parameter α" min={0} max={1} value={0.5} help="Kratka razlaga" onChange={() => undefined}/>);
+    expect(container.querySelector('form')).toHaveClass('slider-field');
+    const range = screen.getByLabelText('Parameter α') as HTMLInputElement;
+    expect(range).toHaveAccessibleDescription(expect.stringContaining('Kratka razlaga'));
+    expect(range.getAttribute('aria-describedby')!.split(' ')).toHaveLength(2);
+});

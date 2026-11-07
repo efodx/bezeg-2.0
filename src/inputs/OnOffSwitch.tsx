@@ -1,22 +1,14 @@
-import React, {useId} from "react";
-import {Form} from "react-bootstrap";
+import React from "react";
+import {BooleanField} from "./BooleanField";
 
-/** A controlled switch: it shows `checked` and reports the requested value; the caller owns the state. */
+/** A controlled switch (the switch variant of `BooleanField`): it shows `checked` and reports the requested value; the caller owns the state. */
 export function OnOffSwitch(props: {
     checked: boolean,
     onChange: (checked: boolean) => void,
     label: string,
     disabled?: boolean,
-    describedBy?: string
+    describedBy?: string,
+    help?: string
 }) {
-    const id = useId();
-    return <Form> <Form.Check
-        disabled={props.disabled}// prettier-ignore
-        type="switch"
-        id={id}
-        aria-describedby={props.describedBy}
-        label={props.label}
-        checked={props.checked}
-        onChange={() => props.onChange(!props.checked)}/>
-    </Form>;
+    return <BooleanField variant="switch" {...props}/>;
 }

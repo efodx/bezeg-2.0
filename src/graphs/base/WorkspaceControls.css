@@ -55,23 +55,10 @@
 .workspace-inspector .form-select { padding-top:5px; padding-bottom:5px; font-size:.85rem; border:1px solid var(--workspace-rule); border-radius:2px; background-color:var(--workspace-panel); color:var(--workspace-ink); }
 .workspace-inspector .form-select:focus-visible, .workspace-inspector .form-control:focus-visible, .workspace-inspector .number-input input[type="number"]:focus-visible { outline:3px solid #577cc3; outline-offset:2px; }
 .point-coordinate-editor input { min-height:40px; padding:4px 7px; border-radius:2px; }
-.slider-label output { font-size:.8rem; font-variant-numeric:tabular-nums; padding:1px 6px; background:var(--workspace-canvas-deep); border:1px solid var(--workspace-rule); border-radius:2px; align-self:start; }
 .workspace-inspector .form-label { margin-bottom:5px; }
 .workspace-learning button { font-size:.8rem; }
-.slider-range { font-size:.75rem; line-height:1.4; color:var(--workspace-ink-soft); font-variant-numeric:tabular-nums; margin-top:2px; margin-bottom:6px; }
-.workspace-inspector .form-range { display:block; margin-bottom:0; }
-/* Keyboard focus ring for range sliders (Bootstrap removes the outline): the workspace's focus colour on the track and the thumb. */
-.workspace-inspector .form-range:focus-visible { outline:3px solid #577cc3; outline-offset:3px; border-radius:4px; }
-.workspace-inspector .form-range:focus-visible::-webkit-slider-thumb { box-shadow:0 0 0 2px #fff, 0 0 0 5px #577cc3; }
-.workspace-inspector .form-range:focus-visible::-moz-range-thumb { box-shadow:0 0 0 2px #fff, 0 0 0 5px #577cc3; }
 #inspector-display .inspector-group > h3 { margin-bottom:8px; }
-#inspector-display .inspector-control:has(.form-check) { margin:0; }
-#inspector-display .form-check { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:38px; margin:0; padding:6px 0; }
-#inspector-display .form-check-label { flex:1; font-size:.88rem; line-height:1.4; cursor:pointer; }
-#inspector-display .form-check-input { order:2; float:none; flex-shrink:0; width:32px; height:18px; margin:0; border:1px solid #8b9786; background-color:#e5e9e0; cursor:pointer; --bs-form-switch-bg:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23526152'/%3e%3c/svg%3e"); }
-#inspector-display .form-check-input:checked { background-color:var(--workspace-green); border-color:var(--workspace-green); --bs-form-switch-bg:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='white'/%3e%3c/svg%3e"); }
-#inspector-display .form-check-input:focus { box-shadow:none; }
-#inspector-display .form-check-input:disabled, #inspector-display .form-check-input:disabled ~ label { cursor:default; }
+#inspector-display .inspector-control:has(.bool-field) { margin:0; }
 
 /* Accepted A layout: give the inspector a clear context header and quieter, card-like controls. */
 .workspace-inspector .inspector-heading {
@@ -146,18 +133,8 @@
 }
 .workspace-inspector .tools .list-group-item:first-child { padding-top: 2px; }
 .workspace-inspector .tools .list-group-item:last-child { border-bottom: 0; padding-bottom: 2px; }
-.workspace-inspector .tools .form-check {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 32px;
-    gap: 12px;
-    margin: 0;
-    padding: 0;
-}
-.workspace-inspector .tools .form-check-label { flex: 1; font-size: .86rem; line-height: 1.25; }
-.workspace-inspector .tools .form-check-input { order: 2; width: 34px; height: 20px; margin: 0; }
-.workspace-inspector .tools .form-check-input:checked { background-color: var(--workspace-green); border-color: var(--workspace-green); }
+/* Tools rows are a little tighter than the Display rows. */
+.workspace-inspector .tools .bool-field { --bool-field-min-height: 32px; --bool-field-pad: 0px; }
 .workspace-inspector .tools .btn { min-height: 34px; border-color: var(--workspace-rule); border-radius: 4px !important; background: var(--workspace-panel); }
 .workspace-inspector .tools .count-setter-button { min-height: 44px; }
 .workspace-inspector .tools .btn:hover { background: var(--workspace-canvas-deep); }
@@ -165,7 +142,7 @@
 .workspace-inspector .tools .btn-group { gap: 4px; }
 .workspace-inspector .tools .btn-group > .btn { border-radius: 4px !important; }
 .workspace-inspector .tools .list-group-item:has(.form-range) { padding-top: 11px; padding-bottom: 12px; }
-.workspace-inspector .tools .list-group-item:has(.form-check) { padding-top: 8px; padding-bottom: 8px; }
+.workspace-inspector .tools .list-group-item:has(.bool-field) { padding-top: 8px; padding-bottom: 8px; }
 .workspace-inspector .tools .list-group-item > div:has(.form-range) { display: grid; gap: 10px; }
 .workspace-inspector .tools .list-group-item > div:has(.form-range) > .btn { justify-self: start; }
 .workspace-inspector .tools .list-group-item > .btn:only-child { display: block; margin-left: auto; }
@@ -345,7 +322,6 @@
     .demonstration-workspace button, .demonstration-workspace .workspace-actions > a, .inspector-heading button,
     .workspace-inspector .form-select, .point-coordinate-editor input { min-height:44px; }
     .workspace-navigation button { min-width:44px; }
-    #inspector-display .form-check { min-height:44px; }
 }
 
 @media(max-width:700px) {

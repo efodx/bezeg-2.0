@@ -3,6 +3,7 @@ import {Button} from "react-bootstrap";
 import React, {useId} from "react";
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
+import {joinIds} from "./describedBy";
 import "./CountSetter.css";
 
 interface CountSetterProps {
@@ -18,6 +19,8 @@ interface CountSetterProps {
     bigStep?: number;
     min?: number | (() => number);
     max?: number | (() => number);
+    /** A short explanation shown under the stepper and linked to its group by aria-describedby. */
+    help?: string;
 }
 
 /**
@@ -43,7 +46,8 @@ export function CountSetter(props: CountSetterProps) {
 
     return <div className="count-setter">
         {props.label && <div className="count-setter-label" id={id}>{props.label}</div>}
-        <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}>
+        <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}
+             aria-describedby={joinIds(props.help && `${id}-help`)}>
             <Button aria-label={t("decrease_count")} className="count-setter-button" onClick={onMinus} disabled={atMin}>−</Button>
             {props.onSet
                 ? <NumberInput label={props.label ?? t("current_count", {value0: formatNumber(n, language, 0)})} hideLabel compact
@@ -53,5 +57,6 @@ export function CountSetter(props: CountSetterProps) {
                     {formatNumber(n, language, 0)}</output>}
             <Button aria-label={t("increase_count")} className="count-setter-button" onClick={onPlus} disabled={atMax}>+</Button>
         </div>
+        {props.help && <p id={`${id}-help`} className="count-setter-help">{props.help}</p>}
     </div>;
 }

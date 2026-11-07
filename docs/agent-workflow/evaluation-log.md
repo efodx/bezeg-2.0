@@ -2190,3 +2190,15 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Handler errors: `just preview --port 4318` is not the recipe's syntax (`just preview 4318`); one failed launch.
 - Usage (worker totals as reported): smoke 74,352 tokens, 39 tools, 1,605 s; baselines 37,009 tokens, 16 tools, 1,971 s over two phases.
 - Handoff evidence: splitting the baseline worker into a setup phase and a measurement phase, resumed by message after the smoke, kept the concurrent browser run from loading the timing runs. The baseline worker's summary table took the median of six quantized p95 values inconsistently (for example 33.5 where the six values give 41.7) and hid a round-2 tilt; the handler replaced it with per-run values by round. Its final report did not arrive (a second hand-back was refused), so the handler read the files directly.
+## 2026-11-07 — shared controls slice 1b, boolean variants and field chrome (controls stream, handler 2)
+
+- Class/size: implementation / M; one shared boolean field, field chrome in four inputs, switch CSS moved out of three hosts. Source: [task 1](../tasks/shared-graph-controls/01-foundation.md).
+- Dispatch: one `bezeg-worker` (Sonnet medium), one `bezeg-reviewer` (Sonnet medium, engineering and accessibility together, to stay within two stream workers), one `bezeg-smoke` (Sonnet medium, first pass), one `bezeg-smoke` (Haiku medium, repair recheck). Brief `handoff-v13`.
+- Outcome: accepted after handler CSS repairs. Decisions 10–12 in the spec.
+- Checks/gaps: worker: full unit suite (1,820 s), typecheck, lint, build, focused smoke, nine mutations. Handler: `src/inputs` units, typecheck, lint, build, the recheck script, and the full smoke suite. Unverified: checkbox variant, switch help and disabled switch in a browser; iOS keyboards; screen readers.
+- Repairs: one handler round of CSS for three review findings and two smoke failures, then one specificity fix after the recheck failed R2. Code issues, not environment.
+- Review value: review and smoke found the same three CSS gaps from different sides (static: missing rule; browser: lost thumb, low-contrast track); the handler had named all three as risks in both briefs. The worker's own before/after screenshots covered only the light theme, which its brief did not ask beyond.
+- Handler errors: the brief asked for screenshots in one theme only, so the worker could not catch the presenting and forced-colours gaps. The recheck brief predicted the presenting border without checking selector specificity.
+- Timing: worker 60 min, review 2 min, first-pass smoke 35 min, recheck 3 min (as reported).
+- Usage (worker totals as reported): worker 117,972; reviewer 20,504; smoke 68,464; recheck 33,931 tokens.
+- Handoff evidence: naming the out-of-scope raw checkboxes, the lint rule and the fixture kept the slice to 17 files. The worker edited one file outside its owned paths (`DemonstrationWorkspace.css`, moving four slider rules into `Slider.css`): within the slice's intent, but unannounced.

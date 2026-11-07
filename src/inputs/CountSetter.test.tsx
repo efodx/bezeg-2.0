@@ -64,3 +64,13 @@ test('the field steps by one with an arrow and by the big step with Shift or Pag
     fireEvent.keyDown(field, {key: 'ArrowDown', shiftKey: true});
     expect(onSet).toHaveBeenLastCalledWith(2);
 });
+
+test('help describes the stepper group together with its label', () => {
+    render(<CountSetter label="Število krivulj" n={3} help="Največ pet" onPlus={() => undefined} onMinus={() => undefined}/>);
+    expect(screen.getByRole('group', {name: 'Število krivulj'})).toHaveAccessibleDescription('Največ pet');
+});
+
+test('without help the group has no description', () => {
+    render(<CountSetter label="Število krivulj" n={3} onPlus={() => undefined} onMinus={() => undefined}/>);
+    expect(screen.getByRole('group', {name: 'Število krivulj'})).not.toHaveAttribute('aria-describedby');
+});

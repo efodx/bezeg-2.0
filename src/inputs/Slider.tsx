@@ -4,6 +4,8 @@ import Form from 'react-bootstrap/Form';
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
 import {stepKeyDelta} from "./stepKeys";
+import {joinIds} from "./describedBy";
+import "./Slider.css";
 
 interface SliderProps {
     min: number;
@@ -43,14 +45,14 @@ export default function Slider(props: SliderProps) {
     const decimals = props.decimals ?? (integer ? 0 : Math.max(2, stepDecimals(step)));
     const exact = props.formatValue === undefined;
     const show = props.formatValue ?? ((value: number) => formatNumber(value, language, decimals));
-    return <Form>
+    return <Form className="slider-field">
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={props.min} max={props.max}
                                step={step} bigStep={props.bigStep} decimals={decimals} integer={integer} disabled={props.disabled} rejectedHint={props.rejectedHint}
                                onChange={value => props.onChange(value)}/>
                 : <output htmlFor={id}>{show(props.value)}</output>}</div>
-        <Form.Range id={id} aria-describedby={`${id}-range${props.help ? ` ${id}-help` : ""}`} min={props.min}
+        <Form.Range id={id} aria-describedby={joinIds(`${id}-range`, props.help && `${id}-help`)} min={props.min}
                     max={props.max} value={props.value} disabled={props.disabled}
                     step={step} aria-valuetext={show(props.value)}
                     onKeyDown={e => {
