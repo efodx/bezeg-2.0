@@ -10,6 +10,33 @@ module.exports = [
         discreteReason: null,
     },
     {
+        id: 'curve-parametric',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Polmer kotalečega se kroga', step: 0.05},
+        // The graph default is radius 1 (CYCLOID_RADIUS_DEFAULT) at t = pi/2. The t slider cannot close the loop (the state holds 1.5708, the 0.01 slider returns to 1.57), so the radius slider, on its grid, shrinks to 0.35, grows to 1.6 and returns; 1 to 1.5 alone gave 11 distinct frames (preflight).
+        path: [1, 0.35, 1, 1.6, 1],
+        lessonQuote: 'Nastavi polmer na \\(2\\) in preveri, kako se spremenita dolžina in ploščina.',
+        discreteReason: null,
+    },
+    {
+        id: 'curve-curvature',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Parameter t', step: 0.01},
+        // The poster is the default parabola at t = 0.5 (CURVATURE_T_DEFAULT). The circle leaves the fixed default camera [-5, 5, 5, -5] before t = 0.89 (preflight), so the slider stops at 0.8.
+        path: [0.5, 0.8, 0.5],
+        lessonQuote: 'Nastavi \\(t=1\\) in primerjaj izpis z vrednostmi v besedilu.',
+        discreteReason: null,
+    },
+    {
+        id: 'curve-comb',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Ojačitev glavnika', step: 0.05},
+        // The poster is the C1 spline with the comb on (recipe); the gain keeps its default 1.4 (COMB_GAIN_DEFAULT). It rises to 2.6 and back; the quote's step uses the cubic, the motion is the same slider.
+        path: [1.4, 2.6, 1.4],
+        lessonQuote: 'Premakni drsnik za ojačitev in opazuj, kako se spreminja dolžina zob.',
+        discreteReason: null,
+    },
+    {
         id: 'curve-evolute',
         motion: 'parameter-sweep',
         control: {kind: 'slider', label: 'Parameter t', step: 0.01},

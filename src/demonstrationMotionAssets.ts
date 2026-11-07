@@ -77,6 +77,9 @@ import motion_curve_envelope from './images/demonstrations/catalog/curve-envelop
 import motion_arc_length_param from './images/demonstrations/catalog/arc-length-param.webm?no-inline';
 import motion_prob_clt from './images/demonstrations/catalog/prob-clt.webm?no-inline';
 import motion_prob_correlation from './images/demonstrations/catalog/prob-correlation.webm?no-inline';
+import motion_curve_parametric from './images/demonstrations/catalog/curve-parametric.webm?no-inline';
+import motion_curve_curvature from './images/demonstrations/catalog/curve-curvature.webm?no-inline';
+import motion_curve_comb from './images/demonstrations/catalog/curve-comb.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -157,4 +160,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'arc-length-param': {src: motion_arc_length_param, type: 'video/webm', duration: 4},
     'prob-clt': {src: motion_prob_clt, type: 'video/webm', duration: 4},
     'prob-correlation': {src: motion_prob_correlation, type: 'video/webm', duration: 4},
+    'curve-parametric': {src: motion_curve_parametric, type: 'video/webm', duration: 4},
+    'curve-curvature': {src: motion_curve_curvature, type: 'video/webm', duration: 4},
+    'curve-comb': {src: motion_curve_comb, type: 'video/webm', duration: 4},
 };
