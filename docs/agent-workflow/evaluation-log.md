@@ -2301,3 +2301,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Checks/gaps: worker: focused units, `check-changed` (2 order-test failures outside its paths, correctly reported, not edited), build, smoke (`curve-ownership`, lessons `quadrature`, `bspline-basis`, `prob-correlation`), 11 mutations. Handler: focused units, one mutation, `check-changed`. Gaps: no shipped graph can reach a refused `axisPoint` drag, so that path is tested through a subclass only; no presenting screenshot (the inspector is hidden while presenting).
 - Repairs: none to the worker's code; the handler found the missing clear on import while reading the diff.
 - Usage (as reported): worker 130,688 tokens, 76 min.
+
+## 2026-11-08 — catalog clips: reviews, trace-step driver, nine clips (clips stream, handler 6)
+
+- Class/size: review plus capture tooling / M. Source: [clips stream](../tasks/feature-streams/clips.md) steps 3–5, [handoff 5](../reviews/feature-streams/clips/handler-handoff-5.md).
+- Dispatch: one `bezeg-worker` (Sonnet medium) for the compgeo trace-step driver and rows; four `bezeg-reviewer`, Sonnet medium for mathematics (18 clips, then 7) and Haiku medium for visuals (9 + 9, then 7). Brief `handoff-v13`; contact sheets at frames 0/24/48/72 and a per-clip row file prepared by the handler, so reviewers read no row code.
+- Outcome: 9 clips pushed (7 compgeo traces, conic-focal, plus 2 recaptured curve clips); 20 Demonstrations remain pending. The worker's design (`trace-step`, step read from "Korak N od M") was accepted unchanged; 7 of 9 rows passed preflight, the other 2 are held with reasons.
+- Review value: both visual batches found the two real defects (curve-comb teeth and the curve-parametric arch leaving the frame), which the mathematical review rated only "suspected" or missed. The mathematical reviews found no errors in 25 clips, but recomputed readouts. Haiku's "no readout" items were all side-panel readouts, which clips cannot show; settled by one spec decision.
+- Handler errors: the colour-check fallback first kept a 17x17 margin and found nothing on linear-map; the clip then failed the 300 KiB budget anyway (poster-only). A heredoc collapsed `\` in a quote, and `_check.cjs` caught it.
+- Usage (as reported): worker 66,374; reviewers 56,961 (Sonnet), 39,620 and 43,956 (Haiku), 51,828 (Haiku), 55,008 (Sonnet) tokens.
