@@ -63,6 +63,9 @@ import motion_simson_line from './images/demonstrations/catalog/simson-line.webm
 import motion_interp_lagrange from './images/demonstrations/catalog/interp-lagrange.webm?no-inline';
 import motion_interp_least_squares from './images/demonstrations/catalog/interp-least-squares.webm?no-inline';
 import motion_interp_subdivision from './images/demonstrations/catalog/interp-subdivision.webm?no-inline';
+import motion_function_transformation from './images/demonstrations/catalog/function-transformation.webm?no-inline';
+import motion_function_inverse from './images/demonstrations/catalog/function-inverse.webm?no-inline';
+import motion_polynomial_zeros from './images/demonstrations/catalog/polynomial-zeros.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -129,4 +132,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'interp-lagrange': {src: motion_interp_lagrange, type: 'video/webm', duration: 4},
     'interp-least-squares': {src: motion_interp_least_squares, type: 'video/webm', duration: 4},
     'interp-subdivision': {src: motion_interp_subdivision, type: 'video/webm', duration: 4},
+    'function-transformation': {src: motion_function_transformation, type: 'video/webm', duration: 4},
+    'function-inverse': {src: motion_function_inverse, type: 'video/webm', duration: 4},
+    'polynomial-zeros': {src: motion_polynomial_zeros, type: 'video/webm', duration: 4},
 };
