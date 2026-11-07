@@ -7,7 +7,7 @@ Status: scheduled, 2026-11-07. The [Contracts stream](../feature-streams/contrac
 | 1 | [Stable geometric-series evaluation](01-stable-series-evaluation.md) | Accepted 2026-11-07 ([evidence](01-stable-series-evidence.md)) | Independent numerical fix; settle before task 4 changes its host. |
 | 2 | [Correlated trace event and note types](02-correlated-trace-types.md) | Pending | Owns shared trace types and necessary producers/adapters. |
 | 3 | [Shared trace playback policy](03-shared-trace-playback.md) | Pending | After task 2; same graph/trace consumers get one owner. |
-| 4 | [One live function model authority](04-live-function-model.md) | In progress | After task 1; serialize base/subclass migration and coordinate persistence-owner edits. |
+| 4 | [One live function model authority](04-live-function-model.md) | Accepted 2026-11-07 | After task 1; serialize base/subclass migration and coordinate persistence-owner edits. |
 | 5 | [Typed conic variants and solver outcomes](05-typed-conic-outcomes.md) | Accepted 2026-11-07 ([evidence](05-typed-conic-evidence.md)) | Independent; own analytical/projective conic types and their consumers. |
 
 Tasks 2 and 3 are run by the [`controls` stream](../feature-streams/controls.md), step 3. Keep one status here per task. Store any implementation evidence beside this index and link it from the completed task; decisions and acceptance changes belong in the specification. The existing [lesson-authoring architecture](../../specs/lesson-authoring-architecture.md) remains a separate queue.
