@@ -116,6 +116,16 @@ export function stepWorld(world: World, method: BroadPhaseMethod, scratch: StepS
     reflect(x, vx, i, r[i], world.width - r[i])
     reflect(y, vy, i, r[i], world.height - r[i])
   }
+  return measureWorld(world, method, scratch)
+}
+
+/**
+ * Broad and narrow phase on the current positions without advancing time or moving bodies; stepWorld ends with it, so
+ * the two share one code path. Measuring does update the sweep state's order (a permutation that only warm-starts the
+ * next sort), so results never depend on it. The result aliases scratch buffers.
+ */
+export function measureWorld(world: World, method: BroadPhaseMethod, scratch: StepScratch): StepResult {
+  const { x, y, r } = world
   scratch.touching.fill(0)
   const counters: StepCounters = { boxTests: 0, candidates: 0, narrowTests: 0, touchingPairs: 0 }
   const emit = (i: number, j: number): void => {

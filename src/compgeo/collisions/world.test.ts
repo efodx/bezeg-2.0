@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { baseRadius, createScratch, createWorld, stepWorld, type BroadPhaseMethod } from './world'
+import { baseRadius, createScratch, createWorld, measureWorld, stepWorld, type BroadPhaseMethod } from './world'
 import { circlesTouch } from './narrowPhase'
 import { mulberry32 } from './random'
 import { naiveCandidates, sweepAndPruneCandidates, createSweepState, type BroadBodies } from './broadPhase'
@@ -187,5 +187,39 @@ describe('exact touching cases', () => {
       expect(res.counters.touchingPairs).toBe(1)
       expect(Array.from(res.touching)).toEqual([1, 1])
     }
+  })
+})
+
+describe('measureWorld', () => {
+  it.each([0, 1, 2, 10, 200, 1000])('measures without moving, repeatably and method-independently at n = %i', (n) => {
+    for (let seed = 1; seed <= 5; seed++) {
+      const w = createWorld({ seed, count: n })
+      stepWorld(w, 'sweep', createScratch(n))
+      const x = Float64Array.from(w.x)
+      const y = Float64Array.from(w.y)
+      const naive = createScratch(n)
+      const sweep = createScratch(n)
+      const a = measureWorld(w, 'naive', naive)
+      const aCounters = { ...a.counters }
+      const aTouching = Uint8Array.from(a.touching)
+      const aPairs = pairSet(a.pairs, a.counters.touchingPairs)
+      const b = measureWorld(w, 'sweep', sweep)
+      const b2 = measureWorld(w, 'sweep', sweep)
+      expect(pairSet(b.pairs, b.counters.touchingPairs)).toEqual(aPairs)
+      expect(Array.from(b.touching)).toEqual(Array.from(aTouching))
+      expect(b.counters.touchingPairs).toBe(aCounters.touchingPairs)
+      expect(aCounters.boxTests).toBe(Math.max(0, (n * (n - 1)) / 2))
+      expect(b2.counters).toEqual(b.counters)
+      expect(measureWorld(w, 'naive', naive).counters).toEqual(aCounters)
+      expect(Array.from(w.x)).toEqual(Array.from(x))
+      expect(Array.from(w.y)).toEqual(Array.from(y))
+    }
+  })
+
+  it('gives the counters stepWorld reports for the same positions', () => {
+    const w = createWorld({ seed: 3, count: 300 })
+    const stepped = stepWorld(w, 'sweep', createScratch(300))
+    const expected = { ...stepped.counters }
+    expect(measureWorld(w, 'sweep', createScratch(300)).counters).toEqual(expected)
   })
 })

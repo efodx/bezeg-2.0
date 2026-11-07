@@ -5,6 +5,7 @@ import {setLanguage} from '../../../localization'
 import CollisionPlayground, {READOUT_INTERVAL_MS} from './CollisionPlayground'
 import {MAX_COUNT} from './collisionProtocol'
 import type {CollisionSnapshot} from './collisionProtocol'
+import {createWorkerLoop} from './collisionLoop'
 import type {CollisionWorkerApi} from './useCollisionWorker'
 
 // The hook is mocked in every test but the reduced-motion one, which runs the real hook against a stub Worker.
@@ -150,6 +151,29 @@ describe('commands', () => {
     render(<CollisionPlayground initialMethod="sweep" initialCount={MAX_COUNT.sweep}/>)
     fireEvent.click(screen.getByRole('radio', {name: 'Preizkus vseh parov'}))
     expect(send).toHaveBeenCalledWith({type: 'setCount', count: MAX_COUNT.naive})
+  })
+})
+
+describe('paused method switch with the real worker loop', () => {
+  it('announces the new method and updates the readout without Step or Play', () => {
+    const loop = createWorkerLoop((event) => { if (event.type === 'snapshot') emit(event) }, () => () => {})
+    send.mockImplementation((command) => loop.handle(command))
+    render(<CollisionPlayground initialMethod="naive" initialCount={200}/>)
+    loop.handle({type: 'init', seed: 1, count: 200, method: 'naive', playing: false})
+    loop.handle({type: 'stepOnce'})
+    act(() => { vi.advanceTimersByTime(1000) })
+    expect(digits(readoutValue(/Preizkusi pravokotnikov/))).toBe('19900')
+    fireEvent.click(screen.getByRole('radio', {name: /Pometanje in obrezovanje/}))
+    expect(document.querySelector('.collision-playground__live')!.textContent).toContain('Pometanje in obrezovanje')
+    act(() => { vi.advanceTimersByTime(1000) })
+    expect(Number(digits(readoutValue(/Preizkusi pravokotnikov/)))).toBeLessThan(19900)
+  })
+})
+
+describe('count slider output', () => {
+  it('shows the count at first render, not a rounded-trip neighbour', () => {
+    render(<CollisionPlayground/>)
+    expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('300')
   })
 })
 

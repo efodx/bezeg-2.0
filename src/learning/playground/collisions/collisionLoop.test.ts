@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {createScratch, createWorld, stepWorld} from '../../../compgeo/collisions/world'
+import {createScratch, createWorld, measureWorld, stepWorld} from '../../../compgeo/collisions/world'
 import {createWorkerLoop, STEP_REAL_MS} from './collisionLoop'
 import type {CollisionEvent, CollisionSnapshot} from './collisionProtocol'
 
@@ -37,6 +37,28 @@ describe('createWorkerLoop', () => {
     expect(snapshots()[0]).toMatchObject({stepIndex: 0, count: 30, seed: 5, method: 'naive', simSpeed: 100})
     expect(snapshots()[0].positions).toHaveLength(60)
     expect(snapshots()[0].radii).toHaveLength(30)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('posts one snapshot with the new method and its counters when paused, without stepping', () => {
+    const {loop, snapshots} = setup()
+    loop.handle({...init, count: 200})
+    loop.handle({type: 'stepOnce'})
+    const before = snapshots()
+    const prev = before[before.length - 1]
+    loop.handle({type: 'setMethod', method: 'sweep'})
+    const after = snapshots()
+    expect(after).toHaveLength(before.length + 1)
+    const s = after[after.length - 1]
+    expect(s).toMatchObject({method: 'sweep', count: 200, stepIndex: prev.stepIndex, simSpeed: prev.simSpeed})
+    expect(Array.from(s.positions)).toEqual(Array.from(prev.positions))
+    const world = createWorld({seed: 5, count: 200})
+    stepWorld(world, 'naive', createScratch(200))
+    const expected = measureWorld(world, 'sweep', createScratch(200))
+    expect(s.counters).toEqual(expected.counters)
+    expect(Array.from(s.touching)).toEqual(Array.from(expected.touching))
+    expect(s.counters.boxTests).toBeLessThan(prev.counters.boxTests)
+    expect(s.counters.touchingPairs).toBe(prev.counters.touchingPairs)
     expect(vi.getTimerCount()).toBe(0)
   })
 
@@ -119,12 +141,13 @@ describe('createWorkerLoop', () => {
     loop.handle({type: 'reset'})
     expect(snapshots()[2]).toMatchObject({count: 4000, clampedFrom: null})
     loop.handle({type: 'setMethod', method: 'sweep'})
+    expect(snapshots()[3]).toMatchObject({count: 4000, clampedFrom: null, method: 'sweep'})
     loop.handle({type: 'setCount', count: 9000})
-    expect(snapshots()[3]).toMatchObject({count: 5000, clampedFrom: 9000})
+    expect(snapshots()[4]).toMatchObject({count: 5000, clampedFrom: 9000})
     loop.handle({type: 'setMethod', method: 'naive'})
-    expect(snapshots()[4]).toMatchObject({count: 4000, clampedFrom: 5000, method: 'naive'})
+    expect(snapshots()[5]).toMatchObject({count: 4000, clampedFrom: 5000, method: 'naive'})
     loop.handle({type: 'setCount', count: 0})
-    expect(snapshots()[5]).toMatchObject({count: 1, clampedFrom: 0})
+    expect(snapshots()[6]).toMatchObject({count: 1, clampedFrom: 0})
   })
 
   it('stops scheduling on pause and resumes on play', () => {

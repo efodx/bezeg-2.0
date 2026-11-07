@@ -247,7 +247,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
       <canvas ref={canvasRef} className="collision-playground__canvas" aria-hidden="true" width={640} height={400}/>
       <div className="collision-playground__controls">
         <Slider min={0} max={SLIDER_STEPS} step={1} bigStep={100} value={toPosition(count, method)}
-                customText={t('collision_count')} formatValue={(p) => formatInt(toCount(p, method))} onChange={onCount}/>
+                customText={t('collision_count')} formatValue={(p) => formatInt(p === toPosition(count, method) ? count : toCount(p, method))} onChange={onCount}/>
         {readout?.clampedFrom != null && <p className="collision-playground__note">{t('collision_limit', {value0: formatInt(limit)})}</p>}
         <fieldset className="collision-playground__methods">
           <legend>{t('collision_methods')}</legend>

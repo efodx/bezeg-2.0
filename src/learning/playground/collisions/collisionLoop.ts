@@ -1,4 +1,4 @@
-import {createScratch, createWorld, stepWorld, TIME_STEP} from '../../../compgeo/collisions/world'
+import {createScratch, createWorld, measureWorld, stepWorld, TIME_STEP} from '../../../compgeo/collisions/world'
 import type {StepCounters, StepScratch, World} from '../../../compgeo/collisions/world'
 import {clampCount, snapshotTransferables} from './collisionProtocol'
 import type {
@@ -39,6 +39,7 @@ export function createWorkerLoop(
   let playing = false
   let cancelNext: (() => void) | null = null
   let clampedFrom: number | null = null
+  let lastSimSpeed = 100
 
   const emit = (event: CollisionEvent): void => {
     post(event, event.type === 'snapshot' ? snapshotTransferables(event) : [])
@@ -70,6 +71,7 @@ export function createWorkerLoop(
       clampedFrom,
     }
     clampedFrom = null
+    lastSimSpeed = simSpeed
     emit(snapshot)
   }
 
@@ -148,6 +150,12 @@ export function createWorkerLoop(
           if (count > clampCount(count, method)) {
             setCount(count)
             rebuild()
+          } else if (scratch && !playing) {
+            // Paused only: while playing, the next step's snapshot carries the method. Re-measure the current positions with the new method, without stepping. stepIndex is unchanged, simSpeed
+            // keeps the last posted value (no step was timed) and stepMs is the measurement's own time.
+            const t0 = now()
+            const result = measureWorld(world, method, scratch)
+            postSnapshot(result.touching, result.counters, now() - t0, lastSimSpeed)
           }
           break
         case 'play':
