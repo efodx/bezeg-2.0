@@ -32,10 +32,12 @@ const RECIPES = {
         allows: isTooling,
         notCovered: ['typecheck, unit tests, production build and browser smoke', 'link anchors'],
     },
+    // Unit tests run only where the slice's changes reach, so a rebase onto a moved master does not rerun the whole
+    // suite; hosted CI runs every test before it deploys.
     runtime: {
-        checks: ['check'],
+        checks: [{name: 'check-changed', args: ({master}) => [master]}],
         allows: () => true,
-        notCovered: ['browser smoke: run it first when a route, control, lesson or rendering path changed', 'link anchors'],
+        notCovered: ['unit tests the changed files do not reach through imports: hosted CI runs the full suite before deploying', 'browser smoke: run it first when a route, control, lesson or rendering path changed', 'link anchors'],
     },
 };
 
@@ -224,7 +226,8 @@ async function publish({cwd = process.cwd(), base, commits, recipe, expectedOrig
         });
 
         for (const check of selected.checks) {
-            await stage(`verify:${check}`, () => run(process.execPath, ['scripts/commands.cjs', check]));
+            const {name, args = () => []} = typeof check === 'string' ? {name: check} : check;
+            await stage(`verify:${name}`, () => run(process.execPath, ['scripts/commands.cjs', name, ...args({master})]));
         }
 
         await stage('recheck', async () => {

@@ -375,7 +375,7 @@ async function runPlan({root, scope, steps, env = process.env, longLived = false
 // filtered to paths is short, so it skips the queue with at most FILTERED_UNIT_WORKERS workers.
 function needsSlot(command, args) {
     if (command === 'unit') return !args.some(arg => /[\\/]|\.test\./.test(arg));
-    return ['check', 'build', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command);
+    return ['check', 'check-changed', 'build', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command);
 }
 
 async function execute(command, rawArgs = [], options = {}) {
@@ -386,7 +386,7 @@ async function execute(command, rawArgs = [], options = {}) {
         await admitByMemory({command, env: baseEnv});
         return executeCommand(command, rawArgs, {...options, root});
     }
-    if (!['unit', 'check', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
+    if (!['unit', 'check', 'check-changed', 'build', 'check-localization', 'smoke', 'smoke-built', 'smoke-lesson'].includes(command)) return executeCommand(command, rawArgs, {...options, root});
     const unslotted = () => {
         const budget = machineBudget({env: baseEnv});
         return {...budget, workers: command === 'unit' ? Math.min(budget.workers, FILTERED_UNIT_WORKERS) : budget.workers, release() {}};
@@ -460,6 +460,14 @@ async function executeCommand(command, rawArgs = [], options = {}) {
     if (command === 'check') {
         const code = await run('check', [tsc(), lint([]), unit([])]);
         return code === 0 ? buildWithProvenance('check build') : code;
+    }
+    if (command === 'check-changed') {
+        // Only the unit tests whose imports reach a file changed since the ref, committed or not. Vitest runs them all
+        // when the change touches package.json, the Vite config or a setup file. Hosted CI always runs the full suite.
+        if (args.length > 1 || args[0]?.startsWith('-')) throw new Error('Usage: just check-changed [ref] (default origin/master).');
+        const ref = args[0] || 'origin/master';
+        const code = await run('check-changed', [tsc(), lint([]), unit(['--changed', ref, '--passWithNoTests'])]);
+        return code === 0 ? buildWithProvenance('check-changed build') : code;
     }
     if (command === 'check-localization') {
         const code = await run('check-localization', [tsc()]);

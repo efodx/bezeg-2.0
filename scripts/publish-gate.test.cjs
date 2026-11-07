@@ -19,7 +19,7 @@ const {execSync, spawn} = require('node:child_process');
 const fs = require('node:fs');
 const record = process.env.FIXTURE_RECORD;
 const head = execSync('git rev-parse HEAD').toString().trim();
-fs.appendFileSync(record, process.argv[2] + ' ' + head + '\\n');
+fs.appendFileSync(record, process.argv.slice(2).join(' ') + ' ' + head + '\\n');
 const action = process.env.FIXTURE_ACTION;
 if (action === 'dirty') fs.writeFileSync('stray.txt', 'made during verification');
 if (action === 'commit') execSync('git commit --allow-empty -m moved');
@@ -102,8 +102,8 @@ test('a clean slice is verified and pushed once, as the recorded revision', asyn
     assert.equal(report.exitCode, 0);
     assert.equal(f.remoteHead(), report.candidate);
     assert.equal(calls.filter(isPush).length, 1);
-    assert.deepEqual(report.completed, ['arguments', 'repository', 'clean', 'slice', 'fetch', 'reconcile', 'whitespace', 'scope', 'verify:links', 'verify:check', 'recheck', 'push', 'confirm']);
-    assert.equal(fs.readFileSync(f.record, 'utf8').trim(), `check ${report.candidate}`);
+    assert.deepEqual(report.completed, ['arguments', 'repository', 'clean', 'slice', 'fetch', 'reconcile', 'whitespace', 'scope', 'verify:links', 'verify:check-changed', 'recheck', 'push', 'confirm']);
+    assert.equal(fs.readFileSync(f.record, 'utf8').trim(), `check-changed ${report.verifiedBase} ${report.candidate}`);
     assert.ok(fs.existsSync(report.logPath));
 });
 
@@ -147,7 +147,9 @@ test('verification runs on the rebased revision, not the one that was declared',
     const report = await f.run({commits: [commit]});
     assert.equal(report.ok, true, report.message);
     assert.notEqual(report.candidate, commit);
-    assert.equal(fs.readFileSync(f.record, 'utf8').trim(), `check ${report.candidate}`);
+    // Unit tests are selected against the fetched master, so only the slice's own changes count, not master's advance.
+    assert.notEqual(report.verifiedBase, f.base);
+    assert.equal(fs.readFileSync(f.record, 'utf8').trim(), `check-changed ${report.verifiedBase} ${report.candidate}`);
     assert.equal(f.remoteHead(), report.candidate);
 });
 
@@ -220,17 +222,17 @@ test('a remote advance just before the push is a rejection, with no retry', asyn
 test('spawn errors, signals and failing checks stop the pipeline with their result', async t => {
     const f = fixture(t);
     const commit = commitFile(f.work, 'src/a.txt', 'a\n');
-    const isCheck = ({stage}) => stage === 'verify:check';
+    const isCheck = ({stage}) => stage === 'verify:check-changed';
     const spawnError = await f.run({commits: [commit], exec: recording([], request => (isCheck(request) ? {code: 127, signal: null, error: new Error('ENOENT')} : null))});
-    assert.equal(spawnError.failedStage, 'verify:check');
+    assert.equal(spawnError.failedStage, 'verify:check-changed');
     assert.equal(spawnError.exitCode, 127);
     const signalled = await f.run({commits: [commit], exec: recording([], request => (isCheck(request) ? {code: null, signal: 'SIGKILL'} : null))});
-    assert.equal(signalled.failedStage, 'verify:check');
+    assert.equal(signalled.failedStage, 'verify:check-changed');
     assert.equal(signalled.exitCode, 1);
     assert.match(signalled.message, /SIGKILL/);
     process.env.FIXTURE_ACTION = 'fail';
     const failed = await f.run({commits: [commit]});
-    assert.equal(failed.failedStage, 'verify:check');
+    assert.equal(failed.failedStage, 'verify:check-changed');
     assert.equal(failed.exitCode, 7);
     assert.equal(f.remoteHead(), f.base);
 });
@@ -247,7 +249,7 @@ test('cancellation ends the running check and its children, and nothing later ru
     const report = await f.run({commits: [commit], signal: controller.signal, exec: recording(calls)});
     clearInterval(watcher);
     assert.equal(report.exitCode, 130);
-    assert.equal(report.failedStage, 'verify:check');
+    assert.equal(report.failedStage, 'verify:check-changed');
     assert.equal(calls.some(isPush), false);
     assert.equal(f.remoteHead(), f.base);
     assert.ok(fs.existsSync(report.logPath));

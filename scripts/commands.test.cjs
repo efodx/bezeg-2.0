@@ -293,6 +293,36 @@ test('check-localization runs the local compiler before build and stamps its out
     }
 });
 
+test('check-changed runs typecheck, lint and only the affected unit tests against a ref, then builds', async () => {
+    const root = fixture();
+    const priorNpmExecPath = process.env.npm_execpath;
+    const events = path.join(root, 'events.log');
+    const append = label => `require('node:fs').appendFileSync(${JSON.stringify(events)}, JSON.stringify([${JSON.stringify(label)}, ...process.argv.slice(2)]) + '\\n')`;
+    fs.mkdirSync(path.join(root, 'node_modules/typescript/bin'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'node_modules/typescript/bin/tsc'), append('tsc'));
+    fs.mkdirSync(path.join(root, 'node_modules/eslint/bin'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'node_modules/eslint/bin/eslint.js'), append('eslint'));
+    fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({scripts: {build: 'fixture'}}));
+    const npmCli = path.join(root, 'npm-cli.js');
+    fs.writeFileSync(npmCli, `${append('npm')}; if (process.argv[2] === 'run') require('node:fs').writeFileSync('build/index.html', 'fixture build')`);
+    process.env.npm_execpath = npmCli;
+    const env = {...process.env, BEZEG_TEST_SLOTS: '1', BEZEG_TEST_WORKERS: '1', BEZEG_MEMORY_FLOOR_GB: '0'};
+    try {
+        assert.equal(await commands.execute('check-changed', ['abc1234'], {root, env}), 0);
+        assert.equal(await commands.execute('check-changed', [], {root, env}), 0);
+        const lines = fs.readFileSync(events, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+        assert.deepEqual(lines.map(([label, first]) => `${label} ${first}`), ['tsc --noEmit', 'eslint .', 'npm test', 'npm run', 'tsc --noEmit', 'eslint .', 'npm test', 'npm run']);
+        assert.deepEqual(lines[2].slice(1), ['test', '--', '--run', '--changed', 'abc1234', '--passWithNoTests']);
+        assert.deepEqual(lines[6].slice(5, 6), ['origin/master']);
+        await commands.assertProvenance(root);
+        await assert.rejects(commands.execute('check-changed', ['--all'], {root, env}), /Usage: just check-changed/);
+    } finally {
+        if (priorNpmExecPath === undefined) delete process.env.npm_execpath;
+        else process.env.npm_execpath = priorNpmExecPath;
+        cleanup(root);
+    }
+});
+
 test('typecheck runs only the local compiler', async () => {
     const root = fixture();
     const events = path.join(root, 'events.log');
