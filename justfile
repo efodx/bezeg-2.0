@@ -3,7 +3,7 @@ set shell := ["node", "--eval"]
 
 # Show the available Bezeg workflows.
 default:
-    @console.log('Bezeg developer commands: just check | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | preview [port] | loc <pattern> | ci [sha] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
+    @console.log('Bezeg developer commands: just check | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | clip <id> | preview [port] | loc <pattern> | ci [sha] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
 
 # Run typecheck, lint, all unit tests, then a provenance-recorded production build.
 check:
@@ -40,6 +40,10 @@ smoke-built *args:
 # Run guided-lesson smoke rows for the given lesson ids against the existing build.
 smoke-lesson +args:
     @require('./scripts/commands.cjs').cli(['smoke-lesson', ...process.argv.slice(2)])
+
+# Recapture one Demonstration clip against a running preview (default port 4319).
+clip id:
+    @require('./scripts/commands.cjs').cli(['clip', ...process.argv.slice(2)])
 
 # Show localization keys whose key or sl/en text matches a case-insensitive regex.
 loc pattern:

@@ -5,8 +5,11 @@ const {execFileSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const {recipes, applyRecipe, applyAction, settle} = require('./demonstration-preview-recipes.cjs');
 const patchSurfaceMotion = require('./patch-surface-motion.cjs');
+const clipRows = require('./demonstration-clip-rows/index.cjs');
+const {captureRow} = require('./demonstration-clip-rows/_driver.cjs');
+const {validateRow} = require('./demonstration-clip-rows/_schema.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','ph-quintic','subdivision','spline-g1','trigonometric-functions','darboux','definite-integral', ...patchSurfaceMotion.surfaceMotionIds];
+const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','ph-quintic','subdivision','spline-g1','trigonometric-functions','darboux','definite-integral', ...patchSurfaceMotion.surfaceMotionIds, ...clipRows.rowIds];
 const frameCount = 96;
 const sampleRate = 24;
 const backgroundPixel = [255, 253, 245];
@@ -1332,10 +1335,84 @@ function cloneAndFreeze(value, seen = new Map()) {
 // Registry construction is complete; freeze its data before any consumer can observe it.
 deepFreeze(motionSpecs);
 
+/** Contract of a row clip, re-run offline: the stored row is the current row, input follows its path, the camera holds, the loop closes, the clip never jumps. */
+function assertRowEvidence(motion) {
+    const row = clipRows.rowsById[motion.id];
+    assert.ok(row, `${motion.id}: no clip row for this record`);
+    validateRow(motion.row);
+    assert.deepEqual(motion.row, row, `${motion.id}: the clip was captured from an older row; recapture it`);
+    assert.equal(motion.mode, row.motion);
+    assert.equal(motion.samples.length, frameCount);
+    const surface = row.control.kind === 'surface-point';
+    assert.equal(motion.cameraHeld, surface, `${motion.id}: a surface clip holds its camera and a board clip is held by cameraBox`);
+    const {sameCamera} = require('./demonstration-preview-recipes.cjs');
+    motion.samples.forEach((sample, i) => {
+        assert.equal(sample.index, i);
+        assert.match(sample.capture?.sha256 ?? '', /^[a-f0-9]{64}$/, `${motion.id}: frame ${i} has no lossless checksum`);
+        if (surface) assert.ok(sameCamera(sample.cameraSurface, motion.camera, 0), `${motion.id}: camera moved at frame ${i}`);
+        else assertCamera(sample.cameraBox, motion.camera, `${motion.id}: camera moved at frame ${i}`);
+    });
+    const first = motion.samples[0], last = motion.samples.at(-1);
+    assert.equal(last.capture.sha256, first.capture.sha256, `${motion.id}: the last frame differs from the first (the loop does not close)`);
+    // Hold frames repeat one image; a clip whose input visibly changes nothing is not a clip.
+    const distinct = new Set(motion.samples.map(sample => sample.capture.sha256)).size;
+    // A discrete clip shows one image per distinct press count; a smooth clip needs motion in at least 24 frames.
+    const discrete = row.motion === 'discrete-exact-steps';
+    const minimumDistinct = discrete ? new Set(row.path).size : 24;
+    assert.ok(distinct >= minimumDistinct, `${motion.id}: only ${distinct} distinct frames, need ${minimumDistinct}; the input changes too little to see`);
+    if (row.motion === 'parameter-sweep') {
+        motion.samples.forEach((sample, i) => {
+            const expected = sweepValue(i, {sweep: {waypoints: row.path, step: row.control.step}});
+            assert.equal(sample.target, expected, `${motion.id}: frame ${i} is not on the row path`);
+            assert.ok(Math.abs(sample.actual.input - expected) < 1e-9, `${motion.id}: the control shows ${sample.actual.input} instead of ${expected} at frame ${i}`);
+        });
+    } else if (discrete) {
+        const holds = require('./demonstration-clip-rows/_driver.cjs').discreteHolds(row, frameCount);
+        let frame = 0;
+        row.path.forEach((presses, k) => {
+            for (let h = 0; h < holds[k]; h++, frame++) {
+                const sample = motion.samples[frame];
+                assert.ok(sample.checkpoint === k && sample.presses === presses, `${motion.id}: frame ${frame} is not in checkpoint ${k}`);
+                assert.equal(sample.target, first.target + presses * row.control.step, `${motion.id}: frame ${frame} does not expect start plus ${presses} presses`);
+                assert.equal(sample.actual.input, sample.target, `${motion.id}: the control shows ${sample.actual.input} instead of ${sample.target} at frame ${frame}`);
+            }
+        });
+    } else {
+        const tolerance = surface ? require('./demonstration-clip-rows/_driver.cjs').SURFACE_TOLERANCE : 1e-6;
+        const {pathAt, PRESS, RELEASE} = require('./demonstration-clip-rows/_driver.cjs');
+        const waypoints = row.path.map((w, k) => (k === 0 || k === row.path.length - 1) ? (surface ? [0, 0] : [first.start.x, first.start.y]) : w);
+        motion.samples.forEach((sample, i) => {
+            const offset = pathAt(i, waypoints, {movePhase});
+            const expected = surface ? {x: first.start.x + offset[0], y: first.start.y + offset[1]} : {x: offset[0], y: offset[1]};
+            assert.ok(Math.abs(sample.target.x - expected.x) < 1e-9 && Math.abs(sample.target.y - expected.y) < 1e-9, `${motion.id}: frame ${i} is not on the row path`);
+            if (i > PRESS && i < RELEASE) assert.ok(Math.hypot(sample.actual.x - sample.target.x, sample.actual.y - sample.target.y) < tolerance, `${motion.id}: the point is not under the pointer at frame ${i}`);
+        });
+        assert.ok(Math.hypot(last.actual.x - first.actual.x, last.actual.y - first.actual.y) < tolerance, `${motion.id}: the point did not return to its start`);
+    }
+    const state = require('./demonstration-clip-rows/_driver.cjs').assessRowState(row, motion.samples, surface);
+    assert.ok(state.ok, `${motion.id}: state check failed: ${state.reason}`);
+    assert.deepEqual(motion.pathState, state, `${motion.id}: stored state check is stale`);
+    const {assessFrameSteps, ignoredRatio, MAX_IGNORED_RATIO} = require('./demonstration-clip-rows/_jump.cjs');
+    // The pixel check leaves board text out; the stored rectangles show what was ignored and must stay a minor part of the frame.
+    assert.ok(motion.ignored && Array.isArray(motion.ignored.rects), `${motion.id}: missing the stored ignored text regions`);
+    const ratio = ignoredRatio(first.capture.width, first.capture.height, motion.ignored.rects);
+    assert.ok(ratio <= MAX_IGNORED_RATIO, `${motion.id}: the ignored text regions (${motion.ignored.rects.length}) cover ${(ratio * 100).toFixed(1)} percent of the frame, over the ${MAX_IGNORED_RATIO * 100} percent limit`);
+    assert.ok(Math.abs(motion.ignored.ratio - ratio) < 1e-12, `${motion.id}: stored ignored ratio ${motion.ignored.ratio} is stale (rectangles give ${ratio})`);
+    assert.ok(motion.jump && Array.isArray(motion.jump.steps) && motion.jump.steps.length === frameCount - 1, `${motion.id}: missing stored frame steps`);
+    const assessment = assessFrameSteps(motion.jump.steps, {discrete});
+    assert.ok(assessment.ok, `${motion.id}: frames jump (largest step ${assessment.max} is ${assessment.ratio}x the typical ${assessment.typical}; limit ${assessment.threshold}x; ${motion.ignored.rects.length} text regions ignored, ${(ratio * 100).toFixed(1)} percent of the frame)`);
+    const {steps: _steps, ...stored} = motion.jump;
+    assert.deepEqual(stored, assessment, `${motion.id}: stored jump assessment is stale`);
+}
+
 function assertMotionEvidence(motion, specifications = motionSpecs) {
     assert.ok(Array.isArray(motion.samples));
     assert.equal(motion.frameCount,frameCount);assert.equal(motion.sampleRate,sampleRate);
     assert.equal(motion.duration,4);
+    if (motion.row) {
+        assertRowEvidence(motion);
+        return;
+    }
     if (motion.mode === 'surface-orbit') {
         assert.ok(patchSurfaceMotion.surfaceMotionIds.includes(motion.id), `${motion.id}: unknown surface orbit`);
         patchSurfaceMotion.assertSurfaceMotionEvidence(motion);
@@ -1655,6 +1732,9 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
     } finally {await context.close();}
 }
 
+/** The helpers the row driver shares with the legacy drivers. */
+const rowKit = {get boardSnapshot() {return boardSnapshot;}, get screenshotBoard() {return screenshotBoard;}, sweepValue, movePhase, assertCamera, pathHash, countPaths, frameCount};
+
 async function generateMotions(browser, demonstrations, output, baseUrl, presentBoard, selectedIds=motionIds) {
     assert.ok(selectedIds.length && selectedIds.every(id=>motionIds.includes(id)) && new Set(selectedIds).size===selectedIds.length,'Unknown or duplicate motion diagnostic ID');
     const motions=[];
@@ -1674,7 +1754,13 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
         let fixedBox;
         let sampleEvidence=[];
         const record=sample=>{fixedBox ||=sample.state.box;assertCamera(sample.state.box,fixedBox,'Camera changed between exact checkpoints');sampleEvidence.push(sample);};
-        if (spec?.checkpoints) {
+        const row = clipRows.rowsById[id];
+        let rowResult;
+        if (row) {
+            assert.ok(!spec, `${id}: a row clip must not also have a legacy motion spec`);
+            rowResult = await captureRow(browser, d, row, directory, baseUrl, presentBoard, rowKit);
+            fixedBox = rowResult.camera; sampleEvidence = rowResult.samples;
+        } else if (spec?.checkpoints) {
             assert.equal(spec.checkpoints.length, spec.holds.length, 'Every checkpoint needs a hold');
             assert.equal(spec.holds.reduce((sum, hold) => sum + hold, 0), frameCount, 'Checkpoint holds must cover 96 frames');
             let firstFrame = 0;
@@ -1766,10 +1852,15 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
                 : await captureSweep(browser,d,spec,directory,baseUrl,presentBoard);
             fixedBox=result.camera;sampleEvidence=result.samples;
         }
-        const encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,spec?.crf,spec?.backgroundSample);
-        const mode=spec?.mode ?? (id==='affine'?'supported-rotation-steps':id.endsWith('elevation')?'exact-degree-elevation':'discrete-exact-steps');
+        // A row has no spec, so it takes the lowest CRF that fits the 300 KiB ceiling (dense scenes need more compression); the choice is recorded.
+        let rowCrf;
+        let encoded;
+        if(row){for(const crf of [10,14,18,22,26,30,34]){try{encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,crf);rowCrf=crf;break;}catch(error){if(!/^Motion over 300KiB/.test(error.message))throw error;}}assert.ok(encoded,id+': no CRF up to 34 fits 300 KiB; the scene is too busy for a clip');}
+        else encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,spec?.crf,spec?.backgroundSample);
+        const mode=row?.motion ?? spec?.mode ?? (id==='affine'?'supported-rotation-steps':id.endsWith('elevation')?'exact-degree-elevation':'discrete-exact-steps');
         motions.push({id,...encoded,frameCount,sampleRate,camera:fixedBox,mode,
             ...(spec?{schedule:spec.schedule,invariants:spec.invariants,encoderBudget:spec.encoderBudget}:{}),
+            ...(row?{row,schedule:rowResult.schedule,invariants:rowResult.invariants,cameraHeld:rowResult.cameraHeld,jump:rowResult.jump,ignored:rowResult.ignored,pathState:rowResult.pathState,encoderBudget:{maxBytes:300*1024,crf:rowCrf}}:{}),
             samples:sampleEvidence,sourceFrameHashMeaning:'SHA-256 of lossless PNG inputs; compressed WebM frames are not claimed pixel-identical',generationSeconds:(Date.now()-started)/1000});
         assertMotionEvidence(motions.at(-1));
         console.log(`Encoded ${id}: ${encoded.bytes} bytes, ${encoded.duration}s`);
@@ -1789,9 +1880,10 @@ const captureInterface = Object.freeze({
     motionIds: Object.freeze([...motionIds]),
     surfaceMotionIds: patchSurfaceMotion.surfaceMotionIds,
     surfaceRouteReadyInPage: patchSurfaceMotion.surfaceRouteReadyInPage,
-    isRecipeAligned: id => motionSpecs[id]?.recipeAligned === true,
-    recipeAlignedMotionIds: () => Object.freeze(Object.entries(motionSpecs)
-        .filter(([, spec]) => spec.recipeAligned).map(([id]) => id)),
+    // A row clip starts and ends on its example-scene poster, like a recipe-aligned clip.
+    isRecipeAligned: id => motionSpecs[id]?.recipeAligned === true || id in clipRows.rowsById,
+    recipeAlignedMotionIds: () => Object.freeze([...Object.entries(motionSpecs)
+        .filter(([, spec]) => spec.recipeAligned).map(([id]) => id), ...clipRows.rowIds]),
     assertMotionEvidence: motion => assertMotionEvidence(motion),
 });
 

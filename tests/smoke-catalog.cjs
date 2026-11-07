@@ -12,7 +12,9 @@ function assertMotionPosterCamera(demonstration, capture, motion) {
             Object.keys(camera).sort().join(',') === 'az,distance,el,target' &&
             Number.isFinite(camera.az) && Number.isFinite(camera.el) && Number.isFinite(camera.distance) && camera.distance > 0 &&
             Array.isArray(camera.target) && camera.target.length === 3 && camera.target.every(Number.isFinite);
-        if (motion.mode !== 'surface-orbit' || capture.framing?.kind !== 'surface-view' ||
+        // A row's corner drag holds the camera instead of orbiting it; it must hold exactly the poster camera (compared at tolerance 0 below).
+        const heldRowDrag = motion.mode === 'pointer-drag' && Boolean(motion.row) && motion.cameraHeld === true;
+        if ((motion.mode !== 'surface-orbit' && !heldRowDrag) || capture.framing?.kind !== 'surface-view' ||
             !validCamera(capture.framing.camera) || !validCamera(motion.camera) ||
             !sameCamera(motion.camera, capture.framing.camera, 0)) {
             throw new Error(`Surface poster and clip cameras differ: ${motion.id}`);
@@ -365,7 +367,17 @@ function validateGeneratedPreviews(catalogDemonstrations, options = {}) {
         for(const sample of motion.samples) if (!/^[a-f0-9]{64}$/.test(sample.capture?.sha256 || '') || sample.capture.width !== 720 || sample.capture.height !== 440) throw new Error(`Missing lossless frame provenance: ${id}`);
     }
     if(motionIds.size !== motions.length || motionImports.size !== motions.length || new Set(motions.map(m=>m.id)).size !== motions.length) throw new Error('Motion map/imports/manifest coverage mismatch.');
-    if(JSON.stringify([...motionIds].sort()) !== JSON.stringify([...previewCapture.motionIds].sort())) throw new Error('Motion delivery must cover every configured timeline.');
+    // Every configured timeline must be delivered, except a Demonstration listed in MOTION_PENDING (src/demonstrationMotionPending.ts; a clip
+    // not captured yet, checked by src/demonstrationMotionAssets.test.ts). A delivered clip must always be configured. With an empty list this is the exact comparison.
+    const pendingMotion = variableInitializer(parseSource(options.motionPendingPath || 'src/demonstrationMotionPending.ts'), 'MOTION_PENDING');
+    if (!ts.isArrayLiteralExpression(pendingMotion)) throw new Error('MOTION_PENDING must remain an array literal.');
+    const motionPendingIds = new Set(pendingMotion.elements.map(element => {
+        const entry = stringProperties(unwrapExpression(element), false);
+        if (!entry.id) throw new Error(`MOTION_PENDING entry without an id: ${element.getText()}`);
+        return entry.id;
+    }));
+    const requiredIds = previewCapture.motionIds.filter(id => !motionPendingIds.has(id));
+    if(requiredIds.some(id => !motionIds.has(id)) || [...motionIds].some(id => !previewCapture.motionIds.includes(id))) throw new Error('Motion delivery must cover every configured timeline.');
     const expectedWebm = motions.map(m=>m.file).sort();
     if(JSON.stringify(fs.readdirSync(catalogDirectory).filter(f=>f.endsWith('.webm')).sort()) !== JSON.stringify(expectedWebm)) throw new Error('Generated motion files differ from manifest.');
     return {manifest, map: Object.fromEntries(Array.from(mappedIds.keys(), id => [id, `./images/demonstrations/catalog/${id}.png`]))};

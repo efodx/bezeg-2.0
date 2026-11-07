@@ -51,6 +51,9 @@ import motion_patch_derivatives from './images/demonstrations/catalog/patch-deri
 import motion_patch_subdivision from './images/demonstrations/catalog/patch-subdivision.webm?no-inline';
 import motion_patch_joins from './images/demonstrations/catalog/patch-joins.webm?no-inline';
 import motion_patch_triangular from './images/demonstrations/catalog/patch-triangular.webm?no-inline';
+import motion_curve_offset from './images/demonstrations/catalog/curve-offset.webm?no-inline';
+import motion_reduction from './images/demonstrations/catalog/reduction.webm?no-inline';
+import motion_patch_coons from './images/demonstrations/catalog/patch-coons.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -105,4 +108,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'patch-subdivision': {src: motion_patch_subdivision, type: 'video/webm', duration: 4},
     'patch-joins': {src: motion_patch_joins, type: 'video/webm', duration: 4},
     'patch-triangular': {src: motion_patch_triangular, type: 'video/webm', duration: 4},
+    'curve-offset': {src: motion_curve_offset, type: 'video/webm', duration: 4},
+    'reduction': {src: motion_reduction, type: 'video/webm', duration: 4},
+    'patch-coons': {src: motion_patch_coons, type: 'video/webm', duration: 4},
 };

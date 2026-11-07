@@ -317,6 +317,36 @@ test('lint runs the local ESLint on the repository or on the given paths', async
     } finally { cleanup(root); }
 });
 
+test('clip runs the capture for one id, preserves provenance and never sets the presentation assertion', async () => {
+    const root = fixture();
+    const received = path.join(root, 'received.json');
+    const keys = ['PREVIEW_RECAPTURE_IDS', 'PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE', 'PREVIEW_RECAPTURE_VERIFIED_PRESENTATION', 'PREVIEW_BASE_URL'];
+    fs.mkdirSync(path.join(root, 'scripts'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'scripts/capture-demonstration-previews.cjs'), `const e = process.env; require('node:fs').writeFileSync(${JSON.stringify(received)}, JSON.stringify({argv: process.argv.slice(2), env: Object.fromEntries(${JSON.stringify(keys)}.map(k => [k, e[k] ?? null]))}))`);
+    const base = {...process.env};
+    for (const key of keys) delete base[key];
+    try {
+        await assert.rejects(commands.execute('clip', [], {root, env: base}), /Usage/);
+        await assert.rejects(commands.execute('clip', ['a', 'b'], {root, env: base}), /Usage/);
+        await assert.rejects(commands.execute('clip', ['Bad_Id'], {root, env: base}), /Usage/);
+        assert.equal(await commands.execute('clip', ['curve-offset'], {root, env: base}), 0);
+        assert.deepEqual(JSON.parse(fs.readFileSync(received, 'utf8')), {argv: [], env: {
+            PREVIEW_RECAPTURE_IDS: 'curve-offset',
+            PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE: '1',
+            PREVIEW_RECAPTURE_VERIFIED_PRESENTATION: null,
+            PREVIEW_BASE_URL: 'http://127.0.0.1:4319/bezeg-2.0',
+        }});
+        const operator = {...base, PREVIEW_BASE_URL: 'http://127.0.0.1:3012/bezeg-2.0', PREVIEW_RECAPTURE_VERIFIED_PRESENTATION: '1'};
+        assert.equal(await commands.execute('clip', ['reduction'], {root, env: operator}), 0);
+        assert.deepEqual(JSON.parse(fs.readFileSync(received, 'utf8')).env, {
+            PREVIEW_RECAPTURE_IDS: 'reduction',
+            PREVIEW_RECAPTURE_PRESERVE_SOURCE_PROVENANCE: '1',
+            PREVIEW_RECAPTURE_VERIFIED_PRESENTATION: '1',
+            PREVIEW_BASE_URL: 'http://127.0.0.1:3012/bezeg-2.0',
+        });
+    } finally { cleanup(root); }
+});
+
 test('smoke-lesson validates ids and forwards a lesson grep with remaining arguments to the built smoke script', async () => {
     const root = fixture();
     const priorNpmExecPath = process.env.npm_execpath;

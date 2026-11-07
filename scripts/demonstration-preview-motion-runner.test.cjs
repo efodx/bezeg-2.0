@@ -2,13 +2,17 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {createMotionEvidenceValidator, motionSpecs, motionIds} = require('./demonstration-preview-motion.cjs').testSupport;
 const captureApi = require('./demonstration-preview-capture-api.cjs');
+const {rowIds} = require('./demonstration-clip-rows/index.cjs');
+// The 51 clips that predate clip rows; the exact counts below are these plus the row ids.
+const legacyMotionCount = 51;
 
 test('every shipped demonstration has a configured motion timeline', () => {
     const catalog = require('../tests/smoke-catalog.cjs');
     assert.equal(new Set(motionIds).size, motionIds.length);
-    const configuredSurfaceIds = catalog.filter(d => d.view === 'surface' && d.hasMotion).map(d => d.id);
+    const configuredSurfaceIds = catalog.filter(d => d.view === 'surface' && d.hasMotion && !rowIds.includes(d.id)).map(d => d.id);
     assert.deepEqual([...captureApi.surfaceMotionIds].sort(), configuredSurfaceIds.sort());
-    assert.equal(catalog.filter(d => d.hasMotion).length, 51);
+    assert.equal(catalog.filter(d => d.hasMotion).length, legacyMotionCount + rowIds.length);
+    assert.equal(motionIds.filter(id => !rowIds.includes(id)).length, legacyMotionCount);
     assert.deepEqual([...motionIds].sort(), catalog.filter(d => d.hasMotion).map(d => d.id).sort());
     for (const [id, spec] of Object.entries(motionSpecs).filter(([, spec]) => spec.recipeAligned)) {
         assert.equal(typeof spec.schedule?.kind, 'string', `${id} needs a manifest schedule`);
@@ -26,14 +30,14 @@ test('every shipped demonstration has a configured motion timeline', () => {
 
 test('capture consumers receive only motion generation and coverage queries', () => {
     assert.deepEqual(Object.keys(captureApi).sort(), ['assertMotionEvidence', 'generateMotions', 'isRecipeAligned', 'motionIds', 'recipeAlignedMotionIds', 'surfaceMotionIds']);
-    assert.equal(captureApi.motionIds.length, 51);
+    assert.equal(captureApi.motionIds.length, legacyMotionCount + rowIds.length);
     assert.equal(captureApi.motionIds.length, new Set(captureApi.motionIds).size);
     assert.equal(typeof captureApi.generateMotions, 'function');
     assert.equal(typeof captureApi.assertMotionEvidence, 'function');
     assert.deepEqual(captureApi.surfaceMotionIds, ['patch-tensor','patch-decasteljau','patch-derivatives','patch-subdivision','patch-joins','patch-triangular']);
     assert.equal('bernsteinPoint' in captureApi, false);
-    assert.deepEqual([...captureApi.recipeAlignedMotionIds()].sort(), Object.entries(motionSpecs)
-        .filter(([, spec]) => spec.recipeAligned).map(([id]) => id).sort());
+    assert.deepEqual([...captureApi.recipeAlignedMotionIds()].sort(), [...Object.entries(motionSpecs)
+        .filter(([, spec]) => spec.recipeAligned).map(([id]) => id), ...rowIds].sort());
     const start = motionSpecs.decasteljau.sweep.start;
     assert.equal(Object.isFrozen(motionSpecs.decasteljau.sweep), true);
     assert.equal(Object.isFrozen(motionSpecs.decasteljau.sweep.waypoints), true);
