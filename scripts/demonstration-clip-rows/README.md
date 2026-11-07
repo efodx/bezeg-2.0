@@ -8,7 +8,7 @@ One row describes one lesson-guided Demonstration clip. A row file is any `*.cjs
 | --- | --- |
 | `id` | Demonstration ID (must also have a recipe in `scripts/demonstration-preview-recipes.cjs`) |
 | `motion` | `parameter-sweep`, `pointer-drag` or `discrete-exact-steps` (`surface-orbit` validates but the driver refuses it) |
-| `control` | `{kind: 'slider' or 'number', label, step}`, `{kind: 'point', name}`, `{kind: 'surface-point', name}` or `{kind: 'stepper', label, step}` |
+| `control` | `{kind: 'slider' or 'number', label, step}`, `{kind: 'point', name}`, `{kind: 'surface-point', name}`, `{kind: 'stepper', label, step}` or `{kind: 'trace-step', label, step}` (discrete only) |
 | `path` | Out and back, first = last. Sweep: control values. Board drag: board coordinates. Surface drag: pixel offsets from `[0, 0]` in the 360x220 host. Discrete: 3 to 8 cumulative press counts, first = last = 0 |
 | `lessonQuote` | The lesson sentence the motion comes from |
 | `discreteReason` | `null`, except for `discrete-exact-steps`, where it says why smooth motion is impossible |
@@ -21,6 +21,10 @@ Copy accessible labels and point names from `docs/reviews/feature-streams/clips/
 - A slider or point that moves continuously: `parameter-sweep` or `pointer-drag`.
 - An integer or coarse control that cannot follow a smooth schedule (it moves in whole steps, so 71 moving frames would repeat or leap): `discrete-exact-steps` with a `discreteReason`. The driver presses the named button to each checkpoint's cumulative count on a fresh poster scene and reads the value back at every checkpoint.
 - Keep the path inside the start camera: the camera is fitted to the start state and never changes.
+
+## Algorithm traces (`trace-step`)
+
+A compgeo algorithm trace (convex hull, Bezier hulls, Delaunay, interval sweep, Bentley-Ottmann, monotone partition and triangulation) restarts at step 1 on every edit, and its "Naslednji korak" button has no value input. A `discrete-exact-steps` row with `control: {kind: 'trace-step', label: 'Naslednji korak', step: 1}` reads the step from the visible "Korak N od M" text (the lesson overlay's own line is skipped; exactly one distinct readout must exist). Each checkpoint opens a fresh poster scene, which is already at step `start` (1 plus the recipe's presses), presses the button `path[k]` times and asserts `start + path[k]`. The path counts presses beyond the poster, so the checkpoint 0 is the poster itself. A checkpoint beyond the last step fails with "the trace ends at step M; shorten the path". Without a Back button a poster that already sits at the last step (ear-clipping) has no forward motion and cannot be a row. Distinct steps must also look different: a step that changes only text is rejected by the distinct-frame check, so pick steps that move the board. Rows: `compgeo-traces.cjs`.
 
 ## Fine grid
 

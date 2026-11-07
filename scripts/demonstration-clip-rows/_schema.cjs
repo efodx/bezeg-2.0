@@ -34,7 +34,7 @@ function validateRow(row, where = 'row') {
         assert.ok(row.path.every(Number.isFinite), `${name}: sweep path is a list of control values`);
         assert.equal(row.path[0], row.path.at(-1), `${name}: the sweep must end at its start value`);
     } else if (row.motion === 'discrete-exact-steps') {
-        assert.equal(row.control.kind, 'stepper', `${name}: a discrete control.kind is stepper`);
+        assert.ok(['stepper', 'trace-step'].includes(row.control.kind), `${name}: a discrete control.kind is stepper (a button with a value input beside it) or trace-step (a button of an algorithm trace whose step readout is the page's "Korak N od M" text)`);
         assert.ok(typeof row.control.label === 'string' && row.control.label, `${name}: control.label is the accessible name of the button that is pressed (copy it from route-probe.json)`);
         assert.ok(Number.isFinite(row.control.step) && row.control.step !== 0, `${name}: control.step is the change of the shown value for one press (for example 1)`);
         assert.ok(row.path.length >= 3 && row.path.length <= 8 && row.path.every(n => Number.isInteger(n) && n >= 0), `${name}: path is 3 to 8 cumulative press counts, one per checkpoint, each opened on a fresh recipe scene`);

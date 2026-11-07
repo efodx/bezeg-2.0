@@ -28,6 +28,14 @@ test('the shipped rows are valid and ids are unique', () => {
     assert.throws(() => validateRows([clone(sweep), clone(sweep)]), /duplicate row id curve-offset/);
 });
 
+test('a trace-step control is accepted only on a discrete-exact-steps row', () => {
+    const trace = {...clone(discrete), id: 'x-trace', control: {kind: 'trace-step', label: 'Naslednji korak', step: 1}};
+    assert.doesNotThrow(() => validateRow(trace));
+    rejects(row => { row.control.label = ''; }, trace, /accessible name of the button/);
+    rejects(row => { row.motion = 'parameter-sweep'; row.discreteReason = null; row.path = [0, 1, 0]; }, trace, /sweep control\.kind must be slider or number/);
+    rejects(row => { row.motion = 'pointer-drag'; row.discreteReason = null; row.path = [[0, 0], [1, 1], [0, 0]]; }, trace, /control\.kind must be point or surface-point/);
+});
+
 test('the schema rejects each broken row with an actionable message', () => {
     rejects(row => { row.extra = 1; }, sweep, /exactly the fields/);
     rejects(row => { row.motion = 'wobble'; }, sweep, /motion must be one of/);

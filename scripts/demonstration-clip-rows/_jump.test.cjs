@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const zlib = require('node:zlib');
 const test = require('node:test');
-const {frameSteps, assessFrameSteps, ignoredRatio, stillBackgroundPixel, MAX_IGNORED_RATIO} = require('./_jump.cjs');
+const {frameSteps, assessFrameSteps, ignoredRatio, stillBackgroundPixel, stillColourPixel, MAX_IGNORED_RATIO} = require('./_jump.cjs');
 
 const SIZE = 40;
 const BLOCK = 6;
@@ -130,4 +130,27 @@ test('the colour-check pixel skips a spot that one frame crosses and needs a bac
     // One frame paints (1, 1), inside the first candidate's margin, so the next candidate on the lattice is taken.
     assert.deepEqual(stillBackgroundPixel([frame(20), frame(20, [[1, 1, 0]])], white, {radius: 2, stride: 4}), {x: 6, y: 2});
     assert.throws(() => stillBackgroundPixel([frame(20)], [0, 0, 0], {radius: 2, stride: 4}), /No pixel stays background/);
+});
+
+test('the colour-check pixel falls back to a still single-colour patch only when no background patch stays still', () => {
+    const white = [255, 255, 255];
+    // A background patch exists: it is taken, with the background colour.
+    assert.deepEqual(stillColourPixel([frame(20), frame(20)], white, {radius: 2, stride: 4}), {x: 2, y: 2, rgb: white});
+    // No black background anywhere, but the white canvas is one colour and identical in every frame.
+    assert.deepEqual(stillColourPixel([frame(20), frame(20)], [0, 0, 0], {radius: 2, stride: 4}), {x: 2, y: 2, rgb: white});
+    // The second frame repaints the whole canvas grey: every patch is one colour per frame but changes between frames.
+    const grey = range(0, SIZE - 1).flatMap(x => range(0, SIZE - 1).map(y => [x, y, 200]));
+    assert.throws(() => stillColourPixel([frame(20), frame(20, grey)], [0, 0, 0], {radius: 2, stride: 4}), /No pixel keeps one colour/);
+    // A patch holding two colours is not taken even if it is identical in every frame: the block's edge at x = 20.
+    const blockEdgeOnly = stillColourPixel([frame(20)], [0, 0, 0], {radius: 2, stride: 1});
+    assert.deepEqual(blockEdgeOnly, {x: 2, y: 2, rgb: white});
+});
+
+test('the colour-check pixel steps its margin down to the floor before giving up', () => {
+    const white = [255, 255, 255];
+    // Grey dots every 6 px leave clean 5x5 squares (radius 2) but no clean 7x7 square (radius 3).
+    const dots = range(0, 6).flatMap(i => range(0, 6).map(j => [i * 6, j * 6, 128]));
+    const frames = [frame(20, dots), frame(20, dots)];
+    assert.deepEqual(stillColourPixel(frames, white, {radius: 3, stride: 1, minRadius: 2}), {x: 3, y: 2, rgb: white});
+    assert.throws(() => stillColourPixel(frames, white, {radius: 3, stride: 1, minRadius: 3}), /No pixel keeps one colour/);
 });

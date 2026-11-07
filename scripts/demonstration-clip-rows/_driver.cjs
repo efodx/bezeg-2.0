@@ -172,16 +172,22 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
             const button = page.getByRole('button', {name: row.control.label, exact: true});
             assert.equal(await button.count(), 1, `${row.id}: button "${row.control.label}" is missing or ambiguous (copy the accessible name from route-probe.json)`);
             for (const tab of ['Prikaz', 'Uredi']) { if (await button.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
-            // The value the stepper shows is the text input in the same group as the button.
-            const readout = button.locator('xpath=..').locator('input').first();
-            assert.equal(await readout.count(), 1, `${row.id}: no value input next to "${row.control.label}" to read the stepper back`);
             const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
-            const first = parse(await readout.inputValue());
+            // A stepper shows its value in the text input of the same group; a trace-step button has none, the page's "Korak N od M" text is the readout.
+            const trace = row.control.kind === 'trace-step';
+            const readout = button.locator('xpath=..').locator('input').first();
+            if (!trace) assert.equal(await readout.count(), 1, `${row.id}: no value input next to "${row.control.label}" to read the stepper back`);
+            const read = async () => trace ? (await readTraceStep(page, row)).step : parse(await readout.inputValue());
+            const first = await read();
             if (k === 0) startValue = first; else assert.equal(first, startValue, `${row.id}: a fresh recipe scene starts at ${first}, not ${startValue}`);
+            if (trace) {
+                const {length} = await readTraceStep(page, row);
+                assert.ok(startValue + row.path[k] * row.control.step >= 1 && startValue + row.path[k] * row.control.step <= length, `${row.id}: checkpoint ${k} needs ${row.path[k]} presses from step ${startValue}, but the trace ends at step ${length}; shorten the path`);
+            }
             for (let press = 0; press < row.path[k]; press++) { await button.click(); await settle(page); }
             await settle(page);
             await presentFixed(page, d, presentBoard, fixedBox);
-            const shown = parse(await readout.inputValue());
+            const shown = await read();
             const expected = startValue + row.path[k] * row.control.step;
             assert.equal(shown, expected, `${row.id}: after ${row.path[k]} presses the control shows ${shown}, not ${expected}`);
             const state = await kit.boardSnapshot(page);
@@ -200,6 +206,17 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
         } finally {await context.close();}
     }
     return {camera: fixedBox, samples};
+}
+
+/** Step and length from the visible "Korak N od M" readout of a compgeo trace graph (the lesson overlay's own "Korak" line is skipped). */
+async function readTraceStep(page, row) {
+    const found = await page.evaluate(() => [...document.querySelectorAll('body *')]
+        .filter(el => !el.closest('.guided-lesson, .guided-lesson-tab, [class*="guided-lesson"]') && !el.querySelector('*') && /^Korak \d+ od \d+$/.test(el.textContent.trim()))
+        .map(el => el.textContent.trim()));
+    const values = [...new Set(found)];
+    assert.equal(values.length, 1, `${row.id}: expected one step readout "Korak N od M" on the page, found ${JSON.stringify(values)}`);
+    const [, step, length] = values[0].match(/(\d+) od (\d+)/);
+    return {step: Number(step), length: Number(length)};
 }
 
 async function presentFixed(page, d, boardPresent, camera) {

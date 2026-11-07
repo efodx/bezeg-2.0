@@ -135,4 +135,37 @@ function stillBackgroundPixel(pngBuffers, background, {radius = 8, stride = 16} 
     throw new Error('No pixel stays background in every frame, so the encoder colour check has nowhere to sample.');
 }
 
-module.exports = {frameSteps, assessFrameSteps, assessPathSteps, ignoredRatio, stillBackgroundPixel, SCHEDULE_STEP_LIMIT, MAX_IGNORED_RATIO};
+/**
+ * The pixel and colour the encoder's colour check samples for a row clip: the first lattice pixel whose (2r+1)-square neighbourhood
+ * is one colour, identical in every frame. Background is preferred at each margin, then any single colour, from the full margin
+ * `radius` (on the `stride` lattice) down to `minRadius` (on a lattice of at most 4 px). A scene whose moving grid crosses every
+ * background pixel (linear-map) leaves only small still patches. A smaller margin cannot make the check pass falsely: the encoder
+ * asserts the exact colour of every decoded frame, so an edge that tints the sample fails the capture.
+ */
+function stillColourPixel(pngBuffers, background, {radius = 8, stride = 16, minRadius = 3} = {}) {
+    const frames = pngBuffers.map(decodePng);
+    const {width, height, channels} = frames[0];
+    const colourAt = (x, y) => { const o = (y * width + x) * channels; return [frames[0].data[o], frames[0].data[o + 1], frames[0].data[o + 2]]; };
+    const flat = (x, y, r, rgb) => frames.every(frame => {
+        for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+            const offset = ((y + dy) * width + (x + dx)) * channels;
+            if (frame.data[offset] !== rgb[0] || frame.data[offset + 1] !== rgb[1] || frame.data[offset + 2] !== rgb[2]) return false;
+        }
+        return true;
+    });
+    const scan = (r, step, wanted) => {
+        for (let y = r; y < height - r; y += step) for (let x = r; x < width - r; x += step) {
+            const rgb = wanted || colourAt(x, y);
+            if (flat(x, y, r, rgb)) return {x, y, rgb: [...rgb]};
+        }
+        return null;
+    };
+    for (let r = radius; r >= Math.min(minRadius, radius); r--) {
+        const step = r === radius ? stride : Math.min(stride, 4);
+        const found = scan(r, step, background) || scan(r, step, null);
+        if (found) return found;
+    }
+    throw new Error('No pixel keeps one colour in its neighbourhood in every frame, so the encoder colour check has nowhere to sample.');
+}
+
+module.exports = {frameSteps, assessFrameSteps, assessPathSteps, ignoredRatio, stillBackgroundPixel, stillColourPixel, SCHEDULE_STEP_LIMIT, MAX_IGNORED_RATIO};
