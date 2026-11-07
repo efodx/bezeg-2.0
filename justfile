@@ -3,7 +3,7 @@ set shell := ["node", "--eval"]
 
 # Show the available Bezeg workflows.
 default:
-    @console.log('Bezeg developer commands: just check | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | preview [port] | loc <pattern> | ci [sha] | tooling-test | eval <list|setup|grade|calibrate> [args...]')
+    @console.log('Bezeg developer commands: just check | typecheck | lint [args...] | unit [args...] | check-localization | build | smoke [args...] | smoke-built [args...] | smoke-lesson <id>... [args...] | preview [port] | loc <pattern> | ci [sha] | tooling-test | publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,...> | eval <list|setup|grade|calibrate> [args...]')
 
 # Run typecheck, lint, all unit tests, then a provenance-recorded production build.
 check:
@@ -56,6 +56,10 @@ preview *args:
 # Set up, grade or calibrate a repeatable workflow-evaluation sandbox (see tools/agent-eval/README.md).
 eval *args:
     @require('./tools/agent-eval/agent_eval.cjs').cli(process.argv.slice(2))
+
+# Rebase the declared commits onto origin/master, verify that revision, and fast-forward push it. Handler only.
+publish *args:
+    @require('./scripts/publish-gate.cjs').cli(process.argv.slice(2))
 
 # Run the focused Node tests for this command runner.
 tooling-test:

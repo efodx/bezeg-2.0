@@ -1,6 +1,8 @@
 # Fail-fast publication gate
 
-Status: proposed implementation specification, 2026-10-12. The owner confirmed the testing boundary: the publication command runner, exercised with temporary Git repositories and injected failures. This specification does not authorize implementation or a test push to the production remote.
+Status: implemented 2026-11-07 at the owner's request, as `just publish` (`scripts/publish-gate.cjs`, acceptance tests in `scripts/publish-gate.test.cjs`, [usage](../commands.md)). Proposed 2026-10-12. The owner confirmed the testing boundary: the publication command runner, exercised with temporary Git repositories and injected failures.
+
+Decisions made in implementation: three recipes (`docs`, `tooling`, `runtime`), each refusing files it cannot vouch for, because a selected recipe otherwise silently under-checks a change. The link check covers only links added by the slice, so old broken links do not block unrelated work; rejected alternative: checking every link in touched files. The gate stays optional for stream slices between feature checkpoints, because `runtime` runs a full `just check` and the [test load rules](../tasks/feature-streams/README.md#test-load) allow that once per feature. Coverage gap: criterion 9 has run on Windows only, because the hosted workflow does not run `tooling-test`; the Linux process-group kill is untested.
 
 ## Problem Statement
 

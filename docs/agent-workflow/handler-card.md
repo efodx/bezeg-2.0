@@ -24,6 +24,6 @@ Keep tightly coupled cores with you; delegate tests and smoke. Run at most three
 
 **Accept.** Diff against acceptance, confirm observed pre-change failures, apply [review routing](../agent-workflow.md#review-routing), run focused `just` checks (`just --list`; never bare `npm test`, `npx vitest` or `npx playwright`), and smoke when a route, control, lesson or rendering path changes. Record the [evaluation entry](../../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log).
 
-**Commit and push.** Stage explicit paths, fetch, rebase your new commits onto `origin/master`, recheck, `git push origin HEAD:master`. Never force-push.
+**Commit and push.** Stage explicit paths, fetch, rebase your new commits onto `origin/master`, recheck, `git push origin HEAD:master`, or run all of that with `just publish` ([command guide](../commands.md)). Never force-push.
 
 **Close out.** Commit verified work, write the [handoff note](../agent-workflow.md#handler-context-budget-claude) with the next slice's brief inputs, and launch the successor with `--agent bezeg-handler`.
