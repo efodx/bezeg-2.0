@@ -69,6 +69,9 @@ import motion_polynomial_zeros from './images/demonstrations/catalog/polynomial-
 import motion_bspline_basis from './images/demonstrations/catalog/bspline-basis.webm?no-inline';
 import motion_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.webm?no-inline';
 import motion_bspline_blossom from './images/demonstrations/catalog/bspline-blossom.webm?no-inline';
+import motion_quadrature from './images/demonstrations/catalog/quadrature.webm?no-inline';
+import motion_euler_method from './images/demonstrations/catalog/euler-method.webm?no-inline';
+import motion_fourier_series from './images/demonstrations/catalog/fourier-series.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -141,4 +144,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'bspline-basis': {src: motion_bspline_basis, type: 'video/webm', duration: 4},
     'bspline-deboor': {src: motion_bspline_deboor, type: 'video/webm', duration: 4},
     'bspline-blossom': {src: motion_bspline_blossom, type: 'video/webm', duration: 4},
+    'quadrature': {src: motion_quadrature, type: 'video/webm', duration: 4},
+    'euler-method': {src: motion_euler_method, type: 'video/webm', duration: 4},
+    'fourier-series': {src: motion_fourier_series, type: 'video/webm', duration: 4},
 };
