@@ -1,13 +1,13 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {GraphSession} from "../base/GraphSession";
-import {onLanguageChange, t, useT} from "../../localization";
+import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
 import {PointSetModel, gridToBoard} from "../../compgeo/pointSetModel";
 import {ORIENTATION_OVERLAY_IDS, ORIENTATION_POINT_LIMIT, orientationPresetCollection} from "./compgeoPresetCollections";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {CompgeoRegionPalette} from "./CompgeoRegionPalette";
-import {formatSigned, OrientationReadout, orientationReadout, OrientationTurn, triangleFitsLabel} from "./orientationReadout";
+import {formatBoardSigned, OrientationReadout, orientationReadout, OrientationTurn, triangleFitsLabel} from "./orientationReadout";
 
 /**
  * Orientation of three points (spec convexity-hulls-lessons A1): a `PointSetGraph` limited to three points with the
@@ -27,19 +27,20 @@ const turnWord = (turn: OrientationTurn): string =>
     turn === "left" ? t("pointset_orientation_left") : turn === "right" ? t("pointset_orientation_right") : t("pointset_orientation_collinear");
 
 /** The readout sentence; shared by the inspector and the board text. */
-export function orientationText(readout: OrientationReadout, translate: typeof t): string {
+/** `exponent` is the grid step exponent: the grid-unit determinant is shown in board units (times 4^exponent). */
+export function orientationText(readout: OrientationReadout, translate: typeof t, exponent = 0): string {
     if (readout.kind === "missing") return translate("pointset_orientation_missing", {value0: 3 - readout.have});
     const word = readout.turn === "left" ? translate("pointset_orientation_left")
         : readout.turn === "right" ? translate("pointset_orientation_right") : translate("pointset_orientation_collinear");
-    return translate("pointset_orientation_readout", {value0: formatSigned(readout.value), value1: word});
+    return translate("pointset_orientation_readout", {value0: formatBoardSigned(readout.value, 2 * exponent, currentLanguage()), value1: word});
 }
 
-function OrientationStatus({points, valuesShown}: {points: PointSetModel["points"]; valuesShown: boolean}) {
+function OrientationStatus({points, exponent, valuesShown}: {points: PointSetModel["points"]; exponent: number; valuesShown: boolean}) {
     const translate = useT();
     if (!valuesShown) return <p className="inspector-help pointset-status" role="status" data-orientation-readout="" data-orientation-value="">{translate("pointset_values_hidden")}</p>;
     const readout = orientationReadout(points);
     return <p className="inspector-help pointset-status" role="status" data-orientation-readout={readout.kind === "turn" ? readout.turn : "missing"}
-              data-orientation-value={readout.kind === "turn" ? readout.value : ""}>{orientationText(readout, translate)}</p>;
+              data-orientation-value={readout.kind === "turn" ? readout.value * 4 ** exponent : ""}>{orientationText(readout, translate, exponent)}</p>;
 }
 
 export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
@@ -114,14 +115,14 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
                 }) as JXG.GeometryElement);
             }
         }
-        // A label would cover the vertices of a thin or tiny triangle (under one grid step tall), so none is drawn then.
+        // A label would cover the vertices of a thin or tiny triangle (under one board unit tall), so none is drawn then.
         if (!this.overlayShown("values")) return objects;
-        if (!triangleFitsLabel(model.points[0], model.points[1], model.points[2])) return objects;
+        if (!triangleFitsLabel(model.points[0], model.points[1], model.points[2], exponent)) return objects;
         const value = readout.value;
         const centre = {x: (p.x + q.x + r.x) / 3, y: (p.y + q.y + r.y) / 3};
         objects.push(this.board.create("text", [centre.x, centre.y, () => {
             const live = orientationReadout(model.points);
-            return live.kind === "turn" ? `${formatSigned(value)}: ${turnWord(live.turn)}` : "";
+            return live.kind === "turn" ? `${formatBoardSigned(value, 2 * exponent, currentLanguage())}: ${turnWord(live.turn)}` : "";
         }], {
             anchorX: "middle", anchorY: "middle", fontSize: 14, strokeColor: GraphPalette.label, highlight: false, fixed: true,
             layer: 8, display: "html", name: "turn-text", cssStyle: "pointer-events:none;",
@@ -131,7 +132,7 @@ export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <OrientationStatus points={this.model.points} valuesShown={this.overlayShown("values")}/>
+            <OrientationStatus points={this.model.points} exponent={this.model.gridStepExponent} valuesShown={this.overlayShown("values")}/>
             {super.workspaceEdit()}
         </>;
     }

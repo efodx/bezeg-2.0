@@ -233,3 +233,37 @@ test('a Preset saved before the values overlay existed restores with values show
     expect(graph.overlayShown('values')).toBe(false);
     expect(readout().dataset.orientationValue).toBe('');
 });
+
+/** What a student sees: every board object's place and text, the status text and its machine value. */
+function seen(graph: Observed) {
+    const objects = (graph.liveBoard().objectsList as (Shown & {coords?: {usrCoords: number[]}})[])
+        .filter(o => !['label', 'ticks', 'axis'].includes(o.elType))
+        .map(o => ({type: o.elType, name: o.name ?? '', coords: o.coords?.usrCoords, text: o.plaintext}));
+    return {objects, panel: readout().textContent, value: readout().dataset.orientationValue};
+}
+const onGrid = (exponent: number, points: [number, number][]): PointSetModel =>
+    ({...DEFAULT_ORIENTATION_MODEL, gridStepExponent: exponent, points: points.map(([x, y]) => ({x, y}))});
+
+test.each([[-2, 4], [-8, 256]])('the default triangle on a grid of 2^%i is drawn and worded exactly like the unit grid', (exponent, factor) => {
+    const graph = new Observed();
+    mount(graph);
+    const unit = seen(graph);
+    load(graph, onGrid(exponent, [[0, 0], [4 * factor, 0], [3 * factor, 2 * factor]]));
+    const fine = seen(graph);
+    expect(unit.panel).toContain('+8');
+    expect(fine.objects.some(o => o.text === '+8: levi zavoj')).toBe(true);
+    expect(fine).toEqual(unit);
+});
+
+test('a value that is not a whole number is rounded to two decimals; a tiny one is never shown as zero', () => {
+    const graph = new Observed();
+    mount(graph);
+    load(graph, onGrid(-8, [[0, 0], [1024, 0], [768, 513]]));
+    expect(readout().textContent).toContain('+8,02');
+    expect(readout().dataset.orientationValue).toBe(String(8 + 2 ** -6));
+    load(graph, onGrid(-8, [[0, 0], [1, 0], [0, 1]]));
+    expect(readout().textContent).toContain('+1,5·10⁻⁵');
+    expect(readout().textContent).toContain('levi zavoj');
+    expect(readout().dataset.orientationValue).toBe(String(2 ** -16));
+    expect(named(graph, 'turn-text')).toHaveLength(0);
+});

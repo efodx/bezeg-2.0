@@ -1,6 +1,6 @@
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
-import {t, useLanguage, useT} from "../../localization";
+import {currentLanguage, t, useLanguage, useT} from "../../localization";
 import {gridToBoard, PointSetModel, reverseVertices} from "../../compgeo/pointSetModel";
 import {doubledFanAreas} from "../../compgeo/polygonMeasures";
 import {POLYGON_AREA_OVERLAY_IDS, polygonAreaPresetCollection} from "./compgeoPresetCollections";
@@ -8,7 +8,7 @@ import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {CompgeoRegionPalette} from "./CompgeoRegionPalette";
 import {AreaReadout, areaReadout, latticeMarkers} from "./areaReadout";
-import {formatHalf, formatSigned, triangleFitsLabel} from "./orientationReadout";
+import {formatBoardHalf, formatBoardSigned, triangleFitsLabel} from "./orientationReadout";
 
 /**
  * Polygon area and Pick's theorem (spec convexity-hulls-lessons A2): a `PointSetGraph` in polygon mode, closed by default,
@@ -31,6 +31,9 @@ export const NOTCHED_PENTAGON_MODEL: PointSetModel = {
 
 const copy = (model: PointSetModel): PointSetModel => ({...model, points: model.points.map(p => ({...p}))});
 
+/** A machine-readable board value (plain digits, "." separator) of a grid-unit doubled value. */
+const scaledText = (value: bigint, exponent = 0): string => exponent === 0 ? String(value) : String(Number(value) * 2 ** exponent);
+
 function AreaStatus({model, valuesShown}: {model: PointSetModel; valuesShown: boolean}) {
     const translate = useT();
     const {language} = useLanguage();
@@ -44,21 +47,24 @@ function AreaStatus({model, valuesShown}: {model: PointSetModel; valuesShown: bo
         lines = [];
     } else if (readout.kind === "signed-sum") {
         live = translate("pointset_area_not_simple");
-        lines = [translate("pointset_area_signed_sum", {value0: formatSigned(readout.doubledSum)})];
+        lines = [translate("pointset_area_signed_sum", {value0: formatBoardSigned(readout.doubledSum, readout.areaExponent ?? 0, language)})];
     } else {
-        live = translate("pointset_area_value", {value0: formatHalf(readout.doubledArea, language)});
+        const scale = readout.areaExponent ?? 0;
+        live = translate("pointset_area_value", {value0: formatBoardHalf(readout.doubledArea, readout.areaExponent ?? 0, language)});
         lines = [
-            translate("pointset_area_doubled", {value0: formatSigned(readout.doubledSigned)}),
+            translate("pointset_area_doubled", {value0: formatBoardSigned(readout.doubledSigned, scale, language)}),
             ...(readout.orientation === "ccw" ? [translate("pointset_area_ccw")] : readout.orientation === "cw" ? [translate("pointset_area_cw")] : []),
-            translate("pointset_area_boundary", {value0: readout.boundary}),
-            readout.interior === undefined ? translate("pointset_area_interior_skipped") : translate("pointset_area_interior", {value0: readout.interior}),
+            ...(readout.countsOmitted ? [] : [
+                translate("pointset_area_boundary", {value0: readout.boundary}),
+                readout.interior === undefined ? translate("pointset_area_interior_skipped") : translate("pointset_area_interior", {value0: readout.interior}),
+            ]),
             ...(readout.pick === undefined ? [] : [readout.pick.holds
-                ? translate("pointset_area_pick_holds", {value0: readout.pick.doubledValue, value1: String(readout.doubledArea)})
-                : translate("pointset_area_pick_differs", {value0: readout.pick.doubledValue, value1: String(readout.doubledArea)})]),
+                ? translate("pointset_area_pick_holds", {value0: readout.pick.doubledValue, value1: formatBoardSigned(readout.doubledArea, scale, language).replace(/^\+/, "")})
+                : translate("pointset_area_pick_differs", {value0: readout.pick.doubledValue, value1: formatBoardSigned(readout.doubledArea, scale, language).replace(/^\+/, "")})]),
         ];
     }
     return <div className="inspector-help pointset-status" data-area-readout={readout.kind}
-                data-area-doubled={readout.kind === "simple" ? String(readout.doubledSigned) : readout.kind === "signed-sum" ? String(readout.doubledSum) : ""}>
+                data-area-doubled={readout.kind === "simple" ? scaledText(readout.doubledSigned, readout.areaExponent) : readout.kind === "signed-sum" ? scaledText(readout.doubledSum, readout.areaExponent) : ""}>
         <p className="mb-1" role="status" data-area-live="">{live}</p>
         {lines.map((line, i) => <p key={i} className="mb-1">{line}</p>)}
     </div>;
@@ -140,9 +146,9 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
                     highlight: false, fixed: true, layer: 2, name: "fan-triangle", withLabel: false,
                 }) as JXG.GeometryElement);
             }
-            if (!this.overlayShown("values") || !triangleFitsLabel(model.points[0], model.points[k + 1], model.points[k + 2])) return;
+            if (!this.overlayShown("values") || !triangleFitsLabel(model.points[0], model.points[k + 1], model.points[k + 2], exponent)) return;
             objects.push(this.board.create("text", [
-                (corners[0].x + corners[1].x + corners[2].x) / 3, (corners[0].y + corners[1].y + corners[2].y) / 3, formatSigned(doubled),
+                (corners[0].x + corners[1].x + corners[2].x) / 3, (corners[0].y + corners[1].y + corners[2].y) / 3, formatBoardSigned(doubled, 2 * exponent, currentLanguage()),
             ], {
                 anchorX: "middle", anchorY: "middle", fontSize: 13, strokeColor: GraphPalette.label, highlight: false, fixed: true,
                 layer: 8, display: "html", name: "fan-label",
@@ -155,10 +161,8 @@ export class PolygonAreaGraph extends PointSetGraph<PolygonAreaOverlayId> {
     private drawLattice(model: PointSetModel): JXG.GeometryElement[] {
         const markers = latticeMarkers(model);
         if (markers.kind !== "points") return [];
-        const exponent = model.gridStepExponent;
         const mark = (point: {x: number; y: number}, face: string, size: number, color: string) => {
-            const at = gridToBoard(point, exponent);
-            return this.board.create("point", [at.x, at.y], {
+            return this.board.create("point", [point.x, point.y], {
                 name: "lattice-marker", withLabel: false, face, size, fillColor: color, strokeColor: color, strokeWidth: 2,
                 highlight: false, fixed: true, showInfobox: false, layer: 4,
             }) as JXG.GeometryElement;

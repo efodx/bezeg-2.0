@@ -223,3 +223,51 @@ test('values off: the readout is a neutral sentence with empty data and the fan 
     expect(text()).toContain('21');
     expect(named(graph, 'fan-label')).toHaveLength(3);
 });
+
+/** What a student sees: every board object's place and text, and the status text with its machine value. */
+function seen(graph: Observed) {
+    const objects = (graph.liveBoard().objectsList as (Shown & {coords?: {usrCoords: number[]}})[])
+        .filter(o => !['label', 'ticks', 'axis'].includes(o.elType))
+        .map(o => ({type: o.elType, name: o.name ?? '', coords: o.coords?.usrCoords, text: o.plaintext}));
+    return {objects, panel: text(), doubled: readout().dataset.areaDoubled};
+}
+const scaled = (model: PointSetModel, exponent: number): PointSetModel => ({
+    ...model, gridStepExponent: exponent, points: model.points.map(p => ({x: p.x * 2 ** -exponent, y: p.y * 2 ** -exponent})),
+});
+
+test.each([[-2], [-8]])('the hull pentagon on a grid of 2^%i is drawn and worded exactly like the unit grid', exponent => {
+    const graph = new Observed();
+    mount(graph);
+    const unit = seen(graph);
+    load(graph, scaled(HULL_PENTAGON_MODEL, exponent));
+    const fine = seen(graph);
+    expect(unit.panel).toContain('B: 8');
+    expect(named(graph, 'lattice-marker')).toHaveLength(8 + 18);
+    expect(fine).toEqual(unit);
+});
+
+test('with a vertex off the board lattice the areas are rounded board values, the Pick lines are left out and the markers stay', () => {
+    const graph = new Observed();
+    mount(graph);
+    const moved = scaled(HULL_PENTAGON_MODEL, -8);
+    load(graph, {...moved, points: moved.points.map((p, i) => i === 0 ? {x: p.x + 1, y: p.y} : p)});
+    expect(text()).toContain('Ploščina:');
+    expect(text()).not.toContain('B:');
+    expect(text()).not.toContain('I:');
+    expect(text()).not.toContain('2I');
+    // The markers stay: the 7 other boundary nodes and the 18 interior ones; only the old vertex node (-1, 3) falls outside.
+    const markers = named(graph, 'lattice-marker');
+    expect(markers).toHaveLength(7 + 18);
+    for (const marker of markers) expect(Number.isInteger(marker.X!()) && Number.isInteger(marker.Y!())).toBe(true);
+    expect(readout().dataset.areaDoubled).toMatch(/^4[12]\.\d+$/);
+    expect(text()).toMatch(/\+4[12],\d\d/);
+});
+
+test('a triangle of one grid step on the finest grid never shows an area of zero', () => {
+    const graph = new Observed();
+    mount(graph);
+    load(graph, {...scaled(HULL_PENTAGON_MODEL, -8), points: [{x: 0, y: 0}, {x: 1, y: 0}, {x: 0, y: 1}]});
+    expect(text()).toContain('+1,5·10⁻⁵');
+    expect(text()).toContain('Ploščina: 7,6·10⁻⁶');
+    expect(readout().dataset.areaDoubled).toBe(String(2 ** -16));
+});
