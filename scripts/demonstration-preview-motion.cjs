@@ -1876,8 +1876,15 @@ function createMotionEvidenceValidator(fixtures = {}) {
     return motion => assertMotionEvidence(motion, specifications);
 }
 
+/** Offline row preflight: captures one row and applies the capture's row evidence checks without encoding, a manifest or a poster (width is the encoded width the capture reads). */
+async function preflightRow(browser, d, row, directory, baseUrl, presentBoard) {
+    const result = await captureRow(browser, d, row, directory, baseUrl, presentBoard, rowKit);
+    assertMotionEvidence({id: row.id, frameCount, sampleRate, duration: 4, width: result.samples[0].capture.width, camera: result.camera, mode: row.motion, row, schedule: result.schedule, invariants: result.invariants,
+        cameraHeld: result.cameraHeld, jump: result.jump, ignored: result.ignored, pathState: result.pathState, samples: result.samples});
+}
+
 const captureInterface = Object.freeze({
-    generateMotions,
+    generateMotions, preflightRow,
     motionIds: Object.freeze([...motionIds]),
     surfaceMotionIds: patchSurfaceMotion.surfaceMotionIds,
     surfaceRouteReadyInPage: patchSurfaceMotion.surfaceRouteReadyInPage,

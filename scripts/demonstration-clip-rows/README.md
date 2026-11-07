@@ -34,6 +34,10 @@ Pointer tolerance: the offline check that the point is under the pointer allows 
 
 `node scripts/demonstration-clip-rows/_check.cjs <row file name without .cjs>` needs no browser. It confirms that the quote is exact lesson text somewhere under `src/learning`, and that the control label and the path's range agree with the route probe. Start values are not checked offline: the probe was taken on lesson example scenes, but a clip starts from the Demonstration's recipe scene, so the capture asserts the start value or point position itself. It cannot tell whether the quote comes from this Demonstration's lesson, so it prints the file: check that yourself.
 
+## Preflight
+
+`node scripts/demonstration-clip-rows/_preflight.cjs <id>... ` (or `--file <row file name>` for every row of one family file) needs a running preview (`just preview 4319`; `PREVIEW_BASE_URL` overrides the default `http://127.0.0.1:4319/bezeg-2.0`). Each row runs through the same `captureRow` path as the capture and then the same row evidence checks (start value, hidden control, camera, board response, loop closure, distinct frames, state check, frame steps), but writes no poster, encode, manifest or catalog change. It continues past a failing row and prints `id | ok | Ns` or `id | FAIL | <first assertion message>`; the exit code is non-zero if any row failed. Frames of failing rows stay under `.command-logs/preflight-<pid>/`. A row takes about 20 to 40 seconds. The preflight finds bad rows early; the capture below remains the acceptance (it also checks the encode, the poster match and the manifest).
+
 ## Capture
 
 Poster and clip both start from the Demonstration's existing poster scene (`_scene.cjs`): the route without a query in a fresh context, the full recipe from `scripts/demonstration-preview-recipes.cjs` applied (actions, camera and outcome check) exactly as for a non-row poster. The lesson chooses only the motion. A row never opens a lesson example scene (`?example=lesson.…`).
