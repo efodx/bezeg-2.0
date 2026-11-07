@@ -67,7 +67,14 @@ async function setup(page, method) {
     const slider = s.getByRole('slider').first();
     await slider.focus();
     await slider.press('End');
-    if (MODE === 'paused') { await sleep(1500); return s.locator('dl dd').first().innerText(); }
+    if (MODE === 'paused') {
+        // The playground plays on its own once in view, so pause it through the UI and wait until the button offers Play again.
+        const pauseBtn = s.getByRole('button', {name: 'Premor', exact: true});
+        if (await pauseBtn.count()) await pauseBtn.click();
+        await s.getByRole('button', {name: 'Predvajaj', exact: true}).waitFor({timeout: 10000});
+        await sleep(1500);
+        return s.locator('dl dd').first().innerText();
+    }
     const playBtn = s.getByRole('button', {name: 'Predvajaj', exact: true});
     if (await playBtn.count()) await playBtn.click();
     await s.getByRole('button', {name: 'Premor', exact: true}).waitFor({timeout: 10000});

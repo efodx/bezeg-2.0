@@ -19,3 +19,5 @@ Profiles: desktop 1440x900 unthrottled; 390x844 mobile (touch, device scale fact
 - **Lifecycle.** Messages from every `Worker` are counted by a listener installed through an init script (nothing in `src/`). Snapshots over 2 s while playing (control), with the canvas scrolled off-screen, and with the page hidden. Hiding uses a second tab brought to the front, accepted only if `document.hidden` reads true afterwards; headless Chromium may keep every page visible, in which case the cell reads "not measured" rather than faking `visibilitychange`. Navigation away: click the first header link (client-side, checked by a window marker), then `Target.getTargets` on a browser session lists no worker target from the server, and no messages arrive for 2 s.
 
 Targets: no LoAF over 50 ms in playground code; scroll and click p95 at most 100 ms; switch at most 250 ms throttled; draw median at most 16.7 ms desktop and 33.3 ms throttled; zero snapshots in the 2 s idle cases.
+
+`COLLISION_CP7_MODE=paused` pauses the playground through the UI (it plays by itself once in view) before measuring.

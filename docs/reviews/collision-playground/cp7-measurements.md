@@ -31,6 +31,8 @@ Notes:
 
 Same script with `COLLISION_CP7_MODE=paused|none` (scroll and link click only). Paused: harness page, naive 4000 set through the UI, never played. None: `/bezeg-2.0/learn` (no playground; it may scroll little, so its scroll figure is a floor). p95 in ms.
 
+**Correction (2026-11-07, handler 2):** the "playground paused" row below was not paused. The playground starts playing by itself once it is in view, and paused mode never clicked Premor, so that row measured naive playing. With the playground truly paused, mobile 4× gives 30.7 / 32 ms on the harness and 28 / 32 ms on the chapter, the same as with no playground. Details and the fixed script: [containment investigation](cp7-containment-investigation.md).
+
 | state | desktop scroll | desktop link | mobile 4x scroll | mobile 4x link |
 |---|---|---|---|---|
 | naive playing | 25.7 | 16 | 135.6 | 136 |
