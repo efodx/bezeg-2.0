@@ -25,6 +25,7 @@ The owner waived the session-usage limit behind the workflow's three-worker cap 
 | Maps | [maps.md](maps.md) | Linear maps → complex maps → triangle geometry and inversion | 4316 | — |
 | Controls | [controls.md](controls.md) | Shared graph controls, tasks 0–4 → rendered style contracts → lesson panel findings → phone playback → lesson-authoring workstreams 5, 4 and 3 | 4317 | — |
 | Contracts | [contracts.md](contracts.md) | Runtime contracts tasks 1, 5 and 4 → lesson-authoring workstream 2 | 4318 | — |
+| Clips | [clips.md](clips.md) | Lesson-guided catalog clips for the 67 Demonstrations without one | 4319 | — |
 
 Chains follow the [family dependencies](../../specs/new-lesson-families.md#dependencies-and-order): each family's prerequisites sit earlier in its own stream or behind a gate.
 
