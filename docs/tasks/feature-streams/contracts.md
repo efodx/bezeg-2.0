@@ -12,7 +12,7 @@ Each task is one slice; the family template does not apply. Update the task's st
 | 1 | [Stable geometric-series evaluation](../mathematical-runtime-contracts/01-stable-series-evaluation.md) | Mathematical | Geometric series route | accepted 2026-11-07 |
 | 2 | [Typed conic variants and solver outcomes](../mathematical-runtime-contracts/05-typed-conic-outcomes.md) | Mathematical | Conic routes, if behavior changes | accepted 2026-11-07; no runtime change, so no browser run |
 | 3 | [One live function model authority](../mathematical-runtime-contracts/04-live-function-model.md) | Engineering, plus mathematical if evaluation changes | Function routes and Preset import | accepted 2026-11-07; final commit `f8dfbe85`, full checklist passed, baselines recorded |
-| 4 | [Lesson-authoring workstream 2](../../specs/lesson-authoring-architecture.md#2-lesson-definitions-ownership-and-adaptation). Added 2026-11-07. Write its task file from the spec first | Engineering | Chapter entry, catalog guidance and return | pending |
+| 4 | [Lesson-authoring workstream 2](../../specs/lesson-authoring-architecture.md#2-lesson-definitions-ownership-and-adaptation). Added 2026-11-07. Task file: [02-lesson-lookup.md](../lesson-authoring-architecture/02-lesson-lookup.md) | Engineering | Chapter entry, catalog guidance and return | in progress: task file written, slice 1 next |
 
 ## Decisions
 
