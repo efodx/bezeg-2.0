@@ -1,4 +1,5 @@
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -9,6 +10,20 @@ const {rowIds} = require('./demonstration-clip-rows/index.cjs');
 const legacyMotionCount = 51;
 // A row may land before its clip; its Demonstration stays in MOTION_PENDING until capture.
 const pendingIds = new Set(Array.from(fs.readFileSync(path.join(__dirname, '../src/demonstrationMotionPending.ts'), 'utf8').matchAll(/\{id: '([^']+)'/g), match => match[1]));
+
+test('the presentation fingerprint hash ignores checkout line endings but not content', t => {
+    const {hashSource} = require('./capture-demonstration-previews.cjs');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hash-source-'));
+    t.after(() => fs.rmSync(dir, {recursive: true, force: true}));
+    const write = (name, text) => {
+        const file = path.join(dir, name);
+        fs.writeFileSync(file, text);
+        return file;
+    };
+    const lf = hashSource(write('lf.cjs', 'a\nb\n'));
+    assert.equal(hashSource(write('crlf.cjs', 'a\r\nb\r\n')), lf);
+    assert.notEqual(hashSource(write('edited.cjs', 'a\nc\n')), lf);
+});
 
 test('every shipped demonstration has a configured motion timeline', () => {
     const catalog = require('../tests/smoke-catalog.cjs');

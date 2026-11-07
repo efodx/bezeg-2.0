@@ -117,6 +117,15 @@ function hashFile(file) {
     return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
 
+// Source text only, never media: Git's autocrlf rewrites line endings on checkout, which is not a presentation change.
+function normalizeSource(text) {
+    return text.replace(/\r\n/g,'\n');
+}
+
+function hashSource(file) {
+    return crypto.createHash('sha256').update(normalizeSource(fs.readFileSync(file,'utf8'))).digest('hex');
+}
+
 async function servedBuildProvenance() {
     const localHtml = fs.readFileSync(path.join(root, 'build/index.html'), 'utf8');
     const servedHtml = await (await fetch(baseUrl + '/')).text();
@@ -534,19 +543,19 @@ async function main() {
     validateRecipes(demonstrations);
     const started = Date.now();
     const servedBuild = await servedBuildProvenance();
-    const presentationFingerprint=crypto.createHash('sha256').update(presentBoard.toString())
-        .update(hashFile(path.join(__dirname,'demonstration-preview-motion.cjs')))
-        .update(hashFile(path.join(__dirname,'patch-surface-motion.cjs')))
-        .update(hashFile(path.join(__dirname,'demonstration-preview-capture-api.cjs')))
-        .update(hashFile(path.join(__dirname,'demonstration-preview-analysis-motion.cjs')))
-        .update(hashFile(path.join(__dirname,'demonstration-preview-curve-motion.cjs')))
-        .update(hashFile(path.join(__dirname,'demonstration-preview-concept-motion.cjs')))
-        .update(hashFile(path.join(__dirname,'demonstration-preview-recipes.cjs')))
+    const presentationFingerprint=crypto.createHash('sha256').update(normalizeSource(presentBoard.toString()))
+        .update(hashSource(path.join(__dirname,'demonstration-preview-motion.cjs')))
+        .update(hashSource(path.join(__dirname,'patch-surface-motion.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-preview-capture-api.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-preview-analysis-motion.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-preview-curve-motion.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-preview-concept-motion.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-preview-recipes.cjs')))
         // The row driver, schema, example opener and jump check shape every row clip; row data files are deliberately left out.
-        .update(hashFile(path.join(__dirname,'demonstration-clip-rows/_driver.cjs')))
-        .update(hashFile(path.join(__dirname,'demonstration-clip-rows/_schema.cjs')))
-        .update(hashFile(path.join(__dirname,'demonstration-clip-rows/_examples.cjs')))
-        .update(hashFile(path.join(__dirname,'demonstration-clip-rows/_jump.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_driver.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_schema.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_examples.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_jump.cjs')))
         .update(JSON.stringify({viewport,frame,deviceScaleFactor,paddingFraction,captureTextSize,captureTextLineHeight,captureCurveStrokeScale,captureConstructionStrokeScale})).digest('hex');
     assert.ok(demonstrations.length > 0, 'Expected at least one active demonstration route');
     assert.equal(new Set(demonstrations.map(demonstration => demonstration.id)).size, demonstrations.length,
@@ -566,8 +575,6 @@ async function main() {
     if (process.env.PREVIEW_BROWSER_EXECUTABLE_PATH) {
         launchOptions.executablePath = path.resolve(process.env.PREVIEW_BROWSER_EXECUTABLE_PATH);
     }
-    const browser = await chromium.launch(launchOptions);
-    const browserVersion = browser.version();
     const captures = [];
     let motions = [];
     let diagnosticMotions = null;
@@ -606,6 +613,9 @@ async function main() {
     }
     let expectedDimensions;
 
+    // Launch only after the manifest checks and straight before the try: an open browser keeps Node alive, so a throw outside the finally hangs the run.
+    const browser = await chromium.launch(launchOptions);
+    const browserVersion = browser.version();
     try {
         for (const demonstration of demonstrations.filter(d => recaptureIds ? recaptureIds.includes(d.id) : !process.env.PREVIEW_IDS || process.env.PREVIEW_IDS.split(',').includes(d.id))) {
             const context = await browser.newContext({
@@ -883,7 +893,7 @@ async function main() {
     console.log('Wrote ' + captures.length + ' 360:220 default-scene captures and manifest for ' + graphSourceRevision + '.');
 }
 
-module.exports = {presentBoard, pngDimensions, hashFile, mergeRecapturedMotions, alignMotionCameras, serializeManifest,
+module.exports = {presentBoard, pngDimensions, hashFile, hashSource, mergeRecapturedMotions, alignMotionCameras, serializeManifest,
     selectiveSourceProvenance};
 if (require.main === module) main().catch(error => {
     console.error(error);
