@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState, useSyncExternalStore} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore} from 'react';
 import {useLanguage, useT, Language, t, LocalizedError, message} from '../../localization';
 import {framesForLessonStep} from '../model';
 import type {LessonAnimationCommand, LessonDefinition, LessonFrame, LessonGraphCapabilities} from '../model';
@@ -111,6 +111,24 @@ export function GuidedLesson(props: {
     // The panel and the compact tab keep where the learner put them over the graph until another lesson starts.
     const panelDrag = useDraggableOffset(layerRef, lessonRef, overlayVisible, props.lesson);
     const [availablePanelHeight, setAvailablePanelHeight] = useState(480);
+    const [wideBoard, setWideBoard] = useState(false);
+    useLayoutEffect(() => {
+        const layer = layerRef.current;
+        const panel = lessonRef.current;
+        if (!overlayVisible || !layer || !panel) return;
+        const update = () => {
+            const cardWidth = panel.getBoundingClientRect().width;
+            if (cardWidth <= 0) return;
+            const isWide = layer.clientWidth >= cardWidth * 2;
+            session.setGuidedLessonCardWidth(isWide ? cardWidth : 0);
+            setWideBoard(isWide);
+        };
+        update();
+        const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(update);
+        observer?.observe(layer);
+        observer?.observe(panel);
+        return () => observer?.disconnect();
+    }, [session, overlayVisible]);
     useEffect(() => {
         const updateAvailableHeight = () => {
             const layer = layerRef.current;
@@ -528,7 +546,7 @@ export function GuidedLesson(props: {
     </div>;
     const sectionStyle = {...panelDrag.style, '--guided-lesson-max-height': `${availablePanelHeight}px`} as React.CSSProperties;
     return <>
-    <div ref={layerRef} className="guided-lesson-layer">
+    <div ref={layerRef} className={`guided-lesson-layer${wideBoard ? ' guided-lesson-wide' : ''}`}>
     {/* The visible graph around the panel is a pointer target for hiding the instructions;
         keyboard and screen-reader users keep the buttons, so the catcher stays out of the accessibility tree. */}
     {overlayPhase === 'visible' && <div className="guided-lesson-graph-catcher" aria-hidden="true" title={t('hide_lesson_instructions')} onClick={hideOverlay}/>}

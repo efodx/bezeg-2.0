@@ -632,6 +632,8 @@ export interface LessonGraphCapabilities {
     captureState(): LessonSceneCheckpoint;
     restoreState(checkpoint: LessonSceneCheckpoint): void;
     apply(action: LessonAction): void;
+    /** Guided lessons may widen the view after an un-authored default 2D scene is prepared. */
+    adjustGuidedLessonView?(cardWidth: number): void;
     /** Cancels graph-owned transient work before lesson state is restored or replaced. */
     stopAnimations?(): void;
     /** Pauses transient playback at its current value when a settled snapshot is required. */

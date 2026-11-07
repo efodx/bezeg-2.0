@@ -61,6 +61,29 @@ test('starts on the first scene and re-applies target scenes without persistence
     expect(fake.getValue()).toBe(JSON.stringify({kind: 'curve-visibility', target: 'control-polygon', visible: true}));
 });
 
+test('adjusts only un-authored default guided scenes after each scene restore', () => {
+    const guidedScene: LessonAction = {kind: 'prepared-scene', sceneId: 'wide', source: 'demonstration-default'};
+    const guidedLesson: LessonDefinition = {...lesson, steps: [{...lesson.steps[0], scene: {actions: [guidedScene]}}]};
+    const fake = fakeCapabilities();
+    fake.capabilities.adjustGuidedLessonView = vi.fn();
+    const session = new LessonSession(guidedLesson, fake.capabilities);
+    session.setGuidedLessonCardWidth(544);
+    session.start();
+    expect(fake.capabilities.adjustGuidedLessonView).toHaveBeenCalledWith(544);
+    session.reset();
+    expect(fake.capabilities.adjustGuidedLessonView).toHaveBeenCalledTimes(2);
+    expect(fake.capabilities.restoreState).toHaveBeenCalledTimes(1);
+
+    const authored: LessonAction = {kind: 'prepared-scene', sceneId: 'authored', source: 'demonstration-default', view: [-4, 4, 4, -4]};
+    const authoredLesson: LessonDefinition = {...lesson, steps: [{...lesson.steps[0], scene: {actions: [authored]}}]};
+    const authoredFake = fakeCapabilities();
+    authoredFake.capabilities.adjustGuidedLessonView = vi.fn();
+    const authoredSession = new LessonSession(authoredLesson, authoredFake.capabilities);
+    authoredSession.setGuidedLessonCardWidth(544);
+    authoredSession.start();
+    expect(authoredFake.capabilities.adjustGuidedLessonView).not.toHaveBeenCalled();
+});
+
 test('restores the captured graph even when the first scene has no actions', () => {
     const fake = fakeCapabilities();
     const session = new LessonSession(emptySceneLesson, fake.capabilities);

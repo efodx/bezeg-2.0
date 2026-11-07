@@ -2172,3 +2172,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Timing: worker durations as reported: first worker 43 and 62 min; smoke worker 38 min; reviewers 2 and 3 min. Dispatch clock for the first worker not captured.
 - Usage (worker totals as reported): first worker 70,508, then 117,875 (possibly cumulative); smoke worker 68,511; engineering review 25,992; UI review 26,502 tokens.
 - Handoff evidence: naming "do not add Enter mechanically" and the Apply-button editors kept the smoke worker to four edits out of about 30 sites. Worker sizing held: 44 tool uses, no budget signal.
+
+### 2026-11-07 · Wide guided lesson placement · M
+
+- One owner implemented the shared wide-board card home and guided 2D starting pan. Three Codex workers were requested at GPT-6 Luna High for implementation, source review, and production browser smoke. The bounded brief was the [opening placement spec](../specs/lesson-panel-visual-refinement.md#opening-placement-on-wide-boards--2026-11-07).
+- The implementation brief scoped the pan to un-authored default guided scenes. Follow-up clarified the pan sign, observer remount, and the separation of the default home from manual drag. The first typecheck caught a board container type error. The corrected check passed and independent source review found no remaining issues.
+- Typecheck, lint, production build, and the three affected runtime unit files passed. Focused Chromium smoke verified wide and narrow bisection, unchanged scale, view restoration, tool use, the authored spline view, and the Coons camera. The broad unit run did not produce a result and browser smoke remained queued behind two other worktrees. Both broad runs were stopped at closeout. Focused acceptance passed, with broad coverage incomplete.
+- Handler self-checks observed 155,471 input tokens at entry and 191,311 during verification. Worker watchers observed 68,149 for implementation and 44,981 at the first review return. The owner asked to finish in this chat, with changes left local.

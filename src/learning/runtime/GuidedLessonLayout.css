@@ -35,6 +35,11 @@
     min-width: 0;
 }
 
+/* On wide boards the reading card's home leaves the graph's right half visible. */
+.guided-lesson-layer.guided-lesson-wide .guided-lesson {
+    justify-self: start;
+}
+
 @media (max-width: 1100px) {
     .demonstration-workspace.lesson-open {
         grid-template-areas: "heading heading" "graph inspector" "learning learning";

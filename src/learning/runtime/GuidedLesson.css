@@ -1,4 +1,6 @@
 .guided-lesson-layer {
+    display: grid;
+    align-content: start;
     grid-area: graph;
     z-index: 3;
     align-self: stretch;

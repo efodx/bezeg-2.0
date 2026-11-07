@@ -48,6 +48,7 @@ const onlyCameraDiffers = (a: object, b: object): boolean => {
  * and apply point edits.
  */
 abstract class BaseSurfaceGraph<S extends SurfaceGraphState, D = unknown> extends BaseGraph<S, D> {
+    protected override supportsGuidedLessonPanning(): boolean { return false; }
     private readonly viewFactory: () => SurfaceView;
     private view?: SurfaceView;
     private host?: HTMLElement;

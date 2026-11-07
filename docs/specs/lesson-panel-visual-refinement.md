@@ -71,3 +71,12 @@ Verification:
 ## Stable navigation follow-up — 2026-11-07
 
 The owner selected and tried the compact top-toolbar layout. [Stable lesson navigation](lesson-navigation-stability.md) supersedes the earlier footer placement and separate observation action: the utility row keeps Skrij on every frame and the progress/short Back/Next toolbar sits above the changing body. Existing scene, placement, reading-position and focus contracts still apply.
+
+## Opening placement on wide boards — 2026-11-07
+
+When the graph area is at least about twice the reading card’s desktop width, the expanded card starts at the upper left. A default 2D guided scene starts with its plot panned right by about half the space the card occupies, at the original scale. This leaves room to see the construction and keeps Orodja available beside the graph. Scenes with an authored view and 3D cameras keep their existing framing. Narrow boards keep the existing card home and graph view.
+
+- Opening bisection on a wide board shows the bracket, endpoint markers and both branches around the crossing beside the card. Ordinary demonstration entry uses the same view as before.
+- The framing adjustment runs with guided scene setup. Advancing within a scene, hiding and reopening, or moving the card leaves the view steady. Re-entering a scene does not accumulate shifts.
+- Exit restores the pre-lesson view and state. Completion retains the final construction and respects learner camera changes. The card and tab keep their existing drag, clamp and focus behavior.
+- Verify bisection on wide and narrow boards, a 2D lesson with an authored view, a surface lesson, and lesson exit back to exploration. Use the existing lesson smoke suite for the shared runtime.

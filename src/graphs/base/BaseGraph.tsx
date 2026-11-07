@@ -149,6 +149,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         captureState: () => this.captureLessonState(),
         restoreState: checkpoint => this.restoreLessonState(checkpoint),
         apply: action => this.applyLessonAction(action),
+        adjustGuidedLessonView: cardWidth => this.adjustGuidedLessonView(cardWidth),
         stopAnimations: () => this.stopLessonAnimations(),
         pauseAnimations: () => this.pausePlayback(),
         isAvailable: () => this.graphSession?.isReady === true,
@@ -460,6 +461,20 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     public getLessonCapabilities(): LessonGraphCapabilities {
         return this.lessonCapabilityAdapter;
     }
+
+    /** Pans an ordinary 2D lesson view to make room for its reading card without changing scale. */
+    protected adjustGuidedLessonView(cardWidth: number): void {
+        if (!this.hasBoard || !this.supportsGuidedLessonPanning() || !Number.isFinite(cardWidth) || cardWidth <= 0) return;
+        const {width: boardWidth} = JXG.getDimensions(this.board.container, document);
+        const width = parseFloat(String(boardWidth));
+        if (!Number.isFinite(width) || width <= 0) return;
+        const [left, top, right, bottom] = this.board.getBoundingBox();
+        const dx = (right - left) * (cardWidth / 2 / width);
+        this.board.setBoundingBox([left - dx, top, right - dx, bottom], false);
+    }
+
+    /** Graphs with a non-planar camera override this out. */
+    protected supportsGuidedLessonPanning(): boolean { return true; }
 
     /** Exposes the active lifetime owner to graph-owned runtime integrations. */
     protected getActiveGraphSession(): GraphSession | undefined {
