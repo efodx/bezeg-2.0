@@ -1,6 +1,6 @@
 # Keep demonstration playback beside the graph
 
-**Status:** backlog; planning only, no application code changes authorized now.
+**Status:** scheduled in [Controls](../feature-streams/controls.md) step 6.
 **Source spec:** [Mobile graph playback](../../specs/mobile-graph-playback.md).
 
 ## Outcome

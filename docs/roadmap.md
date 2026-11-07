@@ -38,7 +38,7 @@ The [runtime](reviews/lesson-implementation-history.md#guided-lesson-runtime-and
 
 The [rollout specification](specs/guided-lessons-rollout.md) and [content blueprint](specs/guided-lessons-content-expansion.md) record implemented capability-aligned lessons. Keep supported availability explicit; do not invent generic lessons for unsupported graphs. Preserve typed graph actions, transient scenes/progress, existing routes and browser-local Presets.
 
-**Remaining work:** consolidate capability/evidence ownership and restore the eight missing per-lesson smoke rows. Track concrete mathematical, functional or verification gaps individually rather than keeping every available lesson in draft status.
+**Remaining work:** consolidate capability/evidence ownership. Track concrete mathematical, functional or verification gaps individually rather than keeping every available lesson in draft status.
 
 ## 3B. Improve released lesson interactions and examples
 

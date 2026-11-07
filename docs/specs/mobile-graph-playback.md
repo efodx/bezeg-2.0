@@ -1,6 +1,6 @@
 # Playback controls within reach of the graph on phones
 
-**Status:** proposed future fix; documentation only. Preparing this spec does not authorize application implementation.
+**Status:** scheduled; approved 2026-11-06 and queued in [Controls](../tasks/feature-streams/controls.md) step 6.
 **Reported:** 2026-10-20
 **Related:** [workspace usability](tools-usability-redesign.md), [lesson graph access](lesson-graph-access.md), [guardrails](../guardrails.md).
 
