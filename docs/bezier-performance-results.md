@@ -474,3 +474,20 @@ Limits: rAF intervals saturate at 16.7 ms. The 4× throttle is a desktop slowdow
 | 4× throttle 390×844, main thread | sweep | 0.005 | 0.02 | 0.18 | 0.38 | 0.80 | 1.27 | 2.84 |
 
 Decision: limits 4 000 (naive) and 5 000 (sweep); reasons in the [collision playground spec](specs/collision-playground.md#containment). The throttled rows run on the main thread because CDP cannot throttle a worker target.
+
+## Collision playground containment and draw pacing — 2026-11-07
+
+`just collision-containment /bezeg-2.0/learn/sweep-algorithms` ([script](../scripts/collision-containment/README.md)) on the production build, Chromium 156.0.8078.4 headless, AMD Ryzen 5 7600. Profiles: desktop 1440×900 unthrottled; 390×844 touch, DPR 2, 4× CPU throttling on the main thread (the simulation worker runs unthrottled). Naive plays at its limit (4 000) unless stated. Evidence: [investigation and runs](reviews/collision-playground/cp7-containment-investigation.md), [first trial](reviews/collision-playground/cp7-measurements.md).
+
+| State, mobile 4× | Scroll p95 (ms) | Link-click p95 (ms) |
+|---|---|---|
+| No playground (harness `playground=0`) | 31 | 32 |
+| Playground paused | 28 to 30 | 32 |
+| Playing, before draw pacing | 77, 84, 104 | 32 to 48 |
+| Playing, with draw pacing (three runs) | 52.7, 54.2, 51.6 | 32, 40, 40 |
+
+- **Cause.** The playground plays on its own once in view, and the first "paused" baseline was really playing. Truly paused it costs nothing measurable. While playing, the throttled main thread spent most frame time in Commit and DoUpdateLayers for the DPR-2 canvas at the snapshot rate (trace: 604 main frames, 3 745 ms, against 173 frames, 222 ms without the playground). Draw script was about 540 ms.
+- **Change kept.** Adaptive draw pacing (`drawPacing.ts`; [spec decision](specs/collision-playground.md#containment)). When the smoothed rAF interval is above 20 ms, the canvas draws at most every 33 ms. Unloaded displays still draw every frame. Throttled draws fell to about 17 per second, while the simulation and readout were unchanged.
+- **Other rows with pacing.** No long animation frame over 50 ms in either profile. Naive-to-sweep switch: mobile median 45 to 52 ms, desktop 21 ms. Sweep-limit draw callback median: 1 ms desktop, 4.7 ms mobile (p95 6.5 to 6.9). Desktop scroll p95: 38 to 40 ms; link: 16 ms.
+- **Limits.** Headless Chromium uses the software compositor, so a phone's GPU compositing may differ. No physical phone was measured.
+

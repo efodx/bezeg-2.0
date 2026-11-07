@@ -52,6 +52,8 @@ These are experiments in increasing scope, not a commitment to every optimizatio
 
 ## Report template
 
+The collision playground's containment on a throttled phone profile and its adaptive draw pacing are in [Collision playground containment and draw pacing](bezier-performance-results.md#collision-playground-containment-and-draw-pacing--2026-11-07); its step costs are in [Collision playground step cost](bezier-performance-results.md#collision-playground-step-cost--2026-11-07).
+
 The function drag and slider baseline (integral, area-between, accumulation, darboux, bisection; desktop and 390×844 at 4× CPU) is in [Live function model in the store](bezier-performance-results.md#live-function-model-in-the-store--2026-11-07).
 
 For each experiment record: scene configuration, changed mechanism, baseline and new results, affected mathematical checks, device/input coverage, remaining limits, and the decision to keep or discard it. Retain comparable configurations so later changes can be assessed on the same work.

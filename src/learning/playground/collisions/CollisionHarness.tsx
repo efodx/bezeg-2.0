@@ -7,7 +7,8 @@ import '../../ChapterPage.css'
  * HARNESS ONLY: mounts the Run component and, below it, the Look underneath view so a browser smoke can test them before the
  * chapter integration (CP7).
  * Route: /bezeg-2.0/harness/collision-playground?count=300&method=sweep. Add &playground=0 to omit the Run component (containment baseline), &inspect=0 to hide the inspect view and
- * &inspectCount=30 to set its object count. Not linked from anywhere; remove with CP7 if unwanted.
+ * &inspectCount=30 to set its object count. Not linked from anywhere. Kept after CP7 as the containment measurement page
+ * (scripts/collision-containment); see the spec's Containment section.
  */
 export function CollisionHarness() {
   const params = new URLSearchParams(window.location.search)

@@ -62,6 +62,8 @@ The narrow phase becomes *box → hull separating-axis test → pieces separatin
 
 **Draw pacing (decision 2026-11-07).** The draw loop (`drawPacing.ts`) keeps a moving average of the `requestAnimationFrame` interval. While it is above 20 ms the canvas is drawn at most every 33 ms (always from the newest snapshot, an early frame only re-requests); it returns to every frame once the average is below 17.5 ms and 1.5 s have passed. CP7 measured the throttled chapter page at scroll p95 77 to 104 ms with naive playing, from committing a DPR-2 canvas at the snapshot rate; with pacing it is 52 to 54 ms. Rejected: lowering the backing resolution (it changes the picture at every load) and a fixed 30 Hz cap (it degrades unloaded desktops and 120 Hz displays).
 
+**Measurement page (decision 2026-11-07, CP7).** The hidden route `/bezeg-2.0/harness/collision-playground` stays. It is not linked from the app. It mounts the components without chapter chrome, and `playground=0` gives the no-component baseline that the containment script needs. Removing it would leave later pacing or renderer changes without a comparable baseline, and its cost is one lazy route chunk.
+
 **Stops when unwatched.**
 
 - The worker pauses when the document is hidden (`visibilitychange`) or the canvas is out of view (`IntersectionObserver`, threshold 0).
