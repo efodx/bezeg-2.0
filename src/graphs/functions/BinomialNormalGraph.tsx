@@ -68,7 +68,7 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
         return this.memoView(model, () => binomialNormalView(model));
     }
 
-    // ---- Model operations (read and write the synchronous model, never the flat projection) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     private accepted(edit: BinomialNormalEdit): BinomialNormalModel {
         if (!edit.ok) throw new DomainError(binomialNormalEditMessage(edit.issue));

@@ -35,7 +35,7 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         return [-6, 8, 6, -4];
     }
 
-    // ---- Model operations (read and write the synchronous model, never the flat projection) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     private currentLine() {
         const {x1, y1, x2, y2} = this.model;
