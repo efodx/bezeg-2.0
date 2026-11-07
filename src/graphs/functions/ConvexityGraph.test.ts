@@ -40,8 +40,8 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new ConvexityGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -50,7 +50,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -150,7 +150,7 @@ test('the chord is a solid segment over [a, b] and the tangent a dashed line at 
 });
 
 test('before the reveal the readout, caption and statuses say hidden and give no verdict; the chord and tangent rows are always given', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(rows(graph)).toEqual({
         a: '−1', b: '1,5', t: '0,5', chord: 'y = 0,5x + 1,5', tangent: 'y = x − 0,25',
         'second-derivative-sign': 'skrito', verdict: 'skrito', 'tangent-verdict': 'skrito', inflection: 'skrito',
@@ -167,7 +167,7 @@ test('before the reveal the readout, caption and statuses say hidden and give no
 });
 
 test('x^2 on [-1, 1.5] revealed: convex, graph on or below the chord and on or above the tangent, f\'\' >= 0, no inflection', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     expect(rows(graph)).toEqual({
         a: '−1', b: '1,5', t: '0,5', chord: 'y = 0,5x + 1,5', tangent: 'y = x − 0,25',
@@ -183,7 +183,7 @@ test('x^2 on [-1, 1.5] revealed: convex, graph on or below the chord and on or a
 });
 
 test('-x^2 reverses both comparisons: concave, graph on or above the chord and on or below the tangent', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('negSquare'));
     apply(graph, reveal(true));
     expect(rows(graph)).toMatchObject({
@@ -195,7 +195,7 @@ test('-x^2 reverses both comparisons: concave, graph on or above the chord and o
 });
 
 test('a tangent point outside [a, b] withdraws the tangent claim and says why, while the chord claim stays', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     apply(graph, parameter('convexity-t', 1.8));
     expect(rows(graph)).toMatchObject({
@@ -214,7 +214,7 @@ test('a tangent point outside [a, b] withdraws the tangent claim and says why, w
 });
 
 test('x^3: f\'\' = 6x changes sign at 0, so [-1, 1.5] gets no claim and names the inflection point; [0, 2] is convex and [-2, 0] concave', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('cube'));
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1.5, t: 0.5, secondDerivativeVisible: true});
@@ -243,7 +243,7 @@ test('x^3: f\'\' = 6x changes sign at 0, so [-1, 1.5] gets no claim and names th
 });
 
 test('x^4 on [-1, 1]: convex, f\'\'(0) = 0 yet no inflection point, and the zero is marked without a sign change', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('quartic'));
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'quartic', a: -1, b: 1, t: 0.5, secondDerivativeVisible: true});
@@ -260,7 +260,7 @@ test('x^4 on [-1, 1]: convex, f\'\'(0) = 0 yet no inflection point, and the zero
 });
 
 test('the sign strip is a row of + and − marks per piece of the view (not colour only), centred on the piece, with a 0 where f\'\' vanishes', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     expect(signTexts(graph).map((text: any) => [visible(text), text.parents[2](), text.parents[0]()])).toEqual([[true, '+', -3.25], [false, '', 0]]);
     expect(visible(zeroMark(graph))).toBe(false);
@@ -288,8 +288,8 @@ test('the board objects never exceed the fixed pool: slots for one inflection, t
 });
 
 test('setting the example, a, b, t and the reveal through the controls and through the lesson actions gives the same configuration', () => {
-    const viaControl = makeGraph({asyncState: false});
-    const viaLesson = makeGraph({asyncState: false});
+    const viaControl = makeGraph();
+    const viaLesson = makeGraph();
     controls(viaControl).found.ChoiceSelect[0].props.onChange('cube');
     apply(viaLesson, choice('cube'));
     expect(viaControl.model).toEqual(viaLesson.model);
@@ -313,7 +313,7 @@ test('setting the example, a, b, t and the reveal through the controls and throu
 });
 
 test('invalid values are rejected, never clamped: every setter throws DomainError and leaves the model unchanged', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const before = {...graph.model};
     for (const a of [1.5, 1.6, 3, -2.5, -3, NaN, Infinity]) expect(() => apply(graph, parameter('convexity-a', a)), `a = ${a}`).toThrow(DomainError);
     for (const b of [-1, -1.5, 2.5, 3, -3, NaN, -Infinity]) expect(() => apply(graph, parameter('convexity-b', b)), `b = ${b}`).toThrow(DomainError);
@@ -333,7 +333,7 @@ test('invalid values are rejected, never clamped: every setter throws DomainErro
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -358,14 +358,14 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Primer mora biti eden od: square, negSquare, cube, quartic.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('convexity-t', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'convexity_t_rejected_hint', params: {value0: '−2', value1: '2'}});
 });
 
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const {inputA, inputB, inputT} = controls(graph);
     expect([inputA, inputB, inputT].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Levo krajišče a', -2, 2, -1], ['Desno krajišče b', -2, 2, 1.5], ['Točka dotika tangente t', -2, 2, 0.5],
@@ -389,7 +389,7 @@ test('the number fields carry their ranges, report rejection with a hint and sho
 });
 
 test('the toggle names its state in words, editing a, b and t keeps the reveal and choosing an example hides it', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(controls(graph).toggle.props.children).toBe('Pokaži drugi odvod');
     expect(controls(graph).toggle.props['data-revealed']).toBe(false);
     controls(graph).toggle.props.onClick();
@@ -407,12 +407,12 @@ test('the toggle names its state in words, editing a, b and t keeps the reveal a
     expect(controls(graph).toggle.props.children).toBe('Show second derivative');
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('cube'), parameter('convexity-a', 0), parameter('convexity-b', 2), parameter('convexity-t', 1.8), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'cube', a: 0, b: 2, t: 1.8, secondDerivativeVisible: true});
-    expect(graph.state).toMatchObject({example: 'square', a: -1, b: 1.5, t: 0.5, secondDerivativeVisible: false});
+    expect(graph.state).toMatchObject(graph.model);
     // a later action in the same tick sees the earlier one, including an endpoint that depends on the other endpoint
     apply(graph, parameter('convexity-b', 1));
     apply(graph, parameter('convexity-a', 0.5));
@@ -425,7 +425,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     expect(lesson.id).toBe('convexity-guided');
     expect(lesson.steps).toHaveLength(7);
     const finals = lesson.steps.map(step => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, choice('cube'));
         apply(graph, parameter('convexity-a', 1));
@@ -444,13 +444,13 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         [{example: 'quartic', a: -1, b: 1, t: 0.5, secondDerivativeVisible: true}, ['revealed', 'zero-without-change']],
     ]);
     // the numbers the lesson prose states
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const action of lesson.steps[1].scene!.actions) apply(graph, action);
     expect(rows(graph)).toMatchObject({chord: 'y = 0,5x + 1,5', tangent: 'y = x − 0,25'});
 });
 
 test('the displayed lines are the exact chord and tangent for every example (independent identities f - line)', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const identities: [string, number, number, number, (x: number) => number][] = [
         ['square', -1, 1.5, 0.5, x => (x + 1) * (x - 1.5)],
         ['negSquare', -1, 1.5, 0.5, x => -(x + 1) * (x - 1.5)],
@@ -558,7 +558,7 @@ test('presets save the model with the reveal flag and reopen the same scene', ()
     expect(exported.id).toBe('convexity');
     expect(exported.data).toEqual({example: 'cube', a: 0, b: 2, t: 1.8, secondDerivativeVisible: true});
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     reopened.importPreset({id: 'convexity', boardState: {boundingBox: [-1, 2, 7, -2]}, data: exported.data});
     expect(reopened.model).toEqual(exported.data);
     expect(rows(reopened)).toMatchObject({chord: 'y = 4x', verdict: 'konveksna na [a, b]: graf leži na tetivi ali pod njo', 'tangent-verdict': 'graf leži na tangenti ali nad njo'});
@@ -570,7 +570,7 @@ test('presets save the model with the reveal flag and reopen the same scene', ()
 });
 
 test('a preset of another example without a view of its own shows that example\'s view', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'convexity', data: {example: 'cube', a: -1, b: 1.5, t: 0.5, secondDerivativeVisible: false}});
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-6.5, 4.2, 6.5, -3.2], true);
@@ -613,7 +613,7 @@ test('capture and restore bring back the synchronous model, including the reveal
 });
 
 test('no readout, caption, label or status ever shows NaN, Infinity or a raw undefined, in either language, for any example and reveal', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const language of ['sl', 'en'] as const) {
         setLanguage(language);
         for (const id of CONVEXITY_EXAMPLE_IDS) {
@@ -667,7 +667,7 @@ test('generated objects are disposed and not duplicated across repeated generati
 });
 
 test('the caption follows the language and a language change notifies subscribers', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(caption(graph)[1]).toBe('a = −1, b = 1,5, t = 0,5');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);

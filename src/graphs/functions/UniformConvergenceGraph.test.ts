@@ -37,8 +37,8 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new UniformConvergenceGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -47,7 +47,6 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
     graph.initialize();
     return graph;
 }
@@ -158,7 +157,7 @@ test('f_n is solid, the limit dashed, the band edges medium-dashed, the supremum
 });
 
 test('the limit is drawn as separate pieces: on [0, 1] a half-open segment with an open circle at (1, 0) and the isolated filled point (1, 1), never joined', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const segment = segments(graph)[LIMIT_SEGMENT];
     const endpoints = () => coords(segment);
     // r < 1: one closed segment on [0, r] and no extra pieces
@@ -200,7 +199,7 @@ test('the limit is drawn as separate pieces: on [0, 1] a half-open segment with 
 });
 
 test('readouts and statuses are hidden before Show supremum, then give the supremum, whether it is attained and the shared N', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(rows(graph)).toEqual({
         r: '0,8', n: '5', x: '0,5', epsilon: '0,1', term: '0,03125', limit: '0', 'pointwise-error': '0,03125', 'pointwise-n': '4',
         supremum: 'skrito', 'supremum-attained': 'skrito', 'shared-n': 'skrito',
@@ -234,7 +233,7 @@ test('readouts and statuses are hidden before Show supremum, then give the supre
 });
 
 test('power on [0, 1]: the supremum is 1 for every n, not attained, and there is no shared N', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('uniform-r', 1));
     apply(graph, reveal(true));
     for (const n of [1, 5, 50]) {
@@ -266,7 +265,7 @@ test('power on [0, 1]: the supremum is 1 for every n, not attained, and there is
 });
 
 test('a pointwise or shared N beyond the selectable n is reported with its true value, never truncated', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     // pointwise: x = 0.99 on [0, 1], epsilon = 0.1 needs n = 230 (x^n < 0.1)
     apply(graph, parameter('uniform-r', 1));
     apply(graph, parameter('uniform-x', 0.99));
@@ -297,7 +296,7 @@ test('a pointwise or shared N beyond the selectable n is reported with its true 
 });
 
 test('x/n: the supremum is r/n attained at x = r and the shared N is floor(r / epsilon) + 1', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('scaled'));
     expect(graph.model).toEqual({example: 'scaled', r: 1, n: 5, x: 0.5, epsilon: 0.1, supremumVisible: false});
     expect(rows(graph)).toMatchObject({term: '0,1', limit: '0', 'pointwise-error': '0,1', 'pointwise-n': '6', supremum: 'skrito'});
@@ -322,7 +321,7 @@ test('number-field values: arithmetic noise is snapped to the grid, a real off-g
     expect(gridValue(0.851, 0.05)).toBeUndefined();
     expect(gridValue(0.125, 0.01)).toBeUndefined();
     expect(gridValue(Number.NaN, 0.01)).toBeUndefined();
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('uniform-r', 0.8500000000000001));
     expect(graph.model.r).toBe(0.85);
     apply(graph, parameter('uniform-x', 0.1 + 0.2));
@@ -342,7 +341,7 @@ test('number-field values: arithmetic noise is snapped to the grid, a real off-g
 });
 
 test('a change of r below the chosen x is rejected and never clamped; the inspector says why and what to do', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const before = {...graph.model};
     expect(() => apply(graph, parameter('uniform-r', 0.4))).toThrow(/Najprej premakni točko x/);
     expect(graph.model).toEqual(before);
@@ -372,10 +371,10 @@ test('a change of r below the chosen x is rejected and never clamped; the inspec
 });
 
 test('controls and lesson actions give equivalent models', () => {
-    const viaLesson = makeGraph({asyncState: false});
+    const viaLesson = makeGraph();
     for (const action of [choice('power'), parameter('uniform-r', 1), parameter('uniform-x', 0.9), parameter('uniform-n', 10), parameter('uniform-epsilon', 0.05), reveal(true)]) apply(viaLesson, action);
 
-    const viaControls = makeGraph({asyncState: false});
+    const viaControls = makeGraph();
     controls(viaControls).select.props.onChange('scaled');
     controls(viaControls).select.props.onChange('power');
     controls(viaControls).inputR.props.onChange(1);
@@ -414,7 +413,7 @@ test('controls and lesson actions give equivalent models', () => {
 });
 
 test('dragging x projects onto the 0.01 grid inside [0, r] and writes through the same setter', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const point = points(graph)[X_POINT];
     point.x = 0.5712;
     point.handlers.drag();
@@ -440,8 +439,8 @@ test('every lesson scene reproduces the configuration its expectedState describe
     expect(lesson.id).toBe('uniform-convergence-guided');
     expect(lesson.steps).toHaveLength(8);
     const finals = lesson.steps.map(step => {
-        // the React state lags inside one tick (setState is asynchronous); the model must still be what the actions describe
-        const graph = makeGraph({asyncState: true});
+        // each step runs as one synchronous sequence on a real store; the model must be exactly what the actions describe
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, choice('scaled'));
         apply(graph, parameter('uniform-n', 33));
@@ -461,7 +460,7 @@ test('every lesson scene reproduces the configuration its expectedState describe
         [model('scaled', 1, 5, 0.5, false), ['hidden']],
     ]);
     // the numbers the lesson prose states, read from the graph
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const run = (index: number) => { for (const action of lesson.steps[index].scene!.actions) apply(graph, action); };
     run(0);
     expect(rows(graph)).toMatchObject({term: '0,125', 'pointwise-error': '0,125'});
@@ -497,7 +496,7 @@ test('every lesson scene reproduces the configuration its expectedState describe
 });
 
 test('the lesson action registry handles exactly the uniform names and refuses the others', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(() => apply(graph, {kind: 'function-parameter', name: 'taylor-x', value: 1} as LessonAction)).toThrow(UnsupportedLessonActionError);
     expect(() => apply(graph, {kind: 'function-visibility', target: 'taylor-bound', visible: true} as LessonAction)).toThrow(UnsupportedLessonActionError);
     expect(() => apply(graph, {kind: 'function-choice', name: 'taylor-example', value: 'exp'} as LessonAction)).toThrow(UnsupportedLessonActionError);
@@ -543,7 +542,7 @@ test('presets round-trip, an invalid preset loads the default, and capture and r
 });
 
 test('the board caption follows the language, a language change notifies subscribers, and compact boards drop the key line', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
@@ -567,7 +566,7 @@ test('the board caption follows the language, a language change notifies subscri
 });
 
 test('no readout, caption or status ever shows NaN, Infinity, -0, 1e-17 noise or a raw undefined, in either language', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const language of ['sl', 'en'] as const) {
         setLanguage(language);
         for (const id of ['power', 'scaled']) {
@@ -596,7 +595,7 @@ test('no readout, caption or status ever shows NaN, Infinity, -0, 1e-17 noise or
 });
 
 test('Fit restores the default view instead of a canvas-aspect box, because the axes have different units', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     graph.board.container = document.createElement('div');
     graph.board.applyZoom = vi.fn();
     graph.board.setBoundingBox.mockClear();
@@ -608,7 +607,7 @@ test('Fit restores the default view instead of a canvas-aspect box, because the 
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured message', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -633,7 +632,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Toleranca ε mora biti večkratnik števila 0,01 med 0,01 in 1.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('uniform-n', 99)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'uniform_n_rejected_hint', params: {value0: 1, value1: 50}});

@@ -28,7 +28,11 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
  *
  * The mathematics lives in `src/analysis/` and must not be imported back from here into that module.
  */
-export type FunctionGraphState<M extends object> = BaseGraphState & M;
+/**
+ * The store owns the live model in `model`. The flat fields are a one-way projection for subclasses not yet migrated to
+ * `this.model`; only `modelPatch` writes them and nothing reads them back as authority.
+ */
+export type FunctionGraphState<M extends object> = BaseGraphState & M & {model: M};
 
 export type FunctionParameterAction = Extract<LessonAction, { kind: 'function-parameter' }>;
 export type FunctionVisibilityAction = Extract<LessonAction, { kind: 'function-visibility' }>;
@@ -135,8 +139,6 @@ const CAPTION_MIN_FONT = 11;
 const CAPTION_FULL_WIDTH = 700;
 
 export default abstract class BaseFunctionGraph<M extends object> extends BaseGraph<FunctionGraphState<M>, M> {
-    /** Synchronous source of truth for the graph; `this.state` mirrors it for rendering. */
-    protected model: M;
     private generatedObjects: any[] = [];
     private readonly modelCaches: (() => void)[] = [];
     /** True only between an import that carried a board view and the `initialize()` that must not override it. */
@@ -145,14 +147,19 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     private lastLanguage: Language = currentLanguage();
     private viewMemo?: { key: readonly unknown[]; view: unknown };
 
-    constructor() {
-        super();
-        this.model = this.defaultModel();
+    /** The live model, owned by the scene store. A read returns the stored object, so its identity changes only with a commit. */
+    protected get model(): M {
+        return this.state.model;
     }
 
     override getInitialState(): FunctionGraphState<M> {
-        // Always the default model: a remount must not start from values a preset import wrote into `this.model`.
-        return {initialized: false, ...this.defaultModel()};
+        // Always the default model: a remount must not start from values a preset import committed.
+        return {initialized: false, ...this.modelPatch(this.defaultModel())};
+    }
+
+    /** The store fields of a model. */
+    private modelPatch(model: M): M & {model: M} {
+        return {...model, model};
     }
 
     private unsubscribeLanguage?: () => void;
@@ -184,8 +191,6 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         this.clearModelCaches();
         this.onSceneRemoved();
         super.unmount();
-        // A later mount() on this instance starts from the default model, like a new instance.
-        this.model = this.defaultModel();
     }
 
     // ---- Subclass contract -------------------------------------------------------------------------------------
@@ -207,13 +212,9 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     protected abstract defaultBoundingBox(): BoundingBox;
 
-    /**
-     * The model as React state currently shows it (a copy of the state's model fields), for the inspector. Handlers and lesson
-     * actions read `this.model` instead.
-     */
+    /** The live model, for inspectors not yet migrated to `this.model`. */
     protected stateSnapshot(): M {
-        const state = this.state as unknown as Record<string, unknown>;
-        return Object.fromEntries(Object.keys(this.model).map(key => [key, state[key]])) as unknown as M;
+        return this.model;
     }
 
     /** Closures over the live display settings, for JSXGraph attributes that must follow them. */
@@ -257,14 +258,17 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     // ---- Model -------------------------------------------------------------------------------------------------
 
     /**
-     * Replaces the synchronous model, then mirrors it into React state. Pass `syncScene: false` when the objects already
-     * show the new model (the user is dragging them).
+     * The one model write: stores `next` as the live model. Pass `syncScene: false` when the objects already show the new
+     * model (the user is dragging them).
      */
     protected commitModel(next: M, options: { syncScene?: boolean } = {}): void {
-        this.model = next;
+        const patch = this.modelPatch(next) as Partial<FunctionGraphState<M>>;
         // A late drag or input event after unmount only updates the model: there is no board or React tree to touch.
-        if (!this.graphSession?.isAlive) return;
-        this.setState({...next} as unknown as FunctionGraphState<M>);
+        if (!this.graphSession?.isAlive) {
+            this.store.setState(patch);
+            return;
+        }
+        this.setState(patch);
         if (options.syncScene !== false && this.generatedObjects.length > 0) this.syncSceneToModel();
         this.boardUpdate();
     }
@@ -291,7 +295,8 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         // Only a preset applied before the scene exists is followed by the `initialize()` that would reset the view; one
         // applied to a live scene sets its own view directly, and a stale flag would make a later initialize skip the default.
         this.boardStateImported = Boolean(preset.boardState) && this.generatedObjects.length === 0;
-        super.importPreset(preset);
+        // Stored `graphState` carries flat model fields. They are never authority, so they stop at this edge.
+        super.importPreset(preset.graphState ? {...preset, graphState: {initialized: true}} : preset);
         // The model in `data` is authoritative; a preset without it shows the default model.
         if (preset.data === undefined || preset.data === null) this.importPresetData(this.defaultPreset());
         const example = this.exampleView();
@@ -335,8 +340,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     /**
      * The numbers a display is derived from, computed once per set of model values however many board objects and readouts read
-     * them. The key is the model's field values (not the object), so the board (reading `this.model`) and the inspector (reading a
-     * copy made from React state) share one entry while they show the same values, and a new object with equal values reuses it.
+     * them. The key is the model's field values (not the object), so a new object with equal values reuses the entry.
      */
     protected memoView<V>(model: M, compute: () => V): V {
         const key = Object.values(model);
@@ -427,18 +431,20 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
     }
 
     protected override lessonDefaultState(): FunctionGraphState<M> {
-        return {initialized: true, ...this.defaultModel()};
+        return {...this.getInitialState(), initialized: true};
     }
 
-    /** The model is the source of truth, so a saved scene state carries the model even if the mirror were behind. */
-    protected override sceneGraphState(): FunctionGraphState<M> {
-        return {...super.sceneGraphState(), ...this.model};
+    /** Files and checkpoints keep the flat shape: the host fields with the model's fields beside them. */
+    protected override savedGraphState(): BaseGraphState {
+        return {initialized: this.state.initialized, ...this.model};
     }
 
-    /** The scene state mirrors the model, and the model imported from the Preset data wins over a restored scene state. */
-    protected override syncReplacedScene(): void {
-        super.syncReplacedScene();
-        if (this.graphSession?.isAlive) this.setState({...this.model} as unknown as FunctionGraphState<M>);
+    /**
+     * A scene replacement changes host state only. The model is whatever `commitModel` last stored: every replacement imports its
+     * Preset data first, so a model or flat fields in `next` (a stored scene state, an initial state) are never authority.
+     */
+    protected override replaceState(next: FunctionGraphState<M>): void {
+        super.replaceState({initialized: next.initialized, ...this.modelPatch(this.model)} as FunctionGraphState<M>);
     }
 
     /** A function graph's default scene also returns to its default view. */
@@ -447,11 +453,6 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
         this.board.setBoundingBox(this.defaultBoundingBox(), this.equalAxisUnits);
         // Curves are sampled for the view on update; draw the default view before the host commits.
         this.boardUpdate();
-    }
-
-    /** The model imported from the Preset data is authoritative over model keys in the stored scene state. */
-    protected override figurePresetGraphState(graphState: BaseGraphState | undefined): FunctionGraphState<M> {
-        return {...super.figurePresetGraphState(graphState), ...this.model};
     }
 
     // ---- Rendering ------------------------------------------------------------------------------------------------

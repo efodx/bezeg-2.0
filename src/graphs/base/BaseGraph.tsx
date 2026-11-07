@@ -408,6 +408,11 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         return this.state;
     }
 
+    /** The scene state as Presets and checkpoints store it; a graph whose live state differs from that shape adapts it here. */
+    protected savedGraphState(): BaseGraphState {
+        return this.sceneGraphState();
+    }
+
     /** Browser-local presets of this demonstration; created once on first use. */
     get presetService(): PresetService | undefined {
         if (!this.presetServiceInstance) {
@@ -670,7 +675,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
             version: 1,
             value: cloneLessonValue({
                 ...(this.hasBoard ? {boardState: this.boardState()} : {}),
-                graphState: this.sceneGraphState(),
+                graphState: this.savedGraphState(),
                 data: this.exportPresetData(),
                 transientState: this.captureTransientState(),
                 displayState: {size: this.displaySettings.getSize(), axis: this.displaySettings.getAxisSelect(),
@@ -922,7 +927,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
         return {
             id: this.presets()!,
             ...(this.hasBoard ? {boardState: this.boardState()} : {}),
-            graphState: this.sceneGraphState(),
+            graphState: this.savedGraphState(),
             data: this.exportPresetData()
         };
     }

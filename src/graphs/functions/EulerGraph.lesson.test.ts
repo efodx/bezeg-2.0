@@ -31,13 +31,12 @@ function fakeBoard() {
     return board;
 }
 
-/** React state is NOT written during the tick, as inside one lesson scene: the actions must read the synchronous model. */
+/** A graph on a real scene store: the whole scene runs in one synchronous tick, so later actions read what earlier ones wrote. */
 function makeGraph() {
     const graph = new EulerGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.initialize();
     return graph;
 }

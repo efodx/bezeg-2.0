@@ -45,7 +45,7 @@ function makeUninitializedGraph() {
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true, dispose: vi.fn()};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
+    vi.spyOn(graph, 'setState');
     return graph;
 }
 

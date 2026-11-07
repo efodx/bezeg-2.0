@@ -39,8 +39,8 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new DarbouxGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -49,7 +49,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -152,7 +152,7 @@ test('the lower and the upper rectangles differ by outline pattern as well as by
 });
 
 test('the readout gives n, both sums, the exact integral and the gap for x^2 on [0, 2] with n = 4', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(rows(graph)).toEqual({a: '0', b: '2', n: '4', lower: '1,75', upper: '3,75', integral: '2,6667', gap: '2'});
     expect(statusIds(graph)).toEqual(['trapped']);
     // the status states the relation in words, never a changing number (it would be announced on every drag step)
@@ -161,7 +161,7 @@ test('the readout gives n, both sums, the exact integral and the gap for x^2 on 
 });
 
 test('sin x on [0, pi] with n = 1: the supremum is 1 at the interior pi/2, so U = pi, L = 0 and the integral is 2', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('sine'));
     apply(graph, parameter('darboux-b', Math.PI));
     apply(graph, parameter('darboux-n', 1));
@@ -175,7 +175,7 @@ test('sin x on [0, pi] with n = 1: the supremum is 1 at the interior pi/2, so U 
 });
 
 test('the default sine example shows negative infima below the axis and the signed sums L = -pi, U = pi around the integral 0', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('sine'));
     expect(graph.model).toEqual({...DARBOUX_EXAMPLE_MODELS.sine});
     expect(rows(graph)).toMatchObject({lower: '−3,1416', upper: '3,1416', integral: '0', gap: '6,2832', n: '4'});
@@ -184,7 +184,7 @@ test('the default sine example shows negative infima below the axis and the sign
 });
 
 test('hidden sums hide their rectangles, their readouts and the gap, while the partition and the exact integral stay', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, lower(false));
     apply(graph, upper(false));
     expect(resolve(curves(graph)[LOWER].attributes.visible)).toBe(false);
@@ -206,8 +206,8 @@ test('hidden sums hide their rectangles, their readouts and the gap, while the p
 });
 
 test('Refine doubles n through the button, is the same as the lesson action, and is unavailable with an explanation at the limit', () => {
-    const viaButton = makeGraph({asyncState: false});
-    const viaLesson = makeGraph({asyncState: false});
+    const viaButton = makeGraph();
+    const viaLesson = makeGraph();
     const sequence = [8, 16, 32, 64, 128];
     for (const n of sequence) {
         expect(controls(viaButton).refine.props.disabled).toBe(false);
@@ -234,7 +234,7 @@ test('Refine doubles n through the button, is the same as the lesson action, and
 });
 
 test('refinement keeps L nondecreasing, U nonincreasing and the integral between them, up to the limit, as displayed', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const id of DARBOUX_EXAMPLE_IDS) {
         apply(graph, choice(id));
         let previous: { lower: number; upper: number } | undefined;
@@ -253,8 +253,8 @@ test('refinement keeps L nondecreasing, U nonincreasing and the integral between
 });
 
 test('setting n, a and b through the number fields and through the lesson actions gives the same configuration', () => {
-    const viaControl = makeGraph({asyncState: false});
-    const viaLesson = makeGraph({asyncState: false});
+    const viaControl = makeGraph();
+    const viaLesson = makeGraph();
     for (const value of [1, 7, 128, 4]) {
         expect(controls(viaControl).inputN.props.onChange(value)).toBe(true);
         apply(viaLesson, parameter('darboux-n', value));
@@ -281,7 +281,7 @@ test('setting n, a and b through the number fields and through the lesson action
 });
 
 test('invalid values are rejected, never clamped: every setter throws DomainError and leaves the model unchanged', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const before = {...graph.model};
     for (const n of [0, -1, 129, 256, 2.5, NaN, Infinity]) {
         expect(() => apply(graph, parameter('darboux-n', n)), `n = ${n}`).toThrow(DomainError);
@@ -298,7 +298,7 @@ test('invalid values are rejected, never clamped: every setter throws DomainErro
 });
 
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const {inputA, inputB, inputN} = controls(graph);
     expect([inputA, inputB, inputN].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Levo krajišče a', -7, 7, 0], ['Desno krajišče b', -7, 7, 2], ['Število delov n', 1, 128, 4],
@@ -319,7 +319,7 @@ test('the number fields carry their ranges, report rejection with a hint and sho
 });
 
 test('the toggles name their state in words and the example select loads the example model and keeps the visibility', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(controls(graph).toggleLower.props.children).toBe('Skrij spodnjo vsoto');
     controls(graph).toggleLower.props.onClick();
     expect(controls(graph).toggleLower.props.children).toBe('Pokaži spodnjo vsoto');
@@ -333,12 +333,12 @@ test('the toggles name their state in words and the example select loads the exa
     expect(controls(graph).refine.props.children).toBe('Refine the partition (n → 2n)');
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('sine'), parameter('darboux-b', Math.PI), parameter('darboux-n', 1), lower(false), upper(false)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'sine', a: 0, b: Math.PI, n: 1, lowerVisible: false, upperVisible: false});
-    expect(graph.state).toMatchObject({example: 'square', a: 0, b: 2, n: 4, lowerVisible: true, upperVisible: true});
+    expect(graph.state).toMatchObject(graph.model);
     // a later action in the same tick sees the earlier one, including an endpoint that depends on the other endpoint
     apply(graph, parameter('darboux-a', 1));
     apply(graph, parameter('darboux-b', 2));
@@ -354,7 +354,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     expect(lesson.id).toBe('darboux-guided');
     expect(lesson.steps).toHaveLength(6);
     const finals = lesson.steps.map(step => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, choice('sine'));
         apply(graph, parameter('darboux-n', 64));
@@ -375,13 +375,13 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         [{example: 'sine', a: 0, b: 2 * Math.PI, n: 4, ...hidden}, '4', 'skrito', 'skrito', '0', ['hidden']],
     ]);
     // the numbers the free-exploration prose states for the sine on [0, 2 pi]
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('sine'));
     expect(rows(graph)).toMatchObject({lower: '−3,1416', upper: '3,1416'});
 });
 
 test('the numbers the refine step states are the ones the mathematics gives for n = 16', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('darboux-n', 16));
     expect(rows(graph)).toMatchObject({lower: '2,4219', upper: '2,9219', gap: '0,5'});
 });
@@ -456,7 +456,7 @@ test('presets save the model with the visibility and reopen the same scene', () 
     expect(exported.id).toBe('darboux');
     expect(exported.data).toEqual({example: 'sine', a: 0, b: 2 * Math.PI, n: 8, lowerVisible: true, upperVisible: false});
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     reopened.importPreset({id: 'darboux', boardState: {boundingBox: [-1, 2, 7, -2]}, data: exported.data});
     expect(reopened.model).toEqual(exported.data);
     expect(rows(reopened)).toMatchObject({n: '8', upper: 'skrito'});
@@ -469,7 +469,7 @@ test('presets save the model with the visibility and reopen the same scene', () 
 });
 
 test('a preset of another example without a view of its own shows that example\'s view', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'darboux', data: {example: 'sine', a: 0, b: 2 * Math.PI, n: 4, lowerVisible: true, upperVisible: true}});
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-1, 2, 7.6, -4.6], true);
@@ -507,7 +507,7 @@ test('capture and restore bring back the synchronous model, including the visibi
 });
 
 test('no readout, caption or status ever shows NaN, Infinity or a raw undefined, in either language', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const language of ['sl', 'en'] as const) {
         setLanguage(language);
         for (const id of DARBOUX_EXAMPLE_IDS) {
@@ -570,7 +570,7 @@ test('the caption follows the language and a language change notifies subscriber
 });
 
 test('the examples are drawn from the exact subinterval extrema, not from samples', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('sine'));
     apply(graph, parameter('darboux-n', 3));
     const parts = darbouxSubintervals(darbouxExample('sine'), 0, 2 * Math.PI, 3);
@@ -581,7 +581,7 @@ test('the examples are drawn from the exact subinterval extrema, not from sample
 });
 
 test('an endpoint carrying floating-point noise is cleaned and compared cleaned; an irrational endpoint such as pi stays exact', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('darboux-b', 0.1 + 0.2));
     expect(graph.model.b).toBe(0.3);
     apply(graph, parameter('darboux-a', 0.1));
@@ -593,7 +593,7 @@ test('an endpoint carrying floating-point noise is cleaned and compared cleaned;
 });
 
 test('the view is memoised by the model values: a copy of the model (the inspector) reuses the board view', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const first = graph.viewOf(graph.model);
     expect(graph.viewOf({...graph.model})).toBe(first);
     apply(graph, parameter('darboux-n', 8));
@@ -601,7 +601,7 @@ test('the view is memoised by the model values: a copy of the model (the inspect
 });
 
 test('Edit order: the reveal area (lower and upper sums) sits between the controls and the readout it reveals', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const children = (graph.workspaceEdit() as any).props.children;
     expect(children).toHaveLength(4);
     expect(children[0].props?.className).toBeUndefined(); // controls
@@ -616,12 +616,12 @@ test('Edit order: the reveal area (lower and upper sums) sits between the contro
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (run: () => void) => {
             try { run(); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
         };
-        const atLimit = makeGraph({asyncState: false});
+        const atLimit = makeGraph();
         apply(atLimit, parameter('darboux-n', DARBOUX_N_MAX));
         return [messageOf(() => apply(graph, parameter('darboux-a', 2))), messageOf(() => apply(graph, parameter('darboux-a', 9))),
             messageOf(() => apply(graph, parameter('darboux-b', 0))), messageOf(() => apply(graph, parameter('darboux-b', NaN))),
@@ -647,7 +647,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Število delov je doseglo mejo 128, zato razdelitve ni mogoče še bolj zgostiti. Število delov lahko še vedno spremeniš v polju.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('darboux-b', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'darboux_endpoint_range_rejected', params: {value0: 'b', value1: '−7', value2: '7'}});

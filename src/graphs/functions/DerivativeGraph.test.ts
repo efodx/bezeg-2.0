@@ -36,13 +36,13 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new DerivativeGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -104,12 +104,12 @@ test('the tangent is the dashed exact line and follows the tangent visibility', 
     expect(resolve(tangentCurve(graph).attributes.visible)).toBe(false);
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('sin'), parameter('x0', 1), parameter('h', 0.2), tangent(true)]) apply(graph, action);
     expect(graph.model).toEqual({fn: 'sin', x0: 1, h: 0.2, tangent: true});
-    expect(graph.state).toMatchObject({fn: 'square', x0: 1, h: 1, tangent: false});
+    expect(graph.state).toMatchObject(graph.model);
     expect([pointP(graph).x, pointP(graph).y]).toEqual([1, Math.sin(1)]);
     expect(q(graph)[0]).toBeCloseTo(1.2, 12);
     expect(q(graph)[1]).toBeCloseTo(Math.sin(1.2), 12);
@@ -219,7 +219,7 @@ test('names, targets and kinds the graph does not own are unsupported', () => {
 });
 
 test('readouts: x0, h, values, quotient, exact derivative and difference, in both languages', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const rows = () => graph.renderReadout().props.rows as { id: string; value: string }[];
     const byId = () => Object.fromEntries(rows().map(row => [row.id, row.value]));
     expect(byId()).toEqual({x0: '1', h: '1', 'f-x0': '1', 'f-x0h': '4', quotient: '3', derivative: '2', difference: '1'});
@@ -260,7 +260,7 @@ test('the caption follows the language, and a language change notifies subscribe
 });
 
 test('controls: function select, x0 input, h slider [-2, 2] step 0.01 that skips the excluded band, tangent switch', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const found: Record<string, any[]> = {};
     const walk = (node: any) => {
         if (!node || typeof node !== 'object') return;
@@ -340,7 +340,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({fn: 'square', x0: 1, h: 1, tangent: false});
 });
 
-test('capture and restore bring back the synchronous model even when React state lags', () => {
+test('capture and restore bring back the synchronous model read in the same tick', () => {
     const graph = makeGraph();
     apply(graph, choice('sin'));
     apply(graph, parameter('x0', -1));
@@ -401,7 +401,6 @@ test('a stored board state is not overwritten by the default view during initial
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'derivative', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'square', x0: 1, h: 1}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

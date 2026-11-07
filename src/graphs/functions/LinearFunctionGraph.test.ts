@@ -34,13 +34,13 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new LinearFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -66,20 +66,20 @@ test('initialization draws the default points and keeps k, n and the model in th
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-6, 8, 6, -4], true);
 });
 
-test('a multi-action scene applied in one synchronous tick gives the expected line even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions and gives the expected line, with the flat state following the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [parameter('x1', 1), parameter('y1', 2), parameter('x2', 3), parameter('y2', 6)]) apply(graph, action);
-    // The line through (1,2) and (3,6) is y = 2x; React state still holds the old values.
+    // The line through (1,2) and (3,6) is y = 2x.
     expect(graph.model).toEqual({x1: 1, y1: 2, x2: 3, y2: 6});
-    expect(graph.state).toMatchObject({x1: 0, y1: 1, x2: 2, y2: 5});
+    expect(graph.state).toMatchObject(graph.model);
     apply(graph, parameter('k', -1));
     // k is applied to the model written a moment earlier (n = 0 there): both points move along y = -x, keeping their x.
     expect(graph.model).toEqual({x1: 1, y1: -1, x2: 3, y2: -3});
     expect(points(graph)).toEqual([[1, -1], [3, -3]]);
     apply(graph, parameter('n', 2));
     expect(graph.model).toEqual({x1: 1, y1: 1, x2: 3, y2: -1});
-    expect(graph.state).toMatchObject({x1: 0, y1: 1, x2: 2, y2: 5});
+    expect(graph.state).toMatchObject(graph.model);
 });
 
 test('every lesson scene reproduces the state its expectedState describes', () => {
@@ -161,7 +161,7 @@ test('programmatic moves pause grid snapping and restore it', () => {
 });
 
 test('readouts never contain Infinity or NaN, including the vertical and coincident cases', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const rowsFor = (...coordinates: number[]) => {
         ['x1', 'y1', 'x2', 'y2'].forEach((name, index) => apply(graph, parameter(name, coordinates[index])));
         return graph.renderReadout().props.rows as { id: string; value: string }[];
@@ -220,7 +220,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({x1: 0, y1: 1, x2: 2, y2: 5});
 });
 
-test('capture and restore bring back the synchronous model even when React state lags', () => {
+test('capture and restore bring back the synchronous model read in the same tick', () => {
     const graph = makeGraph();
     apply(graph, parameter('x1', -2));
     apply(graph, parameter('y2', 7));
@@ -276,7 +276,6 @@ test('a stored board state is not overwritten by the default view during initial
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'linear-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {x1: 0, y1: 0, x2: 1, y2: 1}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

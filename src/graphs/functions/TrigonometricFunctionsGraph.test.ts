@@ -27,13 +27,13 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new TrigonometricFunctionsGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -75,7 +75,7 @@ test('initialization draws f(x) = sin x, the midline, hidden reference, tangent 
     expect(functions(graph)[REFERENCE].attributes.dash).toBeGreaterThan(0);
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     apply(graph, choice('cos'));
@@ -86,7 +86,7 @@ test('a multi-action scene applied in one synchronous tick uses the model even t
     apply(graph, reference(true));
     expect(graph.model).toMatchObject({fn: 'cos', A: 2, omega: 2, B: 1, reference: true});
     expect(graph.model.phi).toBeCloseTo(Math.PI / 2, 12);
-    expect(graph.state).toMatchObject({fn: 'sin', A: 1, omega: 1, phi: 0, B: 0, reference: false});
+    expect(graph.state).toMatchObject(graph.model);
     // board objects read the synchronous model
     expect(mainValue(graph, 0)).toBeCloseTo(2 * Math.cos(Math.PI / 2) + 1, 12);
     expect(mainValue(graph, 0.3)).toBeCloseTo(2 * Math.cos(0.6 + Math.PI / 2) + 1, 12);
@@ -273,7 +273,7 @@ test('unknown function choices and names or targets the graph does not own are u
 });
 
 test('readouts: amplitude, period, shift and range, with exact multiples of pi, in both languages', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const rows = () => graph.renderReadout().props.rows as { id: string; value: string }[];
     const byId = () => Object.fromEntries(rows().map(row => [row.id, row.value]));
     expect(byId()).toEqual({equation: 'f(x) = sin(x)', phi: '0', amplitude: '1', period: '6,28 (2π)', shift: '0', range: '[−1; 1]'});
@@ -320,7 +320,7 @@ test('the caption follows the language, and a language change notifies subscribe
 });
 
 test('controls: a labelled native select, four sliders, the reference switch, and the phase slider is shown in multiples of pi', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const controls = graph.renderControls();
     const flat: any[] = [];
     const walk = (node: any) => {
@@ -381,7 +381,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({fn: 'sin', A: 1, omega: 1, phi: 0, B: 0, reference: false});
 });
 
-test('capture and restore bring back the synchronous model even when React state lags', () => {
+test('capture and restore bring back the synchronous model read in the same tick', () => {
     const graph = makeGraph();
     apply(graph, choice('cos'));
     apply(graph, parameter('A', -1.5));
@@ -442,7 +442,6 @@ test('a stored board state is not overwritten by the default view during initial
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'trigonometric-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'sin', A: 1, omega: 1, phi: 0, B: 0}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

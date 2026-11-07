@@ -42,13 +42,13 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new AreaBetweenCurvesGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -135,12 +135,12 @@ test('the default scene shades one polygon in the g-on-top colour, none in the f
     expect(positive.x[0]).toBe(INTERSECTIONS[0]);
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [mode('under-g'), parameter('a', 0), parameter('b', 4)]) apply(graph, action);
     expect(graph.model).toEqual({a: 0, b: 4, mode: 'under-g'});
-    expect(graph.state).toMatchObject({a: 2 - S, b: 2 + S, mode: 'between'});
+    expect(graph.state).toMatchObject(graph.model);
     expect([pointA(graph).x, pointB(graph).x]).toEqual([0, 4]);
     expect(valuesText(graph)).toBe('∫(g − f) dx = 1,3333, ploščina = 8,4646');
     // a later action in the same tick sees the earlier ones
@@ -157,7 +157,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     const lesson = getLessonForDemonstration('area-between-curves')!;
     expect(lesson.steps).toHaveLength(5);
     const finals = lesson.steps.map(step => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, mode('under-f'));
         apply(graph, parameter('a', -1));
@@ -259,7 +259,7 @@ test('the dashed bound lines follow the mode and the bounds', () => {
 });
 
 test('a = b draws nothing and reports 0; a > b flips the signed values and keeps the area', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('a', 2));
     apply(graph, parameter('b', 2));
     expect(curveData(graph, POSITIVE)).toEqual({x: [], y: []});
@@ -336,7 +336,7 @@ test('names, targets and kinds the graph does not own are unsupported', () => {
 });
 
 test('readouts: a, b, ∫f, ∫g, signed ∫(g-f), unsigned ∫|g-f| and the shaded quantity, in both languages', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(readout(graph)).toEqual({a: '0,78', b: '3,22', 'int-f': '1,2247', 'int-g': '6,1237', signed: '4,899', unsigned: '4,899', shaded: '4,899'});
     expect(Object.keys(readout(graph))).toEqual(['a', 'b', 'int-f', 'int-g', 'signed', 'unsigned', 'shaded']);
     const labels = () => (graph.renderReadout().props.rows as { id: string; label: string }[]).map(row => row.label);
@@ -392,7 +392,7 @@ test('the legend names the colours in words for each mode, and reversed bounds a
 });
 
 test('controls: mode select with three correctly labelled options, bound inputs wired to a and b', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const found: Record<string, any[]> = {};
     const walk = (node: any) => {
         if (!node || typeof node !== 'object') return;
@@ -434,7 +434,7 @@ test('controls: mode select with three correctly labelled options, bound inputs 
 });
 
 test('the inspector shows the default bounds as 0.78 and 3.22 while the model keeps them unrounded', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(graph.state.a).toBe(2 - S);
     const text = (value: number) => String(Number(value.toFixed(2)));
     expect([text(graph.state.a), text(graph.state.b)]).toEqual(['0.78', '3.22']);
@@ -470,7 +470,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual(good);
 });
 
-test('capture and restore bring back the synchronous model even when React state lags', () => {
+test('capture and restore bring back the synchronous model read in the same tick', () => {
     const graph = makeGraph();
     apply(graph, mode('under-g'));
     apply(graph, parameter('a', -1));
@@ -528,7 +528,6 @@ test('a stored board state is not overwritten by the default view during initial
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'area-between-curves', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 0, b: 2, mode: 'between'}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

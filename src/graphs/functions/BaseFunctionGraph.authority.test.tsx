@@ -333,6 +333,16 @@ describe('linear function: replacement paths keep domain, controls and board tog
         expect(linearShown(graph)).toEqual(LINEAR_DEFAULT_SHOWN);
     });
 
+    test('unmounting notifies no store subscriber: a host must not re-render against a disposed board', () => {
+        const {graph, view} = mountLinear();
+        typeLinear('y₁', 3);
+        const listener = vi.fn();
+        const unsubscribe = graph.store.subscribe(listener);
+        view.unmount();
+        unsubscribe();
+        expect(listener).not.toHaveBeenCalled();
+    });
+
     test('a remount of the same instance starts from the default model, like a new instance', () => {
         const {graph, view, tree} = mountLinear();
         typeLinear('y₁', 3);

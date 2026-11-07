@@ -139,7 +139,6 @@ describe('complex maps lessons (M1 and M2)', () => {
         };
         graph.graphSession = session;
         graph.boardUpdate = vi.fn();
-        graph.setState = vi.fn();
         graph.initialize();
         return graph;
     }

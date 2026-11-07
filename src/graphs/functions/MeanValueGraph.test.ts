@@ -38,8 +38,8 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new MeanValueGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -48,7 +48,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -131,7 +131,7 @@ test('initialization draws the function, secant, tangent, parallels, drop lines,
 });
 
 test('the default readout gives both slopes and their difference, and hides the matching points until they are revealed', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(rows(graph)).toEqual({
         'a': '0', 'b': '2', 'c': '0,5', 'f-a': '0', 'f-b': '4', 'f-c': '0,25',
         'secant-slope': '2', 'tangent-slope': '1', 'difference': '−1', 'matches': 'skrite',
@@ -145,7 +145,7 @@ test('the default readout gives both slopes and their difference, and hides the 
 });
 
 test('Show matching point reveals c = 1 for x^2 on [0, 2]: a ring on the graph and a tangent parallel to the secant', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'square', a: 0, b: 2, c: 0.5, revealed: true});
     const [ring1, ring2] = [points(graph)[RING_1], points(graph)[RING_2]];
@@ -166,7 +166,7 @@ test('Show matching point reveals c = 1 for x^2 on [0, 2]: a ring on the graph a
 });
 
 test('x^3 with a = -2b: the root that equals an endpoint is not shown as a second match', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('cube'));
     apply(graph, parameter('mvt-a', -1.98));
     apply(graph, parameter('mvt-b', 0.99));
@@ -186,7 +186,7 @@ test('x^3 with a = -2b: the root that equals an endpoint is not shown as a secon
 });
 
 test('x^3 on [-1, 1] reveals both matches c = +-1/sqrt(3), the same slope at both', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('cube'));
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1, c: 0, revealed: false});
     apply(graph, reveal(true));
@@ -213,7 +213,7 @@ test('x^3 on [-1, 1] reveals both matches c = +-1/sqrt(3), the same slope at bot
 });
 
 test('|x| on [-1, 1] has no matching point and says so with its reason; the corner has no tangent and no number', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('abs'));
     apply(graph, parameter('mvt-c', 0));
     apply(graph, reveal(true));
@@ -244,7 +244,7 @@ test('|x| on [-1, 1] has no matching point and says so with its reason; the corn
 });
 
 test('|x| on one side of the corner matches on the whole open interval, which is marked on the axis and described honestly', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('abs'));
     apply(graph, parameter('mvt-a', 0));
     apply(graph, reveal(true));
@@ -270,7 +270,7 @@ test('|x| on one side of the corner matches on the whole open interval, which is
 });
 
 test('changing c never moves a or b, and the displayed slope difference follows it', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const before = secantValues(graph);
     for (const c of [0.01, 0.5, 1, 1.5, 1.99]) {
         apply(graph, parameter('mvt-c', c));
@@ -284,8 +284,8 @@ test('changing c never moves a or b, and the displayed slope difference follows 
 });
 
 test('setting c through the number field and through the lesson action gives the same configuration', () => {
-    const viaControl = makeGraph({asyncState: false});
-    const viaLesson = makeGraph({asyncState: false});
+    const viaControl = makeGraph();
+    const viaLesson = makeGraph();
     for (const value of [1, 1.2, 0.25, 1.99]) {
         expect(controls(viaControl).inputC.props.onChange(value)).toBe(true);
         apply(viaLesson, parameter('mvt-c', value));
@@ -349,7 +349,7 @@ test('a < c < b is enforced by every setter: out-of-order values are rejected an
 });
 
 test('the number fields carry the ordering in their range, report rejection and show the rule', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const {inputA, inputB, inputC} = controls(graph);
     expect([inputA, inputB, inputC].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Levo krajišče a', -4, 0.5, 0], ['Desno krajišče b', 0.5, 4, 2], ['Točka dotika c', 0, 2, 0.5],
@@ -368,7 +368,7 @@ test('the number fields carry the ordering in their range, report rejection and 
 });
 
 test('the Show matching point control toggles the reveal and names its state in words', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(controls(graph).toggle.props.children).toBe('Pokaži ujemajočo točko');
     controls(graph).toggle.props.onClick();
     expect(graph.model.revealed).toBe(true);
@@ -405,12 +405,12 @@ test('the examples start from their lesson models, which are not at a matching p
     }
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('cube'), parameter('mvt-c', 0.3), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1, c: 0.3, revealed: true});
-    expect(graph.state).toMatchObject({example: 'square', a: 0, b: 2, c: 0.5, revealed: false});
+    expect(graph.state).toMatchObject(graph.model);
     expect(caption(graph)[1]).toBe('naklon sekante 1, tangente 0,27');
     // a later action in the same tick sees the earlier one, including an endpoint that depends on c
     apply(graph, choice('abs'));
@@ -432,7 +432,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     expect(lesson.id).toBe('mean-value-guided');
     expect(lesson.steps).toHaveLength(6);
     const finals = lesson.steps.map(step => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, choice('abs'));
         apply(graph, parameter('mvt-c', -0.5));
@@ -454,7 +454,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
 test('the revealing presses of the cube and corner steps give the numbers the lesson states', () => {
     const lesson = getLessonForDemonstration('mean-value')!;
     const stateAfter = (stepId: string) => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         for (const action of lesson.steps.find(step => step.id === stepId)!.scene!.actions) apply(graph, action);
         apply(graph, reveal(true));
         return graph;
@@ -469,7 +469,7 @@ test('the revealing presses of the cube and corner steps give the numbers the le
 });
 
 test('no readout, caption or status ever shows NaN, Infinity or a raw undefined, in either language', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const cases: [string, number, number, number][] = [
         ['square', -4, 0, 4], ['square', 0, 0.001, 0.002], ['square', 3.99, 3.995, 4], ['cube', -4, 0, 4], ['cube', 0, 0.5, 4], ['cube', -4, -3, -2],
         ['abs', -1, 0, 1], ['abs', -4, 0, 4], ['abs', 0, 0.5, 1], ['abs', -3, -1, 0], ['abs', -0.01, 0.005, 0.01], ['abs', -1, 0.5, 1],
@@ -488,7 +488,7 @@ test('no readout, caption or status ever shows NaN, Infinity or a raw undefined,
 });
 
 test('a slope difference within the tolerance is called agreement of numbers, never a proof', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('mvt-c', 1));
     expect(statusIds(graph)).toEqual(['agree']);
     expect(statusTexts(graph, 'en')[0]).toMatch(/within the tolerance 0\.005.*numerical comparison, not a proof/);
@@ -592,7 +592,7 @@ test('presets save the model with the reveal state and reopen the same scene', (
     expect(exported.id).toBe('mean-value');
     expect(exported.data).toEqual({example: 'cube', a: -1, b: 1, c: 0.25, revealed: true});
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     reopened.importPreset({id: 'mean-value', boardState: {boundingBox: [-1, 1, 1, -1]}, data: exported.data});
     expect(reopened.model).toEqual({example: 'cube', a: -1, b: 1, c: 0.25, revealed: true});
     expect(rows(reopened).matches).toBe('−0,5774; 0,5774');
@@ -704,7 +704,7 @@ test('the legend names the curves and the matching markers in words, not by colo
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -731,7 +731,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Primer mora biti eden od: square, cube, abs.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('mvt-c', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'mean_value_c_range_rejected', params: {value0: '−4', value1: '4'}});

@@ -37,8 +37,8 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new TaylorGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -47,7 +47,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -175,7 +175,7 @@ test('f is a solid line and T_n a dashed line, the error a vertical segment at x
 });
 
 test('before the reveal the bound reads hidden everywhere; the polynomial, function and errors are always given', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(rows(graph)).toEqual({
         center: '0', degree: '1', x: '1', polynomial: '2', function: '2,7183', 'signed-error': '0,7183', 'absolute-error': '0,7183',
         bound: 'skrito', 'bound-hypothesis': 'skrito', convergence: 'Vrsta konvergira k f pri vsakem x.',
@@ -187,7 +187,7 @@ test('before the reveal the bound reads hidden everywhere; the polynomial, funct
 });
 
 test('e^x about 0 at x = 1: T_1 = 2, T_3 = 8/3, T_6 = 1957/720 and the revealed bound e/7! contains the error', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('taylor-degree', 3));
     expect(numbers(graph).polynomial).toBeCloseTo(8 / 3, 14);
     expect(rows(graph).polynomial).toBe('2,6667');
@@ -209,7 +209,7 @@ test('e^x about 0 at x = 1: T_1 = 2, T_3 = 8/3, T_6 = 1957/720 and the revealed 
 });
 
 test('sin x about 0 at x = 2, n = 3: T_3 = 2/3, error about 0.2426 and the bound 2^4/4! = 2/3 with M = 1', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('sine'));
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'sine', center: 0, degree: 3, x: 2, boundVisible: true});
@@ -225,7 +225,7 @@ test('sin x about 0 at x = 2, n = 3: T_3 = 2/3, error about 0.2426 and the bound
 });
 
 test('1/(1 - x) about 0 at x = -1.5 (outside |x| < 1): the error 0.9, 2.025, 4.556 grows with the degree; inside it shrinks', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('geometric'));
     apply(graph, parameter('taylor-x', -1.5));
     apply(graph, parameter('taylor-degree', 1));
@@ -257,7 +257,7 @@ test('1/(1 - x) about 0 at x = -1.5 (outside |x| < 1): the error 0.9, 2.025, 4.5
 });
 
 test('the convergence interval of 1/(1 - x) is a segment on the axis with a text label and exists only for that example', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const segment = segments(graph)[CONVERGENCE];
     expect(visible(segment)).toBe(false);
     expect(visible(convergenceLabel(graph))).toBe(false);
@@ -278,7 +278,7 @@ test('the convergence interval of 1/(1 - x) is a segment on the axis with a text
 });
 
 test('the flat function: every T_n is 0, f(1) = e^-1 > 0, the series converges to 0 and the bound says why it is not shown', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('flat'));
     expect(graph.model).toEqual({example: 'flat', center: 0, degree: 3, x: 1, boundVisible: false});
     for (const n of [0, 1, 2, 5, 10]) {
@@ -302,7 +302,7 @@ test('the flat function: every T_n is 0, f(1) = e^-1 > 0, the series converges t
 });
 
 test('the center field of the flat example is disabled with an explanation that the field points to; the other examples keep it enabled', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(controls(graph).inputCenter.props.disabled).toBe(false);
     expect(controls(graph).inputCenter.props.describedBy).toBeUndefined();
     apply(graph, choice('flat'));
@@ -318,7 +318,7 @@ test('the center field of the flat example is disabled with an explanation that 
 });
 
 test('invalid values are rejected, never clamped, per example domain; the boundary values are accepted', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const before = {...graph.model};
     for (const center of [2.01, -2.01, NaN, Infinity]) expect(() => apply(graph, parameter('taylor-center', center)), `center ${center}`).toThrow(DomainError);
     for (const x of [3.01, -3.01, NaN, -Infinity]) expect(() => apply(graph, parameter('taylor-x', x)), `x ${x}`).toThrow(DomainError);
@@ -357,8 +357,8 @@ test('invalid values are rejected, never clamped, per example domain; the bounda
 });
 
 test('setting the example, center, degree, x and the bound through the controls and through the lesson actions gives the same configuration', () => {
-    const viaControl = makeGraph({asyncState: false});
-    const viaLesson = makeGraph({asyncState: false});
+    const viaControl = makeGraph();
+    const viaLesson = makeGraph();
     controls(viaControl).found.ChoiceSelect[0].props.onChange('sine');
     apply(viaLesson, choice('sine'));
     expect(viaControl.model).toEqual(viaLesson.model);
@@ -390,7 +390,7 @@ test('setting the example, center, degree, x and the bound through the controls 
 });
 
 test('the degree buttons are disabled at 0 and 10 and point at the explanation, which changes with the limit', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const help = () => collect([graph.renderControls(), graph.renderReveals()]).p.find((element: any) => element.props.id === 'taylor-degree-help').props.children;
     expect(controls(graph).decrease.props.disabled).toBe(false);
     expect(controls(graph).decrease.props['aria-describedby']).toBe('taylor-degree-help');
@@ -412,7 +412,7 @@ test('the degree buttons are disabled at 0 and 10 and point at the explanation, 
 });
 
 test('the number fields carry their ranges per example, report rejection with a hint and name their labels in both languages', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const {inputCenter, inputX, inputDegree} = controls(graph);
     expect([inputCenter, inputX, inputDegree].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Središče c', -2, 2, 0], ['Točka x', -3, 3, 1], ['Stopnja n', 0, 10, 1],
@@ -434,7 +434,7 @@ test('the number fields carry their ranges per example, report rejection with a 
 });
 
 test('the toggle names its state in words; editing the center, degree and x keeps the bound and choosing an example hides it', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(controls(graph).toggle.props.children).toBe('Pokaži oceno napake');
     expect(controls(graph).toggle.props['data-revealed']).toBe(false);
     expect(controls(graph).toggle.props.type).toBe('button');
@@ -455,12 +455,12 @@ test('the toggle names its state in words; editing the center, degree and x keep
     expect(controls(graph).found.ChoiceSelect[0].props.options[3].text).toBe('f(x) = e^(−1/x) for x > 0, 0 otherwise');
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('geometric'), parameter('taylor-x', -1.5), parameter('taylor-degree', 5), parameter('taylor-center', -0.5), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'geometric', center: -0.5, degree: 5, x: -1.5, boundVisible: true});
-    expect(graph.state).toMatchObject({example: 'exp', center: 0, degree: 1, x: 1, boundVisible: false});
+    expect(graph.state).toMatchObject(graph.model);
     // a later action in the same tick sees the earlier ones: the new example's domain applies to x at once
     expect(() => apply(graph, parameter('taylor-x', 2))).toThrow(DomainError);
     apply(graph, choice('sine'));
@@ -473,7 +473,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     expect(lesson.id).toBe('taylor-guided');
     expect(lesson.steps).toHaveLength(8);
     const finals = lesson.steps.map(step => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, choice('sine'));
         apply(graph, parameter('taylor-center', 2));
@@ -493,16 +493,16 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         [{example: 'flat', center: 0, degree: 3, x: 1, boundVisible: true}, ['revealed', 'no-bound', 'flat']],
     ]);
     // the numbers the lesson prose states
-    const lowDegree = makeGraph({asyncState: false});
+    const lowDegree = makeGraph();
     for (const action of lesson.steps[1].scene!.actions) apply(lowDegree, action);
     expect(rows(lowDegree)).toMatchObject({polynomial: '2,5', 'absolute-error': '0,2183'});
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const action of lesson.steps[2].scene!.actions) apply(graph, action);
     expect(rows(graph)).toMatchObject({polynomial: '2,7181', 'absolute-error': '0,0002263', bound: '0,0005393'});
 });
 
 test('the displayed bound is at least the actual error for every example, center, point and degree, against independent references', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const grid = (min: number, max: number, count = 6) => Array.from({length: count + 1}, (_, i) => Math.round((min + ((max - min) * i) / count) * 100) / 100);
     const domains: Record<TaylorExampleId, { centers: number[]; xs: number[] }> = {
         exp: {centers: grid(-2, 2), xs: grid(-3, 3)},
@@ -611,7 +611,7 @@ test('presets save the model with the reveal flag and reopen the same scene', ()
     expect(exported.id).toBe('taylor');
     expect(exported.data).toEqual({example: 'geometric', center: 0.25, degree: 4, x: -1.5, boundVisible: true});
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     reopened.importPreset({id: 'taylor', boardState: {boundingBox: [-1, 2, 7, -2]}, data: exported.data});
     expect(reopened.model).toEqual(exported.data);
     expect(rows(reopened)).toMatchObject({degree: '4', center: '0,25', x: '−1,5'});
@@ -624,7 +624,7 @@ test('presets save the model with the reveal flag and reopen the same scene', ()
 });
 
 test('a preset of another example without a view of its own shows that example\'s view', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'taylor', data: {example: 'sine', center: 0, degree: 3, x: 2, boundVisible: false}});
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-7.5, 3.4, 7.5, -3.6], true);
@@ -668,7 +668,7 @@ test('capture and restore bring back the synchronous model, including the reveal
 });
 
 test('no readout, caption, label or status ever shows NaN, Infinity, -0, 1e-17 noise or a raw undefined, in either language', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const language of ['sl', 'en'] as const) {
         setLanguage(language);
         for (const id of TAYLOR_EXAMPLE_IDS) {
@@ -690,7 +690,7 @@ test('no readout, caption, label or status ever shows NaN, Infinity, -0, 1e-17 n
 });
 
 test('floating-point noise in an error shows as 0, never -0 or 1e-17', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     // x = c: T_n(c) = f(c) up to rounding, so the error must read 0
     apply(graph, parameter('taylor-center', 0.7));
     apply(graph, parameter('taylor-x', 0.7));
@@ -748,7 +748,7 @@ test('generated objects are disposed and not duplicated across repeated generati
 });
 
 test('the caption follows the language and a language change notifies subscribers', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(caption(graph)[1]).toBe('c = 0, n = 1, x = 1');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
@@ -796,7 +796,7 @@ test('the example views are the ones the examples need, with the default example
 });
 
 test('1/(1 - x) with the bound shown and x > c inside the interval notes that the bound is valid but not sharp, while the error shrinks', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('geometric'));
     apply(graph, parameter('taylor-x', 0.5));
     apply(graph, parameter('taylor-degree', 5));
@@ -822,7 +822,7 @@ test('1/(1 - x) with the bound shown and x > c inside the interval notes that th
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -849,7 +849,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Pri tem primeru je središče stalno: c = 0.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('taylor-x', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'taylor_x_rejected_hint', params: {value0: '−3', value1: '3'}});

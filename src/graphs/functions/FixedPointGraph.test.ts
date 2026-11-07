@@ -58,8 +58,8 @@ function manualScheduler() {
     return {scheduler, callbacks, frame};
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const frames = manualScheduler();
     const graph = new FixedPointGraph(frames.scheduler) as any;
     graph.board = fakeBoard();
@@ -68,7 +68,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
         waitUntilReady: () => Promise.resolve(), beginTransition: () => () => undefined,
     };
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return Object.assign(graph, {frames});
 }
@@ -177,7 +177,7 @@ test('initialization draws the box, the diagonal, the map, the cobweb, the marke
 });
 
 test('the cobweb goes vertically to the curve and horizontally to the diagonal, and the markers follow the iterates', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     next(graph, 2);
     curves(graph)[COBWEB].updateDataArray();
     // (0, 0) -> (0, 1/2) -> (1/2, 1/2) -> (1/2, 3/4) -> (3/4, 3/4)
@@ -195,7 +195,7 @@ test('the cobweb goes vertically to the curve and horizontally to the diagonal, 
     expect(shownIterates(graph)).toEqual([1, 2, 3, 4]);
     expect(stepLabel(graph).parents[2]()).toBe('<div><i>x</i><sub>5</sub></div>');
     // cosine from 0: (0, 0) -> (0, 1) -> (1, 1) -> (1, cos 1) -> (cos 1, cos 1)
-    const cosine = makeGraph({asyncState: false});
+    const cosine = makeGraph();
     apply(cosine, choice('cosine'));
     next(cosine, 2);
     curves(cosine)[COBWEB].updateDataArray();
@@ -204,12 +204,12 @@ test('the cobweb goes vertically to the curve and horizontally to the diagonal, 
     expect(at(point(cosine, FIXED_CROSS))[0]).toBeCloseTo(COS_FIXED_POINT, 14);
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('cosine'), parameter('fixed-point-x0', 0.5), parameter('fixed-point-digits', 5), command('next-step'), command('next-step'), command('next-step'), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'cosine', x0: 0.5, step: 3, digits: 5, boundVisible: true});
-    expect(graph.state).toMatchObject({example: 'affine', x0: 0, step: 0, digits: 3, boundVisible: false});
+    expect(graph.state).toMatchObject(graph.model);
     expect(caption(graph)[1]).toBe(`korak k = 3, xₖ = ${String(Math.cos(Math.cos(Math.cos(0.5))).toFixed(6)).replace('.', ',').replace(/0+$/, '')}`);
     expect(statusIds(graph)).toEqual(['hypotheses', 'bound-a-priori', 'bound-a-posteriori']);
     // a later action in the same tick sees the earlier one
@@ -247,12 +247,12 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         {...defaultOf('cosine'), x0: 1},
     ]);
     // the stated facts: the rounding step has stopped at the threshold, the reflection step shows the two-cycle
-    const rounding = makeGraph({asyncState: false});
+    const rounding = makeGraph();
     for (const action of lesson.steps[4].scene!.actions) apply(rounding, action);
     expect(rounding.viewOf(rounding.model).history.termination).toBe('threshold');
     expect(rows(rounding).current).toBe('1');
     expect(rounding.controller.isComplete()).toBe(true);
-    const reflection = makeGraph({asyncState: false});
+    const reflection = makeGraph();
     for (const action of lesson.steps[5].scene!.actions) apply(reflection, action);
     expect(reflection.viewOf(reflection.model).history.cycle).toEqual({first: 0.2, second: 0.8});
 });
@@ -286,7 +286,7 @@ test('k Next steps and k playback steps reach the same model, one iterate per in
 
 test('playback stops at the threshold, at a known fixed point and at the iteration limit, each with its reason', () => {
     // threshold: affine from 0 at d = 3 stops at step 10 (the a posteriori bound is 2^-k, 2^-10 < 10^-3 <= 2^-9)
-    const affine = makeGraph({asyncState: false});
+    const affine = makeGraph();
     apply(affine, command('play'));
     playToEnd(affine);
     expect(affine.controller.isPlaying()).toBe(false);
@@ -298,7 +298,7 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     expect(statusTexts(affine)[0]).toBe('Ustavljeno pri koraku 10: ocena a posteriori je pod pragom 10⁻³. To pove, da je napaka pod pragom, ne da je xₖ natančna negibna točka.');
     expect(caption(affine)).toContain('konec: ocena pod pragom');
     // the same stop for a cosine contraction, where the model agrees with the history
-    const cosine = makeGraph({asyncState: false});
+    const cosine = makeGraph();
     apply(cosine, choice('cosine'));
     apply(cosine, command('play'));
     playToEnd(cosine);
@@ -306,7 +306,7 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     expect(cosine.model.step).toBe(22);
     expect(cosine.viewOf(cosine.model).history.termination).toBe('threshold');
     // a start at an analytically known fixed point does not move, and Play does nothing
-    const known = makeGraph({asyncState: false});
+    const known = makeGraph();
     apply(known, parameter('fixed-point-x0', 1));
     expect(statusIds(known)).toEqual(['fixed-point', 'bound-hidden']);
     expect(rows(known).end).toBe('začetek je znana negibna točka');
@@ -314,7 +314,7 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     expect(known.controller.isPlaying()).toBe(false);
     expect(() => next(known)).toThrow(DomainError);
     // the iteration limit: 1 - x has no threshold and stops at 60 steps, reporting the two-cycle and not a conclusion about convergence
-    const reflection = makeGraph({asyncState: false});
+    const reflection = makeGraph();
     apply(reflection, choice('reflection'));
     apply(reflection, command('play'));
     playToEnd(reflection);
@@ -328,7 +328,7 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
 });
 
 test('the controls offer no further step once the iteration has ended, and Reset makes it usable again', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, command('play'));
     playToEnd(graph);
     expect(controls(graph).next.props['aria-disabled']).toBe(true);
@@ -383,7 +383,7 @@ test('editing the example, x0 or the tolerance pauses playback and returns to st
         ['example select', graph => controls(graph).select.props.onChange('reflection'), {...defaultOf('reflection'), digits: 3}],
     ];
     for (const [name, edit, expected] of edits) {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         next(graph, 3);
         apply(graph, reveal(true));
         apply(graph, command('play'));
@@ -414,14 +414,14 @@ test('editing the example, x0 or the tolerance pauses playback and returns to st
 });
 
 test('controls and lesson actions give equivalent models', () => {
-    const viaActions = makeGraph({asyncState: false});
+    const viaActions = makeGraph();
     apply(viaActions, choice('cosine'));
     apply(viaActions, parameter('fixed-point-x0', 0.75));
     apply(viaActions, parameter('fixed-point-digits', 5));
     next(viaActions, 6);
     apply(viaActions, reveal(true));
 
-    const viaControls = makeGraph({asyncState: false});
+    const viaControls = makeGraph();
     controls(viaControls).select.props.onChange('cosine');
     controls(viaControls).inputX0.props.onChange(0.75);
     controls(viaControls).inputDigits.props.onChange(5);
@@ -443,7 +443,7 @@ test('controls and lesson actions give equivalent models', () => {
 });
 
 test('values outside the domain are rejected without changing the model, never clamped', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     next(graph, 2);
     const before = {...graph.model};
     for (const bad of [-0.01, -1, 2.01, 3, 0.005, 0.075, 0.123, NaN, Infinity, -Infinity]) expect(() => apply(graph, parameter('fixed-point-x0', bad)), `x0 ${bad}`).toThrow(DomainError);
@@ -495,7 +495,7 @@ test('x0 reaches the model as exact hundredths: arithmetic noise is snapped, a v
 
 test('bound readouts exist only for contractions, are hidden until Show error bound and never use the true fixed point', () => {
     const hidden = 'skrito';
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     next(graph, 3);
     expect(rows(graph)).toMatchObject({step: '3', x0: '0', current: '0,875', delta: '0,125', tolerance: '10⁻³', q: hidden, 'a-priori': hidden, 'a-posteriori': hidden, end: 'se nadaljuje'});
     expect(statusIds(graph)).toEqual(['bound-hidden']);
@@ -520,7 +520,7 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     expect(resolve(segments(graph)[BOUND_BAR].attributes.visible)).toBe(false);
 
     // cosine: the hypotheses mention the image of [0, 1] and sin 1; both bounds hold at every step against the reference fixed point
-    const cosine = makeGraph({asyncState: false});
+    const cosine = makeGraph();
     apply(cosine, choice('cosine'));
     next(cosine, 8);
     apply(cosine, reveal(true));
@@ -535,7 +535,7 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     }
 
     // 1 - x: no bound at all, no q, and the reason in words; no claim of divergence
-    const reflection = makeGraph({asyncState: false});
+    const reflection = makeGraph();
     apply(reflection, choice('reflection'));
     next(reflection, 4);
     apply(reflection, reveal(true));
@@ -551,7 +551,7 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
 });
 
 test('a rounded readout equal to the fixed point is no proof: the stop is stated as a bound below the threshold', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('fixed-point-digits', 8));
     next(graph, 27);
     expect(graph.model.step).toBe(27);
@@ -586,7 +586,7 @@ test('names, kinds and commands the graph does not own are unsupported, and iter
 });
 
 test('controls: example select, two number fields, Next step, Play/Pause, Reset and Show error bound with their states', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const first = controls(graph);
     expect(first.select.props.options.map((option: any) => option.value)).toEqual(['affine', 'cosine', 'reflection']);
     expect(first.select.props.options.map((option: any) => option.text)).toEqual(['T(x) = (x + 1) / 2, x ∈ [0, 2]', 'T(x) = cos x, x ∈ [0, 1]', 'T(x) = 1 - x, x ∈ [0, 1]']);
@@ -644,7 +644,7 @@ test('presets save the model with the step and the reveal, reopen paused and nev
     expect(exported.data).toEqual({example: 'cosine', x0: 0.25, step: 5, digits: 3, boundVisible: true});
     expect(JSON.stringify(exported)).not.toMatch(/play|running|status/i);
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     apply(reopened, command('play'));
     expect(reopened.controller.isPlaying()).toBe(true);
     reopened.importPreset({id: 'fixed-point', boardState: {boundingBox: [-1, 1, 1, -1]}, data: exported.data});
@@ -776,6 +776,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
     expect(graph.frames.callbacks.size).toBe(1);
     const controller = graph.controller;
     graph.unmount();
+    const disposedModel = graph.model;
     expect(graph.frames.callbacks.size).toBe(0);
     expect(controller.isPlaying()).toBe(false);
     expect(graph.generatedObjectCount).toBe(0);
@@ -784,7 +785,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
     expect(controller.nextStep()).toBe(false);
     controller.play();
     expect(graph.frames.callbacks.size).toBe(0);
-    expect(graph.model).toEqual(model({}));
+    expect(graph.model).toBe(disposedModel);
 });
 
 test('generated objects are disposed and not duplicated across repeated generation, examples and default scenes', () => {
@@ -815,7 +816,7 @@ test('generated objects are disposed and not duplicated across repeated generati
 });
 
 test('the board text follows the language and a language change notifies subscribers (the board text is re-evaluated on update)', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     next(graph, 3);
     apply(graph, reveal(true));
     expect(caption(graph)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 3, xₖ = 0,875', '|xₖ − x*| ≤ 0,125', 'krogec: približek; križec: negibna točka']);
@@ -837,7 +838,7 @@ test('the board text follows the language and a language change notifies subscri
 });
 
 test('below 520 px the board uses fewer caption lines, and no label is placed on an axis', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('reflection'));
     next(graph, 4);
     expect(caption(graph)).toHaveLength(5);
@@ -848,7 +849,7 @@ test('below 520 px the board uses fewer caption lines, and no label is placed on
     graph.board.canvasWidth = COMPACT_BOARD_WIDTH;
     expect(caption(graph)).toHaveLength(5);
     // the reason the iteration ended stays on narrow boards
-    const ended = makeGraph({asyncState: false});
+    const ended = makeGraph();
     next(ended, 10);
     ended.board.canvasWidth = COMPACT_BOARD_WIDTH - 1;
     expect(caption(ended)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 10, xₖ = 0,999023', 'ocena napake: skrita', 'konec: ocena pod pragom']);
@@ -884,7 +885,7 @@ test('no readout, caption, label or status ever shows NaN, Infinity or a raw und
             for (const digits of [1, 3, 8]) {
                 for (const steps of [0, 1, 2, 10, 60]) {
                     for (const visible of [false, true]) {
-                        const graph = makeGraph({asyncState: false});
+                        const graph = makeGraph();
                         apply(graph, choice(id));
                         apply(graph, parameter('fixed-point-digits', digits));
                         for (let i = 0; i < steps && graph.controller.status !== 'complete'; i++) {
@@ -901,7 +902,7 @@ test('no readout, caption, label or status ever shows NaN, Infinity or a raw und
 });
 
 test('a scene replaced while playing pauses the iteration and requests a render so Play/Pause updates', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     graph.play();
     expect(graph.controller.isPlaying()).toBe(true);
     graph.requestRender = vi.fn();
@@ -913,7 +914,7 @@ test('a scene replaced while playing pauses the iteration and requests a render 
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured message', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -934,7 +935,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Število d mora biti celo število med 1 in 8.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('fixed-point-digits', 0)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'fixed_point_digits_rejected_hint', params: {value0: 1, value1: 8}});
@@ -942,7 +943,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
 });
 
 test('the refusal of a further Next step is localized in Slovenian and English', () => {
-    const known = makeGraph({asyncState: false});
+    const known = makeGraph();
     apply(known, parameter('fixed-point-x0', 1));
     expect(refusalTexts(() => next(known))).toEqual({
         sl: 'Iteracija se je končala. Gumb »Ponastavi na x₀« jo vrne na začetek.',

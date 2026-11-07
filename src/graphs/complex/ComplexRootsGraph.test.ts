@@ -39,7 +39,7 @@ function fakeBoard() {
     return board;
 }
 
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+function makeGraph() {
     const graph = new ComplexRootsGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -48,7 +48,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -130,7 +130,7 @@ test('initialization draws w = 2i with the roots, the n-gon and the test point h
 });
 
 test('the roots of w = 2i, n = 3 sit at 30, 150 and 270 degrees on the circle of radius 2^(1/3) and appear only after Show roots', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {rootsVisible: true});
     expect(shownRoots(graph)).toEqual([0, 1, 2]);
     const radius = Math.cbrt(2);
@@ -153,7 +153,7 @@ test('the roots of w = 2i, n = 3 sit at 30, 150 and 270 degrees on the circle of
 });
 
 test('the n-gon is regular with edge 2 r sin(pi/n) and n edges for every degree, and appears only after Show n-gon', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {rootsVisible: true});
     expect(shownEdges(graph)).toEqual([]);
     for (let n = 2; n <= 8; n++) {
@@ -183,7 +183,7 @@ test('the n-gon is regular with edge 2 r sin(pi/n) and n edges for every degree,
 });
 
 test('each root raised to the n-th power gives w, and the roots sum to 0, for every degree and a set of grid w', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const [re, im] of [[0, 2], [1, 1], [-1, 0], [2, -2], [-0.05, 0.05], [0.7, -1.35], [-2, 0.05]]) {
         for (let n = 2; n <= 8; n++) {
             set(graph, {degree: n, wRe: re, wIm: im, rootsVisible: true});
@@ -203,7 +203,7 @@ test('each root raised to the n-th power gives w, and the roots sum to 0, for ev
 });
 
 test('w = 0 has the single root 0 with its multiplicity stated and no polygon, and no text or coordinate shows NaN or Infinity', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {example: 'zero', wRe: 0, wIm: 0, degree: 5, ...ALL});
     expect(shownRoots(graph)).toEqual([0]);
     expect(at(points(graph)[ROOT(0)])).toEqual([0, 0]);
@@ -229,7 +229,7 @@ test('w = 0 has the single root 0 with its multiplicity stated and no polygon, a
 });
 
 test('the labelling follows Arg w in (-pi, pi]: exactly on the negative real axis it is pi, across the axis the labels jump and the set of roots stays', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {example: 'negative-real', wRe: -1, wIm: 0, degree: 2, rootsVisible: true});
     expect(rows(graph)['w-argument']).toBe('π ≈ 3,142');
     expect(rows(graph)['root-0']).toMatch(/^i; \|z\| = 1, arg z = π\/2/);
@@ -257,7 +257,7 @@ test('the labelling follows Arg w in (-pi, pi]: exactly on the negative real axi
 });
 
 test('the test point z is hidden until shown and its z^n is compared with w: a root solves the equation, others do not', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(shown(points(graph)[Z_POINT])).toBe(false);
     set(graph, {testVisible: true, rootsVisible: true});
     expect(shown(points(graph)[Z_POINT])).toBe(true);
@@ -277,7 +277,7 @@ test('the test point z is hidden until shown and its z^n is compared with w: a r
 });
 
 test('the example choice sets w and n, keeps nothing hidden state alive, hides every reveal and ignores an unknown id', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, ALL);
     controls(graph).select.props.onChange('one-plus-i');
     expect(graph.model).toEqual({example: 'one-plus-i', wRe: 1, wIm: 1, degree: 3, rootsVisible: false, polygonVisible: false, testVisible: false, zRe: 1, zIm: 0.5});
@@ -296,7 +296,7 @@ test('the example choice sets w and n, keeps nothing hidden state alive, hides e
 });
 
 test('numeric inputs snap arithmetic noise to the 0.05 grid and reject a real off-grid, out-of-range or non-integer value without changing the model', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const inspector = () => controls(graph);
     inspector().wRe.props.onChange(0.30000000000000004);
     expect(graph.model.wRe).toBe(0.3);
@@ -322,7 +322,7 @@ test('numeric inputs snap arithmetic noise to the 0.05 grid and reject a real of
 });
 
 test('dragging w and the test point projects onto the grid inside the limits and writes once per event', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, ALL);
     const w = points(graph)[W_POINT];
     const writes = graph.setState.mock.calls.length;
@@ -360,7 +360,7 @@ test('dragging w and the test point projects onto the grid inside the limits and
 });
 
 test('the lesson action registry handles the w and z coordinates and n and refuses the others', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('complex-w-re', -1));
     apply(graph, parameter('complex-w-im', 0.5));
     apply(graph, parameter('complex-z-re', 0.25));
@@ -443,7 +443,7 @@ test('presets round-trip, a malformed preset explains itself and loads the defau
 });
 
 test('the board caption, readouts, statuses and legend follow the language, and a language change notifies subscribers', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {example: 'negative-real', wRe: -1, wIm: 0, degree: 2, rootsVisible: true, testVisible: true, zRe: 0, zIm: 1});
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
@@ -482,7 +482,7 @@ test('the board caption, readouts, statuses and legend follow the language, and 
 });
 
 test('unmounting releases every owned object and reference, and a late drag after unmount only touches the model', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const w = points(graph)[W_POINT];
     expect(graph.generatedObjectCount).toBe(OBJECT_COUNT);
     graph.unmount();
@@ -498,7 +498,7 @@ test('unmounting releases every owned object and reference, and a late drag afte
 test('a refused edit throws a DomainError whose text is localized in both languages and whose reason is a structured message', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph: any = makeGraph({asyncState: false});
+        const graph: any = makeGraph();
         const messageOf = (edit: () => void) => {
             try { edit(); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -517,7 +517,7 @@ test('a refused edit throws a DomainError whose text is localized in both langua
         'Primer mora biti eden od: two-i, one-plus-i, negative-real, unity, zero.',
     ]);
     setLanguage('en');
-    const graph: any = makeGraph({asyncState: false});
+    const graph: any = makeGraph();
     let reason: unknown;
     try { graph.setDegree(1); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'complex_roots_degree_rejected_hint', params: {}});

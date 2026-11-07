@@ -39,8 +39,8 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new AccumulationGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -49,7 +49,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -144,7 +144,7 @@ test('initialization draws the shaded stretches, f, the hidden A and tangent, dr
 });
 
 test('while A is hidden every readout that would give the answer away says hidden and the status is only the prompt', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(rows(graph)).toEqual({
         'a': '0', 'x': '2', 'f-x': '0,9093', 'signed-integral': 'skrito', 'slope': 'skrito', 'above-axis': 'skrito', 'below-axis': 'skrito',
     });
@@ -162,7 +162,7 @@ test('while A is hidden every readout that would give the answer away says hidde
 });
 
 test('showing A draws the dashed curve, its tangent and its point, and the readouts report the signed value and the slope f(x)', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     expect(graph.model).toEqual({fn: 'sin', a: 0, x: 2, accumulationVisible: true});
     for (const shown of [curves(graph)[A_CURVE], curves(graph)[TANGENT], points(graph)[A_POINT]]) expect(resolve(shown.attributes.visible)).toBe(true);
@@ -188,7 +188,7 @@ test('showing A draws the dashed curve, its tangent and its point, and the reado
 });
 
 test('the default sin example gives A(0) = 0, A(pi) = 2 and A(2 pi) = 0, with the contributions that make them', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     const at = (x: number) => { apply(graph, parameter('accum-x', x)); return rows(graph); };
     const zero = at(0);
@@ -214,7 +214,7 @@ test('the default sin example gives A(0) = 0, A(pi) = 2 and A(2 pi) = 0, with th
 });
 
 test('the tangent to A at x passes through (x, A(x)) with slope f(x), which is the numerical derivative of the drawn A, for every function', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     for (const fnId of FUNCTION_IDS) {
         apply(graph, choice(fnId));
@@ -237,7 +237,7 @@ test('the tangent to A at x passes through (x, A(x)) with slope f(x), which is t
 });
 
 test('x < a keeps the orientation: A(x) = -(integral from x to a), the status says so and the parts swap their contributions', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     apply(graph, parameter('accum-a', 2));
     apply(graph, parameter('accum-x', 0));
@@ -264,7 +264,7 @@ test('x < a keeps the orientation: A(x) = -(integral from x to a), the status sa
 });
 
 test('negative integrand values decrease A: it falls where f is negative, as the status and the contributions state', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     apply(graph, parameter('accum-x', 4));
     expect(rows(graph)['f-x']).toBe('−0,7568');
@@ -289,7 +289,7 @@ test('negative integrand values decrease A: it falls where f is negative, as the
 });
 
 test('the readout calls the value the signed integral and never presents the geometric area as the integral', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     apply(graph, parameter('accum-x', 2 * Math.PI));
     // the unsigned geometric area of the two arcs is 4; the displayed integral is 0, and 4 appears nowhere
@@ -318,7 +318,7 @@ test('the shaded region follows the view clamp, so e^x at x = 7 never plots a pa
 });
 
 test('a sign mark exists per stretch, shows its sign and is left out for a stretch too narrow to hold it', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('accum-a', -7));
     apply(graph, parameter('accum-x', 7));
     expect(markSigns(graph)).toEqual(['−', '+', '−', '+', '−', '+']);
@@ -337,8 +337,8 @@ test('a sign mark exists per stretch, shows its sign and is left out for a stret
 });
 
 test('every control writes the same model as its lesson action: function, a, x and the reveal', () => {
-    const viaControl = makeGraph({asyncState: false});
-    const viaLesson = makeGraph({asyncState: false});
+    const viaControl = makeGraph();
+    const viaLesson = makeGraph();
     for (const value of [1, 1.2, -0.5, 6.28, 7]) {
         expect(controls(viaControl).inputX.props.onChange(value)).toBe(true);
         apply(viaLesson, parameter('accum-x', value));
@@ -361,7 +361,7 @@ test('every control writes the same model as its lesson action: function, a, x a
 });
 
 test('the controls carry the range, label every field, name the reveal state in words and offer the three functions', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const {inputA, inputX, toggle, found} = controls(graph);
     expect([inputA, inputX].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Spodnja meja a', ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_MAX, 0], ['Točka x', ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_MAX, 2],
@@ -441,12 +441,12 @@ test('changing the function keeps a, x and the reveal and switches to the view o
     }
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('square'), parameter('accum-a', -1), parameter('accum-x', 3), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({fn: 'square', a: -1, x: 3, accumulationVisible: true});
-    expect(graph.state).toMatchObject({fn: 'sin', a: 0, x: 2, accumulationVisible: false});
+    expect(graph.state).toMatchObject(graph.model);
     expect(caption(graph)[3]).toBe('A(x) = 9,3333 (s predznakom)'); // (27 - (-1)) / 3
     // later actions in the same tick see the earlier ones, including the order of a and x
     apply(graph, parameter('accum-a', 3));
@@ -463,7 +463,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     expect(lesson.id).toBe('accumulation-guided');
     expect(lesson.steps).toHaveLength(7);
     const finals = lesson.steps.map(step => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, choice('exp'));
         apply(graph, parameter('accum-a', -3));
@@ -487,7 +487,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
 test('the revealing presses of the lesson give the numbers its prose states', () => {
     const lesson = getLessonForDemonstration('accumulation')!;
     const afterPress = (stepId: string) => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         for (const action of lesson.steps.find(step => step.id === stepId)!.scene!.actions) apply(graph, action);
         apply(graph, reveal(true));
         return graph;
@@ -506,7 +506,7 @@ test('the revealing presses of the lesson give the numbers its prose states', ()
 });
 
 test('no readout, caption or status ever shows NaN, Infinity or a raw undefined, in either language', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const bounds = [-7, -6.28, -3.14, -1, -0.001, 0, 0.001, 1, 2, Math.PI, 2 * Math.PI, 6.99, 7];
     for (const language of ['sl', 'en'] as const) {
         setLanguage(language);
@@ -526,7 +526,7 @@ test('no readout, caption or status ever shows NaN, Infinity or a raw undefined,
 });
 
 test('the contributions of the parts always add up to the signed integral', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const fn of FUNCTION_IDS) {
         for (const [a, x] of [[0, 2 * Math.PI], [-7, 7], [2, -1], [1, 1], [-6, 0.5], [6.5, -6.5]]) {
             graph.importPreset({id: 'stored', data: {fn, a, x, accumulationVisible: true}});
@@ -570,7 +570,7 @@ test('dragging a and x projects onto the 0.01 grid and the domain, independently
 });
 
 test('a drag of a point does not change the reveal state and a drag after reveal updates the readouts', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     const [, x] = axisPoints(graph);
     x.x = 3.14;
@@ -611,7 +611,7 @@ test('presets save the model with the reveal state and reopen the same scene', (
     expect(exported.id).toBe('accumulation');
     expect(exported.data).toEqual({fn: 'exp', a: -1, x: 0.5, accumulationVisible: true});
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     reopened.importPreset({id: 'accumulation', boardState: {boundingBox: [-1, 1, 1, -1]}, data: exported.data});
     expect(reopened.model).toEqual({fn: 'exp', a: -1, x: 0.5, accumulationVisible: true});
     expect(rows(reopened)['signed-integral']).toBe('1,2808'); // e^0.5 - e^-1
@@ -623,7 +623,7 @@ test('presets save the model with the reveal state and reopen the same scene', (
     expect(reopened.model).toEqual({fn: 'square', a: 1, x: -2, accumulationVisible: false});
     expect(rows(reopened)['signed-integral']).toBe('skrito');
     // a preset without a view of its own for another function shows that function's view
-    const other = makeGraph({asyncState: false});
+    const other = makeGraph();
     other.board.setBoundingBox.mockClear();
     other.importPreset({id: 'accumulation', data: {fn: 'exp', a: 0, x: 1, accumulationVisible: false}});
     expect(other.board.setBoundingBox).toHaveBeenLastCalledWith([-5, 10, 9.6, -1.5], true);
@@ -736,7 +736,7 @@ test('the flat-slope tolerance covers floating-point noise only, never a small n
     expect(FLAT_SLOPE).toBe(1e-12);
     expect(Math.abs(Math.sin(Math.PI))).toBeLessThan(FLAT_SLOPE);
     expect(Math.abs(Math.sin(2 * Math.PI))).toBeLessThan(FLAT_SLOPE);
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, reveal(true));
     // sin(x) = 4e-5 rounds to 0 on the four-decimal readout but is not zero: the status must not claim f(x) = 0
     apply(graph, parameter('accum-x', Math.asin(4e-5)));
@@ -762,7 +762,7 @@ test('the drawn curves tolerate the non-finite arguments a real board evaluates 
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -782,7 +782,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Funkcija mora biti ena od: square, sin, exp.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('accum-x', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'accumulation_x_range_rejected', params: {value0: '−7', value1: '7'}});

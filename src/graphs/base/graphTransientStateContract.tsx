@@ -9,6 +9,7 @@ import {act} from '@testing-library/react';
 import {graphFactories} from '../graphFactories';
 import type {DemonstrationId} from '../../demonstrations';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
+import BaseFunctionGraph from '../functions/BaseFunctionGraph';
 import type {LessonAction} from '../../learning/model';
 import {appStorage} from '../../storage/appStorage';
 import {capturePNGBlob} from './export/FigureCapture';
@@ -388,8 +389,10 @@ export function describeGraphTransientState(part: number): void {
             if (internals(graph).board) {
                 expect(Object.keys(preset).sort()).toEqual(['boardState', 'data', 'graphState', 'id']);
                 const dataKeys = PRESET_DATA_STATE_KEYS[id] ?? [];
+                // A function graph holds its live model in the scene store under `model`; files stay flat, so the model is not a graphState key.
+                const modelKeys = graph instanceof BaseFunctionGraph ? ['model'] : [];
                 for (const key of dataKeys) expect(graph.state).toHaveProperty(key);
-                expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(Object.keys(graph.state).filter(key => !dataKeys.includes(key)).sort());
+                expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(Object.keys(graph.state).filter(key => !dataKeys.includes(key) && !modelKeys.includes(key)).sort());
             } else {
                 // All surface state is Preset data; the Preset's graphState only marks the graph initialized.
                 expect(Object.keys(preset).sort()).toEqual(['data', 'graphState', 'id']);

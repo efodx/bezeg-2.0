@@ -43,13 +43,13 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new DefiniteIntegralGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -112,12 +112,12 @@ test('the positive fill is the three closed left rectangles of positive height u
     expect(curveData(graph, NEGATIVE)).toEqual({x: [], y: []});
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [fnChoice('sin'), parameter('a', 0), parameter('b', 2 * Math.PI), parameter('n', 12), methodChoice('midpoint')]) apply(graph, action);
     expect(graph.model).toEqual({fn: 'sin', a: 0, b: 2 * Math.PI, n: 12, method: 'midpoint'});
-    expect(graph.state).toMatchObject({fn: 'square', a: 0, b: 2, n: 4, method: 'left'});
+    expect(graph.state).toMatchObject(graph.model);
     expect([pointB(graph).x, pointB(graph).y]).toEqual([2 * Math.PI, 0]);
     expect(valuesText(graph)).toBe('vsota 0, integral 0');
     // a later action in the same tick sees the earlier one
@@ -266,7 +266,7 @@ test('names, targets and kinds the graph does not own are unsupported', () => {
 });
 
 test('readouts: a, b, n, h, sum, exact integral and difference, in both languages', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const byId = () => Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
     expect(byId()).toEqual({a: '0', b: '2', n: '4', h: '0,5', sum: '1,75', exact: '2,6667', difference: '−0,9167'});
     apply(graph, methodChoice('trapezoid'));
@@ -338,7 +338,7 @@ test('reversed bounds add a readout note and the legend names the two colours in
 });
 
 test('controls: function select, bound inputs, n slider 1-150 and method select', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const found: Record<string, any[]> = {};
     const walk = (node: any) => {
         if (!node || typeof node !== 'object') return;
@@ -415,7 +415,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual(good);
 });
 
-test('capture and restore bring back the synchronous model even when React state lags', () => {
+test('capture and restore bring back the synchronous model read in the same tick', () => {
     const graph = makeGraph();
     apply(graph, fnChoice('sin'));
     apply(graph, parameter('a', -1));
@@ -477,7 +477,6 @@ test('a stored board state is not overwritten by the default view during initial
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'definite-integral', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {fn: 'square', a: 0, b: 2, n: 4, method: 'left'}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();
@@ -491,7 +490,7 @@ test('figure export preset state follows the imported model', () => {
 });
 
 test('changing the function sets the view of that function, from the inspector and from the lesson action; other changes keep the view', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     graph.board.setBoundingBox.mockClear();
     apply(graph, fnChoice('sin'));
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(SIN_BOX, true);
@@ -536,14 +535,13 @@ test('a view stored in a preset wins over the function view on initialization, a
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'definite-integral', data: {fn: 'sin', a: 0, b: 3, n: 6, method: 'left'}});
     graph.initialize();
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(SIN_BOX, true);
 });
 
 test('the n slider shows an integer number field that commits typed whole numbers to the graph and rejects fractions', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const found: Record<string, any[]> = {};
     const walk = (node: any) => {
         if (!node || typeof node !== 'object') return;
@@ -563,7 +561,7 @@ test('the n slider shows an integer number field that commits typed whole number
 });
 
 test('Edit order: controls, then the readout, then the legend (no reveal area when the graph has no reveals)', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const children = (graph.workspaceEdit() as any).props.children;
     expect(children.map((child: any) => child?.type?.name ?? (child ? 'controls' : null))).toEqual(['controls', null, 'FunctionReadout', 'FunctionLegend']);
 });

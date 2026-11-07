@@ -39,8 +39,8 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new ComplexMultiplicationGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -49,7 +49,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -158,7 +158,7 @@ test('z, w and zw differ by shape, line pattern and name, not only by colour; th
 });
 
 test('(1 + i) i = -1 + i is hidden until Show product and then shown with its modulus, argument and rule', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(rows(graph)).toMatchObject({
         z: '1 + i', 'z-modulus': '1,4142', 'z-argument': 'π/4 ≈ 0,785', w: 'i', 'w-modulus': '1', 'w-argument': 'π/2 ≈ 1,571',
         product: 'skrito', 'product-modulus': 'skrito', 'product-argument': 'skrito', 'modulus-rule': 'skrito', 'argument-rule': 'skrito',
@@ -186,7 +186,7 @@ test('(1 + i) i = -1 + i is hidden until Show product and then shown with its mo
 });
 
 test('a zero operand gives the product 0 and an argument that reads "ni definiran", never 0', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('zero'));
     apply(graph, product(true));
     apply(graph, arguments_(true));
@@ -219,7 +219,7 @@ test('a zero operand gives the product 0 and an argument that reads "ni definira
 });
 
 test('the argument sum is reduced into (-pi, pi] and the reduction is stated only when it happens', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     // z = w = -1 + i: 3pi/4 + 3pi/4 = 3pi/2 -> -pi/2
     for (const action of [choice('general'), parameter('complex-z-re', -1), parameter('complex-w-re', -1), product(true), arguments_(true)]) apply(graph, action);
     expect(rows(graph)).toMatchObject({product: '−2i', 'product-modulus': '2', 'product-argument': '−π/2 ≈ −1,571', 'argument-rule': '3π/2 ≈ 4,712 → −π/2 ≈ −1,571'});
@@ -247,22 +247,22 @@ test('the argument sum is reduced into (-pi, pi] and the reduction is stated onl
 test('Cartesian controls, polar controls and lesson actions give equivalent models', () => {
     const target = {example: 'rotation-i', zRe: 1, zIm: 1, wRe: 1, wIm: 1, productVisible: true, anglesVisible: false};
 
-    const viaLesson = makeGraph({asyncState: false});
+    const viaLesson = makeGraph();
     apply(viaLesson, parameter('complex-w-re', 1));
     apply(viaLesson, product(true));
 
-    const viaCartesian = makeGraph({asyncState: false});
+    const viaCartesian = makeGraph();
     expect(controls(viaCartesian).wRe.props.onChange(1)).toBe(true);
     controls(viaCartesian).showProduct.props.onClick();
 
     // polar: the modulus keeps the argument of w = i (pi/2), then the argument keeps the modulus: (0, 1.4) -> (1, 1)
-    const viaPolar = makeGraph({asyncState: false});
+    const viaPolar = makeGraph();
     expect(controls(viaPolar).modulus.props.onChange(Math.SQRT2)).toBe(true);
     expect(viaPolar.model).toMatchObject({wRe: 0, wIm: 1.4});
     expect(controls(viaPolar).argument.props.onChange(Math.PI / 4)).toBe(true);
     controls(viaPolar).showProduct.props.onClick();
 
-    const viaPolarLesson = makeGraph({asyncState: false});
+    const viaPolarLesson = makeGraph();
     apply(viaPolarLesson, parameter('complex-w-modulus', Math.SQRT2));
     apply(viaPolarLesson, parameter('complex-w-argument', Math.PI / 4));
     apply(viaPolarLesson, product(true));
@@ -274,7 +274,7 @@ test('Cartesian controls, polar controls and lesson actions give equivalent mode
     expect(statusIds(viaPolar)).toEqual(statusIds(viaLesson));
 
     // the polar fields are re-derived from the snapped w, not kept as typed
-    const typed = makeGraph({asyncState: false});
+    const typed = makeGraph();
     apply(typed, choice('general'));
     expect(controls(typed).modulus.props.onChange(1.5)).toBe(true);
     expect(typed.model).toMatchObject({wRe: 1.05, wIm: 1.05});
@@ -287,7 +287,7 @@ test('Cartesian controls, polar controls and lesson actions give equivalent mode
 });
 
 test('the polar controls reject, never clamp: a modulus or argument that leaves the grid square or reaches the origin', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('general'));
     const before = {...graph.model};
     expect(controls(graph).modulus.props.onChange(3)).toBe(false);
@@ -310,7 +310,7 @@ test('the polar controls reject, never clamp: a modulus or argument that leaves 
     expect(Object.is(graph.model.wIm, -0)).toBe(false);
 
     // with w = 0 the argument has no value: the field is disabled with a visible explanation and the lesson action refuses
-    const zero = makeGraph({asyncState: false});
+    const zero = makeGraph();
     apply(zero, choice('zero'));
     const argumentField = controls(zero).argument;
     expect(argumentField.props.disabled).toBe(true);
@@ -334,7 +334,7 @@ test('the polar controls reject, never clamp: a modulus or argument that leaves 
 });
 
 test('Cartesian number fields snap arithmetic noise to the 0.05 grid and reject a real off-grid or out-of-range value', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(controls(graph).zRe.props.onChange(0.1 + 0.2)).toBe(true);
     expect(graph.model.zRe).toBe(0.3);
     expect(controls(graph).zIm.props.onChange(-0)).toBe(true);
@@ -363,7 +363,7 @@ test('Cartesian number fields snap arithmetic noise to the 0.05 grid and reject 
 });
 
 test('dragging z and w projects onto the 0.05 grid inside [-2, 2] and writes through the same setter, once per event', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const z = points(graph)[Z_POINT];
     const writes = graph.setState.mock.calls.length;
     z.x = 1.234;
@@ -402,7 +402,7 @@ test('dragging z and w projects onto the 0.05 grid inside [-2, 2] and writes thr
 });
 
 test('the largest products stay finite and within |zw| <= 8; those beyond the default view are announced on the board and in the inspector', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let largest = 0;
     for (const re of [-2, 0, 2]) for (const im of [-2, 0, 2]) largest = Math.max(largest, complexModulus(complexMultiply({re, im}, {re: 2, im: 2})));
     expect(largest).toBeCloseTo(COMPLEX_MAX_PRODUCT_MODULUS, 12);
@@ -433,7 +433,7 @@ test('the largest products stay finite and within |zw| <= 8; those beyond the de
 });
 
 test('labels point away from the origin, never sit on an axis, and take other sides when tips coincide', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const [productPoint, zPoint, wPoint] = [points(graph)[PRODUCT_POINT], points(graph)[Z_POINT], points(graph)[W_POINT]];
     apply(graph, product(true));
     // z = 1 + i, w = i, zw = -1 + i
@@ -469,7 +469,7 @@ test('labels point away from the origin, never sit on an axis, and take other si
 });
 
 test('argument arcs are drawn only after Show arguments, at pixel radii that keep them inside their arrows', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(arcs(graph).map(visible)).toEqual([false, false, false]);
     apply(graph, arguments_(true));
     expect(arcs(graph).map(visible)).toEqual([true, true, false]);
@@ -499,8 +499,8 @@ test('every lesson scene reproduces the configuration its expectedState describe
     expect(lesson.id).toBe('complex-multiplication-guided');
     expect(lesson.steps).toHaveLength(7);
     const finals = lesson.steps.map(step => {
-        // the React state lags inside one tick (setState is asynchronous); the model must still be what the actions describe
-        const graph = makeGraph({asyncState: true});
+        // each step runs as one synchronous sequence on a real store; the model must be exactly what the actions describe
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, choice('negation'));
         apply(graph, parameter('complex-z-re', -2));
@@ -520,7 +520,7 @@ test('every lesson scene reproduces the configuration its expectedState describe
         [model('zero', [1, 1], [0, 0], false), ['hidden', 'w-zero']],
     ]);
     // the numbers the lesson prose states, read from the graph after the learner presses Show product
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const run = (index: number) => { for (const action of lesson.steps[index].scene!.actions) apply(graph, action); };
     run(0);
     expect(rows(graph)).toMatchObject({'z-modulus': '1,4142', 'z-argument': 'π/4 ≈ 0,785', 'w-modulus': '1', 'w-argument': 'π/2 ≈ 1,571'});
@@ -549,7 +549,7 @@ test('every lesson scene reproduces the configuration its expectedState describe
 });
 
 test('the lesson action registry handles exactly the complex names and refuses the others', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(() => apply(graph, {kind: 'function-parameter', name: 'uniform-x', value: 1} as LessonAction)).toThrow(UnsupportedLessonActionError);
     expect(() => apply(graph, {kind: 'function-visibility', target: 'uniform-supremum', visible: true} as LessonAction)).toThrow(UnsupportedLessonActionError);
     expect(() => apply(graph, {kind: 'function-choice', name: 'uniform-example', value: 'power'} as LessonAction)).toThrow(UnsupportedLessonActionError);
@@ -594,7 +594,7 @@ test('presets round-trip, an invalid preset loads the default, and capture and r
 });
 
 test('the board caption follows the language, a language change notifies subscribers, and compact boards drop the argument line and the key', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const action of [choice('general'), parameter('complex-z-re', -1), parameter('complex-w-re', -1), product(true), arguments_(true)]) apply(graph, action);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
@@ -620,7 +620,7 @@ test('the board caption follows the language, a language change notifies subscri
 });
 
 test('the legend and the inspector name z, w and zw with words, patterns and shapes', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const legend = collect(graph.renderLegend()).FunctionLegend[0].props.items;
     expect(legend.map((item: any) => item.id)).toEqual(['z', 'w', 'product', 'arcs']);
     expect(legend.map((item: any) => item.label)).toEqual([
@@ -640,7 +640,7 @@ test('the legend and the inspector name z, w and zw with words, patterns and sha
 });
 
 test('no readout, caption or status ever shows NaN, Infinity, -0 or a raw undefined (Slovenian wording), in either language', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const language of ['sl', 'en'] as const) {
         setLanguage(language);
         for (const zRe of [-2, -0.05, 0, 1.95]) {
@@ -664,7 +664,7 @@ test('no readout, caption or status ever shows NaN, Infinity, -0 or a raw undefi
 });
 
 test('an argument sum without a pi-multiple form is stated with "≈" alone, never "= ≈"', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const action of [choice('general'), parameter('complex-z-im', 0.5), product(true), arguments_(true)]) apply(graph, action);
     const text = graph.statuses(graph.model, graph.viewOf(graph.model))[0].text as string;
     expect(text).toMatch(/^arg z \+ arg w ≈ 1,249 leži v \(−π, π\]/);
@@ -680,8 +680,8 @@ test('an argument sum without a pi-multiple form is stated with "≈" alone, nev
 test('a refused edit throws a DomainError whose text is localized in both languages and whose reason is a structured message', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
-        const zero = makeGraph({asyncState: false});
+        const graph = makeGraph();
+        const zero = makeGraph();
         apply(zero, parameter('complex-w-re', 0));
         apply(zero, parameter('complex-w-im', 0));
         const messageOf = (target: any, action: LessonAction) => {
@@ -706,7 +706,7 @@ test('a refused edit throws a DomainError whose text is localized in both langua
         'Primer mora biti eden od: rotation-i, identity, negation, scaling, general, zero.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('complex-w-argument', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'complex_argument_rejected_hint', params: {value0: '−6.28', value1: '6.28'}});

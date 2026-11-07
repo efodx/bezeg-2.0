@@ -61,8 +61,8 @@ function manualScheduler() {
     return {scheduler, callbacks, frame};
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const frames = manualScheduler();
     const graph = new BisectionGraph(frames.scheduler) as any;
     graph.board = fakeBoard();
@@ -71,7 +71,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
         waitUntilReady: () => Promise.resolve(), beginTransition: () => () => undefined,
     };
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return Object.assign(graph, {frames});
 }
@@ -142,7 +142,7 @@ test('initialization draws the function, the bracket, the points and one caption
 });
 
 test('Next step reveals the midpoints 1.5, 1.25, 1.375 with the values 0.25, -0.4375, -0.109375 and halves the width', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const expected = [
         {step: '1', mid: '1,5', fMid: '0,25', retained: 'leva [a, m]', interval: '[1; 1,5]', width: '0,5'},
         {step: '2', mid: '1,25', fMid: '−0,4375', retained: 'desna [m, b]', interval: '[1,25; 1,5]', width: '0,25'},
@@ -165,12 +165,12 @@ test('Next step reveals the midpoints 1.5, 1.25, 1.375 with the values 0.25, -0.
     expect(rows(graph)).toMatchObject({mid: '1.375', 'f-mid': '−0.109375', interval: '[1.375, 1.5]', retained: 'right [m, b]'});
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('sign-step'), command('next-step'), command('next-step'), command('next-step')]) apply(graph, action);
     expect(graph.model).toEqual({example: 'sign-step', a: -1, b: 1, step: 3});
-    expect(graph.state).toMatchObject({example: 'square-minus-two', a: 1, b: 2, step: 0});
+    expect(graph.state).toMatchObject(graph.model);
     expect(progressText(graph)).toBe('korak 3, širina 0,25');
     // a later action in the same tick sees the earlier one
     apply(graph, choice('cubic'));
@@ -248,7 +248,7 @@ test('k Next steps and k playback steps reach the same model, and playback stops
 });
 
 test('playback ends at stagnation for x^2 - 2 and the state never calls the midpoint an exact root', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, command('play'));
     for (let guard = 0; guard < 200 && graph.controller.isPlaying(); guard++) graph.frames.frame(guard === 0 ? 0 : BISECTION_STEP_INTERVAL_MS);
     expect(graph.controller.isPlaying()).toBe(false);
@@ -301,7 +301,7 @@ test('editing an endpoint or the example restarts the history at step 0 and paus
         graph => controls(graph).found.ChoiceSelect[0].props.onChange('sign-step'),
     ];
     for (const edit of edits) {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         next(graph, 3);
         apply(graph, command('play'));
         expect(graph.controller.isPlaying()).toBe(true);
@@ -339,7 +339,7 @@ test('endpoints and examples outside the domain are rejected without changing th
 });
 
 test('exact roots, invalid brackets, the step limit and the hypothesis are stated in words and on the board', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     // same sign: no guarantee, no step possible
     apply(graph, parameter('bisect-b', 3));
     apply(graph, parameter('bisect-a', 2));
@@ -449,7 +449,7 @@ test('names, kinds and commands the graph does not own are unsupported, and iter
 });
 
 test('controls: example select, endpoint inputs, Next step, Play/Pause and Reset with their states', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const first = controls(graph);
     expect(first.found.ChoiceSelect[0].props.options.map((option: any) => option.value)).toEqual(['square-minus-two', 'sign-step', 'cubic']);
     expect(first.found.ChoiceSelect[0].props.options.map((option: any) => option.text)).toEqual(['f(x) = x² − 2', 'f(x) = −1 za x < 0, sicer 1', 'f(x) = x³ − x']);
@@ -494,7 +494,7 @@ test('presets save the model with the step, reopen paused at that step and never
     expect(exported.data).toEqual({example: 'square-minus-two', a: 1, b: 2, step: 4});
     expect(JSON.stringify(exported)).not.toMatch(/play|running|status/i);
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     apply(reopened, command('play'));
     expect(reopened.controller.isPlaying()).toBe(true);
     reopened.importPreset({id: 'bisection', boardState: {boundingBox: [-1, 1, 1, -1]}, data: exported.data});
@@ -604,6 +604,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
     expect(graph.frames.callbacks.size).toBe(1);
     const controller = graph.controller;
     graph.unmount();
+    const disposedModel = graph.model;
     expect(graph.frames.callbacks.size).toBe(0);
     expect(controller.isPlaying()).toBe(false);
     expect(graph.generatedObjectCount).toBe(0);
@@ -612,7 +613,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
     expect(controller.nextStep()).toBe(false);
     controller.play();
     expect(graph.frames.callbacks.size).toBe(0);
-    expect(graph.model).toEqual({example: 'square-minus-two', a: 1, b: 2, step: 0});
+    expect(graph.model).toBe(disposedModel);
 });
 
 test('generated objects are disposed and not duplicated across repeated generation and default scenes', () => {
@@ -679,7 +680,7 @@ test('the retained interval and the discarded half follow the last step', () => 
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -702,14 +703,14 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Primer mora biti eden od: square-minus-two, sign-step, cubic.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('bisect-a', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'bisection_endpoint_range_rejected', params: {value0: 'a', value1: '−4', value2: '4'}});
 });
 
 test('the refusal of a further Next step is localized in Slovenian and English', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('bisect-b', 3));
     apply(graph, parameter('bisect-a', 2));
     expect(refusalTexts(() => next(graph))).toEqual({

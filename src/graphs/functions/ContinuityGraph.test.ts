@@ -27,13 +27,13 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new ContinuityGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -107,14 +107,14 @@ test('each piece is clipped to its own domain: left up to and including 1, right
     expect(data(pieces(graph)[RIGHT]).y[0]).toBeCloseTo(1, 6);
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     apply(graph, parameter('a', 3));
     apply(graph, parameter('a', 0));
     apply(graph, parameter('a', 1.5));
     expect(graph.model).toEqual({a: 1.5});
-    expect(graph.state.a).toBe(1);
+    expect(graph.state.a).toBe(graph.model.a);
     expect(pointY(points(graph)[FILLED])).toBe(1.5);
     expect(pointY(points(graph)[OPEN])).toBe(1.5);
     expect(resolve(points(graph)[FILLED].attributes.fillColor)).toBe(MATCH);
@@ -196,7 +196,7 @@ test('names, targets and kinds the graph does not own are unsupported', () => {
 });
 
 test('readouts: f(1), both limits, the jump, the status and the one-sided slopes, in both languages', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const rows = () => graph.renderReadout().props.rows as { id: string; value: string }[];
     const byId = () => Object.fromEntries(rows().map(row => [row.id, row.value]));
     expect(byId()).toEqual({
@@ -235,7 +235,7 @@ test('the caption follows the language, and a language change notifies subscribe
 });
 
 test('controls: one slider for a from 0 to 3 in steps of 0.05, out-of-domain input ignored', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const sliders: any[] = [];
     const walk = (node: any) => {
         if (!node || typeof node !== 'object') return;
@@ -278,7 +278,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({a: 1});
 });
 
-test('capture and restore bring back the synchronous model even when React state lags', () => {
+test('capture and restore bring back the synchronous model read in the same tick', () => {
     const graph = makeGraph();
     apply(graph, parameter('a', 2.2));
     const checkpoint = graph.captureLessonState();
@@ -332,7 +332,6 @@ test('a stored board state is not overwritten by the default view during initial
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'piecewise-continuity', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 1}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

@@ -40,7 +40,7 @@ function fakeBoard() {
     return board;
 }
 
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+function makeGraph() {
     const graph = new ComplexReciprocalGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -49,7 +49,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -136,7 +136,7 @@ test('initialization draws z = 1 + i with 1/z hidden, the unit circle and the co
 });
 
 test('1/z, its modulus and argument, w/z and the position of z match the checked values and appear only after their Show buttons', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const inspector = controls(graph);
     expect(rows(graph)).toMatchObject({
         z: '1 + i', 'z-modulus': '1,4142', conjugate: '1 − i', reciprocal: 'skrito', 'reciprocal-modulus': 'skrito', 'reciprocal-argument': 'skrito',
@@ -177,7 +177,7 @@ test('1/z, its modulus and argument, w/z and the position of z match the checked
 test('z = 0 is reachable on the grid, gives the not-defined status, and no text or coordinate shows NaN or Infinity', () => {
     for (const language of ['sl', 'en'] as const) {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         apply(graph, parameter('complex-z-re', 0));
         apply(graph, parameter('complex-z-im', 0));
         set(graph, {reciprocalVisible: true, quotientVisible: true, circleVisible: true});
@@ -202,7 +202,7 @@ test('z = 0 is reachable on the grid, gives the not-defined status, and no text 
 });
 
 test('the example choice sets z and w, keeps the circle, hides every reveal and ignores an unknown id', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {reciprocalVisible: true, quotientVisible: true, circleVisible: true, centreRe: -1, radius: 0.5});
     graph.setExample('division');
     expect(graph.model).toEqual({
@@ -218,7 +218,7 @@ test('the example choice sets z and w, keeps the circle, hides every reveal and 
 });
 
 test('numeric inputs snap arithmetic noise to the 0.05 grid and reject a real off-grid or out-of-range value without changing the model', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const inspector = () => controls(graph);
     inspector().zRe.props.onChange(0.30000000000000004);
     expect(graph.model.zRe).toBe(0.3);
@@ -244,7 +244,7 @@ test('numeric inputs snap arithmetic noise to the 0.05 grid and reject a real of
 });
 
 test('dragging z, w, the centre and the radius handle projects onto the grid inside the limits and writes once per event', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {circleVisible: true});
     const z = points(graph)[Z_POINT];
     const writes = graph.setState.mock.calls.length;
@@ -304,7 +304,7 @@ test('dragging z, w, the centre and the radius handle projects onto the grid ins
 });
 
 test('the radius handle returns to centre + (r, 0) after Reset and after a preset restore, once it was dragged to another angle', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {circleVisible: true});
     const dragToUpperLeft = () => {
         const handle = points(graph)[RADIUS];
@@ -331,14 +331,14 @@ test('the radius handle returns to centre + (r, 0) after Reset and after a prese
 });
 
 test('for z = -1 the arguments of z and of 1/z are both pi, so arg 1/z = -arg z holds only modulo 2 pi', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {zRe: -1, zIm: 0, reciprocalVisible: true});
     expect(rows(graph)['z-argument']).toMatch(/^π ≈ 3,142$/);
     expect(rows(graph)['reciprocal-argument']).toMatch(/^π ≈ 3,142$/);
 });
 
 test('the inversion circle shows z\' = c + r^2 / conj(z - c), fixes points on the circle, has no image at the centre, and guards a bad radius', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     controls(graph).showCircle.props.onClick();
     expect(graph.model.circleVisible).toBe(true);
     expect([shown(points(graph)[CENTRE]), shown(points(graph)[RADIUS]), visible(curves(graph)[INVERSION_CIRCLE]), shown(points(graph)[IMAGE])]).toEqual([true, true, true, true]);
@@ -376,7 +376,7 @@ test('the inversion circle shows z\' = c + r^2 / conj(z - c), fixes points on th
 });
 
 test('results outside the default view are announced on the board and in the inspector, never drawn at a non-finite place', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {reciprocalVisible: true, quotientVisible: true, zRe: 0.05, zIm: 0});
     // 1/z = 20, w/z = (2 + i) * 20 = 40 + 20i
     expect(rows(graph)).toMatchObject({reciprocal: '20', quotient: '40 + 20i'});
@@ -390,7 +390,7 @@ test('results outside the default view are announced on the board and in the ins
 });
 
 test('the lesson action registry handles the operand names and refuses the others', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('complex-w-re', -1));
     apply(graph, parameter('complex-w-im', 0.5));
     apply(graph, parameter('complex-z-im', -1.5));
@@ -469,7 +469,7 @@ test('presets round-trip, a malformed preset explains itself and loads the defau
 });
 
 test('the board caption, readouts, statuses and legend follow the language, and a language change notifies subscribers', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     set(graph, {reciprocalVisible: true, quotientVisible: true, circleVisible: true, zRe: 1, zIm: -1});
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
@@ -504,7 +504,7 @@ test('the board caption, readouts, statuses and legend follow the language, and 
 });
 
 test('unmounting releases every owned object and reference, and a late drag after unmount only touches the model', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const z = points(graph)[Z_POINT];
     expect(graph.generatedObjectCount).toBe(OBJECT_COUNT);
     graph.unmount();
@@ -521,7 +521,7 @@ test('unmounting releases every owned object and reference, and a late drag afte
 test('a refused edit throws a DomainError whose text is localized in both languages and whose reason is a structured message', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph: any = makeGraph({asyncState: false});
+        const graph: any = makeGraph();
         const messageOf = (edit: () => void) => {
             try { edit(); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -542,7 +542,7 @@ test('a refused edit throws a DomainError whose text is localized in both langua
         'Primer mora biti eden od: outside, inside, unit-circle, division, zero.',
     ]);
     setLanguage('en');
-    const graph: any = makeGraph({asyncState: false});
+    const graph: any = makeGraph();
     let reason: unknown;
     try { graph.setExample('cubic'); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'complex_example_rejected', params: {value0: 'outside, inside, unit-circle, division, zero'}});

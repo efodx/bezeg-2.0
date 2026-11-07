@@ -60,8 +60,8 @@ function manualScheduler() {
     return {scheduler, callbacks, frame};
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const frames = manualScheduler();
     const graph = new SequenceGraph(frames.scheduler) as any;
     graph.board = fakeBoard();
@@ -70,7 +70,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
         waitUntilReady: () => Promise.resolve(), beginTransition: () => () => undefined,
     };
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return Object.assign(graph, {frames});
 }
@@ -161,7 +161,7 @@ test('initialization draws the band, its edges, the line y = L, the marker and a
 });
 
 test('terms inside and outside the band differ by shape: a filled circle inside, a cross outside, each at the term (n, a_n)', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     next(graph, 11);
     expect(graph.model.terms).toBe(12);
     // 1/n at epsilon 0.1: the terms n >= 11 are inside the open band, the tenth sits on its edge and is outside
@@ -202,12 +202,12 @@ test('the board fits every example: the view of each example holds all forty ter
     }
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('alternating-sign'), parameter('sequence-epsilon', 1.5), command('next-step'), command('next-step'), command('next-step'), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'alternating-sign', epsilon: 1.5, limit: 0, threshold: 5, terms: 4, certificateVisible: true});
-    expect(graph.state).toMatchObject({example: 'reciprocal', epsilon: 0.1, terms: 1, certificateVisible: false});
+    expect(graph.state).toMatchObject(graph.model);
     expect(caption(graph)[2]).toBe('prikazani členi: 4, v pasu: 4');
     expect(statusIds(graph)).toEqual(['epsilon-satisfied']);
     // a later action in the same tick sees the earlier one
@@ -272,7 +272,7 @@ test('k Next steps and k playback steps reach the same model, and playback stops
 });
 
 test('playback ends at the last term, the controls then offer no further step, and a further Next step is rejected', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, command('play'));
     for (let guard = 0; guard < 200 && graph.controller.isPlaying(); guard++) graph.frames.frame(guard === 0 ? 0 : SEQUENCE_STEP_INTERVAL_MS);
     expect(graph.controller.isPlaying()).toBe(false);
@@ -332,7 +332,7 @@ test('editing epsilon, L, N or the example pauses playback; only the example rel
         ['example select', graph => controls(graph).select.props.onChange('natural'), {...SEQUENCE_EXAMPLE_MODELS.natural}],
     ];
     for (const [name, edit, expected] of edits) {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         next(graph, 3);
         apply(graph, reveal(true));
         apply(graph, command('play'));
@@ -362,7 +362,7 @@ test('editing epsilon, L, N or the example pauses playback; only the example rel
 });
 
 test('controls and lesson actions give equivalent models', () => {
-    const viaActions = makeGraph({asyncState: false});
+    const viaActions = makeGraph();
     apply(viaActions, choice('alternating-sign'));
     apply(viaActions, parameter('sequence-epsilon', 0.75));
     apply(viaActions, parameter('sequence-limit', -0.5));
@@ -370,7 +370,7 @@ test('controls and lesson actions give equivalent models', () => {
     next(viaActions, 6);
     apply(viaActions, reveal(true));
 
-    const viaControls = makeGraph({asyncState: false});
+    const viaControls = makeGraph();
     controls(viaControls).select.props.onChange('alternating-sign');
     controls(viaControls).inputEpsilon.props.onChange(0.75);
     controls(viaControls).inputLimit.props.onChange(-0.5);
@@ -428,7 +428,7 @@ test('floating-point noise in typed epsilon and L values is cleaned to the grid,
 });
 
 test('the certificate readout for each kind of verdict, hidden until Show certificate and independent of the shown terms', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     next(graph, 11);
     // hidden: the readouts say so and the status asks for a prediction
     expect(rows(graph)).toMatchObject({
@@ -534,7 +534,7 @@ test('no certificate is ever given for (-1)^n or n, whatever the window, epsilon
         for (const terms of [1, 12, 40]) {
             for (const epsilon of [0.01, 0.5, 1, 1.5, 2]) {
                 for (const limit of [-2, -0.5, 0, 1, 2]) {
-                    const graph = makeGraph({asyncState: false});
+                    const graph = makeGraph();
                     apply(graph, choice(example));
                     apply(graph, parameter('sequence-epsilon', epsilon));
                     apply(graph, parameter('sequence-limit', limit));
@@ -550,7 +550,7 @@ test('no certificate is ever given for (-1)^n or n, whatever the window, epsilon
 });
 
 test('an epsilon that is satisfied is told apart from convergence for L where 1 + |L| < epsilon is false', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('alternating-sign'));
     apply(graph, parameter('sequence-limit', 1));
     apply(graph, parameter('sequence-epsilon', 1.5));
@@ -580,7 +580,7 @@ test('names, kinds and commands the graph does not own are unsupported, and iter
 });
 
 test('controls: example select, three number fields, Next step, Play/Pause, Reset and Show certificate with their states', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const first = controls(graph);
     expect(first.select.props.options.map((option: any) => option.value)).toEqual(['reciprocal', 'alternating-reciprocal', 'alternating-sign', 'natural']);
     expect(first.select.props.options.map((option: any) => option.text)).toEqual(['aₙ = 1/n', 'aₙ = (−1)ⁿ/n', 'aₙ = (−1)ⁿ', 'aₙ = n']);
@@ -632,7 +632,7 @@ test('presets save the model with the terms and the reveal, reopen paused and ne
     expect(exported.data).toEqual({example: 'reciprocal', epsilon: 0.1, limit: 0, threshold: 5, terms: 6, certificateVisible: true});
     expect(JSON.stringify(exported)).not.toMatch(/play|running|status/i);
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     apply(reopened, command('play'));
     expect(reopened.controller.isPlaying()).toBe(true);
     reopened.importPreset({id: 'sequence', boardState: {boundingBox: [-1, 1, 1, -1]}, data: exported.data});
@@ -758,6 +758,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
     expect(graph.frames.callbacks.size).toBe(1);
     const controller = graph.controller;
     graph.unmount();
+    const disposedModel = graph.model;
     expect(graph.frames.callbacks.size).toBe(0);
     expect(controller.isPlaying()).toBe(false);
     expect(graph.generatedObjectCount).toBe(0);
@@ -766,7 +767,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
     expect(controller.nextStep()).toBe(false);
     controller.play();
     expect(graph.frames.callbacks.size).toBe(0);
-    expect(graph.model).toEqual({example: 'reciprocal', epsilon: 0.1, limit: 0, threshold: 5, terms: 1, certificateVisible: false});
+    expect(graph.model).toBe(disposedModel);
 });
 
 test('generated objects are disposed and not duplicated across repeated generation, examples and default scenes', () => {
@@ -796,7 +797,7 @@ test('generated objects are disposed and not duplicated across repeated generati
 });
 
 test('the caption follows the language and a language change notifies subscribers (the board text is re-evaluated on update)', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     next(graph, 11);
     apply(graph, reveal(true));
     apply(graph, parameter('sequence-threshold', 11));
@@ -861,7 +862,7 @@ test('no readout, caption, label or status ever shows NaN, Infinity or a raw und
             for (const epsilon of [0.01, 1, 2]) {
                 for (const limit of [-2, 0, 2]) {
                     for (const visible of [false, true]) {
-                        const graph = makeGraph({asyncState: false});
+                        const graph = makeGraph();
                         apply(graph, choice(id));
                         apply(graph, parameter('sequence-epsilon', epsilon));
                         apply(graph, parameter('sequence-limit', limit));
@@ -878,7 +879,7 @@ test('no readout, caption, label or status ever shows NaN, Infinity or a raw und
 });
 
 test('Fit restores the example view instead of a canvas-aspect box, because the axes have different units', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     graph.board.container = document.createElement('div');
     graph.board.applyZoom = vi.fn();
     for (const [id, view] of [['reciprocal', [-4.9, 1.5, 43, -1.5]], ['alternating-sign', [-4.9, 1.6, 43, -3.4]], ['natural', [-4.9, 54, 43, -36]]] as const) {
@@ -892,7 +893,7 @@ test('Fit restores the example view instead of a canvas-aspect box, because the 
 });
 
 test('a scene replaced while playing pauses the iteration and requests a render so Play/Pause updates', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     controls(graph).play.props.onClick();
     expect(graph.controller.isPlaying()).toBe(true);
     graph.requestRender = vi.fn();
@@ -904,7 +905,7 @@ test('a scene replaced while playing pauses the iteration and requests a render 
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -925,14 +926,14 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Primer mora biti eden od: reciprocal, alternating-reciprocal, alternating-sign, natural.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('sequence-threshold', 0)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'sequence_threshold_rejected_hint', params: {value0: 1, value1: 1000}});
 });
 
 test('the refusal of a further Next step is localized in Slovenian and English', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     next(graph, 39);
     expect(refusalTexts(() => next(graph))).toEqual({
         sl: 'Vseh 40 členov je že prikazanih.',

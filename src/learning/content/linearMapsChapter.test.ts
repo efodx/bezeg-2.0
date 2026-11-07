@@ -47,7 +47,6 @@ function makeGraph() {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.initialize();
     return graph;
 }

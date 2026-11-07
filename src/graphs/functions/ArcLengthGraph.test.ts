@@ -45,13 +45,13 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new ArcLengthGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -121,12 +121,12 @@ test('the polyline is one curve through the n + 1 vertices on the graph; the ver
     expect(Math.min(...first)).toBeCloseTo(-Math.max(...first), 12);
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [parameter('a', -1), parameter('b', 2), parameter('n', 12)]) apply(graph, action);
     expect(graph.model).toEqual({a: -1, b: 2, n: 12});
-    expect(graph.state).toMatchObject(DEFAULT);
+    expect(graph.state).toMatchObject(graph.model);
     expect([pointA(graph).x, pointB(graph).x]).toEqual([-1, 2]);
     expect(pointB(graph).y).toBeCloseTo(Math.sin(2), 12);
     expect(groups(curveData(graph, POLYLINE).x)[0]).toHaveLength(13);
@@ -239,7 +239,7 @@ test('names, targets and kinds the graph does not own are unsupported', () => {
 });
 
 test('readouts: a, b, n, polyline length, arc length and difference, in both languages', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const byId = () => Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
     expect(byId()).toEqual({a: '0', b: '3,14', n: '2', polyline: '3,7242', arc: '3,8202', difference: '0,096'});
     setLanguage('en');
@@ -269,7 +269,7 @@ test('the caption follows the language, and a language change notifies subscribe
 });
 
 test('controls: endpoint inputs and an n slider 1-100', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const found: Record<string, any[]> = {};
     const walk = (node: any) => {
         if (!node || typeof node !== 'object') return;
@@ -331,7 +331,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual(DEFAULT);
 });
 
-test('capture and restore bring back the synchronous model even when React state lags', () => {
+test('capture and restore bring back the synchronous model read in the same tick', () => {
     const graph = makeGraph();
     apply(graph, parameter('a', -1));
     apply(graph, parameter('b', 4));
@@ -390,7 +390,6 @@ test('a stored board state is not overwritten by the default view during initial
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'arc-length', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 0, b: 2, n: 4}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();

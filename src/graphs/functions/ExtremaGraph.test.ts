@@ -38,8 +38,8 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick (unless asyncState is false). */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new ExtremaGraph() as any;
     graph.board = fakeBoard();
     const session: any = {
@@ -48,7 +48,7 @@ function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
     };
     graph.graphSession = session;
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -144,7 +144,7 @@ test('the candidates are marked by kind-specific shapes at (x, f(x)); unused slo
 });
 
 test('before the reveal the labels give value and kind only; after it they add the local and global classification (ties are all global)', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const texts = markerTexts(graph);
     expect(labelLines(texts[ENDPOINT_0])).toEqual(['f(−1) = 1', 'krajišče']);
     expect(labelLines(texts[STATIONARY_0])).toEqual(['f(0) = 0', "f′ = 0"]);
@@ -179,7 +179,7 @@ test('the derivative sign of every piece is a + or − mark on the board, not co
 });
 
 test('the readout lists a, b, every candidate with value, derivative and (once revealed) classification, every piece, and the global values', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(rows(graph)).toEqual({
         a: '−1', b: '2',
         'candidate-0': "f = 1, f′ = −2", 'candidate-1': "f = 0, f′ = 0", 'candidate-2': "f = 4, f′ = 4",
@@ -201,7 +201,7 @@ test('the readout lists a, b, every candidate with value, derivative and (once r
 });
 
 test('x^3 on [-1, 1]: 0 is stationary and neither a local minimum nor maximum', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('cube'));
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1, revealed: true});
@@ -213,7 +213,7 @@ test('x^3 on [-1, 1]: 0 is stationary and neither a local minimum nor maximum', 
 });
 
 test('|x| on [-1, 1]: 0 is a corner where f\' does not exist and the global minimum', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('abs'));
     expect(rows(graph)).toMatchObject({'candidate-1': 'f = 0, f′ = ne obstaja', 'global-minimum': 'skrito'});
     expect(rowLabels(graph)['candidate-1']).toBe('Kandidat: ostri vogal, x = 0');
@@ -223,7 +223,7 @@ test('|x| on [-1, 1]: 0 is a corner where f\' does not exist and the global mini
 });
 
 test('sin x on [-4, 4]: stationary points at +-pi/2, global values 1 and -1, and the endpoint values take part in the comparison', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('sine'));
     apply(graph, reveal(true));
     expect(graph.model).toEqual({example: 'sine', a: -4, b: 4, revealed: true});
@@ -236,7 +236,7 @@ test('sin x on [-4, 4]: stationary points at +-pi/2, global values 1 and -1, and
 });
 
 test('sin x on [0, pi]: both endpoints tie as global minima with value 0 and the interior pi/2 is the global maximum', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, choice('sine'));
     apply(graph, parameter('extrema-a', 0));
     apply(graph, parameter('extrema-b', Math.PI));
@@ -250,7 +250,7 @@ test('sin x on [0, pi]: both endpoints tie as global minima with value 0 and the
 });
 
 test('an endpoint that is also stationary stays one endpoint candidate', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('extrema-a', 0));
     expect(rows(graph)).toMatchObject({'candidate-0': "f = 0, f′ = 0"});
     expect(rowLabels(graph)['candidate-0']).toBe('Kandidat: krajišče, x = 0');
@@ -280,8 +280,8 @@ test('the marker slots hold the candidates of every example and every interval i
 });
 
 test('setting a, b, the example and the classification through the controls and through the lesson actions gives the same configuration', () => {
-    const viaControl = makeGraph({asyncState: false});
-    const viaLesson = makeGraph({asyncState: false});
+    const viaControl = makeGraph();
+    const viaLesson = makeGraph();
     controls(viaControl).found.ChoiceSelect[0].props.onChange('sine');
     apply(viaLesson, choice('sine'));
     expect(viaControl.model).toEqual(viaLesson.model);
@@ -303,7 +303,7 @@ test('setting a, b, the example and the classification through the controls and 
 });
 
 test('invalid values are rejected, never clamped: every setter throws DomainError and leaves the model unchanged', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const before = {...graph.model};
     for (const a of [2, 3, 5, -4.5, -5, NaN, Infinity]) expect(() => apply(graph, parameter('extrema-a', a)), `a = ${a}`).toThrow(DomainError);
     for (const b of [-1, -2, 4.5, 5, -5, NaN, -Infinity]) expect(() => apply(graph, parameter('extrema-b', b)), `b = ${b}`).toThrow(DomainError);
@@ -316,7 +316,7 @@ test('invalid values are rejected, never clamped: every setter throws DomainErro
 });
 
 test('the number fields carry their ranges, report rejection with a hint and show the rule', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const {inputA, inputB} = controls(graph);
     expect([inputA, inputB].map((input: any) => [input.props.label, input.props.min, input.props.max, input.props.value])).toEqual([
         ['Levo krajišče a', -4, 4, -1], ['Desno krajišče b', -4, 4, 2],
@@ -335,7 +335,7 @@ test('the number fields carry their ranges, report rejection with a hint and sho
 });
 
 test('the toggle names its state in words, editing a and b keeps the classification and choosing an example hides it', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     expect(controls(graph).toggle.props.children).toBe('Pokaži klasifikacijo');
     expect(controls(graph).toggle.props['data-revealed']).toBe(false);
     controls(graph).toggle.props.onClick();
@@ -352,12 +352,12 @@ test('the toggle names its state in words, editing a and b keeps the classificat
     expect(controls(graph).toggle.props.children).toBe('Show classification');
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('sine'), parameter('extrema-a', 0), parameter('extrema-b', Math.PI), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'sine', a: 0, b: Math.PI, revealed: true});
-    expect(graph.state).toMatchObject({example: 'square', a: -1, b: 2, revealed: false});
+    expect(graph.state).toMatchObject(graph.model);
     // a later action in the same tick sees the earlier one, including an endpoint that depends on the other endpoint
     apply(graph, parameter('extrema-a', 1));
     apply(graph, parameter('extrema-b', 2));
@@ -370,7 +370,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
     expect(lesson.id).toBe('extrema-guided');
     expect(lesson.steps).toHaveLength(7);
     const finals = lesson.steps.map(step => {
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         // a deliberately different user state that the default scene must reset
         apply(graph, choice('sine'));
         apply(graph, parameter('extrema-a', 1));
@@ -389,7 +389,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         [{...sine, a: 0, b: Math.PI, revealed: true}, ['revealed', 'tie']],
     ]);
     // the numbers the lesson prose states
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const action of lesson.steps[6].scene!.actions) apply(graph, action);
     expect(rows(graph)).toMatchObject({'global-minimum': '0 pri x = 0; 3,1416', 'global-maximum': '1 pri x = 1,5708'});
 });
@@ -464,7 +464,7 @@ test('presets save the model with the classification flag and reopen the same sc
     expect(exported.id).toBe('extrema');
     expect(exported.data).toEqual({example: 'sine', a: 0, b: Math.PI, revealed: true});
 
-    const reopened = makeGraph({asyncState: false});
+    const reopened = makeGraph();
     reopened.importPreset({id: 'extrema', boardState: {boundingBox: [-1, 2, 7, -2]}, data: exported.data});
     expect(reopened.model).toEqual(exported.data);
     expect(rows(reopened)).toMatchObject({'global-minimum': '0 pri x = 0; 3,1416'});
@@ -476,7 +476,7 @@ test('presets save the model with the classification flag and reopen the same sc
 });
 
 test('a preset of another example without a view of its own shows that example\'s view', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     graph.board.setBoundingBox.mockClear();
     graph.importPreset({id: 'extrema', data: {example: 'abs', a: -1, b: 1, revealed: false}});
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith([-6, 3.6, 6, -4.2], true);
@@ -513,7 +513,7 @@ test('capture and restore bring back the synchronous model, including the classi
 });
 
 test('no readout, caption, label or status ever shows NaN, Infinity or a raw undefined, in either language', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     for (const language of ['sl', 'en'] as const) {
         setLanguage(language);
         for (const id of EXTREMA_EXAMPLE_IDS) {
@@ -595,7 +595,7 @@ test('the legend names every marker and line in words', () => {
 });
 
 test('an endpoint carrying floating-point noise is cleaned and compared cleaned; the view is memoised by the model values', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     apply(graph, parameter('extrema-b', 0.1 + 0.2));
     expect(graph.model.b).toBe(0.3);
     const before = graph.model;
@@ -608,7 +608,7 @@ test('an endpoint carrying floating-point noise is cleaned and compared cleaned;
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {
     const refusals = (language: 'sl' | 'en') => {
         setLanguage(language);
-        const graph = makeGraph({asyncState: false});
+        const graph = makeGraph();
         const messageOf = (action: LessonAction) => {
             try { apply(graph, action); } catch (error) { expect(error).toBeInstanceOf(DomainError); return (error as DomainError).message; }
             throw new Error('the edit was accepted');
@@ -631,7 +631,7 @@ test('a refused edit throws a DomainError whose text is localized and whose reas
         'Primer mora biti eden od: square, cube, abs, sine.',
     ]);
     setLanguage('en');
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     let reason: unknown;
     try { apply(graph, parameter('extrema-b', 9)); } catch (error) { reason = (error as DomainError).reason; }
     expect(reason).toEqual({key: 'extrema_endpoint_range_rejected', params: {value0: 'b', value1: '−4', value2: '4'}});

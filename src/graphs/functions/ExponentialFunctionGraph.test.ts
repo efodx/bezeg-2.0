@@ -24,13 +24,13 @@ function fakeBoard() {
     return board;
 }
 
-/** A graph whose React state is NOT updated synchronously, exactly like setState inside one lesson tick. */
-function makeGraph({asyncState = true}: { asyncState?: boolean } = {}) {
+/** A graph on a real scene store: setState writes synchronously, so a later action in one tick reads what an earlier one wrote. */
+function makeGraph() {
     const graph = new ExponentialFunctionGraph() as any;
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn((patch: any) => { if (!asyncState) graph.store.setState(patch); });
+    vi.spyOn(graph, 'setState');
     graph.initialize();
     return graph;
 }
@@ -63,13 +63,13 @@ test('initialization draws f(x) = 2^x, the mirror graph (hidden), the points (0,
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-5, 9, 5, -3], true);
 });
 
-test('a multi-action scene applied in one synchronous tick uses the model even though React state is stale', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     apply(graph, parameter('a', 0.5));
     apply(graph, mirror(true));
     expect(graph.model).toEqual({a: 0.5, mirror: true});
-    expect(graph.state).toMatchObject({a: 2, mirror: false});
+    expect(graph.state).toMatchObject(graph.model);
     // the board objects read the synchronous model
     expect(curves(graph)[MAIN].parents[0](2)).toBe(0.25);
     expect(curves(graph)[MIRROR].parents[0](2)).toBe(4);
@@ -142,7 +142,7 @@ test('names and targets the graph does not own are unsupported', () => {
 });
 
 test('readouts show a, f(0), f(1) and the classification, and never contain Infinity or NaN', () => {
-    const graph = makeGraph({asyncState: false});
+    const graph = makeGraph();
     const rows = () => graph.renderReadout().props.rows as { id: string; value: string }[];
     const byId = () => Object.fromEntries(rows().map(row => [row.id, row.value]));
     expect(byId()).toEqual({a: '2', f0: '1', f1: '2', behavior: 'narašča (a > 1)'});
@@ -202,7 +202,7 @@ test('presets export the model, import it again, and sanitize bad data to the de
     expect(graph.model).toEqual({a: 2, mirror: false});
 });
 
-test('capture and restore bring back the synchronous model even when React state lags', () => {
+test('capture and restore bring back the synchronous model read in the same tick', () => {
     const graph = makeGraph();
     apply(graph, parameter('a', 0.3));
     apply(graph, mirror(true));
@@ -258,7 +258,6 @@ test('a stored board state is not overwritten by the default view during initial
     graph.board = fakeBoard();
     graph.graphSession = {isReady: true, isAlive: true};
     graph.boardUpdate = vi.fn();
-    graph.setState = vi.fn();
     graph.importPreset({id: 'exponential-function', boardState: {boundingBox: [-1, 1, 1, -1]}, data: {a: 1.5, mirror: false}});
     graph.board.setBoundingBox.mockClear();
     graph.initialize();
