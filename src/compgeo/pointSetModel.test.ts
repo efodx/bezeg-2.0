@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {GRID_COORD_LIMIT} from './grid';
 import {
     addPoint, addSegment, clearPoints, EMPTY_POINT_SET_MODEL, gridToBoard, insertPoint, movePoint, nudgePoint, parsePointSetModel,
-    PointSetModel, removePoint, removeSegment, reverseVertices, segmentsOf, serializePointSetModel, setClosed, setMode, snapToGrid,
+    PointSetModel, removePoint, removeSegment, reverseVertices, rescaleToFinerGrid, segmentsOf, serializePointSetModel, setClosed, setMode, snapToGrid,
 } from './pointSetModel';
 
 const pts = (...xy: number[][]) => xy.map(([x, y]) => ({x, y}));
@@ -252,5 +252,27 @@ describe('segments mode', () => {
         expect(parsePointSetModel({mode: 'points', points: [{x: 1, y: 2}], closed: true})).toEqual({ok: false, reason: 'closed-in-points-mode'});
         expect(parsePointSetModel({mode: 'points', points: [{x: 1, y: 2}, {x: 2, y: 2}, {x: 3, y: 3}]}).ok).toBe(true);
         expect(parsePointSetModel({mode: 'lines', points: []}, opts)).toEqual({ok: false, reason: 'unknown-mode'});
+    });
+});
+
+describe('rescaleToFinerGrid', () => {
+    const base: PointSetModel = {mode: 'polygon', points: pts([1, -2], [3, 0]), closed: true, gridStepExponent: 1};
+    it('keeps every board position', () => {
+        const finer = rescaleToFinerGrid(base, -2);
+        expect(finer.gridStepExponent).toBe(-2);
+        expect(finer.points).toEqual(pts([8, -16], [24, 0]));
+        base.points.forEach((p, i) => expect(gridToBoard(finer.points[i], -2)).toEqual(gridToBoard(p, 1)));
+        expect(finer.closed).toBe(true);
+    });
+    it('returns the model itself when the exponent is not finer or not valid', () => {
+        for (const e of [1, 2, undefined, null, '-3', -9, -1.5, NaN]) expect(rescaleToFinerGrid(base, e)).toBe(base);
+    });
+    it('returns the model itself when a coordinate would leave the grid range', () => {
+        const wide: PointSetModel = {...base, points: pts([GRID_COORD_LIMIT / 2, 0]), gridStepExponent: 0};
+        expect(rescaleToFinerGrid(wide, -2)).toBe(wide);
+    });
+    it('returns the model itself when a coordinate would pass the graph coordinate limit', () => {
+        expect(rescaleToFinerGrid(base, -2, {coordinateLimit: 23})).toBe(base);
+        expect(rescaleToFinerGrid(base, -2, {coordinateLimit: 24}).gridStepExponent).toBe(-2);
     });
 });

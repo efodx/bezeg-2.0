@@ -71,6 +71,20 @@ export function snapToGrid(boardX: number, boardY: number, exponent: number): Gr
     return {x: roundHalfAway(boardX * scale), y: roundHalfAway(boardY * scale)};
 }
 
+/**
+ * The same board positions on a finer grid: every grid coordinate is multiplied by 2^(old - exponent) and the exponent becomes
+ * `exponent`. Returns the model itself when `exponent` is not a valid, strictly finer exponent or when a rescaled coordinate would
+ * leave the grid range or the graph's `coordinateLimit` (in grid units, so a sweep graph's small limit usually refuses), so a caller can
+ * test identity to see whether anything changed.
+ */
+export function rescaleToFinerGrid(model: PointSetModel, exponent: unknown, options: PointSetOptions = {}): PointSetModel {
+    if (!isGridStepExponent(exponent) || exponent >= model.gridStepExponent) return model;
+    const factor = 2 ** (model.gridStepExponent - exponent);
+    const points = model.points.map(p => ({x: p.x * factor, y: p.y * factor}));
+    if (!points.every(p => inRange(p, options))) return model;
+    return {...model, points, gridStepExponent: exponent};
+}
+
 export function gridToBoard(point: GridPoint, exponent: number): {readonly x: number; readonly y: number} {
     const scale = 2 ** exponent;
     return {x: point.x * scale, y: point.y * scale};

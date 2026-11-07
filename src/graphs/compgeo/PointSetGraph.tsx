@@ -9,7 +9,7 @@ import {
     addInterval, addPoint, addSegment, clearPoints, DEFAULT_INTERVAL_LIMIT, DEFAULT_POINT_LIMIT, DEFAULT_SEGMENT_LIMIT, EMPTY_POINT_SET_MODEL, gridToBoard,
     intervalLetter, intervalRow, movePoint, nudgePoint, removeInterval,
     PointSetEditResult, PointSetMode, PointSetModel, PointSetOptions, removePoint, removeSegment, segmentsOf, serializePointSetModel, setClosed,
-    parsePointSetModel, POINT_SET_OVERLAY_NAMES, setMode, snapToGrid,
+    parsePointSetModel, POINT_SET_OVERLAY_NAMES, rescaleToFinerGrid, setMode, snapToGrid,
 } from "../../compgeo/pointSetModel";
 import {polygonSimplicity, PolygonSimplicity} from "../../compgeo/predicates";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -78,6 +78,14 @@ export interface PointSetGraphState extends BaseGraphState {
 export const POINT_SET_PRESET_KEY = "compgeo-point-set";
 
 /** Example points shown by a fresh graph: five points in general position, so every mode starts with something to move. */
+/**
+ * Capture-only. The catalog clip driver sets `window.__bezegClipGridStepExponent` (see scripts/demonstration-clip-rows/README.md, fine grid)
+ * so a scripted drag moves smoothly; learners never set it and nothing reads it in a built page without it. This is its one read site.
+ */
+function clipGridStepExponent(): unknown {
+    return (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent;
+}
+
 export const DEFAULT_POINT_SET_MODEL: PointSetModel = {
     mode: "points", closed: false, gridStepExponent: 0,
     points: [{x: -3, y: -2}, {x: -1, y: 3}, {x: 2, y: 1}, {x: 3, y: -2}, {x: 0, y: -1}],
@@ -577,6 +585,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
 
     private dragPoint(index: number, point: JXG.Point): void {
         if (this.inDragSnap || this.graphInteractionLocked) return;
+        const finer = rescaleToFinerGrid(this.model, clipGridStepExponent(), this.options);
+        if (finer !== this.model) this.setState({model: finer});
         const model = this.model;
         const exponent = model.gridStepExponent;
         const snapped = snapToGrid(point.X(), point.Y(), exponent);
@@ -586,7 +596,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         const target = gridToBoard(stored, exponent);
         this.inDragSnap = true;
         try {
-            if (point.X() !== target.x || point.Y() !== target.y) point.moveTo([target.x, target.y], 0);
+            // Capture-only: on the clip's fine grid the point stays under the pointer (the stored point is within 2^(exponent-1) of it, under a pixel).
+            if (exponent !== clipGridStepExponent() && (point.X() !== target.x || point.Y() !== target.y)) point.moveTo([target.x, target.y], 0);
         } finally {
             this.inDragSnap = false;
         }
@@ -622,7 +633,8 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
             const scale = model.gridStepExponent;
             this.drawn.points.forEach((point, i) => {
                 const target = gridToBoard(model.points[i], scale);
-                if (point.X() !== target.x || point.Y() !== target.y) point.moveTo([target.x, target.y], 0);
+                // Capture-only: on the clip's fine grid the pointer's position stands (see dragPoint).
+                if (scale !== clipGridStepExponent() && (point.X() !== target.x || point.Y() !== target.y)) point.moveTo([target.x, target.y], 0);
             });
         }
         this.syncPending(model);
@@ -673,6 +685,12 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
                 this.board.containerObj.focus({preventScroll: true});
             });
             point.on("drag", () => this.dragPoint(i, point));
+            // Capture-only: a clip must end on the picture it began with, so the release also clears the selection the press made.
+            point.on("up", () => {
+                if (clipGridStepExponent() === undefined || this.selected !== i) return;
+                this.selected = undefined;
+                this.requestRender();
+            });
             return point;
         });
         const edges: JXG.GeometryElement[] = [];

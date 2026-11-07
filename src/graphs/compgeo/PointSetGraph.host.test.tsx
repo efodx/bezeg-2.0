@@ -99,10 +99,31 @@ test('dragging snaps to the grid on every move and keeps model and board equal',
     expect(graph.model.points[2]).toEqual({x: 3, y: -1});
     expect([point.X(), point.Y()]).toEqual([3, -1]);
     expect(graph.selectedIndex).toBe(2);
+    act(() => { trigger(point, 'up', []); });
+    expect(graph.selectedIndex).toBe(2);
     act(() => { point.moveTo([-4.5, 4.5], 0); trigger(point, 'drag', []); });
     expect(graph.model.points[2]).toEqual({x: -5, y: 5});
     expect([point.X(), point.Y()]).toEqual([-5, 5]);
     expect(objects(graph, 'point')).toHaveLength(DEFAULT_POINT_SET_MODEL.points.length);
+});
+
+test('the capture-only fine grid rescales the model on the first drag and the drag snaps to the finer grid', () => {
+    const graph = new Observed();
+    mount(graph);
+    const point = objects(graph, 'point')[2] as unknown as JXG.Point;
+    (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent = -2;
+    try {
+        expect(graph.model.gridStepExponent).toBe(0);
+        act(() => { point.moveTo([3.3, -0.6], 0); trigger(point, 'drag', []); });
+        expect(graph.model.gridStepExponent).toBe(-2);
+        expect(graph.model.points[2]).toEqual({x: 13, y: -2});
+        expect(graph.model.points[0]).toEqual({x: DEFAULT_POINT_SET_MODEL.points[0].x * 4, y: DEFAULT_POINT_SET_MODEL.points[0].y * 4});
+        // The board point stays under the pointer; the stored point is the snapped one.
+        expect([point.X(), point.Y()]).toEqual([3.3, -0.6]);
+        expect(graph.selectedIndex).toBe(2);
+        act(() => { trigger(point, 'up', []); });
+        expect(graph.selectedIndex).toBeUndefined();
+    } finally { delete (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent; }
 });
 
 test('arrow keys move the selected point one grid step; without a selection they do nothing', () => {
