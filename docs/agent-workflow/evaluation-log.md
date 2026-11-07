@@ -2287,3 +2287,9 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Review value: the engineering reviewer (Haiku) found the snap-decimals bug and tie asymmetry the worker's tests missed; the accessibility reviewer found the stale reason and contrast. One accessibility repair (R3) was wrong for the codebase; the reviewer could not see the pinned live-region tests.
 - Handler errors: the repair message asked for R3 without checking for single-live-region tests. The recheck smoke judged a screenshot taken mid-transition; a settled shot cleared it.
 - Usage (as reported): worker 140,247 (implementation and repairs); reviewers 26,321 and 62,905; smoke 27,840 tokens. Timing: worker 54 min implementation, 26 min repairs; affected-unit check 38–50 min under three-stream load.
+
+## 2026-11-07 — collision playground CP6 part 1 and CP7 script (collision stream, handler 1)
+
+- CP6: one `bezeg-worker` (Sonnet `medium`), about 75 min with test queueing. Part 1 (shared runtime) was accepted on `just unit src/learning` (779 s, passed), tsc, lint and build, and pushed alone. Part 2 (chapter content, terms, docs) is held by the containment stop condition. The worker kept the two parts in disjoint files as briefed, which made the split commit cheap.
+- CP7 script: one `bezeg-worker` (Sonnet `medium`), parallel with CP6, serving a copy of `build/` to avoid the other worker's rebuilds. It measured every criterion except the hidden tab (headless keeps `document.hidden` false). A follow-up baseline request showed the mobile 4× miss with the playground paused. The worker's second report was refused by the harness (one report per result), so the handler read the result file.
+- Usage (reported totals): CP6 worker 89,298; CP7 script worker 91,478 tokens. The handler reached BUDGET SOFT after CP5 plus these two integrations.
