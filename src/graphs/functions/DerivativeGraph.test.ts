@@ -104,12 +104,11 @@ test('the tangent is the dashed exact line and follows the tangent visibility', 
     expect(resolve(tangentCurve(graph).attributes.visible)).toBe(false);
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('sin'), parameter('x0', 1), parameter('h', 0.2), tangent(true)]) apply(graph, action);
     expect(graph.model).toEqual({fn: 'sin', x0: 1, h: 0.2, tangent: true});
-    expect(graph.state).toMatchObject(graph.model);
     expect([pointP(graph).x, pointP(graph).y]).toEqual([1, Math.sin(1)]);
     expect(q(graph)[0]).toBeCloseTo(1.2, 12);
     expect(q(graph)[1]).toBeCloseTo(Math.sin(1.2), 12);

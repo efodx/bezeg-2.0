@@ -352,12 +352,11 @@ test('the toggle names its state in words, editing a and b keeps the classificat
     expect(controls(graph).toggle.props.children).toBe('Show classification');
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('sine'), parameter('extrema-a', 0), parameter('extrema-b', Math.PI), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'sine', a: 0, b: Math.PI, revealed: true});
-    expect(graph.state).toMatchObject(graph.model);
     // a later action in the same tick sees the earlier one, including an endpoint that depends on the other endpoint
     apply(graph, parameter('extrema-a', 1));
     apply(graph, parameter('extrema-b', 2));

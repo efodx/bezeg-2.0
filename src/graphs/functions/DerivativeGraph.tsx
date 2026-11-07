@@ -42,7 +42,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         return [-3, 6, 4, -2];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     private currentFunction() {
         return catalogFunction(this.model.fn);
@@ -140,7 +140,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {fn, x0, h} = this.state;
+        const {fn, x0, h} = this.model;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("derivative_function_label")} value={fn} help={t("derivative_function_help")}
@@ -159,13 +159,13 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
 
     protected override workspaceGraphDisplay(): React.ReactNode {
         return <div className="inspector-group">
-            <OnOffSwitch checked={this.state.tangent} label={t("derivative_show_tangent")}
+            <OnOffSwitch checked={this.model.tangent} label={t("derivative_show_tangent")}
                          onChange={checked => this.setTangentVisible(checked)}/>
         </div>;
     }
 
     protected renderReadout(): React.ReactNode {
-        const {fn, x0, h} = this.state;
+        const {fn, x0, h} = this.model;
         const language = currentLanguage();
         const entry = catalogFunction(fn);
         const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);

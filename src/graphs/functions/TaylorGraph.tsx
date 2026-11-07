@@ -130,7 +130,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
         });
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setExample(value: unknown): void {
         const edit = chooseTaylorExample(value);
@@ -307,13 +307,8 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): TaylorModel {
-        const state = this.state;
-        return {example: state.example, center: state.center, degree: state.degree, x: state.x, boundVisible: state.boundVisible};
-    }
-
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.model;
         const language = currentLanguage();
         const example = taylorExample(state.example);
         const fixedCenter = example.centerMin === example.centerMax;
@@ -357,7 +352,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     }
 
     protected override renderReveals(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.model;
         return <>
             <div className="taylor-actions" role="group" aria-label={t("taylor_actions_label")}>
                 <button type="button" data-action="toggle-taylor-bound" data-revealed={state.boundVisible}
@@ -400,7 +395,7 @@ export class TaylorGraph extends BaseFunctionGraph<TaylorModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const number = (value: number) => formatNumber(value, language, PRECISE);

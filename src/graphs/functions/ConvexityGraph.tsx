@@ -142,7 +142,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         return left < right ? secondDerivativePieces(example, left, right) : [];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setExample(value: unknown): void {
         const choice = chooseConvexityExample(value);
@@ -355,13 +355,8 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): ConvexityModel {
-        const state = this.state;
-        return {example: state.example, a: state.a, b: state.b, t: state.t, secondDerivativeVisible: state.secondDerivativeVisible};
-    }
-
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.model;
         const range = {value0: formatNumber(CONVEXITY_X_MIN, currentLanguage()), value1: formatNumber(CONVEXITY_X_MAX, currentLanguage())};
         return <>
             <div className="inspector-group">
@@ -382,7 +377,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
     }
 
     protected override renderReveals(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.model;
         return <>
             <div className="convexity-actions" role="group" aria-label={t("convexity_actions_label")}>
                 <button type="button" data-action="toggle-second-derivative" data-revealed={state.secondDerivativeVisible}
@@ -416,7 +411,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const number = (value: number) => formatNumber(value, language, PRECISE);
