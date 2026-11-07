@@ -64,7 +64,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
         return [...DEFAULT_VIEW];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     protected setMode(value: unknown): void {
         if (!isAreaMode(value)) throw new DomainError(choiceRejected("area_mode_label", AREA_MODES));
@@ -185,7 +185,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {a, b, mode} = this.state;
+        const {a, b, mode} = this.model;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("area_mode_label")} value={mode} help={t("area_mode_help")}
@@ -203,7 +203,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     }
 
     protected renderReadout(): React.ReactNode {
-        const {a, b, mode} = this.state;
+        const {a, b, mode} = this.model;
         const language = currentLanguage();
         const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);
         const rows = [
@@ -219,7 +219,7 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     }
 
     protected override renderLegend(): React.ReactNode {
-        const {mode} = this.state;
+        const {mode} = this.model;
         const legend = mode === "between"
             ? [
                 {id: "positive", color: GraphPalette.additionalCurves[0], label: t("area_legend_g_top")},

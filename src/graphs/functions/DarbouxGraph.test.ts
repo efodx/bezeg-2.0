@@ -333,12 +333,11 @@ test('the toggles name their state in words and the example select loads the exa
     expect(controls(graph).refine.props.children).toBe('Refine the partition (n → 2n)');
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('sine'), parameter('darboux-b', Math.PI), parameter('darboux-n', 1), lower(false), upper(false)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'sine', a: 0, b: Math.PI, n: 1, lowerVisible: false, upperVisible: false});
-    expect(graph.state).toMatchObject(graph.model);
     // a later action in the same tick sees the earlier one, including an endpoint that depends on the other endpoint
     apply(graph, parameter('darboux-a', 1));
     apply(graph, parameter('darboux-b', 2));

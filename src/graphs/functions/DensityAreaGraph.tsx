@@ -58,7 +58,7 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         return this.memoView(model, () => densityAreaView(model));
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     private accepted(edit: DensityAreaEdit): DensityAreaModel {
         if (!edit.ok) throw new DomainError(densityAreaEditMessage(edit.issue));
@@ -148,7 +148,7 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const example = densityExampleOf(state);
         const options = [
             {value: "standard", text: t("prob_density_example_standard")},
@@ -182,7 +182,7 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const rows = [

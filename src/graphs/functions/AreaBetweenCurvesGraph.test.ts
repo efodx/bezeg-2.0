@@ -135,12 +135,11 @@ test('the default scene shades one polygon in the g-on-top colour, none in the f
     expect(positive.x[0]).toBe(INTERSECTIONS[0]);
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [mode('under-g'), parameter('a', 0), parameter('b', 4)]) apply(graph, action);
     expect(graph.model).toEqual({a: 0, b: 4, mode: 'under-g'});
-    expect(graph.state).toMatchObject(graph.model);
     expect([pointA(graph).x, pointB(graph).x]).toEqual([0, 4]);
     expect(valuesText(graph)).toBe('∫(g − f) dx = 1,3333, ploščina = 8,4646');
     // a later action in the same tick sees the earlier ones
@@ -164,7 +163,6 @@ test('every lesson scene reproduces the state its expectedState describes', () =
         apply(graph, parameter('b', 0.2));
         for (const action of step.scene!.actions) apply(graph, action);
         const rows = readout(graph);
-        graph.store.replaceState({...graph.state, ...graph.model});
         return [graph.model, [rows['int-f'], rows['int-g'], rows.signed, rows.unsigned, rows.shaded].join(' | '), valuesText(graph)];
     });
     expect(finals).toEqual([
@@ -382,11 +380,12 @@ test('the legend names the colours in words for each mode, and reversed bounds a
     expect(legend()).toEqual([
         ['f', 'f(x) = (x − 2)²'], ['g', 'g(x) = 3 − (x − 2)²'], ['positive', 'g nad f: šteje pozitivno (+)'], ['negative', 'f nad g: šteje negativno (−)'],
     ]);
-    graph.store.replaceState({...graph.state, mode: 'under-f'});
+    apply(graph, mode('under-f'));
     expect(legend().slice(2)).toEqual([['positive', 'Krivulja nad osjo x: šteje pozitivno (+)'], ['negative', 'Krivulja pod osjo x: šteje negativno (−)']]);
     const notes = () => ([] as string[]).concat(graph.renderReadout().props.note);
     expect(notes()).toHaveLength(1);
-    graph.store.replaceState({...graph.state, a: 3, b: 1});
+    apply(graph, parameter('a', 3));
+    apply(graph, parameter('b', 1));
     expect(notes()).toHaveLength(2);
     expect(notes()[1]).toMatch(/obrnjeni/);
 });
@@ -435,9 +434,9 @@ test('controls: mode select with three correctly labelled options, bound inputs 
 
 test('the inspector shows the default bounds as 0.78 and 3.22 while the model keeps them unrounded', () => {
     const graph = makeGraph();
-    expect(graph.state.a).toBe(2 - S);
+    expect(graph.model.a).toBe(2 - S);
     const text = (value: number) => String(Number(value.toFixed(2)));
-    expect([text(graph.state.a), text(graph.state.b)]).toEqual(['0.78', '3.22']);
+    expect([text(graph.model.a), text(graph.model.b)]).toEqual(['0.78', '3.22']);
 });
 
 test('presets export the model, import it again, and sanitize bad data to the default model', () => {

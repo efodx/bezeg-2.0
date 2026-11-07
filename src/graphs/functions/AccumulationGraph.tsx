@@ -116,7 +116,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
         };
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     protected setFunction(value: unknown): void {
         const next = this.accept(chooseAccumulationFunction(this.model, value));
@@ -298,13 +298,8 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): AccumulationModel {
-        const {fn, a, x, accumulationVisible} = this.state;
-        return {fn, a, x, accumulationVisible};
-    }
-
     protected renderControls(): React.ReactNode {
-        const {fn, a, x} = this.stateModel();
+        const {fn, a, x} = this.model;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("accumulation_function_label")} value={fn} help={t("accumulation_function_help")}
@@ -322,7 +317,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     }
 
     protected override renderReveals(): React.ReactNode {
-        const {accumulationVisible} = this.stateModel();
+        const {accumulationVisible} = this.model;
         return <>
             <div className="accumulation-actions" role="group" aria-label={t("accumulation_actions_label")}>
                 <button type="button" data-action="toggle-accumulation" data-revealed={accumulationVisible}
@@ -357,7 +352,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const number = (value: number) => formatNumber(value, language, PRECISE);

@@ -112,7 +112,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         });
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setExample(value: unknown): void {
         const edit = chooseDarbouxExample(this.model, value);
@@ -263,13 +263,8 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): DarbouxModel {
-        const {example, a, b, n, lowerVisible, upperVisible} = this.state;
-        return {example, a, b, n, lowerVisible, upperVisible};
-    }
-
     protected renderControls(): React.ReactNode {
-        const {example, a, b, n, lowerVisible, upperVisible} = this.stateModel();
+        const {example, a, b, n, lowerVisible, upperVisible} = this.model;
         const refinable = canRefine(n);
         return <>
             <div className="inspector-group">
@@ -298,7 +293,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     }
 
     protected override renderReveals(): React.ReactNode {
-        const {lowerVisible, upperVisible} = this.stateModel();
+        const {lowerVisible, upperVisible} = this.model;
         return <>
             <div className="darboux-actions" role="group" aria-label={t("darboux_sums_label")}>
                 <button type="button" data-action="toggle-lower" data-revealed={lowerVisible}
@@ -329,7 +324,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const {totals} = this.viewOf(model);
         const number = (value: number) => formatNumber(value, language, PRECISE);

@@ -67,7 +67,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         return [...FUNCTION_VIEWS[this.model.fn]];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     private currentFunction() {
         return catalogFunction(this.model.fn);
@@ -184,7 +184,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {fn, a, b, n, method} = this.state;
+        const {fn, a, b, n, method} = this.model;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("integral_function_label")} value={fn} help={t("integral_function_help")}
@@ -210,7 +210,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const {fn, a, b, n, method} = this.state;
+        const {fn, a, b, n, method} = this.model;
         const language = currentLanguage();
         const entry = catalogFunction(fn);
         const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);

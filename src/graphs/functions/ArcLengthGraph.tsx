@@ -55,7 +55,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         return [...DEFAULT_VIEW];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     protected setBound(which: "a" | "b", value: number, options: { syncScene?: boolean } = {}): void {
         if (!isBound(value)) throw new DomainError(numberRangeRejected(which === "a" ? "arc_a_label" : "arc_b_label", BOUND_MIN, BOUND_MAX));
@@ -158,7 +158,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {a, b, n} = this.state;
+        const {a, b, n} = this.model;
         return <>
             <div className="inspector-group">
                 <NumberInput label={t("arc_a_label")} value={a} min={BOUND_MIN} max={BOUND_MAX} step={BOUND_STEP}
@@ -176,7 +176,7 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const {a, b, n} = this.state;
+        const {a, b, n} = this.model;
         const language = currentLanguage();
         const number = (value: number, decimals = 2) => formatNumber(value, language, decimals);
         const rows = [

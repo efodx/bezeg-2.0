@@ -113,7 +113,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
         super.importPresetData(data);
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     private apply(edit: QuadratureEdit, options: { syncScene?: boolean } = {}): void {
         if (!edit.ok) throw new DomainError(quadratureEditMessage(edit.issue));
@@ -209,13 +209,8 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): QuadratureModel {
-        const {rule, fn, a, b, n} = this.state;
-        return {rule, fn, a, b, n};
-    }
-
     protected renderControls(): React.ReactNode {
-        const {rule, fn, a, b, n} = this.stateModel();
+        const {rule, fn, a, b, n} = this.model;
         const counts = countRule(rule);
         return <>
             <div className="inspector-group">
@@ -253,7 +248,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const number = (value: number) => formatNumber(value, language, PRECISE);
@@ -278,7 +273,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
     }
 
     protected override renderLegend(): React.ReactNode {
-        const rule = this.stateModel().rule;
+        const rule = this.model.rule;
         return <FunctionLegend items={[
             {id: "function", color: GraphPalette.comparisonCurve, label: t("quadrature_legend_function"), kind: "line"},
             {id: "bound", color: GraphPalette.constructionAccent, label: t("quadrature_legend_bound"), kind: "line"},
