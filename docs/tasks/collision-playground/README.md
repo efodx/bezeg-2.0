@@ -8,7 +8,7 @@ Status lives in this table. The handler updates it in the same push as each acce
 | --- | --- | --- | --- | --- | --- |
 | [CP1](01-collision-model.md) | Pure model: seeded world, step, naive and sweep-and-prune broad phases, circle narrow phase, counters | A | — | Mathematical | accepted 2026-11-07 |
 | [CP2](02-worker-host.md) | Worker host, typed protocol, slow-motion stepping, pause/idle/terminate lifecycle | A | CP1 interface | Engineering | accepted 2026-11-07 |
-| [CP3](03-measured-limits.md) | Measure step cost per method on the reference profiles; record the limits in the spec | A | CP2 | Handler | planned |
+| [CP3](03-measured-limits.md) | Measure step cost per method on the reference profiles; record the limits in the spec | A | CP2 | Handler | accepted 2026-11-07 (naive 4 000, sweep 5 000; MAX_COUNT set with CP4) |
 | [CP4](04-run-component.md) | `CollisionPlayground` *Run* mode: canvas drawing, controls, readouts, live region, reduced motion, no-worker fallback | B | CP2 (CP3 limits may land after) | Engineering + UI/accessibility | planned |
 | [CP5](05-inspect-component.md) | *Look underneath*: interval shadows, active list, candidate pairs, step-through | B | CP4 | Mathematical + UI/accessibility | planned |
 | [CP6](06-chapter-integration.md) | Shared playground block, `FamilyChapterPage` rendering, sweep chapter prose, terms, docs | B | CP4, CP5 | Engineering; notation test | planned |

@@ -461,3 +461,16 @@ Method: as in the 2026-11-01 section, `node scripts/function-slider-perf.cjs` ag
 The medians of the throttled cases are 16.7 ms in both builds. The builds match in round 1. In round 3 both read one frame step higher, so machine load rose during the run. Only round 2 separates them, by one frame step for integral, darboux and accumulation, all after the before build. The after build does less per commit, writing one store key instead of the model's fields plus `model`. We read this as no measurable difference; more interleaved rounds would settle the round-2 tilt.
 
 Limits: rAF intervals saturate at 16.7 ms. The 4× throttle is a desktop slowdown, not a phone. Mouse input only. Load from other sessions was not controlled, which is why the builds were interleaved.
+
+## Collision playground step cost — 2026-11-07
+
+`just collision-step-bench` ([script](../scripts/collision-step-benchmark/README.md)); raw tables, counters and method in [cp3-results.md](reviews/collision-playground/cp3-results.md). Commit 8b93633c, Chromium 156.0.8078.4 headless, AMD Ryzen 5 7600, seed 1, 30 warm-up + 120 measured steps, median step ms inside `stepWorld`.
+
+| Profile | Method | 100 | 250 | 500 | 1000 | 2000 | 3000 | 5000 |
+|---|---|---|---|---|---|---|---|---|
+| Desktop 1440×900, worker | naive | 0.04 | 0.20 | 0.46 | 2.4 | 8.8 | 20.5 | 58.0 |
+| Desktop 1440×900, worker | sweep | 0.005 | 0.01 | 0.03 | 0.06 | 0.17 | 0.28 | 0.59 |
+| 4× throttle 390×844, main thread | naive | 0.03 | 1.2 | 2.4 | 9.6 | 40.2 | 106 | 317 |
+| 4× throttle 390×844, main thread | sweep | 0.005 | 0.02 | 0.18 | 0.38 | 0.80 | 1.27 | 2.84 |
+
+Decision: limits 4 000 (naive) and 5 000 (sweep); reasons in the [collision playground spec](specs/collision-playground.md#containment). The throttled rows run on the main thread because CDP cannot throttle a worker target.

@@ -1,0 +1,4 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["benchWorker.ts", "browser.ts", "../../src/vite-env.d.ts"]
+}

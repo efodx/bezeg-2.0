@@ -57,7 +57,7 @@ The narrow phase becomes *box → hull separating-axis test → pieces separatin
 
 - `setCount` is limited per method and device class. The naive limit is the largest \(n\) whose naive step stays at or below 250 ms on the reference low-end profile (desktop Chromium with 4× CPU throttling, 390×844). That is slow enough to see and short enough that switching back responds within a quarter of a second.
 - The sweep limit is where a sweep step reaches 8 ms on the same profile, capped at 5 000.
-- CP3 measures both limits and records them in this spec. Until then the provisional limits are 2 000 (naive) and 5 000 (sweep).
+- **Measured limits (CP3, 2026-11-07): 4 000 (naive) and 5 000 (sweep).** On the throttled profile the naive median step was 106 ms at \(n=3000\) and 317 ms at \(n=5000\); it grows as \(n^2\), so 250 ms falls near \(npprox4400\), rounded down to 4 000. Sweep stayed at 2.8 ms (p90 4.1 ms) at \(n=5000\), so the 5 000 cap applies. Naive at 5 000 runs at about 5 % simulation speed throttled and 29 % on desktop, so the comparison still shows. Chromium cannot throttle a worker target through CDP, so the throttled column ran the same `stepWorld` on the page's main thread (desktop worker and main thread agree within 10 %). Raw tables: [performance results](../bezier-performance-results.md#collision-playground-step-cost--2026-11-07).
 - Lowering \(n\) or switching method is always available.
 
 **Stops when unwatched.**

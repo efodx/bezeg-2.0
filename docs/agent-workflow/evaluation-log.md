@@ -2220,3 +2220,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Repairs: none. Note for CP4: dispose clears all subscribers, so subscribe in an effect declared after the hook.
 - Timing: worker about 24 min. Usage: worker 68,907 tokens (reported total).
 - Handoff evidence: passing CP1's aliasing and per-count sweep state in the brief avoided a snapshot bug class; the worker deleted another session's temp `mut.py` to clear a name clash, outside its owned paths.
+
+## 2026-11-07 — collision playground CP3, measured limits (collision stream, handler 1)
+
+- Class/size: measurement, M. Scope: Chromium step-cost benchmark (`just collision-step-bench`), limits chosen by the handler.
+- Dispatch: one `bezeg-worker` (Sonnet `medium`), parallel with CP4; handler Opus `medium`. The brief replaced the task's app-build harness with the linear-map benchmark pattern, because no app code mounts the worker yet.
+- Outcome: accepted. Limits 4 000 (naive) and 5 000 (sweep) recorded in the spec and performance results. Worker found that CDP cannot throttle a worker target and verified a main-thread substitute with a calibration loop (4.47× throttled, 1.08× worker vs main unthrottled); the brief had asked it to verify worker throttling, which surfaced this.
+- Repairs: none. Gap: throttled worker behaviour on a real phone is unmeasured.
+- Timing: worker about 18 min. Usage: worker 61,016 tokens (reported total).
