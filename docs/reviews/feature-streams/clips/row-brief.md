@@ -21,7 +21,10 @@ One row per named Demonstration, taken from what its lesson tells the learner to
    - A draggable point: `pointer-drag`.
    - A number field such as "Točka 1, x", when the lesson moves that value: `parameter-sweep` with `kind: 'number'`.
    - A stepper button, an integer slider or a coarse slider: `discrete-exact-steps`, with a `discreteReason` saying why smooth motion is impossible.
-6. Pick the path. It goes out and back, and its first and last entries are equal and match the example scene: the slider's `value`, or the point's `x` and `y`. Stay inside the slider's range. Keep moved objects on screen: the camera is fixed to the start scene, so prefer a moderate move that is visible at card size, about a fifth of the board's width or more for a point.
+   - A point confined to a curve or circle: use its slider if one exists. Straight drag legs leave the curve and fail the state check.
+6. Check the quote against the example scene. The probe's `checkbox` controls in the `edit` tab show what is on when the clip starts, and a row cannot change them. If the quote's object is off there, such as a point it says to show or a readout it says to read, look for another step that asks for the same motion on what is visible, and use that quote. If no step fits, keep the quote that names the motion and say what is missing in "least sure". Do the same for a quote from a step with another algorithm, curve or point set than the example: a different scene is a reason to look further.
+7. Before choosing a drag, confirm the picture responds to it from the start scene. Search the graph's source if needed: a drag that only moves a dot, because the figure is drawn later, is not a row. List it as unresolved.
+8. Pick the path. It goes out and back, and its first and last entries are equal and match the example scene: the slider's `value`, or the point's `x` and `y`. Stay inside the slider's range. Keep moved objects on screen: the camera is fixed to the start scene, so prefer a moderate move that is visible at card size, about a fifth of the board's width or more for a point.
 
 ## Never
 
