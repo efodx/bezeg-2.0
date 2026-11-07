@@ -2237,3 +2237,14 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Repairs: one handler round (component logic, harness styling). Code issues, not environment. Shell escaping cost three edits on one line (a raw no-break space); `String.fromCharCode(0xa0)` ended it.
 - Review value: the reviewer's static arithmetic found the slider stall that the worker's tests (which used PageUp) and the first smoke (which started at 300) both missed.
 - Usage (reported totals): worker 71,985; reviewer 24,532; smoke 40,745; recheck 35,024 tokens.
+
+### 2026-11-07 — Clips stream, handler 4: poster-start recapture and four row batches
+
+- Task: [clips stream](../tasks/feature-streams/clips.md), handler (Opus), class L. Recapture the nine row clips from the posters, then rows and captures for interpolation, school functions, B-splines and analysis.
+- Workers: two `bezeg-worker` row writers (Sonnet medium, parallel, new files only, brief [`row-brief.md`](../reviews/feature-streams/clips/row-brief.md) updated for the poster start), one `bezeg-reviewer` visual (Haiku medium), one `bezeg-reviewer` mathematical (Sonnet medium). Captures, fixes and Git by the handler.
+- Outcome: 9 recaptured and 12 new clips published (`cab2c685`, `9c4d9972`). Rows: 21 written, 12 captured, 9 held with their failure messages in [held rows](../reviews/feature-streams/clips/held-rows.md). Mathematical review: no findings. Visual review: label crossings accepted as app layout, one quote mismatch (euler-line) fixed.
+- Checks: tooling-test, typecheck, lint, focused unit tests, a full `just check` on an earlier rebase; handler contact sheets per batch.
+- Failures (environment and tooling, not code): `just publish` stopped at its clean check on the workers' untracked files, then lost two push races to other streams during the 25-minute check; the owner asked for a manual rebase and push. A rebase hit a Windows lock on `manifest.json` ("unable to unlink"); clearing the partial pick and continuing worked.
+- Row quality: 9 of 21 worker rows failed capture, mostly on scene facts the workers cannot see offline (draggable derived handles, off-camera points, hidden controls, slider rounding, a poster that does not depend on the control). Two start values were wrong (function-transformation c = 3, not 0).
+- Usage (worker totals as reported): rows 120,450 and 112,781; visual review 52,512; mathematical review 34,816 tokens.
+- Handoff evidence: telling workers to create new files only kept them off the handler's uncommitted files. The brief's "say which start values you took from source" made both wrong-start rows easy to fix.
