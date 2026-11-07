@@ -186,20 +186,25 @@ export function observeScene(graph: BaseGraph<BaseGraphState>): SceneObservation
 }
 
 /**
- * What the inspector controls show: switches, inputs, pressed buttons and status lines, in document order. A settled live
- * readout is left out: it lags an edit by design, and the board text it echoes is in the board signature.
+ * What the inspector controls show: switches, inputs, pressed buttons, unavailable buttons and status lines, in document
+ * order. A `LiveReadout` (marked `data-readout-live`) is left out: it lags an edit by design, it is empty while the graph
+ * plays (the one mute rule), and the board text it echoes is in the board signature. An `aria-disabled` input or button is
+ * reported like a disabled one (`:disabled` / `:unavailable`), since slice 2a's unavailable controls stay focusable.
  */
 export function controlsSignature(container: HTMLElement): string[] {
     const inspector = container.querySelector('#inspector-content') ?? container;
     const lines: string[] = [];
-    inspector.querySelectorAll('input, select, button[aria-pressed], [role="status"]:not([data-readout-live])').forEach(element => {
+    inspector.querySelectorAll('input, select, button[aria-pressed], button[aria-disabled="true"], [role="status"]:not([data-readout-live])').forEach(element => {
         if (element instanceof HTMLInputElement) {
             if (element.type === 'text' && element.closest('#inspector-save')) return;
-            lines.push(`${element.type}:${element.type === 'checkbox' ? element.checked : element.value}${element.disabled ? ':disabled' : ''}`);
+            lines.push(`${element.type}:${element.type === 'checkbox' ? element.checked : element.value}${element.disabled || element.getAttribute('aria-disabled') === 'true' ? ':disabled' : ''}`);
         } else if (element instanceof HTMLSelectElement) {
             lines.push(`select:${element.value}`);
-        } else if (element.hasAttribute('aria-pressed')) {
-            lines.push(`button:${element.textContent}:${element.getAttribute('aria-pressed')}`);
+        } else if (element instanceof HTMLButtonElement) {
+            const unavailable = element.getAttribute('aria-disabled') === 'true' ? ':unavailable' : '';
+            lines.push(element.hasAttribute('aria-pressed')
+                ? `button:${element.textContent}:${element.getAttribute('aria-pressed')}${unavailable}`
+                : `button:${element.textContent}${unavailable}`);
         } else {
             lines.push(`status:${element.textContent}`);
         }

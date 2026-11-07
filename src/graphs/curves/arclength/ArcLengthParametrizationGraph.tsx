@@ -8,7 +8,7 @@ import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {fitBoundingBox} from "../../base/fitBoundingBox";
 import {arcLengthParamPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
-import {LiveReadout, SettledReadout} from "../LiveReadout";
+import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {JXGPHBezierCurve} from "../object/JXGPHBezierCurve";
 import {ARC_MOVER_MODES, ARC_PIECES_DEFAULT, ARC_PIECES_MAX, ARC_PIECES_MIN, ArcMoverMode} from "./arcLengthModel";
 import {ArcLengthOverlay} from "./ArcLengthOverlay";

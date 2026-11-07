@@ -5,6 +5,8 @@ import {blurNumber, enterNumber} from './testEntry';
 import {setLanguage} from '../localization';
 import {FunctionReadout} from '../graphs/functions/FunctionReadout';
 
+const hint = () => document.querySelector('.number-input-hint');
+
 /** Typing (or pasting) into the field: an input event that carries an inputType,. */
 const type = (input: HTMLElement, value: string) => fireEvent.input(input, {target: {value}, inputType: 'insertText'});
 
@@ -62,11 +64,11 @@ test('a value outside the range or rejected by the model is explained, in the cu
     render(<NumberInput label="x" value={1} min={-4} max={4} onChange={onChange}/>);
     const input = screen.getByLabelText('x') as HTMLInputElement;
     enterNumber(input, '7');
-    expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med −4 in 4.');
+    expect(hint()).toHaveTextContent('Vnesi vrednost med −4 in 4.');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(onChange).not.toHaveBeenCalled();
     enterNumber(input, '2');
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(hint()).toBeNull();
     expect(onChange).toHaveBeenCalledWith(2);
 });
 
@@ -75,13 +77,13 @@ test('a draft that is not a number is explained on Enter and on blur, and commit
     render(<NumberInput label="x" value={1} min={-4} max={4} rejectedHint="Taken" onChange={onChange}/>);
     const input = screen.getByLabelText('x') as HTMLInputElement;
     enterNumber(input, '-');
-    expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med −4 in 4.');
+    expect(hint()).toHaveTextContent('Vnesi vrednost med −4 in 4.');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input.value).toBe('-');
     type(input, '2');
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(hint()).toBeNull();
     blurNumber(input, 'abc');
-    expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med −4 in 4.');
+    expect(hint()).toHaveTextContent('Vnesi vrednost med −4 in 4.');
     expect(input.value).toBe('1');
     expect(onChange).not.toHaveBeenCalled();
 });
@@ -89,21 +91,21 @@ test('a draft that is not a number is explained on Enter and on blur, and commit
 test('without limits, a draft that is not a number gets the general hint rather than a model refusal', () => {
     render(<NumberInput label="x" value={1} rejectedHint="Taken" onChange={() => true}/>);
     enterNumber(screen.getByLabelText('x'), 'abc');
-    expect(screen.getByRole('status')).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
+    expect(hint()).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
 });
 
 test('a value the model rejects shows the rejection hint', () => {
     render(<NumberInput label="x" value={1} onChange={() => false}/>);
     enterNumber(screen.getByLabelText('x'), '5');
-    expect(screen.getByRole('status')).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
+    expect(hint()).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
 });
 
 test('a model rejection can carry its own reason instead of the generic hint', () => {
     render(<NumberInput label="x" value={1} rejectedHint="x must stay below y." onChange={() => false}/>);
     const input = screen.getByLabelText('x');
     enterNumber(input, '5');
-    expect(screen.getByRole('status')).toHaveTextContent('x must stay below y.');
-    expect(input.getAttribute('aria-describedby')).toBe(screen.getByRole('status').id);
+    expect(hint()).toHaveTextContent('x must stay below y.');
+    expect(input.getAttribute('aria-describedby')).toBe(hint()!.id);
 });
 
 test('the readout shows labelled values and an optional note', () => {
@@ -129,13 +131,13 @@ test('keeps what is typed until Enter or blur, then applies it once and explains
     fireEvent.blur(input);
     expect(onChange).toHaveBeenLastCalledWith(9);
     expect(input.value).toBe('1');
-    expect(screen.getByRole('status')).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
+    expect(hint()).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
     // an unchanged draft is not applied on blur
     fireEvent.focus(input);
     type(input, '1');
     fireEvent.blur(input);
     expect(onChange).toHaveBeenCalledTimes(2);
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(hint()).toBeNull();
     // the arrow keys step at once
     render(<NumberInput label="s" value={1} step={0.5} onChange={onChange}/>);
     fireEvent.keyDown(screen.getByLabelText('s'), {key: 'ArrowUp'});
@@ -239,7 +241,7 @@ describe('decimal entry', () => {
         type(input, '1,');
         expect(onChange).not.toHaveBeenCalled();
         expect(input.value).toBe('1,');
-        expect(screen.queryByRole('status')).toBeNull();
+        expect(hint()).toBeNull();
     });
 
     test('the field follows a language change and keeps its value', () => {
@@ -266,7 +268,7 @@ describe('decimal entry', () => {
         const input = screen.getByLabelText('n');
         enterNumber(input, '2,5');
         expect(onChange).not.toHaveBeenCalled();
-        expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med 1 in 9.');
+        expect(hint()).toHaveTextContent('Vnesi vrednost med 1 in 9.');
         enterNumber(input, '5');
         expect(onChange).toHaveBeenLastCalledWith(5);
     });
@@ -367,4 +369,19 @@ test('help, describedBy and the error hint all describe the field and the name s
     expect(input.getAttribute('aria-describedby')!.split(' ')).toHaveLength(3);
     expect(input).toHaveAccessibleDescription(/Polmer kroga Zakaj$/);
     expect(screen.getByText('Polmer kroga')).toHaveClass('number-input-help');
+});
+
+test('the hint region is mounted before any hint, holds a refusal, and the hint stays the described element', () => {
+    render(<NumberInput label="x" value={1} min={-4} max={4} onChange={() => true}/>);
+    const input = screen.getByLabelText('x') as HTMLInputElement;
+    const region = document.querySelector('.number-input-hint-region')!;
+    expect(region).toHaveAttribute('aria-live', 'polite');
+    expect(region).not.toHaveAttribute('role');
+    expect(region.textContent).toBe('');
+    expect(input).not.toHaveAttribute('aria-describedby');
+    enterNumber(input, '7');
+    expect(region).toBe(document.querySelector('.number-input-hint-region'));
+    expect(region.querySelector('.number-input-hint')).toHaveTextContent('Vnesi vrednost med −4 in 4.');
+    expect(input.getAttribute('aria-describedby')).toBe(region.querySelector('.number-input-hint')!.id);
+    expect(screen.queryByRole('status')).toBeNull();
 });

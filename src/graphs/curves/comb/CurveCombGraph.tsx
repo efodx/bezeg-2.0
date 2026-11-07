@@ -9,7 +9,7 @@ import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
 import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {curveCombPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
-import {LiveReadout, SettledReadout} from "../LiveReadout";
+import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {ClassMapper} from "../object/ClassMapper";
 import {AbstractJXGSplineCurve} from "../object/AbstractJXGSplineCurve";
 import type {CurveTypeName} from "../object/curveTypeNames";

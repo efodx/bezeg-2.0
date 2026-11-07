@@ -6,7 +6,7 @@ import {curvatureCurvePresetCollection, CurveCollectionPresetData} from "../curv
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {CurvatureOverlay} from "./CurvatureOverlay";
-import {LiveReadout, SettledReadout} from "../LiveReadout";
+import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 
 export interface CurvatureGraphStates extends BaseGraphStates {
     /** The Bezier parameter at which the frame and osculating circle are drawn. */

@@ -28,7 +28,7 @@ test('a typed value outside the range is explained and not committed', () => {
     render(<Slider customText="t" min={0} max={1} value={0.5} onChange={onChange}/>);
     enterNumber(screen.getByRole('spinbutton'), '2');
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med 0 in 1.');
+    expect(document.querySelector('.number-input-hint')).toHaveTextContent('Vnesi vrednost med 0 in 1.');
 });
 
 test('an integer slider shows integers in the field and the bounds', () => {

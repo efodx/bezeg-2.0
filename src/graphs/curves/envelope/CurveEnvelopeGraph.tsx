@@ -6,7 +6,7 @@ import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {curveEnvelopePresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
-import {LiveReadout, SettledReadout} from "../LiveReadout";
+import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {
     ENVELOPE_LINES_DEFAULT, ENVELOPE_LINES_MAX, ENVELOPE_LINES_MIN, ENVELOPE_T_DEFAULT,
 } from "./curveEnvelope";

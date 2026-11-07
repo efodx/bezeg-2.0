@@ -20,6 +20,7 @@ import {sequenceEditMessage} from "./sequenceMessages";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
+import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 /**
@@ -90,6 +91,14 @@ interface View {
  * would break a rule throws a `DomainError` and leaves the model unchanged. Number fields and lesson actions use the same setters.
  */
 export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
+    /** The graph's one announcement: the status lines, silent while Play runs. */
+    private readonly liveReadout = new SettledReadout();
+
+    override unmount(): void {
+        this.liveReadout.cancel();
+        super.unmount();
+    }
+
     override presetCollection() {
         return functionPresetCollections.sequence;
     }
@@ -465,10 +474,13 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
                 value: !shown ? hidden : formula ? `1/${model.threshold} = ${formatNumber(1 / model.threshold, language, 4)}` : NOT_A_NUMBER_TEXT,
             },
         ];
+        const statuses = this.statuses(model, view);
+        this.liveReadout.report(statuses.map(status => status.text).join("\n"));
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("sequence_note")}/>
-            <div className="inspector-group demo-status" role="status" aria-live="polite">
-                {this.statuses(model, view).map(status => <p key={status.id} className="inspector-help" data-sequence-status={status.id}>{status.text}</p>)}
+            <div className="inspector-group demo-status">
+                {statuses.map(status => <p key={status.id} className="inspector-help" data-sequence-status={status.id}>{status.text}</p>)}
+                <LiveReadout readout={this.liveReadout} muted={this.controller.isPlaying()}/>
             </div>
         </>;
     }

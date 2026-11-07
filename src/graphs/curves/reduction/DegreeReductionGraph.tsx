@@ -7,7 +7,7 @@ import {BaseGraphStates} from "../../base/BaseCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {reductionPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
-import {LiveReadout, SettledReadout} from "../LiveReadout";
+import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {ReadoutDetails, ReadoutDetailsController} from "../ReadoutDetails";
 import type {ReductionMode} from "../../../bezeg/impl/kernels/degree-reduction";
 import {ReductionOverlay} from "./ReductionOverlay";

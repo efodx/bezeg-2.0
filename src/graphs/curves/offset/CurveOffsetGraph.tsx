@@ -7,7 +7,7 @@ import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {fitBoundingBox} from "../../base/fitBoundingBox";
 import {curveOffsetPresetCollection, CurveCollectionPresetData} from "../curvePresetCollections";
-import {LiveReadout, SettledReadout} from "../LiveReadout";
+import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {JXGPHBezierCurve, OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "../object/JXGPHBezierCurve";
 import {OFFSET_SAMPLES_DEFAULT, OFFSET_SAMPLES_MAX, OFFSET_SAMPLES_MIN} from "./curveOffset";
 import {OffsetCurveKind, OffsetOverlay} from "./OffsetOverlay";

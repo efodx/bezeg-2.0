@@ -18,6 +18,7 @@ import {
     appendedPoint, ControlPoint, DEBOOR_ANIMATION_ID, DEBOOR_DEFAULT_T, DEBOOR_MAX_LEVELS, DEBOOR_MAX_POINTS, DEBOOR_STEP_INTERVAL_MS, clampParameter,
     assertDrawableCurve, deBoorPresetData, defaultDeBoorData, knotsForCount,
 } from "./bsplineDeBoorModel";
+import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../../base/controls/PlaybackButtons";
 
 export {DEBOOR_ANIMATION_ID} from "./bsplineDeBoorModel";
@@ -53,6 +54,8 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
     private scene?: DeBoorScene;
     private controller: IterationController;
     private controllerDisposed = false;
+    /** The graph's one announcement: the levels status, silent while Play runs. */
+    private readonly liveReadout = new SettledReadout();
 
     constructor(private readonly scheduler?: AnimationScheduler) {
         super();
@@ -161,6 +164,7 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
     }
 
     override unmount() {
+        this.liveReadout.cancel();
         this.controller.dispose();
         this.controllerDisposed = true;
         this.removeScene();
@@ -325,6 +329,7 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
         const [start, end] = this.scene ? this.scene.domain() : [knots[degree], knots[knots.length - degree - 1]];
         const playing = this.playing;
         const status = t("bsd_levels_status", {value0: level, value1: degree});
+        this.liveReadout.report(status);
         return super.getGraphCommands().concat(
             <div key="degree"><ChoiceSelect label={t("bsb_degree")} value={String(degree)}
                                             options={Array.from({length: BASIS_MAX_DEGREE - BASIS_MIN_DEGREE + 1}, (_, i) => String(BASIS_MIN_DEGREE + i))
@@ -340,7 +345,8 @@ export class DeBoorGraph extends BaseGraph<DeBoorGraphState, BSplinePresetData> 
                                  onNext={() => this.nextStep()} onPlayPause={() => { if (playing) this.pause(); else this.play(); }}
                                  onReset={() => this.resetLevels()}
                                  {...playbackBlocks({atStart: level === 0, atEnd: !this.canAdvance, playing})} playBlock={undefined}/>
-                <p className="inspector-help" role="status" aria-live="polite" data-deboor-status="levels">{status}</p>
+                <p className="inspector-help" data-deboor-status="levels">{status}</p>
+                <LiveReadout readout={this.liveReadout} muted={playing}/>
             </div>,
             <div key="knots"><KnotEditor knots={knots} onEdit={(index, value) => this.editKnot(index, value)}/></div>,
         );

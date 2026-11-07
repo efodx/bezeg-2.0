@@ -1,9 +1,10 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {GridPoint} from "../../compgeo/grid";
 import {HULL_ALGORITHMS, HullAlgorithm, HullEventInfo, HullNote, parseHullAlgorithm} from "./hullTraceRun";
+import {LiveReadout, SettledReadout} from "../base/controls/LiveReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 
 export interface HullTraceControlActions {
@@ -96,6 +97,11 @@ export function HullTraceControls(props: HullTraceControlsProps) {
     const sentence = (text: string | false | undefined) => text && /[.!?]$/.test(text) ? text : `${text}.`;
     const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: length});
     const countText = event ? t("hulltrace_predicate_count", {value0: event.predicateCount}) : undefined;
+    const liveText = [stepText, event && noteText(t, event.note, collinearKept), detail, countText].filter(Boolean).map(sentence).join(" ");
+    // Each step is a discrete state, so the readout publishes it at once; the mute while Play runs is the region's.
+    const [liveReadout] = useState(() => new SettledReadout());
+    useEffect(() => { liveReadout.replace(liveText); }, [liveReadout, liveText]);
+    useEffect(() => () => liveReadout.cancel(), [liveReadout]);
     return <>
         {!fixedAlgorithm && <div className="inspector-group">
             <ChoiceSelect label={t("hulltrace_algorithm_label")} value={algorithm}
@@ -115,8 +121,7 @@ export function HullTraceControls(props: HullTraceControlsProps) {
             {detail && <p className="inspector-help" data-hull-trace="detail">{detail}</p>}
             {event && <p className="inspector-help" data-hull-trace="count">{countText}</p>}
             {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces the status once on Pause or at the end. */}
-            <p className="visually-hidden" role="status" aria-live="polite" data-hull-trace-live="">
-                {playing ? "" : [stepText, event && noteText(t, event.note, collinearKept), detail, countText].filter(Boolean).map(sentence).join(" ")}</p>
+            <LiveReadout readout={liveReadout} muted={playing} dataAttribute="hull-trace-live"/>
             {totals && <>
                 <h3 className="inspector-help">{t("hulltrace_counts_title")}</h3>
                 <ul data-hull-trace="totals">

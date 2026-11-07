@@ -2317,3 +2317,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Lifecycle script fix: one worker (Sonnet, 47k, 19 min). The handler noticed invalid cells in the JSON (scroll-back to the top of the chapter, browser-wide target count, desktop timeout). The worker had only reported the headline numbers, so read the raw output before accepting a measurement.
 - Smoke: `bezeg-smoke` (Sonnet, 57k, 23 min), bilingual with the Bézier blocks added mid-run by message. It found the paused method switch with no snapshot. The handler had predicted that gap when reviewing the announce fix but accepted it as pre-existing; the smoke showed the stricter matching made it visible. Fix worker: Sonnet, 45k, 26 min, with `measureWorld` shared with `stepWorld`. Haiku recheck followed.
 - Handler errors: the first unit run, started with `&` in a foreground Bash call, died with the shell. A worker's scratch probe under an untracked `logs/` failed `just check` lint; scratch logs now go to `%TEMP%`.
+## 2026-11-08 — shared controls slice 3, announcements (controls stream, handler 4)
+
+- Class/size: implementation / M; shared `LiveReadout` with a Play mute, `controlsSignature` unavailable lines, `NumberInput` hint region, pilots De Boor, Sequence and hull trace. Source: [task 1](../tasks/shared-graph-controls/01-foundation.md).
+- Dispatch: one `bezeg-worker` (Sonnet medium). No subagent review: about 190 changed lines, mostly tests, reviewed by the handler. Brief `handoff-v13` with settled decisions S-a–S-f; decisions 18–20 were written into the spec during the run.
+- Outcome: accepted unchanged. The worker added `SettledReadout.flush()` so that Pause publishes a pending change at once, which decision 18 requires.
+- Checks/gaps: worker: focused units (5603), typecheck, lint, build, `check-changed` (6130 tests), 12 mutations, smoke (De Boor, Sequence, convex hull, lessons, curve ownership, count setter), screenshots. Handler: focused units rerun. Gaps: presenting screenshots show only the graph; no screen reader run; Sequence's default example does not change its status during Play, so only the empty region was observed in a browser.
+- Repairs: none.
+- Usage (as reported): worker 124,212 tokens, 101 min.

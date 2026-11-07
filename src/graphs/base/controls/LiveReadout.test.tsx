@@ -68,3 +68,39 @@ test('the component is a polite status region that follows the published text', 
     act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS); });
     expect(region.textContent).toBe('b.');
 });
+
+describe('mute rule', () => {
+    const region = (view: ReturnType<typeof render>) => view.container.querySelector('[data-readout-live]')!;
+
+    test('muted: the region is present and empty, the readout keeps tracking, unmute shows the current text at once', () => {
+        const readout = new SettledReadout();
+        readout.report('a');
+        const view = render(<LiveReadout readout={readout} muted/>);
+        expect(region(view).textContent).toBe('');
+        expect(readout.getSnapshot()).toBe('a.');
+        readout.report('b');
+        act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS); });
+        expect(readout.getSnapshot()).toBe('b.');
+        expect(region(view).textContent).toBe('');
+        readout.report('c');
+        view.rerender(<LiveReadout readout={readout} muted={false}/>);
+        expect(region(view).textContent).toBe('c.');
+        expect(vi.getTimerCount()).toBe(0);
+    });
+
+    test('unmuted it still settles for the quiet period', () => {
+        const readout = new SettledReadout();
+        readout.report('a');
+        const view = render(<LiveReadout readout={readout} muted={false}/>);
+        readout.report('b');
+        act(() => { vi.advanceTimersByTime(READOUT_SETTLE_MS - 1); });
+        expect(region(view).textContent).toBe('a.');
+        act(() => { vi.advanceTimersByTime(1); });
+        expect(region(view).textContent).toBe('b.');
+    });
+
+    test('an optional data attribute is added to the region', () => {
+        const view = render(<LiveReadout readout={new SettledReadout()} dataAttribute="x-live"/>);
+        expect(region(view).hasAttribute('data-x-live')).toBe(true);
+    });
+});

@@ -219,6 +219,26 @@ test('a Play click handled while the graph unmounts leaves no running playback',
     expect(frames.callbacks.size).toBe(0);
 });
 
+test('the announcement is silent while Play runs and carries the status lines after Pause; the visible lines are not a live region', () => {
+    const frames = manualScheduler();
+    const graph = new ObservedSequenceGraph(frames.scheduler);
+    render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    const live = () => document.querySelector('[data-readout-live]')!.textContent;
+    const visible = () => [...document.querySelectorAll('[data-sequence-status]')].map(element => element.textContent!.trim());
+    expect(document.querySelector('.demo-status')!.hasAttribute('role')).toBe(false);
+    expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
+    // The other status regions are notices: empty until something is refused.
+    for (const notice of document.querySelectorAll('[role="status"]:not([data-readout-live])')) expect(notice.textContent).toBe('');
+    expect(live()).not.toBe('');
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'})); });
+    expect(live()).toBe('');
+    act(() => { frames.frame(0); frames.frame(SEQUENCE_STEP_INTERVAL_MS); });
+    expect(live()).toBe('');
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Premor'})); });
+    expect(visible().length).toBeGreaterThan(0);
+    for (const line of visible()) expect(live()).toContain(line.replace(/[.!?]$/, ''));
+});
+
 test('a live language switch re-evaluates the board texts and the readouts', () => {
     const graph = new ObservedSequenceGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);

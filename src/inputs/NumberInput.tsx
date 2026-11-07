@@ -213,6 +213,9 @@ export function NumberInput(props: NumberInputProps) {
                    setDraft(show(value, decimals, language));
                }}/>
         {props.help && <p id={helpId} className="number-input-help">{props.help}</p>}
-        {hintText && <p id={hintId} className="number-input-hint" role="status">{hintText}</p>}
+        {/* Always mounted so that a hint inserted after a refusal is announced; empty (no box) until something is refused. */}
+        <div className="number-input-hint-region" aria-live="polite">
+            {hintText && <p id={hintId} className="number-input-hint">{hintText}</p>}
+        </div>
     </div>;
 }

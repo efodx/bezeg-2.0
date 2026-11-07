@@ -265,6 +265,29 @@ describe('the deboor iteration', () => {
         view.unmount();
     });
 
+    test('the announcement is silent while Play runs and carries the visible status after Pause; the visible status is not a live region', () => {
+        const frames = manualScheduler();
+        const {graph, view} = mount(frames.scheduler);
+        const live = () => document.querySelector('[data-readout-live]')!.textContent;
+        const visible = () => document.querySelector('[data-deboor-status="levels"]')!;
+        expect(visible().hasAttribute('role')).toBe(false);
+        expect(visible().hasAttribute('aria-live')).toBe(false);
+        expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
+        // The other status regions are notices: empty until something is refused.
+        for (const notice of document.querySelectorAll('[role="status"]:not([data-readout-live])')) expect(notice.textContent).toBe('');
+        expect(live()).toBe(`${visible().textContent}.`);
+        act(() => graph.play());
+        expect(live()).toBe('');
+        act(() => { frames.frame(0); frames.frame(900); });
+        expect(graph.state.level).toBe(1);
+        act(() => graph.play());
+        expect(live()).toBe('');
+        act(() => graph.pause());
+        expect(live()).toBe(`${visible().textContent}.`);
+        expect(live()).toContain('1');
+        view.unmount();
+    });
+
     test('scene replacement, import, capture, checkpoint and unmount stop playback', () => {
         const frames = manualScheduler();
         const {graph, view} = mount(frames.scheduler);

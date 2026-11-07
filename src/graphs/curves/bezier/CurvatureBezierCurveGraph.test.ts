@@ -3,7 +3,7 @@ import {CurvatureOverlay, curvatureFrame} from './CurvatureOverlay';
 import {curvatureCurvePresetCollection} from '../curvePresetCollections';
 import {setLanguage, t} from '../../../localization';
 import {FigureExportScope} from '../../base/export/FigureExportOperation';
-import {SettledReadout} from '../LiveReadout';
+import {SettledReadout} from '../../base/controls/LiveReadout';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the overlay also guards its callback. */
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
