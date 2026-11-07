@@ -3,7 +3,6 @@ module.exports = [
     {
         id: 'orientation',
         fineGrid: -8,
-        exampleId: 'convexity-hulls.orientation.orientation',
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'P2'},
         // Board coordinates, inside the recipe camera (x -1.2..5.6, y -1.2..3.6). The first waypoint is q=(4,0), the scene start.
@@ -14,7 +13,6 @@ module.exports = [
     {
         id: 'polygon-area',
         fineGrid: -8,
-        exampleId: 'convexity-hulls.polygon-area.polygon-area',
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'P4'},
         // Board coordinates, inside the recipe camera (x -2.6..6.6, y -1.4..6.4). The leg to (2,-0.5) crosses edge P2P3 and makes the polygon self-intersect.

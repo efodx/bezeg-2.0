@@ -2,7 +2,6 @@
 module.exports = [
     {
         id: 'patch-coons',
-        exampleId: 'advanced-bezier.patch-coons.patch-coons',
         motion: 'pointer-drag',
         // A corner of the Coons patch, by the point id the surface view publishes in data-surface-framing.
         control: {kind: 'surface-point', name: 'c0-0'},

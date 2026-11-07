@@ -57,6 +57,9 @@ import motion_patch_coons from './images/demonstrations/catalog/patch-coons.webm
 import motion_inscribed_angle from './images/demonstrations/catalog/inscribed-angle.webm?no-inline';
 import motion_orientation from './images/demonstrations/catalog/orientation.webm?no-inline';
 import motion_polygon_area from './images/demonstrations/catalog/polygon-area.webm?no-inline';
+import motion_triangle_centres from './images/demonstrations/catalog/triangle-centres.webm?no-inline';
+import motion_euler_line from './images/demonstrations/catalog/euler-line.webm?no-inline';
+import motion_simson_line from './images/demonstrations/catalog/simson-line.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -117,4 +120,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'inscribed-angle': {src: motion_inscribed_angle, type: 'video/webm', duration: 4},
     'orientation': {src: motion_orientation, type: 'video/webm', duration: 4},
     'polygon-area': {src: motion_polygon_area, type: 'video/webm', duration: 4},
+    'triangle-centres': {src: motion_triangle_centres, type: 'video/webm', duration: 4},
+    'euler-line': {src: motion_euler_line, type: 'video/webm', duration: 4},
+    'simson-line': {src: motion_simson_line, type: 'video/webm', duration: 4},
 };

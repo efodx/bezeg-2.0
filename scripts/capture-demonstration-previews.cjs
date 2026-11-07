@@ -13,8 +13,6 @@ const {recipes, validateRecipes, applyRecipe, applyAction, settle, readSurfaceFr
 const {assertNonUniformPixels} = require('./demonstration-preview-png.cjs');
 
 const previewCapture = require('./demonstration-preview-capture-api.cjs');
-const clipRows = require('./demonstration-clip-rows/index.cjs');
-const {examplePath, openExampleScene} = require('./demonstration-clip-rows/_examples.cjs');
 const {generateMotions} = previewCapture;
 
 const root = path.resolve(__dirname, '..');
@@ -145,7 +143,7 @@ async function servedBuildProvenance() {
  * Surface demonstrations are drawn by the JSXGraph SVG surface view, not a curve board: only the host is resized to the preview frame, the recipe
  * camera is checked against the view's own published framing, and the screenshot of the host is the poster.
  */
-async function captureSurface(page, demonstration, recipe, outputDirectory, exampleScene = false) {
+async function captureSurface(page, demonstration, recipe, outputDirectory) {
     const host = page.locator('#jgbox');
     await host.waitFor({state: 'visible'});
     await host.evaluate((container, size) => {
@@ -161,8 +159,7 @@ async function captureSurface(page, demonstration, recipe, outputDirectory, exam
     }, frame);
     await settle(page);
     // The recipe runs after the resize: a camera fit ("Ponastavi pogled") is computed from the host's aspect ratio.
-    // An example-scene poster keeps the lesson example's scene: only the recipe's camera fit (the example's own camera is fitted to a 1002 px host), then its framing and outcome checks.
-    const evidence = await applyRecipe(page, exampleScene ? {...recipe, actions: recipe.actions.filter(action => action.kind === 'button' && action.label === 'Ponastavi pogled')} : recipe);
+    const evidence = await applyRecipe(page, recipe);
     await settle(page);
     const framing = await readSurfaceFraming(page);
     assert.deepEqual([framing.width, framing.height], [frame.width, frame.height], demonstration.id + ' did not resize to the preview frame');
@@ -551,10 +548,10 @@ async function main() {
         .update(hashSource(path.join(__dirname,'demonstration-preview-curve-motion.cjs')))
         .update(hashSource(path.join(__dirname,'demonstration-preview-concept-motion.cjs')))
         .update(hashSource(path.join(__dirname,'demonstration-preview-recipes.cjs')))
-        // The row driver, schema, example opener and jump check shape every row clip; row data files are deliberately left out.
+        // The row driver, schema, scene opener and jump check shape every row clip; row data files are deliberately left out.
         .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_driver.cjs')))
         .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_schema.cjs')))
-        .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_examples.cjs')))
+        .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_scene.cjs')))
         .update(hashSource(path.join(__dirname,'demonstration-clip-rows/_jump.cjs')))
         .update(JSON.stringify({viewport,frame,deviceScaleFactor,paddingFraction,captureTextSize,captureTextLineHeight,captureCurveStrokeScale,captureConstructionStrokeScale})).digest('hex');
     assert.ok(demonstrations.length > 0, 'Expected at least one active demonstration route');
@@ -638,25 +635,16 @@ async function main() {
             page.on('pageerror', error => pageErrors.push(error.message));
 
             try {
-                const row = clipRows.rowsById[demonstration.id];
-                if (row) {
-                    // A row poster is the lesson example's scene with the lesson overlay hidden: the clip's first and last frame.
-                    await openExampleScene(page, row, baseUrl, {surface: demonstration.view === 'surface'});
-                    assert.equal(new URL(page.url()).pathname, demonstration.path, `${demonstration.id} did not stay on its metadata route`);
-                    assert.equal(new URL(page.url()).search, '?example=lesson.' + row.exampleId, `${demonstration.id} is not on its example route`);
-                } else {
+                // Row posters and clips start from this same scene: the plain route with the full recipe (README of demonstration-clip-rows).
                 await page.goto(`${baseUrl}${demonstration.path.slice('/bezeg-2.0'.length)}`, {
                     waitUntil: 'domcontentloaded',
                 });
                 assert.equal(new URL(page.url()).pathname, demonstration.path,
                     `${demonstration.id} did not stay on its exact metadata route`);
                 assert.equal(new URL(page.url()).search, '', `${demonstration.id} unexpectedly has query settings`);
-                }
-                const exampleScene = row ? {exampleId: row.exampleId, path: examplePath(row), lessonOverlay: 'hidden by the Skrij button', lessonQuote: row.lessonQuote} : undefined;
 
                 if (demonstration.view === 'surface') {
-                    const capture = await captureSurface(page, demonstration, recipes[demonstration.id], output, Boolean(row));
-                    if (exampleScene) capture.exampleScene = exampleScene;
+                    const capture = await captureSurface(page, demonstration, recipes[demonstration.id], output);
                     assert.deepEqual(pageErrors, [], demonstration.id + ' raised a browser error');
                     if (!expectedDimensions) expectedDimensions = capture.image;
                     assert.deepEqual(capture.image, expectedDimensions, demonstration.id + ' differs from the common capture dimensions');
@@ -682,7 +670,7 @@ async function main() {
                 });
 
                 const recipe = recipes[demonstration.id];
-                const evidence = await applyRecipe(page, row ? {...recipe, actions: []} : recipe);
+                const evidence = await applyRecipe(page, recipe);
 
                 await page.waitForFunction(() => window.MathJax?.startup?.promise, {timeout: 30_000});
                 await page.evaluate(async () => {
@@ -743,7 +731,6 @@ async function main() {
                     image: dimensions,
                     recipe,
                     evidence,
-                    ...(exampleScene ? {exampleScene} : {}),
                     posterCheckpoint: recipe.checkpoint,
                     coordinateContextPolicy: demonstrations.coordinateContextPolicy(demonstration),
                     axesAndGrid: scene.axesAndGrid,

@@ -7,7 +7,6 @@ One row describes one lesson-guided Demonstration clip. A row file is any `*.cjs
 | Field | Content |
 | --- | --- |
 | `id` | Demonstration ID (must also have a recipe in `scripts/demonstration-preview-recipes.cjs`) |
-| `exampleId` | The guided example whose scene starts the clip |
 | `motion` | `parameter-sweep`, `pointer-drag` or `discrete-exact-steps` (`surface-orbit` validates but the driver refuses it) |
 | `control` | `{kind: 'slider' or 'number', label, step}`, `{kind: 'point', name}`, `{kind: 'surface-point', name}` or `{kind: 'stepper', label, step}` |
 | `path` | Out and back, first = last. Sweep: control values. Board drag: board coordinates. Surface drag: pixel offsets from `[0, 0]` in the 360x220 host. Discrete: 3 to 8 cumulative press counts, first = last = 0 |
@@ -20,7 +19,7 @@ Copy accessible labels and point names from `docs/reviews/feature-streams/clips/
 ## Choosing the motion
 
 - A slider or point that moves continuously: `parameter-sweep` or `pointer-drag`.
-- An integer or coarse control that cannot follow a smooth schedule (it moves in whole steps, so 71 moving frames would repeat or leap): `discrete-exact-steps` with a `discreteReason`. The driver presses the named button to each checkpoint's cumulative count on a fresh example scene and reads the value back at every checkpoint.
+- An integer or coarse control that cannot follow a smooth schedule (it moves in whole steps, so 71 moving frames would repeat or leap): `discrete-exact-steps` with a `discreteReason`. The driver presses the named button to each checkpoint's cumulative count on a fresh poster scene and reads the value back at every checkpoint.
 - Keep the path inside the start camera: the camera is fitted to the start state and never changes.
 
 ## Fine grid
@@ -33,9 +32,11 @@ Pointer tolerance: the offline check that the point is under the pointer allows 
 
 ## Check a row before capture
 
-`node scripts/demonstration-clip-rows/_check.cjs <row file name without .cjs>` needs no browser. It confirms that the quote is exact lesson text somewhere under `src/learning`, and that the example, control and path agree with the route probe. It cannot tell whether the quote comes from this Demonstration's lesson, so it prints the file: check that yourself.
+`node scripts/demonstration-clip-rows/_check.cjs <row file name without .cjs>` needs no browser. It confirms that the quote is exact lesson text somewhere under `src/learning`, and that the control label and the path's range agree with the route probe. Start values are not checked offline: the probe was taken on lesson example scenes, but a clip starts from the Demonstration's recipe scene, so the capture asserts the start value or point position itself. It cannot tell whether the quote comes from this Demonstration's lesson, so it prints the file: check that yourself.
 
 ## Capture
+
+Poster and clip both start from the Demonstration's existing poster scene (`_scene.cjs`): the route without a query in a fresh context, the full recipe from `scripts/demonstration-preview-recipes.cjs` applied (actions, camera and outcome check) exactly as for a non-row poster. The lesson chooses only the motion. A row never opens a lesson example scene (`?example=lesson.…`).
 
 Start the production preview, then capture one clip at a time:
 
@@ -67,14 +68,14 @@ Every message names its row id. Both the state check and the pixel check are rep
 | `pixel check failed: largest step ...x the typical` | Neighbouring frames differ far more than usual (a cut or teleport) outside board text. Smooth the path. Do not raise the threshold (3) or exempt the row. |
 | `text regions ignored by the pixel check cover ... percent` | Board text covers over 25 percent of the frame, so the mask would hide the picture. Fix the row or the scene; do not raise the limit. |
 | `expected one draggable point named ...`, `control ... is missing or ambiguous`, `no surface point ...` | The name or label does not match the page; copy it from `route-probe.json`. |
-| `the point starts at ... but the row path starts at ...` | The first waypoint is not the point's real start (to 0.02). |
-| `the example camera ... differs from the recipe camera` | Update `surfaceCameras` in `scripts/demonstration-preview-recipes.cjs`. |
+| `the point starts at ... but the row path starts at ...`, `the scene starts at ... but the row path starts at ...` | The first waypoint is not the control's value or the point's position in the recipe scene (point to 0.02). Read the start from the failure message and from the recipe scene on the Demonstration route. |
+| `the scene camera ... differs from the recipe camera` | Update `surfaceCameras` in `scripts/demonstration-preview-recipes.cjs`. |
 | `no clip row for this record`, `captured from an older row; recapture it` | The stored record and the row file differ. Run `just clip <id>`. |
 | `the app did not respond to the control at frame N` | The input changed but the board did not. Check the control label and whether the scene reacts to it; do not add an allowance. |
 | `row ...: the id is not a Demonstration with a capture recipe`, `control.kind ... does not suit` | Fix the row id or the control kind for the Demonstration's view. |
 | `only N distinct frames, need 24` | The input changes too little to see; widen the path (discrete rows need one image per distinct press count). |
 | `point ... left the fixed camera` on a `fineGrid` row, with coordinates hundreds of times too large | The graph analyses grid coordinates as board units, so the rescale moves its overlays. Fix the graph to convert with `gridToBoard` (app code, its own commit); do not drop `fineGrid`. |
-| `first frame differs from recipe poster` | The poster differs from the example start scene; recapture it with `just clip <id>`. |
+| `first frame differs from recipe poster` | The poster differs from the recipe start scene; recapture it with `just clip <id>`. |
 | `no CRF up to 34 fits 300 KiB` | See "Oversized or unreadable clips". |
 
 ## What the checks cover
@@ -84,7 +85,7 @@ Every message names its row id. Both the state check and the pixel check are rep
 - Board response (`assessRowState`, sweep and discrete rows): on every frame where the input differs from the previous frame, the stored curve path hash and point positions must differ too, with no allowance, so an app that ignores the control fails (`the app did not respond to the control at frame N`).
 - Where each result comes from: the pixel result (`jump.steps` and its assessment) is measured at capture from the decoded PNGs. Later validation (`assertRowEvidence`) only checks that the stored steps are consistent with their assessment and the stored mask; it cannot see the pixels again. The state check, including the board response, is re-derived from the stored samples.
 - The ignored-text mask is a union over all frames and is bounded only by the 25 percent cap; within that cap it can hide a change in the masked regions.
-- The clip's first and last frames are compared with the example-scene poster by the capture script.
+- The clip's first and last frames are compared with the recipe poster by the capture script.
 - Camera held, loop closes (last frame equals first), first and last frames equal the poster, 96 frames at 24 fps, at most 300 KiB.
 
 Tests: `_jump.test.cjs` (pixel check) and `_rows.test.cjs` (schema, state check, offline evidence of the published rows), both run by `just tooling-test`. `assertRowEvidence` in `scripts/demonstration-preview-motion.cjs` re-runs the checks from the stored record.

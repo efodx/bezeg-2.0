@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const zlib = require('node:zlib');
 const test = require('node:test');
-const {frameSteps, assessFrameSteps, ignoredRatio, MAX_IGNORED_RATIO} = require('./_jump.cjs');
+const {frameSteps, assessFrameSteps, ignoredRatio, stillBackgroundPixel, MAX_IGNORED_RATIO} = require('./_jump.cjs');
 
 const SIZE = 40;
 const BLOCK = 6;
@@ -122,4 +122,12 @@ test('a mask over the share limit throws', () => {
     assert.throws(() => frameSteps([frame(2), frame(3)], {ignore: wide}), /cover 50\.0 percent/);
     assert.doesNotThrow(() => frameSteps([frame(2), frame(3)], {ignore: [{x: 0, y: 0, width: SIZE, height: SIZE / 4}]}));
     assert.equal(ignoredRatio(SIZE, SIZE, [{x: 0, y: 0, width: 10, height: 10}, {x: 5, y: 5, width: 10, height: 10}]), 175 / 1600);
+});
+
+test('the colour-check pixel skips a spot that one frame crosses and needs a background margin', () => {
+    const white = [255, 255, 255];
+    assert.deepEqual(stillBackgroundPixel([frame(20), frame(20)], white, {radius: 2, stride: 4}), {x: 2, y: 2});
+    // One frame paints (1, 1), inside the first candidate's margin, so the next candidate on the lattice is taken.
+    assert.deepEqual(stillBackgroundPixel([frame(20), frame(20, [[1, 1, 0]])], white, {radius: 2, stride: 4}), {x: 6, y: 2});
+    assert.throws(() => stillBackgroundPixel([frame(20)], [0, 0, 0], {radius: 2, stride: 4}), /No pixel stays background/);
 });

@@ -2,7 +2,7 @@
 // Row format for guided-lesson catalog clips. See README.md in this folder.
 const assert = require('node:assert/strict');
 
-const rowFields = ['id', 'exampleId', 'motion', 'control', 'path', 'lessonQuote', 'discreteReason'];
+const rowFields = ['id', 'motion', 'control', 'path', 'lessonQuote', 'discreteReason'];
 // Optional, pointer-drag on a board only: see README.md (fine grid).
 const optionalRowFields = ['fineGrid'];
 const motions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps', 'surface-orbit'];
@@ -16,7 +16,7 @@ function validateRow(row, where = 'row') {
     assert.ok(row && typeof row === 'object' && !Array.isArray(row), `${where}: a row must be an object`);
     assert.deepEqual(Object.keys(row).filter(key => !optionalRowFields.includes(key)).sort(), [...rowFields].sort(), `${where}: a row has exactly the fields ${rowFields.join(', ')} (and optionally ${optionalRowFields.join(', ')})`);
     const name = `${where} (${row.id})`;
-    for (const field of ['id', 'exampleId', 'lessonQuote']) assert.ok(typeof row[field] === 'string' && row[field].trim(), `${name}: ${field} must be a non-empty string`);
+    for (const field of ['id', 'lessonQuote']) assert.ok(typeof row[field] === 'string' && row[field].trim(), `${name}: ${field} must be a non-empty string`);
     assert.ok(motions.includes(row.motion), `${name}: motion must be one of ${motions.join(', ')}`);
     assert.ok(row.control && typeof row.control === 'object', `${name}: control must be an object`);
     assert.ok(Array.isArray(row.path) && row.path.length >= 2, `${name}: path needs at least two waypoints`);
@@ -37,8 +37,8 @@ function validateRow(row, where = 'row') {
         assert.equal(row.control.kind, 'stepper', `${name}: a discrete control.kind is stepper`);
         assert.ok(typeof row.control.label === 'string' && row.control.label, `${name}: control.label is the accessible name of the button that is pressed (copy it from route-probe.json)`);
         assert.ok(Number.isFinite(row.control.step) && row.control.step !== 0, `${name}: control.step is the change of the shown value for one press (for example 1)`);
-        assert.ok(row.path.length >= 3 && row.path.length <= 8 && row.path.every(n => Number.isInteger(n) && n >= 0), `${name}: path is 3 to 8 cumulative press counts, one per checkpoint, each opened on a fresh example scene`);
-        assert.equal(row.path[0], 0, `${name}: the first checkpoint is the example scene itself, so its press count is 0`);
+        assert.ok(row.path.length >= 3 && row.path.length <= 8 && row.path.every(n => Number.isInteger(n) && n >= 0), `${name}: path is 3 to 8 cumulative press counts, one per checkpoint, each opened on a fresh recipe scene`);
+        assert.equal(row.path[0], 0, `${name}: the first checkpoint is the poster scene itself, so its press count is 0`);
         assert.equal(row.path.at(-1), 0, `${name}: the last checkpoint must be 0 presses, so the loop returns to the poster`);
         assert.ok(row.path.some(n => n > 0), `${name}: path never presses the button`);
     } else if (row.motion === 'pointer-drag') {

@@ -116,4 +116,23 @@ function assessPathSteps({scheduled, observed, tolerance}) {
     return {ok: reason === null, reason, maxDeviation, worstFrame, maxScheduleStep, typicalScheduleStep, scheduleRatio, tolerance};
 }
 
-module.exports = {frameSteps, assessFrameSteps, assessPathSteps, ignoredRatio, SCHEDULE_STEP_LIMIT, MAX_IGNORED_RATIO};
+/**
+ * The encoder's colour check decodes one background pixel from every frame. A row scene may move a line or circle across any fixed
+ * pixel, so a row takes the first pixel, scanning rows from the top-left on a 16 px lattice, whose (2r+1)-square neighbourhood is
+ * exactly `background` in every frame (a margin, so compression of nearby edges cannot tint it). Throws if no such pixel exists.
+ */
+function stillBackgroundPixel(pngBuffers, background, {radius = 8, stride = 16} = {}) {
+    const frames = pngBuffers.map(decodePng);
+    const {width, height, channels} = frames[0];
+    const still = (x, y) => frames.every(frame => {
+        for (let dy = -radius; dy <= radius; dy++) for (let dx = -radius; dx <= radius; dx++) {
+            const offset = ((y + dy) * width + (x + dx)) * channels;
+            if (frame.data[offset] !== background[0] || frame.data[offset + 1] !== background[1] || frame.data[offset + 2] !== background[2]) return false;
+        }
+        return true;
+    });
+    for (let y = radius; y < height - radius; y += stride) for (let x = radius; x < width - radius; x += stride) if (still(x, y)) return {x, y};
+    throw new Error('No pixel stays background in every frame, so the encoder colour check has nowhere to sample.');
+}
+
+module.exports = {frameSteps, assessFrameSteps, assessPathSteps, ignoredRatio, stillBackgroundPixel, SCHEDULE_STEP_LIMIT, MAX_IGNORED_RATIO};

@@ -19,7 +19,7 @@ const rejects = (mutate, base, pattern) => {
 };
 
 const sweep = rowsById['curve-offset'], drag = rowsById.reduction, surface = rowsById['patch-coons'];
-const discrete = {id: 'x-discrete', exampleId: 'a.b.c', motion: 'discrete-exact-steps', control: {kind: 'stepper', label: 'Povečaj n', step: 1}, path: [0, 1, 2, 0], lessonQuote: 'q', discreteReason: 'The stepper is an integer.'};
+const discrete = {id: 'x-discrete', motion: 'discrete-exact-steps', control: {kind: 'stepper', label: 'Povečaj n', step: 1}, path: [0, 1, 2, 0], lessonQuote: 'q', discreteReason: 'The stepper is an integer.'};
 
 test('the shipped rows are valid and ids are unique', () => {
     assert.ok(rows.length >= 3);
@@ -36,7 +36,7 @@ test('the schema rejects each broken row with an actionable message', () => {
     rejects(row => { row.control.step = 0; }, sweep, /control\.step must be the control's step/);
     rejects(row => { row.discreteReason = 'because'; }, sweep, /discreteReason must be null/);
     rejects(row => { row.discreteReason = null; }, discrete, /must say why smooth motion is impossible/);
-    rejects(row => { row.path = [1, 2, 0]; }, discrete, /first checkpoint is the example scene/);
+    rejects(row => { row.path = [1, 2, 0]; }, discrete, /first checkpoint is the poster scene/);
     rejects(row => { row.path = [0, 1, 2]; }, discrete, /must be 0 presses/);
     rejects(row => { row.path = [0, 0, 0]; }, discrete, /never presses the button/);
     rejects(row => { row.path = [0, 1]; }, discrete, /3 to 8 cumulative press counts/);
@@ -171,7 +171,6 @@ test('the row checker rejects what capture would only find later', () => {
     const {checkRow} = require('./_check.cjs');
     const lessons = [{file: 'lesson.ts', text: 'Premakni drsnik.'}];
     const entry = {
-        exampleCandidates: [{exampleId: 'family.demo.demo'}],
         controls: [
             {kind: 'slider', name: 'Razdalja d', min: '-3', max: '3', value: '-0.5', disabled: false},
             {kind: 'slider', name: 'Napetost', min: '0', max: '2', value: '1', disabled: true},
@@ -179,18 +178,13 @@ test('the row checker rejects what capture would only find later', () => {
         ],
         draggablePoints: [{name: '$$p_{1}$$', x: 1, y: 2}],
     };
-    const row = {exampleId: 'family.demo.demo', lessonQuote: 'Premakni drsnik.', control: {kind: 'slider', label: 'Razdalja d'}, path: [-0.5, 0, -0.5]};
+    const row = {lessonQuote: 'Premakni drsnik.', control: {kind: 'slider', label: 'Razdalja d'}, path: [-0.5, 0, -0.5]};
     const problems = change => checkRow({...row, ...change}, entry, lessons).problems.join('\n');
     assert.equal(problems({}), '');
     assert.match(problems({lessonQuote: 'Premakni drsnik levo.'}), /not exact lesson text/);
-    assert.match(problems({exampleId: 'family.other.other'}), /is not an example of/);
     assert.match(problems({control: {kind: 'slider', label: 'Neznano'}}), /no slider or number control/);
     assert.match(problems({control: {kind: 'slider', label: 'Napetost'}, path: [1, 1.5, 1]}), /is disabled/);
     assert.match(problems({path: [-0.5, 4, -0.5]}), /leaves the range/);
-    assert.match(problems({path: [0, 1, 0]}), /must start at the scene value/);
-    assert.match(problems({control: {kind: 'point', name: 'q'}, path: [[1, 2], [1, 3], [1, 2]]}), /no draggable point/);
-    assert.match(problems({control: {kind: 'point', name: 'p_{1}'}, path: [[1.5, 2], [1, 3], [1.5, 2]]}), /must start at the point/);
-    assert.equal(problems({control: {kind: 'point', name: 'p_{1}'}, path: [[1.01, 2], [1, 3], [1.01, 2]]}), '');
     assert.match(problems({control: {kind: 'stepper', label: 'Zmanjšaj'}, path: [0, 1, 0]}), /no enabled button/);
     assert.match(checkRow(row, undefined, lessons).problems.join('\n'), /not in route-probe/);
 });

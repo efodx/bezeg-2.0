@@ -8,6 +8,7 @@ const patchSurfaceMotion = require('./patch-surface-motion.cjs');
 const clipRows = require('./demonstration-clip-rows/index.cjs');
 const {captureRow} = require('./demonstration-clip-rows/_driver.cjs');
 const {validateRow} = require('./demonstration-clip-rows/_schema.cjs');
+const {stillBackgroundPixel} = require('./demonstration-clip-rows/_jump.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','ph-quintic','subdivision','spline-g1','trigonometric-functions','darboux','definite-integral', ...patchSurfaceMotion.surfaceMotionIds, ...clipRows.rowIds];
 const frameCount = 96;
@@ -1855,7 +1856,7 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
         // A row has no spec, so it takes the lowest CRF that fits the 300 KiB ceiling (dense scenes need more compression); the choice is recorded.
         let rowCrf;
         let encoded;
-        if(row){for(const crf of [10,14,18,22,26,30,34]){try{encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,crf);rowCrf=crf;break;}catch(error){if(!/^Motion over 300KiB/.test(error.message))throw error;}}assert.ok(encoded,id+': no CRF up to 34 fits 300 KiB; the scene is too busy for a clip');}
+        if(row){const frames=fs.readdirSync(directory).filter(name=>/^\d+\.png$/.test(name)).sort().map(name=>fs.readFileSync(path.join(directory,name)));const sample=stillBackgroundPixel(frames,backgroundPixel);for(const crf of [10,14,18,22,26,30,34]){try{encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,crf,sample);rowCrf=crf;break;}catch(error){if(!/^Motion over 300KiB/.test(error.message))throw error;}}assert.ok(encoded,id+': no CRF up to 34 fits 300 KiB; the scene is too busy for a clip');}
         else encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,spec?.crf,spec?.backgroundSample);
         const mode=row?.motion ?? spec?.mode ?? (id==='affine'?'supported-rotation-steps':id.endsWith('elevation')?'exact-degree-elevation':'discrete-exact-steps');
         motions.push({id,...encoded,frameCount,sampleRate,camera:fixedBox,mode,

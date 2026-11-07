@@ -2,7 +2,6 @@
 module.exports = [
     {
         id: 'reduction',
-        exampleId: 'advanced-bezier.reduction.reduction',
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'p_{1}'},
         // Board coordinates. The first waypoint must be the point's real start (checked to 0.02).

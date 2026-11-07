@@ -1,5 +1,5 @@
 'use strict';
-// Captures one row clip: opens the lesson example, hides the lesson overlay, then performs the row's supported input for 96 frames.
+// Captures one row clip: opens the Demonstration's poster scene (plain route, full recipe), then performs the row's supported input for 96 frames.
 // Beside captureSweep and captureDrag in demonstration-preview-motion.cjs, which pass their shared helpers in as `kit`
 // (this module must not require that file: it requires this one).
 const assert = require('node:assert/strict');
@@ -7,7 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {recipes, applyRecipe, readSurfaceFraming, sameCamera, pointsOutsideFrame, settle} = require('../demonstration-preview-recipes.cjs');
 const {drivenMotions} = require('./_schema.cjs');
-const {newExampleContext, openExampleScene} = require('./_examples.cjs');
+const {newSceneContext, openRecipeScene} = require('./_scene.cjs');
 
 // Shared timing, as movePhase in the motion module: 12 holds, 71 moving frames, 13 holds. The pointer is down from PRESS to RELEASE.
 const PRESS = 11, RELEASE = 84;
@@ -66,10 +66,10 @@ const rowSchedule = row => row.motion === 'discrete-exact-steps'
 // camera assertions of the capture loops and assertRowEvidence, the loop-closing checksum test, the capture script's poster
 // comparison (recipe-aligned ids) and the stored pixel step list (assessFrameSteps).
 const rowInvariants = row => row.motion === 'discrete-exact-steps'
-    ? [`The value shown next to "${row.control.label}" is read back at every checkpoint and equals the start value plus presses times step`, 'Camera is fixed for all 96 frames', 'The last checkpoint is the example scene and the last frame equals the first (the loop closes)', 'First and last frames match the example-scene poster']
+    ? [`The value shown next to "${row.control.label}" is read back at every checkpoint and equals the start value plus presses times step`, 'Camera is fixed for all 96 frames', 'The last checkpoint is the poster scene and the last frame equals the first (the loop closes)', 'First and last frames match the recipe poster']
     : row.motion === 'parameter-sweep'
-    ? [`The input of "${row.control.label}" read back from the page matches the scheduled value every frame, and the schedule has no large step`, 'Camera is fixed for all 96 frames', 'First and last frames match the example-scene poster', 'Consecutive decoded frames never jump (stored step list)']
-    : [`The moved point read back from the page follows the scheduled pointer path every frame, and the schedule has no large step`, 'Camera is fixed for all 96 frames', 'The last frame equals the first (the loop closes)', 'First and last frames match the example-scene poster', 'Consecutive decoded frames never jump (stored step list)'];
+    ? [`The input of "${row.control.label}" read back from the page matches the scheduled value every frame, and the schedule has no large step`, 'Camera is fixed for all 96 frames', 'First and last frames match the recipe poster', 'Consecutive decoded frames never jump (stored step list)']
+    : [`The moved point read back from the page follows the scheduled pointer path every frame, and the schedule has no large step`, 'Camera is fixed for all 96 frames', 'The last frame equals the first (the loop closes)', 'First and last frames match the recipe poster', 'Consecutive decoded frames never jump (stored step list)'];
 
 /**
  * State check of a captured row: what the app really showed (slider readback, board coordinates of the moved point, or the
@@ -120,13 +120,13 @@ async function captureRow(browser, d, row, directory, baseUrl, presentBoard, kit
     const surface = d.view === 'surface';
     const discrete = row.motion === 'discrete-exact-steps';
     assert.ok(!(discrete && surface), `${row.id}: discrete-exact-steps is built for board scenes only`);
-    const context = discrete ? null : await newExampleContext(browser);
+    const context = discrete ? null : await newSceneContext(browser);
     const page = discrete ? null : await context.newPage();
     page?.setDefaultTimeout(20000);
     try {
         // Capture-only hook read by PointSetGraph.dragPoint: the first drag rescales the model to this grid exponent and the dragged point then follows the pointer exactly (README, fine grid).
         if (row.fineGrid !== undefined) await context.addInitScript(exponent => { window.__bezegClipGridStepExponent = exponent; }, row.fineGrid);
-        if (!discrete) await openExampleScene(page, row, baseUrl, {surface});
+        if (!discrete) await openRecipeScene(page, d, recipes[d.id], baseUrl, {surface});
         const result = discrete ? await captureDiscrete(browser, d, row, directory, baseUrl, presentBoard, kit)
             : surface ? await dragSurface(page, d, row, directory, kit)
                 : row.motion === 'parameter-sweep' ? await sweepBoard(page, d, row, directory, presentBoard, kit)
@@ -154,7 +154,7 @@ async function captureRow(browser, d, row, directory, baseUrl, presentBoard, kit
 const discreteHolds = (row, frameCount) => row.path.map((_, i) => Math.floor(frameCount / row.path.length) + (i < frameCount % row.path.length ? 1 : 0));
 
 /**
- * discrete-exact-steps: the named stepper button is pressed to each checkpoint's cumulative count, every checkpoint on a fresh example
+ * discrete-exact-steps: the named stepper button is pressed to each checkpoint's cumulative count, every checkpoint on a fresh recipe
  * scene (no control undoes a step), then held. The value shown next to the button must reach start + count x step at every checkpoint.
  * Pixel and schedule smoothness do not apply; the camera and the loop closing still do.
  */
@@ -163,11 +163,11 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
     let fixedBox, startValue, frame = 0;
     const samples = [];
     for (let k = 0; k < row.path.length; k++) {
-        const context = await newExampleContext(browser);
+        const context = await newSceneContext(browser);
         const page = await context.newPage();
         page.setDefaultTimeout(20000);
         try {
-            await openExampleScene(page, row, baseUrl, {});
+            await openRecipeScene(page, d, recipes[d.id], baseUrl, {});
             await presentFixed(page, d, presentBoard, fixedBox);
             const button = page.getByRole('button', {name: row.control.label, exact: true});
             assert.equal(await button.count(), 1, `${row.id}: button "${row.control.label}" is missing or ambiguous (copy the accessible name from route-probe.json)`);
@@ -177,7 +177,7 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
             assert.equal(await readout.count(), 1, `${row.id}: no value input next to "${row.control.label}" to read the stepper back`);
             const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
             const first = parse(await readout.inputValue());
-            if (k === 0) startValue = first; else assert.equal(first, startValue, `${row.id}: a fresh example scene starts at ${first}, not ${startValue}`);
+            if (k === 0) startValue = first; else assert.equal(first, startValue, `${row.id}: a fresh recipe scene starts at ${first}, not ${startValue}`);
             for (let press = 0; press < row.path[k]; press++) { await button.click(); await settle(page); }
             await settle(page);
             await presentFixed(page, d, presentBoard, fixedBox);
@@ -222,7 +222,7 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
     const range = rangeId ? page.locator(`[id=${JSON.stringify(rangeId)}]`) : control;
     const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
     let previousValue = parse(await range.inputValue());
-    assert.ok(Math.abs(previousValue - row.path[0]) < 1e-9, `${row.id}: the example starts at ${previousValue}, but the row path starts at ${row.path[0]}`);
+    assert.ok(Math.abs(previousValue - row.path[0]) < 1e-9, `${row.id}: the scene starts at ${previousValue}, but the row path starts at ${row.path[0]}`);
     const known = new Map(initial.strokesById);
     const samples = [];
     for (let i = 0; i < kit.frameCount; i++) {
@@ -293,11 +293,11 @@ async function dragSurface(page, d, row, directory, kit) {
     }, frame);
     await page.waitForFunction(size => {const raw = document.querySelector('#jgbox')?.getAttribute('data-surface-framing'); const f = raw && JSON.parse(raw); return !!f && f.width === size.width && f.height === size.height;}, frame);
     await settle(page);
-    // The same camera fit the example-scene poster applies (captureSurface in capture-demonstration-previews.cjs), so poster and clip share one camera.
-    await applyRecipe(page, {...recipes[d.id], actions: recipes[d.id].actions.filter(action => action.kind === 'button' && action.label === 'Ponastavi pogled')});
+    // The full recipe the poster applies after its resize (captureSurface in capture-demonstration-previews.cjs), so poster and clip share one scene and camera.
+    await applyRecipe(page, recipes[d.id]);
     await settle(page);
     const initial = await readSurfaceFraming(page);
-    assert.ok(sameCamera(initial.camera, recipes[d.id].framing.camera), `${row.id}: the example camera ${JSON.stringify(initial.camera)} differs from the recipe camera; update surfaceCameras in demonstration-preview-recipes.cjs`);
+    assert.ok(sameCamera(initial.camera, recipes[d.id].framing.camera), `${row.id}: the scene camera ${JSON.stringify(initial.camera)} differs from the recipe camera; update surfaceCameras in demonstration-preview-recipes.cjs`);
     const start = initial.points.find(p => p.id === row.control.name);
     assert.ok(start, `${row.id}: no surface point "${row.control.name}"; published ids are ${JSON.stringify(initial.points.map(p => p.id))}`);
     const view = await page.locator('#jgbox [data-jsx-surface-view]').boundingBox();
