@@ -54,3 +54,9 @@ The image exploration changed no application code and did not test browser inter
 ## Production implementation — 2026-11-07
 
 The owner approved implementation after the runnable trial on `codex/prototype-lesson-navigation` at `42caae71`. That branch retains the complete A/B/C comparison. [The production task](../tasks/lesson-navigation-stability/implementation.md) carries the selected compact toolbar into the real runtime, including affected prose, replay consumers, regression tests and browser acceptance. Production has one layout without a variant parameter or comparison controls. No route or stored-preset format changes are intended.
+
+## Completion panel refinement — 2026-11-07
+
+- After the last frame, replace step navigation with a completion heading and the existing invitation to explore the final scene. Use one continuous panel surface and move focus to the completion heading.
+- For chapter-owned examples, show one primary **Nadaljuj v poglavju** action in the completed panel. Keep the chapter return link available during the lesson and retain the existing scene restoration when returning to the chapter.
+- Keep Hide and Exit available, and leave the completed graph editable. Verify completion and chapter return on desktop and at narrow widths in Slovenian and English, including keyboard access and enlarged text.

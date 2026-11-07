@@ -74,6 +74,7 @@ export function GuidedLesson(props: {
     const [exitError, setExitError] = useState(false);
     const layerRef = useRef<HTMLDivElement>(null);
     const lessonRef = useRef<HTMLElement>(null);
+    const completionHeadingRef = useRef<HTMLHeadingElement>(null);
     const compactTabRef = useRef<HTMLButtonElement>(null);
     const readingRef = useRef<HTMLDivElement>(null);
     const readingPosition = useRef({panel: 0, outer: 0, page: 0});
@@ -375,10 +376,12 @@ export function GuidedLesson(props: {
         frameNeedsScrollReset.current = enteringLesson;
         hasSavedReadingPosition.current = false;
         if (readingRef.current) readingRef.current.scrollTop = 0;
-        // Short windows scroll the reading content with the outer panel; its controls stay sticky.
-        // Elsewhere an outer offset only reveals enlarged controls and must survive frame navigation.
-        if (lessonRef.current && window.matchMedia?.('(max-height: 520px)').matches) lessonRef.current.scrollTop = 0;
-        lessonRef.current?.focus({preventScroll: true});
+        // Short windows and the completion card scroll as one panel. On other frames
+        // keep any outer offset that reveals enlarged navigation controls.
+        if (lessonRef.current && (snapshot.status === 'complete' || window.matchMedia?.('(max-height: 520px)').matches)) {
+            lessonRef.current.scrollTop = 0;
+        }
+        (completionHeadingRef.current ?? lessonRef.current)?.focus({preventScroll: true});
         // Align a newly entered lesson once. Even a fractionally clipped navigation button can
         // be clicked; realigning the page after that click would move it away from the pointer.
         if (enteringLesson && lessonRef.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
@@ -501,10 +504,10 @@ export function GuidedLesson(props: {
             setExitError(true);
         }
     };
-    const chapterReturnLink = pageHeadingHasLessonTitle && props.chapterOwner && <a className="guided-lesson-chapter-return" href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>;
+    const chapterReturnLink = !isComplete && pageHeadingHasLessonTitle && props.chapterOwner && <a className="guided-lesson-chapter-return" href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>;
     const chapterIdentity = props.chapterOwner && !pageHeadingHasLessonTitle && <div className="guided-lesson-owner">
         <span title={`${props.chapterOwner.chapterTitle} · ${props.chapterOwner.sectionTitle}`}>{props.chapterOwner.chapterTitle} · {props.chapterOwner.sectionTitle}</span>
-        <a href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>
+        {!isComplete && <a href={props.chapterOwner.returnPath} onClick={returnToChapter}>{props.chapterOwner.returnLabel}</a>}
     </div>;
 
     if (startupError) {
@@ -528,22 +531,26 @@ export function GuidedLesson(props: {
         if (event.target instanceof Element && event.target.closest('a, button:not(.guided-lesson-grip)')) return;
         panelPointerHandlers.onPointerDown(event);
     };
-    const navigationToolbar = <div className="guided-lesson-toolbar">
+    const navigationToolbar = !isComplete && <div className="guided-lesson-toolbar">
         <div className="guided-lesson-progress-group">
-            {!isComplete && <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>}
+            <span className="guided-lesson-frame-label">{frameLabel(frame)}</span>
             <div className="guided-lesson-progress" role="status" aria-live="polite">
-                {isComplete ? t('guided_lesson_complete') : <>{t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}</>}
+                {t('guided_lesson_step', {value0: snapshot.stepIndex + 1, value1: props.lesson.steps.length})} · {t('guided_lesson_frame', {value0: snapshot.frameIndex + 1, value1: frames.length})}
             </div>
         </div>
-        {!isComplete && <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
+        <nav className="guided-lesson-navigation" aria-label={t('guided_lesson_navigation')}>
             <button type="button" className="guided-lesson-nav guided-lesson-nav-back" aria-label={t('guided_lesson_previous_frame_accessible')} disabled={atFirstFrame} onClick={() => refresh(() => session.back())}>
                 <NavigationArrow direction="back"/>{t('guided_lesson_previous_frame_short')}
             </button>
-            <button type="button" className="guided-lesson-nav guided-lesson-nav-next" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => refresh(() => session.next())}>
+            <button type="button" className="guided-lesson-nav guided-lesson-nav-next guided-lesson-primary" aria-label={atLastFrame ? t('finish_lesson_accessible') : t('guided_lesson_next_frame_accessible')} onClick={() => refresh(() => session.next())}>
                 {atLastFrame ? t('finish_lesson_short') : t('guided_lesson_next_frame_short')}<NavigationArrow direction="next"/>
             </button>
-        </nav>}
+        </nav>
     </div>;
+    const CompletionHeading = pageHeadingHasLessonTitle ? 'h2' : 'h3';
+    const completionHeading = isComplete && <CompletionHeading ref={completionHeadingRef} tabIndex={-1} className="guided-lesson-completion-title">
+        {t('guided_lesson_complete')}
+    </CompletionHeading>;
     const sectionStyle = {...panelDrag.style, '--guided-lesson-max-height': `${availablePanelHeight}px`} as React.CSSProperties;
     return <>
     <div ref={layerRef} className={`guided-lesson-layer${wideBoard ? ' guided-lesson-wide' : ''}`}>
@@ -556,7 +563,7 @@ export function GuidedLesson(props: {
             <button type="button" className="guided-lesson-grip" aria-label={t('move_lesson_instructions')} title={t('move_lesson_instructions')}
                 aria-keyshortcuts={ARROW_KEYS} onKeyDown={movePanelByKey}><GripIcon/></button>
             {chapterReturnLink}
-            {pageHeadingHasLessonTitle ? null : <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>}
+            {pageHeadingHasLessonTitle ? completionHeading : <h2 id="guided-lesson-title">{localized(props.lesson.title, language)}</h2>}
             <div className="guided-lesson-utilities">{hideButton}{closeButton}</div>
         </div>
         {chapterIdentity}
@@ -583,15 +590,18 @@ export function GuidedLesson(props: {
             {animationControls}
             {expectedObservations}
         </div>}
-        {isComplete && <p>{t('guided_lesson_free_exploration')}</p>}
+        {isComplete && <div className="guided-lesson-completion-message">
+            {!pageHeadingHasLessonTitle && completionHeading}
+            <p>{t('guided_lesson_free_exploration')}</p>
+        </div>}
         </div>
-        {((isComplete && props.chapterOwner) || (!isComplete && frameAction)) && <footer className="guided-lesson-footer">
-            {isComplete && props.chapterOwner && <div className="guided-lesson-actions">
-                <button type="button" onClick={continueInChapter}>{t('continue_in_chapter')}</button>
-            </div>}
-            {!isComplete && frameAction && <div className="guided-lesson-actions">
-                {frameAction && <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>}
-            </div>}
+        {isComplete && props.chapterOwner && <div className="guided-lesson-actions guided-lesson-completion-actions">
+            <button type="button" className="guided-lesson-primary" onClick={continueInChapter}>{t('continue_in_chapter')}</button>
+        </div>}
+        {!isComplete && frameAction && <footer className="guided-lesson-footer">
+            <div className="guided-lesson-actions">
+                <button type="button" onClick={() => refresh(() => session.applyCurrentAction())}>{localized(frameAction.label, language)}</button>
+            </div>
         </footer>}
     </section>}
     {tabVisible && <button ref={compactTabRef} type="button" style={tabDrag.style} className={`guided-lesson-tab${tabDrag.dragging ? ' guided-lesson-dragging' : ''}`}

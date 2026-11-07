@@ -163,6 +163,8 @@ test('completion offers chapter continuation and keeps the final graph scene', (
     }}/>);
 
     fireEvent.click(screen.getByRole('button', {name: 'Finish example'}));
+    expect(screen.getByRole('heading', {name: 'Example complete'})).toHaveFocus();
+    expect(screen.queryByRole('link', {name: 'Return to chapter'})).not.toBeInTheDocument();
     expect(screen.getByRole('button', {name: 'Continue in chapter'})).toBeVisible();
     expect(caps.restoreState).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', {name: 'Continue in chapter'}));
