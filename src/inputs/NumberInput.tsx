@@ -47,7 +47,7 @@ export function parseDecimal(text: string): number {
 const show = (value: number | undefined, decimals: number, language: Language) =>
     value === undefined || !Number.isFinite(value) ? "" : formatNumber(value, language, decimals);
 
-type Hint = "range" | "rejected" | undefined;
+type Hint = "range" | "rejected" | "invalid" | undefined;
 
 /**
  * A text field for a decimal number (decimal comma in Slovenian, decimal point in English; both are accepted when typed). It keeps
@@ -97,14 +97,18 @@ export function NumberInput(props: NumberInputProps) {
             return false;
         }
         const typed = parseDecimal(draft);
-        if (!Number.isFinite(typed)) return false;
+        if (!Number.isFinite(typed)) {
+            setHint("invalid");
+            return false;
+        }
         // A refused value stays an open edit, so that blur explains it again.
         const accepted = commit(typed);
         if (accepted) edited.current = false;
         return accepted;
     };
-    const hintText = hint === "range" && min !== undefined && max !== undefined
+    const hintText = (hint === "range" || hint === "invalid") && min !== undefined && max !== undefined
         ? t("number_range_hint", {value0: formatNumber(min, language), value1: formatNumber(max, language)})
+        : hint === "invalid" ? t("number_rejected_hint")
         : hint ? props.rejectedHint ?? t("number_rejected_hint") : undefined;
     return <div className={props.compact ? "number-input number-input-compact" : "number-input"}>
         <label htmlFor={id} className={props.hideLabel ? "visually-hidden" : undefined}>{props.label}</label>

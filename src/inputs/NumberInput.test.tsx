@@ -70,6 +70,28 @@ test('a value outside the range or rejected by the model is explained, in the cu
     expect(onChange).toHaveBeenCalledWith(2);
 });
 
+test('a draft that is not a number is explained on Enter and on blur, and commits nothing', () => {
+    const onChange = vi.fn(() => true);
+    render(<NumberInput label="x" value={1} min={-4} max={4} rejectedHint="Taken" onChange={onChange}/>);
+    const input = screen.getByLabelText('x') as HTMLInputElement;
+    enterNumber(input, '-');
+    expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med −4 in 4.');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input.value).toBe('-');
+    type(input, '2');
+    expect(screen.queryByRole('status')).toBeNull();
+    blurNumber(input, 'abc');
+    expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med −4 in 4.');
+    expect(input.value).toBe('1');
+    expect(onChange).not.toHaveBeenCalled();
+});
+
+test('without limits, a draft that is not a number gets the general hint rather than a model refusal', () => {
+    render(<NumberInput label="x" value={1} rejectedHint="Taken" onChange={() => true}/>);
+    enterNumber(screen.getByLabelText('x'), 'abc');
+    expect(screen.getByRole('status')).toHaveTextContent('Te vrednosti ni mogoče uporabiti.');
+});
+
 test('a value the model rejects shows the rejection hint', () => {
     render(<NumberInput label="x" value={1} onChange={() => false}/>);
     enterNumber(screen.getByLabelText('x'), '5');
@@ -210,11 +232,11 @@ describe('decimal entry', () => {
         expect(input.value).toBe('−0.75');
     });
 
-    test('an incomplete draft such as "1," is kept, does not commit, and leaves the graph value unchanged', () => {
+    test('while typing, an incomplete draft such as "1," is kept, does not commit, shows no hint, and leaves the graph value unchanged', () => {
         const onChange = vi.fn();
         render(<NumberInput label="k" value={2} onChange={onChange}/>);
         const input = screen.getByLabelText('k') as HTMLInputElement;
-        enterNumber(input, '1,');
+        type(input, '1,');
         expect(onChange).not.toHaveBeenCalled();
         expect(input.value).toBe('1,');
         expect(screen.queryByRole('status')).toBeNull();
