@@ -14,7 +14,7 @@ module.exports = [
         id: 'inscribed-angle',
         exampleId: 'triangle-geometry.inscribed-angle.inscribed-angle',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Premik točke P po krožnici: puščice 1°, Shift 10°', step: 0.01},
+        control: {kind: 'number', label: 'Lega točke P (t, stopinje)', step: 0.01},
         // Degrees on the circle. P is confined to the circle, so the slider follows the arc exactly where straight drag legs would not. The arc above AB runs from -23 to 203 degrees; the slider stops at 0, so 10..170 keeps it symmetric, in equal legs.
         path: [90, 50, 10, 50, 90, 130, 170, 130, 90],
         lessonQuote: 'Povleci \\(P\\) z enega konca loka na drugega. Ali se odčitek kdaj spremeni za več kot zaokrožitev?',

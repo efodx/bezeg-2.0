@@ -206,7 +206,8 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
     for (const tab of ['Prikaz', 'Uredi']) { if (await control.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
     assert.ok(await control.isVisible(), `${row.id}: control "${row.control.label}" stays hidden in every inspector tab`);
     const rangeId = await control.getAttribute('id');
-    const range = page.locator(`[id=${JSON.stringify(rangeId)}]`);
+    // The id survives a label that embeds the value; a control without an id keeps its label locator.
+    const range = rangeId ? page.locator(`[id=${JSON.stringify(rangeId)}]`) : control;
     const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
     let previousValue = parse(await range.inputValue());
     assert.ok(Math.abs(previousValue - row.path[0]) < 1e-9, `${row.id}: the example starts at ${previousValue}, but the row path starts at ${row.path[0]}`);
