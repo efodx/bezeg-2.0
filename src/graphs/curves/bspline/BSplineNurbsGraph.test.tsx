@@ -9,6 +9,7 @@ import {LocalizedError, renderMessage, setLanguage} from '../../../localization'
 import {BSplinePresetData, bsplinePresetCollection} from './bsplinePresetCollection';
 import {angleDegrees, maxRadialError, nurbsExample, nurbsPointAt} from './bsplineNurbsModel';
 import {BSplineNurbsScene} from './BSplineNurbsScene';
+import {enterNumber} from '../../../inputs/testEntry';
 
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
 vi.mock('../../../localization', async importOriginal => {
@@ -152,7 +153,7 @@ describe('L5 acceptance 3: weights are positive', () => {
     test('a valid weight is applied (state and drawn curve) and clears the refusal; the typed field refuses 0', () => {
         const {graph, view} = mount();
         const field = screen.getByLabelText('Utež 2');
-        fireEvent.change(field, {target: {value: '0'}});
+        enterNumber(field, '0');
         expect(graph.state.weights[1]).toBe(S);
         expect(screen.getByRole('alert').textContent).toBe('utež 2 mora biti pozitivna');
         const before = graph.sample();

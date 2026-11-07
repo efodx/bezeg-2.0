@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {ExtremaGraph} from './ExtremaGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -58,14 +59,14 @@ test('a real board shows the candidates: the fields, the example and the Show cl
 
     // an endpoint through the labelled field keeps the classification; an order violation is refused with the rule and leaves the model alone
     const inputB = screen.getByLabelText('Desno krajišče b') as HTMLInputElement;
-    act(() => { fireEvent.change(inputB, {target: {value: '1'}}); });
+    act(() => { enterNumber(inputB, '1'); });
     expect(graph.modelNow()).toMatchObject({a: -1, b: 1, revealed: true});
     expect(readout('global-maximum')).toBe('1 pri x = −1; 1');
-    act(() => { fireEvent.change(inputB, {target: {value: '-2'}}); });
+    act(() => { enterNumber(inputB, '-2'); });
     expect(graph.modelNow()).toMatchObject({a: -1, b: 1});
     expect(screen.getByText('Krajišče b mora ostati desno od a (a < b). Najprej premakni a.')).toBeInTheDocument();
     const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
-    act(() => { fireEvent.change(inputA, {target: {value: '9'}}); });
+    act(() => { enterNumber(inputA, '9'); });
     expect(graph.modelNow()).toMatchObject({a: -1, b: 1});
 
     // choosing an example loads its model, hides the classification and the corner appears in words

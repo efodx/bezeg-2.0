@@ -3,11 +3,14 @@ import {useId} from "react";
 import Form from 'react-bootstrap/Form';
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
+import {stepKeyDelta} from "./stepKeys";
 
 interface SliderProps {
     min: number;
     max: number;
     step?: number;
+    /** The change of Shift with an arrow, PageUp and PageDown; defaults to ten steps. */
+    bigStep?: number;
     /** The shown value. The slider is controlled: the caller updates it in response to `onChange`. */
     value: number;
     onChange: ((arg: number) => any);
@@ -44,12 +47,21 @@ export default function Slider(props: SliderProps) {
         <div className="slider-label"><Form.Label htmlFor={id}>{props.customText}</Form.Label>
             {exact
                 ? <NumberInput label={t("number_field_label", {value0: props.customText})} hideLabel compact value={props.value} min={props.min} max={props.max}
-                               step={step} decimals={decimals} integer={integer} disabled={props.disabled} rejectedHint={props.rejectedHint}
+                               step={step} bigStep={props.bigStep} decimals={decimals} integer={integer} disabled={props.disabled} rejectedHint={props.rejectedHint}
                                onChange={value => props.onChange(value)}/>
                 : <output htmlFor={id}>{show(props.value)}</output>}</div>
         <Form.Range id={id} aria-describedby={`${id}-range${props.help ? ` ${id}-help` : ""}`} min={props.min}
                     max={props.max} value={props.value} disabled={props.disabled}
                     step={step} aria-valuetext={show(props.value)}
+                    onKeyDown={e => {
+                        // An arrow is the browser's own one step; the big step is ours so that every control shares it.
+                        if (props.disabled || (!e.shiftKey && e.key.startsWith("Arrow"))) return;
+                        const delta = stepKeyDelta(e, step, props.bigStep, true);
+                        if (delta === undefined) return;
+                        e.preventDefault();
+                        const next = Math.round(Math.min(props.max, Math.max(props.min, props.value + delta)) * 1e9) / 1e9;
+                        if (next !== props.value) props.onChange(next);
+                    }}
                     onChange={e => props.onChange(Number(e.target.value))}></Form.Range>
         <div id={`${id}-range`} className="slider-range"><span>{t("min")} {show(props.min)}</span><span>{t("max")} {show(props.max)}</span></div>
         {props.help && <p id={`${id}-help`} className="inspector-help">{props.help}</p>}

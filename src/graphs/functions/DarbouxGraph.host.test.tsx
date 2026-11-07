@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {DarbouxGraph} from './DarbouxGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -67,9 +68,9 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
 
     // n through the labelled field: an integer in range is applied, a fraction is refused with a hint and leaves the model alone
     const inputN = screen.getByLabelText('Število delov n') as HTMLInputElement;
-    act(() => { fireEvent.change(inputN, {target: {value: '64'}}); });
+    act(() => { enterNumber(inputN, '64'); });
     expect(graph.modelNow()).toMatchObject({n: 64});
-    act(() => { fireEvent.change(inputN, {target: {value: '2.5'}}); });
+    act(() => { enterNumber(inputN, '2.5'); });
     expect(graph.modelNow()).toMatchObject({n: 64});
     expect(screen.getByText('Število delov n mora biti celo število od 1 do 128.')).toBeInTheDocument();
 
@@ -83,10 +84,10 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
 
     // an endpoint that would reach the other one is refused with the rule; a valid one is applied
     const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
-    act(() => { fireEvent.change(inputA, {target: {value: '2'}}); });
+    act(() => { enterNumber(inputA, '2'); });
     expect(graph.modelNow()).toMatchObject({a: 0, b: 2});
     expect(screen.getByText('Krajišče a mora ostati levo od b (a < b). Najprej premakni b.')).toBeInTheDocument();
-    act(() => { fireEvent.change(inputA, {target: {value: '1'}}); });
+    act(() => { enterNumber(inputA, '1'); });
     expect(graph.modelNow()).toMatchObject({a: 1, b: 2});
 
     // choosing sin x loads its model; the English labels follow a live language switch

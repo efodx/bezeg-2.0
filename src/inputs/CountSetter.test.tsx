@@ -52,3 +52,15 @@ test('without onSet the value is read-only and shown as an integer', () => {
     expect(screen.queryByRole('spinbutton')).toBeNull();
     expect(screen.getByText('3').tagName).toBe('OUTPUT');
 });
+
+test('the field steps by one with an arrow and by the big step with Shift or Page keys, within the bounds', () => {
+    const onSet = vi.fn();
+    render(<CountSetter n={5} min={1} max={12} onPlus={() => {}} onMinus={() => {}} onSet={onSet}/>);
+    const field = screen.getByRole('spinbutton');
+    fireEvent.keyDown(field, {key: 'ArrowUp'});
+    expect(onSet).toHaveBeenLastCalledWith(6);
+    fireEvent.keyDown(field, {key: 'PageUp'});
+    expect(onSet).toHaveBeenLastCalledWith(12);
+    fireEvent.keyDown(field, {key: 'ArrowDown', shiftKey: true});
+    expect(onSet).toHaveBeenLastCalledWith(2);
+});

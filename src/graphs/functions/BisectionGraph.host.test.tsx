@@ -5,6 +5,7 @@ import {BisectionGraph, BISECTION_STEP_INTERVAL_MS} from './BisectionGraph';
 import {GraphHost} from '../base/GraphHost';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -87,7 +88,7 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset and the
 
     // an endpoint edit through the real input restarts the history
     const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
-    act(() => { fireEvent.change(inputA, {target: {value: '0.5'}}); });
+    act(() => { enterNumber(inputA, '0.5'); });
     expect(graph.modelNow()).toEqual({example: 'square-minus-two', a: 0.5, b: 2, step: 0});
     expect(readout('step')).toBe('0');
     act(() => { fireEvent.click(nextButton()); });

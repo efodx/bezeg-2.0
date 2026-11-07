@@ -15,6 +15,7 @@ import TensorSubdivisionGraph from "./TensorSubdivisionGraph";
 import {patchPresetCollections} from "./patchPresetCollections";
 import {patchFromNet} from "./patchSceneBuilder";
 import type {Xyz} from "./surface-view/surfaceScene";
+import {enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
@@ -56,9 +57,9 @@ describe("split controls", () => {
 
     it("the direction select, the slider and the number field write the split and the scene follows", () => {
         const {graph, view} = mount();
-        fireEvent.change(slider("patch_split_value_u"), {target: {value: "0.7"}});
+        enterNumber(slider("patch_split_value_u"), "0.7");
         expect(graph.state.subdivisionValue).toBeCloseTo(0.7, 12);
-        fireEvent.change(field("patch_split_value_u"), {target: {value: "0,25"}});
+        enterNumber(field("patch_split_value_u"), "0,25");
         expect(graph.state.subdivisionValue).toBeCloseTo(0.25, 12);
         fireEvent.change(direction(), {target: {value: "v"}});
         expect(graph.state.subdivisionDirection).toBe("v");

@@ -61,7 +61,7 @@ export function PointListInput(props: PointListInputProps) {
                 const refused = refusal && refusal.list === points && refusal.index === index && refusal.axis === axis ? refusal.message : undefined;
                 return <div className="point-list-axis">
                     <span aria-hidden="true">{axisName}</span>
-                    <NumberInput key={epoch} label={`${name}, ${axisName}`} hideLabel compact applyOn="confirm" value={point[axis]} min={min} max={max}
+                    <NumberInput key={epoch} label={`${name}, ${axisName}`} hideLabel compact value={point[axis]} min={min} max={max}
                                  decimals={decimals} step={1} rejectedHint={refused}
                                  onChange={value => edit(index, axis, value)}/>
                 </div>;

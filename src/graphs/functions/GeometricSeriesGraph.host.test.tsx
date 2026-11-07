@@ -8,6 +8,7 @@ import {renderMessage, setLanguage} from '../../localization';
 import {functionPresetCollections} from './functionPresetCollections';
 import {GraphPalette} from '../styles/GraphPalette';
 import {SERIES_TERMS_MAX, seriesView} from '../../analysis/geometricSeriesModel';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -121,14 +122,14 @@ test('Reset pauses and never starts playback; an edit while playing pauses', () 
     expect(frames.callbacks.size).toBe(0);
     expect(graph.modelNow().terms).toBe(1);
     play();
-    act(() => { fireEvent.change(screen.getByLabelText('Pas odstopanja (0 = izklopljen)'), {target: {value: '0.05'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Pas odstopanja (0 = izklopljen)'), '0.05'); });
     expect(graph.playing()).toBe(false);
     expect(frames.callbacks.size).toBe(0);
     play();
     act(() => { graph.editQ(-1); });
     expect(graph.playing()).toBe(false);
     play();
-    act(() => { fireEvent.change(screen.getByLabelText('Prikazani členi n'), {target: {value: '7'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Prikazani členi n'), '7'); });
     expect(graph.playing()).toBe(false);
     expect(graph.modelNow().terms).toBe(7);
 });
@@ -160,13 +161,13 @@ test('the limit marker is drawn only for |q| < 1; q = -1 oscillates; q = 1 gives
     expect(limitReadout(1)).toBe('limite ni');
     expect(visibleLimitLines(graph)).toBe(0);
     expect(statusIds()).toEqual(['constant']);
-    act(() => { fireEvent.change(screen.getByLabelText('Prikazani členi n'), {target: {value: '10'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Prikazani členi n'), '10'); });
     expect(readout('sum')).toBe('10');
     expect(limitReadout(-1)).toBe('limite ni');
     expect(visibleLimitLines(graph)).toBe(0);
     expect(statusIds()).toEqual(['oscillating']);
     expect(readout('sum')).toBe('0');
-    act(() => { fireEvent.change(screen.getByLabelText('Prikazani členi n'), {target: {value: '9'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Prikazani členi n'), '9'); });
     expect(readout('sum')).toBe('1');
     expect(limitReadout(1.5)).toBe('limite ni');
     expect(visibleLimitLines(graph)).toBe(0);
@@ -182,11 +183,11 @@ test('the q slider itself: -1 oscillates and 1 is constant, both without a limit
     const {graph} = mountGraph();
     const slider = () => screen.getByLabelText('Količnik q') as HTMLInputElement;
     expect(slider().type).toBe('range');
-    act(() => { fireEvent.change(slider(), {target: {value: '-1'}}); });
+    act(() => { enterNumber(slider(), '-1'); });
     expect(graph.modelNow().q).toBe(-1);
     expect(statusIds()).toEqual(['oscillating']);
     expect(visibleLimitLines(graph)).toBe(0);
-    act(() => { fireEvent.change(slider(), {target: {value: '1'}}); });
+    act(() => { enterNumber(slider(), '1'); });
     expect(graph.modelNow().q).toBe(1);
     expect(statusIds()).toEqual(['constant']);
     expect(visibleLimitLines(graph)).toBe(0);
@@ -207,7 +208,7 @@ test('the tolerance band names the first n within it; invalid values are refused
     expect(readout('first-within')).toBe('8');
     expect(statusIds()).toEqual(['convergent', 'tolerance']);
     const q = screen.getByLabelText('Količnik q, vrednost') as HTMLInputElement;
-    act(() => { fireEvent.change(q, {target: {value: '3'}}); });
+    act(() => { enterNumber(q, '3'); });
     expect(graph.modelNow().q).toBe(0.5);
     expect(() => graph.editQ(3)).toThrow();
     expect(() => graph.editA(Number.NaN)).toThrow();

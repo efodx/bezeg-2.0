@@ -7,6 +7,7 @@ import {setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {DEFAULT_POLYNOMIAL_ZEROS_MODEL, polynomialExampleModel} from '../../analysis/polynomialZerosModel';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -76,11 +77,11 @@ test('a real board shows the default polynomial: degree, y-intercept, zero facts
 
 test('a typed zero moves, a typed zero onto another merges and says so, the cap and multiplicity are explained', () => {
     const graph = mount();
-    act(() => { fireEvent.change(field('Ničla 1: položaj x'), {target: {value: '-3,5'}}); });
+    act(() => { enterNumber(field('Ničla 1: položaj x'), '-3,5'); });
     expect(graph.modelNow().zeros).toEqual([{z: -3.5, m: 1}, {z: 1, m: 2}]);
     expect(graph.glidersNow()[0].X()).toBeCloseTo(-3.5, 9);
 
-    act(() => { fireEvent.change(field('Ničla 1: položaj x'), {target: {value: '1'}}); });
+    act(() => { enterNumber(field('Ničla 1: položaj x'), '1'); });
     expect(graph.modelNow().zeros).toEqual([{z: 1, m: 3}]);
     expect(notice()).toMatch(/trojno ničlo pri x = 1/);
     expect(readout('degree')).toMatch(/^3 /);
@@ -92,9 +93,9 @@ test('a typed zero moves, a typed zero onto another merges and says so, the cap 
     expect(screen.getByRole('button', {name: 'Dodaj ničlo'})).toBeDisabled();
     expect(document.querySelector('[data-zero-list-cap]')?.textContent).toMatch(/Največja stopnja je 5/);
 
-    act(() => { fireEvent.change(screen.getByLabelText('Ničla 2: večkratnost'), {target: {value: '2'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Ničla 2: večkratnost'), '2'); });
     expect(graph.modelNow().zeros[1].m).toBe(1);
-    act(() => { fireEvent.change(screen.getByLabelText('Ničla 1: večkratnost'), {target: {value: '2'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Ničla 1: večkratnost'), '2'); });
     expect(graph.modelNow().zeros[0].m).toBe(2);
     expect(graph.modelNow().zeros[1].m).toBe(1);
 });

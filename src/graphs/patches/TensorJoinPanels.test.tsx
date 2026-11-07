@@ -16,6 +16,7 @@ import {JoinReportPanel, joinReportCase} from "./TensorJoinPanels";
 import {joinStartingScenes, patchPresetCollections} from "./patchPresetCollections";
 import {classifyJoin} from "./tensorJoins";
 import type {Xyz} from "./surface-view/surfaceScene";
+import {enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
@@ -61,7 +62,7 @@ describe("mode select and the report", () => {
         expect(state()).toBe(t("patch_join_state_g1"));
         expect(note()).toBe(t("patch_join_report_g1", {value0: "2"}));
         expect(note()).not.toBe(c1Text);
-        fireEvent.change(alphaSlider(), {target: {value: "1"}});
+        enterNumber(alphaSlider(), "1");
         expect(state()).toBe(t("patch_join_state_c1"));
         fireEvent.change(modeSelect(), {target: {value: "c0"}});
         act(() => { graph.selectBIndex(1, 1); graph.setSelectedCoordinates([4.5, 0.2, 3]); });
@@ -94,7 +95,7 @@ describe("the ratio alpha", () => {
         expect(alphaField().disabled).toBe(false);
         expect(alphaDescription()).not.toContain(t("patch_join_alpha_disabled"));
         expect(alphaDescription()).toContain(t("patch_join_alpha_help"));
-        fireEvent.change(alphaField(), {target: {value: "1,5"}});
+        enterNumber(alphaField(), "1,5");
         expect(graph.state.joinAlpha).toBeCloseTo(1.5, 12);
         expect(alphaSlider().min).toBe("0.25");
         expect(alphaSlider().max).toBe("4");
@@ -109,8 +110,8 @@ describe("patch B", () => {
         expect(rowSelect().options[2].text).toBe(t("patch_join_b_option_derived", {value0: "1"}));
         expect(rowSelect().options[3].text).toBe("2");
         const before = graph.state.netB;
-        fireEvent.change(rowSelect(), {target: {value: "1"}});
-        fireEvent.change(columnSelect(), {target: {value: "2"}});
+        enterNumber(rowSelect(), "1");
+        enterNumber(columnSelect(), "2");
         expect(graph.selectedBIndex()).toBeUndefined();
         expect(bEditor()).toBeNull();
         expect(derivedNote()!.textContent).toBe(t("patch_join_b_derived_note", {value0: "Q₁₂"}));
@@ -121,27 +122,27 @@ describe("patch B", () => {
 
     it("a free row gets an editor that moves it; in C0 row 1 is free, in none row 0 is too", () => {
         const {graph} = mount();
-        fireEvent.change(rowSelect(), {target: {value: "2"}});
-        fireEvent.change(columnSelect(), {target: {value: "1"}});
+        enterNumber(rowSelect(), "2");
+        enterNumber(columnSelect(), "1");
         expect(graph.selectedBIndex()).toEqual([2, 1]);
         expect(bEditor()).not.toBeNull();
         expect(derivedNote()).toBeNull();
-        fireEvent.change(screen.getByLabelText("Q₂₁ x"), {target: {value: "7"}});
+        enterNumber(screen.getByLabelText("Q₂₁ x"), "7");
         fireEvent.click(screen.getAllByRole("button", {name: t("apply_coordinates")}).at(-1)!);
         expect(graph.bNet()[2][1][0]).toBe(7);
         fireEvent.change(modeSelect(), {target: {value: "c0"}});
-        fireEvent.change(rowSelect(), {target: {value: "1"}});
+        enterNumber(rowSelect(), "1");
         expect(graph.selectedBIndex()).toEqual([1, 1]);
         expect(derivedNote()).toBeNull();
         fireEvent.change(modeSelect(), {target: {value: "none"}});
-        fireEvent.change(rowSelect(), {target: {value: "0"}});
+        enterNumber(rowSelect(), "0");
         expect(graph.selectedBIndex()).toEqual([0, 1]);
     });
 
     it("the derived explanation goes away when an A point is chosen", () => {
         const {graph} = mount();
-        fireEvent.change(rowSelect(), {target: {value: "0"}});
-        fireEvent.change(columnSelect(), {target: {value: "0"}});
+        enterNumber(rowSelect(), "0");
+        enterNumber(columnSelect(), "0");
         expect(derivedNote()).not.toBeNull();
         act(() => graph.selectIndex(1, 1));
         expect(derivedNote()).toBeNull();
@@ -152,16 +153,16 @@ describe("patch B", () => {
 
     it("degree controls: u is B's own, v is shared with A outside none and the group says so", () => {
         const {graph} = mount();
-        fireEvent.change(degreeU(), {target: {value: "2"}});
+        enterNumber(degreeU(), "2");
         expect(graph.state).toMatchObject({m: 3, mB: 2, n: 3, nB: 3});
         expect(degreeU().value).toBe("2");
-        fireEvent.change(degreeV(), {target: {value: "2"}});
+        enterNumber(degreeV(), "2");
         expect(graph.state).toMatchObject({n: 2, nB: 2});
         expect(degreeGroup()).toContain(t("patch_join_b_degree_shared"));
         fireEvent.change(modeSelect(), {target: {value: "none"}});
         expect(degreeGroup()).toContain(t("patch_join_b_degree_free"));
         expect(degreeGroup()).not.toContain(t("patch_join_b_degree_shared"));
-        fireEvent.change(degreeV(), {target: {value: "4"}});
+        enterNumber(degreeV(), "4");
         expect(graph.state).toMatchObject({n: 2, nB: 4});
     });
 });

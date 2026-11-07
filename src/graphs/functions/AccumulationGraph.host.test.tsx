@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {AccumulationGraph} from './AccumulationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -53,16 +54,16 @@ test('a real board hides A until the reveal button is pressed; the inputs move a
 
     // x through the real labelled field, then x left of a
     const inputX = screen.getByLabelText('Točka x') as HTMLInputElement;
-    act(() => { fireEvent.change(inputX, {target: {value: '3.5'}}); });
+    act(() => { enterNumber(inputX, '3.5'); });
     expect(graph.modelNow()).toEqual({fn: 'sin', a: 0, x: 3.5, accumulationVisible: true});
     expect(readout('signed-integral')).toBe('1,9365'); // 1 - cos 3.5
     expect(statusIds()).toEqual(['falling']);
     const inputA = screen.getByLabelText('Spodnja meja a') as HTMLInputElement;
-    act(() => { fireEvent.change(inputA, {target: {value: '5'}}); });
+    act(() => { enterNumber(inputA, '5'); });
     expect(graph.modelNow()).toMatchObject({a: 5, x: 3.5});
     expect(statusIds()).toEqual(['reversed', 'falling']);
     // a value outside the domain is refused with a hint naming the range and leaves the model alone
-    act(() => { fireEvent.change(inputX, {target: {value: '9'}}); });
+    act(() => { enterNumber(inputX, '9'); });
     expect(graph.modelNow()).toMatchObject({a: 5, x: 3.5});
     expect(screen.getByText('Vnesi vrednost med −7 in 7.')).toBeInTheDocument();
 
@@ -102,7 +103,7 @@ test('StrictMode mounts, unmounts and mounts again without duplicating board obj
     const baseline = boardObjects(graph);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži akumulacijo A'})); });
-    act(() => { fireEvent.change(screen.getByLabelText('Točka x'), {target: {value: '4.5'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Točka x'), '4.5'); });
     act(() => { fireEvent.change(screen.getByLabelText('Funkcija f'), {target: {value: 'exp'}}); });
     expect(graph.modelNow()).toMatchObject({fn: 'exp', x: 4.5, accumulationVisible: true});
     expect(boardObjects(graph)).toBe(baseline);

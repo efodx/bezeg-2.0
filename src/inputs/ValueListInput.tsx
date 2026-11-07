@@ -55,7 +55,7 @@ export function ValueListInput(props: ValueListInputProps) {
             const refused = refusal && refusal.list === values && refusal.index === index ? refusal.message : undefined;
             return <div key={index} className="value-list-row" role="group" aria-label={name}>
                 <span className="value-list-index" aria-hidden="true">{name}</span>
-                <NumberInput key={epoch} label={name} hideLabel compact applyOn="confirm" value={value} min={min} max={max}
+                <NumberInput key={epoch} label={name} hideLabel compact value={value} min={min} max={max}
                              decimals={decimals} step={1} rejectedHint={refused} onChange={next => edit(index, next)}/>
                 {props.onRemove && <button type="button" data-action="remove-value" aria-label={props.removeLabel?.(index)}
                                            aria-disabled={props.canRemove === false}

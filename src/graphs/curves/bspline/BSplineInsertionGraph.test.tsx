@@ -7,6 +7,7 @@ import BSplineInsertionGraph from './BSplineInsertionGraph';
 import {GraphHost} from '../../base/GraphHost';
 import {setLanguage} from '../../../localization';
 import {combBySpan, joinReports, multiplicityRows} from './bsplineInsertionModel';
+import {enterNumber} from '../../../inputs/testEntry';
 
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
 vi.mock('../../../localization', async importOriginal => {
@@ -103,7 +104,7 @@ describe('L3 acceptance 1-2: the inserted control points and the unchanged curve
     test('the input field and the button insert the typed knot', () => {
         const {graph, view} = mount();
         const field = screen.getByLabelText(/Vozel za vstavitev/);
-        fireEvent.change(field, {target: {value: '0,5'}});
+        enterNumber(field, '0,5');
         fireEvent.click(screen.getByRole('button', {name: 'Vstavi vozel'}));
         expect(graph.state.knots).toEqual([0, 0, 0, 0.5, 1, 2, 2, 2]);
         view.unmount();

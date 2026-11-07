@@ -9,6 +9,7 @@ import RationalBezierCurveGraph from '../curves/rational/RationalBezierCurveGrap
 import {JXGRationalBezierCurve} from '../curves/object/JXGRationalBezierCurve';
 import {CurveDisplayControls, CurveDisplayToggle, displayToggles} from './controls/CurveDisplayControls';
 import {selectedCurveControls} from './controls/SelectedCurveControls';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -64,11 +65,11 @@ test('a selected rational curve names its weight and edits it in an exact field,
     const field = view.getByRole('spinbutton', {name: t('weight_value')}) as HTMLInputElement;
     expect(field.tagName).toBe('INPUT');
 
-    fireEvent.change(field, {target: {value: '2'}});
+    enterNumber(field, '2');
     expect(curve.getCurrentWeight()).toBeCloseTo(2);
     expect(curve.getCurve().getWeights()[curve.getWeightNumber()]).toBeCloseTo(2);
 
-    fireEvent.change(view.getByRole('spinbutton', {name: t('weight_value')}), {target: {value: '0'}});
+    enterNumber(view.getByRole('spinbutton', {name: t('weight_value')}), '0');
     expect(curve.getCurrentWeight()).toBeCloseTo(2);
     expect(view.getByText(t('weight_must_be_positive'))).toBeTruthy();
     view.unmount();
@@ -77,7 +78,7 @@ test('a selected rational curve names its weight and edits it in an exact field,
 test('reset weight is its own button, and the stepper and navigation change the current weight', () => {
     const {view, curve} = renderSelectedRational();
     const field = () => view.getByRole('spinbutton', {name: t('weight_value')}) as HTMLInputElement;
-    fireEvent.change(field(), {target: {value: '3'}});
+    enterNumber(field(), '3');
     fireEvent.click(view.getByRole('button', {name: t('increase_weight')}));
     expect(curve.getCurrentWeight()).toBeCloseTo(3.25);
     fireEvent.click(view.getByRole('button', {name: t('decrease_weight')}));

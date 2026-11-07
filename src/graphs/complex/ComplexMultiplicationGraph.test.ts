@@ -280,10 +280,6 @@ test('Cartesian controls, polar controls and lesson actions give equivalent mode
     expect(typed.model).toMatchObject({wRe: 1.05, wIm: 1.05});
     expect(controls(typed).modulus.props.value).toBeCloseTo(Math.hypot(1.05, 1.05), 12);
     expect(controls(typed).argument.props.value).toBeCloseTo(Math.PI / 4, 12);
-    // polar inputs apply on Enter or blur, so the text under the user's hands is not rewritten
-    expect(controls(typed).modulus.props.applyOn).toBe('confirm');
-    expect(controls(typed).argument.props.applyOn).toBe('confirm');
-    expect(controls(typed).zRe.props.applyOn).toBeUndefined();
 });
 
 test('the polar controls reject, never clamp: a modulus or argument that leaves the grid square or reaches the origin', () => {

@@ -8,6 +8,7 @@ import {setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {LessonAction} from '../../learning/model';
 import {DEFAULT_FOURIER_SERIES_MODEL, fourierGibbsPeak, fourierSampleSpacing, fourierZoomWindow} from '../../analysis/fourierSeriesModel';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
 beforeAll(installBoardShims);
@@ -85,22 +86,22 @@ test('a real board shows the default square wave: the fields, the readouts and a
 test('N: the buttons and the field change the model, a non-integer is refused, and the drawn maximum follows the closed-form peak', () => {
     const graph = mount();
     const baseline = boardObjects(graph);
-    act(() => { fireEvent.change(nInput(), {target: {value: '101'}}); });
+    act(() => { enterNumber(nInput(), '101'); });
     expect(graph.modelNow().n).toBe(101);
     expect(Math.max(...graph.drawnCurve().y)).toBeCloseTo(fourierGibbsPeak('square', 101).value, 12);
     expect(Math.max(...graph.drawnCurve().y)).toBeCloseTo(1.17901, 5);
-    act(() => { fireEvent.change(nInput(), {target: {value: '2.5'}}); });
+    act(() => { enterNumber(nInput(), '2.5'); });
     expect(graph.modelNow().n).toBe(101);
-    act(() => { fireEvent.change(nInput(), {target: {value: '1002'}}); });
+    act(() => { enterNumber(nInput(), '1002'); });
     expect(graph.modelNow().n).toBe(101);
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Zmanjšaj število harmonikov N za 1'})); });
     expect(graph.modelNow().n).toBe(100);
     expect(statusIds()).toContain('even-square');
     expect(readout('order')).toBe('99');
     expect(readout('terms')).toBe('Sₙ(x) = 4/π · (sin x + sin 3x/3 + sin 5x/5 + sin 7x/7 + sin 9x/9 + sin 11x/11 + … + sin 99x/99)');
-    act(() => { fireEvent.change(nInput(), {target: {value: '1001'}}); });
+    act(() => { enterNumber(nInput(), '1001'); });
     expect(Math.max(...graph.drawnCurve().y)).toBeCloseTo(fourierGibbsPeak('square', 1001).value, 12);
-    act(() => { fireEvent.change(nInput(), {target: {value: '1'}}); });
+    act(() => { enterNumber(nInput(), '1'); });
     expect(screen.getByRole('button', {name: 'Zmanjšaj število harmonikov N za 1'}).getAttribute('aria-disabled')).toBe('true');
     expect(boardObjects(graph)).toBe(baseline);
 });
@@ -109,12 +110,12 @@ test('the zoom window follows the peak when N changes, and only while the view i
     const graph = mount();
     act(() => { fireEvent.click(screen.getByRole('button', {name: "Približaj na vrh"})); });
     nearBox(box(graph), fourierZoomWindow('square', 11));
-    act(() => { fireEvent.change(nInput(), {target: {value: '51'}}); });
+    act(() => { enterNumber(nInput(), '51'); });
     nearBox(box(graph), fourierZoomWindow('square', 51));
     expect(fourierZoomWindow('square', 51)[2]).toBeLessThan(fourierZoomWindow('square', 11)[2]);
     // a view the learner moved away from the window is left alone
     graph.liveBoard().setBoundingBox([-3, 2, 3, -1], false);
-    act(() => { fireEvent.change(nInput(), {target: {value: '21'}}); });
+    act(() => { enterNumber(nInput(), '21'); });
     nearBox(box(graph), [-3, 2, 3, -1]);
     act(() => { fireEvent.click(screen.getByRole('button', {name: "Pokaži celoten graf"})); });
     nearBox(box(graph), DEFAULT_SQUARE_VIEW);
@@ -126,9 +127,9 @@ test('Reset, also after choosing the sawtooth, restores every field, the readout
     act(() => { fireEvent.change(select(), {target: {value: 'sawtooth'}}); });
     expect(graph.modelNow().example).toBe('sawtooth');
     nearBox(box(graph), DEFAULT_SAWTOOTH_VIEW);
-    act(() => { fireEvent.change(nInput(), {target: {value: '40'}}); });
-    act(() => { fireEvent.change(field(/^Točka x$/), {target: {value: '-2'}}); });
-    act(() => { fireEvent.change(field(/^Toleranca ε$/), {target: {value: '0,5'}}); });
+    act(() => { enterNumber(nInput(), '40'); });
+    act(() => { enterNumber(field(/^Točka x$/), '-2'); });
+    act(() => { enterNumber(field(/^Toleranca ε$/), '0,5'); });
     expect(graph.modelNow()).toEqual({example: 'sawtooth', n: 40, x: -2, epsilon: 0.5});
     expect(Math.max(...graph.drawnCurve().y)).toBeCloseTo(fourierGibbsPeak('sawtooth', 40).value, 12);
     expect(readout('terms')).toBe('Sₙ(x) = 2 · (sin x − sin 2x/2 + sin 3x/3 − sin 4x/4 + sin 5x/5 − sin 6x/6 + … − sin 40x/40)');
@@ -170,7 +171,7 @@ test('a restored Preset shows its model, its view and its drawn curve; a sawtoot
 
 test('both languages: labels, readouts and board texts follow a live language switch', () => {
     const graph = mount();
-    act(() => { fireEvent.change(field(/^Točka x$/), {target: {value: '1,5'}}); });
+    act(() => { enterNumber(field(/^Točka x$/), '1,5'); });
     expect(readout('x')).toBe('1,5');
     const update = vi.spyOn(graph as unknown as { boardUpdate: () => void }, 'boardUpdate');
     act(() => { setLanguage('en'); });

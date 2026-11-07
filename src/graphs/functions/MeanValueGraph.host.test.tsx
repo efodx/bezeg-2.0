@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {MeanValueGraph} from './MeanValueGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -53,7 +54,7 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
 
     // c through the real labelled field: the endpoints and the secant do not change
     const inputC = screen.getByLabelText('Točka dotika c') as HTMLInputElement;
-    act(() => { fireEvent.change(inputC, {target: {value: '1'}}); });
+    act(() => { enterNumber(inputC, '1'); });
     expect(graph.modelNow()).toEqual({example: 'square', a: 0, b: 2, c: 1, revealed: true});
     expect(readout('tangent-slope')).toBe('2');
     expect(readout('difference')).toBe('0');
@@ -62,10 +63,10 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
 
     // an endpoint that would pass c is refused with a hint and leaves the model alone
     const inputA = screen.getByLabelText('Levo krajišče a') as HTMLInputElement;
-    act(() => { fireEvent.change(inputA, {target: {value: '1'}}); });
+    act(() => { enterNumber(inputA, '1'); });
     expect(graph.modelNow()).toMatchObject({a: 0, b: 2, c: 1});
     expect(screen.getByText('Krajišče a mora ostati levo od c (a < c). Najprej premakni c.')).toBeInTheDocument();
-    act(() => { fireEvent.change(inputA, {target: {value: '0.5'}}); });
+    act(() => { enterNumber(inputA, '0.5'); });
     expect(graph.modelNow()).toMatchObject({a: 0.5, b: 2, c: 1});
     expect(readout('secant-slope')).toBe('2,5');
 
@@ -74,7 +75,7 @@ test('a real board shows the secant, the tangent and the slopes: the inputs move
     act(() => { fireEvent.change(select, {target: {value: 'abs'}}); });
     expect(graph.modelNow()).toEqual({example: 'abs', a: -1, b: 1, c: 0.5, revealed: false});
     expect(showButton().textContent).toBe('Pokaži ujemajočo točko');
-    act(() => { fireEvent.change(screen.getByLabelText('Točka dotika c'), {target: {value: '0'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Točka dotika c'), '0'); });
     expect(readout('tangent-slope')).toBe('ne obstaja');
     expect(readout('difference')).toBe('ne obstaja');
     expect(statusIds()).toEqual(['hypothesis', 'corner']);
@@ -97,7 +98,7 @@ test('StrictMode mounts, unmounts and mounts again without duplicating board obj
     const baseline = boardObjects(graph);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži ujemajočo točko'})); });
-    act(() => { fireEvent.change(screen.getByLabelText('Točka dotika c'), {target: {value: '1.5'}}); });
+    act(() => { enterNumber(screen.getByLabelText('Točka dotika c'), '1.5'); });
     expect(graph.modelNow()).toMatchObject({c: 1.5, revealed: true});
     expect(boardObjects(graph)).toBe(baseline);
     view.unmount();
