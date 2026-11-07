@@ -168,7 +168,7 @@ export function conicOfModel(model: ConicFocalModel): Conic {
  */
 export function conicPointAt(conic: Conic, phi: number, maxRadius = CONIC_VIEW_RADIUS): { phi: number; point: Vec2 } {
     const e = conic.epsilon;
-    const ell = conic.kind === 'circle' ? conic.radius as number : e * (conic.focusDirectrixDistance as number);
+    const ell = conic.kind === 'circle' ? conic.radius : e * conic.focusDirectrixDistance;
     let used = phi;
     if (conic.kind === 'parabola' || conic.kind === 'hyperbola') {
         const delta = Math.min(ell / maxRadius, 1);

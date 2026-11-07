@@ -19,28 +19,50 @@ export interface Directrix {
     d: number;
 }
 
-export interface Conic {
-    kind: ConicKind;
+interface ConicBase {
     epsilon: number;
     /** Circle: the centre. Others: the focus F. */
     focus: Vec2;
-    /** Absent for the circle. Oriented so that the normal points from the focus to the directrix. */
-    directrix?: Directrix;
-    /** Circle only. */
-    radius?: number;
-    /** Distance from the focus to the directrix (non-circle). */
-    focusDirectrixDistance?: number;
 }
 
-export interface ConicMetrics {
-    /** Semi-axes (ellipse, hyperbola, circle). */
-    a?: number;
-    b?: number;
-    /** Linear eccentricity (centre to focus). */
-    c?: number;
-    centre?: Vec2;
-    secondFocus?: Vec2;
+/** Epsilon = 0: the centre and radius; there is no directrix. */
+export interface CircleConic extends ConicBase {
+    kind: 'circle';
+    radius: number;
+    directrix?: undefined;
+    focusDirectrixDistance?: undefined;
 }
+
+/** Ellipse, parabola or hyperbola: the directrix and the distance from the focus to it. */
+interface FocalConic<Kind extends ConicKind> extends ConicBase {
+    kind: Kind;
+    /** Oriented so that the normal points from the focus to the directrix. */
+    directrix: Directrix;
+    /** Distance from the focus to the directrix. */
+    focusDirectrixDistance: number;
+    radius?: undefined;
+}
+
+export type ParabolaConic = FocalConic<'parabola'>;
+/** Ellipse or hyperbola: a focal conic with a centre. */
+export type CentralConic = FocalConic<'ellipse' | 'hyperbola'>;
+export type DirectrixConic = ParabolaConic | CentralConic;
+
+export type Conic = CircleConic | DirectrixConic;
+
+/** The metrics of a conic with a centre (circle, ellipse, hyperbola). */
+export interface CentralConicMetrics {
+    /** Semi-axes. */
+    a: number;
+    b: number;
+    /** Linear eccentricity (centre to focus). */
+    c: number;
+    centre: Vec2;
+    secondFocus: Vec2;
+}
+
+/** Empty for the parabola, which has no centre. */
+export type ConicMetrics = Partial<CentralConicMetrics>;
 
 export const CONIC_DEFAULT_MAX_RADIUS = 50;
 
@@ -80,14 +102,16 @@ export function conicFromFocusDirectrix(focus: Vec2, directrix: Directrix, epsil
     return {kind, epsilon, focus: {...focus}, directrix: {nx, ny, d}, focusDirectrixDistance: s};
 }
 
+export function conicMetrics(conic: CircleConic | CentralConic): CentralConicMetrics;
+export function conicMetrics(conic: Conic): ConicMetrics;
 export function conicMetrics(conic: Conic): ConicMetrics {
     if (conic.kind === 'circle') {
         return {a: conic.radius, b: conic.radius, c: 0, centre: {...conic.focus}, secondFocus: {...conic.focus}};
     }
     if (conic.kind === 'parabola') return {};
     const e = conic.epsilon;
-    const s = conic.focusDirectrixDistance as number;
-    const dir = conic.directrix as Directrix;
+    const s = conic.focusDirectrixDistance;
+    const dir = conic.directrix;
     const f = conic.focus;
     const a = e * s / Math.abs(1 - e * e);
     const c = e * a;
@@ -105,10 +129,14 @@ export function focalDistance(conic: Conic, p: Vec2): number {
     return Math.hypot(p.x - conic.focus.x, p.y - conic.focus.y);
 }
 
+function lineDistance(dir: Directrix, p: Vec2): number {
+    return Math.abs(dir.nx * p.x + dir.ny * p.y - dir.d);
+}
+
 /** Distance from P to the directrix, or null for the circle. */
 export function directrixDistance(conic: Conic, p: Vec2): number | null {
     if (!conic.directrix) return null;
-    return Math.abs(conic.directrix.nx * p.x + conic.directrix.ny * p.y - conic.directrix.d);
+    return lineDistance(conic.directrix, p);
 }
 
 /** |PF| / |Pd|, or null for the circle or P on the directrix. */
@@ -119,8 +147,8 @@ export function focusDirectrixRatio(conic: Conic, p: Vec2): number | null {
 
 /** Residual |PF| - epsilon |Pd| (circle: |PC| - r); 0 on the conic. */
 export function conicResidual(conic: Conic, p: Vec2): number {
-    if (conic.kind === 'circle') return focalDistance(conic, p) - (conic.radius as number);
-    return focalDistance(conic, p) - conic.epsilon * (directrixDistance(conic, p) as number);
+    if (conic.kind === 'circle') return focalDistance(conic, p) - conic.radius;
+    return focalDistance(conic, p) - conic.epsilon * lineDistance(conic.directrix, p);
 }
 
 /** Largest |residual| over points: how far a curve strays from the focus-directrix definition. */
@@ -144,15 +172,15 @@ export function sampleConic(conic: Conic, pointsPerBranch = 200, maxRadius = CON
         for (let i = 0; i <= n; i++) {
             const t = 2 * Math.PI * i / n;
             pts.push({
-                x: f.x + (conic.radius as number) * Math.cos(t),
-                y: f.y + (conic.radius as number) * Math.sin(t),
+                x: f.x + conic.radius * Math.cos(t),
+                y: f.y + conic.radius * Math.sin(t),
             });
         }
         return [pts];
     }
     const e = conic.epsilon;
-    const s = conic.focusDirectrixDistance as number;
-    const {nx, ny} = conic.directrix as Directrix;
+    const s = conic.focusDirectrixDistance;
+    const {nx, ny} = conic.directrix;
     const at = (phi: number): Vec2 => {
         const r = e * s / (1 + e * Math.cos(phi));
         const ux = nx * Math.cos(phi) - ny * Math.sin(phi);
@@ -249,16 +277,15 @@ export function matchedConicArc(conic: Conic): MatchedConicArc {
         ({x: origin.x + along * n.x + across * perp.x, y: origin.y + along * n.y + across * perp.y});
     if (conic.kind === 'circle' || conic.kind === 'ellipse') {
         const m = conicMetrics(conic);
-        const arc = quarterEllipseBezier(m.a as number, m.b as number);
-        const centre = m.centre as Vec2;
+        const arc = quarterEllipseBezier(m.a, m.b);
         return {
             kind: conic.kind,
-            points: arc.points.map(p => place(centre, p.x, p.y)) as [Vec2, Vec2, Vec2],
+            points: arc.points.map(p => place(m.centre, p.x, p.y)) as [Vec2, Vec2, Vec2],
             weights: arc.weights,
         };
     }
     const e = conic.epsilon;
-    const ell = e * (conic.focusDirectrixDistance as number);
+    const ell = e * conic.focusDirectrixDistance;
     const v = ell / (1 + e);
     const f = conic.focus;
     const points: [Vec2, Vec2, Vec2] = [place(f, v, 0), place(f, v, ell - e * v), place(f, 0, ell)];

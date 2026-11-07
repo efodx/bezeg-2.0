@@ -362,17 +362,31 @@ export function tangentPoints(c: Conic, p: Hom): TangentPointsResult {
     return {status: 'outside', tangency: intersectLine(c, pl.line)};
 }
 
-export type FivePointStatus = 'unique' | 'line-pair' | 'pencil' | 'invalid';
+type SixCofactors = readonly [bigint, bigint, bigint, bigint, bigint, bigint];
 
-export interface FivePointResult {
-    readonly status: FivePointStatus;
-    /** The six signed 5x5 cofactors (-1)^j det(row matrix without column j); all zero for `pencil` and `invalid`. */
-    readonly cofactors: readonly [bigint, bigint, bigint, bigint, bigint, bigint];
-    /** The unique conic (gcd-reduced, first non-zero coefficient positive); absent for `pencil` and `invalid`. */
-    readonly conic?: Conic;
-    /** The classification of the unique conic when there is one. */
-    readonly type?: ConicType;
-}
+/** The classes of a smooth conic through five points. */
+export type UniqueConicType = 'ellipse' | 'circle' | 'parabola' | 'hyperbola';
+/** The classes of a conic that splits into real lines. */
+export type LinePairConicType = 'line-pair' | 'parallel-lines' | 'double-line';
+
+/**
+ * The outcome of the five-point solver; the status fixes which fields exist. The six signed 5x5 cofactors
+ * (-1)^j det(row matrix without column j) are always present; they are all zero for `pencil` and for an `invalid`
+ * result that comes from a zero input triple (or a wrong point count).
+ */
+export type FivePointResult =
+    /** The unique smooth conic (gcd-reduced, first non-zero coefficient positive) and its classification. */
+    | {readonly status: 'unique'; readonly cofactors: SixCofactors; readonly conic: Conic; readonly type: UniqueConicType}
+    /** The unique conic splits into two real lines (possibly parallel or coincident). */
+    | {readonly status: 'line-pair'; readonly cofactors: SixCofactors; readonly conic: Conic; readonly type: LinePairConicType}
+    /** No unique conic: the conics through the points form a pencil. */
+    | {readonly status: 'pencil'; readonly cofactors: SixCofactors; readonly conic?: undefined; readonly type?: undefined}
+    /** A zero input triple: nothing to classify. */
+    | {readonly status: 'invalid'; readonly cofactors: SixCofactors; readonly conic?: undefined; readonly type?: undefined}
+    /** The cofactors give a non-zero conic that has no real line or smooth shape (a point or empty); kept as a diagnostic. */
+    | {readonly status: 'invalid'; readonly cofactors: SixCofactors; readonly conic: Conic; readonly type: 'point' | 'empty'};
+
+export type FivePointStatus = FivePointResult['status'];
 
 function detN(m: readonly (readonly bigint[])[]): bigint {
     const n = m.length;

@@ -1,6 +1,6 @@
 import {
     arcDeviation, arcPoint, DEVIATION_SAMPLES, evaluateFivePoint, extrapolatedPieces, extrapolationIntervals, FIVE_POINT_EXAMPLE_IDS, FIVE_POINT_EXAMPLES,
-    matchesExample, nextLastUnique, parseFivePointModel, pointOf, serializeFivePointModel, shownConic,
+    type FivePointScene, matchesExample, nextLastUnique, parseFivePointModel, pointOf, serializeFivePointModel, shownConic,
 } from './fivePointModel';
 import {movePoint, nudgePoint, setEnd, setNumerators, setThird} from './fivePointEdit';
 import {Conic} from '../../projective/conic';
@@ -21,6 +21,10 @@ const sameConic = (c: Conic, expected: Conic): boolean => {
     for (let i = 0; i < 6; i++) for (let j = i + 1; j < 6; j++) if (c[i] * expected[j] !== c[j] * expected[i]) return false;
     return true;
 };
+const conicOf = (scene: FivePointScene): Conic => {
+    if (scene.conic === undefined) throw new Error('expected a conic');
+    return scene.conic;
+};
 const near = (a: number, b: number, tol = 1e-12) => expect(Math.abs(a - b)).toBeLessThan(tol);
 const fraction = (f: {num: bigint; den: bigint}) => `${f.num}/${f.den}`;
 
@@ -29,7 +33,7 @@ describe('examples', () => {
         const scene = sceneOf('ellipse');
         expect(scene.status).toBe('unique');
         expect(scene.type).toBe('ellipse');
-        expect(sameConic(scene.conic!, [9n, 0n, 25n, 0n, 0n, -225n])).toBe(true);
+        expect(sameConic(conicOf(scene), [9n, 0n, 25n, 0n, 0n, -225n])).toBe(true);
         const arc = okArc('ellipse');
         expect(arc.controlPoints.map(p => [p.x, p.y])).toEqual([[5, 0], [5, 3], [0, 3]]);
         expect(fraction(arc.weightSquared)).toBe('1/2');
@@ -44,7 +48,7 @@ describe('examples', () => {
     test('hyperbola: 16x^2 - 9y^2 - 144, P1 = (3, 2), w = 2/sqrt(3), denominator zeros -1.366 and 2.366', () => {
         const scene = sceneOf('hyperbola');
         expect(scene.type).toBe('hyperbola');
-        expect(sameConic(scene.conic!, [16n, 0n, -9n, 0n, 0n, -144n])).toBe(true);
+        expect(sameConic(conicOf(scene), [16n, 0n, -9n, 0n, 0n, -144n])).toBe(true);
         const arc = okArc('hyperbola');
         expect([arc.controlPoints[1].x, arc.controlPoints[1].y]).toEqual([3, 2]);
         near(arc.weight, 2 / Math.sqrt(3));
@@ -58,7 +62,7 @@ describe('examples', () => {
     test('parabola: y^2 - 4x, P1 = (0, 2), w = 1 exactly, shoulder (1, 2)', () => {
         const scene = sceneOf('parabola');
         expect(scene.type).toBe('parabola');
-        expect(sameConic(scene.conic!, [0n, 0n, 1n, -4n, 0n, 0n])).toBe(true);
+        expect(sameConic(conicOf(scene), [0n, 0n, 1n, -4n, 0n, 0n])).toBe(true);
         const arc = okArc('parabola');
         expect([arc.controlPoints[1].x, arc.controlPoints[1].y]).toEqual([0, 2]);
         expect(fraction(arc.weightSquared)).toBe('1/1');
@@ -72,7 +76,7 @@ describe('examples', () => {
         expect(scene.status).toBe('line-pair');
         expect(scene.kind).toBe('line-pair');
         expect(scene.arc).toBeUndefined();
-        expect(sameConic(scene.conic!, [96n, -24n, -72n, -288n, 288n, 0n])).toBe(true);
+        expect(sameConic(conicOf(scene), [96n, -24n, -72n, -288n, 288n, 0n])).toBe(true);
         expect([...scene.collinearSet].sort()).toEqual([0, 1, 2]);
     });
 
@@ -92,13 +96,13 @@ describe('examples', () => {
         const scene = sceneOf(id);
         expect(scene.deviation).toBeDefined();
         expect(scene.deviation!).toBeLessThan(1e-9);
-        expect(arcDeviation(scene.conic!, okArc(id))).toBe(scene.deviation);
+        expect(arcDeviation(conicOf(scene), okArc(id))).toBe(scene.deviation);
     });
 
     test('the deviation check is not vacuous: a wrong weight is far from the conic', () => {
         const arc = okArc('ellipse');
         const wrong = {...arc, weights: [1, 0.9, 1] as const};
-        expect(arcDeviation(sceneOf('ellipse').conic!, wrong)).toBeGreaterThan(1e-2);
+        expect(arcDeviation(conicOf(sceneOf('ellipse')), wrong)).toBeGreaterThan(1e-2);
     });
 
     test('the arc starts at P0 and ends at P2', () => {

@@ -181,9 +181,9 @@ export function evaluateFivePoint(model: FivePointModel): FivePointScene {
     if (solved.status === "line-pair") return {...base, kind: "line-pair", collinearSet: collinearSet.slice(0, 3)};
     if (solved.status === "pencil") return {...base, kind: repeated ? "pencil-repeated" : "pencil-collinear"};
     if (solved.status === "invalid") return {...base, kind: "invalid"};
-    const arc = rationalArc(solved.conic!, points[model.a], points[model.b], points[model.t]);
+    const arc = rationalArc(solved.conic, points[model.a], points[model.b], points[model.t]);
     const kind: FivePointStatusKind = arc.status === "ok" ? "ok" : arc.status === "invalid" ? "arc-invalid" : arc.status;
-    return {...base, arc, kind, deviation: arc.status === "ok" ? arcDeviation(solved.conic!, arc) : undefined};
+    return {...base, arc, kind, deviation: arc.status === "ok" ? arcDeviation(solved.conic, arc) : undefined};
 }
 
 // ---- Last unique conic (acceptance 6) --------------------------------------------------------------------------------

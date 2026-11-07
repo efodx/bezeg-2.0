@@ -68,7 +68,8 @@ describe('spec numbers', () => {
         expect(view.pd).toBeCloseTo(4.2, 12);
         expect(view.pf2).toBeCloseTo(13, 12);
         expect(view.focalDifference).toBeCloseTo(6, 12);
-        expect(view.conic.directrix!.d * view.conic.directrix!.nx).toBeCloseTo(1.8, 12);
+        if (view.conic.kind === 'circle') throw new Error('expected a directrix');
+        expect(view.conic.directrix.d * view.conic.directrix.nx).toBeCloseTo(1.8, 12);
         expect(view.secondFocus?.x).toBeCloseTo(-5, 12);
     });
 

@@ -419,7 +419,8 @@ describe('conicFromFivePoints', () => {
         expect(r.status).toBe('line-pair');
         expect(r.type).toBe('line-pair');
         expect(r.conic).toEqual(conic(96, -24, -72, -288, 288, 0));
-        expect(determinantSign(r.conic as Conic)).toBe(0);
+        if (r.status !== 'line-pair') throw new Error('expected a line pair');
+        expect(determinantSign(r.conic)).toBe(0);
         // The hand product of lines (y - x)(4x + 3y - 12) = -4x^2 + xy + 3y^2 + 12x - 12y is the same conic.
         expect(conic(-4, 1, 3, 12, -12, 0)).toEqual(r.conic);
     });
@@ -464,7 +465,8 @@ describe('conicFromFivePoints', () => {
                 pencil++;
             } else {
                 expect(r.conic).toEqual(ref);
-                for (const t of pts) expect(onConic(r.conic as Conic, hom(...t))).toBe(true);
+                if (r.conic === undefined) throw new Error('expected a conic');
+                for (const t of pts) expect(onConic(r.conic, hom(...t))).toBe(true);
                 unique++;
             }
         }
