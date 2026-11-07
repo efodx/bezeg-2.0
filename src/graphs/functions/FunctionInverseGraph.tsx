@@ -66,7 +66,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         return [-4, 9, 11, -4];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setBase(value: number, options: { syncScene?: boolean } = {}): void {
         const edit = setInverseBase(this.model, value);
@@ -263,13 +263,8 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): FunctionInverseModel {
-        const {restriction, base, x0, inverseVisible, tangentVisible} = this.state;
-        return {restriction, base, x0, inverseVisible, tangentVisible};
-    }
-
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.model;
         const language = currentLanguage();
         const [x0Min, x0Max] = inverseX0Range(state.restriction, state.base);
         return <>
@@ -310,7 +305,7 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const s = inverseSlopesOf(model);
         const rows = [
             {id: "pair", label: t("function_inverse_readout_pair"), value: this.ruleText(model)},

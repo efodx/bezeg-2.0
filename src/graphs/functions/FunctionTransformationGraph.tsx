@@ -59,7 +59,7 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         return [-6, 7, 12, -9];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setParameter(field: TransformParameter, value: number, options: { syncScene?: boolean } = {}): void {
         const edit = setTransformParameter(this.model, field, value);
@@ -217,13 +217,8 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): FunctionTransformationModel {
-        const {base, a, b, c, d, ghostVisible, u} = this.state;
-        return {base, a, b, c, d, ghostVisible, u};
-    }
-
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.model;
         const hint = (min: number, max: number) => ({value0: formatNumber(min, currentLanguage()), value1: formatNumber(max, currentLanguage())});
         return <>
             <div className="inspector-group">
@@ -262,7 +257,7 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const point = trackedPointOf(model);
         const undefinedText = t("function_transformation_point_undefined");
         const rows = [

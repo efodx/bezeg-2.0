@@ -151,7 +151,7 @@ test('a multi-action lesson scene runs in one synchronous sequence; a rejected v
         {kind: 'function-parameter', name: 'rational-probe', value: 5},
     ] as LessonAction[]) act(() => graph.lesson(action));
     expect(graph.modelNow()).toEqual({k: -2, numerator: [{z: -1, m: 1}, {z: 3, m: 1}], denominator: [{z: 3, m: 1}], probe: 5});
-    expect(graph.state.k).toBe(-2);
+    expect(graph.modelNow().k).toBe(-2);
     expect(readout('holes')).toMatch(/luknja/);
 
     const before = graph.modelNow();

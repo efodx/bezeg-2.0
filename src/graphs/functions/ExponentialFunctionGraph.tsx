@@ -31,7 +31,7 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
         return [-5, 9, 5, -3];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     /** Sets the base; throws when it is outside the model domain, so a <= 0 can never be applied. */
     protected setBase(value: number): void {
@@ -89,7 +89,7 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {a} = this.state;
+        const {a} = this.model;
         return <>
             <div className="inspector-group">
                 <Slider customText={t("exponential_base_label")} min={EXPONENTIAL_BASE_MIN} max={EXPONENTIAL_BASE_MAX}
@@ -101,13 +101,13 @@ export class ExponentialFunctionGraph extends BaseFunctionGraph<ExponentialModel
 
     protected override workspaceGraphDisplay(): React.ReactNode {
         return <div className="inspector-group">
-            <OnOffSwitch checked={this.state.mirror} label={t("exponential_show_mirror")}
+            <OnOffSwitch checked={this.model.mirror} label={t("exponential_show_mirror")}
                          onChange={checked => this.setMirrorVisible(checked)}/>
         </div>;
     }
 
     protected renderReadout(): React.ReactNode {
-        const {a, mirror} = this.state;
+        const {a, mirror} = this.model;
         const language = currentLanguage();
         const number = (value: number, decimals?: number) => formatNumber(value, language, decimals);
         const behavior = {growth: t("exponential_growth"), decay: t("exponential_decay"), constant: t("exponential_constant")}[classifyBase(a)];

@@ -41,7 +41,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         return [-7, 4, 7, -4];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     protected setFunction(value: unknown): void {
         if (!isTrigFunction(value)) throw new DomainError(choiceRejected("trig_function_label", ["sin", "cos", "tan"]));
@@ -154,7 +154,7 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {fn, A, omega, phi, B} = this.state;
+        const {fn, A, omega, phi, B} = this.model;
         const language = currentLanguage();
         return <>
             <div className="inspector-group">
@@ -178,13 +178,13 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
 
     protected override workspaceGraphDisplay(): React.ReactNode {
         return <div className="inspector-group">
-            <OnOffSwitch checked={this.state.reference} label={t("trig_show_reference")}
+            <OnOffSwitch checked={this.model.reference} label={t("trig_show_reference")}
                          onChange={checked => this.setReferenceVisible(checked)}/>
         </div>;
     }
 
     protected renderReadout(): React.ReactNode {
-        const {fn, A, omega, phi, B} = this.state;
+        const {fn, A, omega, phi, B} = this.model;
         const language = currentLanguage();
         const parameters = {fn, A, omega, phi, B};
         const number = (value: number) => formatNumber(value, language);

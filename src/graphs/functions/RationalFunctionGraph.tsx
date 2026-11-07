@@ -71,7 +71,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         return [-11, 9, 11, -9];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     /** What the edit changed about holes and poles, or a merge it reported. */
     private noticeOf(before: RationalFacts, after: RationalFacts, event: Extract<RationalFunctionEdit, { ok: true }>["event"]): RationalNotice | undefined {
@@ -451,18 +451,13 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): RationalFunctionModel {
-        const {k, numerator, denominator, probe} = this.state;
-        return {k, numerator, denominator, probe};
-    }
-
     private exampleText(id: RationalExampleId): string {
         const {numerator, denominator} = rationalSpecsOf(rationalExampleModel(id));
         return `f(x) = ${fractionText(numerator, denominator, currentLanguage())}`;
     }
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateModel();
+        const state = this.model;
         const current = exampleOfRational(state);
         const options = [
             ...(current === undefined ? [{value: "custom", text: t("rational_function_example_custom")}] : []),
@@ -506,7 +501,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const facts = rationalFacts(model);
         const language = currentLanguage();
         const {numerator, denominator} = rationalSpecsOf(model);

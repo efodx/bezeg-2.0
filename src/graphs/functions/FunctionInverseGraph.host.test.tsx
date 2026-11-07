@@ -299,7 +299,7 @@ test('a multi-action lesson scene runs in one synchronous sequence; x0 range fol
         {kind: 'function-visibility', target: 'tangent', visible: false},
     ] as LessonAction[]) act(() => graph.lesson(action));
     expect(graph.modelNow()).toEqual({restriction: 'exp', base: 5, x0: 1, inverseVisible: false, tangentVisible: false});
-    expect(graph.state.inverseVisible).toBe(false);
+    expect(graph.modelNow().inverseVisible).toBe(false);
     const before = graph.modelNow();
     expect(() => graph.lesson({kind: 'function-parameter', name: 'inverse-base', value: 1})).toThrow(DomainError);
     expect(() => graph.lesson({kind: 'function-parameter', name: 'inverse-x0', value: 50})).toThrow(DomainError);
