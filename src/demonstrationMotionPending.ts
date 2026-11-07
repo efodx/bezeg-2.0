@@ -51,8 +51,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'euler-line', reason: NOT_CAPTURED},
     {id: 'simson-line', reason: NOT_CAPTURED},
     {id: 'inversion', reason: NOT_CAPTURED},
-    {id: 'orientation', reason: NOT_CAPTURED},
-    {id: 'polygon-area', reason: NOT_CAPTURED},
     {id: 'convex-hull', reason: NOT_CAPTURED},
     {id: 'point-in-polygon', reason: NOT_CAPTURED},
     {id: 'hull-robustness', reason: NOT_CAPTURED},
