@@ -10,7 +10,7 @@ Status lives in this table. The handler updates it in the same push as each acce
 | [CP2](02-worker-host.md) | Worker host, typed protocol, slow-motion stepping, pause/idle/terminate lifecycle | A | CP1 interface | Engineering | accepted 2026-11-07 |
 | [CP3](03-measured-limits.md) | Measure step cost per method on the reference profiles; record the limits in the spec | A | CP2 | Handler | accepted 2026-11-07 (naive 4 000, sweep 5 000; MAX_COUNT set with CP4) |
 | [CP4](04-run-component.md) | `CollisionPlayground` *Run* mode: canvas drawing, controls, readouts, live region, reduced motion, no-worker fallback | B | CP2 (CP3 limits may land after) | Engineering + UI/accessibility | accepted 2026-11-07 |
-| [CP5](05-inspect-component.md) | *Look underneath*: interval shadows, active list, candidate pairs, step-through | B | CP4 | Mathematical + UI/accessibility | planned |
+| [CP5](05-inspect-component.md) | *Look underneath*: interval shadows, active list, candidate pairs, step-through | B | CP4 | Mathematical + UI/accessibility | accepted 2026-11-07 |
 | [CP6](06-chapter-integration.md) | Shared playground block, `FamilyChapterPage` rendering, sweep chapter prose, terms, docs | B | CP4, CP5 | Engineering; notation test | planned |
 | [CP7](07-batch-b-acceptance.md) | Batch B acceptance: containment and smoothness measurements, bilingual smoke, `just check` | B | CP3, CP6 | Handler | planned |
 | CP8 | Polygon templates: exact hull and convex pieces once per template, SAT narrow phase | C | B released | Mathematical | task file written when B is released |

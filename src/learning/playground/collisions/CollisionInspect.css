@@ -1,0 +1,108 @@
+/* Colour tokens (--collision-body, --collision-touching) and the control styles come from .collision-playground. */
+.collision-inspect__title {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.collision-inspect__figure {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.collision-inspect__world,
+.collision-inspect__line {
+    max-width: 100%;
+    height: auto;
+}
+
+.collision-inspect__body {
+    fill: var(--collision-body);
+    fill-opacity: 0.45;
+    stroke: var(--collision-body);
+    stroke-width: 1;
+}
+
+.collision-inspect__body.is-active {
+    fill-opacity: 0.8;
+}
+
+.collision-inspect__body.is-current {
+    stroke: var(--bezeg-shell-ink);
+    stroke-width: 2;
+}
+
+.collision-inspect__pass {
+    stroke: var(--collision-touching);
+    stroke-width: 2;
+}
+
+.collision-inspect__reject {
+    stroke: var(--collision-body);
+    stroke-width: 2;
+}
+
+.collision-inspect__label {
+    font-size: 11px;
+    fill: var(--bezeg-shell-ink);
+}
+
+.collision-inspect__interval {
+    stroke: var(--collision-body);
+    stroke-width: 1;
+}
+
+.collision-inspect__interval.is-waiting {
+    fill: none;
+    stroke-dasharray: 2 2;
+}
+
+.collision-inspect__interval.is-active {
+    fill: var(--collision-body);
+}
+
+.collision-inspect__interval.is-left {
+    fill: var(--collision-body);
+    fill-opacity: 0.25;
+}
+
+.collision-inspect__interval.is-current {
+    stroke: var(--bezeg-shell-ink);
+    stroke-width: 2;
+}
+
+.collision-inspect__sweep {
+    stroke: var(--bezeg-shell-ink);
+    stroke-width: 2;
+}
+
+.collision-inspect__event {
+    margin: 0;
+    min-height: 3em;
+}
+
+.collision-inspect__active h4 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+}
+
+.collision-inspect__active ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.collision-inspect__legend {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--bezeg-shell-ink-secondary);
+}
+
+.collision-inspect__legend svg {
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}

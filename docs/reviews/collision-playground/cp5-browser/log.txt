@@ -1,0 +1,91 @@
+== desk-sl n=20 initial: prevDis=true nextDis=false sweep=null live=""
+desk-sl n=20 after 18 next: sweep=231.2530670458486 active=2 live="Vstop objekta 9 pri x = 390"
+desk-sl prev: sweep=231.2530670458486 active=1 prevDis=false
+== desk-sl n=40 initial: prevDis=true nextDis=false sweep=null live=""
+desk-sl n=40 after 36 next: sweep=229.57313923218214 active=2 live="Vstop objekta 32 pri x = 387"
+desk-sl prev: sweep=229.57313923218214 active=1 prevDis=false
+desk-sl end: nextDis=true lines {"passLines":3,"rejLines":18,"passDash":null,"rejDash":"6 4","rejWithDash":18} caption: Preizkusi škatel: 21 od 780 možnih parov, n(n − 1)/2, pri n = 40. Preizkus vseh parov rast
+desk-sl overlap {"texts":41,"lis":2,"n":0,"overlaps":[]}
+desk-sl contrast text.collision-inspect__label fg=rgb(25, 55, 47) bg=rgb(255, 253, 246) op=1 ratio=12.67
+desk-sl contrast .collision-inspect__event fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+desk-sl contrast .collision-inspect__active h4 fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+desk-sl contrast .collision-inspect__active li fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+desk-sl contrast .collision-inspect__legend li fg=rgb(82, 97, 82) bg=rgb(244, 240, 223) op=1 ratio=5.76
+desk-sl contrast [data-testid=inspect-caption] fg=rgb(82, 97, 82) bg=rgb(244, 240, 223) op=1 ratio=5.76
+desk-sl contrast .collision-inspect__title fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+desk-sl live quiet: "" -> ""
+desk-sl live mutation cumulative after Next,Next,Prev: 1,2,3; text="Vstop objekta 1 pri x = 6"
+desk-sl kbd focus first input: INPUT:text: n=20 inputs=2
+  ArrowRight -> n=20
+  Left,Left -> n=20
+  ArrowUp -> n=21
+  ArrowDown -> n=20
+  tab seq: INPUT:range: | BUTTON:button:Naslednji korak | BUTTON:button:Predvajaj gibanje | BUTTON:button:Nova razporeditev | BODY::
+Za uporabo Bezega | A::Bezeg · začetna st
+  progress: Dogodek 0 od -Enter(Next)-> Dogodek 1 od -Space(Next)-> Dogodek 2 od -Enter(Prev)-> Dogodek 1 od -Space(Prev)-> Dogodek 0 od
+  play: pressed=true differ=true nextDisabled=true text="Ustavi gibanje"
+  pause: pressed=false differ=false
+desk-sl errors: []
+== desk-en n=40 initial: prevDis=true nextDis=false sweep=null live=""
+desk-en n=40 after 36 next: sweep=229.57313923218214 active=2 live="Object 32 enters at x = 387"
+desk-en prev: sweep=229.57313923218214 active=1 prevDis=false
+desk-en end: nextDis=true lines {"passLines":3,"rejLines":18,"passDash":null,"rejDash":"6 4","rejWithDash":18} caption: Box tests: 21 of 780 possible pairs, n(n − 1)/2, at n = 40. Testing every pair grows as O(
+desk-en overlap {"texts":41,"lis":2,"n":0,"overlaps":[]}
+desk-en contrast text.collision-inspect__label fg=rgb(25, 55, 47) bg=rgb(255, 253, 246) op=1 ratio=12.67
+desk-en contrast .collision-inspect__event fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+desk-en contrast .collision-inspect__active h4 fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+desk-en contrast .collision-inspect__active li fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+desk-en contrast .collision-inspect__legend li fg=rgb(82, 97, 82) bg=rgb(244, 240, 223) op=1 ratio=5.76
+desk-en contrast [data-testid=inspect-caption] fg=rgb(82, 97, 82) bg=rgb(244, 240, 223) op=1 ratio=5.76
+desk-en contrast .collision-inspect__title fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+desk-en live quiet: "" -> ""
+desk-en live mutation cumulative after Next,Next,Prev: 1,2,3; text="Object 1 enters at x = 6"
+desk-en kbd focus first input: INPUT:text: n=20 inputs=2
+  ArrowRight -> n=20
+  Left,Left -> n=20
+  ArrowUp -> n=21
+  ArrowDown -> n=20
+  tab seq: INPUT:range: | BUTTON:button:Next step | BUTTON:button:Resume motion | BUTTON:button:New arrangement | BODY::
+Za uporabo Bezega | A::Bezeg · home
+  progress: Event 0 of 5 -Enter(Next)-> Event 1 of 5 -Space(Next)-> Event 2 of 5 -Enter(Prev)-> Event 1 of 5 -Space(Prev)-> Event 0 of 5
+  play: pressed=true differ=true nextDisabled=true text="Pause motion"
+  pause: pressed=false differ=false
+desk-en errors: []
+== mob-sl n=20 initial: prevDis=true nextDis=false sweep=null live=""
+mob-sl n=20 after 18 next: sweep=105.4685271460174 active=2 live="Vstop objekta 9 pri x = 390"
+mob-sl prev: sweep=105.4685271460174 active=1 prevDis=false
+== mob-sl n=40 initial: prevDis=true nextDis=false sweep=null live=""
+mob-sl n=40 after 36 next: sweep=104.81810378823204 active=2 live="Vstop objekta 32 pri x = 387"
+mob-sl prev: sweep=104.81810378823204 active=1 prevDis=false
+mob-sl end: nextDis=true lines {"passLines":3,"rejLines":18,"passDash":null,"rejDash":"6 4","rejWithDash":18} caption: Preizkusi škatel: 21 od 780 možnih parov, n(n − 1)/2, pri n = 40. Preizkus vseh parov rast
+mob-sl overlap {"texts":41,"lis":2,"n":0,"overlaps":[]}
+mob-sl contrast text.collision-inspect__label fg=rgb(25, 55, 47) bg=rgb(255, 253, 246) op=1 ratio=12.67
+mob-sl contrast .collision-inspect__event fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+mob-sl contrast .collision-inspect__active h4 fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+mob-sl contrast .collision-inspect__active li fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+mob-sl contrast .collision-inspect__legend li fg=rgb(82, 97, 82) bg=rgb(244, 240, 223) op=1 ratio=5.76
+mob-sl contrast [data-testid=inspect-caption] fg=rgb(82, 97, 82) bg=rgb(244, 240, 223) op=1 ratio=5.76
+mob-sl contrast .collision-inspect__title fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+mob-sl live quiet: "" -> ""
+mob-sl live mutation cumulative after Next,Next,Prev: 1,2,3; text="Vstop objekta 1 pri x = 6"
+mob-sl touch targets [["INPUT:text","",88,40],["INPUT:range","",358,44],["BUTTON:button","Prejšnji korak",121,44],["BUTTON:button","Naslednji kora",136,44],["BUTTON:button","Predvajaj giba",148,44],["BUTTON:button","Nova razporedi",158,44]] scrollW=390 clientW=390 bodyScrollW=390 coarse=true
+  play frames differ=true
+mob-sl errors: []
+== mob-en n=40 initial: prevDis=true nextDis=false sweep=null live=""
+mob-en n=40 after 36 next: sweep=104.81810378823204 active=2 live="Object 32 enters at x = 387"
+mob-en prev: sweep=104.81810378823204 active=1 prevDis=false
+mob-en end: nextDis=true lines {"passLines":3,"rejLines":18,"passDash":null,"rejDash":"6 4","rejWithDash":18} caption: Box tests: 21 of 780 possible pairs, n(n − 1)/2, at n = 40. Testing every pair grows as O(
+mob-en overlap {"texts":41,"lis":2,"n":0,"overlaps":[]}
+mob-en contrast text.collision-inspect__label fg=rgb(25, 55, 47) bg=rgb(255, 253, 246) op=1 ratio=12.67
+mob-en contrast .collision-inspect__event fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+mob-en contrast .collision-inspect__active h4 fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+mob-en contrast .collision-inspect__active li fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+mob-en contrast .collision-inspect__legend li fg=rgb(82, 97, 82) bg=rgb(244, 240, 223) op=1 ratio=5.76
+mob-en contrast [data-testid=inspect-caption] fg=rgb(82, 97, 82) bg=rgb(244, 240, 223) op=1 ratio=5.76
+mob-en contrast .collision-inspect__title fg=rgb(25, 55, 47) bg=rgb(244, 240, 223) op=1 ratio=11.28
+mob-en live quiet: "" -> ""
+mob-en live mutation cumulative after Next,Next,Prev: 1,2,3; text="Object 1 enters at x = 6"
+mob-en touch targets [["INPUT:text","",88,40],["INPUT:range","",358,44],["BUTTON:button","Previous step",122,44],["BUTTON:button","Next step",95,44],["BUTTON:button","Resume motion",138,44],["BUTTON:button","New arrangemen",155,44]] scrollW=390 clientW=390 bodyScrollW=390 coarse=true
+  play frames differ=true
+mob-en errors: []
+range 20 21 19 20

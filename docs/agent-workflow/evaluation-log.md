@@ -2269,3 +2269,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Handler errors: the smoke brief expected an unknown `learnSection` to open no lesson. The workspace's existing fallback opens the default owner, so the worker reported a false deviation, which the handler traced to unchanged code. The review brief's commit range included two Controls commits, corrected by message mid-run.
 - Timing (as reported): L2/L3 worker 24 min, smoke 28 min, review 6 min.
 - Usage (worker totals as reported): worker 54,087; smoke 66,234; reviewer 40,958 tokens.
+## 2026-11-07 — collision playground CP5, Look underneath (collision stream, handler 1)
+
+- Class/size: kernel helper + UI view, M. Scope: pure `sweepTrace` (events of one sweep, replay state), SVG inspect view with step-through, interval number line, dashed y-rejected pairs, Play on the main thread.
+- Dispatch: `bezeg-worker` (Sonnet `medium`); `bezeg-reviewer` math + UI/accessibility (Sonnet `medium`); `bezeg-smoke` first pass (Sonnet `medium`). Handler Opus `medium`. The handler settled the main-thread question from CP3's data before dispatch.
+- Outcome: accepted. 28 new tests (14 trace equivalence/order, 14 component), with each assertion seen failing. The reviewer found no math defects and verified trace equivalence line by line. Two low wording findings were fixed by the handler: a leave is noticed lazily when the next body enters, so "leaves at x" became "removed from the state at x", and the "open intervals" heading became "not yet removed". The smoke passed 9/9 at both widths in both languages (no label overlap at n = 40, dashes present, contrast ≥ 5.76:1).
+- Gap: the shared Slider's number field is 40 px tall on coarse pointers (below 44). This is a shared control owned by the Controls stream and affects CP4 too; it is recorded, not patched.
+- Repairs: the handler made wording fixes only. The reviewer left a background test run when it returned, and the handler stopped it.
+- Usage (reported totals): worker 92,122; reviewer 29,269; smoke not reported at hand-back.
