@@ -73,10 +73,10 @@ describe('family guided examples apply to their real demonstration graphs', () =
             expect(resolved?.lesson.steps[0].prompt).toBeDefined();
             expect(actions?.length).toBeGreaterThan(0);
             const initialState = applyExample(id, actions!);
-            if (id === 'continuity') expect(initialState).toMatchObject({a: 1});
-            if (id === 'derivative') expect(initialState).toMatchObject({fn: 'square', x0: 1, h: 1});
-            if (id === 'definite-integral') expect(initialState).toMatchObject({fn: 'square', a: 0, b: 2, n: 4, method: 'left'});
-            if (id === 'arc-length') expect(initialState).toMatchObject({a: 0, b: Math.PI, n: 1});
+            if (id === 'continuity') expect(initialState.model).toMatchObject({a: 1});
+            if (id === 'derivative') expect(initialState.model).toMatchObject({fn: 'square', x0: 1, h: 1});
+            if (id === 'definite-integral') expect(initialState.model).toMatchObject({fn: 'square', a: 0, b: 2, n: 4, method: 'left'});
+            if (id === 'arc-length') expect(initialState.model).toMatchObject({a: 0, b: Math.PI, n: 1});
         },
     );
 

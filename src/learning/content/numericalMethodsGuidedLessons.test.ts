@@ -90,7 +90,7 @@ test('every scene lands in the stated state, run in one synchronous sequence fro
             // Apply the scenes out of order and twice: a scene never depends on the one before it.
             m.scene(stepOf(id));
             m.scene(stepOf(id));
-            const {state} = m.graph;
+            const state = m.graph.state.model;
             expect({id, method: state.method, example: state.example, x0: state.x0, step: state.step})
                 .toEqual({id, method: expected.method ?? 'newton', example: expected.example, x0: expected.x0, step: expected.step});
             if (expected.method === 'secant') expect({id, x1: state.x1}).toEqual({id, x1: expected.x1});
@@ -241,11 +241,11 @@ test('Reset returns the scene state: restoring the checkpoint undoes a revealed 
     const m = mount();
     try {
         m.scene(stepOf('newton-fail-cycle'));
-        expect(m.graph.state.step).toBe(2);
+        expect(m.graph.state.model.step).toBe(2);
         act(() => { m.capabilities.restoreState(m.capabilities.captureState()); });
         m.scene(stepOf('newton-fail-predict'));
-        expect(m.graph.state.step).toBe(0);
-        expect(m.graph.state.x0).toBe(0);
+        expect(m.graph.state.model.step).toBe(0);
+        expect(m.graph.state.model.x0).toBe(0);
     } finally {
         m.mounted.view.unmount();
     }

@@ -399,7 +399,7 @@ test('capture and restore bring back the synchronous model read in the same tick
     expect(graph.model.phi).toBeCloseTo(Math.PI / 3, 12);
     expect(mainValue(graph, 0.2)).toBeCloseTo(-1.5 * Math.cos(0.2 + Math.PI / 3), 12);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({fn: 'cos', A: -1.5, reference: true}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({fn: 'cos', A: -1.5, reference: true})}));
 });
 
 test('default scene preparation resets model and view and keeps the object count stable', () => {
@@ -452,7 +452,7 @@ test('a stored board state is not overwritten by the default view during initial
 test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'trigonometric-function', data: {fn: 'tan', A: 2, omega: 1, phi: 0, B: 0, reference: true}});
-    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, fn: 'tan', A: 2, reference: true});
+    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, model: {fn: 'tan', A: 2, reference: true}});
 });
 
 test('the refusals of a lesson action are localized in Slovenian and English', () => {

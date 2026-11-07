@@ -274,8 +274,9 @@ describe('linear function: replacement paths keep domain, controls and board tog
         near(handles(graph)[1], [2, 7]);
     });
 
-    // Names the CURRENT checkpoint shape (`value.graphState` holds the flat scene state beside `value.data`); revisit when the model moves.
-    test('current checkpoint shape: a checkpoint whose scene state disagrees with its data shows the data in domain, controls and board', () => {
+    // Checkpoints keep the flat file shape by design (`value.graphState` holds the host fields and the model's fields beside
+    // `value.data`, through `savedGraphState`); only `data` is authority.
+    test('checkpoint shape: a checkpoint whose scene state disagrees with its data shows the data in domain, controls and board', () => {
         const {graph} = mountLinear();
         typeLinear('y₁', 3);
         const checkpoint = graph.getLessonCapabilities().captureState();
@@ -289,12 +290,13 @@ describe('linear function: replacement paths keep domain, controls and board tog
         expect(graph.exportPresetData()).toEqual({x1: 0, y1: 3, x2: 2, y2: 7});
     });
 
-    // Names the CURRENT contract: `commitModel` stores the object it is given as the live model.
-    test('current contract: commitModel makes the given object the live model', () => {
+    // `commitModel` stores the object it is given as the live model; the store holds nothing else of the model.
+    test('commitModel makes the given object the live model', () => {
         const {graph} = mountLinear();
         const next = {x1: 1, y1: 2, x2: 3, y2: 4};
         act(() => { graph.commit(next); });
         expect(graph.currentModel()).toBe(next);
+        expect(Object.keys(graph.state).sort()).toEqual(['initialized', 'model']);
         expect(linearShown(graph)).toEqual({model: next, fields: ['1', '2', '3', '4'], points: [[1, 2], [3, 4]], k: '1', n: '1'});
     });
 

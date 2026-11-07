@@ -632,7 +632,7 @@ test('capture and restore bring back the synchronous model, including the reveal
     expect(graph.model).toEqual({example: 'square', a: 0, b: 2, c: 0.5, revealed: false});
     graph.restoreLessonState(checkpoint);
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1, c: 0.4, revealed: true});
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({example: 'cube', a: -1, b: 1, c: 0.4, revealed: true}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({example: 'cube', a: -1, b: 1, c: 0.4, revealed: true})}));
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
 });
 

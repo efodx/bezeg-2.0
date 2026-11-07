@@ -8,6 +8,7 @@ import type {GuidedLessonStep} from './guidedLessons';
 import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {densityAreaView} from '../../analysis/densityAreaModel';
 import type {DensityAreaModel} from '../../analysis/densityAreaModel';
+import type {FunctionGraphState} from '../../graphs/functions/BaseFunctionGraph';
 import {setLanguage} from '../../localization';
 import {BinomialNormalGraph} from '../../graphs/functions/BinomialNormalGraph';
 import {GraphHost} from '../../graphs/base/GraphHost';
@@ -55,7 +56,7 @@ function mount() {
 type Harness = ReturnType<typeof mount>;
 
 const readout = (id: string) => (document.querySelector(`[data-readout="${id}"] dd`)?.textContent ?? '').replace(/−/g, '-');
-const model = (h: Harness) => h.graph.state as unknown as DensityAreaModel;
+const model = (h: Harness) => (h.graph.state as Readonly<FunctionGraphState<DensityAreaModel>>).model;
 const param = (name: 'density-mu' | 'density-sigma' | 'density-a' | 'density-b', value: number): LessonAction => ({kind: 'function-parameter', name, value});
 
 test('the lesson has six steps with two frames each, math-delimited prose in both languages and only density actions', () => {

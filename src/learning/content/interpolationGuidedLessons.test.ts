@@ -482,7 +482,7 @@ test('each Runge scene sets the function, degree, rule and switches its text des
         ];
         for (const [stepId, degree, rule, error, semicircle, max, at] of expected) {
             h.scene(rungeStepOf(stepId));
-            const state = h.graph.state;
+            const state = h.graph.state.model;
             expect([state.functionId, state.degree, state.nodeRule, state.showError, state.showSemicircle], stepId).toEqual(['runge', degree, rule, error, semicircle]);
             expect(readoutText('degree'), stepId).toBe(String(degree));
             expect(readoutText('grid-max'), stepId).toBe(max);
@@ -494,14 +494,14 @@ test('each Runge scene sets the function, degree, rule and switches its text des
             h.capabilities.apply({kind: 'runge', operation: 'set-degree', value: 15});
             h.capabilities.apply({kind: 'runge', operation: 'set-function', function: 'sine'});
         });
-        expect(h.graph.state.degree).toBe(15);
+        expect(h.graph.state.model.degree).toBe(15);
         act(() => h.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
-        expect([h.graph.state.functionId, h.graph.state.degree, h.graph.state.nodeRule, h.graph.state.showError, h.graph.state.showSemicircle]).toEqual(['runge', 10, 'equispaced', true, false]);
+        expect([h.graph.state.model.functionId, h.graph.state.model.degree, h.graph.state.model.nodeRule, h.graph.state.model.showError, h.graph.state.model.showSemicircle]).toEqual(['runge', 10, 'equispaced', true, false]);
         expect(readoutText('grid-max')).toBe('1,916');
         // Consecutive steps without a restore end in the last step's state.
         h.run(rungeStepOf('runge-chebyshev'));
         h.run(rungeStepOf('runge-compare'));
-        expect([h.graph.state.degree, h.graph.state.nodeRule, h.graph.state.showSemicircle]).toEqual([20, 'equispaced', false]);
+        expect([h.graph.state.model.degree, h.graph.state.model.nodeRule, h.graph.state.model.showSemicircle]).toEqual([20, 'equispaced', false]);
         // A lesson checkpoint taken in a modified state keeps it.
         act(() => {
             h.capabilities.apply({kind: 'runge', operation: 'set-rule', rule: 'chebyshev'});
@@ -509,9 +509,9 @@ test('each Runge scene sets the function, degree, rule and switches its text des
         });
         const checkpoint = h.capabilities.captureState();
         act(() => h.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
-        expect(h.graph.state.degree).toBe(10);
+        expect(h.graph.state.model.degree).toBe(10);
         act(() => h.capabilities.restoreState(checkpoint));
-        expect([h.graph.state.functionId, h.graph.state.degree, h.graph.state.nodeRule]).toEqual(['abs', 20, 'chebyshev']);
+        expect([h.graph.state.model.functionId, h.graph.state.model.degree, h.graph.state.model.nodeRule]).toEqual(['abs', 20, 'chebyshev']);
     } finally {
         h.mounted.view.unmount();
     }
@@ -520,7 +520,7 @@ test('each Runge scene sets the function, degree, rule and switches its text des
 test('the runge action rejects invalid inputs with a clear error and leaves the state alone', () => {
     const h = mountRunge();
     try {
-        const before = {...h.graph.state};
+        const before = {...h.graph.state.model};
         const bad: unknown[] = [
             {kind: 'runge', operation: 'set-function', function: 'cosine'},
             {kind: 'runge', operation: 'set-degree', value: 0},
@@ -534,7 +534,7 @@ test('the runge action rejects invalid inputs with a clear error and leaves the 
             {kind: 'runge', operation: 'remove-node'},
         ];
         for (const action of bad) expect(() => h.capabilities.apply(action as LessonAction), JSON.stringify(action)).toThrow(/./);
-        expect([h.graph.state.functionId, h.graph.state.degree, h.graph.state.nodeRule]).toEqual([before.functionId, before.degree, before.nodeRule]);
+        expect([h.graph.state.model.functionId, h.graph.state.model.degree, h.graph.state.model.nodeRule]).toEqual([before.functionId, before.degree, before.nodeRule]);
     } finally {
         h.mounted.view.unmount();
     }
@@ -603,7 +603,7 @@ type LsqHarness = ReturnType<typeof mountLsq>;
 /** What the graph's own readout rows say, with the minus sign replaced. */
 const lsqReadout = (id: string) => (document.querySelector(`[data-readout="${id}"] dd`)?.textContent ?? '').replace(/−/g, '-');
 /** The kernel's view of the graph's current model. */
-const lsqView = (h: LsqHarness) => leastSquaresView(h.graph.state);
+const lsqView = (h: LsqHarness) => leastSquaresView(h.graph.state.model);
 const fitOfView = (view: LeastSquaresView) => {
     if (!view.fit.ok) throw new Error('The scene has no fit.');
     return view.fit.fit;
@@ -618,7 +618,7 @@ const lsqProseHas = (stepId: string, quoted: string, language: 'sl' | 'en') => l
 /** The sum of the products of the residuals with the columns 1 and x of the design matrix (orthogonality of the residuals). */
 const lsqOrthogonality = (h: LsqHarness) => {
     const view = lsqView(h);
-    const points = h.graph.state.points;
+    const points = h.graph.state.model.points;
     return [view.residuals.reduce((a, r) => a + r, 0), view.residuals.reduce((a, r, i) => a + r * points[i][0], 0)];
 };
 
@@ -627,7 +627,7 @@ test('each least-squares scene sets the data, degree, mode, line and switches it
     try {
         // Step 1: the start (horizontal manual line, best line and squares hidden), then the reveal a learner makes.
         h.scene(lsqStepOf('lsq-predict'));
-        expect([h.graph.state.manualLine, h.graph.state.slope, h.graph.state.intercept, h.graph.state.showSquares, h.graph.state.showNormalEquations]).toEqual([true, 0, 2, false, false]);
+        expect([h.graph.state.model.manualLine, h.graph.state.model.slope, h.graph.state.model.intercept, h.graph.state.model.showSquares, h.graph.state.model.showNormalEquations]).toEqual([true, 0, 2, false, false]);
         expect(lsqReadout('equation')).toBe('y = 2');
         expect(lsqReadout('sum')).toBe('5');
         h.apply({kind: 'lsq', operation: 'set-mode', mode: 'best'}, {kind: 'lsq', operation: 'set-overlay', overlay: 'squares', visible: true});
@@ -640,7 +640,7 @@ test('each least-squares scene sets the data, degree, mode, line and switches it
 
         // Step 2: the manual line y = x + 1 has sum 1 beside the minimum 0,7; the sliders' optimum 0,9 / 0,9 reaches it.
         h.scene(lsqStepOf('lsq-manual'));
-        expect([h.graph.state.manualLine, h.graph.state.slope, h.graph.state.intercept, h.graph.state.showSquares]).toEqual([true, 1, 1, true]);
+        expect([h.graph.state.model.manualLine, h.graph.state.model.slope, h.graph.state.model.intercept, h.graph.state.model.showSquares]).toEqual([true, 1, 1, true]);
         expect(lsqReadout('equation')).toBe('y = x + 1');
         expect(lsqReadout('sum')).toBe('1');
         expect(lsqReadout('optimal-sum')).toBe('0,7');
@@ -655,8 +655,8 @@ test('each least-squares scene sets the data, degree, mode, line and switches it
 
         // Step 3: (3,4) replaced by (3,8).
         h.scene(lsqStepOf('lsq-outlier'));
-        expect(h.graph.state.points).toEqual([[0, 1], [1, 2], [2, 2], [3, 8]]);
-        expect([h.graph.state.manualLine, h.graph.state.degree, h.graph.state.showSquares]).toEqual([false, 1, true]);
+        expect(h.graph.state.model.points).toEqual([[0, 1], [1, 2], [2, 2], [3, 8]]);
+        expect([h.graph.state.model.manualLine, h.graph.state.model.degree, h.graph.state.model.showSquares]).toEqual([false, 1, true]);
         expect(lsqReadout('equation')).toBe('y = 2,1x + 0,1');
         expect(lsqReadout('sum')).toBe('8,7');
         // The residuals grow at most points (stated as "most of the other points").
@@ -666,8 +666,8 @@ test('each least-squares scene sets the data, degree, mode, line and switches it
 
         // Step 4: the normal equations of the original data.
         h.scene(lsqStepOf('lsq-normal'));
-        expect(h.graph.state.points).toEqual([[0, 1], [1, 2], [2, 2], [3, 4]]);
-        expect([h.graph.state.manualLine, h.graph.state.degree, h.graph.state.showNormalEquations]).toEqual([false, 1, true]);
+        expect(h.graph.state.model.points).toEqual([[0, 1], [1, 2], [2, 2], [3, 4]]);
+        expect([h.graph.state.model.manualLine, h.graph.state.model.degree, h.graph.state.model.showNormalEquations]).toEqual([false, 1, true]);
         const equations = normalEquations(lsqFit(h))!;
         expect(equations.matrix.map(row => row.map(lsqPlain))).toEqual([['4', '6'], ['6', '14']]);
         expect(equations.rhs.map(lsqPlain)).toEqual(['9', '18']);
@@ -684,7 +684,7 @@ test('each least-squares scene sets the data, degree, mode, line and switches it
 
         // Step 5: the quadratic, then the cubic a learner reaches by raising the degree.
         h.scene(lsqStepOf('lsq-degree'));
-        expect([h.graph.state.degree, h.graph.state.manualLine, h.graph.state.showSquares]).toEqual([2, false, true]);
+        expect([h.graph.state.model.degree, h.graph.state.model.manualLine, h.graph.state.model.showSquares]).toEqual([2, false, true]);
         expect(lsqReadout('equation')).toBe('y = 1,15 + 0,15x + 0,25x²');
         expect(lsqReadout('sum')).toBe('0,45');
         expect(lsqFitCoefficients(h).map(lsqPlain)).toEqual(['1,15', '0,15', '0,25']);
@@ -697,7 +697,7 @@ test('each least-squares scene sets the data, degree, mode, line and switches it
 
         // Step 6: the default.
         h.scene(lsqStepOf('lsq-explore'));
-        expect(h.graph.state).toMatchObject({...DEFAULT_LEAST_SQUARES_MODEL});
+        expect(h.graph.state.model).toMatchObject({...DEFAULT_LEAST_SQUARES_MODEL});
         expect(lsqReadout('equation')).toBe('y = 0,9x + 0,9');
         expect(lsqReadout('sum')).toBe('0,7');
     } finally {
@@ -764,20 +764,20 @@ test('the lsq lesson state survives Reset, a restored checkpoint and a language 
         expect(lsqReadout('sum')).toBe('8,7');
         const checkpoint = h.capabilities.captureState();
         act(() => h.capabilities.apply({kind: 'prepared-scene', sceneId: 'reset', source: 'demonstration-default'}));
-        expect(h.graph.state).toMatchObject({...DEFAULT_LEAST_SQUARES_MODEL});
+        expect(h.graph.state.model).toMatchObject({...DEFAULT_LEAST_SQUARES_MODEL});
         expect(lsqReadout('sum')).toBe('0,7');
         act(() => h.capabilities.restoreState(checkpoint));
-        expect(h.graph.state.points[3]).toEqual([3, 8]);
+        expect(h.graph.state.model.points[3]).toEqual([3, 8]);
         expect(lsqReadout('sum')).toBe('8,7');
         act(() => { setLanguage('en'); });
-        expect(h.graph.state.points[3]).toEqual([3, 8]);
+        expect(h.graph.state.model.points[3]).toEqual([3, 8]);
         expect(lsqReadout('equation')).toBe('y = 2.1x + 0.1');
         expect(lsqReadout('sum')).toBe('8.7');
         // Consecutive steps without a restore end in the last step's state, because each scene starts from the default.
         h.run(lsqStepOf('lsq-degree'));
         h.run(lsqStepOf('lsq-predict'));
-        expect([h.graph.state.manualLine, h.graph.state.degree, h.graph.state.slope, h.graph.state.intercept, h.graph.state.showSquares]).toEqual([true, 1, 0, 2, false]);
-        expect(h.graph.state.points[3]).toEqual([3, 4]);
+        expect([h.graph.state.model.manualLine, h.graph.state.model.degree, h.graph.state.model.slope, h.graph.state.model.intercept, h.graph.state.model.showSquares]).toEqual([true, 1, 0, 2, false]);
+        expect(h.graph.state.model.points[3]).toEqual([3, 4]);
     } finally {
         h.mounted.view.unmount();
     }

@@ -696,7 +696,7 @@ test('capture and restore bring back the synchronous model and leave playback pa
     expect(graph.model).toEqual(checkpoint.value.data);
     expect(graph.controller.isPlaying()).toBe(false);
     expect(graph.frames.callbacks.size).toBe(0);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({example: 'alternating-reciprocal', epsilon: 0.25, terms: 4}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({example: 'alternating-reciprocal', epsilon: 0.25, terms: 4})}));
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, false);
     // the iteration continues from the restored terms
     next(graph);

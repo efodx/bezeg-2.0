@@ -16,10 +16,10 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
  * A subclass describes its whole state as a flat model of numbers, booleans and strings (so the model doubles as
  * validated preset data and as React state). This class owns:
  *
- * - the synchronous model: `this.model` is written first by `commitModel`, which then calls `setState`. Graph `setState`
- *   writes the scene store synchronously, so a later action of a lesson scene (applied in one tick) may also read
- *   `this.state`; board side effects run in `onStateChange` after the host commits. Lesson actions, drag handlers and
- *   inspector inputs still read and write `this.model` (through `commitModel`);
+ * - the live model: the scene store holds it in `state.model`, `this.model` reads it, and `commitModel` is its one write.
+ *   Graph `setState` writes the store synchronously, so a later action of a lesson scene (applied in one tick) reads what
+ *   an earlier one committed; board side effects run in `onStateChange` after the host commits. Lesson actions, drag
+ *   handlers and inspector inputs all read `this.model` and write through `commitModel`;
  * - generated JSXGraph objects: everything a scene creates is registered with `own()` and removed, children first, by
  *   `removeGeneratedObjects()` (also from `disposeFigureScene()` and before every regeneration);
  * - preset export/import of the model: the subclass's Preset collection (`presetCollection()`) parses and sanitizes stored
@@ -28,11 +28,8 @@ import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
  *
  * The mathematics lives in `src/analysis/` and must not be imported back from here into that module.
  */
-/**
- * The store owns the live model in `model`. The flat fields are a one-way projection for subclasses not yet migrated to
- * `this.model`; only `modelPatch` writes them and nothing reads them back as authority.
- */
-export type FunctionGraphState<M extends object> = BaseGraphState & M & {model: M};
+/** The store owns the live model in `model`; `commitModel` is its one write. Files keep a flat shape (`savedGraphState`). */
+export type FunctionGraphState<M extends object> = BaseGraphState & {model: M};
 
 export type FunctionParameterAction = Extract<LessonAction, { kind: 'function-parameter' }>;
 export type FunctionVisibilityAction = Extract<LessonAction, { kind: 'function-visibility' }>;
@@ -154,12 +151,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     override getInitialState(): FunctionGraphState<M> {
         // Always the default model: a remount must not start from values a preset import committed.
-        return {initialized: false, ...this.modelPatch(this.defaultModel())};
-    }
-
-    /** The store fields of a model. */
-    private modelPatch(model: M): M & {model: M} {
-        return {...model, model};
+        return {initialized: false, model: this.defaultModel()};
     }
 
     private unsubscribeLanguage?: () => void;
@@ -212,11 +204,6 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     protected abstract defaultBoundingBox(): BoundingBox;
 
-    /** The live model, for inspectors not yet migrated to `this.model`. */
-    protected stateSnapshot(): M {
-        return this.model;
-    }
-
     /** Closures over the live display settings, for JSXGraph attributes that must follow them. */
     protected readonly displayStrokeWidth = (): number => this.displaySettings.strokeWidth;
     protected readonly displayFontSize = (): number => this.displaySettings.fontSize;
@@ -262,7 +249,7 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
      * model (the user is dragging them).
      */
     protected commitModel(next: M, options: { syncScene?: boolean } = {}): void {
-        const patch = this.modelPatch(next) as Partial<FunctionGraphState<M>>;
+        const patch: Partial<FunctionGraphState<M>> = {model: next};
         // A late drag or input event after unmount only updates the model: there is no board or React tree to touch.
         if (!this.graphSession?.isAlive) {
             this.store.setState(patch);
@@ -441,10 +428,10 @@ export default abstract class BaseFunctionGraph<M extends object> extends BaseGr
 
     /**
      * A scene replacement changes host state only. The model is whatever `commitModel` last stored: every replacement imports its
-     * Preset data first, so a model or flat fields in `next` (a stored scene state, an initial state) are never authority.
+     * Preset data first, so a model in `next` (a stored scene state, an initial state) is never authority.
      */
     protected override replaceState(next: FunctionGraphState<M>): void {
-        super.replaceState({initialized: next.initialized, ...this.modelPatch(this.model)} as FunctionGraphState<M>);
+        super.replaceState({initialized: next.initialized, model: this.model});
     }
 
     /** A function graph's default scene also returns to its default view. */

@@ -117,7 +117,7 @@ function mount() {
             for (const action of actionsOf(step)) capabilities.apply(action);
         }),
         apply: (...actions: LessonAction[]) => act(() => { for (const action of actions) capabilities.apply(action); }),
-        state: () => (graph as any).state as {example: string; x0: number; y0: number; step: number; xEnd: number; showExact: boolean},
+        state: () => (graph as any).state.model as {example: string; x0: number; y0: number; step: number; xEnd: number; showExact: boolean},
     };
 }
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent ?? '';

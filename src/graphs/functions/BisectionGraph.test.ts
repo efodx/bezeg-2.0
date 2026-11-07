@@ -546,7 +546,7 @@ test('capture and restore bring back the synchronous model and leave playback pa
     expect(graph.model).toEqual({example: 'cubic', a: -1.5, b: 2, step: 3});
     expect(graph.controller.isPlaying()).toBe(false);
     expect(graph.frames.callbacks.size).toBe(0);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({example: 'cubic', a: -1.5, b: 2, step: 3}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({example: 'cubic', a: -1.5, b: 2, step: 3})}));
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
 });
 

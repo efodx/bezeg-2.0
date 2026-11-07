@@ -234,7 +234,7 @@ test('capture and restore bring back the synchronous model read in the same tick
     expect(graph.model).toEqual({x1: -2, y1: 1, x2: 2, y2: 7});
     expect(points(graph)).toEqual([[-2, 1], [2, 7]]);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({x1: -2, y1: 1, x2: 2, y2: 7}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({x1: -2, y1: 1, x2: 2, y2: 7})}));
 });
 
 test('default scene preparation resets model and view and keeps the object count stable', () => {
@@ -286,7 +286,7 @@ test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'linear-function', data: {x1: 1, y1: 1, x2: 3, y2: 2}});
     const state = graph.figurePresetGraphState(undefined);
-    expect(state).toMatchObject({initialized: true, x1: 1, y1: 1, x2: 3, y2: 2});
+    expect(state).toMatchObject({initialized: true, model: {x1: 1, y1: 1, x2: 3, y2: 2}});
 });
 
 test('the refusals of a lesson action are localized in Slovenian and English', () => {

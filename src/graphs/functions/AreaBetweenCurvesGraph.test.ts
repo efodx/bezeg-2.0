@@ -484,7 +484,7 @@ test('capture and restore bring back the synchronous model read in the same tick
     expect([pointA(graph).x, pointB(graph).x]).toEqual([-1, 4]);
     expect(polygons(curveData(graph, POSITIVE).x).length + polygons(curveData(graph, NEGATIVE).x).length).toBe(3);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({a: -1, b: 4, mode: 'under-g'}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({a: -1, b: 4, mode: 'under-g'})}));
 });
 
 test('default scene preparation resets model and view and keeps the object count stable', () => {
@@ -536,7 +536,7 @@ test('a stored board state is not overwritten by the default view during initial
 test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'area-between-curves', data: {a: 1, b: 2, mode: 'under-f'}});
-    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, a: 1, b: 2, mode: 'under-f'});
+    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, model: {a: 1, b: 2, mode: 'under-f'}});
 });
 
 test('the refusals of a lesson action are localized in Slovenian and English', () => {

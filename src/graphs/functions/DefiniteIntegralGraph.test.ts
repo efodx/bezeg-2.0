@@ -430,7 +430,7 @@ test('capture and restore bring back the synchronous model read in the same tick
     expect([pointA(graph).x, pointB(graph).x]).toEqual([-1, 4]);
     expect(polygons(curveData(graph, POSITIVE).x).length + polygons(curveData(graph, NEGATIVE).x).length).toBeGreaterThanOrEqual(29);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({fn: 'sin', a: -1, b: 4, n: 30, method: 'right'}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({fn: 'sin', a: -1, b: 4, n: 30, method: 'right'})}));
 });
 
 test('default scene preparation resets model and view and keeps the object count stable', () => {
@@ -484,7 +484,7 @@ test('a stored board state is not overwritten by the default view during initial
 test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'definite-integral', data: {fn: 'exp', a: 1, b: 2, n: 8, method: 'midpoint'}});
-    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, fn: 'exp', a: 1, b: 2, n: 8, method: 'midpoint'});
+    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, model: {fn: 'exp', a: 1, b: 2, n: 8, method: 'midpoint'}});
 });
 
 test('changing the function sets the view of that function, from the inspector and from the lesson action; other changes keep the view', () => {

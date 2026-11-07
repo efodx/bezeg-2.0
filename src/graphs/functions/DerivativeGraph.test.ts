@@ -355,7 +355,7 @@ test('capture and restore bring back the synchronous model read in the same tick
     expect(pointP(graph).y).toBeCloseTo(Math.sin(-1), 12);
     expect(q(graph)[0]).toBeCloseTo(-1.3, 12);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({fn: 'sin', x0: -1, h: -0.3, tangent: true}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({fn: 'sin', x0: -1, h: -0.3, tangent: true})}));
 });
 
 test('default scene preparation resets model and view and keeps the object count stable', () => {
@@ -409,7 +409,7 @@ test('a stored board state is not overwritten by the default view during initial
 test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'derivative', data: {fn: 'exp', x0: 2, h: 0.5, tangent: true}});
-    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, fn: 'exp', x0: 2, h: 0.5, tangent: true});
+    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, model: {fn: 'exp', x0: 2, h: 0.5, tangent: true}});
 });
 
 test('the refusals of a lesson action are localized in Slovenian and English', () => {

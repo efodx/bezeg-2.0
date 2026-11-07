@@ -290,7 +290,7 @@ test('capture and restore bring back the synchronous model read in the same tick
     expect(pointY(points(graph)[FILLED])).toBe(2.2);
     expect(pointY(points(graph)[OPEN])).toBeCloseTo(0.8, 12);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({a: 2.2}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({a: 2.2})}));
 });
 
 test('default scene preparation resets model and view and keeps the object count stable', () => {
@@ -350,7 +350,7 @@ test('the pieces are clipped to a zoomed view and give no samples when the view 
 test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'piecewise-continuity', data: {a: 2}});
-    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, a: 2});
+    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, model: {a: 2}});
 });
 
 test('the refusal of the parameter are localized in Slovenian and English', () => {

@@ -217,7 +217,7 @@ test('capture and restore bring back the synchronous model read in the same tick
     expect(graph.model).toEqual({a: 0.3, mirror: true});
     expect(curves(graph)[MAIN].parents[0](1)).toBe(0.3);
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({a: 0.3, mirror: true}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({a: 0.3, mirror: true})}));
 });
 
 test('default scene preparation resets model and view and keeps the object count stable', () => {
@@ -268,7 +268,7 @@ test('a stored board state is not overwritten by the default view during initial
 test('figure export preset state follows the imported model', () => {
     const graph = makeGraph();
     graph.importFigurePresetData({id: 'exponential-function', data: {a: 1.5, mirror: true}});
-    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, a: 1.5, mirror: true});
+    expect(graph.figurePresetGraphState(undefined)).toMatchObject({initialized: true, model: {a: 1.5, mirror: true}});
 });
 
 test('the refusal of the base are localized in Slovenian and English', () => {

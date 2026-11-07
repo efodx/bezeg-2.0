@@ -657,7 +657,7 @@ test('capture and restore bring back the synchronous model, including the reveal
     expect(graph.model).toEqual({fn: 'sin', a: 0, x: 2, accumulationVisible: false});
     graph.restoreLessonState(checkpoint);
     expect(graph.model).toEqual({fn: 'square', a: -2, x: 1.5, accumulationVisible: true});
-    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({fn: 'square', a: -2, x: 1.5, accumulationVisible: true}));
+    expect(graph.setState).toHaveBeenLastCalledWith(expect.objectContaining({model: expect.objectContaining({fn: 'square', a: -2, x: 1.5, accumulationVisible: true})}));
     expect(graph.board.setBoundingBox).toHaveBeenLastCalledWith(checkpoint.value.boardState.boundingBox, true);
 });
 

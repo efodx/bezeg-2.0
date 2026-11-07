@@ -389,10 +389,13 @@ export function describeGraphTransientState(part: number): void {
             if (internals(graph).board) {
                 expect(Object.keys(preset).sort()).toEqual(['boardState', 'data', 'graphState', 'id']);
                 const dataKeys = PRESET_DATA_STATE_KEYS[id] ?? [];
-                // A function graph holds its live model in the scene store under `model`; files stay flat, so the model is not a graphState key.
-                const modelKeys = graph instanceof BaseFunctionGraph ? ['model'] : [];
+                // A function graph holds its live model in the scene store under `model`; files stay flat (`savedGraphState`), so
+                // their graphState holds the host fields and the model's fields, never a `model` key.
+                const savedKeys = graph instanceof BaseFunctionGraph
+                    ? ['initialized', ...Object.keys((graph.state as {model: object}).model)]
+                    : Object.keys(graph.state);
                 for (const key of dataKeys) expect(graph.state).toHaveProperty(key);
-                expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(Object.keys(graph.state).filter(key => !dataKeys.includes(key) && !modelKeys.includes(key)).sort());
+                expect(Object.keys(preset.graphState ?? {}).sort()).toEqual(savedKeys.filter(key => !dataKeys.includes(key)).sort());
             } else {
                 // All surface state is Preset data; the Preset's graphState only marks the graph initialized.
                 expect(Object.keys(preset).sort()).toEqual(['data', 'graphState', 'id']);

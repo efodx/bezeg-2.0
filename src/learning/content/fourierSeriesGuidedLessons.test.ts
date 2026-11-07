@@ -104,7 +104,7 @@ test('every scene lands in the stated state, applied out of order and twice in o
         for (const [id, expected] of [...order, ...Object.entries(SCENES)]) {
             m.scene(stepOf(id));
             m.scene(stepOf(id));
-            const {state} = m.graph;
+            const state = m.graph.state.model;
             expect({id, example: state.example, n: state.n, x: state.x, epsilon: state.epsilon})
                 .toEqual({id, example: expected.example, n: expected.n, x: expected.x, epsilon: expected.epsilon});
             // The graph's own sum agrees with the direct sum at the scene's point.
