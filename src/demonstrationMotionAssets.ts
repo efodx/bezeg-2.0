@@ -74,6 +74,7 @@ import motion_euler_method from './images/demonstrations/catalog/euler-method.we
 import motion_fourier_series from './images/demonstrations/catalog/fourier-series.webm?no-inline';
 import motion_curve_evolute from './images/demonstrations/catalog/curve-evolute.webm?no-inline';
 import motion_curve_envelope from './images/demonstrations/catalog/curve-envelope.webm?no-inline';
+import motion_arc_length_param from './images/demonstrations/catalog/arc-length-param.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -151,4 +152,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'fourier-series': {src: motion_fourier_series, type: 'video/webm', duration: 4},
     'curve-evolute': {src: motion_curve_evolute, type: 'video/webm', duration: 4},
     'curve-envelope': {src: motion_curve_envelope, type: 'video/webm', duration: 4},
+    'arc-length-param': {src: motion_arc_length_param, type: 'video/webm', duration: 4},
 };
