@@ -14,8 +14,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'curve-parametric', reason: NOT_CAPTURED},
     {id: 'curve-curvature', reason: NOT_CAPTURED},
     {id: 'curve-comb', reason: NOT_CAPTURED},
-    {id: 'curve-evolute', reason: NOT_CAPTURED},
-    {id: 'curve-envelope', reason: NOT_CAPTURED},
     {id: 'interp-hermite', reason: NOT_CAPTURED},
     {id: 'interp-runge', reason: NOT_CAPTURED},
     {id: 'bspline-insertion', reason: NOT_CAPTURED},

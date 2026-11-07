@@ -72,6 +72,8 @@ import motion_bspline_blossom from './images/demonstrations/catalog/bspline-blos
 import motion_quadrature from './images/demonstrations/catalog/quadrature.webm?no-inline';
 import motion_euler_method from './images/demonstrations/catalog/euler-method.webm?no-inline';
 import motion_fourier_series from './images/demonstrations/catalog/fourier-series.webm?no-inline';
+import motion_curve_evolute from './images/demonstrations/catalog/curve-evolute.webm?no-inline';
+import motion_curve_envelope from './images/demonstrations/catalog/curve-envelope.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -147,4 +149,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'quadrature': {src: motion_quadrature, type: 'video/webm', duration: 4},
     'euler-method': {src: motion_euler_method, type: 'video/webm', duration: 4},
     'fourier-series': {src: motion_fourier_series, type: 'video/webm', duration: 4},
+    'curve-evolute': {src: motion_curve_evolute, type: 'video/webm', duration: 4},
+    'curve-envelope': {src: motion_curve_envelope, type: 'video/webm', duration: 4},
 };
