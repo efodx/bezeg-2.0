@@ -1,0 +1,6 @@
+BisectionGraph|st=0|ds=2|ss=0|mr=9|mw=0|sp=0|mc=1|mv=0|ov=
+CltGraph|st=0|ds=0|ss=2|mr=17|mw=0|sp=0|mc=0|mv=1|ov= importPresetData
+FixedPointGraph|st=0|ds=0|ss=3|mr=15|mw=0|sp=0|mc=0|mv=2|ov=
+GeometricSeriesGraph|st=0|ds=0|ss=2|mr=13|mw=0|sp=0|mc=0|mv=1|ov=
+RootFindingGraph|st=0|ds=2|ss=0|mr=16|mw=0|sp=0|mc=1|mv=0|ov=
+SequenceGraph|st=0|ds=0|ss=3|mr=13|mw=0|sp=0|mc=0|mv=2|ov=

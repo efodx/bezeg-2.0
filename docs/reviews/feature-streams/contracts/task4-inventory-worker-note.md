@@ -1,0 +1,38 @@
+# Task 4 step 1 worker note (partial, stopped at HANDOFF)
+
+## State
+- Deliverable 1 (`docs/tasks/mathematical-runtime-contracts/04-consumer-inventory.md`): NOT written. Raw per-subclass counts are in
+  `.claude/jobs/inv-counts.txt` (35 files) and `.claude/jobs/inv-counts2.txt` (6 `IterativeFunctionGraph` subclasses); script `.claude/jobs/inv.sh`.
+  Columns: st = `this.state.<f>` lines, ds = `= this.state` destructure lines, ss = `stateSnapshot()`, mr = `this.model` lines, mw = `this.model =` writes (0 in every subclass), sp = `setState(` (0 in every subclass), mc = modelCache, mv = memoView, ov = overrides. Line counts, not occurrence counts.
+- Deliverable 2 (`src/graphs/functions/BaseFunctionGraph.authority.test.tsx`): written, 30 tests, first run 7 pass / 23 fail. Log `.claude/jobs/authority-run1.log`. No mutation runs, no typecheck yet. Production code was not edited by this worker.
+
+## Findings for the inventory
+- 36 files match `extends BaseFunctionGraph`, but 6 more classes extend `IterativeFunctionGraph` (Bisection, Clt, FixedPoint, GeometricSeries, RootFinding, Sequence): 42 classes in all.
+- No subclass writes `this.model =` or calls `setState`; only `commitModel` (BaseFunctionGraph.tsx:264). No subclass overrides `onStateChange`, `sceneGraphState`, `syncReplacedScene`, `figurePresetGraphState` or `getInitialState`. No subclass adds non-model fields to state; subclass-private mutable fields (`notice`, `adjustment`, playback controller) live outside the store.
+- Overrides: `importPreset` Accumulation:159, DefiniteIntegral:112 (read `this.model.fn` around super); `importPresetData` Epicycle:206, Correlation:254, SummaryStatistics:214, Quadrature:111, Clt:185, IterativeFunctionGraph:130, LinearMap:106; `exportPresetData` LinearMap:102.
+- Flat readers via `this.state`: Arc, AreaBetween, Continuity, Convexity, Darboux, Derivative, DefiniteIntegral, Euler, Exponential, Extrema, FunctionInverse, FunctionTransformation, Linear, MeanValue, PolynomialZeros, Quadrature, RationalFunction, Taylor, Trig, Accumulation, Bisection, RootFinding. Via `stateSnapshot()`: Complex x3, Binomial, ConicFocal, Correlation, DensityArea, Epicycle, FourierCoefficients, FourierSeries, LeastSquares, Runge, Summary, UniformConvergence, LinearMap, Clt, FixedPoint, GeometricSeries, Sequence.
+- Heaviest caching: BinomialNormal (4 modelCache + memoView); next Bisection, Accumulation, Arc, AreaBetween, DefiniteIntegral, DensityArea, FourierSeries, Rational, Runge, RootFinding (1 modelCache each). Simplest pilot: LinearFunctionGraph (no caches, no overrides, mr=5).
+- BaseGraph sites: `state` getter :166; `sceneGraphState` :407 (function override BaseFunctionGraph:434 spreads `this.model` over state); `figurePresetGraphState` :655 (override :453, model wins); `exportPreset` :920-926 (graphState + data); `importPreset` :933-939 (graphState first via `setBaseState`, then `importPresetData(storedPresetData(data))`, so data wins; function override :273-287 imports the default when data is null/undefined); checkpoint capture :664-680 and restore :683-706 (importData, then flat state replace, then `syncReplacedScene` BaseFunctionGraph:440 re-writes the model into state, so the checkpoint's `data` wins); `mount` :758-790 (remount `replaceState(getInitialState())`, and `unmount` resets `this.model` at BaseFunctionGraph:189); `replaceSceneState` :1100; figure path `applyFigurePreset` ~:1040-1085.
+- Stored `graphState` carries flat model fields. `functionPresetCollections.ts` has 10 collections overriding `checkGraphState` only because array or flat model fields live in graphState: FourierCoefficients :158, LeastSquares :189, Clt :218, Summary :233, Correlation :248, PolynomialZeros :294, RationalFunction :328, ConicFocal :366, Euler :384, Epicycle :409. Generic `checkSceneState` (PresetCollection.ts:36) applies name rules to flat model fields: `n`, `degree`, `t`, `alpha`, `d` must be numbers (`n` an integer >= 1) and keys starting show/is/allow/hide must be booleans (`BOOLEAN_OPTION`). Possible latent collision; not checked whether any model value violates it.
+- No model has a field named `initialized`; `BaseGraphState` has only `initialized`. No host/model field collision found.
+- Precedent for nested `model`: compgeo and projective graphs keep `model` in state and strip it on export (PointSetGraph:451-457; `PRESET_DATA_STATE_KEYS` in `graphTransientStateContract.tsx:67`). `graphTransientStateContract.tsx:392` asserts function-graph `Object.keys(preset.graphState)` equals `Object.keys(graph.state)`, so it breaks under a nested or stripped representation.
+- Existing tests read flat state: `BaseFunctionGraph.test.ts:143,167` (167 reconciles `{...graph.state, ...graph.model}`), about 45 `*.test.ts(x)` files under functions/complex/linear use `.state`, plus `learning/runtime/GuidedLesson.test.tsx` and `functions/refusalTexts.testutil.ts` (they reference BaseFunctionGraph/FunctionGraphState).
+- `src/learning` has no direct flat-state reader (only `history.replaceState`).
+- `SceneStore.setState` always replaces the state object (no equality check), so `state` identity is not a stable signal.
+- `commitModel` stores the given object, but `importPresetData` and `exportPresetData` copy (`{...data}`, `{...this.model}`). Linear `setCoordinate` always commits a fresh object even for an equal value, whereas Binomial skips the commit when the edit returns the same model (BinomialNormalGraph:80).
+
+## Test run 1 failures to fix
+1. `freePoints()` returned wrong points ("expected +0 to be close to 12"): the `evalVisProp('fixed') === false` filter does not isolate the draggable points. Pick them another way (the point whose coordinates equal the model, or the named `P_1`/`P_2`/`k` points).
+2. Several `linearShown` equality failures (log lines 48, 92, 161, 293): probably the same cause plus readout formats; inspect.
+3. Binomial Preset conflict (log 510): model stayed default after `importPreset` with graphState + data; check whether the collection rejects the DATA (`correction:false, poisson:true`) or whether importPreset needs the `data` shape used by `BinomialNormalGraph.host.test.tsx:239-277`.
+4. Drag assertion `expected 8 to be 11` (log 453): `setPositionDirectly` + `drag` trigger is not how the sliding point reads position; follow `dragK` in `BinomialNormalGraph.host.test.tsx:28` (moveTo then trigger), counting only `moveTo` calls made after the drag.
+5. English Binomial label `/^Threshold k/` is unverified.
+
+## Remaining steps
+1. Fix the failures, run `just unit src/graphs/functions/BaseFunctionGraph.authority.test.tsx` and `just typecheck` (logs under `.claude/jobs/`).
+2. One mutation per group, restored afterwards, then `git diff --stat -- src` must be empty: `importPreset` prefers graphState; drop `syncSceneToModel()` in `commitModel`; make `commitModel` store `{...next}` (identity); remove the `syncReplacedScene` setState; drop the `this.model` spread in `figurePresetGraphState`.
+3. Write the inventory file (<150 lines) from `.claude/jobs/inv-counts*.txt` and the findings above.
+4. Gaps to report: conflicting data/graphState in a forged checkpoint (needs the flat shape, so not representation independent); figure batch driven through `internals(graph).exportPresetFigures` (private method via the shared harness `realGraphScenes.ts:33`); Linear model identity is not observable externally (no modelCache), pinned for Binomial through call counts of wrapped model functions.
+
+## Files touched
+- Added `src/graphs/functions/BaseFunctionGraph.authority.test.tsx`, `.claude/jobs/inv.sh`, `.claude/jobs/inv-counts.txt`, `.claude/jobs/inv-counts2.txt`, `.claude/jobs/authority-run1.log`, this note.

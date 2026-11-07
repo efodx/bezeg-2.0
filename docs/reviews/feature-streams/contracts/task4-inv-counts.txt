@@ -1,0 +1,36 @@
+ComplexMultiplicationGraph|st=0|ds=0|ss=3|mr=18|mw=0|sp=0|mc=0|mv=2|ov=
+ComplexReciprocalGraph|st=0|ds=0|ss=3|mr=21|mw=0|sp=0|mc=0|mv=1|ov=
+ComplexRootsGraph|st=0|ds=0|ss=3|mr=15|mw=0|sp=0|mc=0|mv=1|ov=
+AccumulationGraph|st=0|ds=1|ss=0|mr=14|mw=0|sp=0|mc=1|mv=0|ov= importPreset
+ArcLengthGraph|st=0|ds=2|ss=0|mr=6|mw=0|sp=0|mc=1|mv=0|ov=
+AreaBetweenCurvesGraph|st=0|ds=3|ss=0|mr=5|mw=0|sp=0|mc=1|mv=0|ov=
+BinomialNormalGraph|st=0|ds=0|ss=2|mr=15|mw=0|sp=0|mc=4|mv=1|ov=
+ConicFocalGraph|st=0|ds=0|ss=2|mr=9|mw=0|sp=0|mc=0|mv=1|ov=
+ContinuityGraph|st=0|ds=2|ss=0|mr=2|mw=0|sp=0|mc=0|mv=0|ov=
+ConvexityGraph|st=0|ds=1|ss=0|mr=9|mw=0|sp=0|mc=0|mv=2|ov=
+CorrelationGraph|st=0|ds=0|ss=2|mr=19|mw=0|sp=0|mc=0|mv=1|ov= importPresetData
+DarbouxGraph|st=0|ds=1|ss=0|mr=15|mw=0|sp=0|mc=0|mv=2|ov=
+DefiniteIntegralGraph|st=0|ds=2|ss=0|mr=13|mw=0|sp=0|mc=1|mv=0|ov= importPreset
+DensityAreaGraph|st=0|ds=0|ss=2|mr=10|mw=0|sp=0|mc=1|mv=1|ov=
+DerivativeGraph|st=1|ds=2|ss=0|mr=8|mw=0|sp=0|mc=0|mv=0|ov=
+EpicycleGraph|st=0|ds=0|ss=2|mr=24|mw=0|sp=0|mc=0|mv=0|ov= importPresetData
+EulerGraph|st=0|ds=1|ss=0|mr=17|mw=0|sp=0|mc=0|mv=1|ov=
+ExponentialFunctionGraph|st=1|ds=2|ss=0|mr=3|mw=0|sp=0|mc=0|mv=0|ov=
+ExtremaGraph|st=0|ds=1|ss=0|mr=9|mw=0|sp=0|mc=0|mv=2|ov=
+FourierCoefficientsGraph|st=0|ds=0|ss=4|mr=33|mw=0|sp=0|mc=0|mv=1|ov=
+FourierSeriesGraph|st=0|ds=0|ss=2|mr=18|mw=0|sp=0|mc=1|mv=1|ov=
+FunctionInverseGraph|st=0|ds=1|ss=0|mr=13|mw=0|sp=0|mc=0|mv=0|ov=
+FunctionTransformationGraph|st=0|ds=1|ss=0|mr=11|mw=0|sp=0|mc=0|mv=0|ov=
+IterativeFunctionGraph|st=0|ds=0|ss=0|mr=1|mw=0|sp=0|mc=0|mv=0|ov= importPresetData
+LeastSquaresGraph|st=0|ds=0|ss=2|mr=20|mw=0|sp=0|mc=0|mv=1|ov=
+LinearFunctionGraph|st=0|ds=2|ss=0|mr=5|mw=0|sp=0|mc=0|mv=0|ov=
+MeanValueGraph|st=0|ds=1|ss=0|mr=8|mw=0|sp=0|mc=0|mv=0|ov=
+PolynomialZerosGraph|st=1|ds=1|ss=0|mr=19|mw=0|sp=0|mc=0|mv=0|ov=
+QuadratureGraph|st=0|ds=1|ss=0|mr=10|mw=0|sp=0|mc=0|mv=1|ov= importPresetData
+RationalFunctionGraph|st=0|ds=1|ss=0|mr=27|mw=0|sp=0|mc=1|mv=0|ov=
+RungeInterpolationGraph|st=0|ds=0|ss=2|mr=12|mw=0|sp=0|mc=1|mv=0|ov=
+SummaryStatisticsGraph|st=0|ds=0|ss=2|mr=25|mw=0|sp=0|mc=0|mv=1|ov= importPresetData
+TaylorGraph|st=0|ds=1|ss=0|mr=15|mw=0|sp=0|mc=0|mv=2|ov=
+TrigonometricFunctionsGraph|st=1|ds=2|ss=0|mr=7|mw=0|sp=0|mc=0|mv=0|ov=
+UniformConvergenceGraph|st=0|ds=0|ss=3|mr=15|mw=0|sp=0|mc=0|mv=2|ov=
+LinearMapGraph|st=0|ds=0|ss=2|mr=19|mw=0|sp=0|mc=0|mv=1|ov= importPresetData exportPresetData
