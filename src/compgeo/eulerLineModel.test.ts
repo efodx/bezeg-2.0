@@ -84,3 +84,19 @@ test('the example id names the example only while the vertices still equal it', 
     expect(activeEulerExampleId('right', eulerExample('default').points)).toBeUndefined();
     expect(EULER_EXAMPLES).toHaveLength(5);
 });
+
+test.each(['right', 'default', 'isosceles'] as const)('the %s Euler example on a finer grid has the same exact points scaled to board units', id => {
+    const unit = analyseEulerLine(eulerExample(id).points);
+    const fine = analyseEulerLine(eulerExample(id).points.map(p => ({x: p.x * 8, y: p.y * 8})), -3);
+    if (unit.kind !== 'triangle' || fine.kind !== 'triangle') throw new Error('expected a triangle');
+    for (const key of ['h', 'g', 'o', 'n'] as const) {
+        expect(fine[key].point.x.equals(unit[key].point.x), key).toBe(true);
+        expect(fine[key].point.y.equals(unit[key].point.y), key).toBe(true);
+    }
+    expect(fine.r2Quarter.equals(unit.r2Quarter)).toBe(true);
+    expect(fine.ninePoints.map(p => p.board)).toEqual(unit.ninePoints.map(p => p.board));
+    expect([fine.hg, fine.go, fine.ho, fine.circumradius]).toEqual([unit.hg, unit.go, unit.ho, unit.circumradius]);
+    expect([fine.collinear, fine.ratioHolds]).toEqual([unit.collinear, unit.ratioHolds]);
+    expect(fine.line?.direction.x.equals(unit.line!.direction.x)).toBe(true);
+    expect(activeEulerExampleId(id, eulerExample(id).points.map(p => ({x: p.x * 8, y: p.y * 8})), -3)).toBe(id);
+});

@@ -11,7 +11,7 @@ import {GridPoint} from './grid';
 import {orientValue} from './predicates';
 import {Rational, RationalPoint} from './rational';
 import {centroid, circumcentre, circumradius, EulerLine, eulerLineFromCentres, NinePoints, ninePoints, orthocentre} from './triangle';
-import {BoardXY, toBoard} from './notablePointsModel';
+import {BoardXY, scaleRational, scaleRationalPoint, toBoard} from './notablePointsModel';
 
 export type EulerExampleId = 'default' | 'right' | 'isosceles' | 'near-equilateral' | 'degenerate';
 
@@ -40,10 +40,12 @@ export function eulerExample(id: EulerExampleId): EulerExample {
 }
 
 /** The stored example id if the vertices are still exactly that example's; otherwise undefined (a custom triangle). */
-export function activeEulerExampleId(id: EulerExampleId | undefined, points: readonly GridPoint[]): EulerExampleId | undefined {
+export function activeEulerExampleId(id: EulerExampleId | undefined, points: readonly GridPoint[], exponent = 0): EulerExampleId | undefined {
     if (id === undefined) return undefined;
     const example = eulerExample(id);
-    return points.length === 3 && example.points.every((p, i) => p.x === points[i].x && p.y === points[i].y) ? id : undefined;
+    const scale = 2 ** exponent;
+    // The example is named in board units; the vertices are grid points, one step being 2^exponent board units.
+    return points.length === 3 && example.points.every((p, i) => p.x === points[i].x * scale && p.y === points[i].y * scale) ? id : undefined;
 }
 
 /** An exact point with its board coordinates (undefined beyond the cap). */
@@ -99,11 +101,13 @@ function squaredLength(from: RationalPoint, to: RationalPoint): Rational {
     return d.dot(d);
 }
 
-/** Analyses the first three points; fewer give `missing`. Throws RangeError only for points outside the grid range. */
-export function analyseEulerLine(points: readonly GridPoint[]): EulerAnalysis {
+/** Analyses the first three grid points; fewer give `missing`. Results are board units (grid step 2^exponent). Throws RangeError only for points outside the grid range. */
+export function analyseEulerLine(points: readonly GridPoint[], exponent = 0): EulerAnalysis {
     if (points.length < 3) return {kind: 'missing', have: points.length};
     const [a, b, c] = points as readonly [GridPoint, GridPoint, GridPoint];
-    const vertices = [a, b, c] as const;
+    const s = 2 ** exponent;
+    const vertex = (p: GridPoint): GridPoint => (exponent === 0 ? p : {x: p.x * s, y: p.y * s});
+    const vertices = [vertex(a), vertex(b), vertex(c)] as const;
     if (orientValue(a, b, c) === 0) return {kind: 'degenerate', vertices};
     const o = circumcentre(a, b, c);
     const h = orthocentre(a, b, c);
@@ -113,17 +117,31 @@ export function analyseEulerLine(points: readonly GridPoint[]): EulerAnalysis {
         throw new Error('a proper triangle must have all centres');
     }
     const g = centroid(a, b, c).point;
+    // The decisions are made exactly on the grid; scaling by a power of two changes none of them.
     const hg2 = squaredLength(g, h.point);
     const go2 = squaredLength(o.point, g);
+    const collinear = g.sub(o.point).cross(h.point.sub(o.point)).isZero();
+    const ratioHolds = hg2.equals(Rational.of(4).mul(go2));
+    const hoLength = Math.sqrt(squaredLength(o.point, h.point).toNumber());
+    const sc = (p: RationalPoint) => scaleRationalPoint(p, exponent);
+    const gs = sc(g), os = sc(o.point), hs = sc(h.point);
     const kinds: readonly NinePointKind[] = ['midpoint', 'foot', 'vertexMidpoint'];
+    const scaledNine: NinePoints = exponent === 0 ? nine : {
+        ...nine,
+        midpoints: [sc(nine.midpoints[0]), sc(nine.midpoints[1]), sc(nine.midpoints[2])],
+        feet: [sc(nine.feet[0]), sc(nine.feet[1]), sc(nine.feet[2])],
+        vertexMidpoints: [sc(nine.vertexMidpoints[0]), sc(nine.vertexMidpoints[1]), sc(nine.vertexMidpoints[2])],
+        all: nine.all.map(sc),
+        circle: {centre: sc(nine.circle.centre), r2: scaleRational(nine.circle.r2, 2 * exponent)},
+    };
     return {
-        kind: 'triangle', vertices, h: view(h.point), g: view(g), o: view(o.point), n: view(nine.circle.centre),
-        r2Quarter: nine.circle.r2, nine,
-        ninePoints: nine.all.map((p, i) => ({...view(p), kind: kinds[Math.floor(i / 3)], index: i % 3})),
-        line: eulerLineFromCentres(g, o.point, h.point),
-        collinear: g.sub(o.point).cross(h.point.sub(o.point)).isZero(),
-        ratioHolds: hg2.equals(Rational.of(4).mul(go2)),
-        hg: Math.sqrt(hg2.toNumber()), go: Math.sqrt(go2.toNumber()), ho: Math.sqrt(squaredLength(o.point, h.point).toNumber()),
-        circumradius: bigR.value, halfCircumradius: bigR.value / 2,
+        kind: 'triangle', vertices, h: view(hs), g: view(gs), o: view(os), n: view(scaledNine.circle.centre),
+        r2Quarter: scaledNine.circle.r2, nine: scaledNine,
+        ninePoints: scaledNine.all.map((p, i) => ({...view(p), kind: kinds[Math.floor(i / 3)], index: i % 3})),
+        line: eulerLineFromCentres(gs, os, hs),
+        collinear,
+        ratioHolds,
+        hg: Math.sqrt(hg2.toNumber()) * s, go: Math.sqrt(go2.toNumber()) * s, ho: hoLength * s,
+        circumradius: bigR.value * s, halfCircumradius: bigR.value * s / 2,
     };
 }

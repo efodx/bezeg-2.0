@@ -6,7 +6,8 @@
  * `BOARD_COORDINATE_CAP` is reported as `board: undefined` (the centre exists exactly but is not drawn).
  *
  * Exact values (centroid, circumcentre, orthocentre, S, R^2) are `Rational`; the incentre and the radii are doubles
- * (`inexact`), as in the kernel. The grid scale is 1: board units equal grid units.
+ * (`inexact`), as in the kernel. The kernel works on grid coordinates; `analyseNotablePoints(points, exponent)` scales every
+ * result by 2^exponent (one grid step in board units) after the exact computation, so all values are board units.
  */
 import {GridPoint} from './grid';
 import {orientValue} from './predicates';
@@ -37,6 +38,17 @@ export const NOTABLE_EXAMPLES: readonly NotableExample[] = [
     {id: 'degenerate', points: [{x: 0, y: 0}, {x: 1, y: 1}, {x: 3, y: 3}]},
 ];
 
+/** An exact rational times 2^exponent (exact; the exponent is an integer, negative for a finer grid). */
+export function scaleRational(value: Rational, exponent: number): Rational {
+    if (exponent === 0) return value;
+    return exponent > 0 ? Rational.fromBigInt(value.num * 2n ** BigInt(exponent), value.den)
+        : Rational.fromBigInt(value.num, value.den * 2n ** BigInt(-exponent));
+}
+
+export function scaleRationalPoint(point: RationalPoint, exponent: number): RationalPoint {
+    return exponent === 0 ? point : new RationalPoint(scaleRational(point.x, exponent), scaleRational(point.y, exponent));
+}
+
 export function isNotableExampleId(value: unknown): value is NotableExampleId {
     return NOTABLE_EXAMPLES.some(example => example.id === value);
 }
@@ -48,10 +60,12 @@ export function notableExample(id: NotableExampleId): NotableExample {
 }
 
 /** The stored example id if the vertices are still exactly that example's; otherwise undefined (a custom triangle). */
-export function activeExampleId(id: NotableExampleId | undefined, points: readonly GridPoint[]): NotableExampleId | undefined {
+export function activeExampleId(id: NotableExampleId | undefined, points: readonly GridPoint[], exponent = 0): NotableExampleId | undefined {
     if (id === undefined) return undefined;
     const example = notableExample(id);
-    return points.length === 3 && example.points.every((p, i) => p.x === points[i].x && p.y === points[i].y) ? id : undefined;
+    const scale = 2 ** exponent;
+    // The example is named in board units; the vertices are grid points, one step being 2^exponent board units.
+    return points.length === 3 && example.points.every((p, i) => p.x === points[i].x * scale && p.y === points[i].y * scale) ? id : undefined;
 }
 
 export interface BoardXY {
@@ -103,16 +117,19 @@ function exactView(point: RationalPoint, position: Position): ExactCentreView {
     return {point, position, board: toBoard(point)};
 }
 
-/** Analyses the first three points; fewer give `missing`. Throws RangeError only for points outside the grid range. */
-export function analyseNotablePoints(points: readonly GridPoint[]): NotableAnalysis {
+/** Analyses the first three grid points; fewer give `missing`. Results are board units (grid step 2^exponent). Throws RangeError only for points outside the grid range. */
+export function analyseNotablePoints(points: readonly GridPoint[], exponent = 0): NotableAnalysis {
     if (points.length < 3) return {kind: 'missing', have: points.length};
     const [a, b, c] = points as readonly [GridPoint, GridPoint, GridPoint];
+    const s = 2 ** exponent;
     const classification = classifyTriangle(a, b, c);
     const g = centroid(a, b, c);
-    const mid = (p: GridPoint, q: GridPoint): BoardXY => ({x: (p.x + q.x) / 2, y: (p.y + q.y) / 2});
+    const mid = (p: GridPoint, q: GridPoint): BoardXY => ({x: (p.x + q.x) / 2 * s, y: (p.y + q.y) / 2 * s});
+    const vertex = (p: GridPoint): GridPoint => (exponent === 0 ? p : {x: p.x * s, y: p.y * s});
+    const exact = (point: RationalPoint, position: Position) => exactView(scaleRationalPoint(point, exponent), position);
     const base = {
-        kind: 'triangle' as const, vertices: [a, b, c] as const, classification, orient: orientValue(a, b, c),
-        centroid: exactView(g.point, g.position), area: Rational.of(Math.abs(orientValue(a, b, c)), 2),
+        kind: 'triangle' as const, vertices: [vertex(a), vertex(b), vertex(c)] as const, classification, orient: orientValue(a, b, c) * s * s,
+        centroid: exact(g.point, g.position), area: scaleRational(Rational.of(Math.abs(orientValue(a, b, c)), 2), 2 * exponent),
         midpoints: [mid(b, c), mid(c, a), mid(a, b)] as const,
     };
     if (classification.kind === 'degenerate') {
@@ -130,16 +147,16 @@ export function analyseNotablePoints(points: readonly GridPoint[]): NotableAnaly
         || smallR.kind !== 'value' || nine.kind !== 'points') {
         throw new Error('a proper triangle must have all centres');
     }
-    const feet = nine.feet.map(foot => toBoard(foot));
+    const feet = nine.feet.map(foot => toBoard(scaleRationalPoint(foot, exponent)));
     const allFeet = feet.every(foot => foot !== undefined);
     return {
         ...base,
-        circumcentre: exactView(o.point, o.position),
-        orthocentre: exactView(h.point, h.position),
-        incentre: {x: i.x, y: i.y},
-        circumradiusSquared: r2.value,
-        circumradius: bigR.value,
-        inradius: smallR.value,
+        circumcentre: exact(o.point, o.position),
+        orthocentre: exact(h.point, h.position),
+        incentre: {x: i.x * s, y: i.y * s},
+        circumradiusSquared: scaleRational(r2.value, 2 * exponent),
+        circumradius: bigR.value * s,
+        inradius: smallR.value * s,
         feet: allFeet ? [feet[0]!, feet[1]!, feet[2]!] : undefined,
     };
 }

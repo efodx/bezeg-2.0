@@ -68,11 +68,11 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
 
     get exampleId(): EulerExampleId | undefined {
         const state = this.state;
-        return activeEulerExampleId(hasExampleField(state) ? state.exampleId : undefined, state.model.points);
+        return activeEulerExampleId(hasExampleField(state) ? state.exampleId : undefined, state.model.points, state.model.gridStepExponent);
     }
 
     analysis(): EulerAnalysis {
-        return analyseEulerLine(this.model.points);
+        return analyseEulerLine(this.model.points, this.model.gridStepExponent);
     }
 
     /** Points not visible in the current board view (or too far to draw). Empty before a board exists. */
@@ -192,7 +192,7 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
 
     protected override drawOverlay(id: "grid" | EulerOverlayId, model: PointSetModel): JXG.GeometryElement[] {
         if (id === "grid") return super.drawOverlay(id, model);
-        const analysis = analyseEulerLine(model.points);
+        const analysis = analyseEulerLine(model.points, model.gridStepExponent);
         if (analysis.kind === "missing") return [];
         if (id === "triangle") return this.drawTriangle(analysis.vertices);
         if (analysis.kind !== "triangle") return [];

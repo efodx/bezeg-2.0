@@ -62,11 +62,11 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
 
     get exampleId(): NotableExampleId | undefined {
         const state = this.state;
-        return activeExampleId(hasExampleField(state) ? state.exampleId : undefined, state.model.points);
+        return activeExampleId(hasExampleField(state) ? state.exampleId : undefined, state.model.points, state.model.gridStepExponent);
     }
 
     analysis(): NotableAnalysis {
-        return analyseNotablePoints(this.model.points);
+        return analyseNotablePoints(this.model.points, this.model.gridStepExponent);
     }
 
     /** Centres not visible in the current board view (or too far to draw). Empty before a board exists. */
@@ -195,7 +195,7 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
 
     protected override drawOverlay(id: "grid" | NotableOverlayId, model: PointSetModel): JXG.GeometryElement[] {
         if (id === "grid") return super.drawOverlay(id, model);
-        const analysis = analyseNotablePoints(model.points);
+        const analysis = analyseNotablePoints(model.points, model.gridStepExponent);
         if (analysis.kind !== "triangle") return [];
         return id === "triangle" ? this.drawTriangle(analysis) : this.drawCentre(id, analysis);
     }

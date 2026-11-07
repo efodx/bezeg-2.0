@@ -342,3 +342,31 @@ test('a scene that starts with every overlay off still shows the type chip', () 
     expect(named(graph, 'notable-chip')).toHaveLength(1);
     expect(named(graph, 'notable-chip')[0].plaintext).toBe('Vrsta trikotnika: ostrokotni');
 });
+
+/** What a student sees: every board object's place and size, the framing after Show all, and the inspector text. */
+function seen(graph: Observed) {
+    act(() => { graph.showAll(); });
+    // Axis ticks and their labels follow the viewport, not the triangle.
+    const objects = all(graph).filter(o => !['label', 'ticks', 'axis'].includes(o.elType)).map(o => ({
+        type: o.elType, name: o.name ?? '', coords: o.coords?.usrCoords, radius: o.Radius ? o.Radius() : undefined, text: o.plaintext,
+    }));
+    return {objects, box: graph.liveBoard().getBoundingBox(), panel: document.querySelector('.notable-panel')?.textContent};
+}
+
+test.each([[-2, 4], [-8, 256]])('a triangle on a grid of 2^%i is drawn and worded exactly like the same triangle on the unit grid', (exponent, factor) => {
+    const base: [number, number][] = [[0, 0], [7, 0], [2, 5]];
+    const graph = new Observed();
+    mount(graph);
+    showAllCentres(graph);
+    load(graph, tri(...base));
+    const unit = seen(graph);
+    load(graph, {...tri(...base.map(([x, y]): [number, number] => [x * factor, y * factor])), gridStepExponent: exponent});
+    const fine = seen(graph);
+    expect(graph.exampleId).toBe('default');
+    expect(fine.objects.length).toBe(unit.objects.length);
+    expect(unit.panel).toContain('3');
+    expect(fine.panel).toBe(unit.panel);
+    expect(fine.box).toEqual(unit.box);
+    expect(fine.objects).toEqual(unit.objects);
+    expect(centreRow('centroid')?.textContent).toBe('G = (3, 5/3), znotraj trikotnika');
+});

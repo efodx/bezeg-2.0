@@ -99,3 +99,31 @@ test('inBox decides membership in either corner order', () => {
     expect(inBox([-1, 5, 5, -1], {x: 6, y: 0})).toBe(false);
     expect(inBox([5, -1, -1, 5], {x: 0, y: 0})).toBe(true);
 });
+
+test.each(['obtuse', 'right', 'default'] as const)('analysing the %s example on a finer grid gives the exact rationals scaled by 2^e, not floats', id => {
+    const exponent = -3;
+    const unit = tri(id);
+    const fine = analyseNotablePoints(notableExample(id).points.map(p => ({x: p.x * 8, y: p.y * 8})), exponent);
+    if (fine.kind !== 'triangle') throw new Error('expected a triangle');
+    expect(fine.classification).toEqual(unit.classification);
+    for (const key of ['centroid', 'circumcentre', 'orthocentre'] as const) {
+        expect(fine[key]!.point.x.equals(unit[key]!.point.x), key).toBe(true);
+        expect(fine[key]!.point.y.equals(unit[key]!.point.y), key).toBe(true);
+        expect(fine[key]!.position).toBe(unit[key]!.position);
+    }
+    expect(fine.area.equals(unit.area)).toBe(true);
+    expect(fine.circumradiusSquared!.equals(unit.circumradiusSquared!)).toBe(true);
+    expect(fine.circumradius).toBe(unit.circumradius);
+    expect(fine.inradius).toBe(unit.inradius);
+    expect(fine.vertices).toEqual(notableExample(id).points);
+    expect(fine.feet).toEqual(unit.feet);
+    expect(fine.midpoints).toEqual(unit.midpoints);
+});
+
+test('a finer grid keeps the board cap in board units and a fine example is still its example', () => {
+    expect(activeExampleId('default', notableExample('default').points.map(p => ({x: p.x * 256, y: p.y * 256})), -8)).toBe('default');
+    expect(activeExampleId('default', notableExample('default').points, -8)).toBeUndefined();
+    const far = analyseNotablePoints([{x: 0, y: 0}, {x: 2 ** 20, y: 0}, {x: 1, y: 1}], -8);
+    if (far.kind !== 'triangle') throw new Error('expected a triangle');
+    expect(far.circumcentre!.board).toEqual({x: 2 ** 11, y: expect.any(Number)});
+});
