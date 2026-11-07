@@ -108,7 +108,7 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
         return view.difference !== undefined && Math.abs(view.difference) <= MATCH_TOLERANCE;
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setExample(value: unknown): void {
         this.commitModel(this.accept(chooseMeanValueExample(value)));
@@ -292,13 +292,8 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): MeanValueModel {
-        const {example, a, b, c, revealed} = this.state;
-        return {example, a, b, c, revealed};
-    }
-
     protected renderControls(): React.ReactNode {
-        const {example, a, b, c} = this.stateModel();
+        const {example, a, b, c} = this.model;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("mean_value_example_label")} value={example} help={t("mean_value_example_help")}
@@ -318,7 +313,7 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
     }
 
     protected override renderReveals(): React.ReactNode {
-        const {revealed} = this.stateModel();
+        const {revealed} = this.model;
         return <>
             <div className="mean-value-actions" role="group" aria-label={t("mean_value_actions_label")}>
                 <button type="button" data-action="toggle-matches" data-revealed={revealed}
@@ -374,7 +369,7 @@ export class MeanValueGraph extends BaseFunctionGraph<MeanValueModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const language = currentLanguage();
         const view = this.viewOf(model);
         const number = (value: number) => formatNumber(value, language, PRECISE);

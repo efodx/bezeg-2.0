@@ -405,12 +405,11 @@ test('the examples start from their lesson models, which are not at a matching p
     }
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('cube'), parameter('mvt-c', 0.3), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'cube', a: -1, b: 1, c: 0.3, revealed: true});
-    expect(graph.state).toMatchObject(graph.model);
     expect(caption(graph)[1]).toBe('naklon sekante 1, tangente 0,27');
     // a later action in the same tick sees the earlier one, including an endpoint that depends on c
     apply(graph, choice('abs'));

@@ -107,14 +107,13 @@ test('each piece is clipped to its own domain: left up to and including 1, right
     expect(data(pieces(graph)[RIGHT]).y[0]).toBeCloseTo(1, 6);
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     apply(graph, parameter('a', 3));
     apply(graph, parameter('a', 0));
     apply(graph, parameter('a', 1.5));
     expect(graph.model).toEqual({a: 1.5});
-    expect(graph.state.a).toBe(graph.model.a);
     expect(pointY(points(graph)[FILLED])).toBe(1.5);
     expect(pointY(points(graph)[OPEN])).toBe(1.5);
     expect(resolve(points(graph)[FILLED].attributes.fillColor)).toBe(MATCH);

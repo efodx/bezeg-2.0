@@ -455,12 +455,11 @@ test('the toggle names its state in words; editing the center, degree and x keep
     expect(controls(graph).found.ChoiceSelect[0].props.options[3].text).toBe('f(x) = e^(−1/x) for x > 0, 0 otherwise');
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('geometric'), parameter('taylor-x', -1.5), parameter('taylor-degree', 5), parameter('taylor-center', -0.5), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'geometric', center: -0.5, degree: 5, x: -1.5, boundVisible: true});
-    expect(graph.state).toMatchObject(graph.model);
     // a later action in the same tick sees the earlier ones: the new example's domain applies to x at once
     expect(() => apply(graph, parameter('taylor-x', 2))).toThrow(DomainError);
     apply(graph, choice('sine'));

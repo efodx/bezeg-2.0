@@ -73,7 +73,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         return {key: this.model.example, box: EXAMPLE_VIEWS[this.model.example]};
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     private apply(edit: EulerEdit, options: { syncScene?: boolean } = {}): void {
         if (!edit.ok) throw new DomainError(eulerEditMessage(edit.issue));
@@ -267,13 +267,8 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): EulerModel {
-        const {example, x0, y0, step, xEnd, showExact, revealed} = this.state;
-        return {example, x0, y0, step, xEnd, showExact, revealed};
-    }
-
     protected renderControls(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const stepIndex = STEP_SIZES.indexOf(model.step);
@@ -330,7 +325,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const number = (value: number | undefined) => value === undefined ? t("euler_ode_none") : formatNumber(value, language, PRECISE);

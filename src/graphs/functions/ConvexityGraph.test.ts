@@ -407,12 +407,11 @@ test('the toggle names its state in words, editing a, b and t keeps the reveal a
     expect(controls(graph).toggle.props.children).toBe('Show second derivative');
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('cube'), parameter('convexity-a', 0), parameter('convexity-b', 2), parameter('convexity-t', 1.8), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'cube', a: 0, b: 2, t: 1.8, secondDerivativeVisible: true});
-    expect(graph.state).toMatchObject(graph.model);
     // a later action in the same tick sees the earlier one, including an endpoint that depends on the other endpoint
     apply(graph, parameter('convexity-b', 1));
     apply(graph, parameter('convexity-a', 0.5));

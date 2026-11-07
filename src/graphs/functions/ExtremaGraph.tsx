@@ -124,7 +124,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
         return view.analysis.candidates.filter(candidate => candidate.kind === kind);
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setExample(value: unknown): void {
         const choice = chooseExtremaExample(value);
@@ -357,13 +357,8 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
-    private stateModel(): ExtremaModel {
-        const {example, a, b, revealed} = this.state;
-        return {example, a, b, revealed};
-    }
-
     protected renderControls(): React.ReactNode {
-        const {example, a, b} = this.stateModel();
+        const {example, a, b} = this.model;
         return <>
             <div className="inspector-group">
                 <ChoiceSelect label={t("extrema_example_label")} value={example} help={t("extrema_example_help")}
@@ -381,7 +376,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     }
 
     protected override renderReveals(): React.ReactNode {
-        const {revealed} = this.stateModel();
+        const {revealed} = this.model;
         return <>
             <div className="extrema-actions" role="group" aria-label={t("extrema_actions_label")}>
                 <button type="button" data-action="toggle-classification" data-revealed={revealed}
@@ -413,7 +408,7 @@ export class ExtremaGraph extends BaseFunctionGraph<ExtremaModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateModel();
+        const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const {analysis} = view;

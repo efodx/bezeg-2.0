@@ -46,7 +46,7 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
         return [-2, 5, 4, -2];
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     /** Sets the parameter; throws when it is outside [0, 3]. */
     protected setParameter(value: number): void {
@@ -119,7 +119,7 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {a} = this.state;
+        const {a} = this.model;
         return <div className="inspector-group">
             <Slider customText={t("continuity_param_label")} min={CONTINUITY_A_MIN} max={CONTINUITY_A_MAX} step={CONTINUITY_A_STEP} value={a}
                     help={t("continuity_param_help")} formatValue={localizedSliderValue} onChange={next => this.ignoreOutOfDomain(() => this.setParameter(next))}/>
@@ -127,7 +127,7 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const {a} = this.state;
+        const {a} = this.model;
         const language = currentLanguage();
         const number = (value: number) => formatNumber(value, language);
         const continuous = isContinuous(a);
