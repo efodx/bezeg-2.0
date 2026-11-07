@@ -1,6 +1,6 @@
 # 1. Stable geometric-series evaluation
 
-Status: pending. Source: [specification, section 1](../../specs/mathematical-runtime-contracts.md#1-stable-geometric-series-evaluation), acceptance N1–N3 and shared verification. Priority: first; independent of the other tasks. Finish before task 4 migrates its graph host.
+Status: accepted 2026-11-07 ([evidence](01-stable-series-evidence.md)). Source: [specification, section 1](../../specs/mathematical-runtime-contracts.md#1-stable-geometric-series-evaluation), acceptance N1–N3 and shared verification. Priority: first; independent of the other tasks. Finish before task 4 migrates its graph host.
 
 ## Scope and entry points
 

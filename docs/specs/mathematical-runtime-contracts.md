@@ -32,6 +32,8 @@ Acceptance:
 - **N2:** Bars, captions, inspector readouts and tolerance statuses consume coherent values. Cover `q=0`, `q=1`, `q=-1`, values near both unit boundaries, convergent/divergent cases, the term cap, and supported endpoints without NaN or unintended domain changes.
 - **N3:** Keep the term cap, first-term semantics, no-limit states, strict tolerance comparison and stopped/reset behavior. A finite picture remains an illustration; numerical results do not acquire a new proof claim.
 
+**Decision (2026-11-07):** the finite sum keeps the `Math.pow` closed form where `||q| - 1| >= 0.25`, so exactly representable results stay exact, and uses `expm1`/`log1p` nearer the unit boundary. Worst relative error against an exact BigInt reference was 9.2e-16. Rejected: compensated summation of the terms, whose worst error was 6.7e-5 near `q = -1`, because rounding in the terms themselves dominates small even-`n` sums; and `expm1` everywhere, which loses exact results such as `2^n - 1`.
+
 Source contract: [school function graphs, S5](school-function-graphs-lessons.md#s5-geometric-series-and-partial-sums).
 
 ## 2. Correlated trace event and note types
@@ -90,6 +92,8 @@ Acceptance:
 - **C1:** Compile-time fixtures reject circle-without-radius, non-circle-without-directrix data and unique-without-conic results. Valid constructors/results narrow to their required fields without consumer non-null assertions or invariant-restoring casts.
 - **C2:** Circle, ellipse, parabola, hyperbola, unique, line-pair, pencil and invalid outcomes retain their current mathematical values, diagnostics, degeneracy behavior and visual/readout meaning. No assertions or fallback zeros may hide a missing case.
 - **C3:** All actual consumers are migrated and current mathematical/real-host checks remain meaningful. Exact projective arithmetic stays separate from drawing approximations; this task changes neither the coefficient bounds nor the sampled-deviation policy.
+
+**Decision (2026-11-07):** `invalid` has two variants, one without a conic and one with the `point` or `empty` diagnostic conic, because the solver really returns both. Rejected: one `invalid` variant with an optional conic, which would let a consumer miss the diagnostic. `FivePointScene` stays a flat view record: it is derived data, and narrowing it would widen this task into its text and drawing consumers.
 
 Source contracts: [school function graphs, S6](school-function-graphs-lessons.md#s6-conics-focus-directrix-eccentricity-and-the-bézier-bridge) and [projective conics](projective-conics-lessons.md).
 

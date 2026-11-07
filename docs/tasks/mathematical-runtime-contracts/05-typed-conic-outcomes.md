@@ -1,6 +1,6 @@
 # 5. Typed conic variants and solver outcomes
 
-Status: pending. Source: [specification, section 5](../../specs/mathematical-runtime-contracts.md#5-typed-conic-variants-and-solver-outcomes), acceptance C1–C3 and shared verification. Independent of trace tasks; coordinate function graph consumers with task 4.
+Status: accepted 2026-11-07 ([evidence](05-typed-conic-evidence.md)). Source: [specification, section 5](../../specs/mathematical-runtime-contracts.md#5-typed-conic-variants-and-solver-outcomes), acceptance C1–C3 and shared verification. Independent of trace tasks; coordinate function graph consumers with task 4.
 
 ## Scope and entry points
 
