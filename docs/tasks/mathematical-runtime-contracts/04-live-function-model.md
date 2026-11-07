@@ -1,6 +1,6 @@
 # 4. One live function model authority
 
-Status: pending. Source: [specification, section 4](../../specs/mathematical-runtime-contracts.md#4-one-live-function-model-authority), acceptance F1–F4 and shared verification. Dependency: task 1 accepted. Serialize shared base/subclass edits, including overlaps with task 5 or the separate lesson-authoring persistence workstream.
+Status: in progress; work item 1 accepted 2026-11-07 ([inventory](04-consumer-inventory.md), `BaseFunctionGraph.authority.test.tsx`). Source: [specification, section 4](../../specs/mathematical-runtime-contracts.md#4-one-live-function-model-authority), acceptance F1–F4 and shared verification. Dependency: task 1 accepted. Serialize shared base/subclass edits, including overlaps with task 5 or the separate lesson-authoring persistence workstream.
 
 ## Scope and entry points
 

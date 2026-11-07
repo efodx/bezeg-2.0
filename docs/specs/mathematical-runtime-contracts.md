@@ -79,6 +79,17 @@ Acceptance:
 - **F3:** Same-tick multi-action lessons, edits/drags, Reset, language change, Preset/file restore, checkpoint rollback, figure batch entry/return and remount preserve domain values, visible controls and actual board geometry. Test conflicting persisted data/state inputs against the existing authority rule, without introducing a new file format.
 - **F4:** All affected subclasses use the final interface; no permanent legacy mirror or parallel state owner remains. Document live state ownership in current architecture after implementation. Coordinate any shared-file edits with the lesson-authoring queue's persistence owner rather than merging the two workstreams.
 
+**Representation (handler decision, 2026-11-07):**
+
+- `FunctionGraphState<M> = BaseGraphState & {model: M}`. `BaseFunctionGraph.model` becomes a getter over `this.state.model`, so a read returns the stored object and allocates nothing.
+- `commitModel` is the only model write. With no live session it writes the store without touching the board, which keeps today's late-event behavior; `unmount` and the remount reset go through the store too.
+- `BaseFunctionGraph` overrides `replaceState` so that a scene replacement never replaces the live model. Every replacement path reaches that method, and Preset data is imported before it runs, so this one rule replaces the reconciliation in `syncReplacedScene` and `figurePresetGraphState`.
+- Files keep their flat `graphState`. `sceneGraphState` flattens the model on the way out and `BaseFunctionGraph.importPreset` drops model fields on the way in, so `data` keeps winning, no file shape changes and the `checkGraphState` overrides stay. Persisted validation stays with Controls step 7.
+- Families migrate one per commit. Until the last one, `commitModel` also writes flat fields for the readers not yet migrated. That projection is written only from `commitModel`, nothing reads it back as authority, and the last family's commit deletes it with `stateSnapshot()`, as F4 requires.
+- The `asyncState` test stub drops `setState` to imitate a lag the synchronous store no longer has. It goes in the same commit as the base change, because a stubbed `setState` would now also drop the model.
+
+Rejected: a separate model slot on `SceneStore` outside `S`. It needs a second snapshot and replacement path in `BaseGraph.tsx`, the seam Controls steps 7 and 8 change, to protect only what the `replaceState` override already protects. Also rejected: keeping flat fields with a memoized projection, because the memo is the second authority F1 forbids.
+
 Source contracts: [synchronous scene store direction](react-architecture-refactor.md), [graph contracts](graph-contract-deepening.md), and [guardrails](../guardrails.md).
 
 ## 5. Typed conic variants and solver outcomes
