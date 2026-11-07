@@ -32,7 +32,7 @@ Confirmed with the project owner on 2026-10-08:
 - Evaluate technology changes when justified by evidence. The app has no backend, accounts, or server database; browser-local presets and file import/export remain supported.
 - Document the architecture, current capabilities, product and engineering guardrails, and a phased improvement roadmap.
 - Cover usability, visual design, and curve-rendering performance.
-- Prioritize desktop and classroom projection while making essential controls usable on tablets and phones, through touch and keyboard input.
+- Prioritize desktop and make essential controls usable on tablets and phones through touch and keyboard input. Design Presentation mode for classroom use of the free-exploration graph.
 - Keep Slovenian as the default app language, put English support on the roadmap, and write contributor documentation in English.
 - Define performance work around responsive control-point dragging and sliders, including complex curves and visible constructions. Measure those interactions before selecting optimizations.
 - Allow breaking changes when they improve the app or architecture. Document the reason and user impact; backward compatibility is not a blanket requirement.
@@ -45,6 +45,12 @@ Confirmed with the project owner on 2026-10-08:
 The owner extended the long-term direction: Bezeg should teach its concepts with motivation and sufficient mathematical explanation to stand on their own within stated prerequisites. The audience and starting knowledge vary by family, with higher concepts developed first; a complete elementary sequence is not a prerequisite for starting. Practice exercises and assessment are excluded.
 
 The owner accepted readable Study chapters interleaved with focused graph activities, with direct section access for revision. Chapters and standalone exploration share the same Demonstrations; the catalog remains an independent way to find every graph. Lead with intuition and precise statements; include derivations or proofs only when their reasoning or intuition can be made readily apparent through the graph. Bézier curves are the first topic, using the owner's thesis for motivation; see the [chapter content outline](specs/bezier-study-chapter.md). The [standalone learning specification](specs/standalone-learning.md) includes the accepted picture examples, two entry points, additive routes, transient scene/reading state, and verification gates. [ADR 0014](adr/0014-study-chapters-share-demonstrations.md) records the shared ownership decision. This extends the earlier restriction on curriculum navigation while retaining static client-only hosting. The owner authorized specification/reference publication; implementation and final content review remain separate work.
+
+## Independent study and classroom teaching — 2026-11-07
+
+Guided lessons serve students studying independently. Teachers use the ordinary Demonstration to set up, manipulate, or step through the same mathematical idea in their own way. Presentation mode prioritizes that graph and its teaching controls. [Independent study and classroom teaching](guardrails.md#independent-study-and-classroom-teaching).
+
+Custom formula entry extends that teaching workflow. The first implementation slice is Bisection, followed by Newton and Secant on their shared route, after the relevant Controls and Contracts work. [Custom formulas specification](specs/custom-function-entry.md).
 
 ## Intended documentation
 
