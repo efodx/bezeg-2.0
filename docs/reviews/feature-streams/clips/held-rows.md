@@ -1,0 +1,145 @@
+# Held rows (2026-11-07, handler 4)
+
+Rows a worker wrote that failed their capture. Each is kept here verbatim so a later batch can fix and restore it to its family file. Reasons come from the capture failure message.
+
+| id | Capture failure | Likely fix |
+| --- | --- | --- |
+| interp-hermite | `control jxgBoard1P45 moved at frame 13`: in the Catmull-Rom poster the tangent handles are draggable points that follow P1 | Let the driver accept derived handles that the graph recomputes, or drag a point whose handles stay fixed |
+| interp-runge | `point jxgBoard1P114 left the fixed camera at checkpoint 1`: raising the degree from 10 overshoots | A smaller first step, or a decision on off-camera points |
+| rational-function | `point jxgBoard1P55 left the fixed camera at frame 0`: a poster point already lies outside the camera | Find P55 (probably an asymptote or hole marker) and decide whether the check should skip off-board helpers |
+| geometric-series | `the app did not respond to the control at frame 16`: the poster shows one term, which does not depend on q | A row on a control the poster scene draws, or a recipe showing more terms |
+| conic-focal | `point jxgBoard1P44 left the fixed camera at frame 16`: the lesson pushes eps past 1, where the second focus leaves any camera | Owner decision on off-camera points for this row, or a quote that stays below 1 |
+| bspline-extraction | `the last frame differs from the first (the loop does not close)`; the quote is about a cubic, the poster is quadratic | Find why the release misses the start (snapping?) and pick a quote for the quadratic |
+| bspline-nurbs | `the scene starts at 0.063, but the row path starts at 0.0625`: the slider rounds the poster's 1/16 | Compare the full-precision slider value, or move the recipe's t to a 0.001 multiple |
+| root-finding | `the last frame differs from the first (the loop does not close)` on the x0 number field | Check how the field formats the returning value |
+| epicycles | `control "Krajišče 1, koordinata x" stays hidden in every inspector tab` in the poster scene | Pick a control the poster scene shows |
+
+Not written: `bspline-insertion` (only the Vstavi vozel button changes the picture), `fourier-coefficients` (its handle field is not in the route probe; a suggested row is in a comment in `scripts/demonstration-clip-rows/analysis.cjs`), `inversion` (integer controls only).
+
+## Row text
+
+`interp-hermite`:
+
+```js
+    {
+        id: 'interp-hermite',
+        motion: 'pointer-drag',
+        control: {kind: 'point', name: 'P1'},
+        // Board coordinates. The poster scene is the Catmull-Rom mode with the default points; P1 (1,2) goes up 1.5 and back, so the tangent arrows at P0, P1 and P2 turn with it.
+        path: [[1, 2], [1, 3.5], [1, 2]],
+        lessonQuote: 'Povleci \\(P_1\\) in opazuj, kako se obe sosednji tangenti prilagodita.',
+        discreteReason: null,
+    },
+```
+
+`interp-runge`:
+
+```js
+    {
+        id: 'interp-runge',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'stepper', label: 'Povečaj stopnjo n za 1', step: 1},
+        // Cumulative presses from the poster degree n=10 (the graph default): up to n=16 and back.
+        path: [0, 2, 4, 6, 4, 2, 0],
+        lessonQuote: 'Višaj stopnjo za nekaj korakov in opazuj, kako se spreminja polinom ob krajiščih.',
+        discreteReason: 'The degree n is an integer changed only by the Povečaj and Zmanjšaj buttons; the page has no slider or draggable node, so no smooth control exists.',
+    },
+```
+
+`rational-function`:
+
+```js
+    {
+        id: 'rational-function',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Števec: Ničla 2: položaj x', step: 0.1},
+        // The poster scene is (x^2-1)/(x-2) with numerator zeros -1 and 1. Numerator zero 2 (at 1) goes past the pole 2 to 4 and back, so the hole appears at the pole and disappears; it never meets zero 1 (-1), so nothing merges.
+        path: [1, 4, 1],
+        lessonQuote: 'Povleci ničle števca in imenovalca, jih vpiši kot števila in vsakič preveri: ničla okrajšanega števca je ničla funkcije, ničla okrajšanega imenovalca je pol, skupna ničla je luknja, stopnji pa določita asimptoto.',
+        discreteReason: null,
+    },
+```
+
+`geometric-series`:
+
+```js
+    {
+        id: 'geometric-series',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Količnik q', step: 0.05},
+        // The poster scene is a=1, q=0.5, one term. q goes to -0.8 and back, so the limit line a/(1-q) moves from 2 to 0.56 and back inside the camera. The lesson never says to move q; the quote is the step that uses negative q.
+        path: [0.5, -0.8, 0.5],
+        lessonQuote: 'Poišči, katere delne vsote so nad limito in katere pod njo.',
+        discreteReason: null,
+    },
+```
+
+`conic-focal`:
+
+```js
+    {
+        id: 'conic-focal',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Numerična ekscentričnost ε', step: 0.05},
+        // The poster scene is the ellipse with eps=0.8, l=1.8. eps goes across 1 to 1.6 (hyperbola) and back, then down to 0.2 and back.
+        path: [0.8, 1.6, 0.8, 0.2, 0.8],
+        lessonQuote: 'Z drsnikom pelji \\(\\varepsilon\\) čez \\(1\\) in opazuj, kaj se zgodi z drugim goriščem in z vejami krivulje.',
+        discreteReason: null,
+    },
+```
+
+`bspline-extraction`:
+
+```js
+    {
+        id: 'bspline-extraction',
+        motion: 'pointer-drag',
+        control: {kind: 'point', name: '$$p_{2}$$'},
+        // Board coordinates. The recipe scene is the default quadratic curve, whose p2 is (3, 2) (route-probe draggablePoints). The lesson's own move is P2 on a cubic and upward; here p2 moves down 1 unit because the camera stops at y = 2.55.
+        path: [[3, 2], [3, 1.5], [3, 1], [3, 1.5], [3, 2]],
+        lessonQuote: 'Točko \\(P_2=(2;3)\\) premaknemo v \\((2;4)\\).',
+        discreteReason: null,
+    },
+```
+
+`bspline-nurbs`:
+
+```js
+    {
+        id: 'bspline-nurbs',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Parameter t', step: 0.001},
+        // Start t = 1/16 (NURBS_DEFAULT_T in BSplineNurbsGraph.tsx:37); the slider shows it as 0.063 (step 0.001), so the capture's start check may report 0.063.
+        path: [0.0625, 0.2, 0.35, 0.2, 0.0625],
+        lessonQuote: 'Preberi točko in kot v inšpektorju pri \\(t=\\tfrac1{16}\\).',
+        discreteReason: null,
+    },
+```
+
+`root-finding`:
+
+```js
+    {
+        id: 'root-finding',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Začetni približek x₀', step: 0.01},
+        // Start x0 = 1 (route-probe draggablePoints; the recipe only presses "Naslednji korak" once). The drag of x0 snaps to 0.05 (RootFindingGraph.tsx:31), so the number field follows a smooth schedule; x0 = 0 is avoided (horizontal tangent).
+        path: [1, 2, 3, 2, 1],
+        lessonQuote: 'Povleci \\(x_0\\) in opazuj.',
+        discreteReason: null,
+    },
+```
+
+`epicycles`:
+
+```js
+    {
+        id: 'epicycles',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Krajišče 1, koordinata x', step: 0.01},
+        // Start vertex 1 = (1, 0): the rhombus example shares the circle's four vertices (route-probe; the recipe adds N = 4 steps only). Drags snap to a grid (EpicycleGraph.tsx:376), so the vertex's number field is swept; the camera is +-3.2, so 1 -> 2.3 stays in view.
+        path: [1, 1.65, 2.3, 1.65, 1],
+        lessonQuote: 'Povleci točko in poglej, kateri krogi se spremenijo ter kdaj napaka postane vidna.',
+        discreteReason: null,
+    },
+```
