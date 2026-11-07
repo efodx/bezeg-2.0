@@ -31,3 +31,17 @@ Desktop all pass (scroll p95 15 to 35 ms, link 16 to 24 ms).
 ## Not fixed
 
 No code fix to the playground: the residual cost is the throttled main thread committing a DPR-2 canvas at the snapshot rate while playing. Options for the handler (visual change, not done): cap the draw rate to 30 Hz under heavy load, or lower canvas backing resolution at DPR 2 when count is large. Headless uses the software compositor; real mobile GPU compositing may differ (not verified).
+
+## Result of adaptive draw pacing (2026-11-07)
+
+`drawPacing.ts`: enter loaded when the EMA (alpha 0.2) of rAF intervals exceeds 20 ms (above a 60 Hz frame of 16.7 ms plus jitter), then at most one draw per 33 ms; leave when EMA is below 17.5 ms and 1.5 s have passed. Full runs on `/bezeg-2.0/learn/sweep-algorithms` (production build, sequential):
+
+| run | scroll p95 mobile-4x (p50 / max) | link p95 mobile | desktop scroll / link p95 | mobile draw callback median (p95, n) | desktop draw median | switch latency mobile median | LoAF > 50 ms |
+|---|---|---|---|---|---|---|---|
+| 1 | 52.7 (30.4 / 197.8) | 32 | 37.7 / 16 | 4.7 (6.5, 179) | 1 ms (n=594) | 51.6 ms | none |
+| 2 | 54.2 (34.1 / 117.9) | 40 | 39.2 / 16 | 4.6 (6.9, 175) | trace error (flake) | 46.9 ms | none |
+| 3 | 51.6 (36.9 / 144.8) | 40 | 39.6 / 16 | 4.7 (6.9, 166) | 1 ms (n=595) | 45.4 ms | none |
+
+Paused mode (`COLLISION_CP7_MODE=paused`): scroll p95 29.8 ms mobile, 19.7 desktop; link 32 / 16.
+
+Before pacing the same page measured 77, 83.5 and 103.6 ms. Mobile draw count fell to about 17 per second (166 to 179 in 10 s), against about 60 snapshots per second.

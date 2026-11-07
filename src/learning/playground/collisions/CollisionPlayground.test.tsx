@@ -214,6 +214,15 @@ describe('live region', () => {
     expect(live().textContent!.trim()).toBe(first.trim())
   })
 
+  it('skips an in-flight snapshot of the old method after a method action, then speaks the new one', () => {
+    render(<CollisionPlayground initialMethod="naive" initialCount={2}/>)
+    fireEvent.click(screen.getByRole('radio', {name: /Pometanje in obrezovanje/}))
+    emit(snap({method: 'naive', count: 2}))
+    expect(live().textContent).toBe('')
+    emit(snap({method: 'sweep', count: 2}))
+    expect(live().textContent).toContain('Pometanje in obrezovanje')
+  })
+
   it('is polite and not announced for Play and Pause', () => {
     render(<CollisionPlayground/>)
     expect(live().getAttribute('aria-live')).toBe('polite')

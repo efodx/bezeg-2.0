@@ -6,6 +6,7 @@ import {WORLD_HEIGHT, WORLD_WIDTH} from '../../../compgeo/collisions/world'
 import {clampCount, MAX_COUNT} from './collisionProtocol'
 import type {BroadPhaseMethod, CollisionSnapshot} from './collisionProtocol'
 import {useCollisionWorker} from './useCollisionWorker'
+import {createDrawPacer} from './drawPacing'
 import './CollisionPlayground.css'
 
 /** The shortest time between readout updates (ms): at most 4 updates per second. */
@@ -110,7 +111,8 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     initial: {seed: initialSeed, count: clampCount(initialCount, initialMethod), method: initialMethod},
     targetRef: canvasRef,
   })
-  const pendingAnnounce = useRef(false)
+  /** Set by a reader action; method and count, when given, are what the first announced snapshot must show. */
+  const pendingAnnounce = useRef<{method?: BroadPhaseMethod; count?: number} | null>(null)
   const announceToggle = useRef(false)
   const coloursRef = useRef<Colours>({body: '#587445', touching: '#bf8542'})
   const rafRef = useRef(0)
@@ -129,13 +131,19 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
       }
     }
     // The draw loop: one requestAnimationFrame per burst of snapshots, drawing only the newest one.
-    const frame = (): void => {
+    // Under main-thread load the pacer skips frames; a skipped frame touches nothing and asks for the next one.
+    const pacer = createDrawPacer()
+    const frame = (now: number): void => {
       rafRef.current = 0
       const s = snapshotRef.current
       if (!s) return
+      if (!pacer.shouldDraw(now)) {
+        request()
+        return
+      }
       drawSnapshot(canvas, s, coloursRef.current)
     }
-    const request = (): void => {
+    function request(): void {
       if (rafRef.current === 0) rafRef.current = requestAnimationFrame(frame)
     }
     const redraw = request
@@ -155,9 +163,11 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     const unsubscribe = subscribe(() => {
       request()
       const s = snapshotRef.current
-      if (s && pendingAnnounce.current) {
+      const want = pendingAnnounce.current
+      // A snapshot already in flight from before a method or count action is skipped, not announced.
+      if (s && want && (want.method === undefined || want.method === s.method) && (want.count === undefined || want.count === s.count)) {
         // The live region: one message, for the first snapshot after a reader action.
-        pendingAnnounce.current = false
+        pendingAnnounce.current = null
         // Alternate a trailing no-break space so an identical message after a second action still changes the region.
         announceToggle.current = !announceToggle.current
         setAnnouncement(
@@ -206,16 +216,16 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     if (direction > 0 && next <= count) next = clampCount(count + 1, method)
     if (direction < 0 && next >= count) next = clampCount(count - 1, method)
     if (next === count) return
-    pendingAnnounce.current = true
+    pendingAnnounce.current = {count: next}
     setCount(next)
     send({type: 'setCount', count: next})
   }
   const onMethod = (e: ChangeEvent<HTMLInputElement>): void => {
     const next: BroadPhaseMethod = e.target.value === 'naive' ? 'naive' : 'sweep'
-    pendingAnnounce.current = true
+    const clamped = clampCount(count, next)
+    pendingAnnounce.current = {method: next, count: clamped}
     setMethod(next)
     send({type: 'setMethod', method: next})
-    const clamped = clampCount(count, next)
     if (clamped !== count) {
       setCount(clamped)
       send({type: 'setCount', count: clamped})
@@ -252,10 +262,10 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
           <button type="button" aria-pressed={playing} onClick={() => send({type: playing ? 'pause' : 'play'})}>
             {t(playing ? 'collision_pause' : 'collision_play')}
           </button>
-          <button type="button" disabled={playing} onClick={() => { pendingAnnounce.current = true; send({type: 'stepOnce'}) }}>
+          <button type="button" disabled={playing} onClick={() => { pendingAnnounce.current = {}; send({type: 'stepOnce'}) }}>
             {t('collision_step')}
           </button>
-          <button type="button" onClick={() => { pendingAnnounce.current = true; send({type: 'reset', seed: Math.floor(Math.random() * 2 ** 31)}) }}>
+          <button type="button" onClick={() => { pendingAnnounce.current = {}; send({type: 'reset', seed: Math.floor(Math.random() * 2 ** 31)}) }}>
             {t('collision_new')}
           </button>
         </div>

@@ -60,6 +60,8 @@ The narrow phase becomes *box → hull separating-axis test → pieces separatin
 - **Measured limits (CP3, 2026-11-07): 4 000 (naive) and 5 000 (sweep).** On the throttled profile the naive median step was 106 ms at \(n=3000\) and 317 ms at \(n=5000\); it grows as \(n^2\), so 250 ms falls near \(n\approx4400\), rounded down to 4 000. Sweep stayed at 2.8 ms (p90 4.1 ms) at \(n=5000\), so the 5 000 cap applies. Naive at 5 000 runs at about 5 % simulation speed throttled and 29 % on desktop, so the comparison still shows. Chromium cannot throttle a worker target through CDP, so the throttled column ran the same `stepWorld` on the page's main thread (desktop worker and main thread agree within 10 %). Raw tables: [performance results](../bezier-performance-results.md#collision-playground-step-cost--2026-11-07).
 - Lowering \(n\) or switching method is always available.
 
+**Draw pacing (decision 2026-11-07).** The draw loop (`drawPacing.ts`) keeps a moving average of the `requestAnimationFrame` interval. While it is above 20 ms the canvas is drawn at most every 33 ms (always from the newest snapshot, an early frame only re-requests); it returns to every frame once the average is below 17.5 ms and 1.5 s have passed. CP7 measured the throttled chapter page at scroll p95 77 to 104 ms with naive playing, from committing a DPR-2 canvas at the snapshot rate; with pacing it is 52 to 54 ms. Rejected: lowering the backing resolution (it changes the picture at every load) and a fixed 30 Hz cap (it degrades unloaded desktops and 120 Hz displays).
+
 **Stops when unwatched.**
 
 - The worker pauses when the document is hidden (`visibilitychange`) or the canvas is out of view (`IntersectionObserver`, threshold 0).
