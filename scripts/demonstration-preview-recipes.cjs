@@ -305,7 +305,7 @@ async function surfaceOutcome(page, id) {
     return result;
 }
 
-async function outcome(page, id, options = {}) {
+async function outcome(page, id) {
     const evidence = await page.locator('#jgbox').evaluate(container => {
         const board = Object.values(window.JXG.boards).find(b => b.container === container.id || b.containerObj === container);
         const visible = Object.values(board.objects).filter(o => o.visProp?.visible !== false && o.visProp?.visible !== 'false' && o.rendNode && getComputedStyle(o.rendNode).display !== 'none' && getComputedStyle(o.rendNode).visibility !== 'hidden');
@@ -318,7 +318,7 @@ async function outcome(page, id, options = {}) {
             controls: [...document.querySelectorAll('input,select')].filter(e => e.closest('main')).map(e => ({label: e.getAttribute('aria-label') || e.labels?.[0]?.textContent, value: e.value, checked: e.type === 'checkbox' ? e.checked : undefined})),
             curvePaths: visible.filter(o => o.elType === 'curve').map(o => o.rendNode.getAttribute('d'))};
     });
-    assertOutcomeEvidence(id, evidence, options);
+    assertOutcomeEvidence(id, evidence);
     return evidence;
 }
 
@@ -327,8 +327,7 @@ const LINE_DEFINED_IDS = new Set(['linear-function', 'orientation', 'polygon-are
 // Demonstrations whose defining objects are JSXGraph circles.
 const CIRCLE_DEFINED_IDS = new Set(['inversion']);
 
-// options.exampleScene: the poster is a clip row's guided example scene, so checks follow what that scene draws.
-function assertOutcomeEvidence(id, evidence, options = {}) {
+function assertOutcomeEvidence(id, evidence) {
     if (evidence?.view === 'surface') {
         assert.ok((evidence.surfaceView === 'board2d' && evidence.svg?.width > 0 && evidence.svg?.height > 0 && evidence.drawables > 0), `${id} surface is not drawn by the JSXGraph SVG surface view`);
         const declared = recipes[id]?.framing.controlPointCount;
@@ -373,11 +372,7 @@ function assertOutcomeEvidence(id, evidence, options = {}) {
         assert.ok(evidence.points.some(p => near(p, 0, 2)), 'Missing w = 2i');
         assert.ok(evidence.curves >= 5, 'Root circle, three triangle edges and the arrow of w required');
     }
-    if (id === 'euler-line' && options.exampleScene) {
-        // The example scene draws the triangle with H, G and O only (no Euler line, N or nine points).
-        for (const [x, y] of [[0, 0], [7, 0], [2, 5], [2, 2], [3, 5 / 3], [3.5, 1.5]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing exact vertex, H, G or O (${x},${y}): ${JSON.stringify(evidence.points)}`);
-        assert.ok(evidence.lines >= 3, 'Three triangle sides required');
-    } else if (id === 'euler-line') {
+    if (id === 'euler-line') {
         // Vertices, H, G, O, N, then the side midpoints, the altitude feet and the midpoints of AH, BH, CH (all at distance sqrt(29/8) from N).
         const expected = [[0, 0], [7, 0], [2, 5], [2, 2], [3, 5 / 3], [3.5, 1.5], [11 / 4, 7 / 4],
             [3.5, 0], [4.5, 2.5], [1, 2.5], [3.5, 3.5], [28 / 29, 70 / 29], [2, 0], [1, 1], [4.5, 1], [2, 3.5]];
@@ -411,9 +406,7 @@ function assertOutcomeEvidence(id, evidence, options = {}) {
         assert.ok(evidence.lines >= 3, 'The triangle sides or the chord and angle sides required');
     }
     if (id === 'triangle-centres') {
-        // The example scene shows the centroid step: G only.
-        const centres = options.exampleScene ? [[3, 5 / 3]] : [[3, 5 / 3], [3.5, 1.5], [2, 2]];
-        for (const [x, y] of centres) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing exact centre G, O or H (${x},${y}): ${JSON.stringify(evidence.points)}`);
+        for (const [x, y] of [[3, 5 / 3], [3.5, 1.5], [2, 2]]) assert.ok(evidence.points.some(p => near(p, x, y)), `Missing exact centre G, O or H (${x},${y}): ${JSON.stringify(evidence.points)}`);
     }
     if (id === 'inscribed-angle') {
         assert.ok(evidence.points.some(p => near(p, 3.5, 1.5 + Math.sqrt(29 / 2))), `Glider P must be at t = 90 (3.5, 5.308): ${JSON.stringify(evidence.points)}`);
@@ -429,9 +422,9 @@ function assertOutcomeEvidence(id, evidence, options = {}) {
     return evidence;
 }
 
-async function applyRecipe(page, recipe, options = {}) {
+async function applyRecipe(page, recipe) {
     for (const action of recipe.actions) await applyAction(page, action);
-    return recipe.framing.kind === 'surface-view' ? surfaceOutcome(page, recipe.id) : outcome(page, recipe.id, options);
+    return recipe.framing.kind === 'surface-view' ? surfaceOutcome(page, recipe.id) : outcome(page, recipe.id);
 }
 
 module.exports = {recipes, validateRecipes, applyAction, applyRecipe, outcome, settle, assertOutcomeEvidence,
