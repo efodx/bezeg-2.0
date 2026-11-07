@@ -1,0 +1,22 @@
+# Collision playground tasks
+
+Source: [collision playground spec](../../specs/collision-playground.md), [ADR 0042](../../adr/0042-collision-playground-worker-and-canvas.md). Stream: [collision](../feature-streams/collision.md). Planned 2026-11-07 (owner approved the defaults the same day).
+
+Status lives in this table. The handler updates it in the same push as each accepted slice.
+
+| # | Task | Batch | Depends on | Review | Status |
+| --- | --- | --- | --- | --- | --- |
+| [CP1](01-collision-model.md) | Pure model: seeded world, step, naive and sweep-and-prune broad phases, circle narrow phase, counters | A | — | Mathematical | planned |
+| [CP2](02-worker-host.md) | Worker host, typed protocol, slow-motion stepping, pause/idle/terminate lifecycle | A | CP1 interface | Engineering | planned |
+| [CP3](03-measured-limits.md) | Measure step cost per method on the reference profiles; record the limits in the spec | A | CP2 | Handler | planned |
+| [CP4](04-run-component.md) | `CollisionPlayground` *Run* mode: canvas drawing, controls, readouts, live region, reduced motion, no-worker fallback | B | CP2 (CP3 limits may land after) | Engineering + UI/accessibility | planned |
+| [CP5](05-inspect-component.md) | *Look underneath*: interval shadows, active list, candidate pairs, step-through | B | CP4 | Mathematical + UI/accessibility | planned |
+| [CP6](06-chapter-integration.md) | Shared playground block, `FamilyChapterPage` rendering, sweep chapter prose, terms, docs | B | CP4, CP5 | Engineering; notation test | planned |
+| [CP7](07-batch-b-acceptance.md) | Batch B acceptance: containment and smoothness measurements, bilingual smoke, `just check` | B | CP3, CP6 | Handler | planned |
+| CP8 | Polygon templates: exact hull and convex pieces once per template, SAT narrow phase | C | B released | Mathematical | task file written when B is released |
+| CP9 | Polygon mode and box → hull → pieces overlay; convexity chapter block and prose | C | CP8 | Engineering + UI/accessibility | task file written when B is released |
+| CP10 | Batch C acceptance | C | CP9 | Handler | task file written when B is released |
+
+**Parallelism.** CP1 runs first, and its exported types are the CP2 interface. CP2 and CP4 may overlap once the protocol types (`collisionProtocol.ts`) are committed. CP4 owns `collisionProtocol.ts` changes after CP2 is accepted.
+
+**Stop condition.** A miss of spec criterion 2 (containment) or 4 (smoothness) goes to the owner before CP6's chapter blocks are pushed. CP1–CP5 may be pushed earlier, since no chapter mounts them yet.
