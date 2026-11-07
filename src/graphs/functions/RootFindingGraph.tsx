@@ -145,7 +145,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         this.replaceModel({...this.model, step: 0});
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     protected setMethod(value: unknown): void {
         const edit = chooseRootFindingMethod(this.model, value);
@@ -260,8 +260,8 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {method, example, x0, x1, step} = this.state;
-        const history = this.historyOf({method, example, x0, x1, step});
+        const {method, example, x0, x1, step} = this.model;
+        const history = this.historyOf(this.model);
         const playing = this.controller.isPlaying();
         const canAdvance = history.termination === "running";
         return <>
@@ -318,11 +318,10 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const {method, example, x0, x1, step} = this.state;
-        const model: RootFindingModel = {method, example, x0, x1, step};
+        const model = this.model;
         const language = currentLanguage();
         const {history, last, fLast} = this.viewOf(model);
-        const reference = rootFindingExample(example).referenceRoot;
+        const reference = rootFindingExample(model.example).referenceRoot;
         const number = (value: number) => formatPrecise(value, language);
         const rows = [
             {id: "step", label: t("root_finding_readout_step", {value0: ROOT_FINDING_MAX_STEPS}), value: String(history.stepsTaken)},

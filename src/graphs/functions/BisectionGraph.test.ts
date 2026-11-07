@@ -165,12 +165,11 @@ test('Next step reveals the midpoints 1.5, 1.25, 1.375 with the values 0.25, -0.
     expect(rows(graph)).toMatchObject({mid: '1.375', 'f-mid': '−0.109375', interval: '[1.375, 1.5]', retained: 'right [m, b]'});
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('sign-step'), command('next-step'), command('next-step'), command('next-step')]) apply(graph, action);
     expect(graph.model).toEqual({example: 'sign-step', a: -1, b: 1, step: 3});
-    expect(graph.state).toMatchObject(graph.model);
     expect(progressText(graph)).toBe('korak 3, širina 0,25');
     // a later action in the same tick sees the earlier one
     apply(graph, choice('cubic'));
@@ -309,7 +308,6 @@ test('editing an endpoint or the example restarts the history at step 0 and paus
         expect(graph.model.step).toBe(0);
         expect(graph.controller.isPlaying()).toBe(false);
         expect(graph.frames.callbacks.size).toBe(0);
-        expect(graph.state.step).toBe(0);
         expect(progressText(graph)).toMatch(/^korak 0, /);
         // the next step starts the new history
         next(graph);

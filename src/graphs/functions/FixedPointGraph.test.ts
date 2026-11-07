@@ -204,12 +204,11 @@ test('the cobweb goes vertically to the curve and horizontally to the diagonal, 
     expect(at(point(cosine, FIXED_CROSS))[0]).toBeCloseTo(COS_FIXED_POINT, 14);
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('cosine'), parameter('fixed-point-x0', 0.5), parameter('fixed-point-digits', 5), command('next-step'), command('next-step'), command('next-step'), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'cosine', x0: 0.5, step: 3, digits: 5, boundVisible: true});
-    expect(graph.state).toMatchObject(graph.model);
     expect(caption(graph)[1]).toBe(`korak k = 3, xₖ = ${String(Math.cos(Math.cos(Math.cos(0.5))).toFixed(6)).replace('.', ',').replace(/0+$/, '')}`);
     expect(statusIds(graph)).toEqual(['hypotheses', 'bound-a-priori', 'bound-a-posteriori']);
     // a later action in the same tick sees the earlier one
@@ -393,7 +392,6 @@ test('editing the example, x0 or the tolerance pauses playback and returns to st
         expect(graph.model, name).toEqual({...defaultFixedPointModel('affine'), boundVisible: keepsReveal, ...expected, step: 0});
         expect(graph.controller.isPlaying(), name).toBe(false);
         expect(graph.frames.callbacks.size, name).toBe(0);
-        expect(graph.state.step, name).toBe(0);
         // the iteration continues from step 0: the next step adds exactly one
         next(graph);
         expect(graph.model.step, name).toBe(1);

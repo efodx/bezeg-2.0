@@ -134,7 +134,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         this.replaceModel({...this.model, step: 0});
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     protected setExample(value: unknown): void {
         const edit = chooseBisectionExample(value);
@@ -270,8 +270,8 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {example, a, b, step} = this.state;
-        const history = this.historyOf({example, a, b, step});
+        const {example, a, b, step} = this.model;
+        const history = this.historyOf(this.model);
         const playing = this.controller.isPlaying();
         const canAdvance = history.termination === undefined;
         return <>
@@ -326,8 +326,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const {example, a, b, step} = this.state;
-        const model: BisectionModel = {example, a, b, step};
+        const model = this.model;
         const language = currentLanguage();
         const view = this.viewOf(model);
         const {history, last} = view;

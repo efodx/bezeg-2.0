@@ -119,7 +119,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
         this.replaceModel(resetSeriesTerms(this.model));
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     private viewOf(model: GeometricSeriesModel): SeriesView {
         return this.memoView(model, () => seriesView(model));
@@ -252,7 +252,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const language = currentLanguage();
         const playing = this.controller.isPlaying();
         const canAdvance = canAdvanceSeries(state);
@@ -300,7 +300,7 @@ export class GeometricSeriesGraph extends IterativeFunctionGraph<GeometricSeries
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const first = view.limit !== null && model.tolerance > 0 ? firstTermWithinTolerance(model.a, model.q, model.tolerance) : null;
         const behaviour = view.behaviour === "convergent" ? t("series_behaviour_convergent")

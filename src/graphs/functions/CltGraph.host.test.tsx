@@ -258,7 +258,6 @@ describe('refused edits', () => {
         expect(graph.modelNow().heights).toEqual([0, 0, 0, 0, 1]);
         expect(status('refused')).toMatch(/Vsaj ena višina mora ostati večja od 0/);
         expectReadouts(graph.modelNow());
-        expect(graph.state.heights).toEqual([0, 0, 0, 0, 1]);
         typeHeight(0, 1);
         expect(status('refused')).toBeUndefined();
     });

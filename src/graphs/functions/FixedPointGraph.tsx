@@ -150,7 +150,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         }));
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     protected setExample(value: unknown): void {
         const next = this.accepted(chooseFixedPointExample(this.model, value));
@@ -351,7 +351,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const language = currentLanguage();
         const example = fixedPointExample(state.example);
         const playing = this.controller.isPlaying();
@@ -382,7 +382,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
     }
 
     protected override renderReveals(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         return <>
             <div className="demo-actions" role="group" aria-label={t("fixed_point_bound_actions_label")}>
                 <button type="button" data-action="toggle-fixed-point-bound" data-revealed={state.boundVisible}
@@ -458,7 +458,7 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const language = currentLanguage();
         const view = this.viewOf(model);
         const {history} = view;

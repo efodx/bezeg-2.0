@@ -187,7 +187,6 @@ test('editing the method, the example or a start restarts the history at step 0 
         expect(graph.model.step, `edit ${index}`).toBe(0);
         expect(graph.controller.isPlaying(), `edit ${index}`).toBe(false);
         expect(graph.frames.callbacks.size).toBe(0);
-        expect(graph.state.step).toBe(0);
         expect(progressText(graph)).toMatch(/^korak 0, /);
         next(graph);
         expect(graph.model.step).toBe(1);
@@ -343,7 +342,6 @@ test('a multi-action lesson scene runs in one synchronous sequence and later act
         command('next-step'), command('next-step'),
     ] as LessonAction[]) run(action);
     expect(graph.model).toEqual({method: 'secant', example: 'cubic-three-roots', x0: 2, x1: 1.25, step: 2});
-    expect(graph.state.step).toBe(2);
     // the same sequence on the same tick keeps going from the model the earlier actions wrote
     run({kind: 'function-choice', name: 'root-finding-method', value: 'newton'});
     run({kind: 'function-parameter', name: 'root-x0', value: 0.5});

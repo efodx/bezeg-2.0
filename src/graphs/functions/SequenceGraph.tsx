@@ -178,7 +178,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
         });
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     protected setExample(value: unknown): void {
         const choice = chooseSequenceExample(value);
@@ -342,7 +342,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const language = currentLanguage();
         const playing = this.controller.isPlaying();
         const canAdvance = canAdvanceSequence(state);
@@ -375,7 +375,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
     }
 
     protected override renderReveals(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         return <>
             <div className="demo-actions" role="group" aria-label={t("sequence_certificate_actions_label")}>
                 <button type="button" data-action="toggle-sequence-certificate" data-revealed={state.certificateVisible}
@@ -442,7 +442,7 @@ export class SequenceGraph extends IterativeFunctionGraph<SequenceModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const certificate = view.certificate;

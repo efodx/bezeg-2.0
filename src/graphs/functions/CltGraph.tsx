@@ -103,7 +103,7 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         this.setNotice(undefined); // the button and the lesson reset/replay commands both land here
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ------------------------------
+    // ---- Model operations (read and write the synchronous model) ------------------------------
 
     private accepted(edit: CltEdit): CltModel {
         if (!edit.ok) throw new DomainError(cltEditMessage(edit.issue));
@@ -229,7 +229,7 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const language = currentLanguage();
         const example = cltExampleOf(state);
         const options = [
@@ -268,7 +268,7 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const language = currentLanguage();
         const result = this.viewOf(model);
         const number = (value: number) => cltNumber(value, language);

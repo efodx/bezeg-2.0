@@ -202,12 +202,11 @@ test('the board fits every example: the view of each example holds all forty ter
     }
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('alternating-sign'), parameter('sequence-epsilon', 1.5), command('next-step'), command('next-step'), command('next-step'), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'alternating-sign', epsilon: 1.5, limit: 0, threshold: 5, terms: 4, certificateVisible: true});
-    expect(graph.state).toMatchObject(graph.model);
     expect(caption(graph)[2]).toBe('prikazani členi: 4, v pasu: 4');
     expect(statusIds(graph)).toEqual(['epsilon-satisfied']);
     // a later action in the same tick sees the earlier one
@@ -341,7 +340,6 @@ test('editing epsilon, L, N or the example pauses playback; only the example rel
         expect(graph.model, name).toEqual({...SEQUENCE_EXAMPLE_MODELS.reciprocal, ...expected});
         expect(graph.controller.isPlaying(), name).toBe(false);
         expect(graph.frames.callbacks.size, name).toBe(0);
-        expect(graph.state.terms, name).toBe(graph.model.terms);
         // the iteration continues from the revealed terms: the next step adds exactly one
         const before = graph.model.terms;
         next(graph);
