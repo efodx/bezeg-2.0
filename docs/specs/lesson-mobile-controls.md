@@ -19,3 +19,8 @@ Implemented and reviewed on `7af43c8` plus this change. Typecheck, production bu
 Chromium checks covered Slovenian at 502×672, English at 320px with 200% text, 1440×900 desktop and 844×390 landscape. Navigation targets were at least 44px and equal width on mobile, with no page overflow. Observe unlocked the graph, a point drag changed coordinates, reopening retained the frame, and keyboard Next/Back worked. Desktop retains the supplemental prompt; mobile hides it. Handler reviewed the initial, observation and desktop captures. No runtime errors were observed. Production build warnings concern existing direct `eval` usage and plugin timing; the design detector reported incumbent palette/accent findings, with no new design primitives introduced.
 
 Evidence is in local `.command-logs/`: unit `2026-10-25T00-11-12-411Z-86792-32399857.log`, lesson walks `2026-10-25T00-11-54-604Z-96048-d697bd05.log`, graph access `2026-10-25T00-15-53-716Z-101768-1cbbc9b1.log`, and `lesson-mobile-*.png`. Physical-device testing was not performed.
+
+
+## Stable navigation follow-up — 2026-11-07
+
+The owner selected and tried the compact top-toolbar layout. [Stable lesson navigation](lesson-navigation-stability.md) supersedes the earlier footer placement and separate observation action: the utility row keeps Skrij on every frame and the progress/short Back/Next toolbar sits above the changing body. Existing scene, placement, reading-position and focus contracts still apply.

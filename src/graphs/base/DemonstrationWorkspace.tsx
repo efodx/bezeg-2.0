@@ -205,6 +205,7 @@ export function DemonstrationWorkspace(props: {
             </>}
         </p>}
         {lessonOpen && lesson && props.lessonCapabilities && <GuidedLesson lesson={lesson} capabilities={props.lessonCapabilities}
+            visiblePageTitle={demonstration?.workspaceTitle}
             registerClose={registerLessonClose}
             registerExit={registerLessonExit}
             registerGraphActions={setLessonGraphActions}

@@ -38,10 +38,10 @@ function validateStepOrder(id, steps) {
     }
 }
 
-/** Presses the lesson's hide button (observation frames) or "observe on the graph" button (exploration frames), both of which hide the lesson panel as a learner would and waits for explore mode with an unlocked inspector. */
+/** Presses the lesson's consistent hide button, then waits for explore mode with an unlocked inspector. */
 async function applyExploreStep(page) {
-    const hide = page.locator('.guided-lesson-hide, .guided-lesson-observe');
-    assert.equal(await hide.count(), 1, 'the lesson hide/observe button is not present exactly once; is the lesson already in explore mode?');
+    const hide = page.locator('.guided-lesson-hide');
+    assert.equal(await hide.count(), 1, 'the lesson hide button is not present exactly once; is the lesson already in explore mode?');
     await hide.click();
     await page.locator('.demonstration-workspace.lesson-explore').waitFor({state: 'attached', timeout: 5000});
     await page.waitForFunction(() => {

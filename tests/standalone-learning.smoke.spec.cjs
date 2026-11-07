@@ -38,7 +38,16 @@ test('each Bézier chapter example opens the shared guided-example surface with 
         await expect(link).toHaveAttribute('href', destination);
         await link.click();
         await expect(panel(page)).toBeVisible();
-        await expect(panel(page).locator('.guided-lesson-owner')).toContainText(/Bézier curves: shaping a curve with control points ·/);
+        await expect(panel(page).getByRole('link', {name: 'Return to chapter', exact: true})).toHaveAttribute('href', `${chapter}#${section}`);
+        const owner = panel(page).locator('.guided-lesson-owner');
+        if (await owner.count()) {
+            await expect(owner).toContainText(/Bézier curves: shaping a curve with control points ·/);
+        } else {
+            const heading = page.getByRole('main').getByRole('heading', {level: 1});
+            await expect(heading).toBeVisible();
+            await expect(panel(page).getByRole('heading', {level: 2})).toHaveCount(0);
+            await h.expectLessonIdentity(page, await heading.innerText());
+        }
         await expect(page.locator('.chapter-activity-context')).toHaveCount(0);
         await expect(page.locator('#jgbox')).toBeVisible();
         await expect.poll(async () => (await h.boardStats(page)).curves).toBeGreaterThan(0);

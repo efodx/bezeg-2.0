@@ -108,11 +108,11 @@ test('the control driver fails with actionable messages for missing, ambiguous, 
 test('the explore step presses the lesson hide button and waits for explore mode with an unlocked inspector', async () => {
     const log = [];
     const page = {
-        locator: selector => ({count: async () => selector === '.guided-lesson-hide, .guided-lesson-observe' ? 1 : 0, click: async () => log.push(`click ${selector}`),
+        locator: selector => ({count: async () => selector === '.guided-lesson-hide' ? 1 : 0, click: async () => log.push(`click ${selector}`),
             waitFor: async () => log.push(`wait ${selector}`)}),
         waitForFunction: async () => log.push('wait inspector unlocked'),
     };
     await applyExploreStep(page);
-    assert.deepEqual(log, ['click .guided-lesson-hide, .guided-lesson-observe', 'wait .demonstration-workspace.lesson-explore', 'wait inspector unlocked']);
-    await assert.rejects(() => applyExploreStep({locator: () => ({count: async () => 0})}), /hide\/observe button is not present exactly once/);
+    assert.deepEqual(log, ['click .guided-lesson-hide', 'wait .demonstration-workspace.lesson-explore', 'wait inspector unlocked']);
+    await assert.rejects(() => applyExploreStep({locator: () => ({count: async () => 0})}), /hide button is not present exactly once/);
 });

@@ -66,3 +66,8 @@ Verification:
   - arrow keys move it by 16px, and it keeps its place across Next and hide/reopen;
   - the tab drags without reopening, and a plain click reopens it.
 - Not tested: real touch devices, projectors and the full smoke checklist (the shared app shell is unchanged).
+
+
+## Stable navigation follow-up — 2026-11-07
+
+The owner selected and tried the compact top-toolbar layout. [Stable lesson navigation](lesson-navigation-stability.md) supersedes the earlier footer placement and separate observation action: the utility row keeps Skrij on every frame and the progress/short Back/Next toolbar sits above the changing body. Existing scene, placement, reading-position and focus contracts still apply.

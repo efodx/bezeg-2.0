@@ -28,8 +28,8 @@ test('legacy activity URLs resolve to one chapter-owned guided example', async (
         .find(frame => frame.prompt?.en.includes('Drag an interior control, then drag an endpoint control'));
     expect(resolved?.owner).toEqual({chapterId: 'bezier-curves', sectionId: 'control-points'});
     expect(legacyPrompt?.kind).toBe('observation');
-    fireEvent.click(screen.getByRole('button', {name: 'Next frame'}));
-    expect(screen.getByRole('button', {name: 'Observe on the graph'})).toBeVisible();
+    fireEvent.click(screen.getByRole('button', {name: 'Next: next frame'}));
+    expect(screen.getByRole('button', {name: 'Hide example instructions'})).toBeVisible();
     expect(document.querySelector('.chapter-activity-context')).not.toBeInTheDocument();
     expect(screen.getByRole('link', {name: /Return to chapter/})).toHaveAttribute('href', '/bezeg-2.0/learn/bezier-curves#control-points');
     const preparedAction = resolved?.lesson.steps.flatMap(step => step.scene?.actions ?? [])[0];

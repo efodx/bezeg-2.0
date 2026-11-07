@@ -187,7 +187,7 @@ test('opens the reviewed lesson on a lesson-enabled spline route', async () => {
         edit={<p>Urejanje</p>} display={null} save={null} navigate={vi.fn()}
         lessonCapabilities={{captureState: () => ({version: 1, value: null}), restoreState: vi.fn(), apply: vi.fn()}}/></MemoryRouter>);
 
-    expect(await screen.findByRole('heading', {level: 2, name: 'Enostranski Cⁿ zlepek'})).toBeVisible();
+    expect(await screen.findByRole('region', {name: 'Enostranski Cⁿ zlepek'})).toBeVisible();
     await waitFor(() => expect(screen.getByRole('region', {name: 'Interaktivni graf'})).toHaveAttribute('data-lesson-locked', 'true'));
 });
 
@@ -214,7 +214,7 @@ test('direct guided family context preserves its frame through hide and returns 
     expect(screen.getByRole('region', {name: 'Interactive graph'})).toHaveAttribute('data-lesson-locked', 'true');
     const progress = document.querySelector('.guided-lesson-progress')?.textContent;
 
-    fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
+    fireEvent.click(screen.getByRole('button', {name: 'Hide example instructions'}));
     await waitFor(() => expect(document.querySelector('.guided-lesson')).toBeNull());
     const reopen = screen.getByRole('button', {name: new RegExp(`Guided path.*Step 1 of 1.*Frame 2 of ${directFrameCount}.*Back to the instructions`)});
     await waitFor(() => expect(reopen).toHaveFocus());
@@ -242,7 +242,7 @@ test('direct guided family context preserves its frame through hide and returns 
     expect(document.querySelector('.guided-lesson-progress')?.textContent).toBe(progress);
     expect(capabilities.restoreState).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
+    fireEvent.click(screen.getByRole('button', {name: 'Hide example instructions'}));
     const compactTab = screen.getByRole('button', {name: new RegExp(`Guided path.*Frame 2 of ${directFrameCount}`)});
     fireEvent.click(compactTab);
     for (let frame = 1; frame < (directFrameCount ?? 2); frame += 1) {
@@ -285,8 +285,8 @@ test('minimized lesson exposes one focused reopen tab over the graph', async () 
     fireEvent.click(screen.getByRole('button', {name: 'Learn this demonstration'}));
     await screen.findByRole('heading', {name: 'Introduction'});
     const frameCount = resolveGuidedExample('?learn=1&learnChapter=bezier-curves&learnSection=control-points', 'bezier')?.lesson.steps[0].frames?.length;
-    fireEvent.click(screen.getByRole('button', {name: 'Next frame'}));
-    fireEvent.click(screen.getByRole('button', {name: 'Observe on the graph'}));
+    fireEvent.click(screen.getByRole('button', {name: 'Next: next frame'}));
+    fireEvent.click(screen.getByRole('button', {name: 'Hide example instructions'}));
     const tab = await screen.findByRole('button', {name: new RegExp(`Guided path.*Step 1 of 1.*Frame 2 of ${frameCount}`, 'i')});
     expect(tab.closest('.guided-lesson-layer')).not.toBeNull();
     expect(tab.closest('.demonstration-workspace')).not.toBeNull();

@@ -131,7 +131,7 @@ describe('first four patch chapter guided examples', () => {
         expect(graph.state).toEqual(initial);
     });
 
-    it('exposes the sweep through the chapter example Observe flow', () => {
+    it('exposes the sweep through the chapter example hide flow', () => {
         const {graph, view, scheduler, capabilities} = mount();
         function Harness() {
             const [graphActions, setGraphActions] = useState<{animationControls?: React.ReactNode}>();
@@ -143,8 +143,8 @@ describe('first four patch chapter guided examples', () => {
         }
         render(<Harness/>);
 
-        fireEvent.click(screen.getByRole('button', {name: 'Naslednji okvir'}));
-        fireEvent.click(screen.getByRole('button', {name: 'Opazuj na grafu'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
+        fireEvent.click(screen.getByRole('button', {name: 'Skrij navodila vodenega primera'}));
         const controls = within(screen.getByTestId('graph-actions')).getByRole('group', {name: 'Kontrole animacije konstrukcije'});
         const [play] = within(controls).getAllByRole('button');
         fireEvent.click(play);

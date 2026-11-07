@@ -4,10 +4,26 @@ const {test, expect} = require('@playwright/test');
 const lessonPanel = page => page.locator('section.guided-lesson');
 const nextButton = page => lessonPanel(page).locator('.guided-lesson-nav-next');
 const backButton = page => lessonPanel(page).locator('.guided-lesson-nav-back');
+const hideButton = page => lessonPanel(page).locator('.guided-lesson-hide');
 const exitButton = page => lessonPanel(page).getByRole('button', {name: /Exit example|Končaj vodeni primer/});
+const observationFrame = page => page.locator('section.guided-lesson.guided-lesson-frame-observation');
 const learnButton = page => page.getByRole('button', {name: 'Learn this demonstration'});
 const reopenButton = page => page.locator('button.guided-lesson-tab');
-const lessonHeading = page => lessonPanel(page).getByRole('heading', {level: 2});
+
+async function expectLessonIdentity(page, expectedTitle) {
+    const panel = lessonPanel(page);
+    await expect(panel).toBeVisible();
+    const panelHeading = panel.getByRole('heading', {level: 2});
+    if (await panelHeading.count()) {
+        await expect(panelHeading).toHaveText(expectedTitle);
+    } else {
+        // When the page h1 already names this lesson, production removes the duplicate panel heading but labels the
+        // instruction region with that same identity.
+        await expect(page.getByRole('main').getByRole('heading', {level: 1})).toHaveText(expectedTitle);
+        await expect(panel).toHaveAttribute('aria-label', expectedTitle);
+    }
+    await expect(panel).toHaveAccessibleName(expectedTitle);
+}
 
 // Patch lessons use the JSXGraph SVG surface view: drawn-view, owner and framing evidence all sit on the same host.
 const {inspectSurfaceViewInPage} = require('../scripts/surface-view-evidence.cjs');
@@ -216,7 +232,7 @@ function stepNumber(label) {
 }
 
 async function isFinishing(page) {
-    return /^(Complete example|Zaključi vodeni primer)$/.test((await nextButton(page).getAttribute('aria-label')) || '');
+    return /^(Finish example|Končaj in raziskuj graf)$/.test((await nextButton(page).getAttribute('aria-label')) || '');
 }
 
 async function advance(page) {
@@ -283,7 +299,7 @@ async function pressNextWithKeyboard(page) {
 }
 
 module.exports = {
-    lessonPanel, nextButton, backButton, exitButton, exitAndConfirm, learnButton, reopenButton, lessonHeading,
+    lessonPanel, nextButton, backButton, hideButton, exitButton, observationFrame, exitAndConfirm, learnButton, reopenButton, expectLessonIdentity,
     failOnRuntimeErrors, useLanguage, boardStats, boardWeights, visiblePoints, offscreenPoints, surfaceEvidence, assertSurfaceEvidence, settle, reveal, progress, stepNumber, isFinishing,
     advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow, pressNextWithKeyboard,
     openInspectorTab, countSetterValue,

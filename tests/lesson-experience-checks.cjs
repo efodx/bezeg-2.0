@@ -2,6 +2,18 @@
 const {test, expect} = require('@playwright/test');
 const h = require('./lesson-smoke-helpers.cjs');
 
+async function lessonScrollPort(panel) {
+    const owner = await panel.evaluate(section => {
+        const candidates = [['section', section], ['reading', section.querySelector('.guided-lesson-reading')]];
+        return candidates.find(([, element]) => {
+            const overflow = getComputedStyle(element).overflowY;
+            return (overflow === 'auto' || overflow === 'scroll') && element.scrollHeight > element.clientHeight + 1;
+        })?.[0] || null;
+    });
+    if (!owner) return null;
+    return owner === 'section' ? panel : panel.locator('.guided-lesson-reading');
+}
+
 module.exports = function registerExperienceChecks() {
     test.describe('Lesson reading experience', () => {
         test('same-frame reading position survives math reflow after hide and reopen', async ({page}) => {
@@ -22,15 +34,16 @@ module.exports = function registerExperienceChecks() {
             await settleMath();
             const reading = panel.locator('.guided-lesson-reading');
             expect(await reading.locator('mjx-container').count(), 'the same-frame reading contains rendered mathematics').toBeGreaterThan(0);
-            await reading.evaluate(el => { el.scrollTop = el.scrollHeight; });
-            const before = await reading.evaluate(el => el.scrollTop);
+            const scrollPort = await lessonScrollPort(panel);
+            await scrollPort.evaluate(el => { el.scrollTop = el.scrollHeight; });
+            const before = await scrollPort.evaluate(el => el.scrollTop);
             expect(before, 'the production prose really scrolls').toBeGreaterThan(0);
             const progress = await h.progress(page);
-            await panel.getByRole('button', {name: 'Observe on the graph', exact: true}).click();
+            await h.hideButton(page).click();
             await h.reopenButton(page).click();
             await settleMath();
             expect(await h.progress(page)).toBe(progress);
-            expect(await reading.evaluate(el => el.scrollTop)).toBeCloseTo(before, 0);
+            expect(await scrollPort.evaluate(el => el.scrollTop)).toBeCloseTo(before, 0);
         });
         test('at 390 px the collapsed lesson tab leaves the top of the board free', async ({page}) => {
             await page.setViewportSize({width: 390, height: 844});
@@ -38,15 +51,70 @@ module.exports = function registerExperienceChecks() {
             await page.goto('/bezeg-2.0/bezier/reduction?learn=1', {waitUntil: 'domcontentloaded'});
             const panel = h.lessonPanel(page);
             await expect(panel).toBeVisible();
-            const observe = panel.locator('.guided-lesson-observe');
-            for (let frame = 0; frame < 8 && await observe.count() === 0; frame += 1) await h.nextButton(page).click();
-            await observe.click();
+            for (let frame = 0; frame < 8 && await h.observationFrame(page).count() === 0; frame += 1) await h.nextButton(page).click();
+            await expect(h.observationFrame(page)).toBeVisible();
+            await h.hideButton(page).click();
             await expect(h.reopenButton(page)).toBeVisible();
             // Board captions start at its top left corner, right where the tab sits.
             const tab = await h.reopenButton(page).boundingBox();
             const board = await page.locator('#jgbox').boundingBox();
             expect(board.y, 'the board starts below the tab').toBeGreaterThanOrEqual(tab.y + tab.height);
         });
+        for (const language of ['sl', 'en']) {
+            test(`${language}: navigation keeps one position from explanation through observation and completion`, async ({page}) => {
+                await page.setViewportSize({width: 1100, height: 700});
+                await h.useLanguage(page, language);
+                await page.goto('/bezeg-2.0/analysis/taylor?learn=1');
+                const panel = h.lessonPanel(page);
+                await expect(panel).toBeVisible();
+                const names = language === 'en'
+                    ? {back: 'Back: previous frame', next: 'Next: next frame', finish: 'Finish example'}
+                    : {back: 'Nazaj: prejšnji okvir', next: 'Naprej: naslednji okvir', finish: 'Končaj in raziskuj graf'};
+                await expect(h.backButton(page)).toHaveAccessibleName(names.back);
+                await expect(h.nextButton(page)).toHaveAccessibleName(names.next);
+                await expect(h.hideButton(page)).toBeVisible();
+                await expect(panel.getByRole('button', {name: /Observe on the graph|Opazuj na grafu/})).toHaveCount(0);
+
+                const navigationBox = async () => Promise.all([h.backButton(page), h.nextButton(page)].map(async button => {
+                    const box = await button.boundingBox();
+                    return box && Object.fromEntries(['x', 'y', 'width', 'height'].map(key => [key, Math.round(box[key])]));
+                }));
+                const panelBeforeDrag = await panel.boundingBox();
+                const grip = panel.locator('.guided-lesson-grip');
+                const gripBox = await grip.boundingBox();
+                await page.mouse.move(gripBox.x + gripBox.width / 2, gripBox.y + gripBox.height / 2);
+                await page.mouse.down();
+                await page.mouse.move(gripBox.x + gripBox.width / 2 + 32, gripBox.y + gripBox.height / 2 + 24, {steps: 4});
+                await page.mouse.up();
+                const panelAfterDrag = await panel.boundingBox();
+                expect(panelAfterDrag.x).not.toBe(panelBeforeDrag.x);
+                expect(panelAfterDrag.y).not.toBe(panelBeforeDrag.y);
+                const initial = await navigationBox();
+                // Advance across Taylor's explanation, observation and calculation frames; disclosure expansion must
+                // not move the single toolbar away from its reading position.
+                let completionSeen = false;
+                let disclosureSeen = false;
+                // Keep a bounded walk and require the explicit completion state.
+                for (let frame = 0; frame < 32; frame += 1) {
+                    if (await h.isFinishing(page)) {
+                        await expect(h.nextButton(page)).toHaveAccessibleName(names.finish);
+                        expect(await navigationBox(), 'completion label reserves the same navigation footprint').toEqual(initial);
+                        completionSeen = true;
+                        break;
+                    }
+                    const disclosures = panel.locator('.guided-lesson-reading details');
+                    const disclosureCount = await disclosures.count();
+                    if (disclosureCount) disclosureSeen = true;
+                    for (const disclosure of await disclosures.all()) await disclosure.locator('summary').click();
+                    if (disclosureCount) expect(await navigationBox(), `toolbar position after disclosure expansion at frame ${frame + 1}`).toEqual(initial);
+                    await h.nextButton(page).click();
+                    await h.settle(page);
+                    expect(await navigationBox(), `toolbar position after frame ${frame + 2}`).toEqual(initial);
+                }
+                expect(completionSeen, 'the walk reaches the explicit completion action').toBe(true);
+                expect(disclosureSeen, 'the lesson exposes an expected-observation disclosure').toBe(true);
+            });
+        }
         for (const language of ['sl', 'en']) {
             for (const view of [
                 {name: 'desktop', width: 1440, height: 1000},
@@ -72,7 +140,6 @@ module.exports = function registerExperienceChecks() {
                     // Exercise wider font metrics without depending on the host's default UI font.
                     if (view.fontFamily) await page.addStyleTag({content: `body {font-family:${view.fontFamily} !important}`});
                     if (view.presenting) await page.getByRole('button', {name: language === 'en' ? 'Presentation mode' : 'Predstavitveni način', exact: true}).click();
-                    const reading = panel.locator('.guided-lesson-reading');
                     if (view.width === 320) {
                         const degreeControls = page.locator('.workspace-inspector .count-setter-controls');
                         expect(await degreeControls.evaluate(el => el.scrollWidth <= el.parentElement.clientWidth + 1), 'degree stepper fits its inspector row even with enlarged text').toBe(true);
@@ -89,6 +156,25 @@ module.exports = function registerExperienceChecks() {
                         }
                     }
                     await expect(h.backButton(page)).toBeDisabled();
+                    await expect(h.backButton(page)).toHaveAccessibleName(language === 'en' ? 'Back: previous frame' : 'Nazaj: prejšnji okvir');
+                    await expect(h.nextButton(page)).toHaveAccessibleName(language === 'en' ? 'Next: next frame' : 'Naprej: naslednji okvir');
+                    const toolbarPosition = async () => Promise.all([h.backButton(page), h.nextButton(page)].map(async button => {
+                        const box = await button.boundingBox();
+                        return Object.fromEntries(['x', 'y', 'width', 'height'].map(key => [key, Math.round(box[key])]));
+                    }));
+                    await h.nextButton(page).scrollIntoViewIfNeeded();
+                    await h.settle(page);
+                    const firstToolbarPosition = await toolbarPosition();
+                    await h.nextButton(page).click();
+                    await h.settle(page);
+                    expect(await toolbarPosition(), 'toolbar position after a frame change at this viewport').toEqual(firstToolbarPosition);
+                    await h.backButton(page).click();
+                    await h.settle(page);
+                    expect(await toolbarPosition(), 'toolbar position after returning to the first frame').toEqual(firstToolbarPosition);
+                    // The stability check above covers a visible toolbar in a partly scrolled panel. Now bring the
+                    // whole card into view, below Presentation's sticky heading, before checking each action.
+                    await panel.evaluate(el => el.scrollIntoView({block: 'center'}));
+                    await h.settle(page);
                     const panelBackground = await panel.evaluate(el => {
                         const token = getComputedStyle(document.documentElement).getPropertyValue('--bezeg-shell-panel').trim();
                         const probe = document.createElement('span');
@@ -101,14 +187,23 @@ module.exports = function registerExperienceChecks() {
                     expect(panelBackground.token, 'the approved shell panel role is defined').not.toBe('');
                     expect(panelBackground.tokenBackground, 'the approved shell panel role is opaque').toMatch(/^rgb\(/);
                     expect(panelBackground.panelBackground).toBe(panelBackground.tokenBackground);
-                    expect(await reading.evaluate(el => getComputedStyle(el).overflowY)).toBe('auto');
+                    const scrollPort = await lessonScrollPort(panel);
+                    const scrollRange = scrollPort ? await scrollPort.evaluate(el => el.scrollHeight - el.clientHeight) : 0;
+                    const scrollRequired = view.height <= 500 || view.enlarged;
+                    if (scrollRequired) expect(scrollRange, 'short or enlarged lesson content has a real scroll range').toBeGreaterThan(1);
+                    if (scrollRange <= 1) {
+                        const fits = await panel.locator('.guided-lesson-reading').evaluate(el => el.scrollHeight <= el.clientHeight + 1);
+                        expect(fits, 'lesson content fits when the viewport does not require scrolling').toBe(true);
+                    }
                     const progress = await h.progress(page);
                     const originalUrl = page.url();
                     const boardId = await page.locator('#jgbox').evaluate(el => Object.values(window.JXG.boards).find(b => b.containerObj === el).id);
-                    const hide = panel.getByRole('button', {name: language === 'en' ? 'Hide example instructions' : 'Skrij navodila vodenega primera', exact: true});
+                    const hide = h.hideButton(page);
                     const exit = panel.getByRole('button', {name: language === 'en' ? 'Exit example' : 'Končaj vodeni primer', exact: true});
-                    for (const [position, fraction] of [['top', 0], ['middle', .5], ['bottom', 1]]) {
-                        await reading.evaluate((el, f) => { el.scrollTop = (el.scrollHeight - el.clientHeight) * f; }, fraction);
+                    for (const [position, fraction] of (scrollRange > 1 ? [['top', 0], ['middle', .5], ['bottom', 1]] : [['top', 0]])) {
+                        if (scrollPort) await scrollPort.evaluate((el, f) => { el.scrollTop = (el.scrollHeight - el.clientHeight) * f; }, fraction);
+                        const scrollTop = scrollPort ? await scrollPort.evaluate(el => el.scrollTop) : 0;
+                        if (scrollRange > 1) expect(Math.round(scrollTop), `${position}: the chosen scroll owner moves to its requested rounded offset`).toBe(Math.round(scrollRange * fraction));
                         for (const control of [hide, exit, h.nextButton(page)]) {
                             await expect(control).toBeVisible();
                             const box = await control.boundingBox();
@@ -122,6 +217,13 @@ module.exports = function registerExperienceChecks() {
                                 return el.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
                             }), `${position}: action is pointer reachable`).toBe(true);
                         }
+                        const toolbarBeforeHide = await toolbarPosition();
+                        await hide.click();
+                        await expect(panel).toHaveCount(0);
+                        await h.reopenButton(page).click();
+                        await expect(panel).toBeVisible();
+                        if (scrollPort) expect(await scrollPort.evaluate(el => el.scrollTop), `${position}: same-frame scroll position survives hide and reopen`).toBe(scrollTop);
+                        expect(await toolbarPosition(), `${position}: navigation stays anchored after hide and reopen`).toEqual(toolbarBeforeHide);
                         const overflow = await page.evaluate(() => {
                             const documentOverflow = document.documentElement.scrollWidth > innerWidth + 1;
                             const offenders = documentOverflow ? [...document.querySelectorAll('body *')].filter(element => {
@@ -166,9 +268,15 @@ module.exports = function registerExperienceChecks() {
                     expect(page.url()).toBe(originalUrl);
                     expect(await h.progress(page)).toBe(progress);
                     expect(await page.locator('#jgbox').evaluate(el => Object.values(window.JXG.boards).find(b => b.containerObj === el).id)).toBe(boardId);
+                    const beforeFrameChange = await toolbarPosition();
+                    const outerBeforeFrameChange = await panel.evaluate(el => el.scrollTop);
+                    const readingScrollsWithOuter = await panel.locator('.guided-lesson-reading').evaluate(el => getComputedStyle(el).overflowY === 'visible');
                     await h.nextButton(page).click();
+                    await h.settle(page);
                     await expect(panel.locator('h3')).toBeInViewport();
-                    expect(await reading.evaluate(el => el.scrollTop)).toBe(0);
+                    expect(await panel.locator('.guided-lesson-reading').evaluate(el => el.scrollTop), 'a new frame starts at the reading top').toBe(0);
+                    expect(await panel.evaluate(el => el.scrollTop), 'only the outer reading scroll resets; enlarged control placement stays').toBe(readingScrollsWithOuter ? 0 : outerBeforeFrameChange);
+                    expect(await toolbarPosition(), 'the toolbar stays anchored when the next frame starts').toEqual(beforeFrameChange);
                 });
             }
         }

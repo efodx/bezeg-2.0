@@ -12,7 +12,7 @@
  * - `goto-frame` moves to a frame of the same lesson with the previous/next navigation (forward or back).
  * - `frame-action` presses the authored action button of the current frame (`LessonFrame.action`, or the step
  *   action it inherits); the lesson session applies that frame's scene and action exactly as for a learner.
- * - `explore` presses the lesson's hide ("Skrij") or observe ("Opazuj na grafu") button so the workspace enters explore mode and the inspector unlocks; required before
+ * - `explore` presses the lesson's hide ("Skrij") button so the workspace enters explore mode and the inspector unlocks; required before
  *   any `select-tab`/`set-control`, and no frame navigation or action may follow it.
  * - `select-tab` opens an inspector tab (`edit`, `display` or `save`: Uredi, Prikaz, Shrani) by clicking its button.
  * - `set-control` sets a visible control of the open tab through the UI (clicks a checkbox, fills a range slider or a

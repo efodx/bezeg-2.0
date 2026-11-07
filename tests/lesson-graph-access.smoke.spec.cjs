@@ -25,7 +25,7 @@ async function reachTaylorLagrangeObservation(page) {
     const panel = h.lessonPanel(page);
     for (let guard = 0; guard < 40; guard += 1) {
         if (await panel.isVisible() && (await panel.innerText()).includes('A higher degree and the Lagrange bound')
-            && await panel.getByRole('button', {name: 'Observe on the graph'}).isVisible()) return;
+            && await h.observationFrame(page).isVisible()) return;
         await h.advance(page);
     }
     throw new Error('Taylor Step 2 Lagrange observation was not reached');
@@ -51,7 +51,7 @@ test('Taylor observation can hide, edit, reopen the same frame, continue and res
     const observationProgress = await h.progress(page);
     const beforeHide = await boardSnapshot(page);
 
-    await h.lessonPanel(page).getByRole('button', {name: 'Observe on the graph'}).click();
+    await h.hideButton(page).click();
     await expect(h.lessonPanel(page)).toHaveCount(0);
     await expect(page.locator('section.workspace-graph')).not.toHaveAttribute('data-lesson-locked', 'true');
     const reopen = h.reopenButton(page);
@@ -109,21 +109,20 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     expect(await reading.evaluate(element => getComputedStyle(element).overflowY)).toBe('auto');
     await reading.evaluate(element => { element.scrollTop = element.scrollHeight; });
     expect(await reading.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
-    await expect(panel.getByRole('button', {name: 'Hide lesson instructions', exact: true})).toHaveCount(0);
-    const observe = panel.getByRole('button', {name: 'Observe on the graph', exact: true});
-    await expect(observe).toBeVisible();
-    const actionFitsPanel = await observe.evaluate(button => {
+    const hide = h.hideButton(page);
+    await expect(hide).toBeVisible();
+    const actionFitsPanel = await hide.evaluate(button => {
         const action = button.getBoundingClientRect();
         const container = button.closest('.guided-lesson').getBoundingClientRect();
         return action.top >= container.top && action.bottom <= container.bottom;
     });
     expect(actionFitsPanel, 'the visible minimize action fits within the bounded overlay').toBe(true);
-    const actionBox = await observe.boundingBox();
+    const actionBox = await hide.boundingBox();
     expect(actionBox.y).toBeGreaterThanOrEqual(0);
     expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(844);
     expect(await panel.evaluate(element => element.scrollTop), 'prose scroll belongs to the reading region').toBe(0);
 
-    await observe.click();
+    await hide.click();
     await expect(panel).toHaveCount(0);
     const reopen = h.reopenButton(page);
     await expect(reopen).toBeVisible();
@@ -157,7 +156,7 @@ test('lesson actions stay reachable at narrow size and 200% text in Presentation
     const boardAfterPresentationReopen = await boardSnapshot(page);
     expect(boardAfterPresentationReopen.id).toBe(boardBeforePresentationReopen.id);
     expect(boardAfterPresentationReopen.view).toEqual(boardBeforePresentationReopen.view);
-    await h.lessonPanel(page).getByRole('button', {name: 'Observe on the graph', exact: true}).click();
+    await h.hideButton(page).click();
     await expect(reopen).toBeVisible();
 });
 
@@ -172,7 +171,7 @@ test('touch learners can hide, reopen by touch, and explicitly exit', async ({br
         await expect(panel).toBeVisible();
         await h.settle(page);
         const before = await boardSnapshot(page);
-        await panel.getByRole('button', {name: 'Hide example instructions', exact: true}).tap();
+        await h.hideButton(page).tap();
         await expect(panel).toHaveCount(0);
         const reopen = h.reopenButton(page);
         await expect(reopen).toBeVisible();

@@ -43,7 +43,7 @@
 const {test, expect} = require('@playwright/test');
 const h = require('./lesson-smoke-helpers.cjs');
 
-const {lessonPanel, nextButton, backButton, exitButton, exitAndConfirm, learnButton, lessonHeading, boardStats, settle, progress,
+const {lessonPanel, nextButton, backButton, exitButton, exitAndConfirm, learnButton, expectLessonIdentity, boardStats, settle, progress,
     stepNumber, isFinishing, advance, back, advanceToStep, stepToCompletion, noHorizontalOverflow} = h;
 
 h.failOnRuntimeErrors();
@@ -2506,7 +2506,7 @@ for (const row of LESSONS) {
 
         test('sl: ?learn=1 walks every frame in order with pointer clicks on Next and completes', async ({page}) => {
             await openLesson(page, row, 'sl');
-            await expect(lessonHeading(page)).toHaveText(row.titles.sl);
+            await expectLessonIdentity(page, row.titles.sl);
             await expect(backButton(page)).toBeDisabled();
             const ctx = row.setup ? await row.setup(page) : undefined;
             const walk = await walkFrames(page, row, async label => {
@@ -2518,7 +2518,7 @@ for (const row of LESSONS) {
         test('en 390x844: every frame in order keeps points in view, math blocks inside the viewport and Next pointer-clickable', async ({page}) => {
             await page.setViewportSize({width: 390, height: 844});
             await openLesson(page, row, 'en');
-            await expect(lessonHeading(page)).toHaveText(row.titles.en);
+            await expectLessonIdentity(page, row.titles.en);
             await expect(backButton(page)).toBeDisabled();
             const lesson = lessonPanel(page);
             for (const control of [nextButton(page), exitButton(page)]) {
@@ -2555,7 +2555,7 @@ for (const row of LESSONS) {
             const probe = async label => { if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label); };
             await learnButton(page).click();
             await expect(lessonPanel(page)).toBeVisible();
-            await expect(lessonHeading(page)).toHaveText(row.titles.en);
+            await expectLessonIdentity(page, row.titles.en);
             await advanceToStep(page, row.exitStep ?? 3);
             // Short Back check: step one frame away (Back, or Next when this is the first frame) and return by the opposite move.
             const here = await progress(page);
@@ -2599,12 +2599,12 @@ test.describe('Shared lesson runtime', () => {
         test.describe(`on ${row.id}`, () => {
             test('header language switch re-titles the open lesson without resetting the frame or scene', async ({page}) => {
                 await openLesson(page, row, 'sl');
-                await expect(lessonHeading(page)).toHaveText(row.titles.sl);
+                await expectLessonIdentity(page, row.titles.sl);
                 await advanceToStep(page, 2);
                 const label = await progress(page);
                 const scene = await boardStats(page);
                 await page.locator('#bezeg-language').selectOption('en');
-                await expect(lessonHeading(page)).toHaveText(row.titles.en);
+                await expectLessonIdentity(page, row.titles.en);
                 await expect(exitButton(page)).toBeVisible();
                 // "Korak 2 od 5 · Okvir 1 od 3" -> "Step 2 of 5 · Frame 1 of 3": same numbers, new language.
                 const numbers = text => text.match(/\d+/g).join('/');
@@ -2623,7 +2623,7 @@ test.describe('Shared lesson runtime', () => {
             test('Back is lossless in both directions and the English lesson completes', async ({page}) => {
                 const lastStep = new RegExp(`Step ${row.steps} of ${row.steps}`);
                 await openLesson(page, row, 'en');
-                await expect(lessonHeading(page)).toHaveText(row.titles.en);
+                await expectLessonIdentity(page, row.titles.en);
                 const ctx = row.setup ? await row.setup(page) : undefined;
                 const probe = async label => { if (row.stepProbe) await row.stepProbe(page, ctx, stepNumber(label), label); };
                 const trail = [];
@@ -2746,7 +2746,7 @@ test.describe('Rational elevation extras', () => {
         // Frame-level walk. Elevation is applied by the lesson's action button or scene entry.
         for (let guard = 0; guard < 40; guard += 1) {
             const label = await progress(page);
-            const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-observe):not(.guided-lesson-continue)');
+            const action = lesson.locator('.guided-lesson-actions button:not(.guided-lesson-continue)');
             if (await action.count()) {
                 await action.first().click();
                 await settle(page);
@@ -2844,7 +2844,7 @@ test.describe('Observation flow', () => {
     const reopenFocused = page => h.reopenButton(page).evaluate(element => document.activeElement === element);
     async function toFirstObservation(page) {
         for (let guard = 0; guard < 10; guard += 1) {
-            if (await lessonPanel(page).locator('.guided-lesson-observe').count()) return;
+            if (await h.observationFrame(page).count()) return;
             await advance(page);
         }
         throw new Error('no observation frame reached');
@@ -2857,7 +2857,7 @@ test.describe('Observation flow', () => {
         expect(await locked(page), 'graph locked while the observation overlay is open').toBe(true);
         expect(await panelFocused(page), 'overlay keeps focus').toBe(true);
 
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        await pressOn(page, h.hideButton(page));
         await expect(lessonPanel(page)).toHaveCount(0);
         expect(await locked(page), 'graph unlocked while instructions are hidden').toBe(false);
         expect(await reopenFocused(page), 'compact reopen tab takes focus').toBe(true);
@@ -2914,9 +2914,9 @@ test.describe('Observation flow', () => {
         await openLesson(page, extrapolation, 'en');
         for (let guard = 0; guard < 40; guard += 1) {
             await advance(page);
-            if (await lessonPanel(page).locator('.guided-lesson-observe').count() && await isFinishing(page)) break;
+            if (await h.observationFrame(page).count() && await isFinishing(page)) break;
         }
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        await pressOn(page, h.hideButton(page));
         await pressOn(page, h.reopenButton(page));
         await pressOn(page, nextButton(page));
         await expect(page.locator('section.guided-lesson.guided-lesson-complete')).toBeVisible();
@@ -2926,7 +2926,7 @@ test.describe('Observation flow', () => {
     test('playback pauses when instructions reopen and Next advances', async ({page}) => {
         await openLesson(page, {path: `${BASE}/bezier/decasteljau`}, 'en');
         await toFirstObservation(page);
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        await pressOn(page, h.hideButton(page));
         const play = page.locator('.workspace-actions .guided-lesson-animation-controls button').first();
         await expect(play, 'workspace header offers playback on an animated frame').toBeVisible();
         const t = () => rangeSlider(page, '1').first().inputValue();
@@ -2938,7 +2938,7 @@ test.describe('Observation flow', () => {
         await page.waitForTimeout(700);
         expect(await t(), 'playback paused behind the overlay').toBe(frozen);
 
-        await pressOn(page, lessonPanel(page).locator('.guided-lesson-observe'));
+        await pressOn(page, h.hideButton(page));
         await page.locator('.workspace-actions .guided-lesson-animation-controls button').first().click();
         await page.waitForTimeout(250);
         await pressOn(page, h.reopenButton(page));

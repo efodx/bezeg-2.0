@@ -109,7 +109,7 @@ test('choosing the current graph continues the same board and preserves its less
     await expect(lessonPicker).toBeHidden();
     const lesson = page.locator('section.guided-lesson');
     await expect(lesson).toBeVisible();
-    await expect(lesson.getByRole('heading', {level: 2})).toBeVisible();
+    await h.expectLessonIdentity(page, 'Bézier curve: from points to shape');
     const progress = lesson.locator('.guided-lesson-progress');
     const entryProgress = await progress.innerText();
     await lesson.locator('.guided-lesson-nav-next').click();

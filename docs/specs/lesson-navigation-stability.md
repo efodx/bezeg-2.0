@@ -1,12 +1,12 @@
 # Stable guided lesson navigation
 
-Status: compact-toolbar direction selected by the owner, 2026-11-07. Application implementation is outside this exploration. Source: the owner's two browser comments on the B-spline blossom guided example, image comparison, and follow-up choosing A with shorter navigation labels in Codex chat `01a1b334-019f-7781-91c9-7f7719bc02cd`. The exploratory images remain in the conversation; no image has been selected as a project asset.
+Status: implemented and locally verified, 2026-11-07. The owner selected A after its runnable trial; the compact top toolbar is the release behavior. Source: the owner's two browser comments on the B-spline blossom guided example, image comparison, and follow-up choosing A with shorter navigation labels in Codex chat `01a1b334-019f-7781-91c9-7f7719bc02cd`. The exploratory images remain in the conversation; no image has been selected as a project asset.
 
-## Problem and existing behavior
+## Problem and previous behavior
 
 The owner wants to read successive frames without moving the pointer to find **Naslednji okvir**, and wants the observation action consolidated into the existing **Skrij** control.
 
-The current panel has natural height with a maximum height. Navigation follows the reading region in its footer, so a short observation frame raises the buttons relative to a long explanation. Both the observation button and the hide button already call `hideOverlay`; observation frames suppress the header hide button and show **Opazuj na grafu** below navigation instead.
+Before this change, the panel had natural height with a maximum height. Navigation followed the reading region in its footer, so a short observation frame raised the buttons relative to a long explanation. Both the observation button and the hide button already called `hideOverlay`; observation frames suppressed the header hide button and showed **Opazuj na grafu** below navigation instead.
 
 Relevant constraints are the [lean movable overlay](lesson-panel-visual-refinement.md#lean-movable-overlay--2026-10-31), [compact lesson controls](lesson-mobile-controls.md), and [product guardrails](../guardrails.md). Keep the cream/green identity, graph prominence, draggable placement, bilingual labels, and existing scene, focus, and hide/reopen behavior.
 
@@ -32,10 +32,11 @@ The owner requested **Nazaj** and **Naprej** instead of repeating the frame noun
 
 A fixed-height card with a fixed bottom footer also stabilizes navigation and preserves the familiar content-then-navigation order. It reserves blank space on short frames and covers more of the graph. The owner selected the compact toolbar, which retains the lean overlay's natural height.
 
-## Acceptance for a future implementation
+## Acceptance for implementation
 
 - At an unchanged viewport and panel position, Previous/Next retain their screen coordinates across long and short frames, steps, frame kinds, formula typesetting, and observation disclosure expansion. Reserve enough button width for the final-frame label as well.
 - Use the short visible labels **Nazaj** / **Naprej** and **Back** / **Next**, with small directional arrows. Keep accessible names consistent with the visible words and frame action; hide decorative arrows from assistive technology. Keep the existing disabled first-frame Back state.
+- At very narrow panel widths, omit the decorative arrows and reduce horizontal padding so enlarged words remain legible. Preserve the words, focus treatment and 44px minimum target height.
 - In the normal chapter-owned blossom layout, show the demonstration title once in the page heading. Remove its duplicate panel title and chapter/section identity row, placing **Nazaj v poglavje** in the utility row instead. Keep a single frame heading in the body. Preserve meaningful distinct or otherwise unavailable context and the instruction region's accessible name.
 - Keep the header and toolbar anchored after a manual drag. Bound the reading region by the remaining visible graph/viewport space rather than allowing longer content to push the panel anchor elsewhere. Viewport resizing and intentional dragging may reposition controls.
 - Long content remains scrollable and all controls remain reachable. Short frames retain a compact body. Support 320px width, enlarged text, short landscape, desktop, Slovenian, and English without clipped labels or horizontal page overflow; action targets remain at least 44px tall.
@@ -48,4 +49,8 @@ A fixed-height card with a fixed bottom footer also stabilizes navigation and pr
 
 The handler inspected the two supplied screenshots, the panel CSS and runtime handlers, the incumbent design context, and the relevant specifications. An independent read-only layout assessment supported the compact toolbar. A generated four-state image comparison shows long and short frames for each option. After the owner selected A and requested shorter labels, a second two-state image showed the compact toolbar with **← Nazaj** and **Naprej →**. A third image responds to the owner's repetition comment: the page heading supplies identity and the panel has only a utility row and stable toolbar above its body. These are layout illustrations, not authoritative lesson mathematics or runtime tests.
 
-No application code was changed or browser interaction tested during this exploration. Implementation would require runtime/workspace regression checks, localization typecheck and build if copy changes, and browser smoke through the project's smoke-tester workflow for the affected shared lesson runtime. Browser checks must measure navigation coordinates as well as exercise hide, graph editing, reopen, dragging, keyboard access, disclosures, and long-content scrolling.
+The image exploration changed no application code and did not test browser interaction. Production implementation requires runtime/workspace regression checks, localization typecheck and build if copy changes, and browser smoke through the project's smoke-tester workflow for the affected shared lesson runtime. Browser checks must measure navigation coordinates as well as exercise hide, graph editing, reopen, dragging, keyboard access, disclosures, and long-content scrolling.
+
+## Production implementation — 2026-11-07
+
+The owner approved implementation after the runnable trial on `codex/prototype-lesson-navigation` at `42caae71`. That branch retains the complete A/B/C comparison. [The production task](../tasks/lesson-navigation-stability/implementation.md) carries the selected compact toolbar into the real runtime, including affected prose, replay consumers, regression tests and browser acceptance. Production has one layout without a variant parameter or comparison controls. No route or stored-preset format changes are intended.
