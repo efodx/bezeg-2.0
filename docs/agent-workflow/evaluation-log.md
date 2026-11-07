@@ -2211,3 +2211,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Repairs: none to the worker's code; the density issue came from the task file's 1 % target, a planning error, not a worker error.
 - Timing: worker about 25 min, largely queued tests. Usage: worker 47,863 tokens (reported total).
 - Handoff evidence: the brief asked for exported types for CP2 and a measured constant with rationale; the measured 0.94 % exposed the sub-pixel radii that the planning target implied.
+
+## 2026-11-07 — collision playground CP2, worker host and protocol (collision stream, handler 1)
+
+- Class/size: engineering, M. Scope: typed protocol, pure `createWorkerLoop`, thin module worker, `useCollisionWorker` lifecycle hook.
+- Dispatch: one `bezeg-worker` (Sonnet `medium`); handler Opus `medium`.
+- Outcome: accepted on handler review in chat (bounded diff, ~800 lines with tests). 24 tests with 23 mutation groups (reported; the promised notes file `cp2-notes.md` was not written, so the mutation log is unverified); tsc, lint, build with a separate worker chunk (confirmed through a temporary import, reverted). Gaps: loop error path untested; real worker not run in a browser (CP4 smoke covers it).
+- Repairs: none. Note for CP4: dispose clears all subscribers, so subscribe in an effect declared after the hook.
+- Timing: worker about 24 min. Usage: worker 68,907 tokens (reported total).
+- Handoff evidence: passing CP1's aliasing and per-count sweep state in the brief avoided a snapshot bug class; the worker deleted another session's temp `mut.py` to clear a name clash, outside its owned paths.
