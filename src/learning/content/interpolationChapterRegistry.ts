@@ -1,7 +1,6 @@
 import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
-import type {LessonDefinition} from '../model';
-import {getCatalogLessonForDemonstration} from '../runtime/lessonCatalog';
+import {catalogSectionLessons} from './catalogSectionLessons';
 
 import {INTERPOLATION_CHAPTER_ID} from './interpolationChapterId';
 
@@ -18,20 +17,8 @@ const sectionDemonstrations = {
 
 export type InterpolationSectionId = keyof typeof sectionDemonstrations;
 
-/**
- * Section-owned activity (spec I1 to I5). The lesson text stays in the two guided-lesson files; the getters read it lazily because
- * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
- */
-export const interpolationGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(
-    Object.entries(sectionDemonstrations).map(([sectionId, demonstrationId]) => [sectionId, {
-        enumerable: true,
-        get: (): LessonDefinition => {
-            const lesson = getCatalogLessonForDemonstration(demonstrationId);
-            if (!lesson) throw new Error(`The ${demonstrationId} lesson is not available for the interpolation chapter.`);
-            return lesson;
-        },
-    }]),
-)) as Readonly<Record<InterpolationSectionId, LessonDefinition>>;
+/** Section-owned activity (spec I1 to I5). The lesson text stays in the two guided-lesson files; a section's lesson is adapted only when requested. */
+export const interpolationGuidedExampleLessons = catalogSectionLessons<InterpolationSectionId>('the interpolation chapter', sectionDemonstrations);
 
 export function interpolationGuidedExampleDemonstration(sectionId: InterpolationSectionId): DemonstrationId {
     return sectionDemonstrations[sectionId];

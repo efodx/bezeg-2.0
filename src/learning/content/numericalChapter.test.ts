@@ -7,7 +7,7 @@ import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
 import {numericalChapter} from './numericalChapter';
-import {NUMERICAL_CHAPTER_ID, numericalGuidedExamplePath, numericalGuidedExampleRegistry} from './numericalChapterRegistry';
+import {NUMERICAL_CHAPTER_ID, numericalGuidedExamplePath, numericalGuidedExampleLessons} from './numericalChapterRegistry';
 
 const ID = 'root-finding';
 const proseOf = (language: 'sl' | 'en') => numericalChapter.sections[1].paragraphs.map(p => p[language]).join(' ') + numericalChapter.sections[1].formula;
@@ -21,7 +21,7 @@ describe('chapter structure and registration', () => {
         expect(numericalChapter.title).toEqual({sl: 'Numerične metode na grafu', en: 'Numerical methods on the graph'});
         expect(numericalChapter.family).toBe('analysis');
         expect(numericalChapter.sections.map(section => section.id)).toEqual(['numerical-idea', ID, 'quadrature', 'euler-method']);
-        expect(Object.keys(numericalGuidedExampleRegistry)).toEqual([ID, 'quadrature', 'euler-method']);
+        expect(Object.keys(numericalGuidedExampleLessons.all())).toEqual([ID, 'quadrature', 'euler-method']);
         expect(familyChapters.findIndex(chapter => chapter.id === NUMERICAL_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'analysis') + 1);
         expect(learningChapters.some(chapter => chapter.id === NUMERICAL_CHAPTER_ID)).toBe(true);
@@ -29,7 +29,7 @@ describe('chapter structure and registration', () => {
     });
 
     test('the later lessons are not advertised', () => {
-        const everything = JSON.stringify([{...numericalChapter, title: undefined}, ...Object.values(numericalGuidedExampleRegistry)]).toLowerCase();
+        const everything = JSON.stringify([{...numericalChapter, title: undefined}, ...Object.values(numericalGuidedExampleLessons.all())]).toLowerCase();
         for (const word of ['runge', 'kutta', 'stiff']) expect(everything).not.toContain(word);
     });
 
@@ -103,7 +103,7 @@ describe('chapter structure and registration', () => {
         expect(getGuidedLessonOwner(ID)).toEqual({chapterId: NUMERICAL_CHAPTER_ID, sectionId: ID});
         expect(authoredGuidedLessonIds(NUMERICAL_CHAPTER_ID, ID)).toEqual([ID]);
         const lesson = getLessonForDemonstration(ID)!;
-        expect(lesson).toBe(numericalGuidedExampleRegistry[ID]);
+        expect(lesson).toBe(numericalGuidedExampleLessons.all()[ID]);
         expect(lesson.demonstrationId).toBe(ID);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(5);
         for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
@@ -121,7 +121,7 @@ describe('chapter structure and registration', () => {
         const search = launch.slice(launch.indexOf('?'));
         expect(resolveGuidedExample(search, ID)?.owner).toEqual({chapterId: NUMERICAL_CHAPTER_ID, sectionId: ID});
         const exampleId = `lesson.${NUMERICAL_CHAPTER_ID}.${ID}.${ID}`;
-        expect(resolveGuidedExample(`?example=${exampleId}`, ID)?.lesson).toBe(numericalGuidedExampleRegistry[ID]);
+        expect(resolveGuidedExample(`?example=${exampleId}`, ID)?.lesson).toBe(numericalGuidedExampleLessons.all()[ID]);
         const links = getChapterGuidedExamples(NUMERICAL_CHAPTER_ID, ID);
         expect(links.map(link => link.path)).toEqual([numericalGuidedExamplePath(ID)]);
         expect(links[0].path).toContain(`?example=${exampleId}`);
@@ -154,7 +154,7 @@ describe('the quadrature section (N4)', () => {
         expect(getGuidedLessonOwners(QUAD)).toEqual([{chapterId: NUMERICAL_CHAPTER_ID, sectionId: QUAD}]);
         expect(getGuidedLessonOwner(QUAD)).toEqual({chapterId: NUMERICAL_CHAPTER_ID, sectionId: QUAD});
         expect(authoredGuidedLessonIds(NUMERICAL_CHAPTER_ID, QUAD)).toEqual([QUAD]);
-        expect(getLessonForDemonstration(QUAD)).toBe(numericalGuidedExampleRegistry[QUAD]);
+        expect(getLessonForDemonstration(QUAD)).toBe(numericalGuidedExampleLessons.all()[QUAD]);
         expect(numericalGuidedExamplePath(QUAD)).toContain(`?example=lesson.${NUMERICAL_CHAPTER_ID}.${QUAD}.${QUAD}`);
         expect(getChapterGuidedExamples(NUMERICAL_CHAPTER_ID, QUAD).map(link => link.path)).toEqual([numericalGuidedExamplePath(QUAD)]);
         expect(guidedLessonReturnPath(getGuidedLessonOwner(QUAD)!)).toBe(`/bezeg-2.0/learn/${NUMERICAL_CHAPTER_ID}#${QUAD}`);
@@ -213,7 +213,7 @@ describe('the Euler section (N5)', () => {
         expect(getGuidedLessonOwners(EULER)).toEqual([{chapterId: NUMERICAL_CHAPTER_ID, sectionId: EULER}]);
         expect(getGuidedLessonOwner(EULER)).toEqual({chapterId: NUMERICAL_CHAPTER_ID, sectionId: EULER});
         expect(authoredGuidedLessonIds(NUMERICAL_CHAPTER_ID, EULER)).toEqual([EULER]);
-        expect(getLessonForDemonstration(EULER)).toBe(numericalGuidedExampleRegistry[EULER]);
+        expect(getLessonForDemonstration(EULER)).toBe(numericalGuidedExampleLessons.all()[EULER]);
         expect(numericalGuidedExamplePath(EULER)).toContain(`?example=lesson.${NUMERICAL_CHAPTER_ID}.${EULER}.${EULER}`);
         expect(getChapterGuidedExamples(NUMERICAL_CHAPTER_ID, EULER).map(link => link.path)).toEqual([numericalGuidedExamplePath(EULER)]);
         expect(guidedLessonReturnPath(getGuidedLessonOwner(EULER)!)).toBe(`/bezeg-2.0/learn/${NUMERICAL_CHAPTER_ID}#${EULER}`);

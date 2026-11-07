@@ -6,7 +6,7 @@ import {
 import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {bsplineChapter} from './bsplineChapter';
-import {BSPLINE_CHAPTER_ID, bsplineGuidedExamplePath, bsplineGuidedExampleRegistry} from './bsplineChapterRegistry';
+import {BSPLINE_CHAPTER_ID, bsplineGuidedExamplePath, bsplineGuidedExampleLessons} from './bsplineChapterRegistry';
 import {familyChapters} from './familyChapters';
 
 const IDS = ['bspline-basis', 'bspline-deboor', 'bspline-insertion', 'bspline-extraction', 'bspline-nurbs', 'bspline-blossom'] as const;
@@ -23,7 +23,7 @@ describe('chapter structure and registration', () => {
         expect(bsplineChapter.title).toEqual({sl: 'B-zlepki in NURBS', en: 'B-splines and NURBS'});
         expect(bsplineChapter.family).toBe('/bezeg-2.0/bspline');
         expect(bsplineChapter.sections.map(section => section.id)).toEqual(['bspline-idea', ...IDS]);
-        expect(Object.keys(bsplineGuidedExampleRegistry)).toEqual([...IDS]);
+        expect(Object.keys(bsplineGuidedExampleLessons.all())).toEqual([...IDS]);
         expect(familyChapters.findIndex(chapter => chapter.id === BSPLINE_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'splines') + 1);
         expect(learningChapters.some(chapter => chapter.id === BSPLINE_CHAPTER_ID)).toBe(true);
@@ -79,7 +79,7 @@ describe('chapter structure and registration', () => {
             expect(authoredGuidedLessonIds(BSPLINE_CHAPTER_ID, id)).toEqual([id]);
             expect(authoredGuidedLessonIds('splines', 'piecewise')).not.toContain(id);
             const lesson = getLessonForDemonstration(id)!;
-            expect(lesson).toBe(bsplineGuidedExampleRegistry[id]);
+            expect(lesson).toBe(bsplineGuidedExampleLessons.all()[id]);
             expect(lesson.demonstrationId).toBe(id);
             for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
                 expect(field.sl.length).toBeGreaterThan(2);
@@ -96,7 +96,7 @@ describe('chapter structure and registration', () => {
             expect(guidedLessonReturnPath(getGuidedLessonOwner(id)!)).toBe(`/bezeg-2.0/learn/${BSPLINE_CHAPTER_ID}#${id}`);
             const exampleId = `lesson.${BSPLINE_CHAPTER_ID}.${id}.${id}`;
             expect(resolveGuidedExample(launch.slice(launch.indexOf('?')), id)?.owner).toEqual({chapterId: BSPLINE_CHAPTER_ID, sectionId: id});
-            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(bsplineGuidedExampleRegistry[id]);
+            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(bsplineGuidedExampleLessons.all()[id]);
             const links = getChapterGuidedExamples(BSPLINE_CHAPTER_ID, id);
             expect(links.map(link => link.path)).toEqual([bsplineGuidedExamplePath(id)]);
             expect(links[0].path).toContain(`?example=${exampleId}`);

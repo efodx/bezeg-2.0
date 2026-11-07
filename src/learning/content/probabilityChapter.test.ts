@@ -10,7 +10,7 @@ import {learningChapters} from '../learningChapters';
 import {learningStrands} from '../LearningPage';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {probabilityChapter} from './probabilityChapter';
-import {PROBABILITY_CHAPTER_ID, probabilityGuidedExamplePath, probabilityGuidedExampleRegistry} from './probabilityChapterRegistry';
+import {PROBABILITY_CHAPTER_ID, probabilityGuidedExamplePath, probabilityGuidedExampleLessons} from './probabilityChapterRegistry';
 import {familyChapters} from './familyChapters';
 import {CLT_EXAMPLES, cltView, shapeMoments} from '../../analysis/cltModel';
 import {DEFAULT_SUMMARY_MODEL, SUMMARY_EXAMPLES, summaryStatisticsView} from '../../analysis/summaryStatisticsModel';
@@ -31,7 +31,7 @@ describe('chapter structure and registration', () => {
         expect(probabilityChapter.title).toEqual({sl: 'Verjetnost in statistika na grafu', en: 'Distributions, CLT and correlation'});
         expect(probabilityChapter.family).toBe('/bezeg-2.0/probability');
         expect(probabilityChapter.sections.map(section => section.id)).toEqual(['area-and-approximation', ...SECTIONS.map(([id]) => id)]);
-        expect(Object.keys(probabilityGuidedExampleRegistry)).toEqual(SECTIONS.map(([id]) => id));
+        expect(Object.keys(probabilityGuidedExampleLessons.all())).toEqual(SECTIONS.map(([id]) => id));
         expect(familyChapters.at(-1)!.id).toBe(PROBABILITY_CHAPTER_ID);
         expect(familyChapters.findIndex(chapter => chapter.id === PROBABILITY_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'fourier-series') + 1);
@@ -62,7 +62,7 @@ describe('chapter structure and registration', () => {
             expect(authoredGuidedLessonIds(PROBABILITY_CHAPTER_ID, section)).toEqual([id]);
             expect(authoredGuidedLessonIds('functions-and-calculus', 'integrals')).not.toContain(id);
             const lesson = getLessonForDemonstration(id)!;
-            expect(lesson).toBe(probabilityGuidedExampleRegistry[section]);
+            expect(lesson).toBe(probabilityGuidedExampleLessons.all()[section]);
             expect(lesson.demonstrationId).toBe(id);
             for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
                 expect(field.sl.length).toBeGreaterThan(2);
@@ -80,7 +80,7 @@ describe('chapter structure and registration', () => {
             expect(guidedLessonReturnPath(getGuidedLessonOwner(id)!)).toBe(`/bezeg-2.0/learn/${PROBABILITY_CHAPTER_ID}#${section}`);
             const exampleId = `lesson.${PROBABILITY_CHAPTER_ID}.${section}.${id}`;
             expect(resolveGuidedExample(launch.slice(launch.indexOf('?')), id)?.owner).toEqual(owner);
-            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(probabilityGuidedExampleRegistry[section]);
+            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(probabilityGuidedExampleLessons.all()[section]);
             const links = getChapterGuidedExamples(PROBABILITY_CHAPTER_ID, section);
             expect(links.map(link => link.path)).toEqual([probabilityGuidedExamplePath(section)]);
             expect(links[0].path).toContain(`?example=${exampleId}`);

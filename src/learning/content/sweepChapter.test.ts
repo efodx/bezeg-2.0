@@ -7,7 +7,7 @@ import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
 import {sweepChapter} from './sweepChapter';
-import {SWEEP_CHAPTER_ID, sweepGuidedExamplePath, sweepGuidedExampleRegistry} from './sweepChapterRegistry';
+import {SWEEP_CHAPTER_ID, sweepGuidedExamplePath, sweepGuidedExampleLessons} from './sweepChapterRegistry';
 
 const IDS = ['interval-sweep', 'segment-intersections', 'monotone-partition', 'monotone-triangulation', 'fortune'] as const;
 
@@ -19,7 +19,7 @@ describe('chapter structure and registration', () => {
         expect(SWEEP_CHAPTER_ID).toBe('sweep-algorithms');
         expect(sweepChapter.title).toEqual({sl: 'Algoritmi pometanja', en: 'Sweep-line algorithms'});
         expect(sweepChapter.sections.map(section => section.id)).toEqual(['sweep-idea', ...IDS]);
-        expect(Object.keys(sweepGuidedExampleRegistry)).toEqual([...IDS]);
+        expect(Object.keys(sweepGuidedExampleLessons.all())).toEqual([...IDS]);
         expect(familyChapters.find(chapter => chapter.id === SWEEP_CHAPTER_ID)?.family).toBe('computational-geometry');
         expect(familyChapters.findIndex(chapter => chapter.id === SWEEP_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'triangulations-voronoi') + 1);
@@ -28,7 +28,7 @@ describe('chapter structure and registration', () => {
     });
 
     test('unreleased lessons are not advertised (the closest pair and overlay lesson C6 is optional and unreleased)', () => {
-        const everything = JSON.stringify([{...sweepChapter, title: undefined, prerequisiteLinks: sweepChapter.prerequisiteLinks?.map(link => ({...link, path: undefined}))}, ...Object.values(sweepGuidedExampleRegistry)]).toLowerCase();
+        const everything = JSON.stringify([{...sweepChapter, title: undefined, prerequisiteLinks: sweepChapter.prerequisiteLinks?.map(link => ({...link, path: undefined}))}, ...Object.values(sweepGuidedExampleLessons.all())]).toLowerCase();
         for (const word of ['closest pair', 'najbližji par', 'overlay', 'prekrivanje dveh razdelitev']) expect(everything).not.toContain(word);
     });
 
@@ -99,7 +99,7 @@ describe('chapter structure and registration', () => {
             expect(getGuidedLessonOwner(id)).toEqual({chapterId: SWEEP_CHAPTER_ID, sectionId: id});
             expect(authoredGuidedLessonIds(SWEEP_CHAPTER_ID, id)).toEqual([id]);
             const lesson = getLessonForDemonstration(id)!;
-            expect(lesson).toBe(sweepGuidedExampleRegistry[id]);
+            expect(lesson).toBe(sweepGuidedExampleLessons.all()[id]);
             expect(lesson.demonstrationId).toBe(id);
             expect(lesson.steps.length).toBeGreaterThanOrEqual(5);
             for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
@@ -121,7 +121,7 @@ describe('chapter structure and registration', () => {
             const search = launch.slice(launch.indexOf('?'));
             expect(resolveGuidedExample(search, id)?.owner).toEqual({chapterId: SWEEP_CHAPTER_ID, sectionId: id});
             const exampleId = `lesson.${SWEEP_CHAPTER_ID}.${id}.${id}`;
-            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(sweepGuidedExampleRegistry[id]);
+            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(sweepGuidedExampleLessons.all()[id]);
             const links = getChapterGuidedExamples(SWEEP_CHAPTER_ID, id);
             expect(links.map(link => link.path)).toEqual([sweepGuidedExamplePath(id)]);
             expect(links[0].path).toContain(`?example=${exampleId}`);

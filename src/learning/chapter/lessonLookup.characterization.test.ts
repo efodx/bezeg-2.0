@@ -73,7 +73,7 @@ describe('B-spline exact-section lookup', () => {
             expect(getGuidedLessonOwnerForSection(section, BSPLINE, section), section).toEqual({chapterId: BSPLINE, sectionId: section});
             expect(authoredGuidedLessonIds(BSPLINE, section), section).toEqual([section]);
         }
-        expect(chapter?.entries().map(([sectionId]) => sectionId)).toEqual([...bsplineSections]);
+        expect(chapter?.rows().map(([sectionId]) => sectionId)).toEqual([...bsplineSections]);
     });
 
     it('does not resolve a section against another section Demonstration', () => {
@@ -102,7 +102,7 @@ describe('linear maps L1 and L2', () => {
         expect(chapter()?.lesson('determinant-area')?.id).toBe('linear-map-determinant-area');
         expect(chapter()?.lesson('matrix-and-image')?.demonstrationId).toBe('linear-map');
         expect(chapter()?.lesson('determinant-area')?.demonstrationId).toBe('linear-map');
-        expect(chapter()?.entries().map(([sectionId]) => sectionId)).toEqual(['matrix-and-image', 'determinant-area']);
+        expect(chapter()?.rows().map(([sectionId]) => sectionId)).toEqual(['matrix-and-image', 'determinant-area']);
         expect(getGuidedLessonOwnerForSection('linear-map', 'linear-maps', 'determinant-area')).toEqual({chapterId: 'linear-maps', sectionId: 'determinant-area'});
         expect(authoredGuidedLessonIds('linear-maps', 'matrix-and-image')).toEqual(['linear-map']);
         expect(authoredGuidedLessonIds('linear-maps', 'determinant-area')).toEqual(['linear-map']);

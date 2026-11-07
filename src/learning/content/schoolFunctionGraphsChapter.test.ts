@@ -8,7 +8,7 @@ import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
 import {schoolFunctionGraphsChapter} from './schoolFunctionGraphsChapter';
 import {
-    SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID as CHAPTER, schoolFunctionGraphsGuidedExamplePath, schoolFunctionGraphsGuidedExampleRegistry,
+    SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID as CHAPTER, schoolFunctionGraphsGuidedExamplePath, schoolFunctionGraphsGuidedExampleLessons,
 } from './schoolFunctionGraphsChapterRegistry';
 
 const IDS = ['function-transformation', 'function-inverse', 'polynomial-zeros', 'rational-function', 'geometric-series', 'conic-focal'] as const;
@@ -24,7 +24,7 @@ describe('chapter structure and registration', () => {
         expect(chapter.title).toEqual({sl: 'Grafi funkcij za maturo', en: 'Function graphs for the matura'});
         expect(chapter.family).toBe('/bezeg-2.0/functions');
         expect(chapter.sections.map(section => section.id)).toEqual([...IDS]);
-        expect(Object.keys(schoolFunctionGraphsGuidedExampleRegistry)).toEqual([...IDS]);
+        expect(Object.keys(schoolFunctionGraphsGuidedExampleLessons.all())).toEqual([...IDS]);
         expect(learningChapters.some(item => item.id === CHAPTER)).toBe(true);
         expect(chapter.sections.map(section => section.demonstrationIds)).toEqual([['function-transformation'], ['function-inverse'], ['polynomial-zeros'], ['rational-function'], ['geometric-series'], ['conic-focal']]);
     });
@@ -145,7 +145,7 @@ describe('chapter structure and registration', () => {
             expect(getGuidedLessonOwner(id)).toEqual({chapterId: CHAPTER, sectionId: id});
             expect(authoredGuidedLessonIds(CHAPTER, id)).toEqual([id]);
             const lesson = getLessonForDemonstration(id)!;
-            expect(lesson).toBe(schoolFunctionGraphsGuidedExampleRegistry[id]);
+            expect(lesson).toBe(schoolFunctionGraphsGuidedExampleLessons.all()[id]);
             expect(lesson.demonstrationId).toBe(id);
             expect(lesson.steps.length).toBeGreaterThanOrEqual(5);
             for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
@@ -164,7 +164,7 @@ describe('chapter structure and registration', () => {
             const search = launch.slice(launch.indexOf('?'));
             expect(resolveGuidedExample(search, id)?.owner).toEqual({chapterId: CHAPTER, sectionId: id});
             const exampleId = `lesson.${CHAPTER}.${id}.${id}`;
-            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(schoolFunctionGraphsGuidedExampleRegistry[id]);
+            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(schoolFunctionGraphsGuidedExampleLessons.all()[id]);
             const links = getChapterGuidedExamples(CHAPTER, id);
             expect(links.map(link => link.path)).toEqual([schoolFunctionGraphsGuidedExamplePath(id)]);
             expect(links[0].path).toContain(`?example=${exampleId}`);

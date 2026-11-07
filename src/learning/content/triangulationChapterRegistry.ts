@@ -1,7 +1,6 @@
 import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
-import type {LessonDefinition} from '../model';
-import {getCatalogLessonForDemonstration} from '../runtime/lessonCatalog';
+import {catalogSectionLessons} from './catalogSectionLessons';
 
 import {TRIANGULATION_CHAPTER_ID} from './triangulationChapterId';
 
@@ -18,20 +17,8 @@ const sectionDemonstrations = {
 
 export type TriangulationSectionId = keyof typeof sectionDemonstrations;
 
-/**
- * Section-owned activities (spec B1). The lesson text stays in compgeoGuidedLessons.ts; the getters read it lazily because
- * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
- */
-export const triangulationGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(
-    Object.entries(sectionDemonstrations).map(([sectionId, demonstrationId]) => [sectionId, {
-        enumerable: true,
-        get: (): LessonDefinition => {
-            const lesson = getCatalogLessonForDemonstration(demonstrationId);
-            if (!lesson) throw new Error(`The ${demonstrationId} lesson is not available for the triangulation chapter.`);
-            return lesson;
-        },
-    }]),
-)) as Readonly<Record<TriangulationSectionId, LessonDefinition>>;
+/** Section-owned activities (spec B1). The lesson text stays in compgeoGuidedLessons.ts; a section's lesson is adapted only when requested. */
+export const triangulationGuidedExampleLessons = catalogSectionLessons<TriangulationSectionId>('the triangulation chapter', sectionDemonstrations);
 
 export function triangulationGuidedExampleDemonstration(sectionId: TriangulationSectionId): DemonstrationId {
     return sectionDemonstrations[sectionId];

@@ -13,7 +13,7 @@ import {
 import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {interpolationChapter} from './interpolationChapter';
-import {INTERPOLATION_CHAPTER_ID, interpolationGuidedExamplePath, interpolationGuidedExampleRegistry} from './interpolationChapterRegistry';
+import {INTERPOLATION_CHAPTER_ID, interpolationGuidedExamplePath, interpolationGuidedExampleLessons} from './interpolationChapterRegistry';
 import {familyChapters} from './familyChapters';
 
 const SECTIONS = [
@@ -38,7 +38,7 @@ describe('chapter structure and registration', () => {
         expect(interpolationChapter.title).toEqual({sl: 'Interpolacija in aproksimacija', en: 'Interpolation and approximation'});
         expect(interpolationChapter.family).toBe('/bezeg-2.0/interpolation');
         expect(interpolationChapter.sections.map(section => section.id)).toEqual(['through-or-near', ...SECTIONS.map(([id]) => id)]);
-        expect(Object.keys(interpolationGuidedExampleRegistry)).toEqual(SECTIONS.map(([id]) => id));
+        expect(Object.keys(interpolationGuidedExampleLessons.all())).toEqual(SECTIONS.map(([id]) => id));
         expect(familyChapters.findIndex(chapter => chapter.id === INTERPOLATION_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'b-splines') + 1);
         expect(learningChapters.findIndex(chapter => chapter.id === INTERPOLATION_CHAPTER_ID))
@@ -69,7 +69,7 @@ describe('chapter structure and registration', () => {
             expect(authoredGuidedLessonIds(INTERPOLATION_CHAPTER_ID, section)).toEqual([id]);
             expect(authoredGuidedLessonIds('bezier-curves', 'geometric-properties')).not.toContain(id);
             const lesson = getLessonForDemonstration(id)!;
-            expect(lesson).toBe(interpolationGuidedExampleRegistry[section]);
+            expect(lesson).toBe(interpolationGuidedExampleLessons.all()[section]);
             expect(lesson.demonstrationId).toBe(id);
             for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
                 expect(field.sl.length).toBeGreaterThan(2);
@@ -87,7 +87,7 @@ describe('chapter structure and registration', () => {
             expect(guidedLessonReturnPath(getGuidedLessonOwner(id)!)).toBe(`/bezeg-2.0/learn/${INTERPOLATION_CHAPTER_ID}#${section}`);
             const exampleId = `lesson.${INTERPOLATION_CHAPTER_ID}.${section}.${id}`;
             expect(resolveGuidedExample(launch.slice(launch.indexOf('?')), id)?.owner).toEqual(owner);
-            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(interpolationGuidedExampleRegistry[section]);
+            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(interpolationGuidedExampleLessons.all()[section]);
             const links = getChapterGuidedExamples(INTERPOLATION_CHAPTER_ID, section);
             expect(links.map(link => link.path)).toEqual([interpolationGuidedExamplePath(section)]);
             expect(links[0].path).toContain(`?example=${exampleId}`);

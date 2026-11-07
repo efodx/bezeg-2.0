@@ -1,7 +1,6 @@
 import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
-import type {LessonDefinition} from '../model';
-import {getCatalogLessonForDemonstration} from '../runtime/lessonCatalog';
+import {catalogSectionLessons} from './catalogSectionLessons';
 
 import {FOURIER_CHAPTER_ID} from './fourierChapterId';
 
@@ -16,20 +15,8 @@ const sectionDemonstrations = {
 
 export type FourierSectionId = keyof typeof sectionDemonstrations;
 
-/**
- * Section-owned activity (spec F1 to F5). The lesson text stays in the per-lesson files named above; the getters read it lazily because
- * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
- */
-export const fourierGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(
-    Object.entries(sectionDemonstrations).map(([sectionId, demonstrationId]) => [sectionId, {
-        enumerable: true,
-        get: (): LessonDefinition => {
-            const lesson = getCatalogLessonForDemonstration(demonstrationId);
-            if (!lesson) throw new Error(`The ${demonstrationId} lesson is not available for the Fourier series chapter.`);
-            return lesson;
-        },
-    }]),
-)) as Readonly<Record<FourierSectionId, LessonDefinition>>;
+/** Section-owned activity (spec F1 to F5). The lesson text stays in the per-lesson files named above; a section's lesson is adapted only when requested. */
+export const fourierGuidedExampleLessons = catalogSectionLessons<FourierSectionId>('the Fourier series chapter', sectionDemonstrations);
 
 export function fourierGuidedExampleDemonstration(sectionId: FourierSectionId): DemonstrationId {
     return sectionDemonstrations[sectionId];

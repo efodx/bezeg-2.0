@@ -9,7 +9,7 @@ import {familyChapters} from './familyChapters';
 import {getGuidedLesson} from './guidedLessons';
 import {sweepChapter} from './sweepChapter';
 import {triangulationChapter} from './triangulationChapter';
-import {TRIANGULATION_CHAPTER_ID, triangulationGuidedExamplePath, triangulationGuidedExampleRegistry} from './triangulationChapterRegistry';
+import {TRIANGULATION_CHAPTER_ID, triangulationGuidedExamplePath, triangulationGuidedExampleLessons} from './triangulationChapterRegistry';
 
 const ID = 'ear-clipping';
 const B2 = 'point-set-triangulation';
@@ -24,7 +24,7 @@ describe('chapter structure and registration', () => {
         expect(triangulationChapter.id).toBe(TRIANGULATION_CHAPTER_ID);
         expect(triangulationChapter.title).toEqual({sl: 'Triangulacije in Voronojevi diagrami', en: 'Triangulations and Voronoi diagrams'});
         expect(triangulationChapter.sections.map(section => section.id)).toEqual(['why-triangulate', ID, B2, B3, B4, B5]);
-        expect(Object.keys(triangulationGuidedExampleRegistry)).toEqual([ID, B2, B3, B4, B5]);
+        expect(Object.keys(triangulationGuidedExampleLessons.all())).toEqual([ID, B2, B3, B4, B5]);
         expect(familyChapters.find(chapter => chapter.id === TRIANGULATION_CHAPTER_ID)?.family).toBe('computational-geometry');
         expect(familyChapters.findIndex(chapter => chapter.id === TRIANGULATION_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === 'convexity-hulls') + 1);
@@ -39,13 +39,13 @@ describe('chapter structure and registration', () => {
     test('unreleased lessons are not advertised', () => {
         // B5 (degenerate Voronoi sites) is not released and nothing names it. The scan of Voronoi vocabulary now covers the released prose only up to B3: the opening, ear clipping, B2 and B3 sections (B3's closing forward-link paragraph excepted) and the ear clipping and B2 lessons. The B3 lesson links to B4 and the B4 section is the released Voronoi text.
         const b3 = triangulationChapter.sections[3];
-        const scanned = [{...triangulationChapter, sections: undefined, id: undefined, title: undefined}, ...triangulationChapter.sections.slice(0, 3), {...b3, paragraphs: b3.paragraphs.slice(0, -1), orderedContent: undefined}, triangulationGuidedExampleRegistry[ID], triangulationGuidedExampleRegistry[B2]];
+        const scanned = [{...triangulationChapter, sections: undefined, id: undefined, title: undefined}, ...triangulationChapter.sections.slice(0, 3), {...b3, paragraphs: b3.paragraphs.slice(0, -1), orderedContent: undefined}, triangulationGuidedExampleLessons.all()[ID], triangulationGuidedExampleLessons.all()[B2]];
         const everything = JSON.stringify(scanned).toLowerCase().split(TRIANGULATION_CHAPTER_ID).join('');
         for (const word of ['voronoi', 'voronoj', 'dual graph', 'dualni graf', 'fortun', 'beach line', 'obalna črta']) expect(everything).not.toContain(word);
-        const early = JSON.stringify([triangulationChapter.sections[0], triangulationChapter.sections[1], triangulationGuidedExampleRegistry[ID]]).toLowerCase();
+        const early = JSON.stringify([triangulationChapter.sections[0], triangulationChapter.sections[1], triangulationGuidedExampleLessons.all()[ID]]).toLowerCase();
         for (const word of ['delaunay', 'lawson', 'incircle', 'empty circle', 'prazna krožnica', 'cocircular']) expect(early).not.toContain(word);
         // B5 is released with its own section, so the chapter may name it; the B4 lesson text still must not.
-        const b4Lesson = JSON.stringify(triangulationGuidedExampleRegistry[B4]).toLowerCase();
+        const b4Lesson = JSON.stringify(triangulationGuidedExampleLessons.all()[B4]).toLowerCase();
         for (const word of ['voronoi-degenerate', 'degenerate sites', 'lesson b5']) expect(b4Lesson).not.toContain(word);
     });
 
@@ -96,7 +96,7 @@ describe('chapter structure and registration', () => {
         const launch = '?learn=1&learnChapter=triangulations-voronoi&learnSection=point-set-triangulation';
         const lesson = getLessonForDemonstration(B2)!;
         expect(resolveGuidedExample(launch, B2)?.lesson).toBe(lesson);
-        expect(lesson).toBe(triangulationGuidedExampleRegistry[B2]);
+        expect(lesson).toBe(triangulationGuidedExampleLessons.all()[B2]);
         expect(resolveGuidedExample('?learn=1&learnChapter=triangulations-voronoi&learnSection=ear-clipping', B2)?.lesson).toBeUndefined();
         expect(getGuidedLessonOwner(B2)).toEqual({chapterId: TRIANGULATION_CHAPTER_ID, sectionId: B2});
         expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, B2)).toEqual([B2]);
@@ -109,7 +109,7 @@ describe('chapter structure and registration', () => {
         expect(getGuidedLessonOwner(ID)).toEqual({chapterId: TRIANGULATION_CHAPTER_ID, sectionId: ID});
         expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, ID)).toEqual([ID]);
         const lesson = getLessonForDemonstration(ID)!;
-        expect(lesson).toBe(triangulationGuidedExampleRegistry[ID]);
+        expect(lesson).toBe(triangulationGuidedExampleLessons.all()[ID]);
         expect(lesson.demonstrationId).toBe(ID);
         expect(lesson.steps.length).toBeGreaterThanOrEqual(5);
         for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
@@ -127,7 +127,7 @@ describe('chapter structure and registration', () => {
         const search = launch.slice(launch.indexOf('?'));
         expect(resolveGuidedExample(search, ID)?.owner).toEqual({chapterId: TRIANGULATION_CHAPTER_ID, sectionId: ID});
         const exampleId = `lesson.${TRIANGULATION_CHAPTER_ID}.${ID}.${ID}`;
-        expect(resolveGuidedExample(`?example=${exampleId}`, ID)?.lesson).toBe(triangulationGuidedExampleRegistry[ID]);
+        expect(resolveGuidedExample(`?example=${exampleId}`, ID)?.lesson).toBe(triangulationGuidedExampleLessons.all()[ID]);
         const links = getChapterGuidedExamples(TRIANGULATION_CHAPTER_ID, ID);
         expect(links.map(link => link.path)).toEqual([triangulationGuidedExamplePath(ID)]);
         expect(links[0].path).toContain(`?example=${exampleId}`);
@@ -165,7 +165,7 @@ describe('chapter structure and registration', () => {
         const launch = '?learn=1&learnChapter=triangulations-voronoi&learnSection=delaunay';
         const lesson = getLessonForDemonstration(B3)!;
         expect(resolveGuidedExample(launch, B3)?.lesson).toBe(lesson);
-        expect(lesson).toBe(triangulationGuidedExampleRegistry[B3]);
+        expect(lesson).toBe(triangulationGuidedExampleLessons.all()[B3]);
         expect(lesson.steps).toHaveLength(7);
         expect(resolveGuidedExample('?learn=1&learnChapter=triangulations-voronoi&learnSection=point-set-triangulation', B3)?.lesson).toBeUndefined();
         expect(getGuidedLessonOwner(B3)).toEqual({chapterId: TRIANGULATION_CHAPTER_ID, sectionId: B3});
@@ -197,7 +197,7 @@ describe('chapter structure and registration', () => {
         const launch = '?learn=1&learnChapter=triangulations-voronoi&learnSection=voronoi';
         const lesson = getLessonForDemonstration(B4)!;
         expect(resolveGuidedExample(launch, B4)?.lesson).toBe(lesson);
-        expect(lesson).toBe(triangulationGuidedExampleRegistry[B4]);
+        expect(lesson).toBe(triangulationGuidedExampleLessons.all()[B4]);
         expect(lesson.steps).toHaveLength(7);
         expect(resolveGuidedExample('?learn=1&learnChapter=triangulations-voronoi&learnSection=delaunay', B4)?.lesson).toBeUndefined();
         expect(getGuidedLessonOwner(B4)).toEqual({chapterId: TRIANGULATION_CHAPTER_ID, sectionId: B4});
@@ -256,7 +256,7 @@ describe('chapter structure and registration', () => {
         const launch = '?learn=1&learnChapter=triangulations-voronoi&learnSection=voronoi-degenerate';
         const lesson = getLessonForDemonstration(B5)!;
         expect(resolveGuidedExample(launch, B5)?.lesson).toBe(lesson);
-        expect(lesson).toBe(triangulationGuidedExampleRegistry[B5]);
+        expect(lesson).toBe(triangulationGuidedExampleLessons.all()[B5]);
         expect(resolveGuidedExample('?learn=1&learnChapter=triangulations-voronoi&learnSection=voronoi', B5)?.lesson).toBeUndefined();
         expect(getGuidedLessonOwner(B5)).toEqual({chapterId: TRIANGULATION_CHAPTER_ID, sectionId: B5});
         expect(authoredGuidedLessonIds(TRIANGULATION_CHAPTER_ID, B5)).toEqual([B5]);

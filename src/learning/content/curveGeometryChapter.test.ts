@@ -7,7 +7,7 @@ import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {curveGeometryChapter} from './curveGeometryChapter';
 import {
-    CURVE_GEOMETRY_CHAPTER_ID, curveGeometryGuidedExamplePath, curveGeometryGuidedExampleRegistry,
+    CURVE_GEOMETRY_CHAPTER_ID, curveGeometryGuidedExamplePath, curveGeometryGuidedExampleLessons,
 } from './curveGeometryChapterRegistry';
 import {familyChapters} from './familyChapters';
 
@@ -25,7 +25,7 @@ describe('chapter structure and registration', () => {
         expect(curveGeometryChapter.title).toEqual({sl: 'Geometrija krivulj', en: 'Geometry of curves'});
         expect(curveGeometryChapter.family).toBe('/bezeg-2.0/curve-geometry');
         expect(curveGeometryChapter.sections.map(section => section.id)).toEqual(['curve-geometry-idea', ...IDS]);
-        expect(Object.keys(curveGeometryGuidedExampleRegistry)).toEqual([...IDS]);
+        expect(Object.keys(curveGeometryGuidedExampleLessons.all())).toEqual([...IDS]);
         const order = familyChapters.map(chapter => chapter.id);
         expect(order.indexOf(CURVE_GEOMETRY_CHAPTER_ID)).toBe(order.indexOf('parametrization') + 1);
         // The curve chapters it builds on come earlier; the calculus chapter sits in the functions strand, which follows.
@@ -105,7 +105,7 @@ describe('chapter structure and registration', () => {
             expect(authoredGuidedLessonIds('parametrization', 'uniform-timing')).not.toContain(id);
             expect(authoredGuidedLessonIds('bezier-curves', 'geometric-properties')).not.toContain(id);
             const lesson = getLessonForDemonstration(id)!;
-            expect(lesson).toBe(curveGeometryGuidedExampleRegistry[id]);
+            expect(lesson).toBe(curveGeometryGuidedExampleLessons.all()[id]);
             expect(lesson.demonstrationId).toBe(id);
             for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
                 expect(field.sl.length).toBeGreaterThan(2);
@@ -123,7 +123,7 @@ describe('chapter structure and registration', () => {
             expect(guidedLessonReturnPath(getGuidedLessonOwner(id)!)).toBe(`/bezeg-2.0/learn/${CURVE_GEOMETRY_CHAPTER_ID}#${id}`);
             const exampleId = `lesson.${CURVE_GEOMETRY_CHAPTER_ID}.${id}.${id}`;
             expect(resolveGuidedExample(launch.slice(launch.indexOf('?')), id)?.owner).toEqual({chapterId: CURVE_GEOMETRY_CHAPTER_ID, sectionId: id});
-            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(curveGeometryGuidedExampleRegistry[id]);
+            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(curveGeometryGuidedExampleLessons.all()[id]);
             const links = getChapterGuidedExamples(CURVE_GEOMETRY_CHAPTER_ID, id);
             expect(links.map(link => link.path)).toEqual([curveGeometryGuidedExamplePath(id)]);
             expect(links[0].path).toContain(`?example=${exampleId}`);

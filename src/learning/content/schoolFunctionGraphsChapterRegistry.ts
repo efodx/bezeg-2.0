@@ -1,7 +1,6 @@
 import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
-import type {LessonDefinition} from '../model';
-import {getCatalogLessonForDemonstration} from '../runtime/lessonCatalog';
+import {catalogSectionLessons} from './catalogSectionLessons';
 
 import {SCHOOL_FUNCTION_GRAPHS_CHAPTER_ID} from './schoolFunctionGraphsChapterId';
 
@@ -19,20 +18,8 @@ const sectionDemonstrations = {
 
 export type SchoolFunctionGraphsSectionId = keyof typeof sectionDemonstrations;
 
-/**
- * Section-owned activity (spec S1 and S2). The lesson text stays in schoolFunctionGraphsGuidedLessons.ts; the getters read it lazily because
- * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
- */
-export const schoolFunctionGraphsGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(
-    Object.entries(sectionDemonstrations).map(([sectionId, demonstrationId]) => [sectionId, {
-        enumerable: true,
-        get: (): LessonDefinition => {
-            const lesson = getCatalogLessonForDemonstration(demonstrationId);
-            if (!lesson) throw new Error(`The ${demonstrationId} lesson is not available for the school function graphs chapter.`);
-            return lesson;
-        },
-    }]),
-)) as Readonly<Record<SchoolFunctionGraphsSectionId, LessonDefinition>>;
+/** Section-owned activity (spec S1 and S2). The lesson text stays in schoolFunctionGraphsGuidedLessons.ts; a section's lesson is adapted only when requested. */
+export const schoolFunctionGraphsGuidedExampleLessons = catalogSectionLessons<SchoolFunctionGraphsSectionId>('the school function graphs chapter', sectionDemonstrations);
 
 export function schoolFunctionGraphsGuidedExampleDemonstration(sectionId: SchoolFunctionGraphsSectionId): DemonstrationId {
     return sectionDemonstrations[sectionId];

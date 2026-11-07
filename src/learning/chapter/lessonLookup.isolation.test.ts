@@ -26,8 +26,7 @@ afterEach(() => {
     vi.resetModules();
 });
 
-// L1: flips to test(...) in slice 2 of 02-lesson-lookup.md
-test.fails('identity consumers read no lesson content', async () => {
+test('identity consumers read no lesson content', async () => {
     const {ownership, reads} = await load();
     expect(ownership.getGuidedLessonOwners('patch-tensor').length).toBeGreaterThan(0);
     expect(ownership.getGuidedLessonOwners('linear-map').length).toBe(2);
@@ -46,8 +45,7 @@ const identityConsumers: readonly [string, (m: Awaited<ReturnType<typeof load>>[
 ];
 
 for (const [name, call, expected] of identityConsumers) {
-    // L1: flips to test(...) in slice 2 of 02-lesson-lookup.md
-    test.fails(`${name} reads no lesson content`, async () => {
+    test(`${name} reads no lesson content`, async () => {
         const {ownership, reads} = await load();
         expect(call(ownership)).toEqual(expected);
         expect(reads()).toEqual([]);
@@ -62,15 +60,13 @@ test('a selected-chapter lookup reads only the selected Demonstration', async ()
     expect(new Set(reads())).toEqual(new Set(['bspline-deboor']));
 });
 
-// L1: flips to test(...) in slice 2 of 02-lesson-lookup.md
-test.fails('getLessonForDemonstration reads only the selected Demonstration for a chapter-owned lesson', async () => {
+test('getLessonForDemonstration reads only the selected Demonstration for a chapter-owned lesson', async () => {
     const {catalog, reads} = await load();
     expect(catalog.getLessonForDemonstration('bspline-deboor')?.id).toBe('bspline-deboor-guided');
     expect(new Set(reads())).toEqual(new Set(['bspline-deboor']));
 });
 
-// L1: flips to test(...) in slice 2 of 02-lesson-lookup.md
-test.fails('a fallback-only lookup reads only the selected Demonstration', async () => {
+test('a fallback-only lookup reads only the selected Demonstration', async () => {
     const {catalog, reads} = await load();
     expect(catalog.getLessonForDemonstration('bezier')?.id).toBe('bezier-pilot');
     expect(new Set(reads())).toEqual(new Set(['bezier']));
@@ -84,8 +80,7 @@ test('resolveGuidedExample on a canonical B-spline path reads only the selected 
     expect(new Set(reads())).toEqual(new Set(['bspline-deboor']));
 });
 
-// L1: flips to test(...) in slice 2 of 02-lesson-lookup.md
-test.fails('a missing Demonstration id reads no lesson content', async () => {
+test('a missing Demonstration id reads no lesson content', async () => {
     const {catalog, examples, reads} = await load();
     const unknown = 'no-such-demonstration' as DemonstrationId;
     expect(catalog.getLessonForDemonstration(unknown)).toBeUndefined();

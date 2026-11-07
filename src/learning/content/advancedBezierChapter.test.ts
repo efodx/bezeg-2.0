@@ -9,7 +9,7 @@ import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {advancedBezierChapter} from './advancedBezierChapter';
 import {
-    ADVANCED_BEZIER_CHAPTER_ID, advancedBezierGuidedExamplePath, advancedBezierGuidedExampleRegistry,
+    ADVANCED_BEZIER_CHAPTER_ID, advancedBezierGuidedExamplePath, advancedBezierGuidedExampleLessons,
 } from './advancedBezierChapterRegistry';
 import {familyChapters} from './familyChapters';
 import {guidedLessonPreviewCopyByDemonstration} from './guidedExamplePreviewCopy';
@@ -29,7 +29,7 @@ describe('chapter structure and registration', () => {
         expect(advancedBezierChapter.id).toBe(ADVANCED_BEZIER_CHAPTER_ID);
         expect(advancedBezierChapter.title).toEqual({sl: 'Napredne Bézierjeve teme', en: 'Advanced Bézier topics'});
         expect(advancedBezierChapter.sections.map(section => section.id)).toEqual(['advanced-bezier-idea', ...IDS]);
-        expect(Object.keys(advancedBezierGuidedExampleRegistry)).toEqual([...IDS]);
+        expect(Object.keys(advancedBezierGuidedExampleLessons.all())).toEqual([...IDS]);
         const order = familyChapters.map(chapter => chapter.id);
         expect(order.indexOf(ADVANCED_BEZIER_CHAPTER_ID)).toBe(order.indexOf('bezier-patches') + 1);
         for (const link of advancedBezierChapter.prerequisiteLinks!) {
@@ -146,7 +146,7 @@ describe('chapter structure and registration', () => {
             expect(authoredGuidedLessonIds(ADVANCED_BEZIER_CHAPTER_ID, id)).toEqual([id]);
             expect(authoredGuidedLessonIds('bezier-curves', 'geometric-properties')).not.toContain(id);
             const lesson = getLessonForDemonstration(id)!;
-            expect(lesson).toBe(advancedBezierGuidedExampleRegistry[id]);
+            expect(lesson).toBe(advancedBezierGuidedExampleLessons.all()[id]);
             expect(lesson.demonstrationId).toBe(id);
             for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
                 expect(field.sl.length).toBeGreaterThan(2);
@@ -163,7 +163,7 @@ describe('chapter structure and registration', () => {
             expect(guidedLessonReturnPath(getGuidedLessonOwner(id)!)).toBe(`/bezeg-2.0/learn/${ADVANCED_BEZIER_CHAPTER_ID}#${id}`);
             const exampleId = `lesson.${ADVANCED_BEZIER_CHAPTER_ID}.${id}.${id}`;
             expect(resolveGuidedExample(launch.slice(launch.indexOf('?')), id)?.owner).toEqual({chapterId: ADVANCED_BEZIER_CHAPTER_ID, sectionId: id});
-            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(advancedBezierGuidedExampleRegistry[id]);
+            expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(advancedBezierGuidedExampleLessons.all()[id]);
             const links = getChapterGuidedExamples(ADVANCED_BEZIER_CHAPTER_ID, id);
             expect(links.map(link => link.path)).toEqual([advancedBezierGuidedExamplePath(id)]);
             expect(links[0].path).toContain(`?example=${exampleId}`);

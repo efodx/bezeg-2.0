@@ -7,7 +7,7 @@ import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
 import {fourierChapter} from './fourierChapter';
-import {FOURIER_CHAPTER_ID, fourierGuidedExamplePath, fourierGuidedExampleRegistry} from './fourierChapterRegistry';
+import {FOURIER_CHAPTER_ID, fourierGuidedExamplePath, fourierGuidedExampleLessons} from './fourierChapterRegistry';
 import {numericalChapter} from './numericalChapter';
 
 const ID = 'fourier-series';
@@ -26,7 +26,7 @@ describe('chapter structure and registration', () => {
         expect(fourierChapter.title).toEqual({sl: 'Fourierove vrste', en: 'Fourier series'});
         expect(fourierChapter.family).toBe('analysis');
         expect(fourierChapter.sections.map(section => section.id)).toEqual(['fourier-idea', ID, CID, EID]);
-        expect(Object.keys(fourierGuidedExampleRegistry)).toEqual([ID, CID, EID]);
+        expect(Object.keys(fourierGuidedExampleLessons.all())).toEqual([ID, CID, EID]);
         expect(familyChapters.findIndex(chapter => chapter.id === FOURIER_CHAPTER_ID))
             .toBe(familyChapters.findIndex(chapter => chapter.id === numericalChapter.id) + 1);
         expect(familyChapters.at(-2)!.id).toBe(FOURIER_CHAPTER_ID); // the probability chapter follows it at the end of the functions strand
@@ -159,7 +159,7 @@ describe('chapter structure and registration', () => {
         expect(getGuidedLessonOwners(CID)).toEqual([{chapterId: FOURIER_CHAPTER_ID, sectionId: CID}]);
         expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, CID)).toEqual([CID]);
         expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, 'fourier-idea')).toEqual([]);
-        const lesson = fourierGuidedExampleRegistry[CID];
+        const lesson = fourierGuidedExampleLessons.all()[CID];
         expect(lesson.demonstrationId).toBe(CID);
         expect(lesson.steps.length).toBe(14);
         expect(resolveGuidedExample(`?example=lesson.${FOURIER_CHAPTER_ID}.${CID}.${CID}`, CID)?.lesson).toBe(lesson);
@@ -236,7 +236,7 @@ describe('chapter structure and registration', () => {
         expect(getGuidedLessonOwners(EID)).toEqual([{chapterId: FOURIER_CHAPTER_ID, sectionId: EID}]);
         expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, EID)).toEqual([EID]);
         expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, 'fourier-idea')).toEqual([]);
-        const lesson = fourierGuidedExampleRegistry[EID];
+        const lesson = fourierGuidedExampleLessons.all()[EID];
         expect(lesson.demonstrationId).toBe(EID);
         expect(lesson.steps.length).toBe(9);
         for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
@@ -256,7 +256,7 @@ describe('chapter structure and registration', () => {
         expect(getGuidedLessonOwner(ID)).toEqual({chapterId: FOURIER_CHAPTER_ID, sectionId: ID});
         expect(authoredGuidedLessonIds(FOURIER_CHAPTER_ID, ID)).toEqual([ID]);
         const lesson = getLessonForDemonstration(ID)!;
-        expect(lesson).toBe(fourierGuidedExampleRegistry[ID]);
+        expect(lesson).toBe(fourierGuidedExampleLessons.all()[ID]);
         expect(lesson.demonstrationId).toBe(ID);
         expect(lesson.steps.length).toBe(13);
         for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
@@ -274,7 +274,7 @@ describe('chapter structure and registration', () => {
         const search = launch.slice(launch.indexOf('?'));
         expect(resolveGuidedExample(search, ID)?.owner).toEqual({chapterId: FOURIER_CHAPTER_ID, sectionId: ID});
         const exampleId = `lesson.${FOURIER_CHAPTER_ID}.${ID}.${ID}`;
-        expect(resolveGuidedExample(`?example=${exampleId}`, ID)?.lesson).toBe(fourierGuidedExampleRegistry[ID]);
+        expect(resolveGuidedExample(`?example=${exampleId}`, ID)?.lesson).toBe(fourierGuidedExampleLessons.all()[ID]);
         const links = getChapterGuidedExamples(FOURIER_CHAPTER_ID, ID);
         expect(links.map(link => link.path)).toEqual([fourierGuidedExamplePath(ID)]);
         expect(links[0].path).toContain(`?example=${exampleId}`);

@@ -127,8 +127,8 @@ it('publishes the Linear maps example cards with their own checked images and pe
     const destination = resolve('src/images/learning/examples', chapterId);
     const owned = getChapterOwnedLessons(chapterId);
     if (!owned) throw new Error('linear-maps is not chapter-owned');
-    const homes = owned.entries().map(([sectionId, lesson]) => ({
-        id: `${chapterId}.${sectionId}.${lesson.demonstrationId}`, sectionId, demonstrationId: lesson.demonstrationId,
+    const homes = owned.rows().map(([sectionId, demonstrationId]) => ({
+        id: `${chapterId}.${sectionId}.${demonstrationId}`, sectionId, demonstrationId,
         path: owned.path(sectionId) ?? ''}));
     const ids = homes.map(home => home.id).sort();
     expect(ids).toEqual(['linear-maps.determinant-area.linear-map', 'linear-maps.matrix-and-image.linear-map']);
@@ -175,8 +175,8 @@ it('publishes the Complex maps example cards with their own checked images and p
     const destination = resolve('src/images/learning/examples', chapterId);
     const owned = getChapterOwnedLessons(chapterId);
     if (!owned) throw new Error('complex-maps is not chapter-owned');
-    const homes = owned.entries().map(([sectionId, lesson]) => ({
-        id: `${chapterId}.${sectionId}.${lesson.demonstrationId}`, sectionId, demonstrationId: lesson.demonstrationId,
+    const homes = owned.rows().map(([sectionId, demonstrationId]) => ({
+        id: `${chapterId}.${sectionId}.${demonstrationId}`, sectionId, demonstrationId,
         path: owned.path(sectionId) ?? ''}));
     const ids = homes.map(home => home.id).sort();
     expect(ids).toEqual(['complex-maps.reciprocal-inversion.complex-reciprocal', 'complex-maps.roots.complex-roots']);
@@ -278,8 +278,8 @@ for (const {chapterId, copy, ids: expectedIds, counts, pending = []} of function
         const destination = resolve('src/images/learning/examples', chapterId);
         const owned = getChapterOwnedLessons(chapterId);
         if (!owned) throw new Error(`${chapterId} is not chapter-owned`);
-        const allHomes = owned.entries().map(([sectionId, lesson]) => ({
-            id: `${chapterId}.${sectionId}.${lesson.demonstrationId}`, sectionId, demonstrationId: lesson.demonstrationId,
+        const allHomes = owned.rows().map(([sectionId, demonstrationId]) => ({
+            id: `${chapterId}.${sectionId}.${demonstrationId}`, sectionId, demonstrationId,
             path: owned.path(sectionId) ?? ''}));
         expect(allHomes.filter(home => pending.includes(home.id)).map(home => home.id).sort()).toEqual([...pending].sort());
         const homes = allHomes.filter(home => !pending.includes(home.id));

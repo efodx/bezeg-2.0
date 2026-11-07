@@ -6,7 +6,7 @@ import {
 import {learningChapters} from '../learningChapters';
 import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {convexityChapter} from './convexityChapter';
-import {CONVEXITY_CHAPTER_ID, convexityGuidedExamplePath, convexityGuidedExampleRegistry} from './convexityChapterRegistry';
+import {CONVEXITY_CHAPTER_ID, convexityGuidedExamplePath, convexityGuidedExampleLessons} from './convexityChapterRegistry';
 import {familyChapters} from './familyChapters';
 
 const SECTIONS = ['orientation', 'polygon-area', 'point-in-polygon', 'convex-hull', 'hull-robustness', 'bezier-hulls'] as const;
@@ -18,14 +18,14 @@ describe('chapter structure and registration', () => {
         expect(convexityChapter.id).toBe(CONVEXITY_CHAPTER_ID);
         expect(convexityChapter.title).toEqual({sl: 'Konveksnost in ovojnice', en: 'Convexity and hulls'});
         expect(convexityChapter.sections.map(section => section.id)).toEqual(['why-hulls', ...SECTIONS]);
-        expect(Object.keys(convexityGuidedExampleRegistry)).toEqual([...SECTIONS]);
+        expect(Object.keys(convexityGuidedExampleLessons.all())).toEqual([...SECTIONS]);
         expect(familyChapters.find(chapter => chapter.id === CONVEXITY_CHAPTER_ID)?.family).toBe('computational-geometry');
         expect(learningChapters.some(chapter => chapter.id === CONVEXITY_CHAPTER_ID)).toBe(true);
         for (const section of convexityChapter.sections.slice(1)) expect(section.demonstrationIds).toEqual([section.id]);
     });
 
     test('unreleased lessons are not advertised', () => {
-        const everything = JSON.stringify([convexityChapter, ...Object.values(convexityGuidedExampleRegistry)]);
+        const everything = JSON.stringify([convexityChapter, ...Object.values(convexityGuidedExampleLessons.all())]);
         for (const word of ['ear-clipping']) expect(everything).not.toContain(word);
     });
 
@@ -59,7 +59,7 @@ describe('chapter structure and registration', () => {
             expect(getGuidedLessonOwner(id)).toEqual({chapterId: 'convexity-hulls', sectionId: id});
             expect(authoredGuidedLessonIds('convexity-hulls', id)).toEqual([id]);
             const lesson = getLessonForDemonstration(id)!;
-            expect(lesson).toBe(convexityGuidedExampleRegistry[id]);
+            expect(lesson).toBe(convexityGuidedExampleLessons.all()[id]);
             expect(lesson.demonstrationId).toBe(id);
             expect(lesson.steps.length).toBeGreaterThanOrEqual(5);
             for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
@@ -78,7 +78,7 @@ describe('chapter structure and registration', () => {
             expect(guidedLessonReturnPath(getGuidedLessonOwner(id)!)).toBe(`/bezeg-2.0/learn/convexity-hulls#${id}`);
             const search = launch.slice(launch.indexOf('?'));
             expect(resolveGuidedExample(search, id)?.owner).toEqual({chapterId: 'convexity-hulls', sectionId: id});
-            expect(resolveGuidedExample(`?example=lesson.convexity-hulls.${id}.${id}`, id)?.lesson).toBe(convexityGuidedExampleRegistry[id]);
+            expect(resolveGuidedExample(`?example=lesson.convexity-hulls.${id}.${id}`, id)?.lesson).toBe(convexityGuidedExampleLessons.all()[id]);
             const links = getChapterGuidedExamples('convexity-hulls', id);
             expect(links.map(link => link.path)).toEqual([convexityGuidedExamplePath(id)]);
             expect(links[0].path).toContain(`?example=lesson.convexity-hulls.${id}.${id}`);

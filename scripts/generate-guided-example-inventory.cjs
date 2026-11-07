@@ -219,49 +219,49 @@ const chapterInventories = {
     },
     'numerical-methods': {
         module: '/src/learning/content/numericalChapterRegistry.ts',
-        registryExport: 'numericalGuidedExampleRegistry',
+        registryExport: 'numericalGuidedExampleLessons',
         pathExport: 'numericalGuidedExamplePath',
         expectedFor: numericalExpectedFor,
     },
     'school-function-graphs': {
         module: '/src/learning/content/schoolFunctionGraphsChapterRegistry.ts',
-        registryExport: 'schoolFunctionGraphsGuidedExampleRegistry',
+        registryExport: 'schoolFunctionGraphsGuidedExampleLessons',
         pathExport: 'schoolFunctionGraphsGuidedExamplePath',
         expectedFor: schoolFunctionGraphsExpectedFor,
     },
     'fourier-series': {
         module: '/src/learning/content/fourierChapterRegistry.ts',
-        registryExport: 'fourierGuidedExampleRegistry',
+        registryExport: 'fourierGuidedExampleLessons',
         pathExport: 'fourierGuidedExamplePath',
         expectedFor: (id, step) => (id.endsWith('.fourier-coefficients') ? fourierCoefficientsExpectedFor : id.endsWith('.epicycles') ? epicyclesExpectedFor : fourierExpectedFor)(id, step),
     },
     'projective-conics': {
         module: '/src/learning/content/projectiveConicsChapterRegistry.ts',
-        registryExport: 'projectiveConicsGuidedExampleRegistry',
+        registryExport: 'projectiveConicsGuidedExampleLessons',
         pathExport: 'projectiveConicsGuidedExamplePath',
         expectedFor: projectiveConicsExpectedFor,
     },
     'curve-geometry': {
         module: '/src/learning/content/curveGeometryChapterRegistry.ts',
-        registryExport: 'curveGeometryGuidedExampleRegistry',
+        registryExport: 'curveGeometryGuidedExampleLessons',
         pathExport: 'curveGeometryGuidedExamplePath',
         expectedFor: curveGeometryExpectedFor,
     },
     'convexity-hulls': {
         module: '/src/learning/content/convexityChapterRegistry.ts',
-        registryExport: 'convexityGuidedExampleRegistry',
+        registryExport: 'convexityGuidedExampleLessons',
         pathExport: 'convexityGuidedExamplePath',
         expectedFor: convexityExpectedFor,
     },
     'triangulations-voronoi': {
         module: '/src/learning/content/triangulationChapterRegistry.ts',
-        registryExport: 'triangulationGuidedExampleRegistry',
+        registryExport: 'triangulationGuidedExampleLessons',
         pathExport: 'triangulationGuidedExamplePath',
         expectedFor: triangulationExpectedFor,
     },
     'sweep-algorithms': {
         module: '/src/learning/content/sweepChapterRegistry.ts',
-        registryExport: 'sweepGuidedExampleRegistry',
+        registryExport: 'sweepGuidedExampleLessons',
         pathExport: 'sweepGuidedExamplePath',
         expectedFor: sweepExpectedFor,
     },
@@ -273,25 +273,25 @@ const chapterInventories = {
     },
     interpolation: {
         module: '/src/learning/content/interpolationChapterRegistry.ts',
-        registryExport: 'interpolationGuidedExampleRegistry',
+        registryExport: 'interpolationGuidedExampleLessons',
         pathExport: 'interpolationGuidedExamplePath',
         expectedFor: interpolationExpectedFor,
     },
     probability: {
         module: '/src/learning/content/probabilityChapterRegistry.ts',
-        registryExport: 'probabilityGuidedExampleRegistry',
+        registryExport: 'probabilityGuidedExampleLessons',
         pathExport: 'probabilityGuidedExamplePath',
         expectedFor: probabilityExpectedFor,
     },
     'b-splines': {
         module: '/src/learning/content/bsplineChapterRegistry.ts',
-        registryExport: 'bsplineGuidedExampleRegistry',
+        registryExport: 'bsplineGuidedExampleLessons',
         pathExport: 'bsplineGuidedExamplePath',
         expectedFor: bsplineExpectedFor,
     },
     'advanced-bezier': {
         module: '/src/learning/content/advancedBezierChapterRegistry.ts',
-        registryExport: 'advancedBezierGuidedExampleRegistry',
+        registryExport: 'advancedBezierGuidedExampleLessons',
         pathExport: 'advancedBezierGuidedExamplePath',
         expectedFor: advancedBezierExpectedFor,
     },
@@ -1653,7 +1653,9 @@ async function generateChapterInventory(chapterId) {
     const server = await createServer({configFile: path.join(root, 'vite.config.mts'), server: {middlewareMode: true}, appType: 'custom'});
     try {
         const module = await server.ssrLoadModule(config.module);
-        const registry = module[config.registryExport];
+        // A catalog-backed chapter exports cheap rows plus `all()`, which adapts every section's lesson on explicit request.
+        const exported = module[config.registryExport];
+        const registry = typeof exported?.all === 'function' ? exported.all() : exported;
         const pathFor = module[config.pathExport];
         assert.ok(registry && typeof pathFor === 'function', `${chapterId}: registry or path function export is missing`);
         const authoredRecipes = (await server.ssrLoadModule('/src/learning/chapter/guidedExampleHighlights.ts')).guidedExampleHighlightRecipes;

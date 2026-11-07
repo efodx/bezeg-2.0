@@ -1,7 +1,6 @@
 import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
-import type {LessonDefinition} from '../model';
-import {getCatalogLessonForDemonstration} from '../runtime/lessonCatalog';
+import {catalogSectionLessons} from './catalogSectionLessons';
 
 import {NUMERICAL_CHAPTER_ID} from './numericalChapterId';
 
@@ -16,20 +15,8 @@ const sectionDemonstrations = {
 
 export type NumericalSectionId = keyof typeof sectionDemonstrations;
 
-/**
- * Section-owned activity (spec N1 to N4). The lesson text stays in numericalMethodsGuidedLessons.ts; the getters read it lazily because
- * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
- */
-export const numericalGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(
-    Object.entries(sectionDemonstrations).map(([sectionId, demonstrationId]) => [sectionId, {
-        enumerable: true,
-        get: (): LessonDefinition => {
-            const lesson = getCatalogLessonForDemonstration(demonstrationId);
-            if (!lesson) throw new Error(`The ${demonstrationId} lesson is not available for the numerical methods chapter.`);
-            return lesson;
-        },
-    }]),
-)) as Readonly<Record<NumericalSectionId, LessonDefinition>>;
+/** Section-owned activity (spec N1 to N4). The lesson text stays in numericalMethodsGuidedLessons.ts; a section's lesson is adapted only when requested. */
+export const numericalGuidedExampleLessons = catalogSectionLessons<NumericalSectionId>('the numerical methods chapter', sectionDemonstrations);
 
 export function numericalGuidedExampleDemonstration(sectionId: NumericalSectionId): DemonstrationId {
     return sectionDemonstrations[sectionId];

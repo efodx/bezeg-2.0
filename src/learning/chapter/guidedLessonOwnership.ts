@@ -3,7 +3,7 @@ import {getDemonstrationCatalog, LESSON_DEMONSTRATION_IDS} from '../../demonstra
 import {bezierChapter} from '../content/bezierChapter';
 import {familyChapters} from '../content/familyChapters';
 import {patchChapter} from '../content/patchChapter';
-import {chapterOwnedLessons, getChapterOwnedLessons} from '../content/chapterOwnedLessons';
+import {chapterOwnedDemonstration, chapterOwnerRows} from '../content/chapterOwnedLessons';
 import {GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonAvailability';
 import {getRetainedExampleForLegacyOwner, retainedExampleHomes} from './retainedExamples';
 
@@ -171,8 +171,7 @@ export function getGuidedLessonOwners(id: DemonstrationId): readonly GuidedLesso
         .map(section => ({chapterId: chapter.id, sectionId: section.id})));
     const retainedOwners = retainedExampleHomes.filter(home => home[3] === id)
         .map(home => ({chapterId: home[1], sectionId: home[2]}));
-    const ownedOwners = Object.entries(chapterOwnedLessons).flatMap(([chapterId, owned]) => owned.entries()
-        .filter(([, lesson]) => lesson.demonstrationId === id).map(([sectionId]) => ({chapterId, sectionId})));
+    const ownedOwners = chapterOwnerRows().filter(row => row.demonstrationId === id).map(({chapterId, sectionId}) => ({chapterId, sectionId}));
     const primary = primaryOwner(id);
     const all = [...(primary ? [primary] : []), ...(additionalOwners[id] ?? []), ...familyOwners, ...retainedOwners, ...ownedOwners];
     return all.filter((owner, index) => all.findIndex(item => item.chapterId === owner.chapterId && item.sectionId === owner.sectionId) === index);
@@ -235,12 +234,12 @@ export function guidedLessonLaunchPath(id: DemonstrationId, requested = getGuide
 
 export function authoredGuidedLessonIds(chapterId: string, sectionId: string): DemonstrationId[] {
     const retained = GUIDED_LESSON_AVAILABLE_IDS.filter(id => retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id));
-    const owned = getChapterOwnedLessons(chapterId)?.lesson(sectionId);
-    return owned ? [...retained, owned.demonstrationId] : retained;
+    const owned = chapterOwnedDemonstration(chapterId, sectionId);
+    return owned ? [...retained, owned] : retained;
 }
 
 export function getGuidedLessonOwnerForSection(id: DemonstrationId, chapterId: string, sectionId: string): GuidedLessonOwner | undefined {
-    if (getChapterOwnedLessons(chapterId)?.lesson(sectionId)?.demonstrationId === id) return {chapterId, sectionId};
+    if (chapterOwnedDemonstration(chapterId, sectionId) === id) return {chapterId, sectionId};
     return retainedExampleHomes.some(home => home[1] === chapterId && home[2] === sectionId && home[3] === id)
         ? {chapterId, sectionId}
         : undefined;

@@ -10,7 +10,7 @@ import {getLessonForDemonstration} from '../runtime/lessonCatalog';
 import {familyChapters} from './familyChapters';
 import {projectiveConicsChapter} from './projectiveConicsChapter';
 import {
-    PROJECTIVE_CONICS_CHAPTER_ID, projectiveConicsGuidedExamplePath, projectiveConicsGuidedExampleRegistry,
+    PROJECTIVE_CONICS_CHAPTER_ID, projectiveConicsGuidedExamplePath, projectiveConicsGuidedExampleLessons,
 } from './projectiveConicsChapterRegistry';
 import {triangleGeometryChapter} from './triangleGeometryChapter';
 
@@ -39,7 +39,7 @@ describe('chapter structure and registration', () => {
         expect(projectiveConicsChapter.title).toEqual({sl: 'Projektivna geometrija stožnic', en: 'Projective geometry of conics'});
         expect(projectiveConicsChapter.family).toBe('projective');
         expect(projectiveConicsChapter.sections.map(section => section.id)).toEqual(['projective-idea', ...LESSONS]);
-        expect(Object.keys(projectiveConicsGuidedExampleRegistry)).toEqual([...LESSONS]);
+        expect(Object.keys(projectiveConicsGuidedExampleLessons.all())).toEqual([...LESSONS]);
         const planeGeometry = learningStrands.find(strand => strand.id === 'plane-geometry')!;
         expect(planeGeometry.chapters.at(-1)).toBe(PROJECTIVE_CONICS_CHAPTER_ID);
         expect(familyChapters.findIndex(chapter => chapter.id === PROJECTIVE_CONICS_CHAPTER_ID))
@@ -213,7 +213,7 @@ describe('lessons, ownership and links', () => {
         expect(getGuidedLessonOwner(id)).toEqual({chapterId: PROJECTIVE_CONICS_CHAPTER_ID, sectionId: id});
         expect(authoredGuidedLessonIds(PROJECTIVE_CONICS_CHAPTER_ID, id)).toEqual([id]);
         const lesson = getLessonForDemonstration(id)!;
-        expect(lesson).toBe(projectiveConicsGuidedExampleRegistry[id]);
+        expect(lesson).toBe(projectiveConicsGuidedExampleLessons.all()[id]);
         expect(lesson.demonstrationId).toBe(id);
         for (const field of [lesson.title, lesson.summary, ...lesson.steps.flatMap(step => [step.title, step.body])]) {
             expect(field.sl.length).toBeGreaterThan(2);
@@ -229,7 +229,7 @@ describe('lessons, ownership and links', () => {
         const search = launch.slice(launch.indexOf('?'));
         expect(resolveGuidedExample(search, id)?.owner).toEqual({chapterId: PROJECTIVE_CONICS_CHAPTER_ID, sectionId: id});
         const exampleId = `lesson.${PROJECTIVE_CONICS_CHAPTER_ID}.${id}.${id}`;
-        expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(projectiveConicsGuidedExampleRegistry[id]);
+        expect(resolveGuidedExample(`?example=${exampleId}`, id)?.lesson).toBe(projectiveConicsGuidedExampleLessons.all()[id]);
         const links = getChapterGuidedExamples(PROJECTIVE_CONICS_CHAPTER_ID, id);
         expect(links.map(link => link.path)).toEqual([projectiveConicsGuidedExamplePath(id)]);
         expect(links[0].path).toContain(`?example=${exampleId}`);

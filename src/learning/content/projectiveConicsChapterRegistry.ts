@@ -1,7 +1,6 @@
 import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
-import type {LessonDefinition} from '../model';
-import {getCatalogLessonForDemonstration} from '../runtime/lessonCatalog';
+import {catalogSectionLessons} from './catalogSectionLessons';
 
 import {PROJECTIVE_CONICS_CHAPTER_ID} from './projectiveConicsChapterId';
 
@@ -18,20 +17,8 @@ const sectionDemonstrations = {
 
 export type ProjectiveConicsSectionId = keyof typeof sectionDemonstrations;
 
-/**
- * Section-owned activity (spec K1 to K5). The lesson text stays in projectiveConicsGuidedLessons.ts; the getters read it lazily because
- * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
- */
-export const projectiveConicsGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(
-    Object.entries(sectionDemonstrations).map(([sectionId, demonstrationId]) => [sectionId, {
-        enumerable: true,
-        get: (): LessonDefinition => {
-            const lesson = getCatalogLessonForDemonstration(demonstrationId);
-            if (!lesson) throw new Error(`The ${demonstrationId} lesson is not available for the Projective conics chapter.`);
-            return lesson;
-        },
-    }]),
-)) as Readonly<Record<ProjectiveConicsSectionId, LessonDefinition>>;
+/** Section-owned activity (spec K1 to K5). The lesson text stays in projectiveConicsGuidedLessons.ts; a section's lesson is adapted only when requested. */
+export const projectiveConicsGuidedExampleLessons = catalogSectionLessons<ProjectiveConicsSectionId>('the Projective conics chapter', sectionDemonstrations);
 
 export function projectiveConicsGuidedExampleDemonstration(sectionId: ProjectiveConicsSectionId): DemonstrationId {
     return sectionDemonstrations[sectionId];

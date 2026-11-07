@@ -1,7 +1,6 @@
 import {getDemonstrationCatalog} from '../../demonstrations';
 import type {DemonstrationId} from '../../demonstrations';
-import type {LessonDefinition} from '../model';
-import {getCatalogLessonForDemonstration} from '../runtime/lessonCatalog';
+import {catalogSectionLessons} from './catalogSectionLessons';
 
 import {BSPLINE_CHAPTER_ID} from './bsplineChapterId';
 
@@ -19,20 +18,8 @@ const sectionDemonstrations = {
 
 export type BSplineSectionId = keyof typeof sectionDemonstrations;
 
-/**
- * Section-owned activity (spec L1 to L6). The lesson text stays in the guided-lesson files; the getters read it lazily because
- * lessonCatalog.ts imports the chapter-owned table, so reading at module load would be a cycle.
- */
-export const bsplineGuidedExampleRegistry = Object.defineProperties({}, Object.fromEntries(
-    Object.entries(sectionDemonstrations).map(([sectionId, demonstrationId]) => [sectionId, {
-        enumerable: true,
-        get: (): LessonDefinition => {
-            const lesson = getCatalogLessonForDemonstration(demonstrationId);
-            if (!lesson) throw new Error(`The ${demonstrationId} lesson is not available for the B-spline chapter.`);
-            return lesson;
-        },
-    }]),
-)) as Readonly<Record<BSplineSectionId, LessonDefinition>>;
+/** Section-owned activity (spec L1 to L6). The lesson text stays in the guided-lesson files; a section's lesson is adapted only when requested. */
+export const bsplineGuidedExampleLessons = catalogSectionLessons<BSplineSectionId>('the B-spline chapter', sectionDemonstrations);
 
 export function bsplineGuidedExampleDemonstration(sectionId: BSplineSectionId): DemonstrationId {
     return sectionDemonstrations[sectionId];
