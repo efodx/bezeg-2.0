@@ -1,14 +1,14 @@
 # Clips handler handoff 2
 
-Handler 2 was relaunched by the supervisor after handler 1's successor did not start. Steps 3 and 4 are now running together. Three new clips (`inscribed-angle`, `orientation`, `polygon-area`) and the capture fixes are pushed, if the publish of `2c33b4b0..7c5a843c` succeeded. Check `git log origin/master` and `just ci` on the top commit first; a CI failure is fixed before anything else.
+Handler 2 was relaunched by the supervisor after handler 1's successor did not start. Steps 3 and 4 are now running together. Three new clips (`inscribed-angle`, `orientation`, `polygon-area`) and the capture fixes are pushed in `562df8d0..1db6960e`. Check `just ci 1db6960e` first; browser smoke was not run, because the hook changes nothing without its global and unit tests cover that, so CI is the first browser check; a CI failure is fixed before anything else.
 
 ## What changed this session
 
 - **Captures no longer hang.** A failed capture used to leave the browser open and Node alive forever: the "over 400 seconds" in the pilot note was a 2-second failure followed by a hang. It is fixed in `cda9b0de`. A capture now takes 20–40 seconds, so anything much longer is a fault. Always wrap captures in `timeout 500` and read the real exit code.
 - **The fingerprint ignores line endings.** Git autocrlf had rewritten `_jump.cjs` on checkout. The fingerprint is now hashed from normalized text.
-- **Compgeo points snap to the grid.** A pointer drag on any `PointSetGraph` hops between grid points. Rows set `fineGrid: -8`, and a capture-only hook (`0b96854d`, reviewed) rescales the model on the first drag. See the spec decision and [fine grid note](fine-grid-note.md).
+- **Compgeo points snap to the grid.** A pointer drag on any `PointSetGraph` hops between grid points. Rows set `fineGrid: -8`, and a capture-only hook (`cde6916c`, reviewed) rescales the model on the first drag. See the spec decision and [fine grid note](fine-grid-note.md).
 - **The pointer check is a thousandth of a CSS pixel**, not 1e-6 board units (spec decision).
-- **Controls without an `id`** now work in sweeps (`2c33b4b0`).
+- **Controls without an `id`** now work in sweeps (`562df8d0`).
 
 The presentation fingerprint changed again. The manifest in the publish carries the new value, so `just clip` without the flag should pass after a rebase. Prove that on the next capture, and if it fails, find the cause as in the [pilot note](row-pilot-note.md#what-actually-happened) before using the flag.
 
