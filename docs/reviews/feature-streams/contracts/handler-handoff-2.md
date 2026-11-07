@@ -20,9 +20,9 @@ The pilots (Linear, Binomial) and F1 to F4 (25 of the 40 remaining classes) are 
 
 That is 563 fewer tests and 4 more skipped, with the same 611 passed and 3 skipped files. Cause unknown. What is known: in the diff, test declarations changed only in their titles, so a generated or conditional suite is the likely place, but that is a hypothesis. It may be environmental rather than caused by these commits. The logs hold totals only.
 
-## Test count: cause found, confirmation pending
+## Test count: explained and confirmed
 
-Recorded 2026-11-07 by the next handler. **The drop comes from the transient state contract's local sampling, not from lost tests. The confirming `=all` comparison has not finished, so `master` stays closed.**
+Recorded 2026-11-07 by the next handler. **The drop comes from the transient state contract's local sampling, not from lost tests. Confirmed with every graph mounted; `master` is open again.**
 
 `GraphTransientState.part*.test.tsx` mounts all 118 Demonstrations only when the diff from the merge-base with `origin/master` touches a shared path; otherwise it mounts the 14-graph sample plus graphs named like a changed file ([scope rules](../../../commands.md)). Each graph is 8 tests, and each part that leaves graphs out adds 1 skipped placeholder. So the count depends on where `origin/master` is, not only on the code.
 
@@ -32,24 +32,18 @@ Recorded 2026-11-07 by the next handler. **The drop comes from the transient sta
 | Rerun | `ef8144bc`, master at `b4079eb0` | 14 | 11,222 | 8 | measured; 12,050 − 104×8 + 4 |
 | Rerun | `3cf0cec7`, master at `b4079eb0` | 38 | 11,415 | 8 | measured; 12,051 − 80×8 + 4 |
 | Handoff "after", 07:07 local | `886a8822` plus F1 to F4, dirty | 47 (inferred) | 11,487 | 8 | logged; master moved at 06:47 |
+| `=all` | `ef8144bc` | 118 | 12,050 | 4 | measured; 0 failed |
+| `=all` | `3cf0cec7` | 118 | 12,051 | 4 | measured; 0 failed |
 
 The per-file diff of the two reruns (`.claude/jobs/unit-before-sample.json`, `unit-after.json`) shows only the four part files changing, plus one test added to `BaseFunctionGraph.authority.test.tsx`. Twelve further tests were retitled. No test outside the part files was lost.
 
-Not proven:
+Confirmation: under `BEZEG_TRANSIENT_STATE=all`, every file has the same test count in both revisions except `BaseFunctionGraph.authority.test.tsx` (33 to 34, the added Binomial–Normal test). The 12 retitled tests are the only other difference (`.claude/jobs/unit-before-all.json`, `unit-after-all.json`). The part files hold 944 tests, which is 118 × 8, so F1 to F4 also pass the full transient contract, which they had not done locally before. The first `=all` attempts were stopped for low system memory and rerun one at a time at the owner's go-ahead. The temporary baseline worktree is removed.
 
-- **The 11,487 run.** It is 9 graphs above today's 38. No single file name adds exactly 9, and the transcript does not name the files, so this is inferred to be extra files dirty in that tree. It cannot be rerun.
-- **All 118 graphs on this branch.** F1 to F4 have only ever run 38 of them locally, and `docs/commands.md` requires `BEZEG_TRANSIENT_STATE=all` before pushing restoration or Preset work. This is a verification gap as well as a count check.
-
-Both `=all` runs were started and stopped by Claude Code for low system memory, with no results. That says nothing about the code. Its notice says to restart only when the owner asks. Once asked, run one at a time, with no `/` in any argument, then move the file:
-
-- Here: `BEZEG_TRANSIENT_STATE=all just unit --reporter=default --reporter=json --outputFile.json=unit-after-all.json`
-- In `.claude/worktrees/contracts-baseline` (detached at `ef8144bc`, `npm ci` done, nested here but outside Vitest's `src/**`): the same with `unit-before-all.json`.
-
-Expect 12,050 and 12,051 totals with 4 skipped each, and only the known authority test differing. A failure or another difference means a commit is at fault: fix it (step 3 below). Remove the baseline worktree afterwards.
+Still inferred: the 11,487 run is 9 graphs above today's 38. No single file name adds exactly 9, so it was probably extra files dirty in that tree. That tree is gone and it does not affect the conclusion.
 
 ## First: explain the test count
 
-Do this before anything else, and push nothing further to `master` until it is explained. Steps 1 to 3 are superseded by the section above, except the `=all` comparison it leaves open. Step 2's test is unsound: the baseline no longer reproducing 12,050 does not show an environmental cause by itself.
+Done; see the section above. Steps 1 to 3 are kept for the record. Step 2's test is unsound: the baseline no longer reproducing 12,050 does not show an environmental cause by itself.
 
 1. Run the full suite with a JSON reporter on this branch (`just unit --reporter=json --outputFile=.claude/jobs/after.json`) and on `ef8144bc` in a temporary worktree, or `b4079eb0` if that is simpler. Each run takes about 20 minutes.
 2. Diff the per-file counts. Do not assume the baseline reproduces: if `ef8144bc` also shows about 11,487 now, the cause is environmental, and these commits are clear.
