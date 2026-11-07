@@ -48,7 +48,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'complex-reciprocal', reason: NOT_CAPTURED},
     {id: 'complex-roots', reason: NOT_CAPTURED},
     {id: 'triangle-centres', reason: NOT_CAPTURED},
-    {id: 'inscribed-angle', reason: NOT_CAPTURED},
     {id: 'euler-line', reason: NOT_CAPTURED},
     {id: 'simson-line', reason: NOT_CAPTURED},
     {id: 'inversion', reason: NOT_CAPTURED},

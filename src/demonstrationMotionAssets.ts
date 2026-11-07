@@ -54,6 +54,7 @@ import motion_patch_triangular from './images/demonstrations/catalog/patch-trian
 import motion_curve_offset from './images/demonstrations/catalog/curve-offset.webm?no-inline';
 import motion_reduction from './images/demonstrations/catalog/reduction.webm?no-inline';
 import motion_patch_coons from './images/demonstrations/catalog/patch-coons.webm?no-inline';
+import motion_inscribed_angle from './images/demonstrations/catalog/inscribed-angle.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -111,4 +112,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'curve-offset': {src: motion_curve_offset, type: 'video/webm', duration: 4},
     'reduction': {src: motion_reduction, type: 'video/webm', duration: 4},
     'patch-coons': {src: motion_patch_coons, type: 'video/webm', duration: 4},
+    'inscribed-angle': {src: motion_inscribed_angle, type: 'video/webm', duration: 4},
 };
