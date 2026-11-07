@@ -1,9 +1,9 @@
 import {currentLanguage, useT} from "../localization";
-import {Button} from "react-bootstrap";
-import React, {useId} from "react";
+import React, {useId, useState} from "react";
 import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
 import {joinIds} from "./describedBy";
+import {UnavailableButton} from "./UnavailableButton";
 import "./CountSetter.css";
 
 interface CountSetterProps {
@@ -21,11 +21,15 @@ interface CountSetterProps {
     max?: number | (() => number);
     /** A short explanation shown under the stepper and linked to its group by aria-describedby. */
     help?: string;
+    /** Why minus is unavailable at the lower bound; defaults to "At least {min}.". */
+    minReason?: string;
+    /** Why plus is unavailable at the upper bound; defaults to "At most {max}.". */
+    maxReason?: string;
 }
 
 /**
  * A controlled integer stepper in the order − / value / +. The value is editable only when the graph can set the count directly
- * (`onSet`); the buttons stay available at the bounds' neighbours and are disabled at the bounds.
+ * (`onSet`); the buttons stay available at the bounds' neighbours and are unavailable (aria-disabled, focusable, with a reason shown on press) at the bounds.
  */
 export function CountSetter(props: CountSetterProps) {
     const t = useT();
@@ -37,26 +41,36 @@ export function CountSetter(props: CountSetterProps) {
     const atMin = min !== undefined && n <= min;
     const atMax = max !== undefined && n >= max;
 
-    const onPlus = () => {
-        if (!atMax) props.onPlus();
-    };
-    const onMinus = () => {
-        if (!atMin) props.onMinus();
-    };
+    // The reason of a blocked press: a counter makes a repeated press announce again; any change of the count drops it.
+    const [pressed, setPressed] = useState<{side: "min" | "max", count: number}>();
+    const [seenN, setSeenN] = useState(n);
+    if (seenN !== n) {
+        setSeenN(n);
+        setPressed(undefined);
+    }
+    const blocked = (side: "min" | "max") => setPressed(current => ({side, count: (current?.count ?? 0) + 1}));
+    const minusReason = atMin ? props.minReason ?? t("count_at_minimum", {value0: formatNumber(min, language, 0)}) : undefined;
+    const plusReason = atMax ? props.maxReason ?? t("count_at_maximum", {value0: formatNumber(max, language, 0)}) : undefined;
+    const shownReason = pressed?.side === "min" ? minusReason : pressed?.side === "max" ? plusReason : undefined;
 
     return <div className="count-setter">
         {props.label && <div className="count-setter-label" id={id}>{props.label}</div>}
         <div className="count-setter-controls" role="group" aria-labelledby={props.label ? id : undefined}
              aria-describedby={joinIds(props.help && `${id}-help`)}>
-            <Button aria-label={t("decrease_count")} className="count-setter-button" onClick={onMinus} disabled={atMin}>−</Button>
+            <UnavailableButton aria-label={t("decrease_count")} className="btn btn-primary count-setter-button" reason={minusReason}
+                               onPress={() => { setPressed(undefined); props.onMinus(); }} onBlockedPress={() => blocked("min")}>−</UnavailableButton>
             {props.onSet
                 ? <NumberInput label={props.label ?? t("current_count", {value0: formatNumber(n, language, 0)})} hideLabel compact
                                value={n} min={min} max={max} step={1} bigStep={props.bigStep} decimals={0} integer
                                onChange={value => props.onSet?.(value)}/>
                 : <output className="count-setter-value" aria-label={t("current_count", {value0: formatNumber(n, language, 0)})}>
                     {formatNumber(n, language, 0)}</output>}
-            <Button aria-label={t("increase_count")} className="count-setter-button" onClick={onPlus} disabled={atMax}>+</Button>
+            <UnavailableButton aria-label={t("increase_count")} className="btn btn-primary count-setter-button" reason={plusReason}
+                               onPress={() => { setPressed(undefined); props.onPlus(); }} onBlockedPress={() => blocked("max")}>+</UnavailableButton>
         </div>
         {props.help && <p id={`${id}-help`} className="count-setter-help">{props.help}</p>}
+        <div role="status" aria-live="polite" data-count-status>
+            {shownReason && <p key={pressed?.count} className="count-setter-help" data-count-reason>{shownReason}</p>}
+        </div>
     </div>;
 }

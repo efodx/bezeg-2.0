@@ -14,3 +14,10 @@
 }
 .count-setter-controls .number-input input { min-height: 44px; }
 .is-presenting .count-setter-help { color: #b5bfd0; }
+/* Unavailable at a bound: dimmed, and still focusable (aria-disabled, not disabled); forced colours show it by colour, not opacity. */
+.count-setter-controls .count-setter-button[aria-disabled="true"] { opacity: .5; cursor: default; border-style: dashed; }
+/* Presenting: an explicit pair (#b5bfd0 on #2b3b57, about 7:1) instead of opacity, which sank the label into the panel. */
+.is-presenting .count-setter-controls .count-setter-button[aria-disabled="true"] { opacity: 1; background: #2b3b57; color: #b5bfd0; border-color: #b5bfd0; }
+@media (forced-colors: active) {
+    .count-setter-controls .count-setter-button[aria-disabled="true"] { opacity: 1; color: GrayText; border-color: GrayText; border-style: dashed; }
+}

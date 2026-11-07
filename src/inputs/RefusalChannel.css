@@ -1,0 +1,2 @@
+/* The refusal line takes the status-line look of the function inspector (FunctionReadout.css), which has no presenting colour of its own. */
+.is-presenting .function-inspector [data-refusal-notice] > p.inspector-help { color: #e6ebf5; }

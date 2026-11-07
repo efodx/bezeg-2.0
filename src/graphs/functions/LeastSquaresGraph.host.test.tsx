@@ -130,7 +130,7 @@ test('the degree is limited to min(points - 1, 5) and removing points clamps it'
     setDegree(3);
     setDegree(4);
     expect(graph.modelNow().degree).toBe(3);
-    expect(within(degreeGroup()).getByRole('button', {name: 'Povečaj število'})).toBeDisabled();
+    expect(within(degreeGroup()).getByRole('button', {name: 'Povečaj število'})).toHaveAttribute('aria-disabled', 'true');
     act(() => { fireEvent.click(minus()); });
     expect(graph.modelNow()).toMatchObject({degree: 2});
     expect(graph.modelNow().points).toHaveLength(3);
@@ -138,12 +138,12 @@ test('the degree is limited to min(points - 1, 5) and removing points clamps it'
     expect(readout('degree')).toBe('2');
     act(() => { fireEvent.click(minus()); });
     expect(graph.modelNow()).toMatchObject({degree: 1});
-    expect(minus()).toBeDisabled();
+    expect(minus()).toHaveAttribute('aria-disabled', 'true');
     expect(graph.modelNow().points).toHaveLength(2);
     expect(readout('sum')).toBe('0');
     for (let i = 0; i < 10; i++) act(() => { fireEvent.click(plus()); });
     expect(graph.modelNow().points).toHaveLength(12);
-    expect(plus()).toBeDisabled();
+    expect(plus()).toHaveAttribute('aria-disabled', 'true');
     expect(graph.visibleHandles()).toHaveLength(12);
     setDegree(5);
     expect(graph.modelNow().degree).toBe(5);

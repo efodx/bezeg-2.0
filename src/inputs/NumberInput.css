@@ -29,3 +29,9 @@
 /* Compact field beside a slider label: about six characters wide, so precise values fit without crowding the label. */
 .number-input.number-input-compact { grid-template-columns: auto; justify-items: end; }
 .number-input.number-input-compact input { width: 6.5ch; min-width: 5.5em; }
+/* A read-only field that is unavailable keeps focus (aria-disabled, not disabled) and shows why. A dashed border marks it without colour. */
+.number-input input[aria-disabled="true"] { background: transparent; color: var(--workspace-ink-soft); border-style: dashed; cursor: default; }
+.is-presenting .number-input input[aria-disabled="true"] { background: transparent; color: #b5bfd0; }
+@media (forced-colors: active) {
+    .number-input input[aria-disabled="true"] { color: GrayText; border-color: GrayText; }
+}

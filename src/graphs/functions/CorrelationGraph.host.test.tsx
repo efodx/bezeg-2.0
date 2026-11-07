@@ -46,6 +46,7 @@ class ObservedCorrelationGraph extends CorrelationGraph {
     /** The dashed x-on-y line in the comparison colour. */
     xOnYCurves() { return this.shown(GraphPalette.comparisonCurve, 3); }
     addRaw() { this.addPoint(); }
+    guardedAdd() { let accepted = true; act(() => { accepted = this.guarded(() => this.addPoint()); }); return accepted; }
     lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
     drag(index: number, x: number, y: number) {
         const handle = this.handles()[index];
@@ -55,7 +56,9 @@ class ObservedCorrelationGraph extends CorrelationGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const readoutLabel = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
-const status = (id: string) => document.querySelector(`[data-prob-correlation-status="${id}"]`)?.textContent;
+const status = (id: string) => (id === 'refused'
+    ? document.querySelector('[data-refusal-notice]')?.textContent
+    : document.querySelector(`[data-prob-correlation-status="${id}"]`)?.textContent) || undefined;
 const field = (label: RegExp) => screen.getByLabelText(label, {selector: 'input:not([type="range"])'}) as HTMLInputElement;
 const typeIn = (label: RegExp, value: number) => act(() => {
     fireEvent.change(field(label), {target: {value: String(value)}});
@@ -389,12 +392,18 @@ describe('editing', () => {
         expect(box(graph)[2]).toBeGreaterThan(view[2]);
     });
 
-    test('the point list is limited to 2..20 points: the button is disabled at 20, a direct Add is refused, a typed value beyond the limit is refused', () => {
+    test('the point list is limited to 2..20 points: the button is unavailable at 20, a direct Add is refused, a typed value beyond the limit is refused', () => {
         const {graph} = mount();
         for (let i = 0; i < CORRELATION_POINTS_MAX - 4; i++) plusButton();
         expect(graph.modelNow().points).toHaveLength(CORRELATION_POINTS_MAX);
-        expect(screen.getByRole('button', {name: 'Povečaj število'})).toBeDisabled();
+        expect(screen.getByRole('button', {name: 'Povečaj število'})).toHaveAttribute('aria-disabled', 'true');
         expect(() => graph.addRaw()).toThrow(DomainError);
+        expect(graph.guardedAdd()).toBe(false);
+        expect(document.querySelector('[data-refusal-notice]')?.textContent).toBe('Število točk mora biti od 2 do 20.');
+        expect(document.querySelector('[data-refusal-notice]')?.closest('[data-prob-correlation-status]')).toBeNull();
+        minusButton();
+        expect(document.querySelector('[data-refusal-notice]')?.textContent).toBe('');
+        plusButton();
         expect(graph.modelNow().points).toHaveLength(CORRELATION_POINTS_MAX);
         expect(graph.visibleHandles()).toHaveLength(CORRELATION_POINTS_MAX);
         const before = graph.modelNow();

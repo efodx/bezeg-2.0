@@ -1,6 +1,7 @@
 import React from 'react';
 import {fireEvent, render, screen} from '@testing-library/react';
 import {CountSetter} from './CountSetter';
+const countStatus = () => document.querySelector('[data-count-status]')!;
 
 test('the stepper is ordered minus, value, plus and never hides the value behind a reset action', () => {
     render(<CountSetter label="Število krivulj" n={3} min={1} max={5} onPlus={() => undefined} onMinus={() => undefined}/>);
@@ -13,18 +14,43 @@ test('the stepper is ordered minus, value, plus and never hides the value behind
     expect(screen.getByRole('group', {name: 'Število krivulj'})).toBeInTheDocument();
 });
 
-test('minus and plus are disabled at their bounds, and the bounds may be functions', () => {
+test('minus and plus are unavailable at their bounds with a reason, and the bounds may be functions', () => {
     const onPlus = vi.fn();
     const onMinus = vi.fn();
     const {rerender} = render(<CountSetter n={1} min={1} max={() => 4} onPlus={onPlus} onMinus={onMinus}/>);
-    expect(screen.getByRole('button', {name: 'Zmanjšaj število'})).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', {name: 'Zmanjšaj število'}));
+    const minus = screen.getByRole('button', {name: 'Zmanjšaj število'});
+    expect(minus).toHaveAttribute('aria-disabled', 'true');
+    expect(minus).not.toBeDisabled();
+    expect(minus).toHaveAccessibleDescription('Najmanj 1.');
+    fireEvent.click(minus);
     expect(onMinus).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', {name: 'Povečaj število'}));
     expect(onPlus).toHaveBeenCalledTimes(1);
     rerender(<CountSetter n={4} min={1} max={() => 4} onPlus={onPlus} onMinus={onMinus}/>);
-    expect(screen.getByRole('button', {name: 'Povečaj število'})).toBeDisabled();
-    expect(screen.getByRole('button', {name: 'Zmanjšaj število'})).toBeEnabled();
+    expect(screen.getByRole('button', {name: 'Povečaj število'})).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', {name: 'Povečaj število'})).toHaveAccessibleDescription('Največ 4.');
+    expect(screen.getByRole('button', {name: 'Zmanjšaj število'})).toHaveAttribute('aria-disabled', 'false');
+});
+
+test('pressing at a bound keeps focus on the button and says why in its own status region; caller reasons win', () => {
+    const onPlus = vi.fn();
+    const {rerender} = render(<CountSetter n={4} min={1} max={5} onPlus={onPlus} onMinus={() => undefined}/>);
+    const plus = screen.getByRole('button', {name: 'Povečaj število'});
+    plus.focus();
+    fireEvent.click(plus);
+    expect(onPlus).toHaveBeenCalledTimes(1);
+    rerender(<CountSetter n={5} min={1} max={5} onPlus={onPlus} onMinus={() => undefined}/>);
+    expect(plus).toHaveFocus();
+    expect(document.querySelector('[data-count-reason]')).toBeNull();
+    fireEvent.click(plus);
+    expect(onPlus).toHaveBeenCalledTimes(1);
+    expect(plus).toHaveFocus();
+    expect(countStatus()).toHaveTextContent('Največ 5.');
+    rerender(<CountSetter n={4} min={1} max={5} onPlus={onPlus} onMinus={() => undefined}/>);
+    expect(countStatus()).toHaveTextContent('');
+    rerender(<CountSetter n={5} min={1} max={5} maxReason="Pet je preveč." onPlus={onPlus} onMinus={() => undefined}/>);
+    fireEvent.click(plus);
+    expect(countStatus()).toHaveTextContent('Pet je preveč.');
 });
 
 test('with onSet the middle is an integer field: whole numbers commit, non-integers and out-of-range values are explained', () => {
@@ -40,11 +66,11 @@ test('with onSet the middle is an integer field: whole numbers commit, non-integ
     fireEvent.input(field, {target: {value: '2,5'}, inputType: 'insertText'});
     fireEvent.keyDown(field, {key: 'Enter'});
     expect(onSet).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med 0 in 5.');
+    expect(screen.getAllByRole('status').map(el => el.textContent)).toContain('Vnesi vrednost med 0 in 5.');
     fireEvent.input(field, {target: {value: '9'}, inputType: 'insertText'});
     fireEvent.keyDown(field, {key: 'Enter'});
     expect(onSet).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('status')).toHaveTextContent('Vnesi vrednost med 0 in 5.');
+    expect(screen.getAllByRole('status').map(el => el.textContent)).toContain('Vnesi vrednost med 0 in 5.');
 });
 
 test('without onSet the value is read-only and shown as an integer', () => {
@@ -73,4 +99,25 @@ test('help describes the stepper group together with its label', () => {
 test('without help the group has no description', () => {
     render(<CountSetter label="Število krivulj" n={3} onPlus={() => undefined} onMinus={() => undefined}/>);
     expect(screen.getByRole('group', {name: 'Število krivulj'})).not.toHaveAttribute('aria-describedby');
+});
+
+test('a blocked-press reason does not come back when the count leaves the bound and returns', () => {
+    const props = {min: 1, max: 5, onPlus: () => undefined, onMinus: () => undefined};
+    const {rerender} = render(<CountSetter n={1} {...props}/>);
+    fireEvent.click(screen.getByRole('button', {name: 'Zmanjšaj število'}));
+    expect(countStatus()).toHaveTextContent('Najmanj 1.');
+    rerender(<CountSetter n={3} {...props}/>);
+    rerender(<CountSetter n={1} {...props}/>);
+    expect(countStatus()).toHaveTextContent('');
+});
+
+test('a repeated blocked press announces again: the reason line is a new element', () => {
+    render(<CountSetter n={1} min={1} max={5} onPlus={() => undefined} onMinus={() => undefined}/>);
+    const minus = screen.getByRole('button', {name: 'Zmanjšaj število'});
+    fireEvent.click(minus);
+    const first = document.querySelector('[data-count-reason]');
+    fireEvent.click(minus);
+    const second = document.querySelector('[data-count-reason]');
+    expect(second).toHaveTextContent('Najmanj 1.');
+    expect(second).not.toBe(first);
 });

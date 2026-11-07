@@ -40,7 +40,14 @@ for (const width of [390, 614, 1280]) {
         await expect(field).toHaveValue('4');
         await field.press('ArrowUp');
         await expect(field).toHaveValue('5');
-        await expect(plus).toBeDisabled();
+        // Unavailable at the bound (slice 2a): aria-disabled and focusable, and pressing it says why instead of doing nothing.
+        await expect(plus).toHaveAttribute('aria-disabled', 'true');
+        // Playwright counts aria-disabled as not enabled, so the press is a real keyboard press on the focused button.
+        await plus.focus();
+        await page.keyboard.press('Enter');
+        await expect(plus).toBeFocused();
+        await expect(field).toHaveValue('5');
+        await expect(page.locator('[data-count-status]')).not.toBeEmpty();
         await minus.click();
         await expect(field).toHaveValue('4');
 

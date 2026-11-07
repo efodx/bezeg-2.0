@@ -1,5 +1,6 @@
-import React, {useId, useState} from "react";
+import React, {useState} from "react";
 import {useT} from "../../../localization";
+import {UnavailableButton} from "../../../inputs/UnavailableButton";
 
 /** Why a playback button is unavailable; see docs/specs/playback-button-reasons.md. */
 export type PlaybackBlock = 'no-more-steps' | 'playing' | 'at-start' | 'no-run';
@@ -55,7 +56,6 @@ interface PlaybackButtonsProps extends Partial<PlaybackBlocks> {
 export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, playing, nextBlock, playBlock, resetBlock,
                                     onNext, onPlayPause, onReset, children}: PlaybackButtonsProps) {
     const t = useT();
-    const id = useId();
     const [pressed, setPressed] = useState<PlaybackAction>();
     const reasons: Record<PlaybackBlock, string> = {
         'no-more-steps': t("playback_block_no_more_steps"),
@@ -72,14 +72,9 @@ export function PlaybackButtons({groupLabel, className, nextLabel, resetLabel, p
     return <>
         <div className={className ? `${className} inspector-playback` : "inspector-playback"} role="group" aria-label={groupLabel}>
             {buttons.map(({action, block, label, run}) =>
-                <button key={action} type="button" data-action={action} aria-disabled={block !== undefined}
-                        title={block && reasons[block]} aria-describedby={block && `${id}-${action}`}
-                        onClick={() => {
-                            setPressed(block ? action : undefined);
-                            if (!block) run();
-                        }}>{label}</button>)}
+                <UnavailableButton key={action} data-action={action} reason={block && reasons[block]} onPress={() => { setPressed(undefined); run(); }}
+                                   onBlockedPress={() => setPressed(action)}>{label}</UnavailableButton>)}
             {children}
-            {buttons.map(({action, block}) => block && <span key={action} id={`${id}-${action}`} hidden>{reasons[block]}</span>)}
         </div>
         <div role="status" aria-live="polite">
             {shownBlock && <p className="inspector-help" data-playback-reason={shownBlock}>{reasons[shownBlock]}</p>}

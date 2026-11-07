@@ -6,7 +6,9 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {PointListInput} from "../../inputs/PointListInput";
-import {currentLanguage, Message, renderMessage, t} from "../../localization";
+import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
+import {guard} from "../base/controls/guard";
+import {currentLanguage, renderMessage, t} from "../../localization";
 import {formatLineEquation, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {CORRELATION_MIN_POINTS} from "../../analysis/correlation";
 import {
@@ -111,8 +113,8 @@ export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, 
  */
 export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
     protected pointObjects: JXG.Point[] = [];
-    /** The reason the last refused edit gave; shown in the status region until an edit is accepted. */
-    private notice?: Message;
+    /** The reason the last refused edit gave; shown alone in its notice region until an edit is accepted. */
+    private readonly refusals = new RefusalChannel(() => this.requestRender());
 
     override presetCollection() {
         return functionPresetCollections["prob-correlation"];
@@ -147,22 +149,8 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
     }
 
     /** Runs an inspector change: a refusal is kept as the visible notice, an accepted change clears it. */
-    private guarded(action: () => void): boolean {
-        try {
-            action();
-            this.setNotice(undefined);
-            return true;
-        } catch (error) {
-            if (!(error instanceof DomainError)) throw error;
-            this.setNotice(error.reason);
-            return false;
-        }
-    }
-
-    private setNotice(next: Message | undefined): void {
-        if (this.notice === next) return;
-        this.notice = next;
-        this.requestRender();
+    protected guarded(action: () => void): boolean {
+        return guard(this.refusals, action);
     }
 
     /** Refits only when a point lies outside the visible view (after an add or a typed edit; never during a drag). */
@@ -237,15 +225,15 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         if (!edit.ok) return renderMessage(correlationEditMessage(edit.issue));
         if (edit.model !== this.model) this.commitModel(edit.model);
         this.ensurePointsVisible();
-        this.setNotice(undefined);
+        this.refusals.clear();
     }
 
     /** A drag: the point follows the pointer snapped to tenths; a refused value leaves the point at its previous value. */
     private dragPoint(index: number, x: number, y: number): void {
         const edit = moveCorrelationPoint(this.model, index, [x, y]);
-        if (!edit.ok) this.setNotice(correlationEditMessage(edit.issue));
+        if (!edit.ok) this.refusals.refuse(correlationEditMessage(edit.issue));
         else {
-            this.setNotice(undefined);
+            this.refusals.clear();
             if (edit.model !== this.model) this.commitModel(edit.model, {syncScene: false});
         }
         this.syncSceneToModel();
@@ -253,7 +241,7 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
 
     override importPresetData(data: CorrelationModel): void {
         super.importPresetData(data);
-        this.notice = undefined;
+        this.refusals.clear();
     }
 
     // ---- Board ---------------------------------------------------------------------------------------------------
@@ -431,10 +419,10 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
             "zero-variance-both": () => t("prob_correlation_status_zero_both"),
         } as const;
         const statuses: { id: string; text: string }[] = [];
-        if (this.notice) statuses.push({id: "refused", text: renderMessage(this.notice)});
         if (view.status !== "ok") statuses.push({id: view.status, text: statusText[view.status]()});
         return <>
             <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_correlation_note")}/>
+            <RefusalNotice channel={this.refusals}/>
             <div className="inspector-group" role="status" aria-live="polite">
                 {statuses.map(status => <p key={status.id} className="inspector-help" data-prob-correlation-status={status.id}>{status.text}</p>)}
             </div>

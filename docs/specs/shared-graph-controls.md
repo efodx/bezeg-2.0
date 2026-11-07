@@ -122,6 +122,10 @@ Each entry gives the choice, its reason and the rejected alternative.
 10. **Boolean variants (slice 1b).** `BooleanField` is one native checkbox in a switch or a checkbox look, with no added role, because the switch had none and a visual variant does not justify a different protocol. `OnOffSwitch` stays as its switch variant, so its 48 callers did not change. Rejected: migrating every caller now, which only renames.
 11. **Number keyboard (slice 1b).** `inputMode="decimal"` only when a field cannot go negative; otherwise `text`. Reason: iOS decimal keypads may lack a minus sign. Rejected: a decimal keypad everywhere, which can make negative values impossible to type on a phone.
 12. **High contrast (slice 1b).** Under forced colours the boolean field falls back to the system checkbox, so a switch looks like a checkbox there. Reason: forced colours drop the custom track colours, and the on state lost its thumb. Rejected: recolouring the custom track with system colours, whose SVG thumbs forced colours do not recolour.
+13. **Unavailable controls (slice 2a).** `UnavailableButton` carries the `PlaybackButtons` model: an unavailable button stays focusable with `aria-disabled`, gives its reason in `title` and a linked description, and a press shows the reason in its owner's status region; `PlaybackButtons` and `CountSetter` use it. An unavailable `NumberInput` is read-only with `aria-disabled` and shows its reason as its hint. Reason: native `disabled` drops focus and gives no reason. Rejected: native `disabled` with nearby help, which a keyboard user cannot reach.
+14. **Where refusals speak (slice 2a).** A model refusal goes to the graph's one `RefusalChannel`, shown alone by `RefusalNotice` and cleared by the shared `guard` on the next accepted edit, including an accepted no-op. Typed-field checks (unparseable, out of range, snapped to the grid) stay in the field's own hint. Reason: a field hint is linked to the field that caused it, so a screen reader reads it with the field. Rejected: routing field checks through the graph channel, which separates the message from its field.
+15. **A draft when the field becomes unavailable (slice 2a).** An open draft is dropped and the field shows the reason; a draft open when the field unmounts is dropped silently. Reason: a commit would be refused anyway, and an unmounting field has nowhere to explain. Rejected: committing the draft on unmount, which writes to a graph during teardown.
+16. **Snap rounding (slice 2a).** The shared field rounds an off-grid value half away from zero, range-checks the result, and names the value it used with enough decimals for the grid. With `integer`, `grid` must be a whole number.
 
 ## Acceptance
 
@@ -157,6 +161,7 @@ Decided in task 0:
 - **Typed fields (task 1):** a typed number applies on Enter or when the field is left, no longer on each keystroke. A value that is not a number is explained instead of ignored. Phones show a full keyboard for fields that accept negative values.
 - **Switches (task 1):** switches in workspace tools lists take the Display tab's look, and show as plain checkboxes in Windows high-contrast mode.
 - **Limit notices:** drags on every PointSet graph, Summary statistics and the query points stop silently at the limit.
+- **Unavailable buttons (task 1):** the count stepper's − and + no longer grey out silently at a bound: they stay focusable, look dashed, and say why when pressed. Playback buttons are unchanged. Correlation's refusal shows on its own line instead of among the status lines.
 
 ## Evidence notes
 
