@@ -2248,3 +2248,24 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Row quality: 9 of 21 worker rows failed capture, mostly on scene facts the workers cannot see offline (draggable derived handles, off-camera points, hidden controls, slider rounding, a poster that does not depend on the control). Two start values were wrong (function-transformation c = 3, not 0).
 - Usage (worker totals as reported): rows 120,450 and 112,781; visual review 52,512; mathematical review 34,816 tokens.
 - Handoff evidence: telling workers to create new files only kept them off the handler's uncommitted files. The brief's "say which start values you took from source" made both wrong-start rows easy to fix.
+## 2026-11-07 — lesson lookup, lesson-authoring workstream 2 (contracts stream, handlers 4 and 5)
+
+- Class/size: refactor plus contract tests / L; owner rows, a content adapter outside the runtime catalog, twelve registry migrations, integrity and import-graph checks. Source: [task 02](../tasks/lesson-authoring-architecture/02-lesson-lookup.md).
+- Dispatch:
+  - Slice 1 (characterization and isolation harness): one `bezeg-worker` (Sonnet medium).
+  - Slices 2 and 3: kept with the handler as the coupled core.
+  - Slice 4: one `bezeg-worker` (Sonnet medium) for L2/L3, one `bezeg-reviewer` (Sonnet medium) for engineering review of the integrated diff, one `bezeg-smoke` (Sonnet medium) for the full checklist.
+  - Brief `handoff-v13`, written to `.claude/jobs/` files.
+- Outcome: accepted.
+  - Slices 2 and 3 were merged: all twelve cyclic registries had one shape, so a B-spline pilot would have tested nothing new.
+  - The handler replaced the worker's hand-kept set of authored chapters with a `source` marker on each chapter entry.
+  - It also fixed the review's one nit: unresolved imports were silently dropped.
+- Checks/gaps:
+  - `just check` with `BEZEG_TRANSIENT_STATE=all`: 12,136 passed, 4 skipped.
+  - L1 assertions seen failing on old code; L3 seen failing on direct, transitive and unresolved imports.
+  - Smoke: lookup rows and the baseline checklist passed. The handler then ran the automated `just smoke-built` suite, which the smoke worker could not, because the build was stale after the worker's new files. Of 497 tests, 496 passed. The catalogue teaching-order test timed out at 60 s; alone it passed in 54.1 s with a larger timeout. It is unrelated to lookup, since no catalogue module imports it.
+  - Unverified: the picker, import/export and touch in the browser.
+- Repairs: none to code from review or smoke.
+- Handler errors: the smoke brief expected an unknown `learnSection` to open no lesson. The workspace's existing fallback opens the default owner, so the worker reported a false deviation, which the handler traced to unchanged code. The review brief's commit range included two Controls commits, corrected by message mid-run.
+- Timing (as reported): L2/L3 worker 24 min, smoke 28 min, review 6 min.
+- Usage (worker totals as reported): worker 54,087; smoke 66,234; reviewer 40,958 tokens.

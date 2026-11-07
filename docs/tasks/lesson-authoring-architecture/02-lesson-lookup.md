@@ -1,6 +1,6 @@
 # 2. Lesson definitions, ownership and adaptation
 
-Status: pending; task file written 2026-11-07 by the Contracts stream (step 4 of [contracts.md](../feature-streams/contracts.md)). Source: [lesson-authoring architecture, section 2](../../specs/lesson-authoring-architecture.md#2-lesson-definitions-ownership-and-adaptation), acceptance L1–L4, plus [verification](../../specs/lesson-authoring-architecture.md#verification-and-completion-evidence). Opens Controls step 9 (workstream 3), which consumes the owner identities defined here.
+Status: accepted 2026-11-07 (see [acceptance](#acceptance-2026-11-07)); task file written 2026-11-07 by the Contracts stream (step 4 of [contracts.md](../feature-streams/contracts.md)). Source: [lesson-authoring architecture, section 2](../../specs/lesson-authoring-architecture.md#2-lesson-definitions-ownership-and-adaptation), acceptance L1–L4, plus [verification](../../specs/lesson-authoring-architecture.md#verification-and-completion-evidence). Opens Controls step 9 (workstream 3), which consumes the owner identities defined here.
 
 ## Scope and entry points
 
@@ -45,3 +45,21 @@ Each slice runs focused `just unit` on the learning and chapter tests, typecheck
 Run `lessonCatalog.test.ts`, the guided-lesson ownership, guided-example and lesson-restoration tests, `lessonSmokeCoverage.test.ts`, and the lesson content tests including `lessonMathNotation.test.ts`, unchanged and unweakened. Then run the full checklist through `bezeg-smoke` (Sonnet), because lesson lookup feeds the shared lesson runtime: chapter entry to an exact section, catalog guidance, return with focus and reading position, linear-map L1/L2, a B-spline section, and one fallback-only Demonstration. Use an engineering review for the core slice and the integrated diff.
 
 Return the row table with default order, the removed cycle locations, isolation counts per lookup kind, the import-graph evidence and the observed failure of each new assertion. Gaps must be explicit.
+
+## Acceptance 2026-11-07
+
+Commits: `ff4d4e96` (slice 1), `43b97c5c` (slices 2 and 3, merged), and `bc246d83` (slice 4).
+
+- **Slices 2 and 3 merged.** All twelve cyclic registries had the same section-to-Demonstration shape, so they moved onto rows and the content adapter in one commit instead of piloting B-spline first. The pilot would have exercised no shape the others lacked.
+- **Rows and default order.** `chapterOwnerRows()` in `chapterOwnedLessons.ts` lists chapter table order, then teaching order. The table has four authored chapters (`bezier-patches`, `linear-maps`, `complex-maps`, `triangle-geometry`) and twelve catalog chapters, marked by `source`. Linear maps keeps L1 (`matrix-and-image`) before L2 (`determinant-area`) on one Demonstration.
+- **Removed cycle locations.** The enumerable getters and runtime-catalog imports of the twelve `*ChapterRegistry.ts` files, the thunk branch of `ownedLessons`, and `entries()`. `adaptContent` moved from `runtime/lessonCatalog.ts` to `content/catalogLessonAdapter.ts`.
+- **L1.** `lessonLookup.isolation.test.ts` counts reads of `getGuidedLesson`. Identity consumers read zero, and selected-chapter, fallback-only and missing-ID lookups read only the selected Demonstration or nothing. The eight assertions were seen failing on the old code (`.claude/jobs/lookup-s1-fail.log`, local).
+- **L2.** `lessonOwnerIntegrity.ts` reports duplicate owners, unknown chapters, missing sections, missing providers, conflicting Demonstrations and invalid order with exact IDs. It adapts no lesson, and the real-table test asserts zero content reads. Each synthetic case asserts its exact IDs, and a shared Demonstration reports nothing.
+- **L3.** `lessonImportGraph.test.ts` walks static, dynamic and export-from imports across `src` transitively. It failed on a direct back-import in `bsplineChapterRegistry.ts` and on a transitive one through `convexityChapterId.ts`, printing the chains. An unresolvable relative import fails the walk rather than being skipped.
+- **L4.** The characterization tests pass unchanged. `guidedExamples.ts` enumerates no lessons; it resolves only the requested section.
+- **Checks.** Typecheck, lint, production build and the full `BEZEG_TRANSIENT_STATE=all` suite through `just check`. Engineering review (Sonnet) of the integrated diff: no blocking or should-fix findings. Its one nit (unresolved imports) is fixed.
+- **Smoke.** The full checklist through `bezeg-smoke` (Sonnet) passed: B-spline chapter entry to the exact section, return with scroll and focus, linear-map L1/L2, catalog guidance, the fallback Bezier lesson through exit and restore, patch and complex-map lessons, and a clean console.
+  - The automated suite (`just smoke-built`) then ran 496 of 497 passing. The catalogue test "every demonstration in teaching order" timed out at its 60 s limit. Alone it passes in 54.1 s with a larger timeout. No catalogue module imports lesson lookup, so this is the test's time budget, not this change.
+  - Gaps: the picker, import/export and touch were not exercised by hand.
+  - A brief error: an unknown `learnSection` (for example `determinant`) opens the default owner L1 and rewrites the URL. This is the workspace's existing fallback in `DemonstrationWorkspace.tsx`, which the change did not touch; it is not a lookup regression.
+- **Open observation resolved.** `resolveGuidedExample('?explore=bezier-curves.bernstein-form.bernstein', 'bernstein')` is undefined by design. `?explore=` serves family chapters, and Bernstein's owner is `foundations`.
