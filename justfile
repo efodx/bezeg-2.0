@@ -81,6 +81,10 @@ linear-map-bench repeats="5" out="":
 collision-step-bench out="":
     @for (const s of ["build", "run"]) require("child_process").execFileSync(process.execPath, ["scripts/collision-step-benchmark/" + s + ".cjs", ...(s === "run" ? process.argv.slice(2, 3) : [])], {stdio: "inherit"});
 
+# Measure collision playground containment, switch latency, smoothness and lifecycle on a built page (scripts/collision-containment/README.md); serves a copy of build/, no test slot.
+collision-containment path json="" md="":
+    @require("child_process").execFileSync(process.execPath, ["scripts/collision-containment/run.cjs", ...process.argv.slice(2, 5).filter(Boolean)], {stdio: "inherit"});
+
 # Build and run the projective conic constants benchmark (scripts/projective-conic-benchmark/README.md); Node only, no test slot.
 projective-conic-bench json="" md="":
     @for (const s of ["build", "run"]) require("child_process").execFileSync(process.execPath, ["scripts/projective-conic-benchmark/" + s + ".cjs", ...(s === "run" ? process.argv.slice(2, 4) : [])], {stdio: "inherit"});
