@@ -441,12 +441,11 @@ test('changing the function keeps a, x and the reveal and switches to the view o
     }
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [choice('square'), parameter('accum-a', -1), parameter('accum-x', 3), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({fn: 'square', a: -1, x: 3, accumulationVisible: true});
-    expect(graph.state).toMatchObject(graph.model);
     expect(caption(graph)[3]).toBe('A(x) = 9,3333 (s predznakom)'); // (27 - (-1)) / 3
     // later actions in the same tick see the earlier ones, including the order of a and x
     apply(graph, parameter('accum-a', 3));

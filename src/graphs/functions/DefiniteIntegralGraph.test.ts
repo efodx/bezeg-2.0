@@ -112,12 +112,11 @@ test('the positive fill is the three closed left rectangles of positive height u
     expect(curveData(graph, NEGATIVE)).toEqual({x: [], y: []});
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [fnChoice('sin'), parameter('a', 0), parameter('b', 2 * Math.PI), parameter('n', 12), methodChoice('midpoint')]) apply(graph, action);
     expect(graph.model).toEqual({fn: 'sin', a: 0, b: 2 * Math.PI, n: 12, method: 'midpoint'});
-    expect(graph.state).toMatchObject(graph.model);
     expect([pointB(graph).x, pointB(graph).y]).toEqual([2 * Math.PI, 0]);
     expect(valuesText(graph)).toBe('vsota 0, integral 0');
     // a later action in the same tick sees the earlier one
@@ -201,7 +200,6 @@ test('a = b draws nothing and reports 0; a > b flips the sign of the sum and the
     expect(valuesText(graph)).toBe('vsota −2,625, integral −2,6667');
     // negative width: the shapes still lie above the axis for x^2 and are drawn
     expect(polygons(curveData(graph, POSITIVE).x)).toHaveLength(4);
-    graph.store.replaceState({...graph.state, ...graph.model});
     const rows = Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
     expect(rows).toMatchObject({a: '2', b: '0', h: '−0,5', sum: '−2,625'});
 });
@@ -327,7 +325,6 @@ test('reversed bounds add a readout note and the legend names the two colours in
     expect(notes()).toHaveLength(1);
     apply(graph, parameter('a', 3));
     apply(graph, parameter('b', 1));
-    graph.store.replaceState({...graph.state, ...graph.model});
     expect(notes()).toHaveLength(2);
     expect(notes()[1]).toMatch(/obrnjeni/);
     const legend = graph.renderLegend().props.items;

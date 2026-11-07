@@ -121,12 +121,11 @@ test('the polyline is one curve through the n + 1 vertices on the graph; the ver
     expect(Math.min(...first)).toBeCloseTo(-Math.max(...first), 12);
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model, with the flat state following it', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions through the model', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [parameter('a', -1), parameter('b', 2), parameter('n', 12)]) apply(graph, action);
     expect(graph.model).toEqual({a: -1, b: 2, n: 12});
-    expect(graph.state).toMatchObject(graph.model);
     expect([pointA(graph).x, pointB(graph).x]).toEqual([-1, 2]);
     expect(pointB(graph).y).toBeCloseTo(Math.sin(2), 12);
     expect(groups(curveData(graph, POLYLINE).x)[0]).toHaveLength(13);
