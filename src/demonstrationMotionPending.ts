@@ -22,8 +22,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'fourier-coefficients', reason: NOT_CAPTURED},
     {id: 'epicycles', reason: NOT_CAPTURED},
     {id: 'linear-map', reason: NOT_CAPTURED},
-    {id: 'complex-reciprocal', reason: NOT_CAPTURED},
-    {id: 'complex-roots', reason: NOT_CAPTURED},
     {id: 'inversion', reason: NOT_CAPTURED},
     {id: 'convex-hull', reason: NOT_CAPTURED},
     {id: 'point-in-polygon', reason: NOT_CAPTURED},

@@ -83,6 +83,8 @@ import motion_curve_comb from './images/demonstrations/catalog/curve-comb.webm?n
 import motion_prob_density from './images/demonstrations/catalog/prob-density.webm?no-inline';
 import motion_prob_binomial_normal from './images/demonstrations/catalog/prob-binomial-normal.webm?no-inline';
 import motion_prob_summary from './images/demonstrations/catalog/prob-summary.webm?no-inline';
+import motion_complex_reciprocal from './images/demonstrations/catalog/complex-reciprocal.webm?no-inline';
+import motion_complex_roots from './images/demonstrations/catalog/complex-roots.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -169,4 +171,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'prob-density': {src: motion_prob_density, type: 'video/webm', duration: 4},
     'prob-binomial-normal': {src: motion_prob_binomial_normal, type: 'video/webm', duration: 4},
     'prob-summary': {src: motion_prob_summary, type: 'video/webm', duration: 4},
+    'complex-reciprocal': {src: motion_complex_reciprocal, type: 'video/webm', duration: 4},
+    'complex-roots': {src: motion_complex_roots, type: 'video/webm', duration: 4},
 };
