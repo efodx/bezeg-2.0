@@ -117,7 +117,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
         });
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     protected setExample(value: unknown): void {
         this.commitModel(this.accepted(chooseUniformExample(value)));
@@ -329,7 +329,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const language = currentLanguage();
         const atMinimum = state.n <= UNIFORM_N_MIN;
         const atMaximum = state.n >= UNIFORM_MAX_N;
@@ -375,7 +375,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
     }
 
     protected override renderReveals(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         return <>
             <div className="demo-actions" role="group" aria-label={t("uniform_actions_label")}>
                 <button type="button" data-action="toggle-uniform-supremum" data-revealed={state.supremumVisible}
@@ -438,7 +438,7 @@ export class UniformConvergenceGraph extends BaseFunctionGraph<UniformConvergenc
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
         const shown = model.supremumVisible;

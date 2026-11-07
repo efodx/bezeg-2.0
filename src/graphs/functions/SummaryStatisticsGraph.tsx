@@ -351,7 +351,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
     }
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const example = summaryExampleOf(state);
         const exampleText = (id: typeof SUMMARY_EXAMPLE_IDS[number]) =>
             id === "school" ? t("prob_summary_example_school") : id === "outlier" ? t("prob_summary_example_outlier") : t("prob_summary_example_even");
@@ -392,7 +392,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const rule = this.ruleName(model.rule);

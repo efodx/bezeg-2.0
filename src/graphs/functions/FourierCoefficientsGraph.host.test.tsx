@@ -219,8 +219,6 @@ test('a multi-action lesson scene (layout, a handle, K, harmonic, term, overlay)
             {kind: 'function-visibility', target: 'fourier-partial-sum', visible: false},
         ] as LessonAction[]) graph.lesson(action);
     });
-    expect(graph.state).toMatchObject({layout: 'free', K: 9, selected: {term: 'b', k: 3}, overlay: false});
-    expect(graph.state.values).toEqual([0, 0, 1.5, 0, 0]);
     expect(graph.modelNow()).toMatchObject({layout: 'free', K: 9, selected: {term: 'b', k: 3}, overlay: false, values: [0, 0, 1.5, 0, 0]});
     expect(handleFields()).toHaveLength(5);
     expect(graph.sumCurve().visPropCalc?.visible).toBe(false);
@@ -431,7 +429,6 @@ test('a lesson scene with the decay actions runs in one synchronous tick and rea
             {kind: 'function-choice', name: 'fourier-scale', value: 'log'},
         ] as LessonAction[]) graph.lesson(action);
     });
-    expect(graph.state).toMatchObject({view: 'decay', selections: ['sawtooth', 'jump', 'abs'], n: 40, scale: 'log'});
     expect(graph.modelNow()).toMatchObject({view: 'decay', selections: ['sawtooth', 'jump', 'abs'], n: 40, scale: 'log'});
     expect(panelExamples()).toEqual(['sawtooth', 'jump', 'abs']);
     expect(decayRows('jump')).toBe(40);

@@ -349,7 +349,7 @@ test('a Preset keeps the loop, N and the parametrization, leaves the object coun
     expect(graph.modelNow()).toEqual(defaultEpicycleModel());
     act(() => { graph.importPreset({id: 'stored', data: stored}); });
     expect(graph.modelNow()).toEqual(stored);
-    expect(graph.state).toMatchObject({N: 12, parametrization: 'chord'});
+    expect(graph.modelNow()).toMatchObject({N: 12, parametrization: 'chord'});
     expect(vertexField(2, 'x').value).toBe(String(stored.vertices[2].x).replace('.', ',').replace('-', '−'));
     expect(graph.vertexPoint(2).X()).toBe(stored.vertices[2].x);
     expect(graph.ownedObjects()).toBe(baseline);
@@ -405,11 +405,10 @@ test('a multi-action lesson scene runs in one synchronous tick and reads back fr
         ] as LessonAction[]) graph.lesson(action);
     });
     const model = graph.modelNow();
-    expect(graph.state).toMatchObject({N: 11, parametrization: 'chord'});
+    expect(model).toMatchObject({N: 11, parametrization: 'chord'});
     expect(model.vertices[2]).toEqual({x: -0.95, y: 1.4});
     const span1 = model.spans[1];
     expect(span1.kind === 'cubic' && span1.c1.y).toBe(0.5);
-    expect(graph.state.vertices[2]).toEqual({x: -0.95, y: 1.4});
     expect(graph.time).toBe(1.5);
     expect(rows()).toHaveLength(23);
     expect(graph.vertexPoint(2).Y()).toBe(1.4);

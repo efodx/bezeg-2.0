@@ -118,7 +118,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         return this.sampled.data;
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     /** The model of an accepted edit; a refused edit throws a `DomainError` whose reason is the localized rule the model named. */
     private accepted(edit: FourierSeriesEdit): FourierSeriesModel {
@@ -312,7 +312,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const language = currentLanguage();
         const atMinimum = state.n <= FOURIER_N_MIN;
         const atMaximum = state.n >= FOURIER_N_MAX;
@@ -390,7 +390,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const rows = [
             {id: "n", label: t("fourier_n_label"), value: String(model.n)},

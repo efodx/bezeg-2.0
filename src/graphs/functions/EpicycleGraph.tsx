@@ -467,7 +467,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
     }
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const example = matchEpicycleExample(state);
         const options = [
             ...EPICYCLE_EXAMPLE_IDS.map(id => ({value: id, text: this.exampleText(id)})),
@@ -549,7 +549,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const analysis = this.analysisOf(state);
         const {centre, terms} = epicycleTerms(analysis, state.N);
         const largest = terms.length === 0 ? undefined : terms.reduce((best, term) => (term.modulus > best.modulus ? term : best));

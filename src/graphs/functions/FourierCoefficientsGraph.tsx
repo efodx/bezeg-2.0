@@ -125,7 +125,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         });
     }
 
-    // ---- Model operations (read and write the synchronous model, never this.state) ---------------------------------------
+    // ---- Model operations (read and write the synchronous model) ---------------------------------------
 
     private accepted(edit: FourierCoefficientsEdit): FourierCoefficientsModel {
         if (!edit.ok) throw new DomainError(fourierCoefficientsIssueMessage(edit.issue));
@@ -390,7 +390,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
     }
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const viewText: Record<FourierCoefficientsView, string> = {projection: t("fourier_coef_view_projection"), decay: t("fourier_coef_view_decay")};
         return <>
             <div className="inspector-group">
@@ -458,10 +458,10 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
     }
 
     protected override renderLegend(): React.ReactNode {
-        if (this.stateSnapshot().view === "decay") {
+        if (this.model.view === "decay") {
             const colors = decayColors();
             return <FunctionLegend items={[
-                ...this.stateSnapshot().selections.flatMap((id, slot) => [
+                ...this.model.selections.flatMap((id, slot) => [
                     {id: `f-${slot}`, color: colors[slot], label: t("fourier_decay_legend_f", {value0: this.exampleName(id)}), kind: "line" as const},
                     {id: `sum-${slot}`, color: colors[slot], label: `${t("fourier_decay_legend_sum")} · ${this.exampleName(id)}`, kind: "dashed-line" as const},
                 ]),
@@ -478,7 +478,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         if (model.view === "decay") return this.renderDecayReadout(model);
         const view = this.viewOf(model);
         /** For a_0 the readout gives the constant term a_0/2, as the spectrum does; the board caption keeps a_0 = area / pi. */

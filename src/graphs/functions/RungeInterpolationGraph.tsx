@@ -204,7 +204,7 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const atMinimum = state.degree <= RUNGE_DEGREE_MIN;
         const atMaximum = state.degree >= RUNGE_DEGREE_MAX;
         const help = atMinimum ? t("interp_runge_degree_limit_min", {value0: RUNGE_DEGREE_MIN})
@@ -259,7 +259,7 @@ export class RungeInterpolationGraph extends BaseFunctionGraph<RungeInterpolatio
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const data = this.dataOf(model);
         const rows = [
             {id: "function", label: t("interp_runge_readout_function"), value: rungeFunctionName(model.functionId)},

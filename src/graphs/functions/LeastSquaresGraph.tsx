@@ -252,7 +252,7 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const view = this.viewOf(state);
         const maxDegree = lsqDegreeMax(state.points.length);
         const equations = view.fit.ok ? normalEquations(view.fit.fit) : undefined;
@@ -311,7 +311,7 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const none = t("interp_lsq_readout_none");
         const sum = (value: number | undefined) => value === undefined ? none : leastSquaresNumber(value);

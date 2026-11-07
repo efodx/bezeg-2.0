@@ -360,7 +360,7 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const state = this.stateSnapshot();
+        const state = this.model;
         const example = correlationExampleOf(state);
         const exampleText = (id: typeof CORRELATION_EXAMPLE_IDS[number]) => {
             switch (id) {
@@ -402,7 +402,7 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.stateSnapshot();
+        const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const {result} = view;
