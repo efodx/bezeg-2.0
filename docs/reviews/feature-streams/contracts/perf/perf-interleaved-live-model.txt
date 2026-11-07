@@ -1,0 +1,204 @@
+=== round 1 port 4320
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":327,"median":16.7,"p95":16.7,"max":16.8,"effect":199.8}
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":317,"median":16.7,"p95":16.8,"max":16.8,"effect":199.8}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":353,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":342,"median":16.7,"p95":16.8,"max":16.8,"effect":150.18}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":1,"samples":385,"median":16.7,"p95":16.7,"max":16.8,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":2,"samples":375,"median":16.7,"p95":16.7,"max":16.8,"effect":250.05}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":316,"median":16.7,"p95":16.7,"max":16.8,"effect":199.93}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":312,"median":16.7,"p95":16.8,"max":16.8,"effect":199.93}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":1,"samples":172,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":2,"samples":174,"median":16.7,"p95":16.8,"max":16.8,"effect":1}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":1,"samples":486,"median":16.7,"p95":33.4,"max":66.7,"effect":181.29}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":2,"samples":497,"median":16.7,"p95":33.5,"max":50.1,"effect":181.29}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":526,"median":16.7,"p95":50.1,"max":83.3,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":521,"median":16.7,"p95":66.6,"max":83.4,"effect":150.04}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":497,"median":16.7,"p95":66.7,"max":83.4,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":480,"median":16.7,"p95":66.7,"max":83.4,"effect":216.49}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":1,"samples":445,"median":16.7,"p95":33.4,"max":33.4,"effect":145.34}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":2,"samples":456,"median":16.7,"p95":33.3,"max":33.4,"effect":145.34}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":1,"samples":306,"median":16.7,"p95":16.8,"max":33.4,"effect":1}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":2,"samples":288,"median":16.7,"p95":16.8,"max":83.3,"effect":1}
+
+case | median ms (range) | p95 ms (range) | samples per run
+functions/integral drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 327/317
+functions/area-between drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 353/342
+analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 385/375
+analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 316/312
+analysis/bisection next-step clicks (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 172/174
+functions/integral drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 33.5 (33.4-33.5) | 486/497
+functions/area-between drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 58.4 (50.1-66.6) | 526/521
+analysis/accumulation drag $$x$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 66.7 (66.7-66.7) | 497/480
+analysis/darboux drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 33.4 (33.3-33.4) | 445/456
+analysis/bisection next-step clicks (390x844, 4x CPU) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 306/288
+exit=0
+=== round 1 port 4318
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":319,"median":16.7,"p95":16.7,"max":16.8,"effect":199.8}
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":327,"median":16.7,"p95":16.7,"max":16.8,"effect":199.8}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":348,"median":16.7,"p95":16.8,"max":16.8,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":352,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":1,"samples":392,"median":16.7,"p95":16.7,"max":16.8,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":2,"samples":405,"median":16.7,"p95":16.8,"max":16.8,"effect":250.05}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":317,"median":16.7,"p95":16.8,"max":16.8,"effect":199.93}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":321,"median":16.7,"p95":16.7,"max":16.8,"effect":199.93}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":1,"samples":176,"median":16.7,"p95":16.8,"max":16.8,"effect":1}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":2,"samples":174,"median":16.7,"p95":16.8,"max":16.8,"effect":1}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":1,"samples":487,"median":16.7,"p95":33.4,"max":50.1,"effect":181.29}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":2,"samples":485,"median":16.7,"p95":33.4,"max":50.1,"effect":181.29}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":525,"median":16.7,"p95":66.7,"max":100.1,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":513,"median":16.7,"p95":66.6,"max":83.3,"effect":150.04}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":476,"median":16.7,"p95":66.7,"max":100,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":494,"median":16.7,"p95":66.7,"max":83.5,"effect":216.49}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":1,"samples":448,"median":16.7,"p95":33.4,"max":50.1,"effect":145.34}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":2,"samples":448,"median":16.7,"p95":33.4,"max":50,"effect":145.34}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":1,"samples":288,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":2,"samples":294,"median":16.7,"p95":16.8,"max":33.4,"effect":1}
+
+case | median ms (range) | p95 ms (range) | samples per run
+functions/integral drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 319/327
+functions/area-between drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 348/352
+analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 392/405
+analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 317/321
+analysis/bisection next-step clicks (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 176/174
+functions/integral drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 33.4 (33.4-33.4) | 487/485
+functions/area-between drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 66.6 (66.6-66.7) | 525/513
+analysis/accumulation drag $$x$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 66.7 (66.7-66.7) | 476/494
+analysis/darboux drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 33.4 (33.4-33.4) | 448/448
+analysis/bisection next-step clicks (390x844, 4x CPU) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 288/294
+exit=0
+=== round 2 port 4320
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":325,"median":16.7,"p95":16.8,"max":16.8,"effect":199.8}
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":330,"median":16.7,"p95":16.7,"max":16.8,"effect":199.8}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":358,"median":16.7,"p95":16.8,"max":16.8,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":353,"median":16.7,"p95":16.8,"max":16.8,"effect":150.18}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":1,"samples":386,"median":16.7,"p95":16.8,"max":16.8,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":2,"samples":395,"median":16.7,"p95":16.7,"max":16.8,"effect":250.05}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":324,"median":16.7,"p95":16.7,"max":16.8,"effect":199.93}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":312,"median":16.7,"p95":16.8,"max":16.8,"effect":199.93}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":1,"samples":171,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":2,"samples":174,"median":16.7,"p95":16.8,"max":16.8,"effect":1}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":1,"samples":489,"median":16.7,"p95":33.4,"max":83.3,"effect":181.29}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":2,"samples":499,"median":16.7,"p95":33.4,"max":66.6,"effect":181.29}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":541,"median":16.7,"p95":66.7,"max":83.4,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":527,"median":16.7,"p95":50.1,"max":66.8,"effect":150.04}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":494,"median":16.7,"p95":83.3,"max":116.7,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":482,"median":16.7,"p95":66.7,"max":100,"effect":216.49}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":1,"samples":460,"median":16.7,"p95":33.4,"max":50.1,"effect":145.34}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":2,"samples":447,"median":16.7,"p95":33.4,"max":50.1,"effect":145.34}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":1,"samples":295,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":2,"samples":295,"median":16.7,"p95":16.8,"max":33.3,"effect":1}
+
+case | median ms (range) | p95 ms (range) | samples per run
+functions/integral drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 325/330
+functions/area-between drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 358/353
+analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 386/395
+analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 324/312
+analysis/bisection next-step clicks (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 171/174
+functions/integral drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 33.4 (33.4-33.4) | 489/499
+functions/area-between drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 58.4 (50.1-66.7) | 541/527
+analysis/accumulation drag $$x$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 75.0 (66.7-83.3) | 494/482
+analysis/darboux drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 33.4 (33.4-33.4) | 460/447
+analysis/bisection next-step clicks (390x844, 4x CPU) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 295/295
+exit=0
+=== round 2 port 4318
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":325,"median":16.7,"p95":16.8,"max":16.8,"effect":199.8}
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":323,"median":16.7,"p95":16.7,"max":16.8,"effect":199.8}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":353,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":373,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":1,"samples":414,"median":16.7,"p95":16.8,"max":16.8,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":2,"samples":403,"median":16.7,"p95":16.7,"max":16.8,"effect":250.05}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":320,"median":16.7,"p95":16.7,"max":16.8,"effect":199.93}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":322,"median":16.7,"p95":16.8,"max":16.8,"effect":199.93}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":1,"samples":174,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":2,"samples":174,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":1,"samples":518,"median":16.7,"p95":49.9,"max":83.4,"effect":181.29}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":2,"samples":511,"median":16.7,"p95":50,"max":66.6,"effect":181.29}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":527,"median":16.7,"p95":66.7,"max":100.1,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":531,"median":16.7,"p95":66.7,"max":116.7,"effect":150.04}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":475,"median":16.7,"p95":99.9,"max":149.9,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":469,"median":16.7,"p95":83.4,"max":100.1,"effect":216.49}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":1,"samples":462,"median":16.7,"p95":50,"max":66.8,"effect":145.34}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":2,"samples":460,"median":16.7,"p95":50,"max":100,"effect":145.34}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":1,"samples":309,"median":16.7,"p95":16.8,"max":33.4,"effect":1}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":2,"samples":308,"median":16.7,"p95":16.7,"max":33.4,"effect":1}
+
+case | median ms (range) | p95 ms (range) | samples per run
+functions/integral drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 325/323
+functions/area-between drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 353/373
+analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 414/403
+analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 320/322
+analysis/bisection next-step clicks (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 174/174
+functions/integral drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 49.9 (49.9-50.0) | 518/511
+functions/area-between drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 66.7 (66.7-66.7) | 527/531
+analysis/accumulation drag $$x$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 91.7 (83.4-99.9) | 475/469
+analysis/darboux drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 50.0 (50.0-50.0) | 462/460
+analysis/bisection next-step clicks (390x844, 4x CPU) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 309/308
+exit=0
+=== round 3 port 4320
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":340,"median":16.7,"p95":16.7,"max":16.8,"effect":199.8}
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":339,"median":16.7,"p95":16.7,"max":16.8,"effect":199.8}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":380,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":383,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":1,"samples":440,"median":16.7,"p95":16.8,"max":16.8,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":2,"samples":434,"median":16.7,"p95":16.8,"max":16.8,"effect":250.05}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":322,"median":16.7,"p95":16.7,"max":16.8,"effect":199.93}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":323,"median":16.7,"p95":16.7,"max":16.8,"effect":199.93}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":1,"samples":182,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":2,"samples":177,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":1,"samples":492,"median":16.7,"p95":50,"max":66.7,"effect":181.29}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":2,"samples":484,"median":16.7,"p95":50,"max":66.8,"effect":181.29}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":526,"median":16.7,"p95":66.8,"max":83.4,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":533,"median":16.7,"p95":66.7,"max":100,"effect":150.04}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":490,"median":16.7,"p95":83.4,"max":100.1,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":483,"median":16.7,"p95":83.4,"max":133.4,"effect":216.49}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":1,"samples":457,"median":16.7,"p95":50,"max":83.3,"effect":145.34}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":2,"samples":466,"median":16.7,"p95":50,"max":66.7,"effect":145.34}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":1,"samples":314,"median":16.7,"p95":16.8,"max":33.4,"effect":1}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":2,"samples":298,"median":16.7,"p95":16.8,"max":33.4,"effect":1}
+
+case | median ms (range) | p95 ms (range) | samples per run
+functions/integral drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 340/339
+functions/area-between drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 380/383
+analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 440/434
+analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 322/323
+analysis/bisection next-step clicks (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 182/177
+functions/integral drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 50.0 (50.0-50.0) | 492/484
+functions/area-between drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 66.8 (66.7-66.8) | 526/533
+analysis/accumulation drag $$x$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 83.4 (83.4-83.4) | 490/483
+analysis/darboux drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 50.0 (50.0-50.0) | 457/466
+analysis/bisection next-step clicks (390x844, 4x CPU) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 314/298
+exit=0
+=== round 3 port 4318
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":340,"median":16.7,"p95":16.8,"max":16.8,"effect":199.8}
+{"case":"functions/integral drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":338,"median":16.7,"p95":16.8,"max":16.8,"effect":199.8}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":384,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"functions/area-between drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":387,"median":16.7,"p95":16.7,"max":16.8,"effect":150.18}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":1,"samples":575,"median":16.7,"p95":16.7,"max":66.6,"effect":250.05}
+{"case":"analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1)","run":2,"samples":444,"median":16.7,"p95":16.7,"max":16.8,"effect":250.05}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":1,"samples":324,"median":16.7,"p95":16.7,"max":16.8,"effect":199.93}
+{"case":"analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1)","run":2,"samples":332,"median":16.7,"p95":16.7,"max":16.8,"effect":199.93}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":1,"samples":177,"median":16.7,"p95":16.7,"max":16.8,"effect":1}
+{"case":"analysis/bisection next-step clicks (desktop 1440x900, throttle 1)","run":2,"samples":171,"median":16.7,"p95":16.8,"max":16.8,"effect":1}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":1,"samples":499,"median":16.7,"p95":50,"max":66.7,"effect":181.29}
+{"case":"functions/integral drag $$b$$ (390x844, 4x CPU)","run":2,"samples":508,"median":16.7,"p95":50,"max":116.6,"effect":181.29}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":1,"samples":520,"median":16.7,"p95":66.7,"max":83.3,"effect":150.04}
+{"case":"functions/area-between drag $$b$$ (390x844, 4x CPU)","run":2,"samples":530,"median":16.7,"p95":66.7,"max":100,"effect":150.04}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":1,"samples":467,"median":16.7,"p95":83.4,"max":100,"effect":216.49}
+{"case":"analysis/accumulation drag $$x$$ (390x844, 4x CPU)","run":2,"samples":489,"median":16.7,"p95":83.4,"max":100,"effect":216.49}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":1,"samples":459,"median":16.7,"p95":50,"max":50.1,"effect":145.34}
+{"case":"analysis/darboux drag $$b$$ (390x844, 4x CPU)","run":2,"samples":477,"median":16.7,"p95":50,"max":83.4,"effect":145.34}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":1,"samples":309,"median":16.7,"p95":16.8,"max":50,"effect":1}
+{"case":"analysis/bisection next-step clicks (390x844, 4x CPU)","run":2,"samples":304,"median":16.7,"p95":16.7,"max":33.3,"effect":1}
+
+case | median ms (range) | p95 ms (range) | samples per run
+functions/integral drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.8-16.8) | 340/338
+functions/area-between drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 384/387
+analysis/accumulation drag $$x$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 575/444
+analysis/darboux drag $$b$$ (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.7 (16.7-16.7) | 324/332
+analysis/bisection next-step clicks (desktop 1440x900, throttle 1) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 177/171
+functions/integral drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 50.0 (50.0-50.0) | 499/508
+functions/area-between drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 66.7 (66.7-66.7) | 520/530
+analysis/accumulation drag $$x$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 83.4 (83.4-83.4) | 467/489
+analysis/darboux drag $$b$$ (390x844, 4x CPU) | 16.7 (16.7-16.7) | 50.0 (50.0-50.0) | 459/477
+analysis/bisection next-step clicks (390x844, 4x CPU) | 16.7 (16.7-16.7) | 16.8 (16.7-16.8) | 309/304
+exit=0

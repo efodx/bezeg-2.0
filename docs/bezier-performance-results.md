@@ -439,3 +439,25 @@ The apparent area-between and accumulation regression in the sequential runs doe
 **Rotation defect:** with `PERF_ROTATE_JITTER=0`, a pointer step lies exactly vertical over the centre. Before, rational rotate makes every control point non-finite; after, all three rotate cases pass.
 
 Limits: the scripts use mouse input only; touch was checked separately in the browser smoke. They measure rAF intervals, which saturate at 16.7 ms. The 4× throttle is a desktop slowdown, not a phone. Load from other sessions was not controlled, which is why only interleaved runs separate a build difference from load.
+
+## Live function model in the store — 2026-11-07
+
+Before/after measurement for [task 4 of the mathematical runtime contracts](tasks/mathematical-runtime-contracts/04-live-function-model.md), which moved each function graph's live model into the scene store (`state.model`) and removed the flat mirror. Cache and rendering policy are unchanged, so no difference is expected. Before = production build of `a0e95b32` (clean); after = production build of `f8dfbe85` (the checkout was dirty at build time, with only untracked job files and docs). Same machine and headless Chromium via Playwright as the 2026-11-01 section, mouse input, 60 Hz. Raw output: [perf/perf-interleaved-live-model.txt](reviews/feature-streams/contracts/perf/perf-interleaved-live-model.txt).
+
+Method: as in the 2026-11-01 section, `node scripts/function-slider-perf.cjs` against both builds served at once (ports 4320 and 4318), alternating between them in 3 rounds × 2 runs, so 6 runs per build. All cases of the harness, desktop 1440×900 without throttle and 390×844 at 4× CPU. All six invocations exited 0 (effect checks passed, no page errors).
+
+**Desktop 1440×900, no throttle:** every case has a median of 16.7 ms and a p95 of 16.7–16.8 ms, before and after.
+
+**Functions, 390×844, 4× CPU, p95 ms per run.** Each round ran the before build twice, then the after build twice:
+
+| Case | Before, rounds 1 / 2 / 3 | After, rounds 1 / 2 / 3 |
+|---|---|---|
+| integral drag b | 33.4 33.5 / 33.4 33.4 / 50.0 50.0 | 33.4 33.4 / 49.9 50.0 / 50.0 50.0 |
+| area-between drag b | 50.1 66.6 / 66.7 50.1 / 66.8 66.7 | 66.7 66.6 / 66.7 66.7 / 66.7 66.7 |
+| accumulation drag x | 66.7 66.7 / 83.3 66.7 / 83.4 83.4 | 66.7 66.7 / 99.9 83.4 / 83.4 83.4 |
+| darboux drag b | 33.4 33.3 / 33.4 33.4 / 50.0 50.0 | 33.4 33.4 / 50.0 50.0 / 50.0 50.0 |
+| bisection clicks | 16.8 16.8 / 16.7 16.8 / 16.8 16.8 | 16.7 16.8 / 16.8 16.7 / 16.8 16.7 |
+
+The medians of the throttled cases are 16.7 ms in both builds. The builds match in round 1. In round 3 both read one frame step higher, so machine load rose during the run. Only round 2 separates them, by one frame step for integral, darboux and accumulation, all after the before build. The after build does less per commit, writing one store key instead of the model's fields plus `model`. We read this as no measurable difference; more interleaved rounds would settle the round-2 tilt.
+
+Limits: rAF intervals saturate at 16.7 ms. The 4× throttle is a desktop slowdown, not a phone. Mouse input only. Load from other sessions was not controlled, which is why the builds were interleaved.
