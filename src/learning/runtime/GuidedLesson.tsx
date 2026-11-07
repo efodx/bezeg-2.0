@@ -82,6 +82,7 @@ export function GuidedLesson(props: {
     // Hiding or navigating invalidates a pending post-typeset restore of the reading position.
     const readingRestore = useRef(0);
     const latestTypeset = useRef<Promise<unknown>>();
+    const positionedSession = useRef<LessonSession>();
     const exitInvoker = useRef<HTMLElement | null>(null);
     const dialogRef = useRef<HTMLDivElement>(null);
     const handoffTimer = useRef<number>();
@@ -347,18 +348,22 @@ export function GuidedLesson(props: {
     }, [language, overlayVisible, snapshot, startupError]);
 
     useEffect(() => {
+        const enteringLesson = positionedSession.current !== session;
+        positionedSession.current = session;
         // Lesson navigation stops scene animations, so playback must be restarted explicitly.
         animationPlaying.current = false;
         readingPosition.current = {panel: 0, outer: 0, page: 0};
         readingRestore.current += 1;
-        frameNeedsScrollReset.current = true;
+        frameNeedsScrollReset.current = enteringLesson;
         hasSavedReadingPosition.current = false;
         if (readingRef.current) readingRef.current.scrollTop = 0;
         // Short windows scroll the reading content with the outer panel; its controls stay sticky.
         // Elsewhere an outer offset only reveals enlarged controls and must survive frame navigation.
         if (lessonRef.current && window.matchMedia?.('(max-height: 520px)').matches) lessonRef.current.scrollTop = 0;
         lessonRef.current?.focus({preventScroll: true});
-        if (lessonRef.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
+        // Align a newly entered lesson once. Even a fractionally clipped navigation button can
+        // be clicked; realigning the page after that click would move it away from the pointer.
+        if (enteringLesson && lessonRef.current && window.matchMedia?.('(max-width: 700px), (max-height: 520px)').matches) {
             const navigation = lessonRef.current.querySelector('.guided-lesson-navigation')?.getBoundingClientRect();
             const panel = lessonRef.current.getBoundingClientRect();
             const navigationVisible = navigation && navigation.top >= Math.max(0, panel.top)
@@ -366,7 +371,7 @@ export function GuidedLesson(props: {
             if (!navigationVisible) lessonRef.current.scrollIntoView?.({block: 'start'});
             frameNeedsScrollReset.current = false;
         }
-    }, [snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
+    }, [session, snapshot.status, snapshot.stepIndex, snapshot.frameIndex]);
 
     useEffect(() => {
         const element = lessonRef.current;

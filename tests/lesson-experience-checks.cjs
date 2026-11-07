@@ -16,6 +16,67 @@ async function lessonScrollPort(panel) {
 
 module.exports = function registerExperienceChecks() {
     test.describe('Lesson reading experience', () => {
+        for (const language of ['sl', 'en']) {
+            test(`${language}: toolbar stays put after clipped-pointer Next activation`, async ({page}) => {
+                await page.setViewportSize({width: 390, height: 844});
+                await h.useLanguage(page, language);
+                await page.goto('/bezeg-2.0/analysis/taylor?learn=1&source=reading#preserved');
+                const panel = h.lessonPanel(page);
+                await expect(panel).toBeVisible();
+                await page.waitForFunction(() => !!window.MathJax?.typesetPromise);
+                await page.evaluate(async () => {
+                    await window.MathJax.startup.promise;
+                    await window.MathJax.typesetPromise();
+                });
+                await page.addStyleTag({content: 'html {font-size:200% !important} body {font-family:Verdana, system-ui !important}'});
+                const next = h.nextButton(page);
+                await next.scrollIntoViewIfNeeded();
+                await h.settle(page);
+
+                // A fractional available height can clip the row while leaving its center clickable.
+                // Set that height explicitly so the edge case is independent of installed font metrics.
+                const clipping = await panel.evaluate(element => {
+                    const button = element.querySelector('.guided-lesson-nav-next');
+                    const height = button.getBoundingClientRect().bottom - element.getBoundingClientRect().top - 0.5;
+                    element.style.setProperty('max-height', `${height}px`, 'important');
+                    const box = button.getBoundingClientRect();
+                    const x = box.left + box.width / 2;
+                    const y = box.top + box.height / 2;
+                    const hit = document.elementFromPoint(x, y);
+                    return {
+                        panel: element.getBoundingClientRect().toJSON(),
+                        button: box.toJSON(), x, y,
+                        pageY: window.scrollY,
+                        outerScrollTop: element.scrollTop,
+                        centerInsideViewport: x >= 0 && x < window.innerWidth && y >= 0 && y < window.innerHeight,
+                        centerInsidePanel: x >= element.getBoundingClientRect().left && x <= element.getBoundingClientRect().right
+                            && y >= element.getBoundingClientRect().top && y <= element.getBoundingClientRect().bottom,
+                        centerHitsNext: hit === button || button.contains(hit),
+                    };
+                });
+                expect(clipping.centerInsideViewport).toBe(true);
+                expect(clipping.centerInsidePanel).toBe(true);
+                expect(clipping.button.bottom - clipping.panel.bottom, 'the Next button is fractionally clipped').toBeGreaterThan(0);
+                expect(clipping.button.bottom - clipping.panel.bottom).toBeLessThan(1);
+                expect(clipping.centerHitsNext, 'the visible center still targets the Next button').toBe(true);
+
+                const snapshot = async () => ({
+                    positions: await Promise.all([h.backButton(page), next].map(async button => {
+                        const box = await button.boundingBox();
+                        return Object.fromEntries(['x', 'y', 'width', 'height'].map(key => [key, box[key]]));
+                    })),
+                    pageY: await page.evaluate(() => window.scrollY),
+                    outerScrollTop: await panel.evaluate(element => element.scrollTop),
+                });
+                const before = await snapshot();
+                const progressBefore = await h.progress(page);
+                await page.mouse.click(clipping.x, clipping.y);
+                await h.settle(page);
+                expect(await h.progress(page), 'the pointer advances to the next frame').not.toBe(progressBefore);
+                expect(await snapshot(), 'pointer navigation preserves the visible toolbar and scroll positions').toEqual(before);
+            });
+        }
+
         test('same-frame reading position survives math reflow after hide and reopen', async ({page}) => {
             // The lean panel fits this observation prose on a short desktop; 200% page zoom, as when projecting,
             // gives it a real scroll range.

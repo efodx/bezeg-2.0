@@ -324,6 +324,34 @@ test('narrow page reading restores its scroll position on reopen and resets at a
     }
 });
 
+test('keeps the page and enlarged controls in place when navigation is fractionally clipped', () => {
+    vi.stubGlobal('matchMedia', vi.fn((media: string) => ({matches: media.includes('max-width: 700px'), media, addEventListener: vi.fn(), removeEventListener: vi.fn()})));
+    vi.stubGlobal('innerHeight', 844);
+    setLanguage('sl');
+    try {
+        const {container} = render(<GuidedLesson lesson={denseLesson} capabilities={capabilities()} onClose={vi.fn()}/>);
+        const panel = container.querySelector<HTMLElement>('.guided-lesson')!;
+        const navigation = container.querySelector<HTMLElement>('.guided-lesson-navigation')!;
+        const reading = container.querySelector<HTMLElement>('.guided-lesson-reading')!;
+        panel.scrollIntoView = vi.fn();
+        vi.spyOn(panel, 'getBoundingClientRect').mockReturnValue(new DOMRect(22, 560, 346, 272));
+        vi.spyOn(navigation, 'getBoundingClientRect').mockReturnValue(new DOMRect(34, 766.75, 322, 66));
+        panel.scrollTop = 11;
+        reading.scrollTop = 140;
+
+        fireEvent.click(screen.getByRole('button', {name: 'Naprej: naslednji okvir'}));
+
+        expect(screen.getByRole('status')).toHaveTextContent('Okvir 2');
+        expect(reading.scrollTop).toBe(0);
+        expect(panel.scrollTop).toBe(11);
+        expect(panel.scrollIntoView).not.toHaveBeenCalled();
+    } finally {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+        act(() => setLanguage('sl'));
+    }
+});
+
 test('rapidly reopening during the closing handoff restores panel focus without changing the lesson scene', () => {
     vi.useFakeTimers();
     vi.stubGlobal('matchMedia', vi.fn(() => ({matches: false, media: '(prefers-reduced-motion: reduce)', addEventListener: vi.fn(), removeEventListener: vi.fn()})));
