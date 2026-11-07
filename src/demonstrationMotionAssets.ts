@@ -75,6 +75,8 @@ import motion_fourier_series from './images/demonstrations/catalog/fourier-serie
 import motion_curve_evolute from './images/demonstrations/catalog/curve-evolute.webm?no-inline';
 import motion_curve_envelope from './images/demonstrations/catalog/curve-envelope.webm?no-inline';
 import motion_arc_length_param from './images/demonstrations/catalog/arc-length-param.webm?no-inline';
+import motion_prob_clt from './images/demonstrations/catalog/prob-clt.webm?no-inline';
+import motion_prob_correlation from './images/demonstrations/catalog/prob-correlation.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -153,4 +155,6 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'curve-evolute': {src: motion_curve_evolute, type: 'video/webm', duration: 4},
     'curve-envelope': {src: motion_curve_envelope, type: 'video/webm', duration: 4},
     'arc-length-param': {src: motion_arc_length_param, type: 'video/webm', duration: 4},
+    'prob-clt': {src: motion_prob_clt, type: 'video/webm', duration: 4},
+    'prob-correlation': {src: motion_prob_correlation, type: 'video/webm', duration: 4},
 };
