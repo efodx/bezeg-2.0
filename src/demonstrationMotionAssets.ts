@@ -66,6 +66,9 @@ import motion_interp_subdivision from './images/demonstrations/catalog/interp-su
 import motion_function_transformation from './images/demonstrations/catalog/function-transformation.webm?no-inline';
 import motion_function_inverse from './images/demonstrations/catalog/function-inverse.webm?no-inline';
 import motion_polynomial_zeros from './images/demonstrations/catalog/polynomial-zeros.webm?no-inline';
+import motion_bspline_basis from './images/demonstrations/catalog/bspline-basis.webm?no-inline';
+import motion_bspline_deboor from './images/demonstrations/catalog/bspline-deboor.webm?no-inline';
+import motion_bspline_blossom from './images/demonstrations/catalog/bspline-blossom.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -135,4 +138,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'function-transformation': {src: motion_function_transformation, type: 'video/webm', duration: 4},
     'function-inverse': {src: motion_function_inverse, type: 'video/webm', duration: 4},
     'polynomial-zeros': {src: motion_polynomial_zeros, type: 'video/webm', duration: 4},
+    'bspline-basis': {src: motion_bspline_basis, type: 'video/webm', duration: 4},
+    'bspline-deboor': {src: motion_bspline_deboor, type: 'video/webm', duration: 4},
+    'bspline-blossom': {src: motion_bspline_blossom, type: 'video/webm', duration: 4},
 };

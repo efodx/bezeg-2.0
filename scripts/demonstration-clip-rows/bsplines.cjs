@@ -1,0 +1,31 @@
+'use strict';
+module.exports = [
+    {
+        id: 'bspline-basis',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Parameter t', step: 0.01},
+        // Start t = 0.5 (DEFAULT_BASIS_T in bsplineBasisModel.ts:24; the recipe sets nothing). The knot 1 lies at the middle of the sweep.
+        path: [0.5, 1, 1.5, 1, 0.5],
+        lessonQuote: 'Premakni \\(t\\) čez vozel \\(1\\) in opazuj, kako ena funkcija izgine in druga se pojavi.',
+        discreteReason: null,
+    },
+    {
+        id: 'bspline-deboor',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Parameter t', step: 0.01},
+        // Start t = 0.5 (DEBOOR_DEFAULT_T in bsplineDeBoorModel.ts:16; the recipe only reveals the levels). Moving t does not reset the revealed levels (DeBoorGraph.tsx:274).
+        path: [0.5, 1, 1.5, 1, 0.5],
+        lessonQuote: 'Premakni \\(t\\) čez \\(1\\) in opazuj, kako obroč preskoči s \\(P_0\\) na \\(P_3\\).',
+        discreteReason: null,
+    },
+    {
+        id: 'bspline-blossom',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Argument b', step: 0.01},
+        // Start a = 0, b = 0.5 (recipe description and BLOSSOM_DEFAULT_ARGS in bsplineBlossomModel.ts:13); only b moves, a stays 0.
+        path: [0.5, 1, 1.5, 1, 0.5],
+        lessonQuote: 'Premikaj argumente, izberi drugi odsek \\([1,2)\\), preklopi na stopnjo \\(3\\) ali premakni kontrolno točko in opazuj, kako se trikotnik, simetrija in Bézierove točke spreminjajo.',
+        discreteReason: null,
+    },
+    // bspline-insertion: unresolved. Only "Vstavi vozel" changes the picture (the knot field "Vozel za vstavitev" draws nothing, BSplineInsertionGraph.tsx:157), and its stepper has no count readback; no lesson step moves a control point.
+];
