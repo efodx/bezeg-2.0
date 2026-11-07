@@ -80,6 +80,9 @@ import motion_prob_correlation from './images/demonstrations/catalog/prob-correl
 import motion_curve_parametric from './images/demonstrations/catalog/curve-parametric.webm?no-inline';
 import motion_curve_curvature from './images/demonstrations/catalog/curve-curvature.webm?no-inline';
 import motion_curve_comb from './images/demonstrations/catalog/curve-comb.webm?no-inline';
+import motion_prob_density from './images/demonstrations/catalog/prob-density.webm?no-inline';
+import motion_prob_binomial_normal from './images/demonstrations/catalog/prob-binomial-normal.webm?no-inline';
+import motion_prob_summary from './images/demonstrations/catalog/prob-summary.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -163,4 +166,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'curve-parametric': {src: motion_curve_parametric, type: 'video/webm', duration: 4},
     'curve-curvature': {src: motion_curve_curvature, type: 'video/webm', duration: 4},
     'curve-comb': {src: motion_curve_comb, type: 'video/webm', duration: 4},
+    'prob-density': {src: motion_prob_density, type: 'video/webm', duration: 4},
+    'prob-binomial-normal': {src: motion_prob_binomial_normal, type: 'video/webm', duration: 4},
+    'prob-summary': {src: motion_prob_summary, type: 'video/webm', duration: 4},
 };
