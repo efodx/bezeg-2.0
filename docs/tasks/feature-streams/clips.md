@@ -1,5 +1,5 @@
 # Stream: Clips
-Run state: not started
+Run state: active
 
 Owner of [lesson-guided catalog clips](../../specs/lesson-guided-catalog-clips.md): 67 Demonstrations have a poster but no hover clip. Rules: [feature streams](README.md). Port 4319. Handoffs: `docs/reviews/feature-streams/clips/`.
 
