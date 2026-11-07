@@ -7,7 +7,7 @@ const path = require('node:path');
 const test = require('node:test');
 const {validateRow, validateRows, validateRowAgainstRecipes} = require('./_schema.cjs');
 const {assessPathSteps, SCHEDULE_STEP_LIMIT} = require('./_jump.cjs');
-const {assessRowState, SURFACE_TOLERANCE} = require('./_driver.cjs');
+const {assessRowState, SURFACE_TOLERANCE, boardDragTolerance} = require('./_driver.cjs');
 const {rows, rowsById} = require('./index.cjs');
 const {assertMotionEvidence} = require('../demonstration-preview-motion.cjs').testSupport;
 
@@ -43,6 +43,11 @@ test('the schema rejects each broken row with an actionable message', () => {
     rejects(row => { row.path = [[1.33, 2.67], [1.33, 3.3]]; }, drag, /must end where it started/);
     rejects(row => { row.control.kind = 'slider'; }, drag, /control\.kind must be point or surface-point/);
     rejects(row => { row.path = [[1, 1], [-16, -12], [1, 1]]; }, surface, /begins at \[0, 0\]/);
+    const fine = Object.assign(clone(drag), {fineGrid: -8});
+    assert.doesNotThrow(() => validateRow(fine));
+    for (const bad of [0, 1, -9, -2.5, '-8']) rejects(row => { row.fineGrid = bad; }, fine, /fineGrid must be an integer from -8 to -1/);
+    rejects(row => { row.fineGrid = -8; }, sweep, /fineGrid only applies to a pointer-drag row/);
+    rejects(row => { row.control.kind = 'surface-point'; row.path = [[0, 0], [1, 1], [0, 0]]; }, fine, /fineGrid only applies to a board point/);
 });
 
 test('the state check follows the schedule and names the failure', () => {
@@ -121,6 +126,18 @@ test('R1: an input change with an unchanged board fails at capture rule and offl
     // The discrete rule is the same.
     const frames = [0, 1].map(k => ({checkpoint: k, target: k, actual: {input: k}, curvePathHash: 'h', points: []}));
     assert.match(assessRowState({...discrete, path: [0, 1]}, frames, false).reason, /did not respond to the control at frame 1/);
+});
+
+test('a board drag may sit one thousandth of a CSS pixel from the pointer, no more', () => {
+    const motion = stored('orientation');
+    const perPixel = (motion.camera[2] - motion.camera[0]) / (motion.width / 2);
+    assert.ok(Math.abs(boardDragTolerance(motion) - perPixel * 0.001) < 1e-12);
+    assert.doesNotThrow(() => assertMotionEvidence(motion));
+    motion.samples[40].actual.x += perPixel * 0.0005;
+    motion.pathState = assessRowState(motion.row, motion.samples, false); // the stored state check is derived from the samples
+    assert.doesNotThrow(() => assertMotionEvidence(motion));
+    motion.samples[40].actual.x += perPixel * 0.0095;
+    assert.throws(() => assertMotionEvidence(motion), /the point is not under the pointer at frame 40/);
 });
 
 test('R2 and R3: the surface tolerance is 0.05 px and follows the control kind, not the stored camera', () => {

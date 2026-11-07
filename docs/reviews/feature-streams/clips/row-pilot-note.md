@@ -29,6 +29,17 @@ Haiku stays on rows with an obvious slider or drag. All three faults were implie
 
 ## Capture status
 
-No row is proven by capture. `just clip orientation` ran over 400 seconds without finishing, then Claude Code stopped it and the preview because the system was critically low on memory (about 3.4 GB free of 64 GB afterwards). It published nothing. Whether 400 seconds is normal for one clip is unknown: compare it with the step 2 captures.
+Corrected 2026-11-07 by the next handler. The first version of this section blamed low memory for a capture that ran over 400 seconds. Memory was not the cause, and 400 seconds is not normal.
 
-Before scaling: restart `just preview 4319` when memory allows, capture these five rows one at a time, then send the next batches.
+### What actually happened
+
+`just clip orientation` did not run slowly. A rerun failed about 2 seconds in on `Capture presentation fingerprint changed`, then sat idle for 60 minutes, because the manifest checks threw after the browser launched and outside its `finally`, and an open browser keeps Node alive. The earlier 400-second run matches this, though that run's log was not read. A working capture takes about 40 seconds (`inscribed-angle`: 38).
+
+The fingerprint change was not a presentation change. The stored value reproduces exactly with every input CRLF and `_jump.cjs` LF: Git's autocrlf had rewritten that one file on checkout, and the fingerprint hashed raw bytes. Fixed in `cda9b0de`, which hashes normalized source text and launches the browser after those checks. The same failure now exits 1 in 6 seconds.
+
+Other rules this adds: `sed -i` here rewrites a CRLF file as LF, which no longer matters to the fingerprint. `capture-guided-example-previews.cjs` has its own fingerprint, not reviewed for this.
+
+### Rows the first captures changed
+
+- `inscribed-angle`: captured. The slider has no `id` and its arrow step is 1 degree, so the row now sweeps the number field, and the driver keeps its label locator when a control has no id. The readout holds 66,8 degrees through the sweep. The eased schedule sampled only about 39 to 144 degrees, not the row's 10 to 170, while the quote says end to end: review this with the family.
+- `orientation`, `polygon-area`, `euler-line`, `triangle-centres`: compgeo points always snap to the grid, so a pointer drag cannot follow a smooth schedule. See [the fine grid note](fine-grid-note.md) once that slice returns.

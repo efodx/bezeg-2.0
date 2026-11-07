@@ -3,6 +3,8 @@
 const assert = require('node:assert/strict');
 
 const rowFields = ['id', 'exampleId', 'motion', 'control', 'path', 'lessonQuote', 'discreteReason'];
+// Optional, pointer-drag on a board only: see README.md (fine grid).
+const optionalRowFields = ['fineGrid'];
 const motions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps', 'surface-orbit'];
 // Motions the driver can capture today. The other two are accepted by the schema so a row can name them, but the driver refuses them.
 const drivenMotions = ['parameter-sweep', 'pointer-drag', 'discrete-exact-steps'];
@@ -12,12 +14,17 @@ const isPair = value => Array.isArray(value) && value.length === 2 && value.ever
 /** Throws an actionable error for the first problem in one row. */
 function validateRow(row, where = 'row') {
     assert.ok(row && typeof row === 'object' && !Array.isArray(row), `${where}: a row must be an object`);
-    assert.deepEqual(Object.keys(row).sort(), [...rowFields].sort(), `${where}: a row has exactly the fields ${rowFields.join(', ')}`);
+    assert.deepEqual(Object.keys(row).filter(key => !optionalRowFields.includes(key)).sort(), [...rowFields].sort(), `${where}: a row has exactly the fields ${rowFields.join(', ')} (and optionally ${optionalRowFields.join(', ')})`);
     const name = `${where} (${row.id})`;
     for (const field of ['id', 'exampleId', 'lessonQuote']) assert.ok(typeof row[field] === 'string' && row[field].trim(), `${name}: ${field} must be a non-empty string`);
     assert.ok(motions.includes(row.motion), `${name}: motion must be one of ${motions.join(', ')}`);
     assert.ok(row.control && typeof row.control === 'object', `${name}: control must be an object`);
     assert.ok(Array.isArray(row.path) && row.path.length >= 2, `${name}: path needs at least two waypoints`);
+    if (row.fineGrid !== undefined) {
+        assert.ok(Number.isInteger(row.fineGrid) && row.fineGrid >= -8 && row.fineGrid <= -1, `${name}: fineGrid must be an integer from -8 to -1 (the grid step becomes 2^fineGrid board units)`);
+        assert.equal(row.motion, 'pointer-drag', `${name}: fineGrid only applies to a pointer-drag row`);
+        assert.equal(row.control.kind, 'point', `${name}: fineGrid only applies to a board point, not a surface point`);
+    }
     if (row.motion === 'discrete-exact-steps') assert.ok(typeof row.discreteReason === 'string' && row.discreteReason.trim(), `${name}: a discrete clip must say why smooth motion is impossible in discreteReason`);
     else assert.equal(row.discreteReason, null, `${name}: discreteReason must be null unless the motion is discrete-exact-steps`);
     if (row.motion === 'parameter-sweep') {

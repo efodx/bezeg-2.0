@@ -94,6 +94,16 @@ function assessRowState(row, samples, surface) {
 
 /** Surface drag: the point's screen position may differ from the schedule by this many pixels (measured worst 0.00106; one frame step is about 0.63). */
 const SURFACE_TOLERANCE = 0.05;
+/**
+ * How far a board point may sit from the pointer: one thousandth of a CSS pixel. Browser pointer coordinates are float32, so the pointer lands up to
+ * about 1.3e-6 board units off on a 40 px per unit board; a fixed board tolerance cannot be met, a pixel one scales with the clip's own camera.
+ * Board units per CSS pixel = camera width (box[2] - box[0]) / CSS frame width, where the frame is captured at deviceScaleFactor 2, so the CSS width is motion.width / 2
+ * (360 for the 360 px host).
+ */
+const BOARD_DRAG_PIXELS = 0.001;
+function boardDragTolerance(motion) {
+    return BOARD_DRAG_PIXELS * (motion.camera[2] - motion.camera[0]) / (motion.width / 2);
+}
 const unresponsiveReason = frame => `the app did not respond to the control at frame ${frame}: the input changed but the board is identical to the previous frame`;
 /**
  * First frame whose slider/stepper value differs from the previous frame while the board (stored curve path hash and point
@@ -114,6 +124,8 @@ async function captureRow(browser, d, row, directory, baseUrl, presentBoard, kit
     const page = discrete ? null : await context.newPage();
     page?.setDefaultTimeout(20000);
     try {
+        // Capture-only hook read by PointSetGraph.dragPoint: the first drag rescales the model to this grid exponent and the dragged point then follows the pointer exactly (README, fine grid).
+        if (row.fineGrid !== undefined) await context.addInitScript(exponent => { window.__bezegClipGridStepExponent = exponent; }, row.fineGrid);
         if (!discrete) await openExampleScene(page, row, baseUrl, {surface});
         const result = discrete ? await captureDiscrete(browser, d, row, directory, baseUrl, presentBoard, kit)
             : surface ? await dragSurface(page, d, row, directory, kit)
@@ -327,4 +339,4 @@ async function clearSurfaceSelection(page, row) {
     await select.selectOption('');
 }
 
-module.exports = {captureRow, assessRowState, discreteHolds, pathAt, PRESS, RELEASE, SURFACE_TOLERANCE};
+module.exports = {captureRow, assessRowState, discreteHolds, pathAt, PRESS, RELEASE, SURFACE_TOLERANCE, boardDragTolerance};

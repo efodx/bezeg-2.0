@@ -1378,7 +1378,7 @@ function assertRowEvidence(motion) {
             }
         });
     } else {
-        const tolerance = surface ? require('./demonstration-clip-rows/_driver.cjs').SURFACE_TOLERANCE : 1e-6;
+        const tolerance = surface ? require('./demonstration-clip-rows/_driver.cjs').SURFACE_TOLERANCE : require('./demonstration-clip-rows/_driver.cjs').boardDragTolerance(motion);
         const {pathAt, PRESS, RELEASE} = require('./demonstration-clip-rows/_driver.cjs');
         const waypoints = row.path.map((w, k) => (k === 0 || k === row.path.length - 1) ? (surface ? [0, 0] : [first.start.x, first.start.y]) : w);
         motion.samples.forEach((sample, i) => {

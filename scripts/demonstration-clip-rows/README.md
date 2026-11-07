@@ -13,6 +13,7 @@ One row describes one lesson-guided Demonstration clip. A row file is any `*.cjs
 | `path` | Out and back, first = last. Sweep: control values. Board drag: board coordinates. Surface drag: pixel offsets from `[0, 0]` in the 360x220 host. Discrete: 3 to 8 cumulative press counts, first = last = 0 |
 | `lessonQuote` | The lesson sentence the motion comes from |
 | `discreteReason` | `null`, except for `discrete-exact-steps`, where it says why smooth motion is impossible |
+| `fineGrid` | Optional integer -8 to -1, only for a `pointer-drag` row on a board point. See "Fine grid" |
 
 Copy accessible labels and point names from `docs/reviews/feature-streams/clips/route-probe.json`. Look at the three rows in this folder (`curve-geometry.cjs`, `bezier.cjs`, `patches.cjs`) as models.
 
@@ -21,6 +22,14 @@ Copy accessible labels and point names from `docs/reviews/feature-streams/clips/
 - A slider or point that moves continuously: `parameter-sweep` or `pointer-drag`.
 - An integer or coarse control that cannot follow a smooth schedule (it moves in whole steps, so 71 moving frames would repeat or leap): `discrete-exact-steps` with a `discreteReason`. The driver presses the named button to each checkpoint's cumulative count on a fresh example scene and reads the value back at every checkpoint.
 - Keep the path inside the start camera: the camera is fitted to the start state and never changes.
+
+## Fine grid
+
+Any graph built on `PointSetGraph` (the compgeo point-set views: orientation, polygon area, triangle centres, Euler line) snaps a dragged point to its model grid, so a smooth pointer drag would hop between grid nodes and fail the state check. Give such a row `fineGrid: -8` (the grid step becomes 2^-8 board units).
+
+The driver sets `window.__bezegClipGridStepExponent` before the page loads (`addInitScript`). `PointSetGraph` reads it in one place, `clipGridStepExponent()`. When set it rescales the model to the finer grid on the first drag (`rescaleToFinerGrid`, points keep their coordinates), keeps the dragged point under the pointer, and clears the selection when the point is released, so the last frame has no selection ring and the loop closes. Without the global the app behaves as before. The lesson's own scene is unchanged; the global is capture-only and nothing ships it.
+
+Pointer tolerance: the offline check that the point is under the pointer allows one thousandth of a CSS pixel (`boardDragTolerance` in `_driver.cjs`), converted to board units from the clip's own camera (box width) and CSS frame width (`width / 2`, captured at deviceScaleFactor 2). Browser pointer coordinates are float32, so a fixed board tolerance of 1e-6 cannot be met. The surface tolerance (0.05 px) is unchanged.
 
 ## Check a row before capture
 
@@ -54,6 +63,7 @@ Every message names its row id. Both the state check and the pixel check are rep
 | `state check failed: the app showed a value ... away from the schedule` | The control or point cannot follow the schedule (coarse or integer step). Make the row `discrete-exact-steps` with a `discreteReason`, or use a smaller path. |
 | `state check failed: the schedule has a step ...x the typical step` | One leg of the path is much larger than the others, or the control quantises it. Make the legs similar in size, or use `discrete-exact-steps`. |
 | `state check failed: frame N shows ... but its checkpoint expects ...` (discrete) | The button did not change the value as `control.step` says. Fix `step` or the label. |
+| `state check failed: the app showed a value ... away from the schedule` on a `PointSetGraph` row (hops of a grid step, point snaps back) | The row has no `fineGrid`. Add `fineGrid: -8`. |
 | `pixel check failed: largest step ...x the typical` | Neighbouring frames differ far more than usual (a cut or teleport) outside board text. Smooth the path. Do not raise the threshold (3) or exempt the row. |
 | `text regions ignored by the pixel check cover ... percent` | Board text covers over 25 percent of the frame, so the mask would hide the picture. Fix the row or the scene; do not raise the limit. |
 | `expected one draggable point named ...`, `control ... is missing or ambiguous`, `no surface point ...` | The name or label does not match the page; copy it from `route-probe.json`. |

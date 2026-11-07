@@ -2,6 +2,7 @@
 module.exports = [
     {
         id: 'triangle-centres',
+        fineGrid: -8,
         exampleId: 'triangle-geometry.notable-points.triangle-centres',
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'P3'},
@@ -22,6 +23,7 @@ module.exports = [
     },
     {
         id: 'euler-line',
+        fineGrid: -8,
         exampleId: 'triangle-geometry.euler-line.euler-line',
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'P3'},

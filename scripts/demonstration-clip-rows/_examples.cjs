@@ -50,7 +50,7 @@ async function openExampleScene(page, row, baseUrl, {surface = false} = {}) {
     await page.addStyleTag({content: '.guided-lesson-tab { visibility: hidden !important; }'});
     assert.equal(await page.locator('.guided-lesson-tab').evaluate(tab => getComputedStyle(tab).visibility).catch(() => 'hidden'), 'hidden', `${row.id}: the lesson tab is still visible over the graph`);
     if (surface) await page.waitForFunction(require('../patch-surface-motion.cjs').surfaceRouteReadyInPage);
-    else await page.waitForFunction(() => document.querySelector('#jgbox svg') && window.JXG && Object.values(window.JXG.boards).some(b => b.container === 'jgbox' && Object.values(b.objects).some(o => o.elType === 'curve' || o.elType === 'line')));
+    else await page.waitForFunction(() => document.querySelector('#jgbox svg') && window.JXG && Object.values(window.JXG.boards).some(b => b.container === 'jgbox' && Object.values(b.objects).some(o => o.elType === 'curve' || o.elType === 'line' || o.elType === 'segment')));
     await page.evaluate(async () => {
         if (window.MathJax?.startup?.promise) await window.MathJax.startup.promise;
         if (window.MathJax?.typesetPromise) await window.MathJax.typesetPromise();

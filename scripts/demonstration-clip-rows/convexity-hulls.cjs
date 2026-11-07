@@ -2,6 +2,7 @@
 module.exports = [
     {
         id: 'orientation',
+        fineGrid: -8,
         exampleId: 'convexity-hulls.orientation.orientation',
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'P2'},
@@ -12,6 +13,7 @@ module.exports = [
     },
     {
         id: 'polygon-area',
+        fineGrid: -8,
         exampleId: 'convexity-hulls.polygon-area.polygon-area',
         motion: 'pointer-drag',
         control: {kind: 'point', name: 'P4'},
