@@ -1,5 +1,5 @@
 # Stream: Contracts
-Run state: not started
+Run state: active
 
 Owner of tasks 1, 5 and 4 of the [mathematical runtime contracts queue](../mathematical-runtime-contracts/README.md) (spec: [mathematical-runtime-contracts.md](../../specs/mathematical-runtime-contracts.md)). Tasks 2 and 3 belong to the [Controls stream](controls.md), step 3. Rules: [feature streams](README.md). Port 4318. Handoffs: `docs/reviews/feature-streams/contracts/`.
 
