@@ -21,3 +21,5 @@ Profiles: desktop 1440x900 unthrottled; 390x844 mobile (touch, device scale fact
 Targets: no LoAF over 50 ms in playground code; scroll and click p95 at most 100 ms; switch at most 250 ms throttled; draw median at most 16.7 ms desktop and 33.3 ms throttled; zero snapshots in the 2 s idle cases.
 
 `COLLISION_CP7_MODE=paused` pauses the playground through the UI (it plays by itself once in view) before measuring.
+
+Environment flags: `COLLISION_CP7_MODE=lifecycle` runs only the lifecycle section (prints one `LIFECYCLE <profile> {json}` line per profile; pass a JSON path to keep it). `COLLISION_CP7_HEADED=1` launches a headed Chromium for the lifecycle section's first phase (off-screen, scroll back, hidden tab), where the window can be minimised so `document.hidden` can read true. Scroll-back scrolls the canvas itself into view; worker targets are counted only in the page's own browser context, after earlier contexts have drained.

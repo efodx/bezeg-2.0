@@ -12,8 +12,10 @@ const [pagePath, jsonOut, mdOut] = process.argv.slice(2);
 if (!pagePath) { console.error('Usage: run.cjs <page path, e.g. /bezeg-2.0/learn/sweep-algorithms> [results.json] [results.md]'); process.exit(2); }
 const REPO = path.resolve(__dirname, '../..');
 const COPY = path.join(os.tmpdir(), 'collision-cp7-build-' + process.pid);
-// COLLISION_CP7_MODE: playing (default, everything) | paused | none: baseline scroll and link measurements only.
+// COLLISION_CP7_MODE: playing (default, everything) | lifecycle (only the lifecycle section) | paused | none: baseline scroll and link measurements only.
 const MODE = process.env.COLLISION_CP7_MODE || 'playing';
+// COLLISION_CP7_HEADED=1: the first lifecycle phase (scroll away, hidden tab) runs in a headed Chromium, where the window can be minimised.
+const HEADED = process.env.COLLISION_CP7_HEADED === '1';
 const PLAY_MS = 10000, SCROLLS = 20, CLICKS = 20, SWITCHES = 5, IDLE_MS = 2000;
 const PROFILES = [
     {name: 'desktop', throttle: 1, frameMedianTarget: 16.7, context: {viewport: {width: 1440, height: 900}}, touch: false},
@@ -75,9 +77,12 @@ async function setup(page, method) {
         await sleep(1500);
         return s.locator('dl dd').first().innerText();
     }
+    // The playground may autoplay once in view, so wait for either control and press Play only if it is offered.
     const playBtn = s.getByRole('button', {name: 'Predvajaj', exact: true});
-    if (await playBtn.count()) await playBtn.click();
-    await s.getByRole('button', {name: 'Premor', exact: true}).waitFor({timeout: 10000});
+    const pauseBtn = s.getByRole('button', {name: 'Premor', exact: true});
+    await playBtn.or(pauseBtn).first().waitFor({timeout: 15000});
+    for (let i = 0; i < 5 && !(await pauseBtn.count()); i++) { try { await playBtn.click({timeout: 2000}); } catch { /* it flipped to Pause meanwhile */ } await sleep(300); }
+    await pauseBtn.waitFor({timeout: 10000});
     await sleep(1500);
     return s.locator('dl dd').first().innerText();
 }
@@ -176,42 +181,61 @@ async function smoothness(browser, profile, url) {
     return {objectsShown: objects, method: 'sweep', allAnimationFrames: all, playgroundAnimationFrames: mine, targetMedianMs: profile.frameMedianTarget, meetsMedianTarget: mine.medianMs != null && mine.medianMs <= profile.frameMedianTarget};
 }
 
-async function lifecycle(browser, profile, url, port) {
+async function lifecycle(browser, profile, url, port, headedBrowser) {
     const out = {};
     const count = async (page, ms) => { const a = await messages(page); await sleep(ms); return (await messages(page)) - a; };
-    const workerTargets = async cdp => (await cdp.send('Target.getTargets')).targetInfos.filter(t => t.type === 'worker' && t.url.startsWith(`http://127.0.0.1:${port}`)).map(t => t.url.split('/').pop());
+    // Worker targets that belong to the page's own browser context (other contexts may still be closing).
+    const workerTargets = async (bcdp, pageUrl) => {
+        const {targetInfos} = await bcdp.send('Target.getTargets');
+        const pageTarget = targetInfos.find(t => t.type === 'page' && t.url === pageUrl);
+        if (!pageTarget) return null;
+        return targetInfos.filter(t => t.type === 'worker' && t.browserContextId === pageTarget.browserContextId && t.url.startsWith(`http://127.0.0.1:${port}`)).map(t => t.url.split('/').pop());
+    };
+    // Earlier contexts close asynchronously: wait until no collision worker target is left anywhere before opening a page.
+    const drained = async () => {
+        const bcdp = await browser.newBrowserCDPSession();
+        let n = -1;
+        for (let i = 0; i < 40; i++) { n = (await bcdp.send('Target.getTargets')).targetInfos.filter(t => t.type === 'worker' && t.url.startsWith(`http://127.0.0.1:${port}`)).length; if (!n) break; await sleep(250); }
+        await bcdp.detach();
+        return n;
+    };
     {
-        const {context, page, cdp} = await open(browser, profile, url);
+        out.headed = !!headedBrowser;
+        const {context, page, cdp} = await open(headedBrowser || browser, profile, url);
         await setup(page, 'sweep');
         out.playingControl = await count(page, IDLE_MS);
         await page.evaluate(() => { const c = document.querySelector('section.collision-playground canvas').getBoundingClientRect(); window.scrollBy(0, c.bottom + 80); });
         await sleep(700);
         out.offscreenSnapshots2s = await count(page, IDLE_MS);
-        await page.evaluate(() => window.scrollTo(0, 0));
+        // Scroll the canvas itself back: a mid-chapter canvas is not at scrollY 0. The reader never paused, so it should resume.
+        await page.evaluate(() => document.querySelector('section.collision-playground canvas').scrollIntoView({block: 'center'}));
         await sleep(700);
+        out.canvasInViewAfterScrollBack = await page.evaluate(() => { const r = document.querySelector('section.collision-playground canvas').getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; });
         out.resumedAfterScrollBack = await count(page, 1000);
         // Hidden tab: a second page of the same context in front. document.hidden is read back to prove it.
         const other = await context.newPage();
         await other.goto('about:blank');
         await other.bringToFront();
         await sleep(700);
+        out.hiddenMethod = 'second tab bringToFront';
         if (!(await page.evaluate(() => document.hidden))) {
-            // Headless windows may still honour a minimise request.
-            try { const w = await cdp.send('Browser.getWindowForTarget'); await cdp.send('Browser.setWindowBounds', {windowId: w.windowId, bounds: {windowState: 'minimized'}}); } catch (e) { out.minimiseError = String(e.message).slice(0, 120); }
-            await sleep(700);
+            // Headed windows honour a minimise request; headless ones usually do not.
+            try { const w = await cdp.send('Browser.getWindowForTarget'); await cdp.send('Browser.setWindowBounds', {windowId: w.windowId, bounds: {windowState: 'minimized'}}); out.hiddenMethod += ' + window minimised'; } catch (e) { out.minimiseError = String(e.message).slice(0, 120); }
+            await sleep(1000);
         }
         out.hiddenAfterBringToFront = await page.evaluate(() => document.hidden);
-        out.hiddenMethod = 'second tab bringToFront (+ window minimise requested)';
+
         if (out.hiddenAfterBringToFront) out.hiddenSnapshots2s = await count(page, IDLE_MS);
-        else { out.hiddenSnapshots2s = null; out.hiddenMethod = 'not measured: document.hidden stayed false after bringToFront (headless keeps every page visible, minimise ' + (out.minimiseError || 'had no effect') + ')'; }
+        else { out.hiddenSnapshots2s = null; out.hiddenMethod = `not measured: document.hidden stayed false (${out.headed ? 'headed' : 'headless keeps every page visible'}; tried ${out.hiddenMethod}; minimise ${out.minimiseError || 'had no effect'})`; }
         await other.close();
         await context.close();
     }
+    out.targetsDrainedBeforeNavigation = (await drained()) === 0;
     {
         const {context, page} = await open(browser, profile, url);
         await setup(page, 'sweep');
-        const cdp = await browser.newBrowserCDPSession();
-        out.workerTargetsBefore = await workerTargets(cdp);
+        const bcdp = await browser.newBrowserCDPSession();
+        out.workerTargetsBefore = await workerTargets(bcdp, page.url());
         out.pageWorkersCreated = await page.evaluate(() => window.__workers.map(w => w.url.split('/').pop()));
         const link = page.locator(LINK).first();
         const pathBefore = await page.evaluate(() => location.pathname);
@@ -221,12 +245,12 @@ async function lifecycle(browser, profile, url, port) {
             await page.waitForFunction(p => location.pathname !== p, pathBefore, {timeout: 10000});
             out.clientSideNavigation = await page.evaluate(() => window.__marker === 1);
             await sleep(1000);
-            out.workerTargetsAfter = await workerTargets(cdp);
+            out.workerTargetsAfter = await workerTargets(bcdp, page.url());
             out.pageWorkersTerminated = await page.evaluate(() => window.__workers.filter(w => w.terminated).length);
             out.trafficAfterNavigation2s = await count(page, IDLE_MS);
             out.navigatedTo = await page.evaluate(() => location.pathname);
         } catch (e) { out.navigationNote = String(e.message).split('\n')[0]; }
-        await cdp.detach();
+        await bcdp.detach();
         await context.close();
     }
     return out;
@@ -255,6 +279,7 @@ function renderMarkdown({environment: e, profiles}) {
     const port = server.address().port;
     const url = `http://127.0.0.1:${port}${pagePath}`;
     const browser = await chromium.launch();
+    const headedBrowser = HEADED ? await chromium.launch({headless: false}) : null;
     const environment = {
         page: pagePath, commit: sh('git rev-parse --short HEAD') + (sh('git status --porcelain src') ? ' (src dirty)' : ''),
         browser: `Chromium ${browser.version()} (Playwright ${require('@playwright/test/package.json').version}, headless)`,
@@ -267,17 +292,19 @@ function renderMarkdown({environment: e, profiles}) {
         console.log(`profile ${profile.name}`);
         const result = {profile: profile.name, throttle: profile.throttle, viewport: profile.context.viewport};
         const steps = [['containment', containment], ['switchLatency', switchLatency], ['smoothness', smoothness], ['lifecycle', lifecycle]];
-        for (const [key, fn] of MODE === 'playing' ? steps : steps.slice(0, 1)) {
+        for (const [key, fn] of MODE === 'playing' ? steps : MODE === 'lifecycle' ? steps.slice(3) : steps.slice(0, 1)) {
             console.log('  ' + key);
-            try { result[key] = await fn(browser, profile, url, port); } catch (e) { result[key] = {error: String(e.message).split('\n')[0]}; console.log('    failed: ' + result[key].error); }
+            try { result[key] = await fn(browser, profile, url, port, key === 'lifecycle' ? headedBrowser : undefined); } catch (e) { result[key] = {error: String(e.message).split('\n')[0]}; console.log('    failed: ' + result[key].error); }
         }
         profiles.push(result);
     }
     await browser.close();
+    if (headedBrowser) await headedBrowser.close();
     server.close();
     fs.rmSync(COPY, {recursive: true, force: true});
     const out = {environment, profiles};
     if (jsonOut) fs.writeFileSync(path.resolve(jsonOut), JSON.stringify(out, null, 2));
+    if (MODE === 'lifecycle') { for (const p of profiles) console.log('LIFECYCLE ' + p.profile + ' ' + JSON.stringify(p.lifecycle)); return; }
     if (MODE !== 'playing') {
         for (const p of profiles) console.log(`BASELINE ${MODE} ${p.profile}: scroll p95 ${p.containment.scroll && p.containment.scroll.p95Ms} ms (n=${p.containment.scroll && p.containment.scroll.inputs}), link p95 ${p.containment.linkClick && p.containment.linkClick.p95DurationMsUpperBound} ms ${p.containment.error || ''}`);
         return;
