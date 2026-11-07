@@ -31,6 +31,8 @@ import {triangleGeometryGuidedExamplePath, triangleGeometryGuidedExampleRegistry
 import {patchGuidedExamplePath, patchGuidedExampleRegistry} from './patchGuidedExampleRegistry';
 
 export interface ChapterOwnedLessons {
+    /** `authored`: the registry holds the definitions. `catalog`: each section adapts reviewed catalog content on request. */
+    readonly source: 'authored' | 'catalog';
     /** The owned sections and their Demonstrations, in teaching order. Reading them adapts no lesson. */
     rows(): readonly (readonly [sectionId: string, demonstrationId: DemonstrationId])[];
     /** The lesson owned by a section, or undefined when the section owns none. Only this resolves a lesson. */
@@ -44,6 +46,7 @@ function ownedLessons<Id extends string>(registry: Readonly<Record<Id, LessonDef
     const isSection = (sectionId: string): sectionId is Id => Object.prototype.hasOwnProperty.call(registry, sectionId);
     const rows = Object.entries<LessonDefinition>(registry).map(([sectionId, lesson]) => [sectionId, lesson.demonstrationId] as const);
     return {
+        source: 'authored',
         rows: () => rows,
         lesson: sectionId => isSection(sectionId) ? registry[sectionId] : undefined,
         path: sectionId => isSection(sectionId) ? pathOf(sectionId) : undefined,
@@ -55,6 +58,7 @@ function catalogOwnedLessons<Id extends string>(source: CatalogSectionLessons<Id
     const isSection = (sectionId: string): sectionId is Id => Object.prototype.hasOwnProperty.call(source.demonstrations, sectionId);
     const rows = Object.entries<DemonstrationId>(source.demonstrations).map(([sectionId, demonstrationId]) => [sectionId, demonstrationId] as const);
     return {
+        source: 'catalog',
         rows: () => rows,
         lesson: sectionId => isSection(sectionId) ? source.lesson(sectionId) : undefined,
         path: sectionId => isSection(sectionId) ? pathOf(sectionId) : undefined,
