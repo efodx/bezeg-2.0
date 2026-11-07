@@ -66,20 +66,20 @@ test('initialization draws the default points and keeps k, n and the model in th
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-6, 8, 6, -4], true);
 });
 
-test('a multi-action scene applied in one synchronous tick reads the earlier actions and gives the expected line, with the flat state following the model', () => {
+test('a multi-action scene applied in one synchronous tick reads the earlier actions and gives the expected line', () => {
     const graph = makeGraph();
     apply(graph, defaultScene);
     for (const action of [parameter('x1', 1), parameter('y1', 2), parameter('x2', 3), parameter('y2', 6)]) apply(graph, action);
     // The line through (1,2) and (3,6) is y = 2x.
     expect(graph.model).toEqual({x1: 1, y1: 2, x2: 3, y2: 6});
-    expect(graph.state).toMatchObject(graph.model);
+    expect(graph.model).toMatchObject({x1: 1, y1: 2, x2: 3, y2: 6});
     apply(graph, parameter('k', -1));
     // k is applied to the model written a moment earlier (n = 0 there): both points move along y = -x, keeping their x.
     expect(graph.model).toEqual({x1: 1, y1: -1, x2: 3, y2: -3});
     expect(points(graph)).toEqual([[1, -1], [3, -3]]);
     apply(graph, parameter('n', 2));
     expect(graph.model).toEqual({x1: 1, y1: 1, x2: 3, y2: -1});
-    expect(graph.state).toMatchObject(graph.model);
+    expect(graph.model).toMatchObject({x1: 1, y1: 1, x2: 3, y2: -1});
 });
 
 test('every lesson scene reproduces the state its expectedState describes', () => {

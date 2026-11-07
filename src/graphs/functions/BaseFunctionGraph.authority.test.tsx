@@ -474,6 +474,19 @@ describe('binomial-normal: host-only updates keep the model identity seen by mod
     });
 });
 
+describe('binomial-normal: one model object serves the inspector and the board', () => {
+    test('after one accepted edit, the inspector render and a board update hit each modelCache once', () => {
+        const {graph} = mountBinomial();
+        const before = snapshotCalls();
+        typeK(12);
+        act(() => { graph.liveBoard().fullUpdate(); });
+        const after = snapshotCalls();
+        expect(after.bars - before.bars).toBe(1);
+        expect(after.shaded - before.shaded).toBe(1);
+        expect(after.view - before.view).toBe(1);
+    });
+});
+
 describe('binomial-normal: board synchronization timing', () => {
     test('dragging the k handle commits k with only the handle snap move; typing k moves it (full sync)', () => {
         const {graph} = mountBinomial();
