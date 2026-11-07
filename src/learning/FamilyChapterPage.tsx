@@ -7,7 +7,7 @@ import {typesetMath} from '../mathjax/loadMathJax';
 import {familyChapters} from './content/familyChapters';
 import type {FamilyChapter} from './content/familyChapters';
 import type {LocalizedText} from './model';
-import {type OrderedChapterContent} from './chapter/orderedContent';
+import {type OrderedChapterContent, type PlaygroundContent} from './chapter/orderedContent';
 import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
@@ -15,7 +15,17 @@ import {linkedParagraph} from './chapter/linkedParagraph';
 import './ChapterPage.css';
 import './LearningPage.css';
 
-function sectionContent(section: FamilyChapter['sections'][number]): readonly OrderedChapterContent<LocalizedText>[] {
+const CollisionPlayground = React.lazy(() => import('./playground/collisions/CollisionPlayground'));
+const CollisionInspect = React.lazy(() => import('./playground/collisions/CollisionInspect'));
+
+/** Playground blocks mount lazily, so a worker or board exists only while the reader has the block on the page. */
+function PlaygroundBlock({block}: {block: PlaygroundContent}) {
+    return <React.Suspense fallback={<div className="chapter-playground-loading" aria-hidden="true"/>}>
+        {block.playground === 'collisions' ? (block.mode === 'run' ? <CollisionPlayground/> : <CollisionInspect/>) : null}
+    </React.Suspense>;
+}
+
+function sectionContent(section: FamilyChapter['sections'][number]): readonly (OrderedChapterContent<LocalizedText> | PlaygroundContent)[] {
     if (section.orderedContent) return section.orderedContent;
     return [
         ...section.paragraphs.map(text => ({kind: 'paragraph' as const, text})),
@@ -81,6 +91,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                     <div className="chapter-section-heading"><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title[language]}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title[language]}`}>¶</a></div>
                     <div className="chapter-section-body">
                         {sectionContent(section).map((block, blockIndex) => {
+                            if (block.kind === 'playground') return <PlaygroundBlock key={`${section.id}-playground-${blockIndex}`} block={block}/>;
                             if (block.kind === 'example') return <ChapterGuidedLessons key={`${section.id}-example-${block.exampleId}`} chapterId={chapter.id} sectionId={section.id} language={language} exampleId={block.exampleId}/>;
                             if (block.kind === 'paragraph') return <p className="chapter-paragraph" key={`${section.id}-paragraph-${blockIndex}`}>{linkedParagraph(block.text[language], block.links?.map(link => ({label: link.label[language], href: link.href})))}</p>;
                             return <div className="chapter-formula" role="region" aria-label={block.label?.[language] ?? section.title[language]} tabIndex={0} key={`${section.id}-formula-${blockIndex}`}>{block.label && <span className="chapter-formula-label">{block.label[language]}</span>}<div className="chapter-math">\[{block.latex}\]</div></div>;

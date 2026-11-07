@@ -17,7 +17,7 @@ import {probabilityChapter} from './probabilityChapter';
 import {schoolFunctionGraphsChapter} from './schoolFunctionGraphsChapter';
 import type {DemonstrationId, FamilyId} from '../../demonstrations';
 import type {LocalizedText} from '../model';
-import type {OrderedChapterContent} from '../chapter/orderedContent';
+import type {OrderedChapterContent, PlaygroundContent} from '../chapter/orderedContent';
 
 export interface FamilyChapterSection {
     id: string;
@@ -26,7 +26,7 @@ export interface FamilyChapterSection {
     formula?: string;
     demonstrationIds?: readonly DemonstrationId[];
     investigationPrompts?: Partial<Record<DemonstrationId, LocalizedText>>;
-    orderedContent?: readonly OrderedChapterContent<LocalizedText>[];
+    orderedContent?: readonly (OrderedChapterContent<LocalizedText> | PlaygroundContent)[];
 }
 
 export interface FamilyChapter {
