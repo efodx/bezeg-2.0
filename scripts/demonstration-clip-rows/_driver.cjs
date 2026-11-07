@@ -213,7 +213,8 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
     const poster = await presentFixed(page, d, presentBoard);
     const initial = await kit.boardSnapshot(page); const fixedBox = initial.box;
     assert.deepEqual(fixedBox, poster.boundingBox, `${row.id}: the poster fit must be the clip camera`);
-    let control = page.getByLabel(row.control.label, {exact: true});
+    // Only form inputs count: a value list also gives each row's group its input's name (src/inputs/ValueListInput.tsx).
+    let control = page.getByLabel(row.control.label, {exact: true}).and(page.locator('input'));
     assert.equal(await control.count(), 1, `${row.id}: control "${row.control.label}" is missing or ambiguous (copy the accessible label from route-probe.json)`);
     for (const tab of ['Prikaz', 'Uredi']) { if (await control.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
     assert.ok(await control.isVisible(), `${row.id}: control "${row.control.label}" stays hidden in every inspector tab`);
