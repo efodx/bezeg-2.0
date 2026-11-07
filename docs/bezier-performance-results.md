@@ -490,4 +490,3 @@ Decision: limits 4 000 (naive) and 5 000 (sweep); reasons in the [collision play
 - **Change kept.** Adaptive draw pacing (`drawPacing.ts`; [spec decision](specs/collision-playground.md#containment)). When the smoothed rAF interval is above 20 ms, the canvas draws at most every 33 ms. Unloaded displays still draw every frame. Throttled draws fell to about 17 per second, while the simulation and readout were unchanged.
 - **Other rows with pacing.** No long animation frame over 50 ms in either profile. Naive-to-sweep switch: mobile median 45 to 52 ms, desktop 21 ms. Sweep-limit draw callback median: 1 ms desktop, 4.7 ms mobile (p95 6.5 to 6.9). Desktop scroll p95: 38 to 40 ms; link: 16 ms.
 - **Limits.** Headless Chromium uses the software compositor, so a phone's GPU compositing may differ. No physical phone was measured.
-
