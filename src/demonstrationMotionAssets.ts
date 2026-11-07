@@ -90,6 +90,13 @@ import motion_projective_five_point from './images/demonstrations/catalog/projec
 import motion_projective_three_views from './images/demonstrations/catalog/projective-three-views.webm?no-inline';
 import motion_projective_cross_ratio from './images/demonstrations/catalog/projective-cross-ratio.webm?no-inline';
 import motion_point_set_triangulation from './images/demonstrations/catalog/point-set-triangulation.webm?no-inline';
+import motion_convex_hull from './images/demonstrations/catalog/convex-hull.webm?no-inline';
+import motion_bezier_hulls from './images/demonstrations/catalog/bezier-hulls.webm?no-inline';
+import motion_delaunay from './images/demonstrations/catalog/delaunay.webm?no-inline';
+import motion_interval_sweep from './images/demonstrations/catalog/interval-sweep.webm?no-inline';
+import motion_segment_intersections from './images/demonstrations/catalog/segment-intersections.webm?no-inline';
+import motion_monotone_partition from './images/demonstrations/catalog/monotone-partition.webm?no-inline';
+import motion_monotone_triangulation from './images/demonstrations/catalog/monotone-triangulation.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -183,4 +190,11 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'projective-three-views': {src: motion_projective_three_views, type: 'video/webm', duration: 4},
     'projective-cross-ratio': {src: motion_projective_cross_ratio, type: 'video/webm', duration: 4},
     'point-set-triangulation': {src: motion_point_set_triangulation, type: 'video/webm', duration: 4},
+    'convex-hull': {src: motion_convex_hull, type: 'video/webm', duration: 4},
+    'bezier-hulls': {src: motion_bezier_hulls, type: 'video/webm', duration: 4},
+    'delaunay': {src: motion_delaunay, type: 'video/webm', duration: 4},
+    'interval-sweep': {src: motion_interval_sweep, type: 'video/webm', duration: 4},
+    'segment-intersections': {src: motion_segment_intersections, type: 'video/webm', duration: 4},
+    'monotone-partition': {src: motion_monotone_partition, type: 'video/webm', duration: 4},
+    'monotone-triangulation': {src: motion_monotone_triangulation, type: 'video/webm', duration: 4},
 };

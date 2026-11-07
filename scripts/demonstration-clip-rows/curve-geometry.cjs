@@ -13,8 +13,8 @@ module.exports = [
         id: 'curve-parametric',
         motion: 'parameter-sweep',
         control: {kind: 'slider', label: 'Polmer kotalečega se kroga', step: 0.05},
-        // The graph default is radius 1 (CYCLOID_RADIUS_DEFAULT) at t = pi/2. The t slider cannot close the loop (the state holds 1.5708, the 0.01 slider returns to 1.57), so the radius slider, on its grid, shrinks to 0.35, grows to 1.6 and returns; 1 to 1.5 alone gave 11 distinct frames (preflight).
-        path: [1, 0.35, 1, 1.6, 1],
+        // The graph default is radius 1 (CYCLOID_RADIUS_DEFAULT) at t = pi/2. The t slider cannot close the loop (the state holds 1.5708, the 0.01 slider returns to 1.57), so the radius slider, on its grid, shrinks to 0.35, grows to 1.1 and returns; 1 to 1.5 alone gave 11 distinct frames (preflight). Above 1.1 the arch (width 2*pi*r from a fixed left end) leaves the camera on the right (visual review, handler 6), so the growth stops at 1.1.
+        path: [1, 0.35, 1.1, 1],
         lessonQuote: 'Nastavi polmer na \\(2\\) in preveri, kako se spremenita dolžina in ploščina.',
         discreteReason: null,
     },
@@ -31,8 +31,8 @@ module.exports = [
         id: 'curve-comb',
         motion: 'parameter-sweep',
         control: {kind: 'slider', label: 'Ojačitev glavnika', step: 0.05},
-        // The poster is the C1 spline with the comb on (recipe); the gain keeps its default 1.4 (COMB_GAIN_DEFAULT). It rises to 2.6 and back; the quote's step uses the cubic, the motion is the same slider.
-        path: [1.4, 2.6, 1.4],
+        // The poster is the C1 spline with the comb on (recipe); the gain keeps its default 1.4 (COMB_GAIN_DEFAULT). It rises to 2.2 and back (at 2.6 the lowest teeth left the frame, visual review handler 6); the quote's step uses the cubic, the motion is the same slider.
+        path: [1.4, 2.2, 1.4],
         lessonQuote: 'Premakni drsnik za ojačitev in opazuj, kako se spreminja dolžina zob.',
         discreteReason: null,
     },
