@@ -9,7 +9,7 @@ The family template does not apply. Read the spec's owner decisions first: they 
 
 | Step | Work | Who | Review | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Route probe: one script over the 67 example scenes records real controls, ranges and labels, and whether they work inside an example scene | Handler or `bezeg-worker` Sonnet | Handler | pending |
+| 1 | Route probe: one script over the 67 example scenes records real controls, ranges and labels, and whether they work inside an example scene | Handler or `bezeg-worker` Sonnet | Handler | done |
 | 2 | Capture path: row format, generic capture mode, jump check, missing-clip test with a pending list holding the 67, helpers and one worked example so workers need not read `scripts/demonstration-preview-motion.cjs`, and a single-ID test command. Prove it on one sweep, one drag and one surface Demonstration | `bezeg-worker` Sonnet | Engineering | pending |
 | 3 | Rows: batches of lessons, each worker reading its lessons and writing rows with quotes. Send algorithm Demonstrations with no obvious smooth control (`fortune`, `delaunay`, the monotone family and similar) to Sonnet | `bezeg-worker` Haiku `medium`, Sonnet for the hard ones | Handler spot check | pending |
 | 4 | Capture family by family, removing IDs from the pending list and pushing each accepted family. Recapture posters where the start scene differs | Handler or worker, one capture at a time | Generic checks, then Haiku visual review of contact sheets against each `lessonQuote`, Sonnet mathematical review per family | pending |
