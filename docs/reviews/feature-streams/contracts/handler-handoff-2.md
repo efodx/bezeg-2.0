@@ -20,9 +20,36 @@ The pilots (Linear, Binomial) and F1 to F4 (25 of the 40 remaining classes) are 
 
 That is 563 fewer tests and 4 more skipped, with the same 611 passed and 3 skipped files. Cause unknown. What is known: in the diff, test declarations changed only in their titles, so a generated or conditional suite is the likely place, but that is a hypothesis. It may be environmental rather than caused by these commits. The logs hold totals only.
 
+## Test count: cause found, confirmation pending
+
+Recorded 2026-11-07 by the next handler. **The drop comes from the transient state contract's local sampling, not from lost tests. The confirming `=all` comparison has not finished, so `master` stays closed.**
+
+`GraphTransientState.part*.test.tsx` mounts all 118 Demonstrations only when the diff from the merge-base with `origin/master` touches a shared path; otherwise it mounts the 14-graph sample plus graphs named like a changed file ([scope rules](../../../commands.md)). Each graph is 8 tests, and each part that leaves graphs out adds 1 skipped placeholder. So the count depends on where `origin/master` is, not only on the code.
+
+| Run | Revision | Graphs | Total | Skipped | Status |
+| --- | --- | --- | --- | --- | --- |
+| Handoff "before", 06:25 local | `ef8144bc`, master at `a0e95b32` | 118 | 12,050 | 4 | logged; `BaseGraph.tsx` in the diff, so all ran |
+| Rerun | `ef8144bc`, master at `b4079eb0` | 14 | 11,222 | 8 | measured; 12,050 − 104×8 + 4 |
+| Rerun | `3cf0cec7`, master at `b4079eb0` | 38 | 11,415 | 8 | measured; 12,051 − 80×8 + 4 |
+| Handoff "after", 07:07 local | `886a8822` plus F1 to F4, dirty | 47 (inferred) | 11,487 | 8 | logged; master moved at 06:47 |
+
+The per-file diff of the two reruns (`.claude/jobs/unit-before-sample.json`, `unit-after.json`) shows only the four part files changing, plus one test added to `BaseFunctionGraph.authority.test.tsx`. Twelve further tests were retitled. No test outside the part files was lost.
+
+Not proven:
+
+- **The 11,487 run.** It is 9 graphs above today's 38. No single file name adds exactly 9, and the transcript does not name the files, so this is inferred to be extra files dirty in that tree. It cannot be rerun.
+- **All 118 graphs on this branch.** F1 to F4 have only ever run 38 of them locally, and `docs/commands.md` requires `BEZEG_TRANSIENT_STATE=all` before pushing restoration or Preset work. This is a verification gap as well as a count check.
+
+Both `=all` runs were started and stopped by Claude Code for low system memory, with no results. That says nothing about the code. Its notice says to restart only when the owner asks. Once asked, run one at a time, with no `/` in any argument, then move the file:
+
+- Here: `BEZEG_TRANSIENT_STATE=all just unit --reporter=default --reporter=json --outputFile.json=unit-after-all.json`
+- In `.claude/worktrees/contracts-baseline` (detached at `ef8144bc`, `npm ci` done, nested here but outside Vitest's `src/**`): the same with `unit-before-all.json`.
+
+Expect 12,050 and 12,051 totals with 4 skipped each, and only the known authority test differing. A failure or another difference means a commit is at fault: fix it (step 3 below). Remove the baseline worktree afterwards.
+
 ## First: explain the test count
 
-Do this before anything else, and push nothing further to `master` until it is explained.
+Do this before anything else, and push nothing further to `master` until it is explained. Steps 1 to 3 are superseded by the section above, except the `=all` comparison it leaves open. Step 2's test is unsound: the baseline no longer reproducing 12,050 does not show an environmental cause by itself.
 
 1. Run the full suite with a JSON reporter on this branch (`just unit --reporter=json --outputFile=.claude/jobs/after.json`) and on `ef8144bc` in a temporary worktree, or `b4079eb0` if that is simpler. Each run takes about 20 minutes.
 2. Diff the per-file counts. Do not assume the baseline reproduces: if `ef8144bc` also shows about 11,487 now, the cause is environmental, and these commits are clear.
@@ -57,6 +84,8 @@ Then step 4 of `contracts.md`, as handoff 1 describes: write the lesson-authorin
 - `sed -i` across `*Graph.tsx` rewrote `CltGraph.tsx`'s line endings. Edit named files only, and check `git diff --stat` for whole-file diffs before staging.
 - `git status` can list a file as modified with an empty diff; `git update-index -q --refresh` clears that.
 - Multi-line heredocs sometimes fail in the shell wrapper. Write the script with the Write tool.
+- Any `just unit` argument containing `/` or `.test.` counts as a path filter: the run skips the slot queue and gets 2 workers. Step 1's `--outputFile=.claude/jobs/after.json` would do this.
+- Compare full-suite counts only under `BEZEG_TRANSIENT_STATE=all`. Default totals move whenever `origin/master` does.
 
 ## Owner item
 
