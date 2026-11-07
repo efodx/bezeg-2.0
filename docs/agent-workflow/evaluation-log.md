@@ -2202,3 +2202,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Timing: worker 60 min, review 2 min, first-pass smoke 35 min, recheck 3 min (as reported).
 - Usage (worker totals as reported): worker 117,972; reviewer 20,504; smoke 68,464; recheck 33,931 tokens.
 - Handoff evidence: naming the out-of-scope raw checkboxes, the lint rule and the fixture kept the slice to 17 files. The worker edited one file outside its owned paths (`DemonstrationWorkspace.css`, moving four slider rules into `Slider.css`): within the slice's intent, but unannounced.
+
+## 2026-11-07 — collision playground CP1, pure collision model (collision stream, handler 1)
+
+- Class/size: kernel, M. Scope: seeded world, step, naive and sweep-and-prune broad phases, circle narrow phase, counters in `src/compgeo/collisions/`.
+- Dispatch: one `bezeg-worker` (Sonnet `medium`); handler Opus `medium`. Bounded, separable pure module.
+- Outcome: accepted. Worker: 12 tests with a mutation per assertion group, tsc and lint clean. Handler: reviewed broad phase and step in chat (small diff), then changed the density rule (fixed radii of 0.8–1.5 world units would draw sub-pixel at n = 1000; radius now scales with 1/√n, about 5 % touching at every n) and recorded the decision in the spec. 15 tests, tsc, lint.
+- Repairs: none to the worker's code; the density issue came from the task file's 1 % target, a planning error, not a worker error.
+- Timing: worker about 25 min, largely queued tests. Usage: worker 47,863 tokens (reported total).
+- Handoff evidence: the brief asked for exported types for CP2 and a measured constant with rationale; the measured 0.94 % exposed the sub-pixel radii that the planning target implied.

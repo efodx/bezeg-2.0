@@ -25,7 +25,7 @@ The playground motivates. It has no exercises, scoring or completion gates, like
 
 All of it is pure TypeScript in `src/compgeo/collisions/`, with no React, DOM or worker code, so it is unit-tested directly.
 
-**World.** A rectangle \([0,W]\times[0,H]\) with \(W:H=16:10\). It holds \(n\) bodies. Batch B bodies are circles with centre \(c\), radius \(r\) and velocity \(v\). A seeded pseudo-random generator places them, so a seed and \(n\) reproduce the same world in tests and on every device.
+**World.** A rectangle \([0,W]\times[0,H]\) with \(W:H=16:10\). It holds \(n\) bodies. Batch B bodies are circles with centre \(c\), radius \(r\) and velocity \(v\). A seeded pseudo-random generator places them, so a seed and \(n\) reproduce the same world in tests and on every device. The world is \(1600	imes1000\) units. Radii scale with \(1/\sqrt n\) so that bodies cover 1.25 % of the area at every \(n\) (radii 0.75–1.25 times the base radius), and about 5 % of bodies touch at any \(n\). *Decision (handler, 2026-11-07, CP1):* a fixed radius sparse enough for \(n=1000\) would be under one pixel on a desktop canvas and would leave small worlds empty; constant density keeps one picture as \(n\) grows, so the comparison shows only the change in work. Speeds are 30–120 units/s.
 
 **Step.** Fixed simulated time \(\Delta t=\tfrac1{60}\) s per step. Move \(c\mathrel{+}=v\,\Delta t\). Reflect off the walls by reversing the velocity component and mirroring the overshoot. Then find the touching pairs:
 

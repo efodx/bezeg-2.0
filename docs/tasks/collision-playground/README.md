@@ -6,7 +6,7 @@ Status lives in this table. The handler updates it in the same push as each acce
 
 | # | Task | Batch | Depends on | Review | Status |
 | --- | --- | --- | --- | --- | --- |
-| [CP1](01-collision-model.md) | Pure model: seeded world, step, naive and sweep-and-prune broad phases, circle narrow phase, counters | A | — | Mathematical | planned |
+| [CP1](01-collision-model.md) | Pure model: seeded world, step, naive and sweep-and-prune broad phases, circle narrow phase, counters | A | — | Mathematical | accepted 2026-11-07 |
 | [CP2](02-worker-host.md) | Worker host, typed protocol, slow-motion stepping, pause/idle/terminate lifecycle | A | CP1 interface | Engineering | planned |
 | [CP3](03-measured-limits.md) | Measure step cost per method on the reference profiles; record the limits in the spec | A | CP2 | Handler | planned |
 | [CP4](04-run-component.md) | `CollisionPlayground` *Run* mode: canvas drawing, controls, readouts, live region, reduced motion, no-worker fallback | B | CP2 (CP3 limits may land after) | Engineering + UI/accessibility | planned |
