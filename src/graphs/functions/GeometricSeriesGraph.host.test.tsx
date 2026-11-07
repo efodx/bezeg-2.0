@@ -7,7 +7,7 @@ import {AnimationScheduler} from '../../learning/runtime/animation';
 import {renderMessage, setLanguage} from '../../localization';
 import {functionPresetCollections} from './functionPresetCollections';
 import {GraphPalette} from '../styles/GraphPalette';
-import {SERIES_TERMS_MAX} from '../../analysis/geometricSeriesModel';
+import {SERIES_TERMS_MAX, seriesView} from '../../analysis/geometricSeriesModel';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -55,6 +55,7 @@ interface BoardObject {
     elType: string;
     plaintext?: string;
     visProp: { strokecolor?: string; visible?: () => boolean };
+    point2?: { Y(): number };
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
@@ -288,4 +289,45 @@ describe('Preset collection', () => {
         expect(reasons([1])).toContain('must be stored as an object with the fields a, q, terms and tolerance');
         act(() => { setLanguage('sl'); });
     });
+});
+
+/** The visible partial-sum bars (primary curve colour), in index order; the last one is S_n of the revealed terms. */
+const sumBars = (graph: ObservedSeriesGraph) => graph.objects().filter(object =>
+    object.elType === 'segment' && object.visProp.strokecolor === GraphPalette.primaryCurve && object.visProp.visible?.());
+const readoutNumber = (id: string) => Number(String(readout(id)).replace(/[\s.]/g, '').replace('−', '-').replace(',', '.'));
+
+test('the last plotted partial-sum bar is the reported sum, also where the closed form used to round to 50', () => {
+    const {graph} = mountGraph();
+    act(() => { graph.importPresetData({a: 1, q: 0.999999999999, terms: 50, tolerance: 0}); });
+    const bars = sumBars(graph);
+    expect(bars).toHaveLength(50);
+    const top = bars[bars.length - 1].point2!.Y();
+    expect(top).toBe(seriesView(graph.modelNow()).partialSum);
+    expect(top).toBeLessThan(50);
+    expect(Math.abs(top - 49.999999998775024)).toBeLessThan(1e-12);
+    expect(Math.abs(readoutNumber('sum') - top)).toBeLessThanOrEqual(5e-5);
+    expect(readout('sum')).toBe('50');
+});
+
+test('the bars and the readout agree for a convergent, an alternating and a divergent series', () => {
+    const {graph} = mountGraph();
+    for (const [a, q, terms] of [[1, 0.5, 12], [5, -0.9, 30], [0.1, -2, 8], [5, 2, 20], [1, -1, 7]]) {
+        act(() => { graph.importPresetData({a, q, terms, tolerance: 0}); });
+        const bars = sumBars(graph);
+        expect(bars).toHaveLength(terms);
+        const top = bars[bars.length - 1].point2!.Y();
+        expect(top).toBe(seriesView(graph.modelNow()).partialSum);
+        expect(Math.abs(readoutNumber('sum') - top)).toBeLessThanOrEqual(5e-5 * Math.max(1, Math.abs(top)));
+    }
+});
+
+test('a genuinely accepted tolerance of 1e-18 reports first term 19 and the same tail in the error readout', () => {
+    const {graph} = mountGraph();
+    act(() => { graph.importPresetData({a: 1, q: 0.1, terms: 1, tolerance: 0}); });
+    act(() => { graph.editTolerance(1e-18); });
+    expect(graph.modelNow().tolerance).toBe(1e-18);
+    expect(statusIds()).toEqual(['convergent', 'tolerance']);
+    const text = document.querySelector('[data-series-status="tolerance"]')!.textContent!;
+    expect(text).toContain('19');
+    expect(text).not.toContain('17');
 });

@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {geometricPartialSum} from './geometricSeries';
+import {firstTermWithinTolerance, geometricPartialSum, geometricTailError, geometricTerm} from './geometricSeries';
 import {
     canAdvanceSeries, checkGeometricSeriesModel, chooseSeriesExample, defaultGeometricSeriesModel, nextSeriesStep, parseGeometricSeriesModel,
     resetSeriesTerms, SERIES_EXAMPLE_IDS, SERIES_EXAMPLE_MODELS, SERIES_MAX_STEPS, SERIES_TERMS_MAX, seriesBehaviour, seriesExampleOf,
@@ -158,5 +158,53 @@ describe('geometric series model', () => {
         const lowLimit = seriesYRange(0.1, 0.1, 1);
         expect(lowLimit.bottom).toBeLessThan(0.1 / 0.9 - 1);
         expect(seriesYRange(1, 2, 1)).toEqual(seriesYRange(1, 2));
+    });
+});
+
+describe('series view coherence (N1-N3)', () => {
+    it('case A: the view partial sum for a = 1, q = 0.999999999999, 50 terms is below 50 and the error is the direct tail', () => {
+        const view = seriesView(model(1, 0.999999999999, 50));
+        expect(view.partialSum).toBeLessThan(50);
+        expect(Math.abs(view.partialSum - 49.999999998775024)).toBeLessThan(1e-12);
+        expect(view.error).toBe(geometricTailError(1, 0.999999999999, 50));
+    });
+
+    it('case B: the error is the direct tail a q^n/(1-q) and agrees with firstTermWithinTolerance at 1e-18', () => {
+        const first = firstTermWithinTolerance(1, 0.1, 1e-18)!;
+        expect(first).toBe(19);
+        for (let n = 1; n <= 30; n++) {
+            const error = seriesView(model(1, 0.1, n, 1e-18)).error!;
+            expect(error).toBe(geometricTailError(1, 0.1, n));
+            expect(error > 0).toBe(true);
+            expect(error < 1e-18).toBe(n >= first);
+        }
+    });
+
+    it('the error equals the tail for every convergent q near the boundaries and is null without a limit', () => {
+        for (const q of [0, 0.1, -0.5, 1 - 1e-12, -(1 - 1e-12)]) {
+            for (const n of [1, 2, 49, 50]) {
+                const view = seriesView(model(1, q, n));
+                expect(view.error).toBe(geometricTailError(1, q, n));
+                expect(view.partialSum).toBe(geometricPartialSum(1, q, n));
+                expect(view.lastTerm).toBe(geometricTerm(1, q, n));
+                expect(Number.isFinite(view.error!)).toBe(true);
+            }
+        }
+        for (const q of [1, -1, 1 + 1e-12, -(1 + 1e-12), 2, -2]) {
+            const view = seriesView(model(1, q, 50));
+            expect(view.error).toBeNull();
+            expect(view.limit).toBeNull();
+            expect(Number.isFinite(view.partialSum)).toBe(true);
+        }
+    });
+
+    it('the y range is finite at the domain endpoints and near both unit boundaries', () => {
+        for (const a of [0.1, 5]) for (const q of [-2, 2, 0, 1, -1, 1 - 1e-12, -(1 - 1e-12), 1 + 1e-12, -(1 + 1e-12)]) {
+            for (const tolerance of [0, 1e-18, 1]) {
+                const range = seriesYRange(a, q, tolerance);
+                expect(Number.isFinite(range.bottom) && Number.isFinite(range.top)).toBe(true);
+                expect(range.top).toBeGreaterThan(range.bottom);
+            }
+        }
     });
 });

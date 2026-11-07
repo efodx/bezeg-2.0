@@ -47,8 +47,9 @@ type StatusId = "convergent" | "oscillating" | "constant" | "divergent" | "toler
 
 /**
  * Geometric series and partial sums (lesson S5). The model is `{a, q, terms, tolerance}` (`src/analysis/geometricSeriesModel`):
- * `terms` is the number of revealed terms, the limit marker comes from the closed form and exists only for |q| < 1, and S_n is the
- * closed form of `src/analysis/geometricSeries` (n a for q = 1), never summed from the shown bars.
+ * `terms` is the number of revealed terms, the limit marker comes from the closed form and exists only for |q| < 1, and the bars, the
+ * readout, the error and the tolerance status all come from `src/analysis/geometricSeries` (S_n by a formula that does not cancel
+ * near |q| = 1, n a for q = 1; the error is the directly evaluated tail), never summed from the shown bars.
  *
  * Next step and playback run the same transition (one more term) through `commitModel`; playback itself (the
  * `IterationController`) is not model data, so a reopened preset is paused. Editing a, q, n, the example or the tolerance stops

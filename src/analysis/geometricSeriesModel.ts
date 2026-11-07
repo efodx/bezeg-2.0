@@ -1,4 +1,4 @@
-import {GEOMETRIC_SERIES_MAX_TERMS, geometricPartialSum, geometricSeriesLimit, geometricTerm} from './geometricSeries';
+import {GEOMETRIC_SERIES_MAX_TERMS, geometricPartialSum, geometricSeriesLimit, geometricSeriesValues, geometricTerm} from './geometricSeries';
 
 /*
  * This module owns the rules of the geometric-series model: what is valid, how a step advances it, and which rule a rejected value
@@ -160,17 +160,14 @@ export interface SeriesView {
     readonly limit: number | null;
     readonly lastTerm: number;
     readonly partialSum: number;
-    /** |L - S_n| when the series converges. */
+    /** |L - S_n| = |a q^n/(1-q)| when the series converges, evaluated directly. */
     readonly error: number | null;
 }
 
 export function seriesView(model: GeometricSeriesModel): SeriesView {
-    const limit = geometricSeriesLimit(model.a, model.q);
-    const partialSum = geometricPartialSum(model.a, model.q, model.terms);
-    return {
-        behaviour: seriesBehaviour(model), limit, lastTerm: geometricTerm(model.a, model.q, model.terms), partialSum,
-        error: limit === null ? null : Math.abs(limit - partialSum),
-    };
+    // One evaluation owner: the error is the directly evaluated tail, not limit - S_n (see `analysis/geometricSeries`).
+    const values = geometricSeriesValues(model.a, model.q, model.terms);
+    return {behaviour: seriesBehaviour(model), limit: values.limit, lastTerm: values.term, partialSum: values.sum, error: values.tail};
 }
 
 /**
