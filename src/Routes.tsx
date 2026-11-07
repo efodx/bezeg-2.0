@@ -30,6 +30,8 @@ const routes = [{
             return {Component: FamilyChapterPage};
         }},
         {path: '/bezeg-2.0/learn/*', element: <ErrorPage embedded/>},
+        // Harness for browser smoke checks of the collision playground (CP4); see CollisionHarness.tsx.
+        {path: '/bezeg-2.0/harness/collision-playground', lazy: async () => ({Component: (await import('./learning/playground/collisions/CollisionHarness')).CollisionHarness})},
         ...getDemonstrationCatalog().demonstrations.map(({id, path}) => ({
             path, lazy: graphRoute(id),
         })),

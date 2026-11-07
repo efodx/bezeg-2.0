@@ -3,10 +3,10 @@ import type {BroadPhaseMethod, StepCounters} from '../../../compgeo/collisions/w
 export type {BroadPhaseMethod, StepCounters}
 
 /**
- * Provisional maximum object counts per method. CP3 measures the real limits (spec: Containment, Bounded cost) and
- * replaces these values.
+ * Maximum object counts per method, measured in CP3 (spec: Containment): a naive step stays near 250 ms and a sweep
+ * step under 8 ms on the 4x throttled reference profile.
  */
-export const MAX_COUNT: Readonly<Record<BroadPhaseMethod, number>> = {naive: 2000, sweep: 5000}
+export const MAX_COUNT: Readonly<Record<BroadPhaseMethod, number>> = {naive: 4000, sweep: 5000}
 
 export const MIN_COUNT = 1
 

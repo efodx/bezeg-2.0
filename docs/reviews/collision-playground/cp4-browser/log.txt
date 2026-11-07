@@ -1,0 +1,45 @@
+lang selector 1
+== desk sl legend Način iskanja trkov
+1 canvas {"nonbg":10207,"w":926,"h":579}
+1 frames differ true
+2 readouts {"Objekti":"300","Preizkusi škatel v tem koraku":"509","Stikajoči se pari":"5","Čas koraka":"0 ms","Hitrost simulacije":"100 %"}
+radios 2
+2 sweep4000 {"Objekti":"4000","Preizkusi škatel v tem koraku":"25.189","Stikajoči se pari":"93","Čas koraka":"0,7 ms","Hitrost simulacije":"100 %"}
+3 naive readout after ms null
+3 naive4000 {"Objekti":"4000","Preizkusi škatel v tem koraku":"7.998.000","Vsi pari, n(n − 1)/2":"7.998.000","Stikajoči se pari":"97","Čas koraka":"37 ms","Hitrost simulacije":"45 %"}
+3 scroll under naive [{"ms":18,"y":4},{"ms":25,"y":31},{"ms":31,"y":46},{"ms":31,"y":67},{"ms":31,"y":86}]
+3 back to sweep ms 296
+3 sweep again {"Objekti":"4000","Preizkusi škatel v tem koraku":"25.267","Stikajoči se pari":"106","Čas koraka":"0,9 ms","Hitrost simulacije":"100 %"}
+6 idle live ["",""]
+6 after method "300 objektov, Preizkus vseh parov: 44.850 preizkusov škatel na korak, hitrost 100 %"
+4 tab order ["A///Bezeg","A///Učenje","A///Demonstracije","SELECT/select-one//SLEN","INPUT/range//","INPUT/radio//collision-method","BUTTON/button//Premor","BUTTON/button//Nova razporeditev","BODY///Za uporabo Bezega omogoči"]
+slider count 1
+4 count before/after 300 564
+4 radio after ArrowUp naive
+4 radio after ArrowDown sweep
+4 play aria-pressed true false true
+4/6 step live 564 objektov, Pometanje in obrezovanje: 1301 preizkusov škatel na korak, hitrost 100 % -> 564 objektov, Pometanje in obrezovanje: 1379 preizkusov škatel na korak, hitrost 100 %
+4/6 new live 564 objektov, Pometanje in obrezovanje: 1379 preizkusov škatel na korak, hitrost 100 % -> 564 objektov, Pometanje in obrezovanje: 0 preizkusov škatel na korak, hitrost 100 %
+8 visible changes true hidden stable true readouts hidden {"Objekti":"564","Preizkusi škatel v tem koraku":"1367","Stikajoči se pari":"13","Čas koraka":"0 ms","Hitrost simulacije":"100 %"} {"Objekti":"564","Preizkusi škatel v tem koraku":"1367","Stikajoči se pari":"13","Čas koraka":"0 ms","Hitrost simulacije":"100 %"} resumed true
+7 errors desk sl ["warning: Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently","warning: Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"]
+lang selector 1
+== desk en legend Collision-finding method
+1 canvas {"nonbg":10381,"w":926,"h":579}
+1 frames differ true
+2 readouts {"Objects":"300","Box tests this step":"506","Touching pairs":"4","Step time":"0.2 ms","Simulation speed":"100 %"}
+EN text Number of objects | 299 | Min: 10 | Max: 5,000 | Collision-finding method | Test every pair | Sweep and prune | Pause | Step | New arrangement | Objects | 300 | Box tests this step | 487 | Touching pairs | 2 | Step time | 0 ms | Simulation speed | 100 %
+7 errors desk en ["warning: Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"]
+lang selector 1
+== mob sl legend Način iskanja trkov
+1 canvas {"nonbg":7967,"w":712,"h":445}
+1 frames differ true
+2 readouts {"Objekti":"300","Preizkusi škatel v tem koraku":"502","Stikajoči se pari":"5","Čas koraka":"0,1 ms","Hitrost simulacije":"100 %"}
+5 boxes ["LABEL::Število objektov:313x24","INPUT:range::358x44","LABEL::Preizkus vseh paro:171x44","INPUT:radio:collision-method:24x24","LABEL::Pometanje in obrez:215x44","INPUT:radio:collision-method:24x24","BUTTON:button:Premor:79x44","BUTTON:button:Korak:68x44","BUTTON:button:Nova razporeditev:158x44"]
+5 overflow {"sw":390,"cw":390,"coarse":true}
+7 errors mob sl ["warning: Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"]
+lang selector 1
+== mob en legend Collision-finding method
+1 canvas {"nonbg":7943,"w":712,"h":445}
+1 frames differ true
+2 readouts {"Objects":"300","Box tests this step":"502","Touching pairs":"5","Step time":"0 ms","Simulation speed":"100 %"}
+7 errors mob en ["warning: Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"]

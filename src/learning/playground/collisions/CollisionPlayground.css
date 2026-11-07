@@ -1,0 +1,133 @@
+.collision-playground {
+    /* Graph style tokens (GraphPalette.primaryCurve and constructionAccent); the canvas reads them once per theme change. */
+    --collision-body: #587445;
+    --collision-touching: #bf8542;
+    position: relative;
+    display: grid;
+    gap: 0.75rem;
+    color: var(--bezeg-shell-ink);
+}
+
+.collision-playground__canvas {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    display: block;
+    border: 1px solid var(--bezeg-shell-rule);
+    border-radius: 8px;
+    background: var(--bezeg-shell-preview-panel);
+}
+
+.collision-playground__controls {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.collision-playground__methods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.collision-playground__methods legend {
+    float: none;
+    width: auto;
+    margin: 0 0 0.2rem;
+    font-size: 1rem;
+}
+
+.collision-playground__choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 32px;
+    cursor: pointer;
+}
+
+.collision-playground__choice input {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.collision-playground__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.collision-playground__buttons button {
+    min-height: 44px;
+    padding: 0 0.8rem;
+    border: 1px solid var(--bezeg-shell-control-rule);
+    border-radius: 6px;
+    background: var(--bezeg-shell-panel);
+    color: var(--bezeg-shell-choice-ink);
+    font: inherit;
+    cursor: pointer;
+}
+
+.collision-playground__buttons button:hover:not(:disabled) {
+    background: var(--bezeg-shell-control-hover);
+    border-color: var(--bezeg-shell-control-rule-hover);
+}
+
+.collision-playground__buttons button[aria-pressed='true'] {
+    background: var(--bezeg-shell-choice-selected);
+    border-color: var(--bezeg-shell-choice-rule-selected);
+}
+
+.collision-playground__buttons button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.collision-playground__buttons button:focus-visible,
+.collision-playground__choice input:focus-visible {
+    outline: 3px solid var(--bezeg-shell-focus);
+    outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+    .collision-playground__choice {
+        min-height: 44px;
+    }
+
+    .collision-playground__choice input {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+.collision-playground__readouts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.4rem 1rem;
+    margin: 0;
+}
+
+.collision-playground__readouts dt {
+    font-weight: 400;
+    color: var(--bezeg-shell-ink-secondary);
+}
+
+.collision-playground__readouts dd {
+    margin: 0;
+    font-size: 1.15rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.collision-playground__note {
+    margin: 0;
+    color: var(--bezeg-shell-ink-secondary);
+}
+
+.collision-playground__live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}

@@ -2228,3 +2228,12 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Outcome: accepted. Limits 4 000 (naive) and 5 000 (sweep) recorded in the spec and performance results. Worker found that CDP cannot throttle a worker target and verified a main-thread substitute with a calibration loop (4.47× throttled, 1.08× worker vs main unthrottled); the brief had asked it to verify worker throttling, which surfaced this.
 - Repairs: none. Gap: throttled worker behaviour on a real phone is unmeasured.
 - Timing: worker about 18 min. Usage: worker 61,016 tokens (reported total).
+
+## 2026-11-07 — collision playground CP4, Run component (collision stream, handler 1)
+
+- Class/size: UI component, M–L. Scope: canvas Run mode, controls, throttled readouts, live region, reduced motion, unavailable fallback, a hidden harness route for smoke, locale block.
+- Dispatch: `bezeg-worker` (Sonnet `medium`, parallel with CP3); `bezeg-reviewer` engineering + UI/accessibility (Sonnet `medium`); `bezeg-smoke` first pass (Sonnet `medium`); `bezeg-smoke` repair recheck (Haiku `medium`). Handler Opus `medium`.
+- Outcome: accepted. Worker 33 component tests, 13 of 14 mutations caught. Handler set the CP3 limits in `MAX_COUNT`, removed a `prefers-color-scheme` palette (the app has no dark theme, so it would have drawn dark colours on a light page), and repaired two review findings: arrow keys could not move the log slider at low counts, and an identical repeated announcement stayed silent. Both new tests were seen failing on the reverted code. The smoke passed 8/8 at 1440×900 and 390×844 in both languages, with 44 px targets, scroll staying responsive under naive at 4 000, and a pause when off-screen. It found low label contrast on the harness's dark shell background; the harness now uses the chapter surface, and the recheck measured 11.3:1.
+- Repairs: one handler round (component logic, harness styling). Code issues, not environment. Shell escaping cost three edits on one line (a raw no-break space); `String.fromCharCode(0xa0)` ended it.
+- Review value: the reviewer's static arithmetic found the slider stall that the worker's tests (which used PageUp) and the first smoke (which started at 300) both missed.
+- Usage (reported totals): worker 71,985; reviewer 24,532; smoke 40,745; recheck 35,024 tokens.
