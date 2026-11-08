@@ -28,6 +28,15 @@ module.exports = [
         discreteReason: null,
     },
     {
+        id: 'interp-hermite',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Točka 2, y', step: 0.01},
+        // The poster scene is the Catmull-Rom mode with the default points; P1 is (1, 2). A pointer drag fails the driver's fixed-handle check (the tangent handles are draggable points that follow P1), so the y field of P1 ("Točka 2, y") is swept: P1 goes down 1 and back, and the tangent arrows at P0, P1 and P2 turn with it.
+        path: [2, 1, 2],
+        lessonQuote: 'Povleci \\(P_1\\) in opazuj, kako se obe sosednji tangenti prilagodita.',
+        discreteReason: null,
+    },
+    {
         id: 'interp-runge',
         motion: 'discrete-exact-steps',
         control: {kind: 'stepper', label: 'Povečaj stopnjo n za 1', step: 1},

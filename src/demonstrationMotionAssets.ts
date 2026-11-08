@@ -103,6 +103,9 @@ import motion_voronoi from './images/demonstrations/catalog/voronoi.webm?no-inli
 import motion_voronoi_degenerate from './images/demonstrations/catalog/voronoi-degenerate.webm?no-inline';
 import motion_interp_runge from './images/demonstrations/catalog/interp-runge.webm?no-inline';
 import motion_rational_function from './images/demonstrations/catalog/rational-function.webm?no-inline';
+import motion_interp_hermite from './images/demonstrations/catalog/interp-hermite.webm?no-inline';
+import motion_bspline_extraction from './images/demonstrations/catalog/bspline-extraction.webm?no-inline';
+import motion_epicycles from './images/demonstrations/catalog/epicycles.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -209,4 +212,7 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'voronoi-degenerate': {src: motion_voronoi_degenerate, type: 'video/webm', duration: 4},
     'interp-runge': {src: motion_interp_runge, type: 'video/webm', duration: 4},
     'rational-function': {src: motion_rational_function, type: 'video/webm', duration: 4},
+    'interp-hermite': {src: motion_interp_hermite, type: 'video/webm', duration: 4},
+    'bspline-extraction': {src: motion_bspline_extraction, type: 'video/webm', duration: 4},
+    'epicycles': {src: motion_epicycles, type: 'video/webm', duration: 4},
 };

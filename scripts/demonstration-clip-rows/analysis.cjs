@@ -27,5 +27,14 @@ module.exports = [
         lessonQuote: 'Povleci \\(x\\) in \\(N\\) in napovej napako pri \\(N=1001\\), preden jo preveriš.',
         discreteReason: null,
     },
+    {
+        id: 'epicycles',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Čas t (del obhoda)', step: 0.01},
+        // The poster is the rhombus example at N = 8 (the recipe adds three Povečaj N za 1 presses). The vertex fields are hidden in the poster scene, an N sweep fails (a whole-number slider gives too few distinct frames below a 25 range and a pixel jump above it), so the time slider t carries the tip once half way round the trace and back: the learner can see where the tip leaves the rhombus loop.
+        path: [0, 3.14, 0],
+        lessonQuote: 'Poišči mesto, kjer se sled in zanka najbolj razhajata, in oceni, ali je razlika vidna.',
+        discreteReason: null,
+    },
     // fourier-coefficients: unresolved. The poster is the default |x| layout, whose handle fields ("Vrednost f pri x = 0", 0 -> 1 -> 0, quote "Povleci konico gor in dol (ali uporabi tipki ↑ in ↓) in opazuj stolpce \(a_1\) in \(a_3\).") do not exist in the route probe, which was taken on the jump layout, so _check.cjs would fail; a canvas drag snaps to 0.05 on unnamed handles.
 ];

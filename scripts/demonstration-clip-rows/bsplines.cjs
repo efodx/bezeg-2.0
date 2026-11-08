@@ -29,4 +29,13 @@ module.exports = [
         discreteReason: null,
     },
     // bspline-insertion: unresolved. Only "Vstavi vozel" changes the picture (the knot field "Vozel za vstavitev" draws nothing, BSplineInsertionGraph.tsx:157), and its stepper has no count readback; no lesson step moves a control point.
+    {
+        id: 'bspline-extraction',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'Vozel u3', step: 0.01},
+        // The poster is the default quadratic curve with the knots (0, 0, 0, 1, 2, 2, 2) and two pieces. A drag of p2 cannot close the loop: after a drag the graph keeps the pieces marked "changed" with thicker strokes (BSplineExtractionGraph.tsx:113, `moved` stays until an edit or Reset), so the last frame differs from the poster. A knot edit clears `moved` (line 206), so the inner knot u3 is swept from 1 to 1.5 and back; the junction of the two pieces moves along the curve and the piece readout keeps two pieces.
+        path: [1, 1.5, 1],
+        lessonQuote: 'Poišči točko, v kateri se stikata barvi obeh odsekov.',
+        discreteReason: null,
+    },
 ];
