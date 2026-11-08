@@ -1,4 +1,5 @@
 /**
+ * Registry-derived: Demonstration coverage comes from `graphFactories`; only the file-contract key lists are hand-kept.
  * Every Demonstration in `graphFactories`, mounted for real: its default Preset is exported to a file, preflighted and
  * committed by the file importer, and loaded back by the graph. Further checks tie each graph's Preset collection to the
  * definitions the file importer accepts.
@@ -49,8 +50,10 @@ describe('Preset collection definitions', () => {
     test('the accepted collection keys are the file contract, each defined once', () => {
         const keys = presetCollections.map(collection => collection.key);
         expect(new Set(keys).size).toBe(keys.length);
-        expect([...keys].sort()).toEqual([...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS,
-            ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS, ...PENDING_ROUTE_KEYS].sort());
+        // The key lists are deliberate per-collection decisions (a file contract); failures name the missing and extra keys.
+        const wanted = [...FILE_CONTRACT_KEYS, ...PATCH_KEYS, "linear-map", "complex-reciprocal", "complex-roots", ...COMPGEO_KEYS,
+            ...CURVE_STREAM_KEYS, "bspline-curve", ...PROJECTIVE_KEYS, ...PENDING_ROUTE_KEYS];
+        expect({missing: wanted.filter(key => !keys.includes(key)), extra: keys.filter(key => !wanted.includes(key))}).toEqual({missing: [], extra: []});
     });
 
     test('every Demonstration with Presets uses a definition the file importer accepts, and every definition has a graph apart from documented legacy keys', () => {

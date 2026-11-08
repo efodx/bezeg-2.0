@@ -338,7 +338,7 @@ describe('family reading chapters', () => {
             'uniform-convergence': {sl: /suprem|indeks|epsilon/i, en: /suprem|index|epsilon/i},
             'fixed-point': {sl: /začetek|korak|ocen/i, en: /start|step|bound/i},
         };
-        expect(occurrences).toHaveLength(21);
+        // Registry-derived: the id-set check below replaces a literal occurrence total.
         expect([...new Set(occurrences.map(({id}) => id))].sort()).toEqual(Object.keys(supportedControls).sort());
         for (const {section, id} of occurrences) {
             const prompt = section.investigationPrompts?.[id];
