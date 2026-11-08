@@ -103,6 +103,8 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     private startView?: readonly number[];
     /** The grid step the `followBox` was measured at; a box in grid units is stale once the step changes. */
     private followScale?: number;
+    /** Capture-only: the view the scaled `followBox` was kept for after the clip's fine grid rescale; while the view stays there, that box stays (see `finerGridPatch`). */
+    private keptFollowView?: readonly number[];
     private statsValue?: VoronoiDrawingStats;
     private constructionObjects: JXG.GeometryElement[] = [];
     private constructionDrawnFor?: {points: readonly GridPoint[]; site: number | null; count: number; scale: number; box?: RationalBox};
@@ -443,6 +445,10 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     /** The drawing follows the view: a changed visible area re-clips the diagram and the construction through the same handles. */
     private followView(): void {
         if (!this.hasBoard || !this.graphSession?.isAlive) return;
+        // Capture-only: after the fine grid rescale the kept box stands for as long as the view does not change; measuring it again at the finer step would round it differently and redraw the outer cells.
+        const view = this.board.getBoundingBox();
+        if (this.keptFollowView && this.followBox && view.every((v, i) => Math.abs(v - this.keptFollowView![i]) <= 1e-9 * Math.max(1, Math.abs(v)))) return;
+        this.keptFollowView = undefined;
         const measured = this.visibleBox();
         const next = this.measureFollow();
         if (!next) {
@@ -652,19 +658,40 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
             const created = this.board.create("point", target, {
                 name: "voronoi-query", withLabel: false, size: 6, face: "square", showInfobox: false,
                 fillColor: GraphPalette.derivedPoint, strokeColor: GraphPalette.selectedControlPointOutline, strokeWidth: 2, layer: 9,
+                // Capture-only: the pointer-down highlight would change the marker's fill and outline in one frame step; the clip keeps its look.
+                ...(this.clipCapture() ? {highlightFillColor: GraphPalette.derivedPoint, highlightStrokeColor: GraphPalette.selectedControlPointOutline} : {}),
             }) as JXG.Point;
             created.on("drag", () => this.dragQuery(created));
             this.queryPoint = created;
             return true;
         }
         if (point.X() === target[0] && point.Y() === target[1]) return false;
+        // Capture-only: on the clip's fine grid the marker stays under the pointer, as the sites do; only the stored query is snapped.
+        if (this.onClipFineGrid()) return true;
         this.inQuerySnap = true;
         try { point.moveTo(target, 0); } finally { this.inQuerySnap = false; }
         return true;
     }
 
+    /**
+     * Capture-only: the query point and the followed drawing box are in grid units, so they scale with the sites and stay where they
+     * were on the board; the box is kept for the current view, because measuring it again at the finer step rounds it differently and redraws the outer cells.
+     */
+    protected override finerGridPatch(factor: number): Partial<PointSetGraphState> {
+        const scale = Rational.fromInt(factor);
+        const box = this.followBox;
+        if (box && this.followScale !== undefined) {
+            this.followBox = {minX: box.minX.mul(scale), maxX: box.maxX.mul(scale), minY: box.minY.mul(scale), maxY: box.maxY.mul(scale)};
+            this.followScale = this.followScale / factor;
+            this.keptFollowView = [...this.board.getBoundingBox()];
+        }
+        const q = this.query;
+        return this.patch({query: {x: q.x.mul(scale).format(), y: q.y.mul(scale).format()}});
+    }
+
     private dragQuery(point: JXG.Point): void {
         if (this.inQuerySnap || this.graphInteractionLocked) return;
+        this.applyClipFineGrid();
         const scale = 2 ** this.model.gridStepExponent;
         const snap = (v: number) => Rational.of(Math.round((v / scale) * QUERY_SNAP), QUERY_SNAP);
         const wanted = new RationalPoint(snap(point.X()), snap(point.Y()));

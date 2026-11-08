@@ -583,10 +583,33 @@ export class PointSetGraph<Overlay extends string = never> extends BaseGraph<Poi
         this.syncScene();
     }
 
+    /**
+     * Capture-only: further state in grid units that a subclass rescales with the model when the clip's fine grid is first applied;
+     * `factor` is the integer ratio of the old grid step to the new one.
+     */
+    protected finerGridPatch(_factor: number): Partial<PointSetGraphState> {
+        return {};
+    }
+
+    /** Capture-only: true while the clip's fine grid global is set (a catalog clip is being captured). */
+    protected clipCapture(): boolean {
+        return clipGridStepExponent() !== undefined;
+    }
+
+    /** Capture-only: true once the model is on the clip's fine grid, where a dragged marker follows the pointer exactly instead of snapping on the board. */
+    protected onClipFineGrid(): boolean {
+        return this.model.gridStepExponent === clipGridStepExponent();
+    }
+
+    /** Capture-only: on the first drag under the clip's fine grid, rescales the model (and `finerGridPatch`) to it; otherwise nothing. */
+    protected applyClipFineGrid(): void {
+        const finer = rescaleToFinerGrid(this.model, clipGridStepExponent(), this.options);
+        if (finer !== this.model) this.setState({...this.finerGridPatch(2 ** (this.model.gridStepExponent - finer.gridStepExponent)), model: finer});
+    }
+
     private dragPoint(index: number, point: JXG.Point): void {
         if (this.inDragSnap || this.graphInteractionLocked) return;
-        const finer = rescaleToFinerGrid(this.model, clipGridStepExponent(), this.options);
-        if (finer !== this.model) this.setState({model: finer});
+        this.applyClipFineGrid();
         const model = this.model;
         const exponent = model.gridStepExponent;
         const snapped = snapToGrid(point.X(), point.Y(), exponent);

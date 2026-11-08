@@ -331,6 +331,50 @@ test('a query point dragged on the board snaps to quarters and stays exact', () 
     expect(graph.model.points).toEqual(VORONOI_EXAMPLE.points);
 });
 
+test('the capture-only fine grid scales the query point with the sites, so it stays put on the board', () => {
+    const graph = new Observed();
+    mount(graph);
+    const site = sitePoints(graph)[0] as unknown as JXG.Point;
+    (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent = -2;
+    try {
+        act(() => { site.moveTo([site.X() + 0.25, site.Y()], 0); trigger(site, 'drag'); });
+        expect(graph.model.gridStepExponent).toBe(-2);
+        expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['16', '8']);
+        const query = named(graph, 'voronoi-query')[0] as unknown as JXG.Point;
+        expect([query.X(), query.Y()]).toEqual([4, 2]);
+        expect(graph.queryNearest()).toEqual(nearestSites(graph.model.points, graph.query));
+    } finally { delete (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent; }
+});
+
+test('under the capture-only fine grid the dragged query marker stays under the pointer and keeps its look on press', () => {
+    const graph = new Observed();
+    mount(graph);
+    const query = named(graph, 'voronoi-query')[0] as unknown as JXG.Point;
+    expect(query.visProp.highlightfillcolor).not.toBe(query.visProp.fillcolor);
+    (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent = -8;
+    try {
+        act(() => { query.moveTo([4.0123, 2], 0); trigger(query, 'drag'); });
+        expect(graph.model.gridStepExponent).toBe(-8);
+        expect(query.X()).toBe(4.0123);
+    } finally { delete (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent; }
+});
+
+test('a rescale to the fine grid keeps the followed drawing box while the view stays', () => {
+    const graph = new Observed();
+    mount(graph);
+    const site = sitePoints(graph)[0] as unknown as JXG.Point;
+    const box = () => (graph as unknown as {followBox?: {minX: Rational}}).followBox?.minX;
+    act(() => { graph.liveBoard().setBoundingBox([-5.3, 12.3, 13.3, -3.3], false); });
+    const before = box();
+    expect(before).toBeDefined();
+    (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent = -2;
+    try {
+        act(() => { site.moveTo([site.X() + 0.25, site.Y()], 0); trigger(site, 'drag'); });
+        act(() => { graph.liveBoard().setBoundingBox([-5.3, 12.3, 13.3, -3.3], false); });
+        expect(box()?.format()).toBe(before!.mul(Rational.fromInt(4)).format());
+    } finally { delete (window as {__bezegClipGridStepExponent?: unknown}).__bezegClipGridStepExponent; }
+});
+
 test('Reset restores the example, switches the overlay off and clears selection, construction and the query point', () => {
     const graph = new Observed();
     mount(graph);
