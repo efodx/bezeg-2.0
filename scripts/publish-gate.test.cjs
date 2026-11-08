@@ -10,6 +10,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const {formatReport, publish, spawnExec} = require('./publish-gate.cjs');
+const {ALWAYS_RUN} = require('./check-changed-always-run.cjs');
 
 const GATE = path.join(__dirname, 'publish-gate.cjs');
 
@@ -242,7 +243,7 @@ test('master moving elsewhere while the slice was verified takes the delta path 
     const commit = commitFile(f.work, 'src/a.txt', 'a\n');
     const report = await f.run({commits: [commit], exec: recording([], advanceDuringCheck(f, 'other.txt'))});
     assert.equal(report.ok, true, report.message);
-    assert.deepEqual(recorded(f), ['check-changed', 'typecheck', 'lint', 'build']);
+    assert.deepEqual(recorded(f), ['check-changed', 'typecheck', 'lint', 'unit', 'build']);
     assert.deepEqual(report.paths.map(entry => entry.path), ['full', 'delta']);
     assert.equal(report.retries, 1);
     assert.equal(f.remoteHead(), report.candidate);
@@ -253,6 +254,19 @@ test('master moving elsewhere while the slice was verified takes the delta path 
     assert.notEqual(store.entries.at(-1).master, report.verifiedBase);
     assert.equal(store.entries.length, 1);
     assert.equal(fs.existsSync(process.env.BEZEG_PUBLISH_LOCK), false);
+});
+
+test('the delta path runs the always-run unit tier on the new master', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const report = await f.run({commits: [commit], exec: recording([], advanceDuringCheck(f, 'other.txt'))});
+    assert.equal(report.ok, true, report.message);
+    const lines = fs.readFileSync(f.record, 'utf8').trim().split('\n').map(line => line.split(' '));
+    const delta = lines.slice(1);
+    assert.deepEqual(delta.map(line => line[0]), ['typecheck', 'lint', 'unit', 'build']);
+    assert.deepEqual(delta[2].slice(1, -1), ALWAYS_RUN);
+    assert.ok(report.completed.includes('verify:delta:unit'), 'delta unit step is labelled under delta:');
+    assert.ok(report.notCovered.some(text => text.includes('always-run unit tier ran')));
 });
 
 test('an incoming change to a file the slice changed needs the full check-changed', async t => {

@@ -11,6 +11,7 @@ const os = require('node:os');
 const path = require('node:path');
 const {parseArgs} = require('node:util');
 const {LESSON_SHARED_PATHS} = require('./transient-state-scope.cjs');
+const {alwaysRunFiles} = require('./check-changed-always-run.cjs');
 
 const PRODUCTION_ORIGINS = ['https://github.com/efodx/bezeg-2.0.git', 'https://github.com/efodx/bezeg-2.0'];
 const USAGE = 'Usage: just publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,id,...>\n'
@@ -23,10 +24,14 @@ const MAX_RECORDS = 20;
 const LOCK_WAIT_MS = 15 * 60 * 1000;
 const LOCK_STALE_MS = 45 * 60 * 1000;
 const LOCK_POLL_MS = 1000;
-const DELTA_CHECKS = ['typecheck', 'lint', 'build'];
+// The always-run unit tier (scripts/check-changed-always-run.cjs) goes between lint and build when the slice has files for it.
+const DELTA_CHECKS = (changed) => {
+    const always = alwaysRunFiles(changed);
+    return ['typecheck', 'lint', ...(always.length ? [{name: 'unit', args: () => always}] : []), 'build'];
+};
 // Beyond the catalog sweeps' widest shared list (lesson sweeps): files whose change can alter how any slice typechecks, lints, builds or tests.
 const DELTA_SHARED_PATHS = [...LESSON_SHARED_PATHS, /^package(-lock)?\.json$/, /^\.nvmrc$/, /^vite\.config\.mts$/, /^tsconfig[^/]*\.json$/, /^src\/setupTests\.ts$/, /^eslint\.config\./];
-const DELTA_NOT_COVERED = 'delta path: master moved only in files the slice and shared configuration do not touch, so unit tests were not rerun on the new master (typecheck, lint and build were); hosted CI runs the full suite before deploying';
+const DELTA_NOT_COVERED = 'delta path: master moved only in files the slice and shared configuration do not touch, so the always-run unit tier ran on the new master but the rest of the unit tests did not (typecheck, lint and build also ran); hosted CI runs the full suite before deploying';
 
 const isDocumentation = file => file.startsWith('docs/') || file.endsWith('.md');
 const isTooling = file => isDocumentation(file) || /^(scripts|tools)\//.test(file) || file === 'justfile';
@@ -388,7 +393,7 @@ async function publish({cwd = process.cwd(), base, commits, recipe, expectedOrig
                     if (decision.path === 'delta') {
                         // Not remembered: the record keeps the last base the unit tests ran on, so every later
                         // delta compares all of master's movement since then with the slice, not just the last step.
-                        await runChecks(DELTA_CHECKS, latest, 'delta:');
+                        await runChecks(DELTA_CHECKS(changed), latest, 'delta:');
                         report.notCovered = [...new Set([...report.notCovered, DELTA_NOT_COVERED])];
                     } else {
                         needFull = true;
