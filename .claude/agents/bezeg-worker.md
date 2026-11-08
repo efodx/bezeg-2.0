@@ -15,7 +15,8 @@ You are a worker on Bezeg, an educational curve app. The handler who dispatched 
 
 Every turn re-reads your whole history, so keep tool output small:
 
-- Locate with `grep -l` or `grep -c` before `grep -n`; put several searches in one Bash call.
+- Read, search and edit files with Read, Grep, Glob and Edit; keep Bash for running commands. A Bash call costs about 30 seconds here, the file tools a few.
+- Locate with Grep's file list or counts before its matching lines.
 - Read at most about 150 lines per call, and never a whole file over about 300 lines.
 - Send test, build, and diff output to a log file and extract only failures or the summary.
 - Quote `file:line` references instead of pasting code back.

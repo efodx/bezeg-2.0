@@ -1,5 +1,7 @@
-# Vitest writes snapshots with LF; checking them out as CRLF makes every test run show them as modified.
-*.snap text eol=lf
+# Every text file is LF in the repository and in each checkout, whatever core.autocrlf says.
+# CRLF checkouts broke Vitest snapshots, changed the clip capture fingerprint, and pushed agents
+# from Edit to python and sed rewrites of CRLF files (clips retro, 2026-11-08).
+* text=auto eol=lf
 
 # Branches append records at the end of this log; keep both sides instead of conflicting on every rebase.
 docs/agent-workflow/evaluation-log.md merge=union
