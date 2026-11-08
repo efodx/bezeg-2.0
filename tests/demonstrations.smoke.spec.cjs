@@ -52,6 +52,8 @@ async function expectRenderedWorkspace(page, demonstration) {
 }
 
 test('the catalogue shows every demonstration in teaching order with useful cards and supported destinations', async ({page}) => {
+    // Every card is checked and every poster is awaited in turn, so the time grows with the catalogue (55 s on CI, 2026-11-08).
+    test.setTimeout(150_000);
     await openEnglish(page, '/bezeg-2.0/demonstrations');
 
     await expect(page.getByRole('heading', {level: 1, name: 'Demonstrations'})).toBeVisible();
