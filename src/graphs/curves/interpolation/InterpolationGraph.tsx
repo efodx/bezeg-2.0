@@ -1,9 +1,12 @@
 import React from "react";
 import {renderMessage} from "../../../localization";
+import type {Message} from "../../../localization";
+import {DomainError} from "../../functions/BaseFunctionGraph";
+import {constrainPoint, placeNewPoint, refitWhenOutside} from "../../base/points";
 import {LocalizedError, t, currentLanguage} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
-import {CountSetter} from "../../../inputs/CountSetter";
+import {PointCollection} from "../../../inputs/PointCollection";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PointListInput} from "../../../inputs/PointListInput";
 import {BasisPlot} from "./BasisPlot";
@@ -165,8 +168,10 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
     movePoint(index: number, x: number, y: number): boolean {
         const points = this.state.points;
         if (!Number.isInteger(index) || index < 0 || index >= points.length || !Number.isFinite(x) || !Number.isFinite(y)) return false;
+        // The shared drag rule: a silent clamp to the coordinate range, no step. A repeated parameter is still refused with its notice.
         const limit = INTERPOLATION_COORDINATE_LIMIT;
-        const next = points.map((p, i) => i === index ? [Math.min(limit, Math.max(-limit, x)), Math.min(limit, Math.max(-limit, y))] as const : p);
+        const moved = constrainPoint([x, y], {bounds: {x: [-limit, limit], y: [-limit, limit]}});
+        const next = points.map((p, i) => i === index ? moved : p);
         return this.tryPoints(next);
     }
 
@@ -182,11 +187,7 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         const rejection = interpolationRejection(next, this.state.parameterRule);
         if (rejection) return renderMessage(rejection);
         this.tryPoints(next);
-        if (this.board) {
-            const [left, top, right, bottom] = this.board.getBoundingBox();
-            const [x, y] = value;
-            if (x < Math.min(left, right) || x > Math.max(left, right) || y < Math.min(top, bottom) || y > Math.max(top, bottom)) this.fit();
-        }
+        this.refitFor([[value[0], value[1]]]);
         return undefined;
     }
 
@@ -199,16 +200,26 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
         this.tryPoints(this.state.points, rule);
     }
 
-    /** Appends a point one unit right of the last one, up to INTERPOLATION_POINTS_MAX. */
-    addPoint() {
+    /** The view policy of an add or a typed edit: the view moves only when a framed point lies outside it (a drag never calls this). */
+    private refitFor(framed: readonly (readonly [number, number])[]) {
+        if (this.board) refitWhenOutside(this.board.getBoundingBox() as [number, number, number, number], framed, () => this.fit());
+    }
+
+    /**
+     * Appends a point up to INTERPOLATION_POINTS_MAX: exactly at `at` when given, else one unit right of the last one (left of it at
+     * the coordinate limit). The model's rules still apply (a repeated parameter or an out-of-range value is refused with its
+     * notice); the refusal is returned, undefined when the point was added (at the maximum the refusal is `count_at_maximum`).
+     */
+    addPoint(at?: readonly [number, number]): Message | undefined {
         const points = this.state.points;
-        if (points.length >= INTERPOLATION_POINTS_MAX) return;
-        const last = points[points.length - 1];
-        // One unit right of the last point, or left of it at the coordinate limit, so the new point is always distinct.
-        const x = last[0] + 1 <= INTERPOLATION_COORDINATE_LIMIT ? last[0] + 1 : last[0] - 1;
-        if (!this.tryPoints([...points, [x, last[1]] as const])) return;
+        if (points.length >= INTERPOLATION_POINTS_MAX) return {key: 'count_at_maximum', params: {value0: INTERPOLATION_POINTS_MAX}};
+        const placed = placeNewPoint(points, {at, limit: {max: INTERPOLATION_COORDINATE_LIMIT}});
+        const next = [...points, [placed[0], placed[1]] as const];
+        const rejection = interpolationRejection(next, this.state.parameterRule);
+        if (!this.tryPoints(next)) return rejection;
         this.ensureScene();
-        this.fit();
+        this.refitFor([placed]);
+        return undefined;
     }
 
     /** Removes the last point, down to INTERPOLATION_POINTS_MIN. */
@@ -247,7 +258,18 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
                 else if (action.overlay === 'basis') this.setShowBasis(action.visible);
                 else throw new Error('The overlay must be "hull", "bezier" or "basis".');
             } else if (action.operation === 'add-point') {
-                this.addPoint();
+                const {x, y} = action;
+                if (x === undefined && y === undefined) {
+                    // A refused authored add (the maximum, a repeated parameter) is a content defect: fail loudly (task-0 decision 6).
+                    const refusal = this.addPoint();
+                    if (refusal) throw new DomainError(refusal);
+                    return;
+                }
+                if (typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x) || !Number.isFinite(y)) {
+                    throw new Error('An interpolation add-point action needs finite x and y together, or neither.');
+                }
+                const refusal = this.addPoint([x, y]);
+                if (refusal) throw new DomainError(refusal);
             } else {
                 throw new Error('An interpolation action needs the operation set-rule, set-overlay or add-point.');
             }
@@ -268,8 +290,9 @@ export class InterpolationGraph extends BaseGraph<InterpolationGraphState, Inter
             <div key="rule"><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
                                           options={[{value: 'uniform', text: t("interp_rule_uniform")}, {value: 'chord', text: t("interp_rule_chord")}]}
                                           onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div>,
-            <div key="count"><CountSetter label={t("interp_point_count")} n={points.length} min={INTERPOLATION_POINTS_MIN}
-                                          max={INTERPOLATION_POINTS_MAX} onPlus={() => this.addPoint()} onMinus={() => this.removePoint()}/></div>,
+            <div key="count"><PointCollection label={t("interp_point_count")} count={points.length} min={INTERPOLATION_POINTS_MIN}
+                                                 max={INTERPOLATION_POINTS_MAX} onAdd={() => { this.addPoint(); }}
+                                                 removal={{kind: 'last', onRemove: () => this.removePoint()}}/></div>,
             <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
                                               min={-INTERPOLATION_COORDINATE_LIMIT} max={INTERPOLATION_COORDINATE_LIMIT}
                                               onCommit={(index, value) => this.editPoint(index, value)}/></div>,

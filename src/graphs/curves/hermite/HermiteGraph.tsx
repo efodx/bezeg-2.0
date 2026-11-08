@@ -1,8 +1,11 @@
 import React from "react";
-import {LocalizedError, renderMessage, t} from "../../../localization";
+import {LocalizedError, message, renderMessage, t} from "../../../localization";
+import type {Message} from "../../../localization";
+import {DomainError} from "../../functions/BaseFunctionGraph";
+import {placeNewPoint, refitWhenOutside} from "../../base/points";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
-import {CountSetter} from "../../../inputs/CountSetter";
+import {PointCollection} from "../../../inputs/PointCollection";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {PointListInput} from "../../../inputs/PointListInput";
 import {catmullRomTangents} from "../../../analysis/hermite";
@@ -186,11 +189,7 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         const rejection = hermiteRejection({...this.exportPresetData(), points: next});
         if (rejection) return renderMessage(rejection);
         this.tryPoints(next);
-        if (this.board) {
-            const [left, top, right, bottom] = this.board.getBoundingBox();
-            const [x, y] = value;
-            if (x < Math.min(left, right) || x > Math.max(left, right) || y < Math.min(top, bottom) || y > Math.max(top, bottom)) this.fit();
-        }
+        this.refitFor([[value[0], value[1]]]);
         return undefined;
     }
 
@@ -227,17 +226,41 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
         this.setState({tension: Math.min(HERMITE_TENSION_MAX, Math.max(HERMITE_TENSION_MIN, value))});
     }
 
-    /** Appends a point one unit right of the last one (left of it at the limit), with its Catmull-Rom tangent. */
-    addPoint() {
+    /**
+     * Appends a point, with its Catmull-Rom tangent: exactly at `at` when given, else one unit right of the last one (left of it at the
+     * limit). The model's rules apply as for a typed edit; the refusal is returned, undefined when added (at the maximum the refusal is `count_at_maximum`).
+     * The view follows the shared policy: it refits only when the new point or its tangent tip lies outside it.
+     */
+    addPoint(at?: readonly [number, number]): Message | undefined {
         const {points, tangents, parameterRule} = this.state;
-        if (points.length >= INTERPOLATION_POINTS_MAX) return;
-        const last = points[points.length - 1];
-        const x = last[0] + 1 <= HERMITE_COORDINATE_LIMIT ? last[0] + 1 : last[0] - 1;
-        const next = [...points, [x, last[1]] as const];
+        if (points.length >= INTERPOLATION_POINTS_MAX) return {key: 'count_at_maximum', params: {value0: INTERPOLATION_POINTS_MAX}};
+        const placed = placeNewPoint(points, {at, limit: {max: HERMITE_COORDINATE_LIMIT}});
+        const next = [...points, [placed[0], placed[1]] as const];
+        // Coincident neighbours first: the Catmull-Rom tangent below is not defined for them.
+        const pair = firstCoincidentPair(next, parameterRule);
+        if (pair !== undefined) {
+            this.setState({notice: 'coincident'});
+            return message("hermite_coincident_points", {value0: pair, value1: pair + 1});
+        }
         const tangent = catmullRomTangents(next, parameterRule, 1)[next.length - 1];
-        if (!this.tryPoints(next, parameterRule, [...tangents, [clamp(tangent[0], HERMITE_TANGENT_LIMIT), clamp(tangent[1], HERMITE_TANGENT_LIMIT)] as const])) return;
+        const nextTangents = [...tangents, [clamp(tangent[0], HERMITE_TANGENT_LIMIT), clamp(tangent[1], HERMITE_TANGENT_LIMIT)] as const];
+        const rejection = hermiteRejection({...this.exportPresetData(), points: next, tangents: nextTangents});
+        if (rejection) return rejection;
+        this.tryPoints(next, parameterRule, nextTangents);
         this.ensureScene();
-        this.fit();
+        this.refitFor([placed, ...this.arrowTips(next.length - 1)]);
+        return undefined;
+    }
+
+    /** The tip of the drawn tangent arrow of point `index` (the stored tangent in Hermite mode, the Catmull-Rom one otherwise). */
+    private arrowTips(index: number): [number, number][] {
+        const {points, mode, tangents, parameterRule, tension} = this.state;
+        const arrow = (mode === 'hermite' ? tangents : catmullRomStored(points, parameterRule, tension))[index];
+        return arrow ? [[points[index][0] + arrow[0], points[index][1] + arrow[1]]] : [];
+    }
+
+    private refitFor(framed: readonly (readonly [number, number])[]) {
+        if (this.board) refitWhenOutside(this.board.getBoundingBox() as [number, number, number, number], framed, () => this.fit());
     }
 
     /** Removes the last point and its tangent, down to INTERPOLATION_POINTS_MIN. */
@@ -278,7 +301,18 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
                 else if (action.overlay === 'bezier') this.setShowBezier(action.visible);
                 else throw new Error('The overlay must be "tangents" or "bezier".');
             } else if (action.operation === 'add-point') {
-                this.addPoint();
+                const {x, y} = action;
+                if (x === undefined && y === undefined) {
+                    // A refused authored add (the maximum, a repeated parameter) is a content defect: fail loudly (task-0 decision 6).
+                    const refusal = this.addPoint();
+                    if (refusal) throw new DomainError(refusal);
+                    return;
+                }
+                if (typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x) || !Number.isFinite(y)) {
+                    throw new Error('A hermite add-point action needs finite x and y together, or neither.');
+                }
+                const refusal = this.addPoint([x, y]);
+                if (refusal) throw new DomainError(refusal);
             } else {
                 throw new Error('A hermite action needs the operation set-mode, set-rule, set-tension, set-overlay or add-point.');
             }
@@ -299,8 +333,9 @@ export class HermiteGraph extends BaseGraph<HermiteGraphState, HermitePresetData
             <div key="rule"><ChoiceSelect label={t("interp_parameter_rule")} value={parameterRule}
                                           options={[{value: 'uniform', text: t("interp_rule_uniform")}, {value: 'chord', text: t("interp_rule_chord")}]}
                                           onChange={value => { if (isParameterRule(value)) this.setParameterRule(value); }}/></div>,
-            <div key="count"><CountSetter label={t("interp_point_count")} n={points.length} min={INTERPOLATION_POINTS_MIN}
-                                          max={INTERPOLATION_POINTS_MAX} onPlus={() => this.addPoint()} onMinus={() => this.removePoint()}/></div>,
+            <div key="count"><PointCollection label={t("interp_point_count")} count={points.length} min={INTERPOLATION_POINTS_MIN}
+                                                 max={INTERPOLATION_POINTS_MAX} onAdd={() => { this.addPoint(); }}
+                                                 removal={{kind: "last", onRemove: () => this.removePoint()}}/></div>,
             <div key="points"><PointListInput title={t("interp_point_list")} points={points} pointLabel={i => t("interp_point_name", {value0: i + 1})}
                                               min={-HERMITE_COORDINATE_LIMIT} max={HERMITE_COORDINATE_LIMIT}
                                               onCommit={(index, value) => this.editPoint(index, value)}/></div>,

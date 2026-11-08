@@ -159,8 +159,10 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         }
     }
 
-    protected addPoint(): void {
-        this.commitModel(this.accepted(addCorrelationPoint(this.model)));
+    /** Appends a point: the default one, or (a lesson) at `at`, snapped and range-checked like a typed edit; one commit either way. */
+    protected addPoint(at?: readonly [number, number]): void {
+        const added = this.accepted(addCorrelationPoint(this.model));
+        this.commitModel(at ? this.accepted(moveCorrelationPoint(added, added.points.length - 1, at)) : added);
         this.ensurePointsVisible();
     }
 
@@ -194,7 +196,12 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         super.registerLessonActions(registry);
         registry.on("correlation", action => {
             if (action.operation === "set-point") this.setPoint(action.index, action.x, action.y);
-            else if (action.operation === "add-point") this.addPoint();
+            else if (action.operation === "add-point") {
+                const {x, y} = action;
+                if (x === undefined && y === undefined) this.addPoint();
+                else if (typeof x === "number" && typeof y === "number" && Number.isFinite(x) && Number.isFinite(y)) this.addPoint([x, y]);
+                else throw new DomainError(correlationEditMessage({kind: "coordinate", index: this.model.points.length, limit: CORRELATION_COORDINATE_LIMIT}));
+            }
             else if (action.operation === "remove-point") this.removePoint(action.index);
             else throw new Error("A correlation action needs the operation set-point, add-point or remove-point.");
         });

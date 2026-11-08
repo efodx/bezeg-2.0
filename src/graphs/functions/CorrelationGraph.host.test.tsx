@@ -509,6 +509,18 @@ describe('lesson actions (P5)', () => {
     const show = (target: string, visible: unknown) => ({kind: 'function-visibility', target, visible}) as LessonAction;
     const setPoint = (index: unknown, x: unknown, y: unknown) => ({kind: 'correlation', operation: 'set-point', index, x, y}) as LessonAction;
     const addPoint = () => ({kind: 'correlation', operation: 'add-point'}) as LessonAction;
+    const addPointAt = (x: unknown, y: unknown) => ({kind: 'correlation', operation: 'add-point', x, y}) as LessonAction;
+
+    test('add-point with coordinates adds exactly there (snapped to tenths) in one commit; non-finite or lone values are refused', () => {
+        const {graph} = mount();
+        graph.lesson(addPointAt(4.04, -1.26));
+        expect(graph.modelNow().points).toEqual([[0, 1], [1, 2], [2, 2], [3, 4], [4, -1.3]]);
+        expect(() => graph.lesson(addPointAt(Number.NaN, 1))).toThrow();
+        expect(() => graph.lesson(addPointAt(1, undefined))).toThrow();
+        expect(() => graph.lesson(addPointAt(50, 1))).toThrow();
+        expect(graph.modelNow().points).toHaveLength(5);
+    });
+
     const removePoint = (index: unknown) => ({kind: 'correlation', operation: 'remove-point', index}) as LessonAction;
 
     test('one synchronous sequence follows the planned lesson: scatter, line and residuals, an outlier, the parabola, x on y, free edits', () => {

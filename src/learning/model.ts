@@ -469,22 +469,22 @@ export type LessonAction =
     | {readonly kind: 'parametric-curve'; readonly curve: ParametricCurveId; readonly radius?: number}
     /**
      * InterpolationGraph only (Lagrange versus Bezier, lesson I1): `set-rule` picks the parameter rule, `set-overlay` shows or hides the
-     * convex hull, the Bezier curve or the basis plot, and `add-point` appends a point like the Add button (a refusal, such as at the
-     * point maximum, changes nothing). The shared position s is the `parameter` action named `t`, a number from 0 to 1.
+     * convex hull, the Bezier curve or the basis plot, and `add-point` appends a point like the Add button, or exactly at `x`, `y` when
+     * both are given (a refusal at the point maximum changes nothing; a coordinate-given point the model cannot accept is refused with a message). The shared position s is the `parameter` action named `t`, a number from 0 to 1.
      */
     | {readonly kind: 'interpolation'; readonly operation: 'set-rule'; readonly rule: 'uniform' | 'chord'}
     | {readonly kind: 'interpolation'; readonly operation: 'set-overlay'; readonly overlay: 'hull' | 'bezier' | 'basis'; readonly visible: boolean}
-    | {readonly kind: 'interpolation'; readonly operation: 'add-point'}
+    | {readonly kind: 'interpolation'; readonly operation: 'add-point'; readonly x?: number; readonly y?: number}
     /**
      * HermiteGraph only (Hermite and Catmull-Rom, lesson I3): `set-mode` picks the mode (switching to Hermite copies the current
      * Catmull-Rom tangents), `set-rule` the parameter rule, `set-tension` the Catmull-Rom tension (0 to 2; ignored in Hermite mode),
-     * `set-overlay` shows or hides the tangent arrows or the Bezier control polygons, and `add-point` appends a point like the Add button.
+     * `set-overlay` shows or hides the tangent arrows or the Bezier control polygons, and `add-point` appends a point like the Add button, or exactly at `x`, `y` when both are given.
      */
     | {readonly kind: 'hermite'; readonly operation: 'set-mode'; readonly mode: 'catmull-rom' | 'hermite'}
     | {readonly kind: 'hermite'; readonly operation: 'set-rule'; readonly rule: 'uniform' | 'chord'}
     | {readonly kind: 'hermite'; readonly operation: 'set-tension'; readonly value: number}
     | {readonly kind: 'hermite'; readonly operation: 'set-overlay'; readonly overlay: 'tangents' | 'bezier'; readonly visible: boolean}
-    | {readonly kind: 'hermite'; readonly operation: 'add-point'}
+    | {readonly kind: 'hermite'; readonly operation: 'add-point'; readonly x?: number; readonly y?: number}
     /**
      * RungeInterpolationGraph only (Runge's phenomenon, lesson I2): `set-function` picks the function of the closed list, `set-degree`
      * the degree n (a whole number from 1 to 40, so n + 1 nodes), `set-rule` the node rule, and `set-overlay` shows or hides the error
@@ -518,13 +518,13 @@ export type LessonAction =
     | {readonly kind: 'summary'; readonly operation: 'remove-value'; readonly index: number}
     /**
      * CorrelationGraph only (correlation, lesson P5): `set-point` moves point `index` (0-based, in the user's order) to (`x`, `y`),
-     * `add-point` appends a point one step right of the last one and `remove-point` removes point `index`. Coordinates are snapped to
+     * `add-point` appends a point one step right of the last one (or at `x`, `y` when both are given, snapped like `set-point`) and `remove-point` removes point `index`. Coordinates are snapped to
      * tenths; a coordinate outside the I4 limit, a bad index, a 21st point or removing below two points is refused with a message,
      * never clamped. A point outside the visible view refits it. The example is the function choice `correlation-example`; the
      * residual segments and the x-on-y line are the function visibility targets `correlation-residuals` and `correlation-x-on-y`.
      */
     | {readonly kind: 'correlation'; readonly operation: 'set-point'; readonly index: number; readonly x: number; readonly y: number}
-    | {readonly kind: 'correlation'; readonly operation: 'add-point'}
+    | {readonly kind: 'correlation'; readonly operation: 'add-point'; readonly x?: number; readonly y?: number}
     | {readonly kind: 'correlation'; readonly operation: 'remove-point'; readonly index: number}
     /**
      * CoonsPatchGraph only (Coons patch, lesson D4): `set-shown` picks the surface the mesh shows (`lc`, `ld`, `b` or the blend `s`),
