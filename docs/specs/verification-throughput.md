@@ -4,6 +4,27 @@ Status: planned 2026-11-08 at the owner's request ("the pipeline is so slow; do 
 
 Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, browser suite 665 s → 370 s) and the [fail-fast publication gate](fail-fast-publication-gate.md). No phase is task-filed yet; file tasks under `docs/tasks/verification-throughput/` when a phase is picked up.
 
+**Progress, 2026-11-08.**
+
+- The controls stream took the red-master smoke repair (phase 0, first item) and adopted phase 5.
+- Implemented with Node tests and lint only; hosted runs are not yet observed:
+  - phase 0, CI scope (`dd3df425`);
+  - phase 1 item 3, slot holding (`08381192`). A per-checkout run claim keeps the duplicate-run refusal for commands that no longer take a slot.
+  - phase 1 items 1–2, publish-gate delta retry and lock (gate commit after `08381192`). It was independently reviewed, and the lock race, base drift and retry-trigger findings were fixed.
+- Phases 1 item 4 and 2–4, 6 and the regrowth guard are not started.
+
+**Follow-ups:**
+
+- A fresh `just publish` invocation still runs the full checks on its first pass even when a verified-base record matches. Let the first pass use the record, as the retry loop does.
+- Confirm on the first hosted run that the scope job's `gh api` lookup works with `actions: read`.
+- Record gate timings for a week against the 2026-11-07 baseline.
+
+**Scheduling.**
+
+- Phases 2–3 edit test files and need local full unit runs. They compete with streams for the two test slots and touch count tables that content streams edit, so start them when no content stream is mid-sweep.
+- Phase 4 needs a measured full run.
+- Phase 6 needs CI runs only.
+
 ## Answers to the owner's questions
 
 **Do the tests catch anything?** Mostly yes, but the cost is not where the value is.
