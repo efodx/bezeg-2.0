@@ -60,7 +60,7 @@ Each lesson family follows its spec's **release batches**. Most specs have a Bat
 | F2b Registration | Route, catalog entry and Demonstration registration (`G-REG`); keep the edit minimal and push it promptly | Engineering |
 | F3 Lessons | One slice per two or three lessons: scene actions plus [one-shot lesson text](../../specs/new-lesson-families.md#one-shot-lesson-text--owner-decision-2026-10-31) | Kernels, constructions, readouts and scene actions only; prose is not reviewed |
 | F4 Chapter | Bilingual chapter in Learn with chapter-owned guided examples | Engineering; notation test |
-| F5 Media | Catalog preview clip and example card images (highlight recipes once `G-HL` is met) | Visual comparison (Haiku) |
+| F5 Media | Catalog preview clip (a lesson-guided row in `scripts/demonstration-clip-rows/`, see its README) and example card images (highlight recipes once `G-HL` is met) | Visual comparison (Haiku) |
 | F6 Acceptance | Each release batch's acceptance gate, `just check`, smoke of the family's routes in both languages, hosted CI after push | Handler |
 
 A family may be pushed per release batch. Under the [release policy](../../guardrails.md#release-policy--owner-decision-2026-10-24), implemented drafts count as released.
