@@ -29,7 +29,13 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
     - the shared-path additions `setupTests`, `utils`, `types` and the scene helpers' model files;
     - the publish gate's delta list now uses the lesson sweeps' shared paths.
   - Accepted risk, as for the transient-state sample: a changed non-class helper or model file under a graph directory reaches no entry by name, so only the sample runs locally. A lesson content file that quotes one id but feeds several lessons under-selects. CI runs everything.
-- Phases 1 item 4, the rest of phase 2 (fold the guided-scene walk, split parts and rebalance shards), 4, 6 and the regrowth guard are not started.
+- Phase 2, structural slice ([phase2b-notes.md](../reviews/verification-throughput/phase2b-notes.md)).
+  - Guided-scene acceptance is folded into the restoration walk. An injected rejected action still fails.
+  - Restoration is split into eight parts, and CI moves to four Vitest shards. The predicted longest shard is 858 file-seconds, against 1200 with three.
+  - `sceneReplacementContract` is not split. Its all-graph loop shares about 130 lines of helpers and a mock with four other describes, at 133 s.
+  - The full `BEZEG_SWEEPS=all` run passed on a loaded machine. Summed restoration and scene time came to 752 s, against 722 s before. The untouched `sceneReplacementContract` also ran 10% slower, so the fold's saving is not shown locally.
+  - Confirm on hosted runs: per-shard unit times, and whether the fold paid off.
+- Phases 1 item 4, 4, 6 and the regrowth guard are not started.
 
 **Follow-ups:**
 
