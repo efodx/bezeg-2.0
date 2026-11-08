@@ -2430,3 +2430,23 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Review: one combined mathematical and engineering `bezeg-reviewer` (Sonnet `medium`, 39k, 11 min): no blockers or should-fix; nits on init not carrying bounce/coverage to a new worker and approximate edge contact points.
 - Checks/gaps: focused units for collisions, playground and chapter, typecheck, lint, build. No `bezeg-smoke` run: the owner's own browser use stood in for it. Gap: no containment or performance measurement with bounce on or at high coverage.
 - Lesson: a worker's report of failing tests caused by handler edits in the same tree should be fixed by the handler at acceptance, not left to the worker.
+
+## 2026-11-08 — verification throughput phases 3 and 2a (verification-throughput stream, handler 2)
+
+- Class/size: tooling and test scope / L (independently verifiable slices). Source: [spec](../specs/verification-throughput.md), handoff 1.
+- Dispatch: four workers.
+  - Phase 3a derived catalog checks: `bezeg-worker` (Sonnet `medium`), in the handler's worktree. Observed: 47.5k, 22 min.
+  - Phase 3b/3c always-run tier and selector warning: `bezeg-worker` (Sonnet `medium`), isolated worktree, because the per-checkout run claim would block two runs in one checkout. Observed: 69k, 41 min.
+  - Phase 2a sampled sweeps: `bezeg-worker` (Sonnet `medium`), isolated. Observed: 103k, 66 min.
+  - Review of 2a: `bezeg-reviewer` (Sonnet `medium`). Observed: 38k, 9 min.
+- Outcome: `590212bc`, `7f41d970`, `ef7c16cf`, `9b5b290e` (hosted CI green), then `573b7543`, `574fcad1`, `c97cc61f`, `11a26465`. Measured with `BEZEG_SWEEPS=all` vs the sampled scope at 2 workers: the six sweep files' per-file time fell from 842 s to 179 s.
+- Handler repairs at acceptance:
+  - The 3c warning missed its own motivating case (phase 0): the class survived in a stylesheet and in another panel, and the brief's "token gone from src" rule hid it. The handler changed it to warn unless the diff re-adds the token, and grouped output per token.
+  - `PresetCatalog` mounts boards, so it was dropped from the always-run list. The brief had named it.
+  - The always-run step measured 27 s, not the brief's 2 s. Per-file setup dominates; the cost is recorded.
+  - Phase 2a review should-fixes: mixed id lists, missing shared paths. The publish gate's delta list was widened to the lesson shared paths.
+- Integration failure: the first phase 2a publish failed in the full run. `GraphTransientState.test.tsx` read the moved `TRANSIENT_STATE_SAMPLE` through a re-export as `undefined`. The worker's sampled runs never loaded that file. Fixed in `11a26465`; the gate's full run caught it before the push.
+- Environment: new worktrees got an empty `node_modules` (caches only), so ESLint was missing. Vitest still resolved upward into the main checkout. The handler replaced it with a junction and told later workers to do the same in their brief.
+- Lessons:
+  - When a slice moves an export, have the worker run every importer of the old path (search), not only the files the brief names.
+  - A brief that states the motivating failure should require the replay to fire on it, not merely record it.
