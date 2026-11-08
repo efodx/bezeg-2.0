@@ -45,7 +45,7 @@ test('C3 step text quotes the types, diagonals, pieces and areas of the kernel (
         const all = (stepId: string) => prose('monotone-partition', stepId, language);
         // Step 1: polygon area and the trace length.
         expect(all('monpart-polygon'), language).toContain(num(areaOf(MONOTONE_EXAMPLE_1, [0, 1, 2, 3, 4, 5])));
-        expect(all('monpart-polygon'), language).toContain(num(total(one)));
+        expect(all('monpart-polygon'), language).toContain(num(total(one) + 1));
         // Step 3: the merge vertex v5 is the third vertex processed; the first two are start vertices.
         expect(one.order.slice(0, 3).map(k => one.types[k])).toEqual(['start', 'start', 'merge']);
         expect(all('monpart-classify'), language).toContain(`${v(one.order[2])}=(8,5)`);
@@ -54,7 +54,7 @@ test('C3 step text quotes the types, diagonals, pieces and areas of the kernel (
         expect(all('monpart-diagonal'), language).toContain(`${v(one.diagonals[0][0])}\\)–\\(${v(one.diagonals[0][1])}`);
         // Step 6: pieces = diagonals + 1, areas, type balance.
         const pieces = all('monpart-pieces');
-        expect(pieces, language).toContain(num(total(one)));
+        expect(pieces, language).toContain(num(total(one) + 1));
         expect(pieces, language).toContain(`\\(${one.pieces.length}=${d1}+1\\)`);
         const startSplit = `\\(${s1}+${sp1}=${s1 + sp1}\\)`;
         const endMerge = `\\(${e1}+${m1}=${e1 + m1}\\)`;
@@ -77,7 +77,7 @@ test('C3 step text quotes the types, diagonals, pieces and areas of the kernel (
         expect(merge, language).toContain(typeLine2);
         expect(merge, language).toContain(`${num(d2)}`);
         expect(merge, language).toContain(`\\(${two.pieces.length}=${d2}+1\\)`);
-        expect(merge, language).toContain(`${num(total(two))}`);
+        expect(merge, language).toContain(`${num(total(two) + 1)}`);
         for (const area of areas2) expect(merge, language).toContain(num(area));
         expect(merge, language).toContain(num(areas2.reduce((a, b) => a + b, 0)));
         for (const [a, b] of two.diagonals) expect(merge, language).toContain(`${v(a)}\\)–\\(${v(b)}`);
@@ -109,6 +109,7 @@ test('C4 step text quotes the pieces, triangles, diagonals and predicate counts 
     const piece1 = partitionAndTriangulate(asPoints([[0, 0], [4, 3], [8, 5], [4, 8]]));
     if (!whole.ok || !piece1.ok) throw new Error('refused');
     // The graph run drops the dead step between phases, so its last step (43) is not the kernel's trace length; the host test compares it with the panel.
+    // The trace's last 0-based index; the panel and the lessons count steps from 1 (spec decision 38).
     const last = 43;
     expect(whole.pieces.map(entry => entry.piece.length)).toEqual([4, 4]);
     expect(whole.triangles.length).toBe(MONOTONE_EXAMPLE_1.length - 2);
@@ -121,11 +122,11 @@ test('C4 step text quotes the pieces, triangles, diagonals and predicate counts 
         const first = all('montri-piece');
         expect(first, language).toContain(`${num(whole.pieces[0].piece.length)}`);
         expect(first, language).toContain(`${num(whole.pieces[0].piece.length - 2)}`);
-        expect(first, language).toContain(num(last));
+        expect(first, language).toContain(num(last + 1));
         const done = all('montri-diagonal');
-        expect(done, language).toContain(num(last));
+        expect(done, language).toContain(num(last + 1));
         const compare = all('montri-compare');
-        expect(compare, language).toContain(num(last));
+        expect(compare, language).toContain(num(last + 1));
         expect(compare, language).toContain(`${num(whole.triangles.length)}`);
         expect(compare, language).toContain(`${num(whole.diagonals.length)}`);
         const [mono, ear] = [num(whole.counts.monotone), num(whole.counts.earClipping)];

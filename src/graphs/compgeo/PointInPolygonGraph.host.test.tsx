@@ -1,5 +1,6 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
+import {enterNumber} from '../../inputs/testEntry';
 import {MemoryRouter} from 'react-router-dom';
 import {NOTCHED_MODEL, NOTCHED_QUERY, PENTAGRAM_MODEL, PointInPolygonGraph} from './PointInPolygonGraph';
 import {pointInPolygonPresetCollection} from './pointInPolygonPresetCollection';
@@ -44,7 +45,7 @@ const readout = () => {
     return element as HTMLElement;
 };
 const text = () => readout().textContent ?? '';
-const live = () => readout().querySelector('[role="status"]')!.textContent;
+const live = () => readout().querySelector('[data-pip-live]')!.textContent;
 const place = (graph: Observed, q: GridPoint) => act(() => { expect(graph.setQuery(q)).toBe(true); });
 const box = (graph: Observed) => graph.liveBoard().containerObj as HTMLElement;
 const key = (graph: Observed, name: string) => act(() => { fireEvent.keyDown(box(graph), {key: name}); });
@@ -56,7 +57,7 @@ test('the default is the notched pentagon with q = (3,1): inside, one crossing, 
     mount(graph);
     expect(graph.model).toEqual(NOTCHED_MODEL);
     expect(graph.query).toEqual(NOTCHED_QUERY);
-    expect(readout().querySelectorAll('[role="status"]')).toHaveLength(1);
+    expect(readout().querySelectorAll('[role="status"]')).toHaveLength(0);
     expect(live()).toBe('Točka q je znotraj večkotnika.');
     expect(readout().dataset.pipLocation).toBe('inside');
     expect(counts()).toEqual(['1', '1']);
@@ -212,8 +213,8 @@ test('arrow keys move q by one grid step once it is selected; a selected vertex 
     mount(graph);
     key(graph, 'ArrowRight');
     expect(graph.query).toEqual({x: 3, y: 1});
-    act(() => { screen.getByRole('button', {name: /Izberi točko q/}).click(); });
-    expect(screen.getByRole('button', {name: /Izberi točko q/}).getAttribute('aria-pressed')).toBe('true');
+    act(() => { screen.getByRole('button', {name: 'Izberi: q'}).click(); });
+    expect(screen.getByRole('button', {name: 'Izberi: q'}).getAttribute('aria-pressed')).toBe('true');
     key(graph, 'ArrowRight');
     key(graph, 'ArrowUp');
     expect(graph.query).toEqual({x: 4, y: 2});
@@ -234,18 +235,21 @@ test('arrow keys move q by one grid step once it is selected; a selected vertex 
     expect(graph.query).toEqual({x: 4, y: 2});
 });
 
-test('pressing q selects it and clears the vertex selection; q is refused beyond the coordinate limit', () => {
+test('pressing q selects it and clears the vertex selection; q stops silently beyond the coordinate limit', () => {
     const graph = new Observed();
     mount(graph);
     act(() => { graph.select(2); });
     act(() => { trigger(queryObject(graph), 'down'); });
     expect(graph.selectedIndex).toBeUndefined();
     expect(graph.isQueryActive).toBe(true);
+    // Beyond the coordinate limit the move stops without a notice (decision 7); a typed value is explained by its field.
     act(() => { expect(graph.setQuery({x: GRID_COORD_LIMIT + 1, y: 0})).toBe(false); });
     expect(graph.query).toEqual({x: 3, y: 1});
-    expect(document.querySelector('[data-pip-notice]')!.getAttribute('data-pip-notice')).toBe('range');
+    expect(graph.notice).toBeUndefined();
+    expect(document.querySelector('[data-pointset-notice]')!.textContent).toBe('');
+    expect(document.querySelector('[data-refusal-notice]')!.textContent).toBe('');
     place(graph, {x: GRID_COORD_LIMIT, y: 0});
-    expect(document.querySelector('[data-pip-notice]')!.getAttribute('data-pip-notice')).toBe('');
+    expect(graph.query).toEqual({x: GRID_COORD_LIMIT, y: 0});
 });
 
 test('adding and removing vertices does not move q; the numeric fields move it', () => {
@@ -258,10 +262,12 @@ test('adding and removing vertices does not move q; the numeric fields move it',
     expect(graph.model.points).toHaveLength(5);
     expect(graph.query).toEqual(NOTCHED_QUERY);
     expect(queryObject(graph).X!()).toBe(3);
-    act(() => { fireEvent.change(screen.getByRole('spinbutton', {name: 'Točka q, x'}), {target: {value: '1'}}); });
-    act(() => { fireEvent.change(screen.getByRole('spinbutton', {name: 'Točka q, y'}), {target: {value: '3'}}); });
+    act(() => { enterNumber(screen.getByRole('spinbutton', {name: 'q, x'}), '1'); });
+    act(() => { enterNumber(screen.getByRole('spinbutton', {name: 'q, y'}), '3'); });
     expect(graph.query).toEqual({x: 1, y: 3});
-    expect(screen.getByRole('group', {name: 'Poizvedbena točka q'})).toBeTruthy();
+    // The shared single-point list: only q's select button, no add or remove.
+    const group = screen.getByRole('group', {name: 'Poizvedbena točka q'});
+    expect([...group.querySelectorAll('button')].map(b => b.getAttribute('aria-label'))).toEqual(['Izberi: q']);
 });
 
 test('values off: the same readout element holds one neutral sentence with empty data, the board overlays stay; on restores', () => {

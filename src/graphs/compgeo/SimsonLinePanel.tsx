@@ -1,8 +1,11 @@
-import React, {useState} from "react";
+import React from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
-import {GRID_COORD_LIMIT, GridPoint, isGridCoordinate} from "../../compgeo/grid";
+import {GRID_COORD_LIMIT, GridPoint} from "../../compgeo/grid";
 import {normaliseDegrees} from "../../compgeo/inscribedAngleModel";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {NumberInput} from "../../inputs/NumberInput";
+import Slider from "../../inputs/Slider";
 import {
     SIMSON_EXAMPLES, SIMSON_OFFSETS, SimsonAnalysis, SimsonExampleId, SimsonMode, SimsonSettings, isSimsonMode, resolveOffset,
 } from "../../compgeo/simsonLineModel";
@@ -18,8 +21,6 @@ export interface SimsonLinePanelProps {
     onMode(mode: SimsonMode): void;
     /** A typed glider angle in degrees. */
     onT(value: number): void;
-    /** An arrow key: the signed step in degrees (1, or 10 with Shift). */
-    onStep(deltaDeg: number): void;
     onEpsilon(value: number): void;
     onPPrime(point: GridPoint): void;
 }
@@ -27,8 +28,7 @@ export interface SimsonLinePanelProps {
 /**
  * The readouts and controls of the Simson line graph: example and mode choice, the status in words, the circle, P (or P-prime)
  * and the three feet (exact fractions in exact mode, rounded decimals in glider mode), the power or the area ratio, the
- * glider controls (a degrees field, a focusable slider driven by arrow keys, the discrete offset slider with its value in
- * words), the exact point fields and the vertex list. State is words, never colour alone. The status paragraph keeps its
+ * glider controls (the angle slider with its degrees field, the discrete offset slider), the exact point fields and the vertex list. State is words, never colour alone. The status paragraph keeps its
  * element mounted (live region).
  */
 export function SimsonLinePanel(props: SimsonLinePanelProps) {
@@ -57,7 +57,7 @@ export function SimsonLinePanel(props: SimsonLinePanelProps) {
         <ExampleAndMode {...props}/>
         <p className="inspector-help pointset-status" role="status" data-simson-chip>{texts.chip}</p>
         {settings.mode === "glider"
-            ? <GliderControls t={normaliseDegrees(settings.t)} epsilon={resolveOffset(settings.epsilon)} onT={props.onT} onStep={props.onStep} onEpsilon={props.onEpsilon}/>
+            ? <GliderControls t={normaliseDegrees(settings.t)} epsilon={resolveOffset(settings.epsilon)} onT={props.onT} onEpsilon={props.onEpsilon}/>
             : <PPrimeFields point={settings.pPrime} onPPrime={props.onPPrime}/>}
         <h3 className="inspector-reveals-title">{t("notable_readouts_heading")}</h3>
         <ul className="pointset-list simson-readouts">
@@ -83,23 +83,20 @@ function ExampleAndMode(props: SimsonLinePanelProps) {
         "grid-off-circle": t("simson_example_grid_off_circle"), vertex: t("simson_example_vertex"),
     };
     return <>
-        <label className="pointset-check">{t("simson_example_label")}{" "}
-            <select value={props.exampleId ?? "custom"} data-simson-example
-                    onChange={event => {
-                        const found = SIMSON_EXAMPLES.find(example => example.id === event.target.value);
-                        if (found) props.onExample(found.id);
-                    }}>
-                {SIMSON_EXAMPLES.map(example => <option key={example.id} value={example.id}>{names[example.id]}</option>)}
-                {props.exampleId === undefined && <option value="custom">{t("notable_example_custom")}</option>}
-            </select>
-        </label>
-        <label className="pointset-check">{t("simson_mode_label")}{" "}
-            <select value={props.settings.mode} data-simson-mode
-                    onChange={event => { if (isSimsonMode(event.target.value)) props.onMode(event.target.value); }}>
-                <option value="glider">{t("simson_mode_glider")}</option>
-                <option value="exact">{t("simson_mode_exact")}</option>
-            </select>
-        </label>
+        <div data-simson-example>
+            <ChoiceSelect label={t("simson_example_label")} value={props.exampleId ?? "custom"}
+                          options={[...SIMSON_EXAMPLES.map(example => ({value: example.id, text: names[example.id]})),
+                              ...(props.exampleId === undefined ? [{value: "custom", text: t("notable_example_custom")}] : [])]}
+                          onChange={id => {
+                              const found = SIMSON_EXAMPLES.find(example => example.id === id);
+                              if (found) props.onExample(found.id);
+                          }}/>
+        </div>
+        <div data-simson-mode>
+            <ChoiceSelect label={t("simson_mode_label")} value={props.settings.mode}
+                          options={[{value: "glider", text: t("simson_mode_glider")}, {value: "exact", text: t("simson_mode_exact")}]}
+                          onChange={mode => { if (isSimsonMode(mode)) props.onMode(mode); }}/>
+        </div>
     </>;
 }
 
@@ -107,58 +104,26 @@ interface GliderControlsProps {
     t: number;
     epsilon: number;
     onT(value: number): void;
-    onStep(deltaDeg: number): void;
     onEpsilon(value: number): void;
 }
 
 function GliderControls(props: GliderControlsProps) {
     const t = useT();
     const {language} = useLanguage();
-    const [draft, setDraft] = useState<string | undefined>(undefined);
-    const shown = formatNumber(props.t, "en", 2);
-    // The typed text stays only while it still names the effective t; unparsable intermediate text ("", "-") is kept while typing.
-    const draftValue = draft === undefined || draft.trim() === "" ? NaN : Number(draft);
-    const keepDraft = draft !== undefined && (!Number.isFinite(draftValue) || Math.abs(normaliseDegrees(draftValue) - props.t) < 1e-9);
-    const valueText = t("simson_slider_value", {value0: formatNumber(props.t, language, 1)});
     const stop = Math.max(0, SIMSON_OFFSETS.findIndex(offset => offset === props.epsilon));
-    const epsilonText = t("simson_epsilon_value", {value0: formatNumber(props.epsilon, language, 3)});
     return <div className="simson-glider">
-        <label className="pointset-check">{t("simson_t_label")}{" "}
-            <input type="number" step={1} value={keepDraft ? draft : shown} data-simson-t
-                   onChange={event => {
-                       setDraft(event.target.value);
-                       const value = event.target.valueAsNumber;
-                       if (Number.isFinite(value)) props.onT(value);
-                   }}
-                   onBlur={() => setDraft(undefined)}/>
-        </label>
-        <label className="pointset-check simson-slider-row">
-            <input type="range" min={0} max={360} step="any" value={props.t} className="simson-slider" data-simson-slider
-                   aria-label={t("simson_slider_label")} aria-valuenow={Math.round(props.t * 10) / 10} aria-valuetext={valueText}
-                   onChange={event => {
-                       const value = event.target.valueAsNumber;
-                       if (Number.isFinite(value)) props.onT(value);
-                   }}
-                   onKeyDown={event => {
-                       if (event.altKey || event.ctrlKey || event.metaKey) return;
-                       const sign = event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "PageUp" ? 1
-                           : event.key === "ArrowLeft" || event.key === "ArrowDown" || event.key === "PageDown" ? -1 : 0;
-                       if (sign === 0) return;
-                       event.preventDefault();
-                       setDraft(undefined);
-                       props.onStep(sign * (event.shiftKey || event.key.startsWith("Page") ? 10 : 1));
-                   }}/>
-            <span aria-hidden="true">{valueText}</span>
-        </label>
-        <label className="pointset-check simson-slider-row">{t("simson_epsilon_label")}{" "}
-            <input type="range" min={0} max={SIMSON_OFFSETS.length - 1} step={1} value={stop} data-simson-epsilon
-                   aria-valuetext={epsilonText}
-                   onChange={event => {
-                       const offset = SIMSON_OFFSETS[event.target.valueAsNumber];
-                       if (offset !== undefined) props.onEpsilon(offset);
-                   }}/>
-            <span aria-hidden="true" data-simson-epsilon-value>{epsilonText}</span>
-        </label>
+        <div data-simson-t>
+            <Slider customText={t("simson_t_label")} min={0} max={360} step={1} bigStep={10} decimals={1} cyclic={360} fieldDecimals={2} value={props.t}
+                    valueText={value => `${formatNumber(value, language, 1)}°`} onChange={value => props.onT(value)}/>
+        </div>
+        <div data-simson-epsilon>
+            <Slider customText={t("simson_epsilon_label")} min={0} max={SIMSON_OFFSETS.length - 1} step={1} value={stop}
+                    formatValue={index => formatNumber(SIMSON_OFFSETS[index] ?? props.epsilon, language, 3)}
+                    onChange={index => {
+                        const offset = SIMSON_OFFSETS[index];
+                        if (offset !== undefined) props.onEpsilon(offset);
+                    }}/>
+        </div>
         <p className="inspector-help" data-simson-epsilon-note>{t("simson_epsilon_note")}</p>
     </div>;
 }
@@ -167,23 +132,9 @@ function PPrimeFields(props: {point: GridPoint; onPPrime(point: GridPoint): void
     const t = useT();
     return <div className="simson-pprime">
         <h3 className="inspector-reveals-title">{t("simson_pprime_heading")}</h3>
-        <IntField label={t("simson_pprime_x")} value={props.point.x} onValue={x => props.onPPrime({x, y: props.point.y})}/>
-        <IntField label={t("simson_pprime_y")} value={props.point.y} onValue={y => props.onPPrime({x: props.point.x, y})}/>
+        <NumberInput label={t("simson_pprime_x")} value={props.point.x} min={-GRID_COORD_LIMIT} max={GRID_COORD_LIMIT} step={1} integer
+                     onChange={x => { props.onPPrime({x, y: props.point.y}); }}/>
+        <NumberInput label={t("simson_pprime_y")} value={props.point.y} min={-GRID_COORD_LIMIT} max={GRID_COORD_LIMIT} step={1} integer
+                     onChange={y => { props.onPPrime({x: props.point.x, y}); }}/>
     </div>;
-}
-
-/** An integer field within the grid range; text that is not such a number is kept while typing and never written. */
-function IntField(props: {label: string; value: number; onValue(value: number): void}) {
-    const [draft, setDraft] = useState<string | undefined>(undefined);
-    const draftValue = draft === undefined || draft.trim() === "" ? NaN : Number(draft);
-    const keepDraft = draft !== undefined && draftValue !== props.value;
-    return <label className="pointset-check">{props.label}{" "}
-        <input type="number" step={1} min={-GRID_COORD_LIMIT} max={GRID_COORD_LIMIT} value={keepDraft ? draft : String(props.value)}
-               onChange={event => {
-                   setDraft(event.target.value);
-                   const value = event.target.valueAsNumber;
-                   if (isGridCoordinate(value)) props.onValue(value);
-               }}
-               onBlur={() => setDraft(undefined)}/>
-    </label>;
 }

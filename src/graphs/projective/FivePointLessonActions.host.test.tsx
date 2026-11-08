@@ -10,6 +10,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage} from '../../localization';
+import {chooseOption, typeNumber} from './controlsTest';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -46,20 +47,15 @@ const EXAMPLE_BUTTON: Record<Exclude<FivePointExampleId, 'custom'>, string> = {
     ellipse: 'Elipsa', hyperbola: 'Hiperbola', parabola: 'Parabola', 'three-collinear': 'Tri točke na premici', 'four-collinear': 'Štiri točke na premici',
 };
 const NAMES = ['A', 'B', 'C', 'D', 'E'] as const;
-const exampleButton = (id: Exclude<FivePointExampleId, 'custom'>): HTMLElement => {
-    const match = [...screen.getByRole('group', {name: 'Primer'}).querySelectorAll('button')].find(button => button.textContent === EXAMPLE_BUTTON[id]);
-    if (!match) throw new Error(`no example button ${id}`);
-    return match;
-};
 const choose = (label: string, index: number) => act(() => { fireEvent.change(screen.getByLabelText(label), {target: {value: String(index)}}); });
-const typeInto = (label: string, numerator: number) => act(() => { fireEvent.change(screen.getByLabelText(label), {target: {value: String(numerator / 15)}}); });
+const typeInto = (label: string, numerator: number) => typeNumber(label, numerator / 15);
 const checkbox = () => screen.getByLabelText<HTMLInputElement>('Nadaljuj lok za t zunaj [0, 1]');
 
 test.each(FIVE_POINT_EXAMPLE_IDS.filter((id): id is Exclude<FivePointExampleId, 'custom'> => id !== 'custom'))('five-point-load-example %s reaches the state of the example button', example => {
     // Start from another example with extrapolation on, so that the action really replaces a different scene.
-    const prepare = () => { click(exampleButton(example === 'hyperbola' ? 'parabola' : 'hyperbola')); };
+    const prepare = () => { chooseOption('Primer', EXAMPLE_BUTTON[example === 'hyperbola' ? 'parabola' : 'hyperbola']); };
     const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'five-point-load-example', exampleId: example}); });
-    const viaControl = after(() => { prepare(); click(exampleButton(example)); });
+    const viaControl = after(() => { prepare(); chooseOption('Primer', EXAMPLE_BUTTON[example]); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.model.example).toBe(example);
 });
@@ -84,7 +80,7 @@ test('five-point-set-third reaches the state of the third-point selector', () =>
 
 test.each([[2, 30, 45], [4, -45, 75], [3, 32, 7]] as const)('five-point-place point %s at (%s, %s) over 15 reaches the state of the coordinate fields', (index, x, y) => {
     const viaAction = after(graph => apply(graph, {kind: 'projective', operation: 'five-point-place', index, x, y}));
-    const viaControl = after(() => { typeInto(`Točka ${NAMES[index]}: x`, x); typeInto(`Točka ${NAMES[index]}: y`, y); });
+    const viaControl = after(() => { typeInto(`Točka ${NAMES[index]}, x`, x); typeInto(`Točka ${NAMES[index]}, y`, y); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.model.points[index]).toEqual({x, y});
     expect(viaAction.model.example).toBe('custom');
@@ -93,7 +89,7 @@ test.each([[2, 30, 45], [4, -45, 75], [3, 32, 7]] as const)('five-point-place po
 test('five-point-place into a degenerate position reaches the status and the stale conic of the coordinate fields', () => {
     // D moved to the origin: A = (5, 0), D, C = (-5, 0) are collinear, so there is a line pair and the last unique conic stays drawn as stale.
     const viaAction = after(graph => apply(graph, {kind: 'projective', operation: 'five-point-place', index: 3, x: 0, y: 0}));
-    const viaControl = after(() => { typeInto('Točka D: x', 0); typeInto('Točka D: y', 0); });
+    const viaControl = after(() => { typeInto('Točka D, x', 0); typeInto('Točka D, y', 0); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.stale).toBe('true');
 });

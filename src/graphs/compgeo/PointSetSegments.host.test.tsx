@@ -97,7 +97,7 @@ test('Add mode: the first click places a pending endpoint, the second adds the s
     expect(graph.pendingEndpoint).toEqual({x: 2, y: -3});
     expect(graph.model.points).toHaveLength(2);
     expect(pendingObjects(graph)).toHaveLength(1);
-    expect(screen.getByText(/Prvo krajišče je postavljeno v \(2, -3\)/)).toBeInTheDocument();
+    expect(document.querySelector('[data-pointset-pending]')!.textContent).toMatch(/Prvo krajišče je postavljeno v \(2, -3\)/);
     click(graph, -1.2, 3.4);
     expect(graph.pendingEndpoint).toBeUndefined();
     expect(graph.model.points).toEqual([{x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: -3}, {x: -1, y: 3}]);
@@ -146,25 +146,6 @@ test('dragging an endpoint snaps it and the segment and its label follow', () =>
     expect(colour(first)).not.toBe(colour(second));
 });
 
-test('arrow keys nudge a selected endpoint by one grid step, the board follows, and the sweep coordinate limit refuses', () => {
-    const graph = new SegmentGraph({coordinateLimit: 1024});
-    mount(graph);
-    load(graph, segs([0, 0], [4, 2], [1023, 0], [0, 1]));
-    act(() => { graph.select(1); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowUp'}); });
-    expect(graph.model.points[1]).toEqual({x: 5, y: 3});
-    expectBoardMatchesModel(graph);
-    act(() => { graph.select(2); });
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model.points[2]).toEqual({x: 1024, y: 0});
-    act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowRight'}); });
-    expect(graph.model.points[2]).toEqual({x: 1024, y: 0});
-    // A key stops silently at the coordinate limit (decision 7): no notice.
-    expect(graph.notice).toBeUndefined();
-    expectBoardMatchesModel(graph);
-});
-
 test('Delete and the remove buttons remove the whole segment, with its label and both endpoints', () => {
     const graph = new SegmentGraph();
     mount(graph);
@@ -197,13 +178,16 @@ test('numeric endpoint fields grouped per segment move the endpoint and the boar
     expectBoardMatchesModel(graph);
 });
 
-test('the 13th segment is refused with a visible message, and an out-of-limit endpoint is refused, never clipped', () => {
+test('wiring: Add segment is a shared unavailable button at the limit, its press shows the reason alone; an out-of-limit endpoint is refused, never clipped', () => {
     const graph = new SegmentGraph({coordinateLimit: 1024});
     mount(graph);
     load(graph, segs(...Array.from({length: 24}, (_, i) => [i, i % 2])));
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj daljico'})); });
+    const add = screen.getByRole('button', {name: 'Dodaj daljico'});
+    expect(add.getAttribute('aria-disabled')).toBe('true');
+    expect(add.getAttribute('title')).toMatch(/Doseženo je največje število daljic \(12\)/);
+    act(() => { fireEvent.click(add); });
     expect(graph.model.points).toHaveLength(24);
-    expect(screen.getByText(/Doseženo je največje število daljic \(12\)/)).toBeInTheDocument();
+    expect(document.querySelector('[data-refusal-notice]')!.textContent).toMatch(/Doseženo je največje število daljic \(12\)/);
     expectBoardMatchesModel(graph);
     load(graph, segs());
     act(() => { expect(graph.addSegmentAt({x: 0, y: 0}, {x: 1025, y: 0})).toBe(false); });
@@ -266,10 +250,10 @@ test('a live language switch re-renders the segment inspector and keeps model, s
     act(() => { graph.select(2); });
     const before = {model: graph.model, segments: segmentObjects(graph), labels: labelObjects(graph)};
     expect(screen.getByText('Izbrana daljica: s2')).toBeInTheDocument();
-    expect(screen.getByRole('button', {name: 'Daljice'})).toBeInTheDocument();
+    expect(screen.getByRole('option', {name: 'Daljice'})).toBeInTheDocument();
     act(() => { setLanguage('en'); });
     expect(screen.getByText('Selected segment: s2')).toBeInTheDocument();
-    expect(screen.getByRole('button', {name: 'Segments'})).toBeInTheDocument();
+    expect(screen.getByRole('option', {name: 'Segments'})).toBeInTheDocument();
     expect(screen.getByLabelText('Segment s1, endpoint 2: x')).toBeInTheDocument();
     expect(screen.getByRole('button', {name: 'Add segment'})).toBeInTheDocument();
     expect(graph.model).toBe(before.model);
@@ -284,11 +268,11 @@ test('switching modes keeps an even prefix going to segments and the board follo
     const graph = new SegmentGraph();
     mount(graph);
     load(graph, {mode: 'points', closed: false, gridStepExponent: 0, points: [{x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 2}]});
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Daljice'})); });
+    act(() => { fireEvent.change(screen.getByRole('combobox', {name: 'Prikaz'}), {target: {value: 'segments'}}); });
     expect(graph.model.mode).toBe('segments');
     expect(graph.model.points).toEqual([{x: 0, y: 0}, {x: 1, y: 1}]);
     expectBoardMatchesModel(graph);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Točke'})); });
+    act(() => { fireEvent.change(screen.getByRole('combobox', {name: 'Prikaz'}), {target: {value: 'points'}}); });
     expect(segmentObjects(graph)).toHaveLength(0);
     expect(labelObjects(graph)).toHaveLength(0);
     expect(endpointObjects(graph)).toHaveLength(2);
@@ -319,7 +303,7 @@ test('a graph without the segments hook refuses the mode, offers no toggle for i
     mount(graph);
     expect(graph.setPointSetMode('segments')).toBe(false);
     expect(graph.model.mode).toBe('points');
-    expect(screen.queryByRole('button', {name: 'Daljice'})).toBeNull();
+    expect(screen.queryByRole('option', {name: 'Daljice'})).toBeNull();
     const check = graph.presetCollection().check({mode: 'segments', points: [{x: 0, y: 0}, {x: 1, y: 1}]});
     expect('rejection' in check && check.rejection.key).toBe('pointset_invalid_unknown_mode');
     const orientation = new OrientationGraph();

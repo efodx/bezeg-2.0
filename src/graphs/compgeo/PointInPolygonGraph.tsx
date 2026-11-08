@@ -1,4 +1,7 @@
-import React, {useState} from "react";
+import React from "react";
+import {PointListInput} from "../../inputs/PointListInput";
+import {StatusLive} from "./StatusLive";
+import {ExampleSelect, matchingExample} from "./ExampleSelect";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {LessonAction} from "../../learning/model";
 import {GraphSession} from "../base/GraphSession";
@@ -81,9 +84,9 @@ const windingText = (winding: number): string => (winding < 0 ? `−${-winding}`
 function PointInPolygonStatus({model, query, valuesShown}: {model: PointSetModel; query: GridPoint; valuesShown: boolean}) {
     const translate = useT();
     if (!valuesShown) {
-        return <div className="inspector-help pointset-status" data-pip-readout="" data-pip-location="" data-pip-crossings="" data-pip-winding="">
-            <p className="mb-1" role="status" data-pip-live="">{translate("pointinpolygon_values_hidden")}</p>
-        </div>;
+        return <><div className="inspector-help pointset-status" data-pip-readout="" data-pip-location="" data-pip-crossings="" data-pip-winding="">
+            <p className="mb-1" data-pip-live="">{translate("pointinpolygon_values_hidden")}</p>
+        </div><StatusLive text={translate("pointinpolygon_values_hidden")}/></>;
     }
     const readout: PointInPolygonReadout = pointInPolygonReadout(model, query);
     // One concise line is live (where q is, or why that is unknown); the other rows are plain text, read on demand.
@@ -105,58 +108,39 @@ function PointInPolygonStatus({model, query, valuesShown}: {model: PointSetModel
             ...(readout.simple ? [] : [translate("pointinpolygon_not_simple")]),
         ];
     }
-    return <div className="inspector-help pointset-status" data-pip-readout={readout.kind}
+    return <><div className="inspector-help pointset-status" data-pip-readout={readout.kind}
                 data-pip-location={readout.kind === "located" ? readout.location : readout.kind === "boundary" ? "boundary" : ""}
                 data-pip-crossings={readout.kind === "located" ? String(readout.crossings) : ""}
                 data-pip-winding={readout.kind === "located" ? String(readout.winding) : ""}>
-        <p className="mb-1" role="status" data-pip-live="">{live}</p>
+        <p className="mb-1" data-pip-live="">{live}</p>
         {lines.map((line, i) => <p key={i} className="mb-1">{line}</p>)}
-    </div>;
-}
-
-/** A whole-number field that keeps what is being typed and commits every valid integer (as the vertex list's). */
-function CoordinateField({label, value, onCommit, name}: {label: string; value: number; onCommit: (value: number) => void; name: string}) {
-    const [draft, setDraft] = useState(String(value));
-    const [shownValue, setShownValue] = useState(value);
-    if (shownValue !== value) {
-        setShownValue(value);
-        setDraft(String(value));
-    }
-    return <label className="pointset-field">
-        <input type="number" step={1} inputMode="numeric" aria-label={label} name={name} value={draft}
-               onBlur={() => setDraft(String(value))}
-               onChange={event => {
-                   setDraft(event.target.value);
-                   const parsed = Number(event.target.value);
-                   if (event.target.value.trim() !== "" && Number.isInteger(parsed)) onCommit(parsed);
-               }}/>
-    </label>;
+    </div><StatusLive text={live}/></>;
 }
 
 interface QueryControlsProps {
+    model: PointSetModel;
     query: GridPoint;
     active: boolean;
-    refused: boolean;
     coordinateLimit: number;
     onSelect: (on: boolean) => void;
     onMove: (point: GridPoint) => void;
     onLoadFigure: (figure: PointInPolygonFigure) => void;
 }
 
-function QueryControls({query, active, refused, coordinateLimit, onSelect, onMove, onLoadFigure}: QueryControlsProps) {
+function QueryControls({model, query, active, coordinateLimit, onSelect, onMove, onLoadFigure}: QueryControlsProps) {
     const translate = useT();
-    const button = "btn btn-outline-secondary btn-sm";
     return <>
-        <div className="inspector-group" role="group" aria-label={translate("pointinpolygon_query_group")}>
-            <button type="button" className={button} aria-pressed={active} onClick={() => onSelect(!active)}>{translate("pointinpolygon_query_select")}</button>
-            <CoordinateField label={translate("pointinpolygon_query_x")} name="query-x" value={query.x} onCommit={x => onMove({x, y: query.y})}/>
-            <CoordinateField label={translate("pointinpolygon_query_y")} name="query-y" value={query.y} onCommit={y => onMove({x: query.x, y})}/>
-            <p className="inspector-help pointset-notice" role="status" aria-live="polite" data-pip-notice={refused ? "range" : ""}>
-                {refused ? translate("pointset_out_of_range", {value0: coordinateLimit}) : ""}</p>
+        <div className="inspector-group">
+            {/* A single-point list: no add or remove. Its name button selects q for the arrow keys; Escape and the keys are the graph's. */}
+            <PointListInput title={translate("pointinpolygon_query_group")} points={[[query.x, query.y] as const]} pointLabel={() => "q"}
+                            min={-coordinateLimit} max={coordinateLimit} integer selected={active ? 0 : undefined}
+                            onSelect={index => onSelect(index === 0)}
+                            onCommit={(_, [x, y]) => { onMove({x, y}); }}/>
         </div>
-        <div className="inspector-group" role="group" aria-label={translate("pointinpolygon_examples")}>
-            <button type="button" className={button} onClick={() => onLoadFigure("notched")}>{translate("pointinpolygon_example_notched")}</button>
-            <button type="button" className={button} onClick={() => onLoadFigure("pentagram")}>{translate("pointinpolygon_example_pentagram")}</button>
+        <div className="inspector-group">
+            <ExampleSelect<PointInPolygonFigure> label={translate("pointinpolygon_examples")} onChoose={onLoadFigure}
+                           current={matchingExample(model, [{id: "notched", points: NOTCHED_MODEL.points}, {id: "pentagram", points: PENTAGRAM_MODEL.points}])}
+                           options={[{id: "notched", text: translate("pointinpolygon_example_notched")}, {id: "pentagram", text: translate("pointinpolygon_example_pentagram")}]}/>
             <p className="inspector-help">{translate("pointinpolygon_pentagram_note")}</p>
         </div>
     </>;
@@ -167,8 +151,6 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
     private inQuerySnap = false;
     /** Whether the arrow keys move q (transient, like the vertex selection); a selected vertex takes the keys instead. */
     private queryActive = false;
-    /** The last move of q was refused beyond the coordinate limit; shown until the next move. */
-    private queryRefused = false;
 
     // ---- State ---------------------------------------------------------------------------------------------------
 
@@ -190,14 +172,12 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
         return this.queryActive && this.selectedIndex === undefined;
     }
 
-    /** Places q at a grid point. False, and nothing changes, beyond the coordinate limit (a notice is shown until the next move). */
+    /** Places q at a grid point. False, and nothing changes, beyond the coordinate limit (the move stops silently: decision 7). */
     setQuery(point: GridPoint): boolean {
         if (!isGridPoint(point) || Math.abs(point.x) > this.coordinateLimit || Math.abs(point.y) > this.coordinateLimit) {
-            this.queryRefused = true;
             this.requestRender();
             return false;
         }
-        this.queryRefused = false;
         const current = this.query;
         if (current.x === point.x && current.y === point.y && "query" in this.state && isGridPoint(this.state.query)) {
             this.requestRender();
@@ -229,7 +209,6 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
     /** Loads task 16's polygon with its query point and fits the view to it; the one place q changes together with the polygon. */
     loadFigure(figure: PointInPolygonFigure): void {
         const {model, query} = FIGURES[figure];
-        this.queryRefused = false;
         this.loadModel(model);
         this.setState(this.patch({query: {...query}}));
         if (this.hasBoard) this.board.setBoundingBox(viewFor(model.points, query, model.gridStepExponent), this.equalAxisUnits);
@@ -301,7 +280,6 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
     protected override restoreTransientState(saved: TransientState | undefined): void {
         super.restoreTransientState(saved);
         this.queryActive = saved?.pointInPolygonQueryActive === true && this.selectedIndex === undefined;
-        this.queryRefused = false;
     }
 
     /**
@@ -506,7 +484,6 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
     override unmount(): void {
         this.removeQueryPoint();
         this.queryActive = false;
-        this.queryRefused = false;
         super.unmount();
     }
 
@@ -515,7 +492,7 @@ export class PointInPolygonGraph extends PointSetGraph<PointInPolygonOverlayId> 
     protected override workspaceEdit(): React.ReactNode {
         return <>
             <PointInPolygonStatus model={this.model} query={this.query} valuesShown={this.overlayShown("values")}/>
-            <QueryControls query={this.query} active={this.isQueryActive} refused={this.queryRefused} coordinateLimit={this.coordinateLimit}
+            <QueryControls model={this.model} query={this.query} active={this.isQueryActive} coordinateLimit={this.coordinateLimit}
                            onSelect={on => this.selectQuery(on)} onMove={point => { this.setQuery(point); }} onLoadFigure={figure => this.loadFigure(figure)}/>
             {super.workspaceEdit()}
         </>;

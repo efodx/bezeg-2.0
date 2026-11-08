@@ -3,6 +3,9 @@ import {useT} from "../../localization";
 import type {CurvePairState} from "../../compgeo/curvePairSubdivision";
 import {BezierHullsLine, bezierHullsReadout} from "./bezierHullsReadout";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "./useStatusReadout";
+import {stepCounterText} from "./stepCounter";
 
 export interface BezierHullsControlActions {
     nextStep(): void;
@@ -43,7 +46,8 @@ export function BezierHullsControls(props: BezierHullsControlsProps) {
     const {state, step, length, playing, actions} = props;
     const atEnd = step >= length - 1;
     const lines = bezierHullsReadout(state).lines;
-    const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: Math.max(length, 1)});
+    const stepText = stepCounterText(t, step, length);
+    const liveReadout = useStatusReadout([stepText, ...lines.map(line => lineText(t, line))].join("\n"));
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("bezierhulls_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
@@ -56,7 +60,6 @@ export function BezierHullsControls(props: BezierHullsControlsProps) {
             {lines.map(line => <p key={line.kind} className="inspector-help" data-bezier-hulls={line.kind}>{lineText(t, line)}</p>)}
         </div>
         {/* Silent while Play runs (a tick each interval would flood a screen reader); announces the readout once on Pause or at the end. */}
-        <p className="visually-hidden" role="status" aria-live="polite" data-bezier-hulls-live="">
-            {playing ? "" : [stepText, ...lines.map(line => lineText(t, line))].map(text => /[.!?]$/.test(text) ? text : `${text}.`).join(" ")}</p>
+        <LiveReadout readout={liveReadout} muted={playing} dataAttribute="bezier-hulls-live"/>
     </>;
 }

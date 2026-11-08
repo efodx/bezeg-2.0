@@ -7,7 +7,7 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {
     activeInscribedExampleId, analyseInscribedAngle, BoardXY, gliderTFromBoard, InscribedAnalysis, InscribedCircleAnalysis,
-    InscribedExampleId, inscribedExample, normaliseDegrees, resolveGliderT, stepGliderT,
+    InscribedExampleId, inscribedExample, normaliseDegrees, resolveGliderT,
 } from "../../compgeo/inscribedAngleModel";
 import {INSCRIBED_ANGLE_OVERLAY_IDS, INSCRIBED_ANGLE_VERTEX_COUNT, inscribedAngleCollection} from "./inscribedAnglePresetCollection";
 import {InscribedAnglePanel} from "./InscribedAnglePanel";
@@ -107,11 +107,6 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
     setT(value: number, direction?: number): void {
         if (!Number.isFinite(value)) return;
         this.patch({t: resolveGliderT(this.model.points, value, direction)});
-    }
-
-    /** An arrow-key step: 1 degree, or 10 with Shift (signed); a step across a gap skips it. */
-    stepT(deltaDeg: number): void {
-        this.patch({t: stepGliderT(this.model.points, this.t, deltaDeg)});
     }
 
     /** Loads a named example in two synchronous writes, the vertices (`loadModel`) and then the id and glider parameter. */
@@ -392,7 +387,7 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
     protected override workspaceEdit(): React.ReactNode {
         return <>
             <InscribedAnglePanel analysis={this.analysis()} exampleId={this.exampleId}
-                                 onExample={id => this.loadExample(id)} onT={value => this.setT(value)} onStep={delta => this.stepT(delta)}/>
+                                 onExample={id => this.loadExample(id)} onT={(value, direction) => this.setT(value, direction)}/>
             {super.workspaceEdit()}
         </>;
     }

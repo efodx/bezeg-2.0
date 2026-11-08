@@ -159,20 +159,20 @@ const PIECE_LINE = 'Kos 1: število oglišč 4, število trikotnikov 2.';
 /** Readouts per scene: step, piece, vertex, test, diagonals, triangles, the two comparison counts; then the stack and the chain list. */
 const CHAINS_1 = ['v6 — zgornje oglišče', 'v5 — desna veriga', 'v2 — desna veriga', 'v1 — spodnje oglišče'];
 const EXPECTED: Record<string, {readonly shown: readonly (string | undefined)[]; readonly stack: readonly string[]; readonly chains: readonly (string | null)[]}> = {
-    'montri-piece': {shown: ['Korak 15 od 43', PIECE_LINE, 'v6 — zgornje oglišče', undefined, DIAGONALS_1, 'Trikotnikov doslej: 0.', undefined, undefined], stack: [], chains: CHAINS_1},
-    'montri-predict': {shown: ['Korak 19 od 43', PIECE_LINE, 'v2 — desna veriga', undefined, DIAGONALS_1, 'Trikotnikov doslej: 0.', undefined, undefined], stack: ['v6', 'v5'], chains: CHAINS_1},
+    'montri-piece': {shown: ['Korak 16 od 44', PIECE_LINE, 'v6 — zgornje oglišče', undefined, DIAGONALS_1, 'Trikotnikov doslej: 0.', undefined, undefined], stack: [], chains: CHAINS_1},
+    'montri-predict': {shown: ['Korak 20 od 44', PIECE_LINE, 'v2 — desna veriga', undefined, DIAGONALS_1, 'Trikotnikov doslej: 0.', undefined, undefined], stack: ['v6', 'v5'], chains: CHAINS_1},
     'montri-test': {
-        shown: ['Korak 21 od 43', PIECE_LINE, 'v2 — desna veriga', 'Trenutni preizkus: oglišči v2 in v6, diagonala je znotraj.', DIAGONALS_1, 'Trikotnikov doslej: 0.', undefined, undefined],
+        shown: ['Korak 22 od 44', PIECE_LINE, 'v2 — desna veriga', 'Trenutni preizkus: oglišči v2 in v6, diagonala je znotraj.', DIAGONALS_1, 'Trikotnikov doslej: 0.', undefined, undefined],
         stack: ['v6'], chains: CHAINS_1,
     },
-    'montri-diagonal': {shown: ['Korak 23 od 43', PIECE_LINE, 'v2 — desna veriga', undefined, DIAGONALS_2, 'Trikotnikov doslej: 1.', undefined, undefined], stack: [], chains: CHAINS_1},
-    'montri-count': {shown: ['Korak 28 od 43', PIECE_LINE, 'v1 — spodnje oglišče', undefined, DIAGONALS_2, 'Trikotnikov doslej: 2.', undefined, undefined], stack: [], chains: CHAINS_1},
+    'montri-diagonal': {shown: ['Korak 24 od 44', PIECE_LINE, 'v2 — desna veriga', undefined, DIAGONALS_2, 'Trikotnikov doslej: 1.', undefined, undefined], stack: [], chains: CHAINS_1},
+    'montri-count': {shown: ['Korak 29 od 44', PIECE_LINE, 'v1 — spodnje oglišče', undefined, DIAGONALS_2, 'Trikotnikov doslej: 2.', undefined, undefined], stack: [], chains: CHAINS_1},
     'montri-compare': {
-        shown: ['Korak 43 od 43', 'Kos 2: število oglišč 4, število trikotnikov 2.', 'v3 — spodnje oglišče', undefined, 'Diagonale doslej (3): v2–v5, v2–v6, v3–v5', 'Trikotnikov: 4 = n − 2 pri n = 6.',
+        shown: ['Korak 44 od 44', 'Kos 2: število oglišč 4, število trikotnikov 2.', 'v3 — spodnje oglišče', undefined, 'Diagonale doslej (3): v2–v5, v2–v6, v3–v5', 'Trikotnikov: 4 = n − 2 pri n = 6.',
             'Monotona metoda (razdelitev in triangulacija): 11 izračunov predikatov.', 'Rezanje ušes na istem večkotniku: 21 izračunov predikatov.'],
         stack: [], chains: ['v4 — zgornje oglišče', 'v5 — leva veriga', 'v2 — leva veriga', 'v3 — spodnje oglišče'],
     },
-    'montri-explore': {shown: ['Korak 0 od 43', undefined, undefined, undefined, 'Diagonal doslej še ni.', undefined, undefined, undefined], stack: [], chains: []},
+    'montri-explore': {shown: ['Korak 1 od 44', undefined, undefined, undefined, 'Diagonal doslej še ni.', undefined, undefined, undefined], stack: [], chains: []},
 };
 
 test('the seven scenes run in one synchronous sequence, show the readouts the text quotes, frame their polygon and never play', () => {
@@ -218,7 +218,7 @@ test('the quoted trace positions are the partition boundary and the readouts the
     expect(part('phase')).toBe('Faza: razdelitev');
     apply(graph, trace('next-step'));
     expect(part('phase')).toBe('Faza: triangulacija kosa 1 od 2');
-    expect(part('step')).toBe(`Korak ${MONOTONE_TRIANGULATION_TRACE_STEPS.topVertex} od 43`);
+    expect(part('step')).toBe(`Korak ${MONOTONE_TRIANGULATION_TRACE_STEPS.topVertex + 1} od 44`);
 });
 
 test('the comparison counts quoted in the lesson equal the counts of the monotone triangulation kernel for the same polygon', () => {
@@ -249,13 +249,13 @@ test('the finished triangulation has n - 2 triangles and n - 3 diagonals, and ev
 
 /** Numbers the step text quotes (explanation, expected observations, scene description) next to the panel readout they come from. */
 const QUOTED: Record<string, {readonly step: number; readonly diagonals?: number; readonly triangles?: number; readonly counts?: readonly [number, number]}> = {
-    'montri-piece': {step: 15, triangles: 0},
-    'montri-predict': {step: 19, triangles: 0},
-    'montri-test': {step: 21},
-    'montri-diagonal': {step: 23, diagonals: 2, triangles: 1},
-    'montri-count': {step: 28, diagonals: 2, triangles: 2},
-    'montri-compare': {step: 43, diagonals: 3, triangles: 4, counts: [11, 21]},
-    'montri-explore': {step: 0},
+    'montri-piece': {step: 16, triangles: 0},
+    'montri-predict': {step: 20, triangles: 0},
+    'montri-test': {step: 22},
+    'montri-diagonal': {step: 24, diagonals: 2, triangles: 1},
+    'montri-count': {step: 29, diagonals: 2, triangles: 2},
+    'montri-compare': {step: 44, diagonals: 3, triangles: 4, counts: [11, 21]},
+    'montri-explore': {step: 1},
 };
 
 test('the numbers quoted in each step text equal the panel readouts of its scene (sl and en)', () => {
@@ -272,7 +272,7 @@ test('the numbers quoted in each step text equal the panel readouts of its scene
             });
             const text = [step.explanation[language], ...(step.expectedObservations ?? []).map(o => o[language]), step.scene!.expectedState[language]].join('\n');
             const [shownStep, shownTotal] = (part('step') ?? '').match(/\d+/g)!.map(Number);
-            expect([shownStep, shownTotal], `${step.id} ${language} step readout`).toEqual([quoted.step, 43]);
+            expect([shownStep, shownTotal], `${step.id} ${language} step readout`).toEqual([quoted.step, 44]);
             expect(text, `${step.id} ${language}`).toContain(`\\(${shownStep}\\)`);
             expect(text, `${step.id} ${language}`).toContain(`\\(${shownTotal}\\)`);
             if (quoted.diagonals !== undefined) {

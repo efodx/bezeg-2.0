@@ -33,7 +33,7 @@ const polygon = (name: 'notched' | 'pentagram'): PointSetAction => ({kind: 'poin
 const queryPoint = (point: readonly [number, number] | null): PointSetAction => ({kind: 'point-set', operation: 'set-query-point', point});
 const overlay = (name: (typeof POINT_SET_OVERLAY_NAMES)[number], visible: boolean): PointSetAction => ({kind: 'point-set', operation: 'set-overlay', overlay: name, visible});
 const apply = (graph: Observed, ...actions: LessonAction[]) => act(() => { for (const a of actions) graph.run1(a); });
-const live = () => document.querySelector('[data-pip-readout] [role="status"]')!.textContent;
+const live = () => document.querySelector('[data-pip-readout] [data-pip-live]')!.textContent;
 const readout = () => document.querySelector('[data-pip-readout]') as HTMLElement;
 const named = (graph: Observed, prefix: string) => graph.objects().filter(o => (o.name ?? '').startsWith(prefix));
 const qOnBoard = (graph: Observed) => {

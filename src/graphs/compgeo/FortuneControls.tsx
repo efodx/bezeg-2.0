@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber, type NumberLanguage} from "../../analysis/format";
 import {typesetMath} from "../../mathjax/loadMathJax";
@@ -8,19 +8,24 @@ import type {FortuneView} from "./fortuneGeometry";
 import "./SweepSideLists.css";
 import {FORTUNE_EXAMPLE_IDS, type FortuneExampleId} from "./fortunePresetCollection";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ExampleSelect} from "./ExampleSelect";
+import {useStatusReadout} from "./useStatusReadout";
+import {stepCounterText} from "./stepCounter";
 
 export interface FortuneControlActions {
     nextStep(): void;
     playPause(): void;
     reset(): void;
     loadExample(id: FortuneExampleId): void;
-    resetView(): void;
 }
 
 export interface FortuneControlsProps {
     run: FortuneRun;
     step: number;
     playing: boolean;
+    /** The example the sites are now, or undefined for a custom set (a dragged, added or random set). */
+    exampleId: FortuneExampleId | undefined;
     actions: FortuneControlActions;
 }
 
@@ -157,7 +162,7 @@ function MathParagraphInner({text, name}: {text: string; name: string}) {
 export function FortuneControls(props: FortuneControlsProps) {
     const t = useT();
     const {language} = useLanguage();
-    const {run, step, playing, actions} = props;
+    const {run, step, playing, exampleId, actions} = props;
     const refusal = refusalText(t, run);
     const atEnd = step >= run.length - 1;
     const view = run.view(step);
@@ -167,32 +172,24 @@ export function FortuneControls(props: FortuneControlsProps) {
     const found = view ? view.state.vertices.length : 0;
     const expected = result ? result.diagram.vertices.length : 0;
     const currentLabel = view ? currentEventLabel(t, view) : undefined;
-    const stepText = t("fortune_step_counter", {value0: step + 1, value1: run.length});
+    const stepText = stepCounterText(t, step, run.length);
     const beachText = beach.length ? t("fortune_beach", {value0: siteNames(beach)}) : t("fortune_beach_empty");
     const verticesText = t("fortune_vertices", {value0: view?.done ? expected : found, value1: expected});
-    // The announcement follows the step, Play/Pause, a refusal and the Reset / example buttons, never a drag frame: a drag
-    // recomputes the run at the same step, and a screen reader must not hear every move.
-    const [nonce, setNonce] = useState(0);
-    const announcement = playing || !view || refusal ? "" : [stepText, ...lines, view.done ? "" : beachText].filter(Boolean).join(". ");
-    const announceKey = `${step}|${playing}|${view ? "view" : "none"}|${refusal ? "refused" : "ok"}|${nonce}|${language}`;
-    const [announced, setAnnounced] = useState({key: announceKey, text: announcement});
-    let heard = announced;
-    if (announced.key !== announceKey) { heard = {key: announceKey, text: announcement}; setAnnounced(heard); }
+    // The announcement follows the step, Play/Pause and a refusal, never a drag frame: a drag recomputes the run at the same
+    // step, and a screen reader must not hear every move. Silent while Play runs (the region's mute).
+    const announcement = !view || refusal ? "" : [stepText, ...lines, view.done ? "" : beachText].filter(Boolean).join(". ");
+    const liveReadout = useStatusReadout(announcement, true);
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("fortune_controls_label")} nextLabel={t("fortune_next_step")} playing={playing}
                              {...playbackBlocks({ready: Boolean(result), atStart: step === 0, atEnd, playing, stepsWhilePlaying: true})}
                              onNext={actions.nextStep} onPlayPause={actions.playPause}
-                             onReset={() => { setNonce(n => n + 1); actions.reset(); }}>
-                <button type="button" data-action="reset-view" onClick={actions.resetView}>{t("fortune_view_reset")}</button>
-            </PlaybackButtons>
+                             onReset={() => actions.reset()}/>
             <p className="inspector-help">{t("fortune_playback_note")}</p>
         </div>
-        <div className="inspector-group" role="group" aria-label={t("fortune_examples_group")} data-fortune="examples">
-            <div className="inspector-playback">
-                {FORTUNE_EXAMPLE_IDS.map(id => <button type="button" key={id} data-example={id}
-                                                       onClick={() => { setNonce(n => n + 1); actions.loadExample(id); }}>{t(EXAMPLE_LABEL[id])}</button>)}
-            </div>
+        <div className="inspector-group" data-fortune="examples">
+            <ExampleSelect label={t("fortune_examples_group")} current={exampleId} onChoose={actions.loadExample}
+                           options={FORTUNE_EXAMPLE_IDS.map(id => ({id, text: t(EXAMPLE_LABEL[id])}))}/>
         </div>
         <div className="inspector-group" data-fortune-status="">
             {refusal && <p className="inspector-help" role="alert" data-fortune="refusal">{refusal}</p>}
@@ -205,9 +202,7 @@ export function FortuneControls(props: FortuneControlsProps) {
                 {currentLabel !== undefined && <CurrentEvent label={currentLabel}/>}
                 {!view.done && <QueueList items={queueItems(t, run, view)}/>}
             </>}
-            {/* Always rendered so assistive technology registers the region before its first announcement. Silent while Play runs
-                (a tick every 400 ms would flood a screen reader); announces once on Pause or at the end. */}
-            <p className="visually-hidden" role="status" aria-live="polite" data-fortune-live="">{heard.text}</p>
+            <LiveReadout readout={liveReadout} muted={playing} dataAttribute="fortune-live"/>
         </div>
     </>;
 }

@@ -1,5 +1,12 @@
-import React, {useState} from "react";
+import React from "react";
 import {useT} from "../../localization";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {PointListInput} from "../../inputs/PointListInput";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {ExampleSelect} from "./ExampleSelect";
+import {useStatusReadout} from "./useStatusReadout";
 import type {FourPointReadout} from "./degenerateSites";
 import type {VoronoiMode} from "./voronoiPresetCollection";
 
@@ -12,15 +19,14 @@ const EXAMPLE_LABEL = {
 export interface VoronoiControlActions {
     /** Restores the B4 example, the overlay off, no selection (C2). */
     resetExample(): void;
-    /** Restores the box of the drawing's `frame`. */
-    resetView(): void;
     /** Chooses the site whose cell is constructed, or null for none; the construction count returns to 0. */
     selectSite(site: number | null): void;
     constructNext(): void;
     constructBack(): void;
     constructReset(): void;
-    /** Sets the query point from typed text; false when the text is not a number in range. */
-    setQuery(x: string, y: string): boolean;
+    constructPlayPause(): void;
+    /** Places the query point at a typed value, rounded to the quarter grid. */
+    setQuery(x: number, y: number): void;
     /** Moves the query point by a step in grid units. */
     moveQuery(dx: number, dy: number): void;
     selectTriangle(index: number | undefined): void;
@@ -39,10 +45,8 @@ export interface VoronoiStatus {
     vertices: readonly {x: string; y: string; sites: readonly number[]}[];
     cellSite: number | null;
     construction?: {count: number; total: number; other?: number; done: boolean};
-    query: {x: string; y: string; nearest: readonly number[]};
+    query: {x: string; y: string; value: readonly [number, number]; nearest: readonly number[]};
     coordinateLimit: number;
-    /** The last move of the query point (arrows or drag) was refused beyond the coordinate limit. */
-    queryRefused: boolean;
     overlayShown: boolean;
     /** The Voronoi diagram is drawn; while it is hidden (a lesson step that asks for a prediction) the panel prints no diagram count and no vertex. */
     diagramShown: boolean;
@@ -55,6 +59,8 @@ export interface VoronoiStatus {
     /** The last switch to four-point mode was refused because there are not exactly four sites. */
     modeRefused: boolean;
     examples: readonly VoronoiExampleId[];
+    /** The example the sites show now, or undefined once they are custom. */
+    exampleId?: VoronoiExampleId;
     /** The four-point readout: set in four-point mode while there are exactly four distinct sites. */
     fourPoint?: FourPointReadout;
 }
@@ -62,6 +68,8 @@ export interface VoronoiStatus {
 export interface VoronoiControlsProps {
     status: VoronoiStatus;
     actions: VoronoiControlActions;
+    /** The cell construction is playing. */
+    playing?: boolean;
 }
 
 const sorted = (corners: readonly number[]) => [...corners].sort((a, b) => a - b);
@@ -71,27 +79,6 @@ const triple = (corners: readonly number[]) => {
     const [a, b, c] = sorted(corners);
     return {value0: a + 1, value1: b + 1, value2: c + 1};
 };
-
-/** Typed query coordinates; a valid pair commits when the button is pressed or Enter is typed. */
-function QueryFields(props: {x: string; y: string; invalid: boolean; message: string; onInvalid: (invalid: boolean) => void; onSet: (x: string, y: string) => boolean}) {
-    const t = useT();
-    const [draft, setDraft] = useState<{x: string; y: string; from: string}>({x: props.x, y: props.y, from: `${props.x}|${props.y}`});
-    const from = `${props.x}|${props.y}`;
-    // A new position from the graph (drag, arrows, Reset) replaces the draft; adjusted during render, not in an effect.
-    if (draft.from !== from) setDraft({x: props.x, y: props.y, from});
-    const commit = () => props.onInvalid(!props.onSet(draft.x, draft.y));
-    const key = (event: React.KeyboardEvent) => { if (event.key === "Enter") commit(); };
-    const edit = (next: {x: string; y: string}) => { setDraft({...draft, ...next}); props.onInvalid(false); };
-    const described = props.invalid ? "voronoi-query-invalid" : undefined;
-    return <>
-        <label>{t("vor_query_x")} <input type="text" inputMode="text" data-voronoi="query-x" value={draft.x} aria-invalid={props.invalid} aria-describedby={described}
-                                       onKeyDown={key} onChange={e => edit({x: e.target.value, y: draft.y})}/></label>
-        <label>{t("vor_query_y")} <input type="text" inputMode="text" data-voronoi="query-y" value={draft.y} aria-invalid={props.invalid} aria-describedby={described}
-                                       onKeyDown={key} onChange={e => edit({x: draft.x, y: e.target.value})}/></label>
-        <button type="button" data-action="query-set" onClick={commit}>{t("vor_query_set")}</button>
-        {props.message && <p id="voronoi-query-invalid" className="inspector-help" role="alert" data-voronoi="query-invalid">{props.message}</p>}
-    </>;
-}
 
 const vertexTextOf = (t: ReturnType<typeof useT>, vertex: VoronoiStatus["selectedVertex"]) => vertex
     ? t("vor_tri_vertex", {...triple(vertex.corners), value3: vertex.x, value4: vertex.y, value5: siteList(vertex.sites)})
@@ -130,15 +117,12 @@ function DegenerateModes(props: VoronoiControlsProps) {
     return <div className="inspector-group">
         {status.modeSwitch && <>
             <h3 className="inspector-reveals-title">{t("deg_title")}</h3>
-            <div className="inspector-playback" role="group" aria-label={t("deg_mode_group")} data-voronoi="mode">
-                <button type="button" data-action="mode-sites" aria-pressed={status.mode === "sites"} onClick={() => actions.setMode("sites")}>{t("deg_mode_sites")}</button>
-                <button type="button" data-action="mode-four-point" aria-pressed={status.mode === "four-point"} onClick={() => actions.setMode("four-point")}>{t("deg_mode_four")}</button>
-            </div>
+            <ChoiceSelect label={t("deg_mode_group")} value={status.mode} onChange={mode => actions.setMode(mode === "four-point" ? "four-point" : "sites")}
+                          options={[{value: "sites", text: t("deg_mode_sites")}, {value: "four-point", text: t("deg_mode_four")}]}/>
             {status.modeRefused && <p className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p>}
         </>}
-        {status.examples.length > 0 && <div className="inspector-playback" role="group" aria-label={t("deg_example_group")} data-voronoi="examples">
-            {status.examples.map(id => <button type="button" key={id} data-example={id} onClick={() => actions.loadExample(id)}>{t(EXAMPLE_LABEL[id])}</button>)}
-        </div>}
+        {status.examples.length > 0 && <ExampleSelect<VoronoiExampleId> label={t("deg_example_group")} current={status.exampleId} onChoose={actions.loadExample}
+                                                                         options={status.examples.map(id => ({id, text: t(EXAMPLE_LABEL[id])}))}/>}
     </div>;
 }
 
@@ -168,10 +152,6 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     const t = useT();
     const {status, actions} = props;
     const {counts, construction} = status;
-    const [invalid, setInvalid] = useState(false);
-    const [seenAt, setSeenAt] = useState(`${status.query.x}|${status.query.y}`);
-    // Any committed move of the query point, by whatever route, retires an earlier typing error.
-    if (seenAt !== `${status.query.x}|${status.query.y}`) { setSeenAt(`${status.query.x}|${status.query.y}`); setInvalid(false); }
     const refusal = status.refusal;
     const refusalText = refusal
         ? refusal.kind === "few" ? t("vor_refused_few") : t("vor_refused_duplicate", {value0: refusal.sites[0] + 1, value1: refusal.sites[1] + 1})
@@ -182,7 +162,6 @@ export function VoronoiControls(props: VoronoiControlsProps) {
         : t("vor_query_tie", {value0: siteList(nearest)});
     const selectedVertex = status.selectedVertex;
     const vertexText = vertexTextOf(t, selectedVertex);
-    const queryMessage = invalid || status.queryRefused ? t("vor_query_invalid", {value0: status.coordinateLimit}) : "";
     const queryAnswer = refusal ? undefined : `${t("vor_query_at", {value0: status.query.x, value1: status.query.y})} ${queryText}`;
     const stepText = !construction || status.cellSite === null ? t("vor_construct_none")
         : construction.count === 0 ? t("vor_construct_start", {value0: status.cellSite + 1, value1: construction.total})
@@ -194,13 +173,14 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     const fourAnnouncement = four ? [fourSign === undefined ? four.incircle : t(fourSign === "inside" ? "deg_say_inside" : fourSign === "on" ? "deg_say_on" : "deg_say_outside"), four.verdict, four.vertices] : [];
     const collinearAnnouncement = status.collinear && !refusal ? t("vor_collinear_note") : undefined;
     const overlayText = status.overlayShown ? t("vor_overlay_on") : t("vor_overlay_off");
-    const nextUnavailable = !construction || construction.count >= construction.total;
+    const playing = props.playing ?? false;
     const backUnavailable = !construction || construction.count <= 0;
+    const liveReadout = useStatusReadout([overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined, queryAnswer,
+        ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" "));
     return <>
         <div className="inspector-group">
             <div className="inspector-playback" role="group" aria-label={t("vor_view_group")}>
                 <button type="button" data-action="reset-example" onClick={actions.resetExample}>{t("vor_example_reset")}</button>
-                <button type="button" data-action="reset-view" onClick={actions.resetView}>{t("vor_view_reset")}</button>
             </div>
         </div>
         <DegenerateModes status={status} actions={actions}/>
@@ -239,18 +219,20 @@ export function VoronoiControls(props: VoronoiControlsProps) {
                             onClick={() => actions.selectSite(status.cellSite === site ? null : site)}>{t("vor_site_item", {value0: site + 1})}</button>
                 ))}
             </div>
-            <div className="inspector-playback" role="group" aria-label={t("vor_construct_group")}>
-                <button type="button" data-action="construct-next" aria-disabled={nextUnavailable}
-                        onClick={() => { if (!nextUnavailable) actions.constructNext(); }}>{t("vor_construct_next")}</button>
-                <button type="button" data-action="construct-back" aria-disabled={backUnavailable}
-                        onClick={() => { if (!backUnavailable) actions.constructBack(); }}>{t("vor_construct_back")}</button>
-                <button type="button" data-action="construct-reset" aria-disabled={backUnavailable}
-                        onClick={() => { if (!backUnavailable) actions.constructReset(); }}>{t("vor_construct_reset")}</button>
-            </div>
+            <PlaybackButtons groupLabel={t("vor_construct_group")} nextLabel={t("vor_construct_next")} resetLabel={t("vor_construct_reset")} playing={playing}
+                             onNext={() => actions.constructNext()} onPlayPause={() => actions.constructPlayPause()} onReset={() => actions.constructReset()}
+                             {...playbackBlocks({ready: construction !== undefined && construction.total > 0, atStart: (construction?.count ?? 0) <= 0,
+                                 atEnd: !construction || construction.count >= construction.total, playing, stepsWhilePlaying: true})}>
+                <UnavailableButton data-action="construct-back" reason={backUnavailable ? t("playback_block_at_start") : undefined}
+                                   onPress={() => actions.constructBack()}>{t("vor_construct_back")}</UnavailableButton>
+            </PlaybackButtons>
             <p className="inspector-help" data-voronoi="construction">{stepText}</p>
         </div>}
-        <div className="inspector-group" role="group" aria-label={t("vor_query_group")}>
-            <QueryFields x={status.query.x} y={status.query.y} invalid={invalid} message={queryMessage} onInvalid={setInvalid} onSet={actions.setQuery}/>
+        <div className="inspector-group">
+            {/* A single-point list: no add or remove. Values are quarters of a grid unit, so the field grid keeps them exact. */}
+            <PointListInput title={t("vor_query_group")} points={[status.query.value]} pointLabel={() => "q"}
+                            min={-status.coordinateLimit} max={status.coordinateLimit} grid={0.25} decimals={2}
+                            onCommit={(_, [x, y]) => { actions.setQuery(x, y); }}/>
             <div className="inspector-playback" role="group" aria-label={t("vor_query_move_group")}>
                 <button type="button" data-action="query-left" onClick={() => actions.moveQuery(-1, 0)}>{t("vor_query_left")}</button>
                 <button type="button" data-action="query-right" onClick={() => actions.moveQuery(1, 0)}>{t("vor_query_right")}</button>
@@ -260,8 +242,6 @@ export function VoronoiControls(props: VoronoiControlsProps) {
             <p className="inspector-help" data-voronoi="query-at">{t("vor_query_at", {value0: status.query.x, value1: status.query.y})}</p>
             {queryText && <p className="inspector-help" data-voronoi="query-nearest">{queryText}</p>}
         </div>
-        <p className="visually-hidden" role="status" aria-live="polite" data-voronoi-live="">
-            {[overlayText, vertexText, construction && status.cellSite !== null ? stepText : undefined, queryAnswer, queryMessage,
-                ...fourAnnouncement, collinearAnnouncement].filter(Boolean).join(" ")}</p>
+        <LiveReadout readout={liveReadout} muted={playing} dataAttribute="voronoi-live"/>
     </>;
 }

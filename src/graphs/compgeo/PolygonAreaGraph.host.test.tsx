@@ -41,8 +41,9 @@ test('the default is the hull pentagon: doubled area 42, area 21, B = 8, I = 18 
     const graph = new Observed();
     mount(graph);
     expect(graph.model).toEqual(HULL_PENTAGON_MODEL);
-    expect(readout().querySelectorAll('[role="status"]')).toHaveLength(1);
-    expect(readout().querySelector('[role="status"]')!.textContent).toBe('Ploščina: 21');
+    // The sentence is plain text in the readout; the shared hidden live region announces it once.
+    expect(readout().querySelectorAll('[role="status"]')).toHaveLength(0);
+    expect(readout().querySelector('[data-area-live]')!.textContent).toBe('Ploščina: 21');
     expect(readout().dataset.areaDoubled).toBe('42');
     expect(text()).toContain('+42');
     expect(text()).toContain('Ploščina: 21');
@@ -270,4 +271,31 @@ test('a triangle of one grid step on the finest grid never shows an area of zero
     expect(text()).toContain('+1,5·10⁻⁵');
     expect(text()).toContain('Ploščina: 7,6·10⁻⁶');
     expect(readout().dataset.areaDoubled).toBe(String(2 ** -16));
+});
+
+test('wiring: Reverse is a shared unavailable button below two points and its press shows the reason alone', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(screen.getByRole('button', {name: 'Obrni vrstni red'}).getAttribute('aria-disabled')).toBe('false');
+    load(graph, {mode: 'polygon', closed: true, gridStepExponent: 0, points: [{x: 0, y: 0}]});
+    const button = screen.getByRole('button', {name: 'Obrni vrstni red'});
+    expect(button.getAttribute('aria-disabled')).toBe('true');
+    expect(button.hasAttribute('disabled')).toBe(false);
+    expect(button.getAttribute('title')).toBe('Za obračanje sta potrebni vsaj dve točki.');
+    act(() => { button.click(); });
+    expect(graph.model.points).toEqual([{x: 0, y: 0}]);
+    expect(document.querySelector('[data-refusal-notice]')!.textContent).toBe('Za obračanje sta potrebni vsaj dve točki.');
+});
+
+test('a Reverse refusal clears with its reason and does not return when the polygon drops below two points again', () => {
+    const graph = new Observed();
+    mount(graph);
+    const one = {mode: 'polygon' as const, closed: true, gridStepExponent: 0, points: [{x: 0, y: 0}]};
+    load(graph, one);
+    act(() => { screen.getByRole('button', {name: 'Obrni vrstni red'}).click(); });
+    expect(document.querySelector('[data-refusal-notice]')!.textContent).toBe('Za obračanje sta potrebni vsaj dve točki.');
+    load(graph, {...one, points: [{x: 0, y: 0}, {x: 1, y: 0}]});
+    expect(document.querySelector('[data-refusal-notice]')!.textContent).toBe('');
+    load(graph, one);
+    expect(document.querySelector('[data-refusal-notice]')!.textContent).toBe('');
 });

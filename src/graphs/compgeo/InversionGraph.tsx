@@ -204,11 +204,6 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
         this.patch({power: {circle: this.fields.power.circle, thetaDeg: normaliseTheta(degrees)}});
     }
 
-    /** An arrow-key step: 1 degree, or 10 with Shift (signed). */
-    stepTheta(deltaDeg: number): void {
-        this.setTheta(this.fields.power.thetaDeg + deltaDeg);
-    }
-
     setAngleCircle(which: 0 | 1, circle: CircleSpec): boolean {
         if (!isCircleSpec(circle)) return false;
         const angle = this.fields.angle;
@@ -752,7 +747,7 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
                             onRadius={radius => { this.setRadius(radius); }} onX={point => { this.setX(point); }}
                             onSourceKind={kind => this.setSourceKind(kind)} onSource={source => { this.setSource(source); }}
                             onPowerCircle={circle => { this.setPowerCircle(circle); }} onTheta={degrees => this.setTheta(degrees)}
-                            onThetaStep={delta => this.stepTheta(delta)} onAngleCircle={(which, circle) => { this.setAngleCircle(which, circle); }}
+                            onAngleCircle={(which, circle) => { this.setAngleCircle(which, circle); }}
                             onWhich={which => this.setWhich(which)}/>
             {super.workspaceEdit()}
         </>;

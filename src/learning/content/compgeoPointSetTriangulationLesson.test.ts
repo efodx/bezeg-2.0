@@ -120,7 +120,7 @@ test('step 4: the flip of P2-P5 keeps 7/13/8 and changes the triangles; P2-P7 is
         // The Flip button is what the text asks for: it states the reason and changes nothing.
         const triangles = h.graph.triangles;
         act(() => { document.querySelector<HTMLButtonElement>('[data-action="flip-edge"]')!.click(); });
-        expect(document.querySelector('[data-triangulation="event"]')?.textContent)
+        expect(document.querySelector('[data-triangulation="refusal-slot"] [data-refusal-notice]')?.textContent)
             .toBe('Rob P2–P7 ni mogoče zamenjati: trikotnika ob njem ne tvorita izbočenega štirikotnika. Nič se ni spremenilo.');
         expect(h.graph.triangles).toEqual(triangles);
         expect(readout(h).counts).toEqual(r.counts);

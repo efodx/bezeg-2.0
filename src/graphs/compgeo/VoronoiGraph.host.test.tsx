@@ -1,10 +1,12 @@
 import React from 'react';
-import {act, fireEvent, render} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
+import {enterNumber} from '../../inputs/testEntry';
 import {MemoryRouter} from 'react-router-dom';
 import {VoronoiGraph} from './VoronoiGraph';
 import {VORONOI_DEFAULT_QUERY, VORONOI_EXAMPLE, VORONOI_PRESET_KEY, voronoiCollection} from './voronoiPresetCollection';
 import {sameCyclicPolygon} from './voronoiConstruction';
 import {GraphHost} from '../base/GraphHost';
+import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {gridToBoard, serializePointSetModel} from '../../compgeo/pointSetModel';
 import {Rational, RationalPoint} from '../../compgeo/rational';
@@ -35,6 +37,25 @@ beforeEach(() => {
     setLanguage('sl');
 });
 
+function manualScheduler() {
+    let nextHandle = 0;
+    let time = 0;
+    const callbacks = new Map<number, FrameRequestCallback>();
+    const scheduler: AnimationScheduler = {
+        request: callback => {const handle = nextHandle++; callbacks.set(handle, callback); return handle;},
+        cancel: handle => {callbacks.delete(handle);},
+    };
+    const frame = (elapsed: number) => {
+        const entry = callbacks.entries().next().value as [number, FrameRequestCallback] | undefined;
+        if (!entry) return false;
+        callbacks.delete(entry[0]);
+        time += elapsed;
+        entry[1](time);
+        return true;
+    };
+    return {scheduler, callbacks, frame};
+}
+
 class Observed extends VoronoiGraph {
     liveBoard() { return this.board; }
     box() { return this['drawBox'](); }
@@ -53,6 +74,7 @@ const siteButton = (site: number) => document.querySelector(`button[data-site="$
 const triangleButton = (index: number) => document.querySelector(`button[data-triangle="${index}"]`) as HTMLButtonElement;
 const overlaySwitch = () => document.getElementById([...document.querySelectorAll<HTMLLabelElement>('label.bool-field-label')].find(l => /Dualnost|Duality/.test(l.textContent ?? ''))!.htmlFor) as HTMLInputElement;
 const live = () => document.querySelector('[data-voronoi-live]')?.textContent ?? '';
+const queryField = (axis: 'x' | 'y') => screen.getByRole('spinbutton', {name: `q, ${axis}`});
 const sitePoints = (graph: Observed) => objects(graph).filter(o => o.elType === 'point' && /^P\d+$/.test(o.name ?? ''));
 const trigger = (target: object, name: string) => (target as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers([name], []);
 const dragSite = (graph: Observed, index: number, x: number, y: number) => {
@@ -225,8 +247,8 @@ test('a site drag changes diagram and overlay together in one write; an edit cle
     mount(graph);
     act(() => { fireEvent.click(overlaySwitch()); });
     act(() => { fireEvent.click(siteButton(2)); });
-    click('construct-next');
-    click('construct-next');
+    click('next-step');
+    click('next-step');
     act(() => { fireEvent.click(triangleButton(0)); });
     expect([graph.cellSite, graph.construction, graph.selectedTriangle()]).toEqual([2, 2, 0]);
     const before = graph.diagram()!.vertices.map(v => `${v.point.x.format()},${v.point.y.format()}`);
@@ -249,13 +271,35 @@ test('a site drag changes diagram and overlay together in one write; an edit cle
     expect(named(graph, 'voronoi-bisector-latest')).toHaveLength(0);
     // add and remove edit too
     act(() => { fireEvent.click(siteButton(1)); });
-    click('construct-next');
+    click('next-step');
     act(() => { graph.addPointAt({x: 9, y: -3}); });
     expect([graph.cellSite, graph.construction, graph.model.points.length]).toEqual([null, 0, 8]);
     act(() => { fireEvent.click(siteButton(1)); });
-    click('construct-next');
+    click('next-step');
     act(() => { graph.select(7); graph.removeSelected(); });
     expect([graph.cellSite, graph.construction, graph.model.points.length]).toEqual([null, 0, 7]);
+});
+
+test('Play builds the chosen cell one bisector per tick and stops at the last; Back and an edit stop it; nothing stays scheduled', () => {
+    const frames = manualScheduler();
+    const graph = new Observed({}, frames.scheduler);
+    mount(graph);
+    act(() => { fireEvent.click(siteButton(0)); });
+    click('play-pause');
+    expect(graph.isPlaying).toBe(true);
+    act(() => { frames.frame(0); });
+    for (let k = 1; k <= 3; k++) { act(() => { frames.frame(800); }); expect(graph.construction).toBe(k); }
+    const text = live();
+    expect(text).toBe('');
+    click('construct-back');
+    expect([graph.construction, graph.isPlaying]).toEqual([2, false]);
+    click('play-pause');
+    act(() => { frames.frame(0); });
+    for (let ran = true, i = 0; ran && i < 12; i++) act(() => { ran = frames.frame(800); });
+    expect([graph.construction, graph.isPlaying, frames.callbacks.size]).toEqual([6, false, 0]);
+    expect(button('next-step').getAttribute('aria-disabled')).toBe('true');
+    click('reset');
+    expect(graph.construction).toBe(0);
 });
 
 test('the construction ends at the polygon clipCell returns (exact) for every site, in the decided order', () => {
@@ -266,7 +310,7 @@ test('the construction ends at the polygon clipCell returns (exact) for every si
         act(() => { fireEvent.click(siteButton(site)); });
         expect(graph.construction).toBe(0);
         expect(part('construction')).toBe(`Celica mesta P${site + 1}: začetek, še brez simetral (0 od 6).`);
-        for (let k = 0; k < 6; k++) click('construct-next');
+        for (let k = 0; k < 6; k++) click('next-step');
         expect(graph.construction).toBe(6);
         expect(part('construction')).toContain(`presek polravnin je celica mesta P${site + 1}`);
         const expected = clipCell(graph.diagram()!, points, site, graph.box()!).polygon;
@@ -277,11 +321,11 @@ test('the construction ends at the polygon clipCell returns (exact) for every si
     // Back, Reset and a further Next are deterministic
     click('construct-back');
     expect(graph.construction).toBe(5);
-    click('construct-next');
+    click('next-step');
     expect(graph.construction).toBe(6);
-    click('construct-next');
+    click('next-step');
     expect(graph.construction).toBe(6);
-    click('construct-reset');
+    click('reset');
     expect(graph.construction).toBe(0);
     expect(named(graph, 'voronoi-construction-region')).toHaveLength(1);
     expect(named(graph, 'voronoi-bisector-latest')).toHaveLength(0);
@@ -305,16 +349,14 @@ test('keyboard only: select a site, select a triangle, move the query point, tog
     click('query-left');
     click('query-down');
     expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['9/2', '2']);
-    // the numeric alternative
-    const x = document.querySelector('[data-voronoi="query-x"]') as HTMLInputElement;
-    const y = document.querySelector('[data-voronoi="query-y"]') as HTMLInputElement;
-    act(() => { fireEvent.change(x, {target: {value: '3/2'}}); fireEvent.change(y, {target: {value: '1'}}); });
-    click('query-set');
-    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['3/2', '1']);
-    act(() => { fireEvent.change(x, {target: {value: 'zz'}}); });
-    click('query-set');
-    expect(document.querySelector('[data-voronoi="query-invalid"]')).not.toBeNull();
-    expect(graph.query.x.format()).toBe('3/2');
+    // the numeric alternative: the shared single-point list (wiring only; its mechanics are tested once in the shared controls)
+    act(() => { enterNumber(queryField('x'), '1.5'); });
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['3/2', '2']);
+    act(() => { enterNumber(queryField('y'), '0.3'); });
+    expect([graph.query.x.format(), graph.query.y.format()]).toEqual(['3/2', '1/4']);
+    const queryList = screen.getByRole('group', {name: t('vor_query_group')});
+    expect(queryList.querySelectorAll('.point-list-row')).toHaveLength(1);
+    expect(queryList.querySelector('.point-list-remove')).toBeNull();
     act(() => { fireEvent.click(overlaySwitch()); });
     expect(graph.overlayShown('delaunay')).toBe(false);
     expect(graph.selectedTriangle()).toBeUndefined();
@@ -381,7 +423,7 @@ test('Reset restores the example, switches the overlay off and clears selection,
     act(() => { fireEvent.click(overlaySwitch()); });
     act(() => { fireEvent.click(triangleButton(2)); });
     act(() => { fireEvent.click(siteButton(1)); });
-    click('construct-next');
+    click('next-step');
     click('query-up');
     act(() => { graph.addPointAt({x: 9, y: -3}); });
     click('reset-example');
@@ -415,7 +457,7 @@ test('duplicates and fewer than two sites refuse with a message and draw nothing
     expect(graph.model.points).toHaveLength(40);
 });
 
-test('the view follows the board: after a zoom out the rays reach the new box edge and every "continues" marker lies on it; Reset view restores the frame', () => {
+test('the view follows the board: after a zoom out the rays reach the new box edge and every "continues" marker lies on it; Fit restores the frame', () => {
     const graph = new Observed();
     mount(graph);
     const board = graph.liveBoard();
@@ -447,11 +489,16 @@ test('the view follows the board: after a zoom out the rays reach the new box ed
     onBox(zoomed);
     // a construction made now ends at clipCell of the new box
     act(() => { fireEvent.click(siteButton(0)); });
-    for (let k = 0; k < 6; k++) click('construct-next');
+    for (let k = 0; k < 6; k++) click('next-step');
     expect(sameCyclicPolygon(graph.constructionPolygon(), clipCell(graph.diagram()!, graph.model.points, 0, zoomed).polygon)).toBe(true);
-    click('reset-view');
+    act(() => { graph['fitToVisiblePoints'](); });
     const restored = graph.box()!;
-    for (const key of ['minX', 'maxX', 'minY', 'maxY'] as const) expect(restored[key].equals(frameBox[key])).toBe(true);
+    // Fit shows the frame at the canvas aspect, so the followed box contains the frame and the drawing reaches its edges
+    expect(restored.minX.compare(frameBox.minX)).toBeLessThanOrEqual(0);
+    expect(restored.maxX.compare(frameBox.maxX)).toBeGreaterThanOrEqual(0);
+    expect(restored.minY.compare(frameBox.minY)).toBeLessThanOrEqual(0);
+    expect(restored.maxY.compare(frameBox.maxY)).toBeGreaterThanOrEqual(0);
+    expect(restored).not.toBe(zoomed);
     onBox(restored);
 });
 
@@ -514,8 +561,8 @@ test('the Preset round trip keeps points, overlay, site, count and query; stale 
     mount(graph);
     act(() => { fireEvent.click(overlaySwitch()); });
     act(() => { fireEvent.click(siteButton(3)); });
-    click('construct-next');
-    click('construct-next');
+    click('next-step');
+    click('next-step');
     act(() => { expect(graph.setQueryText('5/2', '1')).toBe(true); });
     act(() => { graph.saveCurrentPreset('mine'); });
     expect(graph.presets()).toBe(VORONOI_PRESET_KEY);
@@ -586,7 +633,7 @@ test('unmount and a scene change leave no objects or listeners (the graph schedu
     act(() => { fireEvent.click(overlaySwitch()); });
     act(() => { fireEvent.click(triangleButton(0)); });
     act(() => { fireEvent.click(siteButton(0)); });
-    click('construct-next');
+    click('next-step');
     act(() => { graph.saveCurrentPreset('mine'); });
     const ours = () => (board.objectsList as unknown as Shown[]).filter(o => /^voronoi-/.test(o.name ?? '')).length;
     expect(ours()).toBeGreaterThan(10);
@@ -615,13 +662,11 @@ test('the starting view frames the example sites', () => {
 });
 
 describe('review fixes', () => {
-    const field = (axis: 'x' | 'y') => document.querySelector(`[data-voronoi="query-${axis}"]`) as HTMLInputElement;
-
     test('a bare importPresetData resets the site, count and query; the Preset route still carries them', () => {
         const graph = new Observed();
         mount(graph);
         act(() => { graph.selectSite(2); });
-        click('construct-next');
+        click('next-step');
         click('query-right');
         expect([graph.cellSite, graph.construction, graph.query.x.format()]).toEqual([2, 1, '9/2']);
         act(() => { graph.importPresetData(serializePointSetModel(VORONOI_EXAMPLE)); });
@@ -635,31 +680,7 @@ describe('review fixes', () => {
         expect([graph.cellSite, graph.construction, graph.queryTextOf()]).toEqual([null, 0, VORONOI_DEFAULT_QUERY]);
     });
 
-    test('the typing error clears on another move of the query point and on editing; the inputs point at it', () => {
-        const graph = new Observed();
-        mount(graph);
-        act(() => { fireEvent.change(field('x'), {target: {value: 'zz'}}); });
-        click('query-set');
-        const message = document.querySelector('[data-voronoi="query-invalid"]')!;
-        expect(message.textContent).toContain('3,5');
-        expect(field('x').getAttribute('aria-describedby')).toBe(message.id);
-        expect(field('y').getAttribute('aria-describedby')).toBe(message.id);
-        click('query-right');
-        expect(document.querySelector('[data-voronoi="query-invalid"]')).toBeNull();
-        expect(field('x').getAttribute('aria-invalid')).toBe('false');
-        act(() => { fireEvent.change(field('x'), {target: {value: 'zz'}}); });
-        click('query-set');
-        expect(document.querySelector('[data-voronoi="query-invalid"]')).not.toBeNull();
-        act(() => { fireEvent.change(field('x'), {target: {value: '1'}}); });
-        expect(document.querySelector('[data-voronoi="query-invalid"]')).toBeNull();
-        act(() => { fireEvent.change(field('x'), {target: {value: 'zz'}}); });
-        click('query-set');
-        click('reset-example');
-        expect(document.querySelector('[data-voronoi="query-invalid"]')).toBeNull();
-        expect(field('x').getAttribute('aria-describedby')).toBeNull();
-    });
-
-    test('the query answer is announced, and a move refused at the limit shows and announces a message', () => {
+    test('the query answer is announced; a move beyond the coordinate limit is refused without a notice', () => {
         const graph = new Observed();
         mount(graph);
         expect(live()).toContain('Točka poizvedbe: (4, 2).');
@@ -668,11 +689,7 @@ describe('review fixes', () => {
         expect(live()).toContain('(9/2, 2)');
         act(() => { graph.setQueryText(String(graph.coordinateLimit), '0'); });
         click('query-right');
-        const limit = String(graph.coordinateLimit);
-        const shown = document.querySelector('[data-voronoi="query-invalid"]');
-        expect(shown?.textContent).toContain(limit);
-        expect(live()).toContain(shown!.textContent!);
-        click('query-left');
+        expect(graph.query.x.format()).toBe(String(graph.coordinateLimit));
         expect(document.querySelector('[data-voronoi="query-invalid"]')).toBeNull();
     });
 
@@ -684,7 +701,7 @@ describe('review fixes', () => {
         const ring = named(graph, 'voronoi-chosen-site');
         expect(ring).toHaveLength(1);
         expect([ring[0].X!(), ring[0].Y!()]).toEqual([graph.model.points[1].x, graph.model.points[1].y]);
-        click('construct-next');
+        click('next-step');
         expect(named(graph, 'voronoi-chosen-site')).toHaveLength(1);
         act(() => { graph.selectSite(null); });
         expect(named(graph, 'voronoi-chosen-site')).toHaveLength(0);
@@ -699,12 +716,6 @@ describe('review fixes', () => {
         act(() => { fireEvent.click(triangleButton(0)); });
         const face = (name: string) => named(graph, name)[0]?.visProp?.face;
         expect(face('voronoi-selected-vertex')).not.toBe('diamond');
-    });
-
-    test('the query inputs are labelled with the point they belong to', () => {
-        mount(new Observed());
-        expect(field('x').closest('label')!.textContent).toContain('Točka poizvedbe, x');
-        expect(field('y').closest('label')!.textContent).toContain('Točka poizvedbe, y');
     });
 });
 

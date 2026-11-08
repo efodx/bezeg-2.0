@@ -1,3 +1,4 @@
+import {StatusLive} from "./StatusLive";
 import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {GraphSession} from "../base/GraphSession";
@@ -37,10 +38,17 @@ export function orientationText(readout: OrientationReadout, translate: typeof t
 
 function OrientationStatus({points, exponent, valuesShown}: {points: PointSetModel["points"]; exponent: number; valuesShown: boolean}) {
     const translate = useT();
-    if (!valuesShown) return <p className="inspector-help pointset-status" role="status" data-orientation-readout="" data-orientation-value="">{translate("pointset_values_hidden")}</p>;
+    if (!valuesShown) return <>
+        <p className="inspector-help pointset-status" data-orientation-readout="" data-orientation-value="">{translate("pointset_values_hidden")}</p>
+        <StatusLive text={translate("pointset_values_hidden")}/>
+    </>;
     const readout = orientationReadout(points);
-    return <p className="inspector-help pointset-status" role="status" data-orientation-readout={readout.kind === "turn" ? readout.turn : "missing"}
-              data-orientation-value={readout.kind === "turn" ? readout.value * 4 ** exponent : ""}>{orientationText(readout, translate, exponent)}</p>;
+    const text = orientationText(readout, translate, exponent);
+    return <>
+        <p className="inspector-help pointset-status" data-orientation-readout={readout.kind === "turn" ? readout.turn : "missing"}
+           data-orientation-value={readout.kind === "turn" ? readout.value * 4 ** exponent : ""}>{text}</p>
+        <StatusLive text={text}/>
+    </>;
 }
 
 export class OrientationGraph extends PointSetGraph<OrientationOverlayId> {

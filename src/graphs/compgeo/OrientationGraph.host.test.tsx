@@ -61,7 +61,7 @@ test('the default scene is p=(0,0), q=(4,0), r=(3,2): +8 and a left turn in a li
     mount(graph);
     expect(graph.model.points).toEqual(DEFAULT_ORIENTATION_MODEL.points);
     expect(graph.pointLimit).toBe(3);
-    expect(readout().getAttribute('role')).toBe('status');
+    expect(document.querySelector('[data-readout-live]')!.getAttribute('role')).toBe('status');
     expect(readout().textContent).toContain('+8');
     expect(readout().textContent).toContain('levi zavoj');
     expect(readout().dataset.orientationReadout).toBe('left');

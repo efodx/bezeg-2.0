@@ -8,6 +8,9 @@ import {
 } from "./bentleyOttmannRun";
 import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "./useStatusReadout";
+import {stepCounterText} from "./stepCounter";
 
 export interface BentleyOttmannControlActions {
     nextStep(): void;
@@ -109,12 +112,14 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
     const event = run.event(step);
     const view = run.view(step);
     const n = run.segments.length;
-    const stepText = t("bentleyottmann_step_counter", {value0: step + 1, value1: run.length});
+    const stepText = stepCounterText(t, step, run.length);
     const noteLine = event ? noteText(t, event, view, point) : undefined;
     const testsText = t("bentleyottmann_tests", {value0: view.neighbourTests, value1: run.pairTotal});
     const summary = view.done
         ? t("bentleyottmann_summary", {value0: run.eventCount, value1: view.reports.length, value2: view.neighbourTests, value3: run.pairTotal})
         : undefined;
+    const announcement = refusal || n === 0 ? "" : [stepText, noteLine, summary].filter(Boolean).join(". ");
+    const liveReadout = useStatusReadout(announcement);
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("bentleyottmann_controls_label")} nextLabel={t("bentleyottmann_next_step")} playing={playing}
@@ -140,12 +145,11 @@ export function BentleyOttmannControls(props: BentleyOttmannControlsProps) {
                     {view.reports.map(report => <li key={`${report.point.x.format()},${report.point.y.format()}`} data-bentley-ottmann="crossing">
                         {t("bentleyottmann_crossing_item", {value0: point(report.point), value1: namesText(report.segments)})}</li>)}
                 </ul>}
-                {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces once on Pause or at the end. */}
-                <p className="visually-hidden" role="status" aria-live="polite" data-bentley-ottmann-live="">
-                    {playing ? "" : [stepText, noteLine, summary].filter(Boolean).join(". ")}</p>
                 {children && <div data-bentley-ottmann-lists="">{children}</div>}
             </>}
         </div>
+        {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces once on Pause or at the end. */}
+        <LiveReadout readout={liveReadout} muted={playing} dataAttribute="bentley-ottmann-live"/>
     </>;
 }
 

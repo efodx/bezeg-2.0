@@ -10,6 +10,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import {runFortune} from './fortuneRun';
+import {READOUT_SETTLE_MS} from '../base/controls/LiveReadout';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {appStorage} from '../../storage/appStorage';
@@ -29,6 +30,7 @@ class Observed extends FortuneGraph {
     goTo(step: number) { this.setState(this['patch']({step})); }
     storedStep() { return 'step' in this.state ? this.state.step : undefined; }
     box() { return this['drawBox'](this.run()); }
+    fit() { this.fitToVisiblePoints(); }
     owned() { return {sweep: this['sweep'], final: this['final']}; }
 }
 
@@ -143,13 +145,20 @@ test('a smaller trace clamps the kept step; an example returns to step 0', () =>
     expect(graph.step).toBe(graph.run().length - 1);
     expect(graph.storedStep()).toBe(graph.run().length - 1);
     act(() => graph.goTo(2));
-    act(() => { fireEvent.click(document.querySelector('button[data-example="example-1"]') as HTMLButtonElement); });
+    chooseExample('example-1');
     expect([graph.model, graph.step]).toEqual([FORTUNE_EXAMPLE_1, 0]);
 });
 
 
 const queueEntries = () => [...document.querySelectorAll('[data-fortune="queue"] li')] as HTMLElement[];
 const live = () => document.querySelector('[data-fortune-live]')?.textContent ?? '';
+/** Chooses an example in the shared example select (the label is in either language). */
+function chooseExample(id: string) {
+    const select = screen.getByLabelText(/^(Primeri mest|Example sites)$/) as HTMLSelectElement;
+    act(() => { fireEvent.change(select, {target: {value: id}}); });
+}
+const example = chooseExample;
+
 async function settle(start: () => Promise<void>): Promise<void> {
     let pending: Promise<void> = Promise.resolve();
     act(() => { pending = start(); });
@@ -193,17 +202,20 @@ test('the queue shows a cancelled circle event struck through and named so in te
     expect(english[0].querySelector('s')?.textContent).toMatch(/^circle event \(/);
 });
 
-test('the live region announces the step, the event and the beach line in Slovenian and English, and is silent while playing', () => {
+test('the live region announces the step, the event and the beach line in Slovenian and English, and is silent while playing', async () => {
     const graph = new Observed();
     mount(graph);
     const dStep = stepOfSite(graph, 3);
     for (let k = 0; k < dStep - 1; k++) click('next-step');
+    await quietPeriod();
     expect(live()).toContain(`Korak ${dStep} od ${graph.run().length}`);
     expect(live()).toContain('Obalna črta (od leve proti desni): A, B, A, C, A');
     act(() => { setLanguage('en'); });
+    await quietPeriod();
     expect(live()).toContain(`Step ${dStep} of ${graph.run().length}`);
     expect(live()).toContain('Beach line (left to right): A, B, A, C, A');
     click('next-step');
+    await quietPeriod();
     expect(live()).toContain('False alarm');
     act(() => { graph.play(); });
     expect(live()).toBe('');
@@ -268,7 +280,7 @@ test('ownership: scene replacement, an example, Reset and 20 step changes with a
     expect(count()).toBe(before);
     click('reset');
     act(() => graph.goTo(3));
-    act(() => { fireEvent.click(document.querySelector('button[data-example="example-1"]') as HTMLButtonElement); });
+    chooseExample('example-1');
     act(() => graph.goTo(3));
     expect(count()).toBe(before);
     // Scene disposal removes the objects and forgets the handles; the next sync creates new ones. No object is left behind.
@@ -281,14 +293,14 @@ test('ownership: scene replacement, an example, Reset and 20 step changes with a
     expect(ours()).toBe(oursBefore);
 });
 
-test('Reset view returns to the run box after a zoom; an example button restores the example sites at step 0', () => {
+test('the host Fit returns to the run box after a zoom; choosing an example restores the example sites at step 0', () => {
     const graph = new Observed();
     mount(graph);
     const board = graph.liveBoard();
     const runBox = graph.box()!;
     act(() => { board.setBoundingBox([-40, 50, 60, -50], false); });
     expect(graph.box()).not.toBe(runBox);
-    click('reset-view');
+    act(() => graph.fit());
     const restored = graph.box()!;
     for (const key of ['minX', 'maxX', 'minY', 'maxY'] as const) expect(restored[key].equals(runBox[key])).toBe(true);
     // The board view itself returns: it contains the run box again and is no longer the zoomed-out view.
@@ -298,10 +310,10 @@ test('Reset view returns to the run box after a zoom; an example button restores
     expect(right).toBeGreaterThanOrEqual(runBox.maxX.toNumber() - 1e-9);
     expect(bottom).toBeLessThanOrEqual(runBox.minY.toNumber() + 1e-9);
     expect(top).toBeGreaterThanOrEqual(runBox.maxY.toNumber() - 1e-9);
-    act(() => { fireEvent.click(document.querySelector('button[data-example="random"]') as HTMLButtonElement); });
+    chooseExample('random');
     expect(graph.model.points).toHaveLength(12);
     act(() => graph.goTo(4));
-    act(() => { fireEvent.click(document.querySelector('button[data-example="example-1"]') as HTMLButtonElement); });
+    chooseExample('example-1');
     expect([graph.model, graph.step]).toEqual([FORTUNE_EXAMPLE_1, 0]);
 });
 
@@ -393,11 +405,14 @@ test('a site beyond the coordinate limit is refused naming the site and the limi
     expect(fortuneObjects(graph)).toHaveLength(0);
 });
 
-test('the live region exists while empty, and does not change during the frames of a drag', () => {
+const quietPeriod = () => act(async () => { await new Promise(resolve => setTimeout(resolve, READOUT_SETTLE_MS + 100)); });
+
+test('the live region exists while empty, and does not change during the frames of a drag', async () => {
     const graph = new Observed();
     mount(graph);
     expect(document.querySelector('[data-fortune-live]')).not.toBeNull();
     act(() => graph.goTo(stepOfSite(graph, 3)));
+    await quietPeriod();
     const heard = live();
     expect(heard).not.toBe('');
     const seen = new Set<string>();
@@ -407,6 +422,7 @@ test('the live region exists while empty, and does not change during the frames 
         expect(live()).toBe(heard);
     }
     act(() => graph.goTo(2));
+    await quietPeriod();
     expect(live()).not.toBe(heard);
 });
 
@@ -441,7 +457,7 @@ const toEnd = (graph: Observed) => {
     while (button('next-step').getAttribute('aria-disabled') !== 'true') click('next-step');
     expect(graph.step).toBe(graph.run().length - 1);
 };
-const example = (id: string) => act(() => { fireEvent.click(document.querySelector(`button[data-example="${id}"]`) as HTMLButtonElement); });
+
 
 test.each([
     ['example-1', 4, 2, 'Oglišča: 2 od 2'],

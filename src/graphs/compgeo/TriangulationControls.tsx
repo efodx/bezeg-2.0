@@ -1,6 +1,10 @@
 import React from "react";
 import {formatDegrees} from "../../analysis/format";
+import {useMemo} from "react";
 import {useLanguage, useT} from "../../localization";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
 import type {TriangulationEvent, TriangulationReadout, TriangulationRefusal} from "./TriangulationGraph";
 
 export interface TriangulationControlActions {
@@ -70,30 +74,36 @@ export function TriangulationControls(props: TriangulationControlsProps) {
     const key = (a: number, b: number) => `${a}-${b}`;
     const eventSentence = event ? eventText(t, event) : "";
     const flipUnavailable = selected === undefined;
+    // A refusal (an invalid point set, or a refused flip) is shown alone in the shared refusal region; the live region carries the other events.
+    const refusalSentence = refusal ? refusalText(t, refusal)
+        : event?.kind === "flip-refused" || event?.kind === "flip-needs-edge" ? eventSentence : undefined;
+    const channel = useMemo(() => {
+        const next = new RefusalChannel();
+        if (refusalSentence) next.refuse(refusalSentence, true);
+        return next;
+    }, [refusalSentence]);
     return <>
         {triangulationShown && <div className="inspector-group" data-triangulation="edge-flip">
             <div className="inspector-playback" role="group" aria-label={t("tri_flip_group")}>
-                <label htmlFor="triangulation-edge">{t("tri_edge_select")}</label>
-                <select id="triangulation-edge" aria-describedby="triangulation-flip-hint" data-triangulation="edge-list" value={selected ? key(selected[0], selected[1]) : ""}
-                        disabled={edges.length === 0}
-                        onChange={change => {
-                            const value = change.target.value;
-                            const [a, b] = value.split("-").map(Number);
-                            if (value === "") actions.selectEdge(undefined); else actions.selectEdge(a, b);
-                        }}>
-                    <option value="">{t("tri_edge_none")}</option>
-                    {edges.map(e => <option key={key(e.a, e.b)} value={key(e.a, e.b)}>
-                        {t(e.interior ? "tri_edge_option_interior" : "tri_edge_option_hull", {value0: e.a + 1, value1: e.b + 1})}
-                    </option>)}
-                </select>
-                <button type="button" data-action="flip-edge" aria-describedby="triangulation-flip-hint" aria-disabled={flipUnavailable || undefined}
-                        onClick={() => actions.flip()}>{t("tri_flip")}</button>
+                {/* No edges: the list offers only "none" and says why (the shared select has no unavailable state). */}
+                <ChoiceSelect label={t("tri_edge_select")} value={selected ? key(selected[0], selected[1]) : ""}
+                              help={edges.length === 0 ? t("tri_edges_unavailable") : undefined}
+                              options={[{value: "", text: t("tri_edge_none")}, ...edges.map(e => ({
+                                  value: key(e.a, e.b),
+                                  text: t(e.interior ? "tri_edge_option_interior" : "tri_edge_option_hull", {value0: e.a + 1, value1: e.b + 1}),
+                              }))]}
+                              onChange={value => {
+                                  const [a, b] = value.split("-").map(Number);
+                                  if (value === "") actions.selectEdge(undefined); else actions.selectEdge(a, b);
+                              }}/>
+                <UnavailableButton data-action="flip-edge" aria-describedby="triangulation-flip-hint" reason={flipUnavailable ? t("tri_event_needs_edge") : undefined}
+                                   onPress={() => actions.flip()} onBlockedPress={() => actions.flip()}>{t("tri_flip")}</UnavailableButton>
             </div>
             <p className="inspector-help" id="triangulation-flip-hint">{t("tri_flip_hint")}</p>
         </div>}
         <div className="inspector-group" data-triangulation="status">
-            {refusal && <p className="inspector-help" role="alert" data-triangulation="refusal">{refusalText(t, refusal)}</p>}
-            {eventSentence && <p className="inspector-help" data-triangulation="event">{eventSentence}</p>}
+            <div data-triangulation="refusal-slot"><RefusalNotice channel={channel}/></div>
+            {eventSentence && refusalSentence !== eventSentence && <p className="inspector-help" data-triangulation="event">{eventSentence}</p>}
             {readout && <ul aria-label={t("tri_readout_label")} data-triangulation="readout">
                 <li data-readout="n">{t("tri_readout_points", {value0: readout.n})}</li>
                 <li data-readout="k">{t("tri_readout_boundary", {value0: readout.boundary.k})}</li>
@@ -111,7 +121,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
                 </>}
             </ul>}
             <p className="visually-hidden" role="status" aria-live="polite" data-triangulation="live">
-                {eventSentence}</p>
+                {refusalSentence === eventSentence ? "" : eventSentence}</p>
         </div>
     </>;
 }

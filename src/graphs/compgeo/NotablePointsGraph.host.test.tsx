@@ -33,6 +33,8 @@ beforeEach(() => {
 
 class Observed extends NotablePointsGraph {
     liveBoard() { return this.board; }
+    /** The host Fit button. */
+    fit() { this.fitToVisiblePoints(); }
 }
 
 type Shown = {elType: string; name?: string; plaintext?: string; X?: () => number; Y?: () => number; coords?: {usrCoords: number[]}; Radius?: () => number};
@@ -173,7 +175,7 @@ test('a collinear or coincident triple is degenerate: no circle, altitude or bis
     expect(all(graph).length).toBe(full);
 });
 
-test('a distant circumcentre is reported "outside the view", Show all frames it, and a centre beyond the cap is never drawn', () => {
+test('a distant circumcentre is reported "outside the view", Fit frames it, and a centre beyond the cap is never drawn', () => {
     const graph = new Observed();
     mount(graph);
     showAllCentres(graph);
@@ -186,7 +188,7 @@ test('a distant circumcentre is reported "outside the view", Show all frames it,
     expect(named(graph, 'notable-chip')[0].plaintext).toContain('O: zunaj pogleda');
     const before = graph.liveBoard().getBoundingBox();
     expect(before[2]).toBeLessThan(o.X!() + 1e-9 + 1000);
-    fireEvent.click(document.querySelector('[data-notable-show-all]')!);
+    act(() => { graph.fit(); });
     const after = graph.liveBoard().getBoundingBox();
     expect(after).not.toEqual(before);
     expect(o.X!()).toBeGreaterThanOrEqual(after[0]);
@@ -219,7 +221,7 @@ test('vertices move by the board, the numeric fields and arrow keys; the example
     enterNumber(screen.getByLabelText('P3, x'), '1');
     expect(graph.model.points[2]).toEqual({x: 1, y: 5});
     expect(graph.exampleId).toBeUndefined();
-    expect((document.querySelector('[data-notable-example]') as HTMLSelectElement).value).toBe('custom');
+    expect((document.querySelector('[data-notable-example] select') as HTMLSelectElement).value).toBe('custom');
     act(() => { graph.select(2); });
     expect(text('[data-notable-chip]')).toBe('Vrsta trikotnika: ostrokotni');
     for (let i = 0; i < 4; i++) act(() => { fireEvent.keyDown(graph.liveBoard().containerObj as HTMLElement, {key: 'ArrowDown'}); });
@@ -273,7 +275,7 @@ test('the controls and the board text follow a language switch; unmount releases
     act(() => { setLanguage('en'); });
     expect(text('[data-notable-chip]')).toBe('Triangle type: acute');
     expect(named(graph, 'notable-chip')[0].plaintext).toBe('Triangle type: acute');
-    expect(screen.getByText('Show all')).toBeInTheDocument();
+    expect(screen.getByLabelText('Triangle example')).toBeInTheDocument();
     expect(text('[data-notable-readout="area"]')).toBe('Area S = 35/2');
     expect(languageListeners.live).toBeGreaterThan(0);
     view.unmount();
@@ -344,9 +346,9 @@ test('a scene that starts with every overlay off still shows the type chip', () 
     expect(named(graph, 'notable-chip')[0].plaintext).toBe('Vrsta trikotnika: ostrokotni');
 });
 
-/** What a student sees: every board object's place and size, the framing after Show all, and the inspector text. */
+/** What a student sees: every board object's place and size, the framing after Fit, and the inspector text. */
 function seen(graph: Observed) {
-    act(() => { graph.showAll(); });
+    act(() => { graph.fit(); });
     // Axis ticks and their labels follow the viewport, not the triangle.
     const objects = all(graph).filter(o => !['label', 'ticks', 'axis'].includes(o.elType)).map(o => ({
         type: o.elType, name: o.name ?? '', coords: o.coords?.usrCoords, radius: o.Radius ? o.Radius() : undefined, text: o.plaintext,
@@ -370,4 +372,13 @@ test.each([[-2, 4], [-8, 256]])('a triangle on a grid of 2^%i is drawn and worde
     expect(fine.box).toEqual(unit.box);
     expect(fine.objects).toEqual(unit.objects);
     expect(centreRow('centroid')?.textContent).toBe('G = (3, 5/3), znotraj trikotnika');
+});
+
+test('wiring: the shared example chooser mounts and choosing an example loads it', () => {
+    const graph = new Observed();
+    mount(graph);
+    const chooser = document.querySelector('[data-notable-example] select') as HTMLSelectElement;
+    expect(chooser).not.toBeNull();
+    fireEvent.change(chooser, {target: {value: 'right'}});
+    expect(graph.exampleId).toBe('right');
 });

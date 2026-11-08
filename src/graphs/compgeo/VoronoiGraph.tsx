@@ -11,7 +11,7 @@ import {dualEdges, nearestSites, type RationalBox, voronoiFromDelaunay, type Vor
 import type {LessonAction} from "../../learning/model";
 import {BaseGraphState} from "../base/BaseGraph";
 import type {GraphSession} from "../base/GraphSession";
-import {fitBoundingBox} from "../base/fitBoundingBox";
+import type {AnimationScheduler} from "../../learning/runtime/animation";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {Preset} from "../base/presets/Presets";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -22,6 +22,8 @@ import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {VoronoiControlActions, VoronoiControls, VoronoiExampleId, VoronoiStatus, VoronoiTriangles} from "./VoronoiControls";
 import {fourPointReadout} from "./degenerateSites";
 import {bisectorOrder, constructionRegion, parseRationalText} from "./voronoiConstruction";
+import {boardFrameOf, fitFrame} from "./frameFit";
+import {TracePlayback} from "./tracePlayback";
 import {followedGridBox, visibleGridBox} from "./followBox";
 import {clipToBox, createVoronoiDrawing, frame, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
 import {
@@ -44,6 +46,8 @@ export interface VoronoiGraphState extends PointSetGraphState {
 /** A move of the query point by the arrow buttons, in grid units, and the grid it snaps to when dragged. */
 const QUERY_STEP = Rational.of(1, 2);
 const QUERY_SNAP = 4;
+/** Time between two construction steps while it plays. */
+const CONSTRUCTION_STEP_INTERVAL_MS = 800;
 
 const NAMES: TriangleSelectionNames = {
     triangle: "voronoi-triangle", selectedTriangle: "voronoi-selected-triangle", selectedCircle: "voronoi-selected-circle",
@@ -110,21 +114,39 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     private constructionDrawnFor?: {points: readonly GridPoint[]; site: number | null; count: number; scale: number; box?: RationalBox};
     private queryPoint?: JXG.Point;
     private inQuerySnap = false;
-    /** The last move of the query point was refused beyond the coordinate limit; shown until the next move. */
-    private queryRefused = false;
+    /** Playback of the cell construction: Next step, Play and Reset move the bisector count; the count stays in the scene store. */
+    private playback: TracePlayback;
     /** The Preset's site, count and query, handed from `importPreset` to the import it triggers and consumed once. */
     private carried?: {cellSite: unknown; construction: unknown; query: unknown; mode: unknown};
     private readonly siteLimit: number;
     /** A switch to four-point mode was refused because there are not exactly four sites; shown until the next edit or switch. */
     private modeRefused = false;
 
-    constructor(options: PointSetOptions = {}) {
+    constructor(options: PointSetOptions = {}, scheduler?: AnimationScheduler) {
         const siteLimit = options.pointLimit ?? VORONOI_MAX_POINTS;
         // The base checks adds against its options object, so `pointLimit` reads the live mode through this holder (set below).
         const holder: {graph?: VoronoiGraph} = {};
         super({...options, get pointLimit() { return holder.graph?.pointLimit ?? siteLimit; }});
         holder.graph = this;
         this.siteLimit = siteLimit;
+        this.playback = new TracePlayback({
+            runLength: () => this.constructionLength(),
+            step: () => this.construction,
+            writeStep: count => this.setConstruction(count),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => CONSTRUCTION_STEP_INTERVAL_MS,
+        }, scheduler);
+    }
+
+    /** The positions of the construction: 0 to the number of bisectors of the chosen cell; 0 (nothing to step) without a chosen site. */
+    private constructionLength(): number {
+        const site = this.cellSite;
+        return site === null ? 0 : bisectorOrder(this.model.points, site).length + 1;
+    }
+
+    get isPlaying(): boolean {
+        return this.playback.isPlaying;
     }
 
     // ---- Reads ---------------------------------------------------------------------------------------------------
@@ -264,11 +286,12 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     /** Any write of a new model clears the chosen site, the count and the selected triangle (C1), unless the write names them. */
     override setState(update: SceneStateUpdate<PointSetGraphState>, callback?: () => void): void {
         const before = this.state.model;
+        let named = false;
         const wrapped: SceneStateUpdate<PointSetGraphState> = state => {
             const raw = typeof update === "function" ? update(state) : update;
             if (!raw) return raw;
+            named = "cellSite" in raw || "construction" in raw;
             const edit = raw.model !== undefined && raw.model !== state.model;
-            const named = "cellSite" in raw || "construction" in raw;
             return edit && !named ? this.patch({...raw, cellSite: null, construction: 0}) : raw;
         };
         super.setState(wrapped, callback);
@@ -276,6 +299,8 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
             this.selectedTriangleValue = undefined;
             this.modeRefused = false;
         }
+        // The playback does not exist yet while the base class is being constructed.
+        this.playback?.settle(this.state.model !== before, named);
     }
 
     /** Chooses the site whose cell is constructed (null or an invalid index clears it); the count returns to 0. */
@@ -290,22 +315,21 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
         this.requestRender();
     }
 
-    constructNext(): void { this.setConstruction(this.construction + 1); }
+    constructNext(): void { this.playback.nextStep(); }
 
     constructBack(): void { this.setConstruction(this.construction - 1); }
 
-    constructReset(): void { this.setConstruction(0); }
+    constructReset(): void { this.playback.resetTrace(); }
+
+    playPauseConstruction(): void { if (this.playback.isPlaying) this.playback.pause(); else this.playback.play(); }
 
     /** Places the query point at an exact position (grid units). False, and nothing changes, beyond the coordinate limit. */
     setQueryPoint(point: RationalPoint): boolean {
         const limit = Rational.fromInt(this.coordinateLimit);
         const inRange = (v: Rational) => v.compare(limit) <= 0 && v.compare(limit.neg()) >= 0;
         if (!inRange(point.x) || !inRange(point.y)) {
-            this.queryRefused = true;
-            this.requestRender();
             return false;
         }
-        this.queryRefused = false;
         this.setState(this.patch({query: {x: point.x.format(), y: point.y.format()}}));
         this.requestRender();
         return true;
@@ -313,12 +337,9 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
 
     /** The numeric alternative to dragging: typed integer, fraction or decimal. False when the text is not valid or is out of range. */
     setQueryText(x: string, y: string): boolean {
-        this.queryRefused = false;
         const px = parseRationalText(x);
         const py = parseRationalText(y);
-        const placed = px !== undefined && py !== undefined && this.setQueryPoint(new RationalPoint(px, py));
-        this.queryRefused = false; // a typed error is shown by the panel itself
-        return placed;
+        return px !== undefined && py !== undefined && this.setQueryPoint(new RationalPoint(px, py));
     }
 
     /** Keyboard move of the query point by `steps` of half a grid unit in each direction. */
@@ -414,22 +435,18 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     resetExample(): void {
         this.importPresetData(serializePointSetModel(this.exampleModel()));
         this.selectedTriangleValue = undefined;
-        this.queryRefused = false;
         this.modeRefused = false;
         this.setState(this.patch({overlays: {}, cellSite: null, construction: 0, query: VORONOI_DEFAULT_QUERY, mode: this.defaultMode()}));
         this.requestRender();
         this.syncScene();
     }
 
-    /** Shows the box of the drawing's `frame` again. */
-    resetView(): void {
-        if (!this.hasBoard) return;
-        const box = this.viewBox();
-        const fitted = this.equalAxisUnits ? fitBoundingBox([[box[0], box[1]], [box[2], box[3]]], this.board.canvasWidth, this.board.canvasHeight) : undefined;
-        this.board.setBoundingBox(fitted ?? box, this.equalAxisUnits);
-        // The drawing returns to the exact `frame` (the board's view is at least as large).
-        this.followBox = undefined;
-        this.syncScene();
+    /**
+     * Host Fit shows the box of the drawing's `frame` (the sites and the diagram's vertices), not just the sites; the drawing follows
+     * the new view like any other.
+     */
+    protected override fitView(_points: readonly [number, number][], width: number, height: number): [number, number, number, number] | undefined {
+        return fitFrame(this.viewBox(), width, height);
     }
 
     /** The board's visible area as integer grid units (see `visibleGridBox`). */
@@ -477,8 +494,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     private viewBox(): [number, number, number, number] {
         const derived = this.derive();
         const box = derived.box ?? frame(voronoiExample().diagram, VORONOI_EXAMPLE.points);
-        const scale = 2 ** this.model.gridStepExponent;
-        return [box.minX.toNumber() * scale, box.maxY.toNumber() * scale, box.maxX.toNumber() * scale, box.minY.toNumber() * scale];
+        return boardFrameOf(box, this.model.gridStepExponent);
     }
 
     /** A new board and a reload start on the example's `frame`, never on the sites of the scene being replaced. */
@@ -704,13 +720,19 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     }
 
     /** Removes the drawing, the construction and the query point; the next sync rebuilds them. */
+    protected override beforeFigureCapture(): void {
+        this.playback.pause();
+    }
+
     protected override disposeFigureScene(): void {
+        this.playback?.halt();
         this.disposeOwned();
         this.selectedTriangleValue = undefined;
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
+        this.playback?.halt();
         this.selectedTriangleValue = undefined;
         super.syncReplacedScene();
     }
@@ -725,7 +747,13 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     }
 
     /** The handle must go before the board is freed: disposing removes its objects from that board. */
+    override mount(container: HTMLElement): void {
+        this.playback.mount();
+        super.mount(container);
+    }
+
     override unmount(): void {
+        this.playback.unmount();
         this.disposeOwned();
         this.overlayMemo = undefined;
         super.unmount();
@@ -789,12 +817,12 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
 
     private readonly voronoiActions: VoronoiControlActions = {
         resetExample: () => this.resetExample(),
-        resetView: () => this.resetView(),
         selectSite: site => this.selectSite(site),
         constructNext: () => this.constructNext(),
         constructBack: () => this.constructBack(),
         constructReset: () => this.constructReset(),
-        setQuery: (x, y) => this.setQueryText(x, y),
+        constructPlayPause: () => this.playPauseConstruction(),
+        setQuery: (x, y) => { this.setQueryPoint(new RationalPoint(Rational.of(Math.round(x * QUERY_SNAP), QUERY_SNAP), Rational.of(Math.round(y * QUERY_SNAP), QUERY_SNAP))); },
         moveQuery: (dx, dy) => { this.moveQuery(dx, dy); },
         selectTriangle: index => this.selectTriangle(index),
         setMode: mode => { this.setMode(mode); },
@@ -809,6 +837,11 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     /** The named examples the panel offers (none here); a subclass lists them and loads one by id. */
     protected exampleIds(): readonly VoronoiExampleId[] {
         return [];
+    }
+
+    /** The named example the sites show now, or undefined for a custom set (none here). */
+    protected currentExampleId(): VoronoiExampleId | undefined {
+        return undefined;
     }
 
     protected loadExample(_id: VoronoiExampleId): void {
@@ -832,9 +865,9 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
             collinear: false,
             counts: {sites: points.length, vertices: 0, finite: 0, rays: 0, lines: 0, bounded: 0, unbounded: 0},
             vertices: [], cellSite: null,
-            query: {x: query.x, y: query.y, nearest: this.queryNearest()},
-            coordinateLimit: this.coordinateLimit, queryRefused: this.queryRefused, overlayShown: this.overlayShown("delaunay"), diagramShown: this.overlayShown("diagram"), triangles: [],
-            mode: this.mode, modeSwitch: this.showsModeSwitch(), modeRefused: this.modeRefused, examples: this.exampleIds(),
+            query: {x: query.x, y: query.y, value: [this.query.x.toNumber(), this.query.y.toNumber()] as const, nearest: this.queryNearest()},
+            coordinateLimit: this.coordinateLimit, overlayShown: this.overlayShown("delaunay"), diagramShown: this.overlayShown("diagram"), triangles: [],
+            mode: this.mode, modeSwitch: this.showsModeSwitch(), modeRefused: this.modeRefused, examples: this.exampleIds(), exampleId: this.currentExampleId(),
         } satisfies VoronoiStatus;
         if (!diagram) {
             const duplicate = !outcome.ok && outcome.refusal.kind === "duplicate-point" ? outcome.refusal.indices : undefined;
@@ -871,7 +904,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
     protected override workspaceEdit(): React.ReactNode {
         const status = this.status();
         return <>
-            <VoronoiControls status={status} actions={this.voronoiActions}/>
+            <VoronoiControls status={status} actions={this.voronoiActions} playing={this.playback.isPlaying}/>
             {super.workspaceEdit()}
             <VoronoiTriangles status={status} actions={this.voronoiActions}/>
         </>;

@@ -7,6 +7,7 @@ import {POLE_POLAR_EXAMPLES} from './polePolarModel';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
+import {chooseOption, typeNumber} from './controlsTest';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -121,32 +122,52 @@ test('arrow keys step P by 0.2 and Shift by 1; without a selection or with Ctrl 
     expect([pointP(graph).X(), pointP(graph).Y()]).toEqual([1.2, 5.2]);
 });
 
-test('the example, conic and mode buttons and the numeric fields edit the model', () => {
+test('wiring: an arrow key in the P field steps by one grid unit (0.2), not by 1', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Točka na elipsi'})); });
+    const before = graph.model.p.x;
+    act(() => { fireEvent.keyDown(screen.getByRole('spinbutton', {name: 'P, x'}), {key: 'ArrowUp'}); });
+    expect(graph.model.p.x).toBe(before + 1);
+});
+
+test('the example, conic and mode selects and the point list edit the model', () => {
+    const graph = new Observed();
+    mount(graph);
+    chooseOption('Primer', 'Točka na elipsi');
     expect(graph.model).toEqual(POLE_POLAR_EXAMPLES.on);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Krožnica'})); });
+    chooseOption('Stožnica', 'Krožnica');
     expect(graph.model.conic).toBe('circle');
     expect(graph.model.example).toBe('custom');
-    act(() => { fireEvent.change(screen.getByLabelText('Točka P: x'), {target: {value: '3'}}); });
+    typeNumber('P, x', '3');
     expect(graph.model.p).toEqual({x: 15, y: 9});
-    act(() => { fireEvent.change(screen.getByLabelText('Točka P: y'), {target: {value: '0.4'}}); });
+    typeNumber('P, y', '0.4');
     expect(graph.model.p).toEqual({x: 15, y: 2});
 });
 
-test('numeric fields accept only multiples of 0.2', () => {
+test('the field rounds a value off the 0.2 grid and says so, refuses one outside the range, and the direction of an ideal P cannot be (0, 0)', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { fireEvent.change(screen.getByLabelText('Točka P: x'), {target: {value: '1.23'}}); });
-    expect(graph.model.p).toEqual({x: 5, y: 21});
-    act(() => { fireEvent.change(screen.getByLabelText('Točka P: x'), {target: {value: '1.4'}}); });
+    typeNumber('P, x', '1.23');
+    expect(graph.model.p).toEqual({x: 6, y: 21});
+    typeNumber('P, x', '1.4');
     expect(graph.model.p).toEqual({x: 7, y: 21});
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'P: v neskončnosti'})); });
+    typeNumber('P, x', '99');
+    expect(graph.model.p).toEqual({x: 7, y: 21});
+    chooseOption('Vrsta točke P', 'P: v neskončnosti');
     expect(graph.model.ideal).toEqual({dx: 1, dy: 0});
-    act(() => { fireEvent.change(screen.getByLabelText('Smer točke P: dy'), {target: {value: '2'}}); });
+    typeNumber('P, dy', '2');
     expect(graph.model.ideal).toEqual({dx: 1, dy: 2});
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'P: končna točka'})); });
+    typeNumber('P, dx', '0');
+    typeNumber('P, dy', '0');
+    expect(graph.model.ideal).toEqual({dx: 0, dy: 2});
+    typeNumber('P, dx', '1');
+    typeNumber('P, dy', '0');
+    expect(graph.model.ideal).toEqual({dx: 1, dy: 0});
+    expect(document.body.textContent).not.toContain('Smer (0, 0) ni veljavna');
+    typeNumber('P, dx', '0');
+    expect(document.body.textContent).toContain('Smer (0, 0) ni veljavna');
+    expect(graph.model.ideal).toEqual({dx: 1, dy: 0});
+    chooseOption('Vrsta točke P', 'P: končna točka');
     expect(graph.model.ideal).toBeUndefined();
     expect(graph.model.p).toEqual({x: 7, y: 21});
 });
@@ -223,7 +244,7 @@ test('the live region holds the status and the polar only; an arrow step announc
 test('selecting P from the inspector moves the focus to the board so the arrow keys work', () => {
     const graph = new Observed();
     mount(graph);
-    const button = screen.getByRole('button', {name: 'Izberi točko P'});
+    const button = screen.getByRole('button', {name: 'Izberi: P'});
     button.focus();
     act(() => { fireEvent.click(button); });
     expect(document.activeElement).toBe(container(graph));

@@ -8,6 +8,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage} from '../../localization';
+import {chooseOption} from './controlsTest';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -41,38 +42,32 @@ const EXAMPLE_BUTTON: Record<typeof PASCAL_EXAMPLE_IDS[number], string> = {
 const CONIC_BUTTON: Record<typeof PASCAL_CONIC_IDS[number], string> = {
     ellipse: 'Elipsa', parabola: 'Parabola', hyperbola: 'Hiperbola', linePair: 'Par premic',
 };
-const inGroup = (group: string, name: string) => {
-    const root = screen.getByRole('group', {name: group});
-    const match = [...root.querySelectorAll('button')].find(button => button.textContent === name);
-    if (!match) throw new Error(`no button ${name} in ${group}`);
-    return match;
-};
 
 test.each(PASCAL_EXAMPLE_IDS.filter(id => id !== 'custom'))('pascal-load-example %s reaches the state of the example button', example => {
     // Start from a moved scene so that the example really replaces it.
-    const prepare = () => click(inGroup('Stožnica', 'Hiperbola'));
+    const prepare = () => chooseOption('Stožnica', 'Hiperbola');
     const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pascal-load-example', exampleId: example}); });
-    const viaControl = after(() => { prepare(); click(inGroup('Primer', EXAMPLE_BUTTON[example])); });
+    const viaControl = after(() => { prepare(); chooseOption('Primer', EXAMPLE_BUTTON[example]); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
 });
 
 test.each(PASCAL_CONIC_IDS)('pascal-set-conic %s reaches the state of the conic button', conic => {
     // Start from another conic so that the action really changes the model (the ellipse is the default).
-    const prepare = () => click(inGroup('Stožnica', CONIC_BUTTON[conic === 'hyperbola' ? 'parabola' : 'hyperbola']));
+    const prepare = () => chooseOption('Stožnica', CONIC_BUTTON[conic === 'hyperbola' ? 'parabola' : 'hyperbola']);
     const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pascal-set-conic', conic}); });
-    const viaControl = after(() => { prepare(); click(inGroup('Stožnica', CONIC_BUTTON[conic])); });
+    const viaControl = after(() => { prepare(); chooseOption('Stožnica', CONIC_BUTTON[conic]); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     if (conic !== 'ellipse') expect(viaAction.model.indices).toEqual(PASCAL_DEFAULT_INDICES[conic]);
 });
 
 test.each(PASCAL_ORDER_IDS)('pascal-set-order %s reaches the state of the order button', order => {
-    const orderButton = (id: typeof order) => document.querySelector<HTMLElement>(`[data-pascal-order="${PASCAL_ORDERS[id].join('')}"]`)!;
+    const orderText = {natural: 'Običajni (1 2 3 4 5 6)', pappus: 'Prekrižan (1 5 3 4 2 6)', star: 'Zvezda (1 3 5 2 4 6)'} as const;
     // Start from another order so that the action really changes the model (the natural order is the default).
-    const prepare = () => click(orderButton(order === 'star' ? 'pappus' : 'star'));
+    const prepare = () => chooseOption('Vrstni red oglišč', orderText[order === 'star' ? 'pappus' : 'star']);
     const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pascal-set-order', order}); });
-    const viaControl = after(() => { prepare(); click(orderButton(order)); });
+    const viaControl = after(() => { prepare(); chooseOption('Vrstni red oglišč', orderText[order]); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     expect(viaAction.model.order).toEqual(PASCAL_ORDERS[order]);

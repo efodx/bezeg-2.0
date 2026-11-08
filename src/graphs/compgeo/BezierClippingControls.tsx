@@ -6,6 +6,10 @@ import {bezierClippingReadout, BezierClippingStatus, ClipTableRow} from "./bezie
 import {ClipDistancePlot, ClipDistancePlotController} from "./ClipDistancePlot";
 import type {TraceControlActions} from "./TraceCurvePairGraph";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "./useStatusReadout";
+import {stepCounterText} from "./stepCounter";
 
 export interface BezierClippingControlsProps {
     /** What the shown step knows (the graph's `clipState`). */
@@ -57,7 +61,6 @@ function kindText(t: Translate, kind: ClipTableRow["kind"]): string {
 const rangeText = (t: Translate, language: NumberLanguage, range: ClipRange) =>
     t("bezierclipping_range", {value0: formatNumber(range[0], language, 6), value1: formatNumber(range[1], language, 6)});
 
-const sentence = (text: string) => /[.!?]$/.test(text) ? text : `${text}.`;
 
 /**
  * Tolerance, Next step / Play / Pause / Reset, the status, the readout, the interval table and the distance inset of the Bezier
@@ -70,20 +73,17 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
     const {state, step, length, playing, actions} = props;
     const atEnd = step >= length - 1;
     const readout = bezierClippingReadout(state, props.hullsApart);
-    const stepText = t("hulltrace_step_counter", {value0: step + 1, value1: Math.max(length, 1)});
+    const stepText = stepCounterText(t, step, length);
     const status = statusText(t, readout.status);
     const count = t("bezierclipping_clip_count", {value0: readout.clipCount});
     const widest = readout.widest === null ? null : t("bezierclipping_widest", {value0: formatSignificant(readout.widest, language, 3)});
     const {rows, further} = readout.table;
+    const liveReadout = useStatusReadout([stepText, status, count, ...(widest === null ? [] : [widest])].join("\n"));
     return <>
         <div className="inspector-group">
-            <label style={{display: "flex", gap: ".5rem", alignItems: "center"}}>
-                <span>{t("bezierclipping_tolerance_label")}</span>
-                <select data-bezier-clipping="tolerance" value={props.toleranceExponent}
-                        onChange={event => props.onTolerance(Number(event.target.value))}>
-                    {CLIP_TOLERANCE_EXPONENTS.map(k => <option key={k} value={k} aria-label={t("bezierclipping_tolerance_option", {value0: k})}>{powerOfTenText(k)}</option>)}
-                </select>
-            </label>
+            <ChoiceSelect label={t("bezierclipping_tolerance_label")} value={String(props.toleranceExponent)}
+                          options={CLIP_TOLERANCE_EXPONENTS.map(k => ({value: String(k), text: powerOfTenText(k), ariaLabel: t("bezierclipping_tolerance_option", {value0: k})}))}
+                          onChange={value => props.onTolerance(Number(value))}/>
             <p className="inspector-help">{t("bezierclipping_tolerance_help")}</p>
         </div>
         <div className="inspector-group">
@@ -122,7 +122,6 @@ export function BezierClippingControls(props: BezierClippingControlsProps) {
         </div>
         <Inset controller={props.inset} fontSize={props.fontSize}/>
         {/* Silent while Play runs (a tick each interval would flood a screen reader); announces once on Pause or at the end. */}
-        <p className="visually-hidden" role="status" aria-live="polite" data-bezier-clipping-live="">
-            {playing ? "" : [stepText, status, count, ...(widest === null ? [] : [widest])].map(sentence).join(" ")}</p>
+        <LiveReadout readout={liveReadout} muted={playing} dataAttribute="bezier-clipping-live"/>
     </>;
 }

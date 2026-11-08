@@ -2,6 +2,7 @@ import type {PointSetModel} from "../../compgeo/pointSetModel";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {degenerateCollection, DEGENERATE_EXAMPLES, DEGENERATE_PRESET_KEY, degenerateExampleModel} from "./degenerateSitesPresets";
 import type {VoronoiExampleId} from "./VoronoiControls";
+import {matchingExample} from "./ExampleSelect";
 import {VoronoiGraph} from "./VoronoiGraph";
 import type {VoronoiMode} from "./voronoiPresetCollection";
 
@@ -35,6 +36,10 @@ export class DegenerateSitesGraph extends VoronoiGraph {
 
     protected override exampleIds(): readonly VoronoiExampleId[] {
         return EXAMPLE_IDS;
+    }
+
+    protected override currentExampleId(): VoronoiExampleId | undefined {
+        return matchingExample(this.model, EXAMPLE_IDS.map(id => ({id, ...degenerateExampleModel(id)})));
     }
 
     /** An example replaces the sites and sets the mode its Preset names (the collinear example is in `sites` mode). */

@@ -1,6 +1,6 @@
 import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
-import {act, fireEvent, render} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {EAR_CLIPPING_STEP_INTERVAL_MS, EarClippingGraph} from './EarClippingGraph';
 import {
@@ -79,6 +79,8 @@ const result = (name: string) => document.querySelector(`[data-ear-clipping="res
 const status = () => ['step', 'note', 'detail', 'triangles', 'count'].map(part);
 const button = (action: string) => document.querySelector(`button[data-action="${action}"]`) as HTMLButtonElement;
 const click = (action: string) => act(() => { fireEvent.click(button(action)); });
+const exampleSelect = () => screen.getByLabelText(/^(Primera|Examples)$/) as HTMLSelectElement;
+const chooseExample = (id: string) => act(() => { fireEvent.change(exampleSelect(), {target: {value: id}}); });
 const model = (points: Array<[number, number]>): PointSetModel => ({mode: 'polygon', closed: true, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
 const load = (graph: Observed, next: PointSetModel) => act(() => { graph.loadModel(next); });
 const toEnd = (graph: Observed) => { stepWhile(() => graph.step < graph.run().length - 1, () => click('next-step')); };
@@ -192,7 +194,7 @@ test('an edit, a drag, an added vertex or an example returns to step 0, pauses a
     load(graph, model([[0, 0], [4, 0], [2, 3]]));
     expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqual([0, false, 0]);
     click('next-step');
-    click('example-2');
+    chooseExample('example-2');
     expect([graph.step, graph.model]).toEqual([0, EAR_CLIPPING_EXAMPLE_2]);
     click('play-pause');
     tick(frames, 2);
@@ -202,7 +204,7 @@ test('an edit, a drag, an added vertex or an example returns to step 0, pauses a
 test('the comb shows colour class sizes 4, 4, 3, nine triangles, eight diagonals and three guards when done', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-2');
+    chooseExample('example-2');
     expect(document.querySelector('[data-ear-clipping="result"]')).toBeNull();
     toEnd(graph);
     expect(result('classes')).toBe('Barvni razredi (A, B, C): 4, 4, 3');
@@ -227,7 +229,7 @@ test('the comb shows colour class sizes 4, 4, 3, nine triangles, eight diagonals
 test('the guard view equals the triangles at the guard vertex, for the first guard and for a selected one', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-2');
+    chooseExample('example-2');
     toEnd(graph);
     only(graph, 'guards');
     const run = graph.run();
@@ -256,7 +258,7 @@ test('the guard view equals the triangles at the guard vertex, for the first gua
     act(() => { graph.select(other); });
     expect(polygons(graph)).toHaveLength(guardView(run.triangles, guards[0]).length);
     // Example 1: one guard at (3, 2) sees all three triangles
-    click('example-1');
+    chooseExample('example-1');
     toEnd(graph);
     expect(graph.run().guards.vertices).toEqual([3]);
     expect(polygons(graph)).toHaveLength(3);
@@ -323,7 +325,7 @@ test('a clockwise polygon is reversed for the trace, the panel says so and the s
 test('the polygon and step survive a Preset round trip; an out-of-range step is clamped; the collection validates', async () => {
     const graph = new Observed();
     mount(graph);
-    click('example-2');
+    chooseExample('example-2');
     click('next-step');
     click('next-step');
     click('next-step');
@@ -362,7 +364,7 @@ test('the polygon and step survive a Preset round trip; an out-of-range step is 
 test('a live language switch re-renders the panel and the overlay labels; the board letters stay', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-2');
+    chooseExample('example-2');
     toEnd(graph);
     only(graph, 'colouring');
     const boardText = letters(graph);
@@ -376,7 +378,7 @@ test('a live language switch re-renders the panel and the overlay labels; the bo
     expect(result('classes')).toBe('Colour classes (A, B, C): 4, 4, 3');
     expect(document.body.textContent).toContain("Fisk's 3-colouring (when done)");
     expect(letters(graph)).toEqual(boardText);
-    expect(button('example-1').textContent).toBe('Example 1: notched pentagon');
+    expect([...exampleSelect().options].map(o => o.textContent)).toContain('Example 1: notched pentagon');
     act(() => { setLanguage('sl'); });
     expect(part('note')).toBe('Konec: večkotnik je razrezan na trikotnike.');
 });

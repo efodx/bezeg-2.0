@@ -8,18 +8,27 @@ import {vertexName} from "./monotonePartitionRun";
 import type {TriangulationEventInfo, TriangulationRun} from "./monotoneTriangulationRun";
 import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ExampleSelect} from "./ExampleSelect";
+import {useStatusReadout} from "./useStatusReadout";
+import {stepCounterText} from "./stepCounter";
+
+/** The named examples, in the order of the chooser. */
+export type MonotoneTriangulationExampleId = "example-1" | "example-2" | "example-3";
 
 export interface MonotoneTriangulationControlActions {
     nextStep(): void;
     playPause(): void;
     reset(): void;
-    loadExample(index: 1 | 2 | 3): void;
+    loadExample(id: MonotoneTriangulationExampleId): void;
 }
 
 export interface MonotoneTriangulationControlsProps {
     run: TriangulationRun;
     step: number;
     playing: boolean;
+    /** The example the polygon is now, or undefined for a custom polygon. */
+    exampleId: MonotoneTriangulationExampleId | undefined;
     actions: MonotoneTriangulationControlActions;
     /** The side lists: rendered inside the status group, below the readouts. */
     children?: React.ReactNode;
@@ -68,7 +77,7 @@ function noteText(t: Translate, event: TriangulationEventInfo, run: Triangulatio
  */
 export function MonotoneTriangulationControls(props: MonotoneTriangulationControlsProps) {
     const t = useT();
-    const {run, step, playing, actions, children} = props;
+    const {run, step, playing, exampleId, actions, children} = props;
     const refusal = refusalText(t, run);
     const traced = refusal === undefined && run.length > 0;
     const atEnd = step >= run.length - 1;
@@ -77,7 +86,7 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
     const triEvent = piece === null ? undefined : run.triangulationEvent(step);
     const partitionView = run.view(step);
     const partitionEvent = run.event(step);
-    const stepText = t("monotonepartition_step_counter", {value0: step, value1: Math.max(run.length - 1, 0)});
+    const stepText = stepCounterText(t, step, run.length);
     const phaseText = piece === null
         ? t("monotonetri_phase_partition")
         : t("monotonetri_phase_triangulation", {value0: piece + 1, value1: run.pieceCount});
@@ -95,6 +104,8 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
             : t("monotonetri_triangles_so_far", {value0: tri.triangles.length}))
         : undefined;
     const counts = tri?.done ? run.counts : null;
+    // Silent while Play runs (the region's mute); announces once on Pause or at the end.
+    const liveReadout = useStatusReadout(traced ? [stepText, phaseText, noteLine, triangleLine].filter(Boolean).join(". ") : "");
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("monotonetri_controls_label")} nextLabel={t("monotonepartition_next_step")} playing={playing}
@@ -103,12 +114,10 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
             <p className="inspector-help">{t("monotonetri_playback_note")}</p>
             <p className="inspector-help" data-monotone-triangulation="order-rule">{t("monotonepartition_order_rule")}</p>
         </div>
-        <div className="inspector-group" role="group" aria-label={t("monotonepartition_example_group")}>
-            <div className="inspector-playback">
-                <button type="button" data-action="example-1" onClick={() => actions.loadExample(1)}>{t("monotonetri_example_1")}</button>
-                <button type="button" data-action="example-2" onClick={() => actions.loadExample(2)}>{t("monotonetri_example_2")}</button>
-                <button type="button" data-action="example-3" onClick={() => actions.loadExample(3)}>{t("monotonetri_example_3")}</button>
-            </div>
+        <div className="inspector-group">
+            <ExampleSelect label={t("monotonepartition_example_group")} current={exampleId} onChoose={actions.loadExample} options={[
+                {id: "example-1", text: t("monotonetri_example_1")}, {id: "example-2", text: t("monotonetri_example_2")},
+                {id: "example-3", text: t("monotonetri_example_3")}]}/>
         </div>
         <div className="inspector-group" data-monotone-triangulation-status="">
             {refusal && <p className="inspector-help" role="alert" data-monotone-triangulation="refusal">{refusal}</p>}
@@ -146,9 +155,7 @@ export function MonotoneTriangulationControls(props: MonotoneTriangulationContro
                     <p className="inspector-help" data-monotone-triangulation="comparison-growth">{t("monotonetri_comparison_growth")}</p>
                     <p className="inspector-help" data-monotone-triangulation="comparison-note">{t("monotonetri_comparison_note")}</p>
                 </div>}
-                {/* Silent while Play runs (a tick every 500 ms would flood a screen reader); announces once on Pause or at the end. */}
-                <p className="visually-hidden" role="status" aria-live="polite" data-monotone-triangulation-live="">
-                    {playing ? "" : [stepText, phaseText, noteLine, triangleLine].filter(Boolean).join(". ")}</p>
+                <LiveReadout readout={liveReadout} muted={playing} dataAttribute="monotone-triangulation-live"/>
                 {children && <div data-monotone-triangulation-lists="">{children}</div>}
             </>}
         </div>

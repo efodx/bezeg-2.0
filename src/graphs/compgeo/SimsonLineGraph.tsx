@@ -12,7 +12,7 @@ import {inBox} from "../../compgeo/notablePointsModel";
 import {normaliseDegrees} from "../../compgeo/inscribedAngleModel";
 import {
     activeSimsonExampleId, analyseSimson, DEFAULT_SIMSON_SETTINGS, FOOT_NAMES, isSimsonExampleId, isSimsonMode, isSimsonOffset, resolveOffset, SimsonAnalysis,
-    SimsonExampleId, simsonExample, SimsonMode, SimsonSettings, simsonTFromBoard, stepSimsonT,
+    SimsonExampleId, simsonExample, SimsonMode, SimsonSettings, simsonTFromBoard,
 } from "../../compgeo/simsonLineModel";
 import {SIMSON_LINE_OVERLAY_IDS, SIMSON_POINT_COUNT, simsonLineCollection} from "./simsonLinePresetCollection";
 import {SimsonLinePanel} from "./SimsonLinePanel";
@@ -147,11 +147,6 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
     setT(value: number): void {
         if (!Number.isFinite(value)) return;
         this.patch({t: normaliseDegrees(value)});
-    }
-
-    /** An arrow-key step: 1 degree, or 10 with Shift (signed). */
-    stepT(deltaDeg: number): void {
-        this.patch({t: stepSimsonT(this.settings.t, deltaDeg)});
     }
 
     /** Sets the glider offset; a value outside `SIMSON_OFFSETS` is refused (false). */
@@ -503,7 +498,7 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
         return <>
             <SimsonLinePanel analysis={analysis} settings={this.settings} exampleId={this.exampleId} outsideView={outside}
                              onExample={id => this.loadExample(id)} onMode={mode => this.setMode(mode)} onT={value => this.setT(value)}
-                             onStep={delta => this.stepT(delta)} onEpsilon={value => { this.setEpsilon(value); }}
+                             onEpsilon={value => { this.setEpsilon(value); }}
                              onPPrime={point => { this.setPPrime(point); }}/>
             {super.workspaceEdit()}
         </>;

@@ -42,7 +42,7 @@ function after(edit: (graph: ThreeViewsGraph) => void): Result {
     return result;
 }
 
-const slider = (label: RegExp) => screen.getByLabelText<HTMLInputElement>(label);
+const slider = (label: RegExp) => screen.getByRole<HTMLInputElement>('slider', {name: label});
 const setSlider = (label: RegExp, value: number) => act(() => { fireEvent.change(slider(label), {target: {value: String(value)}}); });
 const C_SLIDER = /Višina premice L/;
 const ANGLE_SLIDER = /Kot točke P/;
@@ -51,7 +51,7 @@ const toggle = () => act(() => { screen.getByLabelText<HTMLInputElement>(/Točka
 test.each([[10, 'parabola', 'touches'], [0, 'hyperbola', 'cuts'], [-25, 'ellipse', 'misses'], [-10, 'parabola', 'touches']] as const)(
     'three-views-set-c %s reaches the state of the c slider', (tenths, type, contact) => {
         const viaAction = after(graph => apply(graph, {kind: 'projective', operation: 'three-views-set-c', tenths}));
-        const viaControl = after(() => setSlider(C_SLIDER, tenths));
+        const viaControl = after(() => setSlider(C_SLIDER, tenths / 10));
         expect(viaAction).toEqual(viaControl);
         expect(viaAction.model.c).toBe(tenths);
         expect(viaAction.model).not.toEqual(DEFAULT_THREE_VIEWS_MODEL);
@@ -79,7 +79,7 @@ test.each([0, 8, 23] as const)('three-views-set-angle %s reaches the state of th
         apply(graph, {kind: 'projective', operation: 'three-views-set-point', on: true});
         apply(graph, {kind: 'projective', operation: 'three-views-set-angle', step});
     });
-    const viaControl = after(() => { toggle(); setSlider(ANGLE_SLIDER, step); });
+    const viaControl = after(() => { toggle(); setSlider(ANGLE_SLIDER, step * 15); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.model.angle).toBe(step);
     expect(viaAction.model.angle).not.toBe(DEFAULT_THREE_VIEWS_MODEL.angle);

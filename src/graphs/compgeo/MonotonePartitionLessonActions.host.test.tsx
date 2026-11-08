@@ -114,7 +114,7 @@ test('an edit action pauses playback and returns to step 0', () => {
     expect(graph.isPlaying).toBe(true);
     apply(graph, setPolygon(MONOTONE_EXAMPLE_2));
     expect([graph.step, graph.isPlaying, frames.callbacks.size, graph.model.points.length, graph.run().length]).toEqual([0, false, 0, 9, 21]);
-    expect(part('step')).toBe('Korak 0 od 20');
+    expect(part('step')).toBe('Korak 1 od 21');
 });
 
 test('Back (stopping the lesson animations), a state restore and unmount pause playback and leave no scheduler callback', () => {
@@ -163,18 +163,18 @@ const COUNTS_1 = 'Oglišča po vrstah: začetnih 2, končnih 2, razcepnih 1, zli
 const BALANCE_1 = 'Začetna + razcepna = 2 + 1 = 3; končna + zlivna = 2 + 1 = 3.';
 /** The readouts each scene must show (step, vertex, diagonals, summary, type counts, balance) and the status list (edge with helper). */
 const EXPECTED: Record<string, {readonly shown: readonly (string | undefined)[]; readonly status: readonly string[]}> = {
-    'monpart-polygon': {shown: ['Korak 0 od 14', undefined, NONE, undefined, undefined, undefined], status: []},
-    'monpart-predict': {shown: ['Korak 0 od 14', undefined, NONE, undefined, undefined, undefined], status: []},
-    'monpart-classify': {shown: ['Korak 5 od 14', 'Oglišče v5 je zlivno.', NONE, undefined, undefined, undefined], status: ['e6 — pomočnik v6', 'e4 — pomočnik v4']},
-    'monpart-helper': {shown: ['Korak 6 od 14', 'Oglišče v5 je zlivno.', NONE, undefined, undefined, undefined], status: ['e6 — pomočnik v5']},
-    'monpart-diagonal': {shown: ['Korak 8 od 14', 'Oglišče v2 je razcepno.', 'Diagonale doslej (1): v2–v5', undefined, undefined, undefined], status: ['e6 — pomočnik v2']},
-    'monpart-pieces': {shown: ['Korak 14 od 14', 'Oglišče v3 je končno.', 'Diagonale doslej (1): v2–v5', 'Kosov je 2 = število diagonal (1) + 1.', COUNTS_1, BALANCE_1], status: []},
+    'monpart-polygon': {shown: ['Korak 1 od 15', undefined, NONE, undefined, undefined, undefined], status: []},
+    'monpart-predict': {shown: ['Korak 1 od 15', undefined, NONE, undefined, undefined, undefined], status: []},
+    'monpart-classify': {shown: ['Korak 6 od 15', 'Oglišče v5 je zlivno.', NONE, undefined, undefined, undefined], status: ['e6 — pomočnik v6', 'e4 — pomočnik v4']},
+    'monpart-helper': {shown: ['Korak 7 od 15', 'Oglišče v5 je zlivno.', NONE, undefined, undefined, undefined], status: ['e6 — pomočnik v5']},
+    'monpart-diagonal': {shown: ['Korak 9 od 15', 'Oglišče v2 je razcepno.', 'Diagonale doslej (1): v2–v5', undefined, undefined, undefined], status: ['e6 — pomočnik v2']},
+    'monpart-pieces': {shown: ['Korak 15 od 15', 'Oglišče v3 je končno.', 'Diagonale doslej (1): v2–v5', 'Kosov je 2 = število diagonal (1) + 1.', COUNTS_1, BALANCE_1], status: []},
     'monpart-merge-only': {
-        shown: ['Korak 20 od 20', 'Oglišče v1 je končno.', 'Diagonale doslej (2): v5–v7, v3–v5', 'Kosov je 3 = število diagonal (2) + 1.',
+        shown: ['Korak 21 od 21', 'Oglišče v1 je končno.', 'Diagonale doslej (2): v5–v7, v3–v5', 'Kosov je 3 = število diagonal (2) + 1.',
             'Oglišča po vrstah: začetnih 3, končnih 1, razcepnih 0, zlivnih 2, navadnih 3.', 'Začetna + razcepna = 3 + 0 = 3; končna + zlivna = 1 + 2 = 3.'],
         status: [],
     },
-    'monpart-explore': {shown: ['Korak 0 od 14', undefined, NONE, undefined, undefined, undefined], status: []},
+    'monpart-explore': {shown: ['Korak 1 od 15', undefined, NONE, undefined, undefined, undefined], status: []},
 };
 
 test('the eight scenes run in one synchronous sequence, show the readouts the text quotes, frame their polygon and never play', () => {
@@ -255,14 +255,14 @@ test('three collinear consecutive vertices are refused with a message and no tra
 });
 
 const QUOTED: Record<string, {readonly step: number; readonly total: number; readonly diagonals?: number; readonly pieces?: number}> = {
-    'monpart-polygon': {step: 0, total: 14},
-    'monpart-predict': {step: 0, total: 14},
-    'monpart-classify': {step: 5, total: 14},
-    'monpart-helper': {step: 6, total: 14},
-    'monpart-diagonal': {step: 8, total: 14, diagonals: 1},
-    'monpart-pieces': {step: 14, total: 14, diagonals: 1, pieces: 2},
-    'monpart-merge-only': {step: 20, total: 20, diagonals: 2, pieces: 3},
-    'monpart-explore': {step: 0, total: 14},
+    'monpart-polygon': {step: 1, total: 15},
+    'monpart-predict': {step: 1, total: 15},
+    'monpart-classify': {step: 6, total: 15},
+    'monpart-helper': {step: 7, total: 15},
+    'monpart-diagonal': {step: 9, total: 15, diagonals: 1},
+    'monpart-pieces': {step: 15, total: 15, diagonals: 1, pieces: 2},
+    'monpart-merge-only': {step: 21, total: 21, diagonals: 2, pieces: 3},
+    'monpart-explore': {step: 1, total: 15},
 };
 
 test('the numbers quoted in each step text equal the panel readouts of its scene (sl and en)', () => {

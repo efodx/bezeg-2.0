@@ -50,8 +50,11 @@ const four = (name: string) => document.querySelector(`[data-fourpoint="${name}"
 const part = (name: string) => document.querySelector(`[data-voronoi="${name}"]`)?.textContent;
 const boardContainer = () => document.querySelector(`[aria-label="${t('pointset_board_label')}"]`) as HTMLElement;
 const live = () => document.querySelector('[data-voronoi-live]')?.textContent ?? '';
-const exampleButton = (id: string) => document.querySelector(`button[data-example="${id}"]`) as HTMLButtonElement;
-const modeButton = (mode: 'sites' | 'four-point') => document.querySelector(`button[data-action="mode-${mode}"]`) as HTMLButtonElement;
+const exampleSelect = () => screen.getByLabelText(t('deg_example_group')) as HTMLSelectElement;
+const modeSelect = () => screen.getByLabelText(t('deg_mode_group')) as HTMLSelectElement;
+const optionText = (select: HTMLSelectElement, value: string) => [...select.options].find(o => o.value === value)?.textContent;
+const chooseExample = (id: string) => act(() => { fireEvent.change(exampleSelect(), {target: {value: id}}); });
+const chooseMode = (mode: 'sites' | 'four-point') => act(() => { fireEvent.change(modeSelect(), {target: {value: mode}}); });
 const clickButton = (button: HTMLButtonElement) => act(() => { fireEvent.click(button); });
 const sitePoints = (graph: Observed) => objects(graph).filter(o => o.elType === 'point' && /^P\d+$/.test(o.name ?? ''));
 const trigger = (target: object, name: string) => (target as {triggerEventHandlers(names: string[], args: unknown[]): void}).triggerEventHandlers([name], []);
@@ -89,7 +92,7 @@ test('the graph starts in four-point mode on the unit square: D = 0, one degree-
 test('the trapezoid behaves the same', () => {
     const graph = new Observed();
     mount(graph);
-    clickButton(exampleButton('trapezoid'));
+    chooseExample('trapezoid');
     expect(graph.model.points).toEqual(DEGENERATE_EXAMPLES.trapezoid.points);
     expect(graph.mode).toBe('four-point');
     expect(four('incircle')).toContain('D = 0');
@@ -118,7 +121,7 @@ test('one corner one grid step off: D = 2, two degree-3 vertices, one named lega
 test('the near-circle example is outside by one step, and moving P4 onto the circle gives a degree-4 vertex', () => {
     const graph = new Observed();
     mount(graph);
-    clickButton(exampleButton('near'));
+    chooseExample('near');
     expect(four('incircle')).toContain('D = -30');
     expect(four('incircle')).toContain('zunaj krožnice');
     expect(four('vertices')).toBe('Voronojeva oglišča: 2; stopnje: 3, 3.');
@@ -138,7 +141,7 @@ test('a clockwise first triple is read counter-clockwise', () => {
 test('five collinear sites: four parallel lines, no vertices, no Delaunay triangles, and a visible, announced explanation in both languages', () => {
     const graph = new Observed();
     mount(graph);
-    clickButton(exampleButton('collinear'));
+    chooseExample('collinear');
     expect(graph.mode).toBe('sites');
     expect(graph.model.points).toHaveLength(5);
     const diagram = graph.diagram()!;
@@ -178,19 +181,19 @@ describe('modes', () => {
     test('switching keeps the sites and recomputes the readouts; four-point needs exactly four sites', () => {
         const graph = new Observed();
         mount(graph);
-        clickButton(exampleButton('collinear'));
+        chooseExample('collinear');
         const five = graph.model.points;
-        clickButton(modeButton('four-point'));
+        chooseMode('four-point');
         expect(graph.mode).toBe('sites');
         expect(graph.model.points).toBe(five);
         expect(part('mode-refused')).toBe('Za način štirih točk potrebuješ natanko štiri mesta, zdaj jih je 5; dodaj ali odstrani mesta in poskusi znova.');
-        expect(modeButton('sites').getAttribute('aria-pressed')).toBe('true');
+        expect(modeSelect().value).toBe('sites');
         // an edit retires the refusal
         act(() => { expect(graph.removeSelected()).toBe(false); graph.select(0); expect(graph.removeSelected()).toBe(true); });
         expect(part('mode-refused')).toBeUndefined();
         expect(graph.model.points).toHaveLength(4);
         const four4 = graph.model.points;
-        clickButton(modeButton('four-point'));
+        chooseMode('four-point');
         expect(graph.mode).toBe('four-point');
         expect(graph.model.points).toBe(four4);
         // the four remaining sites are still collinear: no circle, no determinant, and the collinear explanation
@@ -198,11 +201,11 @@ describe('modes', () => {
         expect(four('vertices')).toBe('Voronojevih oglišč ni.');
         expect(four('verdict')).toContain('strogo konveksni');
         expect(part('collinear')).toContain('triangulacije ni');
-        clickButton(modeButton('sites'));
+        chooseMode('sites');
         expect(graph.mode).toBe('sites');
         expect(document.querySelector('[data-fourpoint="incircle"]')).toBeNull();
         expect(graph.model.points).toBe(four4);
-        clickButton(modeButton('four-point'));
+        chooseMode('four-point');
         expect(four('vertices')).toBe('Voronojevih oglišč ni.');
     });
 
@@ -216,12 +219,12 @@ describe('modes', () => {
         graph.select(1);
         act(() => { expect(graph.removeSelected()).toBe(false); expect(graph.clear()).toBe(false); });
         expect(graph.model.points).toHaveLength(4);
-        clickButton(modeButton('sites'));
+        chooseMode('sites');
         expect(graph.pointLimit).toBe(40);
         act(() => { expect(graph.addPointAt({x: 5, y: 5})).toBe(true); });
         expect(graph.model.points).toHaveLength(5);
         // four-point mode with five sites is refused again
-        clickButton(modeButton('four-point'));
+        chooseMode('four-point');
         expect(graph.mode).toBe('sites');
     });
 
@@ -239,7 +242,7 @@ describe('modes', () => {
         const graph = new ObservedVoronoi();
         mount(graph);
         expect(graph.mode).toBe('sites');
-        expect(modeButton('sites')).toBeNull();
+        expect(screen.queryByLabelText(t('deg_mode_group'))).toBeNull();
         expect(document.querySelector('[data-voronoi="four-point"]')).toBeNull();
         act(() => { expect(graph.setMode('four-point')).toBe(false); });
         expect(graph.mode).toBe('sites');
@@ -275,14 +278,18 @@ describe('keyboard and numeric entry reach the on-circle position (C5)', () => {
         expect(graph.model.points).toEqual(DEGENERATE_EXAMPLES.square.points);
     });
 
-    test('the mode switch and the examples are real buttons with pressed state and names', () => {
+    test('the mode switch and the example chooser are the shared selects, showing the mode and the matching example', () => {
         const graph = new Observed();
         mount(graph);
-        expect(modeButton('four-point').getAttribute('aria-pressed')).toBe('true');
-        expect(modeButton('four-point').textContent).toBe('Štiri točke');
-        expect(document.querySelector('[data-voronoi="mode"]')?.getAttribute('aria-label')).toBe('Način prikaza');
-        expect(document.querySelectorAll('[data-example]')).toHaveLength(4);
+        expect(modeSelect().value).toBe('four-point');
+        expect(optionText(modeSelect(), 'four-point')).toBe('Štiri točke');
+        expect(exampleSelect().value).toBe('square');
         expect(live()).toContain('na krožnici');
+        expect([...exampleSelect().options].map(o => o.value)).toEqual(['square', 'trapezoid', 'near', 'collinear']);
+        chooseExample('near');
+        expect(exampleSelect().value).toBe('near');
+        dragSite(graph, 0, 0, 1);
+        expect(exampleSelect().value).toBe('custom');
     });
 });
 
@@ -290,7 +297,7 @@ describe('Presets', () => {
     test('round trip keeps the mode; an example restores; Reset example returns to the square in four-point mode', async () => {
         const graph = new Observed();
         mount(graph);
-        clickButton(exampleButton('collinear'));
+        chooseExample('collinear');
         act(() => { graph.saveCurrentPreset('mine'); });
         const saved = graph.exportPreset();
         expect(saved.id).toBe(DEGENERATE_PRESET_KEY);
@@ -301,7 +308,7 @@ describe('Presets', () => {
         await settle(() => graph.selectPreset('mine'));
         expect(graph.mode).toBe('sites');
         expect(graph.model.points).toEqual(DEGENERATE_EXAMPLES.collinear.points);
-        clickButton(exampleButton('near'));
+        chooseExample('near');
         expect(graph.exportPreset().graphState).toMatchObject({mode: 'four-point'});
     });
 
@@ -373,8 +380,8 @@ test('a live language switch re-renders the readout, the mode switch and the exa
     expect(four('incircle')).toBe('Incircle test for P1, P2, P3 (counter-clockwise) and P4: D = 0; point P4 lies on the circle through P1, P2, P3, so the points are cocircular.');
     expect(four('vertices')).toBe('Voronoi vertices: 1; degrees: 4.');
     expect(four('verdict')).toContain('not unique');
-    expect(modeButton('four-point').textContent).toBe('Four points');
-    expect(exampleButton('collinear').textContent).toBe('Five collinear points');
+    expect(optionText(modeSelect(), 'four-point')).toBe('Four points');
+    expect(optionText(exampleSelect(), 'collinear')).toBe('Five collinear points');
     expect(live()).toContain('on the circle');
 });
 
@@ -383,7 +390,7 @@ test('unmount leaves no objects or listeners', () => {
     const view = mount(graph);
     const board = graph.liveBoard();
     const box = board.containerObj as HTMLElement;
-    clickButton(exampleButton('near'));
+    chooseExample('near');
     const ours = () => (board.objectsList as unknown as Shown[]).filter(o => /^voronoi-/.test(o.name ?? '')).length;
     expect(ours()).toBeGreaterThan(3);
     view.unmount();

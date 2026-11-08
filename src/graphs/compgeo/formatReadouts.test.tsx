@@ -18,14 +18,14 @@ test('Delaunay angles read 30° and 45,5° without trailing zeros (Slovenian) an
         anglesNow: [30, 45.5, 104.5], anglesStart: [30, 45.5, 104.5], triangles: [],
     };
     const actions = {nextStep: noop, playPause: noop, reset: noop, loadExample: noop, selectTriangle: noop};
-    const view = render(<DelaunayControls status={status} playing={false} actions={actions}/>);
+    const view = render(<DelaunayControls status={status} playing={false} exampleId={undefined} actions={actions}/>);
     const text = (key: string) => view.container.querySelector(`[data-readout="${key}"]`)!.textContent;
     expect(text('min-now')).toBe('Najmanjši kot zdaj: 30°');
     expect(text('min-start')).toContain('45,5°');
     expect(text('angles-now')).toContain('30; 45,5; 104,5');
     view.unmount();
     setLanguage('en');
-    const english = render(<DelaunayControls status={status} playing={false} actions={actions}/>);
+    const english = render(<DelaunayControls status={status} playing={false} exampleId={undefined} actions={actions}/>);
     expect(english.container.querySelector('[data-readout="min-start"]')!.textContent).toContain('45.5°');
 });
 

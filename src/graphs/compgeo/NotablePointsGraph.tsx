@@ -5,7 +5,6 @@ import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PresetCollection} from "../base/presets/PresetCollection";
-import {fitBoundingBox} from "../base/fitBoundingBox";
 import {
     activeExampleId, analyseNotablePoints, BOARD_COORDINATE_CAP, BoardXY, CENTRE_IDS, CentreId, inBox, NotableAnalysis,
     NotableExampleId, notableExample,
@@ -21,8 +20,8 @@ import {CENTRE_SYMBOL, notableTexts} from "./notablePointsText";
  * from `analyseNotablePoints` (the exact triangle kernel); this file only draws and words them.
  *
  * Far centres: a centre whose board coordinates exceed `BOARD_COORDINATE_CAP` is never sent to the board; a centre that
- * is merely outside the current view is reported "outside the view" in the inspector and the board chip, and `showAll()`
- * (the Show all button) frames the vertices and the shown centres. The view is never rescaled silently.
+ * is merely outside the current view is reported "outside the view" in the inspector and the board chip, and the host Fit
+ * frames the vertices and the shown centres. The view is never rescaled silently.
  *
  * The example id is part of the scene state (`state.exampleId`, saved in a Preset's graphState); it names the example only
  * while the vertices still equal it, so editing a vertex makes the triangle custom with no extra bookkeeping.
@@ -96,28 +95,6 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
         this.loadModel({...DEFAULT_NOTABLE_MODEL, points: example.points.map(p => ({...p}))});
         const patch: Partial<NotablePointsState> = {exampleId: id};
         this.setState(patch);
-    }
-
-    /** Frames the vertices and every shown centre, including a distant one; false if there is no board or nothing to frame. */
-    showAll(): boolean {
-        const analysis = this.analysis();
-        if (analysis.kind !== "triangle" || !this.hasBoard) return false;
-        const points: [number, number][] = analysis.vertices.map(p => [p.x, p.y]);
-        const places: Record<CentreId, BoardXY | undefined> = {
-            centroid: analysis.centroid.board, circumcentre: analysis.circumcentre?.board, orthocentre: analysis.orthocentre?.board,
-            incentre: analysis.incentre,
-        };
-        for (const id of CENTRE_IDS) {
-            const place = places[id];
-            if (place && this.overlayShown(id)) points.push([place.x, place.y]);
-        }
-        const {width, height} = JXG.getDimensions(this.board.container, document);
-        const box = fitBoundingBox(points, parseFloat(String(width)), parseFloat(String(height)));
-        if (!box) return false;
-        this.board.setBoundingBox(box, true, "update");
-        this.board.applyZoom();
-        this.refreshOutside();
-        return true;
     }
 
     // ---- Lifecycle -----------------------------------------------------------------------------------------------
@@ -323,7 +300,7 @@ export class NotablePointsGraph extends PointSetGraph<NotableOverlayId> {
         this.outsideKey = [...outside].join(",");
         return <>
             <NotablePointsPanel analysis={analysis} exampleId={this.exampleId} outsideView={outside}
-                                onExample={id => this.loadExample(id)} onShowAll={() => { this.showAll(); }}/>
+                                onExample={id => this.loadExample(id)}/>
             {super.workspaceEdit()}
         </>;
     }

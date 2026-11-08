@@ -6,7 +6,8 @@ import type {GridPoint} from "../../compgeo/grid";
 import {PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_SITES} from "../../compgeo/sweep/limits";
 import type {RationalBox} from "../../compgeo/voronoi";
-import {fitBoundingBox} from "../base/fitBoundingBox";
+import {boardFrameOf, fitFrame} from "./frameFit";
+import {matchingExample} from "./ExampleSelect";
 import {BaseGraphState} from "../base/BaseGraph";
 import type {GraphSession} from "../base/GraphSession";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -25,6 +26,11 @@ import {parseHullStep} from "./hullTraceRun";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import {TracePlayback} from "./tracePlayback";
 
+const FORTUNE_NAMED_EXAMPLES = [
+    {id: "example-1", ...FORTUNE_EXAMPLE_1}, {id: "example-2", ...FORTUNE_EXAMPLE_2},
+    {id: "collinear", ...FORTUNE_COLLINEAR}, {id: "cocircular", ...FORTUNE_COCIRCULAR},
+] as const;
+
 /** Time between two playback steps (one step per pop group, never more). */
 export const FORTUNE_STEP_INTERVAL_MS = 400;
 /** The saved configuration beyond the sites: the step index. Playback status is never state. */
@@ -39,7 +45,7 @@ export interface FortuneGraphState extends PointSetGraphState {
  *
  * Steps are pop groups (accepted decision): step 0 is the queue filled, then one step per group of events popped at the same
  * sweep position, the last step is `done`. Every step therefore shows a consistent beach line. Next step and every Play tick
- * run the one `advance()`; Play uses the shared `IterationController` and stops at `done`.
+ * run the one transition of `TracePlayback`; Play stops at `done`.
  *
  * Unlike the Bentley-Ottmann graph, a change of the sites (a drag, an edit, an import) recomputes the whole trace and KEEPS
  * the step index, clamped to the new trace; it pauses playback. A Reset or an example returns to step 0.
@@ -190,19 +196,6 @@ export class FortuneGraph extends PointSetGraph<never> {
         this.resetTrace();
     }
 
-    /** Shows the box of the current run again (sweep area with its circles), fitted to the board; the drawing returns to that box too. */
-    resetView(): void {
-        if (!this.hasBoard) return;
-        const box = this.run().box;
-        if (!box) return;
-        const scale = 2 ** this.model.gridStepExponent;
-        const corners: [number, number, number, number] = [box.minX.toNumber() * scale, box.maxY.toNumber() * scale, box.maxX.toNumber() * scale, box.minY.toNumber() * scale];
-        const fitted = fitBoundingBox([[corners[0], corners[1]], [corners[2], corners[3]]], this.board.canvasWidth, this.board.canvasHeight);
-        this.board.setBoundingBox(fitted ?? corners, true);
-        this.followBox = undefined;
-        this.syncScene();
-    }
-
     override mount(container: HTMLElement): void {
         this.playback.mount();
         super.mount(container);
@@ -270,6 +263,12 @@ export class FortuneGraph extends PointSetGraph<never> {
     }
 
     // ---- View ----------------------------------------------------------------------------------------------------
+
+    /** Host Fit shows the box of the current run (sweep area with its circles), not just the sites; the drawing follows the view. */
+    protected override fitView(_points: readonly [number, number][], width: number, height: number): [number, number, number, number] | undefined {
+        const box = this.run().box;
+        return box ? fitFrame(boardFrameOf(box, this.model.gridStepExponent), width, height) : undefined;
+    }
 
     /** The first example's box (sweep area with its circles); the app default would put the sites on the frame. */
     protected override initialView(): [number, number, number, number] {
@@ -390,8 +389,12 @@ export class FortuneGraph extends PointSetGraph<never> {
         playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
         loadExample: id => this.loadExample(id),
-        resetView: () => this.resetView(),
     };
+
+    /** The named example the sites are now; undefined for a dragged, edited or random set. */
+    private exampleId(): Exclude<FortuneExampleId, "random"> | undefined {
+        return matchingExample(this.model, FORTUNE_NAMED_EXAMPLES);
+    }
 
     protected override showsModeToggle(): boolean {
         return false;
@@ -403,7 +406,7 @@ export class FortuneGraph extends PointSetGraph<never> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <FortuneControls run={this.run()} step={this.step} playing={this.playback.isPlaying} actions={this.sweepActions}/>
+            <FortuneControls run={this.run()} step={this.step} playing={this.playback.isPlaying} exampleId={this.exampleId()} actions={this.sweepActions}/>
             {super.workspaceEdit()}
         </>;
     }

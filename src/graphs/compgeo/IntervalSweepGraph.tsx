@@ -32,8 +32,8 @@ export interface IntervalSweepGraphState extends PointSetGraphState {
 /**
  * A point-set graph in intervals mode that sweeps a vertical line over the intervals and steps through the trace of
  * `intervalSweepTrace` (task 08, spec sweep-algorithms-lessons C1). Shaped like `HullTraceGraph`: the scene state keeps only the
- * intervals and the step index; the drawn state is always recomputed from the trace. Next step and every Play tick run the one
- * `advance()`; Play uses the shared `IterationController` (an injectable `AnimationScheduler`) and stops at `done`.
+ * intervals and the step index; the drawn state is always recomputed from the trace. Next step and every Play tick go through the
+ * shared `TracePlayback` (its injectable `AnimationScheduler` drives Play), which stops at the last step.
  *
  * Any change of the model (an edit, an import, a drag) recomputes the trace, returns the step to 0 and pauses. A scene change,
  * a figure capture and unmount pause playback; unmount disposes the controller. A refused input (`checkIntervals`) gives an empty

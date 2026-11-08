@@ -32,8 +32,8 @@ export interface BentleyOttmannGraphState extends PointSetGraphState {
 /**
  * A point-set graph in segments mode that sweeps a horizontal line downward over the segments and steps through the trace of
  * `bentleyOttmannTrace` (task 09, spec sweep-algorithms-lessons C2). Shaped like `IntervalSweepGraph`: the scene state keeps
- * only the segments and the step index; the drawn state is always recomputed from the trace. Next step and every Play tick run
- * the one `advance()`; Play uses the shared `IterationController` (an injectable `AnimationScheduler`) and stops at `done`.
+ * only the segments and the step index; the drawn state is always recomputed from the trace. Next step and every Play tick go
+ * through the shared `TracePlayback` (its injectable `AnimationScheduler` drives Play), which stops at the last step.
  *
  * Any change of the model (an edit, an import, a drag) recomputes the trace, returns the step to 0 and pauses. A scene change,
  * a figure capture and unmount pause playback; unmount disposes the controller. A refused input (too many segments, a

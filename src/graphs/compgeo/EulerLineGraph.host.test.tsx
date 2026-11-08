@@ -33,6 +33,8 @@ beforeEach(() => {
 
 class Observed extends EulerLineGraph {
     liveBoard() { return this.board; }
+    /** The host Fit button. */
+    fit() { this.fitToVisiblePoints(); }
 }
 
 type Shown = {elType: string; name?: string; plaintext?: string; X?: () => number; Y?: () => number; coords?: {usrCoords: number[]}; Radius?: () => number};
@@ -94,7 +96,7 @@ test('the default scene shows the exact fractions, the exact decision, nine dist
     expect(text('[data-euler-chip]')).toBe('Eulerjeva premica: O, G in H so kolinearne');
     expect(named(graph, 'euler-chip')[0].plaintext).toBe('Eulerjeva premica: O, G in H so kolinearne');
     expect(document.querySelectorAll('[data-euler-coordinates] li')).toHaveLength(3);
-    expect((document.querySelector('[data-euler-example]') as HTMLSelectElement).value).toBe('default');
+    expect((document.querySelector('[data-euler-example] select') as HTMLSelectElement).value).toBe('default');
     noNaN(graph);
 });
 
@@ -158,7 +160,7 @@ test('examples report the checked distinct counts and the near-equilateral H, O;
     noNaN(graph);
 });
 
-test('a distant point is reported "outside the view", Show all frames it, and a point beyond the cap is never drawn', () => {
+test('a distant point is reported "outside the view", Fit frames it, and a point beyond the cap is never drawn', () => {
     const graph = new Observed();
     mount(graph);
     showAllOverlays(graph);
@@ -170,7 +172,7 @@ test('a distant point is reported "outside the view", Show all frames it, and a 
     expect(pointRow('o')?.textContent).toContain('zunaj pogleda');
     expect(named(graph, 'euler-chip')[0].plaintext).toContain('O: zunaj pogleda');
     const before = graph.liveBoard().getBoundingBox();
-    fireEvent.click(document.querySelector('[data-euler-show-all]')!);
+    act(() => { graph.fit(); });
     const after = graph.liveBoard().getBoundingBox();
     expect(after).not.toEqual(before);
     expect(o.X!()).toBeGreaterThanOrEqual(after[0]);
@@ -202,7 +204,7 @@ test('vertices move by the board and the numeric fields; the example becomes cus
     enterNumber(screen.getByLabelText('P3, x'), '1');
     expect(graph.model.points[2]).toEqual({x: 1, y: 5});
     expect(graph.exampleId).toBeUndefined();
-    expect((document.querySelector('[data-euler-example]') as HTMLSelectElement).value).toBe('custom');
+    expect((document.querySelector('[data-euler-example] select') as HTMLSelectElement).value).toBe('custom');
     act(() => { expect(graph.addPointAt({x: 9, y: 9})).toBe(false); });
     load(graph, tri([0, 0], [4, 0]));
     expect(document.querySelector('.euler-panel')).toBeNull();
@@ -251,7 +253,7 @@ test('the controls and the board text follow a language switch; unmount releases
     expect(text('[data-euler-chip]')).toBe('Euler line: O, G and H are collinear');
     expect(named(graph, 'euler-chip')[0].plaintext).toBe('Euler line: O, G and H are collinear');
     expect(text('[data-euler-readout="hg"]')).toBe('HG ≈ 1.05409');
-    expect(screen.getByText('Show all')).toBeInTheDocument();
+    expect(screen.getByLabelText('Triangle example')).toBeInTheDocument();
     expect(languageListeners.live).toBeGreaterThan(0);
     view.unmount();
     expect(languageListeners.live).toBe(0);
@@ -307,9 +309,9 @@ test('a drag with every overlay on keeps the board in step and every scene objec
     if (out) writeFileSync(out, JSON.stringify({on, off}, null, 1));
 });
 
-/** What a student sees: every board object's place and size, the framing after Show all, and the inspector text. */
+/** What a student sees: every board object's place and size, the framing after Fit, and the inspector text. */
 function seen(graph: Observed) {
-    act(() => { graph.showAll(); });
+    act(() => { graph.fit(); });
     // Axis ticks and their labels follow the viewport, not the triangle.
     const objects = all(graph).filter(o => !['label', 'ticks', 'axis'].includes(o.elType)).map(o => ({
         type: o.elType, name: o.name ?? '', coords: o.coords?.usrCoords, radius: o.Radius ? o.Radius() : undefined, text: o.plaintext,
@@ -332,4 +334,13 @@ test.each([[-2, 4], [-8, 256]])('a triangle on a grid of 2^%i is drawn and worde
     expect(fine.panel).toBe(unit.panel);
     expect(fine.box).toEqual(unit.box);
     expect(fine.objects).toEqual(unit.objects);
+});
+
+test('wiring: the shared example chooser mounts and choosing an example loads it', () => {
+    const graph = new Observed();
+    mount(graph);
+    const chooser = document.querySelector('[data-euler-example] select') as HTMLSelectElement;
+    expect(chooser).not.toBeNull();
+    fireEvent.change(chooser, {target: {value: 'right'}});
+    expect(graph.exampleId).toBe('right');
 });

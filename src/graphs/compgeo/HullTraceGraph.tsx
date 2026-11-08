@@ -39,8 +39,8 @@ export interface HullTraceGraphState extends PointSetGraphState {
 /**
  * A point-set graph that runs one of three convex hull algorithms on its points and steps through the trace (task 10,
  * spec convexity-hulls-lessons A4). The scene state keeps only the points, the algorithm and the step index; the drawn
- * state is always recomputed from the algorithm's `...StateAt`. Next step and every Play tick run the one `advance()`;
- * Play uses the shared `IterationController` (an injectable `AnimationScheduler`) and stops at `done`.
+ * state is always recomputed from the algorithm's `...StateAt`. Next step and every Play tick go through the shared
+ * `TracePlayback` (its injectable `AnimationScheduler` drives Play), which stops at the last step.
  *
  * Any change of the model (an edit, an import, a drag) recomputes the trace, returns the step to 0 and pauses; so does a
  * change of the algorithm. A scene change, a figure capture and unmount pause playback; unmount disposes the controller

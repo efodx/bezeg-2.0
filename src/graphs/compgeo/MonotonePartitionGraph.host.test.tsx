@@ -1,6 +1,6 @@
 import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
-import {act, fireEvent, render} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {MONOTONE_PARTITION_STEP_INTERVAL_MS, MonotonePartitionGraph} from './MonotonePartitionGraph';
 import {
@@ -113,7 +113,7 @@ test('the default scene is example 1 at step 0: the sweep line above the polygon
     mount(graph);
     expect(graph.model).toEqual(MONOTONE_PARTITION_EXAMPLE_1);
     expect([graph.step, graph.isPlaying]).toEqual([0, false]);
-    expect(part('step')).toBe(`Korak 0 od ${graph.run().length - 1}`);
+    expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
     expect(part('note')).toContain('pometalna premica nad njim');
     const line = objectsNamed(graph, 'monotone-sweep-line');
     expect(line).toHaveLength(1);
@@ -180,6 +180,19 @@ test('each processed vertex has a text label and a marker shape per type, not co
     }
     const shapes = Object.values(faces);
     expect(new Set(shapes).size).toBe(3);
+});
+
+test('wiring: the shared example select shows the current example, a custom polygon, and choosing an example loads it at step 0', () => {
+    const graph = new Observed();
+    mount(graph);
+    const select = () => screen.getByLabelText(/^(Primera|Examples)$/) as HTMLSelectElement;
+    expect(select().value).toBe('example-1');
+    act(() => { fireEvent.change(select(), {target: {value: 'example-2'}}); });
+    expect([graph.model, graph.step]).toEqual([MONOTONE_PARTITION_EXAMPLE_2, 0]);
+    click('next-step');
+    load(graph, {...MONOTONE_PARTITION_EXAMPLE_2, points: MONOTONE_PARTITION_EXAMPLE_2.points.slice(0, 5)});
+    expect(select().value).toBe('custom');
+    expect(select().querySelector('option[value="custom"]')!.hasAttribute('disabled')).toBe(true);
 });
 
 test('the second example: the diagonals of the kernel appear, no vertex is labelled split', () => {
@@ -294,7 +307,7 @@ test('an edit while playing recomputes the trace, returns to step 0 and pauses; 
     expect(frames.callbacks.size).toBe(0);
     expect(graph.run().length).toBeGreaterThan(0);
     expect(graph.model.points[0]).toEqual({x: 1, y: -2});
-    expect(part('step')).toBe(`Korak 0 od ${graph.run().length - 1}`);
+    expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
     expect(length).toBeGreaterThan(0);
 
     click('next-step');
@@ -302,7 +315,7 @@ test('an edit while playing recomputes the trace, returns to step 0 and pauses; 
     expect(graph.step).toBe(2);
     click('reset');
     expect([graph.step, graph.isPlaying]).toEqual([0, false]);
-    expect(part('step')).toBe(`Korak 0 od ${graph.run().length - 1}`);
+    expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
     expect(traceObjects(graph)).toHaveLength(1);
 });
 
@@ -420,7 +433,7 @@ test('the Preset keeps the polygon and the step; an out-of-range step is clamped
     await settle(() => graph.selectPreset('mine'));
     expect([graph.step, graph.model]).toEqual([9, MONOTONE_PARTITION_EXAMPLE_1]);
     expect(graph.isPlaying).toBe(false);
-    expect(part('step')).toBe(`Korak 9 od ${graph.run().length - 1}`);
+    expect(part('step')).toBe(`Korak 10 od ${graph.run().length}`);
     expect(labels(graph).length).toBeGreaterThan(0);
 
     act(() => { graph.importPreset({id: MONOTONE_PARTITION_PRESET_KEY, graphState: saveState({step: 999999}), data: MONOTONE_PARTITION_EXAMPLE_2}); });
@@ -461,7 +474,7 @@ test('a language switch re-renders the panel, the side lists and the board label
     act(() => { setLanguage('en'); });
     expect(part('vertex')).toBe('Vertex v2 is a split vertex.');
     expect(part('reason')).toBe('Both neighbours are below it and the interior angle is greater than π.');
-    expect(part('step')).toBe(`Step ${pops[3]} of ${graph.run().length - 1}`);
+    expect(part('step')).toBe(`Step ${pops[3] + 1} of ${graph.run().length}`);
     expect(part('order-rule')).toContain('Vertices are processed from top to bottom');
     expect(button('next-step').textContent).toBe('Next step');
     expect(document.body.textContent).toContain('Sweep line');

@@ -1,10 +1,14 @@
-import React, {useRef} from "react";
+import React, {useMemo, useRef, useState} from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {GridPoint} from "../../compgeo/grid";
 import {intervalLetter, intervalsOf, PointSetMode, PointSetModel} from "../../compgeo/pointSetModel";
 import {PolygonSimplicity} from "../../compgeo/predicates";
 import {BooleanField} from "../../inputs/BooleanField";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
+import {StatusLive} from "./StatusLive";
 import {NumberInput} from "../../inputs/NumberInput";
 import {PointCollection} from "../../inputs/PointCollection";
 import {PointListInput, SelectablePointButton, useRemoveFocus} from "../../inputs/PointListInput";
@@ -65,8 +69,8 @@ export interface PointSetControlsProps {
 
 function Status({simplicity, model}: {simplicity: PolygonSimplicity | undefined, model: PointSetModel}) {
     const t = useT();
-    // The live region stays mounted so a change of its text is announced; it is empty outside polygon mode.
-    if (model.mode !== "polygon") return <p className="inspector-help pointset-status" role="status" data-pointset-status=""></p>;
+    // The announcement region stays mounted so a change of the text is announced; it is empty outside polygon mode.
+    if (model.mode !== "polygon") return <><p className="inspector-help pointset-status" data-pointset-status=""></p><StatusLive text=""/></>;
     const closed = model.closed;
     let text: string;
     if (closed && model.points.length < 3) text = t("pointset_status_too_few_vertices");
@@ -75,13 +79,13 @@ function Status({simplicity, model}: {simplicity: PolygonSimplicity | undefined,
     else text = t(closed ? "pointset_status_not_simple_closed" : "pointset_status_not_simple_open",
         {value0: simplicity.edges[0] + 1, value1: simplicity.edges[1] + 1});
     const simple = simplicity?.simple === true && !(closed && model.points.length < 3);
-    return <p className="inspector-help pointset-status" role="status" data-pointset-status={simple ? "simple" : "not-simple"}>{text}</p>;
+    return <><p className="inspector-help pointset-status" data-pointset-status={simple ? "simple" : "not-simple"}>{text}</p><StatusLive text={text}/></>;
 }
 
 /** Segments mode: one row per segment with its four endpoint fields, a select and a remove button, and the Add segment action. */
-function SegmentList(props: {model: PointSetModel, selected: number | undefined, actions: PointSetControlActions, button: string, coordinateLimit: number}) {
+function SegmentList(props: {model: PointSetModel, selected: number | undefined, actions: PointSetControlActions, button: string, coordinateLimit: number, limit: number, limitReason: string}) {
     const t = useT();
-    const {model, selected, actions, button, coordinateLimit} = props;
+    const {model, selected, actions, button, coordinateLimit, limit, limitReason} = props;
     const bounds = {min: -coordinateLimit, max: coordinateLimit};
     const field = (label: string, value: number, onCommit: (value: number) => void) =>
         <NumberInput label={label} hideLabel compact integer step={1} {...bounds} value={value} onChange={onCommit}/>;
@@ -106,14 +110,15 @@ function SegmentList(props: {model: PointSetModel, selected: number | undefined,
                 </li>;
             })}
         </ol>
-        <button type="button" className={button} onClick={() => actions.addSegment()}>{t("pointset_add_segment")}</button>
+        <UnavailableButton className={button} reason={model.points.length >> 1 >= limit ? limitReason : undefined} onPress={() => actions.addSegment()}
+                           onBlockedPress={() => actions.addSegment()}>{t("pointset_add_segment")}</UnavailableButton>
     </div>;
 }
 
 /** Intervals mode: one row per interval with its lo and hi fields (x only; the row is not editable), a select and a remove button. */
-function IntervalList(props: {model: PointSetModel, selected: number | undefined, actions: PointSetControlActions, button: string, coordinateLimit: number}) {
+function IntervalList(props: {model: PointSetModel, selected: number | undefined, actions: PointSetControlActions, button: string, coordinateLimit: number, limit: number, limitReason: string}) {
     const t = useT();
-    const {model, selected, actions, button, coordinateLimit} = props;
+    const {model, selected, actions, button, coordinateLimit, limit, limitReason} = props;
     const field = (label: string, value: number, onCommit: (value: number) => void) =>
         <NumberInput label={label} hideLabel compact integer step={1} min={-coordinateLimit} max={coordinateLimit} value={value} onChange={onCommit}/>;
     const intervals = intervalsOf(model);
@@ -139,7 +144,8 @@ function IntervalList(props: {model: PointSetModel, selected: number | undefined
                 </li>;
             })}
         </ol>
-        <button type="button" className={button} onClick={() => actions.addInterval()}>{t("pointset_add_interval")}</button>
+        <UnavailableButton className={button} reason={model.points.length >> 1 >= limit ? limitReason : undefined} onPress={() => actions.addInterval()}
+                           onBlockedPress={() => actions.addInterval()}>{t("pointset_add_interval")}</UnavailableButton>
     </div>;
 }
 
@@ -166,16 +172,25 @@ export function PointSetControls(props: PointSetControlsProps) {
                 : notice.kind === "interval-limit" ? t("pointset_interval_limit_reached", {value0: props.intervalLimit ?? 0})
                     : t("pointset_out_of_range", {value0: props.coordinateLimit});
     const noticeText = textOf(notice);
+    const pendingText = !paired || !props.pending ? "" : intervals ? t("pointset_interval_pending", {value0: props.pending.x})
+        : t("pointset_segment_pending", {value0: props.pending.x, value1: props.pending.y});
+    // The graph's refusal, or the reason of a press that was unavailable (until the points or the selection change), alone in the refusal region.
+    const [blocked, setBlocked] = useState<{reason: string; points: number; selected: number | undefined; serial: number}>();
+    const blockedPress = (reason: string) => setBlocked(current => ({reason, points: model.points.length, selected, serial: (current?.serial ?? 0) + 1}));
+    const blockedNow = blocked && blocked.points === model.points.length && blocked.selected === selected ? blocked : undefined;
+    const channel = useMemo(() => {
+        const next = new RefusalChannel();
+        if (blockedNow) next.refuse(blockedNow.reason, true);
+        else if (noticeText) next.refuse(noticeText, true);
+        return next;
+    }, [noticeText, blockedNow]);
     const modes: readonly PointSetMode[] = ["points", "polygon", ...props.allowsSegments === true ? ["segments" as const] : [], ...props.allowsIntervals === true ? ["intervals" as const] : []];
     const modeLabel = {points: "pointset_mode_points", polygon: "pointset_mode_polygon", segments: "pointset_mode_segments", intervals: "pointset_mode_intervals"} as const;
     const button = "btn btn-outline-secondary btn-sm";
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            {props.showModeToggle !== false && <div role="group" aria-label={t("pointset_mode_label")}>
-                {modes.map(mode =>
-                    <button key={mode} type="button" className={button} aria-pressed={model.mode === mode}
-                            onClick={() => actions.setMode(mode)}>{t(modeLabel[mode])}</button>)}
-            </div>}
+            {props.showModeToggle !== false && <ChoiceSelect label={t("pointset_mode_label")} value={model.mode}
+                options={modes.map(mode => ({value: mode, text: t(modeLabel[mode])}))} onChange={value => actions.setMode(value as PointSetMode)}/>}
             {model.mode === "polygon" && props.showClosedToggle !== false && <BooleanField variant="checkbox" label={t("pointset_closed")} checked={model.closed}
                 onChange={actions.setClosed}/>}
             {props.overlays.map(overlay => <BooleanField key={overlay.id} variant="checkbox" label={overlay.label} checked={overlay.shown}
@@ -190,8 +205,10 @@ export function PointSetControls(props: PointSetControlsProps) {
                 addMode={{on: props.addMode, onToggle: () => actions.setAddMode(!props.addMode)}}/>}
             {!fixed && paired && <>
                 <button type="button" className={button} aria-pressed={props.addMode} onClick={() => actions.setAddMode(!props.addMode)}>{t("pointset_add_mode")}</button>
-                <button type="button" className={button} disabled={selected === undefined} onClick={() => actions.removeSelected()}>{t(segments ? "pointset_remove_segment" : "pointset_remove_interval")}</button>
-                <button type="button" className={button} disabled={model.points.length === 0} onClick={() => actions.clear()}>{t("pointset_clear")}</button>
+                <UnavailableButton className={button} reason={selected === undefined ? t("pointset_no_selection") : undefined} onPress={() => actions.removeSelected()}
+                                   onBlockedPress={reason => blockedPress(reason)}>{t(segments ? "pointset_remove_segment" : "pointset_remove_interval")}</UnavailableButton>
+                <UnavailableButton className={button} reason={model.points.length === 0 ? t("pointset_no_points") : undefined} onPress={() => actions.clear()}
+                                   onBlockedPress={reason => blockedPress(reason)}>{t("pointset_clear")}</UnavailableButton>
                 <p className="inspector-help" data-pointset-count>{segments
                     ? t("pointset_segment_count", {value0: model.points.length >> 1, value1: props.segmentLimit ?? 0})
                     : t("pointset_interval_count", {value0: model.points.length >> 1, value1: props.intervalLimit ?? 0})}</p>
@@ -199,14 +216,14 @@ export function PointSetControls(props: PointSetControlsProps) {
             <p className="inspector-help" data-pointset-selection>{selected === undefined ? t("pointset_no_selection")
                 : segments ? t("pointset_selected_segment", {value0: (selected >> 1) + 1})
                 : intervals ? t("pointset_selected_interval", {value0: intervalLetter(selected >> 1)}) : t("pointset_selected_point", {value0: pointName(selected)})}</p>
-            {paired && <p className="inspector-help" role="status" data-pointset-pending={props.pending ? "" : undefined}>
-                {props.pending ? (intervals ? t("pointset_interval_pending", {value0: props.pending.x})
-                    : t("pointset_segment_pending", {value0: props.pending.x, value1: props.pending.y})) : ""}</p>}
-            <p className="inspector-help pointset-notice" role="status" aria-live="polite" data-pointset-notice={notice?.kind ?? ""}>{noticeText}</p>
+            {paired && <><p className="inspector-help" data-pointset-pending={props.pending ? "" : undefined}>{pendingText}</p><StatusLive text={pendingText}/></>}
+            <div data-pointset-notice={notice?.kind ?? ""}><RefusalNotice channel={channel}/></div>
         </div>
         <Status simplicity={props.simplicity} model={model}/>
-        {segments ? <SegmentList model={model} selected={selected} actions={actions} button={button} coordinateLimit={props.coordinateLimit}/>
-            : intervals ? <IntervalList model={model} selected={selected} actions={actions} button={button} coordinateLimit={props.coordinateLimit}/> : <div className="inspector-group">
+        {segments ? <SegmentList model={model} selected={selected} actions={actions} button={button} coordinateLimit={props.coordinateLimit}
+                                  limit={props.segmentLimit ?? 0} limitReason={t("pointset_segment_limit_reached", {value0: props.segmentLimit ?? 0})}/>
+            : intervals ? <IntervalList model={model} selected={selected} actions={actions} button={button} coordinateLimit={props.coordinateLimit}
+                                    limit={props.intervalLimit ?? 0} limitReason={t("pointset_interval_limit_reached", {value0: props.intervalLimit ?? 0})}/> : <div className="inspector-group">
             {model.points.length === 0 && <p className="inspector-help">{t("pointset_no_points")}</p>}
             <PointListInput title={t("pointset_point_list")} points={model.points.map(point => [point.x, point.y] as const)} pointLabel={shortName}
                             min={-props.coordinateLimit} max={props.coordinateLimit} integer selected={selected} onSelect={actions.select}

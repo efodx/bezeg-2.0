@@ -1,4 +1,4 @@
-import {act} from '@testing-library/react';
+import {act, fireEvent} from '@testing-library/react';
 import {
     compgeoGuidedLessons, TRI_EXAMPLE_POINTS, VORONOI_CELL_SITE, VORONOI_COUNTS, VORONOI_QUERY_AWAY, VORONOI_QUERY_FREE, VORONOI_QUOTED_VERTEX, VORONOI_TRIANGLE_INDEX,
 } from './compgeoGuidedLessons';
@@ -145,14 +145,14 @@ test('step 7 sets the free query point and a scene change moves it back', () => 
     });
 });
 
-test('set-construction x k equals the construct-next control x k (Voronoi has no next-step animation)', () => {
+test('set-construction x k equals the Next step control x k (Voronoi has no next-step animation)', () => {
     for (const k of [1, 3, 5]) {
         withMounted(h => {
             h.scene('vor-cell');
             h.apply(ps('set-construction', {count: k}));
             const viaAction = [h.graph.construction, panel('construction')?.textContent];
             h.scene('vor-cell');
-            for (let i = 0; i < k; i++) click('[data-action="construct-next"]');
+            for (let i = 0; i < k; i++) click('[data-action="next-step"]');
             expect([h.graph.construction, panel('construction')?.textContent]).toEqual(viaAction);
             expect(h.graph.construction).toBe(k);
         });
@@ -273,7 +273,7 @@ test('set-mode does what the mode control does: sites, points and chosen site st
         act(() => { capabilities.apply(ps('set-mode', {mode: 'sites'})); });
         act(() => { capabilities.apply(ps('set-points', {mode: 'points', points: [[0, 0], [1, 0], [2, 3]]})); });
         act(() => { capabilities.apply(ps('select-site', {site: 1})); });
-        act(() => { (document.querySelector('button[data-action="mode-four-point"]') as HTMLElement).click(); });
+        act(() => { fireEvent.change(document.querySelector('select') as HTMLSelectElement, {target: {value: 'four-point'}}); });
         expect(document.querySelector('[data-voronoi="mode-refused"]')).not.toBeNull();
         act(() => { capabilities.apply(ps('set-mode', {mode: 'sites'})); });
         expect(document.querySelector('[data-voronoi="mode-refused"]')).toBeNull();

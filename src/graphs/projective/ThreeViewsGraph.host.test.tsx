@@ -6,6 +6,7 @@ import {DEFAULT_THREE_VIEWS_MODEL} from './threeViewsModel';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
+import {typeNumber} from './controlsTest';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -33,7 +34,7 @@ const mount = (graph: Observed, strict = false) => {
 };
 const line = (name: string) => document.querySelector(`[data-projective-line="${name}"]`)?.textContent ?? '';
 const status = () => document.querySelector('[data-projective-status]');
-const slider = () => screen.getByLabelText(/Višina premice L|Height of the line L/) as HTMLInputElement;
+const slider = () => screen.getByRole('slider', {name: /Višina premice L|Height of the line L/}) as HTMLInputElement;
 
 test('the default scene draws the circle, L, the image ellipse and the status for c = 2', () => {
     const graph = new Observed();
@@ -46,7 +47,7 @@ test('the default scene draws the circle, L, the image ellipse and the status fo
     expect(line('discriminant')).toContain('−12');
     expect(line('determinant')).toContain('−1');
     expect(line('infinity')).toContain('nima točk v neskončnosti');
-    expect(slider().value).toBe('20');
+    expect(slider().value).toBe('2');
     expect(visible(graph, 'P')).toBe(false);
     expect(visible(graph, 'Q₁')).toBe(false);
     expect(visible(graph, 'Q₁′')).toBe(false);
@@ -78,15 +79,15 @@ test('c by keyboard on the board: ellipse, parabola, hyperbola; Shift moves a wh
     expect(graph.model.c).toBe(-1);
     act(() => { fireEvent.keyDown(container(graph), {key: 'ArrowUp', ctrlKey: true}); });
     expect(graph.model.c).toBe(-1);
-    expect(slider().value).toBe('-1');
+    expect(slider().value).toBe('-0.1');
 });
 
-test('the slider commits tenths and the type changes ellipse, parabola, hyperbola with the exact c = 1', () => {
+test('the slider commits tenths (its value is c) and the type changes ellipse, parabola, hyperbola with the exact c = 1', () => {
     const graph = new Observed();
     mount(graph);
     const types: string[] = [];
     for (const value of ['20', '11', '10', '9', '0', '-10', '-11']) {
-        act(() => { fireEvent.change(slider(), {target: {value}}); });
+        act(() => { fireEvent.change(slider(), {target: {value: String(Number(value) / 10)}}); });
         types.push(String(status()?.getAttribute('data-projective-status')));
         expect(graph.model.c).toBe(Number(value));
     }
@@ -112,17 +113,17 @@ test('the hyperbola is drawn as one polyline broken once (two branches, never jo
 test('the optional point toggle shows P and its image, an angle control moves it, and a point on L maps to infinity', () => {
     const graph = new Observed();
     mount(graph);
-    const angle = screen.getByLabelText(/Kot točke P/) as HTMLInputElement;
-    expect(angle.disabled).toBe(true);
+    const angle = screen.getByRole('slider', {name: /Kot točke P/}) as HTMLInputElement;
+    expect(angle).toHaveAttribute('aria-disabled', 'true');
     act(() => { fireEvent.click(screen.getByLabelText(/Točka P na krožnici/)); });
     expect(graph.model.pointOn).toBe(true);
-    expect(angle.disabled).toBe(false);
+    expect(angle).not.toHaveAttribute('aria-disabled');
     expect(visible(graph, 'P')).toBe(true);
     expect(visible(graph, 'P′')).toBe(true);
     expect(line('point')).toContain('se preslika v');
     const p = pointOf(graph, 'P');
     expect(p.X()).toBeCloseTo(-6 + 2 * Math.cos(Math.PI / 4), 12);
-    act(() => { fireEvent.change(angle, {target: {value: '6'}}); });
+    act(() => { fireEvent.change(angle, {target: {value: '90'}}); });
     expect(graph.model.angle).toBe(6);
     expect([pointOf(graph, 'P').X(), pointOf(graph, 'P').Y()]).toEqual([-6, 2]);
     // c = 1: the top of the circle lies on L, its image is a point at infinity
@@ -161,7 +162,7 @@ test('a Preset import replaces the model and the board; an invalid file is refus
     mount(graph);
     act(() => { graph.importPresetData({c: -3, pointOn: true, angle: 9}); });
     expect(graph.model).toEqual({c: -3, pointOn: true, angle: 9});
-    expect(slider().value).toBe('-3');
+    expect(slider().value).toBe('-0.3');
     expect(status()?.getAttribute('data-projective-status')).toBe('hyperbola');
     expect(visible(graph, 'P')).toBe(true);
     expect('rejection' in graph.presetCollection().check({c: 26, pointOn: false, angle: 0})).toBe(true);
@@ -182,7 +183,7 @@ test('the app-level Reset restores the default controls and board; there is no s
     act(() => { pending = graph.reset(); });
     await act(async () => { await pending; });
     expect(graph.model).toEqual(DEFAULT_THREE_VIEWS_MODEL);
-    expect(slider().value).toBe('20');
+    expect(slider().value).toBe('2');
     expect((screen.getByLabelText(/Točka P na krožnici/) as HTMLInputElement).checked).toBe(false);
     expect(status()?.getAttribute('data-projective-status')).toBe('ellipse');
     expect(visible(graph, 'P')).toBe(false);
@@ -226,10 +227,28 @@ test('the off-window note shows for c = 0.9, disappears for c = 0.5 and follows 
     expect(boardTexts(graph).join(' ')).not.toContain('outside this view');
 });
 
-test('the angle slider has a localized aria-valuetext', () => {
+test('the angle slider reads its value in degrees', () => {
     const graph = new Observed();
     mount(graph);
     act(() => { graph.togglePoint(true); graph.placePoint(4); });
-    const angle = screen.getByLabelText(/Kot točke P/) as HTMLInputElement;
+    const angle = screen.getByRole('slider', {name: /Kot točke P/}) as HTMLInputElement;
     expect(angle.getAttribute('aria-valuetext')).toBe('60°');
+});
+
+test('the angle slider says why it is unavailable while the point is off, and typed values off the grid are snapped with a notice', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(document.body.textContent).toContain('Kot je na voljo, ko je točka P na krožnici vključena.');
+    act(() => { graph.togglePoint(true); });
+    expect(document.body.textContent).not.toContain('Kot je na voljo');
+    const before = graph.model.c;
+    typeNumber(/Višina premice L.*vrednost/, '0.26');
+    expect(graph.model.c).toBe(3);
+    expect(before).not.toBe(3);
+    expect(document.body.textContent).toContain('0,3');
+    expect(screen.getByRole('slider', {name: /Višina premice L/}).getAttribute('aria-valuetext')).toBe('c = 0,3');
+    typeNumber(/Višina premice L.*vrednost/, '0.3');
+    expect(graph.model.c).toBe(3);
+    typeNumber(/Višina premice L.*vrednost/, '9');
+    expect(graph.model.c).toBe(3);
 });

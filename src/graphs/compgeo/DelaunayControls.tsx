@@ -3,12 +3,18 @@ import {formatDegrees, type NumberLanguage} from "../../analysis/format";
 import {useLanguage, useT} from "../../localization";
 import type {LawsonNote} from "../../compgeo/delaunay";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ExampleSelect} from "./ExampleSelect";
+import {useStatusReadout} from "./useStatusReadout";
+
+/** The named examples, in the order of the chooser. */
+export type DelaunayExampleId = "quad" | "seven" | "square";
 
 export interface DelaunayControlActions {
     nextStep(): void;
     playPause(): void;
     reset(): void;
-    loadExample(index: 0 | 1 | 2): void;
+    loadExample(id: DelaunayExampleId): void;
     /** Selects the triangle at `index` of the status list, or clears the selection (undefined). */
     selectTriangle(index: number | undefined): void;
 }
@@ -45,6 +51,8 @@ export interface DelaunayControlsProps {
     /** Undefined while the points allow no triangulation. */
     status: DelaunayStatus | undefined;
     playing: boolean;
+    /** The example the points are now, or undefined for a custom set. */
+    exampleId: DelaunayExampleId | undefined;
     actions: DelaunayControlActions;
 }
 
@@ -95,7 +103,7 @@ function angleLine(t: Translate, language: NumberLanguage, angles: readonly numb
 export function DelaunayControls(props: DelaunayControlsProps) {
     const t = useT();
     const {language} = useLanguage();
-    const {status, playing, actions} = props;
+    const {status, playing, exampleId, actions} = props;
     const traced = status !== undefined;
     const atEnd = traced && status.step >= status.length - 1;
     const stepText = traced ? t("hulltrace_step_counter", {value0: status.step + 1, value1: status.length}) : undefined;
@@ -116,13 +124,12 @@ export function DelaunayControls(props: DelaunayControlsProps) {
         value0: n.edge[0] + 1, value1: n.edge[1] + 1, value2: n.vertex + 1, value3: n.value, value4: circleSignText(t, n.sign),
     })) ?? [];
     const hullText = selection && selection.hullCount > 0 ? t("del_tri_hull", {value0: selection.hullCount}) : undefined;
+    // Silent while Play runs (the region's mute); announces the status once on Pause or at the end.
+    const liveReadout = useStatusReadout(status ? [stepText, noteSentence, detail, incircle, doneText, cocircularText, selectedText, ...neighbourTexts, hullText].filter(Boolean).join(". ") : "");
     return <>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("del_example_group")}>
-                <button type="button" data-action="example-quad" onClick={() => actions.loadExample(0)}>{t("del_example_quad")}</button>
-                <button type="button" data-action="example-seven" onClick={() => actions.loadExample(1)}>{t("del_example_seven")}</button>
-                <button type="button" data-action="example-square" onClick={() => actions.loadExample(2)}>{t("del_example_square")}</button>
-            </div>
+            <ExampleSelect label={t("del_example_group")} current={exampleId} onChoose={actions.loadExample} options={[
+                {id: "quad", text: t("del_example_quad")}, {id: "seven", text: t("del_example_seven")}, {id: "square", text: t("del_example_square")}]}/>
         </div>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("del_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
@@ -159,9 +166,7 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             {hullText && <p className="inspector-help" data-delaunay="hull-edges">{hullText}</p>}
             {doneText && <p className="inspector-help" data-delaunay="done">{doneText}</p>}
             {cocircularText && <p className="inspector-help" data-delaunay="cocircular">{cocircularText}</p>}
-            {/* Silent while Play runs; announces the status once on Pause or at the end. */}
-            <p className="visually-hidden" role="status" aria-live="polite" data-delaunay-live="">
-                {playing ? "" : [stepText, noteSentence, detail, incircle, doneText, cocircularText, selectedText, ...neighbourTexts, hullText].filter(Boolean).join(". ")}</p>
+            <LiveReadout readout={liveReadout} muted={playing} dataAttribute="delaunay-live"/>
         </div>}
     </>;
 }

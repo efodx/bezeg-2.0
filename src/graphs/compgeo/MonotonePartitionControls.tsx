@@ -5,18 +5,27 @@ import type {VertexType} from "../../compgeo/sweep/monotonePartition";
 import {edgeName, type PartitionEventInfo, type PartitionRun, vertexName} from "./monotonePartitionRun";
 import {SweepSideLists, type SweepQueueEntry, type SweepStatusEntry} from "./SweepSideLists";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ExampleSelect} from "./ExampleSelect";
+import {useStatusReadout} from "./useStatusReadout";
+import {stepCounterText} from "./stepCounter";
+
+/** The named examples, in the order of the chooser. */
+export type MonotonePartitionExampleId = "example-1" | "example-2";
 
 export interface MonotonePartitionControlActions {
     nextStep(): void;
     playPause(): void;
     reset(): void;
-    loadExample(index: 1 | 2): void;
+    loadExample(id: MonotonePartitionExampleId): void;
 }
 
 export interface MonotonePartitionControlsProps {
     run: PartitionRun;
     step: number;
     playing: boolean;
+    /** The example the polygon is now, or undefined for a custom polygon. */
+    exampleId: MonotonePartitionExampleId | undefined;
     actions: MonotonePartitionControlActions;
     /** The side lists (event queue and status): rendered inside the status group, below the readouts. */
     children?: React.ReactNode;
@@ -86,13 +95,13 @@ export function noteText(t: Translate, event: PartitionEventInfo, run: Partition
  */
 export function MonotonePartitionControls(props: MonotonePartitionControlsProps) {
     const t = useT();
-    const {run, step, playing, actions, children} = props;
+    const {run, step, playing, exampleId, actions, children} = props;
     const refusal = refusalText(t, run);
     const traced = refusal === undefined && run.length > 0;
     const atEnd = step >= run.length - 1;
     const view = run.view(step);
     const event = run.event(step);
-    const stepText = t("monotonepartition_step_counter", {value0: step, value1: Math.max(run.length - 1, 0)});
+    const stepText = stepCounterText(t, step, run.length);
     const noteLine = event ? noteText(t, event, run, view.type) : undefined;
     const diagonalNames = view.diagonals.map(([a, b]) => `${vertexName(a)}–${vertexName(b)}`).join(", ");
     const counts = run.typeCounts;
@@ -104,6 +113,8 @@ export function MonotonePartitionControls(props: MonotonePartitionControlsProps)
         value0: counts.start, value1: counts.split, value2: counts.start + counts.split,
         value3: counts.end, value4: counts.merge, value5: counts.end + counts.merge,
     }) : undefined;
+    // Silent while Play runs (the region's mute); announces once on Pause or at the end.
+    const liveReadout = useStatusReadout(traced ? [stepText, noteLine, summary].filter(Boolean).join(". ") : "");
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("monotonepartition_controls_label")} nextLabel={t("monotonepartition_next_step")} playing={playing}
@@ -112,11 +123,9 @@ export function MonotonePartitionControls(props: MonotonePartitionControlsProps)
             <p className="inspector-help">{t("monotonepartition_playback_note")}</p>
             <p className="inspector-help" data-monotone-partition="order-rule">{t("monotonepartition_order_rule")}</p>
         </div>
-        <div className="inspector-group" role="group" aria-label={t("monotonepartition_example_group")}>
-            <div className="inspector-playback">
-                <button type="button" data-action="example-1" onClick={() => actions.loadExample(1)}>{t("monotonepartition_example_1")}</button>
-                <button type="button" data-action="example-2" onClick={() => actions.loadExample(2)}>{t("monotonepartition_example_2")}</button>
-            </div>
+        <div className="inspector-group">
+            <ExampleSelect label={t("monotonepartition_example_group")} current={exampleId} onChoose={actions.loadExample}
+                           options={[{id: "example-1", text: t("monotonepartition_example_1")}, {id: "example-2", text: t("monotonepartition_example_2")}]}/>
         </div>
         <div className="inspector-group" data-monotone-partition-status="">
             {refusal && <p className="inspector-help" role="alert" data-monotone-partition="refusal">{refusal}</p>}
@@ -136,9 +145,7 @@ export function MonotonePartitionControls(props: MonotonePartitionControlsProps)
                 {summary && <p className="inspector-help" data-monotone-partition="summary">{summary}</p>}
                 {typeCounts && <p className="inspector-help" data-monotone-partition="type-counts">{typeCounts}</p>}
                 {balance && <p className="inspector-help" data-monotone-partition="balance">{balance}</p>}
-                {/* Silent while Play runs (a tick every 500 ms would flood a screen reader); announces once on Pause or at the end. */}
-                <p className="visually-hidden" role="status" aria-live="polite" data-monotone-partition-live="">
-                    {playing ? "" : [stepText, noteLine, summary].filter(Boolean).join(". ")}</p>
+                <LiveReadout readout={liveReadout} muted={playing} dataAttribute="monotone-partition-live"/>
                 {children && <div data-monotone-partition-lists="">{children}</div>}
             </>}
         </div>

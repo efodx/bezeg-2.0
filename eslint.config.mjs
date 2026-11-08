@@ -14,23 +14,7 @@ const sharedControlMessage = 'Use the shared controls in src/inputs/ (NumberInpu
 const controlExemptions = [
     {files: ['src/graphs/base/PresetImportDialog.tsx', 'src/graphs/base/PresetSelector.tsx'], reason: 'host chrome, not a graph control'},
     {files: ['src/graphs/base/AxisSelector.tsx'], reason: 'unmigrated: curves sweep (task 3)'},
-    {
-        files: [
-            'src/graphs/compgeo/BezierClippingControls.tsx', 'src/graphs/compgeo/EulerLinePanel.tsx', 'src/graphs/compgeo/InscribedAnglePanel.tsx',
-            'src/graphs/compgeo/InversionPanel.tsx', 'src/graphs/compgeo/NotablePointsPanel.tsx', 'src/graphs/compgeo/PointInPolygonGraph.tsx',
-            'src/graphs/compgeo/SimsonLinePanel.tsx', 'src/graphs/compgeo/TriangulationControls.tsx',
-            'src/graphs/compgeo/VoronoiControls.tsx',
-        ],
-        reason: 'unmigrated: compgeo sweep (task 3)',
-    },
     {files: ['src/graphs/patches/TensorPatchPanels.tsx'], reason: 'unmigrated: patches sweep (task 3)'},
-    {
-        files: [
-            'src/graphs/projective/CrossRatioControls.tsx', 'src/graphs/projective/FivePointControls.tsx',
-            'src/graphs/projective/PolePolarControls.tsx', 'src/graphs/projective/ThreeViewsControls.tsx',
-        ],
-        reason: 'unmigrated: projective sweep (task 3)',
-    },
     {
         files: ['src/learning/playground/collisions/CollisionPlayground.tsx', 'src/learning/playground/LookUnderneath.tsx'],
         reason: 'unmigrated: learning sweep (task 3)',

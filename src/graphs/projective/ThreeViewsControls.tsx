@@ -1,4 +1,6 @@
 import React from "react";
+import {BooleanField} from "../../inputs/BooleanField";
+import Slider from "../../inputs/Slider";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber} from "../../analysis/format";
 import {
@@ -31,11 +33,10 @@ export function ThreeViewsControls(props: ThreeViewsControlsProps) {
     const angleDegrees = model.angle * THREE_VIEWS_STEP_DEGREES;
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <label className="inspector-help">{t("projective_three_views_slider_label")}
-                <input type="range" min={-THREE_VIEWS_LIMIT} max={THREE_VIEWS_LIMIT} step={1} value={model.c}
-                       aria-valuetext={t("projective_three_views_slider_value", {value0: text.cText})}
-                       onChange={event => actions.setC(Number(event.target.value))}/>
-            </label>
+            <Slider customText={t("projective_three_views_slider_label")} min={-THREE_VIEWS_LIMIT / THREE_VIEWS_TENTHS} max={THREE_VIEWS_LIMIT / THREE_VIEWS_TENTHS}
+                    step={1 / THREE_VIEWS_TENTHS} decimals={1} value={model.c / THREE_VIEWS_TENTHS} grid={1 / THREE_VIEWS_TENTHS}
+                    valueText={c => t("projective_three_views_slider_value", {value0: formatNumber(c, language, 1)})}
+                    onChange={c => { actions.setC(Math.round(c * THREE_VIEWS_TENTHS)); }}/>
             <p className="inspector-help" data-projective-line="c">{t("projective_three_views_slider_value", {value0: formatNumber(model.c / THREE_VIEWS_TENTHS, language, 1)})}</p>
         </div>
         <div className="inspector-group">
@@ -49,13 +50,12 @@ export function ThreeViewsControls(props: ThreeViewsControlsProps) {
             {text.clipped && <p className="inspector-help" data-projective-line="clipped">{text.clipped}</p>}
         </div>
         <div className="inspector-group">
-            <label className="inspector-help">
-                <input type="checkbox" checked={model.pointOn} onChange={event => actions.setPointOn(event.target.checked)}/> {t("projective_three_views_point_toggle")}
-            </label>
-            <label className="inspector-help">{t("projective_three_views_angle_label")}
-                <input type="range" min={0} max={THREE_VIEWS_ANGLE_STEPS - 1} step={1} value={model.angle} disabled={!model.pointOn}
-                       aria-valuetext={t("projective_three_views_angle_value", {value0: formatNumber(angleDegrees, language, 0)})} onChange={event => actions.setAngle(Number(event.target.value))}/>
-            </label>
+            <BooleanField variant="checkbox" checked={model.pointOn} label={t("projective_three_views_point_toggle")} onChange={actions.setPointOn}/>
+            <Slider customText={t("projective_three_views_angle_label")} min={0} max={(THREE_VIEWS_ANGLE_STEPS - 1) * THREE_VIEWS_STEP_DEGREES}
+                    step={THREE_VIEWS_STEP_DEGREES} grid={THREE_VIEWS_STEP_DEGREES} value={angleDegrees}
+                    unavailableReason={model.pointOn ? undefined : t("projective_three_views_angle_unavailable")}
+                    valueText={degrees => `${formatNumber(degrees, language, 0)}°`}
+                    onChange={degrees => { actions.setAngle(Math.round(degrees / THREE_VIEWS_STEP_DEGREES)); }}/>
             {text.point && <p className="inspector-help" data-projective-line="point">{text.point}</p>}
         </div>
     </div>;

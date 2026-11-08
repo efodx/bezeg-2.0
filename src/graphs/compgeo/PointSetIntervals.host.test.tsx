@@ -102,7 +102,7 @@ test('Add interval (keyboard) appends on the next row and the board and counter 
     expect(graph.model.points).toHaveLength(20);
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Dodaj interval'})); });
     expect(graph.model.points).toHaveLength(20);
-    expect(screen.getByText(/Doseženo je največje število intervalov \(10\)/)).toBeInTheDocument();
+    expect(document.querySelector('[data-pointset-notice]')!.textContent).toMatch(/Doseženo je največje število intervalov \(10\)/);
     expectBoardMatchesModel(graph);
 });
 
@@ -115,7 +115,7 @@ test('Add mode: two clicks add an interval on the next row from the snapped x va
     expect(graph.pendingEndpoint).toEqual({x: 2, y: 2});
     expect(pendingObjects(graph)).toHaveLength(1);
     // The pending text names only x: the row is not user data.
-    expect(screen.getByText(/Prvo krajišče je postavljeno pri x = 2\./)).toBeInTheDocument();
+    expect(document.querySelector('[data-pointset-pending]')!.textContent).toMatch(/Prvo krajišče je postavljeno pri x = 2\./);
     expect(screen.queryByText(/\(2, 2\)/)).toBeNull();
     click(graph, -1.2, -9);
     expect(graph.model.points).toEqual([{x: 0, y: 1}, {x: 1, y: 1}, {x: 2, y: 2}, {x: -1, y: 2}]);
@@ -241,10 +241,10 @@ test('a live language switch re-renders the interval inspector and keeps model, 
     act(() => { graph.select(2); });
     const before = {model: graph.model, segments: segmentObjects(graph), labels: labelObjects(graph)};
     expect(screen.getByText('Izbrani interval: b')).toBeInTheDocument();
-    expect(screen.getByRole('button', {name: 'Intervali'})).toBeInTheDocument();
+    expect(screen.getByRole('option', {name: 'Intervali'})).toBeInTheDocument();
     act(() => { setLanguage('en'); });
     expect(screen.getByText('Selected interval: b')).toBeInTheDocument();
-    expect(screen.getByRole('button', {name: 'Intervals'})).toBeInTheDocument();
+    expect(screen.getByRole('option', {name: 'Intervals'})).toBeInTheDocument();
     expect(screen.getByLabelText('Interval a: left endpoint')).toBeInTheDocument();
     expect(screen.getByRole('button', {name: 'Add interval'})).toBeInTheDocument();
     expect(graph.model).toBe(before.model);
@@ -258,11 +258,11 @@ test('switching to intervals puts the points on rows (even prefix) and back to p
     const graph = new IntervalGraph();
     mount(graph);
     load(graph, {mode: 'points', closed: false, gridStepExponent: 0, points: [{x: 0, y: 5}, {x: 3, y: 9}, {x: 2, y: 2}]});
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Intervali'})); });
+    act(() => { fireEvent.change(screen.getByRole('combobox', {name: 'Prikaz'}), {target: {value: 'intervals'}}); });
     expect(graph.model.mode).toBe('intervals');
     expect(graph.model.points).toEqual([{x: 0, y: 1}, {x: 3, y: 1}]);
     expectBoardMatchesModel(graph);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Točke'})); });
+    act(() => { fireEvent.change(screen.getByRole('combobox', {name: 'Prikaz'}), {target: {value: 'points'}}); });
     expect(segmentObjects(graph)).toHaveLength(0);
     expect(labelObjects(graph)).toHaveLength(0);
     expect(endpointObjects(graph)).toHaveLength(2);
@@ -292,7 +292,7 @@ test('graphs without the intervals hook refuse the mode, offer no toggle for it 
         const view = mount(graph);
         expect(graph.setPointSetMode('intervals')).toBe(false);
         expect(graph.model.mode).toBe('points');
-        expect(screen.queryByRole('button', {name: 'Intervali'})).toBeNull();
+        expect(screen.queryByRole('option', {name: 'Intervali'})).toBeNull();
         const check = graph.presetCollection().check({mode: 'intervals', points: [{x: 0, y: 1}, {x: 1, y: 1}]});
         expect('rejection' in check && check.rejection.key).toBe('pointset_invalid_unknown_mode');
         expect(graph.addIntervalAt(0, 1)).toBe(false);
@@ -307,7 +307,7 @@ test('switching to intervals with too many points or an out-of-range x is refuse
     load(graph, {mode: 'points', closed: false, gridStepExponent: 0, points: Array.from({length: 22}, (_, i) => ({x: i, y: 0}))});
     act(() => { expect(graph.setPointSetMode('intervals')).toBe(false); });
     expect(graph.model.mode).toBe('points');
-    expect(screen.getByText(/Doseženo je največje število intervalov \(10\)/)).toBeInTheDocument();
+    expect(document.querySelector('[data-pointset-notice]')!.textContent).toMatch(/Doseženo je največje število intervalov \(10\)/);
     load(graph, {mode: 'points', closed: false, gridStepExponent: 0, points: [{x: 0, y: 0}, {x: 2000, y: 0}]});
     act(() => { expect(graph.setPointSetMode('intervals')).toBe(false); });
     expect(graph.notice).toEqual({kind: 'range'});

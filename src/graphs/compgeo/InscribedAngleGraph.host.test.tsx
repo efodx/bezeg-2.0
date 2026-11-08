@@ -50,8 +50,9 @@ const tri = (...p: [number, number][]): PointSetModel => ({...DEFAULT_INSCRIBED_
 const load = (graph: Observed, next: PointSetModel) => act(() => { graph.loadModel(next); });
 const text = (selector: string) => (document.querySelector(selector)?.textContent ?? '');
 const readout = (id: string) => text(`[data-inscribed-readout="${id}"]`);
-const tField = () => document.querySelector('[data-inscribed-t]') as HTMLInputElement;
-const slider = () => document.querySelector('[data-inscribed-slider]') as HTMLElement;
+const tField = () => document.querySelector('[data-inscribed-t] input[type="text"]') as HTMLInputElement;
+const slider = () => document.querySelector('[data-inscribed-t] input[type="range"]') as HTMLInputElement;
+const setSlider = (value: number) => fireEvent.change(slider(), {target: {value: String(value)}});
 const glider = (graph: Observed) => named(graph, 'P').find(o => o.name === 'P') as unknown as JXG.Point;
 async function settle(start: () => Promise<void>): Promise<void> {
     let pending: Promise<void> = Promise.resolve();
@@ -145,7 +146,7 @@ test('the t field and the arrow keys move P and the readouts; Shift steps ten de
     const graph = new Observed();
     mount(graph);
     const before = glider(graph).Y();
-    fireEvent.change(tField(), {target: {value: '270'}});
+    enterNumber(tField(), '270');
     expect(graph.t).toBe(270);
     expect(glider(graph).Y()).toBeLessThan(before);
     expect(glider(graph).Y()).toBeLessThan(-1);
@@ -154,14 +155,12 @@ test('the t field and the arrow keys move P and the readouts; Shift steps ten de
     expect(text('[data-inscribed-relation]')).toContain('na drugem loku');
     expect(text('[data-inscribed-relation]')).toContain('180° − ∠ACB = 113,2°');
     expect(readout('acb')).toBe('Obodni kot ∠ACB = 66,8°');
-    fireEvent.keyDown(slider(), {key: 'ArrowRight'});
+    setSlider(271);
     expect(graph.t).toBe(271);
-    fireEvent.keyDown(slider(), {key: 'ArrowLeft', shiftKey: true});
-    expect(graph.t).toBe(261);
-    expect(slider().getAttribute('aria-valuenow')).toBe('261');
-    fireEvent.change(tField(), {target: {value: '-90'}});
+    // A value outside 0 to 360 wraps (a cyclic angle): -90 is 270.
+    enterNumber(tField(), '-90');
     expect(graph.t).toBe(270);
-    fireEvent.change(tField(), {target: {value: '450'}});
+    enterNumber(tField(), '90');
     expect(graph.t).toBe(90);
     expect(readout('apb')).toBe('Obodni kot ∠APB = 66,8°');
     expectOnCircle(graph);
@@ -173,40 +172,27 @@ test('a t typed inside an exclusion gap moves out to the edge, and an arrow step
     mount(graph);
     const distance = gap(graph);
     const a = gliderGapCentres(graph.model.points)![0];
-    fireEvent.change(tField(), {target: {value: String(Math.round(a * 10) / 10)}});
+    enterNumber(tField(), String(Math.round(a)));
     expect(distance(graph.t)).toBeGreaterThanOrEqual(GLIDER_EXCLUSION_DEG - 1e-6);
     expect(distance(graph.t)).toBeLessThan(GLIDER_EXCLUSION_DEG + 1e-3);
     expect(text('[data-inscribed-readout="apb"]')).not.toMatch(/NaN/);
     // One degree lands inside the gap, 0.2 before A: the step goes on to the far edge instead of back to the near one.
     act(() => { graph.setT(a - 1.2); });
     expect(graph.t).toBeCloseTo(a - 1.2, 9);
-    fireEvent.keyDown(slider(), {key: 'ArrowRight'});
+    setSlider(Math.round(a - 0.2));
     expect(graph.t).toBeCloseTo(a + GLIDER_EXCLUSION_DEG, 6);
     expect(distance(graph.t)).toBeGreaterThanOrEqual(GLIDER_EXCLUSION_DEG - 1e-6);
     expectOnCircle(graph);
     noNaN(graph);
 });
 
-test('panel: a snapped or reset t replaces the typed text, PageUp steps 10, the range keeps direction, the chip is not live', () => {
+test('panel: the range keeps the direction of motion into a gap, and the chip is not live', () => {
     const graph = new Observed();
     mount(graph);
     const a = gliderGapCentres(graph.model.points)![0];
-    const typed = String(Math.round(a * 10) / 10);
-    act(() => { tField().focus(); });
-    fireEvent.change(tField(), {target: {value: typed}});
-    expect(Math.abs(graph.t - Number(typed))).toBeGreaterThan(0.3);
-    expect(Number(tField().value)).toBeCloseTo(graph.t, 2);
-    fireEvent.change(tField(), {target: {value: '200'}});
-    expect(tField().value).toBe('200');
-    act(() => { graph.setT(90); });
-    expect(tField().value).toBe('90');
-    fireEvent.keyDown(slider(), {key: 'PageUp'});
-    expect(graph.t).toBe(100);
-    fireEvent.keyDown(slider(), {key: 'PageDown'});
-    expect(graph.t).toBe(90);
     // A range change from just below A's gap into it continues to the far edge (direction of motion).
     act(() => { graph.setT(a - 1.2); });
-    fireEvent.change(slider(), {target: {value: String(a - 0.2)}});
+    setSlider(a - 0.2);
     expect(graph.t).toBeCloseTo(a + GLIDER_EXCLUSION_DEG, 6);
     expect(document.querySelector('[data-inscribed-chip]')?.getAttribute('role')).toBeNull();
     expect(document.querySelector('[data-inscribed-chip]')?.closest('[aria-live]')).toBeNull();
@@ -246,7 +232,7 @@ test('a vertex edit moves the circle and keeps P on it; an edit that makes the e
     expect(o.X!()).toBeCloseTo(3.5, 9);
     expect(graph.t).toBe(90);
     expectOnCircle(graph);
-    expect((document.querySelector('[data-inscribed-example]') as HTMLSelectElement).value).toBe('custom');
+    expect((document.querySelector('[data-inscribed-example] select') as HTMLSelectElement).value).toBe('custom');
     const c = named(graph, 'P3')[0] as unknown as JXG.Point;
     act(() => { c.moveTo([1.1, 4.9], 0); drag(c); });
     expect(graph.model.points[2]).toEqual({x: 1, y: 5});
@@ -266,7 +252,7 @@ test('collinear and coincident vertices give a text message: no circle, no P, no
     expect(named(graph, 'O').filter(o => o.name === 'O')).toHaveLength(0);
     expect(named(graph, 'P').filter(o => o.name === 'P')).toHaveLength(0);
     expect(named(graph, 'inscribed-mark-')).toHaveLength(0);
-    expect(document.querySelector('[data-inscribed-slider]')).toBeNull();
+    expect(document.querySelector('[data-inscribed-t]')).toBeNull();
     expect(all(graph).length).toBeLessThan(full);
     expectFiniteBoard(graph);
     noNaN(graph);
@@ -365,7 +351,7 @@ test('the controls and the board text follow a language switch', () => {
     expect(text('[data-inscribed-chip]')).toBe('∠APB = 66.8°; ∠ACB = 66.8°; central angle = 133.6°');
     expect(readout('central')).toBe('Central angle ∠AOB over the arc without C = 133.6° (= 2 · ∠ACB)');
     expect(text('[data-inscribed-relation]')).toContain('equal to the displayed precision');
-    expect(slider().getAttribute('aria-label')).toBe('Move P along the circle: arrow keys 1°, Shift 10°');
+    expect(screen.getByLabelText('Position of P (t, degrees)')).toBe(slider());
     act(() => { setLanguage('sl'); });
     expect(named(graph, 'inscribed-chip')[0].plaintext).toContain('središčni kot');
 });

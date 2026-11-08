@@ -30,8 +30,8 @@ export interface TraceControlActions {
  * A curve pair stepped through a precomputed run (advanced Bezier AB-B-1, lifted from the convexity `BezierHullsGraph`): the
  * step state, playback, Preset step handling and disposal that the Bezier hulls and Bezier clipping graphs share. `Run` is the
  * subclass's trace. The scene state keeps only the points, the step index and whatever settings the subclass adds; the drawn
- * state is always a fold of the run. Next step and every Play tick run the one `advance()`; Play uses the shared
- * `IterationController` (an injectable `AnimationScheduler`) and stops at the last step.
+ * state is always a fold of the run. Next step and every Play tick go through the shared
+ * `TracePlayback` (its injectable `AnimationScheduler` drives Play), which stops at the last step.
  *
  * Any change of the model (an edit, an import, a drag) recomputes the run, returns the step to 0 and pauses. A scene change, a
  * figure capture and unmount pause playback; unmount disposes the controller so no scheduler callback stays pending. Overlays

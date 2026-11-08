@@ -1,4 +1,7 @@
-import React from "react";
+import React, {useMemo, useState} from "react";
+import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
+import {UnavailableButton} from "../../inputs/UnavailableButton";
+import {StatusLive} from "./StatusLive";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {currentLanguage, t, useLanguage, useT} from "../../localization";
 import {gridToBoard, PointSetModel, reverseVertices} from "../../compgeo/pointSetModel";
@@ -37,7 +40,7 @@ const scaledText = (value: bigint, exponent = 0): string => exponent === 0 ? Str
 function AreaStatus({model, valuesShown}: {model: PointSetModel; valuesShown: boolean}) {
     const translate = useT();
     const {language} = useLanguage();
-    if (!valuesShown) return <div className="inspector-help pointset-status" data-area-readout="" data-area-doubled=""><p className="mb-1" role="status" data-area-live="">{translate("pointset_values_hidden")}</p></div>;
+    if (!valuesShown) return <><div className="inspector-help pointset-status" data-area-readout="" data-area-doubled=""><p className="mb-1" data-area-live="">{translate("pointset_values_hidden")}</p></div><StatusLive text={translate("pointset_values_hidden")}/></>;
     const readout: AreaReadout = areaReadout(model);
     // One concise line is live (the area, or why there is none); the remaining rows are plain text, read on demand.
     let live: string;
@@ -63,17 +66,30 @@ function AreaStatus({model, valuesShown}: {model: PointSetModel; valuesShown: bo
                 : translate("pointset_area_pick_differs", {value0: readout.pick.doubledValue, value1: formatBoardSigned(readout.doubledArea, scale, language).replace(/^\+/, "")})]),
         ];
     }
-    return <div className="inspector-help pointset-status" data-area-readout={readout.kind}
+    return <><div className="inspector-help pointset-status" data-area-readout={readout.kind}
                 data-area-doubled={readout.kind === "simple" ? scaledText(readout.doubledSigned, readout.areaExponent) : readout.kind === "signed-sum" ? scaledText(readout.doubledSum, readout.areaExponent) : ""}>
-        <p className="mb-1" role="status" data-area-live="">{live}</p>
+        <p className="mb-1" data-area-live="">{live}</p>
         {lines.map((line, i) => <p key={i} className="mb-1">{line}</p>)}
-    </div>;
+    </div><StatusLive text={live}/></>;
 }
 
 function ReverseControl({disabled, onReverse}: {disabled: boolean; onReverse: () => void}) {
     const translate = useT();
+    const reason = disabled ? translate("pointset_area_reverse_few") : undefined;
+    // A press while unavailable shows the reason alone, in the shared refusal region, until Reverse becomes available again.
+    const [pressed, setPressed] = useState(0);
+    // The press belongs to the block it happened in: once the reason clears, a later re-block shows nothing until pressed again.
+    if (reason === undefined && pressed > 0) setPressed(0);
+    const channel = useMemo(() => {
+        const next = new RefusalChannel();
+        if (pressed > 0 && reason !== undefined) next.refuse(reason, true);
+        return next;
+    }, [pressed, reason]);
     return <div className="inspector-group">
-        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={disabled} onClick={onReverse}>{translate("pointset_area_reverse")}</button>
+        <UnavailableButton className="btn btn-outline-secondary btn-sm" reason={reason} onPress={onReverse} onBlockedPress={() => setPressed(count => count + 1)}>
+            {translate("pointset_area_reverse")}
+        </UnavailableButton>
+        <RefusalNotice channel={channel}/>
     </div>;
 }
 

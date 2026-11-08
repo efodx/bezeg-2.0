@@ -6,6 +6,7 @@ import {FIVE_POINT_EXAMPLES} from './fivePointModel';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
+import {chooseOption, typeNumber} from './controlsTest';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -80,15 +81,15 @@ test('arrow keys step the selected point by 0.2 and Shift by 1; without a select
     expect([pointOf(graph, 'A').X(), pointOf(graph, 'A').Y()]).toEqual([5.2, 1]);
 });
 
-test('the example buttons, selectors and numeric fields edit the model', () => {
+test('the example select, the selectors and the point list edit the model', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Hiperbola'})); });
+    chooseOption('Primer', 'Hiperbola');
     expect(graph.model).toEqual(FIVE_POINT_EXAMPLES.hyperbola);
     expect(line('weight-kind')).toContain('w > 1');
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Parabola'})); });
+    chooseOption('Primer', 'Parabola');
     expect(line('weight')).toContain('w = 1');
-    act(() => { fireEvent.change(screen.getByLabelText('Točka C: x'), {target: {value: '1.2'}}); });
+    typeNumber('Točka C, x', '1.2');
     expect(graph.model.points[2]).toEqual({x: 18, y: 30});
     expect(graph.model.example).toBe('custom');
     act(() => { fireEvent.change(screen.getByLabelText('Tretja točka (določa utež)'), {target: {value: '3'}}); });
@@ -96,6 +97,15 @@ test('the example buttons, selectors and numeric fields edit the model', () => {
     act(() => { fireEvent.change(screen.getByLabelText('Drugo krajišče loka'), {target: {value: '3'}}); });
     expect([graph.model.a, graph.model.b]).toEqual([0, 3]);
     expect(graph.model.t).not.toBe(3);
+});
+
+test('wiring: an arrow key in a point field steps by one grid unit (1/15), not by 1', () => {
+    const graph = new Observed();
+    mount(graph);
+    const before = graph.model.points[2].x;
+    const field = screen.getByRole('spinbutton', {name: 'Točka C, x'});
+    act(() => { fireEvent.keyDown(field, {key: 'ArrowUp'}); });
+    expect(graph.model.points[2].x).toBe(before + 1);
 });
 
 test('degenerate positions state the problem and the repair; the last unique conic stays drawn as stale, and returns to fresh', () => {
@@ -112,7 +122,7 @@ test('degenerate positions state the problem and the repair; the last unique con
     act(() => { graph.moveTo(4, -3, 2.4); });
     expect(status()?.getAttribute('data-projective-status')).toBe('ok');
     expect(status()?.getAttribute('data-projective-stale')).toBe('false');
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Štiri točke na premici'})); });
+    chooseOption('Primer', 'Štiri točke na premici');
     expect(status()?.getAttribute('data-projective-status')).toBe('pencil-collinear');
     expect(line('status')).toContain('šop');
     // the record of the last unique conic was cleared by loading an example, so nothing stale is drawn
@@ -150,7 +160,7 @@ test('a language switch updates the controls, the aria label, the readout and th
     expect(line('weight')).not.toContain('Utež');
     expect(boardTexts(graph).join(' ')).toMatch(/w ≈ 0\.707/);
     expect(boardTexts(graph).join(' ')).not.toMatch(/0,707/);
-    expect(screen.getByRole('button', {name: 'Hyperbola'})).toBeTruthy();
+    expect(screen.getByRole('option', {name: 'Hyperbola'})).toBeTruthy();
     expect(boardTexts(graph).join(' ')).not.toMatch(/NaN|Infinity/);
     expect(graph.model).toBe(model);
 });
@@ -181,7 +191,7 @@ test('the app-level Reset restores the default after a drag and extrapolation; t
     const graph = new Observed();
     mount(graph);
     expect(screen.queryByRole('button', {name: /Ponastavi/})).toBeNull();
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Parabola'})); });
+    chooseOption('Primer', 'Parabola');
     act(() => { fireEvent.click(screen.getByLabelText(/Nadaljuj lok/)); });
     const e = pointOf(graph, 'E');
     act(() => { e.moveTo([-2.31, 1.09], 0); trigger(e, 'drag', []); });
@@ -201,7 +211,7 @@ test('the app-level Reset restores the default after a drag and extrapolation; t
 test('selecting a point from the inspector keeps the focus on the inspector button', () => {
     const graph = new Observed();
     mount(graph);
-    const button = screen.getByRole('button', {name: 'Izberi točko B'});
+    const button = screen.getByRole('button', {name: 'Izberi: Točka B'});
     act(() => { button.focus(); });
     expect(document.activeElement).toBe(button);
     act(() => { fireEvent.click(button); });
@@ -231,4 +241,15 @@ test('unmount removes the listener, the attributes and every scene object; a Str
     // this graph's own removeDrawn took its objects off the board (not just the board teardown)
     expect(mine.filter(object => !removed.includes(object))).toEqual([]);
     expect(mine.filter(object => (board.objectsList as unknown[]).includes(object))).toEqual([]);
+});
+
+test('a typed coordinate outside the range is refused with a message, not clamped, and one off the 1/15 grid is rounded', () => {
+    const graph = new Observed();
+    mount(graph);
+    const before = graph.model.points[2];
+    typeNumber('Točka C, x', '99');
+    expect(graph.model.points[2]).toEqual(before);
+    expect(screen.getAllByText(/./).some(node => /območj|med/i.test(node.textContent ?? ''))).toBe(true);
+    typeNumber('Točka C, x', '0.5');
+    expect(graph.model.points[2].x).toBe(8);
 });

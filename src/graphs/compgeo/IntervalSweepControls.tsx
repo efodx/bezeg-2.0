@@ -7,6 +7,9 @@ import {SWEEP_COORD_LIMIT, SWEEP_MAX_INTERVALS} from "../../compgeo/sweep/limits
 import type {IntervalPair} from "../../compgeo/sweep/intervalSweep";
 import type {IntervalEventInfo, IntervalRun, IntervalView} from "./intervalSweepRun";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "./useStatusReadout";
+import {stepCounterText} from "./stepCounter";
 
 export interface IntervalSweepControlActions {
     nextStep(): void;
@@ -76,7 +79,7 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
     const event = run.event(step);
     const view = run.view(step);
     const n = run.intervals.length;
-    const stepText = t("intervalsweep_step_counter", {value0: step + 1, value1: run.length});
+    const stepText = stepCounterText(t, step, run.length);
     const noteLine = event ? noteText(t, event, view, num) : undefined;
     const maxText = view.done
         ? t("intervalsweep_max_final", {value0: run.maxOpen, value1: run.maxStart === null ? "?" : num(run.maxStart), value2: run.maxEnd === null ? "?" : num(run.maxEnd)})
@@ -85,6 +88,8 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
         ? t("intervalsweep_pairs", {value0: view.pairs.length, value1: view.pairs.map(pairText).join(", ")})
         : t("intervalsweep_pairs_none");
     const comparison = view.done ? t("intervalsweep_comparison", {value0: view.pairs.length, value1: (n * (n - 1)) / 2}) : undefined;
+    const announcement = refusal || n === 0 ? "" : [stepText, noteLine, comparison].filter(Boolean).join(". ");
+    const liveReadout = useStatusReadout(announcement);
     return <>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("intervalsweep_controls_label")} nextLabel={t("intervalsweep_next_step")} playing={playing}
@@ -104,12 +109,11 @@ export function IntervalSweepControls(props: IntervalSweepControlsProps) {
                 <p className="inspector-help" data-interval-sweep="max">{maxText}</p>
                 <p className="inspector-help" data-interval-sweep="pairs">{pairsText}</p>
                 {comparison && <p className="inspector-help" data-interval-sweep="comparison">{comparison}</p>}
-                {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces once on Pause or at the end. */}
-                <p className="visually-hidden" role="status" aria-live="polite" data-interval-sweep-live="">
-                    {playing ? "" : [stepText, noteLine, comparison].filter(Boolean).join(". ")}</p>
                 {children && <div data-interval-sweep-lists="">{children}</div>}
             </>}
         </div>
+        {/* Silent while Play runs (a tick every 400 ms would flood a screen reader); announces once on Pause or at the end. */}
+        <LiveReadout readout={liveReadout} muted={playing} dataAttribute="interval-sweep-live"/>
     </>;
 }
 

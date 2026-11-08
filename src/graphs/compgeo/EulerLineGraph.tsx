@@ -5,7 +5,6 @@ import {onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {PresetCollection} from "../base/presets/PresetCollection";
-import {fitBoundingBox} from "../base/fitBoundingBox";
 import {BOARD_COORDINATE_CAP, BoardXY, inBox} from "../../compgeo/notablePointsModel";
 import {
     activeEulerExampleId, analyseEulerLine, EulerAnalysis, EulerExampleId, eulerExample, NinePointKind,
@@ -22,7 +21,7 @@ import {EULER_PLACE_IDS, EULER_PLACE_SYMBOL, EulerPlaceId, eulerChip} from "./eu
  * `circumcircle`. The numbers come from `analyseEulerLine` (the exact triangle kernel); this file only draws and words them.
  *
  * Far objects follow the notable-points rule: a point beyond `BOARD_COORDINATE_CAP` is never sent to the board; a point
- * merely outside the view is reported "outside the view" in the inspector and the board chip; `showAll()` frames the
+ * merely outside the view is reported "outside the view" in the inspector and the board chip; the host Fit frames the
  * vertices and the shown points. The view is never rescaled silently. When H = O (equilateral) the Euler line is not
  * drawn and the chip and inspector say so.
  *
@@ -100,24 +99,6 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
         this.loadModel({...DEFAULT_EULER_MODEL, points: example.points.map(p => ({...p}))});
         const patch: Partial<EulerLineState> = {exampleId: id};
         this.setState(patch);
-    }
-
-    /** Frames the vertices and every shown point, including a distant one; false if there is no board or nothing to frame. */
-    showAll(): boolean {
-        const analysis = this.analysis();
-        if (analysis.kind !== "triangle" || !this.hasBoard) return false;
-        const points: [number, number][] = analysis.vertices.map(p => [p.x, p.y]);
-        for (const id of EULER_PLACE_IDS) {
-            const place = analysis[id].board;
-            if (place && this.placeShown(id)) points.push([place.x, place.y]);
-        }
-        const {width, height} = JXG.getDimensions(this.board.container, document);
-        const box = fitBoundingBox(points, parseFloat(String(width)), parseFloat(String(height)));
-        if (!box) return false;
-        this.board.setBoundingBox(box, true, "update");
-        this.board.applyZoom();
-        this.refreshOutside();
-        return true;
     }
 
     // ---- Lifecycle -----------------------------------------------------------------------------------------------
@@ -316,7 +297,7 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
         this.outsideKey = [...outside].join(",");
         return <>
             <EulerLinePanel analysis={analysis} exampleId={this.exampleId} outsideView={outside}
-                            onExample={id => this.loadExample(id)} onShowAll={() => { this.showAll(); }}/>
+                            onExample={id => this.loadExample(id)}/>
             {super.workspaceEdit()}
         </>;
     }

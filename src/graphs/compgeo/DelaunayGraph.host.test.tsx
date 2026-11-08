@@ -1,6 +1,6 @@
 import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
-import {act, fireEvent, render} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {DELAUNAY_STEP_INTERVAL_MS, DelaunayGraph} from './DelaunayGraph';
 import {DELAUNAY_EXAMPLES, DELAUNAY_PRESET_KEY, DELAUNAY_QUAD} from './delaunayPresetCollection';
@@ -69,6 +69,8 @@ const part = (name: string) => document.querySelector(`[data-delaunay="${name}"]
 const readout = (name: string) => document.querySelector(`[data-readout="${name}"]`)?.textContent;
 const button = (action: string) => document.querySelector(`button[data-action="${action}"]`) as HTMLButtonElement;
 const click = (action: string) => act(() => { fireEvent.click(button(action)); });
+const exampleSelect = () => screen.getByLabelText(/^(Primeri|Examples)$/) as HTMLSelectElement;
+const chooseExample = (id: string) => act(() => { fireEvent.change(exampleSelect(), {target: {value: id}}); });
 const saveState = (fields: object) => ({initialized: true, ...fields});
 const toEnd = (graph: Observed) => { stepWhile(() => graph.step < graph.run().length - 1, () => click('next-step')); };
 const toStep = (graph: Observed, step: number) => { stepWhile(() => graph.step < step, () => click('next-step')); };
@@ -129,7 +131,7 @@ test('example 1: +64 at the first test, a flip to bd, then the trace own -64 tes
 test('example 2 makes exactly the flips p1p4, p2p4, p4p6 in order, from 1,91 to 25,35, to the spec Delaunay list', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-seven');
+    chooseExample('seven');
     expect([graph.triangles, graph.step]).toEqual([TRIANGULATION_T0, 0]);
     expect(readout('min-now')).toBe('Najmanjši kot zdaj: 1,91°');
     expect(readout('illegal')).toBe('Neustreznih robov: 3');
@@ -154,7 +156,7 @@ test('example 2 makes exactly the flips p1p4, p2p4, p4p6 in order, from 1,91 to 
 test('illegal edges are dashed and labelled with text at step 0 of example 2, and unmarked at the end', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-seven');
+    chooseExample('seven');
     expect(named(graph, 'delaunay-illegal-edge')).toHaveLength(3);
     expect(illegalLabels(graph)).toEqual(['neustrezen rob', 'neustrezen rob', 'neustrezen rob']);
     toEnd(graph);
@@ -165,7 +167,7 @@ test('illegal edges are dashed and labelled with text at step 0 of example 2, an
 test('the unit square ends with zero flips, both diagonals legal with determinant 0, and the non-unique note', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-square');
+    chooseExample('square');
     expect(readout('illegal')).toBe('Neustreznih robov: 0');
     click('next-step');
     expect(part('incircle')).toBe('Vrednost preizkusa krožnice = 0: preizkušana točka je na krožnici');
@@ -212,7 +214,7 @@ test('Next step k times equals Play for k ticks; Play stops at the end and Reset
     const k = 4;
     const byNext = new Observed();
     const first = mount(byNext);
-    click('example-seven');
+    chooseExample('seven');
     for (let i = 0; i < k; i++) click('next-step');
     const snapshot = (g: Observed) => ({
         step: g.step, status: [part('step'), part('note'), part('detail'), part('incircle'), readout('flips'), readout('illegal'), readout('min-now')],
@@ -224,7 +226,7 @@ test('Next step k times equals Play for k ticks; Play stops at the end and Reset
     const frames = manualScheduler();
     const byPlay = new Observed({}, frames.scheduler);
     mount(byPlay);
-    click('example-seven');
+    chooseExample('seven');
     click('play-pause');
     expect(byPlay.isPlaying).toBe(true);
     expect(button('play-pause').textContent).toBe('Premor');
@@ -245,7 +247,7 @@ test('an edit while playing (move, add, remove, manual flip, example) returns to
     const frames = manualScheduler();
     const graph = new Observed({}, frames.scheduler);
     mount(graph);
-    click('example-seven');
+    chooseExample('seven');
     click('play-pause');
     tick(frames, 4);
     expect(graph.step).toBe(4);
@@ -286,7 +288,7 @@ test('an edit while playing (move, add, remove, manual flip, example) returns to
 
     click('play-pause');
     tick(frames, 2);
-    click('example-quad');
+    chooseExample('quad');
     expect([graph.step, graph.isPlaying, frames.callbacks.size, graph.model.points]).toEqual([0, false, 0, DELAUNAY_QUAD.points]);
     click('play-pause');
     tick(frames, 2);
@@ -296,7 +298,7 @@ test('an edit while playing (move, add, remove, manual flip, example) returns to
 test('the start and the step survive a Preset round trip; a stale step is clamped; the collection validates', async () => {
     const graph = new Observed();
     mount(graph);
-    click('example-seven');
+    chooseExample('seven');
     toStep(graph, 3);
     act(() => { graph.saveCurrentPreset('mine'); });
     expect(graph.presets()).toBe(DELAUNAY_PRESET_KEY);
@@ -305,7 +307,7 @@ test('the start and the step survive a Preset round trip; a stale step is clampe
     expect(saved.graphState).not.toHaveProperty('playing');
     expect(saved.graphState).not.toHaveProperty('triangles');
     expect(saved.data).toMatchObject({triangles: TRIANGULATION_T0});
-    click('example-quad');
+    chooseExample('quad');
     expect(graph.step).toBe(0);
     await settle(() => graph.selectPreset('mine'));
     expect([graph.step, graph.triangles, graph.isPlaying]).toEqual([3, TRIANGULATION_T0, false]);
@@ -331,7 +333,7 @@ test('the start and the step survive a Preset round trip; a stale step is clampe
 test('a live language switch re-renders the panel and the board label of an illegal edge', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-seven');
+    chooseExample('seven');
     expect(button('next-step').textContent).toBe('Naslednji korak');
     expect(illegalLabels(graph)[0]).toBe('neustrezen rob');
     toEnd(graph);
@@ -365,7 +367,7 @@ test('a scene change and unmount pause playback and leave no board objects, list
     const frames = manualScheduler();
     const graph = new Observed({}, frames.scheduler);
     const view = mount(graph);
-    click('example-seven');
+    chooseExample('seven');
     const board = graph.liveBoard();
     const box = board.containerObj as HTMLElement;
     const remove = vi.spyOn(box, 'removeEventListener');
@@ -448,7 +450,7 @@ const clickShape = (graph: Observed, index: number) => act(async () => { triangl
 test('pressing a board triangle selects it, pressing the selected one deselects, and a locked board ignores the press', async () => {
     const graph = new Observed();
     mount(graph);
-    click('example-square');
+    chooseExample('square');
     expect(triangleShapes(graph).length).toBeGreaterThan(1);
     await clickShape(graph, 1);
     expect(graph.selectedTriangle()).toBe(1);
@@ -469,7 +471,7 @@ test('pressing a board triangle selects it, pressing the selected one deselects,
 test('an overlay redraw removes its objects with a bounded number of board updates, not one per removed line', async () => {
     const graph = new Observed();
     mount(graph);
-    click('example-square');
+    chooseExample('square');
     // The replaced scene's session is disposed after the click; let that finish so only the redraw is counted.
     await act(async () => {});
     const board = graph.liveBoard();
@@ -533,16 +535,16 @@ test('the default view frames the default quad and its circumcircles for project
 test('loading another scene clears a selected triangle', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-square');
+    chooseExample('square');
     act(() => { graph.selectTriangle(0); });
-    click('example-quad');
+    chooseExample('quad');
     expect(graph.selectedTriangle()).toBeUndefined();
 });
 
 test('a triangle with three hull edges reports no neighbour; clearing deselects and the panel button on the selected triangle again deselects', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-square');
+    chooseExample('square');
     const first = graph.triangulation()?.triangles[0] ?? [0, 0, 0];
     act(() => { graph.selectTriangle(0); });
     expect(neighbourTexts()).toHaveLength(1);

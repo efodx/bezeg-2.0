@@ -237,8 +237,8 @@ test('a bow-tie is reported as not simple in words, a square as simple', () => {
     expect(status().textContent).toBe('Lomljena črta je enostavna.');
     load(graph, model([[0, 0], [1, 1]], {mode: 'points'}));
     // the live region stays mounted (so its text change is announced) and is empty outside polygon mode
-    expect(status().getAttribute('role')).toBe('status');
-    expect(status().textContent).toBe('');
+    expect(document.querySelector('[data-readout-live]')!.getAttribute('role')).toBe('status');
+    expect(document.querySelector('[data-readout-live]')!.textContent).toBe('');
     expect(document.querySelectorAll('[data-pointset-status]')).toHaveLength(1);
 });
 

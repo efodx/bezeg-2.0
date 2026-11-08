@@ -3,12 +3,18 @@ import {useT} from "../../localization";
 import {EarEventInfo, EarRefusal, EarSummary} from "./earClippingRun";
 import type {EarClippingNote} from "../../compgeo/earClipping";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {ExampleSelect} from "./ExampleSelect";
+import {useStatusReadout} from "./useStatusReadout";
+
+/** The named examples, in the order of the chooser. */
+export type EarClippingExampleId = "example-1" | "example-2";
 
 export interface EarClippingControlActions {
     nextStep(): void;
     playPause(): void;
     reset(): void;
-    loadExample(index: 1 | 2): void;
+    loadExample(id: EarClippingExampleId): void;
 }
 
 export interface EarClippingControlsProps {
@@ -21,6 +27,8 @@ export interface EarClippingControlsProps {
     trianglesSoFar: number;
     /** Present only once the trace is done. */
     summary: EarSummary | undefined;
+    /** The example the polygon is now, or undefined for a custom polygon. */
+    exampleId: EarClippingExampleId | undefined;
     actions: EarClippingControlActions;
 }
 
@@ -51,7 +59,7 @@ function refusalText(t: Translate, refusal: EarRefusal): string {
 /** Next step / Play / Pause / Reset, the examples and the status of the ear clipping trace. Unavailable buttons stay focusable (`aria-disabled`). */
 export function EarClippingControls(props: EarClippingControlsProps) {
     const t = useT();
-    const {refusal, reversed, step, length, playing, event, trianglesSoFar, summary, actions} = props;
+    const {refusal, reversed, step, length, playing, event, trianglesSoFar, summary, exampleId, actions} = props;
     const traced = refusal === undefined && length > 0;
     const atEnd = step >= length - 1;
     let detail: string | undefined;
@@ -70,12 +78,12 @@ export function EarClippingControls(props: EarClippingControlsProps) {
     ].join(". ") : undefined;
     const trianglesText = traced ? t("earclip_triangles_so_far", {value0: trianglesSoFar}) : undefined;
     const noteSentence = traced && event ? noteText(t, event.note) : undefined;
+    // Silent while Play runs (the region's mute); announces the status once on Pause or at the end.
+    const liveReadout = useStatusReadout(!traced ? "" : [stepText, noteSentence, detail, trianglesText, countText, resultText].filter(Boolean).join(". "));
     return <>
         <div className="inspector-group">
-            <div className="inspector-playback" role="group" aria-label={t("earclip_example_group")}>
-                <button type="button" data-action="example-1" onClick={() => actions.loadExample(1)}>{t("earclip_example_1")}</button>
-                <button type="button" data-action="example-2" onClick={() => actions.loadExample(2)}>{t("earclip_example_2")}</button>
-            </div>
+            <ExampleSelect label={t("earclip_example_group")} current={exampleId} onChoose={actions.loadExample}
+                           options={[{id: "example-1", text: t("earclip_example_1")}, {id: "example-2", text: t("earclip_example_2")}]}/>
         </div>
         <div className="inspector-group">
             <PlaybackButtons groupLabel={t("earclip_controls_label")} nextLabel={t("hulltrace_next_step")} playing={playing}
@@ -91,9 +99,7 @@ export function EarClippingControls(props: EarClippingControlsProps) {
             {detail && <p className="inspector-help" data-ear-clipping="detail">{detail}</p>}
             {trianglesText && <p className="inspector-help" data-ear-clipping="triangles">{trianglesText}</p>}
             {countText && <p className="inspector-help" data-ear-clipping="count">{countText}</p>}
-            {/* Silent while Play runs; announces the status once on Pause or at the end. */}
-            <p className="visually-hidden" role="status" aria-live="polite" data-ear-clipping-live="">
-                {playing || !traced ? "" : [stepText, noteSentence, detail, trianglesText, countText, resultText].filter(Boolean).join(". ")}</p>
+            <LiveReadout readout={liveReadout} muted={playing} dataAttribute="ear-clipping-live"/>
             {summary && <>
                 <h3 className="inspector-help">{t("earclip_result_title")}</h3>
                 <ul data-ear-clipping="result">

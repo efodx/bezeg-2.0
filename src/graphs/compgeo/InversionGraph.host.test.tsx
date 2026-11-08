@@ -1,4 +1,5 @@
 import React from 'react';
+import {enterNumber} from '../../inputs/testEntry';
 import {InversionGraph} from './InversionGraph';
 import {writeFileSync} from 'node:fs';
 import {act, fireEvent, render} from '@testing-library/react';
@@ -48,6 +49,8 @@ const dragTo = (point: Shown | JXG.Point, x: number, y: number) => act(() => {
 const text = (selector: string) => (document.querySelector(selector)?.textContent ?? '');
 const readout = (id: string) => text(`[data-inversion-readout="${id}"]`);
 const field = (selector: string) => document.querySelector(selector) as HTMLInputElement;
+const select = (selector: string) => field(`${selector} select`);
+const numberIn = (selector: string) => field(`${selector} input[type="text"]`);
 const stateOf = () => document.querySelector('[data-inversion-state]')?.getAttribute('data-inversion-state');
 const pick = (graph: Observed, id: Parameters<Observed['loadExample']>[0]) => act(() => { graph.loadExample(id); });
 const ids = ['inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents'] as const;
@@ -209,15 +212,15 @@ test.each([
 test('the focus select, the examples select and the source kind select drive the scene', () => {
     const graph = new Observed();
     mount(graph);
-    fireEvent.change(field('[data-inversion-focus]'), {target: {value: 'power'}});
+    fireEvent.change(select('[data-inversion-focus]'), {target: {value: 'power'}});
     expect(graph.fields.focus).toBe('power');
     expect(exact(graph, 'P')).toHaveLength(1);
     expect(exact(graph, 'C')).toHaveLength(0);
     expect(exact(graph, 'inversion-circle')).toHaveLength(0);
-    fireEvent.change(field('[data-inversion-example]'), {target: {value: 'orthogonal'}});
+    fireEvent.change(select('[data-inversion-example]'), {target: {value: 'orthogonal'}});
     expect(graph.exampleId).toBe('orthogonal');
     expect(graph.fields).toMatchObject({focus: 'source', radius: 4});
-    fireEvent.change(field('[data-inversion-source-kind]'), {target: {value: 'line'}});
+    fireEvent.change(select('[data-inversion-source-kind]'), {target: {value: 'line'}});
     expect(graph.fields.source.kind).toBe('line');
     expect(graph.exampleId).toBeUndefined();
 });
@@ -265,7 +268,7 @@ test('power example: power 16, PA times PB near 16, tangent length 4', () => {
     expect(readout('secant')).toBe('PA = 2, PB = 8; PA · PB ≈ 16');
     expect(readout('tangent')).toBe('Dolžina tangentnega odseka: 4');
     for (const name of ['P', 'A', 'B', 'T₁', 'T₂', 'secant', 'tangent-1', 'tangent-2', 'power-circle', 'θ', 'O']) expect(exact(graph, name), name).toHaveLength(1);
-    expect(field('[data-inversion-field="radius"]')).toBeNull();
+    expect(document.querySelector('[data-inversion-field="radius"]')).toBeNull();
     expectFiniteBoard(graph);
 });
 
@@ -279,7 +282,7 @@ test('angle example: 60 degrees before, signed -60 after, the sign flip sentence
     expect(readout('angle-flip')).toContain('obrne');
     for (const name of ['Q', 'Q′', 'angle-circle-1', 'angle-circle-2', 'image-curve-1', 'image-curve-2']) expect(exact(graph, name), name).toHaveLength(1);
     expect(exact(graph, 'angle-tangent-before-1')).toHaveLength(1);
-    fireEvent.click(document.querySelector('[data-inversion-which="0"]')!);
+    fireEvent.change(select('[data-inversion-which]'), {target: {value: '0'}});
     expect(graph.fields.angle.which).toBe(0);
     // Disjoint circles: a message, no angle, no tangents, no NaN.
     act(() => { graph.setAngleCircle(1, {centre: {x: -8, y: 0}, radius: 1}); });
@@ -324,12 +327,12 @@ test('X = C shows the centre message and draws no image; an image beyond the dra
 test('the radius field and the radius handle change r; out-of-range values are refused', () => {
     const graph = new Observed();
     mount(graph);
-    fireEvent.change(field('[data-inversion-field="radius"]'), {target: {value: '5'}});
+    enterNumber(numberIn('[data-inversion-field="radius"]'), '5');
     expect(graph.fields.radius).toBe(5);
     expect(exact(graph, 'inversion-circle')[0].Radius!()).toBe(5);
-    fireEvent.change(field('[data-inversion-field="radius"]'), {target: {value: '9'}});
+    enterNumber(numberIn('[data-inversion-field="radius"]'), '9');
     expect(graph.fields.radius).toBe(5);
-    fireEvent.change(field('[data-inversion-field="radius"]'), {target: {value: '0'}});
+    enterNumber(numberIn('[data-inversion-field="radius"]'), '0');
     expect(graph.fields.radius).toBe(5);
     dragTo(exact(graph, 'r')[0], 3.4, 0.2);
     expect(graph.fields.radius).toBe(3);
@@ -364,22 +367,20 @@ test('a source line handle dropped on the other handle is refused and reverts', 
     expect(graph.fields.source).toEqual({kind: 'line', p: {x: -1, y: 2}, q: {x: 3, y: 3}});
 });
 
-test('the theta field, arrows and the handle move the secant', () => {
+test('the theta field, the range and the handle move the secant', () => {
     const graph = new Observed();
     mount(graph);
     pick(graph, 'power');
-    fireEvent.change(field('[data-inversion-theta]'), {target: {value: '10'}});
+    enterNumber(numberIn('[data-inversion-theta]'), '10');
     expect(graph.fields.power.thetaDeg).toBe(10);
-    const slider = field('[data-inversion-theta-slider]');
-    fireEvent.keyDown(slider, {key: 'ArrowRight'});
+    fireEvent.change(field('[data-inversion-theta] input[type="range"]'), {target: {value: '11'}});
     expect(graph.fields.power.thetaDeg).toBe(11);
-    fireEvent.keyDown(slider, {key: 'ArrowLeft', shiftKey: true});
-    expect(graph.fields.power.thetaDeg).toBe(1);
-    fireEvent.keyDown(slider, {key: 'ArrowLeft', shiftKey: true});
-    expect(graph.fields.power.thetaDeg).toBe(351);
-    fireEvent.change(field('[data-inversion-theta]'), {target: {value: '-30'}});
+    // A value outside 0 to 360 wraps (a cyclic angle): -30 is 330, 370 is 10.
+    enterNumber(numberIn('[data-inversion-theta]'), '-30');
     expect(graph.fields.power.thetaDeg).toBe(330);
-    fireEvent.change(field('[data-inversion-theta]'), {target: {value: '20'}});
+    enterNumber(numberIn('[data-inversion-theta]'), '370');
+    expect(graph.fields.power.thetaDeg).toBe(10);
+    enterNumber(numberIn('[data-inversion-theta]'), '20');
     const before = readout('secant');
     expect(exact(graph, 'secant')).toHaveLength(1);
     expect(exact(graph, 'θ')[0].X!()).toBeCloseTo(3 * Math.cos(Math.PI / 9), 9);
@@ -586,34 +587,4 @@ test('angle tangents scale with the view, and no after-tangent is drawn for an i
     expect(exact(graph, 'angle-tangent-after-2')).toHaveLength(1);
     noNaN(graph);
     expectFiniteBoard(graph);
-});
-
-test('Shift+ArrowUp/Down steps the theta number field by 10 (normalised) and the integer fields by 10 within their range', () => {
-    const graph = new Observed();
-    mount(graph);
-    const radius = field('[data-inversion-field="radius"]');
-    fireEvent.keyDown(radius, {key: 'ArrowUp', shiftKey: true});
-    expect(graph.fields.radius).toBe(8);
-    fireEvent.keyDown(radius, {key: 'ArrowDown', shiftKey: true});
-    expect(graph.fields.radius).toBe(1);
-    fireEvent.keyDown(radius, {key: 'ArrowDown', shiftKey: true});
-    expect(graph.fields.radius).toBe(1);
-    // A plain arrow is left to the browser (step 1), so the handler does nothing.
-    fireEvent.keyDown(radius, {key: 'ArrowUp'});
-    expect(graph.fields.radius).toBe(1);
-    const x = field('[data-inversion-field="x-x"]');
-    fireEvent.keyDown(x, {key: 'ArrowUp', shiftKey: true});
-    expect(graph.fields.x.x).toBe(10);
-    fireEvent.keyDown(x, {key: 'ArrowDown', shiftKey: true});
-    expect(graph.fields.x.x).toBe(0);
-    pick(graph, 'power');
-    act(() => { graph.setTheta(5); });
-    const theta = field('[data-inversion-theta]');
-    fireEvent.keyDown(theta, {key: 'ArrowUp', shiftKey: true});
-    expect(graph.fields.power.thetaDeg).toBe(15);
-    fireEvent.keyDown(theta, {key: 'ArrowDown', shiftKey: true});
-    fireEvent.keyDown(theta, {key: 'ArrowDown', shiftKey: true});
-    expect(graph.fields.power.thetaDeg).toBe(355);
-    fireEvent.keyDown(theta, {key: 'ArrowUp'});
-    expect(graph.fields.power.thetaDeg).toBe(355);
 });

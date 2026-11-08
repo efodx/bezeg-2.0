@@ -16,10 +16,14 @@ import {parseHullStep} from "./hullTraceRun";
 import {PointSetGraphState} from "./PointSetGraph";
 import {TriangulationGraph, type TriangulationGraphState} from "./TriangulationGraph";
 import {parseTriangleList} from "./triangulationPresetCollection";
+import {matchingExample} from "./ExampleSelect";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
 import {TracePlayback} from "./tracePlayback";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+
+/** The chooser id of each example, as its place in `DELAUNAY_EXAMPLES`. */
+const EXAMPLE_INDEX = {quad: 0, seven: 1, square: 2} as const;
 
 /** Time between two playback steps (one step per interval, never more). */
 export const DELAUNAY_STEP_INTERVAL_MS = 600;
@@ -40,8 +44,8 @@ const runFor = (points: PointSetModel["points"], triangles: unknown): DelaunayRu
 /**
  * The triangulation graph with the Lawson flip trace (task 13, spec B3). The scene state keeps the points, the starting
  * triangle list (as `TriangulationGraph`) and the step index; the shown triangulation is `lawsonStateAt` of the trace of the
- * starting list, so `triangulation()` is the triangulation at the current step. Next step and every Play tick run one
- * `advance()` on the shared `IterationController`. Any edit (point add, move or remove, manual flip, example) recomputes the
+ * starting list, so `triangulation()` is the triangulation at the current step. Next step and every Play tick run the one
+ * transition of `TracePlayback`. Any edit (point add, move or remove, manual flip, example) recomputes the
  * trace, returns to step 0 and pauses; a manual flip at a later step flips the triangulation shown and makes it the new start.
  *
  * Board: illegal edges are dashed and labelled (text, not colour only); at a `test` event the edge under test is highlighted
@@ -377,7 +381,7 @@ export class DelaunayGraph extends TriangulationGraph {
         nextStep: () => this.nextStep(),
         playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
-        loadExample: index => this.loadExample(index),
+        loadExample: id => this.loadExample(EXAMPLE_INDEX[id]),
         selectTriangle: index => this.selectTriangle(index),
     };
 
@@ -410,7 +414,7 @@ export class DelaunayGraph extends TriangulationGraph {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <DelaunayControls status={this.status()} playing={this.playback.isPlaying} actions={this.delaunayActions}/>
+            <DelaunayControls status={this.status()} playing={this.playback.isPlaying} exampleId={matchingExample(this.model, DELAUNAY_EXAMPLES.map(example => ({id: example.id, ...example.data})))} actions={this.delaunayActions}/>
             {super.workspaceEdit()}
         </>;
     }

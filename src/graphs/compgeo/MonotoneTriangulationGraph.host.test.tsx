@@ -1,6 +1,6 @@
 import {stepWhile} from './boundedSteps.testing';
 import React from 'react';
-import {act, fireEvent, render} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {MONOTONE_PARTITION_STEP_INTERVAL_MS} from './MonotonePartitionGraph';
 import {MonotoneTriangulationGraph} from './MonotoneTriangulationGraph';
@@ -82,6 +82,9 @@ const panel = () => ['step', 'phase', 'note', 'vertex', 'reason', 'piece', 'test
     'comparison-monotone', 'comparison-ear'].map(part);
 const button = (action: string) => document.querySelector(`button[data-action="${action}"]`) as HTMLButtonElement;
 const click = (action: string) => act(() => { fireEvent.click(button(action)); });
+const exampleSelect = () => screen.getByLabelText(/^(Primera|Examples)$/) as HTMLSelectElement;
+const exampleTexts = () => [...exampleSelect().options].map(o => o.textContent);
+const chooseExample = (id: string) => act(() => { fireEvent.change(exampleSelect(), {target: {value: id}}); });
 const polygon = (...points: Array<[number, number]>): PointSetModel => ({
     mode: 'polygon', closed: true, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y})),
 });
@@ -114,12 +117,12 @@ test('the default scene is example 1 at step 0: the partition phase, no triangul
     mount(graph);
     expect(graph.model).toEqual(MONOTONE_TRIANGULATION_EXAMPLE_1);
     expect([graph.step, graph.isPlaying, graph.run().length]).toEqual([0, false, 44]);
-    expect(part('step')).toBe('Korak 0 od 43');
+    expect(part('step')).toBe('Korak 1 od 44');
     expect(part('phase')).toBe('Faza: razdelitev');
     expect(objectsNamed(graph, 'monotone-sweep-line')).toHaveLength(1);
     expect(objectsNamed(graph, 'monotonetri-chain-label')).toHaveLength(0);
     expect(part('comparison-monotone')).toBeUndefined();
-    expect(['example-1', 'example-2', 'example-3'].map(a => button(a)?.textContent)).toEqual(['Primer 1: razcepno oglišče', 'Primer 2: zlivni oglišči', 'Primer 3: že monoton']);
+    expect(exampleTexts()).toEqual(['Primer 1: razcepno oglišče', 'Primer 2: zlivni oglišči', 'Primer 3: že monoton']);
     expect(document.querySelector('[data-monotone-triangulation-lists] [data-monotone-triangulation-list="queue"]')).toBeNull();
     expect(document.querySelector('[data-monotone-partition-list="queue"]')).not.toBeNull();
 });
@@ -206,7 +209,7 @@ test('the live region is silent while Play runs and announces the step and phase
     expect(graph.step).toBe(16);
     expect(live()).toBe('');
     click('play-pause');
-    expect(live()).toContain('Korak 16 od 43');
+    expect(live()).toContain('Korak 17 od 44');
     expect(live()).toContain('Faza: triangulacija kosa 1 od 2');
 });
 
@@ -278,17 +281,17 @@ test('an edit while playing in the triangulation phase returns to step 0 and pau
     goTo(graph, 18);
     click('reset');
     expect([graph.step, graph.isPlaying]).toEqual([0, false]);
-    expect(part('step')).toBe(`Korak 0 od ${graph.run().length - 1}`);
+    expect(part('step')).toBe(`Korak 1 od ${graph.run().length}`);
 });
 
 test('the three examples load and refusals are task 16\'s', () => {
     const graph = new Observed();
     mount(graph);
-    click('example-3');
+    chooseExample('example-3');
     expect(graph.model).toEqual(MONOTONE_TRIANGULATION_EXAMPLE_3);
-    click('example-2');
+    chooseExample('example-2');
     expect(graph.model).toEqual(MONOTONE_TRIANGULATION_EXAMPLE_2);
-    click('example-1');
+    chooseExample('example-1');
     expect(graph.model).toEqual(MONOTONE_TRIANGULATION_EXAMPLE_1);
     load(graph, polygon([0, 0], [4, 4], [4, 0], [0, 4]));
     expect(document.querySelector('[data-monotone-triangulation="refusal"]')?.getAttribute('role')).toBe('alert');
@@ -328,12 +331,12 @@ test('a language switch re-renders the panel, the side lists and the board label
     goTo(graph, 35);
     const before = traceObjects(graph).map(o => [o.name, o.elType, o.dataX, o.dataY]);
     act(() => { setLanguage('en'); });
-    expect(part('step')).toBe('Step 35 of 43');
+    expect(part('step')).toBe('Step 36 of 44');
     expect(part('phase')).toBe('Phase: triangulation of piece 2 of 2');
     expect(part('test')).toBe('Current test: vertex v2 and vertex v4, the diagonal is outside.');
     expect(part('vertex')).toBe('v2 — left chain');
     expect(button('next-step').textContent).toBe('Next step');
-    expect(button('example-3').textContent).toBe('Example 3: already monotone');
+    expect(exampleTexts()).toContain('Example 3: already monotone');
     expect(document.querySelector('[data-monotone-triangulation-list="status"] p')?.textContent).toBe('Stack (from bottom to top)');
     expect(entries('queue', 'data-next')[0].title).toBe('v2 — left chain');
     expect(objectsNamed(graph, 'monotonetri-test-label').map(o => o.plaintext)).toEqual(['outside']);

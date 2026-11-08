@@ -50,9 +50,12 @@ const quads = (graph: Observed) => objects(graph).filter(o => o.elType === 'poly
 
 const mount = (graph: Observed) => render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
 const readout = (name: string) => document.querySelector(`[data-readout="${name}"]`)?.textContent;
-const part = (name: string) => document.querySelector(`[data-triangulation="${name}"]`)?.textContent;
+// The refusal is the shared refusal region's text: absent (undefined) while it is empty.
+const part = (name: string) => name === 'refusal'
+    ? document.querySelector('[data-triangulation="refusal-slot"]')?.textContent || undefined
+    : document.querySelector(`[data-triangulation="${name}"]`)?.textContent;
 const button = () => document.querySelector('button[data-action="flip-edge"]') as HTMLButtonElement;
-const list = () => document.querySelector('select[data-triangulation="edge-list"]') as HTMLSelectElement;
+const list = () => document.querySelector('[data-triangulation="edge-flip"] select') as HTMLSelectElement;
 const choose = (a: number, b: number) => act(() => { fireEvent.change(list(), {target: {value: `${a}-${b}`}}); });
 const flipIt = () => act(() => { fireEvent.click(button()); });
 const pts = (points: Array<[number, number]>): PointSetModel => ({mode: 'points', closed: false, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
@@ -183,13 +186,14 @@ test('a flip of a non-convex quadrilateral and of a hull edge each show their re
     const concave = refusedEdge('not-convex');
     choose(concave.a, concave.b);
     flipIt();
-    expect(part('event')).toContain('ne tvorita izbočenega štirikotnika');
+    expect(part('refusal')).toContain('ne tvorita izbočenega štirikotnika');
     expect(graph.triangles).toEqual(TRIANGULATION_T0);
     const hull = refusedEdge('hull-edge');
     choose(hull.a, hull.b);
     flipIt();
-    expect(part('event')).toContain('leži na ovojnici');
-    expect(part('live')).toContain('leži na ovojnici');
+    expect(part('refusal')).toContain('leži na ovojnici');
+    expect(part('live')).not.toContain('leži na ovojnici');
+    expect(part('live')).toBe('');
     expect(graph.triangles).toEqual(TRIANGULATION_T0);
     expect(readout('angle-before')).toContain('zamenjave še ni bilo');
 });
@@ -198,7 +202,7 @@ test('a flip with no edge selected says so and changes nothing', () => {
     const graph = new Observed();
     mount(graph);
     flipIt();
-    expect(part('event')).toContain('Najprej izberite rob');
+    expect(part('refusal')).toContain('Najprej izberite rob');
     expect(graph.triangles).toEqual(TRIANGULATION_T0);
 });
 
@@ -269,7 +273,9 @@ test('duplicates, collinear and too few points are refused with a message and no
     expect(part('refusal')).toContain('vsaj tri točke');
     act(() => { graph.loadModel(pts([[0, 0], [1, 1]])); });
     expect(part('refusal')).toContain('vsaj tri točke');
-    expect(list().disabled).toBe(true);
+    // No edges: the list offers only "none" and says why; Flip stays reachable.
+    expect(list().options).toHaveLength(1);
+    expect(document.querySelector('[data-triangulation="edge-flip"]')!.textContent).toContain('Ni robov za izbiro');
     act(() => { graph.loadModel(pts([[0, 0], [1, 1], [2, 0]])); });
     expect(part('refusal')).toBeUndefined();
     expect(graph.triangles).toHaveLength(1);
@@ -555,17 +561,18 @@ test('a refusal is announced once: by its alert, not by the polite live region',
     const graph = new Observed();
     mount(graph);
     act(() => { graph.loadModel(pts([[0, 0], [1, 1], [0, 0]])); });
-    expect(document.querySelectorAll('[role="alert"]')).toHaveLength(1);
+    expect(document.querySelectorAll('[role="alert"]')).toHaveLength(0);
+    expect(document.querySelector('[data-refusal-notice]')!.textContent).toContain('Dve točki sta enaki');
     expect(part('refusal')).toContain('Dve točki sta enaki');
     expect(part('live')).not.toContain('Dve točki sta enaki');
+    expect(part('live')).toBe('');
 });
 
-test('the edge select and the Flip button are described by the hint', () => {
+test('the Flip button is described by the hint', () => {
     mount(new Observed());
     const hint = document.getElementById('triangulation-flip-hint');
     expect(hint?.textContent).not.toBe('');
-    expect(list().getAttribute('aria-describedby')).toBe('triangulation-flip-hint');
-    expect(button().getAttribute('aria-describedby')).toBe('triangulation-flip-hint');
+    expect(button().getAttribute('aria-describedby')).toContain('triangulation-flip-hint');
 });
 
 test('the selected edge is heavier and dashed, apart from colour, and the hull stays heavier than the interior', () => {

@@ -1,4 +1,5 @@
 import React from "react";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {useLanguage, useT} from "../../localization";
 import {EULER_EXAMPLES, EulerAnalysis, EulerExampleId} from "../../compgeo/eulerLineModel";
 import {EulerPlaceId, eulerChip, eulerTexts, eulerVertexTexts} from "./eulerLineText";
@@ -9,7 +10,6 @@ export interface EulerLinePanelProps {
     exampleId: EulerExampleId | undefined;
     outsideView: ReadonlySet<EulerPlaceId>;
     onExample(id: EulerExampleId): void;
-    onShowAll(): void;
 }
 
 /**
@@ -21,7 +21,6 @@ export function EulerLinePanel(props: EulerLinePanelProps) {
     const t = useT();
     const {language} = useLanguage();
     const {analysis} = props;
-    const button = "btn btn-outline-secondary btn-sm";
     if (analysis.kind === "missing") {
         return <div className="inspector-group" data-euler-state="missing">
             <p className="inspector-help pointset-status" role="status">{t("notable_missing", {value0: 3 - analysis.have})}</p>
@@ -53,7 +52,6 @@ export function EulerLinePanel(props: EulerLinePanelProps) {
         <p className="inspector-help" data-euler-relation>{texts.relation}</p>
         <p className="inspector-help" data-euler-distinct>{texts.distinct}</p>
         {texts.tooFar.map(note => <p key={note} className="inspector-help" data-euler-too-far>{note}</p>)}
-        <button type="button" className={button} data-euler-show-all onClick={props.onShowAll}>{t("notable_show_all")}</button>
         <h3 className="inspector-reveals-title">{t("notable_coordinates_heading")}</h3>
         <ul className="pointset-list" data-euler-coordinates>
             {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
@@ -67,14 +65,13 @@ function ExampleSelect(props: EulerLinePanelProps) {
         default: t("euler_example_default"), right: t("euler_example_right"), isosceles: t("euler_example_isosceles"),
         "near-equilateral": t("euler_example_near_equilateral"), degenerate: t("euler_example_degenerate"),
     };
-    return <label className="pointset-check">{t("notable_example_label")}{" "}
-        <select value={props.exampleId ?? "custom"} data-euler-example
-                onChange={event => {
-                    const found = EULER_EXAMPLES.find(example => example.id === event.target.value);
-                    if (found) props.onExample(found.id);
-                }}>
-            {EULER_EXAMPLES.map(example => <option key={example.id} value={example.id}>{names[example.id]}</option>)}
-            {props.exampleId === undefined && <option value="custom">{t("notable_example_custom")}</option>}
-        </select>
-    </label>;
+    return <div data-euler-example>
+        <ChoiceSelect label={t("notable_example_label")} value={props.exampleId ?? "custom"}
+                      options={[...EULER_EXAMPLES.map(example => ({value: example.id, text: names[example.id]})),
+                          ...(props.exampleId === undefined ? [{value: "custom", text: t("notable_example_custom")}] : [])]}
+                      onChange={id => {
+                          const found = EULER_EXAMPLES.find(example => example.id === id);
+                          if (found) props.onExample(found.id);
+                      }}/>
+    </div>;
 }

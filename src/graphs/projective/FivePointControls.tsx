@@ -1,4 +1,7 @@
-import React, {useState} from "react";
+import React, {useMemo} from "react";
+import {BooleanField} from "../../inputs/BooleanField";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {PointListInput} from "../../inputs/PointListInput";
 import {useLanguage, useT} from "../../localization";
 import {
     FIVE_POINT_COUNT, FIVE_POINT_DENOMINATOR, FIVE_POINT_EXAMPLE_IDS, FIVE_POINT_NAMES, FIVE_POINT_NUMERATOR_LIMIT, FivePointExampleId, FivePointModel, FivePointScene, pointOf,
@@ -34,29 +37,10 @@ const EXAMPLE_LABELS = {
     custom: "projective_five_point_example_custom",
 } as const;
 
-const INDICES = Array.from({length: FIVE_POINT_COUNT}, (_, i) => i);
+const LIMIT = FIVE_POINT_NUMERATOR_LIMIT / FIVE_POINT_DENOMINATOR;
+const isExampleId = (id: string): id is FivePointExampleId => (FIVE_POINT_EXAMPLE_IDS as readonly string[]).includes(id);
 
-/** A coordinate field: every typed multiple of 1/15 is committed; the spinner steps by 1/5. */
-function CoordinateField(props: {label: string, value: number, onCommit: (numerator: number) => void}) {
-    const shown = (value: number) => String(Math.round(value / FIVE_POINT_DENOMINATOR * 1e6) / 1e6);
-    const [draft, setDraft] = useState(shown(props.value));
-    const [shownValue, setShownValue] = useState(props.value);
-    if (shownValue !== props.value) {
-        setShownValue(props.value);
-        setDraft(shown(props.value));
-    }
-    const limit = FIVE_POINT_NUMERATOR_LIMIT / FIVE_POINT_DENOMINATOR;
-    return <label className="pointset-field">
-        <input type="number" step={0.2} min={-limit} max={limit} aria-label={props.label} value={draft}
-               onBlur={() => setDraft(shown(props.value))}
-               onChange={event => {
-                   setDraft(event.target.value);
-                   if (event.target.value.trim() === "") return;
-                   const scaled = Number(event.target.value) * FIVE_POINT_DENOMINATOR;
-                   if (Number.isFinite(scaled) && Math.abs(scaled - Math.round(scaled)) < 1e-6) props.onCommit(Math.round(scaled));
-               }}/>
-    </label>;
-}
+const INDICES = Array.from({length: FIVE_POINT_COUNT}, (_, i) => i);
 
 /**
  * The inspector of the five-point graph. The status, the conic, the control points, the weight, the Farin points and the sampled
@@ -67,17 +51,16 @@ export function FivePointControls(props: FivePointControlsProps) {
     const {language} = useLanguage();
     const {model, scene, stale, selected, nudged, extrapolation, actions} = props;
     const text = describeFivePoint(scene, stale, t, language);
-    const button = "btn btn-outline-secondary btn-sm";
+    const exampleOptions = FIVE_POINT_EXAMPLE_IDS.filter(id => id !== "custom" || model.example === "custom").map(id => ({value: id, text: t(EXAMPLE_LABELS[id])}));
+    const choice = (i: number) => ({value: String(i), text: FIVE_POINT_NAMES[i]});
+    // Stable while the model is, so a refusal shown at a field stays until the points change.
+    const points = useMemo(() => model.points.map(p => [p.x / FIVE_POINT_DENOMINATOR, p.y / FIVE_POINT_DENOMINATOR] as const), [model]);
     const nameOf = (i: number) => FIVE_POINT_NAMES[i];
     const where = (i: number) => pointText(pointOf(model.points[i]));
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <div role="group" aria-label={t("projective_five_point_example_label")}>
-                {FIVE_POINT_EXAMPLE_IDS.filter(id => id !== "custom").map(id =>
-                    <button key={id} type="button" className={button} aria-pressed={model.example === id}
-                            onClick={() => actions.loadExample(id)}>{t(EXAMPLE_LABELS[id])}</button>)}
-            </div>
-            {model.example === "custom" && <p className="inspector-help">{t(EXAMPLE_LABELS.custom)}</p>}
+            <ChoiceSelect label={t("projective_five_point_example_label")} value={model.example} options={exampleOptions}
+                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
         </div>
         <div className="inspector-group">
             <div role="status" data-projective-status={text.kind} data-projective-stale={stale}>
@@ -94,38 +77,23 @@ export function FivePointControls(props: FivePointControlsProps) {
             </p>
         </div>
         <div className="inspector-group">
-            <label className="inspector-help">{t("projective_five_point_end_a")}
-                <select value={model.a} onChange={event => actions.setEnd("a", Number(event.target.value))}>
-                    {INDICES.map(i => <option key={i} value={i}>{nameOf(i)}</option>)}
-                </select>
-            </label>
-            <label className="inspector-help">{t("projective_five_point_end_b")}
-                <select value={model.b} onChange={event => actions.setEnd("b", Number(event.target.value))}>
-                    {INDICES.map(i => <option key={i} value={i}>{nameOf(i)}</option>)}
-                </select>
-            </label>
-            <label className="inspector-help">{t("projective_five_point_third")}
-                <select value={model.t} onChange={event => actions.setThird(Number(event.target.value))}>
-                    {INDICES.filter(i => i !== model.a && i !== model.b).map(i => <option key={i} value={i}>{nameOf(i)}</option>)}
-                </select>
-            </label>
-            <label className="inspector-help">
-                <input type="checkbox" checked={extrapolation} onChange={event => actions.setExtrapolation(event.target.checked)}/> {t("projective_five_point_extrapolation")}
-            </label>
+            <ChoiceSelect label={t("projective_five_point_end_a")} value={String(model.a)} options={INDICES.map(choice)}
+                          onChange={value => actions.setEnd("a", Number(value))}/>
+            <ChoiceSelect label={t("projective_five_point_end_b")} value={String(model.b)} options={INDICES.map(choice)}
+                          onChange={value => actions.setEnd("b", Number(value))}/>
+            <ChoiceSelect label={t("projective_five_point_third")} value={String(model.t)}
+                          options={INDICES.filter(i => i !== model.a && i !== model.b).map(choice)}
+                          onChange={value => actions.setThird(Number(value))}/>
+            <BooleanField variant="checkbox" checked={extrapolation} label={t("projective_five_point_extrapolation")} onChange={actions.setExtrapolation}/>
         </div>
         <div className="inspector-group">
             <p className="inspector-help" data-projective-selection>
                 {selected !== undefined ? t("projective_k1_selected", {value0: nameOf(selected)}) : t("projective_k1_no_selection")}
             </p>
-            {INDICES.map(i => <div key={i} className="pointset-row" data-selected={selected === i}>
-                <button type="button" className={button} aria-pressed={selected === i} onClick={() => actions.select(selected === i ? undefined : i)}>
-                    <span aria-hidden="true">{nameOf(i)}</span><span className="visually-hidden">{t("projective_k1_select", {value0: nameOf(i)})}</span>
-                </button>
-                <CoordinateField label={t("projective_five_point_coordinate_x", {value0: nameOf(i)})} value={model.points[i].x}
-                                 onCommit={x => actions.place(i, x, model.points[i].y)}/>
-                <CoordinateField label={t("projective_five_point_coordinate_y", {value0: nameOf(i)})} value={model.points[i].y}
-                                 onCommit={y => actions.place(i, model.points[i].x, y)}/>
-            </div>)}
+            <PointListInput title={t("projective_five_point_points")} pointLabel={i => t("projective_point_named", {value0: nameOf(i)})}
+                            points={points} min={-LIMIT} max={LIMIT} grid={1 / FIVE_POINT_DENOMINATOR} step={1 / FIVE_POINT_DENOMINATOR} decimals={4}
+                            selected={selected} onSelect={actions.select}
+                            onCommit={(i, [x, y]) => { actions.place(i, Math.round(x * FIVE_POINT_DENOMINATOR), Math.round(y * FIVE_POINT_DENOMINATOR)); }}/>
         </div>
     </div>;
 }

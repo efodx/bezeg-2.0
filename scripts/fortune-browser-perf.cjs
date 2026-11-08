@@ -40,7 +40,7 @@ async function runOnce(browser) {
         await page.goto(`${baseUrl}/compgeo/fortune`, {waitUntil: 'load'});
         await page.waitForFunction(() => window.JXG && Object.values(window.JXG.boards).length > 0, null, {timeout: 20000});
         await page.waitForTimeout(1500);
-        await page.locator('button[data-example="random"]').click();
+        await page.getByLabel('Primeri mest').selectOption('random');
         await page.waitForTimeout(500);
         const next = page.locator('button[data-action="next-step"]'), reset = page.locator('button[data-action="reset"]');
         // Find the step with the longest beach line (the readout is gone at the last step).

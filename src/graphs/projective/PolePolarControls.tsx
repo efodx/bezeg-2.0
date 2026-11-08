@@ -1,4 +1,6 @@
-import React, {useState} from "react";
+import React, {useMemo} from "react";
+import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {PointListInput} from "../../inputs/PointListInput";
 import {useLanguage, useT} from "../../localization";
 import {
     POLE_POLAR_CONIC_IDS, POLE_POLAR_DENOMINATOR, POLE_POLAR_DIRECTION_LIMIT, POLE_POLAR_EXAMPLE_IDS, POLE_POLAR_NUMERATOR_LIMIT, PolePolarConicId,
@@ -25,6 +27,10 @@ export interface PolePolarControlsProps {
     actions: PolePolarControlActions;
 }
 
+const LIMIT = POLE_POLAR_NUMERATOR_LIMIT / POLE_POLAR_DENOMINATOR;
+const isExampleId = (id: string): id is PolePolarExampleId => (POLE_POLAR_EXAMPLE_IDS as readonly string[]).includes(id);
+const isConicId = (id: string): id is PolePolarConicId => (POLE_POLAR_CONIC_IDS as readonly string[]).includes(id);
+
 const EXAMPLE_LABELS = {
     default: "projective_k3_example_default", on: "projective_k3_example_on", inside: "projective_k3_example_inside",
     infinity: "projective_k3_example_infinity", custom: "projective_k3_example_custom",
@@ -33,51 +39,27 @@ const CONIC_LABELS = {
     ellipse: "projective_k3_conic_ellipse", circle: "projective_k3_conic_circle", parabola: "projective_k3_conic_parabola", hyperbola: "projective_k3_conic_hyperbola",
 } as const;
 
-/** A field for a value that is a whole multiple of `1 / scale`; it keeps what is being typed and commits every valid multiple. */
-function StepField(props: {label: string, value: number, scale: number, limit: number, onCommit: (value: number) => void}) {
-    const shown = (value: number) => String(value / props.scale);
-    const [draft, setDraft] = useState(shown(props.value));
-    const [shownValue, setShownValue] = useState(props.value);
-    if (shownValue !== props.value) {
-        setShownValue(props.value);
-        setDraft(shown(props.value));
-    }
-    return <label className="pointset-field">
-        <input type="number" step={1 / props.scale} min={-props.limit / props.scale} max={props.limit / props.scale} aria-label={props.label} value={draft}
-               onBlur={() => setDraft(shown(props.value))}
-               onChange={event => {
-                   setDraft(event.target.value);
-                   if (event.target.value.trim() === "") return;
-                   const scaled = Number(event.target.value) * props.scale;
-                   if (Number.isFinite(scaled) && Math.abs(scaled - Math.round(scaled)) < 1e-6) props.onCommit(Math.round(scaled));
-               }}/>
-    </label>;
-}
-
 /**
  * The inspector of the pole and polar graph. The region, the polar equation and the tangents are text as well as drawing; the
- * conic and the example are buttons; P is placed with fields (steps of 0.2) or selected for the arrow keys.
+ * conic, the example and the kind of P are choices; P is placed with fields (steps of 0.2) or selected for the arrow keys.
  */
 export function PolePolarControls(props: PolePolarControlsProps) {
     const t = useT();
     const {language} = useLanguage();
     const {model, scene, selected, nudged, actions} = props;
     const text = describePolePolar(scene, t, language);
-    const button = "btn btn-outline-secondary btn-sm";
+    const exampleOptions = POLE_POLAR_EXAMPLE_IDS.filter(id => id !== "custom" || model.example === "custom").map(id => ({value: id, text: t(EXAMPLE_LABELS[id])}));
+    // Stable while the model is, so a refusal shown at a field stays until P changes.
+    const finite = useMemo(() => [[model.p.x / POLE_POLAR_DENOMINATOR, model.p.y / POLE_POLAR_DENOMINATOR] as const], [model]);
+    const direction = useMemo(() => [[model.ideal?.dx ?? 0, model.ideal?.dy ?? 0] as const], [model]);
     const where = pointText(scene.p);
     return <div className="function-inspector pointset-inspector">
         <div className="inspector-group">
-            <div role="group" aria-label={t("projective_k3_example_label")}>
-                {POLE_POLAR_EXAMPLE_IDS.filter(id => id !== "custom").map(id =>
-                    <button key={id} type="button" className={button} aria-pressed={model.example === id}
-                            onClick={() => actions.loadExample(id)}>{t(EXAMPLE_LABELS[id])}</button>)}
-            </div>
-            {model.example === "custom" && <p className="inspector-help">{t(EXAMPLE_LABELS.custom)}</p>}
-            <div role="group" aria-label={t("projective_k3_conic_label")}>
-                {POLE_POLAR_CONIC_IDS.map(id =>
-                    <button key={id} type="button" className={button} aria-pressed={model.conic === id}
-                            onClick={() => actions.setConic(id)}>{t(CONIC_LABELS[id])}</button>)}
-            </div>
+            <ChoiceSelect label={t("projective_k3_example_label")} value={model.example} options={exampleOptions}
+                          onChange={id => { if (isExampleId(id) && id !== "custom") actions.loadExample(id); }}/>
+            <ChoiceSelect label={t("projective_k3_conic_label")} value={model.conic}
+                          options={POLE_POLAR_CONIC_IDS.map(id => ({value: id, text: t(CONIC_LABELS[id])}))}
+                          onChange={id => { if (isConicId(id)) actions.setConic(id); }}/>
         </div>
         <div className="inspector-group">
             <div role="status" data-projective-status={text.region}>
@@ -94,28 +76,18 @@ export function PolePolarControls(props: PolePolarControlsProps) {
         </div>
         <div className="inspector-group">
             <p className="inspector-help" data-projective-selection>{selected ? t("projective_k1_selected", {value0: "P"}) : t("projective_k1_no_selection")}</p>
-            <div role="group" aria-label={t("projective_k3_mode_label")}>
-                <button type="button" className={button} aria-pressed={!model.ideal} onClick={() => actions.setDirection(undefined)}>{t("projective_k3_mode_finite")}</button>
-                <button type="button" className={button} aria-pressed={!!model.ideal} onClick={() => actions.setDirection(model.ideal ?? {dx: 1, dy: 0})}>{t("projective_k3_mode_ideal")}</button>
-            </div>
-            <div className="pointset-row" data-selected={selected}>
-                <button type="button" className={button} aria-pressed={selected} onClick={() => actions.select(!selected)}>
-                    <span aria-hidden="true">P</span><span className="visually-hidden">{t("projective_k1_select", {value0: "P"})}</span>
-                </button>
-                {model.ideal
-                    ? <>
-                        <StepField label={t("projective_k3_direction_x")} value={model.ideal.dx} scale={1} limit={POLE_POLAR_DIRECTION_LIMIT}
-                                   onCommit={dx => actions.setDirection({dx, dy: model.ideal?.dy ?? 0})}/>
-                        <StepField label={t("projective_k3_direction_y")} value={model.ideal.dy} scale={1} limit={POLE_POLAR_DIRECTION_LIMIT}
-                                   onCommit={dy => actions.setDirection({dx: model.ideal?.dx ?? 0, dy})}/>
-                    </>
-                    : <>
-                        <StepField label={t("projective_k3_coordinate_x")} value={model.p.x} scale={POLE_POLAR_DENOMINATOR} limit={POLE_POLAR_NUMERATOR_LIMIT}
-                                   onCommit={x => actions.place(x, model.p.y)}/>
-                        <StepField label={t("projective_k3_coordinate_y")} value={model.p.y} scale={POLE_POLAR_DENOMINATOR} limit={POLE_POLAR_NUMERATOR_LIMIT}
-                                   onCommit={y => actions.place(model.p.x, y)}/>
-                    </>}
-            </div>
+            <ChoiceSelect label={t("projective_k3_mode_label")} value={model.ideal ? "ideal" : "finite"}
+                          options={[{value: "finite", text: t("projective_k3_mode_finite")}, {value: "ideal", text: t("projective_k3_mode_ideal")}]}
+                          onChange={mode => actions.setDirection(mode === "finite" ? undefined : model.ideal ?? {dx: 1, dy: 0})}/>
+            {model.ideal
+                ? <PointListInput title={t("projective_k3_direction_title")} pointLabel={() => "P"} axisLabels={["dx", "dy"]}
+                                  points={direction} integer min={-POLE_POLAR_DIRECTION_LIMIT} max={POLE_POLAR_DIRECTION_LIMIT}
+                                  selected={selected ? 0 : undefined} onSelect={at => actions.select(at !== undefined)}
+                                  onCommit={(_, [dx, dy]) => dx === 0 && dy === 0 ? t("projective_k3_direction_zero") : void actions.setDirection({dx, dy})}/>
+                : <PointListInput title={t("projective_k3_point_title")} pointLabel={() => "P"}
+                                  points={finite} min={-LIMIT} max={LIMIT} grid={1 / POLE_POLAR_DENOMINATOR} step={1 / POLE_POLAR_DENOMINATOR} decimals={3}
+                                  selected={selected ? 0 : undefined} onSelect={at => actions.select(at !== undefined)}
+                                  onCommit={(_, [x, y]) => { actions.place(Math.round(x * POLE_POLAR_DENOMINATOR), Math.round(y * POLE_POLAR_DENOMINATOR)); }}/>}
         </div>
     </div>;
 }

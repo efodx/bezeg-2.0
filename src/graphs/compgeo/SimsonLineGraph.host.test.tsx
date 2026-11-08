@@ -56,6 +56,9 @@ const showAllOverlays = (graph: Observed) => act(() => { for (const id of ALL) g
 const hideAllOverlays = (graph: Observed) => act(() => { for (const id of ALL) graph.setOverlay(id, false); });
 const text = (selector: string) => (document.querySelector(selector)?.textContent ?? '');
 const field = (selector: string) => document.querySelector(selector) as HTMLInputElement;
+const select = (selector: string) => field(`${selector} select`);
+const range = (selector: string) => field(`${selector} input[type="range"]`);
+const typed = (selector: string) => field(`${selector} input[type="text"]`);
 const statusOf = () => document.querySelector('[data-simson-state][data-simson-status]')?.getAttribute('data-simson-status');
 async function settle(start: () => Promise<void>): Promise<void> {
     let pending: Promise<void> = Promise.resolve();
@@ -259,12 +262,12 @@ test('every board object is removed again: a mode switch and degenerate round tr
 test('the mode control switches in both directions, with P named P or P-prime and the matching controls', () => {
     const graph = new Observed();
     mount(graph);
-    const select = field('[data-simson-mode]') as unknown as HTMLSelectElement;
-    expect(select.value).toBe('glider');
+    const modeSelect = select('[data-simson-mode]');
+    expect(modeSelect.value).toBe('glider');
     expect(field('[data-simson-t]')).not.toBeNull();
     expect(field('[data-simson-epsilon]')).not.toBeNull();
     expect(document.querySelector('[data-simson-readout="power"]')).toBeNull();
-    fireEvent.change(select, {target: {value: 'exact'}});
+    fireEvent.change(modeSelect, {target: {value: 'exact'}});
     expect(graph.settings.mode).toBe('exact');
     expect(text('[data-simson-state]')).toContain('P′ = (2, −2)');
     expect(field('[data-simson-t]')).toBeNull();
@@ -274,7 +277,7 @@ test('the mode control switches in both directions, with P named P or P-prime an
     expect(statusOf()).toBe('collinear-exact');
     expect(text('[data-simson-chip]')).toBe('Nožišča D, E, F: kolinearna (natančno)');
     expect(graph.exampleId).toBeUndefined();
-    fireEvent.change(select, {target: {value: 'glider'}});
+    fireEvent.change(modeSelect, {target: {value: 'glider'}});
     expect(graph.settings.mode).toBe('glider');
     expect(field('[data-simson-t]')).not.toBeNull();
     expect(graph.exampleId).toBe('default');
@@ -290,26 +293,24 @@ test('the t field and the arrow keys move P along the circle and update the read
     expect(angle()).toBeCloseTo(60, 6);
     expect(distance()).toBeCloseTo(R, 9);
     const before = text('[data-simson-point="d"]');
-    fireEvent.change(field('[data-simson-t]'), {target: {value: '200'}});
+    enterNumber(typed('[data-simson-t]'), '200');
     expect(graph.settings.t).toBe(200);
     expect(angle()).toBeCloseTo(200, 6);
     expect(distance()).toBeCloseTo(R, 9);
     expect(text('[data-simson-point="d"]')).not.toBe(before);
-    expect(field('[data-simson-t]').value).toBe('200');
-    const slider = field('[data-simson-slider]');
-    fireEvent.keyDown(slider, {key: 'ArrowRight'});
+    expect(typed('[data-simson-t]').value).toBe('200');
+    const slider = range('[data-simson-t]');
+    fireEvent.change(slider, {target: {value: '201'}});
     expect(graph.settings.t).toBe(201);
     fireEvent.keyDown(slider, {key: 'ArrowLeft', shiftKey: true});
     expect(graph.settings.t).toBe(191);
     expect(angle()).toBeCloseTo(191, 6);
     expect(text('[data-simson-point="p"]')).toContain('P ≈ (');
-    // Wrap-around: t is normalised to [0, 360) with no exclusion gap.
-    fireEvent.change(field('[data-simson-t]'), {target: {value: '-5'}});
+    // A value outside 0 to 360 wraps (a cyclic angle); 360 is the same angle as 0 (t is normalised to [0, 360)).
+    enterNumber(typed('[data-simson-t]'), '-5');
     expect(graph.settings.t).toBe(355);
-    fireEvent.change(field('[data-simson-t]'), {target: {value: '360'}});
+    enterNumber(typed('[data-simson-t]'), '360');
     expect(graph.settings.t).toBe(0);
-    fireEvent.keyDown(slider, {key: 'ArrowLeft'});
-    expect(graph.settings.t).toBe(359);
     expect(statusOf()).toBe('collinear-within');
     noNaN(graph);
 });
@@ -333,7 +334,7 @@ test('dragging P on the board sets t by the angle about O in glider mode and sna
 test('every offset stop changes the status as specified: plain collinear at 0, not collinear at every other stop, with the readout', () => {
     const graph = new Observed();
     mount(graph);
-    const slider = field('[data-simson-epsilon]');
+    const slider = range('[data-simson-epsilon]');
     expect(slider.value).toBe('4');
     const ratios: Record<string, string> = {'0.001': '5,0·10⁻⁴', '0.01': '5,0·10⁻³', '0.05': '0,02563', '0.2': '0,11'};
     SIMSON_OFFSETS.forEach((epsilon, index) => {
@@ -354,7 +355,7 @@ test('every offset stop changes the status as specified: plain collinear at 0, n
             expect(exact(graph, 'simson-line')).toHaveLength(0);
             expect(exact(graph, 'pedal-triangle')).toHaveLength(1);
         }
-        expect(text('[data-simson-epsilon-value]')).toContain('ε = ');
+        expect(text('[data-simson-epsilon] output')).toMatch(/\d/);
         const p = pointOf(graph, 'P');
         expect(Math.hypot(p.X() - O.x, p.Y() - O.y)).toBeCloseTo(R * (1 + epsilon), 9);
     });
@@ -367,27 +368,27 @@ test('every offset stop changes the status as specified: plain collinear at 0, n
 test('a P-prime edit updates the exact readouts: power, feet as rationals, area ratio and status', () => {
     const graph = new Observed();
     mount(graph);
-    fireEvent.change(field('[data-simson-mode]'), {target: {value: 'exact'}});
-    fireEvent.change(screen.getByLabelText('P′: x'), {target: {value: '0'}});
-    fireEvent.change(screen.getByLabelText('P′: y'), {target: {value: '3'}});
+    fireEvent.change(select('[data-simson-mode]'), {target: {value: 'exact'}});
+    enterNumber(screen.getByLabelText('P′: x'), '0');
+    enterNumber(screen.getByLabelText('P′: y'), '3');
     expect(graph.settings.pPrime).toEqual({x: 0, y: 3});
     expect(text('[data-simson-point="d"]')).toBe('D = (2, 5)');
     expect(text('[data-simson-point="e"]')).toBe('E = (30/29, 75/29)');
     expect(text('[data-simson-point="f"]')).toBe('F = (0, 0)');
     expect(text('[data-simson-readout="power"]')).toContain('= 0');
     expect(text('[data-simson-on-circle]')).toContain('natančno na očrtani krožnici');
-    fireEvent.change(screen.getByLabelText('P′: x'), {target: {value: '6'}});
-    fireEvent.change(screen.getByLabelText('P′: y'), {target: {value: '4'}});
+    enterNumber(screen.getByLabelText('P′: x'), '6');
+    enterNumber(screen.getByLabelText('P′: y'), '4');
     expect(text('[data-simson-readout="power"]')).toBe('Potenca točke P′ na očrtano krožnico = −2');
     expect(text('[data-simson-readout="area"]')).toBe('Ploščina nožiščnega trikotnika / S = 1/29 (natančno)');
     expect(text('[data-simson-on-circle]')).toContain('ni na očrtani krožnici');
     expect(statusOf()).toBe('not-collinear');
     // The stored example id (the default one) names a glider scene, so a typed point leaves it.
     expect(graph.exampleId).toBeUndefined();
-    // A value outside the grid range or a non-integer is not written.
-    fireEvent.change(screen.getByLabelText('P′: x'), {target: {value: '1.5'}});
+    // A value outside the grid range or a non-integer is refused and not written.
+    enterNumber(screen.getByLabelText('P′: x'), '1.5');
     expect(graph.settings.pPrime).toEqual({x: 6, y: 4});
-    fireEvent.change(screen.getByLabelText('P′: x'), {target: {value: '99999999999'}});
+    enterNumber(screen.getByLabelText('P′: x'), '99999999999');
     expect(graph.settings.pPrime).toEqual({x: 6, y: 4});
     expect(graph.setPPrime({x: 0.5, y: 0})).toBe(false);
     noNaN(graph);
@@ -396,7 +397,7 @@ test('a P-prime edit updates the exact readouts: power, feet as rationals, area 
 test('the vertex example shows the coincidence status, two distinct feet and the line through them', () => {
     const graph = new Observed();
     mount(graph);
-    fireEvent.change(field('[data-simson-example]'), {target: {value: 'vertex'}});
+    fireEvent.change(select('[data-simson-example]'), {target: {value: 'vertex'}});
     expect(graph.exampleId).toBe('vertex');
     expect(graph.settings).toMatchObject({mode: 'exact', pPrime: {x: 7, y: 0}});
     expect(statusOf()).toBe('coincident');
@@ -421,7 +422,7 @@ test('the examples set vertices, mode and their point fields; a custom vertex ed
     enterNumber(screen.getByLabelText('P3, x'), '1');
     expect(graph.model.points[2]).toEqual({x: 1, y: 5});
     expect(graph.exampleId).toBeUndefined();
-    expect(field('[data-simson-example]').value).toBe('custom');
+    expect(select('[data-simson-example]').value).toBe('custom');
     act(() => { expect(graph.addPointAt({x: 9, y: 9})).toBe(false); });
     load(graph, tri([0, 0], [4, 0]));
     expect(text('[data-simson-state="missing"]')).toContain('manjka jih: 1');

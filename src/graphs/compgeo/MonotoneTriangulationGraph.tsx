@@ -6,6 +6,7 @@ import type {Chain} from "../../compgeo/sweep/monotoneTriangulation";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {GraphPalette} from "../styles/GraphPalette";
 import {ACTIVE_CONSTRUCTION_COLOR} from "./constructionEmphasis";
+import {matchingExample} from "./ExampleSelect";
 import {MonotonePartitionGraph, MonotonePartitionOverlayId} from "./MonotonePartitionGraph";
 import {vertexName} from "./monotonePartitionRun";
 import {
@@ -31,7 +32,7 @@ const PIECE_FILLS = [
  * It steps through the combined trace of `partitionAndTriangulate`: the partition events drawn as in task 16, then each
  * piece's stack algorithm. The step, playback, edit and Preset behaviour is the parent's; only the run, the drawing of the
  * triangulation phase, the panel and the Preset key differ. A polygon that is already y-monotone has no diagonal and one
- * piece. Next step and every Play tick run the parent's one `advance()`, so both reach identical states.
+ * piece. Next step and every Play tick run the parent's one `TracePlayback` transition, so both reach identical states.
  */
 export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
     private triMemo?: {points: PointSetModel["points"]; run: TriangulationRun};
@@ -167,8 +168,8 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
         nextStep: () => this.nextStep(),
         playPause: () => { if (this.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
-        loadExample: index => this.loadModel(
-            index === 1 ? MONOTONE_TRIANGULATION_EXAMPLE_1 : index === 2 ? MONOTONE_TRIANGULATION_EXAMPLE_2 : MONOTONE_TRIANGULATION_EXAMPLE_3),
+        loadExample: id => this.loadModel(
+            id === "example-1" ? MONOTONE_TRIANGULATION_EXAMPLE_1 : id === "example-2" ? MONOTONE_TRIANGULATION_EXAMPLE_2 : MONOTONE_TRIANGULATION_EXAMPLE_3),
     };
 
     protected override sideLists(): React.ReactNode {
@@ -176,7 +177,8 @@ export class MonotoneTriangulationGraph extends MonotonePartitionGraph {
     }
 
     protected override sweepControls(): React.ReactNode {
-        return <MonotoneTriangulationControls run={this.run()} step={this.step} playing={this.isPlaying} actions={this.triangulationActions}>
+        return <MonotoneTriangulationControls run={this.run()} step={this.step} playing={this.isPlaying} actions={this.triangulationActions}
+            exampleId={matchingExample(this.model, [{id: "example-1", ...MONOTONE_TRIANGULATION_EXAMPLE_1}, {id: "example-2", ...MONOTONE_TRIANGULATION_EXAMPLE_2}, {id: "example-3", ...MONOTONE_TRIANGULATION_EXAMPLE_3}])}>
             {this.sideLists()}
         </MonotoneTriangulationControls>;
     }

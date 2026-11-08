@@ -6,6 +6,7 @@ import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} fro
 import type {LessonAction} from "../../learning/model";
 import {BaseGraphState} from "../base/BaseGraph";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import {matchingExample} from "./ExampleSelect";
 import {TracePlayback} from "./tracePlayback";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -51,8 +52,8 @@ export function asClosedPolygon(model: PointSetModel): PointSetModel {
 /**
  * A point-set graph in polygon mode that clips the ears of its polygon one at a time (task 07, spec B1). Shaped like
  * `HullTraceGraph`: the scene state keeps the polygon and the step index, the drawn state is recomputed from
- * `earClippingTrace` through `runEarClipping`; Next step and every Play tick run one `advance()` on the shared
- * `IterationController`. A model change (edit, import, drag) recomputes the trace, returns to step 0 and pauses.
+ * `earClippingTrace` through `runEarClipping`; Next step and every Play tick run the one transition of
+ * `TracePlayback`. A model change (edit, import, drag) recomputes the trace, returns to step 0 and pauses.
  *
  * A clockwise polygon is reversed by the kernel for the trace; the stored model is never changed. A refused polygon
  * (fewer than three vertices, not simple, three collinear vertices) shows a message and draws no trace objects.
@@ -359,7 +360,7 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
         nextStep: () => this.nextStep(),
         playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
-        loadExample: index => this.loadModel(index === 1 ? EAR_CLIPPING_EXAMPLE_1 : EAR_CLIPPING_EXAMPLE_2),
+        loadExample: id => this.loadModel(id === "example-1" ? EAR_CLIPPING_EXAMPLE_1 : EAR_CLIPPING_EXAMPLE_2),
     };
 
     protected override showsModeToggle(): boolean {
@@ -377,7 +378,9 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
         return <>
             <EarClippingControls refusal={run.refusal} reversed={run.reversed} step={step} length={run.length} playing={this.playback.isPlaying}
                                  event={run.event(step)} trianglesSoFar={state.triangles.length}
-                                 summary={state.done ? run.summary : undefined} actions={this.earActions}/>
+                                 summary={state.done ? run.summary : undefined}
+                                 exampleId={matchingExample(this.model, [{id: "example-1", ...EAR_CLIPPING_EXAMPLE_1}, {id: "example-2", ...EAR_CLIPPING_EXAMPLE_2}])}
+                                 actions={this.earActions}/>
             {super.workspaceEdit()}
         </>;
     }

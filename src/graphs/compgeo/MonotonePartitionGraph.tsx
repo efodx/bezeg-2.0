@@ -21,6 +21,7 @@ import {
 } from "./monotonePartitionPresetCollection";
 import {PartitionRun, runMonotonePartition, vertexName} from "./monotonePartitionRun";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import {matchingExample} from "./ExampleSelect";
 import {TracePlayback} from "./tracePlayback";
 import {parseHullStep} from "./hullTraceRun";
 
@@ -49,7 +50,7 @@ const PIECE_FILLS = [
  * A point-set graph in closed-polygon mode that sweeps a horizontal line downward over its polygon and steps through
  * the trace of `monotonePartitionTrace` (task 16, spec sweep-algorithms-lessons C3). Shaped like `EarClippingGraph` and
  * `BentleyOttmannGraph`: the scene state keeps the polygon and the step index; the drawn state is recomputed from the
- * trace. Next step and every Play tick run the one `advance()` on the shared `IterationController`.
+ * trace. Next step and every Play tick run the one transition of `TracePlayback`.
  *
  * Any change of the model (an edit, an import, a drag) recomputes the trace, returns the step to 0 and pauses. A scene
  * change, a figure capture and unmount pause playback; unmount disposes the controller. A refused polygon gives an
@@ -353,7 +354,7 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
         nextStep: () => this.nextStep(),
         playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
-        loadExample: index => this.loadModel(index === 1 ? MONOTONE_PARTITION_EXAMPLE_1 : MONOTONE_PARTITION_EXAMPLE_2),
+        loadExample: id => this.loadModel(id === "example-1" ? MONOTONE_PARTITION_EXAMPLE_1 : MONOTONE_PARTITION_EXAMPLE_2),
     };
 
     protected override showsModeToggle(): boolean {
@@ -371,7 +372,8 @@ export class MonotonePartitionGraph extends PointSetGraph<MonotonePartitionOverl
 
     /** The playback controls, readouts and side lists; the triangulation graph (task 17) replaces them. */
     protected sweepControls(): React.ReactNode {
-        return <MonotonePartitionControls run={this.run()} step={this.step} playing={this.playback.isPlaying} actions={this.sweepActions}>
+        return <MonotonePartitionControls run={this.run()} step={this.step} playing={this.playback.isPlaying} actions={this.sweepActions}
+            exampleId={matchingExample(this.model, [{id: "example-1", ...MONOTONE_PARTITION_EXAMPLE_1}, {id: "example-2", ...MONOTONE_PARTITION_EXAMPLE_2}])}>
             {this.sideLists()}
         </MonotonePartitionControls>;
     }

@@ -6,6 +6,7 @@ import {CROSS_RATIO_EXAMPLES} from './crossRatioModel';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
+import {chooseOption, typeNumber} from './controlsTest';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -108,13 +109,13 @@ test('arrow keys step the selected handle one grid step; without a selection the
     expect(graph.model.centre).toEqual({x: 0, y: 4});
 });
 
-test('the example buttons and numeric fields edit the model', () => {
+test('the example select and the point list edit the model', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Harmonična četverka'})); });
+    chooseOption('Primer', 'Harmonična četverka');
     expect(graph.model).toEqual(CROSS_RATIO_EXAMPLES.harmonic);
     expect(line('original-ratio')).toContain('−1');
-    act(() => { fireEvent.change(screen.getByLabelText('Točka C: x'), {target: {value: '5'}}); });
+    typeNumber('Točka C, x', 5);
     expect(graph.model.params[2]).toBe(5);
     expect(graph.model.example).toBe('custom');
 });
@@ -187,7 +188,7 @@ test('the live region holds the status and ratios only; an arrow step announces 
 test('selecting a handle from the inspector moves the focus to the board so the arrow keys work', () => {
     const graph = new Observed();
     mount(graph);
-    const button = screen.getByRole('button', {name: 'Izberi točko B'});
+    const button = screen.getByRole('button', {name: 'Izberi: Točka B'});
     button.focus();
     act(() => { fireEvent.click(button); });
     expect(document.activeElement).toBe(container(graph));

@@ -1,5 +1,5 @@
 import React from 'react';
-import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
+import {act, cleanup, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {PolePolarGraph} from './PolePolarGraph';
 import {PascalGraph} from './PascalGraph';
@@ -9,6 +9,7 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage} from '../../localization';
+import {chooseOption, typeNumber} from './controlsTest';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -24,7 +25,6 @@ const mountGraph = <G extends PolePolarGraph | PascalGraph | CrossRatioGraph>(gr
 };
 const mount = (): PolePolarGraph => mountGraph(new PolePolarGraph());
 const apply = (graph: PolePolarGraph | PascalGraph | CrossRatioGraph, action: LessonAction) => act(() => { graph.getLessonCapabilities().apply(action); });
-const click = (button: HTMLElement) => act(() => { button.click(); });
 const shown = () => [...document.querySelectorAll('[data-projective-line]')].map(node => `${node.getAttribute('data-projective-line')}=${node.textContent}`);
 
 /** The model and the text after running `edit` on a fresh graph, with the graph unmounted again. */
@@ -40,28 +40,22 @@ const EXAMPLE_BUTTON: Record<typeof POLE_POLAR_EXAMPLE_IDS[number], string> = {
     default: 'Točka zunaj elipse', on: 'Točka na elipsi', inside: 'Točka znotraj elipse', infinity: 'Točka v neskončnosti', custom: 'Lastna postavitev',
 };
 const CONIC_BUTTON: Record<typeof POLE_POLAR_CONIC_IDS[number], string> = {ellipse: 'Elipsa', circle: 'Krožnica', parabola: 'Parabola', hyperbola: 'Hiperbola'};
-const inGroup = (group: string, name: string) => {
-    const root = screen.getByRole('group', {name: group});
-    const match = [...root.querySelectorAll('button')].find(button => button.textContent === name);
-    if (!match) throw new Error(`no button ${name} in ${group}`);
-    return match;
-};
-const typeInto = (label: string, value: number) => act(() => { fireEvent.change(screen.getByLabelText(label), {target: {value: String(value)}}); });
+const typeInto = (label: string, value: number) => typeNumber(label, value);
 
 test.each(POLE_POLAR_EXAMPLE_IDS.filter(id => id !== 'custom'))('pole-polar-load-example %s reaches the state of the example button', example => {
     // Start from a moved scene (a hyperbola) so that the action really replaces it.
-    const prepare = () => click(inGroup('Stožnica', 'Hiperbola'));
+    const prepare = () => chooseOption('Stožnica', 'Hiperbola');
     const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pole-polar-load-example', exampleId: example}); });
-    const viaControl = after(() => { prepare(); click(inGroup('Primer', EXAMPLE_BUTTON[example])); });
+    const viaControl = after(() => { prepare(); chooseOption('Primer', EXAMPLE_BUTTON[example]); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
 });
 
 test.each(POLE_POLAR_CONIC_IDS)('pole-polar-set-conic %s reaches the state of the conic button', conic => {
     // Start from another conic so that the action really changes the model (the ellipse is the default).
-    const prepare = () => click(inGroup('Stožnica', CONIC_BUTTON[conic === 'hyperbola' ? 'parabola' : 'hyperbola']));
+    const prepare = () => chooseOption('Stožnica', CONIC_BUTTON[conic === 'hyperbola' ? 'parabola' : 'hyperbola']);
     const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pole-polar-set-conic', conic}); });
-    const viaControl = after(() => { prepare(); click(inGroup('Stožnica', CONIC_BUTTON[conic])); });
+    const viaControl = after(() => { prepare(); chooseOption('Stožnica', CONIC_BUTTON[conic]); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     expect(viaAction.model.conic).toBe(conic);
@@ -69,9 +63,9 @@ test.each(POLE_POLAR_CONIC_IDS)('pole-polar-set-conic %s reaches the state of th
 
 test.each([[10, 0], [-7, 33], [50, -50]] as const)('pole-polar-place (%s, %s) reaches the state of the coordinate fields', (x, y) => {
     // Start from the inside example so that the action changes the model.
-    const prepare = () => click(inGroup('Primer', EXAMPLE_BUTTON.inside));
+    const prepare = () => chooseOption('Primer', EXAMPLE_BUTTON.inside);
     const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pole-polar-place', x, y}); });
-    const viaControl = after(() => { prepare(); typeInto('Točka P: x', x / 5); typeInto('Točka P: y', y / 5); });
+    const viaControl = after(() => { prepare(); typeInto('P, x', x / 5); typeInto('P, y', y / 5); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     expect(viaAction.model.p).toEqual({x, y});
@@ -79,19 +73,19 @@ test.each([[10, 0], [-7, 33], [50, -50]] as const)('pole-polar-place (%s, %s) re
 });
 
 test('pole-polar-set-direction reaches the state of the mode button and the direction fields, and back to the finite P', () => {
-    const prepare = () => click(inGroup('Primer', EXAMPLE_BUTTON.inside));
+    const prepare = () => chooseOption('Primer', EXAMPLE_BUTTON.inside);
     const viaAction = after(graph => { prepare(); apply(graph, {kind: 'projective', operation: 'pole-polar-set-direction', dx: 2, dy: -3}); });
-    const viaControl = after(() => { prepare(); click(inGroup('Vrsta točke P', 'P: v neskončnosti')); typeInto('Smer točke P: dx', 2); typeInto('Smer točke P: dy', -3); });
+    const viaControl = after(() => { prepare(); chooseOption('Vrsta točke P', 'P: v neskončnosti'); typeInto('P, dx', 2); typeInto('P, dy', -3); });
     expect(viaAction.model).toEqual(viaControl.model);
     expect(viaAction.text).toEqual(viaControl.text);
     expect(viaAction.model.ideal).toEqual({dx: 2, dy: -3});
 
     // Back to the finite P, starting from the point at infinity.
     const backAction = after(graph => {
-        click(inGroup('Primer', EXAMPLE_BUTTON.infinity));
+        chooseOption('Primer', EXAMPLE_BUTTON.infinity);
         apply(graph, {kind: 'projective', operation: 'pole-polar-set-direction'});
     });
-    const backControl = after(() => { click(inGroup('Primer', EXAMPLE_BUTTON.infinity)); click(inGroup('Vrsta točke P', 'P: končna točka')); });
+    const backControl = after(() => { chooseOption('Primer', EXAMPLE_BUTTON.infinity); chooseOption('Vrsta točke P', 'P: končna točka'); });
     expect(backAction.model).toEqual(backControl.model);
     expect(backAction.text).toEqual(backControl.text);
     expect(backAction.model.ideal).toBeUndefined();

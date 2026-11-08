@@ -9,6 +9,8 @@ import {toAffine} from '../../projective/homogeneous';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
+import {chooseOption} from './controlsTest';
+import {DIRECTION_TABLE_SIZE} from '../../projective/conicPencil';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -188,21 +190,24 @@ const eval0 = (graph: Observed, handle: number) => {
     return {x: Number(h[0]) / Number(h[2]), y: Number(h[1]) / Number(h[2])};
 };
 
-test('the example, conic and order buttons and the step buttons edit the model', () => {
+const selectValue = (label: string) => screen.getByLabelText<HTMLSelectElement>(label).value;
+const indexReadout = (handle: number) => document.querySelector(`[data-pascal-handle="${handle}"] [data-pascal-index]`)?.textContent;
+
+test('the example, conic and order selects and the step buttons edit the model', () => {
     const graph = new Observed();
     mount(graph);
     act(() => { graph.select(3); });
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pappusov izrek (par premic)'})); });
+    chooseOption('Primer', 'Pappusov izrek (par premic)');
     expect(graph.model).toEqual(PASCAL_EXAMPLES.pappus);
     expect(graph.selectedHandle).toBeUndefined();
-    expect(screen.getByRole('button', {name: 'Pappusov izrek (par premic)'}).getAttribute('aria-pressed')).toBe('true');
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Običajni (1 2 3 4 5 6)'})); });
+    expect(selectValue('Primer')).toBe('pappus');
+    chooseOption('Vrstni red oglišč', 'Običajni (1 2 3 4 5 6)');
     expect(graph.model.order).toEqual(PASCAL_ORDERS.natural);
     expect(graph.model.example).toBe('custom');
-    expect(screen.getByRole('button', {name: 'Običajni (1 2 3 4 5 6)'}).getAttribute('aria-pressed')).toBe('true');
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Zvezda (1 3 5 2 4 6)'})); });
+    expect(selectValue('Vrstni red oglišč')).toBe('natural');
+    chooseOption('Vrstni red oglišč', 'Zvezda (1 3 5 2 4 6)');
     expect(graph.model.order).toEqual(PASCAL_ORDERS.star);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Hiperbola'})); });
+    chooseOption('Stožnica', 'Hiperbola');
     expect(graph.model.conic).toBe('hyperbola');
     expect(graph.model.indices).toEqual(PASCAL_DEFAULT_INDICES.hyperbola);
     const before = graph.model.indices[0];
@@ -210,6 +215,18 @@ test('the example, conic and order buttons and the step buttons edit the model',
     expect(graph.model.indices[0]).not.toBe(before);
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Točka A: prejšnji položaj'})); });
     expect(graph.model.indices[0]).toBe(before);
+});
+
+test('each step button has a visible readout of the table index of the handle, so a press can be read back', () => {
+    const graph = new Observed();
+    mount(graph);
+    expect(indexReadout(0)).toBe(`Položaj ${graph.model.indices[0] + 1} od ${DIRECTION_TABLE_SIZE}`);
+    const before = graph.model.indices[0];
+    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Točka A: naslednji položaj'})); });
+    expect(graph.model.indices[0]).not.toBe(before);
+    expect(indexReadout(0)).toBe(`Položaj ${graph.model.indices[0] + 1} od ${DIRECTION_TABLE_SIZE}`);
+    expect(document.querySelector('[data-pascal-handle="0"] [data-pascal-index]')?.getAttribute('data-pascal-index')).toBe(String(graph.model.indices[0]));
+    expect(indexReadout(1)).toBe(`Položaj ${graph.model.indices[1] + 1} od ${DIRECTION_TABLE_SIZE}`);
 });
 
 test('switching the conic leaves no stale objects and renames the points', () => {
@@ -322,7 +339,7 @@ test('the live region holds the state sentence only; an arrow step announces jus
 test('selecting a point from the inspector moves the focus to the board so the arrow keys work', () => {
     const graph = new Observed();
     mount(graph);
-    const button = screen.getByRole('button', {name: 'Izberi točko C'});
+    const button = screen.getByRole('button', {name: 'Izberi: C'});
     button.focus();
     act(() => { fireEvent.click(button); });
     expect(document.activeElement).toBe(container(graph));
