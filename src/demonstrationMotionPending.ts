@@ -10,7 +10,6 @@ const NOT_CAPTURED = 'The lesson-guided clip is not captured yet (docs/specs/les
  */
 export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly reason: string}[] = [
     {id: 'linear-map', reason: NOT_CAPTURED},
-    {id: 'hull-robustness', reason: NOT_CAPTURED},
     {id: 'ear-clipping', reason: NOT_CAPTURED},
     {id: 'projective-pascal', reason: NOT_CAPTURED},
 ];
