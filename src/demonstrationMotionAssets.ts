@@ -98,6 +98,7 @@ import motion_segment_intersections from './images/demonstrations/catalog/segmen
 import motion_monotone_partition from './images/demonstrations/catalog/monotone-partition.webm?no-inline';
 import motion_monotone_triangulation from './images/demonstrations/catalog/monotone-triangulation.webm?no-inline';
 import motion_conic_focal from './images/demonstrations/catalog/conic-focal.webm?no-inline';
+import motion_fortune from './images/demonstrations/catalog/fortune.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -199,4 +200,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'monotone-partition': {src: motion_monotone_partition, type: 'video/webm', duration: 4},
     'monotone-triangulation': {src: motion_monotone_triangulation, type: 'video/webm', duration: 4},
     'conic-focal': {src: motion_conic_focal, type: 'video/webm', duration: 4},
+    'fortune': {src: motion_fortune, type: 'video/webm', duration: 4},
 };

@@ -27,6 +27,5 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'ear-clipping', reason: NOT_CAPTURED},
     {id: 'voronoi', reason: NOT_CAPTURED},
     {id: 'voronoi-degenerate', reason: NOT_CAPTURED},
-    {id: 'fortune', reason: NOT_CAPTURED},
     {id: 'projective-pascal', reason: NOT_CAPTURED},
 ];
