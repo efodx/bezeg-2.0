@@ -27,7 +27,7 @@ sl-desk live stable during play true pressed true
 sl-desk tab seq ["INPUT: outline none 0px shadow false","INPUT:collision-method outline solid 3px shadow false","INPUT:collision-overlay outline solid 3px shadow false","BUTTON:Predvajaj outline solid 3px shadow false","BUTTON:Korak outline solid 3px shadow false","BUTTON:Nova razporeditev outline solid 3px shadow false","MJX-CONTAINER:H(P) outline auto 1px shadow false","MJX-CONTAINER:H(P) outline auto 1px shadow false","MJX-CONTAINER:P outline auto 1px shadow false"]
 sl-desk arrow method -> sweep
 sl-desk arrow stage -> hulls
-sl-desk bezier links 0 
+sl-desk bezier links 0
 sl-desk errors []
 sl-mob raw true
 sl-mob playground count 1
@@ -43,7 +43,7 @@ sl-mob live sweep: 1932 objektov, Pometanje in obrezovanje: 0 preizkusov očrtan
 sl-mob live stable during play true pressed false
 sl-mob arrow method -> sweep
 sl-mob arrow stage -> hulls
-sl-mob bezier links 0 
+sl-mob bezier links 0
 sl-mob errors []
 en-desk raw true
 en-desk playground count 1
@@ -60,7 +60,7 @@ en-desk live stable during play true pressed true
 en-desk tab seq ["INPUT: outline none 0px shadow false","INPUT:collision-method outline solid 3px shadow false","INPUT:collision-overlay outline solid 3px shadow false","BUTTON:Play outline solid 3px shadow false","BUTTON:Step outline solid 3px shadow false","BUTTON:New arrangement outline solid 3px shadow false","MJX-CONTAINER:H(P) outline auto 1px shadow false","MJX-CONTAINER:P outline auto 1px shadow false","MJX-CONTAINER:a+b outline auto 1px shadow false"]
 en-desk arrow method -> sweep
 en-desk arrow stage -> hulls
-en-desk bezier links 0 
+en-desk bezier links 0
 en-desk errors []
 en-mob raw true
 en-mob playground count 1
@@ -76,5 +76,5 @@ en-mob live sweep: 1,932 objects, Sweep and prune: 0 bounding box tests per step
 en-mob live stable during play true pressed false
 en-mob arrow method -> sweep
 en-mob arrow stage -> hulls
-en-mob bezier links 0 
+en-mob bezier links 0
 en-mob errors []
