@@ -63,7 +63,7 @@ Rows take the lowest CRF of 10, 14, ... 34 that fits 300 KiB; the choice is reco
 
 ## Oversized or unreadable clips
 
-The contract (`docs/specs/continuous-motion-previews.md`, Budgets) gives the order when a clip exceeds 300 KiB or the search lands on a high CRF and the mathematics looks unreadable: first fewer moving labels (the existing annotation policy), then a smaller motion amplitude (shorten the `path`), and only then encoder settings. Do not raise the 300 KiB ceiling. If it still exceeds, keep the poster, record the limitation and report it.
+The contract (`docs/specs/continuous-motion-previews.md`, Budgets) gives the order when a clip exceeds 300 KiB or the search lands on a high CRF and the mathematics looks unreadable: first fewer moving labels (the existing annotation policy), then a smaller motion amplitude (shorten the `path`), and only then encoder settings. Do not raise the 300 KiB ceiling. If it still exceeds, keep the poster, record the limitation and report it. A row's encode tries CRF 10, 14, ..., 46 and keeps the first that fits; above CRF 34, view one full-size frame for legibility before accepting the clip (linear-map fits at 46 with clean line art).
 
 ## Checks and what to do when one fails
 
@@ -86,7 +86,7 @@ Every message names its row id. Both the state check and the pixel check are rep
 | `only N distinct frames, need 24` | The input changes too little to see; widen the path (discrete rows need one image per distinct press count). |
 | `point ... left the fixed camera` on a `fineGrid` row, with coordinates hundreds of times too large | The graph analyses grid coordinates as board units, so the rescale moves its overlays. Fix the graph to convert with `gridToBoard` (app code, its own commit); do not drop `fineGrid`. |
 | `first frame differs from recipe poster` | The poster differs from the recipe start scene; recapture it with `just clip <id>`. |
-| `no CRF up to 34 fits 300 KiB` | See "Oversized or unreadable clips". |
+| `no CRF up to 46 fits 300 KiB` | See "Oversized or unreadable clips". |
 
 ## What the checks cover
 

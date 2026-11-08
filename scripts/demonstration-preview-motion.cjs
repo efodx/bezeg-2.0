@@ -1868,7 +1868,7 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
         // A row has no spec, so it takes the lowest CRF that fits the 300 KiB ceiling (dense scenes need more compression); the choice is recorded.
         let rowCrf;
         let encoded;
-        if(row){const frames=fs.readdirSync(directory).filter(name=>/^\d+\.png$/.test(name)).sort().map(name=>fs.readFileSync(path.join(directory,name)));const sample=stillColourPixel(frames,backgroundPixel);for(const crf of [10,14,18,22,26,30,34]){try{encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,crf,sample);rowCrf=crf;break;}catch(error){if(!/^Motion over 300KiB/.test(error.message))throw error;}}assert.ok(encoded,id+': no CRF up to 34 fits 300 KiB; the scene is too busy for a clip');}
+        if(row){const frames=fs.readdirSync(directory).filter(name=>/^\d+\.png$/.test(name)).sort().map(name=>fs.readFileSync(path.join(directory,name)));const sample=stillColourPixel(frames,backgroundPixel);for(const crf of [10,14,18,22,26,30,34,38,42,46]){try{encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,crf,sample);rowCrf=crf;break;}catch(error){if(!/^Motion over 300KiB/.test(error.message))throw error;}}assert.ok(encoded,id+': no CRF up to 46 fits 300 KiB; the scene is too busy for a clip');}
         else encoded=encode(directory,path.join(output,id+'.webm'),sampleRate,spec?.crf,spec?.backgroundSample);
         const mode=row?.motion ?? spec?.mode ?? (id==='affine'?'supported-rotation-steps':id.endsWith('elevation')?'exact-degree-elevation':'discrete-exact-steps');
         motions.push({id,...encoded,frameCount,sampleRate,camera:fixedBox,mode,
