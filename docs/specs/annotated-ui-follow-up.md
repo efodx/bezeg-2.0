@@ -9,7 +9,7 @@ Planned 2026-11-08 from ten owner annotations on the hosted homepage and the Bé
 | [01 Chapter links](../tasks/annotated-ui-follow-up/01-chapter-links.md) | 1, 4, 7 | The Learn return and prerequisite links have a clear visual hierarchy. Section headings lose the ¶ and remain directly shareable. |
 | [02 Inline math](../tasks/annotated-ui-follow-up/02-inline-math.md) | 3, 5, 8 | Ordinary inline notation reads with the sentence, without tiny scrollbars. Wide expressions are fully readable even in a narrow, enlarged layout. |
 | [03 First curve](../tasks/annotated-ui-follow-up/03-first-curve.md) | 2 | A new learner can bend a visible starter curve immediately, then draw their own. Existing drawings and the keyboard editing path still work. |
-| [04 Overlay checkboxes](../tasks/annotated-ui-follow-up/04-overlay-checkboxes.md) | 6 | The four overlay choices have aligned labels, clear checked states, and comfortable keyboard and touch targets. |
+| [04 Overlay checkboxes](../tasks/annotated-ui-follow-up/04-overlay-checkboxes.md) | 6 | The four overlay choices have aligned labels, clear checked states, and comfortable keyboard and touch targets. Comparable checkboxes are reviewed and confirmed matches are accounted for. |
 | [05 Homepage clip playback](../tasks/annotated-ui-follow-up/05-homepage-clip-playback.md) | 9 | Switching the featured demonstration starts its existing animation under the conditions in the task. |
 | [06 Homepage elderflower](../tasks/annotated-ui-follow-up/06-homepage-elderflower.md) | 10 | The sprig reads clearly as a decorative accent at desktop, tablet and phone widths and sits clear of content and controls. |
 
