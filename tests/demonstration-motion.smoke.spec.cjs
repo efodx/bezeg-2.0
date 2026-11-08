@@ -16,13 +16,14 @@ async function openEnglish(page, pathname = '/bezeg-2.0/demonstrations') {
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
     await page.goto(pathname, {waitUntil: 'domcontentloaded'});
 }
-async function playing(entry, hover = true) {
+async function playing(entry, hover = true, {loop = true} = {}) {
     if (hover) await entry.locator('.demonstration-preview-media').hover();
     const video = entry.locator('video[src]');
     await expect(video).toHaveCount(1);
     await expect.poll(() => video.evaluate(v => ({ready:v.readyState >= 2, playing:!v.paused, width:v.videoWidth, height:v.videoHeight})))
         .toEqual({ready:true, playing:true, width:720, height:440});
-    expect(await video.evaluate(v => v.muted && v.playsInline && v.loop && !v.controls)).toBe(true);
+    expect(await video.evaluate(v => v.muted && v.playsInline && !v.controls)).toBe(true);
+    expect(await video.evaluate(v => v.loop)).toBe(loop);
     await expect(video).toHaveAttribute('aria-hidden', 'true');
     return video;
 }
@@ -201,13 +202,21 @@ test('carousel shares the catalog clip and disposes it when its slide changes', 
     const opening = page.locator('.demonstrations-opening');
     await opening.hover();
     const selected = opening.locator('.demonstrations-opening-image[data-selected="true"]');
-    expect(await (await playing(selected)).getAttribute('src')).toBe(source);
+    const initial = await playing(selected);
+    expect(await initial.getAttribute('src')).toBe(source);
+    const initialElement = await initial.elementHandle();
     await expect(opening.locator('.demonstration-preview-control')).toHaveCount(0);
     const choices = opening.locator('.demonstrations-opening-choice');
     await choices.nth(1).click();
-    await expect(opening.locator('video[src]')).toHaveCount(0);
+    await expect.poll(() => initialElement.evaluate(v => v.paused && !v.hasAttribute('src'))).toBe(true);
+    const next = await playing(selected, false, {loop: false});
+    expect(await next.getAttribute('src')).not.toBe(source);
+    await expect(opening.locator('video[src]')).toHaveCount(1);
+
     await choices.first().click();
-    await playing(opening.locator('.demonstrations-opening-image[data-selected="true"]'));
+    const returned = await playing(selected, true, {loop: false});
+    expect(await returned.getAttribute('src')).toBe(source);
+    await expect.poll(() => returned.evaluate(v => v.loop && !v.paused), {timeout: 8000}).toBe(true);
 });
 
 test.describe('touch viewport playback', () => {
