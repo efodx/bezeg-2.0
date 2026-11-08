@@ -113,6 +113,7 @@ import motion_point_in_polygon from './images/demonstrations/catalog/point-in-po
 import motion_bspline_nurbs from './images/demonstrations/catalog/bspline-nurbs.webm?no-inline';
 import motion_bspline_insertion from './images/demonstrations/catalog/bspline-insertion.webm?no-inline';
 import motion_bezier_clipping from './images/demonstrations/catalog/bezier-clipping.webm?no-inline';
+import motion_root_finding from './images/demonstrations/catalog/root-finding.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -229,4 +230,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'bspline-nurbs': {src: motion_bspline_nurbs, type: 'video/webm', duration: 4},
     'bspline-insertion': {src: motion_bspline_insertion, type: 'video/webm', duration: 4},
     'bezier-clipping': {src: motion_bezier_clipping, type: 'video/webm', duration: 4},
+    'root-finding': {src: motion_root_finding, type: 'video/webm', duration: 4},
 };

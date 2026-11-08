@@ -45,4 +45,13 @@ module.exports = [
         lessonQuote: 'Povleci konico gor in dol (ali uporabi tipki ↑ in ↓) in opazuj stolpce \\(a_1\\) in \\(a_3\\).',
         discreteReason: null,
     },
+    {
+        id: 'root-finding',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'trace-step', label: 'Naslednji korak', step: 1},
+        // The poster is Newton's method on x^2 - 2 from x0 = 1 after one press (step 1: the first tangent, x1 = 3/2). Each press reveals the next tangent (x2 = 17/12, x3 = 577/408); the board text "korak N, napaka E" is the readout. Changing x0 resets the step (rootFindingModel.ts), so the clip only steps, and each checkpoint is a fresh poster scene (handler 10).
+        path: [0, 1, 2, 1, 0],
+        lessonQuote: 'Pritisni Naslednji korak in opazuj drugo tangento.',
+        discreteReason: 'A Newton step is discrete: each press reveals one more tangent, so the iterates cannot move smoothly between steps.',
+    },
 ];

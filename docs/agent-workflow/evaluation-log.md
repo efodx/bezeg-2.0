@@ -2413,3 +2413,11 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Dispatch: 0 implementation workers (handler); one `bezeg-smoke` (Haiku medium) on two real routes.
 - Outcome: number fields 44 px on coarse pointers, long boolean labels wrap, Display grid bounded; the fixture's unbreakable label was lengthened to assert the wrap. The 200% select clipping is real (screenshot) and stays as a narrowed `test.fail`; the whole-test `test.fail` at 200% is gone.
 - Checks/gaps: `just controls-fixture` (failed before the CSS change via the 5c expected failures, passes after), lint, build. Gap: select clipping at 200% text.
+
+## 2026-11-08 — catalog clips: handler 9 clip reviews and root-finding (clips stream, handler 10)
+
+- Class/size: review plus shared-check change / S. Source: [clips stream](../tasks/feature-streams/clips.md) steps 4–5, [handoff 9](../reviews/feature-streams/clips/handler-handoff-9.md).
+- Dispatch: two `bezeg-reviewer` on three clips (bspline-nurbs, bspline-insertion, bezier-clipping) with handler-made contact sheets (Haiku medium visual, Sonnet medium mathematics plus the `button-count` diff). The readout change and the row stayed with the handler. Brief `handoff-v13`.
+- Outcome: no defects. Both reviewers each raised one false finding, refuted by the handler: Haiku took the inspector point at t = 1/16 for the weighted point (bspline-nurbs); Sonnet read the default quadratic example instead of the poster's cubic and called the insertion row's "at most 3 presses" wrong. root-finding left the poster-only list as a `trace-step` row; the readout parser was seen failing first.
+- Lesson: name the poster's example (recipe field) in a mathematical review brief; reviewers default to the graph's default example.
+- Usage (as reported): Haiku 28.3k, Sonnet 35.8k.
