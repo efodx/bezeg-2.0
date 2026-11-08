@@ -322,21 +322,22 @@ test('the live region is silent while Play ticks and announces the status once a
     expect(liveText()).toContain(`Korak ${graph.run().length} od ${graph.run().length}`);
 });
 
-test('a step written outside Next and Play after reaching done restarts a working controller', () => {
+test('Next step to the end and Play to the end give the same nonempty final drawn state and status', () => {
+    const byNext = new Observed();
+    const first = mount(byNext);
+    for (let i = 0; i < byNext.run().length; i++) click('next-step');
+    const expected = {step: byNext.step, status: status(), curves: drawnCurves(byNext)};
+    first.unmount();
+    expect(expected.step).toBe(byNext.run().length - 1);
+    expect(byNext.run().view(expected.step).hull?.length).toBeGreaterThan(2);
+
     const frames = manualScheduler();
-    const graph = new Observed({}, frames.scheduler);
-    mount(graph);
+    const byPlay = new Observed({}, frames.scheduler);
+    mount(byPlay);
     click('play-pause');
-    for (let ran = true, i = 0; ran && i < graph.run().length + 5; i++) act(() => { ran = frames.frame(HULL_TRACE_STEP_INTERVAL_MS); });
-    expect(graph.step).toBe(graph.run().length - 1);
-    act(() => { graph.setState({step: 2} as object); });
-    expect([graph.step, graph.isPlaying]).toEqual([2, false]);
-    click('next-step');
-    expect(graph.step).toBe(3);
-    click('play-pause');
-    expect(graph.isPlaying).toBe(true);
-    tick(frames, 2);
-    expect(graph.step).toBe(5);
+    tick(frames, byPlay.run().length + 5);
+    expect({step: byPlay.step, status: status(), curves: drawnCurves(byPlay)}).toEqual(expected);
+    expect(byPlay.isPlaying).toBe(false);
 });
 
 test('the hull trace offers no points/polygon choice and shows a restored polygon model as points', () => {

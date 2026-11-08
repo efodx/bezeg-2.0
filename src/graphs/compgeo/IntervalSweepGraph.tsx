@@ -1,12 +1,12 @@
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import {gridToBoard, intervalRow, intervalsOf, PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_INTERVALS} from "../../compgeo/sweep/limits";
 import type {Interval} from "../../compgeo/sweep/intervalSweep";
 import type {LessonAction} from "../../learning/model";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import {TracePlayback} from "./tracePlayback";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
@@ -21,8 +21,6 @@ import {parseHullStep} from "./hullTraceRun";
 
 /** Time between two playback steps (one step per interval, never more). */
 export const INTERVAL_SWEEP_STEP_INTERVAL_MS = 400;
-/** The controller's documented step limit: far above the longest trace (4n + n(n-1)/2 + 1 = 86 events for 10 intervals). */
-const MAX_PLAYBACK_STEPS = 100000;
 
 export type IntervalSweepOverlayId = "sweep";
 
@@ -43,9 +41,8 @@ export interface IntervalSweepGraphState extends PointSetGraphState {
  * The side lists (event queue, status) are rendered by `sideLists()`; hovering or focusing a status entry highlights its interval.
  */
 export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
-    private controller: IterationController;
-    private controllerDisposed = false;
-    private advancing = false;
+    /** Playback policy: scheduling, advancement and end, reset and lifecycle (the step index stays in the scene store). */
+    private playback: TracePlayback;
     private runMemo?: {points: PointSetModel["points"]; run: IntervalRun};
     private inputsMemo?: {step: number; hovered: number | undefined};
     /** The interval whose status entry is hovered or focused; highlighted on the board. Never saved. */
@@ -55,17 +52,14 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super({coordinateLimit: SWEEP_COORD_LIMIT, intervalLimit: SWEEP_MAX_INTERVALS, ...options});
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.advance(),
-            stepIntervalMs: INTERVAL_SWEEP_STEP_INTERVAL_MS,
-            maxIterations: MAX_PLAYBACK_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+        this.playback = new TracePlayback({
+            runLength: () => this.run().length,
+            step: () => this.step,
+            writeStep: step => this.setState(this.patch({step})),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => INTERVAL_SWEEP_STEP_INTERVAL_MS,
+        }, scheduler);
     }
 
     // ---- Reads ---------------------------------------------------------------------------------------------------
@@ -77,7 +71,7 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
     }
 
     get isPlaying(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     /** The intervals handed to the trace; a subclass may override it (tests do, to reach refusals the model prevents). */
@@ -117,61 +111,27 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
             return this.patch({...patch, step: 0});
         };
         super.setState(wrapped, callback);
-        // The controller does not exist yet while the base class is being constructed.
-        if (!this.controller) return;
-        if (this.state.model !== before) {
-            this.controller.reset(namedStep ? this.step : 0);
-            this.requestRender();
-        } else if (namedStep && !this.advancing) {
-            // A step written outside advance() (a restore, a lesson action) must not leave a stale "completed" controller.
-            this.controller.reset(this.step);
-            this.requestRender();
-        }
+        // The playback does not exist yet while the base class is being constructed.
+        this.playback?.settle(this.state.model !== before, namedStep);
     }
 
     // ---- Playback ------------------------------------------------------------------------------------------------
 
-    private get atEnd(): boolean {
-        return this.step >= this.run().length - 1;
-    }
-
-    /** The one transition of Next step and of every playback tick. */
-    private advance(): IterationOutcome {
-        const run = this.run();
-        const next = Math.min(this.step + 1, Math.max(run.length - 1, 0));
-        this.advancing = true;
-        try {
-            this.setState(this.patch({step: next}));
-        } finally {
-            this.advancing = false;
-        }
-        this.requestRender();
-        return next >= run.length - 1 ? "complete" : "continue";
-    }
-
     nextStep(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
+        this.playback.nextStep();
     }
 
     play(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to step 0; playback stops. */
     resetTrace(): void {
-        this.controller.reset(0);
-        this.setState(this.patch({step: 0}));
-        this.requestRender();
+        this.playback.resetTrace();
     }
 
     /**
@@ -200,19 +160,14 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
     }
 
     override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount(): void {
         this.hovered = undefined;
         this.hoveredAt = undefined;
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         super.unmount();
     }
 
@@ -225,12 +180,12 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
     }
 
     protected override disposeFigureScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.syncReplacedScene();
     }
 
@@ -261,8 +216,7 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
         const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
         const step = runIntervalSweep(intervalsOf(model)).clamp(stored ?? 0);
         this.setState(this.patch({model, step}));
-        this.controller.reset(step);
-        this.requestRender();
+        this.playback.restoreTo(step);
     }
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
@@ -354,7 +308,7 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
 
     private readonly sweepActions: IntervalSweepControlActions = {
         nextStep: () => this.nextStep(),
-        playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
+        playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
     };
 
@@ -396,7 +350,7 @@ export class IntervalSweepGraph extends PointSetGraph<IntervalSweepOverlayId> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <IntervalSweepControls run={this.run()} step={this.step} playing={this.controller.isPlaying()}
+            <IntervalSweepControls run={this.run()} step={this.step} playing={this.playback.isPlaying}
                                    scale={2 ** this.model.gridStepExponent} actions={this.sweepActions}>
                 {this.sideLists()}
             </IntervalSweepControls>

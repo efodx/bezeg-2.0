@@ -1,10 +1,11 @@
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
-import type {LessonAction, LessonAnimationCommand} from "../../learning/model";
+import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
+import {registerTraceCommands} from "./traceLessonActions";
+import {TracePlayback} from "./tracePlayback";
 import {BaseGraphState} from "../base/BaseGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -20,16 +21,12 @@ import {
 export const HULL_TRACE_STEP_INTERVAL_MS = 400;
 /** The slow edge test has hundreds of steps even for sample 1 (see its test for the count); a shorter tick keeps its Play watchable. */
 export const HULL_TRACE_SLOW_STEP_INTERVAL_MS = 50;
-/** The controller's documented step limit: far above the longest trace (1562 events for 40 points). */
-const MAX_PLAYBACK_STEPS = 100000;
 
 /** Sample 1 of the convexity lessons, in input order: the hull is (-1,3), (0,0), (4,0), (5,3), (2,5) for every algorithm. */
 export const HULL_TRACE_SAMPLE_1: PointSetModel = {
     mode: "points", closed: false, gridStepExponent: 0,
     points: [[2, 2], [4, 0], [0, 0], [5, 3], [2, 5], [-1, 3], [3, 1], [2, 0], [1, 1]].map(([x, y]) => ({x, y})),
 };
-
-const HULL_LESSON_COMMANDS: readonly LessonAnimationCommand[] = ["next-step", "reset", "play", "pause", "replay"];
 
 export type HullTraceOverlayId = "trace" | "hull";
 
@@ -51,41 +48,27 @@ export interface HullTraceGraphState extends PointSetGraphState {
  * trace overlay depends on the step, which is not part of the model or of the shown set.
  */
 export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
-    private controller: IterationController;
-    private controllerDisposed = false;
-    private controllerInterval = HULL_TRACE_STEP_INTERVAL_MS;
-    private advancing = false;
+    /** Playback policy: scheduling, advancement and end, reset and lifecycle (the step index stays in the scene store). */
+    private playback: TracePlayback;
     private runMemo?: {points: PointSetModel["points"]; algorithm: HullAlgorithm; run: HullRun};
     private totalsMemo?: {points: PointSetModel["points"]; totals: Readonly<Record<HullAlgorithm, number>>};
     private inputsMemo?: {algorithm: HullAlgorithm; step: number};
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super(options);
-        this.controller = this.createController();
+        this.playback = new TracePlayback({
+            runLength: () => this.run().length,
+            step: () => this.step,
+            writeStep: step => this.setState(this.patch({step})),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => this.intervalFor(this.algorithm),
+        }, scheduler);
     }
 
     /** The playback tick of an algorithm: the slow edge test ticks faster, every other trace keeps the default. */
     private intervalFor(algorithm: HullAlgorithm): number {
         return algorithm === "slow-edge-test" ? HULL_TRACE_SLOW_STEP_INTERVAL_MS : HULL_TRACE_STEP_INTERVAL_MS;
-    }
-
-    /** The controller's interval is fixed at construction, so a paused controller of another tick is replaced before it runs. */
-    private syncControllerInterval(): void {
-        // A disposed (unmounted) controller stays disposed: mount() creates the next one with the current interval.
-        if (this.controllerDisposed || this.controllerInterval === this.intervalFor(this.algorithm)) return;
-        this.controller.dispose();
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        this.controllerInterval = this.intervalFor(this.algorithm);
-        return new IterationController({
-            transition: () => this.advance(),
-            stepIntervalMs: this.controllerInterval,
-            maxIterations: MAX_PLAYBACK_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
     }
 
     // ---- Reads ---------------------------------------------------------------------------------------------------
@@ -101,7 +84,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     }
 
     get isPlaying(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     /** The trace of the current points and algorithm; recomputed only when either changes. */
@@ -148,70 +131,34 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
             return this.patch({...patch, step: 0});
         };
         super.setState(wrapped, callback);
-        // The controller does not exist yet while the base class is being constructed.
-        if (!this.controller) return;
-        if (this.state.model !== before) {
-            this.controller.reset(namedStep ? this.step : 0);
-            this.requestRender();
-        } else if (namedStep && !this.advancing) {
-            // A step written outside advance() (a restore, a lesson action) must not leave a stale "completed" controller.
-            this.controller.reset(this.step);
-            this.requestRender();
-        }
+        // The playback does not exist yet while the base class is being constructed.
+        this.playback?.settle(this.state.model !== before, namedStep);
     }
 
     setAlgorithm(algorithm: HullAlgorithm): void {
         if (parseHullAlgorithm(algorithm) === undefined) return;
-        this.controller.reset(0);
+        this.playback.stop();
         this.setState(this.patch({algorithm, step: 0}));
         this.requestRender();
     }
 
     // ---- Playback ------------------------------------------------------------------------------------------------
 
-    private get atEnd(): boolean {
-        return this.step >= this.run().length - 1;
-    }
-
-    /** The one transition of Next step and of every playback tick. */
-    private advance(): IterationOutcome {
-        const run = this.run();
-        const next = Math.min(this.step + 1, Math.max(run.length - 1, 0));
-        this.advancing = true;
-        try {
-            this.setState(this.patch({step: next}));
-        } finally {
-            this.advancing = false;
-        }
-        this.requestRender();
-        return next >= run.length - 1 ? "complete" : "continue";
-    }
-
     nextStep(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.syncControllerInterval();
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
+        this.playback.nextStep();
     }
 
     play(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.syncControllerInterval();
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to step 0; playback stops. */
     resetTrace(): void {
-        this.controller.reset(0);
-        this.setState(this.patch({step: 0}));
-        this.requestRender();
+        this.playback.resetTrace();
     }
 
     /**
@@ -232,34 +179,16 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
 
     protected override registerLessonActions(registry: LessonActionRegistry): void {
         super.registerLessonActions(registry);
-        registry.onDiscriminated("animation", "algorithm-trace", action => this.lessonCommand(action.command), {
-            supports: action => HULL_LESSON_COMMANDS.includes(action.command),
-        });
-    }
-
-    private lessonCommand(command: LessonAnimationCommand): void {
-        if (command === "next-step") this.nextStep();
-        else if (command === "play") this.play();
-        else if (command === "pause") this.pause();
-        else if (command === "reset") this.resetTrace();
-        else if (command === "replay") {
-            this.resetTrace();
-            this.play();
-        }
+        registerTraceCommands(registry, this);
     }
 
     override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount(): void {
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         super.unmount();
     }
 
@@ -272,12 +201,12 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     }
 
     protected override disposeFigureScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.syncReplacedScene();
     }
 
@@ -309,8 +238,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
         const step = runHullTrace(algorithm, model.points).clamp(stored ?? 0);
         this.setState(this.patch({model, algorithm, step}));
-        this.controller.reset(step);
-        this.requestRender();
+        this.playback.restoreTo(step);
     }
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
@@ -375,7 +303,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     protected readonly hullActions: HullTraceControlActions = {
         setAlgorithm: algorithm => this.setAlgorithm(algorithm),
         nextStep: () => this.nextStep(),
-        playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
+        playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
     };
 
@@ -387,7 +315,7 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     protected hullControls(): React.ReactNode {
         const run = this.run();
         const step = this.step;
-        return <HullTraceControls algorithm={this.algorithm} step={step} length={run.length} playing={this.controller.isPlaying()}
+        return <HullTraceControls algorithm={this.algorithm} step={step} length={run.length} playing={this.playback.isPlaying}
                                   event={run.event(step)} points={this.model.points} gridStepExponent={this.model.gridStepExponent}
                                   totals={run.view(step).done ? this.totals() : undefined} actions={this.hullActions}/>;
     }
