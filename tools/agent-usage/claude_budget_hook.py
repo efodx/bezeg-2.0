@@ -4,7 +4,8 @@ Claude Code runs this after every tool call, in workers too. The hook reads the 
 request input from its transcript and prints a message as additional context, so a worker gets
 HANDOFF without the handler spending a turn on it. It prints nothing below the threshold or when
 telemetry is missing, and repeats on each call past a threshold, so a missed signal costs one
-tool call. Flags override thresholds for live tests.
+tool call. Flags override thresholds for live tests. BEZEG_HANDLER_BUDGET_SCALE (a positive number,
+set per worktree in .claude/settings.local.json under "env") scales the handler's default thresholds.
 """
 import argparse, json, os, sys
 from pathlib import Path
@@ -57,13 +58,23 @@ def worker_message(tokens, model, args):
     return None
 
 
+def handler_scale():
+    try:
+        scale = float(os.environ.get('BEZEG_HANDLER_BUDGET_SCALE') or '1')
+    except ValueError:
+        return 1.0
+    return scale if scale > 0 else 1.0
+
+
 def handler_message(tokens, model, args):
-    hard = args.hard or (215000 if 'opus' in model else 190000)
+    scale = handler_scale()
+    hard = args.hard or round((215000 if 'opus' in model else 190000) * scale)
+    soft = args.soft or round(175000 * scale)
     if tokens >= hard:
         return (f'BUDGET HANDOFF: handler input {tokens:,} reached {hard:,}. Send HANDOFF to running workers, collect '
                 'their notes, and hand off now (docs/agent-workflow.md#handler-context-budget-claude).')
-    if tokens >= args.soft:
-        return (f'BUDGET SOFT: handler input {tokens:,} passed {args.soft:,}. Start no new step or worker; finish, '
+    if tokens >= soft:
+        return (f'BUDGET SOFT: handler input {tokens:,} passed {soft:,}. Start no new step or worker; finish, '
                 'integrate and verify, then hand off (docs/agent-workflow.md#handler-context-budget-claude).')
     return None
 
@@ -71,7 +82,7 @@ def handler_message(tokens, model, args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--worker-until', type=int)
-    parser.add_argument('--soft', type=int, default=175000)
+    parser.add_argument('--soft', type=int)
     parser.add_argument('--hard', type=int)
     args = parser.parse_args()
     try:

@@ -1,5 +1,5 @@
 """Run with: python tools/agent-usage/claude_budget_hook_test.py"""
-import json, subprocess, sys, tempfile, unittest
+import json, os, subprocess, sys, tempfile, unittest
 from pathlib import Path
 
 HOOK = Path(__file__).with_name('claude_budget_hook.py')
@@ -18,12 +18,13 @@ class Hook(unittest.TestCase):
         self.worker = Path(self.dir.name) / 'session' / 'subagents' / 'agent-abc.jsonl'
         self.worker.parent.mkdir(parents=True)
 
-    def run_hook(self, agent=None, flags=()):
+    def run_hook(self, agent=None, flags=(), env=None):
         payload = {'transcript_path': str(self.main)}
         if agent:
             payload['agent_id'] = agent
         result = subprocess.run([sys.executable, str(HOOK), *flags], input=json.dumps(payload),
-                                capture_output=True, text=True, check=True)
+                                capture_output=True, text=True, check=True,
+                                env={**os.environ, 'BEZEG_HANDLER_BUDGET_SCALE': '', **(env or {})})
         if not result.stdout:
             return None
         return json.loads(result.stdout)['hookSpecificOutput']['additionalContext']
@@ -50,6 +51,26 @@ class Hook(unittest.TestCase):
         self.assertIn('BUDGET HANDOFF', self.run_hook())
         self.main.write_text(assistant(190000) + '\n')
         self.assertIn('BUDGET HANDOFF', self.run_hook())
+
+    def test_handler_scale_raises_both_handler_thresholds(self):
+        scaled = {'BEZEG_HANDLER_BUDGET_SCALE': '1.5'}
+        self.main.write_text(assistant(262499, 'claude-opus-5-5') + '\n')
+        self.assertIsNone(self.run_hook(env=scaled))
+        self.main.write_text(assistant(262500, 'claude-opus-5-5') + '\n')
+        self.assertIn('BUDGET SOFT', self.run_hook(env=scaled))
+        self.main.write_text(assistant(322499, 'claude-opus-5-5') + '\n')
+        self.assertIn('BUDGET SOFT', self.run_hook(env=scaled))
+        self.main.write_text(assistant(322500, 'claude-opus-5-5') + '\n')
+        self.assertIn('BUDGET HANDOFF', self.run_hook(env=scaled))
+        self.main.write_text(assistant(285000) + '\n')
+        self.assertIn('BUDGET HANDOFF', self.run_hook(env=scaled))
+
+    def test_handler_scale_leaves_workers_alone_and_ignores_bad_values(self):
+        self.worker.write_text(assistant(135000) + '\n')
+        self.assertIn('HANDOFF', self.run_hook('abc', env={'BEZEG_HANDLER_BUDGET_SCALE': '1.5'}))
+        self.main.write_text(assistant(175000, 'claude-opus-5-5') + '\n')
+        for bad in ('x', '0', '-2'):
+            self.assertIn('BUDGET SOFT', self.run_hook(env={'BEZEG_HANDLER_BUDGET_SCALE': bad}))
 
     def test_latest_request_wins_and_synthetic_messages_are_skipped(self):
         synthetic = json.dumps({'type': 'assistant', 'message': {'model': '<synthetic>', 'usage': {'input_tokens': 900000}}})
