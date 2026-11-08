@@ -1,5 +1,5 @@
 # Stream: Controls
-Run state: stopped: owner restart with parallel plan and more resources
+Run state: active
 
 Owner of the [shared graph controls queue](../shared-graph-controls/README.md) (spec: [shared-graph-controls.md](../../specs/shared-graph-controls.md)). The owner confirmed C1–C30 and decisions 1–11 on 2026-11-07, then handed further decisions to the handlers. Rules: [feature streams](README.md). Port 4317. Handoffs: `docs/reviews/feature-streams/controls/`.
 
