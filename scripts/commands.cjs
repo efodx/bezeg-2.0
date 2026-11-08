@@ -493,7 +493,9 @@ async function executeCommand(command, rawArgs = [], options = {}) {
         const ref = args[0] || 'origin/master';
         // The always-run tier (scripts/check-changed-always-run.cjs) is its own small unit step that holds no slot (a
         // filtered run), because the import-graph selection misses registries reached through file reads.
-        const changed = await commandOutput('git', root, ['diff', '--name-only', ref], 1 << 20).then(text => text.split('\n').filter(Boolean), () => undefined);
+        // `--relative` changes nothing at the repository root; it keeps a test fixture nested in the repository from
+        // reading the host checkout's changes (a committed vite.config.mts change would drop the step there).
+        const changed = await commandOutput('git', root, ['diff', '--name-only', '--relative', ref], 1 << 20).then(text => text.split('\n').filter(Boolean), () => undefined);
         const always = alwaysRunFiles(changed);
         // Warning only: a smoke spec that still waits for a removed selector fails in CI, not here.
         await warnSelectorRemovals({root, base: ref});
