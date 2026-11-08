@@ -12,6 +12,7 @@ import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigati
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import {linkedParagraph} from './chapter/linkedParagraph';
+import {fitChapterInlineMath} from './chapter/inlineMathLayout';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -62,8 +63,10 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
         };
         // Browser history may restore focus after the math promise settles.
         const schedule = () => { if (!disposed) frame = window.requestAnimationFrame(settle); };
-        void typesetMath(article, () => !disposed).then(schedule, schedule);
-        return () => { disposed = true; window.cancelAnimationFrame(frame); };
+        const layoutMath = () => fitChapterInlineMath(article, language);
+        window.addEventListener('resize', layoutMath);
+        void typesetMath(article, () => !disposed).then(() => { layoutMath(); schedule(); }, schedule);
+        return () => { disposed = true; window.removeEventListener('resize', layoutMath); window.cancelAnimationFrame(frame); };
     }, [chapter, language, location.hash, location.pathname]);
 
     useEffect(() => {
@@ -84,11 +87,11 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                     <h1 id="chapter-title" tabIndex={-1}>{chapter.title[language]}</h1>
                     <p className="chapter-purpose">{chapter.purpose[language]}</p>
                     <div className="chapter-prerequisites"><strong>{language === 'sl' ? 'Predznanje' : 'Prerequisites'}</strong><p>{chapter.prerequisites[language]}</p>
-                        {chapter.prerequisiteLinks?.map(link => <p key={link.path}><Link to={link.path}>{link.title[language]}</Link></p>)}
+                        {chapter.prerequisiteLinks?.length ? <ul className="chapter-prerequisite-links">{chapter.prerequisiteLinks.map(link => <li key={link.path}><Link to={link.path}>{link.title[language]}</Link></li>)}</ul> : null}
                     </div>
                 </header>
                 {chapter.sections.map(section => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
-                    <div className="chapter-section-heading"><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title[language]}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title[language]}`}>¶</a></div>
+                    <div className="chapter-section-heading"><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title[language]}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title[language]}`}><svg aria-hidden="true" viewBox="0 0 20 20" focusable="false"><path d="M8.25 11.75 11.75 8.25m-5.5 5.5-1.1 1.1a3.18 3.18 0 0 1-4.5-4.5l3.1-3.1a3.18 3.18 0 0 1 4.5 0m3.5-3.5 1.1-1.1a3.18 3.18 0 0 1 4.5 4.5l-3.1 3.1a3.18 3.18 0 0 1-4.5 0"/></svg></a></div>
                     <div className="chapter-section-body">
                         {sectionContent(section).map((block, blockIndex) => {
                             if (block.kind === 'playground') return <PlaygroundBlock key={`${section.id}-playground-${blockIndex}`} block={block}/>;

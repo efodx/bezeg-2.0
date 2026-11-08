@@ -60,6 +60,22 @@ test('direct chapter entry loads MathJax and typesets again after a language cha
     expect(document.getElementById('MathJax-script')).toBe(script);
 });
 
+test('chapter wayfinding keeps the shareable section hash and uses an icon link', async () => {
+    const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/bezier-curves']}>
+        <ChapterPage/>
+    </MemoryRouter>);
+    const backLink = container.querySelector<HTMLAnchorElement>('.chapter-trail .learning-back');
+    expect(backLink?.getAttribute('href')).toBe('/bezeg-2.0/learn#bezier-curves');
+    expect(backLink?.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+
+    const sectionLink = container.querySelector<HTMLAnchorElement>('.chapter-section-link');
+    const sectionId = sectionLink?.closest('.chapter-section')?.id;
+    expect(sectionLink?.getAttribute('href')).toBe(`#${sectionId}`);
+    expect(sectionLink).toHaveAccessibleName(`Povezava do razdelka: ${bezierChapter.sl.sections[0].title}`);
+    expect(sectionLink?.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelector('.chapter-section-heading')).not.toHaveTextContent('¶');
+});
+
 test('Bézier sections show all retained cards with stable bilingual preview bindings', async () => {
     const {container} = render(<MemoryRouter initialEntries={['/bezeg-2.0/learn/bezier-curves']}>
         <ChapterPage/>

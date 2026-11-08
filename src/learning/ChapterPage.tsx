@@ -10,6 +10,7 @@ import {findActivity} from './chapter/activities';
 import {typesetMath} from '../mathjax/loadMathJax';
 import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
 import {linkedParagraph} from './chapter/linkedParagraph';
+import {fitChapterInlineMath} from './chapter/inlineMathLayout';
 import './ChapterPage.css';
 import './LearningPage.css';
 
@@ -105,8 +106,10 @@ export function ChapterPage() {
             if (!languageChanged && restoreGuidedExampleReading(`${location.pathname}${location.hash}`)) return;
             restoreAnchor();
         };
-        void typesetMath(article, () => !disposed).then(settle, settle);
-        return () => { disposed = true; };
+        const layoutMath = () => fitChapterInlineMath(article, language);
+        window.addEventListener('resize', layoutMath);
+        void typesetMath(article, () => !disposed).then(() => { layoutMath(); settle(); }, settle);
+        return () => { disposed = true; window.removeEventListener('resize', layoutMath); };
     }, [language, location.hash, location.pathname]);
 
     const state = location.state && typeof location.state === 'object' ? location.state as Record<string, unknown> : {};
@@ -133,7 +136,7 @@ export function ChapterPage() {
                     <div className="chapter-prerequisites"><strong>{language === 'sl' ? 'Predznanje' : 'Prerequisites'}</strong><p>{copy.prerequisites}</p></div>
                 </header>
                 {copy.sections.map((section, index) => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
-                    <div className="chapter-section-heading"><span>{String(index + 1).padStart(2, '0')}</span><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title}`}>¶</a></div>
+                    <div className="chapter-section-heading"><span>{String(index + 1).padStart(2, '0')}</span><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title}`}><svg aria-hidden="true" viewBox="0 0 20 20" focusable="false"><path d="M8.25 11.75 11.75 8.25m-5.5 5.5-1.1 1.1a3.18 3.18 0 0 1-4.5-4.5l3.1-3.1a3.18 3.18 0 0 1 4.5 0m3.5-3.5 1.1-1.1a3.18 3.18 0 0 1 4.5 4.5l-3.1 3.1a3.18 3.18 0 0 1-4.5 0"/></svg></a></div>
                     <div className="chapter-section-body">{(section.orderedContent ?? []).map((block, blockIndex) => <ChapterContentView block={block} chapterId="bezier-curves" sectionId={section.id} language={language} key={`${section.id}-${block.kind}-${block.kind === 'example' ? block.exampleId : blockIndex}`}/>)}</div>
                     {index < copy.sections.length - 1 && <div className="chapter-next-row"><a href={`#${copy.sections[index + 1].id}`}>{language === 'sl' ? 'Naprej' : 'Next'}: {copy.sections[index + 1].title}<span aria-hidden="true"> ↓</span></a></div>}
                 </section>)}

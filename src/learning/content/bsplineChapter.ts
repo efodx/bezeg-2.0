@@ -1,5 +1,5 @@
 import type {LocalizedText} from '../model';
-import type {OrderedChapterContent} from '../chapter/orderedContent';
+import type {OrderedChapterContent, PlaygroundContent} from '../chapter/orderedContent';
 import type {FamilyChapter, FamilyChapterSection} from './familyChapters';
 import {
     BSPLINE_CHAPTER_ID, bsplineGuidedExampleDemonstration, type BSplineSectionId,
@@ -11,11 +11,11 @@ const text = (sl: string, en: string): LocalizedText => ({sl, en});
 /** Reading material first, then the prepared activity at the section end. */
 function withExample(sectionId: BSplineSectionId, section: FamilyChapterSection): FamilyChapterSection {
     const demonstrationId = bsplineGuidedExampleDemonstration(sectionId);
-    const content: OrderedChapterContent<LocalizedText>[] = [
+    const content: (OrderedChapterContent<LocalizedText> | PlaygroundContent)[] = section.orderedContent ? [...section.orderedContent] : [
         ...section.paragraphs.map(paragraph => ({kind: 'paragraph' as const, text: paragraph})),
         ...(section.formula ? [{kind: 'formula' as const, latex: section.formula}] : []),
-        {kind: 'example', exampleId: `${BSPLINE_CHAPTER_ID}.${sectionId}.${demonstrationId}`},
     ];
+    content.push({kind: 'example', exampleId: `${BSPLINE_CHAPTER_ID}.${sectionId}.${demonstrationId}`});
     return {...section, orderedContent: content};
 }
 

@@ -9,7 +9,7 @@ export function ChapterTrail({chapterId}: {chapterId: string}) {
     const {language} = useLanguage();
     const position = learningChapters.findIndex(chapter => chapter.id === chapterId) + 1;
     return <p className="chapter-trail">
-        <Link className="learning-back" to={`/bezeg-2.0/learn#${chapterId}`}><span aria-hidden="true">←</span>{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}</Link>
+        <Link className="learning-back" to={`/bezeg-2.0/learn#${chapterId}`}><svg aria-hidden="true" viewBox="0 0 20 20" focusable="false"><path d="M12.5 4.5 7 10l5.5 5.5M7.5 10h9"/></svg>{language === 'sl' ? 'Vsa učna vsebina' : 'All learning content'}</Link>
         <span className="chapter-trail-position">{language === 'sl' ? `Poglavje ${position} od ${learningChapters.length}` : `Chapter ${position} of ${learningChapters.length}`}</span>
     </p>;
 }
