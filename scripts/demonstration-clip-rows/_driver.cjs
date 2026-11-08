@@ -179,9 +179,12 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
             const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
             // A stepper shows its value in the text input of the same group; a trace-step button has none, the page's "Korak N od M" text is the readout.
             const trace = row.control.kind === 'trace-step';
+            // A button-count button has no value input either: the readout is how many inputs are labelled countLabel + a number.
+            const counted = row.control.kind === 'button-count';
+            const countFields = counted ? page.getByLabel(new RegExp('^' + row.control.countLabel.replace(/[^A-Za-z0-9 ]/g, c => '\\' + c) + '\\d+$')).and(page.locator('input')) : null;
             const readout = field ? button : button.locator('xpath=..').locator('input').first();
-            if (!trace) assert.equal(await readout.count(), 1, `${row.id}: no value input next to "${row.control.label}" to read the stepper back`);
-            const read = async () => trace ? (await readTraceStep(page, row)).step : parse(await readout.inputValue());
+            if (!trace && !counted) assert.equal(await readout.count(), 1, `${row.id}: no value input next to "${row.control.label}" to read the stepper back`);
+            const read = async () => counted ? await countFields.count() : trace ? (await readTraceStep(page, row)).step : parse(await readout.inputValue());
             const first = await read();
             if (k === 0) startValue = first; else assert.equal(first, startValue, `${row.id}: a fresh recipe scene starts at ${first}, not ${startValue}`);
             if (trace) {

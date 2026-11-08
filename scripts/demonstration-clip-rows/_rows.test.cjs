@@ -43,6 +43,16 @@ test('an integer number field is a discrete control: each checkpoint types start
     rejects(row => { row.motion = 'parameter-sweep'; row.discreteReason = null; row.path = [0, 1, 0]; }, field, /sweep control\.kind must be slider or number/);
 });
 
+test('a button-count control presses a button and reads the count of labelled fields the page shows', () => {
+    const counted = {...clone(discrete), id: 'x-count', control: {kind: 'button-count', label: 'Vstavi vozel', countLabel: 'Vozel u', step: 1}};
+    assert.doesNotThrow(() => validateRow(counted));
+    rejects(row => { row.control.label = ''; }, counted, /accessible name/);
+    rejects(row => { delete row.control.countLabel; }, counted, /countLabel/);
+    rejects(row => { row.control.countLabel = ''; }, counted, /countLabel/);
+    rejects(row => { row.motion = 'parameter-sweep'; row.discreteReason = null; row.path = [0, 1, 0]; }, counted, /sweep control\.kind must be slider or number/);
+    rejects(row => { row.motion = 'pointer-drag'; row.discreteReason = null; row.path = [[0, 0], [1, 1], [0, 0]]; }, counted, /control\.kind must be point or surface-point/);
+});
+
 test('the schema rejects each broken row with an actionable message', () => {
     rejects(row => { row.extra = 1; }, sweep, /exactly the fields/);
     rejects(row => { row.motion = 'wobble'; }, sweep, /motion must be one of/);
@@ -210,6 +220,9 @@ test('the row checker rejects what capture would only find later', () => {
     assert.match(problems({path: [-0.5, 4, -0.5]}), /leaves the range/);
     assert.match(problems({control: {kind: 'stepper', label: 'Zmanjšaj'}, path: [0, 1, 0]}), /no enabled button/);
     assert.match(problems({control: {kind: 'number-field', label: 'Neznano', step: 1}, path: [0, 1, 0]}), /no enabled number field is labelled "Neznano"/);
+    const counted = {kind: 'button-count', label: 'Povečaj', countLabel: 'Točka ', step: 1};
+    assert.match(problems({control: {...counted, label: 'Neznano'}, path: [0, 1, 0]}), /no enabled button is labelled "Neznano"/);
+    assert.match(problems({control: counted, path: [0, 1, 0]}), /no field labelled "Točka " followed by a number/);
     assert.match(checkRow(row, undefined, lessons).problems.join('\n'), /not in route-probe/);
 });
 
