@@ -11,7 +11,14 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - phase 0, CI scope (`dd3df425`);
   - phase 1 item 3, slot holding (`08381192`). A per-checkout run claim keeps the duplicate-run refusal for commands that no longer take a slot.
   - phase 1 items 1–2, publish-gate delta retry and lock (gate commit after `08381192`). It was independently reviewed, and the lock race, base drift and retry-trigger findings were fixed.
-- Phases 1 item 4 and 2–4, 6 and the regrowth guard are not started.
+- Hosted run 42489627250 for `97614b1a` is green. Phases 0 and 1 are observed on CI.
+- Phase 3 is implemented, with Node tests, focused Vitest runs and lint:
+  - Derived catalog checks (`590212bc`); four injected faults still fail.
+  - The `check-changed` always-run tier and the selector-removal warning (`7f41d970`, review fixes `ef7c16cf`).
+  - The always-run step measured 27 s wall, not 2 s, because per-file setup dominates (phase 4).
+  - The selector warning fires on the phase 0 removal.
+  - Replay: [phase3-replay.md](../reviews/verification-throughput/phase3-replay.md). Of the 8 distinct bookkeeping causes, the tier or the import graph runs 6 locally and the warning catches 1. Poster provenance remains (generated-image freshness).
+- Phases 1 item 4, 2, 4, 6 and the regrowth guard are not started.
 
 **Follow-ups:**
 
