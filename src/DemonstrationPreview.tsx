@@ -2,12 +2,13 @@ import React, {useEffect, useRef, useState} from 'react';
 import type {DemonstrationMotionAsset} from './demonstrationMotionAssets';
 import './DemonstrationPreview.css';
 
-export function DemonstrationPreview({src, motion, loading = 'lazy', className = '', focusTargetRef}: {
+export function DemonstrationPreview({src, motion, loading = 'lazy', className = '', focusTargetRef, selectionPlaybackId}: {
     src?: string;
     motion?: DemonstrationMotionAsset;
     loading?: 'eager' | 'lazy';
     className?: string;
     focusTargetRef?: React.RefObject<HTMLElement | null>;
+    selectionPlaybackId?: number;
 }) {
     const frameRef = useRef<HTMLSpanElement>(null);
     const imageGeneration = useRef(0);
@@ -16,13 +17,30 @@ export function DemonstrationPreview({src, motion, loading = 'lazy', className =
     const [hovered, setHovered] = useState(false);
     const [focused, setFocused] = useState(false);
     const [documentVisible, setDocumentVisible] = useState(() => typeof document === 'undefined' || !document.hidden);
+    const [completedPassId, setCompletedPassId] = useState<number | null>(null);
+    const startedPassId = useRef<number | null>(null);
     const [hoverUnavailable, setHoverUnavailable] = useState(() => typeof window !== 'undefined'
         && window.matchMedia?.('(hover: none)').matches === true);
     const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined'
         && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true);
-    const shouldPlay = Boolean(motion) && (hoverUnavailable
+    const activated = hoverUnavailable
         ? intersectionRatio >= 0.5
-        : (hovered || focused) && intersectionRatio > 0) && documentVisible && !reducedMotion;
+        : (hovered || focused) && intersectionRatio > 0;
+    const selectedPass = selectionPlaybackId !== undefined && selectionPlaybackId !== completedPassId && intersectionRatio > 0;
+    useEffect(() => {
+        if (selectionPlaybackId === undefined) {
+            startedPassId.current = null;
+            return;
+        }
+        if (selectedPass && documentVisible && !reducedMotion) {
+            startedPassId.current = selectionPlaybackId;
+        } else if (startedPassId.current === selectionPlaybackId
+            && (!documentVisible || reducedMotion || intersectionRatio <= 0)) {
+            startedPassId.current = null;
+            setCompletedPassId(selectionPlaybackId);
+        }
+    }, [selectionPlaybackId, selectedPass, documentVisible, reducedMotion, intersectionRatio]);
+    const shouldPlay = Boolean(motion) && (activated || selectedPass) && documentVisible && !reducedMotion;
 
     useEffect(() => {
         const frame = frameRef.current;
@@ -105,11 +123,19 @@ export function DemonstrationPreview({src, motion, loading = 'lazy', className =
             onError={event => {
                 if (event.currentTarget.getAttribute('src') === src) setImageState('failed');
             }}/>}
-        {shouldPlay && motion && <ActiveDemonstrationVideo key={motion.src} motion={motion}/>}
+        {shouldPlay && motion && <ActiveDemonstrationVideo key={motion.src} motion={motion}
+            loop={selectionPlaybackId === undefined || (!selectedPass && activated)}
+            onEnded={() => {
+                if (selectionPlaybackId !== undefined && selectedPass) {
+                    setCompletedPassId(selectionPlaybackId);
+                    return activated;
+                }
+                return true;
+            }}/ >}
     </span>;
 }
 
-function ActiveDemonstrationVideo({motion}: {motion: DemonstrationMotionAsset}) {
+function ActiveDemonstrationVideo({motion, loop, onEnded}: {motion: DemonstrationMotionAsset; loop: boolean; onEnded: () => boolean}) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [frameReady, setFrameReady] = useState(false);
     const [failed, setFailed] = useState(false);
@@ -145,8 +171,24 @@ function ActiveDemonstrationVideo({motion}: {motion: DemonstrationMotionAsset}) 
         };
     }, [motion.src]);
 
+    const handleEnded = () => {
+        if (!onEnded()) return;
+        const video = videoRef.current;
+        if (!video) return;
+        video.currentTime = 0;
+        void Promise.resolve(video.play()).catch(() => {
+            if (!liveRef.current || failedRef.current) return;
+            failedRef.current = true;
+            setFailed(true);
+            setFrameReady(false);
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+        });
+    };
+
     return <video ref={videoRef} className={`demonstration-preview-motion${frameReady && !failed ? ' is-frame-ready' : ''}`}
-        autoPlay muted playsInline loop preload="none" aria-hidden="true" tabIndex={-1}
+        autoPlay muted playsInline loop={loop} preload="none" aria-hidden="true" tabIndex={-1} onEnded={handleEnded}
         onLoadedData={() => { if (liveRef.current && !failedRef.current) setFrameReady(true); }}
         onError={() => {
             if (!liveRef.current || failedRef.current) return;

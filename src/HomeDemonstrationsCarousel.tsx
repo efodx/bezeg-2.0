@@ -53,6 +53,7 @@ function usePrefersReducedMotion() {
 function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
     const t = useT();
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectionPlaybackId, setSelectionPlaybackId] = useState(0);
     const [manuallyControlled, setManuallyControlled] = useState(false);
     const [announceManualChanges, setAnnounceManualChanges] = useState(false);
     const [hovered, setHovered] = useState(false);
@@ -92,6 +93,7 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
         if (!canAdvance) return;
         const timer = window.setTimeout(() => {
             setSelectedIndex(index => (index + 1) % entries.length);
+            setSelectionPlaybackId(id => id + 1);
         }, 6000);
         return () => window.clearTimeout(timer);
     }, [canAdvance, entries.length, selectedIndex]);
@@ -126,6 +128,7 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
         setManuallyControlled(true);
         setAnnounceManualChanges(true);
         revealIndex.current = index;
+        if (index !== selectedIndex) setSelectionPlaybackId(id => id + 1);
         setSelectedIndex(index);
         if (focusChoice) choiceButtons.current[index]?.focus({preventScroll: true});
     };
@@ -166,6 +169,7 @@ function DemonstrationsOpeningCarousel({entries}: {entries: OpeningEntry[]}) {
                     aria-hidden="true">
                     <DemonstrationPreview src={demonstrationPreviewAssets[entry.demonstration.id]}
                         motion={selectedIndex === index ? demonstrationMotionAssets[entry.demonstration.id] : undefined}
+                        selectionPlaybackId={selectedIndex === index && selectionPlaybackId > 0 ? selectionPlaybackId : undefined}
                         loading={index < 3 ? 'eager' : 'lazy'} focusTargetRef={graphActionRef}/>
                 </div>)}
             </div>

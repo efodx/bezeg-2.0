@@ -10,35 +10,32 @@ export function WelcomePage() {
     const {setFullScreen} = useContext(SiteContext).fullScreen;
     useEffect(() => {setFullScreen(false);}, [setFullScreen]);
     return <main className="welcome-page">
-        <svg className="welcome-botanical" viewBox="0 0 560 680" aria-hidden="true" focusable="false">
+        <header className="welcome-intro">
+            <svg className="welcome-botanical" viewBox="0 0 420 290" aria-hidden="true" focusable="false">
             <g className="welcome-botanical-stems">
-                <path d="M410 358C367 279 327 207 278 157S203 69 170 7M410 358C430 412 455 470 488 525S530 616 546 680"/>
-                <path d="M278 157C313 120 350 96 402 83M326 207C364 193 391 170 416 137"/>
-                <path d="M237 108C204 91 164 76 122 42M266 140C265 95 259 51 253 7"/>
-                <path d="M356 271C386 250 402 226 414 198M205 74C174 68 145 69 111 77"/>
-                <path d="M456 462C424 443 397 419 379 389M489 526C521 504 539 479 550 449M520 603C489 582 469 558 458 532"/>
+                <path d="M42 278C103 231 143 205 196 160S287 83 357 22"/>
+                <path d="M357 22C347 22 337 30 331 43M357 22C367 22 378 27 386 37M357 22C355 34 349 46 341 54"/>
+                <path d="M185 168C165 125 139 91 99 62M235 132C258 93 281 65 315 42M127 218C105 181 79 157 45 145"/>
             </g>
             <g className="welcome-botanical-leaves">
-                <path d="M331 204C327 164 346 137 387 119C384 162 366 190 331 204Z"/>
-                <path d="M350 257C343 219 359 192 397 174C398 211 381 240 350 257Z"/>
-                <path d="M273 151C284 111 312 94 355 96C337 131 309 150 273 151Z"/>
-                <path d="M232 106C192 105 164 84 146 46C186 53 216 73 232 106Z"/>
-                <path d="M265 129C239 101 234 68 250 30C273 63 280 96 265 129Z"/>
-                <path d="M201 76C166 96 134 91 99 66C136 49 170 51 201 76Z"/>
-                <path d="M380 293C388 263 408 245 437 239C430 269 411 289 380 293Z"/>
-                <path d="M423 443C399 430 385 409 379 389C403 395 420 413 423 443Z"/>
-                <path d="M489 526C514 499 536 490 550 449C516 464 496 492 489 526Z"/>
-                <path d="M491 582C475 567 463 550 458 532C481 540 493 557 491 582Z"/>
+                <path d="M270 108C276 75 298 56 335 52C322 84 300 103 270 108Z"/>
+                <path d="M230 140C203 119 196 91 208 59C232 81 240 109 230 140Z"/>
+                <path d="M160 191C128 179 112 155 114 120C143 137 159 161 160 191Z"/>
+                <path d="M113 228C83 217 68 196 67 167C94 181 109 202 113 228Z"/>
+                <path d="M296 84C320 63 347 61 376 76C348 96 321 100 296 84Z"/>
+                <path d="M143 211C136 181 147 157 178 139C178 171 165 195 143 211Z"/>
             </g>
             <g className="welcome-botanical-flowers">
-                <g transform="translate(394 80)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-4" r="4"/><circle cx="9" cy="-7" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-13" r="4"/><circle cx="14" cy="2" r="4"/><circle cx="-15" cy="4" r="4"/></g>
-                <g transform="translate(416 131)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="8" cy="-8" r="4"/><circle cx="-8" cy="8" r="4"/><circle cx="9" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
-                <g transform="translate(252 8)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
-                <g transform="translate(168 8)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
-                <g transform="translate(105 77)"><circle cx="0" cy="0" r="5"/><circle cx="-10" cy="-5" r="4"/><circle cx="9" cy="-8" r="4"/><circle cx="-7" cy="8" r="4"/><circle cx="8" cy="8" r="4"/><circle cx="-1" cy="-14" r="4"/><circle cx="15" cy="2" r="4"/><circle cx="-15" cy="3" r="4"/></g>
+                <g transform="translate(360 25)"><circle r="5"/><ellipse cy="-12" ry="6" rx="3"/><ellipse cy="12" ry="6" rx="3"/><ellipse cx="-12" rx="6" ry="3"/><ellipse cx="12" rx="6" ry="3"/><ellipse cx="-9" cy="-9" rx="5" ry="3" transform="rotate(-45 -9 -9)"/><ellipse cx="9" cy="9" rx="5" ry="3" transform="rotate(-45 9 9)"/><ellipse cx="9" cy="-9" rx="5" ry="3" transform="rotate(45 9 -9)"/><ellipse cx="-9" cy="9" rx="5" ry="3" transform="rotate(45 -9 9)"/></g>
+                <g transform="translate(319 50) scale(.78)"><circle r="5"/><ellipse cy="-12" ry="6" rx="3"/><ellipse cy="12" ry="6" rx="3"/><ellipse cx="-12" rx="6" ry="3"/><ellipse cx="12" rx="6" ry="3"/><ellipse cx="-9" cy="-9" rx="5" ry="3"/><ellipse cx="9" cy="9" rx="5" ry="3"/><ellipse cx="9" cy="-9" rx="5" ry="3"/><ellipse cx="-9" cy="9" rx="5" ry="3"/></g>
+                <g transform="translate(91 56) scale(.7)"><circle r="5"/><ellipse cy="-12" ry="6" rx="3"/><ellipse cy="12" ry="6" rx="3"/><ellipse cx="-12" rx="6" ry="3"/><ellipse cx="12" rx="6" ry="3"/><ellipse cx="-9" cy="-9" rx="5" ry="3"/><ellipse cx="9" cy="9" rx="5" ry="3"/><ellipse cx="9" cy="-9" rx="5" ry="3"/><ellipse cx="-9" cy="9" rx="5" ry="3"/></g>
+                <g transform="translate(39 143) scale(.72)"><circle r="5"/><ellipse cy="-12" ry="6" rx="3"/><ellipse cy="12" ry="6" rx="3"/><ellipse cx="-12" rx="6" ry="3"/><ellipse cx="12" rx="6" ry="3"/><ellipse cx="-9" cy="-9" rx="5" ry="3"/><ellipse cx="9" cy="9" rx="5" ry="3"/><ellipse cx="9" cy="-9" rx="5" ry="3"/><ellipse cx="-9" cy="9" rx="5" ry="3"/></g>
+                <g transform="translate(357 20)"><circle r="5"/><circle cx="-8" cy="-5" r="4.5"/><circle cx="8" cy="-5" r="4.5"/><circle cx="-8" cy="5" r="4.5"/><circle cx="8" cy="5" r="4.5"/><circle cy="-11" r="4.5"/><circle cy="11" r="4.5"/></g>
+                <g transform="translate(331 43) scale(.88)"><circle r="5"/><circle cx="-8" cy="-5" r="4.5"/><circle cx="8" cy="-5" r="4.5"/><circle cx="-8" cy="5" r="4.5"/><circle cx="8" cy="5" r="4.5"/><circle cy="-11" r="4.5"/><circle cy="11" r="4.5"/></g>
+                <g transform="translate(386 37) scale(.82)"><circle r="5"/><circle cx="-8" cy="-5" r="4.5"/><circle cx="8" cy="-5" r="4.5"/><circle cx="-8" cy="5" r="4.5"/><circle cx="8" cy="5" r="4.5"/><circle cy="-11" r="4.5"/><circle cy="11" r="4.5"/></g>
+                <g transform="translate(341 54) scale(.72)"><circle r="5"/><circle cx="-8" cy="-5" r="4.5"/><circle cx="8" cy="-5" r="4.5"/><circle cx="-8" cy="5" r="4.5"/><circle cx="8" cy="5" r="4.5"/><circle cy="-11" r="4.5"/><circle cy="11" r="4.5"/></g>
             </g>
-        </svg>
-        <header className="welcome-intro">
+            </svg>
             <span className="welcome-eyebrow">{t('bezeg_explore_curves')}</span>
             <h1>{t('home_headline')}</h1>
             <p>{t('home_introduction')}</p>

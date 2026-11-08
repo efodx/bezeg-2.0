@@ -24,21 +24,21 @@
     content: '';
     pointer-events: none;
 }
-.welcome-page > :not(.welcome-botanical) { position: relative; z-index: 1; }
+.welcome-page > * { position: relative; z-index: 1; }
+.welcome-intro { position: relative; }
 .welcome-botanical {
     position: absolute;
-    z-index: 0;
+    z-index: -1;
     top: 0;
-    right: max(8px, calc((100vw - 1160px) / 2));
-    width: clamp(280px, 38.67vw, 480px);
+    right: 4px;
+    width: 220px;
     height: auto;
-    overflow: visible;
-    opacity: .15;
+    opacity: .32;
     pointer-events: none;
 }
-.welcome-botanical-stems { fill: none; stroke: var(--bezeg-shell-botanical-stem); stroke-width: 2; stroke-linecap: round; }
-.welcome-botanical-leaves { fill: var(--bezeg-shell-botanical-leaf); stroke: var(--bezeg-shell-botanical-leaf-rule); stroke-width: 1.4; stroke-linejoin: round; }
-.welcome-botanical-flowers { fill: var(--bezeg-shell-botanical-flower); stroke: var(--bezeg-shell-ochre); stroke-width: 1; }
+.welcome-botanical-stems { fill: none; stroke: var(--bezeg-shell-botanical-stem); stroke-width: 2.5; stroke-linecap: round; opacity: .5; }
+.welcome-botanical-leaves { fill: var(--bezeg-shell-botanical-leaf); stroke: var(--bezeg-shell-botanical-leaf-rule); stroke-width: 1.6; stroke-linejoin: round; opacity: .65; }
+.welcome-botanical-flowers { fill: var(--bezeg-shell-botanical-flower); stroke: var(--bezeg-shell-ochre); stroke-width: 1.6; }
 .welcome-intro {
     display: grid;
     max-width: 1040px;
@@ -47,7 +47,7 @@
     align-items: center;
     column-gap: 36px;
     row-gap: 4px;
-    padding: 20px 0 10px;
+    padding: 20px 250px 10px 0;
 }
 .welcome-eyebrow { grid-area: eyebrow; color: var(--bezeg-shell-eyebrow); font-size: 11px; letter-spacing: 1.4px; }
 .welcome-page h1 {
@@ -113,17 +113,23 @@
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas: "eyebrow" "title" "copy" "action";
         gap: 0;
-        padding-top: 12px;
+        padding: 12px 165px 10px 0;
     }
+    .welcome-botanical { width: 150px; }
     .welcome-intro p { max-width: 36rem; }
     .welcome-primary { justify-self: start; margin-top: 18px; }
 }
 @media (max-width: 700px) {
     .welcome-page { padding: 24px 16px 32px; gap: 24px; }
-    .welcome-botanical { top: -8px; right: -36px; width: 307px; opacity: .1; }
-    .welcome-intro { padding-top: 8px; }
+    .welcome-botanical { top: 5px; right: -4px; width: 142px; opacity: .18; }
+    .welcome-intro { padding: 8px 145px 0 0; }
     .welcome-page h1 { margin: 8px 0 10px; font-size: clamp(34px, 9vw, 42px); }
     .welcome-intro p { font-size: 15px; }
     .welcome-primary { min-height: 44px; margin-top: 16px; }
     .welcome-showcase h2 { margin-bottom: 14px; font-size: 20px; }
+}
+
+@media (max-width: 480px) {
+    .welcome-botanical { display: none; }
+    .welcome-intro { padding-right: 0; }
 }

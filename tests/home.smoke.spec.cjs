@@ -109,3 +109,54 @@ test('the homepage fits the target widths in Slovenian and English', async ({pag
         await slPage.close();
     }
 });
+
+test('a newly selected homepage preview plays one silent pass and returns to its poster', async ({page}) => {
+    const requests = [];
+    page.on('request', request => { if (/\.webm(?:\?|$)/.test(request.url())) requests.push(request.url()); });
+    await page.setViewportSize({width:1440, height:900});
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await openEnglish(page, '/bezeg-2.0/');
+    const opening = page.getByRole('region', {name: 'Starting demonstrations'});
+    const choices = opening.getByRole('group', {name: 'Starting demonstrations'}).getByRole('button');
+    await expect(opening.locator('video[src]')).toHaveCount(0);
+    expect(requests).toHaveLength(0);
+
+    await choices.nth(1).click();
+    const selected = opening.locator('.demonstrations-opening-image[data-selected="true"]');
+    const video = selected.locator('video[src]');
+    await expect(video).toHaveCount(1);
+    await expect.poll(() => video.evaluate(element => !element.paused && element.readyState >= 2)).toBe(true);
+    expect(await video.evaluate(element => element.muted && element.playsInline && !element.loop && !element.controls)).toBe(true);
+    const videoElement = await video.elementHandle();
+    expect(videoElement).not.toBeNull();
+    await expect.poll(() => video.evaluate(element => element.currentTime), {timeout:5000, intervals:[100]}).toBeGreaterThan(0.2);
+    await expect.poll(() => videoElement.evaluate(element => element.ended), {timeout:10000, intervals:[100]}).toBe(true);
+    await expect(selected.locator('video[src]')).toHaveCount(0);
+    await expect(selected.locator('.demonstration-preview-poster')).toBeVisible();
+    expect(requests).toHaveLength(1);
+
+    await choices.nth(0).click();
+    const returned = opening.locator('.demonstrations-opening-image[data-selected="true"] video[src]');
+    await expect(returned).toHaveCount(1);
+    await expect.poll(() => returned.evaluate(element => !element.paused && element.readyState >= 2)).toBe(true);
+});
+
+test('touch selection starts the selected homepage clip at 390px', async ({page}) => {
+    const browser = page.context().browser();
+    expect(browser).not.toBeNull();
+    const context = await browser.newContext({viewport:{width:390, height:844}, hasTouch:true, reducedMotion:'no-preference'});
+    try {
+        const touchPage = await context.newPage();
+        await openEnglish(touchPage, '/bezeg-2.0/');
+        const opening = touchPage.getByRole('region', {name:'Starting demonstrations'});
+        const choices = opening.getByRole('group', {name:'Starting demonstrations'}).getByRole('button');
+        await choices.nth(2).tap();
+        const video = opening.locator('.demonstrations-opening-image[data-selected="true"] video[src]');
+        await expect(video).toHaveCount(1);
+        await expect.poll(() => video.evaluate(element => !element.paused && element.readyState >= 2)).toBe(true);
+        expect(await video.evaluate(element => element.muted && element.playsInline && !element.loop)).toBe(true);
+        expect(await touchPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    } finally {
+        await context.close();
+    }
+});

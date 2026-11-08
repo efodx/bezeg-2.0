@@ -13,6 +13,7 @@ let mediaListeners: Map<string, Set<() => void>>;
 let play: ReturnType<typeof vi.fn<() => Promise<void>>>;
 let pause: ReturnType<typeof vi.fn<() => void>>;
 let load: ReturnType<typeof vi.fn<() => void>>;
+let restoreDocumentHidden: (() => void) | undefined;
 
 class TestObserver {
     target: Element | null = null;
@@ -48,7 +49,7 @@ beforeEach(() => {
     vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(load);
 });
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => { restoreDocumentHidden?.(); restoreDocumentHidden = undefined; cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 test('visibility alone does not request a clip; hovering starts playback and leaving restores the poster', () => {
     const motion = {src: '/curve.webm', type: 'video/webm', duration: 3};
@@ -244,14 +245,105 @@ test('the homepage graph action focuses the selected preview and blur restores i
     const frame = selected.querySelector('.demonstration-preview-media')!;
     act(() => observerList.find(observer => observer.target === frame)?.enter());
     expect(selected.querySelector('video')).toBeNull();
+    expect(play).not.toHaveBeenCalled();
     const graphAction = document.querySelector('.demonstrations-opening-actions a')!;
     fireEvent.focus(graphAction);
     const video = selected.querySelector('video')!;
     const expected = demonstrationMotionAssets.bezier;
     if (expected) expect(video.src).toContain(expected.src);
-    else expect(video).not.toHaveAttribute('src');
+    expect(play).toHaveBeenCalledTimes(1);
     fireEvent.blur(graphAction);
     expect(selected.querySelector('video')).toBeNull();
+});
+
+test('homepage selection plays one pass, releases the old clip on switch, and keeps the new clip selected', () => {
+    const view = render(<MemoryRouter><HomeDemonstrationsCarousel/></MemoryRouter>);
+    const selectedFrame = () => document.querySelector('.demonstrations-opening-image[data-selected="true"] .demonstration-preview-media')!;
+    const selectedImage = () => document.querySelector('.demonstrations-opening-image[data-selected="true"]')!;
+    const first = selectedImage();
+    const next = document.querySelector<HTMLButtonElement>('.demonstrations-opening-controls button:last-child')!;
+    fireEvent.click(next);
+    const firstFrame = selectedFrame();
+    act(() => observerList.find(observer => observer.target === firstFrame)?.enter());
+    const firstVideo = selectedImage().querySelector('video')!;
+    expect(play).toHaveBeenCalledTimes(1);
+    expect(firstVideo).not.toHaveAttribute('loop');
+
+    fireEvent.click(next);
+    expect(firstVideo).not.toHaveAttribute('src');
+    expect(selectedImage().querySelector('video')).toBeNull();
+    const secondFrame = selectedFrame();
+    act(() => observerList.find(observer => observer.target === secondFrame)?.enter());
+    const secondVideo = selectedImage().querySelector('video')!;
+    expect(secondVideo.src).toContain(demonstrationMotionAssets.rational!.src);
+    expect(play).toHaveBeenCalledTimes(2);
+
+    fireEvent.ended(secondVideo);
+    expect(selectedImage().querySelector('video')).toBeNull();
+    expect(selectedImage().querySelector('.demonstration-preview-poster')).not.toBeNull();
+
+    const firstChoice = document.querySelector<HTMLButtonElement>('.demonstrations-opening-choice:first-child')!;
+    fireEvent.click(firstChoice);
+    expect(selectedImage()).toBe(first);
+    const returnedFrame = selectedFrame();
+    act(() => observerList.find(observer => observer.target === returnedFrame)?.enter());
+    const returnedVideo = selectedImage().querySelector('video')!;
+    expect(returnedVideo.src).toContain(demonstrationMotionAssets.bezier!.src);
+    expect(play).toHaveBeenCalledTimes(3);
+
+    view.unmount();
+});
+
+test('an active hover may keep looping after the selected pass, then restores the poster immediately on leave', () => {
+    render(<MemoryRouter><HomeDemonstrationsCarousel/></MemoryRouter>);
+    fireEvent.click(document.querySelector<HTMLButtonElement>('.demonstrations-opening-controls button:last-child')!);
+    const selected = document.querySelector('.demonstrations-opening-image[data-selected="true"]')!;
+    const frame = selected.querySelector('.demonstration-preview-media')!;
+    act(() => observerList.find(item => item.target === frame)?.enter());
+    const video = selected.querySelector('video')!;
+    fireEvent.pointerEnter(frame, {pointerType: 'mouse'});
+    expect(video).not.toHaveAttribute('loop');
+
+    fireEvent.ended(video);
+    expect(selected.querySelector('video')).toBe(video);
+    expect(video).toHaveAttribute('loop');
+    expect(play).toHaveBeenCalledTimes(2);
+
+    fireEvent.pointerLeave(frame, {pointerType: 'mouse'});
+    expect(selected.querySelector('video')).toBeNull();
+    expect(video).not.toHaveAttribute('src');
+});
+
+test.each(['offscreen', 'hidden', 'reduced motion'] as const)('a selected pass stays retired after %s interruption', interruption => {
+    const view = render(<MemoryRouter><HomeDemonstrationsCarousel/></MemoryRouter>);
+    fireEvent.click(document.querySelector<HTMLButtonElement>('.demonstrations-opening-controls button:last-child')!);
+    const frame = document.querySelector('.demonstrations-opening-image[data-selected="true"] .demonstration-preview-media')!;
+    const observer = observerList.find(item => item.target === frame)!;
+    act(() => observer.enter());
+    expect(document.querySelector('.demonstrations-opening-image[data-selected="true"] video')).not.toBeNull();
+
+    if (interruption === 'offscreen') act(() => observer.exit());
+    if (interruption === 'hidden') {
+        const descriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
+        Object.defineProperty(document, 'hidden', {configurable: true, value: true});
+        restoreDocumentHidden = () => {
+            if (descriptor) Object.defineProperty(document, 'hidden', descriptor);
+            else Reflect.deleteProperty(document, 'hidden');
+        };
+        fireEvent(document, new Event('visibilitychange'));
+    }
+    if (interruption === 'reduced motion') updateMedia('(prefers-reduced-motion: reduce)', true);
+    expect(document.querySelector('.demonstrations-opening-image[data-selected="true"] video')).toBeNull();
+
+    if (interruption === 'offscreen') act(() => observer.enter());
+    if (interruption === 'hidden') {
+        Object.defineProperty(document, 'hidden', {configurable: true, value: false});
+        fireEvent(document, new Event('visibilitychange'));
+    }
+    if (interruption === 'reduced motion') updateMedia('(prefers-reduced-motion: reduce)', false);
+    expect(document.querySelector('.demonstrations-opening-image[data-selected="true"] video')).toBeNull();
+    expect(play).toHaveBeenCalledTimes(1);
+    view.unmount();
 });
 
 test('hover and focus overlap without restarting playback, including picker buttons', () => {
