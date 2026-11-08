@@ -22,13 +22,13 @@ import {AnimationDriver} from './animation';
 import {PatchSweeps} from '../../graphs/patches/patchSweep';
 import {GUIDED_LESSON_AVAILABLE_IDS, getLessonForDemonstration} from './lessonCatalog';
 import {LessonSession} from './LessonSession';
-import {readFileSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {inject} from 'vitest';
 import {classNames, familySample, selectEntries, skippedPlaceholder, TRANSIENT_STATE_SAMPLE, type SweepScope} from '../../graphs/base/catalogSweepScope';
 
 /** The contract is split across this many test files, so each runs in its own worker with its own memory. */
-export const LESSON_RESTORATION_PARTS = 4;
+export const LESSON_RESTORATION_PARTS = 8;
 
 /**
  * The lessons a local run walks without a change reaching them: the transient state sample (one graph per restoration
@@ -101,6 +101,32 @@ function resources(graph: BaseGraph<BaseGraphState>) {
         boards: Object.keys(JXG.boards as Record<string, JXG.Board>).length,
         runningAnimations: drivers(graph).filter(driver => driver.isRunning()).length,
     };
+}
+
+/**
+ * Applies each scene's actions in one synchronous sequence on the mounted graph, from the checkpoint taken at mount, the
+ * way a lesson session applies them, and names every action the graph rejected. A value a graph rejects fails here, so
+ * limits stay a graph-side fact and content is checked against them without restating them. The graph ends on the
+ * checkpoint again.
+ */
+export function rejectedActions(mounted: MountedGraph, where: string, scenes: ReadonlyArray<{where: string; actions: readonly LessonAction[]}>): string[] {
+    const capabilities = mounted.graph.getLessonCapabilities();
+    const checkpoint = capabilities.captureState();
+    const failures: string[] = [];
+    for (const scene of scenes) {
+        act(() => {
+            capabilities.restoreState(checkpoint);
+            for (const action of scene.actions) {
+                try {
+                    capabilities.apply(action);
+                } catch (error) {
+                    failures.push(`${where} ${scene.where}: ${JSON.stringify(action)} -> ${error instanceof Error ? error.message : String(error)}`);
+                }
+            }
+        });
+    }
+    act(() => capabilities.restoreState(checkpoint));
+    return failures;
 }
 
 function session(id: DemonstrationId, mounted: MountedGraph): LessonSession {
@@ -176,9 +202,25 @@ export function describeLessonRestoration(part: number): void {
     const ids = inPart.filter(id => selected.has(id));
     skippedPlaceholder(inPart.length - ids.length, 'guided lessons', 'BEZEG_LESSON_RESTORATION');
 
+    if (part === 0) {
+        test('the part files partition the guided lessons: every lesson is in exactly one part', () => {
+            for (let n = 1; n <= LESSON_RESTORATION_PARTS; n++) {
+                expect(existsSync(resolve(__dirname, `lessonRestoration.part${n}.test.tsx`)), `lessonRestoration.part${n}.test.tsx`).toBe(true);
+            }
+            expect(existsSync(resolve(__dirname, `lessonRestoration.part${LESSON_RESTORATION_PARTS + 1}.test.tsx`))).toBe(false);
+            const parts = Array.from({length: LESSON_RESTORATION_PARTS}, (_unused, number) =>
+                GUIDED_LESSON_AVAILABLE_IDS.filter((_id, index) => index % LESSON_RESTORATION_PARTS === number));
+            expect(parts.flat().sort()).toEqual([...GUIDED_LESSON_AVAILABLE_IDS].sort());
+        });
+    }
+
     describe.each(ids)('%s', id => {
         test('closing the lesson restores the edited graph and its resources, twice; it stays interactive; finishing keeps the final scene', () => {
             const mounted = mountGraph(createGraph(id));
+            // Every step scene's actions are accepted by this graph (the same mount, from its fresh checkpoint).
+            const scenes = getLessonForDemonstration(id)!.steps.filter(step => step.scene).map(step => ({where: step.id, actions: step.scene!.actions}));
+            expect(scenes.length).toBeGreaterThan(0);
+            expect(rejectedActions(mounted, id, scenes), 'scene actions the graph rejected').toEqual([]);
             changeScene(mounted, 'a');
             // The edit can leave hidden leftovers a restore does not rebuild (the Elevation overlay's replaced polygon), so
             // the baseline is the edited scene as its own checkpoint restores it; the scene itself is unchanged by that.
