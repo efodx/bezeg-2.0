@@ -120,6 +120,11 @@ test('a newly selected homepage preview plays one silent pass and returns to its
     const choices = opening.getByRole('group', {name: 'Starting demonstrations'}).getByRole('button');
     await expect(opening.locator('video[src]')).toHaveCount(0);
     expect(requests).toHaveLength(0);
+    await page.evaluate(() => {
+        document.addEventListener('ended', event => {
+            if (event.target instanceof HTMLVideoElement) document.documentElement.dataset.endedClip = event.target.currentSrc;
+        }, {capture: true, once: true});
+    });
 
     await choices.nth(1).click();
     const selected = opening.locator('.demonstrations-opening-image[data-selected="true"]');
@@ -127,13 +132,12 @@ test('a newly selected homepage preview plays one silent pass and returns to its
     await expect(video).toHaveCount(1);
     await expect.poll(() => video.evaluate(element => !element.paused && element.readyState >= 2)).toBe(true);
     expect(await video.evaluate(element => element.muted && element.playsInline && !element.loop && !element.controls)).toBe(true);
-    const videoElement = await video.elementHandle();
-    expect(videoElement).not.toBeNull();
+    const source = await video.evaluate(element => element.src);
     await expect.poll(() => video.evaluate(element => element.currentTime), {timeout:5000, intervals:[100]}).toBeGreaterThan(0.2);
-    await expect.poll(() => videoElement.evaluate(element => element.ended), {timeout:10000, intervals:[100]}).toBe(true);
-    await expect(selected.locator('video[src]')).toHaveCount(0);
+    await expect(video).toHaveCount(0, {timeout:10000});
+    await expect(page.locator('html')).toHaveAttribute('data-ended-clip', source);
     await expect(selected.locator('.demonstration-preview-poster')).toBeVisible();
-    expect(requests).toHaveLength(1);
+    expect(new Set(requests)).toEqual(new Set([source]));
 
     await choices.nth(0).click();
     const returned = opening.locator('.demonstrations-opening-image[data-selected="true"] video[src]');

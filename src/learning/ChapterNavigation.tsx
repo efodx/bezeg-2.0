@@ -5,6 +5,20 @@ import {learningChapters} from './learningChapters';
 
 type SectionLink = {id: string; title: string};
 
+export function ChapterSectionPermalink({id, title, language}: SectionLink & {language: 'sl' | 'en'}) {
+    return <a className="chapter-section-link" href={`#${id}`}
+        aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${title}`}
+        onClick={event => {
+            if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+                document.getElementById(`${id}-heading`)?.focus({preventScroll: true});
+            }
+        }}>
+        <svg aria-hidden="true" viewBox="0 0 20 20" focusable="false">
+            <path d="M8.25 11.75 11.75 8.25m-5.5 5.5-1.1 1.1a3.18 3.18 0 0 1-4.5-4.5l3.1-3.1a3.18 3.18 0 0 1 4.5 0m3.5-3.5 1.1-1.1a3.18 3.18 0 0 1 4.5 4.5l-3.1 3.1a3.18 3.18 0 0 1-4.5 0"/>
+        </svg>
+    </a>;
+}
+
 export function ChapterTrail({chapterId}: {chapterId: string}) {
     const {language} = useLanguage();
     const position = learningChapters.findIndex(chapter => chapter.id === chapterId) + 1;

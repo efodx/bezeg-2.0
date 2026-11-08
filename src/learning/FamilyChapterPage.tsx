@@ -8,7 +8,7 @@ import {familyChapters} from './content/familyChapters';
 import type {FamilyChapter} from './content/familyChapters';
 import type {LocalizedText} from './model';
 import {type OrderedChapterContent, type PlaygroundContent} from './chapter/orderedContent';
-import {ChapterContents, ChapterNeighbors, ChapterTrail} from './ChapterNavigation';
+import {ChapterContents, ChapterNeighbors, ChapterSectionPermalink, ChapterTrail} from './ChapterNavigation';
 import {ChapterGuidedLessons} from './ChapterGuidedLessons';
 import {restoreGuidedExampleReading} from './chapter/guidedExampleReading';
 import {linkedParagraph} from './chapter/linkedParagraph';
@@ -91,7 +91,7 @@ function ChapterReading({chapter}: {chapter: FamilyChapter}) {
                     </div>
                 </header>
                 {chapter.sections.map(section => <section className="chapter-section" id={section.id} key={section.id} aria-labelledby={`${section.id}-heading`}>
-                    <div className="chapter-section-heading"><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title[language]}</h2><a className="chapter-section-link" href={`#${section.id}`} aria-label={`${language === 'sl' ? 'Povezava do razdelka' : 'Link to section'}: ${section.title[language]}`}><svg aria-hidden="true" viewBox="0 0 20 20" focusable="false"><path d="M8.25 11.75 11.75 8.25m-5.5 5.5-1.1 1.1a3.18 3.18 0 0 1-4.5-4.5l3.1-3.1a3.18 3.18 0 0 1 4.5 0m3.5-3.5 1.1-1.1a3.18 3.18 0 0 1 4.5 4.5l-3.1 3.1a3.18 3.18 0 0 1-4.5 0"/></svg></a></div>
+                    <div className="chapter-section-heading"><h2 id={`${section.id}-heading`} tabIndex={-1}>{section.title[language]}</h2><ChapterSectionPermalink id={section.id} title={section.title[language]} language={language}/></div>
                     <div className="chapter-section-body">
                         {sectionContent(section).map((block, blockIndex) => {
                             if (block.kind === 'playground') return <PlaygroundBlock key={`${section.id}-playground-${blockIndex}`} block={block}/>;
