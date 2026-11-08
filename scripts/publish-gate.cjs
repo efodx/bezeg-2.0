@@ -10,7 +10,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const {parseArgs} = require('node:util');
-const {SHARED_PATHS} = require('./transient-state-scope.cjs');
+const {LESSON_SHARED_PATHS} = require('./transient-state-scope.cjs');
 
 const PRODUCTION_ORIGINS = ['https://github.com/efodx/bezeg-2.0.git', 'https://github.com/efodx/bezeg-2.0'];
 const USAGE = 'Usage: just publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,id,...>\n'
@@ -24,8 +24,8 @@ const LOCK_WAIT_MS = 15 * 60 * 1000;
 const LOCK_STALE_MS = 45 * 60 * 1000;
 const LOCK_POLL_MS = 1000;
 const DELTA_CHECKS = ['typecheck', 'lint', 'build'];
-// Beyond the transient-state list: files whose change can alter how any slice typechecks, lints, builds or tests.
-const DELTA_SHARED_PATHS = [...SHARED_PATHS, /^package(-lock)?\.json$/, /^\.nvmrc$/, /^vite\.config\.mts$/, /^tsconfig[^/]*\.json$/, /^src\/setupTests\.ts$/, /^eslint\.config\./];
+// Beyond the catalog sweeps' widest shared list (lesson sweeps): files whose change can alter how any slice typechecks, lints, builds or tests.
+const DELTA_SHARED_PATHS = [...LESSON_SHARED_PATHS, /^package(-lock)?\.json$/, /^\.nvmrc$/, /^vite\.config\.mts$/, /^tsconfig[^/]*\.json$/, /^src\/setupTests\.ts$/, /^eslint\.config\./];
 const DELTA_NOT_COVERED = 'delta path: master moved only in files the slice and shared configuration do not touch, so unit tests were not rerun on the new master (typecheck, lint and build were); hosted CI runs the full suite before deploying';
 
 const isDocumentation = file => file.startsWith('docs/') || file.endsWith('.md');

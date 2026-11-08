@@ -59,8 +59,14 @@ function rejections(id: DemonstrationId, where: string, actionsByScene: Readonly
 }
 
 const sceneContentScope = inject('sceneContentScope');
-const lessonIds = selectedLessons(sceneContentScope, 'BEZEG_SCENE_CONTENT');
-const activityIds = selectEntries(sceneContentScope, 'BEZEG_SCENE_CONTENT', activities.map(activity => activity.id as string),
+// BEZEG_SCENE_CONTENT=id,id may mix lesson ids and activity ids: each describe takes the ids of its own kind.
+const allActivityIds = activities.map(activity => activity.id as string);
+const knownIds = new Set<string>([...GUIDED_LESSON_AVAILABLE_IDS, ...allActivityIds]);
+const unknownIds = sceneContentScope?.ids?.filter(id => !knownIds.has(id)) ?? [];
+if (unknownIds.length) throw new Error(`BEZEG_SCENE_CONTENT names unknown lessons or activities: ${unknownIds.join(', ')}. Use catalog ids, or "all".`);
+const scopeFor = (ids: readonly string[]) => sceneContentScope?.ids ? {...sceneContentScope, ids: sceneContentScope.ids.filter(id => ids.includes(id))} : sceneContentScope;
+const lessonIds = selectedLessons(scopeFor(GUIDED_LESSON_AVAILABLE_IDS), 'BEZEG_SCENE_CONTENT');
+const activityIds = selectEntries(scopeFor(allActivityIds), 'BEZEG_SCENE_CONTENT', allActivityIds,
     activities.filter(activity => LESSON_SWEEP_SAMPLE.includes(activity.demonstrationId)).map(activity => activity.id as string),
     (id, scope) => {
         const activity = activities.find(entry => entry.id === id)!;

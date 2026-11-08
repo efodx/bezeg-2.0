@@ -18,6 +18,16 @@ const SHARED_PATHS = [
     /^src\/graphs\/styles\//,
     /^src\/bezeg\//,
     /^src\/learning\/model\.ts$/,
+    // Loaded by every test file or imported across graphs. src/localization/ is left out on purpose: most slices add
+    // catalog keys, the sweeps compare state rather than text, and typecheck covers the keys.
+    /^src\/setupTests\.ts$/,
+    /^src\/utils\//,
+    /^src\/types\//,
+    // Imported by the sweeps' scene helpers (src/graphs/base/realGraphScenes.ts, lessonRestorationContract.tsx); their
+    // file names match no graph class, so a change there would otherwise run only the sample.
+    /^src\/graphs\/patches\/patch(Dto|Sweep)\.ts$/,
+    /^src\/graphs\/projective\/(crossRatio|pascal|polePolar)Model\.ts$/,
+    /^src\/analysis\/(summaryStatistics|correlation)Model\.ts$/,
     /^package(-lock)?\.json$/,
     /^vite\.config\.mts$/,
     /^scripts\/transient-state-scope\.cjs$/,
