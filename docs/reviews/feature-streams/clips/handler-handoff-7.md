@@ -13,11 +13,11 @@ The supervisor finds a live stream session by the name "clips handler <n>". Conf
 
 ## Done and pushed
 
-- `c9979a10` fortune trace clip (steps 5 to 8, `offCamera` for `fortune-breakpoint`). segment-intersections recaptured with path +0/+6/+10/+14/+18, one checkpoint per sweep height, and the swap prompt as its quote.
-- `e82df4f7` capture-only app hook (own commit): under the clip global, the fine-grid rescale also scales the Voronoi query point and followed drawing box. It keeps that box while the view is unchanged, lets the query marker follow the pointer, and keeps the marker's look on press. Host tests were seen failing without each fix, except for the press highlight, which only preflight covers.
-- `a83d76f0` voronoi (query drag across two borders) and voronoi-degenerate (P4 of the trapezoid ±1, the degree-4 vertex splits and rejoins), both `fineGrid: -8`. New row field `restyle {reason}`: strokes switch only between poster widths and are re-presented, and at most 4 restyled frame steps are excused from the pixel check (`restyledSteps` in `_jump.cjs`, also used by the offline validator). ear-clipping recorded as poster-only.
+- `766eebce` fortune trace clip (steps 5 to 8, `offCamera` for `fortune-breakpoint`). segment-intersections recaptured with path +0/+6/+10/+14/+18, one checkpoint per sweep height, and the swap prompt as its quote.
+- `388eaecf` capture-only app hook (own commit): under the clip global, the fine-grid rescale also scales the Voronoi query point and followed drawing box. It keeps that box while the view is unchanged, lets the query marker follow the pointer, and keeps the marker's look on press. Host tests were seen failing without each fix, except for the press highlight, which only preflight covers.
+- `53028c46` voronoi (query drag across two borders) and voronoi-degenerate (P4 of the trapezoid ±1, the degree-4 vertex splits and rejoins), both `fineGrid: -8`. New row field `restyle {reason}`: strokes switch only between poster widths and are re-presented, and at most 4 restyled frame steps are excused from the pixel check (`restyledSteps` in `_jump.cjs`, also used by the offline validator). ear-clipping recorded as poster-only.
 - Reviews: I checked conic-focal myself against the conic formulas (a=5, c=4 at ε=0.8; the hyperbola frame matches ε≈1.4; the small ellipse ε≈0.4). A Haiku visual review of conic-focal, fortune and segment-intersections reported only allowed off-frame points and label overlaps already in the poster. I checked these findings and they need no change.
-- 16 Demonstrations remain in `src/demonstrationMotionPending.ts` (ear-clipping, linear-map, hull-robustness and point-in-polygon are poster-only by decision and stay there).
+- 17 Demonstrations remain in `src/demonstrationMotionPending.ts` (ear-clipping, linear-map, hull-robustness and point-in-polygon are poster-only by decision and stay there).
 
 ## Next, in order
 
