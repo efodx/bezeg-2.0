@@ -7,9 +7,11 @@ import {fileURLToPath} from 'node:url';
 
 const require = createRequire(import.meta.url);
 const testSlots = require('./scripts/test-slots.cjs') as {machineBudget: () => {workers: number}};
-type TransientStateScope = {all: boolean; reason: string; ids: string[] | null; changedNames: string[]};
+type TransientStateScope = {all: boolean; reason: string; ids: string[] | null; changedNames: string[]; changedFiles: string[]};
 const transientState = require('./scripts/transient-state-scope.cjs') as {
     transientStateScope: (input: {env: NodeJS.ProcessEnv; changedPaths: () => string[]}) => TransientStateScope;
+    sweepScope: (sweep: {variable: string; shared: RegExp[]}, input: {env: NodeJS.ProcessEnv; changedPaths: () => string[]}) => TransientStateScope;
+    SWEEPS: Record<'lessonRestoration' | 'sceneContent' | 'sceneReplacement', {variable: string; shared: RegExp[]}>;
     gitChangedPaths: (cwd: string) => string[];
 };
 
@@ -71,12 +73,16 @@ export default defineConfig({
             ? {maxWorkers: Number(process.env.BEZEG_TEST_WORKERS)}
             : process.env.CI ? {} : {maxWorkers: testSlots.machineBudget().workers}),
         sequence: {sequencer: PartSequencer},
-        // A local run mounts a sample of the graphs in the transient state contract, plus the graphs the branch changed.
-        provide: {
-            transientStateScope: transientState.transientStateScope({
-                env: process.env,
-                changedPaths: () => transientState.gitChangedPaths(fileURLToPath(new URL('.', import.meta.url))),
-            }),
-        },
+        // A local run mounts a sample of the graphs and lessons the catalog sweeps cover, plus what the branch changed.
+        provide: (() => {
+            const changedPaths = () => transientState.gitChangedPaths(fileURLToPath(new URL('.', import.meta.url)));
+            const scopeOf = (sweep: {variable: string; shared: RegExp[]}) => transientState.sweepScope(sweep, {env: process.env, changedPaths});
+            return {
+                transientStateScope: transientState.transientStateScope({env: process.env, changedPaths}),
+                lessonRestorationScope: scopeOf(transientState.SWEEPS.lessonRestoration),
+                sceneContentScope: scopeOf(transientState.SWEEPS.sceneContent),
+                sceneReplacementScope: scopeOf(transientState.SWEEPS.sceneReplacement),
+            };
+        })(),
     },
 });

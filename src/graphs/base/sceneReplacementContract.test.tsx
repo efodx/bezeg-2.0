@@ -11,8 +11,12 @@
  * Cases marked `it.fails` reproduce a real leak or duplication; flip each to `it` when the family's teardown owns
  * its objects (A3 S3). Lesson entries run on the three matrix families through the generic prepared-scene and
  * checkpoint capabilities.
+ *
+ * Tier: sampled locally, full in CI. The leak loop below checks one Demonstration per family plus the graphs the branch
+ * changed (`catalogSweepScope.ts`); BEZEG_SCENE_REPLACEMENT=all or BEZEG_SWEEPS=all runs every one.
  */
 import {act} from '@testing-library/react';
+import {inject} from 'vitest';
 import JXG from 'jsxgraph';
 import {graphFactories} from '../graphFactories';
 import BaseGraph, {BaseGraphState} from './BaseGraph';
@@ -22,6 +26,8 @@ import {internals} from './realGraphScenes';
 import {CrossRatioGraph} from '../projective/CrossRatioGraph';
 import {PascalGraph} from '../projective/PascalGraph';
 import {boardInfrastructureObjects} from './BoardInfrastructure';
+import {classNames, familySample, selectEntries, skippedPlaceholder} from './catalogSweepScope';
+import type {DemonstrationId} from '../../demonstrations';
 
 vi.mock('./export/FigureCapture', async () => ({
     ...await vi.importActual<typeof import('./export/FigureCapture')>('./export/FigureCapture'),
@@ -230,8 +236,15 @@ function sceneObjects(graph: GraphLike): object[] {
  * removes what it created and nothing sweeps behind it. Two replacements per family and entry: no scene object from
  * before a replacement survives it, and the second leaves as many scene objects as the first.
  */
+const allIds = Object.keys(graphFactories) as DemonstrationId[];
+/** The surface family has no board, so one of its graphs is sampled beside each family's first. */
+const SCENE_REPLACEMENT_SAMPLE = familySample(allIds, ['patch-tensor']);
+const checkedIds = selectEntries(inject('sceneReplacementScope'), 'BEZEG_SCENE_REPLACEMENT', allIds, SCENE_REPLACEMENT_SAMPLE,
+    (id, scope) => classNames(createGraph(id)).some(name => scope.changedNames.includes(name)));
+
 describe.each(['reload', 'figure batch'] as Entry[])('figure-path replacement leaves no scene object behind (%s)', entry => {
-    for (const id of Object.keys(graphFactories) as Array<keyof typeof graphFactories>) {
+    skippedPlaceholder(allIds.length - checkedIds.length, 'Demonstrations', 'BEZEG_SCENE_REPLACEMENT');
+    for (const id of checkedIds) {
         const run = LEAKERS[`${id}/${entry}`] ? it.fails : it;
         run(`${id}`, async () => {
             const rig = open(() => graphFactories[id]());

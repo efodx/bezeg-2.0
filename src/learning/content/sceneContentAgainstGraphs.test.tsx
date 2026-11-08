@@ -3,6 +3,9 @@
  * Chapter activity go to the real graph of their Demonstration (`graphFactories`, mounted through the real `GraphHost`),
  * synchronously and in order, the way a lesson session applies them. A value a graph rejects fails here, so limits
  * stay a graph-side fact and content is checked against them without restating them.
+ *
+ * Tier: sampled locally, full in CI. The two sweeps (Guided examples, Chapter activities) check the lesson sample plus
+ * what the branch reaches; BEZEG_SCENE_CONTENT=all or BEZEG_SWEEPS=all runs every one. The limit probes are fixed.
  */
 import {act} from '@testing-library/react';
 import {graphFactories} from '../../graphs/graphFactories';
@@ -10,7 +13,10 @@ import type {DemonstrationId} from '../../demonstrations';
 import type {LessonAction} from '../model';
 import {activities} from '../chapter/activities';
 import {getLessonForDemonstration, GUIDED_LESSON_AVAILABLE_IDS} from '../runtime/lessonCatalog';
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {inject} from 'vitest';
+import {classNames, selectEntries, skippedPlaceholder} from '../../graphs/base/catalogSweepScope';
+import {LESSON_SWEEP_SAMPLE, selectedLessons} from '../runtime/lessonRestorationContract';
+import {createGraph, installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {BERNSTEIN_MAX_DEGREE} from '../../graphs/bernstein/BernsteinGraph';
 import {SUBDIVISION_T_MAX, SUBDIVISION_T_MIN} from '../../graphs/curves/bezier/SubdivisionGraph1';
 import {EXTRAPOLATION_T_MAX, EXTRAPOLATION_T_MIN} from '../../graphs/curves/object/AbstractJXGBezierCurve';
@@ -52,8 +58,19 @@ function rejections(id: DemonstrationId, where: string, actionsByScene: Readonly
     }
 }
 
+const sceneContentScope = inject('sceneContentScope');
+const lessonIds = selectedLessons(sceneContentScope, 'BEZEG_SCENE_CONTENT');
+const activityIds = selectEntries(sceneContentScope, 'BEZEG_SCENE_CONTENT', activities.map(activity => activity.id as string),
+    activities.filter(activity => LESSON_SWEEP_SAMPLE.includes(activity.demonstrationId)).map(activity => activity.id as string),
+    (id, scope) => {
+        const activity = activities.find(entry => entry.id === id)!;
+        return scope.changedFiles.some(file => file.startsWith('src/learning/chapter/'))
+            || classNames(createGraph(activity.demonstrationId)).some(name => scope.changedNames.includes(name));
+    });
+
 describe('Guided example scenes are accepted by their Demonstration graph', () => {
-    test.each([...GUIDED_LESSON_AVAILABLE_IDS])('%s', id => {
+    skippedPlaceholder(GUIDED_LESSON_AVAILABLE_IDS.length - lessonIds.length, 'guided lessons', 'BEZEG_SCENE_CONTENT');
+    test.each([...lessonIds])('%s', id => {
         const lesson = getLessonForDemonstration(id)!;
         const scenes = lesson.steps.filter(step => step.scene).map(step => ({where: step.id, actions: step.scene!.actions}));
         expect(scenes.length).toBeGreaterThan(0);
@@ -62,7 +79,8 @@ describe('Guided example scenes are accepted by their Demonstration graph', () =
 });
 
 describe('Chapter activity actions are accepted by their Demonstration graph', () => {
-    test.each(activities.map(activity => [activity.id, activity] as const))('%s', (_id, activity) => {
+    skippedPlaceholder(activities.length - activityIds.length, 'activities', 'BEZEG_SCENE_CONTENT');
+    test.each(activities.filter(activity => activityIds.includes(activity.id)).map(activity => [activity.id, activity] as const))('%s', (_id, activity) => {
         expect(rejections(activity.demonstrationId, activity.id, [{where: activity.id, actions: activity.actions}])).toEqual([]);
     });
 });

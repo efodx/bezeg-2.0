@@ -6,6 +6,9 @@
  * Each close must restore the edited scene (Preset data, scene and transient state, drawn board, controls, child-board
  * view) and leave no extra board objects, child boards or running animations, and the graph must keep responding to
  * later edits like a graph that never ran the lesson. Completion keeps the final scene; a disposed graph is left alone.
+ *
+ * Tier: sampled locally, full in CI. A local run walks `LESSON_SWEEP_SAMPLE` plus the lessons the branch reaches
+ * (`selectedLessons`); BEZEG_LESSON_RESTORATION=all or BEZEG_SWEEPS=all runs every guided lesson.
  */
 import {act} from '@testing-library/react';
 import JXG from 'jsxgraph';
@@ -19,9 +22,52 @@ import {AnimationDriver} from './animation';
 import {PatchSweeps} from '../../graphs/patches/patchSweep';
 import {GUIDED_LESSON_AVAILABLE_IDS, getLessonForDemonstration} from './lessonCatalog';
 import {LessonSession} from './LessonSession';
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {inject} from 'vitest';
+import {classNames, familySample, selectEntries, skippedPlaceholder, TRANSIENT_STATE_SAMPLE, type SweepScope} from '../../graphs/base/catalogSweepScope';
 
 /** The contract is split across this many test files, so each runs in its own worker with its own memory. */
 export const LESSON_RESTORATION_PARTS = 4;
+
+/**
+ * The lessons a local run walks without a change reaching them: the transient state sample (one graph per restoration
+ * mechanism the graphs special-case) plus the first lesson of each family that sample leaves out. Mechanisms are not
+ * derived from the lessons themselves, so a lesson with a new mechanism joins the sample through its graph's family only.
+ */
+export const LESSON_SWEEP_SAMPLE = familySample(GUIDED_LESSON_AVAILABLE_IDS, TRANSIENT_STATE_SAMPLE);
+
+/**
+ * The lesson ids a changed content file mentions as quoted strings (a lesson names its Demonstration), or null when it
+ * mentions none or cannot be read (a chapter helper, an adapter, a deleted file): that change reaches every lesson.
+ */
+function lessonsMentionedBy(file: string): Set<string> | null {
+    let text: string;
+    try {
+        text = readFileSync(resolve(process.cwd(), file), 'utf8');
+    } catch {
+        return null;
+    }
+    const mentioned = GUIDED_LESSON_AVAILABLE_IDS.filter(id => ["'", '"', '`'].some(quote => text.includes(quote + id + quote)));
+    return mentioned.length > 0 ? new Set(mentioned) : null;
+}
+
+/**
+ * The guided lessons this run checks for a lesson sweep: the sample, the lessons whose graph class (or superclass) is
+ * named like a changed file, and the lessons a changed file under src/learning/content/ mentions (all of them when it
+ * mentions none). `variable` is the sweep's env variable, named in errors.
+ */
+export function selectedLessons(scope: SweepScope | undefined, variable: string): DemonstrationId[] {
+    let content: Set<string> | null | undefined;
+    const contentReach = (found: SweepScope) => content ??= found.changedFiles
+        .filter(file => file.startsWith('src/learning/content/'))
+        .map(lessonsMentionedBy)
+        .reduce<Set<string> | null>((all, ids) => all === null || ids === null ? null : new Set([...all, ...ids]), new Set());
+    return selectEntries(scope, variable, GUIDED_LESSON_AVAILABLE_IDS, LESSON_SWEEP_SAMPLE, (id, found) => {
+        const reached = contentReach(found);
+        return reached === null || reached.has(id) || classNames(createGraph(id)).some(name => found.changedNames.includes(name));
+    });
+}
 
 /** Animation drivers the graph owns, directly or through a controller (an iteration controller's driver). */
 function drivers(graph: BaseGraph<BaseGraphState>): Pick<AnimationDriver, 'isRunning'>[] {
@@ -125,7 +171,10 @@ export function describeLessonRestoration(part: number): void {
     beforeAll(installBoardShims);
     beforeEach(() => appStorage.clear());
     afterEach(() => vi.restoreAllMocks());
-    const ids = GUIDED_LESSON_AVAILABLE_IDS.filter((_id, index) => index % LESSON_RESTORATION_PARTS === part);
+    const selected = new Set(selectedLessons(inject('lessonRestorationScope'), 'BEZEG_LESSON_RESTORATION'));
+    const inPart = GUIDED_LESSON_AVAILABLE_IDS.filter((_id, index) => index % LESSON_RESTORATION_PARTS === part);
+    const ids = inPart.filter(id => selected.has(id));
+    skippedPlaceholder(inPart.length - ids.length, 'guided lessons', 'BEZEG_LESSON_RESTORATION');
 
     describe.each(ids)('%s', id => {
         test('closing the lesson restores the edited graph and its resources, twice; it stays interactive; finishing keeps the final scene', () => {

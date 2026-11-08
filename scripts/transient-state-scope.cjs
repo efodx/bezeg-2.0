@@ -1,8 +1,12 @@
 'use strict';
-// Decides which Demonstrations the transient state contract (src/graphs/base/graphTransientStateContract.tsx) mounts.
-// The contract mounts every graph several times on a real board and costs about 13 CPU minutes, so a local run checks a
-// representative sample plus the graphs the branch changed; CI and BEZEG_TRANSIENT_STATE=all check every graph.
-// See docs/commands.md, "Transient state contract scope".
+// Decides which entries the catalog sweeps run. Tier: sampled locally, full in CI.
+//   transient state    src/graphs/base/graphTransientStateContract.tsx  (BEZEG_TRANSIENT_STATE)
+//   lesson restoration src/learning/runtime/lessonRestorationContract.tsx  (BEZEG_LESSON_RESTORATION)
+//   scene content      src/learning/content/sceneContentAgainstGraphs.test.tsx  (BEZEG_SCENE_CONTENT)
+//   scene replacement  src/graphs/base/sceneReplacementContract.test.tsx  (BEZEG_SCENE_REPLACEMENT)
+// Each sweep mounts many graphs on real boards, so a local run checks a representative sample plus the entries the
+// branch's changed files reach; CI, BEZEG_SWEEPS=all and the sweep's own variable =all check every entry.
+// See docs/commands.md, "Catalog sweep scope".
 
 const {execFileSync} = require('node:child_process');
 
@@ -19,37 +23,68 @@ const SHARED_PATHS = [
     /^scripts\/transient-state-scope\.cjs$/,
 ];
 
+/**
+ * The shared paths of the lesson sweeps (restoration, scene content): SHARED_PATHS, which already holds the scene store
+ * and graph host (src/graphs/base/) and the lesson model, plus what every lesson runs through: the lesson session,
+ * catalog and animation (src/learning/runtime/), the Demonstration definitions, storage, and the lesson content
+ * helpers that define no lesson. A changed file under src/learning/content/ that defines one or more lessons is not
+ * shared: it selects the lessons it mentions (`lessonsReached` in lessonRestorationContract.tsx), and one that
+ * mentions none is treated as shared there.
+ */
+const LESSON_SHARED_PATHS = [
+    ...SHARED_PATHS,
+    /^src\/learning\/runtime\//,
+    /^src\/demonstrations\.ts$/,
+    /^src\/storage\//,
+];
+
+/** The sweeps that sample locally and run every entry in CI: the env variable that tunes each, and its shared paths. */
+const SWEEPS = {
+    transientState: {variable: 'BEZEG_TRANSIENT_STATE', shared: SHARED_PATHS},
+    lessonRestoration: {variable: 'BEZEG_LESSON_RESTORATION', shared: LESSON_SHARED_PATHS},
+    sceneContent: {variable: 'BEZEG_SCENE_CONTENT', shared: LESSON_SHARED_PATHS},
+    sceneReplacement: {variable: 'BEZEG_SCENE_REPLACEMENT', shared: SHARED_PATHS},
+};
+
 const isTest = filePath => /\.test\.[jt]sx?$/.test(filePath);
 
 /**
+ * Which entries of a catalog sweep run. `BEZEG_SWEEPS=all` forces every sweep to all. The sweep's own variable takes
+ * `all`, `sample` (keeps the sample even after a shared change, even in CI) or a comma list of ids; unset, CI and a
+ * change to a shared path run everything, else the sample plus what the changed files reach.
+ * @param {{variable: string, shared: RegExp[]}} sweep
  * @param {{env: Record<string, string | undefined>, changedPaths: () => string[]}} input
- * @returns {{all: boolean, reason: string, ids: string[] | null, changedNames: string[]}}
- *   `ids` is an explicit selection (BEZEG_TRANSIENT_STATE=a,b); otherwise the contract adds the graphs whose class (or
- *   a superclass) is named like a changed file in `changedNames` to its sample.
+ * @returns {{all: boolean, reason: string, ids: string[] | null, changedNames: string[], changedFiles: string[]}}
+ *   `ids` is an explicit selection; otherwise the sweep adds the entries whose class (or a superclass) is named like a
+ *   file in `changedNames`, or that a file in `changedFiles` (changed non-test sources under src/) defines.
  */
-function transientStateScope({env, changedPaths}) {
-    const setting = (env.BEZEG_TRANSIENT_STATE ?? '').trim();
-    if (setting === 'all') return {all: true, reason: 'BEZEG_TRANSIENT_STATE=all', ids: null, changedNames: []};
+function sweepScope(sweep, {env, changedPaths}) {
+    const none = {changedNames: [], changedFiles: []};
+    const setting = (env[sweep.variable] ?? '').trim();
+    if ((env.BEZEG_SWEEPS ?? '').trim() === 'all') return {all: true, reason: 'BEZEG_SWEEPS=all', ids: null, ...none};
+    if (setting === 'all') return {all: true, reason: `${sweep.variable}=all`, ids: null, ...none};
     if (setting !== '' && setting !== 'sample') {
         const ids = setting.split(',').map(id => id.trim()).filter(Boolean);
-        return {all: false, reason: `BEZEG_TRANSIENT_STATE lists ${ids.length}`, ids, changedNames: []};
+        return {all: false, reason: `${sweep.variable} lists ${ids.length}`, ids, ...none};
     }
-    if (setting === '' && env.CI) return {all: true, reason: 'CI', ids: null, changedNames: []};
+    if (setting === '' && env.CI) return {all: true, reason: 'CI', ids: null, ...none};
     let paths;
     try {
         paths = changedPaths();
     } catch (error) {
-        return {all: true, reason: `the changed files are unknown (${error.message.split('\n')[0]})`, ids: null, changedNames: []};
+        return {all: true, reason: `the changed files are unknown (${error.message.split('\n')[0]})`, ids: null, ...none};
     }
-    // BEZEG_TRANSIENT_STATE=sample keeps the sample even after a shared change.
+    // The variable =sample keeps the sample even after a shared change.
     const shared = setting === 'sample' ? undefined
-        : paths.find(filePath => !isTest(filePath) && SHARED_PATHS.some(pattern => pattern.test(filePath)));
-    if (shared) return {all: true, reason: `${shared} is shared by every graph`, ids: null, changedNames: []};
-    const changedNames = [...new Set(paths
-        .filter(filePath => filePath.startsWith('src/') && !isTest(filePath))
-        .map(filePath => filePath.replace(/^.*\//, '').replace(/\.[^.]+$/, '')))].sort();
-    return {all: false, reason: 'sample', ids: null, changedNames};
+        : paths.find(filePath => !isTest(filePath) && sweep.shared.some(pattern => pattern.test(filePath)));
+    if (shared) return {all: true, reason: `${shared} is shared by every graph`, ids: null, ...none};
+    const changedFiles = [...new Set(paths.filter(filePath => filePath.startsWith('src/') && !isTest(filePath)))].sort();
+    const changedNames = [...new Set(changedFiles.map(filePath => filePath.replace(/^.*\//, '').replace(/\.[^.]+$/, '')))].sort();
+    return {all: false, reason: 'sample', ids: null, changedNames, changedFiles};
 }
+
+/** @param {{env: Record<string, string | undefined>, changedPaths: () => string[]}} input */
+const transientStateScope = input => sweepScope(SWEEPS.transientState, input);
 
 const git = (args, cwd) => execFileSync('git', args, {cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']}).trim();
 
@@ -64,4 +99,4 @@ function gitChangedPaths(cwd) {
     return [...lines(git(['diff', '--name-only', base], cwd)), ...lines(git(['ls-files', '--others', '--exclude-standard'], cwd))];
 }
 
-module.exports = {transientStateScope, gitChangedPaths, SHARED_PATHS};
+module.exports = {transientStateScope, sweepScope, SWEEPS, gitChangedPaths, SHARED_PATHS, LESSON_SHARED_PATHS};

@@ -4,6 +4,7 @@
  * through each scene replacement path, and the Preset data, scene state, transient state, curve adapters, drawn board
  * and inspector controls are compared with what was captured. Each test first checks that its change was observable,
  * so no comparison passes because nothing changed.
+ * Tier: sampled locally, full in CI (`catalogSweepScope.ts`).
  */
 import {act} from '@testing-library/react';
 import {graphFactories} from '../graphFactories';
@@ -14,6 +15,7 @@ import type {LessonAction} from '../../learning/model';
 import {appStorage} from '../../storage/appStorage';
 import {capturePNGBlob} from './export/FigureCapture';
 import {inject, type Mock} from 'vitest';
+import {classNames, selectEntries, skippedPlaceholder, TRANSIENT_STATE_SAMPLE} from './catalogSweepScope';
 import {
     controlsSignature,
     createGraph,
@@ -148,48 +150,16 @@ async function loadedPresetScene(create: () => BaseGraph<BaseGraphState>, preset
 
 const DEFAULT_SCENE: LessonAction = {kind: 'prepared-scene', sceneId: 'default', source: 'demonstration-default'};
 
-/**
- * The graphs a local run mounts when the branch changes no shared file: one per restoration mechanism the contract
- * special-cases (child board, surface view, no Preset collection or data, Preset data in the model, no synchronous scene
- * change, rational weights, pointer sketches) and per family. The subdivision graphs, a third of the cost, stay out.
- */
-export const TRANSIENT_STATE_SAMPLE: readonly DemonstrationId[] = [
-    'bezier', 'rational', 'spline-c1', 'ph-cubic', 'interp-hermite', 'circle', 'bernstein', 'patch-tensor',
-    'mean-value', 'complex-multiplication', 'linear-map', 'orientation', 'triangle-centres', 'projective-pascal',
-];
-
-declare module 'vitest' {
-    interface ProvidedContext {
-        /** Which Demonstrations this contract mounts; `vite.config.mts` provides it. */
-        transientStateScope: {all: boolean; reason: string; ids: string[] | null; changedNames: string[]};
-    }
-}
-
-/** The class names of a graph and its superclasses, matched against the names of changed files. */
-function classNames(graph: object): string[] {
-    const names: string[] = [];
-    for (let proto = Object.getPrototypeOf(graph); proto && proto !== Object.prototype; proto = Object.getPrototypeOf(proto)) {
-        names.push(proto.constructor.name);
-    }
-    return names;
-}
+export {TRANSIENT_STATE_SAMPLE};
 
 /**
  * The Demonstrations this run checks, from `scripts/transient-state-scope.cjs`: every one in CI, after a change to a
- * shared file, or with BEZEG_TRANSIENT_STATE=all; the listed ones with BEZEG_TRANSIENT_STATE=id,id; otherwise the
- * sample plus the graphs whose class or superclass is named like a changed file.
+ * shared file, or with BEZEG_TRANSIENT_STATE=all or BEZEG_SWEEPS=all; the listed ones with BEZEG_TRANSIENT_STATE=id,id;
+ * otherwise the sample plus the graphs whose class or superclass is named like a changed file.
  */
 export function selectedDemonstrations(): DemonstrationId[] {
-    const all = Object.keys(graphFactories) as DemonstrationId[];
-    const scope = inject('transientStateScope');
-    if (!scope || scope.all) return all;
-    if (scope.ids) {
-        const unknown = scope.ids.filter(id => !(all as string[]).includes(id));
-        if (unknown.length) throw new Error(`BEZEG_TRANSIENT_STATE names unknown Demonstrations: ${unknown.join(', ')}. Use ids from graphFactories, or "all".`);
-        return all.filter(id => scope.ids!.includes(id));
-    }
-    const changed = new Set(scope.changedNames);
-    return all.filter(id => TRANSIENT_STATE_SAMPLE.includes(id) || (changed.size > 0 && classNames(createGraph(id)).some(name => changed.has(name))));
+    return selectEntries(inject('transientStateScope'), 'BEZEG_TRANSIENT_STATE', Object.keys(graphFactories) as DemonstrationId[],
+        TRANSIENT_STATE_SAMPLE, (id, scope) => classNames(createGraph(id)).some(name => scope.changedNames.includes(name)));
 }
 
 /** Runs the contract for every `TRANSIENT_STATE_PARTS`-th Demonstration from `part` (0-based); the part files cover the catalog. */
@@ -203,7 +173,7 @@ export function describeGraphTransientState(part: number): void {
     const ids = all.filter((id, index) => index % TRANSIENT_STATE_PARTS === part && selected.has(id));
     const left = all.filter((id, index) => index % TRANSIENT_STATE_PARTS === part && !selected.has(id)).length;
     // Named in the skipped count, so a sampled run says how much it left out and how to run it all.
-    if (left > 0) test.skip(`${left} more Demonstrations: set BEZEG_TRANSIENT_STATE=all (CI runs every one)`, () => undefined);
+    skippedPlaceholder(left, 'Demonstrations', 'BEZEG_TRANSIENT_STATE');
 
     describe.each(ids)('%s', id => {
         const create = () => createGraph(id);
