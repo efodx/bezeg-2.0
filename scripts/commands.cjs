@@ -5,6 +5,8 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const {spawn} = require('node:child_process');
+const {alwaysRunFiles} = require('./check-changed-always-run.cjs');
+const {warnSelectorRemovals} = require('./selector-removal-check.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const LOG_DIR_NAME = '.command-logs';
@@ -436,8 +438,9 @@ async function executeCommand(command, rawArgs = [], options = {}) {
     const lint = argv => free('lint', nodeStep('lint', localTool(root, 'eslint'), argv.length ? argv : ['.']));
     const build = () => free('build', npmStep('build'));
     const unit = argv => slotted({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', ...argv]});
+    const alwaysRunStep = files => ({label: 'test', executable: process.execPath, args: [npmCliPath(), 'test', '--', '--run', '--maxWorkers=2', ...files]});
     const smokeBuilt = argv => slotted(npmStep('test:smoke:built', argv));
-    if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/commands.test.cjs'), path.join(root, 'scripts/demonstration-preview-motion-runner.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_jump.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_rows.test.cjs'), path.join(root, 'scripts/publish-gate.test.cjs')]}]);
+    if (command === 'tooling-test') return run('tooling-test', [{label: 'tooling-test', executable: process.execPath, args: ['--test', path.join(root, 'scripts/commands.test.cjs'), path.join(root, 'scripts/demonstration-preview-motion-runner.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_jump.test.cjs'), path.join(root, 'scripts/demonstration-clip-rows/_rows.test.cjs'), path.join(root, 'scripts/publish-gate.test.cjs'), path.join(root, 'scripts/selector-removal-check.test.cjs')]}]);
     if (command === 'clip') {
         if (args.length !== 1 || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(args[0])) throw new Error('Usage: just clip <demonstration-id> (one id, lowercase with hyphens).');
         // PREVIEW_RECAPTURE_VERIFIED_PRESENTATION is an operator assertion: it passes through from the environment, never set here.
@@ -488,7 +491,13 @@ async function executeCommand(command, rawArgs = [], options = {}) {
         // when the change touches package.json, the Vite config or a setup file. Hosted CI always runs the full suite.
         if (args.length > 1 || args[0]?.startsWith('-')) throw new Error('Usage: just check-changed [ref] (default origin/master).');
         const ref = args[0] || 'origin/master';
-        const code = await run('check-changed', [tsc(), lint([]), unit(['--changed', ref, '--passWithNoTests'])]);
+        // The always-run tier (scripts/check-changed-always-run.cjs) is its own small unit step that holds no slot (a
+        // filtered run), because the import-graph selection misses registries reached through file reads.
+        const changed = await commandOutput('git', root, ['diff', '--name-only', ref], 1 << 20).then(text => text.split('\n').filter(Boolean), () => undefined);
+        const always = alwaysRunFiles(changed);
+        // Warning only: a smoke spec that still waits for a removed selector fails in CI, not here.
+        await warnSelectorRemovals({root, base: ref});
+        const code = await run('check-changed', [tsc(), lint([]), unit(['--changed', ref, '--passWithNoTests']), ...(always.length ? [free('unit', alwaysRunStep(always))] : [])]);
         return code === 0 ? buildWithProvenance('check-changed build') : code;
     }
     if (command === 'check-localization') {

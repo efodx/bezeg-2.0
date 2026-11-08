@@ -8,6 +8,7 @@ const {spawn, spawnSync} = require('node:child_process');
 const test = require('node:test');
 const commands = require('./commands.cjs');
 const slots = require('./test-slots.cjs');
+const {ALWAYS_RUN, alwaysRunFiles} = require('./check-changed-always-run.cjs');
 
 // Keep fixture runs out of the machine-wide slots held by real test runs.
 process.env.BEZEG_TEST_SLOT_DIR = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'bezeg-test-slots-'));
@@ -172,6 +173,7 @@ test('CLI keeps a broken summary pipe from crashing or reporting success', {time
     fs.mkdirSync(path.join(root, 'scripts'), {recursive: true});
     fs.copyFileSync(path.join(__dirname, 'commands.cjs'), path.join(root, 'scripts/commands.cjs'));
     fs.copyFileSync(path.join(__dirname, 'test-slots.cjs'), path.join(root, 'scripts/test-slots.cjs'));
+    for (const name of ['check-changed-always-run.cjs', 'selector-removal-check.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(root, 'scripts', name));
     fs.writeFileSync(path.join(root, 'package.json'), '{}');
     fs.writeFileSync(npmCli, '');
     const wrapper = path.join(root, 'cli-wrapper.cjs');
@@ -311,9 +313,11 @@ test('check-changed runs typecheck, lint and only the affected unit tests agains
         assert.equal(await commands.execute('check-changed', ['abc1234'], {root, env}), 0);
         assert.equal(await commands.execute('check-changed', [], {root, env}), 0);
         const lines = fs.readFileSync(events, 'utf8').trim().split('\n').map(line => JSON.parse(line));
-        assert.deepEqual(lines.map(([label, first]) => `${label} ${first}`), ['tsc --noEmit', 'eslint .', 'npm test', 'npm run', 'tsc --noEmit', 'eslint .', 'npm test', 'npm run']);
+        assert.deepEqual(lines.map(([label, first]) => `${label} ${first}`), ['tsc --noEmit', 'eslint .', 'npm test', 'npm test', 'npm run', 'tsc --noEmit', 'eslint .', 'npm test', 'npm test', 'npm run']);
         assert.deepEqual(lines[2].slice(1), ['test', '--', '--run', '--changed', 'abc1234', '--passWithNoTests']);
-        assert.deepEqual(lines[6].slice(5, 6), ['origin/master']);
+        assert.deepEqual(lines[3].slice(1, 3), ['test', '--']);
+        assert.deepEqual(lines[3].slice(5), ALWAYS_RUN);
+        assert.deepEqual(lines[7].slice(5, 6), ['origin/master']);
         await commands.assertProvenance(root);
         await assert.rejects(commands.execute('check-changed', ['--all'], {root, env}), /Usage: just check-changed/);
     } finally {
@@ -450,6 +454,7 @@ test('real just preserves quoted recipe arguments when available', t => {
     fs.copyFileSync(path.join(__dirname, '..', 'justfile'), path.join(root, 'justfile'));
     fs.copyFileSync(path.join(__dirname, 'commands.cjs'), path.join(root, 'scripts/commands.cjs'));
     fs.copyFileSync(path.join(__dirname, 'test-slots.cjs'), path.join(root, 'scripts/test-slots.cjs'));
+    for (const name of ['check-changed-always-run.cjs', 'selector-removal-check.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(root, 'scripts', name));
     const npmCli = commands.resolveNpmCli();
     if (!npmCli) { cleanup(root); return t.skip('npm-cli.js is not available for the end-to-end argument check'); }
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({scripts: {test: 'node print-args.cjs'}}));
@@ -638,6 +643,7 @@ test('check-changed holds a slot only around the unit step; typecheck, lint and 
         'admit typecheck spacing=false', 'tsc',
         'admit lint spacing=false', 'lint',
         'slot-acquire check-changed', 'admit check-changed spacing=true', 'unit', 'slot-release',
+        'admit unit spacing=false', 'unit',
         'admit build spacing=false', 'build',
     ]);
 }));
@@ -706,3 +712,25 @@ test('a heavy command already running in the same checkout is refused before any
         assert.deepEqual(fs.readdirSync(dir).filter(entry => entry.startsWith('run-')), []);
     } finally { cleanup(dir); }
 }));
+
+test('the always-run tier is unioned into the check-changed selection, deduplicated, and skipped when everything runs', () => {
+    assert.deepEqual(alwaysRunFiles(['src/graphs/x.ts']), ALWAYS_RUN);
+    assert.deepEqual(alwaysRunFiles(undefined), ALWAYS_RUN);
+    assert.deepEqual(alwaysRunFiles(['vite.config.mts']), []);
+    assert.deepEqual(alwaysRunFiles(['src/setupTests.ts']), []);
+    assert.deepEqual(alwaysRunFiles([], ['a.test.ts', 'a.test.ts']), ['a.test.ts']);
+    assert.equal(new Set(ALWAYS_RUN).size, ALWAYS_RUN.length);
+    for (const required of ['src/demonstrations.test.ts', 'src/Routes.test.tsx', 'lessonCatalog.test.ts', 'familyChapters.test.ts', 'guidedExamplePreviewCopy.test.ts', 'guidedExamplePreviews.test.ts', 'lessonMathNotation.test.ts', 'mathAltText.test.ts', 'PresetCatalog.test.tsx']) {
+        assert.ok(ALWAYS_RUN.some(file => file.endsWith(required)), required);
+    }
+});
+
+test('every always-run path exists and mounts no real board', () => {
+    const repo = path.resolve(__dirname, '..');
+    // PresetCatalog.test.tsx is listed on the owner's instruction (it is the preset registry sweep) although it mounts boards.
+    for (const file of ALWAYS_RUN) {
+        const absolute = path.join(repo, file);
+        assert.ok(fs.existsSync(absolute), `${file} is listed in scripts/check-changed-always-run.cjs but missing`);
+        if (!file.endsWith('PresetCatalog.test.tsx')) assert.doesNotMatch(fs.readFileSync(absolute, 'utf8'), /realGraphTestHarness|initBoard|mountGraph|createGraph/, `${file} mounts a real board`);
+    }
+});
