@@ -23,7 +23,7 @@
 .is-presenting .number-input label { color: #b5bfd0; }
 .is-presenting .number-input input[type] { background: #20304a; border-color: #50617b; color: var(--bezeg-night-panel); }
 @media (pointer: coarse), (max-width: 700px) {
-    .number-input input { min-height: 44px; }
+    .number-input input[type] { min-height: 44px; }
 }
 
 /* Compact field beside a slider label: about six characters wide, so precise values fit without crowding the label. */

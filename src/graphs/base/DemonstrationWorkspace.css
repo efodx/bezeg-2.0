@@ -281,7 +281,7 @@
 
 /* Shared inspector disclosures (InspectorDisclosure): a 44px summary with a chevron that turns when open, and a rule
    separating each group. The Display tab's graph-specific options sit above the shared groups with even spacing. */
-.inspector-display-graph { display: grid; gap: 14px; padding-bottom: 4px; }
+.inspector-display-graph { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding-bottom: 4px; }
 .inspector-disclosure { border-top: 1px solid var(--workspace-rule); }
 .inspector-disclosure > summary {
     display: flex;

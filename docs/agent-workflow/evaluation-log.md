@@ -2405,3 +2405,9 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Smoke: `bezeg-smoke` (Sonnet `medium`, 55k, 18 min), sl and en at 1440×900 and 390×844, all items passed. Gaps: line styles were checked on English desktop only, and sweep-algorithms was not checked on mobile. The earlier CP9 recheck (Haiku `medium`, 51k, 20 min) passed D1 and D2.
 - Checks: `just check` on the CP10 tree (1 358 s); focused units, typecheck and lint after the review fixes; containment on both profiles and both overlays.
 - Lesson: schedule the containment measurement before pushing a learner-visible block, not in a later acceptance task.
+## 2026-11-08 — shared controls slice 5d, fixture findings (controls stream, handler 5)
+
+- Class/size: implementation / S; three CSS lines and the fixture's expected failures. Source: [5c evidence](../reviews/feature-streams/controls/foundation-5c.md), decision 26.
+- Dispatch: 0 implementation workers (handler); one `bezeg-smoke` (Haiku medium) on two real routes.
+- Outcome: number fields 44 px on coarse pointers, long boolean labels wrap, Display grid bounded; the fixture's unbreakable label was lengthened to assert the wrap. The 200% select clipping is real (screenshot) and stays as a narrowed `test.fail`; the whole-test `test.fail` at 200% is gone.
+- Checks/gaps: `just controls-fixture` (failed before the CSS change via the 5c expected failures, passes after), lint, build. Gap: select clipping at 200% text.

@@ -129,6 +129,8 @@ function snapshotIndicators({selector, activeOnly}) {
     return {at, name: `${active.tagName.toLowerCase()} "${(active.getAttribute('aria-label') || active.textContent || active.id).trim().slice(0, 30)}"`, now: of(active)};
 }
 
+const SELECT_CLIP = /selected text is clipped/;
+
 const FOCUSABLE = '[data-testid^="inspector-"] :is(input:not([type="hidden"]), select, button, summary, textarea, [tabindex]):not([disabled]):not([tabindex="-1"])';
 
 for (const lang of LANGUAGES) {
@@ -146,13 +148,7 @@ for (const lang of LANGUAGES) {
                 }
             });
 
-            // Known failures at 200% text (finding of slice 5c, run of 2026-11-08): a native select shows its selected option on
-            // one line, so a longer option is clipped in the 310 px inspector (ChoiceSelect has no wrapping option), and in the
-            // Display placement the select's width widens the auto grid track of `.inspector-display-graph`
-            // (DemonstrationWorkspace.css:284, `display: grid` without `minmax(0, 1fr)`), pushing every control past the
-            // inspector's edge. They stay visible as expected failures until the component CSS changes; remove `test.fail` then.
-            const clipTest = view.text200 ? test.fail : test;
-            clipTest('no label, value or hint is clipped', async ({page}) => {
+            test('no label, value or hint is clipped', async ({page}) => {
                 await openFixture(page, lang, view);
                 const result = await page.evaluate(findClipping);
                 // An empty selection must fail: every kind of text and every control family has to have been measured.
@@ -160,7 +156,16 @@ for (const lang of LANGUAGES) {
                 for (const [kind, count] of Object.entries(result.kinds)) expect(count, `measured ${kind}`).toBeGreaterThan(0);
                 fs.mkdirSync(SHOTS, {recursive: true});
                 await page.screenshot({path: path.join(SHOTS, `${view.name}-${lang}.png`), fullPage: true});
-                expect(result.violations).toEqual([]);
+                // A native select shows its option on one line, so at 200% text a longer option cannot fit the 310 px
+                // inspector (slice 5d finding); that case is held by the expected failure below, every other clip still fails here.
+                expect(result.violations.filter(v => !(view.text200 && SELECT_CLIP.test(v)))).toEqual([]);
+            });
+
+            if (view.text200) test.fail('a longer select option fits at 200% text (known: a native select does not wrap)', async ({page}) => {
+                await openFixture(page, lang, view);
+                const result = await page.evaluate(findClipping);
+                expect(result.kinds.select, 'measured selects').toBeGreaterThan(0);
+                expect(result.violations.filter(v => SELECT_CLIP.test(v))).toEqual([]);
             });
 
             test('each focusable control shows a focus indicator under keyboard focus', async ({page}) => {
@@ -230,11 +235,7 @@ for (const lang of LANGUAGES) {
             await page.screenshot({path: path.join(SHOTS, `390x844-coarse-${lang}.png`), fullPage: true});
         });
 
-        // Known failure (stream Notes: the slider's number field is 40 px tall on coarse pointers), and the same for every
-        // standalone number field: `.number-input input[type]` (NumberInput.css:4-7, specificity 0,2,1) outranks the coarse
-        // rule `.number-input input` (NumberInput.css:26, 0,1,1), so min-height stays 40px; only the count stepper's field is
-        // fixed locally (CountSetter.css:15). It stays visible as an expected failure until the component CSS is fixed.
-        test.fail('number fields (standalone and in the slider) are at least 44 CSS px', async () => {
+        test('number fields (standalone and in the slider) are at least 44 CSS px', async () => {
             const rows = (await page.evaluate(targets)).filter(r => r.numberField);
             expect(rows.length, 'measured number fields').toBeGreaterThan(0);
             expect(rows.filter(r => r.height < TARGET - 0.5).map(r => `${r.place} ${r.name}: ${Math.round(r.height)}`)).toEqual([]);

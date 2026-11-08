@@ -30,7 +30,7 @@ setLanguage(lang);
 const text = {
     sl: {
         longLabel: 'Zelo dolga oznaka nastavitve, ki mora v ozki plošči preiti v več vrstic brez izrezanega besedila',
-        longWord: 'Samodejnoprilagajanje',
+        longWord: 'Samodejnoprilagajanjeparametrizacijekrivuljnapredstavitvenemzaslonu',
         help: 'Kratka pomoč pod nastavitvijo; pojasni, kaj nastavitev spremeni na grafu in kdaj.',
         reason: 'Trenutno ni na voljo, ker graf še nima dovolj točk za to nastavitev.',
         refusal: 'Vrednost je zavrnjena: mora biti med 2 in 9, zato je ostala nespremenjena.',
@@ -48,7 +48,7 @@ const text = {
     },
     en: {
         longLabel: 'A very long setting label that has to wrap onto several lines in the narrow panel without any clipped text',
-        longWord: 'Autoparameterisation',
+        longWord: 'Autoparameterisationofcurvesonthepresentationscreenwithoutbreaks',
         help: 'A short help text under the setting; it explains what the setting changes in the graph and when.',
         reason: 'Not available right now, because the graph does not have enough points for this setting yet.',
         refusal: 'Value refused: it must be between 2 and 9, so it was left unchanged.',
