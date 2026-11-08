@@ -3,6 +3,7 @@ import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {NumberInput} from './NumberInput';
 import {enterNumber} from './testEntry';
 import {setLanguage} from '../localization';
+import {ReplacementRevision} from './replacementRevision';
 
 /** Typing (or pasting) into the field: an input event that carries an inputType. */
 const type = (input: HTMLElement, value: string) => fireEvent.input(input, {target: {value}, inputType: 'insertText'});
@@ -132,5 +133,50 @@ describe('snap details and live hint', () => {
         expect(onChange).toHaveBeenLastCalledWith(-0.25);
         enterNumber(screen.getByLabelText('x'), '0,125');
         expect(onChange).toHaveBeenLastCalledWith(0.25);
+    });
+});
+
+describe('hint and an external value change', () => {
+    /** A host that owns the value, as a graph does; `external` changes it from outside the field (a Reset, a drag). */
+    let external: (value: number) => void = () => undefined;
+    function Host({grid}: {grid?: number}) {
+        const [value, setValue] = React.useState(1);
+        external = setValue;
+        return <NumberInput label="x" value={value} min={-4} max={4} grid={grid} onChange={next => { setValue(next); }}/>;
+    }
+
+    test('a snapped hint survives the value its own commit wrote', () => {
+        render(<Host grid={0.01}/>);
+        enterNumber(screen.getByLabelText('x'), '0,853');
+        expect(hint()).toHaveTextContent('Zaokroženo na 0,85.');
+    });
+
+    test('a refusal hint clears when the value changes elsewhere, as does a snapped hint', () => {
+        render(<Host grid={0.01}/>);
+        const input = screen.getByLabelText('x');
+        enterNumber(input, '9');
+        expect(hint()).toHaveTextContent('Vnesi vrednost med −4 in 4.');
+        act(() => external(2));
+        expect(hint()).toBeNull();
+        expect(input).not.toHaveAttribute('aria-invalid');
+        enterNumber(input, '0,853');
+        expect(hint()).not.toBeNull();
+        act(() => external(3));
+        expect(hint()).toBeNull();
+    });
+
+    test('a scene replacement clears the hint and draft even when it restores the same number', () => {
+        const field = (revision: number) => <ReplacementRevision.Provider value={revision}>
+            <NumberInput label="x" value={1} min={-4} max={4} onChange={() => undefined}/>
+        </ReplacementRevision.Provider>;
+        const {rerender} = render(field(0));
+        const input = screen.getByLabelText('x') as HTMLInputElement;
+        enterNumber(input, '9');
+        expect(hint()).not.toBeNull();
+        rerender(field(0));
+        expect(hint()).not.toBeNull();
+        rerender(field(1));
+        expect(hint()).toBeNull();
+        expect(input.value).toBe('1');
     });
 });

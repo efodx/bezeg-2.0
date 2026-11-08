@@ -2373,3 +2373,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Handler slip: a `sed` on a shared path line edited three rows; the capture's stored-row check caught it before any clip was written.
 - Worker C: fourier-coefficients passed preflight but needed a route-probe entry (handler added it, marked `addedBy`); inversion and projective-pascal blocked on app snapping, with accurate file:line causes.
 - Usage (as reported): reviewers 21.5k, 26.0k, 36.9k, 58.8k; workers 66.0k (35 min), 80.9k (46 min), 69.7k (27 min).
+## 2026-11-08 — shared controls, field hint after Reset (controls stream, handler 5)
+
+- Class/size: implementation / S; `NumberInput` hint clearing plus a replacement signal from `BaseGraph`. Source: [5b finding](../reviews/feature-streams/controls/foundation-5b.md), decision 24.
+- Dispatch: 0 workers; small coupled change kept by the handler (Opus, medium).
+- Outcome: accepted. Clearing on a value change alone left the Lagrange case red: its start value equals the test's valid value, so its Reset restores the same number. The spec's event table already asks for a replacement signal there, so the fix added `ReplacementRevision` carrying `workspaceRevision`.
+- Checks/gaps: two `knownGap` Reset cases now pass as plain tests; three new `NumberInput.grid` tests (two fail before the fix, the snapped-hint guard passes both ways); `just unit src/inputs src/graphs/base`; `just check-changed`. Gap: the count setter's refusal does not listen to the revision.
+- Handler process note: a Python edit read a file without `encoding='utf-8'`, failed on write and truncated it; restored from `HEAD`.

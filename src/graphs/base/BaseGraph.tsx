@@ -12,6 +12,7 @@ import {SaveImage} from "./SaveImage";
 import {AxisSelector} from "./AxisSelector";
 import {SizeRange} from "./SizeRange";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
+import {ReplacementRevision} from "../../inputs/replacementRevision";
 import {SceneStateUpdate, SceneStore} from "./SceneStore";
 import {LessonAction, LessonCurveFixture, LessonGraphCapabilities, LessonPatchFixture, LessonSceneCheckpoint, LessonView3D, LessonViewBox, UnsupportedLessonActionError} from '../../learning/model';
 import {GraphSession} from "./GraphSession";
@@ -895,12 +896,17 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown> {
     }
 
 
+    /** Tells the panel's fields about scene replacements, so that a Reset to the same number still clears a stale hint. */
+    private withReplacementRevision(panel: React.ReactNode): React.ReactNode {
+        return <ReplacementRevision.Provider value={this.workspaceRevision}>{panel}</ReplacementRevision.Provider>;
+    }
+
     /** The panels of one render, called by the host. */
     getWorkspacePanels(): GraphWorkspacePanels {
         return {
             description: this.workspaceDescription(),
-            edit: this.state.initialized ? this.workspaceEdit() : <p>{t("preparing_graph")}</p>,
-            display: this.state.initialized ? this.workspaceDisplay() : null,
+            edit: this.state.initialized ? this.withReplacementRevision(this.workspaceEdit()) : <p>{t("preparing_graph")}</p>,
+            display: this.state.initialized ? this.withReplacementRevision(this.workspaceDisplay()) : null,
             save: this.workspaceSave(), navigate: action => this.navigateBoard(action), graphBusy: this.figureExports.batchActive,
             pickerUnavailable: this.pickerUnavailable, pausePlayback: () => this.pausePlayback(),
             // A deep link can request a lesson before JSXGraph has created

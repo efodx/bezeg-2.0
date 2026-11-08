@@ -29,12 +29,9 @@ async function mountWith(id: DemonstrationId, labelKey: PlainKey, fieldLabel = f
 
 const reading = (field: () => HTMLElement) => () => Number(field().getAttribute('aria-valuenow'));
 
-/** NumberInput keeps its range hint when the host Reset changes the model value: the hint state is only cleared by an edit (`NumberInput.tsx:97`, the effect syncs the draft but not the hint). */
-const STALE_HINT = 'NumberInput keeps its hint after a host Reset';
-
 const numeric = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; max: number; step: number; valid: number; outOfRange: number; bigStep?: number}) =>
     numericFieldBehaviour(`${id} ${labelKey}`, {
-        ...bounds, section: 'edit', knownGap: {reset: STALE_HINT},
+        ...bounds, section: 'edit',
         mount: async () => {
             const {graph, label} = await mountWith(id, labelKey);
             const field = () => screen.getByLabelText(label());
@@ -44,7 +41,7 @@ const numeric = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; 
 
 const slider = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; max: number; step: number; valid: number; outOfRange: number}) =>
     sliderBehaviour(`${id} ${labelKey}`, {
-        ...bounds, section: 'edit', knownGap: {reset: STALE_HINT},
+        ...bounds, section: 'edit',
         mount: async () => {
             const {graph, label} = await mountWith(id, labelKey);
             const field = () => screen.getByLabelText(t('number_field_label', {value0: label()}));

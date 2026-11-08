@@ -1,9 +1,10 @@
-import React, {useEffect, useId, useRef, useState} from "react";
+import React, {useContext, useEffect, useId, useRef, useState} from "react";
 import {currentLanguage, useT} from "../localization";
 import {formatNumber} from "../analysis/format";
 import {cleanNumber, gridUnits} from "../analysis/numbers";
 import {stepKeyDelta} from "./stepKeys";
 import {joinIds} from "./describedBy";
+import {ReplacementRevision} from "./replacementRevision";
 import "./NumberInput.css";
 
 interface NumberInputProps {
@@ -94,9 +95,18 @@ export function NumberInput(props: NumberInputProps) {
     const lastLanguage = useRef<Language>(language);
     // Whether the draft holds text the user typed; the shown text is rounded, so committing it unedited would round the model.
     const edited = useRef(false);
+    // The value this field's own last accepted commit wrote, so that its hint (a snapped notice) survives the value it caused.
+    const committed = useRef<number>();
+    const lastValue = useRef(value);
     useEffect(() => {
         const languageChanged = lastLanguage.current !== language;
         lastLanguage.current = language;
+        // A value changed elsewhere (a host Reset, a drag, a lesson scene) makes a hint about an earlier commit stale.
+        if (!Object.is(lastValue.current, value)) {
+            if (!Object.is(committed.current, value)) setHint(undefined);
+            committed.current = undefined;
+        }
+        lastValue.current = value;
         setDraft(current => {
             const parsed = parseDecimal(current);
             const keep = !languageChanged && Number.isFinite(parsed) && value !== undefined && Math.abs(parsed - value) < 10 ** -(decimals + 1);
@@ -113,6 +123,14 @@ export function NumberInput(props: NumberInputProps) {
             setDraft(show(value, decimals, language));
             setHint(undefined);
         }
+    }
+    // A scene replacement (Reset, preset or lesson restore) shows the model and drops the hint, even when it restores the same number.
+    const revision = useContext(ReplacementRevision);
+    const [seenRevision, setSeenRevision] = useState(revision);
+    if (seenRevision !== revision) {
+        setSeenRevision(revision);
+        setDraft(show(value, decimals, language));
+        setHint(undefined);
     }
 
     const outOfRange = (candidate: number) => (min !== undefined && candidate < min) || (max !== undefined && candidate > max);
@@ -132,6 +150,7 @@ export function NumberInput(props: NumberInputProps) {
             }
         }
         const accepted = props.onChange(used) !== false;
+        committed.current = accepted ? used : undefined;
         setSnappedTo(used !== parsed ? used : undefined);
         setHint(!accepted ? "rejected" : used !== parsed ? "snapped" : undefined);
         return accepted;
