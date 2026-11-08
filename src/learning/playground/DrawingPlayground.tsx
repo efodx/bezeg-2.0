@@ -39,6 +39,15 @@ export const EXAMPLE_DRAWING: Drawing = {
     ],
 };
 
+/** A small, editable first curve shown only when Draw has no usable saved drawing. */
+export const STARTER_DRAWING: Drawing = {
+    closed: false,
+    anchors: [
+        mk(260, 330, 'corner', 260, 330, 365, 175),
+        mk(740, 330, 'corner', 635, 500, 740, 330),
+    ],
+};
+
 export interface PlaygroundOverlayContext {
     drawing: Drawing;
     selectedAnchor: number | null;
@@ -67,22 +76,24 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 const clampPoint = (p: Point): Point => ({x: clamp(p.x, 0, VIEWBOX_WIDTH), y: clamp(p.y, 0, VIEWBOX_HEIGHT)});
 const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 
-function loadDrawing(): Drawing {
+function loadDrawing(): {drawing: Drawing; hasValidStoredDrawing: boolean} {
     let raw: string | null;
-    try { raw = appStorage.getItem(PLAYGROUND_STORAGE_KEY); } catch { return EMPTY_DRAWING; }
-    if (raw === null) return EMPTY_DRAWING;
+    try { raw = appStorage.getItem(PLAYGROUND_STORAGE_KEY); } catch { return {drawing: EMPTY_DRAWING, hasValidStoredDrawing: false}; }
+    if (raw === null) return {drawing: EMPTY_DRAWING, hasValidStoredDrawing: false};
     try {
         const valid = validateDrawing(JSON.parse(raw));
-        if (valid) return valid;
+        if (valid) return {drawing: valid, hasValidStoredDrawing: true};
     } catch { /* fall through to the warning */ }
     console.warn('Bezier playground: stored drawing is invalid and was discarded.');
-    return EMPTY_DRAWING;
+    return {drawing: EMPTY_DRAWING, hasValidStoredDrawing: false};
 }
 
 /** Inspect mode is never empty for a reader who skipped Draw: with no saved anchors it starts from the example (spec, Toolbar). */
 function initialDrawing(mode: 'draw' | 'inspect'): Drawing {
     const loaded = loadDrawing();
-    return mode === 'inspect' && loaded.anchors.length === 0 ? EXAMPLE_DRAWING : loaded;
+    if (mode === 'inspect' && loaded.drawing.anchors.length === 0) return EXAMPLE_DRAWING;
+    if (mode === 'draw' && !loaded.hasValidStoredDrawing) return STARTER_DRAWING;
+    return loaded.drawing;
 }
 
 function saveDrawing(d: Drawing) {
@@ -105,7 +116,12 @@ function toUser(svg: SVGSVGElement, clientX: number, clientY: number): Point {
 
 export default function DrawingPlayground({mode, overlays, controls, onSelectSegment}: DrawingPlaygroundProps) {
     const t = useT();
-    const [history, setHistoryState] = useState<History<Drawing>>(() => createHistory(initialDrawing(mode)));
+    const [initial] = useState(() => {
+        const drawing = initialDrawing(mode);
+        return {drawing, showStarterPrompt: mode === 'draw' && drawing === STARTER_DRAWING};
+    });
+    const [history, setHistoryState] = useState<History<Drawing>>(() => createHistory(initial.drawing));
+    const [showStarterPrompt, setShowStarterPrompt] = useState(initial.showStarterPrompt);
     const historyRef = useRef(history);
     const savedRef = useRef(history.present);
     const [draft, setDraft] = useState<Drawing | null>(null);
@@ -130,6 +146,7 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
     const setHistory = useCallback((h: History<Drawing>, save = true) => {
         historyRef.current = h;
         setHistoryState(h);
+        setShowStarterPrompt(false);
         if (save) flushSave();
     }, [flushSave]);
     const commit = useCallback((next: Drawing) => { amendRef.current = null; setHistory(pushHistory(historyRef.current, next)); }, [setHistory]);
@@ -379,20 +396,27 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
     return (
         <div className={`playground playground--${mode}`}>
             <div className="playground__toolbar" role="group" aria-label={t('playground_toolbar')} onKeyDown={onKeyDown}>
-                <button type="button" onClick={undo} disabled={!canUndo(history)}>{t('playground_undo')}</button>
-                <button type="button" onClick={redo} disabled={!canRedo(history)}>{t('playground_redo')}</button>
-                <button type="button" onClick={() => commit(clearDrawing())} disabled={present.anchors.length === 0}>{t('playground_clear')}</button>
-                <button type="button" onClick={() => commit(addPointAfterLast(present))} disabled={present.closed || present.anchors.length >= MAX_ANCHORS}>{t('add_point')}</button>
-                <button type="button" onClick={() => commit(closeDrawing(present))} disabled={!canClose(present)}>{t('playground_close')}</button>
-                <button type="button" onClick={() => selectedIndex !== null && removeAnchor(selectedIndex)} disabled={selectedIndex === null}>{t('delete_point')}</button>
-                <span className="playground__group" role="group" aria-label={t('playground_anchor_type')}>
-                    {([['corner', 'playground_set_corner'], ['smooth-aligned', 'playground_set_g1'], ['smooth-mirrored', 'playground_set_c1']] as const).map(([type, key]) => (
-                        <button key={type} type="button" aria-pressed={selectedType === type} disabled={selectedIndex === null}
-                                onClick={() => selectedIndex !== null && commit(setAnchorType(historyRef.current.present, selectedIndex, type))}>{t(key)}</button>
-                    ))}
+                <span className="playground__group" role="group" aria-label={t('playground_history')}>
+                    <button type="button" onClick={undo} disabled={!canUndo(history)}>{t('playground_undo')}</button>
+                    <button type="button" onClick={redo} disabled={!canRedo(history)}>{t('playground_redo')}</button>
                 </span>
-                <button type="button" onClick={loadExample}>{t('playground_load_example')}</button>
+                <span className="playground__group" role="group" aria-label={t('playground_shape_actions')}>
+                    <button type="button" onClick={() => commit(clearDrawing())} disabled={present.anchors.length === 0}>{t('playground_clear')}</button>
+                    <button type="button" onClick={() => commit(addPointAfterLast(present))} disabled={present.closed || present.anchors.length >= MAX_ANCHORS}>{t('add_point')}</button>
+                    <button type="button" onClick={() => commit(closeDrawing(present))} disabled={!canClose(present)}>{t('playground_close')}</button>
+                    <button type="button" onClick={loadExample}>{t('playground_load_example')}</button>
+                </span>
+                <span className="playground__group" role="group" aria-label={t('playground_selected_point_tools')}>
+                    <button type="button" onClick={() => selectedIndex !== null && removeAnchor(selectedIndex)} disabled={selectedIndex === null}>{t('delete_point')}</button>
+                    <span className="playground__group" role="group" aria-label={t('playground_anchor_type')}>
+                        {([['corner', 'playground_set_corner'], ['smooth-aligned', 'playground_set_g1'], ['smooth-mirrored', 'playground_set_c1']] as const).map(([type, key]) => (
+                            <button key={type} type="button" aria-pressed={selectedType === type} disabled={selectedIndex === null}
+                                    onClick={() => selectedIndex !== null && commit(setAnchorType(historyRef.current.present, selectedIndex, type))}>{t(key)}</button>
+                        ))}
+                    </span>
+                </span>
             </div>
+            <div className="playground__stage">
             <svg ref={svgRef} className="playground__canvas" viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} role="group"
                  aria-label={t('playground_canvas')} tabIndex={-1} onKeyDown={onKeyDown} onKeyUp={onKeyUp} onBlur={flushSave} onPointerDown={onPointerDown} onPointerMove={onPointerMove}
                  onPointerUp={e => finishDrag(e, true)} onPointerCancel={e => finishDrag(e, false)}
@@ -403,6 +427,10 @@ export default function DrawingPlayground({mode, overlays, controls, onSelectSeg
                 <g className="playground__overlays" pointerEvents="none">{overlays?.(ctx)}</g>
                 {elements}
             </svg>
+            {mode === 'draw' && <p className="playground__prompt" data-testid="drawing-prompt">
+                {showStarterPrompt ? t('playground_prompt_first_curve') : drawing.anchors.length === 0 ? t('playground_prompt_empty') : null}
+            </p>}
+            </div>
             {controls?.(ctx)}
             <div className="playground__live" role="status" aria-live="polite">{summary}</div>
         </div>

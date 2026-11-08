@@ -9,6 +9,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useT} from '../../localization';
 import Slider from '../../inputs/Slider';
+import {BooleanField} from '../../inputs/BooleanField';
 import DrawingPlayground, {PlaygroundOverlayContext} from './DrawingPlayground';
 import {
     Drawing, Point, VIEWBOX_HEIGHT, VIEWBOX_WIDTH, classifyJoint, deCasteljauRows, evaluateBezier, jointIndices, segments, singleCurveControlPoints,
@@ -129,9 +130,8 @@ export default function LookUnderneath() {
     const controls = (ctx: PlaygroundOverlayContext) => {
         const count = segments(ctx.drawing).length;
         const sel = count > 0 ? clampIndex(selected, count) : -1;
-        const toggle = (key: keyof Switches, label: string) => (
-            <label className="lu-switch"><input type="checkbox" checked={switches[key]} onChange={e => setSwitches({...switches, [key]: e.target.checked})}/>{label}</label>
-        );
+        const toggle = (key: keyof Switches, label: string) => <BooleanField variant="checkbox" checked={switches[key]}
+            onChange={checked => setSwitches(current => ({...current, [key]: checked}))} label={label}/>;
         return <div className="lu-controls">
             <ClampSelection count={count} selected={selected} set={setSelected}/>
             <fieldset className="lu-switches">

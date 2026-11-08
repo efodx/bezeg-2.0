@@ -1,12 +1,13 @@
 import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import DrawingPlayground, {EXAMPLE_DRAWING, PLAYGROUND_STORAGE_KEY, PlaygroundOverlayContext} from './DrawingPlayground';
-import {Drawing, validateDrawing} from './drawingModel';
+import DrawingPlayground, {EXAMPLE_DRAWING, PLAYGROUND_STORAGE_KEY, PlaygroundOverlayContext, STARTER_DRAWING} from './DrawingPlayground';
+import {Drawing, EMPTY_DRAWING, validateDrawing} from './drawingModel';
 import {setLanguage} from '../../localization';
 import {appStorage} from '../../storage/appStorage';
 
-const renderPlayground = (props: Partial<React.ComponentProps<typeof DrawingPlayground>> = {}) => {
+const renderPlayground = (props: Partial<React.ComponentProps<typeof DrawingPlayground>> = {}, seedEmpty = true) => {
+    if (seedEmpty && appStorage.getItem(PLAYGROUND_STORAGE_KEY) === null) appStorage.setItem(PLAYGROUND_STORAGE_KEY, JSON.stringify(EMPTY_DRAWING));
     const result = render(<DrawingPlayground mode="draw" {...props}/>);
     return {...result, svg: result.container.querySelector('svg') as SVGSVGElement};
 };
@@ -32,7 +33,7 @@ afterEach(() => { cleanup(); act(() => setLanguage('sl')); vi.useRealTimers(); v
 describe('pointer editing', () => {
     it('appends corner anchors on click and persists after the commit', () => {
         const {svg, container} = renderPlayground();
-        expect(stored()).toBeNull();
+        expect(stored()).toEqual(EMPTY_DRAWING);
         threeCorners(svg);
         expect(container.querySelectorAll('[data-role="anchor"]')).toHaveLength(3);
         expect(stored()!.anchors.map(a => a.type)).toEqual(['corner', 'corner', 'corner']);
@@ -269,6 +270,24 @@ describe('localization', () => {
 });
 
 describe('persistence', () => {
+    it('shows an editable starter on fresh storage without saving it, but honors a saved empty drawing', () => {
+        const fresh = renderPlayground({}, false);
+        expect(fresh.container.querySelectorAll('[data-role="anchor"]')).toHaveLength(2);
+        expect(fresh.container.querySelectorAll('[data-role^="handle"]')).toHaveLength(2);
+        expect(screen.getByTestId('drawing-prompt').textContent).toMatch(/Povleci ročico/);
+        expect(stored()).toBeNull();
+        const before = JSON.stringify(STARTER_DRAWING);
+        down(handleEl(fresh.container, 0, 'out'), 365, 175);
+        move(fresh.svg, 400, 130);
+        up(fresh.svg, 400, 130);
+        expect(JSON.stringify(stored())).not.toBe(before);
+        fresh.unmount();
+        appStorage.setItem(PLAYGROUND_STORAGE_KEY, JSON.stringify(EMPTY_DRAWING));
+        const empty = renderPlayground();
+        expect(empty.container.querySelectorAll('[data-role="anchor"]')).toHaveLength(0);
+        expect(screen.getByTestId('drawing-prompt').textContent).toMatch(/Začni risati/);
+    });
+
     it('restores the drawing in a remount and a second instance reads the same key', () => {
         const first = renderPlayground();
         threeCorners(first.svg);
@@ -279,12 +298,12 @@ describe('persistence', () => {
         expect(third.container.querySelectorAll('[data-role="anchor"]')).toHaveLength(3);
     });
 
-    it('starts empty with a warning for invalid stored data', () => {
+    it('shows the starter and warns when stored data is invalid', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
         for (const bad of ['{not json', JSON.stringify({anchors: [{position: {x: 'a'}}], closed: false}), 'null']) {
             appStorage.setItem(PLAYGROUND_STORAGE_KEY, bad);
-            const {container, unmount} = renderPlayground();
-            expect(container.querySelectorAll('[data-role="anchor"]')).toHaveLength(0);
+            const {container, unmount} = renderPlayground({}, false);
+            expect(container.querySelectorAll('[data-role="anchor"]')).toHaveLength(2);
             unmount();
         }
         expect(warn).toHaveBeenCalledTimes(3);
@@ -293,9 +312,12 @@ describe('persistence', () => {
     it('works when storage throws on every access', () => {
         const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('blocked'); });
         const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('blocked'); });
-        const {svg, container} = renderPlayground();
-        threeCorners(svg);
-        expect(container.querySelectorAll('[data-role="anchor"]')).toHaveLength(3);
+        const {svg, container} = renderPlayground({}, false);
+        expect(container.querySelectorAll('[data-role="anchor"]')).toHaveLength(2);
+        down(handleEl(container, 0, 'out'), 365, 175);
+        move(svg, 400, 130);
+        up(svg, 400, 130);
+        expect(container.querySelectorAll('[data-role="anchor"]')).toHaveLength(2);
         expect(set).toHaveBeenCalled();
         get.mockRestore();
         set.mockRestore();
