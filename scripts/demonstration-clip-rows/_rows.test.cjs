@@ -273,3 +273,13 @@ test('a trace-step readout is a compgeo "Korak N od M" line or a root-finding "k
     assert.equal(parseTraceReadout.matches('Korak 12'), false);
     assert.equal(parseTraceReadout.matches('korak 2, napaka 0,0858'), true);
 });
+
+test('a clip samples the cream background, or a row clip the still colour patch it recorded', () => {
+    const {assertMotionBackground} = require('../../tests/smoke-catalog.cjs');
+    const cream = [255, 253, 245], grey = [120, 120, 120];
+    assert.doesNotThrow(() => assertMotionBackground({id: 'a', backgroundPixel: {rgb: cream}}));
+    assert.doesNotThrow(() => assertMotionBackground({id: 'a', row: {}, backgroundPixel: {rgb: grey, x: 40, y: 50}}));
+    assert.throws(() => assertMotionBackground({id: 'a', backgroundPixel: {rgb: grey}}), /Invalid motion background provenance: a/);
+    assert.throws(() => assertMotionBackground({id: 'a', backgroundPixel: {rgb: grey, x: 40, y: 50}}), /Invalid motion background provenance/);
+    assert.throws(() => assertMotionBackground({id: 'a', row: {}, backgroundPixel: {rgb: grey}}), /Invalid motion background provenance/);
+});

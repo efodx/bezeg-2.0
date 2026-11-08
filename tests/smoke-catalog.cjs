@@ -353,8 +353,7 @@ function validateGeneratedPreviews(catalogDemonstrations, options = {}) {
             throw new Error(`Motion loop does not return to its recipe poster: ${id}`);
         }
         previewCapture.assertMotionEvidence(motion);
-        const expectedBackground = [255, 253, 245];
-        if (JSON.stringify(motion.backgroundPixel?.rgb) !== JSON.stringify(expectedBackground)) throw new Error(`Invalid motion background provenance: ${id}`);
+        assertMotionBackground(motion);
         const validCamera = demonstration.view === 'surface'
             ? motion.camera && typeof motion.camera === 'object' && !Array.isArray(motion.camera) &&
                 Object.keys(motion.camera).sort().join(',') === 'az,distance,el,target' &&
@@ -383,7 +382,19 @@ function validateGeneratedPreviews(catalogDemonstrations, options = {}) {
     return {manifest, map: Object.fromEntries(Array.from(mappedIds.keys(), id => [id, `./images/demonstrations/catalog/${id}.png`]))};
 }
 
+/**
+ * A clip's colour check samples the cream background. A clip-row capture may instead record a still patch of another colour, with
+ * its position, when a moving grid covers every background pixel (spec lesson-guided-catalog-clips, colour check decision).
+ */
+function assertMotionBackground(motion) {
+    const pixel = motion.backgroundPixel;
+    const cream = JSON.stringify(pixel?.rgb) === JSON.stringify([255, 253, 245]);
+    const rowPatch = Boolean(motion.row) && Array.isArray(pixel?.rgb) && pixel.rgb.length === 3 && Number.isInteger(pixel.x) && Number.isInteger(pixel.y);
+    if (!cream && !rowPatch) throw new Error(`Invalid motion background provenance: ${motion.id}`);
+}
+
 module.exports = demonstrations;
+module.exports.assertMotionBackground = assertMotionBackground;
 module.exports.familyIds = familyIds;
 module.exports.families = families;
 module.exports.availableLessonIds = [...availableLessonIds];
