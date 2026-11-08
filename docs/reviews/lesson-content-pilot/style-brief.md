@@ -1,4 +1,4 @@
-# Lesson style brief (draft, v1)
+# Lesson style brief (draft, v2)
 
 This is the working voice for the [lesson content pilot](../../specs/lesson-content-pilot.md). It comes from the [round-1 findings](round-1/merged-findings.md) and becomes the lesson writing guide once the owner approves it. The reader is a student working alone at home, and motivation and narrative matter most.
 
@@ -21,4 +21,7 @@ This is the working voice for the [lesson content pilot](../../specs/lesson-cont
 8. **No interface admin** (slider ranges, resets, what hides itself) unless the student needs it to act.
 9. **Ending = payoff.** The last step answers the hook in two to four short sentences that recap what was learned, then gives one concrete challenge to try in free exploration.
 10. **Voice.** Use ti-form, short active sentences, and a friendly but not childish tone, with no exclamation marks in a row. Avoid "Opazimo, da", "Očitno" and "Kot vidimo". Use terms from the [terms table](../../localization.md). In math, write `\(...\)`/`\[...\]` and `{,}` for decimal commas.
-11. **Mathematics stays correct.** Simplify, but never state something false. Drop content rather than distort it.
+11. **Anchor everything on screen.** Each time the text names a readout, button, colour or part of the construction, say where it is or how to recognise it ("v izpisu desno od grafa", "oranžna točka", "gumb Subdiviziraj pod grafom"), using the labels the UI really shows.
+12. **Say what it is for.** Early on, one sentence ties the idea to a real use the student recognises (fonts, drawing programs, road and track design, animation paths) or to a question they would really ask.
+13. **The recap answers the hook literally.** If the hook asks "Zakaj?", the last step starts "Zato, ker …". If it asks "Ali lahko …?", it starts with yes or no.
+14. **Mathematics stays correct.** Simplify, but never state something false. Drop content rather than distort it.
