@@ -2422,3 +2422,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Lesson: name the poster's example (recipe field) in a mathematical review brief; reviewers default to the graph's default example.
 - Second batch (handler): hull-robustness, poster-only since handler 5 for "no motion prompt", is a hull trace graph whose lesson asks to press Play, so it became a `trace-step` row with no new tooling. Lesson: recheck a poster-only call against every control kind the stream has added since.
 - Usage (as reported): Haiku 28.3k, Sonnet 35.8k.
+## 2026-11-08 — collision playground bounce, rotation and coverage (collision stream, interactive owner session, handler 5)
+
+- Class/size: implementation / M; owner-led prototype loop on the Vite dev server, owner tried each step in the browser before acceptance. Source: [spec amendment](../specs/collision-playground.md#owner-amendment-2026-11-08-bounce-rotation-and-coverage).
+- Dispatch: handler wrote the circle bounce, the coverage slider and the test updates; one `bezeg-worker` (Sonnet `medium`, 104k, 39 min) for rigid-body rotation, with friction added mid-run by message. It broke the code seven ways on purpose to see each new test fail.
+- Review: one combined mathematical and engineering `bezeg-reviewer` (Sonnet `medium`, 39k, 11 min): no blockers or should-fix; nits on init not carrying bounce/coverage to a new worker and approximate edge contact points.
+- Checks/gaps: focused units for collisions, playground and chapter, typecheck, lint, build. No `bezeg-smoke` run: the owner's own browser use stood in for it. Gap: no containment or performance measurement with bounce on or at high coverage.
+- Lesson: a worker's report of failing tests caused by handler edits in the same tree should be fixed by the handler at acceptance, not left to the worker.

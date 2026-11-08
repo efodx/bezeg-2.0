@@ -16,10 +16,29 @@ The playground motivates. It has no exercises, scoring or completion gates, like
    - Handler decision, same day: the owner's default said "at the chapter end". The reveal shows the C1 interval sweep, so it is placed at the end of `interval-sweep` rather than after Fortune's algorithm, where it would follow an unrelated topic.
 2. **The town-map opener** (Voronoi and the other "place pins on a map" ideas) is parked in the [research note](../research/compgeo-motivation-2026-11-07.md), not in this stream.
 3. **Shapes and batches.** Batch B: circles, naive versus sweep and prune, live counters. Batch C: concave polygons, with the convex hull as a cheap proxy, the separating-axis test and decomposition into convex pieces. Curve-against-curve pruning (convexity A6) stays a link.
-4. **Contact.** Objects bounce off the walls. Touching pairs are highlighted. There is no response between objects: they pass through each other. The subject is collision *detection*, not a physics engine.
+4. **Contact.** Objects bounce off the walls. Touching pairs are highlighted. By default there is no response between objects: they pass through each other. The subject is collision *detection*, not a physics engine. See the 2026-11-08 amendment below for the optional bounce.
 5. **Closest pair (C6)** is not in the playground while sweep batch S4 is unapproved.
 6. **Learning boundary.** No exercises, scoring or completion gates. The opening shows counts; \(O\)-notation appears only in *Look underneath*.
 7. **The slowdown stays inside the animation (owner requirement).** A slow method slows the simulation, never the page or the reader's machine. Everything under [Containment](#containment) follows from this.
+
+## Owner amendment (2026-11-08): bounce, rotation and coverage
+
+Added in an interactive session after batch C. The owner tried each part in the browser before it was committed.
+
+- **Bounce between objects.** A checkbox in *Run* and polygon mode, off by default. With it off, results, counters and drawing are unchanged. With it on, each touching pair from the narrow phase gets a contact response, and the extra cost is proportional to the number of touching pairs. The code is in `src/compgeo/collisions/response.ts`.
+  - **Bodies:** rigid with unit density. Circles have mass \(r^2\) and moment of inertia \(r^4/2\). Polygons have mass equal to their area and the polar second moment about the area centroid, scaled by \(s^2\) and \(s^4\).
+  - **Impulses:** a normal impulse with restitution 1, applied while the contact points approach. Then one Coulomb friction impulse with \(\mu = 0{,}4\), which never adds energy.
+  - **Separation:** both bodies are pushed apart by the overlap depth, split by inverse mass.
+  - **Order:** pairs are resolved in the order found, so naive and sweep can diverge after a contact between three or more bodies.
+- **Rotation (bounce on only).** Polygons rotate about the area centroid. Spin comes only from contacts, and circles spin only through friction, shown by a radius line.
+  - **Detection:** the separating-axis test runs on rotated geometry. Pairs at angle 0 keep the exact unrotated path.
+  - **Contact:** the axis of minimum penetration over the touching convex pieces, and the deepest vertex or vertices. For edge-to-edge contact the point is approximate.
+  - **Boxes:** each box is the exact box of the rotated hull, recomputed every step. Design notes are in [rotation-notes.md](../reviews/collision-playground/rotation-notes.md).
+  - Turning bounce off clears all rotation.
+- **Coverage slider.** It sets the share of the board covered by objects, from 0.25 % to 30 %. The default stays `AREA_FRACTION` (1.25 %). Bodies still shrink as \(1/\sqrt n\) at any coverage. A change rebuilds the arrangement, as a count change does.
+- **Not measured.** The count limits under [Containment](#containment) were measured at the default coverage with bounce off. Higher coverage or bounce on can make a step slower, but this still only slows the simulation, as decision 7 requires.
+
+Routes and stored Presets are unchanged.
 
 ## Mathematical model
 
@@ -176,4 +195,4 @@ Reused unchanged: *pometalna premica*, *stanje*, *interval* and *konveksna ovojn
 
 ## Out of scope
 
-Collision response between objects, rotation, continuous collision detection for fast objects (Bentley–Ottmann on motion paths, a candidate for later), spatial grids and bounding-box trees beyond a sentence of prose, 3D, closest pair, saving settings or arrangements, and a main-thread fallback. The town-map opener is parked in the research note.
+Collision response and rotation beyond the optional bounce of the 2026-11-08 amendment (no stacking, sleeping, wall friction or adjustable restitution), continuous collision detection for fast objects (Bentley–Ottmann on motion paths, a candidate for later), spatial grids and bounding-box trees beyond a sentence of prose, 3D, closest pair, saving settings or arrangements, and a main-thread fallback. The town-map opener is parked in the research note.
