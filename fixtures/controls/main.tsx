@@ -18,6 +18,8 @@ import {ChoiceSelect} from '../../src/inputs/ChoiceSelect';
 import {CountSetter} from '../../src/inputs/CountSetter';
 import {InspectorDisclosure} from '../../src/inputs/InspectorDisclosure';
 import {NumberInput} from '../../src/inputs/NumberInput';
+import {PointCollection} from '../../src/inputs/PointCollection';
+import {PointListInput, type PointRow, type PointRow3} from '../../src/inputs/PointListInput';
 import Slider from '../../src/inputs/Slider';
 import {UnavailableButton} from '../../src/inputs/UnavailableButton';
 import {setLanguage, useT, type Language} from '../../src/localization';
@@ -45,6 +47,9 @@ const text = {
         group: 'Skupina nastavitev',
         bounded: 'Omejena vrednost',
         status: 'Razlog pritisnjenega gumba',
+        points: 'Točke',
+        pointsLong: 'Zelo dolga oznaka zbirke kontrolnih točk, ki mora v ozki plošči preiti v več vrstic',
+        pointName: 'Točka',
     },
     en: {
         longLabel: 'A very long setting label that has to wrap onto several lines in the narrow panel without any clipped text',
@@ -63,6 +68,9 @@ const text = {
         group: 'Settings group',
         bounded: 'Bounded value',
         status: 'Reason of the pressed button',
+        points: 'Points',
+        pointsLong: 'A very long label of the collection of control points that has to wrap onto several lines in the narrow panel',
+        pointName: 'Point',
     },
 }[lang];
 
@@ -91,6 +99,11 @@ function ControlSet({placement}: {placement: 'edit' | 'display'}) {
     const [slider, setSlider] = useState(0.5);
     const [count, setCount] = useState(3);
     const [blocked, setBlocked] = useState<string>();
+    const [rows, setRows] = useState<PointRow[]>([[0, 0], [2.5, 1], [4, -3]]);
+    const [selected, setSelected] = useState<number | undefined>(1);
+    const [cube, setCube] = useState<PointRow3[]>([[1, 2, 3], [4, 5, 6]]);
+    const [points, setPoints] = useState(3);
+    const [addMode, setAddMode] = useState(true);
     const p = `${placement}-`;
 
     useEffect(() => {
@@ -103,6 +116,9 @@ function ControlSet({placement}: {placement: 'edit' | 'display'}) {
             enter(el.querySelector<HTMLInputElement>('[data-fixture="slider-refused"] input[role="spinbutton"]')!, '0.7');
             el.querySelector<HTMLButtonElement>('[data-fixture="count-min"] .count-setter-button')!.click();
             el.querySelector<HTMLButtonElement>('[data-fixture="blocked-button"]')!.click();
+            enter(el.querySelector<HTMLInputElement>('[data-fixture="entry-refused"] input')!, '99');
+            el.querySelector<HTMLButtonElement>('[data-fixture="list-min"] .point-list-remove')!.click();
+            el.querySelector<HTMLButtonElement>('[data-fixture="collection-selected"] .point-collection-buttons button:nth-child(2)')!.click();
         }, 0);
         return () => window.clearTimeout(timer);
     }, []);
@@ -133,6 +149,33 @@ function ControlSet({placement}: {placement: 'edit' | 'display'}) {
             <div className="inspector-control"><Slider min={0} max={1} step={0.05} value={slider} onChange={noop} customText={text.bounded} disabled help={text.reason}/></div>
             <div className="inspector-control"><CountSetter label={text.count} n={count} min={2} max={9} onPlus={() => setCount(count + 1)} onMinus={() => setCount(count - 1)} onSet={setCount} help={text.help}/></div>
             <div className="inspector-control" data-fixture="count-min"><CountSetter label={text.count} n={2} min={2} max={9} onPlus={noop} onMinus={noop} minReason={text.reason}/></div>
+        </div>
+        <div className="inspector-group">
+            <h3>{text.points}</h3>
+            <div className="inspector-control" data-fixture="list-min">
+                <PointListInput title={text.pointsLong} points={rows} pointLabel={i => `${text.pointName} ${i + 1}`} min={-10} max={10} minCount={3}
+                    onCommit={(i, value) => { setRows(rows.map((row, at) => at === i ? value : row)); }}
+                    onRemove={index => setRows(rows.filter((_, at) => at !== index))} selected={selected} onSelect={setSelected}/>
+            </div>
+            <div className="inspector-control">
+                <PointListInput title={text.group} points={cube} axisLabels={['x', 'y', 'z']} pointLabel={i => `${text.pointName} ${i + 1}`} min={-10} max={10} grid={0.5}
+                    onCommit={(i, value) => { setCube(cube.map((row, at) => at === i ? value : row)); }}/>
+            </div>
+            <div className="inspector-control">
+                <PointCollection label={text.pointsLong} count={points} min={2} max={6} onAdd={() => setPoints(points + 1)}
+                    removal={{kind: 'last', onRemove: () => setPoints(points - 1)}} addMode={{on: addMode, onToggle: () => setAddMode(!addMode)}}/>
+            </div>
+            <div className="inspector-control">
+                <PointCollection label={text.points} count={2} min={2} max={2} onAdd={noop} removal={{kind: 'last', onRemove: noop}}/>
+            </div>
+            <div className="inspector-control" data-fixture="collection-selected">
+                <PointCollection label={text.points} count={4} min={0} max={8} onAdd={noop} onClear={noop}
+                    removal={{kind: 'selected', onRemove: noop, hasSelection: false}}/>
+            </div>
+            <div className="inspector-control" data-fixture="entry-refused">
+                <PointCollection label={text.pointsLong} count={3} min={0} max={8} onAdd={noop} onClear={noop}
+                    removal={{kind: 'selected', onRemove: noop, hasSelection: true}} typedEntry={{axisLabels: ['x', 'y'], min: -10, max: 10, grid: 0.5}}/>
+            </div>
         </div>
         <div className="inspector-group">
             <h3>{text.status}</h3>

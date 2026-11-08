@@ -1,0 +1,12 @@
+.point-collection { display: grid; gap: .5rem; }
+.point-collection-label { color: var(--workspace-ink-soft); font-size: .82rem; font-weight: 700; overflow-wrap: anywhere; }
+.point-collection-count, .point-collection-reason { margin: 0; color: var(--workspace-ink-soft); font-size: .82rem; line-height: 1.35; }
+.point-collection-buttons { display: flex; flex-wrap: wrap; gap: .4rem; }
+.point-collection .btn { min-height: 44px; min-width: 44px; }
+.point-collection .btn[aria-disabled="true"] { opacity: .5; cursor: default; border-style: dashed; }
+.point-collection .btn:focus-visible { outline: 3px solid #577cc3; outline-offset: 1px; }
+.point-collection-mode[aria-pressed="true"] { background: var(--workspace-ink); color: #fff; }
+.point-collection-entry { display: flex; flex-wrap: wrap; gap: .4rem; align-items: start; }
+.point-collection-axis { flex: 1 1 auto; display: flex; justify-content: space-between; gap: .25rem; align-items: baseline; }
+.point-collection-axis > span { color: var(--workspace-ink-soft); font-style: italic; }
+@media (forced-colors: active) { .point-collection .btn[aria-disabled="true"] { opacity: 1; color: GrayText; border-color: GrayText; } }

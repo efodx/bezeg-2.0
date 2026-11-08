@@ -1,39 +1,71 @@
 import React, {useState} from "react";
+import {currentLanguage, useT} from "../localization";
+import {formatNumber} from "../analysis/format";
 import {NumberInput} from "./NumberInput";
+import {UnavailableButton} from "./UnavailableButton";
 import "./PointListInput.css";
 
 export type PointRow = readonly [number, number];
+/** A row of a 1D or a 3D list (`axisLabels` of length 1 or 3). */
+export type PointRow1 = readonly [number];
+export type PointRow3 = readonly [number, number, number];
 
-interface PointListInputProps {
-    points: readonly PointRow[];
+/** The names of the axes of a row type: one string per coordinate. */
+type AxisLabels<R extends readonly number[]> = {readonly [K in keyof R]: string};
+
+interface PointListInputProps<R extends readonly number[]> {
+    points: readonly R[];
     /**
      * Applies the new coordinates of point `index`. Return a localized message to refuse the edit (the points then stay as they
      * are and the message is shown at that field); return nothing when the edit was accepted.
      */
-    onCommit: (index: number, value: PointRow) => string | void;
+    onCommit: (index: number, value: R) => string | void;
     /** Caption of the whole list. */
     title: string;
     /** Visible and accessible name of point `index` (0-based), for example "Točka 2". */
     pointLabel: (index: number) => string;
-    /** Axis names, for example "x" and "y"; the field names read "<point label>, <axis>". */
-    axisLabels?: readonly [string, string];
+    /** Axis names, one per coordinate (1, 2 or 3), for example "x" and "y"; the field names read "<point label>, <axis>". Defaults to x and y. */
+    axisLabels?: AxisLabels<R>;
     /** Allowed coordinate range; a typed value outside it is explained by the field and never committed. */
     min?: number;
     max?: number;
     decimals?: number;
+    /** Passed to every field: a typed value off the grid is snapped, with a notice (decision 16; the field does it). */
+    grid?: number;
+    /** Passed to every field: only whole numbers are accepted. */
+    integer?: boolean;
+    /** Adds a remove button to each row. At `minCount` it is unavailable and says why. */
+    onRemove?: (index: number) => void;
+    /** The fewest points the list may hold; only the remove buttons use it. */
+    minCount?: number;
+    /** The selected point, shown as a pressed name; with `onSelect` the name of each row is a toggle button. */
+    selected?: number;
+    /** Called with the index of the pressed row, or undefined when the selected row is pressed again. */
+    onSelect?: (index: number | undefined) => void;
 }
 
+/** The name of a point as a pressed toggle (C14): `aria-pressed` tells whether it is the selected one. For lists that render rows themselves. */
+export function SelectablePointButton(props: {label: string; pressed: boolean; onToggle: () => void}) {
+    return <button type="button" className="point-list-index point-list-select" aria-pressed={props.pressed} onClick={props.onToggle}>{props.label}</button>;
+}
+
+const isRow = <R extends readonly number[]>(value: readonly number[], length: number): value is R => value.length === length;
+
 /**
- * A typed list of 2D points (one row per point, an x and a y field), the keyboard alternative to dragging them. It holds no
+ * A typed list of points (one row per point, one field per axis: 1, 2 or 3), the keyboard alternative to dragging them. It holds no
  * graph logic: the caller owns the points and validates every edit in `onCommit`. A field commits on Enter and on blur, shows
  * the model value again afterwards (so a dragged or reset point is always current), and explains a refusal at its own field.
+ * Optional: a remove button per row, and a selectable row name. A tuple-typed list needs its `axisLabels` for the length; without them rows have two fields.
  */
-export function PointListInput(props: PointListInputProps) {
+export function PointListInput<R extends readonly number[] = PointRow>(props: PointListInputProps<R>) {
+    const t = useT();
     const {points, onCommit, pointLabel, min, max, decimals = 3} = props;
-    const [x, y] = props.axisLabels ?? ["x", "y"];
+    const axes: readonly string[] = props.axisLabels ?? ["x", "y"];
     // The refusal of the last edit: shown at that one field until another edit is applied.
     // It belongs to the points it was refused for: any other list (drag, reset, import, count change) clears it.
-    const [refusal, setRefusal] = useState<{index: number; axis: 0 | 1; message: string; list: typeof points} | undefined>(undefined);
+    const [refusal, setRefusal] = useState<{index: number; axis: number; message: string; list: typeof points} | undefined>(undefined);
+    // The last blocked remove press (a counter makes a repeat announce again); any other list drops it.
+    const [blocked, setBlocked] = useState<{count: number; list: typeof points} | undefined>(undefined);
     // Bumped when a refusal is cleared, so the fields drop their own explanation too.
     const [epoch, setEpoch] = useState(0);
     // Adjusted while rendering (React's pattern for state derived from a changed prop), not in an effect: the stale refusal
@@ -42,10 +74,10 @@ export function PointListInput(props: PointListInputProps) {
         setRefusal(undefined);
         setEpoch(value => value + 1);
     }
-    const edit = (index: number, axis: 0 | 1, value: number): boolean => {
-        const current = points[index];
-        const next: PointRow = axis === 0 ? [value, current[1]] : [current[0], value];
-        const message = onCommit(index, next);
+    if (blocked && blocked.list !== points) setBlocked(undefined);
+    const edit = (index: number, axis: number, value: number): boolean => {
+        const next = points[index].map((coordinate, at) => at === axis ? value : coordinate);
+        const message = isRow<R>(next, axes.length) ? onCommit(index, next) : undefined;
         if (typeof message === "string" && message !== "") {
             setRefusal({index, axis, message, list: points});
             return false;
@@ -53,25 +85,35 @@ export function PointListInput(props: PointListInputProps) {
         setRefusal(undefined);
         return true;
     };
+    const atMinimum = props.minCount !== undefined && points.length <= props.minCount;
+    const removeReason = atMinimum ? t("count_at_minimum", {value0: formatNumber(props.minCount ?? 0, currentLanguage(), 0)}) : undefined;
     return <fieldset className="point-list">
         <legend>{props.title}</legend>
         {points.map((point, index) => {
             const name = pointLabel(index);
-            const axisField = (axis: 0 | 1, axisName: string) => {
+            const axisField = (axis: number, axisName: string) => {
                 const refused = refusal && refusal.list === points && refusal.index === index && refusal.axis === axis ? refusal.message : undefined;
-                return <div className="point-list-axis">
+                return <div className="point-list-axis" key={axis}>
                     <span aria-hidden="true">{axisName}</span>
                     <NumberInput key={epoch} label={`${name}, ${axisName}`} hideLabel compact value={point[axis]} min={min} max={max}
-                                 decimals={decimals} step={1} rejectedHint={refused}
+                                 decimals={decimals} step={1} rejectedHint={refused} grid={props.grid} integer={props.integer}
                                  onChange={value => edit(index, axis, value)}/>
                 </div>;
             };
             return <div key={index} className="point-list-row" role="group" aria-label={name}>
-                <span className="point-list-index" aria-hidden="true">{name}</span>
-                {axisField(0, x)}
-                {axisField(1, y)}
+                {props.onSelect
+                    ? <SelectablePointButton label={name} pressed={props.selected === index}
+                                             onToggle={() => props.onSelect?.(props.selected === index ? undefined : index)}/>
+                    : <span className="point-list-index" aria-hidden="true">{name}</span>}
+                {axes.map((axisName, axis) => axisField(axis, axisName))}
+                {props.onRemove && <UnavailableButton className="btn point-list-remove" aria-label={t("point_controls_remove_named", {value0: name})}
+                                                      reason={removeReason} onPress={() => props.onRemove?.(index)}
+                                                      onBlockedPress={() => setBlocked(current => ({count: (current?.count ?? 0) + 1, list: points}))}>×</UnavailableButton>}
             </div>;
         })}
+        {props.onRemove && <div role="status" aria-live="polite">
+            {blocked && removeReason && <p key={blocked.count} className="point-list-reason" data-point-reason>{removeReason}</p>}
+        </div>}
     </fieldset>;
 }
 
