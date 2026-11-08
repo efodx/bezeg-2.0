@@ -18,7 +18,18 @@ Builds on [test consolidation](test-consolidation.md) (implemented 2026-10-25, b
   - The always-run step measured 27 s wall, not 2 s, because per-file setup dominates (phase 4).
   - The selector warning fires on the phase 0 removal.
   - Replay: [phase3-replay.md](../reviews/verification-throughput/phase3-replay.md). Of the 8 distinct bookkeeping causes, the tier or the import graph runs 6 locally and the warning catches 1. Poster provenance remains (generated-image freshness).
-- Phases 1 item 4, 2, 4, 6 and the regrowth guard are not started.
+- Hosted run 42496853788 for `9b5b290e` (phase 3) is green.
+- Phase 2, first slice: the scope is sampled locally and full in CI.
+  - Covered sweeps: lesson restoration parts 1–4, `sceneContentAgainstGraphs` (scenes and activities) and `sceneReplacementContract`'s all-graph loop. They are tuned by `BEZEG_LESSON_RESTORATION`, `BEZEG_SCENE_CONTENT`, `BEZEG_SCENE_REPLACEMENT` and `BEZEG_SWEEPS=all`.
+  - Sample: 19 of 118 lessons; scene replacement leaves out 101 graphs.
+  - Per-file time of those six files fell from 842 s to 179 s (both measured at 2 workers; [phase2a-notes.md](../reviews/verification-throughput/phase2a-notes.md)).
+  - A break in an unsampled graph's class (`EpicycleGraph`) and a changed lesson content file each selected their lessons locally, and the broken restoration failed.
+  - Engineering review found nothing blocking. Its fixes:
+    - mixed lesson and activity id lists;
+    - the shared-path additions `setupTests`, `utils`, `types` and the scene helpers' model files;
+    - the publish gate's delta list now uses the lesson sweeps' shared paths.
+  - Accepted risk, as for the transient-state sample: a changed non-class helper or model file under a graph directory reaches no entry by name, so only the sample runs locally. A lesson content file that quotes one id but feeds several lessons under-selects. CI runs everything.
+- Phases 1 item 4, the rest of phase 2 (fold the guided-scene walk, split parts and rebalance shards), 4, 6 and the regrowth guard are not started.
 
 **Follow-ups:**
 
