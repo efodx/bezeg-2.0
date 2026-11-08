@@ -144,17 +144,16 @@ function runOf(vertices: readonly GridPoint[], outcome: PartitionAndTriangulatio
         if (piece < 0) return undefined;
         const {result} = pieces[piece];
         const event = result.trace[local];
-        const payload = event.payload;
         const size = () => sweepStateAt(result.trace, local).status.length;
-        if (event.kind === "pop" && "id" in payload) {
-            return {note: "pop", vertex: payload.id, chain: result.chains[result.order.indexOf(payload.id)]};
+        if (event.kind === "pop") {
+            return {note: "pop", vertex: event.payload.id, chain: result.chains[result.order.indexOf(event.payload.id)]};
         }
-        if (event.kind === "status-insert" && "id" in payload) return {note: "push", vertex: payload.id, stackSize: size()};
-        if (event.kind === "status-remove" && "id" in payload) return {note: "unstack", vertex: payload.id, stackSize: size()};
-        if (event.kind === "neighbour-test" && "outcome" in payload) {
-            return {note: "test", test: {a: payload.a, b: payload.b, outcome: payload.outcome === "visible" ? "visible" : "blocked"}};
+        if (event.kind === "status-insert") return {note: "push", vertex: event.payload.id, stackSize: size()};
+        if (event.kind === "status-remove") return {note: "unstack", vertex: event.payload.id, stackSize: size()};
+        if (event.kind === "neighbour-test") {
+            return {note: "test", test: {a: event.payload.a, b: event.payload.b, outcome: event.payload.outcome === "visible" ? "visible" : "blocked"}};
         }
-        if (event.kind === "report" && "item" in payload) return {note: "diagonal", diagonal: payload.item};
+        if (event.kind === "report") return {note: "diagonal", diagonal: event.payload.item};
         return {note: "done"};
     };
 
@@ -168,8 +167,8 @@ function runOf(vertices: readonly GridPoint[], outcome: PartitionAndTriangulatio
         const state = sweepStateAt(result.trace, local);
         let popped: number | null = null;
         for (let k = 0; k <= local; k++) {
-            const payload = result.trace[k].payload;
-            if (result.trace[k].kind === "pop" && "id" in payload) popped = payload.id;
+            const event = result.trace[k];
+            if (event.kind === "pop") popped = event.payload.id;
         }
         const earlier = pieces.slice(0, piece).flatMap(entry => entry.result.triangles);
         const own = ready.filter(at => at <= local).length;

@@ -134,7 +134,7 @@ export function runBentleyOttmann(segments: readonly Segment[]): BentleyOttmannR
 
     const kinds = new Map<number, EventKind>();
     for (const event of trace) {
-        if (event.kind === "schedule" && "position" in event.payload) {
+        if (event.kind === "schedule") {
             kinds.set(event.payload.id, eventKindOf(segmentsAt(segments, event.payload.position)));
         }
     }
@@ -148,26 +148,25 @@ export function runBentleyOttmann(segments: readonly Segment[]): BentleyOttmannR
         state = foldSweepEvent(state, event);
         let info: BentleyOttmannEventInfo;
         let test: BentleyOttmannView["test"];
-        const payload = event.payload;
-        if (event.kind === "pop" && "position" in payload) {
-            position = payload.position;
+        if (event.kind === "pop") {
+            position = event.payload.position;
             current = segmentsAt(segments, position);
             kind = eventKindOf(current);
             info = {note: "pop", position};
-        } else if (event.kind === "status-insert" && "index" in payload) {
-            info = {note: "enter", position, segment: payload.id};
-        } else if (event.kind === "status-remove" && "id" in payload) {
-            info = {note: "leave", position, segment: payload.id};
-        } else if (event.kind === "status-swap" && "first" in payload) {
-            info = {note: "swap", position, block: [payload.first, payload.last]};
-        } else if (event.kind === "neighbour-test" && "outcome" in payload) {
-            const outcome = outcomeName(payload.outcome);
-            test = {pair: [payload.a, payload.b], outcome};
-            info = {note: "test", position, pair: [payload.a, payload.b], outcome};
-        } else if (event.kind === "schedule" && "position" in payload) {
-            info = {note: index <= base ? "start" : "schedule", position, point: payload.position};
-        } else if (event.kind === "report" && "item" in payload) {
-            info = {note: "report", position, point: payload.item.point, through: payload.item.segments};
+        } else if (event.kind === "status-insert") {
+            info = {note: "enter", position, segment: event.payload.id};
+        } else if (event.kind === "status-remove") {
+            info = {note: "leave", position, segment: event.payload.id};
+        } else if (event.kind === "status-swap") {
+            info = {note: "swap", position, block: [event.payload.first, event.payload.last]};
+        } else if (event.kind === "neighbour-test") {
+            const outcome = outcomeName(event.payload.outcome);
+            test = {pair: [event.payload.a, event.payload.b], outcome};
+            info = {note: "test", position, pair: [event.payload.a, event.payload.b], outcome};
+        } else if (event.kind === "schedule") {
+            info = {note: index <= base ? "start" : "schedule", position, point: event.payload.position};
+        } else if (event.kind === "report") {
+            info = {note: "report", position, point: event.payload.item.point, through: event.payload.item.segments};
         } else {
             current = NO_SEGMENTS;
             kind = undefined;

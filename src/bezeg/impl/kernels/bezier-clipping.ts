@@ -76,8 +76,8 @@ export interface ClipPayload {
 
 export type ClipTraceKind = "phase" | "clip" | "discard" | "split" | "output" | "limit" | "done";
 export type ClipNoteKey = "start" | "clipped" | "discarded" | "split" | "found" | "limitClips" | "limitDepth" | "finished";
-export type ClipEvent = TraceEvent<ClipTraceKind, ClipPayload>;
-export type ClipTrace = Trace<ClipTraceKind, ClipPayload>;
+export type ClipEvent = TraceEvent<ClipTraceKind, ClipPayload, ClipNoteKey>;
+export type ClipTrace = Trace<ClipTraceKind, ClipPayload, ClipNoteKey>;
 
 /** One reported root region: both parameter ranges, merged over adjacent pieces. */
 export interface ClipResult {

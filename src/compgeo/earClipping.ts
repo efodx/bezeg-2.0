@@ -21,8 +21,8 @@ export interface EarClippingPayload {
     readonly rejected?: 'reflex' | number;
 }
 
-export type EarClippingEvent = TraceEvent<EarClippingKind, EarClippingPayload>;
-export type EarClippingTrace = Trace<EarClippingKind, EarClippingPayload>;
+export type EarClippingEvent = TraceEvent<EarClippingKind, EarClippingPayload, EarClippingNote>;
+export type EarClippingTrace = Trace<EarClippingKind, EarClippingPayload, EarClippingNote>;
 export type EarTriangle = readonly [number, number, number];
 
 export type EarClippingOutcome =

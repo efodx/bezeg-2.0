@@ -58,7 +58,7 @@ import {
     type QueueComparator,
     type QueueEntry,
     type SweepEvent,
-    sweepEvent,
+    sweepEventBuilder,
     type SweepKind,
     type SweepPayloads,
     type SweepState,
@@ -100,6 +100,14 @@ export interface CircleEvent {
  * site is appended to); null for the first site and for a site exactly below a breakpoint. `hit`: the two arcs (left,
  * right) on either side of that breakpoint, else null. `event`: trace index of the `pop`.
  */
+/** Note keys of the Fortune trace. */
+export type FortuneNote =
+    | 'fortune.phase' | 'fortune.schedule-site' | 'fortune.schedule-circle' | 'fortune.vertex' | 'fortune.cancel-split'
+    | 'fortune.cancel-neighbour' | 'fortune.insert' | 'fortune.pop-site' | 'fortune.pop-circle' | 'fortune.remove'
+    | 'fortune.done';
+export type FortuneTrace = SweepTrace<number, FortuneNote>;
+const sweepEvent = sweepEventBuilder<number, FortuneNote>();
+
 export interface SiteEvent {
     readonly site: number;
     readonly event: number;
@@ -111,7 +119,7 @@ export interface SiteEvent {
 export interface FortuneResult {
     readonly ok: true;
     /** `report` items are indices into `diagram.vertices`. Queue ids: sites `0..n-1` (site index), circles `n + k`. */
-    readonly trace: SweepTrace<number>;
+    readonly trace: FortuneTrace;
     /** Arc id to site index (a site can own several arcs). */
     readonly arcSite: readonly number[];
     readonly siteCount: number;
@@ -262,10 +270,12 @@ export function fortuneTrace(sites: readonly GridPoint[]): FortuneOutcome {
         }
     }
 
-    const events: SweepEvent<number>[] = [];
+    const events: SweepEvent<number, FortuneNote>[] = [];
     let calls = 0;
-    const emit = <K extends SweepKind>(kind: K, payload: SweepPayloads<number>[K], noteKey: string): number => {
-        events.push(Object.freeze(sweepEvent<number, K>(kind, payload, calls, noteKey)));
+    const emit = <K extends SweepKind>(kind: K, payload: SweepPayloads<number>[K], noteKey: FortuneNote): number => {
+        const event = sweepEvent(kind, payload, calls, noteKey);
+        Object.freeze(event);
+        events.push(event);
         return events.length - 1;
     };
 

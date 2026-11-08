@@ -3,7 +3,7 @@ import {Rational, RationalPoint} from '../rational';
 import {
     foldSweepEvent,
     initialSweepState,
-    sweepEvent,
+    sweepEventBuilder,
     type SweepEvent,
     type SweepKind,
     type SweepPayloads,
@@ -13,14 +13,14 @@ import {
 } from './sweepTrace';
 
 const pt = (xn: number, xd: number, yn: number, yd: number) => new RationalPoint(Rational.of(xn, xd), Rational.of(yn, yd));
-const note = 'sweep.test';
+const note = 'sweep.test' as const;
 
 type Out = string;
-const ev = <K extends SweepKind>(kind: K, payload: SweepPayloads<Out>[K], count = 0) =>
-    sweepEvent<Out, K>(kind, payload, count, note);
+const build = sweepEventBuilder<Out, typeof note>();
+const ev = <K extends SweepKind>(kind: K, payload: SweepPayloads<Out>[K], count = 0) => build(kind, payload, count, note);
 
 /** A short piece of C2: schedule the upper endpoints, pop them, insert, test, swap at the crossing, report. */
-const trace: SweepTrace<Out> = [
+const trace: SweepTrace<Out, typeof note> = [
     ev('phase', {phase: 'init'}),
     ev('schedule', {id: 1, position: pt(4, 1, 5, 1)}),
     ev('schedule', {id: 0, position: pt(2, 1, 5, 1)}), // same y, smaller x: before id 1
@@ -103,9 +103,10 @@ describe('sweep fold', () => {
 
     it('ignores unknown kinds', () => {
         const state = sweepStateAt(trace, 9);
-        const unknown: SweepEvent<Out> = {kind: 'mystery' as SweepKind, payload: {phase: 'x'}, predicateCount: 99, noteKey: note};
+        // Run-time data from a newer producer or an import: outside the static contract, hence the explicit double cast.
+        const unknown = {kind: 'mystery', payload: {phase: 'x'}, predicateCount: 99, noteKey: note} as unknown as SweepEvent<Out, typeof note>;
         expect(foldSweepEvent(state, unknown)).toBe(state);
-        const withUnknown: SweepTrace<Out> = [...trace.slice(0, 5), unknown, ...trace.slice(5)];
+        const withUnknown: SweepTrace<Out, typeof note> = [...trace.slice(0, 5), unknown, ...trace.slice(5)];
         expect(sweepStateAt(withUnknown, withUnknown.length - 1)).toEqual(sweepStateAt(trace, trace.length - 1));
     });
 

@@ -22,8 +22,8 @@ export interface GiftWrappingPayload {
     readonly hull?: readonly number[];
 }
 
-export type GiftWrappingEvent = TraceEvent<GiftWrappingKind, GiftWrappingPayload>;
-export type GiftWrappingTrace = Trace<GiftWrappingKind, GiftWrappingPayload>;
+export type GiftWrappingEvent = TraceEvent<GiftWrappingKind, GiftWrappingPayload, GiftWrappingNote>;
+export type GiftWrappingTrace = Trace<GiftWrappingKind, GiftWrappingPayload, GiftWrappingNote>;
 
 const dist2 = (a: GridPoint, b: GridPoint) => (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
 

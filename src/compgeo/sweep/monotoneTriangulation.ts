@@ -40,10 +40,21 @@ import {
     type MonotonePartition,
     type MonotoneRefusal,
     type MonotoneRefused,
+    type MonotonePartitionNote,
 } from './monotonePartition';
-import {type SweepEvent, sweepEvent, type SweepTrace} from './sweepTrace';
+import {type SweepEvent, sweepEventBuilder, type SweepTrace} from './sweepTrace';
 
 export type Chain = 'top' | 'left' | 'right' | 'bottom';
+
+/** Note keys of the monotone triangulation trace; `pop` carries the vertex's chain. */
+export type MonotoneTriangulationNote =
+    | 'monotoneTri.phase' | 'monotoneTri.push' | 'monotoneTri.pop' | 'monotoneTri.diagonal' | 'monotoneTri.visible'
+    | 'monotoneTri.blocked' | 'monotoneTri.done' | `monotoneTri.pop.${Chain}`;
+/** The partition and triangulation segments of `partitionAndTriangulate` share one trace. */
+export type PartitionAndTriangulationNote = MonotonePartitionNote | MonotoneTriangulationNote;
+export type MonotoneTriangulationTrace = SweepTrace<Diagonal, MonotoneTriangulationNote>;
+export type PartitionAndTriangulationTrace = SweepTrace<Diagonal, PartitionAndTriangulationNote>;
+const sweepEvent = sweepEventBuilder<Diagonal, MonotoneTriangulationNote>();
 
 /** A counter-clockwise triple of input vertex indices. */
 export type Triangle = readonly [number, number, number];
@@ -66,7 +77,7 @@ export interface MonotoneTriangulation {
     readonly order: readonly number[];
     /** `chains[k]` is the chain of `order[k]`: `top` first, `bottom` last, the others `left` or `right`. */
     readonly chains: readonly Chain[];
-    readonly trace: SweepTrace<Diagonal>;
+    readonly trace: MonotoneTriangulationTrace;
     /** In the order they are reported; m - 3 of them. */
     readonly diagonals: readonly Diagonal[];
     /** m - 2 triangles, each in the cyclic order of the piece, as input indices. */
@@ -136,12 +147,12 @@ export function monotoneTriangulationTrace(
     });
     const chainOf = new Map<number, Chain>(order.map((v, k) => [v, chains[k]]));
 
-    const events: SweepEvent<Diagonal>[] = [];
+    const events: SweepEvent<Diagonal, MonotoneTriangulationNote>[] = [];
     const diagonals: Diagonal[] = [];
     const triangles: Triangle[] = [];
     const stack: number[] = [];
     let calls = 0;
-    const emit = (event: SweepEvent<Diagonal>) => events.push(event);
+    const emit = (event: SweepEvent<Diagonal, MonotoneTriangulationNote>) => events.push(event);
     const push = (v: number) => {
         emit(sweepEvent('status-insert', {id: v, index: stack.length}, calls, 'monotoneTri.push'));
         stack.push(v);
@@ -235,7 +246,7 @@ export interface PartitionAndTriangulation {
      * The partition trace followed by each piece's trace, in one sequence; `predicateCount` runs on from the previous
      * trace, so the last event's count is `counts.monotone`. Each segment keeps its own `phase` and `done`.
      */
-    readonly trace: SweepTrace<Diagonal>;
+    readonly trace: PartitionAndTriangulationTrace;
     /** Index in `trace` of the first event of the partition (0) and of each piece, in `pieces` order. */
     readonly offsets: { readonly partition: number; readonly pieces: readonly number[] };
     /** Counter-clockwise triangles of the whole polygon, piece by piece; n - 2 of them. */
@@ -249,7 +260,7 @@ export interface PartitionAndTriangulation {
 export type PartitionAndTriangulationOutcome = PartitionAndTriangulation | MonotoneRefused;
 
 /** Predicate count at the end of a trace (0 for an empty one). */
-function finalCount(trace: SweepTrace<Diagonal>): number {
+function finalCount(trace: SweepTrace<Diagonal, string>): number {
     return trace.length > 0 ? trace[trace.length - 1].predicateCount : 0;
 }
 
@@ -265,7 +276,7 @@ export function partitionAndTriangulate(vertices: readonly GridPoint[]): Partiti
         if (!result.ok) throw new Error(`a piece of the partition was refused: ${result.reason}`);
         return {piece, result};
     });
-    const events: SweepEvent<Diagonal>[] = [...partition.trace];
+    const events: SweepEvent<Diagonal, PartitionAndTriangulationNote>[] = [...partition.trace];
     const offsets: number[] = [];
     let base = finalCount(partition.trace);
     for (const {result} of pieces) {

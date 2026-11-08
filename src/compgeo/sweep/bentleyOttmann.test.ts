@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {Rational, RationalPoint} from '../rational';
-import {bentleyOttmannTrace, checkBentleyOttmannInput, type NeighbourOutcome} from './bentleyOttmann';
+import {type BentleyOttmannTrace, bentleyOttmannTrace, checkBentleyOttmannInput, type NeighbourOutcome} from './bentleyOttmann';
 import {compareEventPositions} from './eventOrder';
 import {SWEEP_COORD_LIMIT, SWEEP_MAX_SEGMENTS} from './limits';
 import {
@@ -12,21 +12,21 @@ import {
     segmentIntersection,
     upperEndpoint,
 } from './segments';
-import {foldSweepEvent, initialSweepState, type SweepState, sweepStateAt, type SweepTrace} from './sweepTrace';
+import {foldSweepEvent, initialSweepState, type SweepState, sweepStateAt} from './sweepTrace';
 
 const R = (n: number, d = 1) => Rational.of(n, d);
 const P = (xn: number, xd: number, yn: number, yd: number) => new RationalPoint(R(xn, xd), R(yn, yd));
 const seg = (ax: number, ay: number, bx: number, by: number): Segment => ({a: {x: ax, y: ay}, b: {x: bx, y: by}});
 const fmt = (p: RationalPoint) => `(${p.x.format()},${p.y.format()})`;
 
-function run(segments: readonly Segment[]): SweepTrace<IntersectionPoint> {
+function run(segments: readonly Segment[]): BentleyOttmannTrace {
     const result = bentleyOttmannTrace(segments);
     if (!result.ok) throw new Error(`refused: ${JSON.stringify(result.refusal)}`);
     return result.trace;
 }
 
 /** Fold states after the last event of each pop group (the status after the event point is fully handled). */
-function popGroups(trace: SweepTrace<IntersectionPoint>) {
+function popGroups(trace: BentleyOttmannTrace) {
     const pops = trace.flatMap((e, i) => (e.kind === 'pop' ? [i] : []));
     return pops.map((start, k) => {
         const stop = k + 1 < pops.length ? pops[k + 1] - 1 : trace.length - 2; // the last group ends before the trailing `done`
@@ -399,7 +399,7 @@ function expectedStatus(segments: readonly Segment[], p: RationalPoint): number[
 }
 
 /** Replays the trace: every neighbour test is of an adjacent pair and its outcome is recomputed from the folded state. */
-function checkNeighbourTests(segments: readonly Segment[], trace: SweepTrace<IntersectionPoint>) {
+function checkNeighbourTests(segments: readonly Segment[], trace: BentleyOttmannTrace) {
     let state = initialSweepState<IntersectionPoint>();
     trace.forEach((event, index) => {
         if (event.kind === 'neighbour-test') {

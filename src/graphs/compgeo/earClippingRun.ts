@@ -51,9 +51,6 @@ export interface EarRun {
     state(index: number): EarClippingState;
 }
 
-const NOTES: readonly EarClippingNote[] = [
-    "phase-start", "test-reflex", "test-blocked", "test-ear", "accept-ear", "output-ear", "output-last-triangle", "done-triangulated",
-];
 const EMPTY_STATE: EarClippingState = {triangles: [], remaining: [], candidate: null, done: false};
 
 function refused(refusal: EarRefusal): EarRun {
@@ -116,9 +113,8 @@ export function runEarClipping(points: readonly GridPoint[]): EarRun {
         clamp: step => clampTraceIndex(trace, step),
         event: index => {
             const e = trace[clampTraceIndex(trace, index)];
-            const note = e && NOTES.find(known => known === e.noteKey);
-            if (!e || !note) return undefined;
-            return {kind: e.kind, note, predicateCount: e.predicateCount, points: e.payload.points, rejected: e.payload.rejected};
+            if (!e) return undefined;
+            return {kind: e.kind, note: e.noteKey, predicateCount: e.predicateCount, points: e.payload.points, rejected: e.payload.rejected};
         },
         state: index => earClippingStateAt(trace, index),
     };

@@ -78,12 +78,14 @@ function emptyRun(vertices: readonly GridPoint[], refusal: MonotoneRefused): Par
 
 function eventInfo(result: MonotonePartition, index: number, statusSize: number): PartitionEventInfo {
     const event = result.trace[index];
-    const payload = event.payload;
-    if (event.kind === "pop" && "id" in payload) return {note: "pop", vertex: payload.id};
-    if (event.kind === "status-insert" && "id" in payload) return {note: "insert", edge: payload.id, statusSize};
-    if (event.kind === "status-remove" && "id" in payload) return {note: "remove", edge: payload.id, statusSize};
-    if (event.kind === "report" && "item" in payload) return {note: "diagonal", diagonal: payload.item as Diagonal};
-    return {note: event.kind === "done" ? "done" : "phase"};
+    switch (event.kind) {
+        case "pop": return {note: "pop", vertex: event.payload.id};
+        case "status-insert": return {note: "insert", edge: event.payload.id, statusSize};
+        case "status-remove": return {note: "remove", edge: event.payload.id, statusSize};
+        case "report": return {note: "diagonal", diagonal: event.payload.item};
+        case "done": return {note: "done"};
+        default: return {note: "phase"}; // `phase`: the only other kind the partition emits
+    }
 }
 
 /** Builds the run of `vertices`. Never throws on input: a refused polygon gives an empty run that carries the refusal. */

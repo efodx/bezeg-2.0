@@ -119,8 +119,8 @@ export interface LawsonPayload {
     readonly added?: readonly [number, number];
 }
 
-export type LawsonEvent = TraceEvent<LawsonKind, LawsonPayload>;
-export type LawsonTrace = Trace<LawsonKind, LawsonPayload>;
+export type LawsonEvent = TraceEvent<LawsonKind, LawsonPayload, LawsonNote>;
+export type LawsonTrace = Trace<LawsonKind, LawsonPayload, LawsonNote>;
 
 const sortedPair = (a: number, b: number): readonly [number, number] => Object.freeze(a < b ? [a, b] : [b, a]) as readonly [number, number];
 

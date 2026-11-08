@@ -62,18 +62,6 @@ export interface HullRun {
     view(index: number): HullView;
 }
 
-const MONOTONE_NOTES: readonly MonotoneChainNote[] = [
-    "phase-lower", "phase-upper", "test-turn-left", "test-turn-right", "test-collinear", "accept-push", "reject-pop",
-    "output-hull", "done-hull", "done-collinear", "done-fewer-than-three",
-];
-const SLOW_NOTES: readonly SlowHullNote[] = ["accept-edge", "reject-edge", "output-hull", "done-hull", "done-collinear", "done-fewer-than-three"];
-const GIFT_NOTES: readonly GiftWrappingNote[] = [
-    "test-replace-clockwise", "test-replace-farther", "test-keep-counterclockwise", "test-keep-nearer", "accept-wrap",
-    "output-hull", "done-hull", "done-collinear", "done-fewer-than-three",
-];
-/** Narrows a trace's `noteKey` string to the algorithm's own note union; an unknown key is undefined. */
-const noteOf = <N extends string>(known: readonly N[], key: string): N | undefined => known.find(note => note === key);
-
 const EMPTY_VIEW: HullView = Object.freeze({accepted: [], probes: [], hull: null, done: false});
 const asPair = (a: number | undefined, b: number | undefined): readonly [number, number][] =>
     a === undefined || b === undefined ? [] : [[a, b]];
@@ -86,10 +74,9 @@ function monotoneRun(points: readonly GridPoint[], options?: Partial<MonotoneCha
         clamp: step => clampTraceIndex(trace, step),
         event: index => {
             const e = trace[clampTraceIndex(trace, index)];
-            const note = e && noteOf(MONOTONE_NOTES, e.noteKey);
-            if (!e || !note) return undefined;
+            if (!e) return undefined;
             const test = e.kind === "test" && e.payload.value !== undefined ? {points: e.payload.points, value: e.payload.value} : undefined;
-            return {kind: e.kind, note, predicateCount: e.predicateCount, ...(test ? {test} : {})};
+            return {kind: e.kind, note: e.noteKey, predicateCount: e.predicateCount, ...(test ? {test} : {})};
         },
         view: index => {
             if (!trace.length) return EMPTY_VIEW;
@@ -111,10 +98,9 @@ function slowRun(points: readonly GridPoint[]): HullRun {
         clamp: step => clampTraceIndex(trace, step),
         event: index => {
             const e = trace[clampTraceIndex(trace, index)];
-            const note = e && noteOf(SLOW_NOTES, e.noteKey);
-            if (!e || !note) return undefined;
+            if (!e) return undefined;
             const pair = e.payload.points.length === 2 ? {from: e.payload.points[0], to: e.payload.points[1], witness: e.payload.witness} : undefined;
-            return {kind: e.kind, note, predicateCount: e.predicateCount, ...(pair ? {pair} : {})};
+            return {kind: e.kind, note: e.noteKey, predicateCount: e.predicateCount, ...(pair ? {pair} : {})};
         },
         view: index => {
             if (!trace.length) return EMPTY_VIEW;
@@ -133,10 +119,9 @@ function giftRun(points: readonly GridPoint[]): HullRun {
         clamp: step => clampTraceIndex(trace, step),
         event: index => {
             const e = trace[clampTraceIndex(trace, index)];
-            const note = e && noteOf(GIFT_NOTES, e.noteKey);
-            if (!e || !note) return undefined;
+            if (!e) return undefined;
             const test = e.kind === "test" && e.payload.value !== undefined ? {points: e.payload.points, value: e.payload.value} : undefined;
-            return {kind: e.kind, note, predicateCount: e.predicateCount, ...(test ? {test} : {})};
+            return {kind: e.kind, note: e.noteKey, predicateCount: e.predicateCount, ...(test ? {test} : {})};
         },
         view: index => {
             if (!trace.length) return EMPTY_VIEW;
@@ -157,7 +142,7 @@ const relabelOutput = (info: HullEventInfo | undefined): HullEventInfo | undefin
 
 /**
  * Runs one algorithm on the points. Never throws: input a trace refuses (more than 40 points, non-grid points) gives an
- * empty run, which the graph shows as an empty trace. `noteKey` strings are narrowed with the algorithm's own union.
+ * empty run, which the graph shows as an empty trace. `noteKey` is already the algorithm's own union.
  * `chainOptions` are the monotone chain's rule variants (task 19, lesson A5) and are ignored by the other two algorithms.
  */
 export function runHullTrace(algorithm: HullAlgorithm, points: readonly GridPoint[], chainOptions?: Partial<MonotoneChainOptions>): HullRun {

@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {clampTraceIndex, stateAt, type Trace} from './trace';
 
 type K = 'phase' | 'test' | 'done';
-const trace: Trace<K, number> = Object.freeze([
+const trace: Trace<K, number, 'a' | 'b' | 'c'> = Object.freeze([
     Object.freeze({kind: 'phase' as const, payload: 1, predicateCount: 0, noteKey: 'a'}),
     Object.freeze({kind: 'test' as const, payload: 2, predicateCount: 1, noteKey: 'b'}),
     Object.freeze({kind: 'done' as const, payload: 3, predicateCount: 1, noteKey: 'c'}),

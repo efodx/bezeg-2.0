@@ -7,12 +7,13 @@ import {
     type Interval,
     type IntervalPair,
     type IntervalSweepResult,
+    type IntervalSweepTrace,
 } from './intervalSweep';
-import {sweepStateAt, type SweepTrace} from './sweepTrace';
+import {sweepStateAt} from './sweepTrace';
 
 const spec: Interval[] = [{lo: 0, hi: 4}, {lo: 2, hi: 7}, {lo: 3, hi: 5}, {lo: 6, hi: 9}, {lo: 8, hi: 10}];
 
-function traceOf(intervals: readonly Interval[]): SweepTrace<IntervalPair> {
+function traceOf(intervals: readonly Interval[]): IntervalSweepTrace {
     const result: IntervalSweepResult = intervalSweepTrace(intervals);
     if (!result.ok) throw new Error(`refused: ${result.reason}`);
     return result.trace;
@@ -22,7 +23,7 @@ const key = (p: IntervalPair): string => `${p[0]},${p[1]}`;
 const keys = (pairs: readonly IntervalPair[]): string[] => pairs.map(key).sort();
 
 /** Every report must directly follow the status-insert of one of its two intervals (reported on entering). */
-function reportsFollowInserts(trace: SweepTrace<IntervalPair>): boolean {
+function reportsFollowInserts(trace: IntervalSweepTrace): boolean {
     let last: { kind: string; id: number } | null = null;
     for (const event of trace) {
         if (event.kind === 'status-insert' || event.kind === 'status-remove') {

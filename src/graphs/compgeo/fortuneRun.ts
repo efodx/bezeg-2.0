@@ -6,7 +6,7 @@ import type {GridPoint} from '../../compgeo/grid';
 import {Rational} from '../../compgeo/rational';
 import {fortuneTrace, type FortuneOutcome, type FortuneRefused, type FortuneResult, type SweepHeight} from '../../compgeo/sweep/fortune';
 import type {RationalBox} from '../../compgeo/voronoi';
-import {fortuneBox, fortuneSteps, fortuneView, isKind, traceOrigins, type FortuneView} from './fortuneGeometry';
+import {fortuneBox, fortuneSteps, fortuneView, traceOrigins, type FortuneView} from './fortuneGeometry';
 
 /** Site names A, B, C, ... (at most 12 sites). */
 export const siteName = (index: number): string => String.fromCharCode(65 + index);
@@ -47,7 +47,7 @@ export function runFortune(sites: readonly GridPoint[]): FortuneRun {
         const found: number[][] = [];
         for (let k = from; k <= to; k++) {
             const event = outcome.trace[k];
-            if (isKind(event, 'cancel')) found.push([...outcome.circles[event.payload.id - outcome.siteCount].sites]);
+            if (event.kind === 'cancel') found.push([...outcome.circles[event.payload.id - outcome.siteCount].sites]);
         }
         return found;
     };

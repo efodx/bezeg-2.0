@@ -20,8 +20,8 @@ export interface SlowHullPayload {
     readonly hull?: readonly number[];
 }
 
-export type SlowHullEvent = TraceEvent<SlowHullKind, SlowHullPayload>;
-export type SlowHullTrace = Trace<SlowHullKind, SlowHullPayload>;
+export type SlowHullEvent = TraceEvent<SlowHullKind, SlowHullPayload, SlowHullNote>;
+export type SlowHullTrace = Trace<SlowHullKind, SlowHullPayload, SlowHullNote>;
 
 /**
  * The O(n^3) edge test as a step trace. For every ordered pair (i, j) of distinct points every other point k is

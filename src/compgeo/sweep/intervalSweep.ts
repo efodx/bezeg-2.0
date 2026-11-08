@@ -12,7 +12,12 @@
 import {Rational, RationalPoint} from '../rational';
 import {checkSweepCoordinate, SWEEP_MAX_INTERVALS, type SweepInputRefusal} from './limits';
 import {compareEventPositions} from './eventOrder';
-import {type QueueEntry, sweepEvent, type SweepEvent, sweepStateAt, type SweepTrace} from './sweepTrace';
+import {type QueueEntry, sweepEventBuilder, type SweepEvent, sweepStateAt, type SweepTrace} from './sweepTrace';
+
+/** Note keys of the interval sweep trace. */
+export type IntervalSweepNote = 'interval.pop' | 'interval.leave' | 'interval.enter' | 'interval.report' | 'interval.done';
+export type IntervalSweepTrace = SweepTrace<IntervalPair, IntervalSweepNote>;
+const sweepEvent = sweepEventBuilder<IntervalPair, IntervalSweepNote>();
 
 export interface Interval {
     readonly lo: number;
@@ -25,7 +30,7 @@ export type IntervalPair = readonly [number, number];
 export type IntervalRefusal = SweepInputRefusal | 'too-many' | 'inverted';
 
 export type IntervalSweepResult =
-    | { readonly ok: true; readonly trace: SweepTrace<IntervalPair> }
+    | { readonly ok: true; readonly trace: IntervalSweepTrace }
     | { readonly ok: false; readonly reason: IntervalRefusal; readonly index?: number };
 
 /** Queue order: position, then entering before leaving, then interval index. */
@@ -54,7 +59,7 @@ export function intervalSweepTrace(intervals: readonly Interval[]): IntervalSwee
         queue.push({id: 2 * i + 1, position: new RationalPoint(Rational.fromInt(interval.hi), Rational.ZERO)});
     });
     queue.sort(compareIntervalEvents);
-    const trace: SweepEvent<IntervalPair>[] = [];
+    const trace: SweepEvent<IntervalPair, IntervalSweepNote>[] = [];
     const open: number[] = [];
     for (const entry of queue) {
         const i = entry.id >> 1;
@@ -88,7 +93,7 @@ export interface IntervalReadouts {
 }
 
 /** Readouts derived from the trace through `sweepStateAt`. */
-export function intervalReadouts(trace: SweepTrace<IntervalPair>): IntervalReadouts {
+export function intervalReadouts(trace: IntervalSweepTrace): IntervalReadouts {
     const openCounts: number[] = [];
     const xs: number[] = [];
     trace.forEach((event, index) => {

@@ -38,8 +38,8 @@ export interface MonotoneChainOptions {
 export const MONOTONE_CHAIN_DEFAULT_OPTIONS: MonotoneChainOptions =
     Object.freeze({pop: 'non-left', duplicates: 'merge'});
 
-export type MonotoneChainEvent = TraceEvent<MonotoneChainKind, MonotoneChainPayload>;
-export type MonotoneChainTrace = Trace<MonotoneChainKind, MonotoneChainPayload>;
+export type MonotoneChainEvent = TraceEvent<MonotoneChainKind, MonotoneChainPayload, MonotoneChainNote>;
+export type MonotoneChainTrace = Trace<MonotoneChainKind, MonotoneChainPayload, MonotoneChainNote>;
 
 /**
  * Andrew's monotone chain as a step trace. Points are sorted by x then y, duplicates kept once (the first input

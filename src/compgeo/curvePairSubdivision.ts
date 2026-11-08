@@ -30,7 +30,8 @@ export interface CurvePairPayload {
     readonly discarded: readonly PiecePair[];
 }
 
-export type CurvePairTrace = Trace<CurvePairKind, CurvePairPayload>;
+export type CurvePairNote = 'phase-depth-0' | 'split-pairs' | 'discard-pairs';
+export type CurvePairTrace = Trace<CurvePairKind, CurvePairPayload, CurvePairNote>;
 
 function assertNet(net: readonly GridPoint[], name: string): void {
     if (!Array.isArray(net) || (net.length !== 3 && net.length !== 4)) {
@@ -72,7 +73,7 @@ export function curvePairRun(a: readonly GridPoint[], b: readonly GridPoint[]): 
 
     const events: CurvePairTrace[number][] = [];
     let tests = 0;
-    const push = (kind: CurvePairKind, noteKey: string, payload: CurvePairPayload) => {
+    const push = (kind: CurvePairKind, noteKey: CurvePairNote, payload: CurvePairPayload) => {
         events.push(Object.freeze({kind, noteKey, payload: Object.freeze(payload), predicateCount: tests}));
     };
     const test = (depth: number, candidates: readonly PiecePair[]) => {

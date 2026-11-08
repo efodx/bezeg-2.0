@@ -99,7 +99,7 @@ export function runIntervalSweep(intervals: readonly Interval[]): IntervalRun {
     const popped: QueuedEvent[] = [];
     const poppedAt: number[] = [];
     trace.forEach((event, index) => {
-        if (event.kind !== "pop" || !("position" in event.payload)) return;
+        if (event.kind !== "pop") return;
         const interval = event.payload.id >> 1;
         const entering = (event.payload.id & 1) === 0;
         popped.push({interval, entering, x: entering ? intervals[interval].lo : intervals[interval].hi});
@@ -114,7 +114,7 @@ export function runIntervalSweep(intervals: readonly Interval[]): IntervalRun {
         const state = sweepStateAt(trace, index, compareIntervalEvents);
         let info: IntervalEventInfo;
         let pair: IntervalPair | undefined;
-        if (event.kind === "pop" && "position" in event.payload) {
+        if (event.kind === "pop") {
             const entering = (event.payload.id & 1) === 0;
             current = event.payload.id >> 1;
             x = entering ? intervals[current].lo : intervals[current].hi;
@@ -122,7 +122,7 @@ export function runIntervalSweep(intervals: readonly Interval[]): IntervalRun {
         } else if (event.kind === "status-insert" || event.kind === "status-remove") {
             counts.push(state.status.length);
             info = {note: event.kind === "status-insert" ? "enter" : "leave", interval: current, x: x ?? undefined};
-        } else if (event.kind === "report" && "item" in event.payload) {
+        } else if (event.kind === "report") {
             pair = event.payload.item;
             const [p, q] = [intervals[pair[0]], intervals[pair[1]]];
             info = {note: "report", interval: current, x: x ?? undefined, pair, touching: intervalsTouch(p, q)};

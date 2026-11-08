@@ -1,6 +1,6 @@
 # 2. Correlated trace event and note types
 
-Status: pending. Source: [specification, section 2](../../specs/mathematical-runtime-contracts.md#2-correlated-trace-event-and-note-types), acceptance T1–T3 and shared verification. Precedes task 3; owns shared trace interfaces while active.
+Status: accepted 2026-11-08 by the Controls handler ([evidence](02-correlated-trace-types.evidence.md); engineering review found no blocking issues; type-only, so no smoke). Source: [specification, section 2](../../specs/mathematical-runtime-contracts.md#2-correlated-trace-event-and-note-types), acceptance T1–T3 and shared verification. Precedes task 3; owns shared trace interfaces while active.
 
 ## Scope and entry points
 

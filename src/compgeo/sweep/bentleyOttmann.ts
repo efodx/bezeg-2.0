@@ -28,7 +28,14 @@ import {
 } from './segments';
 import {compareEventPositions} from './eventOrder';
 import {checkSweepPoint, SWEEP_MAX_SEGMENTS, type SweepInputRefusal} from './limits';
-import {type QueueEntry, sweepEvent, type SweepEvent, type SweepKind, type SweepPayloads, type SweepTrace} from './sweepTrace';
+import {type QueueEntry, sweepEventBuilder, type SweepEvent, type SweepKind, type SweepPayloads, type SweepTrace} from './sweepTrace';
+
+/** Note keys of the Bentley-Ottmann trace. */
+export type BentleyOttmannNote =
+    | 'bo.schedule-endpoint' | 'bo.schedule-crossing' | 'bo.pop' | 'bo.report' | 'bo.swap' | 'bo.status-remove'
+    | 'bo.status-insert' | 'bo.neighbour-test' | 'bo.done';
+export type BentleyOttmannTrace = SweepTrace<IntersectionPoint, BentleyOttmannNote>;
+const sweepEvent = sweepEventBuilder<IntersectionPoint, BentleyOttmannNote>();
 
 /** Discrete outcome of a neighbour test: no contact; a contact after the event (new event scheduled, or already queued); or at/before it. */
 export type NeighbourOutcome = 'none' | 'schedule' | 'queued' | 'passed';
@@ -39,7 +46,7 @@ export type BentleyOttmannRefusal =
     | { readonly reason: 'overlap'; readonly pair: readonly [number, number] };
 
 export type BentleyOttmannResult =
-    | { readonly ok: true; readonly trace: SweepTrace<IntersectionPoint> }
+    | { readonly ok: true; readonly trace: BentleyOttmannTrace }
     | { readonly ok: false; readonly refusal: BentleyOttmannRefusal };
 
 /** The first refusal reason, or null when the input may be swept. Overlap is reported as the first pair (i < j). */
@@ -76,10 +83,10 @@ export function bentleyOttmannTrace(segments: readonly Segment[]): BentleyOttman
     const refusal = checkBentleyOttmannInput(segments);
     if (refusal !== null) return {ok: false, refusal};
 
-    const events: SweepEvent<IntersectionPoint>[] = [];
+    const events: SweepEvent<IntersectionPoint, BentleyOttmannNote>[] = [];
     let predicates = 0;
-    const emit = <K extends SweepKind>(kind: K, payload: SweepPayloads<IntersectionPoint>[K], noteKey: string): void => {
-        events.push(sweepEvent<IntersectionPoint, K>(kind, payload, predicates, noteKey));
+    const emit = <K extends SweepKind>(kind: K, payload: SweepPayloads<IntersectionPoint>[K], noteKey: BentleyOttmannNote): void => {
+        events.push(sweepEvent(kind, payload, predicates, noteKey));
     };
 
     const upper = segments.map(upperEndpoint);
@@ -89,7 +96,7 @@ export function bentleyOttmannTrace(segments: readonly Segment[]): BentleyOttman
     // Event queue: one entry per distinct position, ids in order of scheduling.
     const queue: QueueEntry[] = [];
     const known = new Map<string, number>();
-    const schedule = (position: RationalPoint, noteKey: string): void => {
+    const schedule = (position: RationalPoint, noteKey: 'bo.schedule-endpoint' | 'bo.schedule-crossing'): void => {
         const entry: QueueEntry = {id: known.size, position};
         known.set(keyOf(position), entry.id);
         let at = queue.length;

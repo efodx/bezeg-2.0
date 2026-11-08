@@ -17,14 +17,7 @@ import {Rational} from '../../compgeo/rational';
 import {circumcentre} from '../../compgeo/triangle';
 import type {RationalBox} from '../../compgeo/voronoi';
 import {type FortuneResult, type FortuneState, fortuneStateAt, type SweepHeight} from '../../compgeo/sweep/fortune';
-import type {SweepEvent, SweepKind, SweepPayloads} from '../../compgeo/sweep/sweepTrace';
-import type {TraceEvent} from '../../compgeo/trace';
 import {frame} from './voronoiDrawing';
-
-/** Type guard on the event kind (narrows the payload). */
-export function isKind<K extends SweepKind>(event: SweepEvent<number>, kind: K): event is TraceEvent<K, SweepPayloads<number>[K]> {
-    return event.kind === kind;
-}
 
 export interface Pt {
     readonly x: number;
@@ -154,8 +147,8 @@ export function traceOrigins(result: FortuneResult, sites: readonly GridPoint[])
         beach = [...beach];
         for (let k = from; k <= last; k++) {
             const event = trace[k];
-            if (isKind(event, 'status-insert')) beach.splice(event.payload.index, 0, event.payload.id);
-            else if (isKind(event, 'status-remove')) beach = beach.filter(arc => arc !== event.payload.id);
+            if (event.kind === 'status-insert') beach.splice(event.payload.index, 0, event.payload.id);
+            else if (event.kind === 'status-remove') beach = beach.filter(arc => arc !== event.payload.id);
         }
         if (j > 0) transition(result, sites, from, beach, open, finished);
         snapshots.push({open: new Map(open), finished: [...finished]});

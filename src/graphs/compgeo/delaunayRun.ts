@@ -37,7 +37,6 @@ export interface DelaunayRun {
 }
 
 const EMPTY_STATE: LawsonState = {triangulation: null, testing: null, flips: 0, done: false};
-const NOTES: readonly LawsonNote[] = ["phase-start", "test-legal", "test-illegal", "flip-edge", "done-delaunay"];
 const NO_RUN: DelaunayRun = {
     length: 0, start: undefined, cocircular: false, clamp: () => 0, event: () => undefined, state: () => EMPTY_STATE, illegal: () => [],
 };
@@ -103,8 +102,7 @@ export function runDelaunay(start: Triangulation | undefined): DelaunayRun {
         clamp: step => clampTraceIndex(trace, step),
         event: index => {
             const e = trace[clampTraceIndex(trace, index)];
-            const note = e && NOTES.find(known => known === e.noteKey);
-            return e && note ? {kind: e.kind, note, event: e} : undefined;
+            return e ? {kind: e.kind, note: e.noteKey, event: e} : undefined;
         },
         state,
         illegal: index => {

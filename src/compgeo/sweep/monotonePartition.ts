@@ -31,7 +31,15 @@ import {doubledSignedArea} from '../polygonMeasures';
 import {RationalPoint} from '../rational';
 import {compareEventPositions} from './eventOrder';
 import {checkSweepPoints, SWEEP_MAX_POLYGON_VERTICES, type SweepInputRefusal} from './limits';
-import {type SweepEvent, sweepEvent, type SweepState, sweepStateAt, type SweepTrace} from './sweepTrace';
+import {type SweepEvent, sweepEventBuilder, type SweepState, sweepStateAt, type SweepTrace} from './sweepTrace';
+
+/** Note keys of the monotone partition trace; `pop` carries the vertex type. */
+export type MonotonePartitionNote =
+    | 'monotone.phase' | 'monotone.diagonal' | 'monotone.insert' | 'monotone.remove' | 'monotone.done'
+    | `monotone.pop.${VertexType}`;
+export type MonotonePartitionEvent = SweepEvent<Diagonal, MonotonePartitionNote>;
+export type MonotonePartitionTrace = SweepTrace<Diagonal, MonotonePartitionNote>;
+const sweepEvent = sweepEventBuilder<Diagonal, MonotonePartitionNote>();
 
 export type VertexType = 'start' | 'end' | 'split' | 'merge' | 'regular';
 
@@ -59,7 +67,7 @@ export interface MonotonePartition {
     readonly ok: true;
     /** True when the input was clockwise; all indices still refer to the input. */
     readonly reversed: boolean;
-    readonly trace: SweepTrace<Diagonal>;
+    readonly trace: MonotonePartitionTrace;
     /** Vertex type per input index. */
     readonly types: readonly VertexType[];
     /** Vertex indices in processing order: the `pop` events' ids. */
@@ -222,13 +230,13 @@ export function monotonePartitionTrace(vertices: readonly GridPoint[]): Monotone
     const {order, rank} = processingOrder(vertices);
     const types = vertices.map((_, i) => classifyWith(pred, succ, rank, i, convex[i]));
 
-    const events: SweepEvent<Diagonal>[] = [];
+    const events: MonotonePartitionEvent[] = [];
     const diagonals: Diagonal[] = [];
     const helperChanges: HelperChange[] = [];
     const helper: number[] = [];
     const status: number[] = [];
     let calls = 0;
-    const emit = (event: SweepEvent<Diagonal>) => events.push(event);
+    const emit = (event: MonotonePartitionEvent) => events.push(event);
     const setHelper = (edge: number, vertex: number) => {
         helper[edge] = vertex;
         helperChanges.push({event: events.length - 1, edge, helper: vertex});
