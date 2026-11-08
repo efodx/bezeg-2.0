@@ -18,4 +18,13 @@ module.exports = [
         lessonQuote: 'Povleci \\(w\\) in opazuj, kako se zavrti pravilni \\(n\\)-kotnik.',
         discreteReason: null,
     },
+    {
+        id: 'linear-map',
+        motion: 'parameter-sweep',
+        control: {kind: 'number', label: 'a₁: x', step: 0.25},
+        // The recipe selects example A ("basis-default"): the column handles start at a1 = (2, 1) and a2 = (-1, 1) (recipe check). Entries are multiples of 1/4 between -4 and 4; with a1 = (x, 1) the determinant is x + 1 and the handle stays inside the recipe camera (x from -1.6) for x from -1.5 to 4. A pointer drag on the handle fails the state check (it snaps to the 1/4 grid).
+        path: [2, 4, -1.5, 2],
+        lessonQuote: 'Povleci \\(a_1\\) drugam in preberi nov \\(A(1,1)\\).',
+        discreteReason: null,
+    },
 ];

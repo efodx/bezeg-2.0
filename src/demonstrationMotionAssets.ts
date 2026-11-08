@@ -115,6 +115,7 @@ import motion_bspline_insertion from './images/demonstrations/catalog/bspline-in
 import motion_bezier_clipping from './images/demonstrations/catalog/bezier-clipping.webm?no-inline';
 import motion_root_finding from './images/demonstrations/catalog/root-finding.webm?no-inline';
 import motion_hull_robustness from './images/demonstrations/catalog/hull-robustness.webm?no-inline';
+import motion_linear_map from './images/demonstrations/catalog/linear-map.webm?no-inline';
 
 export type DemonstrationMotionAsset = {src: string; type: string; duration: number};
 export const demonstrationMotionAssets: Partial<Record<DemonstrationId, DemonstrationMotionAsset>> = {
@@ -233,4 +234,5 @@ export const demonstrationMotionAssets: Partial<Record<DemonstrationId, Demonstr
     'bezier-clipping': {src: motion_bezier_clipping, type: 'video/webm', duration: 4},
     'root-finding': {src: motion_root_finding, type: 'video/webm', duration: 4},
     'hull-robustness': {src: motion_hull_robustness, type: 'video/webm', duration: 4},
+    'linear-map': {src: motion_linear_map, type: 'video/webm', duration: 4},
 };

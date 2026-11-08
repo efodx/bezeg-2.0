@@ -34,6 +34,6 @@ module.exports = [
     // hull-robustness: the poster is the monotone chain on sample 1 under the default pop rule, after four presses (handler 10). The lesson
     // asks to play the chain trace; the rule stays at the poster's, because a rule change returns the trace to step 1.
     {id: "hull-robustness", motion: 'discrete-exact-steps', control: {kind: 'trace-step', label: 'Naslednji korak', step: 1}, path: [0,2,4,6,0],
-        lessonQuote: "Primerjaj izpis z napovedjo, nato izberi pravilo \(<\) in pritisni Predvajaj.",
+        lessonQuote: "Primerjaj izpis z napovedjo, nato izberi pravilo \\(<\\) in pritisni Predvajaj.",
         discreteReason: "The trace has no value input and every edit to the graph restarts it at step 1, so a pointer drag or slider cannot hold a later step; only the Next step button reaches it."},
 ];
