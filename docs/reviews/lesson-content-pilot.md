@@ -2,6 +2,8 @@
 
 [Spec](../specs/lesson-content-pilot.md) · [style brief v2](lesson-content-pilot/style-brief.md) · [reviewer brief](lesson-content-pilot/reviewer-brief.md) · 2026-11-08
 
+Follow-up: the [writer model comparison](lesson-content-pilot/model-comparison/results.md) tests whether stronger writer models give better lesson text, and keeps the best rewrite per lesson.
+
 Four lessons were rewritten in Slovenian through blind persona review (struggling, curious and reluctant student, three fresh reviewers per round). This is text only: nothing has been checked in the browser and nothing in `src/` has changed.
 
 ## Scores
