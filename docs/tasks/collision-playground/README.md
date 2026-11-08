@@ -13,10 +13,12 @@ Status lives in this table. The handler updates it in the same push as each acce
 | [CP5](05-inspect-component.md) | *Look underneath*: interval shadows, active list, candidate pairs, step-through | B | CP4 | Mathematical + UI/accessibility | accepted 2026-11-07 |
 | [CP6](06-chapter-integration.md) | Shared playground block, `FamilyChapterPage` rendering, sweep chapter prose, terms, docs | B | CP4, CP5 | Engineering; notation test | accepted 2026-11-07 |
 | [CP7](07-batch-b-acceptance.md) | Batch B acceptance: containment and smoothness measurements, bilingual smoke, `just check` | B | CP3, CP6 | Handler | accepted 2026-11-07 ([matrix](../../reviews/collision-playground/batch-b-acceptance.md)) |
-| CP8 | Polygon templates: exact hull and convex pieces once per template, SAT narrow phase | C | B released | Mathematical | task file written when B is released |
-| CP9 | Polygon mode and box → hull → pieces overlay; convexity chapter block and prose | C | CP8 | Engineering + UI/accessibility | task file written when B is released |
-| CP10 | Batch C acceptance | C | CP9 | Handler | task file written when B is released |
+| [CP8](08-polygon-model.md) | Polygon templates: exact hull and convex pieces once per template, SAT narrow phase | C | B released | Mathematical | ready |
+| [CP9](09-polygon-mode.md) | Polygon mode and box → hull → pieces overlay; convexity chapter block and prose | C | CP8 | Engineering + UI/accessibility | not started |
+| [CP10](10-batch-c-acceptance.md) | Batch C acceptance | C | CP9 | Handler | not started |
 
 **Parallelism.** CP1 runs first, and its exported types are the CP2 interface. CP2 and CP4 may overlap once the protocol types (`collisionProtocol.ts`) are committed. CP4 owns `collisionProtocol.ts` changes after CP2 is accepted.
+
+**Batch C (planned 2026-11-08).** CP8's model is a prerequisite for CP9's protocol and drawing. CP9 owns `collisionProtocol.ts` and the locale key block. CP8 owns `src/compgeo/collisions/`.
 
 **Stop condition.** A miss of spec criterion 2 (containment) or 4 (smoothness) goes to the owner before CP6's chapter blocks are pushed. CP1–CP5 may be pushed earlier, since no chapter mounts them yet.

@@ -6,7 +6,7 @@ Rules and slice template: [feature streams](README.md). Port 4320. Handoffs: `do
 | # | Feature | Spec | Prerequisites | Status |
 | --- | --- | --- | --- | --- |
 | 1 | Collision playground, batches A and B (sweep chapter) | [collision-playground.md](../../specs/collision-playground.md), [ADR 0042](../../adr/0042-collision-playground-worker-and-canvas.md) | None. No gate: no Demonstration, lesson or registration change | Released 2026-11-07: CP1–CP7 accepted ([acceptance matrix](../../reviews/collision-playground/batch-b-acceptance.md)) |
-| 2 | Collision playground, batch C (convexity chapter, polygons) | same | Feature 1 released | Task files CP8–CP10 written when feature 1 is released |
+| 2 | Collision playground, batch C (convexity chapter, polygons) | same | Feature 1 released | Task files CP8–CP10 written 2026-11-08; CP8 next |
 
 ## Notes
 
