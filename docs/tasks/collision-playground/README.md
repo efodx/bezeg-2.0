@@ -15,7 +15,7 @@ Status lives in this table. The handler updates it in the same push as each acce
 | [CP7](07-batch-b-acceptance.md) | Batch B acceptance: containment and smoothness measurements, bilingual smoke, `just check` | B | CP3, CP6 | Handler | accepted 2026-11-07 ([matrix](../../reviews/collision-playground/batch-b-acceptance.md)) |
 | [CP8](08-polygon-model.md) | Polygon templates: exact hull and convex pieces once per template, SAT narrow phase | C | B released | Mathematical | accepted 2026-11-08 ([notes](../../reviews/collision-playground/cp8-notes.md)) |
 | [CP9](09-polygon-mode.md) | Polygon mode and box → hull → pieces overlay; convexity chapter block and prose | C | CP8 | Engineering + UI/accessibility | accepted 2026-11-08 after the Haiku recheck of smoke D1/D2 ([notes](../../reviews/collision-playground/cp9-notes.md), [smoke](../../reviews/collision-playground/cp9-browser.md)) |
-| [CP10](10-batch-c-acceptance.md) | Batch C acceptance | C | CP9 | Handler | not started |
+| [CP10](10-batch-c-acceptance.md) | Batch C acceptance | C | CP9 | Handler | accepted 2026-11-08 after a drawing fix and lower polygon limits ([matrix](../../reviews/collision-playground/batch-c-acceptance.md)) |
 
 **Parallelism.** CP1 runs first, and its exported types are the CP2 interface. CP2 and CP4 may overlap once the protocol types (`collisionProtocol.ts`) are committed. CP4 owns `collisionProtocol.ts` changes after CP2 is accepted.
 
