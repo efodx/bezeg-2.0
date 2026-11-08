@@ -2464,3 +2464,42 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - **Handoff v13 — standards:** Review the fixed diff for lifecycle, compatibility and non-vacuous tests. No actionable findings.
 - **Handoff v13 — spec/UI:** Compare all six task criteria with the fixed diff. Identified the crop and touch evidence gaps.
 - **Handoff v13 — smoke:** Replay production probes with installed Chromium. Closed the touch-drag and outside-canvas scrolling checks.
+## 2026-11-08: controls Wave 1 (controls stream, restarted handler)
+
+- Scope: controls task 2 review follow-ups, contracts tasks 2 and 3, step 3a appearance contracts, the master smoke repair from `97d22db4`. Class/size: L, made of independently verifiable slices. Handler: Opus `medium`, 1.5x budget scale. Up to four workers at once, under the parallel plan.
+- Dispatch. All workers ran at Sonnet `medium` unless noted.
+  - Task 2 follow-ups: `bezeg-worker`, three rounds.
+    - Round 1 stopped at 135k with items 7–9 open.
+    - Round 2 continued from the handoff note: 104k, 95 min.
+    - Round 3 fixed the smoke defects: 79k, then one handler rejection and rework.
+  - UI review: `bezeg-reviewer`, 39k.
+  - Contracts task 2: `bezeg-worker`, 133k, 121 min.
+  - Review of contracts task 2: `bezeg-reviewer`, 48k.
+  - Contracts task 3 slice 3a: `bezeg-worker`, 93k.
+  - Contracts task 3 slice 3b: `bezeg-worker`, 133k.
+  - Step 3a: `bezeg-worker`, 104k, 101 min.
+  - Smoke-spec repair: `bezeg-worker` in an isolated worktree, 47k, 29 min.
+  - Smokes:
+    - Playback slice 3a: two Haiku `bezeg-smoke` runs; the first stopped partial at its budget.
+    - Playback slice 3b: one Haiku run, partial; the handler ran the lesson smoke.
+    - Task 2 broad: one Sonnet run, 115k.
+    - Task 2 repair recheck: one Haiku run.
+  - Step 6 code inventory: Haiku `Explore`, partial.
+- Outcome: accepted on master: `ea98f719`, `c25cfa5b`, `1f91b7e9`, `ac0dc04d`, `6606083a`, `19bd0dd0` (task 2 follow-ups, slice 3b, docs). Hosted CI was green on `1f91b7e9`.
+- Repairs:
+  - The step 3a hover test passed locally and failed in hosted CI (pointer position read before scroll). The handler fixed it in `1f91b7e9`.
+  - The task 2 broad smoke found three defects that unit tests missed:
+    - The PH typed `w` field reverted after a commit.
+    - Focus fell to the page body after a row remove in the curve workspace.
+    - The same happened in the PointSet segment and interval lists.
+  - The handler rejected the first focus fix, a module-level request with a 2 s `Date.now` window. The root cause was a remount keyed on every edit; the rework keys the list on scene replacements only.
+- Integration failures:
+  - Concurrent workers in one checkout broke each other's `check-changed`: another worker's lint errors, then `pointRefusals.clear` called before field initialisation. The checkout lock also stalled one worker's run.
+  - Publishing went through a second clean worktree, because the shared worktree stayed dirty.
+- Environment:
+  - A 3b worker's mutation script hung. The worker could not stop it (permission classifier) and asked the handler to; the handler declined and referred it to the owner.
+  - Haiku smoke workers hit their budget before finishing broad route lists.
+- Lessons:
+  - Smoke catches remount and refresh defects that jsdom tests miss. Keep a browser pass before accepting control changes.
+  - Haiku smoke handles about five routes with five checks each. Split larger lists, or use Sonnet.
+  - A parallel wave in one worktree needs a separate clean worktree for verification and publish.

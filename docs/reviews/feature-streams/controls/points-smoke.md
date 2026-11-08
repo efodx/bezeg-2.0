@@ -33,3 +33,14 @@ Target: http://127.0.0.1:4327/bezeg-2.0, production preview of the clean build i
 - `just smoke-lesson interp-fifth-point-added hermite-locality-six` cannot run: the ids are scene ids, not LESSON_SPEC rows (the recipe rejected them); the rows `interp-lagrange interp-hermite` failed because Playwright refused the occupied port 4327. Lessons were walked by hand instead.
 - 3-axis rows at 310 px: no shipped route reached (rational/base has no point list); only 2-axis rows checked.
 - Large text (200%), forced colors, screen reader announcement of the two PointSet status regions, focus after a board count change, typed add via Enter in Interpolation/Hermite (none exists), PointSet segments/intervals typed add, English touch layout.
+
+## Repair recheck
+
+Target: http://127.0.0.1:4327/bezeg-2.0 (production preview, HTTP 200 before the run). Chromium via Playwright, 1280x800 desktop, fresh context per run. Scripts and logs in `C:\Users\1337Hacker\AppData\Local\Temp\fx-smoke\` (`ph.cjs`, `bz.cjs`, `rows.cjs`).
+
+1. **PH hodograph (`/ph/cubic`, sl): pass.** Select Krivulja1, field "w₀, x" typed -3 then Enter: field "−3", board w0 x = -3.00. Same with Tab: field "−3", board -3.00. Board drag of w0 to x = -4.43: field "−4,429" (list updated). Reset: click Shrani tab, then "Ponastavi prednastavitev", then back to Uredi: field "−3,5", board -3.50.
+   Note: the reset control sits under the Shrani tab; it is hidden on the Uredi tab.
+2. **Curve workspace (`/bezier/curve`, sl): pass.** Click "Odstrani: p₁": activeElement is BUTTON "Odstrani: p₁" (rows renumbered to p₀, p₁, p₂). Keyboard path (click p₁ x, Tab twice, Enter): activeElement is BUTTON "Odstrani: p₁", 4 to 3 rows. Typed p₀ x = -2 then Enter: field "−2", board p0 x = -2.00.
+3. **PointSet segments and intervals (en): pass.** Segments (4 rows): remove s4 focus on "×Remove segment s3"; remove middle s2 focus on "×Remove segment s2"; remove all, focus on "Add segment". Intervals (5 rows): remove e focus on "×Remove interval d"; remove middle c focus on "×Remove interval c"; remove all, focus on "Add interval".
+Console and page errors: none in any of the three runs.
+Gaps: no screenshots (board positions read via JSXGraph coordinates). Drag checked in one direction only. Reset location assumed to be the preset reset. No touch or 310 px runs. Remove by Enter was checked only for the curve workspace, not for segments or intervals.

@@ -1,45 +1,57 @@
 # Controls stream state
 
-Replaces the numbered `handler-handoff-<n>.md` notes (the last was [handoff 5](handler-handoff-5.md)). Read this and the [handler card](../../../agent-workflow/handler-card.md), then the [parallel plan](../../../tasks/feature-streams/controls.md#parallel-plan).
+Read this and the [handler card](../../../agent-workflow/handler-card.md), then the [parallel plan](../../../tasks/feature-streams/controls.md#parallel-plan). Evaluation record for Wave 1: the last "controls Wave 1" entry in [evaluation-log.md](../../../agent-workflow/evaluation-log.md).
 
 ## Where things are
 
-- **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`. Run state: **active**, restarted by the supervisor on the parallel plan (2026-11-08); Wave 1 in progress.
-- **Task 2 (shared point controls)** on `master`: `f0548e4d` P1 point rules (`src/graphs/base/points/`), `10b37815` P2 `PointCollection` and extended `PointListInput` (`src/inputs/`), `44c8b288` P3 Interpolation pilot and `add-point` coordinates (Interpolation, Hermite, Correlation), `9ea84ea7` P4 PointSet pilot with `BaseGraph.fitToVisiblePoints`. P5 (curve workspace) and the engineering review: see [P5 status](#p5-and-review).
-- Decisions 27–29 and the task-2 User impact bullet are in the [spec](../../../specs/shared-graph-controls.md#decided-in-task-2--2026-11-08). Evidence: `points-p1.md` … `points-p5.md`; briefs `points-p*-brief.md` beside them.
+- **Worktree and branch:** `.claude/worktrees/stream-controls`, `worktree-stream-controls`, rebased on `origin/master`. Run state: **active**. Wave 1 closed 2026-11-08; Wave 2 is next.
+- **Clean publish worktree:** `.claude/worktrees/agent-a18d8a9709fec93af`, detached HEAD, has its own `npm ci`. Wave 1 used it to verify and publish while workers kept the stream worktree dirty: check out the commit there, run `just typecheck`, the focused units and `just build`, serve with `just preview 4327` (positional port), then push from it. Remove the untracked copies of docs before checking out a commit that adds them.
+- **Standing owner directions** (stream file, Decisions): handlers decide and record, with no confirmation; the README's other stop conditions still apply. Verification-throughput phase 5 applies to every sweep (stream file, Notes, last item).
 
-## P5 and review
+## Accepted in Wave 1 (all on `master`)
 
-P5 (curve workspace and PH hodograph, `CurvePointControls.tsx`, `PointCoordinateEditor` deleted) and the review fixes are in the commits listed at the end of this note's history; evidence `points-p5.md`, engineering review of P1–P4 `points-review-eng.md` (no defects). Fixed after review: `constrainPoint` snap tolerance (`1e-9`, as `NumberInput`), the stale `add-point` comment in `model.ts`. Open from the review, for Wave 1 (one worker, owns `src/inputs/PointCollection.*` and the three graphs):
+- Step 2, shared point controls: P1–P5 earlier; follow-ups in `19bd0dd0`, among them decision 31 (placement never duplicates a point; see the spec's task-2 section); smoke repairs `34d8b831` (pushed with this note). Evidence: `points-w1.md`, `points-review-ui.md`, `points-smoke.md` (with "Repair recheck").
+- Step 3, contracts task 2 (`ac0dc04d`) and task 3 (`6606083a`, then `19bd0dd0`): `src/graphs/compgeo/tracePlayback.ts` drives all eleven trace graphs. Evidence lives beside the tasks in `docs/tasks/mathematical-runtime-contracts/`; smoke in `contracts-3a-smoke.md` and `contracts-3b-smoke.md`.
+- Step 3a, appearance contracts: `c25cfa5b` and `1f91b7e9` (a CI hover fix). `src/graphs/styles/RenderedPointRoles.test.ts`, `tests/rendered-appearance.smoke.spec.cjs`.
+- Master smoke repair after `97d22db4`: `ea98f719`; hosted CI green on `1f91b7e9`.
+- Task files for steps 7, 8 and 9: `docs/tasks/lesson-authoring-architecture/05-…`, `04-…` and `03-…`.
+- Step 6, partial code inventory: `docs/tasks/mobile-graph-playback/graph-adjacent-controls.inventory.md`.
 
-- `PointCollection.tsx:91-96` empties the typed entry before the graph answers; a refused add loses the typed values. `onAdd` should report acceptance and the fields clear only then.
-- `HermiteGraph.editPoint` refits on the point alone; it should frame the tangent tips as `addPoint` does (task-0 decision 5).
-- Default placement at the coordinate limit can duplicate an earlier point: silent on PointSet (duplicates allowed), and on Interpolation and Hermite the Add button shows no reason for the model's refusal.
-- P5: the curve workspace refusal survives Reset, Preset and lesson restore until the next accepted edit (should clear, as decision 17's channel does); a typed `w` edit on the PH hodograph refits nothing (auxiliary board); shared behaviours run on `bezier` and `curve-curvature` only; the old editor's listener-disposal assertions were not carried over.
+## Next: Wave 2, family sweeps
 
-## Before task 2 is accepted
+Order (parallel plan): compgeo with projective in parallel, then functions with curves, then patches. Task: [03-family-sweeps](../../../tasks/shared-graph-controls/03-family-sweeps.md). Brief inputs per sweep:
 
-1. UI and accessibility review of P2–P5 (Sonnet reviewer): focus, `aria-pressed`, unavailable reasons, two `role="status"` regions in `PointCollection` (count line and pressed reason; decision 18), the typed-entry Enter rule (adds when the draft is within `1e-3` of the accepted value), 3-axis wrapping at 310 px.
-2. Browser smoke (`bezeg-smoke`, Sonnet, [smoke-tests.md](../../../smoke-tests.md)): PointSet (points, polygon, segments, intervals), Interpolation, Hermite, the curve workspace and the PH hodograph, touch and keyboard, both languages; lessons `interp-fifth-point-added` (view unchanged) and `hermite-locality-six` (refits only at the second add); also decision 6's lesson-view items and the User impact list (carried from handoff 5).
-3. Each shared kind on two real graphs: `pointListBehaviour` and `pointCollectionBehaviour` run on Interpolation, Hermite (collection), PointSet and, after P5, the curve workspace.
-4. Record the evaluation entry ([do-log](../../../../.agents/skills/subagent-flow-evaluation/SKILL.md#do-log)) for task 2: P4 hit the worker budget at 140k and left its runs unread; P3 stopped with runs queued; both needed handler verification. Briefs with five acceptance items plus a pilot over ~20 subclasses were too large for one worker.
+- Read the family's rows in `docs/tasks/shared-graph-controls/inventory.md`, and its entries in `controlExemptions` (`eslint.config.mjs`). Split the family by panel, at about 10k lines read per worker, with one owner per shared file. `sl.ts`, `en.ts` and `controlExemptions` conflicts are mechanical.
+- Acceptance: the family's exemptions are gone apart from recorded exceptions; I1–I5 hold in both languages; lessons and Presets behave as before apart from confirmed changes; mathematical meaning is unchanged.
+- Phase 5 rules: run the full shared behaviour on two graphs per kind and give the others one thin wiring check; delete migrated graphs' duplicate mechanics tests in the same commit; give each placement or view rule a pure test plus one real-graph case; report the test-time delta per slice.
+- Compgeo:
+  - PointSet segments and intervals still have their own add and remove buttons and native `disabled` (`PointSetControls.tsx`).
+  - Nine compgeo live paragraphs and the function status groups move to `LiveReadout`.
+  - Trace panels now use `TracePlayback`, so do not reintroduce per-graph controller code.
+- Projective: take the Pascal table-index readout with this sweep (stream file, Notes, "From Clips").
+- Checks per sweep: focused units, `just check-changed`, `just build` after localization changes, engineering review, a UI review where controls change, and a smoke of the family's routes. Haiku smoke manages about five routes with five checks each; split longer lists or use Sonnet.
+
+Alongside Wave 2, step 6 items 1–2 may run: the open cells of the inventory, the before screenshots at 390×844 and 360×640, and the prototype. Its implementation waits for the C12/C24 playback slice in Wave 3.
 
 ## Open items
 
-- PointSet segments and intervals keep their own add buttons and count lines (`PointSetControls.tsx`); compgeo sweep.
-- `PointCollection` pressed reason closes over its render: a change to `min` or `max` alone does not refresh it.
-- Placement at the coordinate limit can propose a point equal to an existing one; the graph's model refuses it with its own reason (Interpolation: repeated parameter).
-- Carried from handoff 5: `ChoiceSelect` clipped at 200% text (one `test.fail`); count setter's refusal ignores `ReplacementRevision`; De Boor and Interpolation count setters' typed path untested; faint glyph of an enabled count button in the presenting theme; no screen reader run, Chromium only; no shipped graph reaches a refused `axisPoint` drag; `uncaughtSteppers` (five files); nine compgeo live paragraphs and function status groups move to `LiveReadout` in the sweeps; `.inspector-display-graph` fix verified in the fixture only.
+- `sharedControls.graphs.test.tsx`: mount once per group is not done, because cases mutate the graph. It needs a per-graph restore contract in `src/inputs/sharedControlBehaviour.tsx`.
+- `NumberInput` integer field: typing 3.5 gives a range hint without saying "whole numbers" (`points-smoke.md`, failure 4). Goes to step 5.
+- `UnavailableButton`: `title` plus a hidden description can be read twice (UI review, finding 3). Step 5.
+- Curve workspace: with a curve selected, dragging a control point moves the whole curve. This looks like existing behaviour; confirm the intent during the curves sweep.
+- The curve workspace `onAdd` never refuses today, so its refusal path is unexercised.
+- The step 3a appearance contracts have no De Casteljau export check, and the PH board is checked at unit level only.
+- Contracts task 3: some trace graph class comments still describe `advance()` and `IterationController` choreography in prose. Fix them in the compgeo sweep.
+- Carried: `ChoiceSelect` is clipped at 200% text (one `test.fail`); the count setter's refusal ignores `ReplacementRevision`; the De Boor and Interpolation count setters' typed path is untested; no screen-reader run, Chromium only; `uncaughtSteppers` (five files); the `.inspector-display-graph` fix is verified in the fixture only.
+- **Leftover process:** a 3b worker's mutation script (`bash /tmp/mut.sh`) may still be running. The worker could not stop it, and the handler referred it to the owner instead of stopping it on the worker's behalf.
 
 ## Risks and working notes
 
-- **Machine load:** two workers plus a handler `just unit` run took ~11 minutes per focused compgeo or learning run. Workers left background runs unread at their budget; tell them to run checks in the foreground and read results before returning.
-- **Publish:** `just publish --recipe runtime --base <base> --commits <ids>` needs a clean checkout; publish between waves, not while workers edit. Master was red once from another stream's lint error; do not fix their files.
-- **Line endings:** after a rebase some files are checked out with LF; match each file's current endings. With Python use `encoding='utf-8', newline=''`.
-- **Ports:** 4317 Codex, 4327 previews, 4328 the controls fixture.
+- Concurrent workers in one checkout break each other's `check-changed`, and its checkout lock stalls the others. Tell workers to report only failures in their own paths, and to skip `check-changed` while another worker's run is active. The handler runs it at integration in the clean worktree.
+- Machine load: a full `check-changed` takes about 20–23 minutes.
+- Line endings: match each file's current endings. With Python, use `encoding='utf-8', newline=''`.
+- Ports: 4317 Codex, 4327 previews, 4328 the controls fixture.
 
 ## Settings
 
-Handler budget 1.5x (BEZEG_HANDLER_BUDGET_SCALE in this worktree's .claude/settings.local.json): BUDGET SOFT about 262k, BUDGET HANDOFF about 322k for Opus. Set on 2026-11-08 by the supervising "controls stream status" session on the owner's behalf; the file is untracked and gitignored from `e7df5494`.
-
-`--agent bezeg-handler --model opus --permission-mode auto --effort medium`. Routing per the handler card; worker cap per the parallel plan.
+Handler budget 1.5x (`BEZEG_HANDLER_BUDGET_SCALE` in this worktree's untracked `.claude/settings.local.json`): BUDGET SOFT about 262k, BUDGET HANDOFF about 322k for Opus. Launch with `--agent bezeg-handler --model opus --permission-mode auto --effort medium`. Routing per the handler card; worker cap per the parallel plan.
