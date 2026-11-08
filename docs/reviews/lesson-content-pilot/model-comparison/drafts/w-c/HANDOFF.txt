@@ -1,0 +1,71 @@
+HANDOFF: bezier-pilot, config w-c (partial)
+Date: 2026-11-08
+Trigger: project budget hook, input 81,964 tokens (78,000 signal). Stopped at a consistent point, before drafting.
+
+STATE
+- Not written: drafts/w-c/bezier-pilot.md. notes.md not appended (the 60-word part is still owed).
+- Nothing else changed. No src edits, no git actions.
+- drafts/w-c/HANDOFF.txt existed-check not needed; this note is the hook-required handoff.
+
+ALREADY READ (complete)
+- lesson-content-pilot/style-brief.md (rules 1-14)
+- lesson-content-pilot/scripts/bezier-pilot.r0.md (196 lines; format and current text)
+- lesson-content-pilot/extraction-notes.md
+- lesson-content-pilot/round-1/merged-findings.md
+- lesson-content-pilot/round-1/bezier-pilot.struggling.md, .curious.md, .reluctant.md (scores 15, 15, 14 of 27)
+- src/learning/content/guidedLessons.ts 128-184 (scene helpers) and 303-452 (bezier lesson)
+- src/graphs/base/lesson/curveLessonActions.ts 1-75
+- src/graphs/curves/object/AbstractJXGPointControlledCurve.ts 26-39, 150-190, 350-373
+- src/graphs/styles/PointStyles.ts 118-139
+- src/graphs/base/controls/CurveDisplayControls.tsx (grep, lines 16-48)
+- src/localization/sl.ts lines 469-472 (keys only, by grep)
+
+NOT YET READ
+- docs/localization.md, terms table (style rule 10 requires its terms).
+- src/graphs/curves/bezier/BezierCurveGraph.tsx from line 9: defaultPreset gives the step 6 default curve. Coordinates unverified.
+- PointStyles.ts top section (pointStyle): whether control-point labels are displayed. Also whether the "Oznake točk" toggle (sl.ts; DisplaySettings pointLabelsVisible) hides them.
+- Whether the bezier demonstration has a t control. A grep of BaseBezierCurveGraph.tsx found no slider, parameter or readout. BaseCurveGraph.tsx not checked.
+- Whether the JSXGraph B(1/2) point shows its coordinates on hover. Not checked.
+
+VERIFIED FACTS
+1. Runtime id bezier-pilot: demonstrationId 'bezier'; the -pilot suffix is applied at guidedLessons.ts:758; lessonCatalog.test.ts:280.
+2. Frames per step in source: S1 expl+obs; S2 expl+obs; S3 expl+obs; S4 expl+calc+obs; S5 expl+calc+obs; S6 expl+obs. Six steps, 14 frames, as in r0.
+3. Scenes (guidedLessons.ts lines 356, 368, 381, 397, 414, 422). Fixtures at lines 157-158.
+   - S1: symmetric cubic (-3,-2), (-3,2), (3,2), (3,-2); no actions.
+   - S2: polygon and convex hull on. For this fixture the hull is the rectangle with corners (±3,±2).
+   - S3: polygon on, hull off.
+   - S4: polygon and hull on; evaluation point at t=1/2 labelled B(1/2), at (0,1).
+   - S5: asymmetric fixture (-3,-2), (-1,3), (2,-1), (3,2); polygon, hull, B(1/2) at (3/8,3/4).
+   - S6: demonstration default; polygon and hull on.
+4. On-screen names. Control points are labelled p_{i}: lowercase p, 0-based (PointStyles.ts:127; JXGBezierCurve.ts:111; AbstractJXGPointControlledCurve.ts:156, 174). The screen therefore shows p_0 to p_3. Style brief rule 4 (example \(P_1\)) and r0 use uppercase P_1, which does not match the on-screen label. Handler decision needed. The draft should follow rule 4 and link p_i to the formula symbol P_i once.
+   - Assumes BezierCurveGraph uses JXGBezierCurve (not checked).
+5. Evaluation point label: $$B(\frac{1}{2})$$ (AbstractJXGPointControlledCurve.ts:33). It is computed from the curve (fixed style, lines 357-363), so it moves when control points are dragged.
+6. Inspector toggles (CurveDisplayControls.tsx:32-44): "Kontrolni poligon" (control_polygon), "Konveksna ovojnica" (convex_hull), "Kontrolne točke" (control_points; on by default, AbstractJXGPointControlledCurve.ts:93), "Uteži" (rational curves only). Labels confirmed at sl.ts:469-472.
+7. Math checked by hand: B(1/2)=(0,1) for the symmetric fixture; (3/8,3/4) for the asymmetric one; weights 1/8, 3/8, 3/8, 1/8; arithmetic mean (0,0); B(0)=P_0, B(1)=P_3. The hull guarantee holds only for 0 <= t <= 1 (guidedLessons.ts:445). r0 step 2 frame 2 says "pri običajnem parametru"; replace with "za \(0\le t\le 1\)".
+
+ROUND-1 FIXES (three reviews and merged findings)
+- Hook in summary and step 1: "Krivulja ne gre skozi svoje točke. Kako si potem izbere pot? Kam ne more?" (merged-findings line 29). Rule 13: the recap must answer "Kam ne more?" literally.
+- Predict before reveal in every observation. Answers only in "Kaj bi morali opaziti".
+- Steps 4-5: one weight at a time. Name the point to drag (p_1 or p_2) and what to read.
+- Step 5: r0 never tells the student to move anything. Ask to drag p_1 or p_2 and watch B(1/2).
+- Step 6: r0 "Izberi lastnost" has no task. Give one concrete challenge the scene can do.
+- Remove repeated formula blocks in steps 5-6. Step 2 frame 1 to one sentence, at most one formula.
+- Ending: 2-4 short sentences answering the hook, then one challenge (rule 9).
+- Do not ask students to read decimal coordinates from the screen unless the open checks confirm a readout (rule 7).
+
+PROPOSED OUTLINE (not yet checked against open items)
+- Summary and step 1: hook above; one real-use sentence (rule 12; e.g., fonts, drawing programs, animation paths).
+- Step 1 (S1): predict where the curve runs between p_0 and p_3; reveal the endpoints.
+- Step 2 (S2): predict whether the curve can leave the rectangle; reveal "Ne, za 0 <= t <= 1".
+- Step 3 (S3): drag p_1 or p_2; endpoints stay.
+- Step 4 (S4): predict where B(1/2) sits; calculation frame with the weights (r0 numbers are correct).
+- Step 5 (S5): drag p_1 or p_2 and watch B(1/2) move; weights unchanged.
+- Step 6 (S6): one concrete challenge; the recap (answer to "Kam ne more?") goes in the last step, since the Konec screen is generic.
+
+FORMAT (from r0)
+- Title line "# bezier-pilot" (drop "(lesson script r0)"). Keep **Naslov:**, **Uvod (viden na prvem koraku, prvem okvirju):**, ## Korak N/6, ### Okvir K od M (Razlaga | Izračun | Opazovanje), [naslov okvirja], [besedilo], [formula/oznake], [izračunani primer] [izračun] [rezultat] [preverjanje], [navodilo za opazovanje], [skrito pod 'Kaj bi morali opaziti'], [gumb: Nazaj] [gumb: Naprej], one *Na grafu: ...* line per step, and the ## Konec block as in r0.
+- Math: \(...\) delimiters; decimal commas as {,}. Avoid "Opazimo, da", "Očitno", "Kot vidimo". Do not mention the model, the round or the config in any file.
+
+AFTER WRITING
+- Append at most 60 words to drafts/w-c/notes.md: hook, step count (6), and the label or location items not confirmed.
+- Return at most 120 words.
