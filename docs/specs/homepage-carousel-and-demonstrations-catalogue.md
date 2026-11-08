@@ -40,6 +40,7 @@ Relocate the existing experience rather than creating a second implementation. T
 - Explicit selection, previous/next, Left/Right navigation, and manual choice-strip interaction take lasting manual control for that page visit. Hover/focus alone remains a temporary pause.
 - Reduced-motion users receive the existing manual experience. Automatic changes do not steal focus, scroll the document, or repeatedly announce the preview.
 - Update preview, title, prompt, family, graph action, and available lesson action together. Preserve keyboard navigation, selected-state semantics, visible focus, full accessible names, touch targets, and internal strip scrolling.
+- A change to the featured demonstration plays one silent pass of its existing clip while the preview and document are visible and reduced motion is off. Ordinary hover, focus and touch viewport triggers can keep playback active. See [Homepage clip playback](../tasks/annotated-ui-follow-up/05-homepage-clip-playback.md).
 - Preserve document-visibility and viewport-visibility handling, timer/listener/observer cleanup, and the existing visit-scoped state. No carousel-position persistence is introduced.
 
 ## Catalogue composition and behaviour

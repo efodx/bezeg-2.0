@@ -76,7 +76,7 @@ Keep the observed 8px action radius, 10px choice radius, 16px preview radius, an
 
 The shared header contains the brand, Learning and Demonstrations links, and the language selector. The homepage contains its existing introduction, catalog action, featured demonstration, selection rail, and attribution footer. The featured card's metadata and actions change together.
 
-Retain current carousel timing, manual takeover, temporary hover/focus pauses, visibility guards, and reduced-motion behavior. The audit's proposed pause button was explicitly excluded by the owner. No animation, content, or interaction redesign is part of this token consolidation.
+Retain carousel timing, manual takeover, temporary hover/focus pauses, visibility guards, and reduced-motion behavior. Each eligible switch plays a single silent clip pass. Hover, focus and touch viewport visibility can continue playback. The introductory elderflower is a decorative accent with its own space beside the copy on wide layouts. At narrower widths it yields space to the copy and controls. See the [annotation follow-up](docs/specs/annotated-ui-follow-up.md).
 
 ## Guided lesson reading overlay
 

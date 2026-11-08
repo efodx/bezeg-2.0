@@ -4,9 +4,9 @@ Status: authorized by the owner on 2026-10-18, alongside restoring PH quintic an
 
 ## Behavior and scope
 
-Previews show their poster until the pointer hovers the preview image/link. Keyboard focus on the corresponding existing graph navigation link provides equivalent activation (the homepage's graph action supplies this for its decorative preview). Leaving both hover and focus stops playback and restores the poster. Touch navigation remains a normal link, without a new playback button or tap interception.
+On inputs that support hover, previews show their poster until the pointer hovers the preview or keyboard focus reaches its graph link. The homepage's graph action supplies the focus trigger for its decorative preview. Leaving both triggers restores the poster. On primary inputs without hover, previews play when at least half visible. Touch navigation remains a normal link.
 
-This supersedes the visible-only automatic playback policy in [representative previews](representative-demonstration-previews.md). Apply the same behavior to catalog, workspace picker and the selected homepage carousel preview. Merely scrolling a preview into view must not attach or request video. Eligibility still requires intersection, a visible document and no reduced-motion preference. Reduced motion always keeps the poster. Media failures keep the poster and navigation usable. Re-entry begins a fresh loop; moving within the activation region must not restart it.
+These triggers apply to the catalog, workspace picker and selected homepage preview. The [homepage switch playback](../tasks/annotated-ui-follow-up/05-homepage-clip-playback.md) also plays one pass on each selection change. All playback requires intersection, a visible document and no reduced-motion preference. Media failures keep the poster and navigation usable. Re-entering an ordinary trigger begins a fresh loop. Moving within an active region keeps the current loop playing.
 
 Keep the existing silent four-second clips, source maps, framing, cleanup and navigation. No new focus stops, controls, localization strings, mathematical runtime changes or playback dependencies.
 
