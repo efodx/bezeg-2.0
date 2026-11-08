@@ -45,6 +45,10 @@ function checkRow(row, entry, lessons) {
         if (!entry.controls.some(c => c.kind === 'button' && c.name === control.label && !c.disabled)) {
             problems.push(`no enabled button is labelled "${control.label}"`);
         }
+    } else if (control.kind === 'number-field') {
+        if (!entry.controls.some(c => c.kind === 'number' && c.name === control.label && !c.disabled)) {
+            problems.push(`no enabled number field is labelled "${control.label}"`);
+        }
     }
     return {problems, quoteFile: found?.file};
 }

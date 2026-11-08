@@ -157,6 +157,7 @@ const discreteHolds = (row, frameCount) => row.path.map((_, i) => Math.floor(fra
 /**
  * discrete-exact-steps: the named stepper button is pressed to each checkpoint's cumulative count, every checkpoint on a fresh recipe
  * scene (no control undoes a step), then held. The value shown next to the button must reach start + count x step at every checkpoint.
+ * A number-field control is an integer input with no button: the checkpoint types start + count x step into it and leaves the field.
  * Pixel and schedule smoothness do not apply; the camera and the loop closing still do.
  */
 async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard, kit) {
@@ -170,13 +171,15 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
         try {
             await openRecipeScene(page, d, recipes[d.id], baseUrl, {});
             await presentFixed(page, d, presentBoard, fixedBox, row);
-            const button = page.getByRole('button', {name: row.control.label, exact: true});
-            assert.equal(await button.count(), 1, `${row.id}: button "${row.control.label}" is missing or ambiguous (copy the accessible name from route-probe.json)`);
+            const field = row.control.kind === 'number-field';
+            const button = field ? page.getByLabel(row.control.label, {exact: true}).and(page.locator('input[type="number"]'))
+                : page.getByRole('button', {name: row.control.label, exact: true});
+            assert.equal(await button.count(), 1, `${row.id}: ${field ? 'number field' : 'button'} "${row.control.label}" is missing or ambiguous (copy the accessible name from route-probe.json)`);
             for (const tab of ['Prikaz', 'Uredi']) { if (await button.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
             const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
             // A stepper shows its value in the text input of the same group; a trace-step button has none, the page's "Korak N od M" text is the readout.
             const trace = row.control.kind === 'trace-step';
-            const readout = button.locator('xpath=..').locator('input').first();
+            const readout = field ? button : button.locator('xpath=..').locator('input').first();
             if (!trace) assert.equal(await readout.count(), 1, `${row.id}: no value input next to "${row.control.label}" to read the stepper back`);
             const read = async () => trace ? (await readTraceStep(page, row)).step : parse(await readout.inputValue());
             const first = await read();
@@ -185,7 +188,8 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
                 const {length} = await readTraceStep(page, row);
                 assert.ok(startValue + row.path[k] * row.control.step >= 1 && startValue + row.path[k] * row.control.step <= length, `${row.id}: checkpoint ${k} needs ${row.path[k]} presses from step ${startValue}, but the trace ends at step ${length}; shorten the path`);
             }
-            for (let press = 0; press < row.path[k]; press++) { await button.click(); await settle(page); }
+            if (field) { if (row.path[k]) { await button.fill(String(startValue + row.path[k] * row.control.step)); await button.press('Tab'); await settle(page); } }
+            else for (let press = 0; press < row.path[k]; press++) { await button.click(); await settle(page); }
             await settle(page);
             await presentFixed(page, d, presentBoard, fixedBox, row);
             const shown = await read();

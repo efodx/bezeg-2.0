@@ -36,6 +36,13 @@ test('a trace-step control is accepted only on a discrete-exact-steps row', () =
     rejects(row => { row.motion = 'pointer-drag'; row.discreteReason = null; row.path = [[0, 0], [1, 1], [0, 0]]; }, trace, /control\.kind must be point or surface-point/);
 });
 
+test('an integer number field is a discrete control: each checkpoint types start + count x step into it', () => {
+    const field = {...clone(discrete), id: 'x-field', control: {kind: 'number-field', label: 'Polmer inverzije r', step: 1}};
+    assert.doesNotThrow(() => validateRow(field));
+    rejects(row => { row.control.label = ''; }, field, /accessible name/);
+    rejects(row => { row.motion = 'parameter-sweep'; row.discreteReason = null; row.path = [0, 1, 0]; }, field, /sweep control\.kind must be slider or number/);
+});
+
 test('the schema rejects each broken row with an actionable message', () => {
     rejects(row => { row.extra = 1; }, sweep, /exactly the fields/);
     rejects(row => { row.motion = 'wobble'; }, sweep, /motion must be one of/);
@@ -202,6 +209,7 @@ test('the row checker rejects what capture would only find later', () => {
     assert.match(problems({control: {kind: 'slider', label: 'Napetost'}, path: [1, 1.5, 1]}), /is disabled/);
     assert.match(problems({path: [-0.5, 4, -0.5]}), /leaves the range/);
     assert.match(problems({control: {kind: 'stepper', label: 'Zmanjšaj'}, path: [0, 1, 0]}), /no enabled button/);
+    assert.match(problems({control: {kind: 'number-field', label: 'Neznano', step: 1}, path: [0, 1, 0]}), /no enabled number field is labelled "Neznano"/);
     assert.match(checkRow(row, undefined, lessons).problems.join('\n'), /not in route-probe/);
 });
 
