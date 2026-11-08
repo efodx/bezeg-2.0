@@ -51,7 +51,7 @@ function snap(over: Partial<CollisionSnapshot> = {}): CollisionSnapshot {
     positions: new Float32Array([100, 100, 800, 500]),
     radii: new Float32Array([20, 0.1]),
     touching: new Uint8Array([1, 0]),
-    counters: {boxTests: 7, candidates: 1, narrowTests: 1, touchingPairs: 1},
+    counters: {boxTests: 7, candidates: 1, narrowTests: 1, touchingPairs: 1, hullTests: 0, hullPasses: 0, pieceTests: 0},
     stepMs: 1.5,
     simSpeed: 88,
     overlay: 'none',
@@ -180,7 +180,7 @@ describe('count slider output', () => {
 describe('readouts', () => {
   it('render the counters of the newest snapshot, with the pair formula only for naive', () => {
     render(<CollisionPlayground initialMethod="naive" initialCount={1000}/>)
-    emit(snap({count: 1000, method: 'naive', counters: {boxTests: 499500, candidates: 3, narrowTests: 3, touchingPairs: 2}, simSpeed: 9, stepMs: 12.3}))
+    emit(snap({count: 1000, method: 'naive', counters: {boxTests: 499500, candidates: 3, narrowTests: 3, touchingPairs: 2, hullTests: 0, hullPasses: 0, pieceTests: 0}, simSpeed: 9, stepMs: 12.3}))
     expect(digits(readoutValue(/Preizkusi pravokotnikov/))).toBe('499500')
     expect(digits(readoutValue(/Vsi pari/))).toBe('499500')
     expect(readoutValue(/Stikajoči/)).toBe('2')
@@ -193,11 +193,11 @@ describe('readouts', () => {
 
   it('update at most 4 times per second', () => {
     render(<CollisionPlayground/>)
-    emit(snap({counters: {boxTests: 1, candidates: 0, narrowTests: 0, touchingPairs: 0}}))
+    emit(snap({counters: {boxTests: 1, candidates: 0, narrowTests: 0, touchingPairs: 0, hullTests: 0, hullPasses: 0, pieceTests: 0}}))
     expect(readoutValue(/Preizkusi pravokotnikov/)).toBe('1')
-    emit(snap({counters: {boxTests: 2, candidates: 0, narrowTests: 0, touchingPairs: 0}}))
+    emit(snap({counters: {boxTests: 2, candidates: 0, narrowTests: 0, touchingPairs: 0, hullTests: 0, hullPasses: 0, pieceTests: 0}}))
     act(() => { vi.advanceTimersByTime(100) })
-    emit(snap({counters: {boxTests: 3, candidates: 0, narrowTests: 0, touchingPairs: 0}}))
+    emit(snap({counters: {boxTests: 3, candidates: 0, narrowTests: 0, touchingPairs: 0, hullTests: 0, hullPasses: 0, pieceTests: 0}}))
     expect(readoutValue(/Preizkusi pravokotnikov/)).toBe('1')
     act(() => { vi.advanceTimersByTime(READOUT_INTERVAL_MS) })
     expect(readoutValue(/Preizkusi pravokotnikov/)).toBe('3')
@@ -219,11 +219,11 @@ describe('live region', () => {
     render(<CollisionPlayground/>)
     fireEvent.click(screen.getByRole('button', {name: 'Korak'}))
     expect(live().textContent).toBe('')
-    emit(snap({count: 1000, method: 'naive', counters: {boxTests: 499500, candidates: 0, narrowTests: 0, touchingPairs: 0}, simSpeed: 9}))
+    emit(snap({count: 1000, method: 'naive', counters: {boxTests: 499500, candidates: 0, narrowTests: 0, touchingPairs: 0, hullTests: 0, hullPasses: 0, pieceTests: 0}, simSpeed: 9}))
     const spoken = live().textContent!
     expect(digits(spoken)).toBe('1000' + '499500' + '9')
     expect(spoken).toContain('Preizkus vseh parov')
-    emit(snap({counters: {boxTests: 5, candidates: 0, narrowTests: 0, touchingPairs: 0}}))
+    emit(snap({counters: {boxTests: 5, candidates: 0, narrowTests: 0, touchingPairs: 0, hullTests: 0, hullPasses: 0, pieceTests: 0}}))
     expect(live().textContent).toBe(spoken)
   })
 

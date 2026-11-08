@@ -79,7 +79,7 @@ export function createWorkerLoop(
     world = createWorld({seed, count})
     scratch = createScratch(count)
     stepIndex = 0
-    postSnapshot(new Uint8Array(count), {boxTests: 0, candidates: 0, narrowTests: 0, touchingPairs: 0}, 0, 100)
+    postSnapshot(new Uint8Array(count), {boxTests: 0, candidates: 0, narrowTests: 0, touchingPairs: 0, hullTests: 0, hullPasses: 0, pieceTests: 0}, 0, 100)
   }
 
   const setCount = (requested: number): void => {
