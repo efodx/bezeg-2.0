@@ -8,6 +8,7 @@ import {
 import { circlesTouch, shapesTouch } from './narrowPhase'
 import { POLYGON_MEAN_AREA, POLYGON_TEMPLATES } from './polygonTemplates'
 import { mulberry32 } from './random'
+import { centroidOf, makePlacement, place, shapesTouchRotated } from './rotation'
 
 export type { BroadPhaseMethod } from './broadPhase'
 
@@ -25,16 +26,16 @@ export const RADIUS_SPREAD_MIN = 0.75
 export const RADIUS_SPREAD_MAX = 1.25
 
 /** Base radius for n bodies in a width x height world (mean body area = AREA_FRACTION * area / n). */
-export function baseRadius(count: number, width = WORLD_WIDTH, height = WORLD_HEIGHT): number {
-  return Math.sqrt((AREA_FRACTION * width * height) / (Math.PI * Math.max(count, 1)))
+export function baseRadius(count: number, width = WORLD_WIDTH, height = WORLD_HEIGHT, areaFraction = AREA_FRACTION): number {
+  return Math.sqrt((areaFraction * width * height) / (Math.PI * Math.max(count, 1)))
 }
 
 /**
  * The one scale of a polygon world, in world units per template unit: the same for every body, so that
  * count * s^2 * (mean template area) = AREA_FRACTION * width * height, the circles' area share.
  */
-export function polygonScale(count: number, width = WORLD_WIDTH, height = WORLD_HEIGHT): number {
-  return Math.sqrt((AREA_FRACTION * width * height) / (POLYGON_MEAN_AREA * Math.max(count, 1)))
+export function polygonScale(count: number, width = WORLD_WIDTH, height = WORLD_HEIGHT, areaFraction = AREA_FRACTION): number {
+  return Math.sqrt((areaFraction * width * height) / (POLYGON_MEAN_AREA * Math.max(count, 1)))
 }
 /** Speed range (world units per second). */
 export const SPEED_MIN = 30
@@ -58,6 +59,13 @@ export interface World {
   /** Polygon worlds: template index per body (into POLYGON_TEMPLATES) and the common scale; empty and 0 for circles. */
   readonly template: Uint8Array
   readonly scale: number
+  /**
+   * Bounce prototype: orientation (radians, counter-clockwise) and angular velocity per body. All zero unless the
+   * bounce response ran, and then every unrotated path is the old one. Polygons turn about their area centroid with
+   * `x`, `y` kept at the centre of the rotated box (see rotation.ts); `vx`, `vy` are the centroid's velocity.
+   */
+  readonly angle: Float64Array
+  readonly omega: Float64Array
 }
 
 export type WorldShape = 'circle' | 'polygon'
@@ -68,6 +76,8 @@ export interface WorldOptions {
   width?: number
   height?: number
   shape?: WorldShape
+  /** Share of the world area covered by bodies; default AREA_FRACTION. */
+  areaFraction?: number
 }
 
 /**
@@ -100,15 +110,15 @@ export interface StepResult {
   counters: StepCounters
 }
 
-export function createWorld({ seed, count, width = WORLD_WIDTH, height = WORLD_HEIGHT, shape = 'circle' }: WorldOptions): World {
-  if (shape === 'polygon') return createPolygonWorld(seed, count, width, height)
+export function createWorld({ seed, count, width = WORLD_WIDTH, height = WORLD_HEIGHT, shape = 'circle', areaFraction = AREA_FRACTION }: WorldOptions): World {
+  if (shape === 'polygon') return createPolygonWorld(seed, count, width, height, areaFraction)
   const rand = mulberry32(seed)
   const x = new Float64Array(count)
   const y = new Float64Array(count)
   const vx = new Float64Array(count)
   const vy = new Float64Array(count)
   const r = new Float64Array(count)
-  const base = baseRadius(count, width, height)
+  const base = baseRadius(count, width, height, areaFraction)
   for (let i = 0; i < count; i++) {
     const ri = base * (RADIUS_SPREAD_MIN + (RADIUS_SPREAD_MAX - RADIUS_SPREAD_MIN) * rand())
     r[i] = ri
@@ -119,10 +129,10 @@ export function createWorld({ seed, count, width = WORLD_WIDTH, height = WORLD_H
     vx[i] = speed * Math.cos(angle)
     vy[i] = speed * Math.sin(angle)
   }
-  return { seed, count, width, height, x, y, vx, vy, r, shape: 'circle', hx: r, hy: r, template: new Uint8Array(0), scale: 0 }
+  return { seed, count, width, height, x, y, vx, vy, r, shape: 'circle', hx: r, hy: r, template: new Uint8Array(0), scale: 0, angle: new Float64Array(count), omega: new Float64Array(count) }
 }
 
-function createPolygonWorld(seed: number, count: number, width: number, height: number): World {
+function createPolygonWorld(seed: number, count: number, width: number, height: number, areaFraction: number): World {
   const rand = mulberry32(seed)
   const x = new Float64Array(count)
   const y = new Float64Array(count)
@@ -131,7 +141,7 @@ function createPolygonWorld(seed: number, count: number, width: number, height: 
   const hx = new Float64Array(count)
   const hy = new Float64Array(count)
   const template = new Uint8Array(count)
-  const scale = polygonScale(count, width, height)
+  const scale = polygonScale(count, width, height, areaFraction)
   for (let i = 0; i < count; i++) {
     const t = Math.min(POLYGON_TEMPLATES.length - 1, Math.floor(POLYGON_TEMPLATES.length * rand()))
     template[i] = t
@@ -144,7 +154,7 @@ function createPolygonWorld(seed: number, count: number, width: number, height: 
     vx[i] = speed * Math.cos(angle)
     vy[i] = speed * Math.sin(angle)
   }
-  return { seed, count, width, height, x, y, vx, vy, r: hx, shape: 'polygon', hx, hy, template, scale }
+  return { seed, count, width, height, x, y, vx, vy, r: hx, shape: 'polygon', hx, hy, template, scale, angle: new Float64Array(count), omega: new Float64Array(count) }
 }
 
 export function createScratch(count: number): StepScratch {
@@ -161,14 +171,77 @@ function reflect(p: Float64Array, v: Float64Array, i: number, lo: number, hi: nu
   }
 }
 
-/** Advance one step and report touching bodies and counters. The result aliases scratch buffers. */
-export function stepWorld(world: World, method: BroadPhaseMethod, scratch: StepScratch): StepResult {
-  const { count: n, x, y, vx, vy, hx, hy } = world
+/** Like `reflect` but only ever turns the velocity inward: a growing rotated box can poke out while moving away. */
+function reflectInward(p: Float64Array, v: Float64Array, i: number, lo: number, hi: number): void {
+  if (p[i] < lo) {
+    p[i] = 2 * lo - p[i]
+    v[i] = Math.abs(v[i])
+  } else if (p[i] > hi) {
+    p[i] = 2 * hi - p[i]
+    v[i] = -Math.abs(v[i])
+  }
+}
+
+const spinPlacement = makePlacement()
+const spinCentroid = { x: 0, y: 0 }
+const spinOffset = { x: 0, y: 0 }
+
+/** Turns a spinning polygon about its centroid for one step and moves it; refreshes its box half-extents. */
+function advanceSpinning(world: World, i: number): void {
+  const shape = POLYGON_TEMPLATES[world.template[i]]
+  const s = world.scale
+  place(spinPlacement, shape, world.x[i], world.y[i], world.angle[i], s)
+  centroidOf(spinPlacement, shape, spinCentroid)
+  let angle = world.angle[i] + world.omega[i] * TIME_STEP
+  angle -= 2 * Math.PI * Math.round(angle / (2 * Math.PI))
+  world.angle[i] = angle
+  place(spinPlacement, shape, 0, 0, angle, s)
+  // Box centre = centroid (moved by the velocity) minus the centroid's offset from the box centre.
+  centroidOf(spinPlacement, shape, spinOffset) // placed at the origin: the centroid's offset from the box centre
+  world.x[i] = spinCentroid.x + world.vx[i] * TIME_STEP - spinOffset.x
+  world.y[i] = spinCentroid.y + world.vy[i] * TIME_STEP - spinOffset.y
+  world.hx[i] = s * spinPlacement.hx
+  world.hy[i] = s * spinPlacement.hy
+}
+
+/** Removes all rotation (bounce switched off): bodies return to their template orientation about their box centre. */
+export function clearRotation(world: World): void {
+  world.angle.fill(0)
+  world.omega.fill(0)
+  if (world.shape !== 'polygon') return
+  for (let i = 0; i < world.count; i++) {
+    const t = POLYGON_TEMPLATES[world.template[i]]
+    world.hx[i] = world.scale * t.hx
+    world.hy[i] = world.scale * t.hy
+  }
+}
+
+/**
+ * Advance one step and report touching bodies and counters. The result aliases scratch buffers. With `spin` (bounce
+ * prototype) bodies turn by their angular velocity; without it the step is the unrotated one.
+ */
+export function stepWorld(world: World, method: BroadPhaseMethod, scratch: StepScratch, spin = false): StepResult {
+  const { count: n, x, y, vx, vy, hx, hy, omega, angle } = world
   for (let i = 0; i < n; i++) {
-    x[i] += vx[i] * TIME_STEP
-    y[i] += vy[i] * TIME_STEP
-    reflect(x, vx, i, hx[i], world.width - hx[i])
-    reflect(y, vy, i, hy[i], world.height - hy[i])
+    if (spin && omega[i] !== 0) {
+      if (world.shape === 'polygon') {
+        advanceSpinning(world, i)
+      } else {
+        angle[i] += omega[i] * TIME_STEP
+        x[i] += vx[i] * TIME_STEP
+        y[i] += vy[i] * TIME_STEP
+      }
+    } else {
+      x[i] += vx[i] * TIME_STEP
+      y[i] += vy[i] * TIME_STEP
+    }
+    if (angle[i] !== 0 && world.shape === 'polygon') {
+      reflectInward(x, vx, i, hx[i], world.width - hx[i])
+      reflectInward(y, vy, i, hy[i], world.height - hy[i])
+    } else {
+      reflect(x, vx, i, hx[i], world.width - hx[i])
+      reflect(y, vy, i, hy[i], world.height - hy[i])
+    }
   }
   return measureWorld(world, method, scratch)
 }
@@ -179,7 +252,7 @@ export function stepWorld(world: World, method: BroadPhaseMethod, scratch: StepS
  * next sort), so results never depend on it. The result aliases scratch buffers.
  */
 export function measureWorld(world: World, method: BroadPhaseMethod, scratch: StepScratch): StepResult {
-  const { x, y, r, template, scale } = world
+  const { x, y, r, template, scale, angle } = world
   const polygons = world.shape === 'polygon'
   scratch.touching.fill(0)
   const counters: StepCounters = {
@@ -189,7 +262,12 @@ export function measureWorld(world: World, method: BroadPhaseMethod, scratch: St
     counters.candidates++
     counters.narrowTests++
     if (polygons) {
-      if (!shapesTouch(POLYGON_TEMPLATES[template[i]], x[i], y[i], POLYGON_TEMPLATES[template[j]], x[j], y[j], scale, counters)) return
+      const touch = angle[i] === 0 && angle[j] === 0
+        ? shapesTouch(POLYGON_TEMPLATES[template[i]], x[i], y[i], POLYGON_TEMPLATES[template[j]], x[j], y[j], scale, counters)
+        : shapesTouchRotated(
+            POLYGON_TEMPLATES[template[i]], x[i], y[i], angle[i], POLYGON_TEMPLATES[template[j]], x[j], y[j], angle[j], scale, counters,
+          )
+      if (!touch) return
     } else if (!circlesTouch(x[i], y[i], r[i], x[j], y[j], r[j])) return
     const k = 2 * counters.touchingPairs++
     if (k + 2 > scratch.pairs.length) {

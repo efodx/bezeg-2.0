@@ -54,6 +54,8 @@ export const sl = {
     "collision_pause": "Premor",
     "collision_step": "Korak",
     "collision_new": "Nova razporeditev",
+    "collision_bounce": "Odboji med objekti",
+    "collision_coverage": "Pokritost ploskve z objekti",
     "collision_readouts": "Meritve",
     "collision_objects": "Objekti",
     "collision_box_tests": "Preizkusi pravokotnikov v tem koraku",

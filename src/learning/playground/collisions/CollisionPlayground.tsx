@@ -8,7 +8,8 @@ import {clampCount, MAX_COUNT} from './collisionProtocol'
 import type {BroadPhaseMethod, CollisionOverlay, CollisionSnapshot, WorldShape} from './collisionProtocol'
 import {useCollisionWorker} from './useCollisionWorker'
 import {createDrawPacer} from './drawPacing'
-import {createPolygonSpriteCache, renderSpriteToCanvas} from './polygonSprites'
+import {createPolygonSpriteCache, renderSpriteToCanvas, STAGE_DASH, STAGE_WIDTH} from './polygonSprites'
+import {makePlacement, place} from '../../../compgeo/collisions/rotation'
 import type {PolygonSpriteCache, SpriteParams} from './polygonSprites'
 import './CollisionPlayground.css'
 
@@ -71,6 +72,7 @@ const toCount = (position: number, method: BroadPhaseMethod, shape: WorldShape):
   clampCount(Math.round(COUNT_FLOOR * Math.pow(MAX_COUNT[shape][method] / COUNT_FLOOR, position / SLIDER_STEPS)), method, shape)
 
 const locale = (): string => (currentLanguage() === 'sl' ? 'sl-SI' : 'en-US')
+const formatCoverage = (value: number): string => new Intl.NumberFormat(locale(), {maximumFractionDigits: 2}).format(value)
 const formatInt = (value: number): string => new Intl.NumberFormat(locale(), {maximumFractionDigits: 0}).format(Math.round(value))
 const formatOne = (value: number): string => new Intl.NumberFormat(locale(), {maximumFractionDigits: 1}).format(value)
 
@@ -99,6 +101,7 @@ function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: 
   const plain = new Path2D()
   const hit = new Path2D()
   const rings = new Path2D()
+  const spokes = s.angles ? new Path2D() : null
   for (let i = 0; i < s.count; i++) {
     const x = s.positions[2 * i] * scale
     const y = s.positions[2 * i + 1] * scale
@@ -107,6 +110,10 @@ function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: 
     const path = touching ? hit : plain
     path.moveTo(x + r, y)
     path.arc(x, y, r, 0, 2 * Math.PI)
+    if (spokes && s.angles) {
+      spokes.moveTo(x, y)
+      spokes.lineTo(x + r * Math.cos(s.angles[i]), y + r * Math.sin(s.angles[i]))
+    }
     if (touching) {
       const ring = r + 2 * dpr
       rings.moveTo(x + ring, y)
@@ -122,6 +129,11 @@ function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: 
   ctx.strokeStyle = colours.touching
   ctx.lineWidth = 1.5 * dpr
   ctx.stroke(rings)
+  if (spokes) {
+    ctx.strokeStyle = colours.outline
+    ctx.lineWidth = 1 * dpr
+    ctx.stroke(spokes)
+  }
 }
 
 /**
@@ -138,24 +150,52 @@ function drawPolygons(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, 
   const params: SpriteParams = {unit, dpr, stage, body: colours.body, touching: colours.touching, outline: colours.outline}
   // Per-frame allocations are O(1): this params object and one rings path, nothing per body.
   const rings = new Path2D()
+  const boxes = new Path2D()
+  const placement = makePlacement()
   for (let i = 0; i < s.count; i++) {
     const shape = POLYGON_TEMPLATES[s.templates[i]]
     if (!shape) continue
     const touching = s.touching[i] === 1
-    const sprite = cache.get(s.templates[i], touching ? 'hit' : 'plain', params)
     const x = s.positions[2 * i] * k
     const y = s.positions[2 * i + 1] * k
-    const left = Math.round(x - sprite.cx)
-    const top = Math.round(y - sprite.cy)
-    ctx.drawImage(sprite.image, left, top)
-    if (touching) {
+    const angle = s.angles ? s.angles[i] : 0
+    let sx: number
+    let sy: number
+    let ring = unit * Math.hypot(shape.hx, shape.hy) + 2 * dpr
+    if (angle === 0) {
+      const sprite = cache.get(s.templates[i], touching ? 'hit' : 'plain', params)
+      const left = Math.round(x - sprite.cx)
+      const top = Math.round(y - sprite.cy)
+      ctx.drawImage(sprite.image, left, top)
       // Centred on the snapped sprite centre (cx, cy are whole pixels), so ring and body share a centre.
-      const sx = left + sprite.cx
-      const sy = top + sprite.cy
-      const ring = unit * Math.hypot(shape.hx, shape.hy) + 2 * dpr
+      sx = left + sprite.cx
+      sy = top + sprite.cy
+    } else {
+      // Rotated body: the sprite is drawn turned about the template origin, which sits at the box centre minus the
+      // rotated box's centre offset (rotation.ts). The box stage draws the current axis-aligned box instead of the sprite's.
+      place(placement, shape, 0, 0, angle, 1)
+      const sprite = cache.get(s.templates[i], touching ? (stage === 'boxes' ? 'hitFill' : 'hit') : (stage === 'boxes' ? 'plainFill' : 'plain'), params)
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      ctx.translate(x - unit * placement.bbx, y - unit * placement.bby)
+      ctx.rotate(angle)
+      ctx.drawImage(sprite.image, -sprite.cx, -sprite.cy)
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      sx = x
+      sy = y
+      if (stage === 'boxes') boxes.rect(x - unit * placement.hx, y - unit * placement.hy, 2 * unit * placement.hx, 2 * unit * placement.hy)
+      ring = unit * Math.hypot(placement.hx, placement.hy) + 2 * dpr
+    }
+    if (touching) {
       rings.moveTo(sx + ring, sy)
       rings.arc(sx, sy, ring, 0, 2 * Math.PI)
     }
+  }
+  if (s.angles && stage === 'boxes') {
+    ctx.strokeStyle = colours.outline
+    ctx.lineWidth = STAGE_WIDTH.boxes * dpr
+    ctx.setLineDash(STAGE_DASH.boxes.map((d) => d * dpr))
+    ctx.stroke(boxes)
+    ctx.setLineDash([])
   }
   ctx.strokeStyle = colours.touching
   ctx.lineWidth = 1.5 * dpr
@@ -168,6 +208,9 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
   const [count, setCount] = useState(() => clampCount(initialCount, initialMethod, shape))
   const [method, setMethod] = useState<BroadPhaseMethod>(initialMethod)
   const [stage, setStage] = useState<Stage>('boxes')
+  const [bounce, setBounce] = useState(false)
+  // Coverage in quarter percent: 5 = 1.25 % (AREA_FRACTION).
+  const [coverage, setCoverage] = useState(5)
   const stageRef = useRef<Stage>('boxes')
   const redrawRef = useRef<() => void>(() => undefined)
   const [readout, setReadout] = useState<Readout | null>(null)
@@ -343,6 +386,9 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
       <div className="collision-playground__controls">
         <Slider min={0} max={SLIDER_STEPS} step={1} bigStep={100} value={toPosition(count, method, shape)}
                 customText={t('collision_count')} formatValue={(p) => formatInt(p === toPosition(count, method, shape) ? count : toCount(p, method, shape))} onChange={onCount}/>
+        <Slider min={1} max={120} step={1} bigStep={4} value={coverage}
+                customText={t('collision_coverage')} formatValue={(p) => t('collision_percent', {value0: formatCoverage(p / 4)})}
+                onChange={(p) => { setCoverage(p); pendingAnnounce.current = {}; send({type: 'setCoverage', areaFraction: p / 400}) }}/>
         {readout?.clampedFrom != null && <p className="collision-playground__note">{t('collision_limit', {value0: formatInt(limit)})}</p>}
         <fieldset className="collision-playground__methods">
           <legend>{t('collision_methods')}</legend>
@@ -365,6 +411,13 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
             <p className="collision-playground__note">{t('collision_overlay_legend')}</p>
           </fieldset>
         )}
+        <label className="collision-playground__choice">
+          <input type="checkbox" checked={bounce} onChange={(event) => {
+            setBounce(event.target.checked)
+            send({type: 'setBounce', bounce: event.target.checked})
+          }}/>
+          <span>{t('collision_bounce')}</span>
+        </label>
         <div className="collision-playground__buttons">
           <button type="button" aria-pressed={playing} onClick={() => send({type: playing ? 'pause' : 'play'})}>
             {t(playing ? 'collision_pause' : 'collision_play')}

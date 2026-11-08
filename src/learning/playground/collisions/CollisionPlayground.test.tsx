@@ -143,7 +143,7 @@ describe('commands', () => {
 
   it('the count slider is logarithmic and sends setCount', () => {
     render(<CollisionPlayground initialCount={10}/>)
-    const slider = screen.getByRole('slider')
+    const slider = screen.getAllByRole('slider')[0]
     expect(slider.getAttribute('aria-valuetext')).toBe('10')
     fireEvent.change(slider, {target: {value: '500'}})
     const sent = send.mock.calls.at(-1)![0] as {type: string; count: number}
@@ -179,7 +179,7 @@ describe('paused method switch with the real worker loop', () => {
 describe('count slider output', () => {
   it('shows the count at first render, not a rounded-trip neighbour', () => {
     render(<CollisionPlayground/>)
-    expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('300')
+    expect(screen.getAllByRole('slider')[0].getAttribute('aria-valuetext')).toBe('300')
   })
 })
 
@@ -348,11 +348,21 @@ describe('keyboard path', () => {
     expect(count.type).toBe('setCount')
     expect(count.count).toBeGreaterThan(10)
     userEvent.tab()
+    expect(document.activeElement).toBe(screen.getAllByRole('slider')[1])
+    fireEvent.keyDown(document.activeElement!, {key: 'PageUp'})
+    // Coverage 1.25 % (5 quarter percents) plus one big step of 4 quarter percents.
+    expect(send).toHaveBeenLastCalledWith({type: 'setCoverage', areaFraction: 9 / 400})
+    userEvent.tab()
     const group = within(screen.getByRole('group', {name: 'Način iskanja trkov'}))
     expect(document.activeElement).toBe(group.getByRole('radio', {name: 'Pometanje in obrezovanje'}))
     userEvent.keyboard('{arrowright}')
     fireEvent.click(group.getByRole('radio', {name: 'Preizkus vseh parov'}))
     expect(send).toHaveBeenCalledWith({type: 'setMethod', method: 'naive'})
+    userEvent.tab()
+    const bounce = screen.getByRole('checkbox', {name: 'Odboji med objekti'})
+    expect(document.activeElement).toBe(bounce)
+    fireEvent.click(bounce)
+    expect(send).toHaveBeenLastCalledWith({type: 'setBounce', bounce: true})
     for (const name of ['Predvajaj', 'Korak', 'Nova razporeditev']) {
       userEvent.tab()
       expect(document.activeElement).toBe(screen.getByRole('button', {name}))
@@ -447,9 +457,13 @@ describe('polygon mode', () => {
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getAllByRole('slider')[0])
     userEvent.tab()
+    expect(document.activeElement).toBe(screen.getAllByRole('slider')[1])
+    userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('radio', {name: 'Pometanje in obrezovanje'}))
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('radio', {name: 'Očrtani pravokotniki'}))
+    userEvent.tab()
+    expect(document.activeElement).toBe(screen.getByRole('checkbox', {name: 'Odboji med objekti'}))
     userEvent.tab()
     expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Predvajaj'}))
   })

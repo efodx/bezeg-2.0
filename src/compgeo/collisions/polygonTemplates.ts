@@ -33,6 +33,40 @@ export interface PolygonShape {
   readonly triangleCount: number
   /** Twice the template area (integer). */
   readonly doubledArea: number
+  /** Area centroid in template units (the rotation centre of the bounce prototype); the origin is the box centre. */
+  readonly centroidX: number
+  readonly centroidY: number
+  /** Second moment of area about the centroid (polar, template units to the fourth), the unit-density moment of inertia. */
+  readonly inertia: number
+}
+
+export interface MassProperties {
+  area: number
+  centroidX: number
+  centroidY: number
+  /** Polar second moment about the centroid. */
+  inertia: number
+}
+
+/** Area, centroid and polar second moment about the centroid of a simple counter-clockwise polygon (shoelace sums). */
+export function polygonMassProperties(vertices: readonly GridPoint[]): MassProperties {
+  let twice = 0
+  let sx = 0
+  let sy = 0
+  let polar = 0
+  for (let k = 0; k < vertices.length; k++) {
+    const a = vertices[k]
+    const b = vertices[(k + 1) % vertices.length]
+    const cross = a.x * b.y - b.x * a.y
+    twice += cross
+    sx += (a.x + b.x) * cross
+    sy += (a.y + b.y) * cross
+    polar += cross * (a.x * a.x + a.x * b.x + b.x * b.x + a.y * a.y + a.y * b.y + b.y * b.y)
+  }
+  const area = twice / 2
+  const centroidX = sx / (6 * area)
+  const centroidY = sy / (6 * area)
+  return { area, centroidX, centroidY, inertia: polar / 12 - area * (centroidX * centroidX + centroidY * centroidY) }
 }
 
 function part(points: readonly GridPoint[]): ConvexPart {
@@ -124,6 +158,7 @@ export function makeShape(vertices: readonly GridPoint[]): PolygonShape {
     const b = vertices[(k + 1) % vertices.length]
     twice += a.x * b.y - a.y * b.x
   }
+  const mass = polygonMassProperties(vertices)
   return {
     vertices,
     hx: maxX,
@@ -133,6 +168,9 @@ export function makeShape(vertices: readonly GridPoint[]): PolygonShape {
     pieceIndices,
     triangleCount: ears.triangles.length,
     doubledArea: twice,
+    centroidX: mass.centroidX,
+    centroidY: mass.centroidY,
+    inertia: mass.inertia,
   }
 }
 

@@ -45,6 +45,10 @@ export type CollisionCommand =
   /** A new world; a new seed when given, the same one otherwise. */
   | {type: 'reset'; seed?: number}
   | {type: 'setOverlay'; overlay: CollisionOverlay}
+  /** Owner prototype: bounce touching bodies off each other. */
+  | {type: 'setBounce'; bounce: boolean}
+  /** Owner prototype: share of the board covered by objects; rebuilds the world. */
+  | {type: 'setCoverage'; areaFraction: number}
 
 export interface CollisionSnapshot {
   type: 'snapshot'
@@ -61,6 +65,8 @@ export interface CollisionSnapshot {
   /** Polygon world: template index per body (into POLYGON_TEMPLATES) and the common scale; empty and 0 for circles. */
   templates: Uint8Array
   scale: number
+  /** Bounce prototype only (absent otherwise): orientation per body in radians, length count. */
+  angles?: Float32Array
   /** 1 when the body touches another one. */
   touching: Uint8Array
   counters: StepCounters
@@ -77,10 +83,14 @@ export type CollisionEvent = CollisionSnapshot | {type: 'error'; message: string
 
 /** Arrays of a snapshot to hand to postMessage as transferables. */
 export function snapshotTransferables(s: CollisionSnapshot): ArrayBuffer[] {
-  return [s.positions.buffer, s.radii.buffer, s.touching.buffer, s.templates.buffer].filter(
+  return [s.positions.buffer, s.radii.buffer, s.touching.buffer, s.templates.buffer, s.angles?.buffer].filter(
     (b): b is ArrayBuffer => b instanceof ArrayBuffer,
   )
 }
+
+/** Owner prototype: range of the coverage slider (share of the board covered by objects). */
+export const MIN_COVERAGE = 0.0025
+export const MAX_COVERAGE = 0.3
 
 export function clampCount(count: number, method: BroadPhaseMethod, shape: WorldShape = 'circle'): number {
   const whole = Number.isFinite(count) ? Math.round(count) : MIN_COUNT

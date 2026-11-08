@@ -1,6 +1,7 @@
-import {createScratch, createWorld, measureWorld, stepWorld, TIME_STEP} from '../../../compgeo/collisions/world'
+import {AREA_FRACTION, clearRotation, createScratch, createWorld, measureWorld, stepWorld, TIME_STEP} from '../../../compgeo/collisions/world'
 import type {StepCounters, StepScratch, World} from '../../../compgeo/collisions/world'
-import {clampCount, snapshotTransferables} from './collisionProtocol'
+import {bounceTouchingPairs} from '../../../compgeo/collisions/response'
+import {clampCount, MAX_COVERAGE, MIN_COVERAGE, snapshotTransferables} from './collisionProtocol'
 import type {
   BroadPhaseMethod,
   CollisionCommand,
@@ -34,6 +35,8 @@ export function createWorkerLoop(
   let count = 0
   let method: BroadPhaseMethod = 'naive'
   let overlay: CollisionOverlay = 'none'
+  let bounce = false
+  let areaFraction = AREA_FRACTION
   let shape: WorldShape = 'circle'
   let world: World | null = null
   let scratch: StepScratch | null = null
@@ -57,6 +60,11 @@ export function createWorkerLoop(
       positions[2 * i + 1] = world.y[i]
       radii[i] = world.r[i]
     }
+    let angles: Float32Array | undefined
+    if (bounce) {
+      angles = new Float32Array(n)
+      for (let i = 0; i < n; i++) angles[i] = world.angle[i]
+    }
     const snapshot: CollisionSnapshot = {
       type: 'snapshot',
       stepIndex,
@@ -75,13 +83,14 @@ export function createWorkerLoop(
       overlay,
       clampedFrom,
     }
+    if (angles) snapshot.angles = angles
     clampedFrom = null
     lastSimSpeed = simSpeed
     emit(snapshot)
   }
 
   const rebuild = (): void => {
-    world = createWorld({seed, count, shape})
+    world = createWorld({seed, count, shape, areaFraction})
     scratch = createScratch(count)
     stepIndex = 0
     // Measure the new arrangement without stepping, so the readouts describe it rather than showing zero tests (and,
@@ -101,7 +110,8 @@ export function createWorkerLoop(
   const step = (): void => {
     if (!world || !scratch) return
     const t0 = now()
-    const result = stepWorld(world, method, scratch)
+    const result = stepWorld(world, method, scratch, bounce)
+    if (bounce) bounceTouchingPairs(world, result.pairs, result.counters.touchingPairs)
     const stepMs = now() - t0
     stepIndex++
     const simSpeed = stepMs <= STEP_REAL_MS ? 100 : (STEP_REAL_MS / stepMs) * 100
@@ -187,6 +197,15 @@ export function createWorkerLoop(
           break
         case 'setOverlay':
           overlay = command.overlay
+          break
+        case 'setCoverage':
+          if (!world) return
+          areaFraction = Math.min(MAX_COVERAGE, Math.max(MIN_COVERAGE, command.areaFraction))
+          rebuild()
+          break
+        case 'setBounce':
+          bounce = command.bounce
+          if (!bounce && world) clearRotation(world)
           break
       }
     },

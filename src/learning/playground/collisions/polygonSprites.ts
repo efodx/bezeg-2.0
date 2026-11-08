@@ -25,7 +25,9 @@ export interface TemplateSprite {
   cy: number
 }
 
-export type SpriteKind = 'plain' | 'hit'
+/** The 'Fill' kinds have no stage outline: for rotated bodies in the box stage, whose axis-aligned box is drawn separately. */
+export type SpriteKind = 'plain' | 'hit' | 'plainFill' | 'hitFill'
+const KIND_SLOT: Readonly<Record<SpriteKind, number>> = {plain: 0, hit: 1, plainFill: 2, hitFill: 3}
 
 /** Dash pattern per stage in CSS pixels, so the stages differ by more than colour: dashed, dotted, solid. */
 export const STAGE_DASH: Readonly<Record<PolygonStage, readonly number[]>> = {boxes: [6, 4], hulls: [2, 4], pieces: []}
@@ -70,7 +72,7 @@ export function createPolygonSpriteCache(render: Render, templateCount: number =
   let current: SpriteParams | null = null
   /** The params object last compared (callers must pass a new object when values change, never mutate one). */
   let verified: SpriteParams | null = null
-  const fresh = (): (TemplateSprite | undefined)[] => new Array<TemplateSprite | undefined>(2 * templateCount)
+  const fresh = (): (TemplateSprite | undefined)[] => new Array<TemplateSprite | undefined>(4 * templateCount)
   let entries = fresh()
   return {
     get(template, kind, params) {
@@ -81,7 +83,7 @@ export function createPolygonSpriteCache(render: Render, templateCount: number =
         }
         verified = params
       }
-      const slot = 2 * template + (kind === 'hit' ? 1 : 0)
+      const slot = 4 * template + KIND_SLOT[kind]
       let entry = entries[slot]
       if (!entry) {
         const shape = POLYGON_TEMPLATES[template]
@@ -120,10 +122,11 @@ export const renderSpriteToCanvas: Render = (template, kind, params, g) => {
   const {unit, dpr, stage} = params
   ctx.beginPath()
   trace(ctx, {xs: shape.vertices.map((p) => p.x), ys: shape.vertices.map((p) => p.y), size: shape.vertices.length}, unit, g.cx, g.cy)
-  ctx.fillStyle = kind === 'hit' ? params.touching : params.body
-  ctx.globalAlpha = kind === 'hit' ? 1 : 0.85
+  ctx.fillStyle = kind === 'hit' || kind === 'hitFill' ? params.touching : params.body
+  ctx.globalAlpha = kind === 'hit' || kind === 'hitFill' ? 1 : 0.85
   ctx.fill()
   ctx.globalAlpha = 1
+  if (kind === 'plainFill' || kind === 'hitFill') return canvas
   ctx.beginPath()
   if (stage === 'boxes') ctx.rect(g.cx - unit * shape.hx, g.cy - unit * shape.hy, 2 * unit * shape.hx, 2 * unit * shape.hy)
   else if (stage === 'hulls') trace(ctx, shape.hull, unit, g.cx, g.cy)

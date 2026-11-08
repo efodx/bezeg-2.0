@@ -55,6 +55,8 @@ export const en: Record<keyof typeof sl, string> = {
     "collision_pause": "Pause",
     "collision_step": "Step",
     "collision_new": "New arrangement",
+    "collision_bounce": "Bounce between objects",
+    "collision_coverage": "Board covered by objects",
     "collision_readouts": "Measurements",
     "collision_objects": "Objects",
     "collision_box_tests": "Box tests this step",
