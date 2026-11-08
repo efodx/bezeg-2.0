@@ -119,6 +119,8 @@ test('any failing command before the push stops the run and leaves the remote al
     const pushIndex = calls.findIndex(isPush);
     assert.ok(pushIndex > 10, 'the sequence reached the push');
     for (let index = 0; index <= pushIndex; index += 1) {
+        // Each run must take the full path, so the record of the earlier ones is cleared.
+        fs.rmSync(path.join(f.work, '.git', 'bezeg-publish'), {recursive: true, force: true});
         const seen = [];
         const report = await f.run({commits: [commit], exec: recording(seen, (_, at) => (at === index ? {code: 3, signal: null, stdout: '', stderr: 'injected'} : null))});
         assert.equal(report.ok, false, `command ${index}`);
@@ -280,6 +282,36 @@ test('an incoming change to a file the slice changed needs the full check-change
     assert.deepEqual(recorded(f), ['check-changed', 'check-changed']);
     assert.match(report.paths.at(-1).reason, /overlaps the slice/);
     assert.equal(f.remoteHead(), report.candidate);
+});
+
+// A first run whose push fails leaves a verified-base record; the rerun starts from it.
+const failFirstPush = (f, commit) => f.run({commits: [commit], exec: recording([], request => (isPush(request) ? {code: 1, signal: null} : null))});
+
+test('a rerun of a verified slice takes the delta path on its first pass after unrelated master movement', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    assert.equal((await failFirstPush(f, commit)).ok, false);
+    fs.rmSync(f.record);
+    f.advanceRemote('other.txt');
+    const report = await f.run({commits: [commit], exec: recording([])});
+    assert.equal(report.ok, true, report.message);
+    assert.deepEqual(recorded(f), ['typecheck', 'lint', 'unit', 'build']);
+    assert.equal(report.paths[0].path, 'delta');
+    assert.match(report.paths[0].reason, /verified-base record/);
+    assert.ok(report.notCovered.some(text => text.startsWith('delta path')));
+    assert.equal(f.remoteHead(), report.candidate);
+});
+
+test('a rerun whose incoming change overlaps the slice still takes the full path first', async t => {
+    const f = sharedFileFixture(t);
+    assert.equal((await failFirstPush(f, f.commit)).ok, false);
+    fs.rmSync(f.record);
+    f.advanceBig();
+    const report = await f.run({commits: [f.commit], exec: recording([])});
+    assert.equal(report.ok, true, report.message);
+    assert.deepEqual(recorded(f), ['check-changed']);
+    assert.equal(report.paths[0].path, 'full');
+    assert.match(report.paths[0].reason, /overlaps the slice/);
 });
 
 test('an incoming change to a shared path needs the full check-changed', async t => {

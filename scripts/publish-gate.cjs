@@ -349,13 +349,11 @@ async function publish({cwd = process.cwd(), base, commits, recipe, expectedOrig
         report.verifiedBase = master;
 
         report.candidate = await stage('reconcile', () => reconcile(master, baseCommit));
-        await vet(master, report.candidate, true);
+        const firstChanged = await vet(master, report.candidate, true);
         let patchId = await patchIdOf(master, report.candidate);
-        report.paths.push({path: 'full', reason: 'first verification of this slice'});
-        await runChecks(selected.checks, master);
-        remember(patchId, master);
-
         // Delta path: the slice was verified on an older master and that master moved without touching the slice.
+        // A record on the fetched master itself (no incoming files) is deliberately a delta too: a rerun after a
+        // rejected push or a cancelled run gets the cheap re-verification instead of the full unit run.
         const decide = async (latest, changed) => {
             if (recipe !== 'runtime') return {path: 'full', reason: `recipe ${recipe} reruns its own checks`};
             const entry = readRecords(storePath).reverse().find(old => old.patchId === patchId && old.recipe === recipe);
@@ -368,6 +366,17 @@ async function publish({cwd = process.cwd(), base, commits, recipe, expectedOrig
             if (shared) return {path: 'full', reason: `incoming change to shared path ${shared}`};
             return {path: 'delta', reason: `${incoming.length} incoming file(s) since the recorded base ${entry.master}, none shared with the slice`};
         };
+
+        const first = await decide(master, firstChanged);
+        if (first.path === 'delta') {
+            report.paths.push({...first, reason: `verified-base record for this slice: ${first.reason}`});
+            await runChecks(DELTA_CHECKS(firstChanged), master, 'delta:');
+            report.notCovered = [...new Set([...report.notCovered, DELTA_NOT_COVERED])];
+        } else {
+            report.paths.push({path: 'full', reason: first.reason === 'no verified-base record for this slice' ? 'first verification of this slice' : first.reason});
+            await runChecks(selected.checks, master);
+            remember(patchId, master);
+        }
 
         let rejections = 0;
         for (;;) {
