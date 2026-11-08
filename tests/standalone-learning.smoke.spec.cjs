@@ -169,11 +169,11 @@ test('a Splines chapter prompt does not widen the page with enlarged text', asyn
 });
 
 async function editFirstPoint(page, x) {
-    const editor = page.locator('.point-coordinate-editor').first();
+    const editor = page.locator('.curve-point-controls').first();
     if ((await editor.count()) === 0) await page.locator('.workspace-curve-picker button').first().click();
-    if ((await editor.getAttribute('open')) === null) await editor.locator('summary').click();
-    await editor.locator('input[name="x-0"]').fill(String(x));
-    await editor.locator('.point-coordinate-form button[type="submit"]').click();
+    const field = editor.getByRole('spinbutton', {name: 'p₀, x'});
+    await field.fill(String(x));
+    await field.press('Enter');
     await expect.poll(() => h.visiblePoints(page)).toEqual(expect.arrayContaining([[x, -3], [-3, 2], [2, 2], [3, -2]]));
 }
 

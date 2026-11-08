@@ -162,19 +162,16 @@ test.beforeEach(async ({page}) => {
 test('batch export captures different saved Bézier scenes and restores selection, viewport, axes, and focus', async ({page}) => {
     await page.goto('/bezeg-2.0/bezier/curve', {waitUntil: 'domcontentloaded'});
     await selectFirstCurve(page);
-    let editor = inspector(page).locator('.point-coordinate-editor');
-    await editor.locator('summary').click();
-    const x = editor.getByRole('spinbutton', {name: 'p0 x'});
+    let editor = inspector(page).locator('.curve-point-controls');
+    const x = editor.getByRole('spinbutton', {name: 'p₀, x'});
     await expect(x).toBeVisible();
 
     await createPreset(page, 'ownership-default');
     await selectFirstCurve(page);
-    editor = inspector(page).locator('.point-coordinate-editor');
-    // Presets load in place now, so the editor may still be open from before; only open it when closed.
-    if (!(await editor.evaluate(element => element.open))) await editor.locator('summary').click();
+    editor = inspector(page).locator('.curve-point-controls');
     await expect(editor).toBeVisible();
-    await editor.getByRole('spinbutton', {name: 'p0 x'}).fill('0.8');
-    await editor.locator('.point-coordinate-form button.point-coordinate-submit').click();
+    await editor.getByRole('spinbutton', {name: 'p₀, x'}).fill('0.8');
+    await editor.getByRole('spinbutton', {name: 'p₀, x'}).press('Enter');
     await createPreset(page, 'ownership-alternate');
     const selection = await selectFirstCurve(page);
     await page.locator('#jgbox').evaluate(container => {
@@ -340,10 +337,9 @@ test('PH child board and model points survive batch scene disposal and restorati
     expect(await boardSnapshot(page)).toEqual(before);
     await expect(inspector(page).locator('.curve-selection button[aria-pressed="true"]')).toHaveCount(1);
 
-    const coordinateEditor = inspector(page).locator('.point-coordinate-editor');
-    await coordinateEditor.locator('summary').click();
-    const w0x = coordinateEditor.getByRole('spinbutton', {name: 'w0 x'});
-    const oldW0x = Number(await w0x.inputValue());
+    const coordinateEditor = inspector(page).locator('.curve-point-controls');
+    const w0x = coordinateEditor.getByRole('spinbutton', {name: 'w₀, x'});
+    const oldW0x = Number((await w0x.inputValue()).replace('−', '-'));
     const oldCurve = await boardSnapshot(page);
     await childBoard.scrollIntoViewIfNeeded();
     const pointPosition = await firstHodographPointPosition(page);
@@ -352,7 +348,7 @@ test('PH child board and model points survive batch scene disposal and restorati
     await page.mouse.move(pointPosition.x + 24, pointPosition.y - 16, {steps: 5});
     await page.mouse.up();
 
-    await expect.poll(async () => Number(await w0x.inputValue())).not.toBe(oldW0x);
+    await expect.poll(async () => Number((await w0x.inputValue()).replace('−', '-'))).not.toBe(oldW0x);
     expect(await boardSnapshot(page)).not.toEqual(oldCurve);
 });
 
@@ -373,7 +369,6 @@ test('same-page polynomial and PH navigation disposes main and child boards acro
     }
 
     await selectFirstCurve(page);
-    const editor = inspector(page).locator('.point-coordinate-editor');
-    await editor.locator('summary').click();
-    await expect(editor.getByRole('spinbutton', {name: 'p0 x'})).toBeVisible();
+    const editor = inspector(page).locator('.curve-point-controls');
+    await expect(editor.getByRole('spinbutton', {name: 'p₀, x'})).toBeVisible();
 });

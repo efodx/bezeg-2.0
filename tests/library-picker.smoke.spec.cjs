@@ -39,11 +39,10 @@ async function selectCurveAndEdit(page) {
     const selection = inspector.locator('.curve-selection');
     await selection.getByRole('button').first().click();
     await expect(selection.locator('button[aria-pressed="true"]')).toHaveCount(1);
-    const editor = inspector.locator('.point-coordinate-editor');
-    if (!(await editor.evaluate(element => element.open))) await editor.locator('summary').click();
-    const x = editor.getByRole('spinbutton', {name: 'p0 x'});
+    const editor = inspector.locator('.curve-point-controls');
+    const x = editor.getByRole('spinbutton', {name: 'p₀, x'});
     await x.fill('0.7');
-    await editor.locator('.point-coordinate-form button.point-coordinate-submit').click();
+    await x.press('Enter');
     await expect(x).toHaveValue('0.7');
     return {inspector, selection, editor};
 }
@@ -94,8 +93,8 @@ test('picker browsing and cancellation preserve edited graph state, isolate focu
     await expect(page).toHaveURL(originalUrl);
     expect(await boardState(page)).toEqual(before);
     await expect(selection.locator('button[aria-pressed="true"]')).toHaveCount(1);
-    await expect(editor.getByRole('spinbutton', {name: 'p0 x'})).toHaveValue('0.7');
-    await expect(inspector.locator('.point-coordinate-editor')).toBeVisible();
+    await expect(editor.getByRole('spinbutton', {name: 'p₀, x'})).toHaveValue('0.7');
+    await expect(inspector.locator('.curve-point-controls')).toBeVisible();
 });
 
 test('choosing the current graph continues the same board and preserves its lesson entry checkpoint', async ({page}) => {
@@ -148,9 +147,8 @@ test('choosing the current graph continues the same board and preserves its less
     expect(restoredState.curves).toEqual(editedEntryState.curves);
     const selection = inspector.locator('.curve-selection');
     await selection.getByRole('button').first().click();
-    const editor = inspector.locator('.point-coordinate-editor');
-    if (!(await editor.evaluate(element => element.open))) await editor.locator('summary').click();
-    await expect(editor.getByRole('spinbutton', {name: 'p0 x'})).toHaveValue('0.7');
+    const editor = inspector.locator('.curve-point-controls');
+    await expect(editor.getByRole('spinbutton', {name: 'p₀, x'})).toHaveValue('0.7');
 });
 
 test('picker cancellation and destination switching preserve presentation mode', async ({page}) => {

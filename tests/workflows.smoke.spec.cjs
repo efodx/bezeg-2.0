@@ -14,10 +14,8 @@ async function selectBezierCurve(page) {
 }
 
 async function openPointEditor(inspector) {
-    const editor = inspector.locator('.point-coordinate-editor');
-    // Presets load in place now, so the editor may still be open from before; only open it when closed.
-    if (!(await editor.evaluate(element => element.open))) await editor.locator('summary').click();
-    await expect(editor.getByRole('spinbutton', {name: 'p0 x'})).toBeVisible();
+    const editor = inspector.locator('.curve-point-controls');
+    await expect(editor.getByRole('spinbutton', {name: 'p₀, x'})).toBeVisible();
     return editor;
 }
 
@@ -57,16 +55,17 @@ test('switching SL → EN → SL keeps edited Bézier geometry and curve selecti
     await page.goto('/bezeg-2.0/bezier/curve', {waitUntil: 'domcontentloaded'});
     const inspector = await selectBezierCurve(page);
     const editor = await openPointEditor(inspector);
-    const x = editor.getByRole('spinbutton', {name: 'p0 x'});
-    const y = editor.getByRole('spinbutton', {name: 'p0 y'});
+    const x = editor.getByRole('spinbutton', {name: 'p₀, x'});
+    const y = editor.getByRole('spinbutton', {name: 'p₀, y'});
     await x.fill('0.75');
     await y.fill('-0.35');
     const initialCurves = await visibleCurvePaths(page);
     expect(initialCurves.length).toBeGreaterThan(0);
     const initialGeometry = await geometrySignature(page);
-    await editor.locator('.point-coordinate-form button.point-coordinate-submit').click();
-    await expect(x).toHaveValue('0.75');
-    await expect(y).toHaveValue('-0.35');
+    await editor.getByRole('spinbutton', {name: 'p₀, x'}).press('Enter');
+    await editor.getByRole('spinbutton', {name: 'p₀, y'}).press('Enter');
+    await expect(x).toHaveValue('0,75');
+    await expect(y).toHaveValue('−0,35');
     const editedGeometry = await geometrySignature(page);
     expect(editedGeometry).not.toBe(initialGeometry);
 
@@ -74,15 +73,15 @@ test('switching SL → EN → SL keeps edited Bézier geometry and curve selecti
     await expect(page.locator('.workspace-heading h1')).toHaveText('Bézier curve');
     await expect(inspector.locator('.curve-selection button[aria-pressed="true"]')).toHaveCount(1);
     await expect(x).toHaveValue('0.75');
-    await expect(y).toHaveValue('-0.35');
+    await expect(y).toHaveValue('−0.35');
     expect((await visibleCurvePaths(page)).length).toBeGreaterThan(0);
     await expect.poll(() => geometrySignature(page)).toBe(editedGeometry);
 
     await setLanguage(page, 'sl');
     await expect(page.locator('.workspace-heading h1')).toHaveText('Bézierjeva krivulja');
     await expect(inspector.locator('.curve-selection button[aria-pressed="true"]')).toHaveCount(1);
-    await expect(x).toHaveValue('0.75');
-    await expect(y).toHaveValue('-0.35');
+    await expect(x).toHaveValue('0,75');
+    await expect(y).toHaveValue('−0,35');
     expect((await visibleCurvePaths(page)).length).toBeGreaterThan(0);
     await expect.poll(() => geometrySignature(page)).toBe(editedGeometry);
 });
@@ -93,11 +92,12 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
     const inspector = await selectBezierCurve(page);
     const editor = await openPointEditor(inspector);
     const savedCoordinates = {x: '0.65', y: '0.9'};
-    const x = editor.getByRole('spinbutton', {name: 'p0 x'});
-    const y = editor.getByRole('spinbutton', {name: 'p0 y'});
+    const x = editor.getByRole('spinbutton', {name: 'p₀, x'});
+    const y = editor.getByRole('spinbutton', {name: 'p₀, y'});
     await x.fill(savedCoordinates.x);
     await y.fill(savedCoordinates.y);
-    await editor.locator('.point-coordinate-form button.point-coordinate-submit').click();
+    await editor.getByRole('spinbutton', {name: 'p₀, x'}).press('Enter');
+    await editor.getByRole('spinbutton', {name: 'p₀, y'}).press('Enter');
     await expect(x).toHaveValue(savedCoordinates.x);
     await expect(y).toHaveValue(savedCoordinates.y);
     const savedGeometry = await geometrySignature(page);
@@ -115,11 +115,12 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
     await expect(presetSelector).toHaveValue('smoke-edited-bezier');
     const changedInspector = await selectBezierCurve(page);
     const changedEditor = await openPointEditor(changedInspector);
-    await changedEditor.getByRole('spinbutton', {name: 'p0 x'}).fill('-0.4');
-    await changedEditor.getByRole('spinbutton', {name: 'p0 y'}).fill('0.2');
-    await changedEditor.locator('.point-coordinate-form button.point-coordinate-submit').click();
-    await expect(changedEditor.getByRole('spinbutton', {name: 'p0 x'})).toHaveValue('-0.4');
-    await expect(changedEditor.getByRole('spinbutton', {name: 'p0 y'})).toHaveValue('0.2');
+    await changedEditor.getByRole('spinbutton', {name: 'p₀, x'}).fill('-0.4');
+    await changedEditor.getByRole('spinbutton', {name: 'p₀, y'}).fill('0.2');
+    await changedEditor.getByRole('spinbutton', {name: 'p₀, x'}).press('Enter');
+    await changedEditor.getByRole('spinbutton', {name: 'p₀, y'}).press('Enter');
+    await expect(changedEditor.getByRole('spinbutton', {name: 'p₀, x'})).toHaveValue('−0.4');
+    await expect(changedEditor.getByRole('spinbutton', {name: 'p₀, y'})).toHaveValue('0.2');
     await expect.poll(() => geometrySignature(page)).not.toBe(savedGeometry);
 
     const changedPresetArea = await showPresetTools(changedInspector);
@@ -128,9 +129,10 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
     await livePresetSelector.selectOption('');
     const defaultInspector = await selectBezierCurve(page);
     const defaultEditor = await openPointEditor(defaultInspector);
-    await defaultEditor.getByRole('spinbutton', {name: 'p0 x'}).fill('0.1');
-    await defaultEditor.getByRole('spinbutton', {name: 'p0 y'}).fill('-0.1');
-    await defaultEditor.locator('.point-coordinate-form button.point-coordinate-submit').click();
+    await defaultEditor.getByRole('spinbutton', {name: 'p₀, x'}).fill('0.1');
+    await defaultEditor.getByRole('spinbutton', {name: 'p₀, y'}).fill('-0.1');
+    await defaultEditor.getByRole('spinbutton', {name: 'p₀, x'}).press('Enter');
+    await defaultEditor.getByRole('spinbutton', {name: 'p₀, y'}).press('Enter');
     await expect.poll(() => geometrySignature(page)).not.toBe(savedGeometry);
 
     const defaultPresetArea = await showPresetTools(defaultInspector);
@@ -140,8 +142,8 @@ test('saving, changing, and reopening a preset restores edited Bézier coordinat
 
     const reopenedInspector = await selectBezierCurve(page);
     const reopenedEditor = await openPointEditor(reopenedInspector);
-    await expect(reopenedEditor.getByRole('spinbutton', {name: 'p0 x'})).toHaveValue(savedCoordinates.x);
-    await expect(reopenedEditor.getByRole('spinbutton', {name: 'p0 y'})).toHaveValue(savedCoordinates.y);
+    await expect(reopenedEditor.getByRole('spinbutton', {name: 'p₀, x'})).toHaveValue(savedCoordinates.x);
+    await expect(reopenedEditor.getByRole('spinbutton', {name: 'p₀, y'})).toHaveValue(savedCoordinates.y);
     await expect.poll(() => geometrySignature(page)).toBe(savedGeometry);
 });
 

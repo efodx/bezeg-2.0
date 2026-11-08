@@ -1633,10 +1633,9 @@ const phCubicPilot = {
     prepareUserState: async page => {
         await page.locator('.curve-selection button').first().click();
         await expect.poll(() => hodographBoard(page), {message: 'selecting the curve mounts the hodograph board'}).not.toBeNull();
-        const editor = page.locator('.point-coordinate-editor');
-        await editor.locator('summary').click();
-        await editor.getByRole('spinbutton', {name: 'w1 x'}).fill(String(PH_USER_W1[0]));
-        await editor.getByRole('button', {name: 'Apply coordinates'}).click();
+        const w1x = page.locator('.curve-point-controls').getByRole('spinbutton', {name: 'w₁, x'});
+        await w1x.fill(String(PH_USER_W1[0]));
+        await w1x.press('Enter');
         await expect.poll(async () => (await hodographBoard(page)).generators[1], {message: 'keyboard edit moves w_1'}).toEqual(PH_USER_W1);
         return {points: await h.visiblePoints(page), hodograph: await hodographBoard(page)};
     },
@@ -1650,8 +1649,7 @@ const phCubicPilot = {
     },
     assertUserState: async (page, ctx, saved) => {
         await expect.poll(() => hodographBoard(page), {message: 'selection and edited hodograph restored after exit'}).toEqual(saved.hodograph);
-        // The editor <details> is closed after exit, which hides its inputs from role queries.
-        expect(Number(await page.locator('.point-coordinate-editor input[aria-label="w1 x"]').inputValue()), 'editor shows the user w_1').toBe(PH_USER_W1[0]);
+        expect(Number(await page.locator('.curve-point-controls').getByRole('spinbutton', {name: 'w₁, x'}).inputValue()), 'editor shows the user w_1').toBe(PH_USER_W1[0]);
         expect(await h.visiblePoints(page)).toEqual(saved.points);
     },
     stableCounts: async page => ({hodograph: await hodographBoard(page)}),
