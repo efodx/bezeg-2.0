@@ -1,0 +1,13 @@
+# Brief: step 3a, rendered appearance contracts (handoff-v13)
+
+**Role:** implementation and test worker, may edit the owned paths below. Do not commit, push, or delegate.
+
+**Goal and acceptance:** complete [task 1](../../../tasks/rendered-graph-style-contracts/01-appearance-contracts.md) (read it whole) against [the spec](../../../specs/rendered-graph-style-contracts.md): read "Implementation Decisions" and "Testing Decisions"; its acceptance criteria 1–9 are the acceptance. Each new assertion needs an observed failure: criterion 2's colour-alias mutation covers the role table; for browser transitions, show one failing run under a deliberate mutation (revert it).
+
+**Scope:** owned: new and existing appearance/rendering unit tests next to the existing real-renderer control-point test, `tests/**` browser specs you add or extend (one new spec file preferred), the task file's status line and its evidence file `docs/tasks/rendered-graph-style-contracts/01-appearance-contracts.evidence.md`. Production code only if a contract exposes a real defect: stop and report first with the failing evidence, unless the fix is one line in a style module. Do not edit `src/inputs/**`, `src/graphs/base/points/**`, `src/compgeo/**`, `BaseGraph.tsx` or `sl.ts`/`en.ts` (other workers own them). Preserve all other working-tree changes: two other workers edit this worktree at the same time.
+
+**Browser runs:** build with `just build`, then `just smoke-built <spec file>` (read `docs/commands.md` sections on smoke and build freshness first; the smoke checklist is `docs/smoke-tests.md`, skill `.agents/skills/smoke-tester/SKILL.md`). Other workers edit source concurrently, so a build may include their unfinished changes: if a failure is outside appearance, rerun once and otherwise report it rather than fixing it. Use port 4327 for any manual preview; 4317 and 4328 are taken.
+
+**Context:** Windows, Git Bash. `core.autocrlf` is true: keep each file's line endings. Verification: `just typecheck`, `just lint <paths>`, `just unit <paths>`, `just check-changed` once at the end; never bare `npx vitest`/`npx playwright`/`npm test`. Run checks in the foreground and read their results before returning. Long output to `.command-logs/s3a-*.log`; extract failures only. Read by range; locate with search.
+
+**Return (≤350 words):** files added or changed; criteria 1–9 each with `file:line` or browser evidence, or marked skipped with the reason; mutation results; export tolerances; defects found. Evidence (≤80 lines) to the evidence file above. If you get `BUDGET HANDOFF`, stop and write `docs/reviews/feature-streams/controls/worker-s3a-handoff.md`.
