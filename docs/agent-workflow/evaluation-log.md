@@ -2348,3 +2348,10 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Outcome: accepted with one handler change: the five hand-built-stepper files had been exempted from the rule; they moved to a recorded `uncaughtSteppers` list so the rule still covers them. Decision 22.
 - Checks/gaps: worker: `just lint`, four mutations (non-exempt input and `Form.Range` fail, exempt passes, removed entry fails). Handler: lint of the config and graph code after the change. Gap: new hand-built steppers are not caught.
 - Usage (as reported): worker 34,129 tokens, 16 min.
+## 2026-11-08 — shared controls slice 5b, shared behaviour test (controls stream, handler 4)
+
+- Class/size: tests / M; one test-only helper with seven checks per control kind, bare and real-graph consumers. Source: [task 1](../tasks/shared-graph-controls/01-foundation.md).
+- Dispatch: one `bezeg-worker` (Sonnet medium), in parallel with 5a on disjoint files; handler review by report and checks (handler at `BUDGET SOFT`).
+- Outcome: accepted unchanged. Decision 23. Finding: a field hint survives the host Reset (`NumberInput.tsx:97`), marked as `it.fails` known gaps for the next slice.
+- Checks/gaps: worker: typecheck, lint, units, 7 mutation classes (one equivalent mutant). Handler: units and lint rerun. Gaps: no model-refused in-range value; graph count setters without `onSet` skip typed checks.
+- Usage (as reported): worker 99,096 tokens, 52 min.
