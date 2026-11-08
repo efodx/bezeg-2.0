@@ -150,7 +150,6 @@ async function loadedPresetScene(create: () => BaseGraph<BaseGraphState>, preset
 
 const DEFAULT_SCENE: LessonAction = {kind: 'prepared-scene', sceneId: 'default', source: 'demonstration-default'};
 
-export {TRANSIENT_STATE_SAMPLE};
 
 /**
  * The Demonstrations this run checks, from `scripts/transient-state-scope.cjs`: every one in CI, after a change to a

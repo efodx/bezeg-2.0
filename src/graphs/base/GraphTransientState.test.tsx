@@ -10,7 +10,7 @@ import {capturePNGBlob} from './export/FigureCapture';
 import type {Mock} from 'vitest';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, settle} from './realGraphTestHarness';
 import {applyActions, internals} from './realGraphScenes';
-import {TRANSIENT_STATE_SAMPLE} from './graphTransientStateContract';
+import {TRANSIENT_STATE_SAMPLE} from './catalogSweepScope';
 import type {Preset} from './presets/Presets';
 
 vi.mock('./export/FigureCapture', async () => ({
