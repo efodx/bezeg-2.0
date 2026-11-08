@@ -115,7 +115,10 @@
         gap: 0;
         padding: 12px 165px 10px 0;
     }
-    .welcome-botanical { width: 150px; }
+    .welcome-botanical {
+        width: 150px;
+        clip-path: inset(0 0 12%); /* Crop the exposed stem below the leaves. */
+    }
     .welcome-intro p { max-width: 36rem; }
     .welcome-primary { justify-self: start; margin-top: 18px; }
 }
