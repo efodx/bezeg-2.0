@@ -37,6 +37,7 @@ The supervisor finds a live stream session by the name "clips handler <n>". Conf
 ## Known limits
 
 - Same as handoff 8: CRLF row files (edit with python, `newline=''`), backslashes via `chr(92)`, and no `sed` on path lines. On Git Bash, pass URL paths to node with `MSYS_NO_PATHCONV=1` and use `pwd -W`.
+- After my last capture, Controls `dc7fa255` changed `DemonstrationWorkspace.css` and `NumberInput.css`. If the next capture fails on "first frame differs from recipe poster" or on the camera, suspect that change first.
 - `.command-logs/h9-probe/probe.cjs <repo> <id> <route>` lists a poster scene's controls. The route-probe was taken on lesson example scenes, not posters.
 
 ## Measures
