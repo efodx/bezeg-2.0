@@ -12,7 +12,6 @@ export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly re
     {id: 'bezier-clipping', reason: NOT_CAPTURED},
     {id: 'bspline-insertion', reason: NOT_CAPTURED},
     {id: 'bspline-nurbs', reason: NOT_CAPTURED},
-    {id: 'geometric-series', reason: NOT_CAPTURED},
     {id: 'root-finding', reason: NOT_CAPTURED},
     {id: 'linear-map', reason: NOT_CAPTURED},
     {id: 'inversion', reason: NOT_CAPTURED},

@@ -48,4 +48,13 @@ module.exports = [
         discreteReason: null,
         offCamera: {points: ['rational-probe'], reason: 'The remainder probe at x = 10 lies on the curve above the view already in the poster; it marks the gap to the asymptote far out and is not part of the zero move.'},
     },
+    {
+        id: 'geometric-series',
+        motion: 'parameter-sweep',
+        control: {kind: 'slider', label: 'Količnik q', step: 0.05},
+        // The poster scene is a=1, q=0.5, one term. q goes to -0.8 and back, so the limit line a/(1-q) moves from 2 to 0.56 and back inside the camera while the bar a stays. The board draws bars and the limit line as segments; the unresponsive-board check reads segment endpoints (handler 9).
+        path: [0.5, -0.8, 0.5],
+        lessonQuote: 'Spreminjaj \\(a\\), \\(q\\), \\(n\\) in odstopanje; stolpcev je največ \\(50\\).',
+        discreteReason: null,
+    },
 ];

@@ -2364,6 +2364,14 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Smoke: first pass `bezeg-smoke` (Sonnet `medium`, 45k, 15 min), 5 of 7 items passed. D1: a link label that was not a substring of its paragraph was silently dropped by the renderer. D2: a rebuilt world posted zero counters (circles too). Handler fixed both; the D2 test was seen failing with zeroed counters. Recheck `bezeg-smoke` (Haiku `medium`, 51k, 20 min): D1 and D2 pass in sl/en at 1440×900 and 390×844, touching rings seen at 5000 objects, no console errors. One sl desktop link click landed off target once (heading at −3644 px) and did not reproduce in three runs; recorded as transient.
 - Checks on b9dd9781's tree: `just unit src/learning/playground/collisions src/learning/content src/learning/chapter` (296 s), `npx tsc --noEmit`, `just lint src/learning src/localization scripts/collision-step-benchmark`, `just build`, control-character scan of every CP9 file.
 - Repairs: one round from review, one from smoke (handler). Environment hazard repeated from CP8: script and heredoc edits turned LaTeX escapes into control characters; the handler now writes such text with the Edit tool and scans before committing.
+## 2026-11-08 — catalog clips: handler 8 clip reviews and geometric-series (clips stream, handler 9)
+
+- Class/size: review plus shared-check change / S. Source: [clips stream](../tasks/feature-streams/clips.md) steps 4–5, [handoff 8](../reviews/feature-streams/clips/handler-handoff-8.md).
+- Dispatch: two `bezeg-reviewer` on seven clips with handler-made contact sheets (Haiku medium visual, Sonnet medium mathematics). The shared check and the row stayed with the handler. Brief `handoff-v13`.
+- Outcome: no defects. Sonnet confirmed the rational asymptote labels against polynomial division and the blossom point on the extended P0P1 line, and noted epicycles runs half a lap by design. Haiku's one "fail" (interp-hermite P1 not moving) was wrong: P1 is drawn in the handle colour, and a frame pair shows it 52 px lower at frame 48. geometric-series captured after the response signature gained segment endpoints (test seen failing first).
+- Lesson: Haiku misidentified which dot is the moved point when the point shares the handle colour; give the reviewer the moved point's screen position or colour in the brief.
+- Usage (as reported): Haiku 44.4k, Sonnet 24.5k.
+
 ## 2026-11-08 — catalog clips: reviews and five held rows (clips stream, handler 8)
 
 - Class/size: review plus row repair / M. Source: [clips stream](../tasks/feature-streams/clips.md) steps 3–5, [handoff 7](../reviews/feature-streams/clips/handler-handoff-7.md).
