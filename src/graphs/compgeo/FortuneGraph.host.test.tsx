@@ -735,3 +735,26 @@ describe('C-7: the event processed at a step is highlighted on the board and in 
         expect(currentMarks()).toHaveLength(0);
     });
 });
+
+test('Next step to the end and Play to the end give the same nonempty final drawing and panel', () => {
+    const snapshot = (graph: Observed) => ({
+        step: graph.step, panel: ['step', 'note', 'vertices', 'queue', 'beach'].map(part),
+        drawn: everything(graph).map(o => [o.name, o.elType, o.dataX, o.dataY]),
+    });
+    const byNext = new Observed();
+    const first = mount(byNext);
+    toEnd(byNext);
+    const expected = snapshot(byNext);
+    first.unmount();
+    expect(expected.step).toBe(byNext.run().length - 1);
+    expect(expected.drawn.filter(d => d[1] === 'curve' || d[1] === 'line').length).toBeGreaterThan(0);
+    expect(expected.panel[0]).toBeTruthy();
+
+    const frames = manualScheduler();
+    const byPlay = new Observed({}, frames.scheduler);
+    mount(byPlay);
+    click('play-pause');
+    playTicks(frames, byPlay.run().length + 5);
+    expect(snapshot(byPlay)).toEqual(expected);
+    expect(byPlay.isPlaying).toBe(false);
+});

@@ -520,3 +520,21 @@ test('the panel offers no points/polygon/intervals choice and renders the side l
     expect(document.querySelector('[data-monotone-partition-lists] [data-monotone-partition-list="queue"]')).not.toBeNull();
     expect(document.querySelector('[data-monotone-partition-lists] [data-monotone-partition-list="status"]')).not.toBeNull();
 });
+
+test('Next step to the end and Play to the end give the same nonempty final drawn state and panel', () => {
+    const byNext = new Observed();
+    const first = mount(byNext);
+    atEnd(byNext);
+    const expected = {step: byNext.step, panel: panel(), drawn: drawn(byNext)};
+    first.unmount();
+    expect(expected.step).toBe(byNext.run().length - 1);
+    expect(expected.drawn.length).toBeGreaterThan(0);
+
+    const frames = manualScheduler();
+    const byPlay = new Observed({}, frames.scheduler);
+    mount(byPlay);
+    click('play-pause');
+    tick(frames, byPlay.run().length + 5);
+    expect({step: byPlay.step, panel: panel(), drawn: drawn(byPlay)}).toEqual(expected);
+    expect(byPlay.isPlaying).toBe(false);
+});

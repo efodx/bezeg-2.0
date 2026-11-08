@@ -124,14 +124,14 @@ export class TracePlayback implements TraceControls {
     }
 
     /**
-     * The graph's `setState` reports every store write here, after it. A new model resets to the named step or to 0; a
-     * step written outside `advance()` resets to that step so a finished controller restarts.
+     * The graph's `setState` reports every store write here, after it. A new model resets the controller to the step the
+     * graph's write left in the store: 0 for an edit, the named step for a write that names one, and the clamped old step
+     * for Fortune, whose `setState` deliberately keeps the sweep position. What counts as a model edit is the graph's call
+     * (Delaunay also counts its `triangles` and clears its triangle selection itself). A step written outside `advance()`
+     * resets to that step so a finished controller restarts.
      */
     settle(modelChanged: boolean, namedStep: boolean): void {
-        if (modelChanged) {
-            this.controller.reset(namedStep ? this.host.step() : 0);
-            this.host.requestRender();
-        } else if (namedStep && !this.advancing) {
+        if (modelChanged || (namedStep && !this.advancing)) {
             this.controller.reset(this.host.step());
             this.host.requestRender();
         }

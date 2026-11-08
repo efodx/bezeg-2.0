@@ -1,12 +1,12 @@
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import {EAR_CLIPPING_MAX_VERTICES, guardView} from "../../compgeo/earClipping";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
 import type {LessonAction} from "../../learning/model";
 import {BaseGraphState} from "../base/BaseGraph";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import {TracePlayback} from "./tracePlayback";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {SceneStateUpdate} from "../base/SceneStore";
@@ -21,9 +21,6 @@ import {parseHullStep} from "./hullTraceRun";
 
 /** Time between two playback steps (one step per interval, never more). */
 export const EAR_CLIPPING_STEP_INTERVAL_MS = 600;
-/** The controller's documented step limit, far above the longest trace (about n^2 events for 40 vertices). */
-const MAX_PLAYBACK_STEPS = 100000;
-
 export type EarClippingOverlayId = "trace" | "reflex" | "triangulation" | "colouring" | "guards";
 
 /** The saved configuration beyond the polygon: the step index. Playback status is never state. */
@@ -63,25 +60,21 @@ export function asClosedPolygon(model: PointSetModel): PointSetModel {
  * language-neutral letters A, B, C; the panel is the only localized text, so no board text needs a language listener.
  */
 export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
-    private controller: IterationController;
-    private controllerDisposed = false;
-    private advancing = false;
+    /** Playback policy: scheduling, advancement and end, reset and lifecycle (the step index stays in the scene store). */
+    private playback: TracePlayback;
     private runMemo?: {points: PointSetModel["points"]; run: EarRun};
     private inputsMemo?: {step: number; selected: number | undefined};
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super({pointLimit: EAR_CLIPPING_MAX_VERTICES, ...options});
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.advance(),
-            stepIntervalMs: EAR_CLIPPING_STEP_INTERVAL_MS,
-            maxIterations: MAX_PLAYBACK_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+        this.playback = new TracePlayback({
+            runLength: () => this.run().length,
+            step: () => this.step,
+            writeStep: step => this.setState(this.patch({step})),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => EAR_CLIPPING_STEP_INTERVAL_MS,
+        }, scheduler);
     }
 
     // ---- Reads ---------------------------------------------------------------------------------------------------
@@ -93,7 +86,7 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
     }
 
     get isPlaying(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     /** The trace of the current polygon; recomputed only when the points change. */
@@ -127,60 +120,27 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
             return this.patch({...patch, step: 0});
         };
         super.setState(wrapped, callback);
-        // The controller does not exist yet while the base class is being constructed.
-        if (!this.controller) return;
-        if (this.state.model !== before) {
-            this.controller.reset(namedStep ? this.step : 0);
-            this.requestRender();
-        } else if (namedStep && !this.advancing) {
-            this.controller.reset(this.step);
-            this.requestRender();
-        }
+        // The playback does not exist yet while the base class is being constructed.
+        this.playback?.settle(this.state.model !== before, namedStep);
     }
 
     // ---- Playback ------------------------------------------------------------------------------------------------
 
-    private get atEnd(): boolean {
-        return this.step >= this.run().length - 1;
-    }
-
-    /** The one transition of Next step and of every playback tick. */
-    private advance(): IterationOutcome {
-        const run = this.run();
-        const next = Math.min(this.step + 1, Math.max(run.length - 1, 0));
-        this.advancing = true;
-        try {
-            this.setState(this.patch({step: next}));
-        } finally {
-            this.advancing = false;
-        }
-        this.requestRender();
-        return next >= run.length - 1 ? "complete" : "continue";
-    }
-
     nextStep(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
+        this.playback.nextStep();
     }
 
     play(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to step 0; playback stops. */
     resetTrace(): void {
-        this.controller.reset(0);
-        this.setState(this.patch({step: 0}));
-        this.requestRender();
+        this.playback.resetTrace();
     }
 
     /**
@@ -209,17 +169,12 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
     }
 
     override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount(): void {
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         super.unmount();
     }
 
@@ -232,12 +187,12 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
     }
 
     protected override disposeFigureScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.syncReplacedScene();
     }
 
@@ -267,8 +222,7 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
         const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
         const step = runEarClipping(model.points).clamp(stored ?? 0);
         this.setState(this.patch({model, step}));
-        this.controller.reset(step);
-        this.requestRender();
+        this.playback.restoreTo(step);
     }
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
@@ -403,7 +357,7 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
 
     private readonly earActions: EarClippingControlActions = {
         nextStep: () => this.nextStep(),
-        playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
+        playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
         loadExample: index => this.loadModel(index === 1 ? EAR_CLIPPING_EXAMPLE_1 : EAR_CLIPPING_EXAMPLE_2),
     };
@@ -421,7 +375,7 @@ export class EarClippingGraph extends PointSetGraph<EarClippingOverlayId> {
         const step = this.step;
         const state = run.state(step);
         return <>
-            <EarClippingControls refusal={run.refusal} reversed={run.reversed} step={step} length={run.length} playing={this.controller.isPlaying()}
+            <EarClippingControls refusal={run.refusal} reversed={run.reversed} step={step} length={run.length} playing={this.playback.isPlaying}
                                  event={run.event(step)} trianglesSoFar={state.triangles.length}
                                  summary={state.done ? run.summary : undefined} actions={this.earActions}/>
             {super.workspaceEdit()}

@@ -1,5 +1,4 @@
 import {AnimationScheduler} from "../../learning/runtime/animation";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import type {LessonAction} from "../../learning/model";
 import {PointSetModel, PointSetOptions, serializePointSetModel} from "../../compgeo/pointSetModel";
 import {clampTraceIndex} from "../../compgeo/trace";
@@ -11,11 +10,10 @@ import {parseBezierHullsStep} from "./bezierHullsPresetCollection";
 import {CurvePairGraph} from "./CurvePairGraph";
 import {PointSetGraphState} from "./PointSetGraph";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import {TracePlayback} from "./tracePlayback";
 
 /** Time between two playback steps (one step per interval, never more), as in the hull trace. */
 export const TRACE_STEP_INTERVAL_MS = 400;
-/** Far above any run of the curve pair algorithms: the end of the run stops playback, not this limit. */
-const MAX_PLAYBACK_STEPS = 100000;
 
 /** The saved configuration beyond the points: the step index. Playback status is never state. */
 export interface TraceCurvePairGraphState extends PointSetGraphState {
@@ -45,25 +43,21 @@ export interface TraceControlActions {
  * Reads: `step`, `run()`, `isPlaying`; actions `nextStep()`, `play()`, `pause()`, `resetTrace()`.
  */
 export abstract class TraceCurvePairGraph<Extra extends string, Run extends readonly unknown[]> extends CurvePairGraph<Extra> {
-    private controller: IterationController;
-    private controllerDisposed = false;
-    private advancing = false;
+    /** Playback policy: scheduling, advancement and end, reset and lifecycle (the step index stays in the scene store). */
+    private playback: TracePlayback;
     private runMemo?: {points: PointSetModel["points"]; settings: unknown; run: Run};
     private inputsMemo?: {step: number; settings: unknown};
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super(options);
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.advance(),
-            stepIntervalMs: TRACE_STEP_INTERVAL_MS,
-            maxIterations: MAX_PLAYBACK_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+        this.playback = new TracePlayback({
+            runLength: () => this.run().length,
+            step: () => this.step,
+            writeStep: step => this.setState(this.patch({step})),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => TRACE_STEP_INTERVAL_MS,
+        }, scheduler);
     }
 
     // ---- Run -----------------------------------------------------------------------------------------------------
@@ -98,7 +92,7 @@ export abstract class TraceCurvePairGraph<Extra extends string, Run extends read
     }
 
     get isPlaying(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     override getInitialState(): TraceCurvePairGraphState {
@@ -124,61 +118,27 @@ export abstract class TraceCurvePairGraph<Extra extends string, Run extends read
             return this.patch({...raw, step: 0});
         };
         super.setState(wrapped, callback);
-        // The controller does not exist yet while the base class is being constructed.
-        if (!this.controller) return;
-        if (this.state.model !== before) {
-            this.controller.reset(namedStep ? this.step : 0);
-            this.requestRender();
-        } else if (namedStep && !this.advancing) {
-            // A step written outside advance() (a restore, a lesson action) must not leave a stale "completed" controller.
-            this.controller.reset(this.step);
-            this.requestRender();
-        }
+        // The playback does not exist yet while the base class is being constructed.
+        this.playback?.settle(this.state.model !== before, namedStep);
     }
 
     // ---- Playback ------------------------------------------------------------------------------------------------
 
-    private get atEnd(): boolean {
-        return this.step >= this.run().length - 1;
-    }
-
-    /** The one transition of Next step and of every playback tick. */
-    private advance(): IterationOutcome {
-        const run = this.run();
-        const next = Math.min(this.step + 1, Math.max(run.length - 1, 0));
-        this.advancing = true;
-        try {
-            this.setState(this.patch({step: next}));
-        } finally {
-            this.advancing = false;
-        }
-        this.requestRender();
-        return next >= run.length - 1 ? "complete" : "continue";
-    }
-
     nextStep(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
+        this.playback.nextStep();
     }
 
     play(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to step 0; playback stops. */
     resetTrace(): void {
-        this.controller.reset(0);
-        this.setState(this.patch({step: 0}));
-        this.requestRender();
+        this.playback.resetTrace();
     }
 
     /**
@@ -203,17 +163,12 @@ export abstract class TraceCurvePairGraph<Extra extends string, Run extends read
     }
 
     override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount(): void {
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         super.unmount();
     }
 
@@ -226,12 +181,12 @@ export abstract class TraceCurvePairGraph<Extra extends string, Run extends read
     }
 
     protected override disposeFigureScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.syncReplacedScene();
     }
 
@@ -256,8 +211,7 @@ export abstract class TraceCurvePairGraph<Extra extends string, Run extends read
         const stored = "step" in this.state ? parseBezierHullsStep(this.state.step) : undefined;
         const step = Math.min(stored ?? 0, this.runFor(model.points).length - 1);
         this.setState(this.patch({model, step}));
-        this.controller.reset(step);
-        this.requestRender();
+        this.playback.restoreTo(step);
     }
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {

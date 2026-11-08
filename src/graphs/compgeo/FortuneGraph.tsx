@@ -1,6 +1,5 @@
 import React from "react";
 import {AnimationScheduler} from "../../learning/runtime/animation";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import type {GridPoint} from "../../compgeo/grid";
@@ -24,12 +23,10 @@ import {followedGridBox, visibleGridBox} from "./followBox";
 import {createVoronoiDrawing, type VoronoiDrawingHandle, type VoronoiDrawingStats} from "./voronoiDrawing";
 import {parseHullStep} from "./hullTraceRun";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import {TracePlayback} from "./tracePlayback";
 
 /** Time between two playback steps (one step per pop group, never more). */
 export const FORTUNE_STEP_INTERVAL_MS = 400;
-/** The controller's documented step limit: far above the longest trace of 12 sites. */
-const MAX_PLAYBACK_STEPS = 100000;
-
 /** The saved configuration beyond the sites: the step index. Playback status is never state. */
 export interface FortuneGraphState extends PointSetGraphState {
     step: number;
@@ -54,9 +51,8 @@ export interface FortuneGraphState extends PointSetGraphState {
  * reused across steps and drags, and removed with the figure scene and before the board is freed on unmount.
  */
 export class FortuneGraph extends PointSetGraph<never> {
-    private controller: IterationController;
-    private controllerDisposed = false;
-    private advancing = false;
+    /** Playback policy: scheduling, advancement and end, reset and lifecycle (the step index stays in the scene store). */
+    private playback: TracePlayback;
     private runMemo?: {points: readonly GridPoint[]; run: FortuneRun};
     private sweep?: {handle: FortuneSweepHandle; scale: number};
     private final?: {handle: VoronoiDrawingHandle; scale: number};
@@ -72,17 +68,14 @@ export class FortuneGraph extends PointSetGraph<never> {
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super({pointLimit: SWEEP_MAX_SITES, coordinateLimit: SWEEP_COORD_LIMIT, ...options});
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.advance(),
-            stepIntervalMs: FORTUNE_STEP_INTERVAL_MS,
-            maxIterations: MAX_PLAYBACK_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+        this.playback = new TracePlayback({
+            runLength: () => this.run().length,
+            step: () => this.step,
+            writeStep: step => this.setState(this.patch({step})),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => FORTUNE_STEP_INTERVAL_MS,
+        }, scheduler);
     }
 
     // ---- Reads ---------------------------------------------------------------------------------------------------
@@ -109,7 +102,7 @@ export class FortuneGraph extends PointSetGraph<never> {
     }
 
     get isPlaying(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     protected override pointName(index: number): string {
@@ -140,59 +133,27 @@ export class FortuneGraph extends PointSetGraph<never> {
             return this.patch({...patch, step: this.runFor(patch.model.points).clamp(stored ?? 0)});
         };
         super.setState(wrapped, callback);
-        // The controller does not exist yet while the base class is being constructed.
-        if (!this.controller) return;
-        if (this.state.model !== before) {
-            this.controller.reset(this.step);
-            this.requestRender();
-        } else if (namedStep && !this.advancing) {
-            this.controller.reset(this.step);
-            this.requestRender();
-        }
+        // The playback does not exist yet while the base class is being constructed.
+        this.playback?.settle(this.state.model !== before, namedStep);
     }
 
     // ---- Playback ------------------------------------------------------------------------------------------------
 
-    private get atEnd(): boolean {
-        return this.step >= this.run().length - 1;
-    }
-
-    private advance(): IterationOutcome {
-        const run = this.run();
-        const next = Math.min(this.step + 1, Math.max(run.length - 1, 0));
-        this.advancing = true;
-        try {
-            this.setState(this.patch({step: next}));
-        } finally {
-            this.advancing = false;
-        }
-        this.requestRender();
-        return next >= run.length - 1 ? "complete" : "continue";
-    }
-
     nextStep(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
+        this.playback.nextStep();
     }
 
     play(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to step 0; playback stops. */
     resetTrace(): void {
-        this.controller.reset(0);
-        this.setState(this.patch({step: 0}));
-        this.requestRender();
+        this.playback.resetTrace();
     }
 
     /**
@@ -205,7 +166,12 @@ export class FortuneGraph extends PointSetGraph<never> {
             super.applyPointSetAction(action);
             return;
         }
-        this.setState(this.patch({step: this.run().clamp(requestedTraceStep(action, this.run().length))}));
+        this.setTraceStep(requestedTraceStep(action, this.run().length));
+    }
+
+    /** Shows the trace at `step` (clamped); the same write as a Preset restore. A named step resets the controller in `setState`, which pauses playback. */
+    private setTraceStep(step: number): void {
+        this.setState(this.patch({step: this.run().clamp(step)}));
         this.requestRender();
     }
 
@@ -238,19 +204,14 @@ export class FortuneGraph extends PointSetGraph<never> {
     }
 
     override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     /** The drawing objects must go before the board is freed: disposing removes them from that board. */
     override unmount(): void {
         this.disposeOwned();
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         super.unmount();
     }
 
@@ -263,13 +224,13 @@ export class FortuneGraph extends PointSetGraph<never> {
     }
 
     protected override disposeFigureScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         this.disposeOwned();
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.syncReplacedScene();
     }
 
@@ -294,8 +255,7 @@ export class FortuneGraph extends PointSetGraph<never> {
         const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
         const step = this.runFor(model.points).clamp(stored ?? 0);
         this.setState(this.patch({model, step}));
-        this.controller.reset(step);
-        this.requestRender();
+        this.playback.restoreTo(step);
     }
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
@@ -427,7 +387,7 @@ export class FortuneGraph extends PointSetGraph<never> {
 
     private readonly sweepActions: FortuneControlActions = {
         nextStep: () => this.nextStep(),
-        playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
+        playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
         loadExample: id => this.loadExample(id),
         resetView: () => this.resetView(),
@@ -443,7 +403,7 @@ export class FortuneGraph extends PointSetGraph<never> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <FortuneControls run={this.run()} step={this.step} playing={this.controller.isPlaying()} actions={this.sweepActions}/>
+            <FortuneControls run={this.run()} step={this.step} playing={this.playback.isPlaying} actions={this.sweepActions}/>
             {super.workspaceEdit()}
         </>;
     }

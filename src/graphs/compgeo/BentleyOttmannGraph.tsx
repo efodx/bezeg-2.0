@@ -1,7 +1,6 @@
 import React from "react";
 import {t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {PointSetModel, PointSetOptions, segmentsOf, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
@@ -18,13 +17,11 @@ import {BentleyOttmannControlActions, BentleyOttmannControls, BentleyOttmannList
 import {BentleyOttmannRun, runBentleyOttmann} from "./bentleyOttmannRun";
 import {BENTLEY_OTTMANN_EXAMPLE_1, BENTLEY_OTTMANN_OVERLAY_IDS, bentleyOttmannCollection} from "./bentleyOttmannPresetCollection";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import {TracePlayback} from "./tracePlayback";
 import {parseHullStep} from "./hullTraceRun";
 
 /** Time between two playback steps (one step per trace event, never more). */
 export const BENTLEY_OTTMANN_STEP_INTERVAL_MS = 400;
-/** The controller's documented step limit: far above the longest trace of 12 segments. */
-const MAX_PLAYBACK_STEPS = 100000;
-
 export type BentleyOttmannOverlayId = "sweep";
 
 /** The saved configuration beyond the segments: the step index. Playback status is never state. */
@@ -45,9 +42,8 @@ export interface BentleyOttmannGraphState extends PointSetGraphState {
  * `sideLists()` renders the event queue and status lists; hovering or focusing a status entry highlights its segment.
  */
 export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> {
-    private controller: IterationController;
-    private controllerDisposed = false;
-    private advancing = false;
+    /** Playback policy: scheduling, advancement and end, reset and lifecycle (the step index stays in the scene store). */
+    private playback: TracePlayback;
     private runMemo?: {points: PointSetModel["points"]; run: BentleyOttmannRun};
     private inputsMemo?: {step: number; hovered: number | undefined};
     /** The segment whose status entry is hovered or focused; highlighted on the board. Never saved. */
@@ -57,17 +53,14 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super({coordinateLimit: SWEEP_COORD_LIMIT, segmentLimit: SWEEP_MAX_SEGMENTS, ...options});
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.advance(),
-            stepIntervalMs: BENTLEY_OTTMANN_STEP_INTERVAL_MS,
-            maxIterations: MAX_PLAYBACK_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+        this.playback = new TracePlayback({
+            runLength: () => this.run().length,
+            step: () => this.step,
+            writeStep: step => this.setState(this.patch({step})),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => BENTLEY_OTTMANN_STEP_INTERVAL_MS,
+        }, scheduler);
     }
 
     // ---- Reads ---------------------------------------------------------------------------------------------------
@@ -79,7 +72,7 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
     }
 
     get isPlaying(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     /** The segments handed to the trace; a subclass may override it (tests do, to reach refusals the model prevents). */
@@ -119,61 +112,27 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
             return this.patch({...patch, step: 0});
         };
         super.setState(wrapped, callback);
-        // The controller does not exist yet while the base class is being constructed.
-        if (!this.controller) return;
-        if (this.state.model !== before) {
-            this.controller.reset(namedStep ? this.step : 0);
-            this.requestRender();
-        } else if (namedStep && !this.advancing) {
-            // A step written outside advance() (a restore, a lesson action) must not leave a stale "completed" controller.
-            this.controller.reset(this.step);
-            this.requestRender();
-        }
+        // The playback does not exist yet while the base class is being constructed.
+        this.playback?.settle(this.state.model !== before, namedStep);
     }
 
     // ---- Playback ------------------------------------------------------------------------------------------------
 
-    private get atEnd(): boolean {
-        return this.step >= this.run().length - 1;
-    }
-
-    /** The one transition of Next step and of every playback tick. */
-    private advance(): IterationOutcome {
-        const run = this.run();
-        const next = Math.min(this.step + 1, Math.max(run.length - 1, 0));
-        this.advancing = true;
-        try {
-            this.setState(this.patch({step: next}));
-        } finally {
-            this.advancing = false;
-        }
-        this.requestRender();
-        return next >= run.length - 1 ? "complete" : "continue";
-    }
-
     nextStep(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
+        this.playback.nextStep();
     }
 
     play(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to step 0; playback stops. */
     resetTrace(): void {
-        this.controller.reset(0);
-        this.setState(this.patch({step: 0}));
-        this.requestRender();
+        this.playback.resetTrace();
     }
 
     /**
@@ -202,19 +161,14 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
     }
 
     override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount(): void {
         this.hovered = undefined;
         this.hoveredAt = undefined;
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         super.unmount();
     }
 
@@ -227,12 +181,12 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
     }
 
     protected override disposeFigureScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         super.syncReplacedScene();
     }
 
@@ -263,8 +217,7 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
         const stored = "step" in this.state ? parseHullStep(this.state.step) : undefined;
         const step = runBentleyOttmann(segmentsOf(model)).clamp(stored ?? 0);
         this.setState(this.patch({model, step}));
-        this.controller.reset(step);
-        this.requestRender();
+        this.playback.restoreTo(step);
     }
 
     protected override figurePresetGraphState(graphState: BaseGraphState | undefined): PointSetGraphState {
@@ -376,7 +329,7 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
 
     private readonly sweepActions: BentleyOttmannControlActions = {
         nextStep: () => this.nextStep(),
-        playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
+        playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
     };
 
@@ -419,7 +372,7 @@ export class BentleyOttmannGraph extends PointSetGraph<BentleyOttmannOverlayId> 
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <BentleyOttmannControls run={this.run()} step={this.step} playing={this.controller.isPlaying()}
+            <BentleyOttmannControls run={this.run()} step={this.step} playing={this.playback.isPlaying}
                                     exponent={this.model.gridStepExponent} actions={this.sweepActions}>
                 {this.sideLists()}
             </BentleyOttmannControls>

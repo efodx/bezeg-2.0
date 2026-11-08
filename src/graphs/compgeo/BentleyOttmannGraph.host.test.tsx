@@ -572,3 +572,21 @@ describe('side lists', () => {
         expect(entries('status', 'data-status-entry')[0].title).toBe('Segment s3');
     });
 });
+
+test('Next step to the end and Play to the end give the same nonempty final drawn state and status', () => {
+    const byNext = new Observed();
+    const first = mount(byNext);
+    atEnd(byNext);
+    const expected = {step: byNext.step, status: status(), drawn: drawn(byNext)};
+    first.unmount();
+    expect(expected.step).toBe(byNext.run().length - 1);
+    expect(expected.drawn.length).toBeGreaterThan(0);
+
+    const frames = manualScheduler();
+    const byPlay = new Observed({}, frames.scheduler);
+    mount(byPlay);
+    click('play-pause');
+    tick(frames, byPlay.run().length + 5);
+    expect({step: byPlay.step, status: status(), drawn: drawn(byPlay)}).toEqual(expected);
+    expect(byPlay.isPlaying).toBe(false);
+});

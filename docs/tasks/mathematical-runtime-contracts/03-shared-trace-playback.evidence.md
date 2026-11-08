@@ -1,6 +1,6 @@
 # Task 3 evidence, slice 3a: behaviour matrix and policy pilot
 
-Base revision f9996d30 (dirty worktree). Items 1 and 2 only; items 3 and 4 (migration of the other graphs) are the next slice.
+Base revision f9996d30 (dirty worktree). Items 1 and 2 (slice 3a). Items 3 and 4 (migration of the other graphs) are done in slice 3b, appended at the end.
 
 ## Policy
 
@@ -55,3 +55,40 @@ typecheck passed; lint on touched paths passed; four hull/interval host files pa
 ## Gaps
 
 No browser smoke (separate slice). Other trace graphs not migrated. Fortune keep-step and Delaunay extras need `settle` options in the next slice.
+
+# Slice 3b: migration of the remaining trace graphs (work items 3 and 4 done)
+
+Base revision 6fee4610 (dirty worktree).
+
+## Migrated
+
+All use `TracePlayback` and keep only domain configuration, the `setState` step/model wrapper, lesson `set-trace-step` and rendering: `BentleyOttmannGraph` (400 ms), `MonotonePartitionGraph` (500; `MonotoneTriangulationGraph` inherits), `EarClippingGraph` (600), `DelaunayGraph` (600), `FortuneGraph` (400), and `TraceCurvePairGraph` (400; `BezierHullsGraph` and `BezierClippingGraph` inherit). `HullRobustnessGraph` inherits `HullTraceGraph` (migrated in 3a) and has no controller code.
+
+Deleted from each: controller, `controllerDisposed` and `advancing` fields, `createController`, `MAX_PLAYBACK_STEPS`, `atEnd`, `advance`, the Next/Play/Pause/Reset bodies (now one-line delegations), the `setState` reset branches (now `playback.settle(...)`), mount/unmount controller code, the `if (this.controller) pause()` hooks (now `playback?.halt()`), the import `reset(step); requestRender()` (now `restoreTo(step)`). About 100 lines per graph; seven files, 75 added / 214 deleted lines before the tests.
+
+## Policy change
+
+`settle` now resets the controller to the step the graph's write left in the store (`host.step()`), instead of choosing between a named step and 0. For every edit that is 0 (the graph's wrapper wrote it) or the named step, so behaviour is unchanged; for Fortune it is the kept, clamped step. This removed the need for a "keep step" flag: the Fortune difference lives only in its `setState` wrapper, as before, with no controller-side special case. No other host option was added; tick length stays the existing `intervalMs()`.
+
+## Final deliberate differences
+
+- Tick length per graph through `intervalMs()`: hull 400 (slow edge test 50), interval 400, Bentley-Ottmann 400, monotone partition and triangulation 500, ear clipping 600, Delaunay 600, Fortune 400, Bezier pairs 400. Policy test: "each graph ticks at its own interval" (50/400/500/600).
+- Fortune keeps the step on a model edit (its `setState` wrapper clamps the old step; the policy restarts from the step in the store). Policy test: "a model edit that leaves the step where the graph put it ... restarts a finished playback from there". Note this reset is not observable through the count of `IterationController` (only the limit 100000 reads it); the test pins the restart from the kept step, and the Fortune host tests pin the kept step itself.
+- Delaunay clears its triangle selection (on a model, triangles or step change) and counts a `triangles` edit as a model edit: both stay in `DelaunayGraph.setState`, which passes `edited` to `settle`. No policy option: the policy only needs "edited", covered by the model-edit tests. Gap against the brief, which asked for explicit host options: the selection clearing also fires on plain step changes, so it does not fit an edit hook.
+- Hull algorithm switch (`stop`), interval hover, run settings key of the Bezier pairs: domain extras, unchanged.
+- Incidental, removed: Fortune's inlined step write (now a private `setTraceStep` like the others), the private copy of the policy in `TraceCurvePairGraph`.
+
+## Tests
+
+Policy (`tracePlayback.test.ts`, now 9 tests): added the Fortune-restart test and the per-graph tick test. Mutations: dropping `modelChanged ||` in `settle` fails the new restart test (and the existing model-edit test); making `intervalMs` constant 400 fails the tick test.
+Real-graph Next versus Play, one per graph, comparing a nonempty final drawn state and panel: Bentley-Ottmann, monotone partition, monotone triangulation, ear clipping, Delaunay, Fortune, Bezier hulls, Bezier clipping, hull robustness (nine tests, in each graph's `*.host.test.tsx`).
+No existing test was deleted or changed.
+
+## Wall time and checks
+
+Wall time of the touched host and lesson-action files (`just unit`, 2 workers, machine shared with other runs): 21 files (nine graphs' host and lesson-action tests, two Bezier controls tests, policy, hull, interval) 123.7 s before the nine real-graph Next/Play tests were added; no before figure for the same set was taken (no clean baseline checkout was available, and the 3a baseline covered only four files). The nine new tests each render two real graphs; Fortune file alone 13 s after. Eight compgeo lesson files (`src/learning/content`) 44.5 s. Not a saving; contention noise is large.
+Checks: `just typecheck` passed, `just lint src/graphs/compgeo` passed, `just build` passed, the 21 files passed (before the new tests), the ten files with new tests passed, eight lesson files passed.
+
+## Gaps
+
+No browser smoke. The new real-graph Next/Play tests were not individually mutation-tested; a mutation run was started but hung because the mutation (a run that never reaches "complete") made Play loop, and was abandoned (shared `advance` was mutation-tested in 3a). Class comments of the migrated graphs still mention "the one `advance()`" and `IterationController` in prose.

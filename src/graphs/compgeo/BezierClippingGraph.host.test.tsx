@@ -306,3 +306,25 @@ test('memo: a step change keeps the trace identity, a tolerance change gives a n
     act(() => { expect(graph.setClipTolerance(2)).toBe(false); expect(graph.setClipTolerance(11)).toBe(false); expect(graph.setClipTolerance(4.5)).toBe(false); });
     expect(graph.clipToleranceExponent).toBe(5);
 });
+
+test('Next step to the end and Play to the end give the same nonempty final drawn state', () => {
+    const snapshot = (graph: Observed) => ({
+        step: graph.step, playing: graph.isPlaying, status: graph.run().length,
+        drawn: objects(graph).map(o => [o.name, o.elType, o.dataX, o.dataY]),
+    });
+    const byNext = new Observed();
+    const first = mount(byNext);
+    stepTo(byNext, byNext.run().length - 1);
+    const expected = snapshot(byNext);
+    first.unmount();
+    expect(expected.step).toBe(byNext.run().length - 1);
+    expect(expected.step).toBeGreaterThan(0);
+    expect(expected.drawn.length).toBeGreaterThan(0);
+
+    const frames = manualScheduler();
+    const byPlay = new Observed({}, frames.scheduler);
+    mount(byPlay);
+    act(() => { byPlay.play(); });
+    tick(frames, byPlay.run().length + 5);
+    expect(snapshot(byPlay)).toEqual(expected);
+});

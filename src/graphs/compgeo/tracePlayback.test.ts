@@ -30,6 +30,8 @@ function harness(length: number, interval = 400) {
         write(step: number) { h.step = Math.max(0, Math.min(step, Math.max(h.length - 1, 0))); h.playback.settle(false, true); },
         /** A write of a new model: the step returns to 0 (or to a named step). */
         editModel(named?: number) { h.step = named ?? 0; h.playback.settle(true, named !== undefined); },
+        /** A write of a new model whose graph keeps the step (Fortune), or counts another input as a model (Delaunay triangles). */
+        editKeepingStep(kept: number) { h.step = kept; h.playback.settle(true, false); },
     };
     h.playback = new TracePlayback({
         runLength: () => h.length,
@@ -184,4 +186,29 @@ test('a changed tick replaces the idle controller before it runs; the new interv
     expect(h.step).toBe(1);
     frames.frame(400);
     expect(h.step).toBe(2);
+});
+
+test('a model edit that leaves the step where the graph put it (Fortune keeps it) restarts a finished playback from there', () => {
+    const {h, ticks} = harness(6);
+    h.playback.play();
+    ticks(10);
+    expect([h.step, h.playback.isPlaying]).toEqual([5, false]);
+    h.editKeepingStep(2);
+    expect([h.step, h.playback.isPlaying]).toEqual([2, false]);
+    h.playback.play();
+    expect(h.playback.isPlaying).toBe(true);
+    ticks(10);
+    expect([h.step, h.playback.isPlaying]).toEqual([5, false]);
+});
+
+test('each graph ticks at its own interval: a frame shorter than the interval does not advance, a full one advances once', () => {
+    for (const interval of [50, 400, 500, 600]) {
+        const {h, frames} = harness(10, interval);
+        h.playback.play();
+        frames.frame(0);
+        frames.frame(interval - 1);
+        expect(h.step).toBe(0);
+        frames.frame(1);
+        expect(h.step).toBe(1);
+    }
 });

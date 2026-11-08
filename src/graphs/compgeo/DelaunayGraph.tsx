@@ -1,7 +1,6 @@
 import React from "react";
 import {currentLanguage, onLanguageChange, t} from "../../localization";
 import {AnimationScheduler} from "../../learning/runtime/animation";
-import {IterationController, IterationOutcome} from "../../learning/runtime/iterationController";
 import {gridToBoard, PointSetModel, PointSetOptions} from "../../compgeo/pointSetModel";
 import {createTriangulation, type Triangulation, type TriangulationEdge} from "../../compgeo/triangulation";
 import {BaseGraphState} from "../base/BaseGraph";
@@ -18,14 +17,12 @@ import {PointSetGraphState} from "./PointSetGraph";
 import {TriangulationGraph, type TriangulationGraphState} from "./TriangulationGraph";
 import {parseTriangleList} from "./triangulationPresetCollection";
 import {registerTraceCommands, requestedTraceStep} from "./traceLessonActions";
+import {TracePlayback} from "./tracePlayback";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /** Time between two playback steps (one step per interval, never more). */
 export const DELAUNAY_STEP_INTERVAL_MS = 600;
-/** The controller's documented step limit, far above the longest trace. */
-const MAX_PLAYBACK_STEPS = 100000;
-
 /** The saved configuration beyond the triangulation: the trace step. Playback status is never state. */
 export interface DelaunayGraphState extends PointSetGraphState {
     step: number;
@@ -59,9 +56,8 @@ const runFor = (points: PointSetModel["points"], triangles: unknown): DelaunayRu
  * `test` event and the dashed selected circle may show together; they differ in dash, not only in position.
  */
 export class DelaunayGraph extends TriangulationGraph {
-    private controller: IterationController;
-    private controllerDisposed = false;
-    private advancing = false;
+    /** Playback policy: scheduling, advancement and end, reset and lifecycle (the step index stays in the scene store). */
+    private playback: TracePlayback;
     private runMemo?: {start: Triangulation | undefined; run: DelaunayRun};
     private displayMemo?: {run: DelaunayRun; step: number; tri: Triangulation | undefined};
     private traceInputs?: {base: unknown; step: number; triangle: string};
@@ -69,17 +65,14 @@ export class DelaunayGraph extends TriangulationGraph {
 
     constructor(options: PointSetOptions = {}, private readonly scheduler?: AnimationScheduler) {
         super(options);
-        this.controller = this.createController();
-    }
-
-    private createController(): IterationController {
-        return new IterationController({
-            transition: () => this.advance(),
-            stepIntervalMs: DELAUNAY_STEP_INTERVAL_MS,
-            maxIterations: MAX_PLAYBACK_STEPS,
-            onComplete: () => this.requestRender(),
-            scheduler: this.scheduler,
-        });
+        this.playback = new TracePlayback({
+            runLength: () => this.run().length,
+            step: () => this.step,
+            writeStep: step => this.setState(this.stepPatch({step})),
+            exportBusy: () => this.exportBusy,
+            requestRender: () => this.requestRender(),
+            intervalMs: () => DELAUNAY_STEP_INTERVAL_MS,
+        }, scheduler);
     }
 
     // ---- Reads ---------------------------------------------------------------------------------------------------
@@ -101,7 +94,7 @@ export class DelaunayGraph extends TriangulationGraph {
     }
 
     get isPlaying(): boolean {
-        return this.controller.isPlaying();
+        return this.playback.isPlaying;
     }
 
     /** The triangulation at the current step (the starting one at step 0), or undefined while the points allow none. */
@@ -151,7 +144,7 @@ export class DelaunayGraph extends TriangulationGraph {
     /** Every write of a new model or triangle list returns the step to 0 and pauses, unless the write names the step itself. */
     override setState(update: SceneStateUpdate<PointSetGraphState>, callback?: () => void): void {
         const beforeModel = this.state.model;
-        const beforeStep = this.controller ? this.step : 0;
+        const beforeStep = this.playback ? this.step : 0;
         const beforeTriangles = "triangles" in this.state ? this.state.triangles : undefined;
         let namedStep = false;
         const wrapped: SceneStateUpdate<PointSetGraphState> = state => {
@@ -162,62 +155,31 @@ export class DelaunayGraph extends TriangulationGraph {
             return edit && !namedStep ? this.stepPatch({...raw, step: 0}) : raw;
         };
         super.setState(wrapped, callback);
-        // The controller does not exist yet while the base class is being constructed.
-        if (!this.controller) return;
+        // The playback does not exist yet while the base class is being constructed.
+        if (!this.playback) return;
         const afterTriangles = "triangles" in this.state ? this.state.triangles : undefined;
-        if (this.state.model !== beforeModel || afterTriangles !== beforeTriangles || this.step !== beforeStep) this.selectedTriangleValue = undefined;
-        if (this.state.model !== beforeModel || afterTriangles !== beforeTriangles) {
-            this.controller.reset(namedStep ? this.step : 0);
-            this.requestRender();
-        } else if (namedStep && !this.advancing) {
-            this.controller.reset(this.step);
-            this.requestRender();
-        }
+        const edited = this.state.model !== beforeModel || afterTriangles !== beforeTriangles;
+        if (edited || this.step !== beforeStep) this.selectedTriangleValue = undefined;
+        this.playback.settle(edited, namedStep);
     }
 
     // ---- Playback ------------------------------------------------------------------------------------------------
 
-    private get atEnd(): boolean {
-        return this.step >= this.run().length - 1;
-    }
-
-    /** The one transition of Next step and of every playback tick. */
-    private advance(): IterationOutcome {
-        const run = this.run();
-        const next = Math.min(this.step + 1, Math.max(run.length - 1, 0));
-        this.advancing = true;
-        try {
-            this.setState(this.stepPatch({step: next}));
-        } finally {
-            this.advancing = false;
-        }
-        this.requestRender();
-        return next >= run.length - 1 ? "complete" : "continue";
-    }
-
     nextStep(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.pause();
-        this.controller.nextStep();
-        this.requestRender();
+        this.playback.nextStep();
     }
 
     play(): void {
-        if (this.exportBusy || this.atEnd) return;
-        this.controller.play();
-        this.requestRender();
+        this.playback.play();
     }
 
     pause(): void {
-        this.controller.pause();
-        this.requestRender();
+        this.playback.pause();
     }
 
     /** Back to step 0; playback stops. */
     resetTrace(): void {
-        this.controller.reset(0);
-        this.setState(this.stepPatch({step: 0}));
-        this.requestRender();
+        this.playback.resetTrace();
     }
 
     /** Loads one of the three Presets (quad, seven points in T0, unit square) at step 0. */
@@ -286,17 +248,12 @@ export class DelaunayGraph extends TriangulationGraph {
     }
 
     override mount(container: HTMLElement): void {
-        // A disposed controller stays silent for good; a remount (React StrictMode) needs a new one.
-        if (this.controllerDisposed) {
-            this.controller = this.createController();
-            this.controllerDisposed = false;
-        }
+        this.playback.mount();
         super.mount(container);
     }
 
     override unmount(): void {
-        this.controller.dispose();
-        this.controllerDisposed = true;
+        this.playback.unmount();
         super.unmount();
     }
 
@@ -309,13 +266,13 @@ export class DelaunayGraph extends TriangulationGraph {
     }
 
     protected override disposeFigureScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         this.selectedTriangleValue = undefined;
         super.disposeFigureScene();
     }
 
     protected override syncReplacedScene(): void {
-        if (this.controller) this.controller.pause();
+        this.playback?.halt();
         this.selectedTriangleValue = undefined;
         super.syncReplacedScene();
     }
@@ -418,7 +375,7 @@ export class DelaunayGraph extends TriangulationGraph {
 
     private readonly delaunayActions: DelaunayControlActions = {
         nextStep: () => this.nextStep(),
-        playPause: () => { if (this.controller.isPlaying()) this.pause(); else this.play(); },
+        playPause: () => { if (this.playback.isPlaying) this.pause(); else this.play(); },
         reset: () => this.resetTrace(),
         loadExample: index => this.loadExample(index),
         selectTriangle: index => this.selectTriangle(index),
@@ -453,7 +410,7 @@ export class DelaunayGraph extends TriangulationGraph {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <DelaunayControls status={this.status()} playing={this.controller.isPlaying()} actions={this.delaunayActions}/>
+            <DelaunayControls status={this.status()} playing={this.playback.isPlaying} actions={this.delaunayActions}/>
             {super.workspaceEdit()}
         </>;
     }

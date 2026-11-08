@@ -10,6 +10,8 @@ import {setLanguage, t} from '../../localization';
 import {UnsupportedLessonActionError} from '../../learning/model';
 import {GraphPalette} from '../styles/GraphPalette';
 import {kettnerSvg} from './kettnerBoard';
+import {AnimationScheduler} from '../../learning/runtime/animation';
+import {HULL_TRACE_STEP_INTERVAL_MS} from './HullTraceGraph';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -483,4 +485,40 @@ describe('scene change, language and lifecycle', () => {
         act(() => { fireEvent.keyDown(container, {key: 'ArrowRight'}); });
         expect(graph.kettnerCell).toEqual({i: 41, j: 48});
     });
+});
+
+test('Next step to the end and Play to the end give the same nonempty final chain, hull and status', () => {
+    const snapshot = (graph: Observed) => ({
+        step: graph.step, status: ['step', 'note'].map(part), points: chainPoints(graph).map(o => o.name),
+        curves: chainCurves(graph).length, hull: graph.run().view(graph.step).hull,
+    });
+    const byNext = new Observed();
+    const first = mount(byNext);
+    finish(byNext);
+    const expected = snapshot(byNext);
+    first.unmount();
+    expect(expected.step).toBe(byNext.run().length - 1);
+    expect(expected.hull?.length).toBeGreaterThan(0);
+
+    let nextHandle = 0;
+    let time = 0;
+    const callbacks = new Map<number, FrameRequestCallback>();
+    const scheduler: AnimationScheduler = {
+        request: callback => {const handle = nextHandle++; callbacks.set(handle, callback); return handle;},
+        cancel: handle => {callbacks.delete(handle);},
+    };
+    const frame = (elapsed: number) => {
+        const entry = callbacks.entries().next().value as [number, FrameRequestCallback] | undefined;
+        if (!entry) return;
+        callbacks.delete(entry[0]);
+        time += elapsed;
+        act(() => { entry[1](time); });
+    };
+    const byPlay = new Observed({}, scheduler);
+    mount(byPlay);
+    click('play-pause');
+    frame(0);
+    for (let i = 0; i < byPlay.run().length + 5; i++) frame(HULL_TRACE_STEP_INTERVAL_MS);
+    expect(snapshot(byPlay)).toEqual(expected);
+    expect(byPlay.isPlaying).toBe(false);
 });

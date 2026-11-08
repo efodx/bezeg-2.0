@@ -384,3 +384,21 @@ test('a scene change and unmount pause playback and leave no board objects, list
     expect(box.childElementCount).toBe(0);
     expect(() => act(() => { setLanguage('en'); })).not.toThrow();
 });
+
+test('Next step to the end and Play to the end give the same nonempty final drawn state and panel', () => {
+    const byNext = new Observed();
+    const first = mount(byNext);
+    goTo(byNext, byNext.run().length - 1);
+    const expected = {step: byNext.step, panel: panel(), drawn: drawn(byNext)};
+    first.unmount();
+    expect(expected.step).toBe(byNext.run().length - 1);
+    expect(expected.drawn.length).toBeGreaterThan(0);
+
+    const frames = manualScheduler();
+    const byPlay = new Observed({}, frames.scheduler);
+    mount(byPlay);
+    click('play-pause');
+    tick(frames, byPlay.run().length + 5);
+    expect({step: byPlay.step, panel: panel(), drawn: drawn(byPlay)}).toEqual(expected);
+    expect(byPlay.isPlaying).toBe(false);
+});
