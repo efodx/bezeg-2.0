@@ -7,8 +7,10 @@
 const {spawn, spawnSync} = require('node:child_process');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const {parseArgs} = require('node:util');
+const {SHARED_PATHS} = require('./transient-state-scope.cjs');
 
 const PRODUCTION_ORIGINS = ['https://github.com/efodx/bezeg-2.0.git', 'https://github.com/efodx/bezeg-2.0'];
 const USAGE = 'Usage: just publish --recipe <docs|tooling|runtime> --base <commit> --commits <id,id,...>\n'
@@ -16,6 +18,15 @@ const USAGE = 'Usage: just publish --recipe <docs|tooling|runtime> --base <commi
 const OUTPUT_TAIL = 2000;
 const CANCELLED_EXIT = 130;
 const KILL_GRACE_MS = 2000;
+const MAX_RETRIES = 3;
+const MAX_RECORDS = 20;
+const LOCK_WAIT_MS = 15 * 60 * 1000;
+const LOCK_STALE_MS = 45 * 60 * 1000;
+const LOCK_POLL_MS = 1000;
+const DELTA_CHECKS = ['typecheck', 'lint', 'build'];
+// Beyond the transient-state list: files whose change can alter how any slice typechecks, lints, builds or tests.
+const DELTA_SHARED_PATHS = [...SHARED_PATHS, /^package(-lock)?\.json$/, /^\.nvmrc$/, /^vite\.config\.mts$/, /^tsconfig[^/]*\.json$/, /^src\/setupTests\.ts$/, /^eslint\.config\./];
+const DELTA_NOT_COVERED = 'delta path: master moved only in files the slice and shared configuration do not touch, so unit tests were not rerun on the new master (typecheck, lint and build were); hosted CI runs the full suite before deploying';
 
 const isDocumentation = file => file.startsWith('docs/') || file.endsWith('.md');
 const isTooling = file => isDocumentation(file) || /^(scripts|tools)\//.test(file) || file === 'justfile';
@@ -58,7 +69,7 @@ function killTree(child) {
     setTimeout(() => kill('SIGKILL'), KILL_GRACE_MS).unref();
 }
 
-function spawnExec({executable, args, cwd, logPath, signal}) {
+function spawnExec({executable, args, cwd, logPath, signal, input}) {
     return new Promise(resolve => {
         fs.appendFileSync(logPath, `\n$ ${JSON.stringify([executable, ...args])}\n`);
         let child;
@@ -69,8 +80,12 @@ function spawnExec({executable, args, cwd, logPath, signal}) {
                 shell: false,
                 windowsHide: true,
                 detached: process.platform !== 'win32',
-                stdio: ['ignore', 'pipe', 'pipe'],
+                stdio: [input === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'],
             });
+            if (input !== undefined) {
+                child.stdin.on('error', () => { /* the command exited before reading */ });
+                child.stdin.end(input);
+            }
         } catch (error) {
             resolve({code: 127, signal: null, error, stdout: '', stderr: ''});
             return;
@@ -120,18 +135,103 @@ function defaultLogPath(cwd) {
     return path.join(cwd, '.command-logs', `${stamp}-publish-${process.pid}-${crypto.randomBytes(4).toString('hex')}.log`);
 }
 
-async function publish({cwd = process.cwd(), base, commits, recipe, expectedOrigins = PRODUCTION_ORIGINS, exec = spawnExec, signal, logPath = defaultLogPath(cwd)}) {
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function pidAlive(pid) {
+    try { process.kill(pid, 0); return true; } catch (error) { return error.code === 'EPERM'; }
+}
+
+function readHolder(lockPath) {
+    try { return JSON.parse(fs.readFileSync(lockPath, 'utf8')); } catch { return null; }
+}
+
+/**
+ * Removes a dead or stale lock without racing another waiter: only the process holding `<lock>.reclaim` may remove it,
+ * and only while the lock still holds the stale holder it read. Without this, two waiters reading the same dead holder
+ * could each remove the lock, the second deleting the first's fresh one, and both enter the critical section.
+ */
+function reclaimStale(lockPath, stale, pollMs) {
+    const mutex = `${lockPath}.reclaim`;
+    let fd;
+    try { fd = fs.openSync(mutex, 'wx'); } catch (error) {
+        if (error.code !== 'EEXIST') throw error;
+        // A reclaimer that died mid-reclaim leaves the mutex behind; it only ever lives for a moment.
+        try { if (Date.now() - fs.statSync(mutex).mtimeMs > pollMs * 10) fs.rmSync(mutex, {force: true}); } catch { /* gone meanwhile */ }
+        return;
+    }
+    try {
+        const current = readHolder(lockPath);
+        if ((current?.token ?? null) === (stale?.token ?? null)) fs.rmSync(lockPath, {force: true});
+    } finally {
+        fs.closeSync(fd);
+        fs.rmSync(mutex, {force: true});
+    }
+}
+
+/** Takes the machine-wide publish lock, waiting for a live holder and reclaiming a dead or stale one. */
+async function acquireLock({lockPath, waitMs, staleMs, pollMs, signal, cancelled}) {
+    const token = crypto.randomBytes(8).toString('hex');
+    const started = Date.now();
+    fs.mkdirSync(path.dirname(lockPath), {recursive: true});
+    for (;;) {
+        if (signal?.aborted) throw cancelled();
+        try {
+            const fd = fs.openSync(lockPath, 'wx');
+            fs.writeSync(fd, JSON.stringify({pid: process.pid, token, at: Date.now(), cwd: process.cwd()}));
+            fs.closeSync(fd);
+            return () => {
+                if (readHolder(lockPath)?.token === token) fs.rmSync(lockPath, {force: true});
+            };
+        } catch (error) {
+            if (error.code !== 'EEXIST') throw new GateStop(`Could not take the publish lock ${lockPath}: ${error.message}`);
+        }
+        const holder = readHolder(lockPath);
+        let age;
+        try { age = Date.now() - fs.statSync(lockPath).mtimeMs; } catch { continue; }
+        // An unreadable lock is a holder caught mid-write or a crash before writing: give it a moment, then reclaim.
+        if (holder ? !pidAlive(holder.pid) || age > staleMs : age > pollMs * 5) {
+            reclaimStale(lockPath, holder, pollMs);
+            continue;
+        }
+        if (Date.now() - started >= waitMs) {
+            throw new GateStop(`Another publish holds ${lockPath} (pid ${holder?.pid}, since ${new Date(holder?.at ?? 0).toISOString()}). Wait for it, or delete the lock if that process is gone, then publish again.`);
+        }
+        await sleep(pollMs);
+    }
+}
+
+function readRecords(storePath) {
+    try {
+        const parsed = JSON.parse(fs.readFileSync(storePath, 'utf8'));
+        return Array.isArray(parsed.entries) ? parsed.entries.filter(entry => entry && entry.patchId && entry.master && entry.recipe) : [];
+    } catch {
+        return [];
+    }
+}
+
+function writeRecord(storePath, entry) {
+    const entries = [...readRecords(storePath).filter(old => !(old.patchId === entry.patchId && old.recipe === entry.recipe)), entry].slice(-MAX_RECORDS);
+    fs.mkdirSync(path.dirname(storePath), {recursive: true});
+    const temporary = `${storePath}.${process.pid}.${crypto.randomBytes(4).toString('hex')}.tmp`;
+    fs.writeFileSync(temporary, JSON.stringify({entries}, null, 1));
+    fs.renameSync(temporary, storePath);
+}
+
+async function publish({cwd = process.cwd(), base, commits, recipe, expectedOrigins = PRODUCTION_ORIGINS, exec = spawnExec, signal, logPath = defaultLogPath(cwd),
+    // Per user, not os.tmpdir(): TEMP differs between shells and sandboxes, which would split the lock.
+    lockPath = process.env.BEZEG_PUBLISH_LOCK || path.join(os.homedir(), '.bezeg', 'publish.lock'),
+    lockWaitMs = LOCK_WAIT_MS, lockStaleMs = LOCK_STALE_MS, lockPollMs = LOCK_POLL_MS, maxRetries = MAX_RETRIES}) {
     const report = {
         ok: false, recipe, base, commits, candidate: null, verifiedBase: null, completed: [], failedStage: null,
-        message: null, exitCode: 1, notCovered: [], logPath, pushed: false,
+        message: null, exitCode: 1, notCovered: [], logPath, pushed: false, retries: 0, paths: [],
     };
     let current = 'arguments';
     let root = cwd;
 
     const cancelled = () => new GateStop('Cancelled; no later stage ran.', CANCELLED_EXIT);
-    const run = async (executable, args, hint) => {
+    const run = async (executable, args, hint, input) => {
         if (signal?.aborted) throw cancelled();
-        const result = await exec({stage: current, executable, args, cwd: root, logPath, signal});
+        const result = await exec({stage: current, executable, args, cwd: root, logPath, signal, input});
         if (signal?.aborted) throw cancelled();
         const command = [path.basename(executable), ...args].join(' ');
         const detail = `${(result.stderr || result.stdout || '').trim().slice(-OUTPUT_TAIL)}`;
@@ -195,55 +295,140 @@ async function publish({cwd = process.cwd(), base, commits, recipe, expectedOrig
             return declaredBase;
         });
 
-        const master = await stage('fetch', async () => {
+        const commonDir = path.resolve(root, await git(['rev-parse', '--git-common-dir']));
+        const storePath = path.join(commonDir, 'bezeg-publish', 'verified.json');
+        const names = async (from, to) => (await git(['-c', 'core.quotePath=false', 'diff', '--name-only', '--no-renames', from, to])).split(/\r?\n/).filter(Boolean);
+        const patchIdOf = async (from, to) => {
+            const diff = await git(['diff', '--no-color', '--no-renames', from, to]);
+            return diff ? (await run('git', ['patch-id', '--stable'], undefined, `${diff}\n`)).split(/\s+/)[0] || null : null;
+        };
+        const reconcile = async (onto, from) => {
+            await git(['rebase', '--no-autostash', '--onto', onto, from], 'The rebase stopped and its state is kept. Resolve it, or run `git rebase --abort`, then declare the new commits and publish again.');
+            const head = await git(['rev-parse', 'HEAD']);
+            await git(['merge-base', '--is-ancestor', onto, head], 'The reconciled revision does not contain origin/master.');
+            const count = Number(await git(['rev-list', '--count', `${onto}..${head}`]));
+            if (count !== commits.length) throw new GateStop(`The rebase left ${count} of ${commits.length} declared commits; some are already on master. Declare the remaining commits and publish again.`);
+            return head;
+        };
+        // `named` records the first pass's stages in the report; a retry runs the same work without renaming them.
+        const vet = async (onto, head, named) => {
+            const step = named ? stage : (name, work) => { current = name; return work(); };
+            await step('whitespace', () => git(['diff', '--check', onto, head], 'Fix these whitespace errors in a new commit, then publish again.'));
+            const changed = await step('scope', async () => {
+                const files = await names(onto, head);
+                const outside = files.filter(file => !selected.allows(file));
+                if (outside.length) throw new GateStop(`Recipe ${recipe} cannot vouch for these files:\n${outside.join('\n')}\nSelect a recipe that covers them.`);
+                return files;
+            });
+            await step('verify:links', async () => {
+                const diff = await git(['-c', 'core.quotePath=false', 'diff', '-U0', '--no-color', '--no-renames', onto, head, '--', '*.md']);
+                const broken = brokenLinks(root, diff);
+                if (broken.length) throw new GateStop(`Added links point at missing files:\n${broken.map(({file, target}) => `${file}: ${target}`).join('\n')}`);
+            });
+            return changed;
+        };
+        const runChecks = async (list, onto, label = '') => {
+            for (const check of list) {
+                const {name, args = () => []} = typeof check === 'string' ? {name: check} : check;
+                await stage(`verify:${label}${name}`, () => run(process.execPath, ['scripts/commands.cjs', name, ...args({master: onto})]));
+            }
+        };
+        const remember = (id, onto) => {
+            if (id) writeRecord(storePath, {patchId: id, master: onto, recipe, at: new Date().toISOString()});
+        };
+
+        let master = await stage('fetch', async () => {
             await git(['fetch', 'origin', 'refs/heads/master']);
             return git(['rev-parse', '--verify', 'FETCH_HEAD^{commit}']);
         });
         report.verifiedBase = master;
 
-        report.candidate = await stage('reconcile', async () => {
-            await git(['rebase', '--no-autostash', '--onto', master, baseCommit], 'The rebase stopped and its state is kept. Resolve it, or run `git rebase --abort`, then declare the new commits and publish again.');
-            const head = await git(['rev-parse', 'HEAD']);
-            await git(['merge-base', '--is-ancestor', master, head], 'The reconciled revision does not contain origin/master.');
-            const count = Number(await git(['rev-list', '--count', `${master}..${head}`]));
-            if (count !== commits.length) throw new GateStop(`The rebase left ${count} of ${commits.length} declared commits; some are already on master. Declare the remaining commits and publish again.`);
-            return head;
-        });
-        const candidate = report.candidate;
+        report.candidate = await stage('reconcile', () => reconcile(master, baseCommit));
+        await vet(master, report.candidate, true);
+        let patchId = await patchIdOf(master, report.candidate);
+        report.paths.push({path: 'full', reason: 'first verification of this slice'});
+        await runChecks(selected.checks, master);
+        remember(patchId, master);
 
-        await stage('whitespace', () => git(['diff', '--check', master, candidate], 'Fix these whitespace errors in a new commit, then publish again.'));
+        // Delta path: the slice was verified on an older master and that master moved without touching the slice.
+        const decide = async (latest, changed) => {
+            if (recipe !== 'runtime') return {path: 'full', reason: `recipe ${recipe} reruns its own checks`};
+            const entry = readRecords(storePath).reverse().find(old => old.patchId === patchId && old.recipe === recipe);
+            if (!patchId || !entry) return {path: 'full', reason: 'no verified-base record for this slice'};
+            let incoming;
+            try { incoming = await names(entry.master, latest); } catch { return {path: 'full', reason: `cannot compare the recorded base ${entry.master} with ${latest}`}; }
+            const overlap = incoming.find(file => changed.includes(file));
+            if (overlap) return {path: 'full', reason: `incoming change to ${overlap} overlaps the slice`};
+            const shared = incoming.find(file => DELTA_SHARED_PATHS.some(pattern => pattern.test(file)));
+            if (shared) return {path: 'full', reason: `incoming change to shared path ${shared}`};
+            return {path: 'delta', reason: `${incoming.length} incoming file(s) since the recorded base ${entry.master}, none shared with the slice`};
+        };
 
-        await stage('scope', async () => {
-            const changed = await git(['-c', 'core.quotePath=false', 'diff', '--name-only', '--no-renames', master, candidate]);
-            const outside = changed.split(/\r?\n/).filter(Boolean).filter(file => !selected.allows(file));
-            if (outside.length) throw new GateStop(`Recipe ${recipe} cannot vouch for these files:\n${outside.join('\n')}\nSelect a recipe that covers them.`);
-        });
-
-        await stage('verify:links', async () => {
-            const diff = await git(['-c', 'core.quotePath=false', 'diff', '-U0', '--no-color', '--no-renames', master, candidate, '--', '*.md']);
-            const broken = brokenLinks(root, diff);
-            if (broken.length) throw new GateStop(`Added links point at missing files:\n${broken.map(({file, target}) => `${file}: ${target}`).join('\n')}`);
-        });
-
-        for (const check of selected.checks) {
-            const {name, args = () => []} = typeof check === 'string' ? {name: check} : check;
-            await stage(`verify:${name}`, () => run(process.execPath, ['scripts/commands.cjs', name, ...args({master})]));
+        let rejections = 0;
+        for (;;) {
+            let pushError = null;
+            let needFull = false;
+            const release = await acquireLock({lockPath, waitMs: lockWaitMs, staleMs: lockStaleMs, pollMs: lockPollMs, signal, cancelled});
+            try {
+                current = 'fetch';
+                await git(['fetch', 'origin', 'refs/heads/master']);
+                const latest = await git(['rev-parse', '--verify', 'FETCH_HEAD^{commit}']);
+                if (latest !== master) {
+                    if (++report.retries > maxRetries) {
+                        current = 'push';
+                        throw new GateStop(`origin/master moved ${report.retries} times while publishing (limit ${maxRetries}). Nothing was pushed; publish again once it settles.`);
+                    }
+                    report.candidate = await stage('retry:reconcile', () => reconcile(latest, master));
+                    const changed = await vet(latest, report.candidate, false);
+                    patchId = await patchIdOf(latest, report.candidate);
+                    const decision = await decide(latest, changed);
+                    report.paths.push(decision);
+                    master = latest;
+                    report.verifiedBase = latest;
+                    if (decision.path === 'delta') {
+                        // Not remembered: the record keeps the last base the unit tests ran on, so every later
+                        // delta compares all of master's movement since then with the slice, not just the last step.
+                        await runChecks(DELTA_CHECKS, latest, 'delta:');
+                        report.notCovered = [...new Set([...report.notCovered, DELTA_NOT_COVERED])];
+                    } else {
+                        needFull = true;
+                    }
+                }
+                if (!needFull) {
+                    await stage('recheck', async () => {
+                        const head = await git(['rev-parse', 'HEAD']);
+                        if (head !== report.candidate) throw new GateStop(`HEAD moved from the verified ${report.candidate} to ${head}. Publish again to verify it.`);
+                        await assertClean();
+                    });
+                    try {
+                        await stage('push', async () => {
+                            await git(['push', 'origin', `${report.candidate}:refs/heads/master`], 'The remote was not updated. If it advanced, publish again: the new revision needs its own verification.');
+                            report.pushed = true;
+                        });
+                    } catch (error) {
+                        // Only a rejection because master moved is retried; any other push failure stops here.
+                        // `[remote rejected]` (a hook or permission refusal) is not a moved master and is not retried.
+                        if (!(error instanceof GateStop) || signal?.aborted || !/non-fast-forward|fetch first|stale info|\[rejected\]|Updates were rejected/i.test(error.message)) throw error;
+                        pushError = error;
+                    }
+                }
+            } finally {
+                release();
+            }
+            if (needFull) {
+                await runChecks(selected.checks, master);
+                remember(patchId, master);
+                continue;
+            }
+            if (!pushError) break;
+            // The push was rejected because master moved: the next pass fetches, rebases and counts the move.
+            if (++rejections > maxRetries + 1) throw pushError;
+            current = 'push';
         }
-
-        await stage('recheck', async () => {
-            const head = await git(['rev-parse', 'HEAD']);
-            if (head !== candidate) throw new GateStop(`HEAD moved from the verified ${candidate} to ${head}. Publish again to verify it.`);
-            await assertClean();
-        });
-
-        await stage('push', async () => {
-            await git(['push', 'origin', `${candidate}:refs/heads/master`], 'The remote was not updated. If it advanced, publish again: the new revision needs its own verification.');
-            report.pushed = true;
-        });
 
         await stage('confirm', async () => {
             const [remote] = (await git(['ls-remote', 'origin', 'refs/heads/master'])).split(/\s+/);
-            if (remote !== candidate) throw new GateStop(`origin/master is ${remote || 'missing'} after the push, not ${candidate}.`);
+            if (remote !== report.candidate) throw new GateStop(`origin/master is ${remote || 'missing'} after the push, not ${report.candidate}.`);
         });
 
         report.ok = true;
@@ -260,6 +445,8 @@ function formatReport(report) {
     const lines = [`Publish gate, recipe ${report.recipe ?? '(none)'}`];
     if (report.candidate) lines.push(`Candidate: ${report.candidate} on ${report.verifiedBase}`);
     lines.push(`Completed: ${report.completed.join(', ') || '(none)'}`);
+    for (const {path: kind, reason} of report.paths ?? []) lines.push(`Verification path: ${kind} (${reason})`);
+    if (report.retries) lines.push(`Retries after master moved: ${report.retries}`);
     if (report.notCovered.length) lines.push(`Not covered: ${report.notCovered.join('; ')}`);
     if (report.ok) {
         lines.push(`Pushed ${report.candidate} to origin master. CI and Pages have not reported yet: check \`just ci ${report.candidate}\`.`);

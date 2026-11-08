@@ -9,7 +9,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const {publish, spawnExec} = require('./publish-gate.cjs');
+const {formatReport, publish, spawnExec} = require('./publish-gate.cjs');
 
 const GATE = path.join(__dirname, 'publish-gate.cjs');
 
@@ -71,6 +71,7 @@ function fixture(t) {
     const base = git(work, 'rev-parse', 'HEAD');
     const record = path.join(dir, 'record.txt');
     process.env.FIXTURE_RECORD = record;
+    process.env.BEZEG_PUBLISH_LOCK = path.join(dir, 'publish.lock');
     process.env.FIXTURE_PIDS = path.join(dir, 'pids.txt');
     delete process.env.FIXTURE_ACTION;
     return {dir, remote, work, other, base, record, remoteHead: () => git(remote, 'rev-parse', 'refs/heads/master'),
@@ -203,20 +204,166 @@ test('a candidate that changes during verification is not pushed', async t => {
     }
 });
 
-test('a remote advance just before the push is a rejection, with no retry', async t => {
+const isCheck = (request, name) => request.executable === process.execPath && request.args[1] === name;
+const recorded = f => fs.readFileSync(f.record, 'utf8').trim().split('\n').map(line => line.split(' ')[0]);
+const storeDir = f => path.join(f.work, '.git', 'bezeg-publish');
+
+// Moves master once, while the first (unlocked) verification is running.
+const advanceDuringCheck = (f, file, before = () => {}) => {
+    let moved = false;
+    return request => {
+        if (!moved && isCheck(request, 'check-changed')) {
+            moved = true;
+            before();
+            f.advanceRemote(file);
+        }
+        return null;
+    };
+};
+
+// A base with a ten-line file lets the slice and master edit different lines of it without a rebase conflict.
+function sharedFileFixture(t) {
+    const f = fixture(t);
+    const lines = Array.from({length: 10}, (_, index) => `line ${index}`);
+    const base = commitFile(f.work, 'src/big.txt', `${lines.join('\n')}\n`);
+    git(f.work, 'push', 'origin', 'HEAD:refs/heads/master');
+    const commit = commitFile(f.work, 'src/big.txt', `${['edited', ...lines.slice(1)].join('\n')}\n`);
+    return {...f, commit, run: options => publish({cwd: f.work, base, recipe: 'runtime', expectedOrigins: [f.remote], ...options}),
+        advanceBig() {
+            git(f.other, 'pull', '--ff-only', 'origin', 'master');
+            fs.writeFileSync(path.join(f.other, 'src/big.txt'), `${[...lines.slice(0, 9), 'tail edited'].join('\n')}\n`);
+            git(f.other, 'commit', '-am', 'edit tail');
+            git(f.other, 'push', 'origin', 'HEAD:refs/heads/master');
+        }};
+}
+
+test('master moving elsewhere while the slice was verified takes the delta path and pushes', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const report = await f.run({commits: [commit], exec: recording([], advanceDuringCheck(f, 'other.txt'))});
+    assert.equal(report.ok, true, report.message);
+    assert.deepEqual(recorded(f), ['check-changed', 'typecheck', 'lint', 'build']);
+    assert.deepEqual(report.paths.map(entry => entry.path), ['full', 'delta']);
+    assert.equal(report.retries, 1);
+    assert.equal(f.remoteHead(), report.candidate);
+    assert.ok(report.notCovered.some(text => text.startsWith('delta path')));
+    assert.match(formatReport(report), /Verification path: delta/);
+    const store = JSON.parse(fs.readFileSync(path.join(storeDir(f), 'verified.json'), 'utf8'));
+    // The record keeps the base the unit tests ran on; a delta-checked master never becomes a recorded base.
+    assert.notEqual(store.entries.at(-1).master, report.verifiedBase);
+    assert.equal(store.entries.length, 1);
+    assert.equal(fs.existsSync(process.env.BEZEG_PUBLISH_LOCK), false);
+});
+
+test('an incoming change to a file the slice changed needs the full check-changed', async t => {
+    const f = sharedFileFixture(t);
+    let moved = false;
+    const report = await f.run({commits: [f.commit], exec: recording([], request => {
+        if (!moved && isCheck(request, 'check-changed')) { moved = true; f.advanceBig(); }
+        return null;
+    })});
+    assert.equal(report.ok, true, report.message);
+    assert.deepEqual(recorded(f), ['check-changed', 'check-changed']);
+    assert.match(report.paths.at(-1).reason, /overlaps the slice/);
+    assert.equal(f.remoteHead(), report.candidate);
+});
+
+test('an incoming change to a shared path needs the full check-changed', async t => {
+    for (const file of ['package.json', 'tsconfig.app.json', 'src/graphs/base/x.ts', 'eslint.config.mjs']) {
+        const f = fixture(t);
+        const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+        const report = await f.run({commits: [commit], exec: recording([], advanceDuringCheck(f, file))});
+        assert.equal(report.ok, true, report.message);
+        assert.deepEqual(recorded(f), ['check-changed', 'check-changed'], file);
+        assert.match(report.paths.at(-1).reason, /shared path/, file);
+    }
+});
+
+test('without a verified-base record the retry runs the full check-changed', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const forget = () => fs.rmSync(storeDir(f), {recursive: true, force: true});
+    const advance = advanceDuringCheck(f, 'other.txt');
+    const report = await f.run({commits: [commit], exec: recording([], request => {
+        // The record is written after the check passes, so drop it on the next command, once master has moved.
+        if (isCheck(request, 'check-changed')) return advance(request);
+        if (request.args[0] === 'fetch' && fs.existsSync(storeDir(f)) && fs.existsSync(f.record)) forget();
+        return null;
+    })});
+    assert.equal(report.ok, true, report.message);
+    assert.deepEqual(recorded(f), ['check-changed', 'check-changed']);
+    assert.match(report.paths.at(-1).reason, /no verified-base record/);
+});
+
+test('a rejected push is retried after a fresh fetch and rebase', async t => {
     const f = fixture(t);
     const commit = commitFile(f.work, 'src/a.txt', 'a\n');
     const calls = [];
+    let rejected = false;
     const report = await f.run({commits: [commit], exec: recording(calls, request => {
-        if (isPush(request)) f.advanceRemote();
+        if (isPush(request) && !rejected) { rejected = true; f.advanceRemote(); }
         return null;
     })});
+    assert.equal(report.ok, true, report.message);
+    assert.equal(calls.filter(isPush).length, 2);
+    assert.equal(calls.filter(({args}) => args[0] === 'rebase').length, 2);
+    assert.equal(report.retries, 1);
+    assert.equal(f.remoteHead(), report.candidate);
+    assert.equal(calls.some(({args}) => args.some(arg => /force/.test(arg) || arg.startsWith('+'))), false);
+});
+
+test('retries stop at the cap with the push stage as the failure', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const calls = [];
+    let count = 0;
+    const report = await f.run({commits: [commit], exec: recording(calls, request => {
+        if (isPush(request)) f.advanceRemote(`other-${count++}.txt`);
+        return null;
+    })});
+    assert.equal(report.ok, false);
     assert.equal(report.failedStage, 'push');
     assert.notEqual(report.exitCode, 0);
-    assert.equal(calls.filter(isPush).length, 1);
-    assert.equal(calls.filter(({args}) => args[0] === 'rebase').length, 1);
-    assert.equal(calls.some(({args}) => args.some(arg => /force/.test(arg) || arg.startsWith('+'))), false);
+    assert.equal(report.retries, 4);
+    assert.equal(calls.filter(isPush).length, 4);
+    assert.match(report.message, /moved 4 times/);
     assert.notEqual(f.remoteHead(), report.candidate);
+    assert.equal(fs.existsSync(process.env.BEZEG_PUBLISH_LOCK), false);
+});
+
+test('a live holder of the publish lock is waited for, then reported when it does not leave', async t => {
+    const f = fixture(t);
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    const lock = process.env.BEZEG_PUBLISH_LOCK;
+    fs.writeFileSync(lock, JSON.stringify({pid: process.pid, token: 'other', at: Date.now()}));
+    const blocked = await f.run({commits: [commit], lockWaitMs: 200, lockPollMs: 20});
+    assert.equal(blocked.ok, false);
+    assert.match(blocked.message, new RegExp(`Another publish holds .*pid ${process.pid}`));
+    assert.equal(f.remoteHead(), f.base);
+    assert.equal(fs.existsSync(lock), true, 'a lock we do not own is left alone');
+    setTimeout(() => fs.rmSync(lock, {force: true}), 300);
+    const waited = await f.run({commits: [commit], lockWaitMs: 5000, lockPollMs: 20});
+    assert.equal(waited.ok, true, waited.message);
+    assert.equal(fs.existsSync(lock), false);
+});
+
+test('a lock left by a dead process or an expired holder is reclaimed', async t => {
+    const dead = spawnSync(process.execPath, ['-e', '0']);
+    assert.ok(dead.pid);
+    const f = fixture(t);
+    let lock = process.env.BEZEG_PUBLISH_LOCK;
+    const commit = commitFile(f.work, 'src/a.txt', 'a\n');
+    fs.writeFileSync(lock, JSON.stringify({pid: dead.pid, token: 'gone', at: Date.now()}));
+    const first = await f.run({commits: [commit], lockWaitMs: 200, lockPollMs: 20});
+    assert.equal(first.ok, true, first.message);
+    const g = fixture(t);
+    const second = commitFile(g.work, 'src/a.txt', 'a\n');
+    lock = process.env.BEZEG_PUBLISH_LOCK;
+    fs.writeFileSync(lock, JSON.stringify({pid: process.pid, token: 'old', at: 1}));
+    const old = new Date(Date.now() - 3_600_000);
+    fs.utimesSync(lock, old, old);
+    const reclaimed = await g.run({commits: [second], lockWaitMs: 200, lockPollMs: 20, lockStaleMs: 60_000});
+    assert.equal(reclaimed.ok, true, reclaimed.message);
 });
 
 test('spawn errors, signals and failing checks stop the pipeline with their result', async t => {
