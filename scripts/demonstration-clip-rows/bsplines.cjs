@@ -28,7 +28,15 @@ module.exports = [
         lessonQuote: 'Premikaj argumente, izberi drugi odsek \\([1,2)\\), preklopi na stopnjo \\(3\\) ali premakni kontrolno točko in opazuj, kako se trikotnik, simetrija in Bézierove točke spreminjajo.',
         discreteReason: null,
     },
-    // bspline-insertion: unresolved. Only "Vstavi vozel" changes the picture (the knot field "Vozel za vstavitev" draws nothing, BSplineInsertionGraph.tsx:157), and its stepper has no count readback; no lesson step moves a control point.
+    {
+        id: 'bspline-insertion',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'button-count', label: 'Vstavi vozel', countLabel: 'Vozel u', step: 1},
+        // Only "Vstavi vozel" changes the picture (the field "Vozel za vstavitev" draws nothing, BSplineInsertionGraph.tsx:157). Each press adds one knot and one control point, so the "Vozel uN" fields of the knot editor count the presses. The default insertion value 1 has multiplicity 1 and refuses its fourth insertion (k + 1 = 4), so at most 3 presses; the path stays at 2.
+        path: [0, 1, 2, 1, 0],
+        lessonQuote: 'Vstavi vozel, vstavi ga še enkrat, dokler ne doseže največje večkratnosti',
+        discreteReason: 'Inserting a knot adds a control point, so the polygon cannot move smoothly between counts; each checkpoint is a fresh poster scene with that many insertions.',
+    },
     {
         id: 'bspline-extraction',
         motion: 'parameter-sweep',

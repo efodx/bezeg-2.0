@@ -2371,6 +2371,8 @@ Owner-requested analysis of the week's transcripts, then proposals 1–3 ([spec]
 - Outcome: no defects. Sonnet confirmed the rational asymptote labels against polynomial division and the blossom point on the extended P0P1 line, and noted epicycles runs half a lap by design. Haiku's one "fail" (interp-hermite P1 not moving) was wrong: P1 is drawn in the handle colour, and a frame pair shows it 52 px lower at frame 48. geometric-series captured after the response signature gained segment endpoints (test seen failing first).
 - Lesson: Haiku misidentified which dot is the moved point when the point shares the handle colour; give the reviewer the moved point's screen position or colour in the brief.
 - Usage (as reported): Haiku 44.4k, Sonnet 24.5k.
+- Second batch (handler): a `number-field` discrete kind (integer fields with no stepper) captured inversion and point-in-polygon, the latter until then poster-only only for want of that kind; bspline-nurbs sweeps an exact weight instead of waiting for a finer t slider. The handler's own sheet check caught inversion at r = 4 leaving the camera (path shortened to r = 3). Reviews: Haiku visual 22.0k, pass; Sonnet mathematics and tooling 25.4k, one real comment error (the r = 2 image circle is tangent outside, not inside), fixed in its own commit.
+- Lesson: before calling a Demonstration poster-only, check whether the blocker is a missing row kind or a control with a rounded start; that was true of one poster-only call (point-in-polygon) and two held rows (inversion, bspline-nurbs).
 
 ## 2026-11-08 — catalog clips: reviews and five held rows (clips stream, handler 8)
 

@@ -18,4 +18,13 @@ module.exports = [
         lessonQuote: 'Poženi točko in opazuj, kje se premika hitro in kje počasi.',
         discreteReason: null,
     },
+    {
+        id: 'bezier-clipping',
+        motion: 'discrete-exact-steps',
+        control: {kind: 'trace-step', label: 'Naslednji korak', step: 1},
+        // The poster is the default crossing pair after four clips. Further presses clip on: the kept ranges shrink around the two crossings. A control-point drag would reset the clipping display to its start (lesson text), so the row steps the run.
+        path: [0, 1, 2, 1, 0],
+        lessonQuote: 'Premikaj kontrolne točke obeh krivulj, spreminjaj toleranco in pritiskaj Naslednji korak.',
+        discreteReason: 'Bézier clipping advances one clip per press; between presses there is no intermediate state, and moving a point or the tolerance resets the run to its start.',
+    },
 ];

@@ -9,8 +9,6 @@ const NOT_CAPTURED = 'The lesson-guided clip is not captured yet (docs/specs/les
  * fails on a Demonstration with neither a clip nor an entry, and on a duplicate, unknown or stale entry.
  */
 export const MOTION_PENDING: readonly {readonly id: DemonstrationId; readonly reason: string}[] = [
-    {id: 'bezier-clipping', reason: NOT_CAPTURED},
-    {id: 'bspline-insertion', reason: NOT_CAPTURED},
     {id: 'root-finding', reason: NOT_CAPTURED},
     {id: 'linear-map', reason: NOT_CAPTURED},
     {id: 'hull-robustness', reason: NOT_CAPTURED},
