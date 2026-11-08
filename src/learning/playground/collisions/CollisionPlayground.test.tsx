@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {setLanguage} from '../../../localization'
 import CollisionPlayground, {READOUT_INTERVAL_MS} from './CollisionPlayground'
+import {POLYGON_TEMPLATES} from '../../../compgeo/collisions/polygonTemplates'
+import {WORLD_WIDTH} from '../../../compgeo/collisions/world'
 import {MAX_COUNT} from './collisionProtocol'
 import type {CollisionSnapshot} from './collisionProtocol'
 import {createWorkerLoop} from './collisionLoop'
@@ -47,9 +49,12 @@ function snap(over: Partial<CollisionSnapshot> = {}): CollisionSnapshot {
     stepIndex: 1,
     count: 2,
     method: 'sweep',
+    shape: 'circle',
     seed: 1,
     positions: new Float32Array([100, 100, 800, 500]),
     radii: new Float32Array([20, 0.1]),
+    templates: new Uint8Array(0),
+    scale: 0,
     touching: new Uint8Array([1, 0]),
     counters: {boxTests: 7, candidates: 1, narrowTests: 1, touchingPairs: 1, hullTests: 0, hullPasses: 0, pieceTests: 0},
     stepMs: 1.5,
@@ -148,9 +153,9 @@ describe('commands', () => {
   })
 
   it('switching to a method with a lower limit clamps the count', () => {
-    render(<CollisionPlayground initialMethod="sweep" initialCount={MAX_COUNT.sweep}/>)
+    render(<CollisionPlayground initialMethod="sweep" initialCount={MAX_COUNT.circle.sweep}/>)
     fireEvent.click(screen.getByRole('radio', {name: 'Preizkus vseh parov'}))
-    expect(send).toHaveBeenCalledWith({type: 'setCount', count: MAX_COUNT.naive})
+    expect(send).toHaveBeenCalledWith({type: 'setCount', count: MAX_COUNT.circle.naive})
   })
 })
 
@@ -374,5 +379,226 @@ describe('keyboard path', () => {
     step.focus()
     userEvent.keyboard('{enter}')
     expect(send).toHaveBeenLastCalledWith({type: 'stepOnce'})
+  })
+})
+
+describe('polygon mode', () => {
+  const polyCounters = {boxTests: 300, candidates: 20, narrowTests: 20, touchingPairs: 9, hullTests: 20, hullPasses: 12, pieceTests: 31}
+  const polySnap = (over: Partial<CollisionSnapshot> = {}): CollisionSnapshot =>
+    snap({
+      count: 100,
+      shape: 'polygon',
+      positions: new Float32Array(200).map((_, i) => 100 + 7 * i),
+      radii: new Float32Array(100).fill(5),
+      touching: new Uint8Array(100).map((_, i) => (i < 2 ? 1 : 0)),
+      templates: new Uint8Array(100).map((_, i) => i % 7),
+      scale: 4,
+      counters: polyCounters,
+      ...over,
+    })
+
+  const stubWorker = (posted: {type: string; shape?: string; overlay?: string}[]): void => {
+    class StubWorker {
+      onmessage: unknown = null
+      onerror: unknown = null
+      postMessage(m: {type: string}) { posted.push(m) }
+      terminate() {}
+    }
+    vi.stubGlobal('Worker', StubWorker)
+    hookState.useReal = true
+  }
+
+  it('asks the worker for a polygon world with the box stage selected', () => {
+    const posted: {type: string; shape?: string; overlay?: string}[] = []
+    stubWorker(posted)
+    render(<CollisionPlayground shape="polygon"/>)
+    expect(posted[0]).toMatchObject({type: 'init', shape: 'polygon', overlay: 'boxes'})
+  })
+
+  it('a circle component asks for circles', () => {
+    const posted: {type: string; shape?: string}[] = []
+    stubWorker(posted)
+    render(<CollisionPlayground/>)
+    expect(posted[0]).toMatchObject({type: 'init', shape: 'circle'})
+  })
+
+  it('offers the three stages as a radio group and sends setOverlay', () => {
+    render(<CollisionPlayground shape="polygon"/>)
+    const group = within(screen.getByRole('group', {name: 'Prikazana faza'}))
+    expect(group.getAllByRole('radio').map((r) => (r as HTMLInputElement).value)).toEqual(['boxes', 'hulls', 'pieces'])
+    expect((group.getByRole('radio', {name: 'Očrtani pravokotniki'}) as HTMLInputElement).checked).toBe(true)
+    fireEvent.click(group.getByRole('radio', {name: 'Konveksne ovojnice'}))
+    expect(send).toHaveBeenLastCalledWith({type: 'setOverlay', overlay: 'hulls'})
+    fireEvent.click(group.getByRole('radio', {name: 'Konveksni deli'}))
+    expect(send).toHaveBeenLastCalledWith({type: 'setOverlay', overlay: 'pieces'})
+    expect((group.getByRole('radio', {name: 'Konveksni deli'}) as HTMLInputElement).checked).toBe(true)
+  })
+
+  it('has no stage switch and no removed-pair readouts for circles', () => {
+    render(<CollisionPlayground/>)
+    emit(snap())
+    expect(screen.queryByRole('group', {name: 'Prikazana faza'})).toBeNull()
+    expect(screen.queryByText(/Pari, ki jih zavrnejo/)).toBeNull()
+  })
+
+  it('puts the stage switch in the tab order between the method switch and the buttons', () => {
+    render(<CollisionPlayground shape="polygon" initialCount={10}/>)
+    userEvent.tab()
+    expect(document.activeElement).toBe(screen.getAllByRole('slider')[0])
+    userEvent.tab()
+    expect(document.activeElement).toBe(screen.getByRole('radio', {name: 'Pometanje in obrezovanje'}))
+    userEvent.tab()
+    expect(document.activeElement).toBe(screen.getByRole('radio', {name: 'Očrtani pravokotniki'}))
+    userEvent.tab()
+    expect(document.activeElement).toBe(screen.getByRole('button', {name: 'Predvajaj'}))
+  })
+
+  it('shows the pairs removed by each stage from the counters, and the hull and piece tests', () => {
+    render(<CollisionPlayground shape="polygon" initialMethod="sweep" initialCount={100}/>)
+    emit(polySnap())
+    // C(100, 2) = 4950 pairs; 20 candidates; 12 pass the hulls; 9 touch.
+    expect(digits(readoutValue(/zavrnejo pravokotniki/))).toBe(String(4950 - 20))
+    expect(digits(readoutValue(/Preizkusi ovojnic/))).toBe('20')
+    expect(digits(readoutValue(/zavrnejo ovojnice/))).toBe(String(20 - 12))
+    expect(digits(readoutValue(/Preizkusi delov/))).toBe('31')
+    expect(digits(readoutValue(/zavrnejo deli/))).toBe(String(12 - 9))
+  })
+
+  it('speaks only after a reader action, and the stage switch is not an announced action', () => {
+    render(<CollisionPlayground shape="polygon"/>)
+    const live = document.querySelector('.collision-playground__live')!
+    emit(polySnap())
+    expect(live.textContent).toBe('')
+    fireEvent.click(screen.getByRole('radio', {name: 'Konveksne ovojnice'}))
+    emit(polySnap())
+    expect(live.textContent).toBe('')
+    fireEvent.click(screen.getByRole('button', {name: 'Korak'}))
+    emit(polySnap())
+    // Objects, box tests, then the pairs removed by the boxes, hulls and pieces: C(100,2) - 20, 20 - 12, 12 - 9.
+    expect(live.textContent).toContain('Pometanje in obrezovanje')
+    expect(digits(live.textContent)).toBe('100' + '300' + String(4950 - 20) + '8' + '3')
+  })
+
+  it('takes the removed-by-boxes figure from the snapshot count, not the slider', () => {
+    render(<CollisionPlayground shape="polygon" initialCount={100}/>)
+    emit(polySnap({count: 50}))
+    // C(50, 2) = 1225 pairs, 20 candidates; the slider still says 100.
+    expect(digits(readoutValue(/zavrnejo pravokotniki/))).toBe(String(1225 - 20))
+  })
+
+  it('starts paused under reduced motion', () => {
+    const posted: {type: string}[] = []
+    stubWorker(posted)
+    vi.stubGlobal('matchMedia', (query: string) => ({matches: query.includes('reduce'), addEventListener: () => {}, removeEventListener: () => {}}))
+    render(<CollisionPlayground shape="polygon"/>)
+    expect(posted.map((m) => m.type)).toEqual(['init'])
+    expect(screen.getByRole('button', {name: 'Predvajaj'}).getAttribute('aria-pressed')).toBe('false')
+  })
+
+  it('renders the static explanation when the worker is unavailable', () => {
+    apiState.status = 'unavailable'
+    setApi()
+    const {container} = render(<CollisionPlayground shape="polygon"/>)
+    expect(container.querySelector('canvas')).toBeNull()
+    expect(screen.queryByRole('group', {name: 'Prikazana faza'})).toBeNull()
+    expect(digits(screen.getByText(/1000 objektih/).textContent)).toContain('1000499500')
+  })
+
+  describe('drawing', () => {
+    const calls = {closePath: 0, rect: 0, dashes: [] as number[][], widths: [] as number[], paths: [] as RecordingPath2D[]}
+    class RecordingPath2D {
+      outlines: [number, number][][] = []
+      moveTo = (x: number, y: number): void => { this.outlines.push([[x, y]]) }
+      arc = vi.fn()
+      lineTo = (x: number, y: number): void => { this.outlines.at(-1)!.push([x, y]) }
+      closePath = (): void => { calls.closePath++ }
+      rect = (): void => { calls.rect++ }
+      constructor() { calls.paths.push(this) }
+    }
+    beforeEach(() => {
+      calls.closePath = 0
+      calls.rect = 0
+      calls.dashes = []
+      calls.paths = []
+      vi.stubGlobal('Path2D', RecordingPath2D)
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+        () =>
+          ({
+            clearRect,
+            fill: vi.fn(),
+            stroke: vi.fn(function (this: {lineWidth: number}) { calls.widths.push(this.lineWidth) }),
+            setLineDash: (d: number[]) => { calls.dashes.push(d) },
+            fillStyle: '',
+            strokeStyle: '',
+            lineWidth: 1,
+            globalAlpha: 1,
+          }) as unknown as CanvasRenderingContext2D,
+      )
+    })
+
+    const seven = (): CollisionSnapshot =>
+      polySnap({count: 7, positions: new Float32Array(14).fill(500), radii: new Float32Array(7).fill(5), touching: new Uint8Array(7), templates: new Uint8Array([0, 1, 2, 3, 4, 5, 6])})
+    const reset = (): void => { act(() => { vi.advanceTimersByTime(40) }); calls.rect = 0; calls.closePath = 0; calls.dashes = []; calls.widths = []; calls.paths = [] }
+    const frame = (): void => { act(() => { vi.advanceTimersByTime(40) }) }
+
+    it('draws one dashed box per body in the box stage', () => {
+      render(<CollisionPlayground shape="polygon"/>)
+      reset()
+      emit(seven())
+      frame()
+      expect(calls.rect).toBe(7)
+      expect(calls.dashes[0]).toEqual([6, 4])
+    })
+
+    it('draws the hull of each body, dotted, in the hull stage', () => {
+      render(<CollisionPlayground shape="polygon"/>)
+      emit(seven())
+      fireEvent.click(screen.getByRole('radio', {name: 'Konveksne ovojnice'}))
+      reset()
+      emit(seven())
+      frame()
+      expect(calls.rect).toBe(0)
+      expect(calls.closePath).toBe(14) // 7 body outlines + 7 hulls
+      expect(calls.dashes[0]).toEqual([2, 4])
+      // The outline stroke is two CSS pixels wide, so the dots read as dots (the test devicePixelRatio is 1).
+      expect(calls.widths[0]).toBe(2)
+    })
+
+    it('draws the exact hull outline of a known template at its scaled position', () => {
+      const {container} = render(<CollisionPlayground shape="polygon"/>)
+      const one = (): CollisionSnapshot =>
+        polySnap({count: 1, positions: new Float32Array([500, 300]), radii: new Float32Array([5]), touching: new Uint8Array(1), templates: new Uint8Array([2]), scale: 4})
+      emit(one())
+      fireEvent.click(screen.getByRole('radio', {name: 'Konveksne ovojnice'}))
+      reset()
+      emit(one())
+      frame()
+      const shape = POLYGON_TEMPLATES[2]
+      const k = container.querySelector('canvas')!.width / WORLD_WIDTH
+      const unit = 4 * k
+      // Paths are created in the order plain, hit, outlines, rings; the hull stage's outlines hold exactly one loop.
+      const drawn = calls.paths[2].outlines
+      expect(drawn).toHaveLength(1)
+      expect(shape.hull.size).toBeGreaterThanOrEqual(3)
+      expect(drawn[0]).toHaveLength(shape.hull.size)
+      drawn[0].forEach(([px, py], v) => {
+        expect(px).toBeCloseTo(500 * k + unit * shape.hull.px[v], 6)
+        expect(py).toBeCloseTo(300 * k + unit * shape.hull.py[v], 6)
+      })
+      // The body outline itself has all of the template's vertices (the plain path is the first one).
+      expect(calls.paths[0].outlines[0]).toHaveLength(shape.vertices.length)
+    })
+
+    it('draws every convex piece, solid, in the piece stage', () => {
+      render(<CollisionPlayground shape="polygon"/>)
+      emit(seven())
+      fireEvent.click(screen.getByRole('radio', {name: 'Konveksni deli'}))
+      reset()
+      emit(seven())
+      frame()
+      const pieces = POLYGON_TEMPLATES.reduce((sum, shape) => sum + shape.pieces.length, 0)
+      expect(calls.closePath).toBe(7 + pieces)
+      expect(calls.dashes[0]).toEqual([])
+    })
   })
 })

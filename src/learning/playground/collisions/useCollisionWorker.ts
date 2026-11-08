@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import type {RefObject} from 'react'
-import type {BroadPhaseMethod, CollisionCommand, CollisionEvent, CollisionSnapshot} from './collisionProtocol'
+import type {BroadPhaseMethod, CollisionCommand, CollisionEvent, CollisionOverlay, CollisionSnapshot, WorldShape} from './collisionProtocol'
 
 /** The worker pauses after this long without a reader action. */
 export const IDLE_PAUSE_MS = 120_000
@@ -9,7 +9,7 @@ export type CollisionWorkerStatus = 'ready' | 'unavailable'
 
 export interface CollisionWorkerOptions {
   /** Read once, on mount. */
-  initial: {seed: number; count: number; method: BroadPhaseMethod}
+  initial: {seed: number; count: number; method: BroadPhaseMethod; shape?: WorldShape; overlay?: CollisionOverlay}
   /** The canvas (or its wrapper): the worker pauses while it is out of view. */
   targetRef: RefObject<Element | null>
 }

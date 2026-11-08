@@ -1,5 +1,5 @@
 import type {LocalizedText} from '../model';
-import type {OrderedChapterContent} from '../chapter/orderedContent';
+import type {OrderedChapterContent, PlaygroundContent} from '../chapter/orderedContent';
 import type {FamilyChapter, FamilyChapterSection} from './familyChapters';
 import {
     CONVEXITY_CHAPTER_ID, convexityGuidedExampleDemonstration, type ConvexitySectionId,
@@ -17,6 +17,46 @@ function withExample(sectionId: ConvexitySectionId, section: FamilyChapterSectio
         {kind: 'example', exampleId: `${CONVEXITY_CHAPTER_ID}.${sectionId}.${demonstrationId}`},
     ];
     return {...section, orderedContent: content};
+}
+
+/**
+ * Collision playground (CP9): after the convex-hull example, the hull as a cheap proxy. One invitation, the polygon
+ * block, then a short passage: the separating-axis test, why a concave body is split into convex pieces, and what
+ * each stage removes.
+ */
+const hullProxyPlayground: readonly (OrderedChapterContent<LocalizedText> | PlaygroundContent)[] = [
+    {kind: 'paragraph', text: text(
+        'Preizkusi sam: v spodnji simulaciji so telesa nekonveksni večkotniki. Preklapljaj med očrtanimi pravokotniki, konveksnimi ovojnicami in konveksnimi deli ter opazuj, koliko parov zavrne vsaka faza.',
+        'Try it yourself: in the simulation below the bodies are non-convex polygons. Switch between bounding boxes, convex hulls and convex pieces and watch how many pairs each stage removes.')},
+    {kind: 'playground', playground: 'collisions', mode: 'polygons'},
+    {kind: 'paragraph', text: text(
+        'Ovojnica kot poceni nadomestek. Ovojnica \\(H(P)\\) telesa \\(P\\) vsebuje vse njegove točke, zato telesi, katerih ovojnici sta ločeni, ne moreta imeti skupne točke. Za konveksna lika to ugotovi test ločilne osi (angl. separating-axis test): dva konveksna večkotnika sta ločena natanko takrat, ko obstaja os, pravokotna na rob enega od njiju, na katero se projekciji ne dotikata in ne prekrivata. Preizkusiti je treba le normale robov obeh likov, torej \\(a+b\\) osi za lika z \\(a\\) in \\(b\\) robovi.',
+        'The hull as a cheap proxy. The hull \\(H(P)\\) of a body \\(P\\) contains all its points, so two bodies whose hulls are separated cannot share a point. For two convex shapes this is decided by the separating-axis test: two convex polygons are separated exactly when some axis perpendicular to an edge of one of them has projections that neither touch nor overlap. Only the edge normals of both shapes need testing, that is \\(a+b\\) axes for shapes with \\(a\\) and \\(b\\) edges.')},
+    {kind: 'paragraph', text: text(
+        'Ovojnica ne zadošča za vsako telo: zareza pri črki U ali glavniku sprejme drugo telo, ovojnici pa se kljub temu prekrivata. Zato nekonveksno telo razdelimo na konveksne dele (razdelitev na konveksne dele, angl. convex decomposition): večkotnik z rezanjem ušes razrežemo na trikotnike in sosednje trikotnike združimo, dokler je vsak del še konveksen. Telesi se dotikata natanko takrat, ko se dotika kak par njunih delov, zato test ločilne osi spet odloči pravilno.',
+        'The hull is not enough for every body: the notch of a U shape or a comb takes in another body, yet the hulls still overlap. A non-convex body is therefore split into convex pieces (convex decomposition): the polygon is cut into triangles by ear clipping and neighbouring triangles are merged while each part stays convex. Two bodies touch exactly when some pair of their pieces touches, so the separating-axis test decides correctly again.')},
+    {kind: 'paragraph', text: text(
+        'Vsaka faza zavrže pare, preden steče dražja: pravokotniki najceneje in največ, ovojnice nekaj preostalih, deli pa zadnje, tako da ostanejo le pari, ki se res dotikajo. Števci ob simulaciji to pokažejo kot padec števila parov od faze do faze; dražji preizkus teče le na tem, kar je cenejši pustil.',
+        'Each stage discards pairs before the next, costlier one runs: boxes the most and most cheaply, hulls some of the rest, and pieces the last ones, so that only pairs that really touch remain. The readouts show this as the count of pairs falling from stage to stage; the costlier test runs only on what the cheaper one left.')},
+];
+
+/** Appends the polygon block and its passage after the section's example. */
+function withHullProxyPlayground(section: FamilyChapterSection): FamilyChapterSection {
+    return {...section, orderedContent: [...(section.orderedContent ?? []), ...hullProxyPlayground]};
+}
+
+/** One sentence in a section's reading that points back to the hull-as-proxy block; it sits before the example. */
+function withHullProxyLink(section: FamilyChapterSection): FamilyChapterSection {
+    const content = section.orderedContent ?? [];
+    const link: OrderedChapterContent<LocalizedText> = {
+        kind: 'paragraph',
+        text: text(
+            'Ovojnice se uporabljajo tudi zunaj krivulj: pri trkih z njimi zavržemo pare, preden steče dražji preizkus.',
+            'Hulls are used beyond curves too: in collision detection they discard pairs before a costlier test runs.'),
+        // linkedParagraph links a label only where it occurs in the text, so the label is a phrase of the sentence.
+        links: [{label: text('pri trkih', 'in collision detection'), href: '/bezeg-2.0/learn/convexity-hulls#convex-hull'}],
+    };
+    return {...section, orderedContent: [...content.slice(0, -1), link, ...content.slice(-1)]};
 }
 
 /** Batches 1 to 3 of the convexity spec: only the released lessons (orientation, polygon area and Pick, point in polygon, convex hull, hull robustness, Bézier hulls) are mentioned. */
@@ -71,7 +111,7 @@ export const convexityChapter: FamilyChapter = {
                 text('Ovojno število pove, kolikokrat rob večkotnika obkroži točko. Pri tem je \\(\\theta_i\\) predznačeni kot, pod katerim iz točke \\(q\\) vidimo \\(i\\)-ti rob. V zarezanem petkotniku ima \\((3,1)\\) ovojno število \\(1\\), točka \\((3,3)\\) v zarezi pa \\(0\\). Pravili se razlikujeta pri večkotniku, ki seka samega sebe: v središču pentagrama je ovojno število \\(2\\), zato ga pravilo sodo-liho uvrsti zunaj, pravilo neničelnega števila pa znotraj. Kako to uporabiš: pri enostavnem večkotniku uporabi katerokoli pravilo, pri samopresečnem pa povej, katero.', 'The winding number says how many times the boundary of the polygon goes around the point. Here \\(\\theta_i\\) is the signed angle under which the \\(i\\)-th edge is seen from \\(q\\). In the notched pentagon \\((3,1)\\) has winding number \\(1\\), and \\((3,3)\\), in the notch, has \\(0\\). The two rules differ for a self-intersecting polygon: at the centre of the pentagram the winding number is \\(2\\), so the even-odd rule says outside and the nonzero rule says inside. How to use it: for a simple polygon either rule works; for a self-intersecting one, say which rule you mean.'),
             ],
         }),
-        withExample('convex-hull', {
+        withHullProxyPlayground(withExample('convex-hull', {
             id: 'convex-hull',
             demonstrationIds: ['convex-hull'],
             investigationPrompts: {'convex-hull': text('Napovej, katere točke so oglišča ovojnice, nato s korakanjem primerjaj število orientacijskih preizkusov pri treh algoritmih.', 'Predict which points are vertices of the hull, then step through and compare the number of orientation tests of the three algorithms.')},
@@ -82,7 +122,7 @@ export const convexityChapter: FamilyChapter = {
                 text('Zgled: devet točk z vzorca ima konveksno ovojnico \\((-1,3),(0,0),(4,0),(5,3),(2,5)\\) v nasprotni smeri urinega kazalca; točka \\((2,0)\\) leži na robu, a ni oglišče. Počasni preizkus robov (učni algoritem) opravi \\(504\\) orientacijskih preizkusov, algoritem monotone verige (Andrew) \\(23\\), ovijanje (Jarvisov algoritem, angl. gift wrapping) \\(35\\); vsi dobijo isto ovojnico.', 'Example: the nine points of the sample have the convex hull \\((-1,3),(0,0),(4,0),(5,3),(2,5)\\) in counter-clockwise order; the point \\((2,0)\\) lies on an edge but is not a vertex. The slow edge test (a teaching algorithm) makes \\(504\\) orientation tests, the monotone chain algorithm (Andrew) \\(23\\), and gift wrapping (Jarvis) \\(35\\); all of them give the same hull.'),
                 text('Kolinearne točke potrebujejo pravilo: pri \\(D=0\\) monotona veriga zavrže vmesno točko, zato ostanejo v ovojnici le prava oglišča. Kako to uporabiš: ko iščeš najmanjši konveksni lik okoli točk, orientacijski preizkus odloči vsak korak, število preizkusov pa pove ceno algoritma.', 'Collinear points need a rule: at \\(D=0\\) the monotone chain discards the middle point, so only true vertices stay in the hull. How to use it: when you look for the smallest convex shape around points, the orientation test decides every step, and the number of tests tells the cost of the algorithm.'),
             ],
-        }),
+        })),
         withExample('hull-robustness', {
             id: 'hull-robustness',
             demonstrationIds: ['hull-robustness'],
@@ -94,7 +134,7 @@ export const convexityChapter: FamilyChapter = {
                 text('Zgled iz literature: za točke \\(p=(0{,}5+i\\,2^{-53},0{,}5+j\\,2^{-53})\\), \\(q=(12,12)\\), \\(r=(24,24)\\) ima nenatančen račun z double v \\(112\\) od \\(4096\\) celic napačen predznak, v \\(2052\\) pa napačno ničlo; v celici \\(i=41\\), \\(j=48\\) je natančna vrednost približno \\(+9{,}33\\times10^{-15}\\), vrednost z double pa \\(-5{,}68\\times10^{-14}\\). To kaže te vhodne podatke, ne da račun z double vedno odpove. Bezeg tega ne tvega: točke so na mreži z \\(|x|,|y|\\le2^{25}\\), produkti so manjši od \\(2^{53}\\) in je preizkus natančen. Kako to uporabiš: izberi pravilo namenoma in pri točkah izven mreže preveri predznak z natančnim računom.', 'An example from the literature: for the points \\(p=(0.5+i\\,2^{-53},0.5+j\\,2^{-53})\\), \\(q=(12,12)\\), \\(r=(24,24)\\), the inexact double calculation has the wrong sign in \\(112\\) of \\(4096\\) cells and a false zero in \\(2052\\); in the cell \\(i=41\\), \\(j=48\\) the exact value is about \\(+9.33\\times10^{-15}\\) and the double value \\(-5.68\\times10^{-14}\\). This shows these inputs, not that a double calculation always fails. Bezeg does not take this risk: points are on a grid with \\(|x|,|y|\\le2^{25}\\), the products are below \\(2^{53}\\) and the test is exact. How you use this: choose the rule on purpose, and for points off the grid check the sign with an exact calculation.'),
             ],
         }),
-        withExample('bezier-hulls', {
+        withHullProxyLink(withExample('bezier-hulls', {
             id: 'bezier-hulls',
             demonstrationIds: ['bezier-hulls'],
             investigationPrompts: {'bezier-hulls': text('Pritiskaj Naslednji korak in opazuj, kateri pari ovojnic odsekov ostanejo; nato premakni kontrolno točko tako, da se krivulji ne sekata, in poišči globino, pri kateri izgine zadnji par.', 'Press Next step and watch which pairs of piece hulls remain; then move a control point so that the curves no longer meet and find the depth at which the last pair disappears.')},
@@ -104,6 +144,6 @@ export const convexityChapter: FamilyChapter = {
                 text('Cilj razdelka: z ovojnicami kontrolnih točk iščeš, kje se dve Bézierjevi krivulji lahko sekata. Krivulja leži v ovojnici svojih kontrolnih točk, zato se odseka, katerih ovojnici sta ločeni, ne sekata. Razpolovitev pri \\(t=\\tfrac12\\) zmanjša ovojnice odsekov; pari, ki se po razpolovitvi še prekrivajo, ostanejo za naslednjo globino. Pri krivuljah z dvema presečiščema po štirih razpolovitvah ostane \\(8\\) od \\(256\\) parov, ob vsakem presečišču štirje, ker sta presečišči skupni krajišči odsekov.', 'Learning outcome: you use the hulls of control points to find where two Bézier curves can meet. A curve lies in the hull of its control points, so pieces whose hulls are separated do not meet. A halving at \\(t=\\tfrac12\\) makes the hulls of the pieces smaller; pairs that still overlap after a halving stay for the next depth. For curves with two crossings, \\(8\\) of \\(256\\) pairs remain after four halvings, four at each crossing, because the crossings are shared endpoints of pieces.'),
                 text('Prekrivanje je potreben, ne zadosten pogoj: pri gnezdenih krivuljah, ki se ne sekata (razdalja približno \\(0{,}01\\)), po štirih razpolovitvah vseeno ostane \\(1\\) par od \\(256\\), ker se razpolavljanje ustavi pri fiksni globini. Kako to uporabiš: preostali par pomeni „poglej bližje“, ne „tu je presečišče“; ločenost ovojnic Bezeg potrdi z varnostno rezervo, ne z natančnim računom.', 'Overlap is necessary, not sufficient: for nested curves that do not meet (distance about \\(0.01\\)), \\(1\\) pair of \\(256\\) still remains after four halvings, because the halving stops at a fixed depth. How you use this: a remaining pair means "look closer", not "here is an intersection"; Bezeg certifies the separation of hulls with a safety margin, not by exact arithmetic.'),
             ],
-        }),
+        })),
     ],
 };

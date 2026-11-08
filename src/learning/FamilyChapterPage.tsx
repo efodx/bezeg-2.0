@@ -21,7 +21,7 @@ const CollisionInspect = React.lazy(() => import('./playground/collisions/Collis
 /** Playground blocks mount lazily, so a worker or board exists only while the reader has the block on the page. */
 function PlaygroundBlock({block}: {block: PlaygroundContent}) {
     return <React.Suspense fallback={<div className="chapter-playground-loading" aria-hidden="true"/>}>
-        {block.playground === 'collisions' ? (block.mode === 'run' ? <CollisionPlayground/> : <CollisionInspect/>) : null}
+        {block.playground === 'collisions' ? (block.mode === 'run' ? <CollisionPlayground/> : block.mode === 'polygons' ? <CollisionPlayground shape="polygon"/> : <CollisionInspect/>) : null}
     </React.Suspense>;
 }
 

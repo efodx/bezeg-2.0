@@ -3,8 +3,9 @@ import type {ChangeEvent} from 'react'
 import {currentLanguage, useT} from '../../../localization'
 import Slider from '../../../inputs/Slider'
 import {WORLD_HEIGHT, WORLD_WIDTH} from '../../../compgeo/collisions/world'
+import {POLYGON_TEMPLATES} from '../../../compgeo/collisions/polygonTemplates'
 import {clampCount, MAX_COUNT} from './collisionProtocol'
-import type {BroadPhaseMethod, CollisionSnapshot} from './collisionProtocol'
+import type {BroadPhaseMethod, CollisionOverlay, CollisionSnapshot, WorldShape} from './collisionProtocol'
 import {useCollisionWorker} from './useCollisionWorker'
 import {createDrawPacer} from './drawPacing'
 import './CollisionPlayground.css'
@@ -20,6 +21,8 @@ interface CollisionPlaygroundProps {
   initialCount?: number
   initialMethod?: BroadPhaseMethod
   initialSeed?: number
+  /** 'polygon' runs the batch C world: polygon bodies, hull and convex-piece stages, and the overlay switch. */
+  shape?: WorldShape
 }
 
 interface Readout {
@@ -29,12 +32,26 @@ interface Readout {
   stepMs: number
   simSpeed: number
   clampedFrom: number | null
+  candidates: number
+  hullTests: number
+  hullPasses: number
+  pieceTests: number
 }
 
 interface Colours {
   body: string
   touching: string
+  outline: string
 }
+
+/** The polygon overlay stages, in pipeline order. */
+const STAGES = ['boxes', 'hulls', 'pieces'] as const
+type Stage = (typeof STAGES)[number]
+const STAGE_LABEL = {boxes: 'collision_overlay_boxes', hulls: 'collision_overlay_hulls', pieces: 'collision_overlay_pieces'} as const
+/** Dash pattern per stage in CSS pixels, so the stages differ by more than colour: dashed, dotted, solid. */
+const STAGE_DASH: Readonly<Record<Stage, readonly number[]>> = {boxes: [6, 4], hulls: [2, 4], pieces: []}
+/** Outline width per stage in CSS pixels: the dots of the hull stage need two pixels to read as dots. */
+const STAGE_WIDTH: Readonly<Record<Stage, number>> = {boxes: 1, hulls: 2, pieces: 1}
 
 const toReadout = (s: CollisionSnapshot): Readout => ({
   count: s.count,
@@ -43,13 +60,17 @@ const toReadout = (s: CollisionSnapshot): Readout => ({
   stepMs: s.stepMs,
   simSpeed: s.simSpeed,
   clampedFrom: s.clampedFrom,
+  candidates: s.counters.candidates,
+  hullTests: s.counters.hullTests,
+  hullPasses: s.counters.hullPasses,
+  pieceTests: s.counters.pieceTests,
 })
 
 /** Logarithmic slider position (0..SLIDER_STEPS) of a count, and back. */
-const toPosition = (count: number, method: BroadPhaseMethod): number =>
-  Math.round((SLIDER_STEPS * Math.log(Math.max(COUNT_FLOOR, count) / COUNT_FLOOR)) / Math.log(MAX_COUNT[method] / COUNT_FLOOR))
-const toCount = (position: number, method: BroadPhaseMethod): number =>
-  clampCount(Math.round(COUNT_FLOOR * Math.pow(MAX_COUNT[method] / COUNT_FLOOR, position / SLIDER_STEPS)), method)
+const toPosition = (count: number, method: BroadPhaseMethod, shape: WorldShape): number =>
+  Math.round((SLIDER_STEPS * Math.log(Math.max(COUNT_FLOOR, count) / COUNT_FLOOR)) / Math.log(MAX_COUNT[shape][method] / COUNT_FLOOR))
+const toCount = (position: number, method: BroadPhaseMethod, shape: WorldShape): number =>
+  clampCount(Math.round(COUNT_FLOOR * Math.pow(MAX_COUNT[shape][method] / COUNT_FLOOR, position / SLIDER_STEPS)), method, shape)
 
 const locale = (): string => (currentLanguage() === 'sl' ? 'sl-SI' : 'en-US')
 const formatInt = (value: number): string => new Intl.NumberFormat(locale(), {maximumFractionDigits: 0}).format(Math.round(value))
@@ -61,13 +82,18 @@ function readColours(el: Element): Colours {
   return {
     body: style.getPropertyValue('--collision-body').trim() || '#587445',
     touching: style.getPropertyValue('--collision-touching').trim() || '#bf8542',
+    outline: style.getPropertyValue('--collision-outline').trim() || '#33402b',
   }
 }
 
 /** Draws one snapshot: plain bodies in one fill path, touching bodies in a second path plus a ring path. */
-function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: Colours): void {
+function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: Colours, stage: Stage): void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
+  if (s.shape === 'polygon') {
+    drawPolygons(canvas, ctx, s, colours, stage)
+    return
+  }
   const dpr = canvas.width / Math.max(1, canvas.clientWidth || canvas.width)
   const scale = canvas.width / WORLD_WIDTH
   const minR = MIN_DRAWN_RADIUS * dpr
@@ -100,21 +126,94 @@ function drawSnapshot(canvas: HTMLCanvasElement, s: CollisionSnapshot, colours: 
   ctx.stroke(rings)
 }
 
-export default function CollisionPlayground({initialCount = 300, initialMethod = 'sweep', initialSeed = 1}: CollisionPlaygroundProps) {
+/**
+ * Draws a polygon snapshot: the outlines of the bodies, then the selected stage's outlines (boxes dashed, hulls dotted,
+ * convex pieces solid) in one stroked path, and a ring round every touching body. Template geometry comes from the
+ * pure polygonTemplates module and the snapshot's template indices, so no outline crosses the worker boundary.
+ */
+/** Template outlines as coordinate arrays, built once so drawing allocates nothing per body. */
+const TEMPLATE_OUTLINES = POLYGON_TEMPLATES.map((shape) => ({
+  xs: Float64Array.from(shape.vertices, (p) => p.x),
+  ys: Float64Array.from(shape.vertices, (p) => p.y),
+}))
+
+function drawPolygons(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, s: CollisionSnapshot, colours: Colours, stage: Stage): void {
+  const dpr = canvas.width / Math.max(1, canvas.clientWidth || canvas.width)
+  const k = canvas.width / WORLD_WIDTH
+  const unit = s.scale * k
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  const plain = new Path2D()
+  const hit = new Path2D()
+  const outlines = new Path2D()
+  const rings = new Path2D()
+  const loop = (path: Path2D, xs: ArrayLike<number>, ys: ArrayLike<number>, size: number, x: number, y: number): void => {
+    for (let v = 0; v < size; v++) {
+      if (v === 0) path.moveTo(x + unit * xs[v], y + unit * ys[v])
+      else path.lineTo(x + unit * xs[v], y + unit * ys[v])
+    }
+    path.closePath()
+  }
+  for (let i = 0; i < s.count; i++) {
+    const shape = POLYGON_TEMPLATES[s.templates[i]]
+    if (!shape) continue
+    const x = s.positions[2 * i] * k
+    const y = s.positions[2 * i + 1] * k
+    const touching = s.touching[i] === 1
+    const outline = TEMPLATE_OUTLINES[s.templates[i]]
+    loop(touching ? hit : plain, outline.xs, outline.ys, outline.xs.length, x, y)
+    if (stage === 'boxes') {
+      outlines.rect(x - unit * shape.hx, y - unit * shape.hy, 2 * unit * shape.hx, 2 * unit * shape.hy)
+    } else if (stage === 'hulls') {
+      loop(outlines, shape.hull.px, shape.hull.py, shape.hull.size, x, y)
+    } else {
+      for (const piece of shape.pieces) loop(outlines, piece.px, piece.py, piece.size, x, y)
+    }
+    if (touching) {
+      const ring = unit * Math.hypot(shape.hx, shape.hy) + 2 * dpr
+      rings.moveTo(x + ring, y)
+      rings.arc(x, y, ring, 0, 2 * Math.PI)
+    }
+  }
+  ctx.fillStyle = colours.body
+  ctx.globalAlpha = 0.85
+  ctx.fill(plain)
+  ctx.globalAlpha = 1
+  ctx.fillStyle = colours.touching
+  ctx.fill(hit)
+  ctx.strokeStyle = colours.outline
+  ctx.lineWidth = STAGE_WIDTH[stage] * dpr
+  ctx.setLineDash(STAGE_DASH[stage].map((d) => d * dpr))
+  ctx.stroke(outlines)
+  ctx.setLineDash([])
+  ctx.strokeStyle = colours.touching
+  ctx.lineWidth = 1.5 * dpr
+  ctx.stroke(rings)
+}
+
+export default function CollisionPlayground({initialCount = 300, initialMethod = 'sweep', initialSeed = 1, shape = 'circle'}: CollisionPlaygroundProps) {
   const t = useT()
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [count, setCount] = useState(() => clampCount(initialCount, initialMethod))
+  const [count, setCount] = useState(() => clampCount(initialCount, initialMethod, shape))
   const [method, setMethod] = useState<BroadPhaseMethod>(initialMethod)
+  const [stage, setStage] = useState<Stage>('boxes')
+  const stageRef = useRef<Stage>('boxes')
+  const redrawRef = useRef<() => void>(() => undefined)
   const [readout, setReadout] = useState<Readout | null>(null)
   const [announcement, setAnnouncement] = useState('')
   const {status, playing, snapshotRef, subscribe, send} = useCollisionWorker({
-    initial: {seed: initialSeed, count: clampCount(initialCount, initialMethod), method: initialMethod},
+    initial: {
+      seed: initialSeed,
+      count: clampCount(initialCount, initialMethod, shape),
+      method: initialMethod,
+      shape,
+      overlay: shape === 'polygon' ? 'boxes' : undefined,
+    },
     targetRef: canvasRef,
   })
   /** Set by a reader action; method and count, when given, are what the first announced snapshot must show. */
   const pendingAnnounce = useRef<{method?: BroadPhaseMethod; count?: number} | null>(null)
   const announceToggle = useRef(false)
-  const coloursRef = useRef<Colours>({body: '#587445', touching: '#bf8542'})
+  const coloursRef = useRef<Colours>({body: '#587445', touching: '#bf8542', outline: '#33402b'})
   const rafRef = useRef(0)
 
   // Declared after the hook call: the hook's dispose clears its subscribers, so a later effect subscribes afresh.
@@ -141,12 +240,13 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
         request()
         return
       }
-      drawSnapshot(canvas, s, coloursRef.current)
+      drawSnapshot(canvas, s, coloursRef.current, stageRef.current)
     }
     function request(): void {
       if (rafRef.current === 0) rafRef.current = requestAnimationFrame(frame)
     }
     const redraw = request
+    redrawRef.current = request
     refit()
     coloursRef.current = readColours(canvas)
 
@@ -170,14 +270,24 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
         pendingAnnounce.current = null
         // Alternate a trailing no-break space so an identical message after a second action still changes the region.
         announceToggle.current = !announceToggle.current
-        setAnnouncement(
-          t('collision_announce', {
-            value0: formatInt(s.count),
-            value1: t(s.method === 'naive' ? 'collision_method_naive' : 'collision_method_sweep'),
-            value2: formatInt(s.counters.boxTests),
-            value3: formatInt(s.simSpeed),
-          }) + (announceToggle.current ? String.fromCharCode(0xa0) : ''),
-        )
+        const method = t(s.method === 'naive' ? 'collision_method_naive' : 'collision_method_sweep')
+        const spoken =
+          s.shape === 'polygon'
+            ? t('collision_announce_polygons', {
+                value0: formatInt(s.count),
+                value1: method,
+                value2: formatInt(s.counters.boxTests),
+                value3: formatInt((s.count * (s.count - 1)) / 2 - s.counters.candidates),
+                value4: formatInt(s.counters.candidates - s.counters.hullPasses),
+                value5: formatInt(s.counters.hullPasses - s.counters.touchingPairs),
+              })
+            : t('collision_announce', {
+                value0: formatInt(s.count),
+                value1: method,
+                value2: formatInt(s.counters.boxTests),
+                value3: formatInt(s.simSpeed),
+              })
+        setAnnouncement(spoken + (announceToggle.current ? String.fromCharCode(0xa0) : ''))
       }
       const wait = READOUT_INTERVAL_MS - (performance.now() - lastReadout)
       if (wait <= 0) {
@@ -206,15 +316,16 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       rafRef.current = 0
       observer?.disconnect()
+      redrawRef.current = () => undefined
     }
   }, [status, snapshotRef, subscribe, t])
 
   const onCount = (position: number): void => {
     // At low counts one log step rounds to the same integer, so step the count itself by one in the slider's direction.
-    const direction = Math.sign(position - toPosition(count, method))
-    let next = toCount(position, method)
-    if (direction > 0 && next <= count) next = clampCount(count + 1, method)
-    if (direction < 0 && next >= count) next = clampCount(count - 1, method)
+    const direction = Math.sign(position - toPosition(count, method, shape))
+    let next = toCount(position, method, shape)
+    if (direction > 0 && next <= count) next = clampCount(count + 1, method, shape)
+    if (direction < 0 && next >= count) next = clampCount(count - 1, method, shape)
     if (next === count) return
     pendingAnnounce.current = {count: next}
     setCount(next)
@@ -222,7 +333,7 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
   }
   const onMethod = (e: ChangeEvent<HTMLInputElement>): void => {
     const next: BroadPhaseMethod = e.target.value === 'naive' ? 'naive' : 'sweep'
-    const clamped = clampCount(count, next)
+    const clamped = clampCount(count, next, shape)
     pendingAnnounce.current = {method: next, count: clamped}
     setMethod(next)
     send({type: 'setMethod', method: next})
@@ -230,6 +341,14 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
       setCount(clamped)
       send({type: 'setCount', count: clamped})
     }
+  }
+
+  const onStage = (e: ChangeEvent<HTMLInputElement>): void => {
+    const next: Stage = STAGES.find((candidate) => candidate === e.target.value) ?? 'boxes'
+    stageRef.current = next
+    setStage(next)
+    send({type: 'setOverlay', overlay: next satisfies CollisionOverlay})
+    redrawRef.current()
   }
 
   if (status === 'unavailable') {
@@ -241,13 +360,15 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
     )
   }
 
-  const limit = MAX_COUNT[method]
+  const limit = MAX_COUNT[shape][method]
+  const polygons = shape === 'polygon'
+  const pairsOf = (n: number): number => (n * (n - 1)) / 2
   return (
     <section className="collision-playground" aria-label={t('collision_region')}>
       <canvas ref={canvasRef} className="collision-playground__canvas" aria-hidden="true" width={640} height={400}/>
       <div className="collision-playground__controls">
-        <Slider min={0} max={SLIDER_STEPS} step={1} bigStep={100} value={toPosition(count, method)}
-                customText={t('collision_count')} formatValue={(p) => formatInt(p === toPosition(count, method) ? count : toCount(p, method))} onChange={onCount}/>
+        <Slider min={0} max={SLIDER_STEPS} step={1} bigStep={100} value={toPosition(count, method, shape)}
+                customText={t('collision_count')} formatValue={(p) => formatInt(p === toPosition(count, method, shape) ? count : toCount(p, method, shape))} onChange={onCount}/>
         {readout?.clampedFrom != null && <p className="collision-playground__note">{t('collision_limit', {value0: formatInt(limit)})}</p>}
         <fieldset className="collision-playground__methods">
           <legend>{t('collision_methods')}</legend>
@@ -258,6 +379,18 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
             </label>
           ))}
         </fieldset>
+        {polygons && (
+          <fieldset className="collision-playground__methods">
+            <legend>{t('collision_overlay')}</legend>
+            {STAGES.map((st) => (
+              <label key={st} className="collision-playground__choice">
+                <input type="radio" name="collision-overlay" value={st} checked={stage === st} onChange={onStage}/>
+                <span>{t(STAGE_LABEL[st])}</span>
+              </label>
+            ))}
+            <p className="collision-playground__note">{t('collision_overlay_legend')}</p>
+          </fieldset>
+        )}
         <div className="collision-playground__buttons">
           <button type="button" aria-pressed={playing} onClick={() => send({type: playing ? 'pause' : 'play'})}>
             {t(playing ? 'collision_pause' : 'collision_play')}
@@ -274,7 +407,16 @@ export default function CollisionPlayground({initialCount = 300, initialMethod =
         <div><dt>{t('collision_objects')}</dt><dd>{readout ? formatInt(readout.count) : '—'}</dd></div>
         <div><dt>{t('collision_box_tests')}</dt><dd>{readout ? formatInt(readout.boxTests) : '—'}</dd></div>
         {method === 'naive' && (
-          <div><dt>{t('collision_all_pairs')}</dt><dd>{formatInt((count * (count - 1)) / 2)}</dd></div>
+          <div><dt>{t('collision_all_pairs')}</dt><dd>{formatInt(pairsOf(count))}</dd></div>
+        )}
+        {polygons && (
+          <>
+            <div><dt>{t('collision_removed_boxes')}</dt><dd>{readout ? formatInt(pairsOf(readout.count) - readout.candidates) : '—'}</dd></div>
+            <div><dt>{t('collision_hull_tests')}</dt><dd>{readout ? formatInt(readout.hullTests) : '—'}</dd></div>
+            <div><dt>{t('collision_removed_hulls')}</dt><dd>{readout ? formatInt(readout.candidates - readout.hullPasses) : '—'}</dd></div>
+            <div><dt>{t('collision_piece_tests')}</dt><dd>{readout ? formatInt(readout.pieceTests) : '—'}</dd></div>
+            <div><dt>{t('collision_removed_pieces')}</dt><dd>{readout ? formatInt(readout.hullPasses - readout.touchingPairs) : '—'}</dd></div>
+          </>
         )}
         <div><dt>{t('collision_touching')}</dt><dd>{readout ? formatInt(readout.touchingPairs) : '—'}</dd></div>
         <div><dt>{t('collision_step_time')}</dt><dd>{readout ? t('collision_ms', {value0: formatOne(readout.stepMs)}) : '—'}</dd></div>

@@ -2,6 +2,7 @@
     /* Graph style tokens (GraphPalette.primaryCurve and constructionAccent); the canvas reads them once per theme change. */
     --collision-body: #587445;
     --collision-touching: #bf8542;
+    --collision-outline: #33402b;
     position: relative;
     display: grid;
     gap: 0.75rem;

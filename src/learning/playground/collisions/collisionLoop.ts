@@ -7,6 +7,7 @@ import type {
   CollisionEvent,
   CollisionOverlay,
   CollisionSnapshot,
+  WorldShape,
 } from './collisionProtocol'
 
 /** Real time of one simulated step (ms). */
@@ -33,6 +34,7 @@ export function createWorkerLoop(
   let count = 0
   let method: BroadPhaseMethod = 'naive'
   let overlay: CollisionOverlay = 'none'
+  let shape: WorldShape = 'circle'
   let world: World | null = null
   let scratch: StepScratch | null = null
   let stepIndex = 0
@@ -60,9 +62,12 @@ export function createWorkerLoop(
       stepIndex,
       count: n,
       method,
+      shape,
       seed,
       positions,
       radii,
+      templates: shape === 'polygon' ? Uint8Array.from(world.template) : new Uint8Array(0),
+      scale: world.scale,
       touching: touching.slice(0, n),
       counters: {...counters},
       stepMs,
@@ -76,14 +81,19 @@ export function createWorkerLoop(
   }
 
   const rebuild = (): void => {
-    world = createWorld({seed, count})
+    world = createWorld({seed, count, shape})
     scratch = createScratch(count)
     stepIndex = 0
-    postSnapshot(new Uint8Array(count), {boxTests: 0, candidates: 0, narrowTests: 0, touchingPairs: 0, hullTests: 0, hullPasses: 0, pieceTests: 0}, 0, 100)
+    // Measure the new arrangement without stepping, so the readouts describe it rather than showing zero tests (and,
+    // for polygons, every pair as removed by the boxes) until the next step. Speed is derived as after a step.
+    const t0 = now()
+    const result = measureWorld(world, method, scratch)
+    const stepMs = now() - t0
+    postSnapshot(result.touching, result.counters, stepMs, stepMs <= STEP_REAL_MS ? 100 : (STEP_REAL_MS / stepMs) * 100)
   }
 
   const setCount = (requested: number): void => {
-    const applied = clampCount(requested, method)
+    const applied = clampCount(requested, method, shape)
     clampedFrom = applied !== requested ? requested : null
     count = applied
   }
@@ -131,6 +141,7 @@ export function createWorkerLoop(
           stop()
           seed = command.seed
           method = command.method
+          shape = command.shape ?? 'circle'
           overlay = command.overlay ?? 'none'
           setCount(command.count)
           rebuild()
@@ -147,7 +158,7 @@ export function createWorkerLoop(
         case 'setMethod':
           if (!world) return
           method = command.method
-          if (count > clampCount(count, method)) {
+          if (count > clampCount(count, method, shape)) {
             setCount(count)
             rebuild()
           } else if (scratch && !playing) {

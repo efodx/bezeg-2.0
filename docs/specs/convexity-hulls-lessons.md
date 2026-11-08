@@ -29,6 +29,8 @@ Publish batches separately. Do not expose unimplemented Demonstrations or advert
 
 Demonstrations need a family in `families` ([demonstrations.ts](../../src/demonstrations.ts), line 7 onward; today `basics`, the curve families, `analysis`). Proposal: add one family **Računska geometrija / Computational geometry** for the Demonstrations of this and the two dependent specs, and one Learn chapter per lesson family via [familyChapters.ts](../../src/learning/content/familyChapters.ts). The alternative (put the Demonstrations under `basics` or `analysis`) hides them from learners who look for geometry. Needs owner confirmation. A6 is also reachable from the Bézier chapter through its prerequisite links.
 
+The collision playground's polygon block (CP9) is placed in the `convex-hull` section after its guided example, so that section no longer ends with the example; one linked sentence in `bezier-hulls` points back to it (see [collision playground, chapter integration](collision-playground.md#chapter-integration)).
+
 ### Slovenian and English terms (proposals)
 
 Per [choosing new terms](../localization.md#choosing-new-terms). Existing term: *konveksna ovojnica*. Everything else is a proposal, to be settled against FMF/RUL usage when implemented; the syllabus gives *konveksne množice*, *večkotniki*, *konveksna ovojnica*.

@@ -1,0 +1,182 @@
+Production benchmark built in .benchmark-output/collision-step
+desktop circle naive 100 0.015 0.045
+desktop circle naive 250 0.085 0.145
+desktop circle naive 500 0.405 0.595
+desktop circle naive 1000 2.215 2.710
+desktop circle naive 2000 8.255 9.970
+desktop circle naive 3000 18.060 21.175
+desktop circle naive 5000 53.235 59.685
+desktop circle sweep 100 0.005 0.010
+desktop circle sweep 250 0.010 0.015
+desktop circle sweep 500 0.025 0.030
+desktop circle sweep 1000 0.055 0.075
+desktop circle sweep 2000 0.140 0.165
+desktop circle sweep 3000 0.245 0.300
+desktop circle sweep 5000 0.485 0.640
+desktop polygon naive 100 0.030 0.045
+desktop polygon naive 250 0.125 0.160
+desktop polygon naive 500 0.485 0.685
+desktop polygon naive 1000 2.000 2.570
+desktop polygon naive 2000 8.695 10.535
+desktop polygon naive 3000 19.360 22.300
+desktop polygon naive 5000 57.540 63.895
+desktop polygon sweep 100 0.010 0.015
+desktop polygon sweep 250 0.010 0.015
+desktop polygon sweep 500 0.035 0.040
+desktop polygon sweep 1000 0.080 0.120
+desktop polygon sweep 2000 0.270 0.290
+desktop polygon sweep 3000 0.465 0.490
+desktop polygon sweep 5000 0.710 0.900
+desktop-main circle naive 100 0.015 0.060
+desktop-main circle naive 250 0.145 0.145
+desktop-main circle naive 500 0.445 0.580
+desktop-main circle naive 1000 1.715 2.215
+desktop-main circle naive 2000 8.270 9.710
+desktop-main circle naive 3000 18.320 21.510
+desktop-main circle naive 5000 58.450 63.200
+desktop-main circle sweep 100 0.005 0.010
+desktop-main circle sweep 250 0.015 0.020
+desktop-main circle sweep 500 0.020 0.025
+desktop-main circle sweep 1000 0.065 0.075
+desktop-main circle sweep 2000 0.145 0.185
+desktop-main circle sweep 3000 0.260 0.325
+desktop-main circle sweep 5000 0.630 0.685
+desktop-main polygon naive 100 0.045 0.060
+desktop-main polygon naive 250 0.125 0.165
+desktop-main polygon naive 500 0.620 0.655
+desktop-main polygon naive 1000 2.170 2.640
+desktop-main polygon naive 2000 8.425 10.230
+desktop-main polygon naive 3000 21.960 24.230
+desktop-main polygon naive 5000 60.885 67.560
+desktop-main polygon sweep 100 0.010 0.010
+desktop-main polygon sweep 250 0.015 0.020
+desktop-main polygon sweep 500 0.030 0.035
+desktop-main polygon sweep 1000 0.100 0.120
+desktop-main polygon sweep 2000 0.275 0.295
+desktop-main polygon sweep 3000 0.450 0.480
+desktop-main polygon sweep 5000 0.730 0.930
+mobile-4x circle naive 100 0.025 0.185
+mobile-4x circle naive 250 0.420 0.615
+mobile-4x circle naive 500 1.980 2.440
+mobile-4x circle naive 1000 8.545 10.355
+mobile-4x circle naive 2000 36.965 42.750
+mobile-4x circle naive 3000 90.345 97.310
+mobile-4x circle naive 5000 273.420 298.305
+mobile-4x circle sweep 100 0.005 0.010
+mobile-4x circle sweep 250 0.015 0.175
+mobile-4x circle sweep 500 0.030 0.185
+mobile-4x circle sweep 1000 0.230 0.395
+mobile-4x circle sweep 2000 0.635 0.815
+mobile-4x circle sweep 3000 1.195 1.415
+mobile-4x circle sweep 5000 2.260 2.680
+mobile-4x polygon naive 100 0.020 0.185
+mobile-4x polygon naive 250 0.590 0.795
+mobile-4x polygon naive 500 2.225 2.855
+mobile-4x polygon naive 1000 8.755 10.460
+mobile-4x polygon naive 2000 40.075 44.225
+mobile-4x polygon naive 3000 91.390 101.475
+mobile-4x polygon naive 5000 275.155 292.610
+mobile-4x polygon sweep 100 0.005 0.160
+mobile-4x polygon sweep 250 0.025 0.180
+mobile-4x polygon sweep 500 0.200 0.220
+mobile-4x polygon sweep 1000 0.400 0.595
+mobile-4x polygon sweep 2000 1.025 1.245
+mobile-4x polygon sweep 3000 2.020 2.345
+mobile-4x polygon sweep 5000 3.660 4.250
+{"commit":"88dec476 (src dirty)","browser":"Chromium 156.0.8078.4 (Playwright 1.64.0, headless)","cpu":"AMD Ryzen 5 7600 6-Core Processor (12 logical)","memoryGB":63,"os":"Windows_NT 10.0.26200","warmup":30,"steps":120,"seed":1}
+
+desktop (worker, CPU throttle 1x, fixed-loop calibration 368/360/368 ms, ratio to desktop-main 1.04)
+| shape | method | n | median ms | p90 ms | max ms | boxTests | candidates | narrowTests | touchingPairs | hullTests | hullPasses | pieceTests |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| circle | naive | 100 | 0.015 | 0.045 | 0.075 | 4950 | 3 | 3 | 2 | 0 | 0 | 0 |
+| circle | naive | 250 | 0.085 | 0.145 | 0.225 | 31125 | 6 | 6 | 5 | 0 | 0 | 0 |
+| circle | naive | 500 | 0.405 | 0.595 | 0.955 | 124750 | 12 | 12 | 9 | 0 | 0 | 0 |
+| circle | naive | 1000 | 2.215 | 2.710 | 4.145 | 499500 | 28 | 28 | 22 | 0 | 0 | 0 |
+| circle | naive | 2000 | 8.255 | 9.970 | 14.255 | 1999000 | 62 | 62 | 49 | 0 | 0 | 0 |
+| circle | naive | 3000 | 18.060 | 21.175 | 24.530 | 4498500 | 94 | 94 | 74 | 0 | 0 | 0 |
+| circle | naive | 5000 | 53.235 | 59.685 | 74.460 | 12497500 | 161 | 161 | 125 | 0 | 0 | 0 |
+| circle | sweep | 100 | 0.005 | 0.010 | 0.020 | 87 | 3 | 3 | 2 | 0 | 0 | 0 |
+| circle | sweep | 250 | 0.010 | 0.015 | 0.030 | 396 | 6 | 6 | 5 | 0 | 0 | 0 |
+| circle | sweep | 500 | 0.025 | 0.030 | 0.045 | 1113 | 12 | 12 | 9 | 0 | 0 | 0 |
+| circle | sweep | 1000 | 0.055 | 0.075 | 0.095 | 3156 | 28 | 28 | 22 | 0 | 0 | 0 |
+| circle | sweep | 2000 | 0.140 | 0.165 | 0.190 | 8927 | 62 | 62 | 49 | 0 | 0 | 0 |
+| circle | sweep | 3000 | 0.245 | 0.300 | 0.665 | 16373 | 94 | 94 | 74 | 0 | 0 | 0 |
+| circle | sweep | 5000 | 0.485 | 0.640 | 0.860 | 35223 | 161 | 161 | 125 | 0 | 0 | 0 |
+| polygon | naive | 100 | 0.030 | 0.045 | 0.175 | 4950 | 4 | 4 | 3 | 4 | 3 | 7 |
+| polygon | naive | 250 | 0.125 | 0.160 | 0.225 | 31125 | 10 | 10 | 6 | 10 | 7 | 20 |
+| polygon | naive | 500 | 0.485 | 0.685 | 1.020 | 124750 | 19 | 19 | 14 | 19 | 15 | 51 |
+| polygon | naive | 1000 | 2.000 | 2.570 | 2.920 | 499500 | 40 | 40 | 29 | 40 | 31 | 105 |
+| polygon | naive | 2000 | 8.695 | 10.535 | 11.570 | 1999000 | 91 | 91 | 66 | 91 | 70 | 238 |
+| polygon | naive | 3000 | 19.360 | 22.300 | 24.970 | 4498500 | 136 | 136 | 100 | 136 | 106 | 346 |
+| polygon | naive | 5000 | 57.540 | 63.895 | 75.240 | 12497500 | 229 | 229 | 169 | 229 | 179 | 590 |
+| polygon | sweep | 100 | 0.010 | 0.015 | 0.135 | 127 | 4 | 4 | 3 | 4 | 3 | 7 |
+| polygon | sweep | 250 | 0.010 | 0.015 | 0.025 | 558 | 10 | 10 | 6 | 10 | 7 | 20 |
+| polygon | sweep | 500 | 0.035 | 0.040 | 0.065 | 1558 | 19 | 19 | 14 | 19 | 15 | 51 |
+| polygon | sweep | 1000 | 0.080 | 0.120 | 0.210 | 4359 | 40 | 40 | 29 | 40 | 31 | 105 |
+| polygon | sweep | 2000 | 0.270 | 0.290 | 0.365 | 12321 | 91 | 91 | 66 | 91 | 70 | 238 |
+| polygon | sweep | 3000 | 0.465 | 0.490 | 0.670 | 22509 | 136 | 136 | 100 | 136 | 106 | 346 |
+| polygon | sweep | 5000 | 0.710 | 0.900 | 0.990 | 48615 | 229 | 229 | 169 | 229 | 179 | 590 |
+
+desktop-main (main, CPU throttle 1x, fixed-loop calibration 351/373/352 ms, ratio to desktop-main 1.00)
+| shape | method | n | median ms | p90 ms | max ms | boxTests | candidates | narrowTests | touchingPairs | hullTests | hullPasses | pieceTests |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| circle | naive | 100 | 0.015 | 0.060 | 0.315 | 4950 | 3 | 3 | 2 | 0 | 0 | 0 |
+| circle | naive | 250 | 0.145 | 0.145 | 0.170 | 31125 | 6 | 6 | 5 | 0 | 0 | 0 |
+| circle | naive | 500 | 0.445 | 0.580 | 0.640 | 124750 | 12 | 12 | 9 | 0 | 0 | 0 |
+| circle | naive | 1000 | 1.715 | 2.215 | 3.590 | 499500 | 28 | 28 | 22 | 0 | 0 | 0 |
+| circle | naive | 2000 | 8.270 | 9.710 | 10.825 | 1999000 | 62 | 62 | 49 | 0 | 0 | 0 |
+| circle | naive | 3000 | 18.320 | 21.510 | 25.215 | 4498500 | 94 | 94 | 74 | 0 | 0 | 0 |
+| circle | naive | 5000 | 58.450 | 63.200 | 81.025 | 12497500 | 161 | 161 | 125 | 0 | 0 | 0 |
+| circle | sweep | 100 | 0.005 | 0.010 | 0.025 | 87 | 3 | 3 | 2 | 0 | 0 | 0 |
+| circle | sweep | 250 | 0.015 | 0.020 | 0.030 | 396 | 6 | 6 | 5 | 0 | 0 | 0 |
+| circle | sweep | 500 | 0.020 | 0.025 | 0.035 | 1113 | 12 | 12 | 9 | 0 | 0 | 0 |
+| circle | sweep | 1000 | 0.065 | 0.075 | 0.085 | 3156 | 28 | 28 | 22 | 0 | 0 | 0 |
+| circle | sweep | 2000 | 0.145 | 0.185 | 0.265 | 8927 | 62 | 62 | 49 | 0 | 0 | 0 |
+| circle | sweep | 3000 | 0.260 | 0.325 | 0.360 | 16373 | 94 | 94 | 74 | 0 | 0 | 0 |
+| circle | sweep | 5000 | 0.630 | 0.685 | 0.955 | 35223 | 161 | 161 | 125 | 0 | 0 | 0 |
+| polygon | naive | 100 | 0.045 | 0.060 | 0.115 | 4950 | 4 | 4 | 3 | 4 | 3 | 7 |
+| polygon | naive | 250 | 0.125 | 0.165 | 0.435 | 31125 | 10 | 10 | 6 | 10 | 7 | 20 |
+| polygon | naive | 500 | 0.620 | 0.655 | 0.730 | 124750 | 19 | 19 | 14 | 19 | 15 | 51 |
+| polygon | naive | 1000 | 2.170 | 2.640 | 3.840 | 499500 | 40 | 40 | 29 | 40 | 31 | 105 |
+| polygon | naive | 2000 | 8.425 | 10.230 | 10.970 | 1999000 | 91 | 91 | 66 | 91 | 70 | 238 |
+| polygon | naive | 3000 | 21.960 | 24.230 | 28.650 | 4498500 | 136 | 136 | 100 | 136 | 106 | 346 |
+| polygon | naive | 5000 | 60.885 | 67.560 | 74.340 | 12497500 | 229 | 229 | 169 | 229 | 179 | 590 |
+| polygon | sweep | 100 | 0.010 | 0.010 | 0.140 | 127 | 4 | 4 | 3 | 4 | 3 | 7 |
+| polygon | sweep | 250 | 0.015 | 0.020 | 0.025 | 558 | 10 | 10 | 6 | 10 | 7 | 20 |
+| polygon | sweep | 500 | 0.030 | 0.035 | 0.055 | 1558 | 19 | 19 | 14 | 19 | 15 | 51 |
+| polygon | sweep | 1000 | 0.100 | 0.120 | 0.240 | 4359 | 40 | 40 | 29 | 40 | 31 | 105 |
+| polygon | sweep | 2000 | 0.275 | 0.295 | 0.325 | 12321 | 91 | 91 | 66 | 91 | 70 | 238 |
+| polygon | sweep | 3000 | 0.450 | 0.480 | 0.585 | 22509 | 136 | 136 | 100 | 136 | 106 | 346 |
+| polygon | sweep | 5000 | 0.730 | 0.930 | 0.995 | 48615 | 229 | 229 | 169 | 229 | 179 | 590 |
+
+mobile-4x (main, CPU throttle 4x, fixed-loop calibration 1619/1520/1529 ms, ratio to desktop-main 4.34)
+| shape | method | n | median ms | p90 ms | max ms | boxTests | candidates | narrowTests | touchingPairs | hullTests | hullPasses | pieceTests |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| circle | naive | 100 | 0.025 | 0.185 | 0.720 | 4950 | 3 | 3 | 2 | 0 | 0 | 0 |
+| circle | naive | 250 | 0.420 | 0.615 | 0.900 | 31125 | 6 | 6 | 5 | 0 | 0 | 0 |
+| circle | naive | 500 | 1.980 | 2.440 | 2.860 | 124750 | 12 | 12 | 9 | 0 | 0 | 0 |
+| circle | naive | 1000 | 8.545 | 10.355 | 12.940 | 499500 | 28 | 28 | 22 | 0 | 0 | 0 |
+| circle | naive | 2000 | 36.965 | 42.750 | 52.245 | 1999000 | 62 | 62 | 49 | 0 | 0 | 0 |
+| circle | naive | 3000 | 90.345 | 97.310 | 111.570 | 4498500 | 94 | 94 | 74 | 0 | 0 | 0 |
+| circle | naive | 5000 | 273.420 | 298.305 | 314.840 | 12497500 | 161 | 161 | 125 | 0 | 0 | 0 |
+| circle | sweep | 100 | 0.005 | 0.010 | 0.175 | 87 | 3 | 3 | 2 | 0 | 0 | 0 |
+| circle | sweep | 250 | 0.015 | 0.175 | 0.195 | 396 | 6 | 6 | 5 | 0 | 0 | 0 |
+| circle | sweep | 500 | 0.030 | 0.185 | 0.200 | 1113 | 12 | 12 | 9 | 0 | 0 | 0 |
+| circle | sweep | 1000 | 0.230 | 0.395 | 1.830 | 3156 | 28 | 28 | 22 | 0 | 0 | 0 |
+| circle | sweep | 2000 | 0.635 | 0.815 | 1.235 | 8927 | 62 | 62 | 49 | 0 | 0 | 0 |
+| circle | sweep | 3000 | 1.195 | 1.415 | 1.825 | 16373 | 94 | 94 | 74 | 0 | 0 | 0 |
+| circle | sweep | 5000 | 2.260 | 2.680 | 3.030 | 35223 | 161 | 161 | 125 | 0 | 0 | 0 |
+| polygon | naive | 100 | 0.020 | 0.185 | 0.360 | 4950 | 4 | 4 | 3 | 4 | 3 | 7 |
+| polygon | naive | 250 | 0.590 | 0.795 | 2.805 | 31125 | 10 | 10 | 6 | 10 | 7 | 20 |
+| polygon | naive | 500 | 2.225 | 2.855 | 5.955 | 124750 | 19 | 19 | 14 | 19 | 15 | 51 |
+| polygon | naive | 1000 | 8.755 | 10.460 | 14.070 | 499500 | 40 | 40 | 29 | 40 | 31 | 105 |
+| polygon | naive | 2000 | 40.075 | 44.225 | 57.815 | 1999000 | 91 | 91 | 66 | 91 | 70 | 238 |
+| polygon | naive | 3000 | 91.390 | 101.475 | 127.595 | 4498500 | 136 | 136 | 100 | 136 | 106 | 346 |
+| polygon | naive | 5000 | 275.155 | 292.610 | 306.150 | 12497500 | 229 | 229 | 169 | 229 | 179 | 590 |
+| polygon | sweep | 100 | 0.005 | 0.160 | 0.225 | 127 | 4 | 4 | 3 | 4 | 3 | 7 |
+| polygon | sweep | 250 | 0.025 | 0.180 | 0.375 | 558 | 10 | 10 | 6 | 10 | 7 | 20 |
+| polygon | sweep | 500 | 0.200 | 0.220 | 0.410 | 1558 | 19 | 19 | 14 | 19 | 15 | 51 |
+| polygon | sweep | 1000 | 0.400 | 0.595 | 0.660 | 4359 | 40 | 40 | 29 | 40 | 31 | 105 |
+| polygon | sweep | 2000 | 1.025 | 1.245 | 1.465 | 12321 | 91 | 91 | 66 | 91 | 70 | 238 |
+| polygon | sweep | 3000 | 2.020 | 2.345 | 3.845 | 22509 | 136 | 136 | 100 | 136 | 106 | 346 |
+| polygon | sweep | 5000 | 3.660 | 4.250 | 4.885 | 48615 | 229 | 229 | 169 | 229 | 179 | 590 |

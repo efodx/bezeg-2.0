@@ -9,7 +9,7 @@ export type OrderedChapterContent<TText = LocalizedText> =
 /** A lazily loaded interactive block. Only the listed playground and mode pairs exist. */
 export type PlaygroundContent =
     | {kind: 'playground'; playground: 'bezier-drawing'; mode: 'draw' | 'inspect'}
-    | {kind: 'playground'; playground: 'collisions'; mode: 'run' | 'inspect'};
+    | {kind: 'playground'; playground: 'collisions'; mode: 'run' | 'inspect' | 'polygons'};
 
 export function exampleReferences<TText>(content: readonly (OrderedChapterContent<TText> | PlaygroundContent)[]): string[] {
     return content.filter((block): block is Extract<OrderedChapterContent<TText>, {kind: 'example'}> => block.kind === 'example')

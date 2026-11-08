@@ -475,6 +475,21 @@ Limits: rAF intervals saturate at 16.7 ms. The 4× throttle is a desktop slowdow
 
 Decision: limits 4 000 (naive) and 5 000 (sweep); reasons in the [collision playground spec](specs/collision-playground.md#containment). The throttled rows run on the main thread because CDP cannot throttle a worker target.
 
+## Collision playground polygon step cost — 2026-11-08
+
+`just collision-step-bench` extended with a shape axis (circle and polygon cells in one run; [script](../scripts/collision-step-benchmark/README.md)). Commit 88dec476 (src dirty: CP9 work in progress, no change under `src/compgeo`), Chromium 156.0.8078.4 headless, AMD Ryzen 5 7600, seed 1, 30 warm-up + 120 measured steps, median ms of one `stepWorld`. Raw tables with p90, max and all counters: [cp9-bench.log](reviews/collision-playground/cp9-bench.log) and `cp9-bench.json`. The circle rows of this run reproduce CP3 within run-to-run variation (throttled naive at 5 000: 273 ms now, 317 ms in CP3).
+
+| Profile | Shape, method | 100 | 250 | 500 | 1000 | 2000 | 3000 | 5000 |
+|---|---|---|---|---|---|---|---|---|
+| Desktop, worker | polygon naive | 0.03 | 0.13 | 0.49 | 2.0 | 8.7 | 19.4 | 57.5 |
+| Desktop, worker | polygon sweep | 0.01 | 0.01 | 0.04 | 0.08 | 0.27 | 0.47 | 0.71 |
+| 4× throttle 390×844, main thread | circle naive | 0.03 | 0.42 | 1.98 | 8.5 | 37.0 | 90.3 | 273 |
+| 4× throttle 390×844, main thread | polygon naive | 0.02 | 0.59 | 2.2 | 8.8 | 40.1 | 91.4 | 275 |
+| 4× throttle 390×844, main thread | circle sweep | 0.005 | 0.02 | 0.03 | 0.23 | 0.64 | 1.2 | 2.3 |
+| 4× throttle 390×844, main thread | polygon sweep | 0.005 | 0.03 | 0.20 | 0.40 | 1.0 | 2.0 | 3.7 |
+
+The polygon pipeline adds little to naive (the box stage dominates: 12.5 million box tests at n = 5 000 against 229 candidates, 179 hull passes, 169 touching pairs and 590 piece tests); sweep costs about 1.6 times the circle sweep at n = 5 000 because of the hull and piece tests of 229 candidates. Decision by the CP3 rule: naive 275 ms at 5 000 exceeds 250 ms, and the quadratic fit puts 250 ms at about n = 4 960, so the limit is 4 500 (rounded down to a 500 step); sweep 3.7 ms at the 5 000 cap is under 8 ms, so the cap applies. Limits: polygon naive 4 500, sweep 5 000. The 4 500 cell itself was not run; interpolation gives about 205 ms.
+
 ## Collision playground containment and draw pacing — 2026-11-07
 
 `just collision-containment /bezeg-2.0/learn/sweep-algorithms` ([script](../scripts/collision-containment/README.md)) on the production build, Chromium 156.0.8078.4 headless, AMD Ryzen 5 7600. Profiles: desktop 1440×900 unthrottled; 390×844 touch, DPR 2, 4× CPU throttling on the main thread (the simulation worker runs unthrottled). Naive plays at its limit (4 000) unless stated. Evidence: [investigation and runs](reviews/collision-playground/cp7-containment-investigation.md), [first trial](reviews/collision-playground/cp7-measurements.md).

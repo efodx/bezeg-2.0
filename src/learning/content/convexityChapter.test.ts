@@ -43,7 +43,24 @@ describe('chapter structure and registration', () => {
         const registered = familyChapters.find(chapter => chapter.id === CONVEXITY_CHAPTER_ID)!;
         expect(registered.sections[0].orderedContent!.some(item => item.kind === 'example')).toBe(false);
         for (const section of registered.sections.slice(1)) {
-            expect(section.orderedContent!.at(-1)).toEqual({kind: 'example', exampleId: `convexity-hulls.${section.id}.${section.id}`});
+            const example = {kind: 'example', exampleId: `convexity-hulls.${section.id}.${section.id}`};
+            // The convex hull section continues after its example with the collision playground's polygon passage (CP9).
+            if (section.id === 'convex-hull') {
+                const content = section.orderedContent!;
+                const exampleIndex = content.findLastIndex(item => item.kind === 'example');
+                expect(content[exampleIndex]).toEqual(example);
+                expect(content[exampleIndex + 2]).toEqual({kind: 'playground', playground: 'collisions', mode: 'polygons'});
+                expect(content.filter(item => item.kind === 'playground')).toHaveLength(1);
+            } else expect(section.orderedContent!.at(-1)).toEqual(example);
+            if (section.id === 'bezier-hulls') {
+                const link = section.orderedContent!.at(-2);
+                expect(link).toMatchObject({kind: 'paragraph', links: [{href: '/bezeg-2.0/learn/convexity-hulls#convex-hull'}]});
+                // The paragraph renderer links a label only where it occurs in the text, in each language.
+                if (link?.kind !== 'paragraph' || !link.links) throw new Error('bezier-hulls link paragraph missing');
+                for (const {label} of link.links) {
+                    for (const language of ['sl', 'en'] as const) expect(link.text[language]).toContain(label[language]);
+                }
+            }
             expect(section.orderedContent!.some(item => item.kind === 'formula')).toBe(true);
         }
         const prose = (id: string) => convexityChapter.sections.find(section => section.id === id)!.paragraphs.map(p => p.en).join(' ');

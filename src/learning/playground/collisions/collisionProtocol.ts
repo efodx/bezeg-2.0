@@ -1,20 +1,40 @@
-import type {BroadPhaseMethod, StepCounters} from '../../../compgeo/collisions/world'
+import type {BroadPhaseMethod, StepCounters, WorldShape} from '../../../compgeo/collisions/world'
 
-export type {BroadPhaseMethod, StepCounters}
+export type {BroadPhaseMethod, StepCounters, WorldShape}
 
 /**
- * Maximum object counts per method, measured in CP3 (spec: Containment): a naive step stays near 250 ms and a sweep
- * step under 8 ms on the 4x throttled reference profile.
+ * Polygon limits from the CP9 step bench (spec: Bounded cost), by the CP3 rule: throttled naive steps were 91 ms at
+ * n = 3000 and 275 ms at 5000; a quadratic fit reaches 250 ms near 4 960, rounded down to 4 500 (4 500 itself was not
+ * run). Sweep stayed at 3.7 ms at 5000, so the 5 000 cap applies.
  */
-export const MAX_COUNT: Readonly<Record<BroadPhaseMethod, number>> = {naive: 4000, sweep: 5000}
+const POLYGON_NAIVE = 4500
+const POLYGON_SWEEP = 5000
+
+/**
+ * Maximum object counts per shape and method (spec: Containment, Bounded cost): a naive step stays near 250 ms and a
+ * sweep step under 8 ms on the 4x throttled reference profile. Circles were measured in CP3, polygons in CP9.
+ */
+export const MAX_COUNT: Readonly<Record<WorldShape, Readonly<Record<BroadPhaseMethod, number>>>> = {
+  circle: {naive: 4000, sweep: 5000},
+  polygon: {naive: POLYGON_NAIVE, sweep: POLYGON_SWEEP},
+}
 
 export const MIN_COUNT = 1
 
-/** Overlay selector for the inspect mode. A protocol placeholder: the worker stores and echoes it. */
-export type CollisionOverlay = 'none' | 'boxes' | 'sweep'
+/** Overlay selector (inspect mode; polygon mode: boxes, hulls, pieces). The worker stores and echoes it; the main thread draws it. */
+export type CollisionOverlay = 'none' | 'boxes' | 'sweep' | 'hulls' | 'pieces'
 
 export type CollisionCommand =
-  | {type: 'init'; seed: number; count: number; method: BroadPhaseMethod; playing: boolean; overlay?: CollisionOverlay}
+  | {
+      type: 'init'
+      seed: number
+      count: number
+      method: BroadPhaseMethod
+      playing: boolean
+      overlay?: CollisionOverlay
+      /** Default 'circle'. */
+      shape?: WorldShape
+    }
   | {type: 'setCount'; count: number}
   | {type: 'setMethod'; method: BroadPhaseMethod}
   | {type: 'play'}
@@ -30,11 +50,15 @@ export interface CollisionSnapshot {
   stepIndex: number
   count: number
   method: BroadPhaseMethod
+  shape: WorldShape
   seed: number
   /** Interleaved x, y per body, length 2 * count. */
   positions: Float32Array
   /** Radii per body, length count. They scale with the count, so they are sent with every snapshot. */
   radii: Float32Array
+  /** Polygon world: template index per body (into POLYGON_TEMPLATES) and the common scale; empty and 0 for circles. */
+  templates: Uint8Array
+  scale: number
   /** 1 when the body touches another one. */
   touching: Uint8Array
   counters: StepCounters
@@ -51,12 +75,12 @@ export type CollisionEvent = CollisionSnapshot | {type: 'error'; message: string
 
 /** Arrays of a snapshot to hand to postMessage as transferables. */
 export function snapshotTransferables(s: CollisionSnapshot): ArrayBuffer[] {
-  return [s.positions.buffer, s.radii.buffer, s.touching.buffer].filter(
+  return [s.positions.buffer, s.radii.buffer, s.touching.buffer, s.templates.buffer].filter(
     (b): b is ArrayBuffer => b instanceof ArrayBuffer,
   )
 }
 
-export function clampCount(count: number, method: BroadPhaseMethod): number {
+export function clampCount(count: number, method: BroadPhaseMethod, shape: WorldShape = 'circle'): number {
   const whole = Number.isFinite(count) ? Math.round(count) : MIN_COUNT
-  return Math.min(MAX_COUNT[method], Math.max(MIN_COUNT, whole))
+  return Math.min(MAX_COUNT[shape][method], Math.max(MIN_COUNT, whole))
 }

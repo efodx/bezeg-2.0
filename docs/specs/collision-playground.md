@@ -64,6 +64,7 @@ The narrow phase becomes *box \(\to\) hull separating-axis test \(\to\) pieces s
 - `setCount` is limited per method and device class. The naive limit is the largest \(n\) whose naive step stays at or below 250 ms on the reference low-end profile (desktop Chromium with 4× CPU throttling, 390×844). That is slow enough to see and short enough that switching back responds within a quarter of a second.
 - The sweep limit is where a sweep step reaches 8 ms on the same profile, capped at 5 000.
 - **Measured limits (CP3, 2026-11-07): 4 000 (naive) and 5 000 (sweep).** On the throttled profile the naive median step was 106 ms at \(n=3000\) and 317 ms at \(n=5000\); it grows as \(n^2\), so 250 ms falls near \(n\approx4400\), rounded down to 4 000. Sweep stayed at 2.8 ms (p90 4.1 ms) at \(n=5000\), so the 5 000 cap applies. Naive at 5 000 runs at about 5 % simulation speed throttled and 29 % on desktop, so the comparison still shows. Chromium cannot throttle a worker target through CDP, so the throttled column ran the same `stepWorld` on the page's main thread (desktop worker and main thread agree within 10 %). Raw tables: [performance results](../bezier-performance-results.md#collision-playground-step-cost--2026-11-07).
+- **Polygon limits (CP9, 2026-11-08): 4 500 (naive) and 5 000 (sweep).** Same rule and profile. On the throttled profile the polygon naive step was 275 ms at n = 5 000 and the quadratic fit crosses 250 ms near n = 4 960, so the limit is 4 500 (rounded down from the fit; neither 4 500 nor 4 960 was run itself); polygon sweep took 3.7 ms at n = 5 000, below 8 ms, so the 5 000 cap applies. `MAX_COUNT` is per shape and method, and `clampCount` takes the shape. Table and counters: [performance results](../bezier-performance-results.md#collision-playground-polygon-step-cost--2026-11-08).
 - Lowering \(n\) or switching method is always available.
 
 **Draw pacing (decision 2026-11-07).** The draw loop (`drawPacing.ts`) keeps a moving average of the `requestAnimationFrame` interval. While it is above 20 ms the canvas is drawn at most every 33 ms (always from the newest snapshot, an early frame only re-requests); it returns to every frame once the average is below 17.5 ms and 1.5 s have passed. CP7 measured the throttled chapter page at scroll p95 77 to 104 ms with naive playing, from committing a DPR-2 canvas at the snapshot rate; with pacing it is 52 to 54 ms. Rejected: lowering the backing resolution (it changes the picture at every load) and a fixed 30 Hz cap (it degrades unloaded desktops and 120 Hz displays).
@@ -100,7 +101,7 @@ The narrow phase becomes *box \(\to\) hull separating-axis test \(\to\) pieces s
   - pairs removed by the \(y\)-test drawn differently from pairs that pass, using dash style and not only colour;
   - a step-through of one sweep, frozen in time;
   - a short caption with the count comparison and, here only, \(O(n^2)\) versus about \(O(n\log n+k)\) per step, where \(k\) is the number of candidate pairs.
-- **Batch C (convexity placement):** polygon bodies. An overlay toggles box → hull → convex pieces. Readouts add how many pairs each stage removed.
+- **Batch C (convexity placement):** polygon bodies. An overlay toggles box → hull → convex pieces. Readouts add how many pairs each stage removed. Switching the stage does not announce, because it changes only the drawing and no count; the readouts stay visible. After a reader action the live region speaks the object count, the method, the box tests and the pairs removed by the boxes, the hulls and the pieces, from one snapshot.
 
 ## Chapter integration
 
@@ -110,7 +111,7 @@ The narrow phase becomes *box \(\to\) hull separating-axis test \(\to\) pieces s
   - in `sweep-idea`, before the playground: one short invitation ("raise the number of objects and watch what happens to testing every pair"), with no mathematics;
   - in `interval-sweep`, around *Look underneath*: the link between box shadows and intervals, the \(\binom n2\) count, sweep and prune as a broad phase followed by an exact test, and a note that real engines also use grids and bounding-box trees.
   - `lessonMathNotation.test.ts` covers this prose and must pass.
-- **Batch C** adds a block and prose in the convexity chapter's `convex-hull` section (hull as a proxy) and links from `hull-robustness`/`bezier-hulls` as fits. The exact sections are decided in CP9.
+- **Batch C** adds a block and prose in the convexity chapter's `convex-hull` section (hull as a proxy) and links from `hull-robustness`/`bezier-hulls` as fits. **Placement decided in CP9 (2026-11-08):** the block sits in `convex-hull` *after* the guided example, as `{kind: 'playground', playground: 'collisions', mode: 'polygons'}` with one invitation before it and a three-paragraph passage after it (hull as a cheap proxy, separating-axis test, convex pieces, what each stage removes). Reason: the section teaches the hull, and the example ends the reading, so the playground applies what was just learned instead of interrupting it; the section therefore no longer ends with its example (the tests allow that for this section, as for `interval-sweep`). `bezier-hulls` gets one linked sentence before its example pointing back to the block; `hull-robustness` has no link because robustness does not bear on the proxy. No route, Demonstration, Preset or stored-data change.
 - **Routes and data.** No route, Demonstration, lesson, Preset or stored-data change. Batch B persists nothing. No breaking change.
 
 ## Terms (settled in CP6 by [choosing new terms](../localization.md#choosing-new-terms))
@@ -126,8 +127,8 @@ Searched `src/localization/sl.ts`, `src/learning/content/`, `GLOSSARY.md` and th
 | očrtani pravokotnik | bounding box | Changed from "očrtani pravokotnik (škatla)": *škatla* already means the probability chapter's box with balls, so the UI no longer says *škatla*. *Očrtani* follows *očrtana krožnica*. The UI says *preizkus pravokotnikov* for box test. |
 | kandidatni par | candidate pair | Transparent; no repository term. |
 | hitrost simulacije | simulation speed | Used in the UI. "Počasni posnetek" is not used. |
-| test ločilne osi | separating-axis test | Batch C, not yet used. |
-| razdelitev na konveksne dele | convex decomposition | Batch C, not yet used. |
+| test ločilne osi | separating-axis test | Batch C, used in the polygon passage of `convex-hull` with the English gloss on first mention. |
+| razdelitev na konveksne dele | convex decomposition | Batch C, used in the polygon passage of `convex-hull` with the English gloss on first mention; the UI says *konveksni deli* for the stage. |
 
 Reused unchanged: *pometalna premica*, *stanje*, *interval* and *konveksna ovojnica* from the sweep and convexity chapters.
 

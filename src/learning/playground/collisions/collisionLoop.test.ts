@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
-import {createScratch, createWorld, measureWorld, stepWorld} from '../../../compgeo/collisions/world'
+import {createScratch, createWorld, measureWorld, polygonScale, stepWorld} from '../../../compgeo/collisions/world'
 import {createWorkerLoop, STEP_REAL_MS} from './collisionLoop'
+import {MAX_COUNT} from './collisionProtocol'
 import type {CollisionEvent, CollisionSnapshot} from './collisionProtocol'
 
 interface Posted {
@@ -69,7 +70,7 @@ describe('createWorkerLoop', () => {
     const last = posted[posted.length - 1]
     expect(last.event.type).toBe('snapshot')
     if (last.event.type !== 'snapshot') return
-    expect(last.transfer).toEqual([last.event.positions.buffer, last.event.radii.buffer, last.event.touching.buffer])
+    expect(last.transfer).toEqual([last.event.positions.buffer, last.event.radii.buffer, last.event.touching.buffer, last.event.templates.buffer])
   })
 
   it('steps by the fixed time step and matches the pure model', () => {
@@ -191,5 +192,70 @@ describe('createWorkerLoop', () => {
     loop.handle({type: 'stepOnce'})
     expect(posted).toHaveLength(0)
     expect(vi.getTimerCount()).toBe(0)
+  })
+})
+
+describe('createWorkerLoop with polygon bodies', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+  const polygonInit = {type: 'init', seed: 5, count: 40, method: 'sweep', playing: false, shape: 'polygon'} as const
+
+  it('init with shape polygon posts template indices, the common scale and the shape', () => {
+    const {loop, snapshots} = setup()
+    loop.handle(polygonInit)
+    const s = snapshots()[0]
+    expect(s).toMatchObject({shape: 'polygon', count: 40, scale: polygonScale(40)})
+    expect(s.templates).toHaveLength(40)
+    expect(Math.max(...s.templates)).toBeLessThan(7)
+  })
+
+  it('circle worlds carry no templates and a zero scale; a missing shape means circle', () => {
+    const {loop, snapshots} = setup()
+    loop.handle(init)
+    expect(snapshots()[0]).toMatchObject({shape: 'circle', scale: 0})
+    expect(snapshots()[0].templates).toHaveLength(0)
+  })
+
+  it('a step reports hull and piece counters that obey the stage identities', () => {
+    const {loop, snapshots} = setup()
+    loop.handle({...polygonInit, count: 400})
+    for (let i = 0; i < 30; i++) loop.handle({type: 'stepOnce'})
+    const c = snapshots().at(-1)!.counters
+    expect(c.hullTests).toBe(c.candidates)
+    expect(c.hullPasses).toBeLessThanOrEqual(c.hullTests)
+    expect(c.touchingPairs).toBeLessThanOrEqual(c.hullPasses)
+    expect(c.pieceTests).toBeGreaterThanOrEqual(c.hullPasses)
+  })
+
+  it('clamps polygon counts to the polygon limit of the method', () => {
+    const {loop, snapshots} = setup()
+    loop.handle({...polygonInit, method: 'naive'})
+    loop.handle({type: 'setCount', count: 99999})
+    expect(snapshots()[1]).toMatchObject({count: MAX_COUNT.polygon.naive, clampedFrom: 99999})
+  })
+
+  it('a rebuilt world is measured, so a paused count change or reset reports its tests and touching pairs', () => {
+    const {loop, snapshots} = setup()
+    loop.handle({...polygonInit, method: 'naive'})
+    loop.handle({type: 'setCount', count: 300})
+    loop.handle({type: 'reset', seed: 9})
+    const [initial, counted, reset] = snapshots()
+    for (const [s, seed, count] of [[initial, 5, 40], [counted, 5, 300], [reset, 9, 300]] as const) {
+      const world = createWorld({seed, count, shape: 'polygon'})
+      const expected = measureWorld(world, 'naive', createScratch(count))
+      expect(s.stepIndex).toBe(0)
+      expect(s.counters).toEqual(expected.counters)
+      expect(s.counters.boxTests).toBe((count * (count - 1)) / 2)
+      expect(Array.from(s.touching)).toEqual(Array.from(expected.touching))
+    }
+    expect(counted.counters.touchingPairs).toBeGreaterThan(0)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('the snapshot templates buffer is transferred', () => {
+    const {loop, posted} = setup()
+    loop.handle(polygonInit)
+    const s = posted[0].event as CollisionSnapshot
+    expect(posted[0].transfer).toContain(s.templates.buffer)
   })
 })

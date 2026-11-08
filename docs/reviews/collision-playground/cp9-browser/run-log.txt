@@ -1,0 +1,80 @@
+sl-desk raw true
+DIV.chapter-section-heading:Konveksna ovojnica¶
+H2.:Konveksna ovojnica
+A.chapter-section-link:¶
+DIV.chapter-section-body:Cilj razdelka: konveksno ovojnico množic
+P.chapter-paragraph:Cilj razdelka: konveksno ovojnico množic
+P.chapter-paragraph:Zgled: devet točk z vzorca ima konveksno
+P.chapter-paragraph:Kolinearne točke potrebujejo pravilo: pr
+DIV.chapter-formula:conv(S)=⋂{K⊇S: K convex}
+DIV.chapter-guided-lessons learning-investig:Počasen preizkus robov je pri prvem urej
+P.chapter-paragraph:Preizkusi sam: v spodnji simulaciji so t
+SECTION.collision-playground:Število objektov300Min: 10Max: 5000Način
+P.chapter-paragraph:Ovojnica kot poceni nadomestek. Ovojnica
+P.chapter-paragraph:Ovojnica ne zadošča za vsako telo: zarez
+P.chapter-paragraph:Vsaka faza zavrže pare, preden steče dra
+sl-desk playground count 1
+sl-desk overflowX false
+sl-desk targets ["range 780x24 lab 780x24","collision-method 18x18 lab 164x32","collision-method 18x18 lab 208x32","collision-overlay 18x18 lab 169x32","collision-overlay 18x18 lab 164x32","collision-overlay 18x18 lab 127x32","Premor 79x44 lab 79x44","Korak 68x44 lab 68x44","Nova razporeditev 158x44 lab 158x44"]
+sl-desk readout Objekti300 | Preizkusi pravokotnikov v tem koraku714 | Pari, ki jih zavrnejo pravokotniki44.841 | Preizkusi ovojnic na korak9 | Pari, ki jih zavrnejo ovojnice2 | Preizkusi delov na korak20 | Pari, ki jih zavrnejo deli0 | Stikajoči se pari7 | Čas koraka0 ms | Hitrost simulacije100 %
+sl-desk live after step: 300 objektov, Pometanje in obrezovanje: 721 preizkusov očrtanih pravokotnikov na korak; pravokotniki zavrnejo 44.840 parov, ovojnice 4, konveksni deli 0 
+sl-desk readout after step Objekti300 | Preizkusi pravokotnikov v tem koraku721 | Pari, ki jih zavrnejo pravokotniki44.840 | Preizkusi ovojnic na korak10 | Pari, ki jih zavrnejo ovojnice4 | Preizkusi delov na korak17 | Pari, ki jih zavrnejo deli0 | Stikajoči se pari6 | Čas koraka0 ms | Hitrost simulacije100 %
+sl-desk live after count: 1932 objektov, Pometanje in obrezovanje: 0 preizkusov očrtanih pravokotnikov na korak; pravokotniki zavrnejo 1.865.346 parov, ovojnice 0, konveksni deli 0
+sl-desk readout count Objekti1932 | Preizkusi pravokotnikov v tem koraku0 | Pari, ki jih zavrnejo pravokotniki1.865.346 | Preizkusi ovojnic na korak0 | Pari, ki jih zavrnejo ovojnice0 | Preizkusi delov na korak0 | Pari, ki jih zavrnejo deli0 | Stikajoči se pari0 | Čas koraka0 ms | Hitrost simulacije100 %
+sl-desk readout sweep Objekti1932 | Preizkusi pravokotnikov v tem koraku0 | Pari, ki jih zavrnejo pravokotniki1.865.346 | Preizkusi ovojnic na korak0 | Pari, ki jih zavrnejo ovojnice0 | Preizkusi delov na korak0 | Pari, ki jih zavrnejo deli0 | Stikajoči se pari0 | Čas koraka0 ms | Hitrost simulacije100 %
+sl-desk live sweep: 1932 objektov, Pometanje in obrezovanje: 0 preizkusov očrtanih pravokotnikov na korak; pravokotniki zavrnejo 1.865.346 parov, ovojnice 0, konveksni deli 0
+sl-desk live stable during play true pressed true
+sl-desk tab seq ["INPUT: outline none 0px shadow false","INPUT:collision-method outline solid 3px shadow false","INPUT:collision-overlay outline solid 3px shadow false","BUTTON:Predvajaj outline solid 3px shadow false","BUTTON:Korak outline solid 3px shadow false","BUTTON:Nova razporeditev outline solid 3px shadow false","MJX-CONTAINER:H(P) outline auto 1px shadow false","MJX-CONTAINER:H(P) outline auto 1px shadow false","MJX-CONTAINER:P outline auto 1px shadow false"]
+sl-desk arrow method -> sweep
+sl-desk arrow stage -> hulls
+sl-desk bezier links 0 
+sl-desk errors []
+sl-mob raw true
+sl-mob playground count 1
+sl-mob overflowX false
+sl-mob targets ["range 358x44 lab 358x44","collision-method 24x24 lab 171x44","collision-method 24x24 lab 215x44","collision-overlay 24x24 lab 176x44","collision-overlay 24x24 lab 171x44","collision-overlay 24x24 lab 133x44","Premor 79x44 lab 79x44","Korak 68x44 lab 68x44","Nova razporeditev 158x44 lab 158x44"]
+sl-mob readout Objekti300 | Preizkusi pravokotnikov v tem koraku716 | Pari, ki jih zavrnejo pravokotniki44.840 | Preizkusi ovojnic na korak10 | Pari, ki jih zavrnejo ovojnice3 | Preizkusi delov na korak20 | Pari, ki jih zavrnejo deli0 | Stikajoči se pari7 | Čas koraka0 ms | Hitrost simulacije100 %
+sl-mob live after step: 300 objektov, Pometanje in obrezovanje: 714 preizkusov očrtanih pravokotnikov na korak; pravokotniki zavrnejo 44.841 parov, ovojnice 2, konveksni deli 0 
+sl-mob readout after step Objekti300 | Preizkusi pravokotnikov v tem koraku714 | Pari, ki jih zavrnejo pravokotniki44.841 | Preizkusi ovojnic na korak9 | Pari, ki jih zavrnejo ovojnice2 | Preizkusi delov na korak20 | Pari, ki jih zavrnejo deli0 | Stikajoči se pari7 | Čas koraka0 ms | Hitrost simulacije100 %
+sl-mob live after count: 1932 objektov, Pometanje in obrezovanje: 0 preizkusov očrtanih pravokotnikov na korak; pravokotniki zavrnejo 1.865.346 parov, ovojnice 0, konveksni deli 0
+sl-mob readout count Objekti1932 | Preizkusi pravokotnikov v tem koraku0 | Pari, ki jih zavrnejo pravokotniki1.865.346 | Preizkusi ovojnic na korak0 | Pari, ki jih zavrnejo ovojnice0 | Preizkusi delov na korak0 | Pari, ki jih zavrnejo deli0 | Stikajoči se pari0 | Čas koraka0 ms | Hitrost simulacije100 %
+sl-mob readout sweep Objekti1932 | Preizkusi pravokotnikov v tem koraku0 | Pari, ki jih zavrnejo pravokotniki1.865.346 | Preizkusi ovojnic na korak0 | Pari, ki jih zavrnejo ovojnice0 | Preizkusi delov na korak0 | Pari, ki jih zavrnejo deli0 | Stikajoči se pari0 | Čas koraka0 ms | Hitrost simulacije100 %
+sl-mob live sweep: 1932 objektov, Pometanje in obrezovanje: 0 preizkusov očrtanih pravokotnikov na korak; pravokotniki zavrnejo 1.865.346 parov, ovojnice 0, konveksni deli 0
+sl-mob live stable during play true pressed false
+sl-mob arrow method -> sweep
+sl-mob arrow stage -> hulls
+sl-mob bezier links 0 
+sl-mob errors []
+en-desk raw true
+en-desk playground count 1
+en-desk overflowX false
+en-desk targets ["range 780x24 lab 780x24","collision-method 18x18 lab 126x32","collision-method 18x18 lab 148x32","collision-overlay 18x18 lab 140x32","collision-overlay 18x18 lab 114x32","collision-overlay 18x18 lab 126x32","Pause 68x44 lab 68x44","Step 59x44 lab 59x44","New arrangement 155x44 lab 155x44"]
+en-desk readout Objects300 | Box tests this step716 | Pairs removed by the boxes44,840 | Hull tests this step10 | Pairs removed by the hulls3 | Piece tests this step20 | Pairs removed by the pieces0 | Touching pairs7 | Step time0 ms | Simulation speed100 %
+en-desk live after step: 300 objects, Sweep and prune: 714 bounding box tests per step; the boxes remove 44,841 pairs, the hulls 2, the convex pieces 0 
+en-desk readout after step Objects300 | Box tests this step714 | Pairs removed by the boxes44,841 | Hull tests this step9 | Pairs removed by the hulls2 | Piece tests this step20 | Pairs removed by the pieces0 | Touching pairs7 | Step time0.1 ms | Simulation speed100 %
+en-desk live after count: 1,932 objects, Sweep and prune: 0 bounding box tests per step; the boxes remove 1,865,346 pairs, the hulls 0, the convex pieces 0
+en-desk readout count Objects1,932 | Box tests this step0 | Pairs removed by the boxes1,865,346 | Hull tests this step0 | Pairs removed by the hulls0 | Piece tests this step0 | Pairs removed by the pieces0 | Touching pairs0 | Step time0 ms | Simulation speed100 %
+en-desk readout sweep Objects1,932 | Box tests this step0 | Pairs removed by the boxes1,865,346 | Hull tests this step0 | Pairs removed by the hulls0 | Piece tests this step0 | Pairs removed by the pieces0 | Touching pairs0 | Step time0 ms | Simulation speed100 %
+en-desk live sweep: 1,932 objects, Sweep and prune: 0 bounding box tests per step; the boxes remove 1,865,346 pairs, the hulls 0, the convex pieces 0
+en-desk live stable during play true pressed true
+en-desk tab seq ["INPUT: outline none 0px shadow false","INPUT:collision-method outline solid 3px shadow false","INPUT:collision-overlay outline solid 3px shadow false","BUTTON:Play outline solid 3px shadow false","BUTTON:Step outline solid 3px shadow false","BUTTON:New arrangement outline solid 3px shadow false","MJX-CONTAINER:H(P) outline auto 1px shadow false","MJX-CONTAINER:P outline auto 1px shadow false","MJX-CONTAINER:a+b outline auto 1px shadow false"]
+en-desk arrow method -> sweep
+en-desk arrow stage -> hulls
+en-desk bezier links 0 
+en-desk errors []
+en-mob raw true
+en-mob playground count 1
+en-mob overflowX false
+en-mob targets ["range 358x44 lab 358x44","collision-method 24x24 lab 133x44","collision-method 24x24 lab 155x44","collision-overlay 24x24 lab 146x44","collision-overlay 24x24 lab 121x44","collision-overlay 24x24 lab 132x44","Pause 68x44 lab 68x44","Step 59x44 lab 59x44","New arrangement 155x44 lab 155x44"]
+en-mob readout Objects300 | Box tests this step716 | Pairs removed by the boxes44,840 | Hull tests this step10 | Pairs removed by the hulls3 | Piece tests this step20 | Pairs removed by the pieces0 | Touching pairs7 | Step time0.1 ms | Simulation speed100 %
+en-mob live after step: 300 objects, Sweep and prune: 714 bounding box tests per step; the boxes remove 44,841 pairs, the hulls 2, the convex pieces 0 
+en-mob readout after step Objects300 | Box tests this step714 | Pairs removed by the boxes44,841 | Hull tests this step9 | Pairs removed by the hulls2 | Piece tests this step20 | Pairs removed by the pieces0 | Touching pairs7 | Step time0.1 ms | Simulation speed100 %
+en-mob live after count: 1,932 objects, Sweep and prune: 0 bounding box tests per step; the boxes remove 1,865,346 pairs, the hulls 0, the convex pieces 0
+en-mob readout count Objects1,932 | Box tests this step0 | Pairs removed by the boxes1,865,346 | Hull tests this step0 | Pairs removed by the hulls0 | Piece tests this step0 | Pairs removed by the pieces0 | Touching pairs0 | Step time0 ms | Simulation speed100 %
+en-mob readout sweep Objects1,932 | Box tests this step0 | Pairs removed by the boxes1,865,346 | Hull tests this step0 | Pairs removed by the hulls0 | Piece tests this step0 | Pairs removed by the pieces0 | Touching pairs0 | Step time0 ms | Simulation speed100 %
+en-mob live sweep: 1,932 objects, Sweep and prune: 0 bounding box tests per step; the boxes remove 1,865,346 pairs, the hulls 0, the convex pieces 0
+en-mob live stable during play true pressed false
+en-mob arrow method -> sweep
+en-mob arrow stage -> hulls
+en-mob bezier links 0 
+en-mob errors []

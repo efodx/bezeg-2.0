@@ -10,6 +10,7 @@ const {serve} = require('./serve.cjs');
 const outFile = process.argv[2];
 const COUNTS = [100, 250, 500, 1000, 2000, 3000, 5000];
 const METHODS = ['naive', 'sweep'];
+const SHAPES = ['circle', 'polygon'];
 const WARMUP = 30, STEPS = 120, SEED = 1, NAIVE_SKIP_MS = 2000;
 const PROFILES = [
     {name: 'desktop', viewport: {width: 1440, height: 900}, cpuThrottle: 1, where: 'worker'},
@@ -30,18 +31,19 @@ async function profileRun(browser, profile, port) {
     for (let i = 0; i < 3; i++) calibration.push((await page.evaluate(w => window.bench.send({type: 'calibrate'}, w), profile.where)).ms);
     const isolated = await page.evaluate(() => crossOriginIsolated);
     const cells = [];
-    for (const method of METHODS) {
+    for (const shape of SHAPES) for (const method of METHODS) {
         let skipped = false;
         for (const n of COUNTS) {
-            if (skipped) { cells.push({method, n, skipped: true}); continue; }
-            const r = await page.evaluate(([m, c, w, s, seed, where]) => window.bench.send({type: 'run', method: m, count: c, warmup: w, steps: s, seed}, where), [method, n, WARMUP, STEPS, SEED, profile.where]);
+            if (skipped) { cells.push({shape, method, n, skipped: true}); continue; }
+            const r = await page.evaluate(([m, c, w, s, seed, where, sh]) => window.bench.send({type: 'run', shape: sh, method: m, count: c, warmup: w, steps: s, seed}, where), [method, n, WARMUP, STEPS, SEED, profile.where, shape]);
             const cell = {
-                method, n, median: percentile(r.times, 0.5), p90: percentile(r.times, 0.9), max: Math.max(...r.times),
+                shape, method, n, median: percentile(r.times, 0.5), p90: percentile(r.times, 0.9), max: Math.max(...r.times),
                 boxTests: percentile(r.boxTests, 0.5), candidates: percentile(r.candidates, 0.5),
                 narrowTests: percentile(r.narrowTests, 0.5), touchingPairs: percentile(r.touchingPairs, 0.5),
+                hullTests: percentile(r.hullTests, 0.5), hullPasses: percentile(r.hullPasses, 0.5), pieceTests: percentile(r.pieceTests, 0.5),
             };
             cells.push(cell);
-            console.log(profile.name, method, n, cell.median.toFixed(3), cell.p90.toFixed(3));
+            console.log(profile.name, shape, method, n, cell.median.toFixed(3), cell.p90.toFixed(3));
             if (method === 'naive' && cell.median > NAIVE_SKIP_MS) skipped = true;
         }
     }
@@ -71,8 +73,8 @@ async function profileRun(browser, profile, port) {
     console.log(JSON.stringify(environment));
     for (const p of profiles) {
         console.log(`\n${p.profile} (${p.where}, CPU throttle ${p.cpuThrottle}x, fixed-loop calibration ${p.calibrationMs.map(v => v.toFixed(0)).join('/')} ms, ratio to desktop-main ${p.calibrationRatio.toFixed(2)})`);
-        console.log('| method | n | median ms | p90 ms | max ms | boxTests | candidates | narrowTests | touchingPairs |');
-        console.log('|---|---|---|---|---|---|---|---|---|');
-        for (const c of p.cells) console.log(c.skipped ? `| ${c.method} | ${c.n} | skipped | | | | | | |` : `| ${c.method} | ${c.n} | ${c.median.toFixed(3)} | ${c.p90.toFixed(3)} | ${c.max.toFixed(3)} | ${c.boxTests} | ${c.candidates} | ${c.narrowTests} | ${c.touchingPairs} |`);
+        console.log('| shape | method | n | median ms | p90 ms | max ms | boxTests | candidates | narrowTests | touchingPairs | hullTests | hullPasses | pieceTests |');
+        console.log('|---|---|---|---|---|---|---|---|---|---|---|---|---|');
+        for (const c of p.cells) console.log(c.skipped ? `| ${c.shape} | ${c.method} | ${c.n} | skipped | | | | | | | | | |` : `| ${c.shape} | ${c.method} | ${c.n} | ${c.median.toFixed(3)} | ${c.p90.toFixed(3)} | ${c.max.toFixed(3)} | ${c.boxTests} | ${c.candidates} | ${c.narrowTests} | ${c.touchingPairs} | ${c.hullTests} | ${c.hullPasses} | ${c.pieceTests} |`);
     }
 })().catch(error => { console.error(error); process.exit(1); });
