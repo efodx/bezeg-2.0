@@ -2037,8 +2037,8 @@ const segmentIntersections = {
     },
 };
 
-// Monotone partition (sweep task 19): the trace step shown per lesson step 1..8 (start, start, step 5, step 6, step 8, done, the second example's done, start); the number is language independent.
-const MONOTONE_STEPS = ['0', '0', '5', '6', '8', '14', '20', '0'];
+// Monotone partition (sweep task 19): the trace step shown per lesson step 1..8 (start, start, step 6, step 7, step 9, done, the second example's done, start), counted from 1; the number is language independent.
+const MONOTONE_STEPS = ['1', '1', '6', '7', '9', '15', '21', '1'];
 const monotonePartition = {
     id: 'monotone-partition',
     path: `${BASE}/compgeo/monotone-partition`,
@@ -2050,8 +2050,8 @@ const monotonePartition = {
     },
 };
 
-// Monotone triangulation (sweep task 20): the trace step shown per lesson step 1..7 (15, 19, 21, 23, 28, 43, 0); the number is language independent.
-const MONOTONE_TRIANGULATION_STEPS = ['15', '19', '21', '23', '28', '43', '0'];
+// Monotone triangulation (sweep task 20): the trace step shown per lesson step 1..7 (16, 20, 22, 24, 29, 44, 1), counted from 1; the number is language independent.
+const MONOTONE_TRIANGULATION_STEPS = ['16', '20', '22', '24', '29', '44', '1'];
 const monotoneTriangulation = {
     id: 'monotone-triangulation',
     path: `${BASE}/compgeo/monotone-triangulation`,
